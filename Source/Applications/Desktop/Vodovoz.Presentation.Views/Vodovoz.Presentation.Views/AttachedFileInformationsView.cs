@@ -39,13 +39,19 @@ namespace Vodovoz.Presentation.Views
 
 		protected override void ConfigureWidget()
 		{
+			buttonAdd.Clicked -= OnAddClicked;
+			buttonScan.Clicked -= OnScanClicked;
+			btnOpen.Clicked -= OnOpenClicked;
+			btnSave.Clicked -= OnSaveClicked;
+			btnDelete.Clicked -= OnDeleteClicked;
+
 			base.ConfigureWidget();
 
-			buttonAdd.Clicked += (sender, args) => ViewModel.AddCommand.Execute();
-			buttonScan.Clicked += (sender, args) => ViewModel.ScanCommand.Execute();
-			btnOpen.Clicked += (sender, args) => ViewModel.OpenCommand.Execute();
-			btnSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
-			btnDelete.Clicked += (sender, args) => ViewModel.DeleteCommand.Execute();
+			buttonAdd.Clicked += OnAddClicked;
+			buttonScan.Clicked += OnScanClicked;
+			btnOpen.Clicked += OnOpenClicked;
+			btnSave.Clicked += OnSaveClicked;
+			btnDelete.Clicked += OnDeleteClicked;
 
 			btnOpen.Binding.AddBinding(ViewModel, vm => vm.CanOpen, w => w.Sensitive).InitializeFromSource();
 			btnSave.Binding.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive).InitializeFromSource();
@@ -54,6 +60,31 @@ namespace Vodovoz.Presentation.Views
 			ConfigureTreeFiles();
 
 			ViewModel.OnFileInformationChanged += OnViewModelFileInformationChanged;
+		}
+
+		private void OnDeleteClicked(object sender, EventArgs e)
+		{
+			ViewModel.DeleteCommand.Execute();
+		}
+
+		private void OnSaveClicked(object sender, EventArgs e)
+		{
+			ViewModel.SaveCommand.Execute();
+		}
+
+		private void OnOpenClicked(object sender, EventArgs e)
+		{
+			ViewModel.OpenCommand.Execute();
+		}
+
+		private void OnScanClicked(object sender, EventArgs e)
+		{
+			ViewModel.ScanCommand.Execute();
+		}
+
+		private void OnAddClicked(object sender, EventArgs e)
+		{
+			ViewModel.AddCommand.Execute();
 		}
 
 		private void OnViewModelFileInformationChanged(object sender, EventArgs e)
@@ -79,6 +110,11 @@ namespace Vodovoz.Presentation.Views
 
 		public override void Destroy()
 		{
+			buttonAdd.Clicked -= OnAddClicked;
+			buttonScan.Clicked -= OnScanClicked;
+			btnOpen.Clicked -= OnOpenClicked;
+			btnSave.Clicked -= OnSaveClicked;
+			btnDelete.Clicked -= OnDeleteClicked;
 			ViewModel.OnFileInformationChanged -= OnViewModelFileInformationChanged;
 			base.Destroy();
 		}

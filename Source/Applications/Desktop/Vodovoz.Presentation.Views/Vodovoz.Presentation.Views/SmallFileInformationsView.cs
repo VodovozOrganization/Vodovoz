@@ -29,7 +29,12 @@ namespace Vodovoz.Presentation.Views
 				return;
 			}
 
-			ybuttonAddFileInformation.BindCommand(ViewModel.AddCommand);
+			ybuttonAddFileInformation.Binding.CleanSources();
+			ybuttonAddFileInformation.Binding
+				.AddSource(ViewModel)
+				.AddFuncBinding(_ => ViewModel.AddCommand.CanExecute(), w => w.Sensitive);
+
+			ybuttonAddFileInformation.Clicked += (s, e) => ViewModel.AddCommand.Execute();
 
 			ytreeviewFiles.CreateFluentColumnsConfig<FileInformation>()
 				.AddColumn("").AddPixbufRenderer((node) =>
@@ -44,6 +49,7 @@ namespace Vodovoz.Presentation.Views
 			ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
 			ytreeviewFiles.RowActivated += (o, args) => ViewModel.OpenCommand.Execute();
 
+			ytreeviewFiles.Binding.CleanSources();
 			ytreeviewFiles.Binding.AddBinding(ViewModel, vm => vm.SelectedFile, w => w.SelectedRow).InitializeFromSource();
 
 			ConfigureMenu();

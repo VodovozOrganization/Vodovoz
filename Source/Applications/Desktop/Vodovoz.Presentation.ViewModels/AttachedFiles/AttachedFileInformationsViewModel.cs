@@ -351,6 +351,7 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 
 		private void ClearPersistentInformation()
 		{
+			AttachedFiles.Clear();
 			FilesToAddOnSave.Clear();
 			FilesToUpdateOnSave.Clear();
 			FilesToDeleteOnSave.Clear();

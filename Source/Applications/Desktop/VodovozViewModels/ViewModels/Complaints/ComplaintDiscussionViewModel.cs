@@ -1,18 +1,21 @@
 ﻿using QS.Commands;
+using QS.Dialog;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Domain.Complaints;
-using System.Data.Bindings.Collections.Generic;
-using QS.DomainModel.Entity;
 using System;
-using QS.Project.Services;
-using QS.DomainModel.UoW;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Vodovoz.Application.FileStorage;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Infrastructure.Services;
-using QS.Dialog;
 using Vodovoz.EntityRepositories;
-using QS.Project.Services.FileDialog;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -21,6 +24,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
+		private readonly IComplaintDiscussionCommentFileStorageService _complaintDiscussionCommentFileStorageService;
+		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
 		private readonly bool _canCompleteComplaintDiscussionPermission;
 		private readonly IPermissionResult _complaintPermissionResult;
 
@@ -30,18 +35,33 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			IUnitOfWork uow,
-			IUserRepository userRepository
-			) : base(complaintDiscussion, commonServices)
+			IUserRepository userRepository,
+			IComplaintDiscussionCommentFileStorageService complaintDiscussionCommentFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
+			: base(complaintDiscussion, commonServices)
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_complaintDiscussionCommentFileStorageService = complaintDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(complaintDiscussionCommentFileStorageService));
+			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
 			newCommentFiles = new GenericObservableList<ComplaintFile>();
 			_canCompleteComplaintDiscussionPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_complete_complaint_discussion");
 			UoW = uow;
 			_complaintPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Complaint));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
+
+			AddCommentCommand = new DelegateCommand(AddCommentHandler, () => CanAddComment);
+			AddCommentCommand.CanExecuteChangedWith(this, x => x.CanAddComment);
+
+			ComplaintDiscussionComment = new ComplaintDiscussionComment();
+			AttachedFileInformationsViewModel = _attachedFileInformationsViewModelFactory.CreateAndInitialize<ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>(
+				UoW,
+				ComplaintDiscussionComment,
+				_complaintDiscussionCommentFileStorageService,
+				ComplaintDiscussionComment.AddFileInformation,
+				ComplaintDiscussionComment.DeleteFileInformation);
 		}
 
 		private void ConfigureEntityPropertyChanges()
@@ -61,6 +81,15 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
+		private ComplaintDiscussionComment _complaintDiscussionComment;
+
+		public ComplaintDiscussionComment ComplaintDiscussionComment
+		{
+			get => _complaintDiscussionComment;
+			set => _complaintDiscussionComment = value;
+		}
+
+
 		private FilesViewModel filesViewModel;
 		public FilesViewModel FilesViewModel {
 			get {
@@ -72,6 +101,15 @@ namespace Vodovoz.ViewModels.Complaints
 				return filesViewModel;
 			}
 		}
+
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel
+		{
+			get => _attachedFileInformationsViewModel;
+			private set => SetField(ref _attachedFileInformationsViewModel, value);
+		}
+
+		public Dictionary<Func<int>, Dictionary<string, byte[]>> FilesToUploadOnSave { get; }
+			= new Dictionary<Func<int>, Dictionary<string, byte[]>>();
 
 		[PropertyChangedAlso(nameof(CanEditDate), nameof(CanEditStatus))]
 		public bool CanEdit => PermissionResult.CanUpdate && _complaintPermissionResult.CanUpdate;
@@ -100,6 +138,7 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		private GenericObservableList<ComplaintFile> newCommentFiles;
+		private AttachedFileInformationsViewModel _attachedFileInformationsViewModel;
 
 		public virtual GenericObservableList<ComplaintFile> NewCommentFiles {
 			get => newCommentFiles;
@@ -110,7 +149,6 @@ namespace Vodovoz.ViewModels.Complaints
 
 		private void CreateCommands()
 		{
-			CreateAddCommentCommand();
 			CreateOpenFileCommand();
 		}
 
@@ -120,30 +158,34 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public DelegateCommand AddCommentCommand { get; private set; }
 
-		private void CreateAddCommentCommand()
+		private void AddCommentHandler()
 		{
-			AddCommentCommand = new DelegateCommand(
-				() => {
-					var newComment = new ComplaintDiscussionComment();
-					if(CurrentEmployee == null) {
-						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
-						return;
-					}
-					newComment.Author = CurrentEmployee;
-					newComment.CreationTime = DateTime.Now;
-					newComment.Comment = NewCommentText;
-					foreach(ComplaintFile file in newCommentFiles) {
-						file.ComplaintDiscussionComment = newComment;
-						newComment.ObservableFiles.Add(file);
-					}
-					newComment.ComplaintDiscussion = Entity;
-					Entity.ObservableComments.Add(newComment);
-					NewCommentText = string.Empty;
-					NewCommentFiles.Clear();
-				},
-				() => CanAddComment
-			);
-			AddCommentCommand.CanExecuteChangedWith(this, x => x.CanAddComment);
+			if(CurrentEmployee == null)
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
+				return;
+			}
+
+			ComplaintDiscussionComment.Author = CurrentEmployee;
+			ComplaintDiscussionComment.CreationTime = DateTime.Now;
+			ComplaintDiscussionComment.Comment = NewCommentText;
+
+			ComplaintDiscussionComment.ComplaintDiscussion = Entity;
+			Entity.ObservableComments.Add(ComplaintDiscussionComment);
+			NewCommentText = string.Empty;
+			NewCommentFiles.Clear();
+
+			var newComment = ComplaintDiscussionComment;
+			FilesToUploadOnSave.Add(() => newComment.Id, AttachedFileInformationsViewModel.AttachedFiles.ToDictionary(kv => kv.Key, kv => kv.Value));
+
+			ComplaintDiscussionComment = new ComplaintDiscussionComment();
+			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+			AttachedFileInformationsViewModel = _attachedFileInformationsViewModelFactory.CreateAndInitialize<ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>(
+				UoW,
+				ComplaintDiscussionComment,
+				_complaintDiscussionCommentFileStorageService,
+				ComplaintDiscussionComment.AddFileInformation,
+				ComplaintDiscussionComment.DeleteFileInformation);
 		}
 
 		#endregion AddCommentCommand

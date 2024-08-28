@@ -8,6 +8,8 @@ using Gtk;
 using System;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Vodovoz.Infrastructure;
+using VodovozBusiness.Domain.Complaints;
+using System.ComponentModel;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -28,11 +30,7 @@ namespace Vodovoz.Views.Complaints
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date).InitializeFromSource();
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel, vm => vm.CanEditDate, w => w.Sensitive).InitializeFromSource();
 
-			ViewModel.PropertyChanged += (sender, e) => {
-				if(e.PropertyName == nameof(ViewModel.CanEditStatus)) {
-					UpdateStatusEnum();
-				}
-			};
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 			yenumcomboStatus.ItemsEnum = typeof(ComplaintDiscussionStatuses);
 			yenumcomboStatus.Binding.AddBinding(ViewModel.Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.CanEditStatus, w => w.Sensitive).InitializeFromSource();
@@ -53,7 +51,12 @@ namespace Vodovoz.Views.Complaints
 						.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
-			var levels = LevelConfigFactory.FirstLevel<ComplaintDiscussionComment, ComplaintFile>(x => x.ComplaintFiles).LastLevel(c => c.ComplaintDiscussionComment).EndConfig();
+
+			var levels = LevelConfigFactory
+				.FirstLevel<ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>(x => x.AttachedFileInformations)
+				.LastLevel(afi => ViewModel.Entity.ObservableComments.FirstOrDefault(c => c.Id == afi.ComplaintDiscussionCommentId))
+				.EndConfig();
+
 			ytreeviewComments.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
 
 			ViewModel.Entity.ObservableComments.ListContentChanged += (sender, e) => {
@@ -70,6 +73,21 @@ namespace Vodovoz.Views.Complaints
 
 			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
 			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
+
+			smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.CanEditStatus))
+			{
+				UpdateStatusEnum();
+			}
+
+			if(e.PropertyName == nameof(ViewModel.AttachedFileInformationsViewModel))
+			{
+				smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+			}
 		}
 
 		private void UpdateStatusEnum()
@@ -88,11 +106,11 @@ namespace Vodovoz.Views.Complaints
 
 		private string GetNodeName(object node)
 		{
-			if(node is ComplaintDiscussionComment) {
-				return (node as ComplaintDiscussionComment).Comment;
+			if(node is ComplaintDiscussionComment complaintDiscussionComment) {
+				return complaintDiscussionComment.Comment;
 			}
-			if(node is ComplaintFile) {
-				return (node as ComplaintFile).FileStorageId;
+			if(node is ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation) {
+				return complaintDiscussionCommentFileInformation.FileName;
 			}
 			return "";
 		}

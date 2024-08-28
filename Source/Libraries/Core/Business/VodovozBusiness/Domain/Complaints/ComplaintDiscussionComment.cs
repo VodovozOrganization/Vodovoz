@@ -23,7 +23,20 @@ namespace Vodovoz.Domain.Complaints
 	{
 		private IObservableList<ComplaintDiscussionCommentFileInformation> _attachedFileInformations = new ObservableList<ComplaintDiscussionCommentFileInformation>();
 
-		public virtual int Id { get; set; }
+		public virtual int Id
+		{
+			get => _id;
+			set
+			{
+				if(value == _id)
+				{
+					return;
+				}
+
+				_id = value;
+				UpdateFileInformations();
+			}
+		}
 
 		private Employee author;
 		[Display(Name = "Автор")]
@@ -61,6 +74,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		GenericObservableList<ComplaintFile> observableFiles;
+		private int _id;
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<ComplaintFile> ObservableFiles {
@@ -81,5 +95,27 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		public virtual string Title => $"Комментарий сотрудника \"{Author.ShortName}\"";
+
+		public void AddFileInformation(string fileName)
+		{
+			AttachedFileInformations.Add(new ComplaintDiscussionCommentFileInformation
+			{
+				FileName = fileName,
+				ComplaintDiscussionCommentId = Id
+			});
+		}
+
+		public void DeleteFileInformation(string fileName)
+		{
+			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
+		}
+
+		private void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.ComplaintDiscussionCommentId = Id;
+			}
+		}
 	}
 }

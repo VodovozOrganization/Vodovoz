@@ -62,6 +62,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IGeneralSettings _generalSettingsSettings;
 		private readonly IComplaintSettings _complaintSettings;
 		private readonly IComplaintFileStorageService _complaintFileStorageService;
+		private readonly IComplaintDiscussionCommentFileStorageService _complaintDiscussionCommentFileStorageService;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -96,6 +97,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IComplaintSettings complaintSettings,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			IComplaintFileStorageService complaintFileStorageService,
+			IComplaintDiscussionCommentFileStorageService complaintDiscussionCommentFileStorageService,
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -116,6 +118,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_generalSettingsSettings = generalSettingsSettings ?? throw new ArgumentNullException(nameof(generalSettingsSettings));
 			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
 			_complaintFileStorageService = complaintFileStorageService ?? throw new ArgumentNullException(nameof(complaintFileStorageService));
+			_complaintDiscussionCommentFileStorageService = complaintDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(complaintDiscussionCommentFileStorageService));
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
@@ -768,6 +771,34 @@ namespace Vodovoz.ViewModels.Complaints
 			UpdateAttachedFilesIfNeeded();
 			DeleteAttachedFilesIfNeeded();
 			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+
+			foreach(var complaintDiscussionViewModel in DiscussionsViewModel.ObservableComplaintDiscussionViewModels)
+			{
+				foreach(var keyValuePair in complaintDiscussionViewModel.FilesToUploadOnSave)
+				{
+					var commentId = keyValuePair.Key.Invoke();
+
+					var comment = Entity
+						.ObservableComplaintDiscussions
+						.FirstOrDefault(cd => cd.Comments.Any(c => c.Id == commentId))
+						?.Comments
+						?.FirstOrDefault(c => c.Id == commentId);
+
+					foreach(var fileToUploadPair in keyValuePair.Value)
+					{
+						using(var ms = new MemoryStream(fileToUploadPair.Value))
+						{
+							_complaintDiscussionCommentFileStorageService.CreateFileAsync(
+								comment,
+								fileToUploadPair.Key,
+								ms,
+								_cancellationTokenSource.Token)
+								.GetAwaiter()
+								.GetResult();
+						}
+					}
+				}
+			}
 
 			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
 			{
