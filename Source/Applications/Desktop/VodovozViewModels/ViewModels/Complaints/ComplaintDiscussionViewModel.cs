@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using Microsoft.Extensions.Primitives;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -8,7 +9,10 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -28,6 +32,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
 		private readonly bool _canCompleteComplaintDiscussionPermission;
 		private readonly IPermissionResult _complaintPermissionResult;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public ComplaintDiscussionViewModel(
 			ComplaintDiscussion complaintDiscussion,
@@ -49,11 +55,12 @@ namespace Vodovoz.ViewModels.Complaints
 			_canCompleteComplaintDiscussionPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_complete_complaint_discussion");
 			UoW = uow;
 			_complaintPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Complaint));
-			CreateCommands();
 			ConfigureEntityPropertyChanges();
 
 			AddCommentCommand = new DelegateCommand(AddCommentHandler, () => CanAddComment);
 			AddCommentCommand.CanExecuteChangedWith(this, x => x.CanAddComment);
+
+			OpenFileCommand = new DelegateCommand<ComplaintDiscussionCommentFileInformation>(OpenFile);
 
 			ComplaintDiscussionComment = new ComplaintDiscussionComment();
 			AttachedFileInformationsViewModel = _attachedFileInformationsViewModelFactory.CreateAndInitialize<ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>(
@@ -147,11 +154,6 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#region Commands
 
-		private void CreateCommands()
-		{
-			CreateOpenFileCommand();
-		}
-
 		#region AddCommentCommand
 
 		public bool CanAddComment => !string.IsNullOrWhiteSpace(NewCommentText);
@@ -192,20 +194,75 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#region OpenFileCommand
 
-		public DelegateCommand<ComplaintFile> OpenFileCommand { get; private set; }
+		public DelegateCommand<ComplaintDiscussionCommentFileInformation> OpenFileCommand { get; private set; }
 
-		private void CreateOpenFileCommand()
+
+		public void OpenFile(ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation)
 		{
-			OpenFileCommand = new DelegateCommand<ComplaintFile>(
-				(file) => {
-					FilesViewModel.OpenItemCommand.Execute(file);
-				},
-				(file) => file != null && FilesViewModel.OpenItemCommand.CanExecute(file)
-			);
+			byte[] blob;
+
+			if(complaintDiscussionCommentFileInformation.ComplaintDiscussionCommentId == 0)
+			{
+				blob = FilesToUploadOnSave.FirstOrDefault(actionCommentIdToFile => actionCommentIdToFile.Value.ContainsKey(complaintDiscussionCommentFileInformation.FileName))
+					.Value[complaintDiscussionCommentFileInformation.FileName];
+			}
+			else
+			{
+				var comment = Entity.Comments.FirstOrDefault(cdc => cdc.Id == complaintDiscussionCommentFileInformation.ComplaintDiscussionCommentId);
+
+				var fileResult = _complaintDiscussionCommentFileStorageService.GetFileAsync(comment, complaintDiscussionCommentFileInformation.FileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+
+				if(fileResult.IsFailure)
+				{
+					return;
+				}
+
+				using(var ms = new MemoryStream())
+				{
+					fileResult.Value.CopyTo(ms);
+
+					blob = ms.ToArray();
+				}
+			}
+
+			var vodovozUserTempDirectory = _userRepository.GetTempDirForCurrentUser(UoW);
+
+			if(string.IsNullOrWhiteSpace(vodovozUserTempDirectory))
+			{
+				return;
+			}
+
+			var tempFilePath = Path.Combine(Path.GetTempPath(), vodovozUserTempDirectory, complaintDiscussionCommentFileInformation.FileName);
+
+			if(!File.Exists(tempFilePath))
+			{
+				File.WriteAllBytes(tempFilePath, blob);
+			}
+
+			var process = new Process
+			{
+				EnableRaisingEvents = true
+			};
+
+			process.StartInfo.FileName = Path.Combine(vodovozUserTempDirectory, complaintDiscussionCommentFileInformation.FileName);
+
+			process.Exited += OnProcessExited;
+			process.Start();
 		}
 
 		#endregion OpenFileCommand
 
 		#endregion Commands
+
+		private void OnProcessExited(object sender, EventArgs e)
+		{
+			if(sender is Process process)
+			{
+				File.Delete(process.StartInfo.FileName);
+				process.Exited -= OnProcessExited;
+			}
+		}
 	}
 }

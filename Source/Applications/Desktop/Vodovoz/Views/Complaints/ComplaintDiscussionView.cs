@@ -101,7 +101,11 @@ namespace Vodovoz.Views.Complaints
 
 		void YtreeviewComments_RowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			ViewModel.OpenFileCommand.Execute(ytreeviewComments.GetSelectedObject() as ComplaintFile);
+			if(!(ytreeviewComments.GetSelectedObject() is ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation))
+			{
+				return;
+			}
+			ViewModel.OpenFileCommand.Execute(complaintDiscussionCommentFileInformation);
 		}
 
 		private string GetNodeName(object node)
