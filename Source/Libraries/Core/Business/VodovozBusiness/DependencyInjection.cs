@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
+using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Factories;
@@ -48,6 +49,7 @@ namespace Vodovoz
 			.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
 			.AddScoped<OrderStateKey>()
 			.AddScoped<OnlineOrderStateKey>()
+			.AddScoped<INomenclatureOnlineCharacteristicsConverter, NomenclatureOnlineCharacteristicsConverter>()
 			.AddDriverApiHelper()
 		;
 
