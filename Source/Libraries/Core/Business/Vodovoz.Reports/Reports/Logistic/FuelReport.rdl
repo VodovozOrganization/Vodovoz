@@ -814,6 +814,7 @@
     <DataSet Name="Fuel">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>60</Timeout>
         <CommandText>#Получаем данные по операциям с топливом в ДВ
 WITH all_fuel_operations as
 ((SELECT
@@ -1155,7 +1156,7 @@ SELECT * FROM route_lists_transactions_balance
       </Fields>
     </DataSet>
     <DataSet Name="StartBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 (
@@ -1205,7 +1206,7 @@ SELECT * FROM route_lists_transactions_balance
 -
 # Списание километража без МЛ
 	(SELECT
-	        SUM(mwo.liters_outlayed) AS liters_outlayed
+	        IFNULL(SUM(mwo.liters_outlayed),0) AS liters_outlayed
 		FROM 
 			mileage_write_off mwo 
 			LEFT JOIN employees e ON mwo.driver_id = e.id 
@@ -1227,7 +1228,7 @@ SELECT * FROM route_lists_transactions_balance
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
