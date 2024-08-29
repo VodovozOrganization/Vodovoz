@@ -3,8 +3,6 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.EntityRepositories;
-using System;
 
 namespace Vodovoz.ViewModels
 {
@@ -12,7 +10,6 @@ namespace Vodovoz.ViewModels
 	{
 		public PhoneTypeViewModel
 		(
-			IPhoneRepository phoneRepository,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices) 
@@ -21,11 +18,8 @@ namespace Vodovoz.ViewModels
 			if(!CanRead)
 				AbortOpening("У вас недостаточно прав для просмотра");
 
-			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			TabName = "Типы телефонов";
 		}
-
-		IPhoneRepository phoneRepository;
 
 		private PhonePurpose phonePurpose;
 		public PhonePurpose PhonePurpose {
@@ -38,12 +32,6 @@ namespace Vodovoz.ViewModels
 					Entity.PhonePurpose = value;
 				}
 			}
-		}
-
-		public override bool Save(bool close)
-		{
-			ValidationContext = Entity.ConfigureValidationContext(UoW, phoneRepository);
-			return base.Save(close);
 		}
 
 		#region Permissions

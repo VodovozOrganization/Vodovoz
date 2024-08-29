@@ -175,12 +175,13 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private PhonesViewModel CreatePhonesViewModel()
 		{
 			return new PhonesViewModel(
+				CommonServices,
 				phoneRepository,
 				UoW,
 				_contactsParameters,
+				_lifetimeScope.Resolve<IPhoneTypeSettings>(),
 				_roboAtsCounterpartyJournalFactory,
-				_lifetimeScope.Resolve<IExternalCounterpartyController>(),
-				_lifetimeScope)
+				_lifetimeScope.Resolve<IExternalCounterpartyController>())
 			{
 				ReadOnly = true
 			};

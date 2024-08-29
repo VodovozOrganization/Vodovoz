@@ -1,9 +1,11 @@
+using System;
 using Gamma.GtkWidgets;
 using Gamma.Widgets;
 using Gtk;
 using QS.Widgets.GtkUI;
 using QSWidgetLib;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using QS.Extensions;
 using Vodovoz.Domain.Contacts;
@@ -40,15 +42,24 @@ namespace Vodovoz.Dialogs.Phones
 				return;
 			}
 
-			buttonAddPhone.Clicked += (sender, e) => ViewModel.AddItemCommand.Execute();
+			buttonAddPhone.Clicked += OnAddPhoneClicked;
 			buttonAddPhone.Binding
 				.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ViewModel.PhonesList.PropertyChanged += (sender, e) => Redraw();
+			ViewModel.PhonesList.PropertyChanged += OnPhonesListPropertyChanged;
 			Redraw();
 		}
 
+		private void OnAddPhoneClicked(object sender, EventArgs e)
+		{
+			ViewModel.AddItemCommand.Execute();
+		}
+		
+		private void OnPhonesListPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			Redraw();
+		}
 
 		private void DrawNewRow(Phone newPhone)
 		{
@@ -232,13 +243,17 @@ namespace Vodovoz.Dialogs.Phones
 				child.Destroy();
 				vboxPhones.Remove(child);
 			}
-			
-			ViewModel.Dispose();
 
 			foreach(var phone in ViewModel.PhonesList)
 			{
 				DrawNewRow(phone);
 			}
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.PhonesList.PropertyChanged -= OnPhonesListPropertyChanged;
+			base.Destroy();
 		}
 	}
 }

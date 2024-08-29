@@ -5,6 +5,7 @@ using QS.Navigation;
 using QS.Validation;
 using QS.ViewModels.Extension;
 using System;
+using QS.Services;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ViewModels.Contacts;
@@ -18,10 +19,12 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
+		private ICommonServices _commonServices;
 		private IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory;
 		private IPhoneRepository _phoneRepository;
 		private IExternalCounterpartyController _externalCounterpartyController;
 		private IContactSettings _contactSettings;
+		private IPhoneTypeSettings _phoneTypeSettings;
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		private PhonesViewModel _phonesViewModel;
@@ -88,11 +91,12 @@ namespace Vodovoz
 			accountsview1.SetAccountOwner(UoW, Entity);
 
 			_phonesViewModel = new PhonesViewModel(
+				_commonServices,
 				_phoneRepository,
 				UoW,
 				_contactSettings,
-				_externalCounterpartyController,
-				_lifetimeScope)
+				_phoneTypeSettings,
+				_externalCounterpartyController)
 				{
 					PhonesList = UoWGeneric.Root.ObservablePhones
 				};
@@ -108,6 +112,8 @@ namespace Vodovoz
 			_phoneRepository = _lifetimeScope.Resolve<IPhoneRepository>();
 			_externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
 			_contactSettings = _lifetimeScope.Resolve<IContactSettings>();
+			_commonServices = _lifetimeScope.Resolve<ICommonServices>();
+			_phoneTypeSettings = _lifetimeScope.Resolve<IPhoneTypeSettings>();
 		}
 
 		public override bool Save ()

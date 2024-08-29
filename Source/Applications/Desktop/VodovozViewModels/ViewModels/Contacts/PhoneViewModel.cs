@@ -1,7 +1,6 @@
 ﻿using QS.Services;
 using QS.ViewModels;
 using System;
-using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Contacts;
@@ -46,8 +45,6 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			set => _phone.IsArchive = value;
 		}
 
-		public event Action UpdateExternalCounterpartyAction;
-
 		public Phone GetPhone() => _phone;
 
 		private void SetPhoneType(PhoneType phoneType)
@@ -67,20 +64,12 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
-				_externalCounterpartyController.HasActiveExternalCounterparties(_uow, _phone.Id, out var externalCounterparties);
-
-				var question = externalCounterparties.Any()
-					? _externalCounterpartyController.PhoneAssignedExternalCounterpartyMessage + "Вы действительно хотите его заархивировать?"
-					: "Номер будет переведен в архив и пропадет в списке активных. Продолжить?";
-				
-				if(_canArchiveNumber && !_commonServices.InteractiveService.Question(question))
+				if(_canArchiveNumber && _externalCounterpartyController.CheckActiveExternalCounterparties(_uow, _phone))
 				{
 					return false;
 				}
-
-				_externalCounterpartyController.DeleteExternalCounterparties(_uow, externalCounterparties);
+				
 				PhoneIsArchive = true;
-				UpdateExternalCounterpartyAction?.Invoke();
 			}
 			else
 			{

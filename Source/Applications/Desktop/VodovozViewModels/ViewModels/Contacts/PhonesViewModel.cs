@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Autofac;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -17,13 +16,14 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
-	public class PhonesViewModel : WidgetViewModelBase, IDisposable
+	public class PhonesViewModel : WidgetViewModelBase
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IExternalCounterpartyController _externalCounterpartyController;
-		private readonly ILifetimeScope _scope;
+		private readonly ICommonServices _commonServices;
 		private readonly IContactSettings _contactSettings;
-		
+		private readonly IPhoneTypeSettings _phoneTypeSettings;
+
 		private bool _readOnly;
 		private GenericObservableList<Phone> _phonesList;
 		private IList<PhoneViewModel> _phoneViewModels = new List<PhoneViewModel>();
@@ -46,22 +46,22 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			set => SetField(ref _readOnly, value);
 		}
 
-		public event Action UpdateExternalCounterpartyAction;
-
 		public PhonesViewModel(
+			ICommonServices commonServices,
 			IPhoneRepository phoneRepository,
 			IUnitOfWork uow,
 			IContactSettings contactSettings,
-			IExternalCounterpartyController externalCounterpartyController,
-			ILifetimeScope scope)
+			IPhoneTypeSettings phoneTypeSettings,
+			IExternalCounterpartyController externalCounterpartyController)
 		{
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_contactSettings = contactSettings ?? throw new ArgumentNullException(nameof(contactSettings));
+			_phoneTypeSettings = phoneTypeSettings ?? throw new ArgumentNullException(nameof(phoneTypeSettings));
 			_externalCounterpartyController =
 				externalCounterpartyController ?? throw new ArgumentNullException(nameof(externalCounterpartyController));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 
-			var currentPermissionService = _scope.Resolve<ICurrentPermissionService>();
+			var currentPermissionService = commonServices.CurrentPermissionService;
 			var roboAtsCounterpartyNamePermissions = currentPermissionService.ValidateEntityPermission(typeof(RoboAtsCounterpartyName));
 			CanReadCounterpartyName = roboAtsCounterpartyNamePermissions.CanRead;
 			CanEditCounterpartyName = roboAtsCounterpartyNamePermissions.CanUpdate;
@@ -75,13 +75,14 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		}
 
 		public PhonesViewModel(
+			ICommonServices commonServices,
 			IPhoneRepository phoneRepository,
 			IUnitOfWork uow,
 			IContactSettings contactSettings,
+			IPhoneTypeSettings phoneTypeSettings,
 			RoboatsJournalsFactory roboatsJournalsFactory,
-			IExternalCounterpartyController externalCounterpartyController,
-			ILifetimeScope scope)
-			: this(phoneRepository, uow, contactSettings, externalCounterpartyController, scope)
+			IExternalCounterpartyController externalCounterpartyController)
+			: this(commonServices, phoneRepository, uow, contactSettings, phoneTypeSettings, externalCounterpartyController)
 		{
 			if(roboatsJournalsFactory == null)
 			{
@@ -105,25 +106,16 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		
 		public PhoneViewModel GetPhoneViewModel(Phone phone)
 		{
-			 var viewModel = _scope.Resolve<PhoneViewModel>(
-					 new TypedParameter(typeof(Phone), phone),
-					 new TypedParameter(typeof(IUnitOfWork), _uow)
-					 )/*new PhoneViewModel(
+			 var viewModel = new PhoneViewModel(
 				phone,
 				_uow,
 				_commonServices,
-				new PhoneTypeSettings(new SettingsController()),
-				_externalCounterpartyController)*/;
+				_phoneTypeSettings,
+				_externalCounterpartyController);
 
-			viewModel.UpdateExternalCounterpartyAction += OnUpdateExternalCounterparty;
 			_phoneViewModels.Add(viewModel);
 
 			return viewModel;
-		}
-
-		private void OnUpdateExternalCounterparty()
-		{
-			UpdateExternalCounterpartyAction?.Invoke();
 		}
 
 		#endregion
@@ -155,15 +147,12 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			DeleteItemCommand = new DelegateCommand<Phone>(
 				(phone) =>
 				{
-					if(phone.Id != 0
-						&& phone.Counterparty != null
-						&& !_externalCounterpartyController.DeleteExternalCounterparties(_uow, phone.Id))
+					if(_externalCounterpartyController.CheckActiveExternalCounterparties(_uow, phone))
 					{
 						return;
 					}
 					
 					PhonesList.Remove(phone);
-					OnUpdateExternalCounterparty();
 					
 					var viewModel = _phoneViewModels.SingleOrDefault(x => x.GetPhone() == phone);
 
@@ -172,7 +161,6 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 						return;
 					}
 					
-					viewModel.UpdateExternalCounterpartyAction -= OnUpdateExternalCounterparty;
 					_phoneViewModels.Remove(viewModel);
 				},
 				phone => !ReadOnly
@@ -187,17 +175,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public void RemoveEmpty()
 		{
 			PhonesList.Where(p => p.DigitsNumber.Length < _contactSettings.MinSavePhoneLength)
-					.ToList().ForEach(p => PhonesList.Remove(p));
-		}
-
-		public void Dispose()
-		{
-			foreach(var item in _phoneViewModels)
-			{
-				item.UpdateExternalCounterpartyAction -= OnUpdateExternalCounterparty;
-			}
-			
-			_phoneViewModels.Clear();
+				.ToList().ForEach(p => PhonesList.Remove(p));
 		}
 	}
 }

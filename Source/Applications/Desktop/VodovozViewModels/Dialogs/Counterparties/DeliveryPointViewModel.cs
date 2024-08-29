@@ -154,12 +154,13 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
 			PhonesViewModel = new PhonesViewModel(
+				commonServices,
 				phoneRepository,
 				UoW,
 				contactsParameters,
+				_phoneTypeSettings,
 				_roboatsJournalsFactory,
-				externalCounterpartyController,
-				LifetimeScope)
+				externalCounterpartyController)
 			{
 				PhonesList = Entity.ObservablePhones,
 				DeliveryPoint = Entity,

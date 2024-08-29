@@ -160,6 +160,7 @@ namespace Vodovoz
 		private GenericObservableList<ExternalCounterpartyNode> _externalCounterparties;
 		private IObservableList<ConnectedCustomerInfoNode> _connectedCustomers = new ObservableList<ConnectedCustomerInfoNode>();
 		private IConnectedCustomerRepository _connectedCustomerRepository;
+		private IPhoneTypeSettings _phoneTypeSettings;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -336,20 +337,11 @@ namespace Vodovoz
 		{
 			ResolveDependencies();
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
-			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
-			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
-			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
-			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
-			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
-			_edoService = _lifetimeScope.Resolve<IEdoService>();
-			_externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
-
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory(ServicesConfig.UnitOfWorkFactory);
-			_emailSettings = _lifetimeScope.Resolve<IEmailSettings>();
 
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
@@ -413,6 +405,15 @@ namespace Vodovoz
 		private void ResolveDependencies()
 		{
 			_connectedCustomerRepository = _lifetimeScope.Resolve<IConnectedCustomerRepository>();
+			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
+			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
+			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
+			_edoService = _lifetimeScope.Resolve<IEdoService>();
+			_externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
+			_emailSettings = _lifetimeScope.Resolve<IEmailSettings>();
+			_phoneTypeSettings = _lifetimeScope.Resolve<IPhoneTypeSettings>();
 		}
 
 		private void ConfigureClientReferEntityEntry()
@@ -841,19 +842,19 @@ namespace Vodovoz
 		{
 			_phonesViewModel =
 				new PhonesViewModel(
+					_commonServices,
 					_phoneRepository,
 					UoW,
 					_contactsSettings,
+					_phoneTypeSettings,
 					_roboatsJournalsFactory,
-					_externalCounterpartyController,
-					_lifetimeScope)
+					_externalCounterpartyController)
 				{
 					PhonesList = Entity.ObservablePhones,
 					Counterparty = Entity,
 					ReadOnly = !CanEdit
 				};
 			phonesView.ViewModel = _phonesViewModel;
-			_phonesViewModel.UpdateExternalCounterpartyAction += UpdateExternalCounterparties;
 
 			var emailsViewModel = new EmailsViewModel(
 				UoWGeneric,
@@ -2746,8 +2747,6 @@ namespace Vodovoz
 				_lifetimeScope.Dispose();
 				_lifetimeScope = null;
 			}
-			_phonesViewModel.UpdateExternalCounterpartyAction -= UpdateExternalCounterparties;
-			_phonesViewModel.Dispose();
 			base.Destroy();
 		}
 	}

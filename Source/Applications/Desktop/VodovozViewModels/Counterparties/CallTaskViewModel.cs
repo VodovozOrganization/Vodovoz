@@ -128,24 +128,30 @@ namespace Vodovoz.ViewModels.Counterparties
 			DeliveryPointViewModel.IsEditable = CanChengeDeliveryPoint;
 
 			CounterpartyPhonesViewModel =
-			new PhonesViewModel(
-				LifetimeScope.Resolve<IPhoneRepository>(),
-				UoW,
-				LifetimeScope.Resolve<IContactSettings>(),
-				LifetimeScope.Resolve<IExternalCounterpartyController>(),
-				LifetimeScope
-				);
-			CounterpartyPhonesViewModel.ReadOnly = true;
-
-			DeliveryPointPhonesViewModel = 
 				new PhonesViewModel(
+					_commonServices,
 					LifetimeScope.Resolve<IPhoneRepository>(),
 					UoW,
 					LifetimeScope.Resolve<IContactSettings>(),
-					LifetimeScope.Resolve<IExternalCounterpartyController>(),
-					LifetimeScope
-				);
-			DeliveryPointPhonesViewModel.ReadOnly = true;
+					LifetimeScope.Resolve<IPhoneTypeSettings>(),
+					LifetimeScope.Resolve<IExternalCounterpartyController>()
+				)
+				{
+					ReadOnly = true
+				};
+
+			DeliveryPointPhonesViewModel = 
+				new PhonesViewModel(
+					_commonServices,
+					LifetimeScope.Resolve<IPhoneRepository>(),
+					UoW,
+					LifetimeScope.Resolve<IContactSettings>(),
+					LifetimeScope.Resolve<IPhoneTypeSettings>(),
+					LifetimeScope.Resolve<IExternalCounterpartyController>()
+				)
+				{
+					ReadOnly = true
+				};
 
 			CreateReportByCounterpartyCommand = new DelegateCommand(CreateReportByCounterparty, () => CanCreateReportByCounterparty);
 			CreateReportByCounterpartyCommand.CanExecuteChangedWith(this, vm => vm.CanCreateReportByCounterparty);

@@ -5,6 +5,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Nodes;
 
@@ -18,7 +19,7 @@ namespace Vodovoz.Controllers
 
 		public string PhoneAssignedExternalCounterpartyMessage =>
 			"Данный номер телефона привязан к внешнему пользователю сайта/приложения\n" +
-			"При удалении/архивации телефона будут таже удалены все связанные с пользователем данные и он потеряет доступ к сайту/МП\n";
+			"Его нельзя удалять или архивировать";
 
 		public ExternalCounterpartyController(
 			IDeleteEntityService deleteEntityService,
@@ -65,6 +66,24 @@ namespace Vodovoz.Controllers
 			return externalCounterparties.Any();
 		}
 		
+		public bool CheckActiveExternalCounterparties(
+			IUnitOfWork uow,
+			Phone phone)
+		{
+			if(phone.Id == 0 || phone.Counterparty is null)
+			{
+				return false;
+			}
+			
+			if(_externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhone(uow, phone.Id).Any())
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, PhoneAssignedExternalCounterpartyMessage);
+				return true;
+			}
+			
+			return false;
+		}
+		
 		public IEnumerable<ExternalCounterpartyNode> GetActiveExternalCounterpartiesByCounterparty(
 			IUnitOfWork uow,
 			int counterpartyId)
@@ -77,6 +96,13 @@ namespace Vodovoz.Controllers
 			IEnumerable<int> phonesIds)
 		{
 			return _externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhones(uow, phonesIds);
+		}
+		
+		private bool HasActiveExternalCounterparties(
+			IUnitOfWork uow,
+			int phoneId)
+		{
+			return _externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhone(uow, phoneId).Any();
 		}
 	}
 }
