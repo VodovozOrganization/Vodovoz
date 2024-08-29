@@ -178,8 +178,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#region OpenFileCommand
 
-		public DelegateCommand<ComplaintDiscussionCommentFileInformation> OpenFileCommand { get; private set; }
-
+		public DelegateCommand<ComplaintDiscussionCommentFileInformation> OpenFileCommand { get; }
 
 		public void OpenFile(ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation)
 		{

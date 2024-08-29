@@ -62,6 +62,7 @@ namespace Vodovoz.Views.Complaints
 				ytreeviewComments.YTreeModel.EmitModelChanged();
 				ytreeviewComments.ExpandAll();
 			};
+
 			ytreeviewComments.ExpandAll();
 			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
 
