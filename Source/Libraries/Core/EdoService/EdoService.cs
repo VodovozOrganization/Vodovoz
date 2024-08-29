@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Data;
+using FluentNHibernate.Data;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
@@ -144,13 +144,13 @@ namespace EdoService.Library
 			return Result.Success();
 		}
 
-		public Result ValidateOrderForUpd(Order order)
+		public Result ValidateOrderForDocument(Order order, Type type)
 		{
 			var errors = new List<Error>();
 
 			if(order.OrderPaymentStatus == OrderPaymentStatus.Paid)
 			{
-				errors.Add(Vodovoz.Errors.Edo.Edo.CreateAlreadyPaidUpd(order.Id));
+				errors.Add(Vodovoz.Errors.Edo.Edo.CreateAlreadyPaidUpd(order.Id, type));
 			}
 
 			if(errors.Any())

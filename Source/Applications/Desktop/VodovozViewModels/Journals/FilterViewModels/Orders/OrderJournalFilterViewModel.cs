@@ -40,7 +40,7 @@ namespace Vodovoz.Filters.ViewModels
 		private PaymentFrom _paymentByCardFrom;
 		private PaymentOrder? _paymentOrder;
 		private bool _paymentsFromVisibility;
-		private Counterparty _restrictCounterparty;
+		private Counterparty _counterparty;
 		private DateTime? _restrictEndDate;
 		private bool? _restrictHideService;
 		private bool? _restrictLessThreeHours;
@@ -194,14 +194,22 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _allowPaymentTypes, value);
 		}
 
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => UpdateFilterField(ref _counterparty, value);
+		}
+
 		public virtual Counterparty RestrictCounterparty
 		{
-			get => _restrictCounterparty;
+			get => _counterparty;
 			set
 			{
-				if(UpdateFilterField(ref _restrictCounterparty, value))
+				if(UpdateFilterField(ref _counterparty, value))
 				{
 					CanChangeCounterparty = false;
+					OnPropertyChanged(nameof(CanChangeCounterparty));
+					OnPropertyChanged(nameof(Counterparty));
 					_deliveryPointJournalFilterViewModel.Counterparty = value;
 					if(value == null)
 					{

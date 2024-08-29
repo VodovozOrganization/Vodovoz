@@ -2,21 +2,16 @@
 using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
-using QS.Report;
-using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vodovoz.Additions;
-using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
@@ -26,14 +21,14 @@ using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Models;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
-using Vodovoz.Tools;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Print;
 
 namespace Vodovoz
 {
@@ -218,6 +213,12 @@ namespace Vodovoz
 				return false;
 			}
 
+			if(!IsAllItemsInRouteListLoaded())
+			{
+				MessageDialogHelper.RunErrorDialog("В маршрутном листе имееются сетевые заказы. Частичная погрузка запрещена!");
+				return false;
+			}
+
 			if(Entity.Items.Any(x => x.Amount == 0))
 			{
 				var res = MessageDialogHelper.RunQuestionYesNoCancelDialog(
@@ -251,6 +252,44 @@ namespace Vodovoz
 			UoW.Commit();
 
 			_logger.LogInformation("Ok.");
+
+			return true;
+		}
+
+		private bool IsAllItemsInRouteListLoaded()
+		{
+			var isNewEntity = Entity.Id == 0;
+
+			var isAllItemsMustBeLoaded =
+				(isNewEntity && Entity.RouteList.Addresses.Select(a => a.Order).Where(o => o.IsNeedIndividualSetOnLoad).Any())
+				|| (!isNewEntity && Entity.Items.Any(x => x.IsIndividualSetForOrder));
+
+			if(!isAllItemsMustBeLoaded)
+			{
+				return true;
+			}
+
+			var groupedItemsInRouteList =
+				Entity.GetCarLoadDocumentItemsFromRouteList(UoW, _routeListRepository, null, false)
+				.GroupBy(x => (x.Nomenclature.Id, x.ExpireDatePercent))
+				.ToDictionary(x => x.Key, x => x.Select(item => item.Amount).Sum());
+
+			var groupedEntityItems = Entity.Items
+				.GroupBy(x => (x.Nomenclature.Id, x.ExpireDatePercent))
+				.ToDictionary(x => x.Key, x => x.Select(item => item.Amount).Sum());
+
+			foreach(var item in groupedItemsInRouteList)
+			{
+				if(!groupedEntityItems.TryGetValue(item.Key, out var result))
+				{
+					return false;
+				}
+
+				if(result < item.Value)
+				{
+					return false;
+				}
+			}
 
 			return true;
 		}
@@ -307,13 +346,10 @@ namespace Vodovoz
 			}
 
 			_routeListDailyNumberProvider.GetOrCreateDailyNumber(Entity.RouteList.Id, Entity.RouteList.Date);
-			var reportInfo = _eventsQrPlacer.AddQrEventForPrintingDocument(
-				UoW, Entity.Id, Entity.Title, EventQrDocumentType.CarLoadDocument);
 
-			TabParent.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
-				() => new QSReport.ReportViewDlg(reportInfo),
-				this);
+			var printDocumentsViewModel = _lifetimeScope.Resolve<PrintDocumentsSelectablePrinterViewModel>();
+			TabParent.AddSlaveTab(this, printDocumentsViewModel);
+			printDocumentsViewModel.ConfigureForCarLoadDocumentsPrint(Entity);
 		}
 
 		public override void Destroy()

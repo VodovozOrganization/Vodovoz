@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Presentation.ViewModels.Logistic.Reports;
+using Vodovoz.Presentation.ViewModels.Store.Reports;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
@@ -32,6 +33,7 @@ using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Orders.Reports;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
@@ -195,10 +197,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnOnLineActionActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
-			null,
-			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<PaymentsFromTinkoffReport>().As<IParametersWidget>());
+		NavigationManager.OpenViewModel<OnlinePaymentsReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -482,6 +481,16 @@ public partial class MainWindow
 	protected void OnInventoryInstanceMovementReportActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<InventoryInstanceMovementReportViewModel>(null);
+	}
+
+	/// <summary>
+	/// Оборачиваемость складских остатков
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnAction90Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<TurnoverOfWarehouseBalancesReportViewModel>(null);
 	}
 
 	#endregion Склад
@@ -999,10 +1008,14 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionMileageReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
+		var dlg = NavigationManager.OpenTdiTab<ReportViewDlg>(
 			null,
 			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<MileageReport>().As<IParametersWidget>());
+			addingRegistrations: builder => builder.RegisterType<MileageReport>().As<IParametersWidget>())
+			.TdiTab;
+		
+		var report = (dlg as ReportViewDlg).ParametersWidget;
+		(report as MileageReport).ParentTab = dlg;
 	}
 
 	/// <summary>
@@ -1199,10 +1212,14 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFuelReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
+		var dlg = NavigationManager.OpenTdiTab<ReportViewDlg>(
 			null,
 			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<FuelReport>().As<IParametersWidget>());
+			addingRegistrations: builder => builder.RegisterType<FuelReport>().As<IParametersWidget>())
+			.TdiTab;
+		
+		var report = (dlg as ReportViewDlg).ParametersWidget;
+		(report as FuelReport).ParentTab = dlg;
 	}
 
 	/// <summary>

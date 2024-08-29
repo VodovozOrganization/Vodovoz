@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.Json;
 using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersStatusUpdateNotifier.Converters;
@@ -7,12 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
-using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
 
@@ -52,21 +50,21 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
 						.AddInfrastructure()
-						
+
 						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
 						.AddSingleton(_ => new JsonSerializerOptions
 						{
 							PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 						})
+
 						.AddHostedService<OnlineOrdersStatusUpdatedNotifier>()
-						.AddHttpClient<IOnlineOrdersStatusUpdatedNotificationService, OnlineOrdersStatusUpdatedNotificationService>(client =>
-						{
-							client.Timeout = TimeSpan.FromSeconds(15);
-						})
-						;
+						.AddHttpClient<IOnlineOrdersStatusUpdatedNotificationService, OnlineOrdersStatusUpdatedNotificationService>(
+							client =>
+							{
+								client.Timeout = TimeSpan.FromSeconds(15);
+							});
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
-					services.AddStaticHistoryTracker();
 				});
 	}
 }

@@ -79,10 +79,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.CounterpartyId, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
-			entryCounterpartyVodovozInternalId.ValidationMode = ValidationType.Numeric;
+			ylabelCounterpartyVodovozInternalId.LabelProp = "Номер договора";
 			entryCounterpartyVodovozInternalId.KeyReleaseEvent += OnKeyReleased;
 			entryCounterpartyVodovozInternalId.Binding
-				.AddBinding(ViewModel, vm => vm.CounterpartyVodovozInternalId, w => w.Text, new NullableIntToStringConverter())
+				.AddBinding(ViewModel, vm => vm.CounterpartyContractNumber, w => w.Text)
 				.InitializeFromSource();
 
 			entryCounterpartyInn.ValidationMode = ValidationType.Numeric;

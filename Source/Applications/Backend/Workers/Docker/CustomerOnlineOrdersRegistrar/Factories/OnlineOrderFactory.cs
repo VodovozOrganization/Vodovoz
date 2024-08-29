@@ -55,6 +55,11 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 
 			onlineOrder.DeliveryScheduleId = onlineOrder.IsFastDelivery ? fastDeliveryScheduleId : orderInfoDto.DeliveryScheduleId;
 
+			if(!onlineOrder.IsFastDelivery && onlineOrder.DeliveryScheduleId == fastDeliveryScheduleId)
+			{
+				onlineOrder.IsFastDelivery = true;
+			}
+
 			InitializeOnlineOrderReferences(uow, onlineOrder, orderInfoDto);
 			AddOrderItems(uow, onlineOrder, selfDeliveryDiscountReasonId, orderInfoDto.OnlineOrderItems);
 			AddRentPackages(uow, onlineOrder, orderInfoDto.OnlineRentPackages);

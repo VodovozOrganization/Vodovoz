@@ -16,6 +16,18 @@ namespace Vodovoz.Reports.Editing
 			ModifierActions.Add(modifierAction);
 		}
 
+		public virtual void AddActions(IEnumerable<ModifierAction> modifierActions)
+		{
+			foreach(var modifierAction in modifierActions)
+			{
+				if(ModifierActions.Contains(modifierAction))
+				{
+					continue;
+				}
+				ModifierActions.Add(modifierAction);
+			}
+		}
+
 		public virtual void ApplyChanges(XDocument reportDocument)
 		{
 			foreach(var modifierAction in ModifierActions)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -125,7 +125,10 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 		public virtual decimal Sum => Math.Round(Price * Count - MoneyDiscount, 2);
-
+		public virtual decimal ActualSum => Sum;
+		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
+		public virtual decimal CurrentCount => Count;
+		
 		public static OnlineOrderItem Create(
 			int? nomenclatureId,
 			decimal count,

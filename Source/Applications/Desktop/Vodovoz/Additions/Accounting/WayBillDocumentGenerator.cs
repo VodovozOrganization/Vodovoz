@@ -33,6 +33,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
 using Vodovoz.Core.Domain.Employees;
 using QS.Extensions.Observable.Collections.List;
+using FileWorker = QSDocTemplates.FileWorker;
 
 namespace Vodovoz.Additions.Accounting
 {

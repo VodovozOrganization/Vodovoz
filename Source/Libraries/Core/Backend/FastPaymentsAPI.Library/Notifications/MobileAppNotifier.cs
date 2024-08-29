@@ -1,10 +1,11 @@
-﻿using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsAPI.Library.ApiClients;
 using FastPaymentsAPI.Library.Factories;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 
 namespace FastPaymentsAPI.Library.Notifications

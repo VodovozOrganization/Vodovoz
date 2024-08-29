@@ -17,7 +17,7 @@
 	orders.id AS order_id, 
 	orders.delivery_date AS order_date, 
                 case when (orders.order_address_type = 'Service') then 1 else 0 end AS is_service, 
-    	CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract,
+    	counterparty_contract.number AS contract,
 	counterparty.full_name AS client_name, 
 	counterparty.jur_address AS client_address, 
 	counterparty.inn, counterparty.kpp,

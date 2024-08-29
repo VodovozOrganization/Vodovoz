@@ -249,7 +249,8 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				{
 					x.NomenclatureId,
 					x.ExpireDatePercent,
-					x.OwnType
+					x.OwnType,
+					x.OrderId
 				}
 				).Select(list => new GoodsInRouteListResultWithSpecialRequirements()
 				{
@@ -257,7 +258,9 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					NomenclatureId = list.Key.NomenclatureId,
 					OwnType = list.Key.OwnType,
 					ExpireDatePercent = list.Key.ExpireDatePercent,
-					Amount = list.Sum(x => x.Amount)
+					Amount = list.Sum(x => x.Amount),
+					OrderId = list.Key.OrderId,
+					IsNeedIndividualSetOnLoad = list.FirstOrDefault().IsNeedIndividualSetOnLoad,
 				}
 				).ToList();
 		}
@@ -370,13 +373,29 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
+			var isNeedIndividualSetOnLoadSubquery = QueryOver.Of(() => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Where(() => orderAlias.Id == orderItemsAlias.Order.Id)
+				.Select(Projections.Conditional(
+					Restrictions.Conjunction()
+					.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Cashless))
+					.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.EnRoute)),
+					Projections.Constant(true),
+					Projections.Constant(false)));
+
+			var orderIdProjection = Projections.Conditional(
+				Restrictions.Eq(Projections.SubQuery(isNeedIndividualSetOnLoadSubquery), true),
+				Projections.Property(() => orderAlias.Id),
+				Projections.Constant(0));
+
 			var orderitemsQuery = uow.Session.QueryOver(() => orderItemsAlias)
 					.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 					.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
 					.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
 					.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 					.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
-			return orderitemsQuery.SelectList(list => list
+
+			var itemsByOrders = orderitemsQuery.SelectList(list => list
 				.Select(
 					Projections.GroupProperty(
 						Projections.Conditional(
@@ -394,6 +413,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 						)
 					)
 				).WithAlias(() => resultAlias.NomenclatureName)
+				.Select(Projections.GroupProperty(orderIdProjection)).WithAlias(() => resultAlias.OrderId)
 				.Select(
 					Projections.Conditional(
 						Restrictions.And(
@@ -405,9 +425,20 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					)
 				).WithAlias(() => resultAlias.ExpireDatePercent)
 				.Select(() => orderItemNomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
+				.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount)
+				.SelectSubQuery(isNeedIndividualSetOnLoadSubquery).WithAlias(() => resultAlias.IsNeedIndividualSetOnLoad))
 				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultWithSpecialRequirements>())
 				.List<GoodsInRouteListResultWithSpecialRequirements>();
+
+			foreach(var item in itemsByOrders)
+			{
+				if(item.OrderId == 0)
+				{
+					item.OrderId = null;
+				}
+			}
+
+			return itemsByOrders;
 		}
 
 		public IList<GoodsInRouteListResultWithSpecialRequirements> GetEquipmentsInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList)
@@ -674,6 +705,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					.SelectSum(() => docItemsAlias.Amount).WithAlias(() => inCarLoads.Amount)
 					.SelectGroup(() => docItemsAlias.ExpireDatePercent).WithAlias(() => inCarLoads.ExpireDatePercent)
 					.SelectGroup(() => docItemsAlias.OwnType).WithAlias(() => inCarLoads.OwnType)
+					.SelectGroup(() => docItemsAlias.OrderId).WithAlias(() => inCarLoads.OrderId)
 				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResultToDivide>())
 				.List<GoodsInRouteListResultToDivide>();
 			return loadedlist;
@@ -805,6 +837,13 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 			return nomenclaturesToDeliver.All(item =>
 				item.Amount <= freeBalance.SingleOrDefault(fb => fb.NomenclatureId == item.NomenclatureId)?.Amount);
+		}
+
+		public bool IsOrderNeedIndividualSetOnLoad(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.Query<CarLoadDocumentItem>()
+				.Where(d => d.OrderId == orderId)
+				.Any(d => d.IsIndividualSetForOrder);
 		}
 
 		public IEnumerable<GoodsInRouteListResult> AllGoodsDelivered(IEnumerable<DeliveryDocument> deliveryDocuments)

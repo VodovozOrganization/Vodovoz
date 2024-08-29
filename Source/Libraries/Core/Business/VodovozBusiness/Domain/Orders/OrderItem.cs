@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -135,6 +135,8 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 		}
+
+		public virtual decimal GetDiscount => IsDiscountInMoney ? DiscountMoney : Discount;
 
 		public virtual void UpdateRentCount(int rentCount)
 		{
