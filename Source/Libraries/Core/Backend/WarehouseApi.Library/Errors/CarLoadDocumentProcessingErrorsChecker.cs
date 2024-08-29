@@ -136,9 +136,10 @@ namespace WarehouseApi.Library.Errors
 			IList<CarLoadDocumentItem> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItem> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItem documentItemToEdit,
-			out Error error)
+		out Error error)
 		{
-			return IsScannedCodeValid(scannedCode, isScannedCodeValid, out error)
+			return IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
+				&& IsScannedCodeValid(scannedCode, isScannedCodeValid, out error)
 				&& IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems, out error)
 				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
 				&& IsNotAllProductsHasTrueMarkCode(orderId, nomenclatureId, documentItemToEdit, out error)
@@ -160,7 +161,8 @@ namespace WarehouseApi.Library.Errors
 			CarLoadDocumentItem documentItemToEdit,
 			out Error error)
 		{
-			return IsScannedCodeValid(oldScannedCode, isOldScannedCodeValid, out error)
+			return IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
+				&& IsScannedCodeValid(oldScannedCode, isOldScannedCodeValid, out error)
 				&& IsScannedCodeValid(newScannedCode, isNewScannedCodeValid, out error)
 				&& IsTrueMarkCodesHasEqualGtins(oldTrueMarkCode, newTrueMarkCode, out error)
 				&& IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems, out error)
