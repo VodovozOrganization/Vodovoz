@@ -307,10 +307,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 				return UoWGeneric.HasChanges
 					|| !string.IsNullOrEmpty(Entity.LoginForNewUser)
-					|| (_terminalManagementViewModel?.HasChanges ?? false)
-					|| AttachedFileInformationsViewModel.FilesToAddOnSave.Any()
-					|| AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any()
-					|| AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any();
+					|| (_terminalManagementViewModel?.HasChanges ?? false);
 			}
 		}
 
