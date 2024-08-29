@@ -50,6 +50,7 @@ namespace Vodovoz.Domain.Client
 		private const int _specialContractNameLimit = 800;
 		private const int _cargoReceiverLimitSymbols = 500;
 
+		private int _id;
 		private bool _roboatsExclude;
 		private bool _isForSalesDepartment;
 		private ReasonForLeaving _reasonForLeaving;
@@ -172,6 +173,19 @@ namespace Vodovoz.Domain.Client
 
 		#region Свойства
 
+		[Display(Name = "Код")]
+		public virtual int Id
+		{
+			get => _id;
+			set
+			{
+				if(SetField(ref _id, value))
+				{
+					UpdateFileInformations();
+				}
+			}
+		}
+
 		[Display(Name = "Договоры")]
 		public virtual IList<CounterpartyContract> CounterpartyContracts
 		{
@@ -272,8 +286,6 @@ namespace Vodovoz.Domain.Client
 			get => _proxies;
 			set => SetField(ref _proxies, value);
 		}
-
-		public virtual int Id { get; set; }
 
 		[Display(Name = "Максимальный кредит")]
 		public virtual decimal MaxCredit

@@ -63,7 +63,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Documents).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Attachments).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
-			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
+			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().KeyColumn("employee_id");
 			HasMany(x => x.Contracts).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 			HasMany(x => x.WageParameters).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 			HasMany(x => x.EmployeeRegistrationVersions)
