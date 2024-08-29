@@ -12,7 +12,7 @@ namespace VodovozBusiness.Domain.Orders
 		private int _undeliveryDiscussionCommentId;
 
 		[Display(Name = "Идентификатор комментария к обсуждению недовоза")]
-		public int UndeliveryDiscussionCommentId
+		public virtual int UndeliveryDiscussionCommentId
 		{
 			get => _undeliveryDiscussionCommentId;
 			set => SetField(ref _undeliveryDiscussionCommentId, value);

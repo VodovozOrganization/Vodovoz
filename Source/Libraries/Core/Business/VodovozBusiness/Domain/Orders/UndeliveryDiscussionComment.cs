@@ -4,6 +4,7 @@ using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Employees;
 using VodovozBusiness.Domain.Orders;
@@ -75,6 +76,20 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public virtual string Title => $"Комментарий сотрудника \"{Author.ShortName}\"";
+
+		public virtual void AddFileInformation(string fileName)
+		{
+			AttachedFileInformations.Add(new UndeliveryDiscussionCommentFileInformation
+			{
+				UndeliveryDiscussionCommentId = Id,
+				FileName = fileName
+			});
+		}
+
+		public virtual void DeleteFileInformation(string fileName)
+		{
+			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
+		}
 
 		private void UpdateFileInformations()
 		{

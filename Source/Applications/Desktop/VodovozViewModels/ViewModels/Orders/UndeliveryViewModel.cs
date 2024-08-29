@@ -7,7 +7,10 @@ using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
+using System.Threading;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Orders;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -39,12 +42,15 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IUndeliveryDiscussionsViewModelFactory _undeliveryDiscussionsViewModelFactory;
 		private readonly IValidationContextFactory _validationContextFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IUndeliveryDiscussionCommentFileStorageService _undeliveryDiscussionCommentFileStorageService;
 		private ValidationContext _validationContext;
 		private bool _addedCommentToOldUndelivery;
 		private bool _forceSave;
 		private bool _isExternalUoW;
 		private bool _isNewUndelivery;
 		private bool _isFromRouteListClosing;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public UndeliveryViewModel(
 
@@ -61,8 +67,8 @@ namespace Vodovoz.ViewModels.Orders
 			IUndeliveredOrderViewModelFactory undeliveredOrderViewModelFactory,
 			IUndeliveryDiscussionsViewModelFactory undeliveryDiscussionsViewModelFactory,
 			IValidationContextFactory validationContextFactory,
-			IUnitOfWorkFactory unitOfWorkFactory
-			)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -78,6 +84,7 @@ namespace Vodovoz.ViewModels.Orders
 			_undeliveryDiscussionsViewModelFactory = undeliveryDiscussionsViewModelFactory ?? throw new ArgumentNullException(nameof(undeliveryDiscussionsViewModelFactory));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_undeliveryDiscussionCommentFileStorageService = undeliveryDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(undeliveryDiscussionCommentFileStorageService));
 		}
 
 		public void Initialize(IUnitOfWork extrenalUoW = null, int oldOrderId = 0, bool isForSalesDepartment = false, bool isFromRouteListClosing = false)
@@ -265,6 +272,34 @@ namespace Vodovoz.ViewModels.Orders
 			if(!_isExternalUoW)
 			{
 				UoW.Commit();
+			}
+
+			foreach(var complaintDiscussionViewModel in UndeliveryDiscussionsViewModel.ObservableUndeliveryDiscussionViewModels)
+			{
+				foreach(var keyValuePair in complaintDiscussionViewModel.FilesToUploadOnSave)
+				{
+					var commentId = keyValuePair.Key.Invoke();
+
+					var comment = Entity
+						.ObservableUndeliveryDiscussions
+						.FirstOrDefault(cd => cd.Comments.Any(c => c.Id == commentId))
+						?.Comments
+						?.FirstOrDefault(c => c.Id == commentId);
+
+					foreach(var fileToUploadPair in keyValuePair.Value)
+					{
+						using(var ms = new MemoryStream(fileToUploadPair.Value))
+						{
+							_undeliveryDiscussionCommentFileStorageService.CreateFileAsync(
+							comment,
+								fileToUploadPair.Key,
+								ms,
+								_cancellationTokenSource.Token)
+								.GetAwaiter()
+								.GetResult();
+						}
+					}
+				}
 			}
 
 			if(Entity.NewOrder != null
