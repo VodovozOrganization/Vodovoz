@@ -33,7 +33,6 @@ namespace Pacs.MangoCalls.Services
 
 		public async Task RegisterCallEvents(IEnumerable<MangoCallEvent> mangoCallEvents)
 		{
-			var id = Guid.NewGuid();
 			var callEventHanlers = new Dictionary<string, CallEventHandler>();
 			var pacsCallEvents = new List<PacsCallEvent>();
 
@@ -54,6 +53,8 @@ namespace Pacs.MangoCalls.Services
 					}
 				}
 
+				_logger.LogInformation("За итерацию обработано {PacsCallEventsCount} из {MangoCallEventsCount}", pacsCallEvents?.Count, mangoCallEvents?.Count());
+
 				await uow.CommitAsync();
 
 				var publishTasks = pacsCallEvents.Select(x => _messageBus.Publish(x));
@@ -64,7 +65,6 @@ namespace Pacs.MangoCalls.Services
 		public async Task RegisterSummaryEvent(MangoSummaryEvent summaryEvent)
 		{
 			_logger.LogTrace("Summary event | entryId: {entryId}", summaryEvent.EntryId);
-			var id = Guid.NewGuid();
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var callEventHandler = _callEventHandlerFactory.CreateCallEventHandler(summaryEvent.EntryId, uow);
