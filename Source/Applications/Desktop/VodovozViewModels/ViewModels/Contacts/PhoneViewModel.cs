@@ -1,6 +1,7 @@
 ﻿using QS.Services;
 using QS.ViewModels;
 using System;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Contacts;
@@ -12,7 +13,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 	{
 		private readonly Phone _phone;
 		private readonly IUnitOfWork _uow;
-		private readonly bool _canArchiveNumber;
+		private readonly bool _canEditType;
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private readonly IExternalCounterpartyController _externalCounterpartyController;
 		private readonly ICommonServices _commonServices;
@@ -32,13 +33,13 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			_externalCounterpartyController =
 				externalCounterpartyController ?? throw new ArgumentNullException(nameof(externalCounterpartyController));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_canArchiveNumber = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Phone)).CanUpdate;
+			_canEditType = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(PhoneType)).CanUpdate;
 		}
 
 		public PhoneType SelectedPhoneType
 		{
 			get => _phone.PhoneType;
-			set => SetPhoneType(value);
+			set => UpdatePhoneType(value);
 		}
 		public bool PhoneIsArchive
 		{
@@ -54,12 +55,18 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 
 		public Phone GetPhone() => _phone;
 
-		private void SetPhoneType(PhoneType phoneType)
+		private void UpdatePhoneType(PhoneType phoneType)
 		{
-			var result = _phone.Counterparty != null
-				? SetPhoneTypeToCounterpartyPhone(phoneType)
-				: DefaultSetPhoneType(phoneType);
-
+			if(!_canEditType)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Нет прав на редактирование типа телефона");
+				return;
+			}
+			
+			var result = SetPhoneType(phoneType);
+			
 			if(result)
 			{
 				_phone.PhoneType = phoneType;
@@ -67,34 +74,25 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			OnPropertyChanged(nameof(SelectedPhoneType));
 		}
 
-		private bool SetPhoneTypeToCounterpartyPhone(PhoneType phoneType)
+		private bool SetPhoneType(PhoneType phoneType)
 		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
-				if(_canArchiveNumber && _externalCounterpartyController.CheckActiveExternalCounterparties(_uow, _phone))
+				if(_phone.Counterparty is null)
 				{
-					return false;
+					var question = "Номер будет переведен в архив и пропадет в списке активных. Продолжить?";
+				
+					if(!_commonServices.InteractiveService.Question(question))
+					{
+						return false;
+					}
 				}
-				
-				PhoneIsArchive = true;
-			}
-			else
-			{
-				PhoneIsArchive = false;
-			}
-
-			return true;
-		}
-		
-		private bool DefaultSetPhoneType(PhoneType phoneType)
-		{
-			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
-			{
-				var question = "Номер будет переведен в архив и пропадет в списке активных. Продолжить?";
-				
-				if(_canArchiveNumber && !_commonServices.InteractiveService.Question(question))
+				else
 				{
-					return false;
+					if(_externalCounterpartyController.CheckActiveExternalCounterparties(_uow, _phone))
+					{
+						return false;
+					}
 				}
 				
 				PhoneIsArchive = true;
