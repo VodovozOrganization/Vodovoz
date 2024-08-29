@@ -249,11 +249,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(ValidateForNextState(PayoutRequestState.Submited))
 			{
-				Save(false);
-				AddAttachedFilesIfNeeded();
-				UpdateAttachedFilesIfNeeded();
-				DeleteAttachedFilesIfNeeded();
-				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				Save(true);
 			}
 		}
@@ -262,11 +257,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(ValidateForNextState(PayoutRequestState.Canceled))
 			{
-				Save(false);
-				AddAttachedFilesIfNeeded();
-				UpdateAttachedFilesIfNeeded();
-				DeleteAttachedFilesIfNeeded();
-				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				Save(true);
 			}
 		}
@@ -275,11 +265,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(ValidateForNextState(PayoutRequestState.OnClarification))
 			{
-				Save(false);
-				AddAttachedFilesIfNeeded();
-				UpdateAttachedFilesIfNeeded();
-				DeleteAttachedFilesIfNeeded();
-				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				Save(true);
 			}
 		}
@@ -288,11 +273,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(ValidateForNextState(PayoutRequestState.GivenForTake))
 			{
-				Save(false);
-				AddAttachedFilesIfNeeded();
-				UpdateAttachedFilesIfNeeded();
-				DeleteAttachedFilesIfNeeded();
-				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				Save(true);
 			}
 		}
@@ -301,13 +281,23 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(ValidateForNextState(PayoutRequestState.Closed))
 			{
-				Save(false);
-				AddAttachedFilesIfNeeded();
-				UpdateAttachedFilesIfNeeded();
-				DeleteAttachedFilesIfNeeded();
-				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				Save(true);
 			}
+		}
+
+		public override bool Save(bool close)
+		{
+			if(!base.Save(false))
+			{
+				return false;
+			}
+
+			AddAttachedFilesIfNeeded();
+			UpdateAttachedFilesIfNeeded();
+			DeleteAttachedFilesIfNeeded();
+			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+
+			return base.Save(close);
 		}
 
 		#endregion

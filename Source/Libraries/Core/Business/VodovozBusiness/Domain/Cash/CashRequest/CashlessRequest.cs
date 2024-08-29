@@ -124,9 +124,9 @@ namespace Vodovoz.Domain.Cash
 				yield return new ValidationResult("Сумма должна быть больше нуля", new[] { nameof(Sum) });
 			}
 
-			if(!Files.Any())
+			if(!AttachedFileInformations.Any())
 			{
-				yield return new ValidationResult("Необходимо добавить хотя бы один файл", new[] { nameof(Files) });
+				yield return new ValidationResult("Необходимо добавить хотя бы один файл", new[] { nameof(AttachedFileInformations) });
 			}
 
 			if(Counterparty == null)
