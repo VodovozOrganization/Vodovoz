@@ -245,13 +245,13 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					if(onlineOrderItem.GetDiscount > 0)
 					{
-						errors.Add(Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInDeliveryOnlineOrder(
+						errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInDeliveryOnlineOrder(
 							onlineOrderItem.Nomenclature.ToString()));
 					}
 
 					if(onlineOrderItem.IsDiscountInMoney)
 					{
-						errors.Add(Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
+						errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
 							onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
 					}
 
@@ -268,7 +268,7 @@ namespace Vodovoz.Application.Orders.Services
 						{
 							if(onlineOrderItem.GetDiscount != onlineOrderItem.DiscountReason.Value)
 							{
-								errors.Add(Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
+								errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
 									onlineOrderItem.Nomenclature.ToString(),
 									onlineOrderItem.DiscountReason.Value,
 									onlineOrderItem.GetDiscount));
@@ -280,7 +280,7 @@ namespace Vodovoz.Application.Orders.Services
 								case DiscountUnits.money:
 									if(!onlineOrderItem.IsDiscountInMoney)
 									{
-										errors.Add(Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
+										errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
 											onlineOrderItem.Nomenclature.ToString(), true, onlineOrderItem.IsDiscountInMoney));
 										onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
 									}
@@ -288,7 +288,7 @@ namespace Vodovoz.Application.Orders.Services
 								case DiscountUnits.percent:
 									if(onlineOrderItem.IsDiscountInMoney)
 									{
-										errors.Add(Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
+										errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
 											onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
 										onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
 									}
@@ -299,13 +299,13 @@ namespace Vodovoz.Application.Orders.Services
 						{
 							if(onlineOrderItem.GetDiscount > 0)
 							{
-								errors.Add(Errors.Orders.OnlineOrder.NotApplicableDiscountToNomenclatureSelfDeliveryOnlineOrder(
+								errors.Add(Vodovoz.Errors.Orders.OnlineOrder.NotApplicableDiscountToNomenclatureSelfDeliveryOnlineOrder(
 									onlineOrderItem.Nomenclature.ToString()));
 							}
 							
 							if(onlineOrderItem.IsDiscountInMoney)
 							{
-								errors.Add(Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
+								errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
 									onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
 							}
 
@@ -316,7 +316,7 @@ namespace Vodovoz.Application.Orders.Services
 					{
 						if(onlineOrderItem.GetDiscount > 0)
 						{
-							errors.Add(Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
+							errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
 								onlineOrderItem.Nomenclature.ToString(), 0, onlineOrderItem.GetDiscount));
 						}
 						

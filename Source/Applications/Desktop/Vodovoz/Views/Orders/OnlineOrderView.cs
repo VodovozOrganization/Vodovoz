@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Gamma.ColumnConfig;
+using Gtk;
 using QS.Views.GtkUI;
 using QS.Navigation;
 using Vodovoz.Domain.Client;
@@ -209,34 +210,41 @@ namespace Vodovoz.Views.Orders
 				.AddNumericRenderer(node => ViewModel.OnlineOrderPromoItems.IndexOf(node) + 1)
 				.AddColumn("Номенклатура")
 				.AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : "Не указано")
-				.AddColumn("Кол-во(онлайн заказ)")
+				.AddColumn("Кол-во\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Count)
 				.AddSetter((cell, node) =>
 					cell.CellBackgroundGdk = node.Count != node.CountFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase)
-				.AddColumn("Кол-во(в промонаборе)")
+				.XAlign(0.5f)
+				.AddColumn("Кол-во\n(в промонаборе)")
 				.AddNumericRenderer(node => node.CountFromPromoSet)
-				.AddColumn("Цена(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Цена\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Price)
 				.AddSetter((cell, node) =>
 					cell.CellBackgroundGdk = node.Price != node.NomenclaturePrice ? GdkColors.DangerBase : GdkColors.PrimaryBase)
+				.XAlign(0.5f)
 				.AddColumn("Цена(ДВ)")
 				.AddNumericRenderer(node => node.NomenclaturePrice)
-				.AddColumn("Сумма(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Сумма\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Sum)
-				.AddColumn("Скидка(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Скидка\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.GetDiscount)
 				.AddSetter((cell, node) =>
 					{
 						cell.CellBackgroundGdk = node.GetDiscount != node.DiscountFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase;
 					})
-				.AddColumn("Скидка(в промонаборе)")
+				.XAlign(0.5f)
+				.AddColumn("Скидка\n(в промонаборе)")
 				.AddNumericRenderer(node => node.DiscountFromPromoSet)
-				.AddColumn("Скидка в рублях?(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Скидка в рублях?\n(онлайн заказ)")
 				.AddToggleRenderer(node => node.IsDiscountInMoney)
 				.Editing(false)
 				.AddSetter((cell, node) =>
 					cell.CellBackgroundGdk = node.IsDiscountInMoney != node.IsDiscountInMoneyFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase)
-				.AddColumn("Скидка в рублях?(в промонаборе)")
+				.AddColumn("Скидка в рублях?\n(в промонаборе)")
 				.AddToggleRenderer(node => node.IsDiscountInMoneyFromPromoSet)
 				.Editing(false)
 				.AddColumn("Промонабор")
@@ -244,6 +252,7 @@ namespace Vodovoz.Views.Orders
 				.Finish();
 
 			treeViewPromoItems.Visible = ViewModel.CanShowPromoItems;
+			treeViewPromoItems.EnableGridLines = TreeViewGridLines.Both;
 			treeViewPromoItems.ItemsDataSource = ViewModel.OnlineOrderPromoItems;
 		}
 		
@@ -254,15 +263,18 @@ namespace Vodovoz.Views.Orders
 				.AddNumericRenderer(node => ViewModel.OnlineOrderNotPromoItems.IndexOf(node) + 1)
 				.AddColumn("Номенклатура")
 				.AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : "Не указано")
-				.AddColumn("Кол-во(онлайн заказ)")
+				.AddColumn("Кол-во\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Count)
-				.AddColumn("Цена(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Цена\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Price)
 				.AddSetter((cell, node) =>
 					cell.CellBackgroundGdk = node.Price != node.NomenclaturePrice ? GdkColors.DangerBase : GdkColors.PrimaryBase)
+				.XAlign(0.5f)
 				.AddColumn("Цена(ДВ)")
 				.AddNumericRenderer(node => node.NomenclaturePrice)
-				.AddColumn("Скидка(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Скидка\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.GetDiscount)
 				.AddSetter((cell, node) =>
 				{
@@ -301,9 +313,11 @@ namespace Vodovoz.Views.Orders
 					
 					cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 				})
-				.AddColumn("Скидка(основание скидки)")
+				.XAlign(0.5f)
+				.AddColumn("Скидка\n(основание скидки)")
 				.AddNumericRenderer(node => node.DiscountReason != null ? node.DiscountReason.Value : 0)
-				.AddColumn("Скидка в рублях?(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Скидка в рублях?\n(онлайн заказ)")
 				.AddToggleRenderer(node => node.IsDiscountInMoney)
 				.Editing(false)
 				.AddSetter((cell, node) =>
@@ -348,7 +362,7 @@ namespace Vodovoz.Views.Orders
 					
 					cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 				})
-				.AddColumn("Скидка в рублях?(основание скидки)")
+				.AddColumn("Скидка в рублях?\n(основание скидки)")
 				.AddToggleRenderer(node => node.DiscountReason != null && node.DiscountReason.ValueType == DiscountUnits.money)
 				.Editing(false)
 				.AddColumn("Основание скидки")
@@ -372,12 +386,14 @@ namespace Vodovoz.Views.Orders
 					
 					cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 				})
-				.AddColumn("Сумма(онлайн заказ)")
+				.AddColumn("Сумма\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Sum)
+				.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 
 			treeViewNotPromoItems.Visible = ViewModel.CanShowNotPromoItems;
+			treeViewNotPromoItems.EnableGridLines = TreeViewGridLines.Both;
 			treeViewNotPromoItems.ItemsDataSource = ViewModel.OnlineOrderNotPromoItems;
 		}
 
@@ -398,18 +414,22 @@ namespace Vodovoz.Views.Orders
 					node.FreeRentPackage != null && node.FreeRentPackage.DepositService != null
 						? node.FreeRentPackage.DepositService.Name
 						: "Не указано")
-				.AddColumn("Кол-во(онлайн заказ)")
+				.AddColumn("Кол-во\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Count)
-				.AddColumn("Цена(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Цена\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Price)
 				.AddSetter((cell, node) =>
 					cell.CellBackgroundGdk = node.Price != node.FreeRentPackagePriceFromProgram ? GdkColors.DangerBase : GdkColors.PrimaryBase)
+				.XAlign(0.5f)
 				.AddColumn("Цена(ДВ)")
 				.AddNumericRenderer(node => node.FreeRentPackagePriceFromProgram)
+				.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 
 			treeViewOnlineRentPackages.Visible = ViewModel.CanShowRentPackages;
+			treeViewOnlineRentPackages.EnableGridLines = TreeViewGridLines.Both;
 			treeViewOnlineRentPackages.ItemsDataSource = ViewModel.OnlineRentPackages;
 		}
 

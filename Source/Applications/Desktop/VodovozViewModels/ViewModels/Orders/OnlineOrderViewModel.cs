@@ -99,10 +99,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			&& CurrentEmployeeIsEmployeeWorkWith
 			&& OrderIsNullAndOnlineOrderNotCanceledStatus;
 
-		public bool CanCreateOrder => true;
-			/*OrderIsNullAndOnlineOrderNotCanceledStatus
+		public bool CanCreateOrder => OrderIsNullAndOnlineOrderNotCanceledStatus
 			&& CurrentEmployeeIsEmployeeWorkWith
-			&& (!Entity.IsDeliveryPointNotBelongCounterparty.HasValue || !Entity.IsDeliveryPointNotBelongCounterparty.Value);*/
+			&& (!Entity.IsDeliveryPointNotBelongCounterparty.HasValue || !Entity.IsDeliveryPointNotBelongCounterparty.Value);
 		public bool CanCancelOnlineOrder =>
 			OrderIsNullAndOnlineOrderNotCanceledStatus
 			&& !_orderCreatingState

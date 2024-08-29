@@ -113,8 +113,6 @@ namespace Vodovoz.Domain.Orders
 
 		#region Вычисляемые
 
-		public virtual decimal GetDiscount => IsDiscountInMoney ? DiscountMoney : Discount;
-		
 		public virtual bool CanShowReturnedCount =>
 			Order.OrderStatus >= OrderStatus.OnTheWay && ReturnedCount > 0
 			&& Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category);

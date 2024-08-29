@@ -13,7 +13,5 @@ namespace Vodovoz.Domain.Orders
 		decimal ActualSum { get; }
 		decimal CurrentCount { get; }
 		decimal Price { get; }
-		bool IsDiscountInMoney { get; }
-		decimal GetDiscount { get; }
 	}
 }
