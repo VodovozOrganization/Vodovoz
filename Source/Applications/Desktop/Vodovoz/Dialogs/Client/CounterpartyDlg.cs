@@ -42,6 +42,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -685,16 +686,16 @@ namespace Vodovoz
 
 			// Прикрепляемые документы
 
-			_attachmentsViewModel = _attachmentsViewModelFactory.CreateAndInitialize<Counterparty, CounterpartyFileInformation>(
+			_attachedFileInformationsViewModel = _attachmentsViewModelFactory.CreateAndInitialize<Counterparty, CounterpartyFileInformation>(
 				UoW,
 				Entity,
 				_counterpartyFileStorageService,
 				Entity.AddFileInformation,
 				Entity.RemoveFileInformation);
 
-			_attachmentsViewModel.ReadOnly = !CanEdit;
+			_attachedFileInformationsViewModel.ReadOnly = !CanEdit;
 
-			smallfileinformationsview.ViewModel = _attachmentsViewModel;
+			smallfileinformationsview.ViewModel = _attachedFileInformationsViewModel;
 
 			chkNeedNewBottles.Binding
 				.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active)
@@ -1635,13 +1636,63 @@ namespace Vodovoz
 				}
 
 				_logger.Info("Сохраняем контрагента...");
-				UoWGeneric.Save();
+				UoW.Save();
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
+				_attachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				_logger.Info("Ok.");
 				return true;
 			}
 			finally
 			{
 				SetSensetivity(true);
+			}
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			if(!_attachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in _attachedFileInformationsViewModel.FilesToAddOnSave)
+			{
+				var result = _counterpartyFileStorageService.CreateFileAsync(Entity, fileName,
+				new MemoryStream(_attachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!_attachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in _attachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_counterpartyFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(_attachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!_attachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in _attachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_counterpartyFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
 			}
 		}
 
@@ -2028,7 +2079,7 @@ namespace Vodovoz
 		}
 
 		private string _cargoReceiverBackupBuffer;
-		private AttachedFileInformationsViewModel _attachmentsViewModel;
+		private AttachedFileInformationsViewModel _attachedFileInformationsViewModel;
 
 		private void UpdateCargoReceiver()
 		{
