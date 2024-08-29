@@ -16,6 +16,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private readonly IExternalCounterpartyController _externalCounterpartyController;
 		private readonly ICommonServices _commonServices;
+		private bool _isPhoneNumberEditable;
 
 		public PhoneViewModel(
 			Phone phone,
@@ -33,7 +34,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_canArchiveNumber = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Phone)).CanUpdate;
 		}
-		
+
 		public PhoneType SelectedPhoneType
 		{
 			get => _phone.PhoneType;
@@ -43,6 +44,12 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			get => _phone.IsArchive;
 			set => _phone.IsArchive = value;
+		}
+
+		public bool IsPhoneNumberEditable
+		{
+			get => _isPhoneNumberEditable;
+			set => UpdateIsPhoneNumberEditable(value);
 		}
 
 		public Phone GetPhone() => _phone;
@@ -98,6 +105,20 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			}
 
 			return true;
+		}
+		
+		private void UpdateIsPhoneNumberEditable(bool value = true)
+		{
+			if(!value)
+			{
+				_isPhoneNumberEditable = false;
+			}
+			else
+			{
+				_isPhoneNumberEditable = !_externalCounterpartyController.HasActiveExternalCounterparties(_uow, _phone);
+			}
+			
+			OnPropertyChanged(nameof(IsPhoneNumberEditable));
 		}
 	}
 }

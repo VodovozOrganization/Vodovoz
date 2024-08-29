@@ -13,6 +13,7 @@ namespace Vodovoz.Controllers
 		void DeleteExternalCounterparties(IUnitOfWork uow, IEnumerable<ExternalCounterparty> externalCounterparties);
 		bool HasActiveExternalCounterparties(IUnitOfWork uow, int phoneId, out IEnumerable<ExternalCounterparty> externalCounterparties);
 		bool CheckActiveExternalCounterparties(IUnitOfWork uow, Phone phone);
+		bool HasActiveExternalCounterparties(IUnitOfWork uow, Phone phone);
 		IEnumerable<ExternalCounterpartyNode> GetActiveExternalCounterpartiesByCounterparty(IUnitOfWork uow, int counterpartyId);
 		IEnumerable<ExternalCounterpartyNode> GetActiveExternalCounterpartiesByPhones(IUnitOfWork uow, IEnumerable<int> phonesIds);
 	}

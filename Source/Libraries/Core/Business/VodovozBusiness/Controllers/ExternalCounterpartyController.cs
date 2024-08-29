@@ -70,18 +70,13 @@ namespace Vodovoz.Controllers
 			IUnitOfWork uow,
 			Phone phone)
 		{
-			if(phone.Id == 0 || phone.Counterparty is null)
+			if(!HasActiveExternalCounterparties(uow, phone))
 			{
 				return false;
 			}
-			
-			if(_externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhone(uow, phone.Id).Any())
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, PhoneAssignedExternalCounterpartyMessage);
-				return true;
-			}
-			
-			return false;
+
+			_interactiveService.ShowMessage(ImportanceLevel.Warning, PhoneAssignedExternalCounterpartyMessage);
+			return true;
 		}
 		
 		public IEnumerable<ExternalCounterpartyNode> GetActiveExternalCounterpartiesByCounterparty(
@@ -98,11 +93,14 @@ namespace Vodovoz.Controllers
 			return _externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhones(uow, phonesIds);
 		}
 		
-		private bool HasActiveExternalCounterparties(
-			IUnitOfWork uow,
-			int phoneId)
+		public bool HasActiveExternalCounterparties(IUnitOfWork uow, Phone phone)
 		{
-			return _externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhone(uow, phoneId).Any();
+			if(phone.Id == 0 || phone.Counterparty is null)
+			{
+				return false;
+			}
+			
+			return _externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhone(uow, phone.Id).Any();
 		}
 	}
 }

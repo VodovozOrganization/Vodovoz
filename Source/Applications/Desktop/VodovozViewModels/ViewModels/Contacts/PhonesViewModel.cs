@@ -106,7 +106,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		
 		public PhoneViewModel GetPhoneViewModel(Phone phone)
 		{
-			 var viewModel = new PhoneViewModel(
+			var viewModel = new PhoneViewModel(
 				phone,
 				_uow,
 				_commonServices,
@@ -114,6 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 				_externalCounterpartyController);
 
 			_phoneViewModels.Add(viewModel);
+			viewModel.IsPhoneNumberEditable = !ReadOnly;
 
 			return viewModel;
 		}
