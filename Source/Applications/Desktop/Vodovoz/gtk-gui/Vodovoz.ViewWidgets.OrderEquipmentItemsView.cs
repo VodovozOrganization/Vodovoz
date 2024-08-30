@@ -14,11 +14,11 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.HBox hboxButtons;
 
-		private global::Gtk.Button buttonAddEquipmentToClient;
+		private global::Gamma.GtkWidgets.yButton buttonAddEquipmentToClient;
 
-		private global::Gtk.Button buttonAddEquipmentFromClient;
+		private global::Gamma.GtkWidgets.yButton buttonAddEquipmentFromClient;
 
-		private global::Gtk.Button buttonDeleteEquipment;
+		private global::Gamma.GtkWidgets.yButton buttonDeleteEquipment;
 
 		protected virtual void Build()
 		{
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewWidgets
 			this.hboxButtons.Name = "hboxButtons";
 			this.hboxButtons.Spacing = 6;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonAddEquipmentToClient = new global::Gtk.Button();
+			this.buttonAddEquipmentToClient = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddEquipmentToClient.CanFocus = true;
 			this.buttonAddEquipmentToClient.Name = "buttonAddEquipmentToClient";
 			this.buttonAddEquipmentToClient.UseUnderline = true;
@@ -70,7 +70,7 @@ namespace Vodovoz.ViewWidgets
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonAddEquipmentFromClient = new global::Gtk.Button();
+			this.buttonAddEquipmentFromClient = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddEquipmentFromClient.CanFocus = true;
 			this.buttonAddEquipmentFromClient.Name = "buttonAddEquipmentFromClient";
 			this.buttonAddEquipmentFromClient.UseUnderline = true;
@@ -84,7 +84,7 @@ namespace Vodovoz.ViewWidgets
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonDeleteEquipment = new global::Gtk.Button();
+			this.buttonDeleteEquipment = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDeleteEquipment.CanFocus = true;
 			this.buttonDeleteEquipment.Name = "buttonDeleteEquipment";
 			this.buttonDeleteEquipment.UseUnderline = true;

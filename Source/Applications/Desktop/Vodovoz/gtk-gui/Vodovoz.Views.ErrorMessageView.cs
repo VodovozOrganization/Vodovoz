@@ -48,9 +48,9 @@ namespace Vodovoz.Views
 
 		private global::Gamma.GtkWidgets.yButton ybuttonOK;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
-		private global::Gtk.Button buttonOk;
+		private global::Gamma.GtkWidgets.yButton buttonOk;
 
 		protected virtual void Build()
 		{
@@ -287,9 +287,9 @@ namespace Vodovoz.Views
 			w26.Name = "dialog1_ActionArea";
 			w26.Spacing = 10;
 			w26.BorderWidth = ((uint)(5));
-			w26.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
+			w26.LayoutStyle = ((global::Gamma.GtkWidgets.yButtonBoxStyle)(4));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanDefault = true;
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
@@ -297,11 +297,11 @@ namespace Vodovoz.Views
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = "gtk-cancel";
 			this.AddActionWidget(this.buttonCancel, -6);
-			global::Gtk.ButtonBox.ButtonBoxChild w27 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w26[this.buttonCancel]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w27 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(w26[this.buttonCancel]));
 			w27.Expand = false;
 			w27.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonOk = new global::Gtk.Button();
+			this.buttonOk = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOk.CanDefault = true;
 			this.buttonOk.CanFocus = true;
 			this.buttonOk.Name = "buttonOk";
@@ -309,7 +309,7 @@ namespace Vodovoz.Views
 			this.buttonOk.UseUnderline = true;
 			this.buttonOk.Label = "gtk-ok";
 			this.AddActionWidget(this.buttonOk, -5);
-			global::Gtk.ButtonBox.ButtonBoxChild w28 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w26[this.buttonOk]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w28 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(w26[this.buttonOk]));
 			w28.Position = 1;
 			w28.Expand = false;
 			w28.Fill = false;

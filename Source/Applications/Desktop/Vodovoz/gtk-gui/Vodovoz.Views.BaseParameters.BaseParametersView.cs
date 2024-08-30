@@ -22,9 +22,9 @@ namespace Vodovoz.Views.BaseParameters
 
 		private global::Gtk.HButtonBox dialog1_ActionArea;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
-		private global::Gtk.Button buttonOk;
+		private global::Gamma.GtkWidgets.yButton buttonOk;
 
 		protected virtual void Build()
 		{
@@ -106,9 +106,9 @@ namespace Vodovoz.Views.BaseParameters
 			this.dialog1_ActionArea.Name = "dialog1_ActionArea";
 			this.dialog1_ActionArea.Spacing = 10;
 			this.dialog1_ActionArea.BorderWidth = ((uint)(5));
-			this.dialog1_ActionArea.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
+			this.dialog1_ActionArea.LayoutStyle = ((global::Gamma.GtkWidgets.yButtonBoxStyle)(4));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanDefault = true;
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
@@ -116,11 +116,11 @@ namespace Vodovoz.Views.BaseParameters
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = "gtk-cancel";
 			this.dialog1_ActionArea.Add(this.buttonCancel);
-			global::Gtk.ButtonBox.ButtonBoxChild w10 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.dialog1_ActionArea[this.buttonCancel]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w10 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(this.dialog1_ActionArea[this.buttonCancel]));
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonOk = new global::Gtk.Button();
+			this.buttonOk = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOk.CanDefault = true;
 			this.buttonOk.CanFocus = true;
 			this.buttonOk.Name = "buttonOk";
@@ -128,7 +128,7 @@ namespace Vodovoz.Views.BaseParameters
 			this.buttonOk.UseUnderline = true;
 			this.buttonOk.Label = "gtk-ok";
 			this.dialog1_ActionArea.Add(this.buttonOk);
-			global::Gtk.ButtonBox.ButtonBoxChild w11 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.dialog1_ActionArea[this.buttonOk]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w11 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(this.dialog1_ActionArea[this.buttonOk]));
 			w11.Position = 1;
 			w11.Expand = false;
 			w11.Fill = false;

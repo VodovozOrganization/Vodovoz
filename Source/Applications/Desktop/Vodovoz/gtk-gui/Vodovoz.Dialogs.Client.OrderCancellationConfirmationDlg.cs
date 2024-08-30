@@ -16,9 +16,9 @@ namespace Vodovoz.Dialogs.Client
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonConfirmation;
 
-		private global::Gtk.Button buttonOk;
+		private global::Gamma.GtkWidgets.yButton buttonOk;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		protected virtual void Build()
 		{
@@ -98,9 +98,9 @@ namespace Vodovoz.Dialogs.Client
 			w8.Name = "dialog1_ActionArea";
 			w8.Spacing = 10;
 			w8.BorderWidth = ((uint)(5));
-			w8.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(1));
+			w8.LayoutStyle = ((global::Gamma.GtkWidgets.yButtonBoxStyle)(1));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonOk = new global::Gtk.Button();
+			this.buttonOk = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOk.CanDefault = true;
 			this.buttonOk.CanFocus = true;
 			this.buttonOk.Name = "buttonOk";
@@ -110,11 +110,11 @@ namespace Vodovoz.Dialogs.Client
 			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
 			this.buttonOk.Image = w9;
 			this.AddActionWidget(this.buttonOk, -8);
-			global::Gtk.ButtonBox.ButtonBoxChild w10 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w8[this.buttonOk]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w10 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(w8[this.buttonOk]));
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.Sensitive = false;
 			this.buttonCancel.CanDefault = true;
 			this.buttonCancel.CanFocus = true;
@@ -125,7 +125,7 @@ namespace Vodovoz.Dialogs.Client
 			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
 			this.buttonCancel.Image = w11;
 			this.AddActionWidget(this.buttonCancel, -9);
-			global::Gtk.ButtonBox.ButtonBoxChild w12 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w8[this.buttonCancel]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w12 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(w8[this.buttonCancel]));
 			w12.Position = 1;
 			w12.Expand = false;
 			w12.Fill = false;

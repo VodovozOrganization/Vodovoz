@@ -30,9 +30,9 @@ namespace Vodovoz.Dialogs.OnlineStore
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gtk.Button buttonRunToFile;
+		private global::Gamma.GtkWidgets.yButton buttonRunToFile;
 
-		private global::Gtk.Button buttonExportToSite;
+		private global::Gamma.GtkWidgets.yButton buttonExportToSite;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindowErrors;
 
@@ -186,7 +186,7 @@ namespace Vodovoz.Dialogs.OnlineStore
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonRunToFile = new global::Gtk.Button();
+			this.buttonRunToFile = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRunToFile.CanFocus = true;
 			this.buttonRunToFile.Name = "buttonRunToFile";
 			this.buttonRunToFile.UseUnderline = true;
@@ -197,7 +197,7 @@ namespace Vodovoz.Dialogs.OnlineStore
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonExportToSite = new global::Gtk.Button();
+			this.buttonExportToSite = new global::Gamma.GtkWidgets.yButton();
 			this.buttonExportToSite.CanFocus = true;
 			this.buttonExportToSite.Name = "buttonExportToSite";
 			this.buttonExportToSite.UseUnderline = true;

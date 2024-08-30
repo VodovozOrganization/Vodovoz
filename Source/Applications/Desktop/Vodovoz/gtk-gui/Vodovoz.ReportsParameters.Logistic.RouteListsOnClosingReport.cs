@@ -46,7 +46,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gtk.HSeparator hseparator1;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -262,7 +262,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w24.Expand = false;
 			w24.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;

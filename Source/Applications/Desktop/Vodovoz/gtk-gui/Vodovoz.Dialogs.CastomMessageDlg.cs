@@ -22,13 +22,13 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.TextView textview1;
 
-		private global::Gtk.Button buttonYes;
+		private global::Gamma.GtkWidgets.yButton buttonYes;
 
-		private global::Gtk.Button buttonNo;
+		private global::Gamma.GtkWidgets.yButton buttonNo;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
-		private global::Gtk.Button buttonOk;
+		private global::Gamma.GtkWidgets.yButton buttonOk;
 
 		protected virtual void Build()
 		{
@@ -124,9 +124,9 @@ namespace Vodovoz.Dialogs
 			w11.Name = "dialog1_ActionArea";
 			w11.Spacing = 10;
 			w11.BorderWidth = ((uint)(5));
-			w11.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
+			w11.LayoutStyle = ((global::Gamma.GtkWidgets.yButtonBoxStyle)(4));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonYes = new global::Gtk.Button();
+			this.buttonYes = new global::Gamma.GtkWidgets.yButton();
 			this.buttonYes.CanDefault = true;
 			this.buttonYes.CanFocus = true;
 			this.buttonYes.Name = "buttonYes";
@@ -136,11 +136,11 @@ namespace Vodovoz.Dialogs
 			w12.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
 			this.buttonYes.Image = w12;
 			this.AddActionWidget(this.buttonYes, -8);
-			global::Gtk.ButtonBox.ButtonBoxChild w13 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w11[this.buttonYes]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w13 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(w11[this.buttonYes]));
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonNo = new global::Gtk.Button();
+			this.buttonNo = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNo.CanFocus = true;
 			this.buttonNo.Name = "buttonNo";
 			this.buttonNo.UseUnderline = true;
@@ -149,31 +149,31 @@ namespace Vodovoz.Dialogs
 			w14.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
 			this.buttonNo.Image = w14;
 			this.AddActionWidget(this.buttonNo, -9);
-			global::Gtk.ButtonBox.ButtonBoxChild w15 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w11[this.buttonNo]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w15 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(w11[this.buttonNo]));
 			w15.Position = 1;
 			w15.Expand = false;
 			w15.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseStock = true;
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = "gtk-cancel";
 			this.AddActionWidget(this.buttonCancel, -6);
-			global::Gtk.ButtonBox.ButtonBoxChild w16 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w11[this.buttonCancel]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w16 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(w11[this.buttonCancel]));
 			w16.Position = 2;
 			w16.Expand = false;
 			w16.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonOk = new global::Gtk.Button();
+			this.buttonOk = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOk.CanFocus = true;
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.UseStock = true;
 			this.buttonOk.UseUnderline = true;
 			this.buttonOk.Label = "gtk-ok";
 			this.AddActionWidget(this.buttonOk, -5);
-			global::Gtk.ButtonBox.ButtonBoxChild w17 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w11[this.buttonOk]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w17 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(w11[this.buttonOk]));
 			w17.Position = 3;
 			w17.Expand = false;
 			w17.Fill = false;

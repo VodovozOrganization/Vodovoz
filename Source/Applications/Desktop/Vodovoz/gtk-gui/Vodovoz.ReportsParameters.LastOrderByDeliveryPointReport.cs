@@ -20,9 +20,9 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QSWidgetLib.ValidatedEntry BottleDeptEntry;
 
-		private global::Gtk.Button button36;
+		private global::Gamma.GtkWidgets.yButton button36;
 
-		private global::Gtk.Button buttonCreateRepot;
+		private global::Gamma.GtkWidgets.yButton buttonCreateRepot;
 
 		protected virtual void Build()
 		{
@@ -105,7 +105,7 @@ namespace Vodovoz.ReportsParameters
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.button36 = new global::Gtk.Button();
+			this.button36 = new global::Gamma.GtkWidgets.yButton();
 			this.button36.Sensitive = false;
 			this.button36.CanFocus = true;
 			this.button36.Name = "button36";
@@ -121,7 +121,7 @@ namespace Vodovoz.ReportsParameters
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateRepot = new global::Gtk.Button();
+			this.buttonCreateRepot = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateRepot.CanFocus = true;
 			this.buttonCreateRepot.Name = "buttonCreateRepot";
 			this.buttonCreateRepot.UseUnderline = true;
