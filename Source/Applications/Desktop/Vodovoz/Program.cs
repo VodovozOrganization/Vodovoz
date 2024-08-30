@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -161,6 +161,7 @@ using Vodovoz.Infrastructure.FileStorage;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Additions.Printing;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using VodovozInfrastructure;
 
 namespace Vodovoz
 {
@@ -676,6 +677,7 @@ namespace Vodovoz
 						.AddObjectValidatorWithGui()
 						.AddPermissionValidation()
 						.AddGuiInteracive()
+						.AddSlaveDbPreferredReportsCore()
 
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<RouteGeometryCalculator>()

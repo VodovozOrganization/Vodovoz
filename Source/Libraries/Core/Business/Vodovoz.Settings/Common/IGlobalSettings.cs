@@ -11,14 +11,5 @@
 		bool ExcludeToll { get; }
 
 		#endregion Open Source Routing Machine (OSRM)
-
-		#region Connection
-
-		bool SlaveConnectionEnabled { get; }
-		string SlaveConnectionEnabledForThisDatabase { get; }
-		string SlaveConnectionHost { get; }
-		int SlaveConnectionPort { get; }
-
-		#endregion Connection
 	}
 }
