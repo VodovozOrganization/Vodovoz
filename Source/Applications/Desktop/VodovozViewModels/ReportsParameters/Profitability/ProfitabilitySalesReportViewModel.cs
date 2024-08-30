@@ -51,8 +51,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			IEmployeeRepository employeeRepository,
 			ICommonServices commonServices,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
-			ILeftRightListViewModelFactory leftRightListViewModelFactory)
-			: base(rdlViewerViewModel)
+			ILeftRightListViewModelFactory leftRightListViewModelFactory,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			if(unitOfWorkFactory is null)
 			{
@@ -91,13 +92,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		{
 			get
 			{
-				var reportInfo = new ReportInfo
-				{
-					Source = _source,
-					Parameters = Parameters,
-					Title = Title,
-					UseUserVariables = true
-				};
+				var reportInfo = base.ReportInfo;
+				reportInfo.Source = _source;
+				reportInfo.UseUserVariables = true;
 				return reportInfo;
 			}
 		}

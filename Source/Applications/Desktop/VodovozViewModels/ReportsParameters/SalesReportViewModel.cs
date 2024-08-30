@@ -54,8 +54,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IEmployeeRepository employeeRepository,
 			IInteractiveService interactiveService,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
-			ILeftRightListViewModelFactory leftRightListViewModelFactory)
-			: base(rdlViewerViewModel)
+			ILeftRightListViewModelFactory leftRightListViewModelFactory,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
@@ -132,13 +133,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		{
 			get
 			{
-				var reportInfo = new ReportInfo
-				{
-					Source = _source,
-					Parameters = Parameters,
-					Title = Title,
-					UseUserVariables = true
-				};
+				var reportInfo = base.ReportInfo;
+				reportInfo.Source = _source;
+				reportInfo.UseUserVariables = true;
 				return reportInfo;
 			}
 		}

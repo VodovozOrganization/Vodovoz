@@ -25,14 +25,16 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			RdlViewerViewModel rdlViewerViewModel,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			IUnitOfWorkFactory unitOfWorkFactory)
-			: base(rdlViewerViewModel)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			_rdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			Title = "Отчет по выставленным счетам";
+			Identifier = "Sales.SetBillsReport";
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 
@@ -64,13 +66,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		public INavigationManager NavigationManager { get; }
 
-		public override ReportInfo ReportInfo => new ReportInfo
-		{
-			Identifier = "Sales.SetBillsReport",
-			Title = Title,
-			Parameters = Parameters
-		};
-
 		protected override Dictionary<string, object> Parameters => new Dictionary<string, object>
 		{
 			{ "creationDate", DateTime.Now },
@@ -83,7 +78,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		{
 			_unitOfWork?.Dispose();
 		}
-
 		private IEntityEntryViewModel CreateSubdivisionViewModel()
 		{
 			return new CommonEEVMBuilderFactory<SetBillsReportViewModel>(_rdlViewerViewModel, this, _unitOfWork, NavigationManager, _lifetimeScope)

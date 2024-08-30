@@ -4,6 +4,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Report;
 using QS.Report.ViewModels;
 using QS.Services;
 using QS.ViewModels.Control.EEVM;
@@ -37,7 +38,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			ViewModelEEVMBuilder<User> userViewModelEEVMBuilder) : base(rdlViewerViewModel)
+			ViewModelEEVMBuilder<User> userViewModelEEVMBuilder,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			if(commonServices is null)
 			{
