@@ -6,6 +6,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.Infrastructure.Persistance.Store
 {
@@ -50,6 +51,15 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 								select documentItem;
 
 			return documentItems;
+		}
+
+		public IQueryable<CarLoadDocumentLoadingProcessAction> GetLoadingProcessActionsByDocumentId(IUnitOfWork uow, int documentId)
+		{
+			var documentActions = from action in uow.Session.Query<CarLoadDocumentLoadingProcessAction>()
+								  where action.CarLoadDocumentId == documentId
+								  select action;
+
+			return documentActions;
 		}
 	}
 }

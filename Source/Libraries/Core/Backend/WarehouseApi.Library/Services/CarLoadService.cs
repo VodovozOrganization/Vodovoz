@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Employees;
+using Vodovoz.Core.Data.Interfaces.Employees;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Store;
@@ -15,6 +18,7 @@ using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
+using VodovozBusiness.Domain.Documents;
 using VodovozBusiness.Domain.TrueMark.TrueMarkProductCodes;
 using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Responses;
@@ -29,6 +33,7 @@ namespace WarehouseApi.Library.Services
 		private readonly ILogger<CarLoadService> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
+		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
@@ -40,6 +45,7 @@ namespace WarehouseApi.Library.Services
 			ILogger<CarLoadService> logger,
 			IUnitOfWork uow,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
+			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ITrueMarkRepository trueMarkRepository,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
@@ -50,6 +56,7 @@ namespace WarehouseApi.Library.Services
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
+			_employeeWithLoginRepository = employeeWithLoginRepository;
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
@@ -58,22 +65,33 @@ namespace WarehouseApi.Library.Services
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
 		}
 
-		public async Task<Result<StartLoadResponse>> StartLoad(int documentId, string accessToken)
+		public async Task<Result<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken)
 		{
-			var response = new StartLoadResponse();
-
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
 			var carLoadDocument =
 				(await _carLoadDocumentRepository.GetCarLoadDocumentsById(_uow, documentId).ToListAsync())
 				.FirstOrDefault();
 
-			if(!_documentErrorsChecker.IsCarLoadDocumentLoadOperationStateCanBeSetInProgress(carLoadDocument, documentId, out Error error))
-			{
-				response.CarLoadDocument = carLoadDocument is null ? null : GetCarLoadDocumentDto(carLoadDocument);
-				response.Result = OperationResultEnumDto.Error;
-				response.Error = error.Message;
+			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
 
-				return Result.Failure(response, error);
+			var failureResponse = new StartLoadResponse
+			{
+				CarLoadDocument = carLoadDocument is null ? null : GetCarLoadDocumentDto(carLoadDocument),
+				Result = OperationResultEnumDto.Error
+			};
+
+			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee, out Error error))
+			{
+				failureResponse.Error = error.Message;
+				return Result.Failure(failureResponse, error);
+			}
+
+			CreateAndSaveCarLoadDocumentLoadingProcessAction(carLoadDocument?.Id ?? 0, pickerEmployee, CarLoadDocumentLoadingProcessActionType.StartLoad);
+
+			if(!_documentErrorsChecker.IsCarLoadDocumentLoadingCanBeStarted(carLoadDocument, documentId, out error))
+			{
+				failureResponse.Error = error.Message;
+				return Result.Failure(failureResponse, error);
 			}
 
 			var isDocumentSavedAndEventsCreated =
@@ -83,17 +101,18 @@ namespace WarehouseApi.Library.Services
 			{
 				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
 
-				response.Result = OperationResultEnumDto.Error;
-				response.Error = error.Message;
-
-				return Result.Failure(response, error);
+				failureResponse.Error = error.Message;
+				return Result.Failure(failureResponse, error);
 			}
 
-			response.CarLoadDocument = carLoadDocument is null ? null : GetCarLoadDocumentDto(carLoadDocument);
-			response.Result = OperationResultEnumDto.Success;
-			response.Error = null;
+			var successResponse = new StartLoadResponse
+			{
+				CarLoadDocument = carLoadDocument is null ? null : GetCarLoadDocumentDto(carLoadDocument),
+				Result = OperationResultEnumDto.Success,
+				Error = null
+			};
 
-			return Result.Success(response);
+			return Result.Success(successResponse);
 		}
 
 		public async Task<Result<GetOrderResponse>> GetOrder(int orderId)
@@ -119,15 +138,33 @@ namespace WarehouseApi.Library.Services
 			return Result.Success(response);
 		}
 
-		public async Task<Result<AddOrderCodeResponse>> AddOrderCode(int orderId, int nomenclatureId, string scannedCode)
+		public async Task<Result<AddOrderCodeResponse>> AddOrderCode(int orderId, int nomenclatureId, string scannedCode, string userLogin)
 		{
-			var response = new AddOrderCodeResponse();
-
 			var isScannedCodeValid = _trueMarkWaterCodeParser.TryParse(scannedCode, out TrueMarkWaterCode trueMarkCode);
 
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
 			var documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
+
+			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
+
+			var failureResponse = new AddOrderCodeResponse
+			{
+				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
+				Result = OperationResultEnumDto.Error,
+			};
+
+			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee, out Error error))
+			{
+				failureResponse.Error = error.Message;
+
+				return Result.Failure(failureResponse, error);
+			}
+
+			CreateAndSaveCarLoadDocumentLoadingProcessAction(
+				documentItemToEdit?.Document?.Id ?? 0,
+				pickerEmployee,
+				CarLoadDocumentLoadingProcessActionType.AddTrueMarkCode);
 
 			if(!_documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
 				orderId,
@@ -138,34 +175,56 @@ namespace WarehouseApi.Library.Services
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
 				documentItemToEdit,
-				out Error error))
+				out error))
 			{
-				response.Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
-				response.Result = OperationResultEnumDto.Error;
-				response.Error = error.Message;
-
-				return Result.Failure(response, error);
+				failureResponse.Error = error.Message;
+				return Result.Failure(failureResponse, error);
 			}
 
 			AddTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, trueMarkCode);
 
-			response.Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
-			response.Result = OperationResultEnumDto.Success;
-			response.Error = null;
+			var successResponse = new AddOrderCodeResponse
+			{
+				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
+				Result = OperationResultEnumDto.Success,
+				Error = null
+			};
 
-			return Result.Success(response);
+			return Result.Success(successResponse);
 		}
 
-		public async Task<Result<AddOrderCodeResponse>> ChangeOrderCode(int orderId, int nomenclatureId, string oldScannedCode, string newScannedCode)
+		public async Task<Result<ChangeOrderCodeResponse>> ChangeOrderCode(
+			int orderId,
+			int nomenclatureId,
+			string oldScannedCode,
+			string newScannedCode,
+			string userLogin)
 		{
-			var response = new AddOrderCodeResponse();
-
 			var isOldScannedCodeValid = _trueMarkWaterCodeParser.TryParse(oldScannedCode, out TrueMarkWaterCode oldTrueMarkCode);
 			var isNewScannedCodeValid = _trueMarkWaterCodeParser.TryParse(newScannedCode, out TrueMarkWaterCode newTrueMarkCode);
 
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
 			var documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
+
+			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
+
+			var failureResponse = new ChangeOrderCodeResponse
+			{
+				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
+				Result = OperationResultEnumDto.Error,
+			};
+
+			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee, out Error error))
+			{
+				failureResponse.Error = error.Message;
+				return Result.Failure(failureResponse, error);
+			}
+
+			CreateAndSaveCarLoadDocumentLoadingProcessAction(
+				documentItemToEdit?.Document?.Id ?? 0,
+				pickerEmployee,
+				CarLoadDocumentLoadingProcessActionType.ChangeTrueMarkCode);
 
 			if(!_documentErrorsChecker.IsTrueMarkCodeCanBeChanged(
 				orderId,
@@ -179,39 +238,50 @@ namespace WarehouseApi.Library.Services
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
 				documentItemToEdit,
-				out Error error))
+				out error))
 			{
-				response.Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
-				response.Result = OperationResultEnumDto.Error;
-				response.Error = error.Message;
-
-				return Result.Failure(response, error);
+				failureResponse.Error = error.Message;
+				return Result.Failure(failureResponse, error);
 			}
 
 			ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, oldTrueMarkCode, newTrueMarkCode);
 
-			response.Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
-			response.Result = OperationResultEnumDto.Success;
-			response.Error = null;
+			var successResponse = new ChangeOrderCodeResponse
+			{
+				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
+				Result = OperationResultEnumDto.Success,
+				Error = null
+			};
 
-			return Result.Success(response);
+			return Result.Success(successResponse);
 		}
 
-		public async Task<Result<EndLoadResponse>> EndLoad(int documentId, string accessToken)
+		public async Task<Result<EndLoadResponse>> EndLoad(int documentId, string userLogin, string accessToken)
 		{
-			var response = new EndLoadResponse();
-
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
 			var carLoadDocument =
 				(await _carLoadDocumentRepository.GetCarLoadDocumentsById(_uow, documentId).ToListAsync())
 				.FirstOrDefault();
 
-			if(!_documentErrorsChecker.IsCarLoadDocumentLoadOperationStateCanBeSetInDone(carLoadDocument, documentId, out Error error))
-			{
-				response.Result = OperationResultEnumDto.Error;
-				response.Error = error.Message;
+			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
 
-				return Result.Failure(response, error);
+			var failureResponse = new EndLoadResponse
+			{
+				Result = OperationResultEnumDto.Error
+			};
+
+			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee, out Error error))
+			{
+				failureResponse.Error = error.Message;
+				return Result.Failure(failureResponse, error);
+			}
+
+			CreateAndSaveCarLoadDocumentLoadingProcessAction(carLoadDocument?.Id ?? 0, pickerEmployee, CarLoadDocumentLoadingProcessActionType.EndLoad);
+
+			if(!_documentErrorsChecker.IsCarLoadDocumentLoadingCanBeDone(carLoadDocument, documentId, out error))
+			{
+				failureResponse.Error = error.Message;
+				return Result.Failure(failureResponse, error);
 			}
 
 			var isDocumentSavedAndEventsCreated =
@@ -221,16 +291,17 @@ namespace WarehouseApi.Library.Services
 			{
 				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
 
-				response.Result = OperationResultEnumDto.Error;
-				response.Error = error.Message;
-
-				return Result.Failure(response, error);
+				failureResponse.Error = error.Message;
+				return Result.Failure(failureResponse, error);
 			}
 
-			response.Result = OperationResultEnumDto.Success;
-			response.Error = null;
+			var successResponse = new EndLoadResponse
+			{
+				Result = OperationResultEnumDto.Success,
+				Error = null
+			};
 
-			return Result.Success(response);
+			return Result.Success(successResponse);
 		}
 
 		private async Task<IList<CarLoadDocumentItem>> GetCarLoadDocumentWaterOrderItems(int orderId)
@@ -344,12 +415,51 @@ namespace WarehouseApi.Library.Services
 			return codeEntity;
 		}
 
+		private void CreateAndSaveCarLoadDocumentLoadingProcessAction(
+			int documentId,
+			EmployeeWithLogin employee,
+			CarLoadDocumentLoadingProcessActionType actionType)
+		{
+			var action = CreateCarLoadDocumentLoadingProcessAction(documentId, employee.Id, actionType);
+			_uow.Save(action);
+			_uow.Commit();
+		}
+
+		private CarLoadDocumentLoadingProcessAction CreateCarLoadDocumentLoadingProcessAction(
+			int documentId,
+			int employeeId,
+			CarLoadDocumentLoadingProcessActionType actionType)
+		{
+			return new CarLoadDocumentLoadingProcessAction
+			{
+				CarLoadDocumentId = documentId,
+				PickerEmployeeId = employeeId,
+				ActionTime = DateTime.Now,
+				ActionType = actionType
+			};
+		}
+
+		private void SaveCarLoadDocumentLoadingProcessAction(CarLoadDocumentLoadingProcessAction action)
+		{
+			_uow.Save(action);
+			_uow.Commit();
+		}
+
 		private async Task<bool> CreateStartLoadLogisticEvent(int documentId, string accessToken)
 		{
 			try
 			{
+				_logger.LogInformation("Выполняем запрос к службе логистических событий для создания события начала сборки." +
+					"Параметры запроса:\n" +
+					"\tDocumentId: {DocumentId}" +
+					"\tAccessToken: {tAccessToken}",
+					documentId,
+					accessToken);
+
 				var isEventCreated =
 					await _logisticsEventsCreationService.CreateStartLoadingWarehouseEvent(documentId, accessToken, CancellationToken.None);
+
+				_logger.LogInformation("Запрос к службе логистических событий для создания события начала сборки выполнен успешно");
 
 				return isEventCreated;
 			}
@@ -364,8 +474,17 @@ namespace WarehouseApi.Library.Services
 		{
 			try
 			{
+				_logger.LogInformation("Выполняем запрос к службе логистических событий для создания события завершения сборки." +
+					"Параметры запроса:\n" +
+					"\tDocumentId: {DocumentId}" +
+					"\tAccessToken: {tAccessToken}",
+					documentId,
+					accessToken);
+
 				var isEventCreated =
 					await _logisticsEventsCreationService.CreateEndLoadingWarehouseEvent(documentId, accessToken, CancellationToken.None);
+
+				_logger.LogInformation("Запрос к службе логистических событий для создания события завершения сборки выполнен успешно");
 
 				return isEventCreated;
 			}
@@ -375,5 +494,10 @@ namespace WarehouseApi.Library.Services
 				return false;
 			}
 		}
+
+		public EmployeeWithLogin GetEmployeeProxyByApiLogin(
+			string userLogin,
+			ExternalApplicationType applicationType = ExternalApplicationType.WarehouseApp) =>
+			_employeeWithLoginRepository.GetEmployeeWithLogin(_uow, userLogin, applicationType);
 	}
 }

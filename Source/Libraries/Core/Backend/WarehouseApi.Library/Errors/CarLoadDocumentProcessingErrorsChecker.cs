@@ -4,11 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Vodovoz.Core.Data.Employees;
+using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.TrueMark;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Settings.Warehouse;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
@@ -19,27 +23,42 @@ namespace WarehouseApi.Library.Errors
 		private readonly ILogger<CarLoadDocumentProcessingErrorsChecker> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkRepository _trueMarkRepository;
+		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
+		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
+		private readonly ICarLoadDocumentLoadingProcessSettings _carLoadDocumentLoadingProcessSettings;
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 
 		public CarLoadDocumentProcessingErrorsChecker(
 			ILogger<CarLoadDocumentProcessingErrorsChecker> logger,
 			IUnitOfWork uow,
 			ITrueMarkRepository trueMarkRepository,
+			ICarLoadDocumentRepository carLoadDocumentRepository,
+			IEmployeeWithLoginRepository employeeWithLoginRepository,
+			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,
 			TrueMarkCodesChecker trueMarkCodesChecker)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
+			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
+			_employeeWithLoginRepository = employeeWithLoginRepository ?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
+			_carLoadDocumentLoadingProcessSettings = carLoadDocumentLoadingProcessSettings;
 			_trueMarkCodesChecker = trueMarkCodesChecker ?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
 		}
 
-		public bool IsCarLoadDocumentLoadOperationStateCanBeSetInProgress(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		public bool IsCarLoadDocumentLoadingCanBeStarted(
+			CarLoadDocument carLoadDocument,
+			int documentId,
+			out Error error)
 		{
 			return IsCarLoadDocumentNotNull(carLoadDocument, documentId, out error)
-				&& IsCarLoadDocumentLoadOperationStateNotStarted(carLoadDocument, documentId, out error);
+				&& IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(carLoadDocument, documentId, out error);
 		}
 
-		public bool IsCarLoadDocumentLoadOperationStateCanBeSetInDone(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		public bool IsCarLoadDocumentLoadingCanBeDone(
+			CarLoadDocument carLoadDocument,
+			int documentId,
+			out Error error)
 		{
 			return IsCarLoadDocumentNotNull(carLoadDocument, documentId, out error)
 				&& IsCarLoadDocumentLoadOperationStateInProgress(carLoadDocument, documentId, out error)
@@ -74,6 +93,41 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
+		public bool IsEmployeeCanPickUpCarLoadDocument(int documentId, EmployeeWithLogin employee, out Error error)
+		{
+			error = null;
+
+			var lastDocumentLoadingProcessAction =
+				_carLoadDocumentRepository.GetLoadingProcessActionsByDocumentId(_uow, documentId)
+				.OrderByDescending(action => action.Id)
+				.FirstOrDefault();
+
+			var noLoadingActionsTimeout = _carLoadDocumentLoadingProcessSettings.NoLoadingActionsTimeout;
+
+			var isEmployeeCanPickUpCarLoadDocument =
+				lastDocumentLoadingProcessAction is null
+				|| lastDocumentLoadingProcessAction.PickerEmployeeId == employee?.Id
+				|| DateTime.Now > lastDocumentLoadingProcessAction.ActionTime.Add(noLoadingActionsTimeout);
+
+			if(!isEmployeeCanPickUpCarLoadDocument)
+			{
+				var leftToEndNoLoadingActionsTimeout = lastDocumentLoadingProcessAction.ActionTime.Add(noLoadingActionsTimeout) - DateTime.Now;
+				var pickerEmployee =
+					_employeeWithLoginRepository.GetEmployeeWithLoginById(_uow, lastDocumentLoadingProcessAction.PickerEmployeeId)
+					.FirstOrDefault();
+
+				error = CarLoadDocumentErrors.CreateCarLoadDocumentAlreadyHasPickerError(
+					documentId,
+					pickerEmployee?.ShortName ?? "Сотрудник не найден",
+					leftToEndNoLoadingActionsTimeout);
+
+				LogError(error);
+				return false;
+			}
+
+			return true;
+		}
+
 		private bool IsAllTrueMarkCodesInCarLoadDocumentAdded(CarLoadDocument carLoadDocument, int documentId, out Error error)
 		{
 			error = null;
@@ -85,6 +139,21 @@ namespace WarehouseApi.Library.Errors
 			if(isNotAllCodesAdded)
 			{
 				error = CarLoadDocumentErrors.CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(documentId);
+				LogError(error);
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		{
+			error = null;
+
+			if(!(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.NotStarted
+				|| carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.InProgress))
+			{
+				error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeNotStartedOrInProgress(documentId);
 				LogError(error);
 				return false;
 			}
@@ -136,7 +205,7 @@ namespace WarehouseApi.Library.Errors
 			IList<CarLoadDocumentItem> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItem> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItem documentItemToEdit,
-		out Error error)
+			out Error error)
 		{
 			return IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
 				&& IsScannedCodeValid(scannedCode, isScannedCodeValid, out error)

@@ -1,4 +1,8 @@
-﻿namespace Vodovoz.Errors.Stores
+﻿using System;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Extensions;
+
+namespace Vodovoz.Errors.Stores
 {
 	public static partial class CarLoadDocument
 	{
@@ -29,25 +33,37 @@
 			new Error(
 				typeof(CarLoadDocument),
 				nameof(LoadingProcessStateMustBeNotStarted),
-				"Статус погрузки талона должен быть в \"Погрузка не начата\"");
+				$"Статус погрузки талона должен быть в \"{CarLoadDocumentLoadOperationState.NotStarted.GetEnumDisplayName()}\"");
 
 		public static Error CreateLoadingProcessStateMustBeNotStarted(int? id) =>
 			id is null ? LoadingProcessStateMustBeNotStarted : new Error(
 				typeof(CarLoadDocument),
 				nameof(LoadingProcessStateMustBeNotStarted),
-				$"Статус погрузки талона #{id} должен быть в \"Погрузка не начата\"");
+				$"Статус погрузки талона #{id} должен быть в \"{CarLoadDocumentLoadOperationState.NotStarted.GetEnumDisplayName()}\"");
 
 		public static Error LoadingProcessStateMustBeInProgress =>
 			new Error(
 				typeof(CarLoadDocument),
 				nameof(LoadingProcessStateMustBeInProgress),
-				"Статус погрузки талона должен быть в \"В процессе погрузки\"");
+				$"Статус погрузки талона должен быть в \"{CarLoadDocumentLoadOperationState.InProgress.GetEnumDisplayName()}\"");
 
 		public static Error CreateLoadingProcessStateMustBeInProgress(int? id) =>
 			id is null ? LoadingProcessStateMustBeInProgress : new Error(
 				typeof(CarLoadDocument),
 				nameof(LoadingProcessStateMustBeInProgress),
-				$"Статус погрузки талона #{id} должен быть в \"В процессе погрузки\"");
+				$"Статус погрузки талона #{id} должен быть в \"{CarLoadDocumentLoadOperationState.InProgress.GetEnumDisplayName()}\"");
+
+		public static Error LoadingProcessStateMustBeNotStartedOrInProgress =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(LoadingProcessStateMustBeNotStartedOrInProgress),
+				$"Статус погрузки талона должен быть в \"{CarLoadDocumentLoadOperationState.NotStarted.GetEnumDisplayName()}\" или \"{CarLoadDocumentLoadOperationState.InProgress.GetEnumDisplayName()}\"");
+
+		public static Error CreateLoadingProcessStateMustBeNotStartedOrInProgress(int? id) =>
+			id is null ? LoadingProcessStateMustBeNotStartedOrInProgress : new Error(
+				typeof(CarLoadDocument),
+				nameof(LoadingProcessStateMustBeNotStartedOrInProgress),
+				$"Статус погрузки талона #{id} должен быть в \"{CarLoadDocumentLoadOperationState.NotStarted.GetEnumDisplayName()}\" или \"{CarLoadDocumentLoadOperationState.InProgress.GetEnumDisplayName()}\"");
 
 		public static Error NotAllTrueMarkCodesWasAddedIntoCarLoadDocument =>
 			new Error(
@@ -120,5 +136,17 @@
 				typeof(CarLoadDocument),
 				nameof(CarLoadDocumentStateChangeError),
 				$"Ошибка при изменении статуса операции погрузки талона погрузки #{id}");
+
+		public static Error CarLoadDocumentAlreadyHasPickerError =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(CarLoadDocumentAlreadyHasPickerError),
+				"Ошибка при изменении статуса операции погрузки талона погрузки");
+
+		public static Error CreateCarLoadDocumentAlreadyHasPickerError(int? documentId, string pickerName, TimeSpan noActionsTimespan) =>
+			documentId is null || string.IsNullOrWhiteSpace(pickerName) || noActionsTimespan == default ? CarLoadDocumentAlreadyHasPickerError : new Error(
+				typeof(CarLoadDocument),
+				nameof(CarLoadDocumentAlreadyHasPickerError),
+				$"Талон погрузки #{documentId} уже собирает {pickerName} Подождите {Math.Ceiling(noActionsTimespan.TotalMinutes):N0} минут и попробуйте снова");
 	}
 }

@@ -5,10 +5,14 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using TrueMarkApi.Client;
 using Vodovoz;
+using Vodovoz.Core.Data.Interfaces.Employees;
+using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Settings.Database.Warehouse;
+using Vodovoz.Settings.Warehouse;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using WarehouseApi.Library.Services;
@@ -41,7 +45,8 @@ namespace WarehouseApi.Library
 				.AddScoped<TrueMarkApiClientFactory>()
 				.AddScoped(sp => sp.GetRequiredService<TrueMarkApiClientFactory>().GetClient())
 				.AddScoped<TrueMarkCodesChecker>()
-				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>();
+				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
+				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>();
 
 			services.AddStaticHistoryTracker();
 

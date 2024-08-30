@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -27,13 +28,16 @@ namespace WarehouseApi.Controllers
 			nameof(ApplicationUserRole.WarehousePicker) + "," + nameof(ApplicationUserRole.WarehouseDriver);
 
 		private readonly ILogger<CarLoadController> _logger;
+		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ICarLoadService _carLoadService;
 
 		public CarLoadController(
 			ILogger<CarLoadController> logger,
+			UserManager<IdentityUser> userManager,
 			ICarLoadService carLoadService) : base(logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_carLoadService = carLoadService ?? throw new ArgumentNullException(nameof(carLoadService));
 		}
 
@@ -47,6 +51,7 @@ namespace WarehouseApi.Controllers
 		{
 			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
 			var accessToken = accessTokenValue?.Parameter ?? string.Empty;
+			var user = await _userManager.GetUserAsync(User);
 
 			_logger.LogInformation("Запрос начала погрузки талона погрузки авто. DocumentId: {DocumentId}. User token: {AccessToken}",
 				documentId,
@@ -54,7 +59,7 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result = await _carLoadService.StartLoad(documentId, accessToken);
+				var result = await _carLoadService.StartLoad(documentId, user.UserName, accessToken);
 
 				if(result.IsSuccess)
 				{
@@ -138,9 +143,11 @@ namespace WarehouseApi.Controllers
 				requestData.Code,
 				Request.Headers[HeaderNames.Authorization]);
 
+			var user = await _userManager.GetUserAsync(User);
+
 			try
 			{
-				var result = await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code);
+				var result = await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName);
 
 				if(result.IsSuccess)
 				{
@@ -176,10 +183,17 @@ namespace WarehouseApi.Controllers
 				requestData.NewCode,
 				Request.Headers[HeaderNames.Authorization]);
 
+			var user = await _userManager.GetUserAsync(User);
+
 			try
 			{
 				var result =
-					await _carLoadService.ChangeOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.OldCode, requestData.NewCode);
+					await _carLoadService.ChangeOrderCode(
+						requestData.OrderId,
+						requestData.NomenclatureId,
+						requestData.OldCode,
+						requestData.NewCode,
+						user.UserName);
 
 				if(result.IsSuccess)
 				{
@@ -209,6 +223,7 @@ namespace WarehouseApi.Controllers
 		{
 			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
 			var accessToken = accessTokenValue?.Parameter ?? string.Empty;
+			var user = await _userManager.GetUserAsync(User);
 
 			_logger.LogInformation("Запрос завершения погрузки талона погрузки авто. DocumentId: {DocumentId}. User token: {AccessToken}",
 				documentId,
@@ -216,7 +231,7 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result = await _carLoadService.EndLoad(documentId, accessToken);
+				var result = await _carLoadService.EndLoad(documentId, user.UserName, accessToken);
 
 				if(result.IsSuccess)
 				{
