@@ -1080,7 +1080,7 @@ namespace Vodovoz.Domain.Goods
 			return false;
 		}
 
-		public virtual void AddAttachedFileInformations(string filename)
+		public virtual void AddFileInformation(string filename)
 		{
 			var nomenclatureFileInformation = new NomenclatureFileInformation
 			{
@@ -1091,7 +1091,7 @@ namespace Vodovoz.Domain.Goods
 			AttachedFileInformations.Add(nomenclatureFileInformation);
 		}
 
-		public virtual void RemoveAttachedFileInformations(string filename)
+		public virtual void RemoveFileInformation(string filename)
 		{
 			if(!AttachedFileInformations.Any(fi => fi.FileName == filename))
 			{

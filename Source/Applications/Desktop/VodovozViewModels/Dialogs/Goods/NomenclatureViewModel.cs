@@ -134,8 +134,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					UoW,
 					Entity,
 					_nomenclatureFileStorageService,
-					Entity.AddAttachedFileInformations,
-					Entity.RemoveAttachedFileInformations);
+					Entity.AddFileInformation,
+					Entity.RemoveFileInformation);
 
 			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
 		}
