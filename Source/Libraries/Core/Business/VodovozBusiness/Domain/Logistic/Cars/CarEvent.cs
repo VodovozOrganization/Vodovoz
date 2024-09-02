@@ -37,6 +37,7 @@ namespace Vodovoz.Domain.Logistic
 		private int _odometer;
 		private DateTime? _carTechnicalCheckupEndingDate;
 		private WriteOffDocument _writeOffDocument;
+		private bool _isWriteOffDocumentNotRequired;
 
 		#region Свойства
 
@@ -160,6 +161,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _writeOffDocument;
 			set => SetField(ref _writeOffDocument, value);
+		}
+
+		[Display(Name = "Акт списания не нужен")]
+		public virtual bool IsWriteOffDocumentNotRequired
+		{
+			get => _isWriteOffDocumentNotRequired;
+			set => SetField(ref _isWriteOffDocumentNotRequired, value);
 		}
 
 		GenericObservableList<Fine> observableFines;		
