@@ -9,6 +9,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using System.Data.Bindings.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Settings.Logistics;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -35,6 +36,7 @@ namespace Vodovoz.Domain.Logistic
 		private CarEvent _originalCarEvent;
 		private int _odometer;
 		private DateTime? _carTechnicalCheckupEndingDate;
+		private WriteOffDocument _writeOffDocument;
 
 		#region Свойства
 
@@ -117,7 +119,7 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _compensationFromInsuranceByCourt, value);
 		}
 
-		[Display( Name = "Стоимость ремонта" )]
+		[Display( Name = "Стоимость работ" )]
 		public virtual decimal RepairCost
 		{
 			get => _repairCost;
@@ -153,6 +155,13 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _carTechnicalCheckupEndingDate, value);
 		}
 
+		[Display(Name = "Акт списания ТМЦ")]
+		public virtual WriteOffDocument WriteOffDocument
+		{
+			get => _writeOffDocument;
+			set => SetField(ref _writeOffDocument, value);
+		}
+
 		GenericObservableList<Fine> observableFines;		
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
@@ -179,6 +188,9 @@ namespace Vodovoz.Domain.Logistic
 		{
 			return $"Событие №{Id} от {CreateDate.ToShortDateString()}";
 		}
+
+		public virtual decimal RepairAndPartsSummaryCost =>
+			RepairCost;
 
 		#endregion
 

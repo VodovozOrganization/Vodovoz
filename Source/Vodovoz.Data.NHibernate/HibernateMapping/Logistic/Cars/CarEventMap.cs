@@ -26,6 +26,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			References(x => x.Car).Column("car_id");
 			References(x => x.Driver).Column("driver_id");
 			References(x => x.OriginalCarEvent).Column("original_car_event_id");
+			References(x => x.WriteOffDocument).Column("write_off_document_id");
 
 			HasManyToMany(x => x.Fines)
 				.Table("car_event_fines")
