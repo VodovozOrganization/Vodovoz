@@ -232,7 +232,7 @@ namespace Vodovoz.Views.Reports
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.eventboxArrow.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler(this.OnEventboxArrowButtonPressEvent);
+			this.eventboxArrow.ButtonPressEvent += new global::Gamma.GtkWidgets.yButtonPressEventHandler(this.OnEventboxArrowButtonPressEvent);
 		}
 	}
 }

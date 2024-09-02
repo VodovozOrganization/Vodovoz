@@ -6,7 +6,7 @@ namespace Vodovoz.ReportsParameters
 	{
 		private global::Gtk.VBox vbox1;
 
-		private global::Gtk.Button buttonCreateRepot;
+		private global::Gamma.GtkWidgets.yButton buttonCreateRepot;
 
 		protected virtual void Build()
 		{
@@ -19,7 +19,7 @@ namespace Vodovoz.ReportsParameters
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateRepot = new global::Gtk.Button();
+			this.buttonCreateRepot = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateRepot.CanFocus = true;
 			this.buttonCreateRepot.Name = "buttonCreateRepot";
 			this.buttonCreateRepot.UseUnderline = true;

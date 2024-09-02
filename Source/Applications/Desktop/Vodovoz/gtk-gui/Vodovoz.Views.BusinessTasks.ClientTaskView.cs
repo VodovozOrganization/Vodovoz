@@ -10,9 +10,9 @@ namespace Vodovoz.Views.BusinessTasks
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gamma.GtkWidgets.yLabel labelCreator;
 
@@ -78,7 +78,7 @@ namespace Vodovoz.Views.BusinessTasks
 
 		private global::Gtk.HSeparator hseparator1;
 
-		private global::Gtk.Button buttonSplit;
+		private global::Gamma.GtkWidgets.yButton buttonSplit;
 
 		private global::Gtk.VBox vboxOldComments;
 
@@ -90,7 +90,7 @@ namespace Vodovoz.Views.BusinessTasks
 
 		private global::Gtk.HBox hbox7;
 
-		private global::Gtk.Button createOrderButton;
+		private global::Gamma.GtkWidgets.yButton createOrderButton;
 
 		private global::Gamma.GtkWidgets.yButton createTaskButton;
 
@@ -121,7 +121,7 @@ namespace Vodovoz.Views.BusinessTasks
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -135,7 +135,7 @@ namespace Vodovoz.Views.BusinessTasks
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -509,7 +509,7 @@ namespace Vodovoz.Views.BusinessTasks
 			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vboxComments]));
 			w37.Position = 2;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSplit = new global::Gtk.Button();
+			this.buttonSplit = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSplit.WidthRequest = 30;
 			this.buttonSplit.CanFocus = true;
 			this.buttonSplit.Name = "buttonSplit";
@@ -557,7 +557,7 @@ namespace Vodovoz.Views.BusinessTasks
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.createOrderButton = new global::Gtk.Button();
+			this.createOrderButton = new global::Gamma.GtkWidgets.yButton();
 			this.createOrderButton.CanFocus = true;
 			this.createOrderButton.Name = "createOrderButton";
 			this.createOrderButton.UseUnderline = true;

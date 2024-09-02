@@ -8,9 +8,9 @@ namespace Vodovoz.Views.Users
 
 		private global::Gtk.HBox hboxButtons;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -98,9 +98,9 @@ namespace Vodovoz.Views.Users
 
 		private global::Gtk.VBox vboxRolesButtons;
 
-		private global::Gtk.Button buttonAddRole;
+		private global::Gamma.GtkWidgets.yButton buttonAddRole;
 
-		private global::Gtk.Button buttonRemoveRole;
+		private global::Gamma.GtkWidgets.yButton buttonRemoveRole;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelAddedRoles;
 
@@ -141,7 +141,7 @@ namespace Vodovoz.Views.Users
 			this.hboxButtons.Name = "hboxButtons";
 			this.hboxButtons.Spacing = 6;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -155,7 +155,7 @@ namespace Vodovoz.Views.Users
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -625,7 +625,7 @@ namespace Vodovoz.Views.Users
 			this.vboxRolesButtons.Name = "vboxRolesButtons";
 			this.vboxRolesButtons.Spacing = 6;
 			// Container child vboxRolesButtons.Gtk.Box+BoxChild
-			this.buttonAddRole = new global::Gtk.Button();
+			this.buttonAddRole = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddRole.WidthRequest = 30;
 			this.buttonAddRole.CanFocus = true;
 			this.buttonAddRole.Name = "buttonAddRole";
@@ -637,7 +637,7 @@ namespace Vodovoz.Views.Users
 			w45.Expand = false;
 			w45.Fill = false;
 			// Container child vboxRolesButtons.Gtk.Box+BoxChild
-			this.buttonRemoveRole = new global::Gtk.Button();
+			this.buttonRemoveRole = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRemoveRole.WidthRequest = 30;
 			this.buttonRemoveRole.CanFocus = true;
 			this.buttonRemoveRole.Name = "buttonRemoveRole";

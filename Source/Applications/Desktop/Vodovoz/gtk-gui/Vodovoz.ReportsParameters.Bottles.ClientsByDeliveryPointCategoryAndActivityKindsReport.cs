@@ -36,7 +36,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::Gtk.Label GtkLabel2;
 
-		private global::Gtk.Button buttonRun;
+		private global::Gamma.GtkWidgets.yButton buttonRun;
 
 		protected virtual void Build()
 		{
@@ -191,7 +191,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.frame1]));
 			w14.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonRun = new global::Gtk.Button();
+			this.buttonRun = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRun.CanFocus = true;
 			this.buttonRun.Name = "buttonRun";
 			this.buttonRun.UseUnderline = true;

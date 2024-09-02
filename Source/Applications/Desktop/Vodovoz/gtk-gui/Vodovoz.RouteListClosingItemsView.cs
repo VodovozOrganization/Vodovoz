@@ -69,7 +69,7 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.ytreeviewItems.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler(this.OnYtreeviewItemsButtonPressEvent);
+			this.ytreeviewItems.ButtonPressEvent += new global::Gamma.GtkWidgets.yButtonPressEventHandler(this.OnYtreeviewItemsButtonPressEvent);
 			this.ytreeviewItems.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewItemsRowActivated);
 		}
 	}

@@ -8,9 +8,9 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -56,9 +56,9 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.HButtonBox hbuttonbox2;
 
-		private global::Gtk.Button btnAddNomenclature;
+		private global::Gamma.GtkWidgets.yButton btnAddNomenclature;
 
-		private global::Gtk.Button btnDelete;
+		private global::Gamma.GtkWidgets.yButton btnDelete;
 
 		private global::Gtk.Label lblNomenclatures;
 
@@ -77,7 +77,7 @@ namespace Vodovoz.Dialogs
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -91,7 +91,7 @@ namespace Vodovoz.Dialogs
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -301,25 +301,25 @@ namespace Vodovoz.Dialogs
 			// Container child vbxNomenclatures.Gtk.Box+BoxChild
 			this.hbuttonbox2 = new global::Gtk.HButtonBox();
 			this.hbuttonbox2.Name = "hbuttonbox2";
-			this.hbuttonbox2.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(3));
+			this.hbuttonbox2.LayoutStyle = ((global::Gamma.GtkWidgets.yButtonBoxStyle)(3));
 			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
-			this.btnAddNomenclature = new global::Gtk.Button();
+			this.btnAddNomenclature = new global::Gamma.GtkWidgets.yButton();
 			this.btnAddNomenclature.CanFocus = true;
 			this.btnAddNomenclature.Name = "btnAddNomenclature";
 			this.btnAddNomenclature.UseUnderline = true;
 			this.btnAddNomenclature.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			this.hbuttonbox2.Add(this.btnAddNomenclature);
-			global::Gtk.ButtonBox.ButtonBoxChild w23 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnAddNomenclature]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w23 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnAddNomenclature]));
 			w23.Expand = false;
 			w23.Fill = false;
 			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
-			this.btnDelete = new global::Gtk.Button();
+			this.btnDelete = new global::Gamma.GtkWidgets.yButton();
 			this.btnDelete.CanFocus = true;
 			this.btnDelete.Name = "btnDelete";
 			this.btnDelete.UseUnderline = true;
 			this.btnDelete.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.hbuttonbox2.Add(this.btnDelete);
-			global::Gtk.ButtonBox.ButtonBoxChild w24 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnDelete]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w24 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnDelete]));
 			w24.Position = 1;
 			w24.Expand = false;
 			w24.Fill = false;

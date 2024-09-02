@@ -8,9 +8,9 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::QSWidgetLib.MenuButton menuActions;
 
@@ -282,7 +282,7 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gtk.HBox hbox10;
 
-		private global::Gtk.Button buttonAddImage;
+		private global::Gamma.GtkWidgets.yButton buttonAddImage;
 
 		private global::Gtk.Label lblImages;
 
@@ -507,7 +507,7 @@ namespace Vodovoz.Views.Goods
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -521,7 +521,7 @@ namespace Vodovoz.Views.Goods
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -2080,7 +2080,7 @@ namespace Vodovoz.Views.Goods
 			this.hbox10.Name = "hbox10";
 			this.hbox10.Spacing = 6;
 			// Container child hbox10.Gtk.Box+BoxChild
-			this.buttonAddImage = new global::Gtk.Button();
+			this.buttonAddImage = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddImage.CanFocus = true;
 			this.buttonAddImage.Name = "buttonAddImage";
 			this.buttonAddImage.UseUnderline = true;

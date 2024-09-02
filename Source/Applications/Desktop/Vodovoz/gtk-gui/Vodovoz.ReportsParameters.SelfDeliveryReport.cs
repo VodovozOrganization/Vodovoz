@@ -14,7 +14,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gamma.GtkWidgets.yLabel ylabelWarningMessage;
 
-		private global::Gtk.Button buttonCreateRepot;
+		private global::Gamma.GtkWidgets.yButton buttonCreateRepot;
 
 		protected virtual void Build()
 		{
@@ -63,7 +63,7 @@ namespace Vodovoz.ReportsParameters
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.buttonCreateRepot = new global::Gtk.Button();
+			this.buttonCreateRepot = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateRepot.CanFocus = true;
 			this.buttonCreateRepot.Name = "buttonCreateRepot";
 			this.buttonCreateRepot.UseUnderline = true;

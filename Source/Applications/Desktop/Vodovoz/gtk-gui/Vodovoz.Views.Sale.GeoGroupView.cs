@@ -8,9 +8,9 @@ namespace Vodovoz.Views.Sale
 
 		private global::Gtk.HBox hboxDialogButtons;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.Table tableData;
 
@@ -79,7 +79,7 @@ namespace Vodovoz.Views.Sale
 			this.hboxDialogButtons.Name = "hboxDialogButtons";
 			this.hboxDialogButtons.Spacing = 6;
 			// Container child hboxDialogButtons.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -92,7 +92,7 @@ namespace Vodovoz.Views.Sale
 			w2.Position = 0;
 			w2.Expand = false;
 			// Container child hboxDialogButtons.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;

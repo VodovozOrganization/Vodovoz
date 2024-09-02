@@ -42,7 +42,7 @@ namespace Vodovoz.Views
 
 		private global::Gamma.GtkWidgets.yProgressBar yprogressbarSending;
 
-		private global::Gtk.Button buttonSend;
+		private global::Gamma.GtkWidgets.yButton buttonSend;
 
 		protected virtual void Build()
 		{
@@ -280,9 +280,9 @@ namespace Vodovoz.Views
 			w21.Name = "dialog1_ActionArea";
 			w21.Spacing = 10;
 			w21.BorderWidth = ((uint)(5));
-			w21.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
+			w21.LayoutStyle = ((global::Gamma.GtkWidgets.yButtonBoxStyle)(4));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonSend = new global::Gtk.Button();
+			this.buttonSend = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSend.Sensitive = false;
 			this.buttonSend.CanDefault = true;
 			this.buttonSend.CanFocus = true;
@@ -290,7 +290,7 @@ namespace Vodovoz.Views
 			this.buttonSend.UseUnderline = true;
 			this.buttonSend.Label = global::Mono.Unix.Catalog.GetString("Запустить рассылку");
 			w21.Add(this.buttonSend);
-			global::Gtk.ButtonBox.ButtonBoxChild w22 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w21[this.buttonSend]));
+			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w22 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(w21[this.buttonSend]));
 			w22.Expand = false;
 			w22.Fill = false;
 			if ((this.Child != null))

@@ -14,9 +14,9 @@ namespace Vodovoz.ViewWidgets.Permissions
 
 		private global::Gtk.VBox vbox1;
 
-		private global::Gtk.Button buttonAdd;
+		private global::Gamma.GtkWidgets.yButton buttonAdd;
 
-		private global::Gtk.Button buttonDelete;
+		private global::Gamma.GtkWidgets.yButton buttonDelete;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -55,7 +55,7 @@ namespace Vodovoz.ViewWidgets.Permissions
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonAdd = new global::Gtk.Button();
+			this.buttonAdd = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
@@ -66,7 +66,7 @@ namespace Vodovoz.ViewWidgets.Permissions
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonDelete = new global::Gtk.Button();
+			this.buttonDelete = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.UseUnderline = true;

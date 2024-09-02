@@ -26,7 +26,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::Gamma.Widgets.ySpecComboBox ySpecCmbNonReturnReason;
 
-		private global::Gtk.Button buttonCreateRepot;
+		private global::Gamma.GtkWidgets.yButton buttonCreateRepot;
 
 		protected virtual void Build()
 		{
@@ -148,7 +148,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
 			w10.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateRepot = new global::Gtk.Button();
+			this.buttonCreateRepot = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateRepot.CanFocus = true;
 			this.buttonCreateRepot.Name = "buttonCreateRepot";
 			this.buttonCreateRepot.UseUnderline = true;

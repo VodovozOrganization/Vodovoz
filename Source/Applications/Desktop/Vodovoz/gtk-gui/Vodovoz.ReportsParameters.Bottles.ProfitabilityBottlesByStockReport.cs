@@ -16,7 +16,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::Gamma.Widgets.ySpecComboBox specCmbDiscountPct;
 
-		private global::Gtk.Button buttonRun;
+		private global::Gamma.GtkWidgets.yButton buttonRun;
 
 		protected virtual void Build()
 		{
@@ -87,7 +87,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonRun = new global::Gtk.Button();
+			this.buttonRun = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRun.CanFocus = true;
 			this.buttonRun.Name = "buttonRun";
 			this.buttonRun.UseUnderline = true;
