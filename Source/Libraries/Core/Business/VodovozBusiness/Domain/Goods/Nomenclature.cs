@@ -19,7 +19,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using VodovozBusiness.Domain.Goods;
-using VodovozBusiness.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.Goods
 {
