@@ -1062,6 +1062,17 @@ namespace Vodovoz.Domain.Goods
 			return false;
 		}
 
+		public virtual decimal GetPurchasePriceOnDate(DateTime date)
+		{
+			var purchasePrice =
+				PurchasePrices
+				.Where(p => p.StartDate <= date && (p.EndDate == null || p.EndDate >= date))
+				.Select(p => p.PurchasePrice)
+				.FirstOrDefault();
+
+			return purchasePrice;
+		}
+
 		#endregion Методы
 
 		#region IValidatableObject implementation

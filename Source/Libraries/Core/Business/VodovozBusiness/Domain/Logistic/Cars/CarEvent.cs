@@ -190,7 +190,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual decimal RepairAndPartsSummaryCost =>
-			RepairCost;
+			RepairCost + WriteOffDocument?.TotalSumOfDamage ?? 0;
 
 		#endregion
 
