@@ -449,13 +449,13 @@ namespace Vodovoz.Views.Goods
 
 			#region Вкладка изображения
 
-			Imageslist.Sensitive = ViewModel.CanEdit;
-			buttonAddImage.Sensitive = ViewModel.CanEdit;
+			//Imageslist.Sensitive = ViewModel.CanEdit;
+			//buttonAddImage.Sensitive = ViewModel.CanEdit;
 
-			if(ViewModel.CanEdit)
-			{
-				Imageslist.ImageButtonPressEvent += Imageslist_ImageButtonPressEvent;
-			}
+			//if(ViewModel.CanEdit)
+			//{
+			//	Imageslist.ImageButtonPressEvent += Imageslist_ImageButtonPressEvent;
+			//}
 
 			#endregion
 
@@ -1047,12 +1047,12 @@ namespace Vodovoz.Views.Goods
 
 		private void ReloadImages()
 		{
-			Imageslist.Images.Clear();
+			//Imageslist.Images.Clear();
 
-			foreach(var imageSource in ViewModel.Entity.Images) {
-				Imageslist.AddImage(new Gdk.Pixbuf(imageSource.Image), imageSource);
-			}
-			Imageslist.UpdateList();
+			//foreach(var imageSource in ViewModel.Entity.Images) {
+			//	Imageslist.AddImage(new Gdk.Pixbuf(imageSource.Image), imageSource);
+			//}
+			//Imageslist.UpdateList();
 		}
 
 		protected void OnButtonAddImageClicked(object sender, EventArgs e)
