@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -504,9 +504,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionBottlesMovementSummaryReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<BottlesMovementSummaryReport>(),
-			() => new QSReport.ReportViewDlg(new BottlesMovementSummaryReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(BottlesMovementSummaryReport));
 	}
 
 	/// <summary>
