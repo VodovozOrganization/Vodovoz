@@ -581,9 +581,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCounterpartyActivityKindActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ClientsByDeliveryPointCategoryAndActivityKindsReport>(),
-			() => new QSReport.ReportViewDlg(new ClientsByDeliveryPointCategoryAndActivityKindsReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ClientsByDeliveryPointCategoryAndActivityKindsReportViewModel));
 	}
 
 	/// <summary>

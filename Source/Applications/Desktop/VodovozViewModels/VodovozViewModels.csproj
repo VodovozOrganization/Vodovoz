@@ -295,6 +295,7 @@
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCloseDeliveryReportViewModel.cs" />
     <Compile Include="ReportsParameters\Bottles\BottlesMovementReportViewModel.cs" />
     <Compile Include="ReportsParameters\Bottles\BottlesMovementSummaryReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Bottles\ClientsByDeliveryPointCategoryAndActivityKindsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Fuel\FuelApiRequestReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.OrderSelectMode.cs" />
