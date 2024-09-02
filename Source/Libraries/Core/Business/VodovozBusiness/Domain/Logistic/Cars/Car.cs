@@ -409,15 +409,18 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle };
 
-		public virtual void AddFileInformation(string filename)
+		public virtual void AddFileInformation(string fileName)
 		{
-			var carFileInformation = new CarFileInformation
+			if(AttachedFileInformations.Any(a => a.FileName == fileName))
+			{
+				return;
+			}
+
+			AttachedFileInformations.Add(new CarFileInformation
 			{
 				CarId = Id,
-				FileName = filename
-			};
-
-			AttachedFileInformations.Add(carFileInformation);
+				FileName = fileName
+			});
 		}
 
 		public virtual void RemoveFileInformation(string filename)

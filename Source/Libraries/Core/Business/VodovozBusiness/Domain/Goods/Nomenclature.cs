@@ -1079,15 +1079,18 @@ namespace Vodovoz.Domain.Goods
 			return false;
 		}
 
-		public virtual void AddFileInformation(string filename)
+		public virtual void AddFileInformation(string fileName)
 		{
-			var nomenclatureFileInformation = new NomenclatureFileInformation
+			if(AttachedFileInformations.Any(a => a.FileName == fileName))
+			{
+				return;
+			}
+
+			AttachedFileInformations.Add(new NomenclatureFileInformation
 			{
 				NomenclatureId = Id,
-				FileName = filename
-			};
-
-			AttachedFileInformations.Add(nomenclatureFileInformation);
+				FileName = fileName
+			});
 		}
 
 		public virtual void RemoveFileInformation(string filename)

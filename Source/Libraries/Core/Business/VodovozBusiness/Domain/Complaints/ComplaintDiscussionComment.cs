@@ -98,6 +98,11 @@ namespace Vodovoz.Domain.Complaints
 
 		public void AddFileInformation(string fileName)
 		{
+			if(AttachedFileInformations.Any(a => a.FileName == fileName))
+			{
+				return;
+			}
+
 			AttachedFileInformations.Add(new ComplaintDiscussionCommentFileInformation
 			{
 				FileName = fileName,

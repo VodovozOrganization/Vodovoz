@@ -79,6 +79,11 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddFileInformation(string fileName)
 		{
+			if(AttachedFileInformations.Any(a => a.FileName == fileName))
+			{
+				return;
+			}
+
 			AttachedFileInformations.Add(new UndeliveryDiscussionCommentFileInformation
 			{
 				UndeliveryDiscussionCommentId = Id,

@@ -350,6 +350,11 @@ namespace Vodovoz.Core.Domain.Employees
 
 		public virtual void AddFileInformation(string fileName)
 		{
+			if(AttachedFileInformations.Any(a => a.FileName == fileName))
+			{
+				return;
+			}
+
 			AttachedFileInformations.Add(new EmployeeFileInformation
 			{
 				FileName = fileName,
