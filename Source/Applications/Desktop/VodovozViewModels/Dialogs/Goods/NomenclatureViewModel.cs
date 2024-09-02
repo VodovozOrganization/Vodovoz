@@ -14,8 +14,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -23,6 +26,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.Models;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
@@ -31,6 +35,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using VodovozBusiness.Domain.Goods;
+using VodovozBusiness.Domain.Logistic.Cars;
 using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
@@ -45,6 +51,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly int[] _equipmentKindsHavingGlassHolder;
 		private readonly INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private readonly INomenclatureService _nomenclatureService;
+		private readonly INomenclatureFileStorageService _nomenclatureFileStorageService;
 		private ILifetimeScope _lifetimeScope;
 		private readonly IInteractiveService _interactiveService;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
@@ -55,6 +62,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private bool _isScrewGlassHolderSelected;
 		private bool _activeSitesAndAppsTab;
 		private IList<NomenclatureOnlineCategory> _onlineCategories;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public NomenclatureViewModel(
 			ILogger<NomenclatureViewModel> logger,
@@ -71,12 +80,19 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			IStringHandler stringHandler,
 			INomenclatureOnlineSettings nomenclatureOnlineSettings,
 			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
-			INomenclatureService nomenclatureService)
+			INomenclatureService nomenclatureService,
+			INomenclatureFileStorageService nomenclatureFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(nomenclatureSettings is null)
 			{
 				throw new ArgumentNullException(nameof(nomenclatureSettings));
+			}
+
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
 			}
 
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
@@ -92,7 +108,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
-
+			_nomenclatureFileStorageService = nomenclatureFileStorageService ?? throw new ArgumentNullException(nameof(nomenclatureFileStorageService));
 			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
 
 			ConfigureEntryViewModels();
@@ -112,6 +128,16 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 			ArchiveCommand = new DelegateCommand(Archive);
 			UnArchiveCommand = new DelegateCommand(UnArchive);
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory
+				.CreateAndInitialize<Nomenclature, NomenclatureFileInformation>(
+					UoW,
+					Entity,
+					_nomenclatureFileStorageService,
+					Entity.AddAttachedFileInformations,
+					Entity.RemoveAttachedFileInformations);
+
+			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
 		}
 
 		public IStringHandler StringHandler { get; }
@@ -371,6 +397,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public DelegateCommand ArchiveCommand { get; }
 		public DelegateCommand UnArchiveCommand { get; }
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
 
 		#endregion Commands
@@ -899,6 +926,67 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			_lifetimeScope = null;
 			base.Dispose();
+		}
+
+		public override bool Save(bool close)
+		{
+			if(!base.Save(false))
+			{
+				return false;
+			}
+
+			AddAttachedFilesIfNeeded();
+			UpdateAttachedFilesIfNeeded();
+			DeleteAttachedFilesIfNeeded();
+			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+
+			return base.Save(close);
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+			{
+				var result = _nomenclatureFileStorageService.CreateFileAsync(Entity, fileName,
+				new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_nomenclatureFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_nomenclatureFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
 		}
 	}
 }
