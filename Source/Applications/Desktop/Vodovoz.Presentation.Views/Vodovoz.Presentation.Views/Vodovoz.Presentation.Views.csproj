@@ -69,6 +69,8 @@
     <Compile Include="gtk-gui\Vodovoz.Presentation.Views.SmallFileInformationsView.cs" />
     <Compile Include="AttachedFileInformationsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Presentation.Views.AttachedFileInformationsView.cs" />
+    <Compile Include="Administration\AdministrativeOperationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Presentation.Views.Administration.AdministrativeOperationView.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
@@ -112,6 +114,9 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
       <Version>6.0.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Administration\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
