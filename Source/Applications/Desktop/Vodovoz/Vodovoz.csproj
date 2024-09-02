@@ -2057,6 +2057,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.BusinessAccountView.cs" />
     <Compile Include="Views\Organization\CompanyBalanceByDateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.CompanyBalanceByDateView.cs" />
+    <Compile Include="Views\Goods\NomenclatureMinimumBalanceByWarehouseView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureMinimumBalanceByWarehouseView.cs" />
+    <Compile Include="Views\Goods\NomenclatureMinimumBalanceByWarehouseEditView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureMinimumBalanceByWarehouseEditView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
