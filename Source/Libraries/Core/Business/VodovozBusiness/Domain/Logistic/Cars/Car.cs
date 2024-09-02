@@ -23,7 +23,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 	[HistoryTrace]
 	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject, IHasPhoto, IHasAttachedFilesInformations<CarFileInformation>
 	{
-		private IList<Attachment> _attachments = new List<Attachment>();
 		private CarModel _carModel;
 		private bool _isArchive;
 		private IList<CarVersion> _carVersions = new List<CarVersion>();
@@ -331,13 +330,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _geographicGroups, value);
 		}
 
-		[Display(Name = "Прикрепленные файлы")]
-		public virtual IList<Attachment> Attachments
-		{
-			get => _attachments;
-			set => SetField(ref _attachments, value);
-		}
-
 		[Display(Name = "Информация о прикрепленных файлах")]
 		public virtual IObservableList<CarFileInformation> AttachedFileInformations
 		{
@@ -376,10 +368,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<GeoGroup> ObservableGeographicGroups =>
 			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups));
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Attachment> ObservableAttachments =>
-			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(Attachments));
 
 		public virtual string Title => $"{CarModel?.Name} ({RegistrationNumber})";
 

@@ -44,7 +44,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			References(x => x.FuelType).Column("fuel_type_id");
 			References(x => x.CarModel).Column("model_id");
 
-			HasMany(x => x.Attachments).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id");
 			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id");
 			HasMany(x => x.CarVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
 				.OrderBy("start_date DESC");

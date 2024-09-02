@@ -656,11 +656,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			return employee.ShortName;
 		}
 
-		public void DeleteImage() {
-			Entity.Images.Remove(PopupMenuOn);
-			PopupMenuOn = null;
-		}
-
 		public void OnEnumCategoryChanged(object sender, EventArgs e) {
 			if(Entity.Category != NomenclatureCategory.deposit) {
 				Entity.TypeOfDepositCategory = null;

@@ -158,8 +158,6 @@ namespace Vodovoz.Domain.Client
 		private bool _alwaysSendReceipts;
 		private IList<NomenclatureFixedPrice> _nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
 		private GenericObservableList<NomenclatureFixedPrice> _observableNomenclatureFixedPrices;
-		private IList<CounterpartyFile> _files = new List<CounterpartyFile>();
-		private GenericObservableList<CounterpartyFile> _observableFiles;
 		private Organization _worksThroughOrganization;
 		private IList<ISupplierPriceNode> _priceNodes = new List<ISupplierPriceNode>();
 		private GenericObservableList<ISupplierPriceNode> _observablePriceNodes;
@@ -1032,27 +1030,6 @@ namespace Vodovoz.Domain.Client
 				new GenericObservableList<NomenclatureFixedPrice>(NomenclatureFixedPrices));
 		}
 
-		[Display(Name = "Документы")]
-		public virtual IList<CounterpartyFile> Files
-		{
-			get => _files;
-			set => SetField(ref _files, value);
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<CounterpartyFile> ObservableFiles
-		{
-			get
-			{
-				if(_observableFiles == null)
-				{
-					_observableFiles = new GenericObservableList<CounterpartyFile>(Files);
-				}
-
-				return _observableFiles;
-			}
-		}
-
 		[Display(Name = "Работает через организацию")]
 		public virtual Organization WorksThroughOrganization
 		{
@@ -1565,7 +1542,7 @@ namespace Vodovoz.Domain.Client
 					}
 				}
 
-				if(TechnicalProcessingDelay > 0 && Files.Count == 0)
+				if(TechnicalProcessingDelay > 0 && AttachedFileInformations.Count == 0)
 				{
 					yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
 				}

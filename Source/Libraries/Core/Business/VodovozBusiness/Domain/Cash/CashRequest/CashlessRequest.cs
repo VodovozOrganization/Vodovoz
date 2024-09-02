@@ -23,8 +23,6 @@ namespace Vodovoz.Domain.Cash
 	{
 		private decimal _sum;
 		private Counterparty _counterparty;
-		private IList<CashlessRequestFile> _files = new List<CashlessRequestFile>();
-		private GenericObservableList<CashlessRequestFile> _observableFiles;
 		private IObservableList<CashlessRequestFileInformation> _attachedFileInformations = new ObservableList<CashlessRequestFileInformation>();
 
 		#region Свойства
@@ -46,17 +44,6 @@ namespace Vodovoz.Domain.Cash
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
 		}
-
-
-		[Display(Name = "Файлы")]
-		public virtual IList<CashlessRequestFile> Files
-		{
-			get => _files;
-			set => SetField(ref _files, value, () => Files);
-		}
-
-		public virtual GenericObservableList<CashlessRequestFile> ObservableFiles =>
-			_observableFiles ?? (_observableFiles = new GenericObservableList<CashlessRequestFile>(Files));
 
 		[Display(Name = "Информация о прикрепленных файлах")]
 		public virtual IObservableList<CashlessRequestFileInformation> AttachedFileInformations

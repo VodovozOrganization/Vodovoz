@@ -117,7 +117,6 @@ namespace Vodovoz.Domain.Goods
 		private string _bottleCapColor;
 		private OnlineStore _onlineStore;
 		private ProductGroup _productGroup;
-		private IList<NomenclatureImage> _images = new List<NomenclatureImage>();
 
 		private string _onlineStoreExternalId;
 		private Counterparty _shipperCounterparty;
@@ -547,13 +546,6 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _productGroup;
 			set => SetField(ref _productGroup, value);
-		}
-
-		[Display(Name = "Изображения")]
-		public virtual IList<NomenclatureImage> Images
-		{
-			get => _images;
-			set => SetField(ref _images, value);
 		}
 
 		[Display(Name = "Каталог в мобильном приложении")]

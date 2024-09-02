@@ -55,8 +55,6 @@ namespace Vodovoz.Domain.Complaints
 		private GenericObservableList<ComplaintDiscussion> _observableComplaintDiscussions;
 		private IList<ComplaintGuiltyItem> _guilties = new List<ComplaintGuiltyItem>();
 		private GenericObservableList<ComplaintGuiltyItem> _observableGuilties;
-		private IList<ComplaintFile> _files = new List<ComplaintFile>();
-		private GenericObservableList<ComplaintFile> _observableFiles;
 		private ComplaintDetalization _complaintDetalization;
 		private IList<ComplaintArrangementComment> _arrangementComments = new List<ComplaintArrangementComment>();
 		private GenericObservableList<ComplaintArrangementComment> _observableArrangementComments;
@@ -354,32 +352,11 @@ namespace Vodovoz.Domain.Complaints
 			}
 		}
 
-		[Display(Name = "Файлы")]
-		public virtual IList<ComplaintFile> Files
-		{
-			get => _files;
-			set => SetField(ref _files, value);
-		}
-
 		[Display(Name = "Информация о прикрепленных файлах")]
 		public virtual IObservableList<ComplaintFileInformation> AttachedFileInformations
 		{
 			get => _attachedFileInformations;
 			set => SetField(ref _attachedFileInformations, value);
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ComplaintFile> ObservableFiles
-		{
-			get
-			{
-				if(_observableFiles == null)
-				{
-					_observableFiles = new GenericObservableList<ComplaintFile>(Files);
-				}
-
-				return _observableFiles;
-			}
 		}
 
 		public virtual string Title => string.Format("Рекламация №{0}", Id);

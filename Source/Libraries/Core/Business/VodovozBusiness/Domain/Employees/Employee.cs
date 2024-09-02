@@ -58,7 +58,6 @@ namespace Vodovoz.Domain.Employees
 		private IList<Phone> _phones = new List<Phone>();
 		private IList<EmployeeDocument> _documents = new List<EmployeeDocument>();
 		private IObservableList<Account> _accounts = new ObservableList<Account>();
-		private IList<Attachment> _attachments = new List<Attachment>();
 		private IList<EmployeeContract> _contracts = new List<EmployeeContract>();
 		private IList<EmployeeWageParameter> wageParameters = new List<EmployeeWageParameter>();
 		private IList<EmployeeRegistrationVersion> _employeeRegistrationVersions = new List<EmployeeRegistrationVersion>();
@@ -179,18 +178,6 @@ namespace Vodovoz.Domain.Employees
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<EmployeeDocument> ObservableDocuments =>
 			_observableDocuments ?? (_observableDocuments = new GenericObservableList<EmployeeDocument>(Documents));
-
-		[Display(Name = "Прикрепленные файлы")]
-		public virtual IList<Attachment> Attachments
-		{
-			get => _attachments;
-			set => SetField(ref _attachments, value);
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Attachment> ObservableAttachments =>
-			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(Attachments));
-
 
 		[Display(Name = "Договора")]
 		public virtual IList<EmployeeContract> Contracts

@@ -3,9 +3,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Employees;
@@ -22,6 +20,8 @@ namespace Vodovoz.Domain.Complaints
 	public class ComplaintDiscussionComment : PropertyChangedBase, IDomainObject, IHasAttachedFilesInformations<ComplaintDiscussionCommentFileInformation>
 	{
 		private IObservableList<ComplaintDiscussionCommentFileInformation> _attachedFileInformations = new ObservableList<ComplaintDiscussionCommentFileInformation>();
+
+		private int _id;
 
 		public virtual int Id
 		{
@@ -65,27 +65,6 @@ namespace Vodovoz.Domain.Complaints
 			get => comment;
 			set => SetField(ref comment, value, () => Comment);
 		}
-
-		IList<ComplaintFile> files = new List<ComplaintFile>();
-		[Display(Name = "Приложенные файлы")]
-		public virtual IList<ComplaintFile> Files {
-			get => files;
-			set => SetField(ref files, value, () => Files);
-		}
-
-		GenericObservableList<ComplaintFile> observableFiles;
-		private int _id;
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ComplaintFile> ObservableFiles {
-			get {
-				if(observableFiles == null)
-					observableFiles = new GenericObservableList<ComplaintFile>(Files);
-				return observableFiles;
-			}
-		}
-
-		public IList<ComplaintFile> ComplaintFiles => Files.Cast<ComplaintFile>().ToList();
 
 		[Display(Name = "Информация о прикрепленных файлах")]
 		public virtual IObservableList<ComplaintDiscussionCommentFileInformation> AttachedFileInformations
