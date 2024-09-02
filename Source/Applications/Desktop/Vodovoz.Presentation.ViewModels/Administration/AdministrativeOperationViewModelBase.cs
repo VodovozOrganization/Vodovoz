@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using NHibernate.Util;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -103,7 +105,7 @@ namespace Vodovoz.Presentation.ViewModels.Administration
 				{
 					DateTime = DateTime.Now,
 					LogLevel = logLevel,
-					Message = ReformatMessage(messageFormat, parameters)
+					Message = parameters.Any() ? ReformatMessage(messageFormat, parameters) : messageFormat
 				});
 		}
 
@@ -111,7 +113,9 @@ namespace Vodovoz.Presentation.ViewModels.Administration
 		{
 			var argReplacement = new List<string>();
 
-			var matches = Regex.Matches(text, "{(.*)}");
+			var pattern = "({.*?})";
+
+			var matches = Regex.Matches(text, pattern);
 
 			foreach(Match match in matches)
 			{
@@ -123,7 +127,7 @@ namespace Vodovoz.Presentation.ViewModels.Administration
 
 			var matchEveluator = new MatchEvaluator((match) => "{" + argReplacement.IndexOf(match.Value) + "}");
 
-			var result = Regex.Replace(text, "{(.*)}", matchEveluator);
+			var result = Regex.Replace(text, pattern, matchEveluator);
 
 			return string.Format(result, args);
 		}
