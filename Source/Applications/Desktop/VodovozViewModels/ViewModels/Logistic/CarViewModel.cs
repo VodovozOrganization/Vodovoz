@@ -223,8 +223,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					UoW,
 					Entity,
 					_carFileStorageService,
-					Entity.AddAttachedFileInformations,
-					Entity.RemoveAttachedFileInformations);
+					Entity.AddAttachedFileInformation,
+					Entity.RemoveAttachedFileInformation);
 
 			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
 			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);

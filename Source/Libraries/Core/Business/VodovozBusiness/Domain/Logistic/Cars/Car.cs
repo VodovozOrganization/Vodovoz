@@ -409,7 +409,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle };
 
-		public virtual void AddAttachedFileInformations(string filename)
+		public virtual void AddAttachedFileInformation(string filename)
 		{
 			var carFileInformation = new CarFileInformation
 			{
@@ -420,7 +420,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 			AttachedFileInformations.Add(carFileInformation);
 		}
 
-		public virtual void RemoveAttachedFileInformations(string filename)
+		public virtual void RemoveAttachedFileInformation(string filename)
 		{
 			if(!AttachedFileInformations.Any(fi => fi.FileName == filename))
 			{
