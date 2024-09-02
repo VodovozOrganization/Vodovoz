@@ -57,7 +57,7 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel.Entity, e => e.CarTechnicalCheckupEndingDate, w => w.DateOrNull)
 				.InitializeFromSource();
 
-			yspinPaymentTotalCarEvent.Binding
+			yspinRepairCost.Binding
 				.AddBinding(ViewModel, vm => vm.RepairCost, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
@@ -108,7 +108,7 @@ namespace Vodovoz.Views.Logistic
 				evmeDriver.Sensitive =
 				ydatepickerStartEventDate.Sensitive =
 				ydatepickerEndEventDate.Sensitive =
-				yspinPaymentTotalCarEvent.Sensitive =
+				yspinRepairCost.Sensitive =
 				checkbuttonDoNotShowInOperation.Sensitive =
 				ytextviewFoundation.Sensitive =
 				ytextviewCommnet.Sensitive =

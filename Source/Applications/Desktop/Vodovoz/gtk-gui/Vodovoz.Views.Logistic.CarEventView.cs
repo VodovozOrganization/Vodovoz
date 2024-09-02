@@ -60,7 +60,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yHBox yhboxRepairPartsCost;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinPaymentTotalCarEvent1;
+		private global::Gamma.GtkWidgets.ySpinButton yspinRepairPartsCost;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelWriteOffDocument;
 
@@ -86,7 +86,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinBtnOdometerReading;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinPaymentTotalCarEvent;
+		private global::Gamma.GtkWidgets.ySpinButton yspinRepairCost;
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinRepairSummaryCost;
 
@@ -426,17 +426,17 @@ namespace Vodovoz.Views.Logistic
 			this.yhboxRepairPartsCost.Name = "yhboxRepairPartsCost";
 			this.yhboxRepairPartsCost.Spacing = 6;
 			// Container child yhboxRepairPartsCost.Gtk.Box+BoxChild
-			this.yspinPaymentTotalCarEvent1 = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
-			this.yspinPaymentTotalCarEvent1.CanFocus = true;
-			this.yspinPaymentTotalCarEvent1.Name = "yspinPaymentTotalCarEvent1";
-			this.yspinPaymentTotalCarEvent1.Adjustment.PageIncrement = 100D;
-			this.yspinPaymentTotalCarEvent1.ClimbRate = 1D;
-			this.yspinPaymentTotalCarEvent1.Digits = ((uint)(2));
-			this.yspinPaymentTotalCarEvent1.Numeric = true;
-			this.yspinPaymentTotalCarEvent1.ValueAsDecimal = 0m;
-			this.yspinPaymentTotalCarEvent1.ValueAsInt = 0;
-			this.yhboxRepairPartsCost.Add(this.yspinPaymentTotalCarEvent1);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yhboxRepairPartsCost[this.yspinPaymentTotalCarEvent1]));
+			this.yspinRepairPartsCost = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
+			this.yspinRepairPartsCost.CanFocus = true;
+			this.yspinRepairPartsCost.Name = "yspinRepairPartsCost";
+			this.yspinRepairPartsCost.Adjustment.PageIncrement = 100D;
+			this.yspinRepairPartsCost.ClimbRate = 1D;
+			this.yspinRepairPartsCost.Digits = ((uint)(2));
+			this.yspinRepairPartsCost.Numeric = true;
+			this.yspinRepairPartsCost.ValueAsDecimal = 0m;
+			this.yspinRepairPartsCost.ValueAsInt = 0;
+			this.yhboxRepairPartsCost.Add(this.yspinRepairPartsCost);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yhboxRepairPartsCost[this.yspinRepairPartsCost]));
 			w28.Position = 0;
 			w28.Expand = false;
 			w28.Fill = false;
@@ -585,17 +585,17 @@ namespace Vodovoz.Views.Logistic
 			w41.XOptions = ((global::Gtk.AttachOptions)(4));
 			w41.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinPaymentTotalCarEvent = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
-			this.yspinPaymentTotalCarEvent.CanFocus = true;
-			this.yspinPaymentTotalCarEvent.Name = "yspinPaymentTotalCarEvent";
-			this.yspinPaymentTotalCarEvent.Adjustment.PageIncrement = 100D;
-			this.yspinPaymentTotalCarEvent.ClimbRate = 1D;
-			this.yspinPaymentTotalCarEvent.Digits = ((uint)(2));
-			this.yspinPaymentTotalCarEvent.Numeric = true;
-			this.yspinPaymentTotalCarEvent.ValueAsDecimal = 0m;
-			this.yspinPaymentTotalCarEvent.ValueAsInt = 0;
-			this.table1.Add(this.yspinPaymentTotalCarEvent);
-			global::Gtk.Table.TableChild w42 = ((global::Gtk.Table.TableChild)(this.table1[this.yspinPaymentTotalCarEvent]));
+			this.yspinRepairCost = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
+			this.yspinRepairCost.CanFocus = true;
+			this.yspinRepairCost.Name = "yspinRepairCost";
+			this.yspinRepairCost.Adjustment.PageIncrement = 100D;
+			this.yspinRepairCost.ClimbRate = 1D;
+			this.yspinRepairCost.Digits = ((uint)(2));
+			this.yspinRepairCost.Numeric = true;
+			this.yspinRepairCost.ValueAsDecimal = 0m;
+			this.yspinRepairCost.ValueAsInt = 0;
+			this.table1.Add(this.yspinRepairCost);
+			global::Gtk.Table.TableChild w42 = ((global::Gtk.Table.TableChild)(this.table1[this.yspinRepairCost]));
 			w42.TopAttach = ((uint)(9));
 			w42.BottomAttach = ((uint)(10));
 			w42.LeftAttach = ((uint)(1));
