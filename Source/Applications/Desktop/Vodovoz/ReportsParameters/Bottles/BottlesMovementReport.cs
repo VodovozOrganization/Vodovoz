@@ -2,57 +2,25 @@
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.Report;
+using QS.Views;
 using QSReport;
 using Vodovoz.Reports;
+using Vodovoz.ViewModels.ReportsParameters.Bottles;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class BottlesMovementReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class BottlesMovementReport : ViewBase<BottlesMovementReportViewModel>
 	{
-		private readonly ReportFactory _reportFactory;
-
-		public BottlesMovementReport(ReportFactory reportFactory)
+		public BottlesMovementReport(BottlesMovementReportViewModel viewModel) : base(viewModel)
 		{
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
-		}
 
-		#region IParametersWidget implementation
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		public string Title => "Отчёт по движению бутылей (по МЛ)";
-
-		#endregion
-
-		void OnUpdate(bool hide = false)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
-		ReportInfo GetReportInfo()
-		{
-			var parameters = new Dictionary<string, object>
-			{
-				{ "start_date", dateperiodpicker.StartDateOrNull },
-				{ "end_date", dateperiodpicker.EndDateOrNull }
-			};
-
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Bottles.BottlesMovementReport";
-			reportInfo.Parameters = parameters;
-
-			return reportInfo;
-		}
-
-		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
-		{
-			if(dateperiodpicker.StartDateOrNull == null) {
-				MessageDialogHelper.RunErrorDialog("Необходимо выбрать период");
-				return;
-			}
-			OnUpdate(true);
+			dateperiodpicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }

@@ -293,6 +293,7 @@
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.ReportSortOrder.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCloseDeliveryReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Bottles\BottlesMovementReportViewModel.cs" />
     <Compile Include="ReportsParameters\Bottles\BottlesMovementSummaryReportViewModel.cs" />
     <Compile Include="ReportsParameters\Fuel\FuelApiRequestReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.cs" />

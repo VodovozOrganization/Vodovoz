@@ -38,6 +38,7 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
+using Vodovoz.ViewModels.ReportsParameters.Bottles;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.ReportsParameters.Fuel;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
@@ -514,9 +515,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionBottlesMovementReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<BottlesMovementReport>(),
-			() => new QSReport.ReportViewDlg(new BottlesMovementReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(BottlesMovementReportViewModel));
 	}
 
 	/// <summary>
