@@ -18,7 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Orders
 			Map(x => x.CreationTime).Column("creation_time").ReadOnly();
 			Map(x => x.Comment).Column("comment");
 			
-			HasMany(x => x.AttachedFileInformations).Cascade.All().Inverse().KeyColumn("undelivery_discussion_comment_id");
+			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("undelivery_discussion_comment_id");
 		}
 	}
 }
