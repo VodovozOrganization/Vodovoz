@@ -75,13 +75,10 @@ namespace Vodovoz.Domain.Logistic.Cars
 			get => _id;
 			set
 			{
-				if(value == _id)
+				if(SetField(ref _id, value))
 				{
-					return;
+					UpdateFileInformations();
 				}
-
-				_id = value;
-				UpdateFileInformations();
 			}
 		}
 
