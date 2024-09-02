@@ -2131,8 +2131,6 @@ namespace Vodovoz.Views.Employees
 			this.vboxFiles.Add(this.attachedfileinformationsview);
 			global::Gtk.Box.BoxChild w164 = ((global::Gtk.Box.BoxChild)(this.vboxFiles[this.attachedfileinformationsview]));
 			w164.Position = 0;
-			w164.Expand = false;
-			w164.Fill = false;
 			this.notebookMain.Add(this.vboxFiles);
 			global::Gtk.Notebook.NotebookChild w165 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.vboxFiles]));
 			w165.Position = 3;
