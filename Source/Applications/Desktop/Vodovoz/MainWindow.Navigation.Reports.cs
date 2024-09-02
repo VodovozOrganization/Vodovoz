@@ -1092,9 +1092,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCloseDeliveryReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCloseDeliveryReport>(),
-			() => new QSReport.ReportViewDlg(new CounterpartyCloseDeliveryReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CounterpartyCloseDeliveryReport));
 	}
 
 	/// <summary>
