@@ -48,6 +48,7 @@ using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.ReportsParameters.QualityControl;
+using Vodovoz.ViewModels.ReportsParameters.Selfdelivery;
 using Vodovoz.ViewModels.ReportsParameters.Store;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -132,9 +133,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSelfDeliveryReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<SelfDeliveryReport>(),
-			() => new QSReport.ReportViewDlg(new SelfDeliveryReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(SelfDeliveryReportViewModel));
 	}
 
 	/// <summary>

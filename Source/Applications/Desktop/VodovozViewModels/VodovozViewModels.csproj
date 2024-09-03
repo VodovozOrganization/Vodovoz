@@ -314,6 +314,7 @@
     <Compile Include="ReportsParameters\QualityControl\TariffZoneDebtsViewModel.cs" />
     <Compile Include="ReportsParameters\RevisionReportViewModel.cs" />
     <Compile Include="ReportsParameters\SalesReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Selfdelivery\SelfDeliveryReportViewModel.cs" />
     <Compile Include="ReportsParameters\SetBillsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Store\DefectiveItemsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Store\NotFullyLoadedRouteListsReportViewModel.cs" />
