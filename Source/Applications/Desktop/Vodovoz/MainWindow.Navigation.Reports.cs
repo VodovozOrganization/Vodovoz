@@ -48,6 +48,7 @@ using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.ReportsParameters.QualityControl;
+using Vodovoz.ViewModels.ReportsParameters.Store;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
@@ -432,11 +433,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNotFullyLoadedRouteListsActivated(object sender, EventArgs e)
 	{
-		var report = new NotFullyLoadedRouteListsReport(_autofacScope.BeginLifetimeScope(), NavigationManager);
-		tdiMain.OpenTab(
-			ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
-			() =>  new ReportViewDlg(report));
-		report.ConfigureWarehouseEntry(); //вызываем после инициализации ReportViewDlg, чтобы правильно отработал поиск родительского виджета
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(NotFullyLoadedRouteListsReportViewModel));
 	}
 
 	/// <summary>
