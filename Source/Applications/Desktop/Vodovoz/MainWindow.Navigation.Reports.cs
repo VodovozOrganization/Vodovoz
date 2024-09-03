@@ -47,6 +47,7 @@ using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.ViewModels.ReportsParameters.Wages;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
@@ -1251,9 +1252,11 @@ public partial class MainWindow
 		employeeFilter.HidenByDefault = true;
 		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
 
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.WagesOperationsReport(employeeJournalFactory)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(WagesOperationsReportViewModel), 
+			addingRegistrations: builder => builder.RegisterInstance(employeeJournalFactory)
+				.As<IEmployeeJournalFactory>()
+				.InstancePerLifetimeScope()
+		);
 	}
 
 	/// <summary>
