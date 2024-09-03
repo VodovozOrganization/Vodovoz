@@ -40,6 +40,7 @@ using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
 using Vodovoz.ViewModels.ReportsParameters.Bottles;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
+using Vodovoz.ViewModels.ReportsParameters.Client;
 using Vodovoz.ViewModels.ReportsParameters.Fuel;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
@@ -628,9 +629,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionZeroDebtClientReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ZeroDebtClientReport>(),
-			() => new QSReport.ReportViewDlg(new ZeroDebtClientReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ZeroDebtClientReportViewModel));
 	}
 
 	/// <summary>
