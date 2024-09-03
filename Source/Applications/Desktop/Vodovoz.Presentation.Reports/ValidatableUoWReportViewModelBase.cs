@@ -18,7 +18,7 @@ namespace Vodovoz.Presentation.Reports
 
 		protected virtual IUnitOfWork UoW { get; set; }
 
-		public void Dispose()
+		public virtual void Dispose()
 		{
 			UoW?.Dispose();
 		}
