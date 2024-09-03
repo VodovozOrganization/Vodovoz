@@ -421,9 +421,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDefectiveItemsReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DefectiveItemsReport>(),
-			() => new QSReport.ReportViewDlg(new DefectiveItemsReport(NavigationManager)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DefectiveItemsReportViewModel));
 	}
 
 	/// <summary>
