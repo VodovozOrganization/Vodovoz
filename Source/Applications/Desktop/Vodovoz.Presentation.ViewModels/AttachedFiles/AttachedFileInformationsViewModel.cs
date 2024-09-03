@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using NHibernate.Util;
 using QS.Attachments;
 using QS.Commands;
@@ -269,8 +269,6 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 			FilesToDeleteOnSave.Add(SelectedFile.FileName);
 
 			DeleteFileCallback?.Invoke(SelectedFile.FileName);
-
-			SelectedFile = null;
 		}
 
 		private void OpenHandler()
