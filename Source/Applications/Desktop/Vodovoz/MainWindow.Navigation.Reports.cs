@@ -47,6 +47,7 @@ using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.ViewModels.ReportsParameters.QualityControl;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
@@ -564,9 +565,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionTariffZoneDebtsReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<TariffZoneDebts>(),
-			() => new QSReport.ReportViewDlg(new TariffZoneDebts()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(TariffZoneDebtsViewModel));
 	}
 
 	/// <summary>

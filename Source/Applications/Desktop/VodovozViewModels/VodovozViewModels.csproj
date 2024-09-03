@@ -311,6 +311,7 @@
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.ProducedProductionReportMode.cs" />
     <Compile Include="ReportsParameters\Profitability\GroupingNode.cs" />
+    <Compile Include="ReportsParameters\QualityControl\TariffZoneDebtsViewModel.cs" />
     <Compile Include="ReportsParameters\RevisionReportViewModel.cs" />
     <Compile Include="ReportsParameters\SalesReportViewModel.cs" />
     <Compile Include="ReportsParameters\SetBillsReportViewModel.cs" />
