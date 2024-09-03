@@ -13,9 +13,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
@@ -25,9 +26,11 @@ using Vodovoz.Settings.Logistics;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using static Vodovoz.Permissions.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Warehouses;
 using Car = Vodovoz.Domain.Logistic.Cars.Car;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -36,9 +39,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	{
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly ICarEventRepository _carEventRepository;
+		private readonly ViewModelEEVMBuilder<WriteOffDocument> _writeOffDocumentViewModelEEVMBuilder;
 		private readonly ILifetimeScope _lifetimeScope;
 		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
-		private EntityEntryViewModel<Car> _viewModel;
+		private EntityEntryViewModel<Car> _carEntryViewModel;
 		private int _startNewPeriodDay;
 
 		public CarEventViewModel(
@@ -51,6 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarEventSettings carEventSettings,
 			INavigationManager navigationManager,
 			ICarEventRepository carEventRepository,
+			ViewModelEEVMBuilder<WriteOffDocument> writeOffDocumentViewModelEEVMBuilder,
 			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -63,6 +68,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
+			_writeOffDocumentViewModelEEVMBuilder = writeOffDocumentViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(writeOffDocumentViewModelEEVMBuilder));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
@@ -91,6 +97,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OriginalCarEventViewModel.IsEditable = CanEdit;
 
 			CarEntryViewModel = BuildCarEntryViewModel();
+			WriteOffDocumentEntryViewModel = BuildWriteOffDocumentEntryViewModel();
+			WriteOffDocumentEntryViewModel.ChangedByUser += OnWriteOffDocumentChangedByUser;
 
 			EmployeeSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
@@ -106,7 +114,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Entity.PropertyChanged += EntityPropertyChanged;
 
 			CanChangeCarEventType = !(IsTechInspectCarEventType && Entity.Id > 0);
+
+			WriteOffDocumentNotRequiredChangedCommand = new DelegateCommand(WriteOffDocumentNotRequiredChanged);
 		}
+
+		public DelegateCommand WriteOffDocumentNotRequiredChangedCommand { get; }
 
 		public decimal RepairCost
 		{
@@ -138,6 +150,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 		public bool CanChangeCarTechnicalCheckupEndDate => CanEdit && IsCarTechnicalCheckupEventType;
+		public bool CanAttachWriteOffDocument =>
+			CanEdit
+			&& Entity.CarEventType?.IsAttachWriteOffDocument == true
+			&& !Entity.IsWriteOffDocumentNotRequired;
+
+		public bool CanChangeWriteOffDocumentNotRequired =>
+			CanEdit
+			&& Entity.CarEventType?.IsAttachWriteOffDocument == true;
 
 		public bool IsTechInspectCarEventType =>
 			Entity.CarEventType?.Id == _carEventSettings.TechInspectCarEventTypeId;
@@ -250,8 +270,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public override void Dispose()
 		{
 			Entity.ObservableFines.ListContentChanged -= ObservableFines_ListContentChanged;
-			_viewModel.ChangedByUser -= OnCarChangedByUser;
-			_viewModel.Dispose();
+			_carEntryViewModel.ChangedByUser -= OnCarChangedByUser;
+			_carEntryViewModel.Dispose();
 			base.Dispose();
 		}
 
@@ -259,12 +279,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 		public IEntityEntryViewModel OriginalCarEventViewModel { get; private set; }
 		public IEntityEntryViewModel CarEntryViewModel { get; }
+		public IEntityEntryViewModel WriteOffDocumentEntryViewModel { get; }
 
 		private IEntityEntryViewModel BuildCarEntryViewModel()
 		{
 			var carViewModelBuilder = new CommonEEVMBuilderFactory<CarEvent>(this, Entity, UoW, NavigationManager, _lifetimeScope);
 
-			_viewModel = carViewModelBuilder
+			_carEntryViewModel = carViewModelBuilder
 				.ForProperty(x => x.Car)
 				.UseViewModelDialog<CarViewModel>()
 				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
@@ -273,11 +294,36 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					})
 				.Finish();
 
-			_viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+			_carEntryViewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
 
-			_viewModel.ChangedByUser += OnCarChangedByUser;
+			_carEntryViewModel.ChangedByUser += OnCarChangedByUser;
 
-			return _viewModel;
+			return _carEntryViewModel;
+		}
+
+		private IEntityEntryViewModel BuildWriteOffDocumentEntryViewModel()
+		{
+			var viewModel = _writeOffDocumentViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.WriteOffDocument)
+				.UseViewModelJournalAndAutocompleter<WarehouseDocumentsItemsJournalViewModel, WarehouseDocumentsItemsJournalFilterViewModel>(
+				filter =>
+				{
+					filter.DocumentType = DocumentType.WriteoffDocument;
+				})
+				.UseViewModelDialog<WriteOffDocumentViewModel>()
+				.Finish();
+
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarEvent)).CanUpdate;
+
+			return viewModel;
+		}
+
+		private void OnWriteOffDocumentChangedByUser(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(Entity.RepairPartsCost));
+			OnPropertyChanged(nameof(Entity.RepairAndPartsSummaryCost));
 		}
 
 		private void OnCarChangedByUser(object sender, EventArgs e)
@@ -304,6 +350,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OnPropertyChanged(nameof(IsTechInspectCarEventType));
 			OnPropertyChanged(nameof(IsCarTechnicalCheckupEventType));
 			OnPropertyChanged(nameof(CanChangeCarTechnicalCheckupEndDate));
+			OnPropertyChanged(nameof(CanAttachWriteOffDocument));
+			OnPropertyChanged(nameof(CanChangeWriteOffDocumentNotRequired));
+
+			if(CarEventType?.IsAttachWriteOffDocument == false)
+			{
+				Entity.WriteOffDocument = null;
+				Entity.IsWriteOffDocumentNotRequired = false;
+			}
 		}
 
 		public void ChangeDoNotShowInOperation()
@@ -441,6 +495,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void UpdateFileItems()
 		{
 			FineItems = Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
+		}
+
+		private void WriteOffDocumentNotRequiredChanged()
+		{
+			if(Entity.IsWriteOffDocumentNotRequired)
+			{
+				Entity.WriteOffDocument = null;
+			}
+
+			OnPropertyChanged(nameof(CanAttachWriteOffDocument));
 		}
 	}
 }

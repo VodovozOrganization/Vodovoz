@@ -61,6 +61,28 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.RepairCost, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
+			yspinRepairPartsCost.Sensitive = false;
+			yspinRepairPartsCost.Binding
+				.AddBinding(ViewModel.Entity, e => e.RepairPartsCost, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			yspinRepairSummaryCost.Sensitive = false;
+			yspinRepairSummaryCost.Binding
+				.AddBinding(ViewModel.Entity, e => e.RepairAndPartsSummaryCost, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			entityentryWriteOffDocument.ViewModel = ViewModel.WriteOffDocumentEntryViewModel;
+			entityentryWriteOffDocument.Binding
+				.AddBinding(ViewModel, vm => vm.CanAttachWriteOffDocument, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
+
+			ycheckbuttonIsWriteOffDocumentNotRequired.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeWriteOffDocumentNotRequired, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.IsWriteOffDocumentNotRequired, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonIsWriteOffDocumentNotRequired.Clicked += (s, e) => ViewModel.WriteOffDocumentNotRequiredChangedCommand.Execute();
+
 			checkbuttonDoNotShowInOperation.Binding
 				.AddBinding(ViewModel, vw => vw.DoNotShowInOperation, w => w.Active)
 				.InitializeFromSource();
