@@ -36,6 +36,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 					.Select(ba => ba.Name).WithAlias(() => resultAlias.Name)
 					.Select(ba => ba.Bank).WithAlias(() => resultAlias.Bank)
 					.Select(ba => ba.Number).WithAlias(() => resultAlias.Number)
+					.Select(ba => ba.IsArchive).WithAlias(() => resultAlias.IsArchive)
 					.Select(ba => ba.AccountFillType).WithAlias(() => resultAlias.AccountFillType)
 					.Select(() => businessActivityAlias.Name).WithAlias(() => resultAlias.BusinessActivity)
 					.Select(() => fundsAlias.Name).WithAlias(() => resultAlias.Funds)

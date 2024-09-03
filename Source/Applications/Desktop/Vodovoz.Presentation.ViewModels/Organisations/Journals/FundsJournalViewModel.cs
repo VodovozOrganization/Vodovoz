@@ -30,7 +30,9 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 				.SelectList(list => list
 					.Select(f => f.Id).WithAlias(() => resultAlias.Id)
 					.Select(f => f.Name).WithAlias(() => resultAlias.Name)
-					.Select(f => f.DefaultAccountFillType).WithAlias(() => resultAlias.DefaultAccountFillType))
+					.Select(f => f.DefaultAccountFillType).WithAlias(() => resultAlias.DefaultAccountFillType)
+					.Select(f => f.IsArchive).WithAlias(() => resultAlias.IsArchive)
+				)
 				.TransformUsing(Transformers.AliasToBean<FundsJournalNode>());
 
 			return query;

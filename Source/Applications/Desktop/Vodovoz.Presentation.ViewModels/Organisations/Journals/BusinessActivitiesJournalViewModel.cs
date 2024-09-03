@@ -29,7 +29,9 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 			var query = uow.Session.QueryOver<BusinessActivity>()
 				.SelectList(list => list
 					.Select(f => f.Id).WithAlias(() => resultAlias.Id)
-					.Select(f => f.Name).WithAlias(() => resultAlias.Name))
+					.Select(f => f.Name).WithAlias(() => resultAlias.Name)
+					.Select(f => f.IsArchive).WithAlias(() => resultAlias.IsArchive)
+				)
 				.TransformUsing(Transformers.AliasToBean<BusinessActivityJournalNode>());
 
 			return query;
