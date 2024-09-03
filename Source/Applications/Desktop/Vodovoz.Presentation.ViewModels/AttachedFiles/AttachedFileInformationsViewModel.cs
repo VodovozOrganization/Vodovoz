@@ -269,6 +269,8 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 			FilesToDeleteOnSave.Add(SelectedFile.FileName);
 
 			DeleteFileCallback?.Invoke(SelectedFile.FileName);
+
+			SelectedFile = null;
 		}
 
 		private void OpenHandler()
