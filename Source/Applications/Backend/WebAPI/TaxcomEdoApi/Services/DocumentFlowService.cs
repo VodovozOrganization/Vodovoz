@@ -1,10 +1,11 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using QS.Report;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -16,6 +17,7 @@ using Taxcom.Client.Api.Entity.DocFlow;
 using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Factories;
 using TaxcomEdoApi.HealthChecks;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -52,6 +54,7 @@ namespace TaxcomEdoApi.Services
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
 		private readonly TaxcomEdoApiHealthCheck _taxcomEdoApiHealthCheck;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
+		private readonly IEdoContainerFileStorageService _edoContainerFileStorageService;
 		private const int _delaySec = 90;
 
 		private long? _lastEventIngoingDocumentsTimeStamp;
@@ -75,7 +78,8 @@ namespace TaxcomEdoApi.Services
 			X509Certificate2 certificate,
 			PrintableDocumentSaver printableDocumentSaver,
 			TaxcomEdoApiHealthCheck taxcomEdoApiHealthCheck,
-			IDeliveryScheduleSettings deliveryScheduleSettings)
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			IEdoContainerFileStorageService edoContainerFileStorageService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
@@ -92,6 +96,7 @@ namespace TaxcomEdoApi.Services
 			_printableDocumentSaver = printableDocumentSaver;
 			_taxcomEdoApiHealthCheck = taxcomEdoApiHealthCheck ?? throw new ArgumentNullException(nameof(taxcomEdoApiHealthCheck));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
+			_edoContainerFileStorageService = edoContainerFileStorageService ?? throw new ArgumentNullException(nameof(edoContainerFileStorageService));
 			_apiOptions = (apiOptions ?? throw new ArgumentNullException(nameof(apiOptions))).Value;
 			_warrantOptions = (warrantOptions ?? throw new ArgumentNullException(nameof(warrantOptions))).Value;
 		}
@@ -118,16 +123,16 @@ namespace TaxcomEdoApi.Services
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
-					await CreateAndSendUpd(uow, startDate);
-					await CreateAndSendBills(uow);
-					await ProcessOutgoingDocuments(uow);
+					await CreateAndSendUpdAsync(uow, startDate);
+					await CreateAndSendBillsAsync(uow, stoppingToken);
+					await ProcessOutgoingDocumentsAsync(uow, stoppingToken);
 					// Пока не требуется обработка и хранение входящих документов, будет дорабатываться позже
-					// await ProcessIngoingDocuments(uow);
+					// await ProcessIngoingDocumentsAsync(uow, stoppingToken);
 				}
 			}
 		}
 
-		private Task CreateAndSendUpd(IUnitOfWork uow, DateTime startDate)
+		private Task CreateAndSendUpdAsync(IUnitOfWork uow, DateTime startDate)
 		{
 			try
 			{
@@ -196,7 +201,6 @@ namespace TaxcomEdoApi.Services
 						{
 							Type = Type.Upd,
 							Created = DateTime.Now,
-							Container = new byte[64],
 							Order = order,
 							Counterparty = order.Client,
 							MainDocumentId = $"{upd.FileIdentifier}.xml",
@@ -238,10 +242,10 @@ namespace TaxcomEdoApi.Services
 			return Task.CompletedTask;
 		}
 
-		private Task CreateAndSendBills(IUnitOfWork unitOfWork)
+		private async Task CreateAndSendBillsAsync(IUnitOfWork unitOfWork, CancellationToken cancellationToken)
 		{
 			try
-			{				
+			{
 				var startDate = DateTime.Today.AddDays(-3);
 				var edoAccountId = _apiOptions.EdxClientId;
 				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(unitOfWork, edoAccountId);
@@ -292,7 +296,6 @@ namespace TaxcomEdoApi.Services
 					{
 						Type = Type.Bill,
 						Created = DateTime.Now,
-						Container = new byte[64],
 						Order = order,
 						Counterparty = order.Client,
 						MainDocumentId = string.Empty,
@@ -304,7 +307,7 @@ namespace TaxcomEdoApi.Services
 							x.Order.Id == edoContainer.Order.Id && x.IsNeedToResendEdoBill)
 						.ToList();
 
-					SendBill(unitOfWork, edoContainer, organization, actions);
+					await SendBillAsync(unitOfWork, edoContainer, organization, actions, cancellationToken);
 				}
 
 				var resendFromActions =
@@ -319,7 +322,6 @@ namespace TaxcomEdoApi.Services
 					var edoContainer = new EdoContainer
 					{						
 						Created = DateTime.Now,
-						Container = new byte[64],
 						MainDocumentId = string.Empty,
 						EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
 					};
@@ -352,7 +354,7 @@ namespace TaxcomEdoApi.Services
 						edoContainer.Counterparty = orderWithoutShipmentForDebt.Counterparty;
 					}
 
-					SendBill(unitOfWork, edoContainer, organization, new []{ action });
+					await SendBillAsync(unitOfWork, edoContainer, organization, new []{ action }, cancellationToken);
 				}
 			}
 			catch(Exception e)
@@ -362,34 +364,33 @@ namespace TaxcomEdoApi.Services
 
 				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования счетов");
 			}
-
-			return Task.CompletedTask;
 		}
 
-		private void SendBill(
+		private async Task SendBillAsync(
 			IUnitOfWork uow,
 			EdoContainer edoContainer,
 			Organization organization,
-			IEnumerable<OrderEdoTrueMarkDocumentsActions> actions)
+			IEnumerable<OrderEdoTrueMarkDocumentsActions> actions,
+			CancellationToken cancellationToken)
 		{
 			if(EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(edoContainer))
 			{
-				SendOrderContainer(uow, organization, edoContainer);
+				await SendOrderContainer(uow, organization, edoContainer, cancellationToken);
 			}
 
 			if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForAdvancePayment().IsSatisfiedBy(edoContainer))
 			{
-				SendOrderWithoutShipmentForAdvancePaymentContainer(uow, organization, edoContainer);
+				await SendOrderWithoutShipmentForAdvancePaymentContainerAsync(uow, organization, edoContainer, cancellationToken);
 			}
 
 			if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForDebt().IsSatisfiedBy(edoContainer))
 			{
-				SendOrderWithoutShipmentForDebtContainer(uow, organization, edoContainer);
+				await SendOrderWithoutShipmentForDebtContainerAsync(uow, organization, edoContainer, cancellationToken);
 			}
 
 			if(_cashlessOrganizationId == organization.Id && EdoContainerSpecification.CreateIsForOrderWithoutShipmentForPayment().IsSatisfiedBy(edoContainer))
 			{
-				SendOrderWithoutShipmentForPaymentContainer(uow, organization, edoContainer);
+				await SendOrderWithoutShipmentForPaymentContainerAsync(uow, organization, edoContainer, cancellationToken);
 			};
 
 			foreach(var action in actions)
@@ -401,7 +402,7 @@ namespace TaxcomEdoApi.Services
 			}
 		}
 
-		private void SendOrderContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
+		private async Task SendOrderContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", edoContainer.Order.Id);
 
@@ -425,7 +426,7 @@ namespace TaxcomEdoApi.Services
 
 				var containerRawData = container.ExportToZip();
 
-				edoContainer.Container = containerRawData;
+				using var ms = new MemoryStream(containerRawData);
 				edoContainer.MainDocumentId = document.ExternalIdentifier;
 				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
 
@@ -433,8 +434,13 @@ namespace TaxcomEdoApi.Services
 					edoContainer.Id,
 					edoContainer.Order.Id);
 
+
 				unitOfWork.Save(edoContainer);
 				unitOfWork.Commit();
+
+				await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
+
+				// !!! Что делать если не удалось?
 
 				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по заказу №{OrderId}",
 					edoContainer.Id,
@@ -464,7 +470,7 @@ namespace TaxcomEdoApi.Services
 			}
 		}
 
-		private void SendOrderWithoutShipmentForPaymentContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
+		private async Task SendOrderWithoutShipmentForPaymentContainerAsync(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Создаем счёт без отгрузки на постоплату №{OrderWithoutShipmentForPaymentId}", edoContainer.OrderWithoutShipmentForPayment.Id);
 			try
@@ -485,7 +491,8 @@ namespace TaxcomEdoApi.Services
 
 				var containerRawData = container.ExportToZip();
 
-				edoContainer.Container = containerRawData;
+				using var ms = new MemoryStream(containerRawData);
+
 				edoContainer.MainDocumentId = document.ExternalIdentifier;
 				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
 
@@ -495,6 +502,10 @@ namespace TaxcomEdoApi.Services
 
 				unitOfWork.Save(edoContainer);
 				unitOfWork.Commit();
+
+				await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
+
+				// !!! Что делать если не удалось?
 
 				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по счету без отгрузки на постоплату №{OrderWithoutShipmentForPaymentId}",
 					edoContainer.Id,
@@ -510,7 +521,7 @@ namespace TaxcomEdoApi.Services
 			}
 		}
 
-		private void SendOrderWithoutShipmentForDebtContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
+		private async Task SendOrderWithoutShipmentForDebtContainerAsync(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Создаем счёт без отгрузки на долг №{OrderWithoutShipmentForDebtId}", edoContainer.OrderWithoutShipmentForDebt.Id);
 			try
@@ -531,7 +542,8 @@ namespace TaxcomEdoApi.Services
 
 				var containerRawData = container.ExportToZip();
 
-				edoContainer.Container = containerRawData;
+				using var ms = new MemoryStream(containerRawData);
+
 				edoContainer.MainDocumentId = document.ExternalIdentifier;
 				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
 
@@ -541,6 +553,10 @@ namespace TaxcomEdoApi.Services
 
 				unitOfWork.Save(edoContainer);
 				unitOfWork.Commit();
+
+				await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
+
+				// !!! Что делать если не удалось?
 
 				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по счету без отгрузки на долг №{OrderWithoutShipmentForDebtId}",
 					edoContainer.Id,
@@ -556,7 +572,7 @@ namespace TaxcomEdoApi.Services
 			}
 		}
 
-		private void SendOrderWithoutShipmentForAdvancePaymentContainer(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer)
+		private async Task SendOrderWithoutShipmentForAdvancePaymentContainerAsync(IUnitOfWork unitOfWork, Organization organization, EdoContainer edoContainer, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Создаем счёт без отгрузки на предоплату №{OrderWithoutShipmentForAdvancePaymentId}", edoContainer.OrderWithoutShipmentForAdvancePayment.Id);
 			try
@@ -577,7 +593,8 @@ namespace TaxcomEdoApi.Services
 
 				var containerRawData = container.ExportToZip();
 
-				edoContainer.Container = containerRawData;
+				using var ms = new MemoryStream(containerRawData);
+
 				edoContainer.MainDocumentId = document.ExternalIdentifier;
 				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
 
@@ -587,6 +604,10 @@ namespace TaxcomEdoApi.Services
 
 				unitOfWork.Save(edoContainer);
 				unitOfWork.Commit();
+
+				await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
+
+				// !!! Что делать если не удалось?
 
 				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по счету без отгрузки на предоплату №{OrderWithoutShipmentForAdvancePayment}",
 					edoContainer.Id,
@@ -602,7 +623,7 @@ namespace TaxcomEdoApi.Services
 			}
 		}
 
-		private Task ProcessOutgoingDocuments(IUnitOfWork uow)
+		private async Task ProcessOutgoingDocumentsAsync(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -616,7 +637,7 @@ namespace TaxcomEdoApi.Services
 
 					if(docFlowUpdates.Updates is null)
 					{
-						return Task.CompletedTask;
+						return;
 					}
 
 					_logger.LogInformation("Обрабатываем полученные контейнеры {DocFlowUpdatesCount}", docFlowUpdates.Updates.Count);
@@ -643,7 +664,18 @@ namespace TaxcomEdoApi.Services
 
 							if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 							{
-								container.Container = _taxcomApi.GetDocflowRawData(item.Id.Value.ToString());
+								var containerRawData = _taxcomApi.GetDocflowRawData(item.Id.Value.ToString());
+
+								using var ms = new MemoryStream(containerRawData);
+
+								var result = await _edoContainerFileStorageService.UpdateContainerAsync(container, ms, cancellationToken);
+
+								if(result.IsFailure)
+								{
+									var errors = string.Join(", ", result.Errors.Select(e => e.Message));
+
+									_logger.LogError("Не удалось обновить контейнер, ошибка: {Errors}", errors);
+								}
 							}
 
 							_logger.LogInformation("Сохраняем изменения контейнера по заказу №{OrderId}", container.Order?.Id);
@@ -667,11 +699,9 @@ namespace TaxcomEdoApi.Services
 				_settingController.CreateOrUpdateSetting(
 					"last_event_outgoing_documents_timestamp", _lastEventOutgoingDocumentsTimeStamp.ToString());
 			}
-
-			return Task.CompletedTask;
 		}
 
-		private Task ProcessIngoingDocuments(IUnitOfWork uow)
+		private async Task ProcessIngoingDocumentsAsync(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -679,18 +709,22 @@ namespace TaxcomEdoApi.Services
 				do
 				{
 					_logger.LogInformation("Получаем входящие документы");
+
 					docFlowUpdates =
 						_taxcomApi.GetDocflowsUpdates(null, _lastEventIngoingDocumentsTimeStamp, DocFlowDirection.Ingoing, null, true);
 
 					if(docFlowUpdates.Updates is null)
 					{
-						return Task.CompletedTask;
+						return;
 					}
 
 					_logger.LogInformation("Сохраняем полученные документы");
+
 					foreach(var item in docFlowUpdates.Updates)
 					{
 						var rawContainer = _taxcomApi.GetDocflowRawData(item.Id.Value.ToString());
+
+						using var ms = new MemoryStream(rawContainer);
 
 						var client = _edoContainerMainDocumentIdParser.GetCounterpartyFromMainDocumentId(
 							uow, item.Documents[0].ExternalIdentifier);
@@ -699,14 +733,24 @@ namespace TaxcomEdoApi.Services
 
 						if(edoContainer != null)
 						{
-							edoContainer.Container = rawContainer;
 							edoContainer.EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status.ToString());
+							
+							var result = await _edoContainerFileStorageService.UpdateContainerAsync(edoContainer, ms, cancellationToken);
+
+							if(result.IsFailure)
+							{
+								var errors = string.Join(", ", result.Errors.Select(e => e.Message));
+
+								_logger.LogError("Не удалось обновить контейнер, ошибка: {Errors}", errors);
+							}
+
+							uow.Save(edoContainer);
+							uow.Commit();
 						}
 						else
 						{
 							edoContainer = new EdoContainer
 							{
-								Container = rawContainer,
 								IsIncoming = true,
 								DocFlowId = item.Id,
 								InternalId = item.Documents[0].InternalId,
@@ -714,10 +758,20 @@ namespace TaxcomEdoApi.Services
 								EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status.ToString()),
 								Counterparty = client
 							};
+
+							uow.Save(edoContainer);
+							uow.Commit();
+
+							var result = await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
+
+							if(result.IsFailure)
+							{
+								var errors = string.Join(", ", result.Errors.Select(e => e.Message));
+
+								_logger.LogError("Не удалось обновить контейнер, ошибка: {Errors}", errors);
+							}
 						}
 
-						uow.Save(edoContainer);
-						uow.Commit();
 						_lastEventIngoingDocumentsTimeStamp = item.StatusChangeDateTime.ToBinary();
 					}
 				} while(!docFlowUpdates.IsLast);
@@ -734,8 +788,6 @@ namespace TaxcomEdoApi.Services
 				_settingController.CreateOrUpdateSetting(
 					"last_event_ingoing_documents_timestamp", _lastEventIngoingDocumentsTimeStamp.ToString());
 			}
-
-			return Task.CompletedTask;
 		}
 
 		private async Task DelayAsync(CancellationToken stoppingToken)
