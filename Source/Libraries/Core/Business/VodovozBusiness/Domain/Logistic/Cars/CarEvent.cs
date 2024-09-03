@@ -157,6 +157,9 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display(Name = "Акт списания ТМЦ")]
+		[PropertyChangedAlso(
+			nameof(RepairPartsCost),
+			nameof(RepairAndPartsSummaryCost))]
 		public virtual WriteOffDocument WriteOffDocument
 		{
 			get => _writeOffDocument;
@@ -197,8 +200,11 @@ namespace Vodovoz.Domain.Logistic
 			return $"Событие №{Id} от {CreateDate.ToShortDateString()}";
 		}
 
+		public virtual decimal RepairPartsCost =>
+			WriteOffDocument?.TotalSumOfDamage ?? 0;
+
 		public virtual decimal RepairAndPartsSummaryCost =>
-			RepairCost + WriteOffDocument?.TotalSumOfDamage ?? 0;
+			RepairCost + RepairPartsCost;
 
 		#endregion
 
