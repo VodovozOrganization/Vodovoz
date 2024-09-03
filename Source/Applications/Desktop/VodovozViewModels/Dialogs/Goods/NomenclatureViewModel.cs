@@ -134,6 +134,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					UoW,
 					Entity,
 					_nomenclatureFileStorageService,
+					_cancellationTokenSource.Token,
 					Entity.AddFileInformation,
 					Entity.RemoveFileInformation);
 

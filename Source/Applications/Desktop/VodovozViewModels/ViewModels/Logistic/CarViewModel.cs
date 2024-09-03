@@ -223,6 +223,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					UoW,
 					Entity,
 					_carFileStorageService,
+					_cancellationTokenSource.Token,
 					Entity.AddFileInformation,
 					Entity.RemoveFileInformation);
 

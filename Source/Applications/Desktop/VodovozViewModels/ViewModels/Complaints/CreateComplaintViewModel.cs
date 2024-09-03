@@ -110,6 +110,7 @@ namespace Vodovoz.ViewModels.Complaints
 				UoW,
 				Entity,
 				complaintFileStorageService,
+				_cancellationTokenSource.Token,
 				Entity.AddFileInformation,
 				Entity.RemoveFileInformation);
 		}

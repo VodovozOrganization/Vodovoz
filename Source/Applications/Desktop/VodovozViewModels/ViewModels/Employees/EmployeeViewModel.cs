@@ -238,6 +238,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				UoW,
 				Entity,
 				_employeeFileStorageService,
+				_cancellationTokenSource.Token,
 				Entity.AddFileInformation,
 				Entity.RemoveFileInformation);
 		}

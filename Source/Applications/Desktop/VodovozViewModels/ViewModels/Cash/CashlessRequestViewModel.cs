@@ -127,6 +127,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				UoW,
 				Entity,
 				_cashlessRequestFileStorageService,
+				_cancellationTokenSource.Token,
 				Entity.AddFileInformation,
 				Entity.RemoveFileInformation);
 

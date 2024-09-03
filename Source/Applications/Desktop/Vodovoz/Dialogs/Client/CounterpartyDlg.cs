@@ -690,6 +690,7 @@ namespace Vodovoz
 				UoW,
 				Entity,
 				_counterpartyFileStorageService,
+				_cancellationTokenSource.Token,
 				Entity.AddFileInformation,
 				Entity.RemoveFileInformation);
 

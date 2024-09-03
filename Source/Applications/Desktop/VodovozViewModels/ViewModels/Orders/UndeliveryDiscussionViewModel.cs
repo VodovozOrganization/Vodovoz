@@ -63,6 +63,7 @@ namespace Vodovoz.ViewModels.Orders
 				UoW,
 				UndeliveryDiscussionComment,
 				_undeliveryDiscussionCommentFileStorageService,
+				_cancellationTokenSource.Token,
 				UndeliveryDiscussionComment.AddFileInformation,
 				UndeliveryDiscussionComment.DeleteFileInformation);
 
@@ -112,6 +113,7 @@ namespace Vodovoz.ViewModels.Orders
 				UoW,
 				UndeliveryDiscussionComment,
 				_undeliveryDiscussionCommentFileStorageService,
+				_cancellationTokenSource.Token,
 				UndeliveryDiscussionComment.AddFileInformation,
 				UndeliveryDiscussionComment.DeleteFileInformation);
 

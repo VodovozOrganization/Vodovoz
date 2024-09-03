@@ -84,6 +84,7 @@ namespace Vodovoz.ViewModels.Complaints
 				UoW,
 				Entity,
 				_complaintFileStorageService,
+				_cancellationTokenSource.Token,
 				Entity.AddFileInformation,
 				Entity.RemoveFileInformation);
 

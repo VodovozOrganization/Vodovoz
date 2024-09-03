@@ -67,6 +67,7 @@ namespace Vodovoz.ViewModels.Complaints
 				UoW,
 				ComplaintDiscussionComment,
 				_complaintDiscussionCommentFileStorageService,
+				_cancellationTokenSource.Token,
 				ComplaintDiscussionComment.AddFileInformation,
 				ComplaintDiscussionComment.DeleteFileInformation);
 
@@ -168,6 +169,7 @@ namespace Vodovoz.ViewModels.Complaints
 				UoW,
 				ComplaintDiscussionComment,
 				_complaintDiscussionCommentFileStorageService,
+				_cancellationTokenSource.Token,
 				ComplaintDiscussionComment.AddFileInformation,
 				ComplaintDiscussionComment.DeleteFileInformation);
 

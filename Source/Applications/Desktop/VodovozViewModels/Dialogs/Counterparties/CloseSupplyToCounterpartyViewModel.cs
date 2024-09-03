@@ -19,6 +19,7 @@ using QS.DomainModel.Entity;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Application.FileStorage;
 using VodovozBusiness.Domain.Client;
+using System.Threading;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparties
 {
@@ -41,6 +42,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		private DelegateCommand _closeDeliveryCommand;
 		private DelegateCommand _saveCloseCommentCommand;
 		private DelegateCommand _editCloseCommentCommand;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public CloseSupplyToCounterpartyViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -72,6 +75,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 				UoW,
 				Entity,
 				_counterpartyFileStorageService,
+				_cancellationTokenSource.Token,
 				Entity.AddFileInformation,
 				Entity.RemoveFileInformation);
 		}
