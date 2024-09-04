@@ -20,7 +20,7 @@ namespace Vodovoz.ReportsParameters
 
 			geograficGroup.Label = "Часть города:";
 			geograficGroup.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.UnitOfWork, w => w.UoW)
+				.AddBinding(vm => vm.UoW, w => w.UoW)
 				.AddBinding(vm => vm.GeoGroups, w => w.Items)
 				.InitializeFromSource();
 
