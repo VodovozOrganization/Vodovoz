@@ -12,7 +12,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.DatePicker ydatepicker;
 
-		private global::Gtk.CheckButton buttonSanitary;
+		private global::Gamma.GtkWidgets.yCheckButton buttonSanitary;
 
 		private global::Gtk.HBox hbox2;
 
@@ -64,7 +64,7 @@ namespace Vodovoz.ReportsParameters
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonSanitary = new global::Gtk.CheckButton();
+			this.buttonSanitary = new global::Gamma.GtkWidgets.yCheckButton();
 			this.buttonSanitary.CanFocus = true;
 			this.buttonSanitary.Name = "buttonSanitary";
 			this.buttonSanitary.Label = global::Mono.Unix.Catalog.GetString("Отчёт по санитарной обработке");

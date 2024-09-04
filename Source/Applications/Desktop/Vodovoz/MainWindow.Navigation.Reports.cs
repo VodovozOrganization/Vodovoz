@@ -99,9 +99,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionLastOrderReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<LastOrderByDeliveryPointReport>(),
-			() => new QSReport.ReportViewDlg(new LastOrderByDeliveryPointReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(LastOrderByDeliveryPointReportViewModel));
 	}
 
 	/// <summary>
