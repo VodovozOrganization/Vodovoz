@@ -105,6 +105,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
     </Reference>
+    <Reference Include="GammaBinding">
+      <HintPath>..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -2057,6 +2060,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.BusinessAccountView.cs" />
     <Compile Include="Views\Organization\CompanyBalanceByDateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.CompanyBalanceByDateView.cs" />
+    <Compile Include="Filters\GtkViews\FundsFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FundsFilterView.cs" />
+    <Compile Include="Filters\GtkViews\BusinessActivitiesFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BusinessActivitiesFilterView.cs" />
+    <Compile Include="Filters\GtkViews\BusinessAccountsFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BusinessAccountsFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
