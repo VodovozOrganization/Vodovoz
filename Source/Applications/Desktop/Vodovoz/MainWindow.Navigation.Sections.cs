@@ -1,6 +1,7 @@
-using QS.Dialog.GtkUI;
+﻿using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
+using QS.Report.ViewModels;
 using System;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Dialogs.Logistic;
@@ -19,6 +20,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 
 public partial class MainWindow
@@ -202,10 +204,7 @@ public partial class MainWindow
 
 	protected void OpenRoutesListRegisterReport()
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.RoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.RoutesListRegisterReport())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RoutesListRegisterReportViewModel));
 	}
 
 	protected void OpenDriverRoutesListRegisterReport()
