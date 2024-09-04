@@ -159,9 +159,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNotDeliveredOrdersActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<NotDeliveredOrdersReport>(),
-			() => new QSReport.ReportViewDlg(new NotDeliveredOrdersReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(NotDeliveredOrdersReportViewModel));
 	}
 
 	/// <summary>

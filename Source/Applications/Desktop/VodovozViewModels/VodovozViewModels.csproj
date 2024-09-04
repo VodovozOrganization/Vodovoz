@@ -308,6 +308,7 @@
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.SelectableParameter.cs" />
     <Compile Include="ReportsParameters\Orders\EShopSalesReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\FirstClientsReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\NotDeliveredOrdersReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrderCreationDateReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrderIncorrectPricesViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrderRegistryReportViewModel.cs" />
