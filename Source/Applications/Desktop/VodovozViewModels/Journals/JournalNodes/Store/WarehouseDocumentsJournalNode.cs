@@ -4,17 +4,90 @@ using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.IncomingInvoices;
+using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 {
+	public class WarehouseDocumentsJournalNode<TEntity> : WarehouseDocumentsJournalNode
+		where TEntity : class, IDomainObject
+	{
+		public WarehouseDocumentsJournalNode() : base(typeof(TEntity)) { }
+	}
+
 	public class WarehouseDocumentsJournalNode : JournalEntityNodeBase
 	{
+		public WarehouseDocumentsJournalNode(Type entityType) : base(entityType)
+		{
+			if(entityType == typeof(IncomingInvoice))
+			{
+				DocTypeEnum = DocumentType.IncomingInvoice;
+			}
+
+			if(entityType == typeof(IncomingWater))
+			{
+				DocTypeEnum = DocumentType.IncomingWater;
+			}
+
+			if(entityType == typeof(MovementDocument))
+			{
+				DocTypeEnum = DocumentType.MovementDocument;
+			}
+
+			if(entityType == typeof(WriteOffDocument))
+			{
+				DocTypeEnum = DocumentType.WriteoffDocument;
+			}
+
+			if(entityType == typeof(SelfDeliveryDocument))
+			{
+				DocTypeEnum = DocumentType.SelfDeliveryDocument;
+			}
+
+			if(entityType == typeof(CarLoadDocument))
+			{
+				DocTypeEnum = DocumentType.CarLoadDocument;
+			}
+
+			if(entityType == typeof(CarUnloadDocument))
+			{
+				DocTypeEnum = DocumentType.CarUnloadDocument;
+			}
+
+			if(entityType == typeof(InventoryDocument))
+			{
+				DocTypeEnum = DocumentType.InventoryDocument;
+			}
+
+			if(entityType == typeof(ShiftChangeWarehouseDocument))
+			{
+				DocTypeEnum = DocumentType.ShiftChangeDocument;
+			}
+
+			if(entityType == typeof(RegradingOfGoodsDocument))
+			{
+				DocTypeEnum = DocumentType.RegradingOfGoodsDocument;
+			}
+
+			if(entityType == typeof(DriverAttachedTerminalReturnDocument))
+			{
+				DocTypeEnum = DocumentType.DriverTerminalReturn;
+			}
+
+			if(DocTypeEnum is null)
+			{
+				throw new InvalidOperationException("Тип ноды журнала складских документов не поддерживается");
+			}
+		}
+
 		public string ProductName { get; set; }
 
-		public DocumentType DocTypeEnum { get; set; }
+		public DocumentType? DocTypeEnum { get; set; }
 
-		public string DocTypeString => DocTypeEnum.GetEnumTitle();
+		public string DocTypeString => DocTypeEnum?.GetEnumTitle();
 
 		public DateTime Date { get; set; }
 
