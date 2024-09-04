@@ -981,9 +981,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDriveingCallsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DrivingCallReport>(),
-			() => new QSReport.ReportViewDlg(new DrivingCallReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DrivingCallReportViewModel));
 	}
 
 	/// <summary>
