@@ -827,10 +827,7 @@ public partial class MainWindow : Window
 
 	void ActionWarehouseDocumentsActivated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<WarehouseDocumentsView>(),
-			() => new WarehouseDocumentsView()
-		);
+		NavigationManager.OpenViewModel<WarehouseDocumentsJournalViewModel>(null);
 	}
 
 	void ActionServiceClaimsActivated(object sender, System.EventArgs e)
