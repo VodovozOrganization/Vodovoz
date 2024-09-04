@@ -44,6 +44,7 @@ using Vodovoz.ViewModels.ReportsParameters.Client;
 using Vodovoz.ViewModels.ReportsParameters.Fuel;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
@@ -966,9 +967,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionShipmentReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ShipmentReport>(),
-			() => new QSReport.ReportViewDlg(new ShipmentReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ShipmentReportViewModel));
 	}
 
 	/// <summary>

@@ -1,106 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Dialog;
-using QS.Report;
-using QSReport;
-using Vodovoz.Domain.Store;
-using QS.Dialog.GtkUI;
-using QS.Project.Services;
+﻿using QS.Views;
 using Vodovoz.Tools.Store;
-using Vodovoz.Reports;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ShipmentReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class ShipmentReport : ViewBase<ShipmentReportViewModel>
 	{
-		private readonly ReportFactory _reportFactory;
-
-		public ShipmentReport(ReportFactory reportFactory)
+		public ShipmentReport(ShipmentReportViewModel viewModel) : base(viewModel)
 		{
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-			ydatepicker.Date = DateTime.Now.Date;
+
+			ydatepicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.DateOrNull)
+				.InitializeFromSource();
+
+			radioAll.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.All, w => w.Active)
+				.InitializeFromSource();
+
+			radioCash.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.SortByCash, w => w.Active)
+				.InitializeFromSource();
+
+			radioWarehouse.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.SortByWarehouse, w => w.Active)
+				.InitializeFromSource();
+
+			//Необходимо Заменить на новый entry
 			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetNotArchiveWarehousesQuery();
-			ButtonSensitivity();
-		}
+			referenceWarehouse.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Warehouse, w => w.Subject)
+				.AddBinding(vm => vm.SortByWarehouse, w => w.Sensitive)
+				.InitializeFromSource();
 
-		#region IParametersWidget implementation
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		public string Title => "Отчёт по отгрузке автомобилей";
-
-		#endregion
-
-		ReportInfo GetReportInfo()
-		{
-			var parameters = new Dictionary<string, object>
-			{
-				{ "start_date", ydatepicker.Date },
-				{ "department", GetDepartment()}
-			};
-
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Logistic.ShipmentReport";
-			reportInfo.Parameters = parameters;
-
-			return reportInfo;
-		}
-
-		string GetDepartment()
-		{
-			if(radioAll.Active)
-			{
-				return "-1";
-			}
-
-			if(radioCash.Active)
-			{
-				return "Касса";
-			}
-				
-			return (referenceWarehouse.Subject as Warehouse).Name;
-		}
-
-		void OnUpdate(bool hide = false)
-		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
-		}
-
-		void ButtonSensitivity()
-		{
-			referenceWarehouse.Sensitive = radioWarehouse.Active;
-			buttonCreateReport.Sensitive = !radioWarehouse.Active || (radioWarehouse.Active && referenceWarehouse.Subject != null);
-		}
-
-		protected void OnRadioAllToggled(object sender, EventArgs e)
-		{
-			ButtonSensitivity();
-		}
-
-		protected void OnRadioCashToggled(object sender, EventArgs e)
-		{
-			ButtonSensitivity();
-		}
-
-		protected void OnRadioWarehouseToggled(object sender, EventArgs e)
-		{
-			ButtonSensitivity();
-		}
-
-		protected void OnReferenceWarehouseChanged(object sender, EventArgs e)
-		{
-			ButtonSensitivity();
-		}
-
-		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
+			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }
