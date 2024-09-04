@@ -309,6 +309,7 @@
     <Compile Include="ReportsParameters\Orders\EShopSalesReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\FirstClientsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrderCreationDateReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\OrderRegistryReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrdersByDistrictReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrdersWithMinPriceLessThanViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportViewModel.cs" />

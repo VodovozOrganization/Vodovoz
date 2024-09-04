@@ -173,9 +173,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderRegistryActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrderRegistryReport>(),
-			() => new QSReport.ReportViewDlg(new OrderRegistryReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrderRegistryReportViewModel));
 	}
 
 	/// <summary>
