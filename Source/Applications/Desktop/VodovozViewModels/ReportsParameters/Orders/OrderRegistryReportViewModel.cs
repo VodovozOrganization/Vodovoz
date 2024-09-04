@@ -44,8 +44,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}
 
-		public IUnitOfWork UnitOfWork => UoW;
-
 		public DelegateCommand GenerateReportCommand;
 
 		public virtual DateTime? StartDate

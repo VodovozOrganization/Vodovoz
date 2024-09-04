@@ -708,9 +708,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionScheduleOnLinePerShiftReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
-			() => new QSReport.ReportViewDlg(new ScheduleOnLinePerShiftReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ScheduleOnLinePerShiftReportViewModel));
 	}
 
 	/// <summary>
