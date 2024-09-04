@@ -87,9 +87,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersByDistrict(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrdersByDistrictReport>(),
-			() => new QSReport.ReportViewDlg(new OrdersByDistrictReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrdersByDistrictReportViewModel));
 	}
 
 	/// <summary>
