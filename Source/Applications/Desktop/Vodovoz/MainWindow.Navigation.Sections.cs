@@ -209,10 +209,7 @@ public partial class MainWindow
 
 	protected void OpenDriverRoutesListRegisterReport()
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DriverRoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new DriverRoutesListRegisterReport())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DriverRoutesListRegisterReportViewModel));
 	}
 
 	protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
