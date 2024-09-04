@@ -51,6 +51,7 @@ using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.ReportsParameters.QualityControl;
 using Vodovoz.ViewModels.ReportsParameters.Sales;
 using Vodovoz.ViewModels.ReportsParameters.Selfdelivery;
+using Vodovoz.ViewModels.ReportsParameters.Service;
 using Vodovoz.ViewModels.ReportsParameters.Store;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -1046,10 +1047,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionMastersVisitReportActivated(object sender, EventArgs e)
 	{
-		var employeeFactory = new EmployeeJournalFactory(NavigationManager);
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
-			() => new QSReport.ReportViewDlg(new MastersVisitReport(employeeFactory)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(MastersVisitReportViewModel));
 	}
 
 	#endregion Сервисный центр
