@@ -184,7 +184,8 @@ namespace Vodovoz.JournalViewModels
 			
 			query.Where(GetSearchCriterion(
 				() => counterpartyAlias.Name,
-				() => counterpartyAlias.Id));
+				() => counterpartyAlias.Id,
+				() => counterpartyAlias.INN));
 
 			var counterpartyResultQuery = query.SelectList(list => list
 				.SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
@@ -313,7 +314,8 @@ namespace Vodovoz.JournalViewModels
 			
 			query.Where(GetSearchCriterion(
 				() => counterpartyAlias.Name,
-				() => counterpartyAlias.Id));
+				() => counterpartyAlias.Id,
+				() => counterpartyAlias.INN));
 
 			var resultCountQuery = query
 				.SelectList(list => list
