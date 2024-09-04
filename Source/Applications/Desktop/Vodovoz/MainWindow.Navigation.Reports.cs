@@ -863,9 +863,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction48Activated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<EmployeesPremiums>(),
-			() => new QSReport.ReportViewDlg(new EmployeesPremiums()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(EmployeesPremiumsViewModel));
 	}
 
 	/// <summary>
