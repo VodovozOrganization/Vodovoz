@@ -42,13 +42,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Vodovoz.Additions.Printing;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
-using Vodovoz.Core;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Cores;
 using Vodovoz.Dialogs;
@@ -58,7 +54,6 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
@@ -72,7 +67,6 @@ using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.BasicHandbooks;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Delivery;
@@ -99,14 +93,11 @@ using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
-using Vodovoz.NotificationRecievers;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Database.Logistics;
 using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
@@ -3528,6 +3519,8 @@ namespace Vodovoz
 
 				enumTax.SelectedItem = Entity.Client.TaxType;
 				enumTax.Visible = lblTax.Visible = IsEnumTaxVisible();
+
+				UpdateBarterPaymentTypeVisible();
 			}
 			else
 			{
@@ -3539,6 +3532,18 @@ namespace Vodovoz
 			SetSensitivityOfPaymentType();
 
 			UpdateClientSecondOrderDiscount();
+		}
+
+		private void UpdateBarterPaymentTypeVisible()
+		{
+			if(Entity.Client.CounterpartyType is CounterpartyType.AdvertisingDepartmentClient)
+			{
+				_selectPaymentTypeViewModel.RemoveExcludedPaymentTypes(PaymentType.Barter);
+			}
+			else
+			{
+				_selectPaymentTypeViewModel.AddExcludedPaymentTypes(PaymentType.Barter);
+			}
 		}
 
 		private bool IsEnumTaxVisible() => Entity.Client != null &&
