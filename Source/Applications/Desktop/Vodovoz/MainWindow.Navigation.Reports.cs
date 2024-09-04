@@ -912,9 +912,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionRouteListsOnClosingActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<RouteListsOnClosingReport>(),
-			() => new QSReport.ReportViewDlg(new RouteListsOnClosingReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RouteListsOnClosingReportViewModel));
 	}
 
 	/// <summary>
