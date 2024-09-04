@@ -1023,9 +1023,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionMastersReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<MastersReport>(),
-			() => new QSReport.ReportViewDlg(new MastersReport(NavigationManager)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(MastersReportViewModel));
 	}
 
 	/// <summary>
