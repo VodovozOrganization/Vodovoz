@@ -345,6 +345,7 @@
     <Compile Include="ReportsParameters\SetBillsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Store\DefectiveItemsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Store\NotFullyLoadedRouteListsReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Wages\ForwarderWageReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\WagesOperationsReportViewModel.cs" />
     <Compile Include="TempAdapters\IReportExporter.cs" />
     <Compile Include="TempAdapters\PacsViewModelOpener.cs" />

@@ -1168,9 +1168,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionForwarderWageReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.ForwarderWageReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport(NavigationManager)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ForwarderWageReportViewModel));
 	}
 
 	/// <summary>
