@@ -17,6 +17,7 @@ using Vodovoz.Data.NHibernate;
 using VodovozHealthCheck;
 using Vodovoz.Application;
 using Vodovoz.Infrastructure.FileStorage;
+using Vodovoz.Options;
 
 namespace TaxcomEdoApi
 {
@@ -70,6 +71,7 @@ namespace TaxcomEdoApi
 				.AddStaticHistoryTracker()
 				.AddStaticScopeForEntity()
 				.AddConfig(Configuration)
+				.ConfigureOptions<ConfigureS3Options>()
 				.AddApplication()
 				.AddFileStorage()
 				.AddDependencyGroup()
