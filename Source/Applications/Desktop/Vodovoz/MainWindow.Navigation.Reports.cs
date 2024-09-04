@@ -694,9 +694,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNonClosedRLByPeriodReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<NonClosedRLByPeriodReport>(),
-			() => new QSReport.ReportViewDlg(new NonClosedRLByPeriodReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(NonClosedRLByPeriodReportViewModel));
 	}
 
 	/// <summary>
