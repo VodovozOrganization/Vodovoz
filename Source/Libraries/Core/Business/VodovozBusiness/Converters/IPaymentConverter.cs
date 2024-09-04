@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Vodovoz.Core.Data.Payments;
+using TaxcomEdo.Contracts.Payments;
 using Vodovoz.Domain.Payments;
 
 namespace VodovozBusiness.Converters

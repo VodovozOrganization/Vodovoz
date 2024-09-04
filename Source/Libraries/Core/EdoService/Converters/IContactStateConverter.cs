@@ -1,5 +1,5 @@
-﻿using TISystems.TTC.CRM.BE.Serialization;
-using Vodovoz.Core.Data.Clients;
+﻿using TaxcomEdo.Contracts.Counterparties;
+using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Domain.Client;
 
 namespace EdoService.Library.Converters
@@ -8,5 +8,6 @@ namespace EdoService.Library.Converters
 	{
 		ConsentForEdoStatus ConvertStateToConsentForEdoStatus(ContactStateCode stateCode);
 		EdoContactStateCode ConvertStateToEdoContactStateCode(ContactStateCode stateCode);
+		ConsentForEdoStatus ConvertStateToConsentForEdoStatus(EdoContactStateCode stateCode);
 	}
 }

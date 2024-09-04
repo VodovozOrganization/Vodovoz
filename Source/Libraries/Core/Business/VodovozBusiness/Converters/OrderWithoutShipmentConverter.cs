@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Vodovoz.Core.Data.Orders.OrdersWithoutShipment;
+using TaxcomEdo.Contracts.OrdersWithoutShipment;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 

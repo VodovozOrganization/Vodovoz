@@ -1,8 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
+using MySqlX.XDevAPI.Common;
+using NLog.LayoutRenderers;
+using NPOI.SS.Formula.PTG;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
@@ -31,6 +35,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
 		private Type _type;
+		
+		//protected EdoContainer() { }
 
 		public virtual int Id { get; set; }
 
@@ -142,28 +148,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual string SentDocuments => Type.GetEnumTitle();
 	}
 
-	public enum EdoDocFlowStatus
-	{
-		[Display(Name = "Неизвестно")]
-		Unknown,
-		[Display(Name = "В процессе")]
-		InProgress,
-		[Display(Name = "Документооборот завершен успешно")]
-		Succeed,
-		[Display(Name = "Предупреждение")]
-		Warning,
-		[Display(Name = "Ошибка")]
-		Error,
-		[Display(Name = "Не начат")]
-		NotStarted,
-		[Display(Name = "Завершен с различиями")]
-		CompletedWithDivergences,
-		[Display(Name = "Не принят")]
-		NotAccepted,
-		[Display(Name = "Подготовка к отправке")]
-		PreparingToSend
-	}
-
 	/// <summary>
 	/// WS - используется потому, что enum в NHibernate не может быть более 36 символов для 1 значения
 	/// </summary>
@@ -179,5 +163,93 @@ namespace Vodovoz.Domain.Orders.Documents
 		BillWSForDebt,
 		[Display(Name = "Cчет без отгрузки на постоплату")]
 		BillWSForPayment
+	}
+
+	public class EdoContainerBuilder
+	{
+		private readonly EdoContainer _edoContainer;
+		
+		private EdoContainerBuilder()
+		{
+			_edoContainer = new EdoContainer();
+		}
+		
+		public EdoContainerBuilder Empty()
+		{
+			_edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
+			return this;
+		}
+		
+		public EdoContainerBuilder EmptyContainer()
+		{
+			_edoContainer.Container = new byte[64];
+			return this;
+		}
+		
+		public EdoContainerBuilder OrderUpd(Order order)
+		{
+			SetEdoContainerType(Type.Upd);
+			SetOrder(order);
+			return this;
+		}
+		
+		public EdoContainerBuilder OrderBill(Order order)
+		{
+			SetEdoContainerType(Type.Bill);
+			SetOrder(order);
+			return this;
+		}
+		
+		public EdoContainerBuilder BillWithoutShipmentForDebt(OrderWithoutShipmentForDebt orderWithoutShipment)
+		{
+			SetEdoContainerType(Type.BillWSForDebt);
+			_edoContainer.OrderWithoutShipmentForDebt = orderWithoutShipment;
+			SetCounterparty(orderWithoutShipment.Counterparty);
+			return this;
+		}
+		
+		public EdoContainerBuilder BillWithoutShipmentForPayment(OrderWithoutShipmentForPayment orderWithoutShipment)
+		{
+			SetEdoContainerType(Type.BillWSForPayment);
+			_edoContainer.OrderWithoutShipmentForPayment = orderWithoutShipment;
+			SetCounterparty(orderWithoutShipment.Counterparty);
+			return this;
+		}
+		
+		public EdoContainerBuilder BillWithoutShipmentForAdvancePayment(OrderWithoutShipmentForAdvancePayment orderWithoutShipment)
+		{
+			SetEdoContainerType(Type.BillWSForAdvancePayment);
+			_edoContainer.OrderWithoutShipmentForAdvancePayment = orderWithoutShipment;
+			SetCounterparty(orderWithoutShipment.Counterparty);
+			return this;
+		}
+		
+		public EdoContainerBuilder MainDocumentId(string mainDocumentId)
+		{
+			_edoContainer.MainDocumentId = mainDocumentId;
+			return this;
+		}
+
+		public EdoContainer Build()
+		{
+			_edoContainer.Created = DateTime.Now;
+			return _edoContainer;
+		}
+
+		public static EdoContainerBuilder Create()
+			=> new EdoContainerBuilder();
+
+		private void SetOrder(Order order)
+		{
+			_edoContainer.Order = order;
+			SetCounterparty(order.Client);
+		}
+
+		private void SetCounterparty(Counterparty counterparty)
+		{
+			_edoContainer.Counterparty = counterparty;
+		}
+
+		private void SetEdoContainerType(Type edoContainerType) => _edoContainer.Type = edoContainerType;
 	}
 }

@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using EdoService.Library.Converters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Taxcom.Client.Api;
-using TaxcomEdoApi.Config;
-using TaxcomEdoApi.Converters;
-using TaxcomEdoApi.Factories;
+using TaxcomEdoApi.Library;
+using TaxcomEdoApi.Library.Config;
 using TaxcomEdoApi.Services;
-using Vodovoz.Core.Domain.Common;
-using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.Tools.Orders;
 
 namespace TaxcomEdoApi
 {
@@ -30,7 +25,6 @@ namespace TaxcomEdoApi
 			services.AddHostedService<AutoSendReceiveService>()
 				.AddHostedService<ContactsUpdaterService>()
 				.AddHostedService<DocumentFlowService>()
-				.AddInfrastructure()
 
 				.AddSingleton(provider =>
 				{
@@ -58,13 +52,7 @@ namespace TaxcomEdoApi
 						certificate.RawData,
 						apiOptions.EdxClientId);
 				})
-				.AddSingleton<IEdoUpdFactory, EdoUpdFactory>()
-				.AddSingleton<IEdoBillFactory, EdoBillFactory>()
-				.AddSingleton<PrintableDocumentSaver>()
-				.AddSingleton<IParticipantDocFlowConverter, ParticipantDocFlowConverter>()
-				.AddSingleton<IEdoContainerMainDocumentIdParser, EdoContainerMainDocumentIdParser>()
-				.AddSingleton<IUpdProductConverter, UpdProductConverter>()
-				.AddSingleton<IContactStateConverter, ContactStateConverter>();
+				.AddTaxcomEdoApiLibrary();
 
 			return services;
 		}

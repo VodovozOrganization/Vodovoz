@@ -1,203 +1,101 @@
 ﻿using System;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using QS.DomainModel.UoW;
 using Taxcom.Client.Api;
-using Taxcom.Client.Api.Converters;
-using Taxcom.Client.Api.Entity;
-using TaxcomEdoApi.Config;
-using TaxcomEdoApi.Factories;
-using TaxcomEdoApi.Services;
-using Vodovoz.Core.Data.Documents;
-using Vodovoz.Core.Data.Orders;
-using Vodovoz.Core.Data.Orders.OrdersWithoutShipment;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Settings;
-using Vodovoz.Settings.Organizations;
+using TaxcomEdo.Contracts;
+using TaxcomEdoApi.Library.Services;
 
 namespace TaxcomEdoApi.Controllers
 {
 	[ApiController]
-	[Route("/api/")]
+	[Route("/api/[action]")]
 	public class TaxcomEdoController : ControllerBase
 	{
 		private readonly ILogger<TaxcomEdoController> _logger;
 		private readonly TaxcomApi _taxcomApi;
-		private readonly X509Certificate2 _certificate;
-		private readonly DocumentFlowService _documentFlowService;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ISettingsController _settingController;
-		private readonly IOrderRepository _orderRepository;
-		private readonly IOrganizationRepository _organizationRepository;
-		private readonly IOrganizationSettings _organizationSettings;
-		private readonly TaxcomEdoApiOptions _apiOptions;
-		private readonly WarrantOptions _warrantOptions;
-		private readonly IEdoUpdFactory _edoUpdFactory;
-		private readonly IEdoBillFactory _edoBillFactory;
+		private readonly TaxcomEdoService _taxcomEdoService;
 		
 		public TaxcomEdoController(
 			ILogger<TaxcomEdoController> logger,
 			TaxcomApi taxcomApi,
-			IOptions<TaxcomEdoApiOptions> apiOptions,
-			IOptions<WarrantOptions> warrantOptions,
-			ISettingsController settingController,
-			IOrderRepository orderRepository,
-			IOrganizationRepository organizationRepository,
-			IOrganizationSettings organizationSettings,
-			IEdoUpdFactory edoUpdFactory,
-			IEdoBillFactory edoBillFactory,
-			X509Certificate2 certificate,
-			DocumentFlowService documentFlowService)
+			TaxcomEdoService taxcomEdoService)
 		{
 			_logger = logger;
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
-			_certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
-			_documentFlowService = documentFlowService ?? throw new ArgumentNullException(nameof(documentFlowService));
-			_apiOptions = (apiOptions ?? throw new ArgumentNullException(nameof(apiOptions))).Value;
-			_warrantOptions = (warrantOptions ?? throw new ArgumentNullException(nameof(warrantOptions))).Value;
+			_taxcomEdoService = taxcomEdoService ?? throw new ArgumentNullException(nameof(taxcomEdoService));
 		}
 
 		[HttpPost]
-		public void CreateAndSendUpd(InfoForCreatingEdoUpd infoForCreatingEdoUpd)
+		public void CreateAndSendUpd(InfoForCreatingEdoUpd data)
 		{
+			var orderId = data.OrderInfoForEdo.Id;
+			_logger.LogInformation(
+				"Поступил запрос отправки УПД по заказу {OrderId}",
+				orderId);
+			
 			try
 			{
-				var edoAccountId = _apiOptions.EdxClientId;
-				var organizationEdoId = infoForCreatingEdoUpd.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId;
-
-				if(edoAccountId != organizationEdoId)
-				{
-					_logger.LogError(
-						"edxClientId {EdoAccountId} отличается от указанного в организации из договора заказа {OrganizationEdoId}",
-						edoAccountId,
-						organizationEdoId);
-					
-					throw new InvalidOperationException("Организация заказа отличается от указанной для отправки документов в конфиге");
-				}
+				var container = _taxcomEdoService.CreateContainerWithUpd(data);
 				
-				var updXml = _edoUpdFactory.CreateNewUpdXml(
-					infoForCreatingEdoUpd,
-					_warrantOptions,
-					edoAccountId,
-					_certificate.Subject);
-				
-				var container = new TaxcomContainer
-				{
-					SignMode = DocumentSignMode.UseSpecifiedCertificate
-				};
-
-				var upd = new UniversalInvoiceDocument();
-				UniversalInvoiceConverter.Convert(upd, updXml);
-
-				if(!upd.Validate(out var errors))
-				{
-					var errorsString = string.Join(", ", errors);
-					_logger.LogError(
-						"УПД {OrderId} не прошла валидацию\nОшибки: {ErrorsString}",
-						infoForCreatingEdoUpd.OrderInfoForEdo.Id,
-						errorsString);
-					
-					//подумать, что делаем в таких случаях
-				}
-
-				container.Documents.Add(upd);
-				upd.AddCertificateForSign(_certificate.Thumbprint);
-				
-				//На случай, если МЧД будет не готова, просто проставляем пустые строки в конфиге
-				//чтобы отправка шла без прикрепления доверки
-				if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber))
-				{
-					container.SetWarrantParameters(
-						_warrantOptions.WarrantNumber,
-						infoForCreatingEdoUpd.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.INN,
-						_warrantOptions.StartDate,
-						_warrantOptions.EndDate);
-				}
-
-				//отсылаем сообщение обработчику, что контейнер создан
-				//либо переносим создание контейнера в момент отправки сообщения об создании УПД для апи
-				/*var edoContainer = new EdoContainer
-				{
-					Type = Type.Upd,
-					Created = DateTime.Now,
-					Container = new byte[64],
-					Order = order,
-					Counterparty = order.Client,
-					MainDocumentId = $"{upd.FileIdentifier}.xml",
-					EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
-				};
-
-				var actions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-					.Where(x => x.Order.Id == edoContainer.Order.Id)
-					.FirstOrDefault();
-
-				if(actions != null && actions.IsNeedToResendEdoUpd)
-				{
-					actions.IsNeedToResendEdoUpd = false;
-					uow.Save(actions);
-				}
-
-				_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
-				uow.Save(edoContainer);
-				uow.Commit();
-				*/
-				
-				_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", infoForCreatingEdoUpd.OrderInfoForEdo.Id);
+				_logger.LogInformation("Отправляем контейнер с УПД по заказу №{OrderId}", orderId);
 				_taxcomApi.Send(container);
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", infoForCreatingEdoUpd.OrderInfoForEdo.Id);
+				_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", orderId);
 			}
 		}
 		
 		[HttpPost]
-		public void CreateAndSendBill(OrderInfoForEdo orderInfoForEdo, byte[] attachment)
+		public void CreateAndSendBill(InfoForCreatingEdoBill data)
 		{
-			/*var edoContainer = new EdoContainer
-			{
-				Type = Type.Bill,
-				Created = DateTime.Now,
-				Container = new byte[64],
-				Order = order,
-				Counterparty = order.Client,
-				MainDocumentId = string.Empty,
-				EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
-			};
-
-			var action = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-				.Where(x => x.Order.Id == edoContainer.Order.Id)
-				.FirstOrDefault();
-			*/
+			var orderId = data.OrderInfoForEdo.Id;
+			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", orderId);
 			
-			_documentFlowService.SendBill(orderInfoForEdo, attachment);
+			try
+			{
+				var container = _taxcomEdoService.CreateContainerWithBill(data);
+				
+				_logger.LogInformation("Отправляем контейнер со счетом по заказу №{OrderId}", orderId);
+				_taxcomApi.Send(container);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка в процессе формирования контейнера по заказу №{OrderId} для отправки счета",
+					orderId);
+			}
 		}
 		
 		[HttpPost]
-		public void CreateAndSendBillWithoutShipment(OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachment)
+		public void CreateAndSendBillWithoutShipment(InfoForCreatingBillWithoutShipmentEdo data)
 		{
-			_documentFlowService.SendBillWithoutShipment(orderWithoutShipmentInfo, attachment);
+			var documentType = data.GetBillWithoutShipmentInfoTitle();
+			var orderWithoutShipmentId = data.OrderWithoutShipmentInfo.Id;
+			
+			_logger.LogInformation("Создаем {OrderWithoutShipmentType} №{OrderWithoutShipmentForPaymentId}",
+				documentType,
+				orderWithoutShipmentId
+			);
+			
+			try
+			{
+				var container = _taxcomEdoService.CreateContainerWithBillWithoutShipment(data);
+				
+				_logger.LogInformation("Отправляем контейнер по {OrderWithoutShipmentType} №{OrderWithoutShipmentId}",
+					documentType,
+					orderWithoutShipmentId);
+
+				_taxcomApi.Send(container);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка в процессе формирования контейнера по {OrderWithoutShipmentType} №{OrderWithoutShipmentId} и его отправки",
+					documentType,
+					orderWithoutShipmentId);
+			}
 		}
-		
-		/*[HttpPost]
-		public void CreateAndSendBillWithoutShipmentForDebt(OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachment)
-		{
-			_documentFlowService.SendBillWithoutShipment(orderWithoutShipmentInfo, attachment);
-		}
-		
-		[HttpPost]
-		public void CreateAndSendBillWithoutShipmentForPayment(OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachment)
-		{
-			_documentFlowService.SendBillWithoutShipment(orderWithoutShipmentInfo, attachment);
-		}
-		
-		[HttpPost]
-		public void CreateAndSendBillWithoutShipmentForAdvancePayment(OrderWithoutShipmentInfo orderWithoutShipmentInfo, byte[] attachment)
-		{
-			_documentFlowService.SendBillWithoutShipment(orderWithoutShipmentInfo, attachment);
-		}*/
 	}
 }

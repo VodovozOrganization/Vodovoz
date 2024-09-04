@@ -6,14 +6,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
-using QS.HistoryLog;
-using QS.Project.Core;
 using System.Text;
 using QS.Services;
 using TaxcomEdoApi.HealthChecks;
-using Vodovoz.Core.Data.NHibernate;
-using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Data.NHibernate;
 using VodovozHealthCheck;
 
 namespace TaxcomEdoApi
@@ -51,9 +46,15 @@ namespace TaxcomEdoApi
 			services.AddControllers()
 				.AddXmlSerializerFormatters();
 
-			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "TaxcomEdoApi", Version = "v1" }); });
+			services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc("v1", new OpenApiInfo
+				{
+					Title = "TaxcomEdoApi", Version = "v1"
+				});
+			});
 
-			services.AddMappingAssemblies(
+			services/*.AddMappingAssemblies(
 				typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 				typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
 				typeof(QS.Banks.Domain.Bank).Assembly,
@@ -61,12 +62,12 @@ namespace TaxcomEdoApi
 				typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 				typeof(QS.Attachments.Domain.Attachment).Assembly,
 				typeof(EmployeeWithLoginMap).Assembly
-			)
+			)*/
 				.AddDatabaseConnection()
 				.AddCore()
-				.AddTrackedUoW()
-				.AddStaticHistoryTracker()
-				.AddStaticScopeForEntity()
+				//.AddTrackedUoW()
+				//.AddStaticHistoryTracker()
+				//.AddStaticScopeForEntity()
 				.AddConfig(Configuration)
 				.AddDependencyGroup()
 				.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
@@ -84,13 +85,12 @@ namespace TaxcomEdoApi
 			}
 
 			app.UseHttpsRedirection();
-
 			app.UseRouting();
-
 			app.UseAuthorization();
-
-			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-
+			app.UseEndpoints(endpoints =>
+			{
+				endpoints.MapControllers();
+			});
 			app.ConfigureHealthCheckApplicationBuilder();
 		}
 	}

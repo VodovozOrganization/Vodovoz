@@ -1,4 +1,4 @@
-using Vodovoz.Core.Data.Goods;
+using TaxcomEdo.Contracts.Goods;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Converters

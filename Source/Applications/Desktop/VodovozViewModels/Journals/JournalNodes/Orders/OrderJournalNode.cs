@@ -2,6 +2,7 @@
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;

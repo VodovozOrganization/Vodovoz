@@ -1,5 +1,5 @@
 using QS.BusinessCommon.Domain;
-using Vodovoz.Core.Data.Goods;
+using TaxcomEdo.Contracts.Goods;
 
 namespace Vodovoz.Converters
 {

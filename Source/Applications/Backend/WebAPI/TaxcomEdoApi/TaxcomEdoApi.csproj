@@ -51,6 +51,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdoApi.Library\TaxcomEdoApi.Library.csproj" />
+      <!--<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdoApi.Library\TaxcomEdoApi.Library.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\My-FyiReporting\RdlEngine\RdlEngine.csproj" />
@@ -61,7 +63,7 @@
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Report\QS.Report.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
-      <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
+      <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />-->
     </ItemGroup>
 	<Import Project="..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
 </Project>

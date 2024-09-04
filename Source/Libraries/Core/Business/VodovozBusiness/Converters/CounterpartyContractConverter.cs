@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Core.Data.Clients;
+using TaxcomEdo.Contracts.Counterparties;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Converters

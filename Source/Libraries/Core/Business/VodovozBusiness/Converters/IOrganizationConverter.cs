@@ -1,5 +1,5 @@
 using System;
-using Vodovoz.Core.Data.Organizations;
+using TaxcomEdo.Contracts.Organizations;
 using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Converters

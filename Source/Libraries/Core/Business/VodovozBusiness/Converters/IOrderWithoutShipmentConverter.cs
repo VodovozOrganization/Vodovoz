@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Core.Data.Orders.OrdersWithoutShipment;
+using TaxcomEdo.Contracts.OrdersWithoutShipment;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 

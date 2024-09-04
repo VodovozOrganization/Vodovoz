@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Vodovoz.Core.Data.Organizations;
+using TaxcomEdo.Contracts.Organizations;
 using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Converters
@@ -18,8 +18,8 @@ namespace Vodovoz.Converters
 				Id = organization.Id,
 				Name = organization.Name,
 				FullName = organization.FullName,
-				INN = organization.INN,
-				KPP = organization.KPP,
+				Inn = organization.INN,
+				Kpp = organization.KPP,
 				TaxcomEdoAccountId = organization.TaxcomEdoAccountId,
 				JurAddress = organizationVersion?.JurAddress
 			};

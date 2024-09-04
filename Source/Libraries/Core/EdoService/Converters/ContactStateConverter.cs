@@ -1,5 +1,5 @@
-﻿using TISystems.TTC.CRM.BE.Serialization;
-using Vodovoz.Core.Data.Clients;
+﻿using TaxcomEdo.Contracts.Counterparties;
+using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Domain.Client;
 
 namespace EdoService.Library.Converters
@@ -36,6 +36,21 @@ namespace EdoService.Library.Converters
 				case ContactStateCode.Error:
 				default:
 					return EdoContactStateCode.Error;
+			}
+		}
+
+		public ConsentForEdoStatus ConvertStateToConsentForEdoStatus(EdoContactStateCode stateCode)
+		{
+			switch(stateCode)
+			{
+				case EdoContactStateCode.Accepted:
+					return ConsentForEdoStatus.Agree;
+				case EdoContactStateCode.Sent:
+					return ConsentForEdoStatus.Sent;
+				case EdoContactStateCode.Rejected:
+					return ConsentForEdoStatus.Rejected;
+				default:
+					return ConsentForEdoStatus.Unknown;
 			}
 		}
 	}

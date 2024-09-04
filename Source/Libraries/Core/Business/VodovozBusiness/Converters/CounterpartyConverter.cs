@@ -1,20 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Data.Clients;
-using Vodovoz.Core.Data.Goods;
+using TaxcomEdo.Contracts.Counterparties;
+using TaxcomEdo.Contracts.Goods;
 using Vodovoz.Domain.Client;
+using VodovozBusiness.Converters;
 
 namespace Vodovoz.Converters
 {
 	public class CounterpartyConverter : ICounterpartyConverter
 	{
 		private readonly ISpecialNomenclatureConverter _specialNomenclatureConverter;
+		private readonly IPersonTypeConverter _personTypeConverter;
+		private readonly IReasonForLeavingConverter _reasonForLeavingConverter;
+		private readonly ICargoReceiverSourceConverter _cargoReceiverSourceConverter;
 
-		public CounterpartyConverter(ISpecialNomenclatureConverter specialNomenclatureConverter)
+		public CounterpartyConverter(
+			ISpecialNomenclatureConverter specialNomenclatureConverter,
+			IPersonTypeConverter personTypeConverter,
+			IReasonForLeavingConverter reasonForLeavingConverter,
+			ICargoReceiverSourceConverter cargoReceiverSourceConverter)
 		{
 			_specialNomenclatureConverter =
 				specialNomenclatureConverter ?? throw new ArgumentNullException(nameof(specialNomenclatureConverter));
+			_personTypeConverter = personTypeConverter ?? throw new ArgumentNullException(nameof(personTypeConverter));
+			_reasonForLeavingConverter = reasonForLeavingConverter ?? throw new ArgumentNullException(nameof(reasonForLeavingConverter));
+			_cargoReceiverSourceConverter =
+				cargoReceiverSourceConverter ?? throw new ArgumentNullException(nameof(cargoReceiverSourceConverter));
 		}
 		
 		public CounterpartyInfoForEdo ConvertCounterpartyToCounterpartyInfoForEdo(Counterparty counterparty)
@@ -24,12 +36,12 @@ namespace Vodovoz.Converters
 			var counterpartyInfo = new CounterpartyInfoForEdo
 			{
 				Id = counterparty.Id,
-				INN = counterparty.INN,
-				KPP = counterparty.KPP,
+				Inn = counterparty.INN,
+				Kpp = counterparty.KPP,
 				FullName = counterparty.FullName,
-				PersonType = counterparty.PersonType,
+				PersonType = _personTypeConverter.ConvertPersonTypeToCounterpartyInfoType(counterparty.PersonType),
 				SpecialCustomer = counterparty.SpecialCustomer,
-				PayerSpecialKPP = counterparty.PayerSpecialKPP,
+				PayerSpecialKpp = counterparty.PayerSpecialKPP,
 				CargoReceiver = counterparty.CargoReceiver,
 				SpecialContractName = counterparty.SpecialContractName,
 				SpecialContractDate = counterparty.SpecialContractDate,
@@ -37,8 +49,9 @@ namespace Vodovoz.Converters
 				UseSpecialDocFields = counterparty.UseSpecialDocFields,
 				JurAddress = counterparty.JurAddress,
 				PersonalAccountIdInEdo = counterparty.PersonalAccountIdInEdo,
-				ReasonForLeaving = counterparty.ReasonForLeaving,
-				CargoReceiverSource = counterparty.CargoReceiverSource,
+				ReasonForLeaving = _reasonForLeavingConverter.ConvertReasonForLeavingToReasonForLeavingType(counterparty.ReasonForLeaving),
+				CargoReceiverSource = 
+					_cargoReceiverSourceConverter.ConvertCargoReceiverSourceToCargoReceiverSourceType(counterparty.CargoReceiverSource),
 				SpecialNomenclatures = specialNomenclatures
 			};
 

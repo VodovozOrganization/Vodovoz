@@ -5,6 +5,7 @@ using NLog;
 using QS.ViewModels.Dialog;
 using QS.Views.GtkUI;
 using QS.Widgets;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
