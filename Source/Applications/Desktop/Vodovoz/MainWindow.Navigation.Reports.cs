@@ -287,9 +287,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionPaymentsFromAvangardReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromAvangardReport>(),
-			() => new QSReport.ReportViewDlg(new PaymentsFromAvangardReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(PaymentsFromAvangardReportViewModel));
 	}
 
 	#endregion Заказы
