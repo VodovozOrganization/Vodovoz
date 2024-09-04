@@ -2057,6 +2057,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.BusinessAccountView.cs" />
     <Compile Include="Views\Organization\CompanyBalanceByDateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.CompanyBalanceByDateView.cs" />
+    <Compile Include="Filters\GtkViews\WarehouseDocumentsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseDocumentsJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
