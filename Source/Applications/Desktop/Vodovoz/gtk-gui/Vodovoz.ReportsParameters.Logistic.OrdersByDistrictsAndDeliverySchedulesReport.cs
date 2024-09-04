@@ -16,7 +16,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox lstGeographicGroup;
 
-		private global::QSWidgetLib.DatePeriodPicker pkrDate;
+		private global::QS.Widgets.GtkUI.DateRangePicker pkrDate;
 
 		private global::Gamma.Widgets.ySpecComboBox yspeccomboboxTariffZone;
 
@@ -85,7 +85,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.pkrDate = new global::QSWidgetLib.DatePeriodPicker();
+			this.pkrDate = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.pkrDate.Events = ((global::Gdk.EventMask)(256));
 			this.pkrDate.Name = "pkrDate";
 			this.pkrDate.StartDate = new global::System.DateTime(0);

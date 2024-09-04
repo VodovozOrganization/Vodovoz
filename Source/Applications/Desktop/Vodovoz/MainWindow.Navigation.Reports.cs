@@ -642,9 +642,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersByDistrictsAndDeliverySchedulesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrdersByDistrictsAndDeliverySchedulesReport>(),
-			() => new QSReport.ReportViewDlg(new OrdersByDistrictsAndDeliverySchedulesReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrdersByDistrictsAndDeliverySchedulesReportViewModel));
 	}
 
 	/// <summary>
