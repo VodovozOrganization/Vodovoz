@@ -207,10 +207,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFirstClientsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
-			null,
-			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<FirstClientsReport>().As<IParametersWidget>());
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(FirstClientsReportViewModel), OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
