@@ -789,9 +789,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionAnalyticsForUndeliveryActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<AnalyticsForUndeliveryReport>(),
-			() => new QSReport.ReportViewDlg(new AnalyticsForUndeliveryReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(AnalyticsForUndeliveryReportViewModel));
 	}
 
 	/// <summary>
