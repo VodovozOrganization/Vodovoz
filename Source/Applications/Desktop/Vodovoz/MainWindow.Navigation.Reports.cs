@@ -927,9 +927,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOnLoadTimeActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OnLoadTimeAtDayReport>(),
-			() => new QSReport.ReportViewDlg(new OnLoadTimeAtDayReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OnLoadTimeAtDayReportViewModel));
 	}
 
 	/// <summary>
