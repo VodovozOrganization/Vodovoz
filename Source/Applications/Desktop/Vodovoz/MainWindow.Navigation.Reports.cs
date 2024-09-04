@@ -48,6 +48,7 @@ using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.ReportsParameters.QualityControl;
+using Vodovoz.ViewModels.ReportsParameters.Sales;
 using Vodovoz.ViewModels.ReportsParameters.Selfdelivery;
 using Vodovoz.ViewModels.ReportsParameters.Store;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
@@ -143,9 +144,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSuburbWaterPriceActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<SuburbWaterPriceReport>(),
-			() => new QSReport.ReportViewDlg(new SuburbWaterPriceReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(SuburbWaterPriceReportViewModel));
 	}
 
 	/// <summary>
