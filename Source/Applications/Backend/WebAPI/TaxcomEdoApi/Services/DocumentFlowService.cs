@@ -438,9 +438,12 @@ namespace TaxcomEdoApi.Services
 				unitOfWork.Save(edoContainer);
 				unitOfWork.Commit();
 
-				await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
+				var result = await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
 
-				// !!! Что делать если не удалось?
+				if(result.IsFailure)
+				{
+					_logger.LogError("Не удалось сохранить контейнер в S3: {Errors}", string.Join(", ", result.Errors.Select(e => e.Message)));
+				}
 
 				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по заказу №{OrderId}",
 					edoContainer.Id,
@@ -503,9 +506,12 @@ namespace TaxcomEdoApi.Services
 				unitOfWork.Save(edoContainer);
 				unitOfWork.Commit();
 
-				await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
+				var result = await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
 
-				// !!! Что делать если не удалось?
+				if(result.IsFailure)
+				{
+					_logger.LogError("Не удалось сохранить контейнер в S3: {Errors}", string.Join(", ", result.Errors.Select(e => e.Message)));
+				}
 
 				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по счету без отгрузки на постоплату №{OrderWithoutShipmentForPaymentId}",
 					edoContainer.Id,
@@ -554,9 +560,12 @@ namespace TaxcomEdoApi.Services
 				unitOfWork.Save(edoContainer);
 				unitOfWork.Commit();
 
-				await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
+				var result = await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
 
-				// !!! Что делать если не удалось?
+				if(result.IsFailure)
+				{
+					_logger.LogError("Не удалось сохранить контейнер в S3: {Errors}", string.Join(", ", result.Errors.Select(e => e.Message)));
+				}
 
 				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по счету без отгрузки на долг №{OrderWithoutShipmentForDebtId}",
 					edoContainer.Id,
@@ -605,9 +614,12 @@ namespace TaxcomEdoApi.Services
 				unitOfWork.Save(edoContainer);
 				unitOfWork.Commit();
 
-				await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
+				var result = await _edoContainerFileStorageService.CreateContainerAsync(edoContainer, ms, cancellationToken);
 
-				// !!! Что делать если не удалось?
+				if(result.IsFailure)
+				{
+					_logger.LogError("Не удалось сохранить контейнер в S3: {Errors}", string.Join(", ", result.Errors.Select(e => e.Message)));
+				}
 
 				_logger.LogInformation("Отправляем контейнер №{EdoContainerId} по счету без отгрузки на предоплату №{OrderWithoutShipmentForAdvancePayment}",
 					edoContainer.Id,
