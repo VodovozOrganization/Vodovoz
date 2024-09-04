@@ -249,9 +249,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction71Activated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<EShopSalesReport>(),
-			() => new QSReport.ReportViewDlg(new EShopSalesReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(EShopSalesReportViewModel));
 	}
 
 	/// <summary>
