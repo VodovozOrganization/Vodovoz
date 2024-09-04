@@ -851,9 +851,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEmployeeFinesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EmployeesFines>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EmployeesFines()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(EmployeesFinesViewModel));
 	}
 
 	/// <summary>
