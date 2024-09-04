@@ -109,9 +109,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderIncorrectPricesReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrderIncorrectPrices>(),
-			() => new QSReport.ReportViewDlg(new OrderIncorrectPrices()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrderIncorrectPricesViewModel));
 	}
 
 	/// <summary>

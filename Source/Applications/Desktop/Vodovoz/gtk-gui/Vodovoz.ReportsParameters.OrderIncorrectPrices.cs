@@ -12,7 +12,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodpicker;
 
-		private global::Gtk.CheckButton checkbutton1;
+		private global::Gamma.GtkWidgets.yCheckButton checkbutton1;
 
 		private global::Gamma.GtkWidgets.yButton buttonCreateRepot;
 
@@ -54,7 +54,7 @@ namespace Vodovoz.ReportsParameters
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.checkbutton1 = new global::Gtk.CheckButton();
+			this.checkbutton1 = new global::Gamma.GtkWidgets.yCheckButton();
 			this.checkbutton1.CanFocus = true;
 			this.checkbutton1.Name = "checkbutton1";
 			this.checkbutton1.Label = global::Mono.Unix.Catalog.GetString("За весь период");
