@@ -44,6 +44,7 @@ using Vodovoz.ViewModels.ReportsParameters.Client;
 using Vodovoz.ViewModels.ReportsParameters.Fuel;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
@@ -122,9 +123,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersWithMinPriceLessThanActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrdersWithMinPriceLessThan>(),
-			() => new QSReport.ReportViewDlg(new OrdersWithMinPriceLessThan()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrdersWithMinPriceLessThanViewModel));
 	}
 
 	/// <summary>
