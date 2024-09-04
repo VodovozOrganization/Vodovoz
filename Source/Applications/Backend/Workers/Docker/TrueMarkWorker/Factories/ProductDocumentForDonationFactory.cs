@@ -23,11 +23,14 @@ namespace TrueMarkWorker.Factories
 			var accountableItems = _order.OrderItems.Where(oi =>
 					oi.Nomenclature.IsAccountableInTrueMark
 					&& oi.ActualCount > 0)
-				.Select(p => new ProductDto
+				.Select(oi => new ProductDto
 				{
-					Gtin = p.Nomenclature.Gtin,
-					GtinQuantity = ((int)p.ActualCount).ToString(),
-					ProductCost = ((((p.Price * p.Count) - p.DiscountMoney) / p.Count) * 100).ToString(),
+					Gtin = oi.Nomenclature.Gtin,
+					GtinQuantity = ((int)oi.ActualCount).ToString(),
+					ProductCost =
+						string.IsNullOrWhiteSpace(_order.Client.INN)
+						? null
+						: ((oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney) * 100).ToString("F2")
 				})
 				.ToList();
 
