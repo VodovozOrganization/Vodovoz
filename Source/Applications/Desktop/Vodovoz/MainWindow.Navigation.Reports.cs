@@ -235,9 +235,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction66Activated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<PotentialFreePromosetsReport>(),
-			() => new QSReport.ReportViewDlg(new PotentialFreePromosetsReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(PotentialFreePromosetsReportViewModel));
 	}
 
 	/// <summary>

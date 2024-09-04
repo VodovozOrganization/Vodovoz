@@ -315,6 +315,7 @@
     <Compile Include="ReportsParameters\QualityControl\TariffZoneDebtsViewModel.cs" />
     <Compile Include="ReportsParameters\RevisionReportViewModel.cs" />
     <Compile Include="ReportsParameters\SalesReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Sales\PotentialFreePromosetsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Sales\SuburbWaterPriceReportViewModel.cs" />
     <Compile Include="ReportsParameters\Selfdelivery\SelfDeliveryReportViewModel.cs" />
     <Compile Include="ReportsParameters\SetBillsReportViewModel.cs" />
