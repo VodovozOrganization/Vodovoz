@@ -1079,7 +1079,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCloseDeliveryReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CounterpartyCloseDeliveryReport));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CounterpartyCloseDeliveryReportViewModel));
 	}
 
 	/// <summary>
@@ -1089,9 +1089,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionPaymentsFinDepartmentReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientFinDepartmentReport>(),
-			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientFinDepartmentReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(PaymentsFromBankClientFinDepartmentReportViewModel));
 	}
 
 	/// <summary>
