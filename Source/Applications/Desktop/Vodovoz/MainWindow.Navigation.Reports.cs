@@ -652,10 +652,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFuelConsumptionReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
-			() => new QSReport.ReportViewDlg(new FuelConsumptionReport())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(FuelConsumptionReportViewModel));
 	}
 
 	/// <summary>

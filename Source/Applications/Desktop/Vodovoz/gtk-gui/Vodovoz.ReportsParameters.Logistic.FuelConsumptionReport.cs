@@ -14,7 +14,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget geographicGroup;
 
-		private global::Gtk.CheckButton chkDetailed;
+		private global::Gamma.GtkWidgets.yCheckButton chkDetailed;
 
 		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
@@ -66,7 +66,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.chkDetailed = new global::Gtk.CheckButton();
+			this.chkDetailed = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkDetailed.CanFocus = true;
 			this.chkDetailed.Name = "chkDetailed";
 			this.chkDetailed.Label = global::Mono.Unix.Catalog.GetString("Подробный отчёт");

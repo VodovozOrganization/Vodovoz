@@ -299,6 +299,7 @@
     <Compile Include="ReportsParameters\Bottles\ReportDebtorsBottlesViewModel.cs" />
     <Compile Include="ReportsParameters\Client\ZeroDebtClientReportViewModel.cs" />
     <Compile Include="ReportsParameters\Fuel\FuelApiRequestReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\FuelConsumptionReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\NonClosedRLByPeriodReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\OnLoadTimeAtDayReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\OrdersByDistrictsAndDeliverySchedulesReportViewModel.cs" />
