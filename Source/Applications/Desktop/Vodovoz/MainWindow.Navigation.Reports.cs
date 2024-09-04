@@ -1117,9 +1117,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnIncomeBalanceReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
-			() => new QSReport.ReportViewDlg(new IncomeBalanceReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(IncomeBalanceReportViewModel));
 	}
 
 	/// <summary>
