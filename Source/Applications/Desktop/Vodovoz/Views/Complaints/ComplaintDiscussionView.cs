@@ -145,5 +145,13 @@ namespace Vodovoz.Views.Complaints
 				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 			}
 		}
+
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			ytreeviewComments.RowActivated -= YtreeviewComments_RowActivated;
+
+			base.Destroy();
+		}
 	}
 }

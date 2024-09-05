@@ -158,5 +158,13 @@ namespace Vodovoz.Views.Orders
 			}
 			return "";
 		}
+
+		public override void Destroy()
+		{
+			ytreeviewComments.RowActivated -= YtreeviewComments_RowActivated;
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+
+			base.Destroy();
+		}
 	}
 }
