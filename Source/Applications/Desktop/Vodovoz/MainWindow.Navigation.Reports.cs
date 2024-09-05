@@ -1051,10 +1051,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
-			null,
-			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<ChainStoreDelayReport>().As<IParametersWidget>());
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ChainStoreDelayReportViewModel), OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>

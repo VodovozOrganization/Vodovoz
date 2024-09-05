@@ -329,6 +329,7 @@
     <Compile Include="ReportsParameters\Orders\OrdersByDistrictReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrdersWithMinPriceLessThanViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Payments\ChainStoreDelayReportViewModel.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromAvangardReportViewModel.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientFinDepartmentReportViewModel.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReportViewModel.cs" />
