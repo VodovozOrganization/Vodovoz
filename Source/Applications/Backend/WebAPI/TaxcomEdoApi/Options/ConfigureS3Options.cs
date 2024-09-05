@@ -3,7 +3,7 @@ using System;
 using Vodovoz.Application.Options;
 using Vodovoz.Settings;
 
-namespace Vodovoz.Options
+namespace TaxcomEdoApi.Options
 {
 	public class ConfigureS3Options : IConfigureOptions<S3Options>
 	{

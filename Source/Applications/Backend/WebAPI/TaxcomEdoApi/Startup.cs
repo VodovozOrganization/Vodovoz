@@ -17,7 +17,7 @@ using Vodovoz.Data.NHibernate;
 using VodovozHealthCheck;
 using Vodovoz.Application;
 using Vodovoz.Infrastructure.FileStorage;
-using Vodovoz.Options;
+using TaxcomEdoApi.Options;
 
 namespace TaxcomEdoApi
 {
