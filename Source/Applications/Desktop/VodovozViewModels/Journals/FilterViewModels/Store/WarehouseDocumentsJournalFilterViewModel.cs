@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Project.Filter;
 using QS.Services;
 using QS.ViewModels.Control.EEVM;
@@ -58,6 +59,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			!_commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 			|| _commonServices.UserService.GetCurrentUser().IsAdmin;
 
+		public bool CanSelectMovementStatus => DocumentType == Domain.Documents.DocumentType.MovementDocument;
+
 		public IEntityEntryViewModel WarehouseEntityEntryViewModel { get; private set; }
 		public IEntityEntryViewModel DriverEntityEntryViewModel { get; private set; }
 
@@ -73,25 +76,25 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 				SetField(ref _journal, value);
 
-				var warehouseEntityEntryViewModel = _driverEEVMBuilder
+				var driverEntityEntryViewModel = _driverEEVMBuilder
 					.SetViewModel(value)
 					.SetUnitOfWork(value.UoW)
 					.ForProperty(this, x => x.Driver)
 					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
 					{
+						filter.RestrictCategory = Core.Domain.Employees.EmployeeCategory.driver;
+						filter.Status = Core.Domain.Employees.EmployeeStatus.IsWorking;
 					})
 					.UseViewModelDialog<EmployeeViewModel>()
 					.Finish();
 
-				warehouseEntityEntryViewModel.CanViewEntity =
+				driverEntityEntryViewModel.CanViewEntity =
 					CanSelectWarehouse
 					&& _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Warehouse)).CanUpdate;
 
-				WarehouseEntityEntryViewModel = warehouseEntityEntryViewModel;
+				DriverEntityEntryViewModel = driverEntityEntryViewModel;
 
-				SetDefaultWarehouse(value.UoW);
-
-				var driverEntityEntryViewModel = _warehouseEEVMBuilder
+				var warehouseEntityEntryViewModel = _warehouseEEVMBuilder
 					.SetViewModel(value)
 					.SetUnitOfWork(value.UoW)
 					.ForProperty(this, x => x.Warehouse)
@@ -101,17 +104,25 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 					.UseViewModelDialog<WarehouseViewModel>()
 					.Finish();
 
-				driverEntityEntryViewModel.CanViewEntity =
+				warehouseEntityEntryViewModel.CanViewEntity =
 					_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Employee)).CanUpdate;
 
-				DriverEntityEntryViewModel = driverEntityEntryViewModel;
+				WarehouseEntityEntryViewModel = warehouseEntityEntryViewModel;
+				SetDefaultWarehouse(value.UoW);
 			}
 		}
 
+		[PropertyChangedAlso(nameof(CanSelectMovementStatus))]
 		public DocumentType? DocumentType
 		{
 			get => _documentType;
-			set => UpdateFilterField(ref _documentType, value);
+			set
+			{
+				if(UpdateFilterField(ref _documentType, value))
+				{
+					MovementDocumentStatus = null;
+				}
+			}
 		}
 
 		public Warehouse Warehouse

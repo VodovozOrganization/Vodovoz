@@ -239,6 +239,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee lastEditorAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => invoiceAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.IncomingInvoice)
@@ -252,14 +255,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(x => x.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= FilterViewModel.StartDate.Value);
+				query.Where(o => o.TimeStamp >= startDate.Value);
 			}
 
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
 			}
 
 			var resultQuery = query
@@ -302,6 +305,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee lastEditorAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => waterAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.IncomingWater)
@@ -316,14 +322,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					|| x.WriteOffWarehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= FilterViewModel.StartDate.Value);
+				query.Where(o => o.TimeStamp >= startDate.Value);
 			}
 
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
 			}
 
 			var resultQuery = query
@@ -370,6 +376,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee employeeStorageToAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => movementAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.MovementDocument)
@@ -384,14 +393,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					|| x.ToWarehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= FilterViewModel.StartDate.Value);
+				query.Where(o => o.TimeStamp >= startDate.Value);
 			}
 
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
 			}
 
 			if(FilterViewModel.MovementDocumentStatus.HasValue && FilterViewModel.DocumentType == DocumentType.MovementDocument)
@@ -476,6 +485,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee lastEditorAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => writeOffAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.WriteoffDocument)
@@ -489,14 +501,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(x => x.WriteOffFromWarehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= FilterViewModel.StartDate.Value);
+				query.Where(o => o.TimeStamp >= startDate.Value);
 			}
 
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
 			}
 
 			var resultQuery = query
@@ -535,6 +547,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee lastEditorAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => inventoryAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.InventoryDocument)
@@ -548,14 +563,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(x => x.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= FilterViewModel.StartDate.Value);
+				query.Where(o => o.TimeStamp >= startDate.Value);
 			}
 
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
 			}
 
 			var resultQuery = query
@@ -589,6 +604,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee lastEditorAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => shiftchangeAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.ShiftChangeDocument)
@@ -602,14 +620,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(x => x.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= FilterViewModel.StartDate.Value);
+				query.Where(o => o.TimeStamp >= startDate.Value);
 			}
 
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
 			}
 
 			var resultQuery = query
@@ -643,6 +661,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee lastEditorAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => regradingOfGoodsAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.RegradingOfGoodsDocument)
@@ -655,13 +676,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				query.Where(x => x.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= FilterViewModel.StartDate.Value);
+				query.Where(o => o.TimeStamp >= startDate.Value);
 			}
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
 			}
 
 			var resultQuery = query
@@ -698,6 +719,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Domain.Orders.Order orderAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => selfDeliveryAlias)
 				.JoinQueryOver(() => selfDeliveryAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => selfDeliveryAlias.Order, () => orderAlias, JoinType.LeftOuterJoin)
@@ -714,14 +738,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => selfDeliveryAlias.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(() => selfDeliveryAlias.TimeStamp >= FilterViewModel.StartDate.Value);
+				query.Where(() => selfDeliveryAlias.TimeStamp >= startDate.Value);
 			}
 
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(() => selfDeliveryAlias.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(() => selfDeliveryAlias.TimeStamp < endDate.Value.AddDays(1));
 			}
 
 			var resultQuery = query
@@ -760,6 +784,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee lastEditorAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => loadCarAlias)
 				.JoinQueryOver(() => loadCarAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => loadCarAlias.RouteList, () => routeListAlias, JoinType.LeftOuterJoin)
@@ -777,14 +804,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => loadCarAlias.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(() => loadCarAlias.TimeStamp >= FilterViewModel.StartDate.Value);
+				query.Where(() => loadCarAlias.TimeStamp >= startDate.Value);
 			}
 
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(() => loadCarAlias.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(() => loadCarAlias.TimeStamp < endDate.Value.AddDays(1));
 			}
 
 			if(FilterViewModel.Driver != null)
@@ -832,6 +859,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee lastEditorAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => unloadCarAlias)
 				.JoinQueryOver(() => unloadCarAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => unloadCarAlias.RouteList, () => routeListAlias, JoinType.LeftOuterJoin)
@@ -849,14 +879,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => unloadCarAlias.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(() => unloadCarAlias.TimeStamp >= FilterViewModel.StartDate.Value);
+				query.Where(() => unloadCarAlias.TimeStamp >= startDate.Value);
 			}
 
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(() => unloadCarAlias.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(() => unloadCarAlias.TimeStamp < endDate.Value.AddDays(1));
 			}
 
 			if(FilterViewModel.Driver != null)
@@ -901,6 +931,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => terminalGiveoutAlias)
 				.JoinQueryOver(() => terminalGiveoutAlias.GoodsAccountingOperation, () => operationAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => operationAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin,
@@ -919,14 +952,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => operationAlias.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(() => terminalGiveoutAlias.CreationDate >= FilterViewModel.StartDate.Value);
+				query.Where(() => terminalGiveoutAlias.CreationDate >= startDate.Value);
 			}
 
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(() => terminalGiveoutAlias.CreationDate < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(() => terminalGiveoutAlias.CreationDate < endDate.Value.AddDays(1));
 			}
 
 			if(FilterViewModel.Driver != null)
@@ -962,6 +995,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
 
+			var startDate = FilterViewModel.StartDate;
+			var endDate = FilterViewModel.EndDate;
+
 			var query = uow.Session.QueryOver(() => terminalReturnAlias)
 				.JoinQueryOver(() => terminalReturnAlias.GoodsAccountingOperation, () => operationAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => operationAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin,
@@ -980,14 +1016,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => operationAlias.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			if(FilterViewModel.StartDate.HasValue)
+			if(startDate.HasValue)
 			{
-				query.Where(() => terminalReturnAlias.CreationDate >= FilterViewModel.StartDate.Value);
+				query.Where(() => terminalReturnAlias.CreationDate >= startDate.Value);
 			}
 
-			if(FilterViewModel.EndDate.HasValue)
+			if(endDate.HasValue)
 			{
-				query.Where(() => terminalReturnAlias.CreationDate < FilterViewModel.EndDate.Value.AddDays(1));
+				query.Where(() => terminalReturnAlias.CreationDate < endDate.Value.AddDays(1));
 			}
 
 			if(FilterViewModel.Driver != null)
@@ -1069,7 +1105,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					}
 				}
 			}
-
 			NodeActionsList.Add(addParentNodeAction);
 		}
 

@@ -21,13 +21,15 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxDocumentType.HiddenItems = new[] { DocumentType.DeliveryDocument as object };
 			yenumcomboboxDocumentType.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.Warehouse, w => w.SelectedItemOrNull)
+				.AddBinding(vm => vm.DocumentType, w => w.SelectedItemOrNull)
 				.AddBinding(vm => vm.CanChangeRestrictedDocumentType, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yenumcomboboxMovementStatus.ItemsEnum = typeof(MovementDocumentStatus);
 			yenumcomboboxMovementStatus.Binding
-				.AddBinding(ViewModel, vm => vm.MovementDocumentStatus, w => w.SelectedItemOrNull)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.MovementDocumentStatus, w => w.SelectedItemOrNull)
+				.AddBinding(vm => vm.CanSelectMovementStatus, w => w.Visible)
 				.InitializeFromSource();
 
 			daterangepickerPeriod.Binding
