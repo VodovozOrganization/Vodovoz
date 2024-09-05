@@ -1123,9 +1123,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDriverWagesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.DriverWagesReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport(NavigationManager)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DriverWagesReportViewModel));
 	}
 
 	/// <summary>
