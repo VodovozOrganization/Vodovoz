@@ -325,6 +325,7 @@
     <Compile Include="ReportsParameters\Orders\CardPaymentsOrdersReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\EShopSalesReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\FirstClientsReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\FirstSecondClientReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\LastOrderByDeliveryPointReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\NotDeliveredOrdersReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrderCreationDateReportViewModel.cs" />

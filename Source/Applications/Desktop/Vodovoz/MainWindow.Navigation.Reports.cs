@@ -571,10 +571,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFirstSecondReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
-			null,
-			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<FirstSecondClientReport>().As<IParametersWidget>());
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(FirstSecondClientReportViewModel), OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
