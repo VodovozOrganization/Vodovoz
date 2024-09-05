@@ -127,9 +127,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		public CarEventType CarEventType
-		{ 
-			get => Entity.CarEventType; 
-			set => SetCarEventType(value); 
+		{
+			get => Entity.CarEventType;
+			set => SetCarEventType(value);
 		}
 
 		public bool DoNotShowInOperation
@@ -307,10 +307,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(Entity, x => x.WriteOffDocument)
-				.UseViewModelJournalAndAutocompleter<WarehouseDocumentsItemsJournalViewModel, WarehouseDocumentsItemsJournalFilterViewModel>(
+				.UseViewModelJournalAndAutocompleter<WarehouseDocumentsJournalViewModel, WarehouseDocumentsJournalFilterViewModel>(
 				filter =>
 				{
 					filter.DocumentType = DocumentType.WriteoffDocument;
+					filter.CanChangeRestrictedDocumentType = false;
 				})
 				.UseViewModelDialog<WriteOffDocumentViewModel>()
 				.Finish();
@@ -322,6 +323,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void OnWriteOffDocumentChangedByUser(object sender, EventArgs e)
 		{
+			RemoveWriteOffDocumentIfCarsNotEqual();
+
 			OnPropertyChanged(nameof(Entity.RepairPartsCost));
 			OnPropertyChanged(nameof(Entity.RepairAndPartsSummaryCost));
 		}
@@ -334,7 +337,25 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				? Entity.Car.Driver
 				: null;
 			}
+
+			RemoveWriteOffDocumentIfCarsNotEqual();
 		}
+
+		private void RemoveWriteOffDocumentIfCarsNotEqual()
+		{
+			if(IsWriteOffDocumentCanBeAttachedToSelectedCar)
+			{
+				return;
+			}
+
+			Entity.WriteOffDocument = null;
+			ShowWarningMessage("Выбранный акт списания ТМЦ не может быть прикреплен, т.к. авто не совпадают!");
+		}
+
+		private bool IsWriteOffDocumentCanBeAttachedToSelectedCar =>
+			Entity.Car is null
+			|| Entity.WriteOffDocument is null
+			|| Entity.Car?.Id == Entity.WriteOffDocument?.WriteOffFromCar?.Id;
 
 		private void SetCarEventType(CarEventType carEventType)
 		{

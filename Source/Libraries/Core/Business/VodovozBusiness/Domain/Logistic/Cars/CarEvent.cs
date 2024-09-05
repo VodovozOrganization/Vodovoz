@@ -121,6 +121,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display( Name = "Стоимость работ" )]
+		[PropertyChangedAlso(nameof(RepairAndPartsSummaryCost))]
 		public virtual decimal RepairCost
 		{
 			get => _repairCost;
