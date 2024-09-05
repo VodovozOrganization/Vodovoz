@@ -2,7 +2,6 @@
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
@@ -12,7 +11,7 @@ using QS.Project.Journal.DataLoader;
 using QS.Services;
 using QS.Tdi;
 using System;
-using System.Reflection;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -37,6 +36,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
 	public class WarehouseDocumentsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<WarehouseDocumentsJournalNode, WarehouseDocumentsJournalFilterViewModel>
 	{
+		private readonly Type[] _documentTypesNotAvailableToCreate = new[]
+		{
+			typeof(DriverAttachedTerminalDocumentBase),
+			typeof(DriverAttachedTerminalGiveoutDocument),
+			typeof(DriverAttachedTerminalReturnDocument)
+		};
+
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 
 		public WarehouseDocumentsJournalViewModel(
@@ -71,6 +77,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				typeof(IncomingInvoice),
 				typeof(IncomingWater),
 				typeof(MovementDocument),
+				typeof(DriverAttachedTerminalDocumentBase),
 				typeof(DriverAttachedTerminalGiveoutDocument),
 				typeof(DriverAttachedTerminalReturnDocument),
 				typeof(WriteOffDocument),
@@ -85,156 +92,102 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			CreateNodeActions();
 		}
 
+		#region Documents registration and queries
+
 		private void RegisterDocuments()
 		{
 			RegisterIncomingInvoiceDocuments();
 			RegisterIncomingWaterDocuments();
 			RegisterMovementDocuments();
 			RegisterWriteOffDocuments();
-			RegisterInventoryDocuments();
-			RegisterShiftChangeWarehouseDocuments();
-			RegisterRegradingOfGoodsDocuments();
 			RegisterSelfDeliveryDocuments();
 			RegisterCarLoadDocuments();
 			RegisterCarUnloadDocuments();
+			RegisterInventoryDocuments();
+			RegisterShiftChangeWarehouseDocuments();
+			RegisterRegradingOfGoodsDocuments();
 			RegisterDriverAttachedTerminalGiveoutDocuments();
 			RegisterDriverAttachedTerminalReturnDocuments();
 		}
 
 		private void RegisterIncomingInvoiceDocuments()
 		{
-			var config = RegisterEntity(GetIncomingInvoiceDocumentsQuery)
-				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => (ITdiTab)NavigationManager.OpenViewModel<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
-				//функция диалога открытия документа
-				(node) => (ITdiTab)NavigationManager.OpenViewModel<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
-				//функция идентификации документа 
-				(node) => node.EntityType == typeof(IncomingInvoice),
-				typeof(IncomingInvoice).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-				null);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
+			RegisterEntity(GetIncomingInvoiceDocumentsQuery)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => NavigationManager.OpenViewModel<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
+					(node) => NavigationManager.OpenViewModel<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(node) => node.EntityType == typeof(IncomingInvoice))
+				.FinishConfiguration();
 		}
 
 		private void RegisterIncomingWaterDocuments()
 		{
-			var config = RegisterEntity(GetIncomingWaterDocumentsQuery)
-				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.IncomingWater),
-				//функция диалога открытия документа
-				(node) => _gtkTabsOpener.OpenIncomingWaterDlg(node.Id),
-				//функция идентификации документа 
-				(node) => node.EntityType == typeof(IncomingWater),
-				typeof(IncomingWater).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-				null);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
+			RegisterEntity(GetIncomingWaterDocumentsQuery)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.IncomingWater),
+					(node) => _gtkTabsOpener.OpenIncomingWaterDlg(node.Id),
+					(node) => node.EntityType == typeof(IncomingWater))
+				.FinishConfiguration();
 		}
 
 		private void RegisterMovementDocuments()
 		{
-			var config = RegisterEntity(GetMovementDocumentsQuery)
-				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => (ITdiTab)NavigationManager.OpenViewModel<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
-				//функция диалога открытия документа
-				(node) => (ITdiTab)NavigationManager.OpenViewModel<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
-				//функция идентификации документа 
-				(node) => node.EntityType == typeof(MovementDocument),
-				typeof(MovementDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-				null);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
+			RegisterEntity(GetMovementDocumentsQuery)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => NavigationManager.OpenViewModel<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
+					(node) => NavigationManager.OpenViewModel<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(node) => node.EntityType == typeof(MovementDocument))
+				.FinishConfiguration();
 		}
 
 		private void RegisterWriteOffDocuments()
 		{
-			var config = RegisterEntity(GetWriteOffDocumentsQuery)
-				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => (ITdiTab)NavigationManager.OpenViewModel<WriteOffDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
-				//функция диалога открытия документа
-				(node) => (ITdiTab)NavigationManager.OpenViewModel<WriteOffDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
-				//функция идентификации документа 
-				(node) => node.EntityType == typeof(WriteOffDocument),
-				typeof(WriteOffDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-				null);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
+			RegisterEntity(GetWriteOffDocumentsQuery)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => NavigationManager.OpenViewModel<WriteOffDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
+					(node) => NavigationManager.OpenViewModel<WriteOffDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(node) => node.EntityType == typeof(WriteOffDocument))
+				.FinishConfiguration();
 		}
 
 		private void RegisterInventoryDocuments()
 		{
-			var config = RegisterEntity(GetInventoryDocumentsQuery)
-				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => (ITdiTab)NavigationManager.OpenViewModel<InventoryDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
-				//функция диалога открытия документа
-				(node) => (ITdiTab)NavigationManager.OpenViewModel<InventoryDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
-				//функция идентификации документа 
-				(node) => node.EntityType == typeof(InventoryDocument),
-				typeof(InventoryDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-				null);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
+			RegisterEntity(GetInventoryDocumentsQuery)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => NavigationManager.OpenViewModel<InventoryDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
+					(node) => NavigationManager.OpenViewModel<InventoryDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(node) => node.EntityType == typeof(InventoryDocument))
+				.FinishConfiguration();
 		}
 
 		private void RegisterShiftChangeWarehouseDocuments()
 		{
-			var config = RegisterEntity(GetShiftChangeWarehouseDocumentsQuery)
+			RegisterEntity(GetShiftChangeWarehouseDocumentsQuery)
 				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => (ITdiTab)NavigationManager.OpenViewModel<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
-				//функция диалога открытия документа
-				(node) => (ITdiTab)NavigationManager.OpenViewModel<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
-				//функция идентификации документа 
-				(node) => node.EntityType == typeof(ShiftChangeWarehouseDocument),
-				typeof(ShiftChangeWarehouseDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-				null);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
+					() => NavigationManager.OpenViewModel<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
+					(node) => NavigationManager.OpenViewModel<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(node) => node.EntityType == typeof(ShiftChangeWarehouseDocument))
+				.FinishConfiguration();
 		}
 
 		private void RegisterRegradingOfGoodsDocuments()
 		{
-			var config = RegisterEntity(GetRegradingOfGoodsDocumentsQuery)
-				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.RegradingOfGoodsDocument),
-				//функция диалога открытия документа
-				(node) => _gtkTabsOpener.OpenRegradingOfGoodsDocumentDlg(node.Id),
-				//функция идентификации документа 
-				(node) => node.EntityType == typeof(RegradingOfGoodsDocument),
-				typeof(RegradingOfGoodsDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-				null);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
+			RegisterEntity(GetRegradingOfGoodsDocumentsQuery)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.RegradingOfGoodsDocument),
+					(node) => _gtkTabsOpener.OpenRegradingOfGoodsDocumentDlg(node.Id),
+					(node) => node.EntityType == typeof(RegradingOfGoodsDocument))
+				.FinishConfiguration();
 		}
 
 		private void RegisterSelfDeliveryDocuments()
 		{
-			var config = RegisterEntity(GetSelfDeliveryDocumentsQuery)
-				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.SelfDeliveryDocument),
-				//функция диалога открытия документа
-				(node) => _gtkTabsOpener.OpenSelfDeliveryDocumentDlg(node.Id),
-				//функция идентификации документа 
-				(node) => node.EntityType == typeof(SelfDeliveryDocument),
-				typeof(SelfDeliveryDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-				null);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
+			RegisterEntity(GetSelfDeliveryDocumentsQuery)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.SelfDeliveryDocument),
+					(node) => _gtkTabsOpener.OpenSelfDeliveryDocumentDlg(node.Id),
+					(node) => node.EntityType == typeof(SelfDeliveryDocument))
+				.FinishConfiguration();
 		}
 
 		private void RegisterCarLoadDocuments()
@@ -244,72 +197,37 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.CarLoadDocument),
 					(node) => _gtkTabsOpener.OpenCarLoadDocumentDlg(node.Id),
 					(node) => node.EntityType == typeof(CarLoadDocument))
-					.FinishConfiguration();
-
-			//var config = RegisterEntity(GetCarLoadDocumentsQuery)
-			//	.AddDocumentConfiguration(
-			//	//функция диалога создания документа
-			//	() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.CarLoadDocument),
-			//	//функция диалога открытия документа
-			//	(node) => _gtkTabsOpener.OpenCarLoadDocumentDlg(node.Id),
-			//	//функция идентификации документа 
-			//	(node) => node.EntityType == typeof(CarLoadDocument),
-			//	typeof(CarLoadDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-			//	null);
-
-			////завершение конфигурации
-			//config.FinishConfiguration();
+				.FinishConfiguration();
 		}
 
 		private void RegisterCarUnloadDocuments()
 		{
-			var config = RegisterEntity(GetCarUnloadDocumentsQuery)
-				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.CarUnloadDocument),
-				//функция диалога открытия документа
-				(node) => _gtkTabsOpener.OpenCarUnloadDocumentDlg(node.Id),
-				//функция идентификации документа 
-				(node) => node.EntityType == typeof(CarUnloadDocument),
-				typeof(CarUnloadDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-				null);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
+			RegisterEntity(GetCarUnloadDocumentsQuery)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.CarUnloadDocument),
+					(node) => _gtkTabsOpener.OpenCarUnloadDocumentDlg(node.Id),
+					(node) => node.EntityType == typeof(CarUnloadDocument))
+				.FinishConfiguration();
 		}
 
 		private void RegisterDriverAttachedTerminalGiveoutDocuments()
 		{
-			var config = RegisterEntity(GetDriverAttachedTerminalGiveoutDocumentsQuery)
-				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => (ITdiTab)NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
-				//функция диалога открытия документа
-				(node) => (ITdiTab)NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
-				//функция идентификации документа 
-				(node) => node.EntityType == typeof(DriverAttachedTerminalGiveoutDocument),
-				typeof(DriverAttachedTerminalGiveoutDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-				null);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
+			RegisterEntity(GetDriverAttachedTerminalGiveoutDocumentsQuery)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => null,
+					(node) => NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(node) => node.EntityType == typeof(DriverAttachedTerminalGiveoutDocument))
+				.FinishConfiguration();
 		}
 
 		private void RegisterDriverAttachedTerminalReturnDocuments()
 		{
-			var config = RegisterEntity(GetDriverAttachedTerminalReturnDocumentsQuery)
-				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => (ITdiTab)NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
-				//функция диалога открытия документа
-				(node) => (ITdiTab)NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
-				//функция идентификации документа 
-				(node) => node.EntityType == typeof(DriverAttachedTerminalReturnDocument),
-				typeof(DriverAttachedTerminalReturnDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
-				null);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
+			RegisterEntity(GetDriverAttachedTerminalReturnDocumentsQuery)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => null,
+					(node) => NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(node) => node.EntityType == typeof(DriverAttachedTerminalReturnDocument))
+				.FinishConfiguration();
 		}
 
 		private IQueryOver<IncomingInvoice> GetIncomingInvoiceDocumentsQuery(IUnitOfWork uow)
@@ -1096,13 +1014,113 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			return resultQuery;
 		}
 
+		#endregion
+
+		#region Node actions
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
+			CreateCustomAddActions();
+			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
 		}
+
+		protected void CreateCustomAddActions()
+		{
+			if(!EntityConfigs.Any())
+			{
+				return;
+			}
+
+			var addParentNodeAction = new JournalAction(
+					"Добавить",
+					(selected) => true,
+					(selected) => true,
+					(selected) => { });
+
+			foreach(var entityConfig in EntityConfigs.Values)
+			{
+				foreach(var documentConfig in entityConfig.EntityDocumentConfigurations)
+				{
+					foreach(var createDlgConfig in documentConfig.GetCreateEntityDlgConfigs())
+					{
+						var childNodeAction = new JournalAction(
+							createDlgConfig.Title,
+							(selected) =>
+							{
+								var isSensitive = entityConfig.PermissionResult.CanCreate
+									&& !_documentTypesNotAvailableToCreate.Contains(entityConfig.EntityType);
+
+								return isSensitive;
+							},
+							(selected) => entityConfig.PermissionResult.CanCreate,
+							(selected) =>
+							{
+								createDlgConfig.OpenEntityDialogFunction.Invoke();
+
+								if(documentConfig.JournalParameters.HideJournalForCreateDialog)
+								{
+									HideJournal(TabParent);
+								}
+							}
+						);
+						addParentNodeAction.ChildActionsList.Add(childNodeAction);
+					}
+				}
+			}
+
+			NodeActionsList.Add(addParentNodeAction);
+		}
+
+		protected void CreateCustomEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) =>
+				{
+					var selectedNodes = selected.OfType<WarehouseDocumentsJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					var selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanUpdate;
+				},
+				(selected) => true,
+				(selected) =>
+				{
+					var selectedNodes = selected.OfType<WarehouseDocumentsJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					var selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
+		}
+
+		#endregion
 	}
 }

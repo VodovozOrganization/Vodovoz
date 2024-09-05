@@ -242,7 +242,9 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				case DocumentType.CarLoadDocument:
 				case DocumentType.CarUnloadDocument:
 				case DocumentType.RegradingOfGoodsDocument:
-					return OrmMain.CreateObjectDialog(Document.GetDocClass(type));
+					return tabParent.OpenTab(
+						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
+						() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)));
 				default:
 					throw new NotImplementedException("Тип документа не подерживается");
 			}
