@@ -4,7 +4,7 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class WarehouseDocumentsJournalFilterView
 	{
-		private global::Gamma.GtkWidgets.yVBox yvboxMainContainer;
+		private global::Gamma.GtkWidgets.yHBox yhboxMainContainer;
 
 		private global::Gamma.GtkWidgets.yTable ytableMain;
 
@@ -35,10 +35,10 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.WarehouseDocumentsJournalFilterView";
 			// Container child Vodovoz.Filters.GtkViews.WarehouseDocumentsJournalFilterView.Gtk.Container+ContainerChild
-			this.yvboxMainContainer = new global::Gamma.GtkWidgets.yVBox();
-			this.yvboxMainContainer.Name = "yvboxMainContainer";
-			this.yvboxMainContainer.Spacing = 6;
-			// Container child yvboxMainContainer.Gtk.Box+BoxChild
+			this.yhboxMainContainer = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxMainContainer.Name = "yhboxMainContainer";
+			this.yhboxMainContainer.Spacing = 6;
+			// Container child yhboxMainContainer.Gtk.Box+BoxChild
 			this.ytableMain = new global::Gamma.GtkWidgets.yTable();
 			this.ytableMain.Name = "ytableMain";
 			this.ytableMain.NRows = ((uint)(3));
@@ -155,19 +155,18 @@ namespace Vodovoz.Filters.GtkViews
 			this.ylabelWarehouse = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelWarehouse.Name = "ylabelWarehouse";
 			this.ylabelWarehouse.Xalign = 1F;
-			this.ylabelWarehouse.LabelProp = global::Mono.Unix.Catalog.GetString("Склад:");
+			this.ylabelWarehouse.LabelProp = global::Mono.Unix.Catalog.GetString(" Склад:");
 			this.ytableMain.Add(this.ylabelWarehouse);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelWarehouse]));
 			w10.TopAttach = ((uint)(1));
 			w10.BottomAttach = ((uint)(2));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.yvboxMainContainer.Add(this.ytableMain);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxMainContainer[this.ytableMain]));
+			this.yhboxMainContainer.Add(this.ytableMain);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhboxMainContainer[this.ytableMain]));
 			w11.Position = 0;
 			w11.Expand = false;
-			w11.Fill = false;
-			this.Add(this.yvboxMainContainer);
+			this.Add(this.yhboxMainContainer);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
