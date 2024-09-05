@@ -296,6 +296,7 @@
     <Compile Include="ReportsParameters\Bottles\BottlesMovementReportViewModel.cs" />
     <Compile Include="ReportsParameters\Bottles\BottlesMovementSummaryReportViewModel.cs" />
     <Compile Include="ReportsParameters\Bottles\ClientsByDeliveryPointCategoryAndActivityKindsReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Bottles\ExtraBottleReportViewModel.cs" />
     <Compile Include="ReportsParameters\Bottles\ProfitabilityBottlesByStockReportViewModel.cs" />
     <Compile Include="ReportsParameters\Bottles\ReportDebtorsBottlesViewModel.cs" />
     <Compile Include="ReportsParameters\Bottles\ShortfallBattlesReportViewModel.cs" />

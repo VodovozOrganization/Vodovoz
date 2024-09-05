@@ -559,9 +559,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionExtraBottlesReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ExtraBottleReport>(),
-			() => new QSReport.ReportViewDlg(new ExtraBottleReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ExtraBottleReportViewModel));
 	}
 
 	/// <summary>
