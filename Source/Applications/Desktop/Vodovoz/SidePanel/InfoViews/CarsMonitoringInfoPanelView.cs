@@ -241,19 +241,23 @@ namespace Vodovoz.SidePanel.InfoViews
 								&& (FilterOrders == FilterOrdersEnum.All
 									|| (FilterOrders == FilterOrdersEnum.WithFastDelivery && o.IsFastDelivery)
 									|| (FilterOrders == FilterOrdersEnum.WithoutFastDelivery && !o.IsFastDelivery))
+								&& rl.Date > DateTime.Today.AddMonths(-1)
 							 let surnameWithInitials =
 								$"{driver.LastName} " +
 								$"{driver.Name.Substring(0, 1)}. " +
 								$"{driver.Patronymic.Substring(0, 1)}."
 							 let isFastDeliveryString = o.IsFastDelivery ? "Доставка за час" : string.Empty
 							 let deliveryBefore = o.IsFastDelivery
-								? _fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.OrderCreated ? o.CreateDate.Value.Add(_deliveryRulesSettings.MaxTimeForFastDelivery) :
-									_fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.AddedInFirstRouteList ?
-										(from rlaFirst in _unitOfWork.Session.Query<RouteListItem>()
-										 where rlaFirst.Order.Id == o.Id
-										 orderby rlaFirst.CreationDate ascending
-										 select rlaFirst.CreationDate).First().Add(_deliveryRulesSettings.MaxTimeForFastDelivery) :
-									_fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered ? rla.CreationDate.Add(_deliveryRulesSettings.MaxTimeForFastDelivery) : rl.Date.Add(schedule.To)
+								? _fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.OrderCreated
+									? o.CreateDate.Value.Add(_deliveryRulesSettings.MaxTimeForFastDelivery)
+									: _fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.AddedInFirstRouteList
+										? (from rlaFirst in _unitOfWork.Session.Query<RouteListItem>()
+											where rlaFirst.Order.Id == o.Id
+											orderby rlaFirst.CreationDate ascending
+											select rlaFirst.CreationDate).First().Add(_deliveryRulesSettings.MaxTimeForFastDelivery)
+										: _fastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered
+											? rla.CreationDate.Add(_deliveryRulesSettings.MaxTimeForFastDelivery)
+											: rl.Date.Add(schedule.To)
 								: rl.Date.Add(schedule.To)
 							 let address = $"{dp.Street} {dp.Building}{dp.Letter}"
 							 select new DataNode
