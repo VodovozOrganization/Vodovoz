@@ -517,6 +517,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private void GenerateNewData(CompanyBalanceByDay companyBalanceByDay)
 		{
 			var accountsByFunds = UoW.GetAll<BusinessAccount>()
+				.Where(x => !x.IsArchive)
 				.OrderBy(x => x.Funds.Id)
 				.ThenBy(x => x.BusinessActivity.Id)
 				.ToLookup(x => x.Funds);
