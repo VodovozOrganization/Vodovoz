@@ -177,9 +177,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCardPaymentsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CardPaymentsOrdersReport>(),
-			() => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport(ServicesConfig.UnitOfWorkFactory)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CardPaymentsOrdersReportViewModel));
 	}
 
 	/// <summary>

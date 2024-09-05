@@ -320,6 +320,7 @@
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistic\RouteListOwnType.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.SelectableParameter.cs" />
+    <Compile Include="ReportsParameters\Orders\CardPaymentsOrdersReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\EShopSalesReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\FirstClientsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\LastOrderByDeliveryPointReportViewModel.cs" />
