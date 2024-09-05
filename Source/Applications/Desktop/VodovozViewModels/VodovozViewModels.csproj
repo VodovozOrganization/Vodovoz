@@ -301,6 +301,7 @@
     <Compile Include="ReportsParameters\Fuel\FuelApiRequestReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\AnalyticsForUndeliveryReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\DriverRoutesListRegisterReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\DriversToDistrictsAssignmentReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\DrivingCallReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\FuelConsumptionReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\NonClosedRLByPeriodReportViewModel.cs" />

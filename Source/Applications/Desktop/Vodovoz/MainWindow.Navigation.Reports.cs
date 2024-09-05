@@ -983,9 +983,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnDriversToDistrictsAssignmentReportActionActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DriversToDistrictsAssignmentReport>(),
-			() => new QSReport.ReportViewDlg(new DriversToDistrictsAssignmentReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DriversToDistrictsAssignmentReportViewModel));
 	}
 
 	#endregion Водители
