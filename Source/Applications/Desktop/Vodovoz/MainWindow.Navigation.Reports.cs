@@ -586,9 +586,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionProfitabilityBottlesByStockActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ProfitabilityBottlesByStockReport>(),
-			() => new QSReport.ReportViewDlg(new ProfitabilityBottlesByStockReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ProfitabilityBottlesByStockReportViewModel));
 	}
 
 	/// <summary>
