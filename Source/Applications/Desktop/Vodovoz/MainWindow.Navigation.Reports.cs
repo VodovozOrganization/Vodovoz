@@ -499,9 +499,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionShortfallBattlesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ShortfallBattlesReport>(),
-			() => new QSReport.ReportViewDlg(new ShortfallBattlesReport(NavigationManager)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ShortfallBattlesReportViewModel));
 	}
 
 	/// <summary>
