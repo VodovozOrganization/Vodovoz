@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
@@ -6,6 +7,7 @@ using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
@@ -30,6 +32,7 @@ namespace Vodovoz.ViewModels.Orders
 	public class UndeliveryViewModel : DialogTabViewModelBase, IAskSaveOnCloseViewModel, ITdiTabAddedNotifier
 	{
 		private readonly ICommonServices _commonServices;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -72,6 +75,7 @@ namespace Vodovoz.ViewModels.Orders
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_undeliveredOrdersRepository = undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -274,33 +278,7 @@ namespace Vodovoz.ViewModels.Orders
 				UoW.Commit();
 			}
 
-			foreach(var complaintDiscussionViewModel in UndeliveryDiscussionsViewModel.ObservableUndeliveryDiscussionViewModels)
-			{
-				foreach(var keyValuePair in complaintDiscussionViewModel.FilesToUploadOnSave)
-				{
-					var commentId = keyValuePair.Key.Invoke();
-
-					var comment = Entity
-						.ObservableUndeliveryDiscussions
-						.FirstOrDefault(cd => cd.Comments.Any(c => c.Id == commentId))
-						?.Comments
-						?.FirstOrDefault(c => c.Id == commentId);
-
-					foreach(var fileToUploadPair in keyValuePair.Value)
-					{
-						using(var ms = new MemoryStream(fileToUploadPair.Value))
-						{
-							_undeliveryDiscussionCommentFileStorageService.CreateFileAsync(
-							comment,
-								fileToUploadPair.Key,
-								ms,
-								_cancellationTokenSource.Token)
-								.GetAwaiter()
-								.GetResult();
-						}
-					}
-				}
-			}
+			AddDiscussionsCommentFilesIfNeeded();
 
 			if(Entity.NewOrder != null
 			   && Entity.OrderTransferType == TransferType.AutoTransferNotApproved
@@ -319,6 +297,61 @@ namespace Vodovoz.ViewModels.Orders
 			}
 
 			return true;
+		}
+
+		private void AddDiscussionsCommentFilesIfNeeded()
+		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
+			do
+			{
+				foreach(var complaintDiscussionViewModel in UndeliveryDiscussionsViewModel.ObservableUndeliveryDiscussionViewModels)
+				{
+					foreach(var keyValuePair in complaintDiscussionViewModel.FilesToUploadOnSave)
+					{
+						var commentId = keyValuePair.Key.Invoke();
+
+						var comment = Entity
+							.ObservableUndeliveryDiscussions
+							.FirstOrDefault(cd => cd.Comments.Any(c => c.Id == commentId))
+							?.Comments
+							?.FirstOrDefault(c => c.Id == commentId);
+
+						foreach(var fileToUploadPair in keyValuePair.Value)
+						{
+							using(var ms = new MemoryStream(fileToUploadPair.Value))
+							{
+								var result = _undeliveryDiscussionCommentFileStorageService.CreateFileAsync(
+								comment,
+									fileToUploadPair.Key,
+									ms,
+									_cancellationTokenSource.Token)
+									.GetAwaiter()
+									.GetResult();
+
+								if(result.IsFailure)
+								{
+									errors.Add(fileToUploadPair.Key, string.Join(", ", result.Errors.Select(e => e.Message)));
+								}
+							}
+						}
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
+			}
+			while(repeat);
 		}
 
 		public void OnTabAdded()

@@ -63,6 +63,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IComplaintSettings _complaintSettings;
 		private readonly IComplaintFileStorageService _complaintFileStorageService;
 		private readonly IComplaintDiscussionCommentFileStorageService _complaintDiscussionCommentFileStorageService;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -119,6 +120,8 @@ namespace Vodovoz.ViewModels.Complaints
 			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
 			_complaintFileStorageService = complaintFileStorageService ?? throw new ArgumentNullException(nameof(complaintFileStorageService));
 			_complaintDiscussionCommentFileStorageService = complaintDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(complaintDiscussionCommentFileStorageService));
+			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
+
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
@@ -716,17 +719,41 @@ namespace Vodovoz.ViewModels.Complaints
 
 		private void AddAttachedFilesIfNeeded()
 		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
 			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
 			{
 				return;
 			}
 
-			foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+			do
 			{
-				var result = _complaintFileStorageService.CreateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
-					.GetAwaiter()
-					.GetResult();
+				foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _complaintFileStorageService.CreateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure)
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
 			}
+			while(repeat);
 		}
 
 		private void UpdateAttachedFilesIfNeeded()
@@ -772,34 +799,7 @@ namespace Vodovoz.ViewModels.Complaints
 			UpdateAttachedFilesIfNeeded();
 			DeleteAttachedFilesIfNeeded();
 			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
-
-			foreach(var complaintDiscussionViewModel in DiscussionsViewModel.ObservableComplaintDiscussionViewModels)
-			{
-				foreach(var keyValuePair in complaintDiscussionViewModel.FilesToUploadOnSave)
-				{
-					var commentId = keyValuePair.Key.Invoke();
-
-					var comment = Entity
-						.ObservableComplaintDiscussions
-						.FirstOrDefault(cd => cd.Comments.Any(c => c.Id == commentId))
-						?.Comments
-						?.FirstOrDefault(c => c.Id == commentId);
-
-					foreach(var fileToUploadPair in keyValuePair.Value)
-					{
-						using(var ms = new MemoryStream(fileToUploadPair.Value))
-						{
-							_complaintDiscussionCommentFileStorageService.CreateFileAsync(
-								comment,
-								fileToUploadPair.Key,
-								ms,
-								_cancellationTokenSource.Token)
-								.GetAwaiter()
-								.GetResult();
-						}
-					}
-				}
-			}
+			AddDiscussionsCommentFilesIfNeeded();
 
 			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
 			{
@@ -807,6 +807,61 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 
 			return base.Save(close);
+		}
+
+		private void AddDiscussionsCommentFilesIfNeeded()
+		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
+			do
+			{
+				foreach(var complaintDiscussionViewModel in DiscussionsViewModel.ObservableComplaintDiscussionViewModels)
+				{
+					foreach(var keyValuePair in complaintDiscussionViewModel.FilesToUploadOnSave)
+					{
+						var commentId = keyValuePair.Key.Invoke();
+
+						var comment = Entity
+							.ObservableComplaintDiscussions
+							.FirstOrDefault(cd => cd.Comments.Any(c => c.Id == commentId))
+							?.Comments
+							?.FirstOrDefault(c => c.Id == commentId);
+
+						foreach(var fileToUploadPair in keyValuePair.Value)
+						{
+							using(var ms = new MemoryStream(fileToUploadPair.Value))
+							{
+								var result = _complaintDiscussionCommentFileStorageService.CreateFileAsync(
+									comment,
+									fileToUploadPair.Key,
+									ms,
+									_cancellationTokenSource.Token)
+									.GetAwaiter()
+									.GetResult();
+
+								if(result.IsFailure)
+								{
+									errors.Add(fileToUploadPair.Key, string.Join(", ", result.Errors.Select(e => e.Message)));
+								}
+							}
+						}
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
+			}
+			while(repeat);
 		}
 
 		public override void Dispose()

@@ -76,6 +76,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private readonly IEmployeeFileStorageService _employeeFileStorageService;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
+		private readonly IInteractiveService _interactiveService;
 		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
@@ -176,6 +177,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				nomenclatureFixedPriceController ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
 			_employeeFileStorageService = employeeFileStorageService ?? throw new ArgumentNullException(nameof(employeeFileStorageService));
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
+			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 
 			if(validationContextFactory == null)
 			{
@@ -1222,23 +1224,51 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				{
 					Entity.PhotoFileName = PhotoFilename;
 				}
+				else
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error, "Не удалось обновить фотографию автомобиля", "Ошибка");
+				}
 			}
 		}
 
 		private void AddAttachedFilesIfNeeded()
 		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
 			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
 			{
 				return;
 			}
 
-			foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+			do
 			{
-				var result = _employeeFileStorageService.CreateFileAsync(Entity, fileName,
-				new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
-					.GetAwaiter()
-					.GetResult();
+				foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _employeeFileStorageService.CreateFileAsync(Entity, fileName,
+					new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure)
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
 			}
+			while(repeat);
 		}
 
 		private void UpdateAttachedFilesIfNeeded()

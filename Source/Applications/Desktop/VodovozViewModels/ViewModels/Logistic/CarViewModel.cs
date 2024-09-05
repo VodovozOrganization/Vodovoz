@@ -53,6 +53,7 @@ using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using VodovozBusiness.Domain.Logistic.Cars;
 using VodovozInfrastructure.StringHandlers;
+using System.Collections.Generic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -76,7 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IUserRepository _userRepository;
 		private readonly CarVersionsManagementViewModel _carVersionsManagementViewModel;
 		private readonly IDocumentPrinter _documentPrinter;
-
+		private readonly IInteractiveService _interactiveService;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		private byte[] _photo;
@@ -132,7 +133,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
 			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
-
+			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 			TabName = "Автомобиль";
 
 			_carVersionsManagementViewModel.Initialize(Entity, this);
@@ -330,23 +331,53 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					Entity.PhotoFileName = PhotoFilename;
 				}
+				else
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error, "Не удалось обновить фотографию автомобиля", "Ошибка");
+				}
 			}
 		}
 
 		private void AddAttachedFilesIfNeeded()
 		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
 			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
 			{
 				return;
 			}
 
-			foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+			do
 			{
-				var result = _carFileStorageService.CreateFileAsync(Entity, fileName,
-				new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
-					.GetAwaiter()
-					.GetResult();
+				foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _carFileStorageService.CreateFileAsync(
+						Entity,
+						fileName,
+						new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure)
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
 			}
+			while(repeat);
 		}
 
 		private void UpdateAttachedFilesIfNeeded()

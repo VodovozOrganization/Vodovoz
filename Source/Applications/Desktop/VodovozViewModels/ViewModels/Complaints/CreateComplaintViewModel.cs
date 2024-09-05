@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -42,6 +43,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly IComplaintService _complaintService;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IComplaintFileStorageService _complaintFileStorageService;
 		private ILifetimeScope _lifetimeScope;
 		private IList<ComplaintObject> _complaintObjectSource;
@@ -86,6 +88,8 @@ namespace Vodovoz.ViewModels.Complaints
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_complaintService = complaintService ?? throw new ArgumentNullException(nameof(complaintService));
+			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
+
 			_complaintFileStorageService = complaintFileStorageService;
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.NotTakenInProcess);
@@ -319,18 +323,43 @@ namespace Vodovoz.ViewModels.Complaints
 
 		private void AddAttachedFilesIfNeeded()
 		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
 			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
 			{
 				return;
 			}
 
-			foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+			do
 			{
-				var result = _complaintFileStorageService.CreateFileAsync(Entity, fileName,
-				new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
-					.GetAwaiter()
-					.GetResult();
+				foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _complaintFileStorageService.CreateFileAsync(Entity, fileName,
+					new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+
+					if(result.IsFailure)
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
 			}
+			while(repeat);
 		}
 
 		private void UpdateAttachedFilesIfNeeded()

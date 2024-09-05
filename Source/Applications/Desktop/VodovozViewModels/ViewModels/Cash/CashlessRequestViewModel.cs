@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -37,6 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private readonly Employee _currentEmployee;
 		private readonly ICashlessRequestFileStorageService _cashlessRequestFileStorageService;
 		private ILifetimeScope _lifetimeScope;
+		private IInteractiveService _interactiveService;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -62,6 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			TabName = base.TabName;
 			_cashlessRequestFileStorageService = cashlessRequestFileStorageService ?? throw new ArgumentNullException(nameof(cashlessRequestFileStorageService));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 			CounterpartyAutocompleteSelector =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
@@ -370,18 +373,42 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		private void AddAttachedFilesIfNeeded()
 		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
 			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
 			{
 				return;
 			}
 
-			foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+			do
 			{
-				var result = _cashlessRequestFileStorageService.CreateFileAsync(Entity, fileName,
-				new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
-					.GetAwaiter()
-					.GetResult();
+				foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _cashlessRequestFileStorageService.CreateFileAsync(Entity, fileName,
+					new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure)
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
 			}
+			while(repeat);
 		}
 
 		private void UpdateAttachedFilesIfNeeded()

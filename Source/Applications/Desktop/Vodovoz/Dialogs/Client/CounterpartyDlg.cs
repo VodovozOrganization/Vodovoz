@@ -134,6 +134,7 @@ namespace Vodovoz
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = ScopeProvider.Scope.Resolve<IExternalCounterpartyRepository>();
 		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
+		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailSettings _emailSettings;
@@ -1653,18 +1654,42 @@ namespace Vodovoz
 
 		private void AddAttachedFilesIfNeeded()
 		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
 			if(!_attachedFileInformationsViewModel.FilesToAddOnSave.Any())
 			{
 				return;
 			}
 
-			foreach(var fileName in _attachedFileInformationsViewModel.FilesToAddOnSave)
+			do
 			{
-				var result = _counterpartyFileStorageService.CreateFileAsync(Entity, fileName,
-				new MemoryStream(_attachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
-					.GetAwaiter()
-					.GetResult();
+				foreach(var fileName in _attachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _counterpartyFileStorageService.CreateFileAsync(Entity, fileName,
+					new MemoryStream(_attachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure)
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
 			}
+			while(repeat);
 		}
 
 		private void UpdateAttachedFilesIfNeeded()
