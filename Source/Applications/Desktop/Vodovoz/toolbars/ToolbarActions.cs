@@ -825,7 +825,7 @@ public partial class MainWindow : Window
 			null, filterParams);
 	}
 
-	void ActionWarehouseDocumentsActivated(object sender, System.EventArgs e)
+	void ActionWarehouseDocumentsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<WarehouseDocumentsJournalViewModel>(null);
 	}

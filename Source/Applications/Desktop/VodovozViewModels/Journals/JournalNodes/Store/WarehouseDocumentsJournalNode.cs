@@ -72,6 +72,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 				DocTypeEnum = DocumentType.RegradingOfGoodsDocument;
 			}
 
+			if(entityType == typeof(DriverAttachedTerminalGiveoutDocument))
+			{
+				DocTypeEnum = DocumentType.DriverTerminalGiveout;
+			}
+
 			if(entityType == typeof(DriverAttachedTerminalReturnDocument))
 			{
 				DocTypeEnum = DocumentType.DriverTerminalReturn;

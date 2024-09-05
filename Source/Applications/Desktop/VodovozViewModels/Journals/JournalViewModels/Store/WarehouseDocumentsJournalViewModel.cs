@@ -2,14 +2,17 @@
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
 using QS.Tdi;
 using System;
+using System.Reflection;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -23,24 +26,31 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
+using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
 	public class WarehouseDocumentsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<WarehouseDocumentsJournalNode, WarehouseDocumentsJournalFilterViewModel>
 	{
+		private readonly IGtkTabsOpener _gtkTabsOpener;
+
 		public WarehouseDocumentsJournalViewModel(
 			WarehouseDocumentsJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
+			IGtkTabsOpener gtkTabsOpener,
 			Action<WarehouseDocumentsJournalFilterViewModel> filterConfiguration = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			filterViewModel.Journal = this;
+			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
+			filterViewModel.Journal = this;
 			JournalFilter = filterViewModel;
 
 			if(filterConfiguration != null)
@@ -53,6 +63,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			TabName = "Журнал складских документов";
 
 			RegisterDocuments();
+
+			var threadLoader = DataLoader as ThreadDataLoader<WarehouseDocumentsJournalNode>;
+			threadLoader.MergeInOrderBy(x => x.Date, true);
 
 			UpdateOnChanges(
 				typeof(IncomingInvoice),
@@ -67,11 +80,236 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				typeof(SelfDeliveryDocument),
 				typeof(CarLoadDocument),
 				typeof(CarUnloadDocument));
+
+			UpdateAllEntityPermissions();
+			CreateNodeActions();
 		}
 
 		private void RegisterDocuments()
 		{
 			RegisterIncomingInvoiceDocuments();
+			RegisterIncomingWaterDocuments();
+			RegisterMovementDocuments();
+			RegisterWriteOffDocuments();
+			RegisterInventoryDocuments();
+			RegisterShiftChangeWarehouseDocuments();
+			RegisterRegradingOfGoodsDocuments();
+			RegisterSelfDeliveryDocuments();
+			RegisterCarLoadDocuments();
+			RegisterCarUnloadDocuments();
+			RegisterDriverAttachedTerminalGiveoutDocuments();
+			RegisterDriverAttachedTerminalReturnDocuments();
+		}
+
+		private void RegisterIncomingInvoiceDocuments()
+		{
+			var config = RegisterEntity(GetIncomingInvoiceDocumentsQuery)
+				.AddDocumentConfiguration(
+				//функция диалога создания документа
+				() => (ITdiTab)NavigationManager.OpenViewModel<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
+				//функция диалога открытия документа
+				(node) => (ITdiTab)NavigationManager.OpenViewModel<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
+				//функция идентификации документа 
+				(node) => node.EntityType == typeof(IncomingInvoice),
+				typeof(IncomingInvoice).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+				null);
+
+			//завершение конфигурации
+			config.FinishConfiguration();
+		}
+
+		private void RegisterIncomingWaterDocuments()
+		{
+			var config = RegisterEntity(GetIncomingWaterDocumentsQuery)
+				.AddDocumentConfiguration(
+				//функция диалога создания документа
+				() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.IncomingWater),
+				//функция диалога открытия документа
+				(node) => _gtkTabsOpener.OpenIncomingWaterDlg(node.Id),
+				//функция идентификации документа 
+				(node) => node.EntityType == typeof(IncomingWater),
+				typeof(IncomingWater).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+				null);
+
+			//завершение конфигурации
+			config.FinishConfiguration();
+		}
+
+		private void RegisterMovementDocuments()
+		{
+			var config = RegisterEntity(GetMovementDocumentsQuery)
+				.AddDocumentConfiguration(
+				//функция диалога создания документа
+				() => (ITdiTab)NavigationManager.OpenViewModel<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
+				//функция диалога открытия документа
+				(node) => (ITdiTab)NavigationManager.OpenViewModel<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
+				//функция идентификации документа 
+				(node) => node.EntityType == typeof(MovementDocument),
+				typeof(MovementDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+				null);
+
+			//завершение конфигурации
+			config.FinishConfiguration();
+		}
+
+		private void RegisterWriteOffDocuments()
+		{
+			var config = RegisterEntity(GetWriteOffDocumentsQuery)
+				.AddDocumentConfiguration(
+				//функция диалога создания документа
+				() => (ITdiTab)NavigationManager.OpenViewModel<WriteOffDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
+				//функция диалога открытия документа
+				(node) => (ITdiTab)NavigationManager.OpenViewModel<WriteOffDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
+				//функция идентификации документа 
+				(node) => node.EntityType == typeof(WriteOffDocument),
+				typeof(WriteOffDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+				null);
+
+			//завершение конфигурации
+			config.FinishConfiguration();
+		}
+
+		private void RegisterInventoryDocuments()
+		{
+			var config = RegisterEntity(GetInventoryDocumentsQuery)
+				.AddDocumentConfiguration(
+				//функция диалога создания документа
+				() => (ITdiTab)NavigationManager.OpenViewModel<InventoryDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
+				//функция диалога открытия документа
+				(node) => (ITdiTab)NavigationManager.OpenViewModel<InventoryDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
+				//функция идентификации документа 
+				(node) => node.EntityType == typeof(InventoryDocument),
+				typeof(InventoryDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+				null);
+
+			//завершение конфигурации
+			config.FinishConfiguration();
+		}
+
+		private void RegisterShiftChangeWarehouseDocuments()
+		{
+			var config = RegisterEntity(GetShiftChangeWarehouseDocumentsQuery)
+				.AddDocumentConfiguration(
+				//функция диалога создания документа
+				() => (ITdiTab)NavigationManager.OpenViewModel<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
+				//функция диалога открытия документа
+				(node) => (ITdiTab)NavigationManager.OpenViewModel<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
+				//функция идентификации документа 
+				(node) => node.EntityType == typeof(ShiftChangeWarehouseDocument),
+				typeof(ShiftChangeWarehouseDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+				null);
+
+			//завершение конфигурации
+			config.FinishConfiguration();
+		}
+
+		private void RegisterRegradingOfGoodsDocuments()
+		{
+			var config = RegisterEntity(GetRegradingOfGoodsDocumentsQuery)
+				.AddDocumentConfiguration(
+				//функция диалога создания документа
+				() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.RegradingOfGoodsDocument),
+				//функция диалога открытия документа
+				(node) => _gtkTabsOpener.OpenRegradingOfGoodsDocumentDlg(node.Id),
+				//функция идентификации документа 
+				(node) => node.EntityType == typeof(RegradingOfGoodsDocument),
+				typeof(RegradingOfGoodsDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+				null);
+
+			//завершение конфигурации
+			config.FinishConfiguration();
+		}
+
+		private void RegisterSelfDeliveryDocuments()
+		{
+			var config = RegisterEntity(GetSelfDeliveryDocumentsQuery)
+				.AddDocumentConfiguration(
+				//функция диалога создания документа
+				() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.SelfDeliveryDocument),
+				//функция диалога открытия документа
+				(node) => _gtkTabsOpener.OpenSelfDeliveryDocumentDlg(node.Id),
+				//функция идентификации документа 
+				(node) => node.EntityType == typeof(SelfDeliveryDocument),
+				typeof(SelfDeliveryDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+				null);
+
+			//завершение конфигурации
+			config.FinishConfiguration();
+		}
+
+		private void RegisterCarLoadDocuments()
+		{
+			RegisterEntity(GetCarLoadDocumentsQuery)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.CarLoadDocument),
+					(node) => _gtkTabsOpener.OpenCarLoadDocumentDlg(node.Id),
+					(node) => node.EntityType == typeof(CarLoadDocument))
+					.FinishConfiguration();
+
+			//var config = RegisterEntity(GetCarLoadDocumentsQuery)
+			//	.AddDocumentConfiguration(
+			//	//функция диалога создания документа
+			//	() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.CarLoadDocument),
+			//	//функция диалога открытия документа
+			//	(node) => _gtkTabsOpener.OpenCarLoadDocumentDlg(node.Id),
+			//	//функция идентификации документа 
+			//	(node) => node.EntityType == typeof(CarLoadDocument),
+			//	typeof(CarLoadDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+			//	null);
+
+			////завершение конфигурации
+			//config.FinishConfiguration();
+		}
+
+		private void RegisterCarUnloadDocuments()
+		{
+			var config = RegisterEntity(GetCarUnloadDocumentsQuery)
+				.AddDocumentConfiguration(
+				//функция диалога создания документа
+				() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.CarUnloadDocument),
+				//функция диалога открытия документа
+				(node) => _gtkTabsOpener.OpenCarUnloadDocumentDlg(node.Id),
+				//функция идентификации документа 
+				(node) => node.EntityType == typeof(CarUnloadDocument),
+				typeof(CarUnloadDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+				null);
+
+			//завершение конфигурации
+			config.FinishConfiguration();
+		}
+
+		private void RegisterDriverAttachedTerminalGiveoutDocuments()
+		{
+			var config = RegisterEntity(GetDriverAttachedTerminalGiveoutDocumentsQuery)
+				.AddDocumentConfiguration(
+				//функция диалога создания документа
+				() => (ITdiTab)NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
+				//функция диалога открытия документа
+				(node) => (ITdiTab)NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
+				//функция идентификации документа 
+				(node) => node.EntityType == typeof(DriverAttachedTerminalGiveoutDocument),
+				typeof(DriverAttachedTerminalGiveoutDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+				null);
+
+			//завершение конфигурации
+			config.FinishConfiguration();
+		}
+
+		private void RegisterDriverAttachedTerminalReturnDocuments()
+		{
+			var config = RegisterEntity(GetDriverAttachedTerminalReturnDocumentsQuery)
+				.AddDocumentConfiguration(
+				//функция диалога создания документа
+				() => (ITdiTab)NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
+				//функция диалога открытия документа
+				(node) => (ITdiTab)NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
+				//функция идентификации документа 
+				(node) => node.EntityType == typeof(DriverAttachedTerminalReturnDocument),
+				typeof(DriverAttachedTerminalReturnDocument).GetCustomAttribute<AppellativeAttribute>(true).Nominative,
+				null);
+
+			//завершение конфигурации
+			config.FinishConfiguration();
 		}
 
 		private IQueryOver<IncomingInvoice> GetIncomingInvoiceDocumentsQuery(IUnitOfWork uow)
@@ -130,29 +368,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-					.Select(() => invoiceAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
-				)
+					.Select(() => invoiceAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+				.OrderBy(() => invoiceAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<IncomingInvoice>>());
 
 			return resultQuery;
-		}
-
-		private void RegisterIncomingInvoiceDocuments()
-		{
-			var config = RegisterEntity(GetIncomingInvoiceDocumentsQuery)
-				.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => (ITdiTab)NavigationManager.OpenViewModel<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()),
-				//функция диалога открытия документа
-				(WarehouseDocumentsJournalNode node) => (ITdiTab)NavigationManager.OpenViewModel<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)),
-				//функция идентификации документа 
-				(WarehouseDocumentsJournalNode node) => node.EntityType == typeof(IncomingInvoice),
-				"Входящая накладная",
-				null
-				);
-
-			//завершение конфигурации
-			config.FinishConfiguration();
 		}
 
 		private IQueryOver<IncomingWater> GetIncomingWaterDocumentsQuery(IUnitOfWork uow)
@@ -210,6 +430,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => waterAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+				.OrderBy(() => waterAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<IncomingWater>>());
 
 			return resultQuery;
@@ -323,6 +544,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => movementAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => movementAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderBy(() => movementAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<MovementDocument>>());
 
 			return resultQuery;
@@ -380,8 +602,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => writeOffAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
-					.Select(() => writeOffAlias.Comment).WithAlias(() => resultAlias.Comment)
-				)
+					.Select(() => writeOffAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderBy(() => writeOffAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<WriteOffDocument>>());
 
 			return resultQuery;
@@ -435,6 +657,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => inventoryAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => inventoryAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderBy(() => inventoryAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<InventoryDocument>>());
 
 			return resultQuery;
@@ -488,6 +711,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => shiftchangeAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => shiftchangeAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderBy(() => shiftchangeAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<ShiftChangeWarehouseDocument>>());
 
 			return resultQuery;
@@ -540,6 +764,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => regradingOfGoodsAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => regradingOfGoodsAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderBy(() => regradingOfGoodsAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<RegradingOfGoodsDocument>>());
 
 			return resultQuery;
@@ -599,6 +824,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => selfDeliveryAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => selfDeliveryAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderBy(() => selfDeliveryAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<SelfDeliveryDocument>>());
 
 			return resultQuery;
@@ -670,6 +896,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => loadCarAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => loadCarAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderBy(() => loadCarAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<CarLoadDocument>>());
 
 			return resultQuery;
@@ -741,6 +968,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => unloadCarAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => unloadCarAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderBy(() => unloadCarAlias.TimeStamp).Desc
 			.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<CarUnloadDocument>>());
 
 			return resultQuery;
@@ -801,6 +1029,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic))
+				.OrderBy(() => terminalGiveoutAlias.CreationDate).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<DriverAttachedTerminalGiveoutDocument>>());
 
 			return resultQuery;
@@ -861,9 +1090,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic))
+				.OrderBy(() => terminalReturnAlias.CreationDate).Desc
 			.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsJournalNode<DriverAttachedTerminalReturnDocument>>());
 
 			return resultQuery;
+		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateDefaultEditAction();
+			CreateDefaultDeleteAction();
 		}
 	}
 }
