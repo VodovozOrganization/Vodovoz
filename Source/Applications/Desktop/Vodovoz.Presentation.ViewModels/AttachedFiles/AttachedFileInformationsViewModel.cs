@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using NHibernate.Util;
 using QS.Attachments;
 using QS.Commands;
@@ -330,6 +330,11 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 		{
 			if(_scanDialogService.GetFileFromDialog(out string fileName, out byte[] fileContent))
 			{
+				fileName = Path.GetFileNameWithoutExtension(fileName) +
+					" " +
+					DateTimeOffset.UtcNow.ToUnixTimeSeconds() +
+					Path.GetExtension(fileName);
+
 				if(!AttachedFiles.ContainsKey(fileName))
 				{
 					AttachedFiles.Add(fileName, fileContent);

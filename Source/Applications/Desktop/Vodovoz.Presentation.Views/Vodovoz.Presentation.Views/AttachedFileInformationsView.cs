@@ -40,6 +40,7 @@ namespace Vodovoz.Presentation.Views
 
 		protected override void ConfigureWidget()
 		{
+			buttonScan.Visible = false;
 			buttonAdd.Clicked -= OnAddClicked;
 			buttonScan.Clicked -= OnScanClicked;
 			btnOpen.Clicked -= OnOpenClicked;
