@@ -330,6 +330,7 @@
     <Compile Include="ReportsParameters\Orders\OrderCreationDateReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrderIncorrectPricesViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrderRegistryReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\OrdersByCreationDateReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrdersByDistrictReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrdersWithMinPriceLessThanViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportViewModel.cs" />

@@ -522,9 +522,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersByCreationDate(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrdersByCreationDateReport>(),
-			() => new QSReport.ReportViewDlg(new OrdersByCreationDateReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrdersByCreationDateReportViewModel));
 	}
 
 	/// <summary>
