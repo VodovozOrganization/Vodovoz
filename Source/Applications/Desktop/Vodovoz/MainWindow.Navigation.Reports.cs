@@ -77,9 +77,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCashierCommentsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashierCommentsReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashierCommentsReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CashierCommentsReportViewModel));
 	}
 
 	/// <summary>

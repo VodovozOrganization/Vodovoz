@@ -300,6 +300,7 @@
     <Compile Include="ReportsParameters\Client\ZeroDebtClientReportViewModel.cs" />
     <Compile Include="ReportsParameters\Fuel\FuelApiRequestReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\AnalyticsForUndeliveryReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\CashierCommentsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\CompanyTrucksReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\DriverRoutesListRegisterReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistics\DriversToDistrictsAssignmentReportViewModel.cs" />
