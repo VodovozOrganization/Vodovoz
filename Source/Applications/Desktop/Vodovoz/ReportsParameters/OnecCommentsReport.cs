@@ -21,12 +21,12 @@ namespace Vodovoz.ReportsParameters
 	public partial class OnecCommentsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		SelectableParametersReportFilter _filter;
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 
-		public OnecCommentsReport(ReportFactory reportFactory)
+		public OnecCommentsReport(IReportInfoFactory reportInfoFactory)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			this.Build ();
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ();
 			_filter = new SelectableParametersReportFilter(UoW);
 			ConfigureReport();
@@ -137,10 +137,8 @@ namespace Vodovoz.ReportsParameters
 				parameters.Add(item.Key, item.Value);
 			}
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Orders.OnecComments";
+			var reportInfo = _reportInfoFactory.Create("Orders.OnecComments", Title, parameters);
 			reportInfo.UseUserVariables = true;
-			reportInfo.Parameters = parameters;
 
 			return reportInfo;
 		}

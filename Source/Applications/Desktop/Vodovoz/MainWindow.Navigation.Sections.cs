@@ -1,6 +1,8 @@
-﻿using QS.Dialog.GtkUI;
+﻿using Autofac;
+using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
+using QS.Report;
 using QS.Report.ViewModels;
 using System;
 using Vodovoz.Core.Domain.Employees;
@@ -196,9 +198,10 @@ public partial class MainWindow
 
 	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OnecCommentsReport>(),
-			() => new QSReport.ReportViewDlg(new OnecCommentsReport())
+			() => new QSReport.ReportViewDlg(new OnecCommentsReport(reportInfoFactory))
 		);
 	}
 
