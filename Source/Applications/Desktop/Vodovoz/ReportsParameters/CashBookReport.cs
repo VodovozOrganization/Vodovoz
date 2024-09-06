@@ -21,14 +21,14 @@ namespace Vodovoz.ReportsParameters
 		private List<Subdivision> UserSubdivisions { get; }
 		private IEnumerable<Organization> Organizations { get; }
 
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
 
-		public CashBookReport(ReportFactory reportFactory, ISubdivisionRepository subdivisionRepository, ICommonServices commonServices)
+		public CashBookReport(IReportInfoFactory reportInfoFactory, ISubdivisionRepository subdivisionRepository, ICommonServices commonServices)
 		{
 			this.Build();
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ();
@@ -115,10 +115,8 @@ namespace Vodovoz.ReportsParameters
 				parameters.Add("Cash", allCashes ? -1 : ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem)?.Id);
 			}
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = reportPath;
+			var reportInfo = _reportInfoFactory.Create(reportPath, Title, parameters);
 			reportInfo.UseUserVariables = true;
-			reportInfo.Parameters = parameters;
 
 			return reportInfo;
 		}

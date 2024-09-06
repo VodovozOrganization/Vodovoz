@@ -1187,10 +1187,12 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnCashBoolReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+		var commonServices = _autofacScope.Resolve<ICommonServices>();
 		ISubdivisionRepository subdivisionRepository = _autofacScope.Resolve<ISubdivisionRepository>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
-			() => new QSReport.ReportViewDlg(new CashBookReport(subdivisionRepository, ServicesConfig.CommonServices)));
+			() => new QSReport.ReportViewDlg(new CashBookReport(reportInfoFactory, subdivisionRepository, commonServices)));
 	}
 
 	/// <summary>
