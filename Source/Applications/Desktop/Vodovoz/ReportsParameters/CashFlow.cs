@@ -34,7 +34,7 @@ namespace Vodovoz.Reports
 {
 	public partial class CashFlow : SingleUowTabBase, IParametersWidget, INotifyPropertyChanged
 	{
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly ILifetimeScope _lifetimeScope;
@@ -56,21 +56,24 @@ namespace Vodovoz.Reports
 
 		public CashFlow(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ReportFactory reportFactory,
+			IReportInfoFactory reportInfoFactory,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
+			IFileDialogService fileDialogService
+			)
 		{
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+
 			Build();
 
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = unitOfWorkFactory.CreateWithoutRoot();
 
 			comboPart.ItemsEnum = typeof(ReportParts);
 
@@ -304,10 +307,7 @@ namespace Vodovoz.Reports
 								  .Select(x => x.Name)
 								  .SingleOrDefault();
 
-			var reportInfo = new ReportInfo
-			{
-				Source = source,
-				Parameters = new Dictionary<string, object> {
+			var parameters = new Dictionary<string, object> {
 					{ "StartDate", dateStart.DateOrNull.Value },
 					{ "EndDate", dateEnd.DateOrNull.Value },
 					{ "IncomeCategory", inCat },
@@ -317,8 +317,7 @@ namespace Vodovoz.Reports
 					{ "Employee", employeeId },
 					{ "CasherName", casherName },
 					{ "EmployeeName", employeeName }
-				}
-			};
+				};
 
 			if(checkOrganisations.Active)
 			{
@@ -334,14 +333,16 @@ namespace Vodovoz.Reports
 				parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
 			}
 
-			var cashCategorySettings = ScopeProvider.Scope.Resolve<IOrganizationCashTransferDocumentSettings>();
-			reportInfo.Parameters.Add("cash_income_category_transfer_id", cashCategorySettings.CashIncomeCategoryTransferId);
-			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategorySettings.CashExpenseCategoryTransferId);
-.
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = ReportName;
+			var cashCategorySettings = _lifetimeScope.Resolve<IOrganizationCashTransferDocumentSettings>();
+
+			parameters.Add("cash_income_category_transfer_id", cashCategorySettings.CashIncomeCategoryTransferId);
+			parameters.Add("cash_expense_category_transfer_id", cashCategorySettings.CashExpenseCategoryTransferId);
+
+			var reportInfo = _reportInfoFactory.Create();
 			reportInfo.Parameters = parameters;
-			
+			reportInfo.Source = source;
+			reportInfo.Title = Title;
+
 			return reportInfo;
 		}
 
