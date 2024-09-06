@@ -748,7 +748,6 @@
     <Compile Include="Dialogs\CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ClientBalanceFilter.cs" />
-    <Compile Include="Representations\DocumentsVM.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Account1c.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Bank1c.cs" />
     <Compile Include="Representations\ContactsVM.cs" />
@@ -763,17 +762,13 @@
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimsView.cs" />
-    <Compile Include="JournalViewers\WarehouseDocumentsView.cs" />
     <Compile Include="JournalViewers\ReadyForShipmentView.cs" />
     <Compile Include="JournalViewers\ServiceClaimsView.cs" />
     <Compile Include="JournalFilters\EquipmentFilter.cs" />
     <Compile Include="JournalFilters\StockBalanceFilter.cs" />
     <Compile Include="JournalFilters\ClientBalanceFilter.cs" />
-    <Compile Include="JournalFilters\StockDocumentsFilter.cs" />
     <Compile Include="JournalFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="JournalFilters\ServiceClaimFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
     <Compile Include="Representations\AccountableDebtsVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableDebts.cs" />
     <Compile Include="Representations\AccountableSlipsVM.cs" />
