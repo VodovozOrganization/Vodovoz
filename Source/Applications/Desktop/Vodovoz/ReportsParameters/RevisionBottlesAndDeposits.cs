@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
@@ -15,7 +15,7 @@ namespace Vodovoz.Reports
 {
 	public partial class RevisionBottlesAndDeposits : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter = new DeliveryPointJournalFilterViewModel();
 		//Т.к. отчет открывается из диалога звонка, то мы не можем контролировать время жизни скоупа
@@ -24,12 +24,12 @@ namespace Vodovoz.Reports
 		private bool _showStockBottle;
 
 		public RevisionBottlesAndDeposits(
-			ReportFactory reportFactory,
+			IReportInfoFactory reportInfoFactory,
 			IOrderRepository orderRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			
 			Build();
@@ -84,10 +84,7 @@ namespace Vodovoz.Reports
 				{ "show_stock_bottle", _showStockBottle }
 			};
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Client.SummaryBottlesAndDeposits";
-			reportInfo.Parameters = parameters;
-
+			var reportInfo = _reportInfoFactory.Create("Client.SummaryBottlesAndDeposits", Title, parameters);
 			return reportInfo;
 		}
 
