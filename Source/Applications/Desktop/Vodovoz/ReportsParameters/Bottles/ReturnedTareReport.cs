@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.Reports;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -21,7 +19,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ReturnedTareReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly SelectableParametersReportFilter _filter;
 
@@ -33,9 +31,9 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		#endregion
 
-		public ReturnedTareReport(ReportFactory reportFactory, IInteractiveService interactiveService)
+		public ReturnedTareReport(IReportInfoFactory reportInfoFactory, IInteractiveService interactiveService)
 		{
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
@@ -166,9 +164,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 				parameters.Add(item.Key, item.Value);
 			}
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Bottles.ReturnedTareReport";
-			reportInfo.Parameters = parameters;
+			var identifier = "Bottles.ReturnedTareReport";
+			var reportInfo = _reportInfoFactory.Create(identifier, Title, parameters);
 
 			return reportInfo;
 		}

@@ -1,8 +1,11 @@
 ﻿using Autofac;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
+using QS.Report;
 using QS.Report.ViewModels;
+using QS.Services;
 using QSReport;
 using System;
 using Vodovoz;
@@ -599,9 +602,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
 	{
+		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
-			() => new QSReport.ReportViewDlg(new ReturnedTareReport(ServicesConfig.InteractiveService)));
+			() => new QSReport.ReportViewDlg(new ReturnedTareReport(reportInfoFactory, interactiveService)));
 	}
 
 	/// <summary>
