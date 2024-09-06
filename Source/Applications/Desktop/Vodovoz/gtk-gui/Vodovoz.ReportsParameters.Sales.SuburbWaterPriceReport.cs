@@ -71,7 +71,6 @@ namespace Vodovoz.ReportsParameters.Sales
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonCreateRepot.Clicked += new global::System.EventHandler(this.OnButtonCreateRepotClicked);
 		}
 	}
 }

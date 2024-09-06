@@ -122,11 +122,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.radioAll.Toggled += new global::System.EventHandler(this.OnRadioAllToggled);
-			this.radioCash.Toggled += new global::System.EventHandler(this.OnRadioCashToggled);
-			this.radioWarehouse.Toggled += new global::System.EventHandler(this.OnRadioWarehouseToggled);
-			this.referenceWarehouse.Changed += new global::System.EventHandler(this.OnReferenceWarehouseChanged);
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

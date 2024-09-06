@@ -94,7 +94,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

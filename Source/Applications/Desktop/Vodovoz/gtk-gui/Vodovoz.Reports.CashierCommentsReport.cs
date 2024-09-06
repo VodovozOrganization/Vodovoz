@@ -69,8 +69,6 @@ namespace Vodovoz.Reports
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.dateperiodpicker.PeriodChanged += new global::System.EventHandler(this.OnDateperiodpickerPeriodChanged);
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

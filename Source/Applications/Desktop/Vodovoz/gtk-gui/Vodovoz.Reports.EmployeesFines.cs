@@ -173,10 +173,6 @@ namespace Vodovoz.Reports
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.radioCatOffice.Toggled += new global::System.EventHandler(this.OnRadioCatAllToggled);
-			this.radioCatForwarder.Toggled += new global::System.EventHandler(this.OnRadioCatAllToggled);
-			this.radioCatDriver.Toggled += new global::System.EventHandler(this.OnRadioCatAllToggled);
-			this.radioCatAll.Toggled += new global::System.EventHandler(this.OnRadioCatAllToggled);
 		}
 	}
 }

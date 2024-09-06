@@ -133,7 +133,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonRun.Clicked += new global::System.EventHandler(this.OnButtonRunClicked);
 		}
 	}
 }

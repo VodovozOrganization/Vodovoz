@@ -82,8 +82,6 @@ namespace Vodovoz.ReportsParameters
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.checkbutton1.Toggled += new global::System.EventHandler(this.OnCheckbutton1Toggled);
-			this.buttonCreateRepot.Clicked += new global::System.EventHandler(this.OnButtonCreateRepotClicked);
 		}
 	}
 }

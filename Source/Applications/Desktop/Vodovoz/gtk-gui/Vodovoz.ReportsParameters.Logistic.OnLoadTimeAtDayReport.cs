@@ -70,8 +70,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.ydateAtDay.DateChanged += new global::System.EventHandler(this.OnYdateAtDayDateChanged);
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

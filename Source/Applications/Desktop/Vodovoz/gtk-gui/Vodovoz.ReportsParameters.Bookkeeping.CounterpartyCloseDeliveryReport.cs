@@ -68,7 +68,6 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonRunClicked);
 		}
 	}
 }
