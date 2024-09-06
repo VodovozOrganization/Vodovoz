@@ -19,11 +19,11 @@ namespace Vodovoz.ReportsParameters
 	public partial class DriversWageBalanceReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		IList<DriverNode> _driversList = new List<DriverNode>();
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 
-		public DriversWageBalanceReport(ReportFactory reportFactory)
+		public DriversWageBalanceReport(IReportInfoFactory reportInfoFactory)
 		{
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
@@ -61,9 +61,7 @@ namespace Vodovoz.ReportsParameters
 				{ "drivers", _driversList.Where(d => d.IsSelected).Select(d => d.Id) }
 			};
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Employees.DriversWageBalance";
-			reportInfo.Parameters = parameters;
+			var reportInfo = _reportInfoFactory.Create("Employees.DriversWageBalance", Title, parameters);
 
 			return reportInfo;
 		}

@@ -1116,9 +1116,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDriversWageBalanceActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<DriversWageBalanceReport>(),
-			() => new QSReport.ReportViewDlg(new DriversWageBalanceReport()));
+			() => new QSReport.ReportViewDlg(new DriversWageBalanceReport(reportInfoFactory)));
 	}
 
 	/// <summary>
