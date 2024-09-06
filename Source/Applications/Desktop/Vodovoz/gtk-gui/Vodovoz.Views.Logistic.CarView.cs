@@ -1511,7 +1511,7 @@ namespace Vodovoz.Views.Logistic
 			this.btnAddGeographicGroup.UseUnderline = true;
 			this.btnAddGeographicGroup.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			this.hbuttonbox2.Add(this.btnAddGeographicGroup);
-			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w109 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnAddGeographicGroup]));
+			global::Gtk.ButtonBox.ButtonBoxChild w109 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnAddGeographicGroup]));
 			w109.Expand = false;
 			w109.Fill = false;
 			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
@@ -1521,7 +1521,7 @@ namespace Vodovoz.Views.Logistic
 			this.btnRemoveGeographicGroup.UseUnderline = true;
 			this.btnRemoveGeographicGroup.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.hbuttonbox2.Add(this.btnRemoveGeographicGroup);
-			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w110 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnRemoveGeographicGroup]));
+			global::Gtk.ButtonBox.ButtonBoxChild w110 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnRemoveGeographicGroup]));
 			w110.Position = 1;
 			w110.Expand = false;
 			w110.Fill = false;

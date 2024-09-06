@@ -301,7 +301,7 @@ namespace Vodovoz.Dialogs
 			// Container child vbxNomenclatures.Gtk.Box+BoxChild
 			this.hbuttonbox2 = new global::Gtk.HButtonBox();
 			this.hbuttonbox2.Name = "hbuttonbox2";
-			this.hbuttonbox2.LayoutStyle = ((global::Gamma.GtkWidgets.yButtonBoxStyle)(3));
+			this.hbuttonbox2.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(3));
 			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
 			this.btnAddNomenclature = new global::Gamma.GtkWidgets.yButton();
 			this.btnAddNomenclature.CanFocus = true;
@@ -309,7 +309,7 @@ namespace Vodovoz.Dialogs
 			this.btnAddNomenclature.UseUnderline = true;
 			this.btnAddNomenclature.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			this.hbuttonbox2.Add(this.btnAddNomenclature);
-			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w23 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnAddNomenclature]));
+			global::Gtk.ButtonBox.ButtonBoxChild w23 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnAddNomenclature]));
 			w23.Expand = false;
 			w23.Fill = false;
 			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
@@ -319,7 +319,7 @@ namespace Vodovoz.Dialogs
 			this.btnDelete.UseUnderline = true;
 			this.btnDelete.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.hbuttonbox2.Add(this.btnDelete);
-			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w24 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnDelete]));
+			global::Gtk.ButtonBox.ButtonBoxChild w24 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnDelete]));
 			w24.Position = 1;
 			w24.Expand = false;
 			w24.Fill = false;

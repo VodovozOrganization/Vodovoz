@@ -239,7 +239,7 @@ namespace Vodovoz.Dialogs.Interactive
 			w20.Name = "dialog1_ActionArea";
 			w20.Spacing = 10;
 			w20.BorderWidth = ((uint)(5));
-			w20.LayoutStyle = ((global::Gamma.GtkWidgets.yButtonBoxStyle)(1));
+			w20.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(1));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonYes = new global::Gamma.GtkWidgets.yButton();
 			this.buttonYes.Sensitive = false;
@@ -252,7 +252,7 @@ namespace Vodovoz.Dialogs.Interactive
 			w21.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
 			this.buttonYes.Image = w21;
 			this.AddActionWidget(this.buttonYes, -8);
-			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w22 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(w20[this.buttonYes]));
+			global::Gtk.ButtonBox.ButtonBoxChild w22 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w20[this.buttonYes]));
 			w22.Expand = false;
 			w22.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
@@ -267,7 +267,7 @@ namespace Vodovoz.Dialogs.Interactive
 			w23.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
 			this.buttonNo.Image = w23;
 			this.AddActionWidget(this.buttonNo, -9);
-			global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild w24 = ((global::Gamma.GtkWidgets.yButtonBox.ButtonBoxChild)(w20[this.buttonNo]));
+			global::Gtk.ButtonBox.ButtonBoxChild w24 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w20[this.buttonNo]));
 			w24.Position = 1;
 			w24.Expand = false;
 			w24.Fill = false;
