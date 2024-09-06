@@ -650,9 +650,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersCreationTimeReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrdersCreationTimeReport>(),
-			() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport()));
+			() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport(reportInfoFactory)));
 	}
 
 	/// <summary>

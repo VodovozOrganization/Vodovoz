@@ -1,20 +1,18 @@
-﻿using System;
+﻿using Gamma.ColumnConfig;
+using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QSReport;
-using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.ViewModels.Reports;
-using Vodovoz.Domain.Sale;
+using QS.Project.Services;
 using QS.Report;
+using QSReport;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.ColumnConfig;
-using NHibernate.Transform;
-using NHibernate.Criterion;
 using Vodovoz.Domain.Logistic;
-using QS.Project.Services;
-using Vodovoz.Reports;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -27,10 +25,10 @@ namespace Vodovoz.ReportsParameters
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public OrdersCreationTimeReport(ReportFactory reportFactory)
+		public OrdersCreationTimeReport(IReportInfoFactory reportInfoFactory)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			this.Build();
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			filter = new SelectableParametersReportFilter(UoW);
 			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
@@ -222,10 +220,7 @@ namespace Vodovoz.ReportsParameters
 				parameters.Add($"interval{i}", intervalValue);
 			}
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Logistic.OrdersCreationTime";
-			reportInfo.Parameters = parameters;
-
+			var reportInfo = _reportInfoFactory.Create("Logistic.OrdersCreationTime", Title, parameters);
 			return reportInfo;
 		}
 
@@ -239,7 +234,7 @@ namespace Vodovoz.ReportsParameters
 		}
 
 		public GenericObservableList<Time> Times = new GenericObservableList<Time>();
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 
 		private void UpdateButtonAddIntervalSensitive()
 		{
