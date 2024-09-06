@@ -1252,9 +1252,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnEmployeesTaxesActionActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(ServicesConfig.UnitOfWorkFactory)));
+			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(reportInfoFactory, ServicesConfig.UnitOfWorkFactory)));
 	}
 
 	/// <summary>
