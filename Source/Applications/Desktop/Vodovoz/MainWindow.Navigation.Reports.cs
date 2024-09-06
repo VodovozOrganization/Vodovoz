@@ -700,9 +700,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderStatisticByWeekReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderStatisticByWeekReport>(),
-			() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport()));
+			() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport(reportInfoFactory)));
 	}
 
 	/// <summary>
