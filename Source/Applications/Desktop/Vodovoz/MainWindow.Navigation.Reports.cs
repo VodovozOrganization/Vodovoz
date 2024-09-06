@@ -727,10 +727,12 @@ public partial class MainWindow
 		};
 
 		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, filter);
+		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
-			() => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(employeeJournalFactory, ServicesConfig.InteractiveService)));
+			() => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(reportInfoFactory, employeeJournalFactory, interactiveService)));
 	}
 
 	/// <summary>
