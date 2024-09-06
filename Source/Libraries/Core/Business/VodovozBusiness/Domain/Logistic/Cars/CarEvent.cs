@@ -1,15 +1,15 @@
-﻿using QS.DomainModel.Entity;
+﻿using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using System.Data.Bindings.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Settings.Logistics;
-using Vodovoz.Domain.Documents.WriteOffDocuments;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -104,13 +104,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _foundation;
 			set => SetField(ref _foundation, value);
-		}		
+		}
 
-		[Display( Name = "Не отражать в эксплуатации ТС" )]
+		[Display(Name = "Не отражать в эксплуатации ТС")]
 		public virtual bool DoNotShowInOperation
 		{
 			get => _doNotShowInOperation;
-			set => SetField( ref _doNotShowInOperation, value );
+			set => SetField(ref _doNotShowInOperation, value);
 		}
 
 		[Display(Name = "Компенсация от страховой, по суду")]
@@ -120,7 +120,7 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _compensationFromInsuranceByCourt, value);
 		}
 
-		[Display( Name = "Стоимость работ" )]
+		[Display(Name = "Стоимость работ")]
 		[PropertyChangedAlso(nameof(RepairAndPartsSummaryCost))]
 		public virtual decimal RepairCost
 		{
@@ -174,7 +174,7 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _isWriteOffDocumentNotRequired, value);
 		}
 
-		GenericObservableList<Fine> observableFines;		
+		GenericObservableList<Fine> observableFines;
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Fine> ObservableFines
@@ -274,7 +274,7 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(Comment) });
 			}
 
-			if(CarEventType?.Id == carEventSettings.TechInspectCarEventTypeId && Odometer == 0 )
+			if(CarEventType?.Id == carEventSettings.TechInspectCarEventTypeId && Odometer == 0)
 			{
 				yield return new ValidationResult($"Заполните показания одометра.",
 					new[] { nameof(Odometer) });
@@ -293,6 +293,14 @@ namespace Vodovoz.Domain.Logistic
 					yield return new ValidationResult($"Дата окончания действия техосмотра не должна быть меньше даты начала события.",
 						new[] { nameof(CarTechnicalCheckupEndingDate) });
 				}
+			}
+
+			if(CarEventType?.IsAttachWriteOffDocument == true
+				&& WriteOffDocument is null
+				&& !IsWriteOffDocumentNotRequired)
+			{
+				yield return new ValidationResult($"Не указана информация о складских запчастях. Пожалуйста, прикрепите акт списания или подтвердите, что запчасти не были списаны по ходу работ.",
+					new[] { nameof(WriteOffDocument) });
 			}
 		}
 
