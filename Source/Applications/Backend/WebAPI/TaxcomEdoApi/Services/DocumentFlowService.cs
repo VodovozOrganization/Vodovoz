@@ -299,12 +299,12 @@ namespace TaxcomEdoApi.Services
 						EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
 					};
 
-					var action = unitOfWork.GetAll<OrderEdoTrueMarkDocumentsActions>()
+					var actions = unitOfWork.GetAll<OrderEdoTrueMarkDocumentsActions>()
 						.Where(x =>
 							x.Order.Id == edoContainer.Order.Id && x.IsNeedToResendEdoBill)
 						.ToList();
 
-					SendBill(unitOfWork, edoContainer, organization, action);
+					SendBill(unitOfWork, edoContainer, organization, actions);
 				}
 
 				var resendFromActions =
