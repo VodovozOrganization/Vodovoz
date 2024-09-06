@@ -6,6 +6,7 @@ using Vodovoz.ViewModels.Dialogs.Counterparties;
 using QS.Project.Services;
 using QS.Navigation;
 using QS.Dialog.GtkUI.FileDialog;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.Views.Client
 {

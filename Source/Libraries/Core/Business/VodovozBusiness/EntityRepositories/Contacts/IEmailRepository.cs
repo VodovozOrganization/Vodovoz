@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Data.Counterparties;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
@@ -44,5 +45,7 @@ namespace Vodovoz.EntityRepositories
 		bool HasSendedEmailsForBillExceptOf(int orderId, int emailId);
 
 		#endregion
+
+		IEnumerable<EmailInfo> GetEmailInfoByCounterpatiesIds(IUnitOfWork uow, int[] counterpartiesIds);
 	}
 }

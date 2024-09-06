@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.HistoryLog;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Domain.Client
@@ -50,15 +50,8 @@ namespace Vodovoz.Domain.Client
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
-
+		
+		[Display(Name = "Откуда")]
 		public virtual CounterpartyFrom CounterpartyFrom { get; }
-	}
-
-	public enum CounterpartyFrom
-	{
-		[Display(Name = "Мобильное приложение")]
-		MobileApp = 54,
-		[Display(Name = "Сайт")]
-		WebSite = 55
 	}
 }

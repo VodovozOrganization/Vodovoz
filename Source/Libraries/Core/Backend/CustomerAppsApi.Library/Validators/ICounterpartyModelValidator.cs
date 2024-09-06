@@ -1,4 +1,5 @@
-﻿using CustomerAppsApi.Library.Dto;
+﻿using System.Collections.Generic;
+using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Counterparties;
 
 namespace CustomerAppsApi.Library.Validators
@@ -7,5 +8,12 @@ namespace CustomerAppsApi.Library.Validators
 	{
 		string CounterpartyContactInfoDtoValidate(CounterpartyContactInfoDto counterpartyContactInfoDto);
 		string CounterpartyDtoValidate(CounterpartyDto counterpartyDto);
+		string GetLegalCustomersByInnDtoValidate(GetLegalCustomersByInnDto counterpartyDto);
+		string RegisteringLegalCustomerValidate(RegisteringLegalCustomerDto dto);
+		string ConnectingLegalCustomerValidate(ConnectingLegalCustomerDto dto);
+		string GetPhonesConnectedToLegalCustomerValidate(GetPhonesConnectedToLegalCustomerDto dto);
+		string UpdateConnectToLegalCustomerByPhoneValidate(UpdateConnectToLegalCustomerByPhoneDto dto);
+		string ConnectingNewPhoneToLegalCustomerValidate(ConnectingNewPhoneToLegalCustomerDto dto);
+		string GetNaturalCounterpartyLegalCustomersDtoValidate(GetNaturalCounterpartyLegalCustomersDto dto);
 	}
 }

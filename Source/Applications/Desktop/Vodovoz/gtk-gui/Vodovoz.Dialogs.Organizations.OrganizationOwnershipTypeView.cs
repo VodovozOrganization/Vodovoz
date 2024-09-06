@@ -14,9 +14,13 @@ namespace Vodovoz.Dialogs.Organizations
 
 		private global::Gamma.GtkWidgets.yTable ytableOwnertypeData;
 
+		private global::Gamma.GtkWidgets.yEntry entryCode;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewFullName;
+
+		private global::Gamma.GtkWidgets.yLabel lblCode;
 
 		private global::Gamma.GtkWidgets.yCheckButton yChkIsArchive;
 
@@ -79,10 +83,22 @@ namespace Vodovoz.Dialogs.Organizations
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.ytableOwnertypeData = new global::Gamma.GtkWidgets.yTable();
 			this.ytableOwnertypeData.Name = "ytableOwnertypeData";
-			this.ytableOwnertypeData.NRows = ((uint)(3));
+			this.ytableOwnertypeData.NRows = ((uint)(4));
 			this.ytableOwnertypeData.NColumns = ((uint)(2));
 			this.ytableOwnertypeData.RowSpacing = ((uint)(6));
 			this.ytableOwnertypeData.ColumnSpacing = ((uint)(6));
+			// Container child ytableOwnertypeData.Gtk.Table+TableChild
+			this.entryCode = new global::Gamma.GtkWidgets.yEntry();
+			this.entryCode.CanFocus = true;
+			this.entryCode.Name = "entryCode";
+			this.entryCode.IsEditable = true;
+			this.entryCode.InvisibleChar = '●';
+			this.ytableOwnertypeData.Add(this.entryCode);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.entryCode]));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableOwnertypeData.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.HeightRequest = 130;
@@ -97,12 +113,21 @@ namespace Vodovoz.Dialogs.Organizations
 			this.ytextviewFullName.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindow.Add(this.ytextviewFullName);
 			this.ytableOwnertypeData.Add(this.GtkScrolledWindow);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.GtkScrolledWindow]));
-			w7.TopAttach = ((uint)(1));
-			w7.BottomAttach = ((uint)(2));
-			w7.LeftAttach = ((uint)(1));
-			w7.RightAttach = ((uint)(2));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.GtkScrolledWindow]));
+			w8.TopAttach = ((uint)(2));
+			w8.BottomAttach = ((uint)(3));
+			w8.LeftAttach = ((uint)(1));
+			w8.RightAttach = ((uint)(2));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableOwnertypeData.Gtk.Table+TableChild
+			this.lblCode = new global::Gamma.GtkWidgets.yLabel();
+			this.lblCode.Name = "lblCode";
+			this.lblCode.Xalign = 1F;
+			this.lblCode.LabelProp = global::Mono.Unix.Catalog.GetString("Код ОПФ:");
+			this.ytableOwnertypeData.Add(this.lblCode);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.lblCode]));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableOwnertypeData.Gtk.Table+TableChild
 			this.yChkIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
 			this.yChkIsArchive.CanFocus = true;
@@ -111,13 +136,13 @@ namespace Vodovoz.Dialogs.Organizations
 			this.yChkIsArchive.DrawIndicator = true;
 			this.yChkIsArchive.UseUnderline = true;
 			this.ytableOwnertypeData.Add(this.yChkIsArchive);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.yChkIsArchive]));
-			w8.TopAttach = ((uint)(2));
-			w8.BottomAttach = ((uint)(3));
-			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(2));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.yChkIsArchive]));
+			w10.TopAttach = ((uint)(3));
+			w10.BottomAttach = ((uint)(4));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableOwnertypeData.Gtk.Table+TableChild
 			this.yentryAbbreviation = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryAbbreviation.CanFocus = true;
@@ -125,34 +150,40 @@ namespace Vodovoz.Dialogs.Organizations
 			this.yentryAbbreviation.IsEditable = true;
 			this.yentryAbbreviation.InvisibleChar = '●';
 			this.ytableOwnertypeData.Add(this.yentryAbbreviation);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.yentryAbbreviation]));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.yentryAbbreviation]));
+			w11.TopAttach = ((uint)(1));
+			w11.BottomAttach = ((uint)(2));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableOwnertypeData.Gtk.Table+TableChild
 			this.ylabelAbbreviation = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelAbbreviation.Name = "ylabelAbbreviation";
-			this.ylabelAbbreviation.LabelProp = global::Mono.Unix.Catalog.GetString("Аббревиатура");
+			this.ylabelAbbreviation.Xalign = 1F;
+			this.ylabelAbbreviation.LabelProp = global::Mono.Unix.Catalog.GetString("Аббревиатура:");
 			this.ytableOwnertypeData.Add(this.ylabelAbbreviation);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.ylabelAbbreviation]));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.ylabelAbbreviation]));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableOwnertypeData.Gtk.Table+TableChild
 			this.ylabelFullName = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelFullName.Name = "ylabelFullName";
-			this.ylabelFullName.LabelProp = global::Mono.Unix.Catalog.GetString("Полное название");
+			this.ylabelFullName.Xalign = 1F;
+			this.ylabelFullName.LabelProp = global::Mono.Unix.Catalog.GetString("Полное название:");
 			this.ytableOwnertypeData.Add(this.ylabelFullName);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.ylabelFullName]));
-			w11.TopAttach = ((uint)(1));
-			w11.BottomAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.ylabelFullName]));
+			w13.TopAttach = ((uint)(2));
+			w13.BottomAttach = ((uint)(3));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvboxMain.Add(this.ytableOwnertypeData);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableOwnertypeData]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableOwnertypeData]));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

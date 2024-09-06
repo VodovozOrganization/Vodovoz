@@ -7,6 +7,9 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate.SqlCommand;
+using Vodovoz.Core.Data.Counterparties;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
@@ -493,6 +496,59 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				};
 
 			return query;
+		}
+
+		public IEnumerable<LegalCounterpartyInfo> GetLegalCounterpartiesByInn(
+			IUnitOfWork uow, string inn, int naturalCounterpartyId, string phone)
+		{
+			Counterparty legalCounterpartyAlias = null;
+			Phone connectedPhoneAlias = null;
+			ConnectedCustomer connectedCustomerAlias = null;
+			LegalCounterpartyInfo resultAlias = null;
+
+			var connectSubQuery = QueryOver.Of(() => connectedCustomerAlias)
+				.JoinEntityAlias(
+					() => connectedPhoneAlias,
+					() => connectedCustomerAlias.NaturalCounterpartyPhoneId == connectedPhoneAlias.Id
+					      && connectedPhoneAlias.Counterparty.Id == naturalCounterpartyId
+					      && connectedPhoneAlias.DigitsNumber == phone)
+				.Where(cc => cc.LegalCounterpartyId == legalCounterpartyAlias.Id)
+				.Select(Projections.Cast(
+					NHibernateUtil.String,
+					Projections.Property(() => connectedCustomerAlias.ConnectState)))
+				.Take(1);
+
+			var result = uow.Session.QueryOver(() => legalCounterpartyAlias)
+				.Where(c => c.INN == inn)
+				.And(c => c.PersonType == PersonType.legal)
+				.And(c => !c.IsArchive)
+				.SelectList(list => list
+					.SelectGroup(c => c.Id).WithAlias(() => resultAlias.ErpCounterpartyId)
+					.Select(c => c.INN).WithAlias(() => resultAlias.Inn)
+					.Select(c => c.KPP).WithAlias(() => resultAlias.Kpp)
+					.Select(c => c.JurAddress).WithAlias(() => resultAlias.JurAddress)
+					.Select(c => c.Name).WithAlias(() => resultAlias.FullName)
+					.SelectSubQuery(connectSubQuery).WithAlias(() => resultAlias.ConnectState)
+				)
+				.TransformUsing(Transformers.AliasToBean<LegalCounterpartyInfo>());
+			
+			return result.List<LegalCounterpartyInfo>();
+		}
+
+		public bool CounterpartyByIdExists(IUnitOfWork uow, int counterpartyId)
+		{
+			return (from counterparty in uow.Session.Query<Counterparty>()
+					where counterparty.Id == counterpartyId && !counterparty.IsArchive
+					select counterparty.Id)
+				.Any();
+		}
+
+		public bool CounterpartyByInnExists(IUnitOfWork uow, string inn)
+		{
+			return (from counterparty in uow.Session.Query<Counterparty>()
+					where counterparty.INN == inn && !counterparty.IsArchive
+					select counterparty.Id)
+				.Any();
 		}
 	}
 }

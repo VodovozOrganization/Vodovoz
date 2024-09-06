@@ -6,7 +6,6 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels;
 
 namespace Vodovoz.Journals.JournalViewModels
@@ -14,21 +13,13 @@ namespace Vodovoz.Journals.JournalViewModels
 	public class PhoneTypeJournalViewModel : SingleEntityJournalViewModelBase<PhoneType, PhoneTypeViewModel, PhoneTypeJournalNode>
 	{
 		public PhoneTypeJournalViewModel(
-			IPhoneRepository phoneRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices)
 			: base(unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
-
 			TabName = "Типы телефонов";
-
 			UpdateOnChanges(typeof(PhoneType));
 		}
-
-		IUnitOfWorkFactory unitOfWorkFactory;
-		IPhoneRepository phoneRepository;
 
 		protected override Func<IUnitOfWork, IQueryOver<PhoneType>> ItemsSourceQueryFunction => (uow) => {
 
@@ -53,16 +44,14 @@ namespace Vodovoz.Journals.JournalViewModels
 		};
 
 		protected override Func<PhoneTypeViewModel> CreateDialogFunction => () => new PhoneTypeViewModel(
-			phoneRepository,
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices
 		);
 
 		protected override Func<PhoneTypeJournalNode, PhoneTypeViewModel> OpenDialogFunction => node => new PhoneTypeViewModel(
-			phoneRepository,
 			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
+			UnitOfWorkFactory,
 			commonServices
 		);
 
@@ -73,7 +62,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
 		}
-
 	}
 
 	public class PhoneTypeJournalNode : JournalEntityNodeBase<PhoneType>

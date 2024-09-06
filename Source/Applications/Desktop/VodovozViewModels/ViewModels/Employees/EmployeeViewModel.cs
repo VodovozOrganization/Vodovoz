@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Vodovoz.Controllers;
@@ -38,6 +39,7 @@ using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Services;
+using Vodovoz.Settings.Contacts;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
@@ -173,8 +175,18 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			
 			ConfigureValidationContext(validationContextFactory);
 
-			PhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
-			
+			PhonesViewModel = new PhonesViewModel(
+				CommonServices,
+				LifetimeScope.Resolve<IPhoneRepository>(),
+				UoW,
+				LifetimeScope.Resolve<IContactSettings>(),
+				LifetimeScope.Resolve<IPhoneTypeSettings>(),
+				LifetimeScope.Resolve<IExternalCounterpartyController>()
+			)
+			{
+				PhonesList = new GenericObservableList<Phone>(Entity.Phones)
+			};
+
 			if(Entity.Id == 0)
 			{
 				Entity.OrganisationForSalary = _organizationRepository.GetCommonOrganisation(UoW);

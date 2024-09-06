@@ -705,6 +705,18 @@ namespace Vodovoz
 
 			#endregion
 
+			#region ExternalCounterparty
+
+			DeleteConfig.AddHibernateDeleteInfo<ExternalCounterparty>()
+				.AddDeleteDependence<ExternalCounterpartyMatching>(x => x.AssignedExternalCounterparty)
+				.AddDeleteDependence<ExternalCounterpartyAssignNotification>(x => x.ExternalCounterparty);
+
+			DeleteConfig.AddHibernateDeleteInfo<ExternalCounterpartyMatching>();
+
+			DeleteConfig.AddHibernateDeleteInfo<ExternalCounterpartyAssignNotification>();
+			
+			#endregion
+
 			//Вокруг заказа
 			#region Order
 

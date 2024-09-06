@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using EdoService.Library.Converters;
 using EdoService.Library.Dto;
@@ -43,9 +43,14 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using QS.Commands;
+using QS.Extensions.Observable.Collections.List;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
+using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.Nodes;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -71,6 +76,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Nodes;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
@@ -98,6 +104,7 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using VodovozBusiness.EntityRepositories.Counterparties;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
@@ -127,6 +134,7 @@ namespace Vodovoz
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = ScopeProvider.Scope.Resolve<IExternalCounterpartyRepository>();
 		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
+		private IExternalCounterpartyController _externalCounterpartyController;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailSettings _emailSettings;
@@ -149,11 +157,16 @@ namespace Vodovoz
 		private ICurrentPermissionService _currentPermissionService;
 		private IEdoService _edoService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
+		private GenericObservableList<ExternalCounterpartyNode> _externalCounterparties;
+		private IObservableList<ConnectedCustomerInfoNode> _connectedCustomers = new ObservableList<ConnectedCustomerInfoNode>();
+		private IConnectedCustomerRepository _connectedCustomerRepository;
+		private IPhoneTypeSettings _phoneTypeSettings;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
 		private Organization _vodovozOrganization;
+		private ConnectedCustomerInfoNode _selectedConnectedCustomer;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -301,6 +314,19 @@ namespace Vodovoz
 			Entity.Phones.Add(phone);
 			ConfigureDlg();
 		}
+		
+		private DelegateCommand ActivateConnectConnectedCustomerCommand { get; set; }
+		private DelegateCommand BlockConnectConnectedCustomerCommand { get; set; }
+
+		private ConnectedCustomerInfoNode SelectedConnectedCustomer
+		{
+			get => _selectedConnectedCustomer;
+			set
+			{
+				_selectedConnectedCustomer = value;
+				UpdateStateConnectButtons();
+			}
+		}
 
 		private Employee CurrentEmployee =>
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
@@ -309,20 +335,13 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			ResolveDependencies();
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
-			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
-			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
-			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
-			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
-			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
-			_edoService = _lifetimeScope.Resolve<IEdoService>();
-
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory(ServicesConfig.UnitOfWorkFactory);
-			_emailSettings = _lifetimeScope.Resolve<IEmailSettings>();
 
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
@@ -381,6 +400,20 @@ namespace Vodovoz
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			ConfigureClientReferEntityEntry();
+		}
+
+		private void ResolveDependencies()
+		{
+			_connectedCustomerRepository = _lifetimeScope.Resolve<IConnectedCustomerRepository>();
+			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
+			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
+			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
+			_edoService = _lifetimeScope.Resolve<IEdoService>();
+			_externalCounterpartyController = _lifetimeScope.Resolve<IExternalCounterpartyController>();
+			_emailSettings = _lifetimeScope.Resolve<IEmailSettings>();
+			_phoneTypeSettings = _lifetimeScope.Resolve<IPhoneTypeSettings>();
 		}
 
 		private void ConfigureClientReferEntityEntry()
@@ -645,7 +678,6 @@ namespace Vodovoz
 			specialListCmbWorksThroughOrganization.ItemSelected += (s, e) =>
 			{
 				Entity.OurOrganizationAccountForBills = null;
-
 				UpdateOurOrganizationSpecialAccountItemList();
 			};
 
@@ -808,9 +840,15 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
-			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
 			_phonesViewModel =
-				new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings, _roboatsJournalsFactory, _commonServices)
+				new PhonesViewModel(
+					_commonServices,
+					_phoneRepository,
+					UoW,
+					_contactsSettings,
+					_phoneTypeSettings,
+					_roboatsJournalsFactory,
+					_externalCounterpartyController)
 				{
 					PhonesList = Entity.ObservablePhones,
 					Counterparty = Entity,
@@ -873,10 +911,131 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.RingUpPhone, w => w.Buffer.Text)
 				.InitializeFromSource();
 			txtRingUpPhones.Editable = CanEdit;
+			
+			ConfigureTreeExternalCounterparties();
+			ConfigureConnectedCustomers();
+		}
 
-			contactsview1.CounterpartyUoW = UoWGeneric;
-			contactsview1.Visible = true;
-			contactsview1.Sensitive = CanEdit;
+		private void ConfigureTreeExternalCounterparties()
+		{
+			GetExternalCounterparties();
+
+			treeExternalCounterparties.ColumnsConfig = FluentColumnsConfig<ExternalCounterpartyNode>.Create()
+				.AddColumn("Id внешнего пользователя")
+				.AddTextRenderer(node => node.ExternalCounterpartyId.ToString())
+				.AddColumn("Номер телефона")
+				.AddTextRenderer(node => node.Phone)
+				.AddColumn("Откуда")
+				.AddTextRenderer(node => node.CounterpartyFrom.GetEnumDisplayName(false))
+				.Finish();
+			
+			treeExternalCounterparties.ItemsDataSource = _externalCounterparties;
+		}
+
+		private void ConfigureConnectedCustomers()
+		{
+			lblConnectedCustomers.LabelProp = Entity.PersonType == PersonType.natural
+				? "Клиенты, от имени которых может заказывать в ИПЗ это физическое лицо:"
+				: "Клиенты, которые могут заказывать в ИПЗ на это юр лицо:";
+
+			ConfigureTreeConnectedCustomers();
+
+			ActivateConnectConnectedCustomerCommand = new DelegateCommand(
+				() =>
+				{
+					var connectedCustomer = SelectedConnectedCustomer.ConnectedCustomer;
+					connectedCustomer.ActivateConnect();
+					UpdateStateConnectButtons();
+					treeViewConnectedCustomers.QueueDraw();
+				},
+				() => SelectedConnectedCustomer != null
+				      && SelectedConnectedCustomer.ConnectedCustomer.ConnectState != ConnectedCustomerConnectState.Active);
+			
+			BlockConnectConnectedCustomerCommand = new DelegateCommand(
+				() =>
+				{
+					var connectedCustomer = SelectedConnectedCustomer.ConnectedCustomer;
+
+					if(string.IsNullOrWhiteSpace(connectedCustomer.BlockingReason))
+					{
+						MessageDialogHelper.RunWarningDialog("Прежде чем блокировать связь, нужно заполнить причину блокировки!");
+						return;
+					}
+					connectedCustomer.BlockConnect();
+					UpdateStateConnectButtons();
+					treeViewConnectedCustomers.YTreeModel.EmitModelChanged();
+				},
+				() => SelectedConnectedCustomer != null
+				      && SelectedConnectedCustomer.ConnectedCustomer.ConnectState != ConnectedCustomerConnectState.Blocked);
+			
+			btnActivateConnect.BindCommand(ActivateConnectConnectedCustomerCommand);
+			btnBlockConnect.BindCommand(BlockConnectConnectedCustomerCommand);
+		}
+
+		private void GetExternalCounterparties()
+		{
+			_externalCounterparties = new GenericObservableList<ExternalCounterpartyNode>();
+			var existingExternalCounterparties =
+				_externalCounterpartyController.GetActiveExternalCounterpartiesByCounterparty(UoW, Entity.Id);
+
+			FillExternalCounterparties(existingExternalCounterparties);
+		}
+
+		private void UpdateExternalCounterparties()
+		{
+			_externalCounterparties.Clear();
+			var existingExternalCounterparties =
+				_externalCounterpartyController.GetActiveExternalCounterpartiesByPhones(UoW, Entity.Phones.Select(x => x.Id));
+			
+			FillExternalCounterparties(existingExternalCounterparties);
+		}
+
+		private void FillExternalCounterparties(IEnumerable<ExternalCounterpartyNode> existingExternalCounterparties)
+		{
+			foreach(var item in existingExternalCounterparties)
+			{
+				_externalCounterparties.Add(item);
+			}
+		}
+
+		private void UpdateStateConnectButtons()
+		{
+			ActivateConnectConnectedCustomerCommand.RaiseCanExecuteChanged();
+			BlockConnectConnectedCustomerCommand.RaiseCanExecuteChanged();
+		}
+
+		private void ConfigureTreeConnectedCustomers()
+		{
+			treeViewConnectedCustomers.ColumnsConfig = FluentColumnsConfig<ConnectedCustomerInfoNode>.Create()
+				.AddColumn("Id клиента")
+					.AddNumericRenderer(node => node.CounterpartyId)
+				.AddColumn("Наименование клиента")
+					.AddTextRenderer(node => node.CounterpartyFullName)
+				.AddColumn("Привязанный телефон")
+					.AddTextRenderer(node => node.PhoneNumber)
+				.AddColumn("Состояние связи")
+					.AddEnumRenderer(node => node.ConnectState)
+				.AddColumn("Причина блокировки")
+					.AddTextRenderer(node => node.BlockingReason)
+					.Editable()
+				.Finish();
+			
+			GetConnectedCustomers();
+			treeViewConnectedCustomers.ItemsDataSource = _connectedCustomers;
+			
+			treeViewConnectedCustomers.Binding
+				.AddBinding(this, dlg => dlg.SelectedConnectedCustomer, w => w.SelectedRow)
+				.InitializeFromSource();
+		}
+
+		private void GetConnectedCustomers()
+		{
+			var connectedCustomers = _connectedCustomerRepository.GetConnectedCustomersInfo(UoW, Entity.Id, Entity.PersonType);
+
+			foreach(var connectedCustomer in connectedCustomers)
+			{
+				_connectedCustomers.Add(connectedCustomer);
+			}
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)

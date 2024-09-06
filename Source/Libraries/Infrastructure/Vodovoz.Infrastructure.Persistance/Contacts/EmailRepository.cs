@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Data.Counterparties;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
@@ -110,6 +111,21 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 
 				return result;
 			}
+		}
+
+		public IEnumerable<EmailInfo> GetEmailInfoByCounterpatiesIds(IUnitOfWork uow, int[] counterpartiesIds)
+		{
+			var result =
+				from email in uow.Session.Query<Email>()
+				where counterpartiesIds.Contains(email.Counterparty.Id)
+				select new EmailInfo
+				{
+					ErpEmailId = email.Id,
+					ErpCounterpartyId = email.Counterparty.Id,
+					Email = email.Address
+				};
+
+			return result.ToList();
 		}
 
 		public bool HasSendedEmailForUpd(int orderId)

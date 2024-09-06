@@ -32,7 +32,7 @@ namespace CustomerAppsApi.Library.Factories
 			{
 				Name = counterpartyDto.Name,
 				FullName = counterpartyDto.FullName ?? counterpartyDto.Name,
-				TypeOfOwnership = counterpartyDto.TypeOfOwnership,
+				TypeOfOwnership = counterpartyDto.ShortTypeOfOwnership,
 				TaxType = counterpartyDto.TaxType.Value,
 				INN = counterpartyDto.Inn,
 				KPP = counterpartyDto.Kpp,

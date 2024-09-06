@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using Microsoft.Extensions.Configuration;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 
 namespace ExternalCounterpartyAssignNotifier.Services

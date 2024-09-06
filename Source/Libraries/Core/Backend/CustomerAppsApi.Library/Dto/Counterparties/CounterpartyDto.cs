@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using Vodovoz.Core.Data.Interfaces.Counterparties;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Library.Dto.Counterparties
 {
-	public class CounterpartyDto
+	public class CounterpartyDto : ExternalCounterpartyDto, ILegalCounterpartyInfo
 	{
 		public string Name { get; set; }
 		public string FullName { get; set; }
-		public Guid ExternalCounterpartyId { get; set; }
 		public int ErpCounterpartyId { get; set; }
 		public string FirstName { get; set; }
 		public string Surname { get; set; }
@@ -20,7 +21,7 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		public PersonType PersonType { get; set; }
 		public string Inn { get; set; }
 		public string Kpp { get; set; }
-		public string TypeOfOwnership { get; set; }
+		public string ShortTypeOfOwnership { get; set; }
 
 		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public TaxType? TaxType { get; set; }
