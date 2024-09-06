@@ -437,9 +437,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionStockMovementsAdvancedReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<StockMovementsAdvancedReport>(),
-			() => new QSReport.ReportViewDlg(new StockMovementsAdvancedReport()));
+			() => new QSReport.ReportViewDlg(new StockMovementsAdvancedReport(reportInfoFactory)));
 	}
 
 	/// <summary>
