@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
+﻿using Gamma.ColumnConfig;
+using QS.Dialog;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Vodovoz.Domain.Organizations;
-using Gamma.ColumnConfig;
-using QS.Dialog;
-using QS.DomainModel.Entity;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Project.Services;
-using Vodovoz.Settings.Reports;
 using Vodovoz.Settings.Common;
-using Vodovoz.Parameters;
-using Vodovoz.Reports;
+using Vodovoz.Settings.Reports;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -23,18 +20,18 @@ namespace Vodovoz.ReportsParameters.Orders
     {
         private List<SelectedChangeTypeNode> _changeTypes = new List<SelectedChangeTypeNode>();
         private List<SelectedIssueTypeNode> _issueTypes = new List<SelectedIssueTypeNode>();
-        private readonly IReportSettings reportDefaultsProvider;
+		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly IReportSettings reportDefaultsProvider;
 		private readonly IInteractiveService _interactiveService;
 		private readonly int _monitoringPeriodAvailable;
-		private readonly ReportFactory _reportFactory;
 
 		public OrderChangesReport(
-			ReportFactory reportFactory,
+			IReportInfoFactory reportInfoFactory,
 			IReportSettings reportDefaultsProvider,
 			IInteractiveService interactiveService,
 			IArchiveDataSettings archiveDataSettings)
         {
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			this.reportDefaultsProvider = reportDefaultsProvider ?? throw new ArgumentNullException(nameof(reportDefaultsProvider));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_monitoringPeriodAvailable =
@@ -152,11 +149,8 @@ namespace Vodovoz.ReportsParameters.Orders
                 { "issue_types_rus", selectedIssueTypesTitles },
 			};
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = rdlPath;
+			var reportInfo = _reportInfoFactory.Create(rdlPath, Title, parameters);
 			reportInfo.UseUserVariables = true;
-			reportInfo.Parameters = parameters;
-
 			return reportInfo;
 		}
 

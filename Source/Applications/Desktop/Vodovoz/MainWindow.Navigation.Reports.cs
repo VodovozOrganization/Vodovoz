@@ -1062,12 +1062,16 @@ public partial class MainWindow
 		var reportSettings = _autofacScope.Resolve<IReportSettings>();
 		var archiveSettings = _autofacScope.Resolve<IArchiveDataSettings>();
 
+		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
 			() => new QSReport.ReportViewDlg(
 				new OrderChangesReport(
+					reportInfoFactory,
 					reportSettings,
-					ServicesConfig.InteractiveService,
+					interactiveService,
 					archiveSettings)
 				)
 			);
