@@ -214,7 +214,7 @@ namespace Vodovoz.ViewModels.Complaints
 						.GetAwaiter()
 						.GetResult();
 
-					if(result.IsFailure)
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
 					{
 						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
 					}
@@ -230,6 +230,10 @@ namespace Vodovoz.ViewModels.Complaints
 						"Ошибка загрузки файлов");
 
 					errors.Clear();
+				}
+				else
+				{
+					repeat = false;
 				}
 			}
 			while(repeat);

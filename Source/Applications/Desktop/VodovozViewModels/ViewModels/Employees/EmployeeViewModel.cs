@@ -329,13 +329,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_terminalManagementViewModel ?? (_terminalManagementViewModel =
 				new TerminalManagementViewModel(
 					_userSettings.DefaultWarehouse,
-				    Entity,
-				    this as ITdiTab,
-				    _employeeRepository,
-				    _warehouseRepository,
-				    _routeListRepository,
-				    CommonServices,
-				    UoW,
+					Entity,
+					this as ITdiTab,
+					_employeeRepository,
+					_warehouseRepository,
+					_routeListRepository,
+					CommonServices,
+					UoW,
 					_unitOfWorkFactory,
 					_nomenclatureSettings));
 
@@ -1250,7 +1250,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						.GetAwaiter()
 						.GetResult();
 
-					if(result.IsFailure)
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
 					{
 						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
 					}
@@ -1266,6 +1266,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						"Ошибка загрузки файлов");
 
 					errors.Clear();
+				}
+				else
+				{
+					repeat = false;
 				}
 			}
 			while(repeat);
