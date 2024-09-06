@@ -997,9 +997,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEquipmentReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EquipmentReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(ServicesConfig.InteractiveService)));
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(reportInfoFactory, interactiveService)));
 	}
 
 	/// <summary>
