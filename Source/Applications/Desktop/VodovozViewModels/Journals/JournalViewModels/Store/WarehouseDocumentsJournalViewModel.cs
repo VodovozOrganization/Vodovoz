@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			UseSlider = false;
-			SearchEnabled = false;
+			SearchEnabled = true;
 			TabName = "Журнал складских документов";
 
 			RegisterDocuments();
@@ -242,34 +242,40 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var startDate = FilterViewModel.StartDate;
 			var endDate = FilterViewModel.EndDate;
 
-			var query = uow.Session.QueryOver(() => invoiceAlias);
+			var query = uow.Session.QueryOver(() => invoiceAlias)
+				.JoinQueryOver(() => invoiceAlias.Contractor, () => counterpartyAlias, JoinType.LeftOuterJoin)
+				.JoinQueryOver(() => invoiceAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => invoiceAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.IncomingInvoice)
 				|| FilterViewModel.Driver != null)
 			{
-				query.Where(x => x.Id == -1);
+				query.Where(() => invoiceAlias.Id == -1);
 			}
 
 			if(FilterViewModel.Warehouse != null)
 			{
-				query.Where(x => x.Warehouse.Id == FilterViewModel.Warehouse.Id);
+				query.Where(() => invoiceAlias.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
 			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= startDate.Value);
+				query.Where(() => invoiceAlias.TimeStamp >= startDate.Value);
 			}
 
 			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
+				query.Where(() => invoiceAlias.TimeStamp < endDate.Value.AddDays(1));
 			}
 
+			query.Where(GetSearchCriterion(
+				() => invoiceAlias.Id,
+				() => counterpartyAlias.Name,
+				() => warehouseAlias.Name
+				));
+
 			var resultQuery = query
-				.JoinQueryOver(() => invoiceAlias.Contractor, () => counterpartyAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => invoiceAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => invoiceAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => invoiceAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => invoiceAlias.TimeStamp).WithAlias(() => resultAlias.Date)
@@ -308,35 +314,41 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var startDate = FilterViewModel.StartDate;
 			var endDate = FilterViewModel.EndDate;
 
-			var query = uow.Session.QueryOver(() => waterAlias);
+			var query = uow.Session.QueryOver(() => waterAlias)
+				.JoinQueryOver(() => waterAlias.IncomingWarehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => waterAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => waterAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => waterAlias.Product, () => productAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.IncomingWater)
 				|| FilterViewModel.Driver != null)
 			{
-				query.Where(x => x.Id == -1);
+				query.Where(() => waterAlias.Id == -1);
 			}
 
 			if(FilterViewModel.Warehouse != null)
 			{
-				query.Where(x => x.IncomingWarehouse.Id == FilterViewModel.Warehouse.Id
-					|| x.WriteOffWarehouse.Id == FilterViewModel.Warehouse.Id);
+				query.Where(() => waterAlias.IncomingWarehouse.Id == FilterViewModel.Warehouse.Id
+					|| waterAlias.WriteOffWarehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
 			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= startDate.Value);
+				query.Where(() => waterAlias.TimeStamp >= startDate.Value);
 			}
 
 			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
+				query.Where(() => waterAlias.TimeStamp < endDate.Value.AddDays(1));
 			}
 
+			query.Where(GetSearchCriterion(
+				() => waterAlias.Id,
+				() => warehouseAlias.Name,
+				() => productAlias.Name
+				));
+
 			var resultQuery = query
-				.JoinQueryOver(() => waterAlias.IncomingWarehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => waterAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => waterAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
-				.Left.JoinAlias(() => waterAlias.Product, () => productAlias)
 				.SelectList(list => list
 					.Select(() => waterAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => waterAlias.TimeStamp).WithAlias(() => resultAlias.Date)
@@ -379,36 +391,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var startDate = FilterViewModel.StartDate;
 			var endDate = FilterViewModel.EndDate;
 
-			var query = uow.Session.QueryOver(() => movementAlias);
-
-			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.MovementDocument)
-				|| FilterViewModel.Driver != null)
-			{
-				query.Where(x => x.Id == -1);
-			}
-
-			if(FilterViewModel.Warehouse != null)
-			{
-				query.Where(x => x.FromWarehouse.Id == FilterViewModel.Warehouse.Id
-					|| x.ToWarehouse.Id == FilterViewModel.Warehouse.Id);
-			}
-
-			if(startDate.HasValue)
-			{
-				query.Where(o => o.TimeStamp >= startDate.Value);
-			}
-
-			if(endDate.HasValue)
-			{
-				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
-			}
-
-			if(FilterViewModel.MovementDocumentStatus.HasValue && FilterViewModel.DocumentType == DocumentType.MovementDocument)
-			{
-				query.Where(o => o.Status == FilterViewModel.MovementDocumentStatus.Value);
-			}
-
-			var resultQuery = query
+			var query = uow.Session.QueryOver(() => movementAlias)
 				.Left.JoinAlias(() => movementAlias.FromWarehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => movementAlias.ToWarehouse, () => secondWarehouseAlias)
 				.Left.JoinAlias(() => movementAlias.FromEmployee, () => employeeStorageFromAlias)
@@ -419,7 +402,47 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => carStorageToAlias.CarModel, () => carStorageModelToAlias)
 				.Left.JoinAlias(() => movementAlias.MovementWagon, () => wagonAlias)
 				.Left.JoinAlias(() => movementAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => movementAlias.LastEditor, () => lastEditorAlias)
+				.Left.JoinAlias(() => movementAlias.LastEditor, () => lastEditorAlias);
+
+			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.MovementDocument)
+				|| FilterViewModel.Driver != null)
+			{
+				query.Where(() => movementAlias.Id == -1);
+			}
+
+			if(FilterViewModel.Warehouse != null)
+			{
+				query.Where(() => movementAlias.FromWarehouse.Id == FilterViewModel.Warehouse.Id
+					|| movementAlias.ToWarehouse.Id == FilterViewModel.Warehouse.Id);
+			}
+
+			if(startDate.HasValue)
+			{
+				query.Where(() => movementAlias.TimeStamp >= startDate.Value);
+			}
+
+			if(endDate.HasValue)
+			{
+				query.Where(() => movementAlias.TimeStamp < endDate.Value.AddDays(1));
+			}
+
+			if(FilterViewModel.MovementDocumentStatus.HasValue && FilterViewModel.DocumentType == DocumentType.MovementDocument)
+			{
+				query.Where(() => movementAlias.Status == FilterViewModel.MovementDocumentStatus.Value);
+			}
+
+			query.Where(GetSearchCriterion(
+				() => movementAlias.Id,
+				() => wagonAlias.Name,
+				() => warehouseAlias.Name,
+				() => secondWarehouseAlias.Name,
+				() => employeeStorageFromAlias.LastName,
+				() => employeeStorageToAlias.LastName,
+				() => carStorageFromAlias.RegistrationNumber,
+				() => carStorageToAlias.RegistrationNumber
+				));
+
+			var resultQuery = query
 				.SelectList(list => list
 					.Select(() => movementAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => movementAlias.TimeStamp).WithAlias(() => resultAlias.Date)
@@ -488,34 +511,39 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var startDate = FilterViewModel.StartDate;
 			var endDate = FilterViewModel.EndDate;
 
-			var query = uow.Session.QueryOver(() => writeOffAlias);
+			var query = uow.Session.QueryOver(() => writeOffAlias)
+				.JoinQueryOver(() => writeOffAlias.WriteOffFromWarehouse, () => warehouseAlias,
+					JoinType.LeftOuterJoin)
+				.JoinAlias(() => writeOffAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => writeOffAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.WriteoffDocument)
 				|| FilterViewModel.Driver != null)
 			{
-				query.Where(x => x.Id == -1);
+				query.Where(() => writeOffAlias.Id == -1);
 			}
 
 			if(FilterViewModel.Warehouse != null)
 			{
-				query.Where(x => x.WriteOffFromWarehouse.Id == FilterViewModel.Warehouse.Id);
+				query.Where(() => writeOffAlias.WriteOffFromWarehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
 			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= startDate.Value);
+				query.Where(() => writeOffAlias.TimeStamp >= startDate.Value);
 			}
 
 			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
+				query.Where(() => writeOffAlias.TimeStamp < endDate.Value.AddDays(1));
 			}
 
+			query.Where(GetSearchCriterion(
+				() => writeOffAlias.Id,
+				() => warehouseAlias.Name
+				));
+
 			var resultQuery = query
-				.JoinQueryOver(() => writeOffAlias.WriteOffFromWarehouse, () => warehouseAlias,
-					JoinType.LeftOuterJoin)
-				.JoinAlias(() => writeOffAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => writeOffAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => writeOffAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => writeOffAlias.TimeStamp).WithAlias(() => resultAlias.Date)
@@ -550,33 +578,38 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var startDate = FilterViewModel.StartDate;
 			var endDate = FilterViewModel.EndDate;
 
-			var query = uow.Session.QueryOver(() => inventoryAlias);
+			var query = uow.Session.QueryOver(() => inventoryAlias)
+				.JoinQueryOver(() => inventoryAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => inventoryAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => inventoryAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.InventoryDocument)
 				|| FilterViewModel.Driver != null)
 			{
-				query.Where(x => x.Id == -1);
+				query.Where(() => inventoryAlias.Id == -1);
 			}
 
 			if(FilterViewModel.Warehouse != null)
 			{
-				query.Where(x => x.Warehouse.Id == FilterViewModel.Warehouse.Id);
+				query.Where(() => inventoryAlias.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
 			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= startDate.Value);
+				query.Where(() => inventoryAlias.TimeStamp >= startDate.Value);
 			}
 
 			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
+				query.Where(() => inventoryAlias.TimeStamp < endDate.Value.AddDays(1));
 			}
 
+			query.Where(GetSearchCriterion(
+				() => inventoryAlias.Id,
+				() => warehouseAlias.Name
+				));
+
 			var resultQuery = query
-				.JoinQueryOver(() => inventoryAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => inventoryAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => inventoryAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => inventoryAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => inventoryAlias.TimeStamp).WithAlias(() => resultAlias.Date)
@@ -607,33 +640,38 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var startDate = FilterViewModel.StartDate;
 			var endDate = FilterViewModel.EndDate;
 
-			var query = uow.Session.QueryOver(() => shiftchangeAlias);
+			var query = uow.Session.QueryOver(() => shiftchangeAlias)
+				.JoinQueryOver(() => shiftchangeAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => shiftchangeAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => shiftchangeAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.ShiftChangeDocument)
 				|| FilterViewModel.Driver != null)
 			{
-				query.Where(x => x.Id == -1);
+				query.Where(() => shiftchangeAlias.Id == -1);
 			}
 
 			if(FilterViewModel.Warehouse != null)
 			{
-				query.Where(x => x.Warehouse.Id == FilterViewModel.Warehouse.Id);
+				query.Where(() => shiftchangeAlias.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
 			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= startDate.Value);
+				query.Where(() => shiftchangeAlias.TimeStamp >= startDate.Value);
 			}
 
 			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
+				query.Where(() => shiftchangeAlias.TimeStamp < endDate.Value.AddDays(1));
 			}
 
+			query.Where(GetSearchCriterion(
+				() => shiftchangeAlias.Id,
+				() => warehouseAlias.Name
+				));
+
 			var resultQuery = query
-				.JoinQueryOver(() => shiftchangeAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => shiftchangeAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => shiftchangeAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => shiftchangeAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => shiftchangeAlias.TimeStamp).WithAlias(() => resultAlias.Date)
@@ -664,32 +702,37 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var startDate = FilterViewModel.StartDate;
 			var endDate = FilterViewModel.EndDate;
 
-			var query = uow.Session.QueryOver(() => regradingOfGoodsAlias);
+			var query = uow.Session.QueryOver(() => regradingOfGoodsAlias)
+				.JoinQueryOver(() => regradingOfGoodsAlias.Warehouse, () => warehouseAlias,
+					JoinType.LeftOuterJoin)
+				.JoinAlias(() => regradingOfGoodsAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => regradingOfGoodsAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.RegradingOfGoodsDocument)
 				|| FilterViewModel.Driver != null)
 			{
-				query.Where(x => x.Id == -1);
+				query.Where(() => regradingOfGoodsAlias.Id == -1);
 			}
 
 			if(FilterViewModel.Warehouse != null)
 			{
-				query.Where(x => x.Warehouse.Id == FilterViewModel.Warehouse.Id);
+				query.Where(() => regradingOfGoodsAlias.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 			if(startDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp >= startDate.Value);
+				query.Where(() => regradingOfGoodsAlias.TimeStamp >= startDate.Value);
 			}
 			if(endDate.HasValue)
 			{
-				query.Where(o => o.TimeStamp < endDate.Value.AddDays(1));
+				query.Where(() => regradingOfGoodsAlias.TimeStamp < endDate.Value.AddDays(1));
 			}
 
+			query.Where(GetSearchCriterion(
+				() => regradingOfGoodsAlias.Id,
+				() => warehouseAlias.Name
+				));
+
 			var resultQuery = query
-				.JoinQueryOver(() => regradingOfGoodsAlias.Warehouse, () => warehouseAlias,
-					JoinType.LeftOuterJoin)
-				.JoinAlias(() => regradingOfGoodsAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => regradingOfGoodsAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => regradingOfGoodsAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => regradingOfGoodsAlias.TimeStamp).WithAlias(() => resultAlias.Date)
@@ -725,12 +768,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var query = uow.Session.QueryOver(() => selfDeliveryAlias)
 				.JoinQueryOver(() => selfDeliveryAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => selfDeliveryAlias.Order, () => orderAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => orderAlias.Client, () => counterpartyAlias, JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => orderAlias.Client, () => counterpartyAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => selfDeliveryAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => selfDeliveryAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.SelfDeliveryDocument)
 				|| FilterViewModel.Driver != null)
 			{
-				query.Where(x => x.Id == -1);
+				query.Where(() => selfDeliveryAlias.Id == -1);
 			}
 
 			if(FilterViewModel.Warehouse != null)
@@ -748,9 +793,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => selfDeliveryAlias.TimeStamp < endDate.Value.AddDays(1));
 			}
 
+			query.Where(GetSearchCriterion(
+				() => selfDeliveryAlias.Id,
+				() => warehouseAlias.Name,
+				() => orderAlias.Id,
+				() => counterpartyAlias.Name
+				));
+
 			var resultQuery = query
-				.JoinAlias(() => selfDeliveryAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => selfDeliveryAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => selfDeliveryAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
@@ -792,11 +842,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinQueryOver(() => loadCarAlias.RouteList, () => routeListAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => routeListAlias.Car, () => carAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => loadCarAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => loadCarAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if(FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.CarLoadDocument)
 			{
-				query.Where(x => x.Id == -1);
+				query.Where(() => loadCarAlias.Id == -1);
 			}
 
 			if(FilterViewModel.Warehouse != null)
@@ -819,9 +871,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
 			}
 
+			query.Where(GetSearchCriterion(
+				() => loadCarAlias.Id,
+				() => carModelAlias.Name,
+				() => carAlias.RegistrationNumber,
+				() => driverAlias.LastName,
+				() => routeListAlias.Id
+				));
+
 			var resultQuery = query
-				.JoinAlias(() => loadCarAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => loadCarAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => loadCarAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => loadCarAlias.TimeStamp).WithAlias(() => resultAlias.Date)
@@ -867,11 +925,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinQueryOver(() => unloadCarAlias.RouteList, () => routeListAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => routeListAlias.Car, () => carAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => unloadCarAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => unloadCarAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if(FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.CarUnloadDocument)
 			{
-				query.Where(x => x.Id == -1);
+				query.Where(() => unloadCarAlias.Id == -1);
 			}
 
 			if(FilterViewModel.Warehouse != null)
@@ -894,9 +954,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
 			}
 
+			query.Where(GetSearchCriterion(
+				() => unloadCarAlias.Id,
+				() => carModelAlias.Name,
+				() => carAlias.RegistrationNumber,
+				() => driverAlias.LastName,
+				() => routeListAlias.Id
+				));
+
 			var resultQuery = query
-				.JoinAlias(() => unloadCarAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => unloadCarAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => unloadCarAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => unloadCarAlias.TimeStamp).WithAlias(() => resultAlias.Date)
@@ -938,13 +1004,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinQueryOver(() => terminalGiveoutAlias.GoodsAccountingOperation, () => operationAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => operationAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin,
 					Restrictions.Lt(Projections.Property(() => operationAlias.Amount), 0))
-				.JoinQueryOver(() => terminalGiveoutAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => terminalGiveoutAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => terminalGiveoutAlias.Author, () => authorAlias, JoinType.LeftOuterJoin);
 
 			if(FilterViewModel.DocumentType != null
 				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalMovement
 				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalGiveout)
 			{
-				query.Where(x => x.Id == -1);
+				query.Where(() => terminalGiveoutAlias.Id == -1);
 			}
 
 			if(FilterViewModel.Warehouse != null)
@@ -967,8 +1034,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => terminalGiveoutAlias.Driver.Id == FilterViewModel.Driver.Id);
 			}
 
+			query.Where(GetSearchCriterion(
+				() => terminalGiveoutAlias.Id,
+				() => warehouseAlias.Name,
+				() => driverAlias.LastName
+				));
+
 			var resultQuery = query
-				.JoinAlias(() => terminalGiveoutAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => terminalGiveoutAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => terminalGiveoutAlias.CreationDate).WithAlias(() => resultAlias.Date)
@@ -1002,13 +1074,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinQueryOver(() => terminalReturnAlias.GoodsAccountingOperation, () => operationAlias, JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => operationAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin,
 					Restrictions.Gt(Projections.Property(() => operationAlias.Amount), 0))
-				.JoinQueryOver(() => terminalReturnAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => terminalReturnAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => terminalReturnAlias.Author, () => authorAlias, JoinType.LeftOuterJoin);
 
 			if(FilterViewModel.DocumentType != null
 				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalMovement
 				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalReturn)
 			{
-				query.Where(x => x.Id == -1);
+				query.Where(() => terminalReturnAlias.Id == -1);
 			}
 
 			if(FilterViewModel.Warehouse != null)
@@ -1031,8 +1104,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => terminalReturnAlias.Driver.Id == FilterViewModel.Driver.Id);
 			}
 
+			query.Where(GetSearchCriterion(
+				() => terminalReturnAlias.Id,
+				() => warehouseAlias.Name,
+				() => driverAlias.LastName
+				));
+
 			var resultQuery = query
-				.JoinAlias(() => terminalReturnAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => terminalReturnAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => terminalReturnAlias.CreationDate).WithAlias(() => resultAlias.Date)
