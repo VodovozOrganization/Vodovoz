@@ -1250,9 +1250,11 @@ public partial class MainWindow
 	{
 		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
 		var wageSettings = _autofacScope.Resolve<IWageSettings>();
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
 			() => new QSReport.ReportViewDlg(new SalaryRatesReport(
+				reportInfoFactory,
 				uowFactory,
 				wageSettings,
 				ServicesConfig.CommonServices)));
