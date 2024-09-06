@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.Reports;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters.Store
@@ -22,13 +19,13 @@ namespace Vodovoz.ReportsParameters.Store
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NomenclatureForShipment : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
 		private SelectableParametersReportFilter _filter;
-		private readonly ReportFactory _reportFactory;
 
-		public NomenclatureForShipment(IGeographicGroupRepository geographicGroupRepository)
+		public NomenclatureForShipment(IReportInfoFactory reportInfoFactory, IGeographicGroupRepository geographicGroupRepository)
 		{
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
@@ -144,10 +141,7 @@ namespace Vodovoz.ReportsParameters.Store
 
 			}
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Store.GoodsToShipOnDate";
-			reportInfo.Parameters = parameters;
-
+			var reportInfo = _reportInfoFactory.Create("Store.GoodsToShipOnDate", Title, parameters);
 			return reportInfo;
 		}
 
