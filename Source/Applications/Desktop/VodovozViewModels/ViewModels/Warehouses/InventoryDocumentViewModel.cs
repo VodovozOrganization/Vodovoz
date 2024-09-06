@@ -48,6 +48,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using QS.Report;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {
@@ -69,6 +70,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private readonly CommonMessages _commonMessages;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly ILifetimeScope _scope;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private string _instancesDiscrepanciesString;
 		private bool _isBulkAccountingActive;
 		private bool _isInstanceAccountingActive;
@@ -102,7 +104,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			IWarehouseRepository warehouseRepository,
 			IStockRepository stockRepository,
 			INomenclatureInstanceRepository nomenclatureInstanceRepository,
-			ILifetimeScope scope)
+			ILifetimeScope scope,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -118,6 +122,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_nomenclatureInstanceRepository =
 				nomenclatureInstanceRepository ?? throw new ArgumentNullException(nameof(nomenclatureInstanceRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			Init();
 		}
 
@@ -216,14 +221,13 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					}
 				}
 
-				var reportInfo = new QS.Report.ReportInfo {
-					Title = $"Акт инвентаризации №{Entity.Id} от {Entity.TimeStamp:d}",
-					Identifier = "Store.InventoryDoc",
-					Parameters = new Dictionary<string, object>
-					{
-						{ "inventory_id",  Entity.Id },
-						{ "sorted_by_nomenclature_name", Entity.SortedByNomenclatureName }
-					}
+				var reportInfo = _reportInfoFactory.Create();
+				reportInfo.Title = $"Акт инвентаризации №{Entity.Id} от {Entity.TimeStamp:d}";
+				reportInfo.Identifier = "Store.InventoryDoc";
+				reportInfo.Parameters = new Dictionary<string, object>
+				{
+					{ "inventory_id",  Entity.Id },
+					{ "sorted_by_nomenclature_name", Entity.SortedByNomenclatureName }
 				};
 
 				_reportViewOpener.OpenReport(this, reportInfo);

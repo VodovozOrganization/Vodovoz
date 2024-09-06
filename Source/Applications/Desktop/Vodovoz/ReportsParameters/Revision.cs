@@ -13,7 +13,6 @@ namespace Vodovoz.Reports
 			: base(viewModel)
 		{
 			Build();
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 
 			dateperiodpicker1.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
@@ -42,22 +41,6 @@ namespace Vodovoz.Reports
 		protected void OnButtonRunClicked(object sender, EventArgs e)
 		{
 			ViewModel.LoadReport();
-		}
-
-		private ReportInfo GetReportInfo()
-		{
-			var parameters = new Dictionary<string, object>
-			{
-				{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
-				{ "EndDate", dateperiodpicker1.EndDateOrNull.Value },
-				{ "CounterpartyID", (referenceCounterparty.Subject as Counterparty).Id}
-			};
-
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Client.Revision";
-			reportInfo.Parameters = parameters;
-
-			return reportInfo;
 		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)

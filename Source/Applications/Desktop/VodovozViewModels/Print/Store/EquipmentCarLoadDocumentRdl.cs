@@ -13,13 +13,15 @@ namespace Vodovoz.ViewModels.Print.Store
 {
 	public class EquipmentCarLoadDocumentRdl : PropertyChangedBase, ICustomPrintRdlDocument
 	{
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly CarLoadDocument _carLoadDocument;
 
 		private int _copiesToPrint;
 		private string _printerName;
 
-		private EquipmentCarLoadDocumentRdl(CarLoadDocument carLoadDocument)
+		private EquipmentCarLoadDocumentRdl(IReportInfoFactory reportInfoFactory, CarLoadDocument carLoadDocument)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_carLoadDocument =
 				carLoadDocument ?? throw new ArgumentNullException(nameof(carLoadDocument));
 		}
@@ -46,20 +48,21 @@ namespace Vodovoz.ViewModels.Print.Store
 
 		public ReportInfo GetReportInfo(string connectionString = null)
 		{
-			return new ReportInfo
-			{
-				Title = _carLoadDocument.Title,
-				Identifier = "Store.CarLoadDocumentEquipmentStore",
-				Parameters = new Dictionary<string, object> { { "id", _carLoadDocument.Id } },
-				PrintType = ReportInfo.PrintingType.MultiplePrinters
-			};
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Identifier = "Store.CarLoadDocumentEquipmentStore";
+			reportInfo.Title = _carLoadDocument.Title;
+			reportInfo.Parameters = new Dictionary<string, object> { { "id", _carLoadDocument.Id } };
+			reportInfo.PrintType = ReportInfo.PrintingType.MultiplePrinters;
+			return reportInfo;
 		}
 
 		public static EquipmentCarLoadDocumentRdl Create(
 			UserSettings userSettings,
-			CarLoadDocument carLoadDocument)
+			CarLoadDocument carLoadDocument,
+			IReportInfoFactory reportInfoFactory
+			)
 		{
-			var document = new EquipmentCarLoadDocumentRdl(carLoadDocument);
+			var document = new EquipmentCarLoadDocumentRdl(reportInfoFactory, carLoadDocument);
 
 			var savedPrinterSettings =
 				userSettings.DocumentPrinterSettings

@@ -5,6 +5,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Report;
 using QS.Services;
 using QS.Tdi;
 using QS.Validation;
@@ -104,6 +105,8 @@ namespace Vodovoz.ViewModels.Counterparties
 				?? throw new ArgumentNullException(nameof(commonServices));
 			LifetimeScope = lifetimeScope;
 
+			ReportInfoFactory = lifetimeScope.Resolve<IReportInfoFactory>();
+
 			if(UoW.IsNew)
 			{
 				Title = "Новая задача";
@@ -169,6 +172,8 @@ namespace Vodovoz.ViewModels.Counterparties
 			UpdateCounterpartyInformation();
 			UpdateDeliveryPointInformation();
 		}
+
+		public IReportInfoFactory ReportInfoFactory { get; }
 
 		public IEntityEntryViewModel AttachedEmployeeViewModel { get; }
 		public IEntityEntryViewModel DeliveryPointViewModel { get; }
