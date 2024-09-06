@@ -16,16 +16,16 @@ namespace Vodovoz.ReportsParameters.Employees
     [System.ComponentModel.ToolboxItem(true)]
     public partial class EmployeesReport : SingleUoWWidgetBase, IParametersWidget
     {
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IInteractiveService _interactiveService;
 
-		public EmployeesReport(ReportFactory reportFactory, IInteractiveService interactiveService)
+		public EmployeesReport(IReportInfoFactory reportInfoFactory, IInteractiveService interactiveService)
         {
-            this.Build();
-            UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-            Configure();
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            this.Build();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+            Configure();
 		}
 
         public string Title => "Отчет по сотрудникам";
@@ -77,9 +77,7 @@ namespace Vodovoz.ReportsParameters.Employees
 				{"last_rl_end", lastRLPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
 			};
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Employees.EmployeesReport";
-			reportInfo.Parameters = parameters;
+			var reportInfo = _reportInfoFactory.Create("Employees.EmployeesReport", Title, parameters);
 
 			return reportInfo;
         }

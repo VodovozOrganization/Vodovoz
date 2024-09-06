@@ -861,9 +861,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
 	{
+		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesReport(ServicesConfig.InteractiveService)));
+			() => new QSReport.ReportViewDlg(new EmployeesReport(reportInfoFactory, interactiveService)));
 	}
 
 	#endregion Сотрудники
