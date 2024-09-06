@@ -29,12 +29,13 @@ namespace Vodovoz.Reports
 	{
 		private ITdiTab _parentTab;
 		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
+		private readonly IReportInfoFactory _reportFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly INavigationManager _navigationManager;
 		private Car _car;
-		private readonly ReportFactory _reportFactory;
 
 		public FuelReport(
+			IReportInfoFactory reportFactory,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager)
 		{
@@ -174,16 +175,11 @@ namespace Vodovoz.Reports
 				parameters.Add("include_car_models", _carModelSelectionFilterViewModel.IncludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.IncludedCarModelIds : new int[] { 0 });
 				parameters.Add("exclude_car_models", _carModelSelectionFilterViewModel.ExcludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.ExcludedCarModelIds : new int[] { 0 });
 
-				return new ReportInfo {
-					Identifier = yCheckButtonDatailedSummary.Active?"Logistic.FuelReportSummaryDetailed":"Logistic.FuelReportSummaryBasic",
-					UseUserVariables = true,
-					Parameters = parameters
+				reportName = yCheckButtonDatailedSummary.Active ? "Logistic.FuelReportSummaryDetailed" : "Logistic.FuelReportSummaryBasic";
 			}
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = reportName;
+			var reportInfo = _reportFactory.Create(reportName, Title, parameters);
 			reportInfo.UseUserVariables = true;
-			reportInfo.Parameters = parameters;
 
 			return reportInfo;
 		}
