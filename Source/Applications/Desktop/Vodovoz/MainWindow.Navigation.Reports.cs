@@ -374,7 +374,8 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionStockMovementsActivated(object sender, EventArgs e)
 	{
-		var report = new Vodovoz.Reports.StockMovements(NavigationManager, Startup.AppDIContainer.BeginLifetimeScope());
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+		var report = new Vodovoz.Reports.StockMovements(reportInfoFactory, NavigationManager, Startup.AppDIContainer.BeginLifetimeScope());
 		var dlg = new QSReport.ReportViewDlg(report);
 		report.ParentTab = dlg;
 
