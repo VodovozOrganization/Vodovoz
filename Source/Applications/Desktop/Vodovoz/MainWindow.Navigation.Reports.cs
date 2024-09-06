@@ -210,9 +210,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSalesByDicountReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SalesByDiscountReport>(),
-			() => new QSReport.ReportViewDlg(new SalesByDiscountReport()));
+			() => new QSReport.ReportViewDlg(new SalesByDiscountReport(reportInfoFactory)));
 	}
 
 	/// <summary>

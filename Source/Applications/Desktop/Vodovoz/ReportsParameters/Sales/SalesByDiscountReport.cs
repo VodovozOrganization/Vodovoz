@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using NHibernate.Transform;
+﻿using NHibernate.Transform;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.Reports;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters.Sales
@@ -19,11 +17,11 @@ namespace Vodovoz.ReportsParameters.Sales
 	public partial class SalesByDiscountReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly SelectableParametersReportFilter _filter;
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 
-		public SalesByDiscountReport(ReportFactory reportFactory)
+		public SalesByDiscountReport(IReportInfoFactory reportInfoFactory)
 		{
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
@@ -112,10 +110,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				parameters.Add(item.Key, item.Value);
 			}
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Sales.SalesByDiscountReport";
-			reportInfo.Parameters = parameters;
-
+			var reportInfo = _reportInfoFactory.Create("Sales.SalesByDiscountReport", Title, parameters);
 			return reportInfo;
 		}
 
