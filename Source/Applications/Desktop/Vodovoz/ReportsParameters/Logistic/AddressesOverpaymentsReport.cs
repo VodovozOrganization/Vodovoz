@@ -18,23 +18,23 @@ namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class AddressesOverpaymentsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly ReportFactory _reportFactory;
 		private readonly IEntityAutocompleteSelectorFactory _driverSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory _officeSelectorFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IInteractiveService _interactiveService;
 
 		public AddressesOverpaymentsReport(
-			ReportFactory reportFactory,
+			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IInteractiveService interactiveService)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 				
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_driverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_officeSelectorFactory = _employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
@@ -82,9 +82,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 				{ "filters", GetSelectedFilters() }
 			};
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Logistic.AddressesOverpaymentsReport";
-			reportInfo.Parameters = parameters;
+			var reportInfo = _reportInfoFactory.Create("Logistic.AddressesOverpaymentsReport", Title, parameters);
 
 			return reportInfo;
 		}

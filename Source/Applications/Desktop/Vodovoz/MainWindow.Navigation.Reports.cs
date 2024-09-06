@@ -752,10 +752,12 @@ public partial class MainWindow
 	{
 		var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
 		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, driverFilter);
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
 			() => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
+				reportInfoFactory,
 				employeeJournalFactory,
 				ServicesConfig.InteractiveService)));
 	}
