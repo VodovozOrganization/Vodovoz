@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Reports;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.ReportsParameters.Store
@@ -21,13 +19,13 @@ namespace Vodovoz.ReportsParameters.Store
 	{
 		private GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; set; }
 
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly int _defaultStockRate = 20;
 
-		public ProductionRequestReport(ReportFactory reportFactory, IEmployeeRepository employeeRepository)
+		public ProductionRequestReport(IReportInfoFactory reportInfoFactory, IEmployeeRepository employeeRepository)
 		{
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
@@ -127,10 +125,7 @@ namespace Vodovoz.ReportsParameters.Store
 				}
 			};
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Store.ProductionRequestReport";
-			reportInfo.Parameters = parameters;
-
+			var reportInfo = _reportInfoFactory.Create("Store.ProductionRequestReport", Title, parameters);
 			return reportInfo;
 		}
 
