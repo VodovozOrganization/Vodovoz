@@ -16,15 +16,13 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	public partial class WayBillReport : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
 		private readonly ILifetimeScope _lifetimeScope;
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 
 		private ITdiTab _parentTab;
@@ -32,12 +30,12 @@ namespace Vodovoz.ReportsParameters
 
 		public WayBillReport(
 			ILifetimeScope lifetimeScope,
-			ReportFactory reportFactory,
+			IReportInfoFactory reportInfoFactory,
 			IUnitOfWorkFactory uowFactory,
 			IEmployeeJournalFactory employeeJournalFactory)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 
 			Build();
@@ -115,22 +113,15 @@ namespace Vodovoz.ReportsParameters
 		private ReportInfo GetReportInfo()
 		{
 			var parameters = new Dictionary<string, object>
-			{
-				Identifier = "Logistic.WayBillReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "date", datepicker.Date },
-					{ "driver_id", (entryDriver?.Subject as Employee)?.Id ?? -1 },
-					{ "car_id", Car?.Id ?? -1 },
-					{ "time", timeHourEntry.Text + ":" + timeMinuteEntry.Text },
-					{ "need_date", !datepicker.IsEmpty }
-				}
+			{ 
+				{ "date", datepicker.Date },
+				{ "driver_id", (entryDriver?.Subject as Employee)?.Id ?? -1 },
+				{ "car_id", Car?.Id ?? -1 },
+				{ "time", timeHourEntry.Text + ":" + timeMinuteEntry.Text },
+				{ "need_date", !datepicker.IsEmpty }
 			};
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Logistic.WayBillReport";
-			reportInfo.Parameters = parameters;
-
+			var reportInfo = _reportInfoFactory.Create("Logistic.WayBillReport", Title, parameters);
 			return reportInfo;
 		}
 
