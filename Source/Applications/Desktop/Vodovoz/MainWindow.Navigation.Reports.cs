@@ -1344,13 +1344,18 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
 	{
+		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
 			() => new QSReport.ReportViewDlg(new CounterpartyReport(
+				reportInfoFactory,
 				new SalesChannelJournalFactory(),
 				_autofacScope.Resolve<IDistrictJournalFactory>(),
-				ServicesConfig.UnitOfWorkFactory,
-				ServicesConfig.InteractiveService)));
+				uowFactory,
+				interactiveService)));
 
 	}
 

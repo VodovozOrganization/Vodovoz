@@ -10,41 +10,36 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Retail
 {
 	[System.ComponentModel.ToolboxItem(true)]
-
-		private readonly ReportFactory _reportFactory;
+	public partial class CounterpartyReport : SingleUoWWidgetBase, IParametersWidget
+	{
+		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly IDistrictJournalFactory _districtJournalFactory;
+		private readonly IInteractiveService _interactiveService;
 
 		public CounterpartyReport(
-			ReportFactory reportFactory,
-			IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-			IEntityAutocompleteSelectorFactory districtSelectorFactory,
-			IUnitOfWorkFactory unitOfWorkFactory)
+			IReportInfoFactory reportInfoFactory,
+			ISalesChannelJournalFactory salesChannelJournalFactory,
+			IDistrictJournalFactory districtJournalFactory,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IInteractiveService interactiveService)
 		{
-			this.Build();
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			_districtJournalFactory = districtJournalFactory ?? throw new ArgumentNullException(nameof(districtJournalFactory));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			Build();
+
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
-			ConfigureView(salesChannelSelectorFactory, districtSelectorFactory);
+
+			ConfigureView(salesChannelJournalFactory.CreateSalesChannelAutocompleteSelectorFactory(), _districtJournalFactory.CreateDistrictAutocompleteSelectorFactory());
 		}
 
 		public string Title => $"Отчет по контрагентам розницы";
 
-			IDistrictJournalFactory districtJournalFactory,
-			IUnitOfWorkFactory unitOfWorkFactory,
-            IInteractiveService interactiveService)
-        {
-            Build();
-			_districtJournalFactory = districtJournalFactory ?? throw new ArgumentNullException(nameof(districtJournalFactory));
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-            UoW = unitOfWorkFactory.CreateWithoutRoot();
-            ConfigureView(salesChannelJournalFactory.CreateSalesChannelAutocompleteSelectorFactory(), _districtJournalFactory.CreateDistrictAutocompleteSelectorFactory());
-        }
-
-        public string Title => $"Отчет по контрагентам розницы";
-
+		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		private void ConfigureView(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
 			IEntityAutocompleteSelectorFactory districtSelectorFactory)
@@ -53,7 +48,7 @@ namespace Vodovoz.ReportsParameters.Retail
 			yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
 			yEntityDistrict.SetEntityAutocompleteSelectorFactory(districtSelectorFactory);
 			yenumPaymentType.ItemsEnum = typeof(PaymentType);
-			yenumPaymentType.SelectedItem = PaymentType.cash;
+			yenumPaymentType.SelectedItem = PaymentType.Cash;
 		}
 
 		private ReportInfo GetReportInfo()
@@ -67,7 +62,7 @@ namespace Vodovoz.ReportsParameters.Retail
 				{ "all_types", (ycheckpaymentform.Active)}
 			};
 
-			var reportInfo = _reportFactory.CreateReport();
+			var reportInfo = _reportInfoFactory.Create("Retail.CounterpartyReport", Title, parameters);
 			reportInfo.Identifier = "Retail.CounterpartyReport";
 			reportInfo.Parameters = parameters;
 
