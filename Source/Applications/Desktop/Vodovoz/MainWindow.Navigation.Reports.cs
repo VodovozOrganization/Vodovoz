@@ -1315,14 +1315,19 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionQualityRetailReport(object sender, EventArgs e)
 	{
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
 			() => new QSReport.ReportViewDlg(new QualityReport(
+				reportInfoFactory,
 				new CounterpartyJournalFactory(),
 				new EmployeeJournalFactory(NavigationManager),
 				new SalesChannelJournalFactory(),
-				ServicesConfig.UnitOfWorkFactory,
-				ServicesConfig.InteractiveService)));
+				uowFactory,
+				interactiveService)));
 	}
 
 	/// <summary>

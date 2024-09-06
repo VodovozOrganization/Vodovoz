@@ -1,4 +1,5 @@
-﻿using QS.Dialog;
+﻿using Autofac;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
@@ -6,7 +7,6 @@ using QS.Report;
 using QSReport;
 using System;
 using System.Collections.Generic;
-using Autofac;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Retail;
@@ -17,21 +17,22 @@ namespace Vodovoz.ReportsParameters.Retail
 {
 	public partial class QualityReport : SingleUoWWidgetBase, IParametersWidget
     {
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ISalesChannelJournalFactory _salesChannelJournalFactory;
 		private readonly IInteractiveService _interactiveService;
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly ReportFactory _reportFactory;
         
         public QualityReport(
+			IReportInfoFactory reportInfoFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISalesChannelJournalFactory salesChannelJournalFactory,
             IUnitOfWorkFactory unitOfWorkFactory,
             IInteractiveService interactiveService)
         {
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_salesChannelJournalFactory = salesChannelJournalFactory ?? throw new ArgumentNullException(nameof(salesChannelJournalFactory));
@@ -68,10 +69,7 @@ namespace Vodovoz.ReportsParameters.Retail
                 { "main_contact_id", ((Employee)yEntityMainContact.Subject)?.Id ?? 0}
             };
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Retail.QualityReport";
-			reportInfo.Parameters = parameters;
-
+			var reportInfo = _reportInfoFactory.Create("Retail.QualityReport", Title, parameters);
 			return reportInfo;
         }
 
