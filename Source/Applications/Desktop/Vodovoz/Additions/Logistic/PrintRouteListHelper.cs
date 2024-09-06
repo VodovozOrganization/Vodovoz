@@ -225,7 +225,7 @@ namespace Vodovoz.Additions.Logistic
 			{
 				var qrPlacer = new EventsQrPlacer(
 					new CustomReportFactory(new CustomPropertiesFactory(), new CustomReportItemFactory(), new RdlTextBoxFactory()),
-					ScopeProvider.Scope.Resolve<IDriverWarehouseEventRepository>());
+					ScopeProvider.Scope.Resolve<IDriverWarehouseEventRepository>(), _reportInfoFactory);
 
 				qrPlacer.AddQrEventForDocument(uow, routeList.Id, ref RdlText);
 			}
