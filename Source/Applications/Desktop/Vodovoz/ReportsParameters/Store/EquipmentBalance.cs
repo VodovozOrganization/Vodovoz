@@ -1,31 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Store
 {
 	public partial class EquipmentBalance : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly ReportFactory _reportFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 
 		GenericObservableList<SelectableNomenclatureTypeNode> observableItems { get; set; }
 
-		public EquipmentBalance(ReportFactory reportFactory)
+		public EquipmentBalance(IReportInfoFactory reportInfoFactory)
 		{
-			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -160,10 +158,7 @@ namespace Vodovoz.ReportsParameters.Store
 				{ "additional", additional } //все выбранные подтипы категории товаров
 			};
 
-			var reportInfo = _reportFactory.CreateReport();
-			reportInfo.Identifier = "Store.EquipmentBalance";
-			reportInfo.Parameters = parameters;
-
+			var reportInfo = _reportInfoFactory.Create("Store.EquipmentBalance", Title, parameters);
 			return reportInfo;
 		}
 	}
