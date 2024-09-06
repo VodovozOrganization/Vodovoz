@@ -306,9 +306,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionPlanImplementationReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PlanImplementationReport>(),
-			() => new QSReport.ReportViewDlg(new PlanImplementationReport()));
+			() => new QSReport.ReportViewDlg(new PlanImplementationReport(reportInfoFactory)));
 	}
 
 	/// <summary>
