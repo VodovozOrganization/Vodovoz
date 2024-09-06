@@ -211,7 +211,7 @@ namespace TaxcomEdoApi.Services
 						foreach(var action in actions)
 						{
 							action.IsNeedToResendEdoUpd = false;
-							uow.Save(actions);
+							uow.Save(action);
 						}
 
 						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
