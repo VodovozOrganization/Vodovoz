@@ -16,9 +16,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.Attributes;
-using VodovozBusiness.Domain.Common;
 
 namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 {
@@ -63,6 +63,8 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 			AddCommand = new DelegateCommand(AddHandler, () => CanAdd);
 			DeleteCommand = new DelegateCommand(DeleteHandler, () => CanDelete);
 			DeleteCommand.CanExecuteChangedWith(this, vm => vm.CanDelete);
+
+			ClearPersistentInformationCommand = new DelegateCommand(ClearPersistentInformation);
 
 			OpenCommand = new DelegateCommand(OpenHandler, () => CanOpen);
 			OpenCommand.CanExecuteChangedWith(this, vm => vm.CanOpen);
@@ -155,6 +157,7 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 
 		public DelegateCommand AddCommand { get; }
 		public DelegateCommand DeleteCommand { get; }
+		public DelegateCommand ClearPersistentInformationCommand { get; }
 		public DelegateCommand OpenCommand { get; }
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand ScanCommand { get; }
@@ -195,7 +198,10 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 		{
 			try
 			{
-				var fileName = Path.GetFileName(filePath);
+				var fileName = Path.GetFileNameWithoutExtension(filePath) +
+					" " +
+					DateTimeOffset.UtcNow.ToUnixTimeSeconds() +
+					Path.GetExtension(filePath);
 
 				if(fileName.Length > _maxFileLength)
 				{
@@ -220,17 +226,6 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 					AttachedFiles[fileName] = fileContent;
 					FilesToDeleteOnSave.Remove(fileName);
 					FilesToUpdateOnSave.Add(fileName);
-				}
-				else
-				{
-					fileName =
-						Path.GetFileNameWithoutExtension(fileName) +
-						" " +
-						DateTimeOffset.UtcNow.ToUnixTimeSeconds() +
-						Path.GetExtension(fileName);
-
-					AttachedFiles.Add(fileName, fileContent);
-					FilesToAddOnSave.Add(fileName);
 				}
 
 				if(!FileInformations.Any(fi => fi.FileName == fileName))
@@ -335,6 +330,11 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 		{
 			if(_scanDialogService.GetFileFromDialog(out string fileName, out byte[] fileContent))
 			{
+				fileName = Path.GetFileNameWithoutExtension(fileName) +
+					" " +
+					DateTimeOffset.UtcNow.ToUnixTimeSeconds() +
+					Path.GetExtension(fileName);
+
 				if(!AttachedFiles.ContainsKey(fileName))
 				{
 					AttachedFiles.Add(fileName, fileContent);
@@ -352,6 +352,14 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 					AddFileCallback?.Invoke(fileName);
 				}
 			}
+		}
+
+		private void ClearPersistentInformation()
+		{
+			AttachedFiles.Clear();
+			FilesToAddOnSave.Clear();
+			FilesToUpdateOnSave.Clear();
+			FilesToDeleteOnSave.Clear();
 		}
 
 		#endregion Command Handlers
