@@ -12,6 +12,7 @@ using QS.Report;
 using Vodovoz.Presentation.Reports;
 using QS.Validation;
 using System.ComponentModel.DataAnnotations;
+using QS.Commands;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -46,7 +47,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			EndDate = DateTime.Today;
 
 			SubdivisionViewModel = CreateSubdivisionViewModel();
+			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}
+
+		public DelegateCommand GenerateReportCommand { get; }
 
 		public DateTime? StartDate
 		{
