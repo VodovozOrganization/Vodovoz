@@ -9,10 +9,13 @@ using QS.Navigation;
 using Autofac;
 using QS.DomainModel.UoW;
 using QS.Report;
+using Vodovoz.Presentation.Reports;
+using QS.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
-	public class SetBillsReportViewModel : ReportParametersViewModelBase, IDisposable
+	public class SetBillsReportViewModel : ValidatableReportViewModelBase, IDisposable
 	{
 		private readonly RdlViewerViewModel _rdlViewerViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
@@ -26,8 +29,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IReportInfoFactory reportInfoFactory
-			) : base(rdlViewerViewModel, reportInfoFactory)
+			IReportInfoFactory reportInfoFactory,
+			IValidator validator
+			) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
 			_rdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
@@ -85,6 +89,14 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
 				.UseViewModelDialog<SubdivisionViewModel>()
 				.Finish();
+		}
+		
+		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(EndDate == null)
+			{
+				yield return new ValidationResult("Заполните дату окончания выборки.", new[] { nameof(EndDate) });
+			}
 		}
 	}
 }

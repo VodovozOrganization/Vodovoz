@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using Autofac;
 using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -37,6 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private bool _canCancelAnyOnlineOrder;
 
 		public OnlineOrderViewModel(
+			ILogger<OnlineOrderViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -65,6 +67,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				deliveryPointViewModelBuilder ?? throw new ArgumentNullException(nameof(deliveryPointViewModelBuilder));
 			_deliveryPointJournalFilterViewModel =
 				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));;
+			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			ExternalCounterpartyMatchingRepository =
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
@@ -83,6 +86,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public IList<OnlineOrderItem> OnlineOrderPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineOrderItem> OnlineOrderNotPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineFreeRentPackage> OnlineRentPackages { get; private set; }
+		public ILogger<OnlineOrderViewModel> Logger { get; }
 		public IExternalCounterpartyMatchingRepository ExternalCounterpartyMatchingRepository { get; }
 
 		public bool CanShowId => Entity.Id > 0;

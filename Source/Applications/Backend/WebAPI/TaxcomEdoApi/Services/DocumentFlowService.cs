@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using QS.Report;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -203,13 +204,14 @@ namespace TaxcomEdoApi.Services
 						};
 
 						var actions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-							.Where(x => x.Order.Id == edoContainer.Order.Id)
-							.FirstOrDefault();
+							.Where(x =>
+								x.Order.Id == edoContainer.Order.Id && x.IsNeedToResendEdoUpd)
+							.ToList();
 
-						if(actions != null && actions.IsNeedToResendEdoUpd)
+						foreach(var action in actions)
 						{
-							actions.IsNeedToResendEdoUpd = false;
-							uow.Save(actions);
+							action.IsNeedToResendEdoUpd = false;
+							uow.Save(action);
 						}
 
 						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
@@ -297,14 +299,18 @@ namespace TaxcomEdoApi.Services
 						EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
 					};
 
-					var action = unitOfWork.GetAll<OrderEdoTrueMarkDocumentsActions>()
-						.Where(x => x.Order.Id == edoContainer.Order.Id)
-						.FirstOrDefault();
+					var actions = unitOfWork.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x =>
+							x.Order.Id == edoContainer.Order.Id && x.IsNeedToResendEdoBill)
+						.ToList();
 
-					SendBill(unitOfWork, edoContainer, organization, action);
+					SendBill(unitOfWork, edoContainer, organization, actions);
 				}
 
-				var resendFromActions = unitOfWork.GetAll<OrderEdoTrueMarkDocumentsActions>().Where(x => x.IsNeedToResendEdoBill).ToList();
+				var resendFromActions =
+					unitOfWork.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.IsNeedToResendEdoBill)
+						.ToList();
 
 				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", resendFromActions.Count);
 
@@ -346,7 +352,7 @@ namespace TaxcomEdoApi.Services
 						edoContainer.Counterparty = orderWithoutShipmentForDebt.Counterparty;
 					}
 
-					SendBill(unitOfWork, edoContainer, organization, action);
+					SendBill(unitOfWork, edoContainer, organization, new []{ action });
 				}
 			}
 			catch(Exception e)
@@ -360,7 +366,11 @@ namespace TaxcomEdoApi.Services
 			return Task.CompletedTask;
 		}
 
-		private void SendBill(IUnitOfWork uow, EdoContainer edoContainer, Organization organization, OrderEdoTrueMarkDocumentsActions action)
+		private void SendBill(
+			IUnitOfWork uow,
+			EdoContainer edoContainer,
+			Organization organization,
+			IEnumerable<OrderEdoTrueMarkDocumentsActions> actions)
 		{
 			if(EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(edoContainer))
 			{
@@ -382,7 +392,7 @@ namespace TaxcomEdoApi.Services
 				SendOrderWithoutShipmentForPaymentContainer(uow, organization, edoContainer);
 			};
 
-			if(action != null && action.IsNeedToResendEdoBill)
+			foreach(var action in actions)
 			{
 				action.IsNeedToResendEdoBill = false;
 
