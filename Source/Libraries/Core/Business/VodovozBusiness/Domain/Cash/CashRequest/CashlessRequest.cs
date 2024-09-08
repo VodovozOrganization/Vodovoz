@@ -5,8 +5,11 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
+using VodovozBusiness.Domain.Cash.CashRequest;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -16,12 +19,11 @@ namespace Vodovoz.Domain.Cash
 		Accusative = "заявку на оплату по безналу")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class CashlessRequest : PayoutRequestBase
+	public class CashlessRequest : PayoutRequestBase, IHasAttachedFilesInformations<CashlessRequestFileInformation>
 	{
 		private decimal _sum;
 		private Counterparty _counterparty;
-		private IList<CashlessRequestFile> _files = new List<CashlessRequestFile>();
-		private GenericObservableList<CashlessRequestFile> _observableFiles;
+		private IObservableList<CashlessRequestFileInformation> _attachedFileInformations = new ObservableList<CashlessRequestFileInformation>();
 
 		#region Свойства
 
@@ -43,16 +45,12 @@ namespace Vodovoz.Domain.Cash
 			set => SetField(ref _counterparty, value);
 		}
 
-
-		[Display(Name = "Файлы")]
-		public virtual IList<CashlessRequestFile> Files
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<CashlessRequestFileInformation> AttachedFileInformations
 		{
-			get => _files;
-			set => SetField(ref _files, value, () => Files);
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
 		}
-
-		public virtual GenericObservableList<CashlessRequestFile> ObservableFiles =>
-			_observableFiles ?? (_observableFiles = new GenericObservableList<CashlessRequestFile>(Files));
 
 		#endregion
 
@@ -68,26 +66,34 @@ namespace Vodovoz.Domain.Cash
 			PayoutRequestState = newState;
 		}
 
-		public virtual void AddFile(CashlessRequestFile file)
+		public virtual void AddFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
+			if(AttachedFileInformations.Any(afi => afi.FileName == fileName))
 			{
 				return;
 			}
 
-			file.CashlessRequest = this;
-			ObservableFiles.Add(file);
+			AttachedFileInformations.Add(new CashlessRequestFileInformation
+			{
+				FileName = fileName,
+				CashlessReqwuestId = Id
+			});
 		}
 
-		public virtual void RemoveFile(CashlessRequestFile file)
+		public virtual void RemoveFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
-			{
-				ObservableFiles.Remove(file);
-			}
+			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
 
 		#endregion
+
+		protected override void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.CashlessReqwuestId = Id;
+			}
+		}
 
 		#region IValidationImplementation
 
@@ -105,9 +111,9 @@ namespace Vodovoz.Domain.Cash
 				yield return new ValidationResult("Сумма должна быть больше нуля", new[] { nameof(Sum) });
 			}
 
-			if(!Files.Any())
+			if(!AttachedFileInformations.Any())
 			{
-				yield return new ValidationResult("Необходимо добавить хотя бы один файл", new[] { nameof(Files) });
+				yield return new ValidationResult("Необходимо добавить хотя бы один файл", new[] { nameof(AttachedFileInformations) });
 			}
 
 			if(Counterparty == null)

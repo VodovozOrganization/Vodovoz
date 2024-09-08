@@ -1,4 +1,4 @@
-﻿namespace VodovozBusiness.Common
+﻿namespace Vodovoz.Core.Domain.Common
 {
 	public interface IHasPhoto
 	{

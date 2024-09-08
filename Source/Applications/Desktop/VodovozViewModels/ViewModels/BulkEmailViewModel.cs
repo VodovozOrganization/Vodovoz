@@ -28,6 +28,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Factories;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using VodovozInfrastructure.Configuration;
@@ -75,8 +76,15 @@ namespace Vodovoz.ViewModels.ViewModels
 			IEmailSettings emailSettings,
 			ICommonServices commonServices,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
-			Employee author, IEmailRepository emailRepository) : base(navigation)
+			Employee author,
+			IEmailRepository emailRepository,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory) : base(navigation)
 		{
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			}
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_rabbitConnectionFactoryLogger = rabbitConnectionFactoryLogger ?? throw new ArgumentNullException(nameof(rabbitConnectionFactoryLogger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -89,10 +97,6 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			_configuration = _uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
-			AttachmentsEmailViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(ObservableAttachments);
-
-			ObservableAttachments.ListContentChanged += ObservableAttachments_ListContentChanged;
-
 			var itemsSourceQuery = itemsSourceQueryFunction.Invoke(_uow);
 			_debtorJournalNodes = itemsSourceQuery.List<DebtorJournalNode>();
 
@@ -101,6 +105,8 @@ namespace Vodovoz.ViewModels.ViewModels
 			Init();
 
 			CreateRabbitMQChannel();
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.Create(_uow, ObservableAttachments_ListContentChanged, ObservableAttachments_ListContentChanged);
 		}
 
 		private void Init()
@@ -179,19 +185,19 @@ namespace Vodovoz.ViewModels.ViewModels
 			_rabbitMQChannelProperties.Persistent = true;
 		}
 
-		private void ObservableAttachments_ListContentChanged(object sender, EventArgs e)
+		private void ObservableAttachments_ListContentChanged(string fileName)
 		{
-			if(ObservableAttachments.Count > 0 && !_commonServices.InteractiveService.Question(
+			if(AttachedFileInformationsViewModel.AttachedFiles.Count > 0 && !_commonServices.InteractiveService.Question(
 				$"Использование вложений повышает вероятность попадания в спам. Лучше передать информацию в тексте письма.\nВы точно хотите использовать вложения?"))
 			{
-				ObservableAttachments.Clear();
+				AttachedFileInformationsViewModel.AttachedFiles.Clear();
 			}
 
 			_attachmentsSize = 0;
 
-			foreach(var attachment in AttachmentsEmailViewModel.Attachments)
+			foreach(var attachment in AttachedFileInformationsViewModel.AttachedFiles)
 			{
-				_attachmentsSize += (attachment.ByteFile.Length / 1024f) / 1024f;
+				_attachmentsSize += (attachment.Value.Length / 1024f) / 1024f;
 			}
 
 			OnPropertyChanged(nameof(AttachmentsSizeInfoDanger));
@@ -245,13 +251,13 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			var emailAttachments = new List<EmailAttachment>();
 
-			foreach(var attachment in ObservableAttachments)
+			foreach(var keyValuePair in AttachedFileInformationsViewModel.AttachedFiles)
 			{
 				emailAttachments.Add(new EmailAttachment
 				{
-					ContentType = MimeMapping.GetMimeMapping(attachment.FileName),
-					Filename = attachment.FileName,
-					Base64Content = Convert.ToBase64String(attachment.ByteFile)
+					ContentType = MimeMapping.GetMimeMapping(keyValuePair.Key),
+					Filename = keyValuePair.Key,
+					Base64Content = Convert.ToBase64String(keyValuePair.Value)
 				});
 			}
 
@@ -378,15 +384,10 @@ namespace Vodovoz.ViewModels.ViewModels
 			set => SetField(ref _mailTextPart, value);
 		}
 
-		public AttachmentsViewModel AttachmentsEmailViewModel { get; }
-
 		public string AttachmentsSizeInfo => $"{_attachmentsSize.ToString("F")} / 15 Мб";
 
 		[PropertyChangedAlso(nameof(CanExecute))]
 		public bool AttachmentsSizeInfoDanger => _attachmentsSize > 15;
-
-		public GenericObservableList<Attachment> ObservableAttachments =>
-			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(_attachments));
 
 		[PropertyChangedAlso(nameof(SendingDurationInfo), nameof(SendedCountInfo))]
 		public double SendingProgressValue
@@ -444,6 +445,8 @@ namespace Vodovoz.ViewModels.ViewModels
 				Init();
 			}
 		}
+
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
 		public EventHandler SendingProgressBarUpdated;
 

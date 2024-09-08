@@ -189,6 +189,10 @@ namespace Vodovoz.Domain.Cash
 			ObservableSums.Remove(sumItem);
 		}
 
+		protected override void UpdateFileInformations()
+		{
+		}
+
 		#endregion
 	}
 }

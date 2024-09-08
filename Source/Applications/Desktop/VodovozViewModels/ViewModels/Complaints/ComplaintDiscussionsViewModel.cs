@@ -17,6 +17,8 @@ using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Services;
+using Vodovoz.Application.FileStorage;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -26,6 +28,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
 		private readonly INavigationManager _navigationManager;
+		private readonly IComplaintDiscussionCommentFileStorageService _complaintDiscussionCommentFileStorageService;
+		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
 		private DialogViewModelBase _parentTab;
 
 		public ComplaintDiscussionsViewModel(
@@ -36,14 +40,18 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			IUserRepository userRepository,
-			INavigationManager navigationManager) : base(entity, commonServices)
+			INavigationManager navigationManager,
+			IComplaintDiscussionCommentFileStorageService complaintDiscussionCommentFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
+			: base(entity, commonServices)
 		{
 			_parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_navigationManager = navigationManager;
-
+			_complaintDiscussionCommentFileStorageService = complaintDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(complaintDiscussionCommentFileStorageService));
+			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
 			UoW = uow;
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
@@ -91,7 +99,14 @@ namespace Vodovoz.ViewModels.Complaints
 
 			var viewModel =
 				new ComplaintDiscussionViewModel(
-					complaintDiscussion, _fileDialogService, _employeeService, CommonServices, UoW, _userRepository);
+					complaintDiscussion,
+					_fileDialogService,
+					_employeeService,
+					CommonServices,
+					UoW,
+					_userRepository,
+					_complaintDiscussionCommentFileStorageService,
+					_attachedFileInformationsViewModelFactory);
 
 			viewModelsCache.Add(subdivisionId, viewModel);
 			return viewModel;

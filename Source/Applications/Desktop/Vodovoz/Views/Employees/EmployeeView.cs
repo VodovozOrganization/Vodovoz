@@ -375,8 +375,8 @@ namespace Vodovoz.Views.Employees
 
 			#region Вкладка Файлы
 
-			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
-			attachmentsView.Sensitive = ViewModel.CanEditEmployee;
+			attachedfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+			attachedfileinformationsview.Sensitive = ViewModel.CanEditEmployee;
 
 			#endregion
 
@@ -936,7 +936,7 @@ namespace Vodovoz.Views.Employees
 
 		public override void Destroy()
 		{
-			attachmentsView?.Destroy();
+			attachedfileinformationsview?.Destroy();
 			base.Destroy();
 		}
 	}
