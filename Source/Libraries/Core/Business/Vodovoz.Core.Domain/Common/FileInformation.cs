@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 
-namespace VodovozBusiness.Domain.Common
+namespace Vodovoz.Core.Domain.Common
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "информация о прикрепляемых файлах",
@@ -9,7 +9,7 @@ namespace VodovozBusiness.Domain.Common
 	public abstract class FileInformation : PropertyChangedBase, IDomainObject
 	{
 		private string _fileName;
-		
+
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Имя файла")]
