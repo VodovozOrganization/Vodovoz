@@ -69,8 +69,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 				string endDate = "";
 				if(!EntirePeriod)
 				{
-					startDate = StartDate.Value.ToString("yyyy-MM-dd");
-					endDate = EndDate.Value.ToString("yyyy-MM-dd");
+					startDate = StartDate?.ToString("yyyy-MM-dd");
+					endDate = EndDate?.ToString("yyyy-MM-dd");
 				}
 
 				var parameters = new Dictionary<string, object>

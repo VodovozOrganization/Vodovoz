@@ -100,8 +100,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 				}
 				if(StartDate != null && EndDate != null)
 				{
-					parameters.Add("startDate", StartDate.Value);
-					parameters.Add("endDate", EndDate.Value);
+					parameters.Add("startDate", StartDate);
+					parameters.Add("endDate", EndDate);
 				}
 				else
 				{

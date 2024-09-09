@@ -104,8 +104,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 		protected override Dictionary<string, object> Parameters =>
 			new Dictionary<string, object>
 			{
-				{ "start_date", StartDate.Value.ToString("yyyy-MM-dd") },
-				{ "end_date", EndDate.Value.ToString("yyyy-MM-dd") },
+				{ "start_date", StartDate?.ToString("yyyy-MM-dd") },
+				{ "end_date", EndDate?.ToString("yyyy-MM-dd") },
 				{ "user_id", User?.Id ?? 0 },
 				{ "response_result", FuelApiResponseResult?.ToString() ?? "0" }
 			};

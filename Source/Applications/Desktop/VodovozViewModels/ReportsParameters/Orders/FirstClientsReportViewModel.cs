@@ -126,8 +126,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", StartDate.Value },
-						{ "end_date", EndDate.Value },
+						{ "start_date", StartDate },
+						{ "end_date", EndDate },
 						{ "discount_id", DiscountReason?.Id ?? 0 },
 						{ "order_status", OrderStatus.ToString() },
 						{ "payment_type", PaymentType.ToString() },

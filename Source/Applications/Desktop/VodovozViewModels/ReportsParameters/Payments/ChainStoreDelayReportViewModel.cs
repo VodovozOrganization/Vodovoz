@@ -124,7 +124,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "date", StartDate.Value.Date },
+						{ "date", StartDate?.Date },
 						{ "mode", Mode.Key },
 						{ "counterparty_id", Counterparty?.Id ?? -1},
 						{ "sell_manager_id", SellManager?.Id ?? -1},

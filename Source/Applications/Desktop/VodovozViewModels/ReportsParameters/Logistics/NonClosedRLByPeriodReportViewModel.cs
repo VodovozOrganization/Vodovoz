@@ -57,8 +57,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", StartDate.Value },
-						{ "end_date", EndDate.Value.Date.AddHours(23).AddMinutes(59).AddSeconds(59) },
+						{ "start_date", StartDate },
+						{ "end_date", EndDate?.Date.AddHours(23).AddMinutes(59).AddSeconds(59) },
 						{ "create_date", DateTime.Now },
 						{ "delay", Delay }
 					};

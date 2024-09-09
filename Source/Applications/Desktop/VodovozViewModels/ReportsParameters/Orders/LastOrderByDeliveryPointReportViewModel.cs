@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 
 				var parameters = new Dictionary<string, object>
 					{
-						{ "date", StartDate.Value },
+						{ "date", StartDate },
 						{ "bottles_count", BottleDept},
 						{ "is_sort_bottles", isSortByBottles }
 					};

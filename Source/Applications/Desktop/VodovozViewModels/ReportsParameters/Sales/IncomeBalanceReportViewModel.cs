@@ -84,8 +84,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Sales
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "StartDate", StartDate.Value.ToString("yyyy-MM-dd") },
-						{ "EndDate", EndDate.Value.ToString("yyyy-MM-dd") }
+						{ "StartDate", StartDate?.ToString("yyyy-MM-dd") },
+						{ "EndDate", EndDate?.ToString("yyyy-MM-dd") }
 					};
 
 				return parameters;

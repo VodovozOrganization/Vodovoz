@@ -94,7 +94,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", StartDate.Value },
+						{ "start_date", StartDate },
 						{ "end_date", endDate },
 						{ "show_fines_outside_period", ShowFinesOutsidePeriod },
 						{ "driver_id", Driver.Id },

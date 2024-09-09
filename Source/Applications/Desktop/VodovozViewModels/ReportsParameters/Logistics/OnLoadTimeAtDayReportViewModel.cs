@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "date", StartDate.Value }
+						{ "date", StartDate }
 					};
 
 				return parameters;

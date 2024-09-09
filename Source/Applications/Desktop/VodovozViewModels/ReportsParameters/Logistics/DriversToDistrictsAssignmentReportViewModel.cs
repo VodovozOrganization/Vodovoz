@@ -65,8 +65,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", StartDate.Value },
-						{ "end_date", EndDate.Value.AddDays(1).AddTicks(-1) },
+						{ "start_date", StartDate },
+						{ "end_date", EndDate ?.AddDays(1).AddTicks(-1) },
 						{ "only_different_districts", OnlyDifferentDistricts }
 					};
 

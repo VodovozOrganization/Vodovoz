@@ -89,8 +89,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Store
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", StartDate.Value.ToString("yyyy-MM-dd") },
-						{ "end_date", EndDate.Value.ToString("yyyy-MM-dd") },
+						{ "start_date", StartDate ?.ToString("yyyy-MM-dd") },
+						{ "end_date", EndDate ?.ToString("yyyy-MM-dd") },
 						{ "source", DefectSource },
 						{ "driver_id", Driver?.Id ?? 0 }
 					};

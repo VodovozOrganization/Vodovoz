@@ -109,8 +109,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", StartDate.Value.Date },
-						{ "end_date", EndDate.Value.Date.AddHours(23).AddMinutes(59).AddSeconds(59) }
+						{ "start_date", StartDate?.Date },
+						{ "end_date", EndDate?.Date.AddHours(23).AddMinutes(59).AddSeconds(59) }
 					};
 
 				if(!IsAllDistricts)

@@ -70,8 +70,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", StartDate.Value },
-						{ "end_date", EndDate.Value.AddHours(23).AddMinutes(59).AddSeconds(59) },
+						{ "start_date", StartDate },
+						{ "end_date", EndDate?.AddHours(23).AddMinutes(59).AddSeconds(59) },
 						{ "employee_id", Employee.Id }
 					};
 

@@ -87,8 +87,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", StartDate.Value },
-						{ "end_date", EndDate.Value },
+						{ "start_date", StartDate },
+						{ "end_date", EndDate },
 						{ "show_fines_outside_period", ShowFinesOutsidePeriod },
 						{ "forwarder_id", Forwarder.Id },
 						{ "showbalance", ShowBalance ? "1" : "0" }

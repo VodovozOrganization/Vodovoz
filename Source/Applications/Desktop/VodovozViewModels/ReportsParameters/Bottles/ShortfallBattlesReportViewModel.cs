@@ -119,7 +119,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 						{ "reason_id", NonReturnReason?.Id ?? -1 },
 						{ "driver_id", Driver?.Id ?? -1 },
 						{ "driver_call", (int)DriverType },
-						{ "date", StartDate.Value}
+						{ "date", StartDate}
 					};
 
 				return parameters;

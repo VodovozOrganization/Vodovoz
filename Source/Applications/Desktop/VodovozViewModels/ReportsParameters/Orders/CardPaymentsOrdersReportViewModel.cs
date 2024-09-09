@@ -119,8 +119,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", StartDate.Value },
-						{ "end_date", EndDate.Value },
+						{ "start_date", StartDate },
+						{ "end_date", EndDate },
 						{ "payment_from_id", AllPaymentsFromSelected ? "" : PaymentFrom.Id.ToString() },
 						{ "geo_group_id", AllGeoGroupsSelected ? "" : GeoGroup.Id.ToString() },
 						{ "ShowArchived", ShowArchive }

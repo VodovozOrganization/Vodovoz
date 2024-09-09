@@ -50,8 +50,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 				int[] geoparts = { 1, 2, 3 };
 				var parameters = new Dictionary<string, object>
 					{
-						{ "first_date", StartDate.Value },
-						{ "second_date", EndDate.Value },
+						{ "first_date", StartDate },
+						{ "second_date", EndDate },
 						{ "title_date", GetTitleDate() },
 						{ "geoparts", geoparts }
 					};

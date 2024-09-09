@@ -83,8 +83,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Sales
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", StartDate.Value },
-						{ "end_date", EndDate.Value },
+						{ "start_date", StartDate },
+						{ "end_date", EndDate },
 						{ "promosets", GetSelectedPromotionalSets() }
 					};
 
