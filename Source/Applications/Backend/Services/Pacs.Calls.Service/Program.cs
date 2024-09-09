@@ -1,10 +1,12 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Pacs.MangoCalls;
+using Pacs.MangoCalls.Options;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 
@@ -31,7 +33,7 @@ namespace Pacs.Calls.Service
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
-
+						.Configure<RetrySettings>(options => hostContext.Configuration.Bind(nameof(RetrySettings), options))
 						.AddMessageTransportSettings()
 						.AddPacsMangoCallsServices()
 						;
