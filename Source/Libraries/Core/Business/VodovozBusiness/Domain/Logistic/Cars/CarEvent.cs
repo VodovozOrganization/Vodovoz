@@ -299,7 +299,7 @@ namespace Vodovoz.Domain.Logistic
 				&& WriteOffDocument is null
 				&& !IsWriteOffDocumentNotRequired)
 			{
-				yield return new ValidationResult($"Не указана информация о складских запчастях. Пожалуйста, прикрепите акт списания или подтвердите, что запчасти не были списаны по ходу работ.",
+				yield return new ValidationResult("Не указана информация о складских запчастях. Пожалуйста, прикрепите акт списания или подтвердите, что запчасти не были списаны по ходу работ.",
 					new[] { nameof(WriteOffDocument) });
 			}
 		}
