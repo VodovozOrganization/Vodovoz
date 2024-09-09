@@ -79,7 +79,7 @@ namespace Vodovoz
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			
 			var userHasOnlyAccessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			if(userHasOnlyAccessToWarehouseAndComplaints)

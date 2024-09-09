@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		}
 
 		public bool CanSelectWarehouse =>
-			!_commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+			!_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 			|| _commonServices.UserService.GetCurrentUser().IsAdmin;
 
 		public bool CanSelectMovementStatus => DocumentType == Domain.Documents.DocumentType.MovementDocument;
