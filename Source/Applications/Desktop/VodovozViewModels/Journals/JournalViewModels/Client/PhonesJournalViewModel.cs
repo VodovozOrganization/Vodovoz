@@ -56,6 +56,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				}
 			}
 
+			if(FilterViewModel.Employee != null)
+			{
+				itemsQuery.Where(x => x.Employee.Id == FilterViewModel.Employee.Id);
+			}
+
 			if(!FilterViewModel.ShowArchive)
 			{
 				itemsQuery.Where(x => !x.IsArchive);
