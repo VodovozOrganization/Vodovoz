@@ -18,7 +18,7 @@ namespace Vodovoz.Filters.GtkViews
 		private void Configure()
 		{
 			yenumcomboboxDocumentType.ItemsEnum = typeof(DocumentType);
-			yenumcomboboxDocumentType.HiddenItems = new[] { DocumentType.DeliveryDocument as object };
+			yenumcomboboxDocumentType.HiddenItems = ViewModel.DocumentTypesNotAllowedToSelect;
 			yenumcomboboxDocumentType.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.DocumentType, w => w.SelectedItemOrNull)

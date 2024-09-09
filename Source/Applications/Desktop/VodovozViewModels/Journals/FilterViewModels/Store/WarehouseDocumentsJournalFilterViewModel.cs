@@ -16,6 +16,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.Warehouses;
+using DocumentTypeEnum = Vodovoz.Domain.Documents.DocumentType;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
@@ -50,7 +51,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			_warehouseEEVMBuilder = warehouseEEVMBuilder ?? throw new ArgumentNullException(nameof(warehouseEEVMBuilder));
 			_driverEEVMBuilder = driverEEVMBuilder ?? throw new ArgumentNullException(nameof(driverEEVMBuilder));
 
-
 			StartDate = DateTime.Today.AddDays(-7);
 			EndDate = DateTime.Today.AddDays(1);
 		}
@@ -59,10 +59,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			!_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 			|| _commonServices.UserService.GetCurrentUser().IsAdmin;
 
-		public bool CanSelectMovementStatus => DocumentType == Domain.Documents.DocumentType.MovementDocument;
+		public bool CanSelectMovementStatus => DocumentType == DocumentTypeEnum.MovementDocument;
 
 		public IEntityEntryViewModel WarehouseEntityEntryViewModel { get; private set; }
 		public IEntityEntryViewModel DriverEntityEntryViewModel { get; private set; }
+		public object[] DocumentTypesNotAllowedToSelect => new object[] { DocumentTypeEnum.DeliveryDocument };
 
 		public WarehouseDocumentsJournalViewModel Journal
 		{
