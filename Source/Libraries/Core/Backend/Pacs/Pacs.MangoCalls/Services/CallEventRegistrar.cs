@@ -3,6 +3,7 @@ using Mango.Core.Dto;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NHibernate.Exceptions;
 using Pacs.Core.Messages.Events;
 using Pacs.MangoCalls.Options;
 using QS.DomainModel.UoW;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
+using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 namespace Pacs.MangoCalls.Services
 {
@@ -77,16 +79,27 @@ namespace Pacs.MangoCalls.Services
 						var publishTasks = pacsCallEvents.Select(x => _messageBus.Publish(x));
 						await Task.WhenAll(publishTasks);
 					}
+					needRetry = false;
 				}
-				catch(Exception ex)
+				catch(Exception ex) when(ex is GenericADOException)
 				{
 					_logger.LogError(ex, "Ошибка записи события");
 
 					if(retryCounter > 0)
 					{
 						needRetry = true;
-						await Task.Delay(TimeSpan.FromSeconds(1 + 3 - retryCounter));
+						await Task.Delay(_retryOptions.Delay + TimeSpan.FromSeconds(_retryOptions.RetryCount - retryCounter));
+						retryCounter--;
 					}
+					else
+					{
+						needRetry = false;
+						_logger.LogError("Не удалось записать данные после {RetriesCount} попыток", _retryOptions.RetryCount);
+					}
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Ошибка при обработке события");
 				}
 			}
 			while(needRetry);
@@ -119,15 +132,25 @@ namespace Pacs.MangoCalls.Services
 					}
 					needRetry = false;
 				}
-				catch(Exception ex)
+				catch(Exception ex) when (ex is GenericADOException)
 				{
 					_logger.LogError(ex, "Ошибка записи события");
 
 					if(retryCounter > 0)
 					{
 						needRetry = true;
-						await Task.Delay(_retryOptions.Delay + TimeSpan.FromSeconds(_retryOptions.RetryCount - retryCounter));
+						await Task.Delay(_retryOptions.Delay + TimeSpan.FromSeconds(_retryOptions.RetryCount - retryCounter + 1));
+						retryCounter--;
 					}
+					else
+					{
+						needRetry = false;
+						_logger.LogError("Не удалось записать данные после {RetriesCount} попыток", _retryOptions.RetryCount);
+					}
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Ошибка при обработке события");
 				}
 			}
 			while(needRetry);
