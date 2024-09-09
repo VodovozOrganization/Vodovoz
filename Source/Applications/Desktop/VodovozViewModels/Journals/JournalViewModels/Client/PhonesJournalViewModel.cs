@@ -17,14 +17,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		public PhonesJournalViewModel(
 			PhonesJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices)
+			ICommonServices commonServices,
+			Action<PhonesJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал телефонов";
 
-			UpdateOnChanges(
-				typeof(Phone)
-				);
+			filterViewModel.Journal = this;
+
+			if(filterConfig != null)
+			{
+				filterConfig.Invoke(filterViewModel);
+			}
+
+			UpdateOnChanges(typeof(Phone));
 		}
 
 		protected override void CreateNodeActions()

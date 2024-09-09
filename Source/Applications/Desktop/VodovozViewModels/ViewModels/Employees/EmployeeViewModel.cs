@@ -211,8 +211,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				Entity.Phones = new List<Phone>();
 			}
 
-			Entity.PropertyChanged += OnEntityPropertyChanged;
-
 			organizations = UoW.GetAll<Organization>().ToList();
 
 			GetExternalUsers();
@@ -260,6 +258,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				})
 				.UseViewModelDialog<PhoneViewModel>()
 				.Finish();
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public ILifetimeScope LifetimeScope { get; private set; }
@@ -925,6 +925,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					break;
 				case nameof(Entity.Status):
 					_statusChangedByUser = true;
+					break;
+				case nameof(Entity.CanRecieveCounterpartyCalls):
+					if(!Entity.CanRecieveCounterpartyCalls)
+					{
+						Entity.PhoneForCounterpartyCalls = null;
+					}
 					break;
 				default:
 					break;

@@ -429,6 +429,13 @@ namespace Vodovoz.Domain.Employees
 						new[] { nameof(DriverOfCarTypeOfUse), nameof(DriverOfCarOwnType) });
 				}
 			}
+			
+			if(CanRecieveCounterpartyCalls && PhoneForCounterpartyCalls == null)
+			{
+				yield return new ValidationResult(
+					"При включенной настройке возможности принимать звонки контрагента - требуется установка телефона для связи с водителем",
+					new[] { nameof(CanRecieveCounterpartyCalls), nameof(PhoneForCounterpartyCalls) });
+			}
 
 			if(Subdivision == null || Subdivision.Id == subdivisionSettings.GetParentVodovozSubdivisionId())
 			{

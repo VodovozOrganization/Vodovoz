@@ -866,11 +866,11 @@ namespace Vodovoz
 			entryDeliveryPoint.ViewModel.Changed += OnReferenceDeliveryPointChanged;
 			entryDeliveryPoint.ViewModel.ChangedByUser += OnReferenceDeliveryPointChangedByUser;
 
-			_contactPhoneFilter = new PhonesJournalFilterViewModel
-			{
-				Counterparty = Counterparty,
-				DeliveryPoint = DeliveryPoint
-			};
+			_contactPhoneFilter = ScopeProvider.Scope.Resolve<PhonesJournalFilterViewModel>();
+
+			_contactPhoneFilter.Counterparty = Counterparty;
+			_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
+
 			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
 				() => new PhonesJournalViewModel(_contactPhoneFilter, ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices));
 			evmeContactPhone.SetEntitySelectorFactory(phoneSelectoFactory);
