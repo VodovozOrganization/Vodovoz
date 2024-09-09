@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
@@ -45,6 +45,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
             Map(x => x.DriverType).Column("driver_type");
             Map(x => x.SkillLevel).Column("skill_level");
             Map(x => x.Comment).Column("comment");
+			Map(x => x.CanRecieveCounterpartyCalls).Column("can_recieve_counterparty_calls");
 
             Map(x => x.DriverOfCarTypeOfUse).Column("driver_of_car_type_of_use");
 			Map(x => x.DriverOfCarOwnType).Column("driver_of_car_own_type");
@@ -58,6 +59,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			References(x => x.OrganisationForSalary).Column("organisation_for_salary_id");
 			References(x => x.Post).Column("employees_posts_id");
 			References(x => x.Counterparty).Column("counterparty_id");
+			References(x => x.PhoneForCounterpartyCalls).Column("employee_id");
 
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
