@@ -87,9 +87,21 @@ namespace Vodovoz.Domain.Cash
 					}
 
 					break;
-				//Согласована
-				case PayoutRequestState.Agreed:
+				//Согласована руководителем отдела
+				case PayoutRequestState.AgreedBySubdivisionChief:
 					if(PayoutRequestState == PayoutRequestState.Submited)
+					{
+						PayoutRequestState = newState;
+					}
+					else
+					{
+						throw new InvalidOperationException(exceptionMessage);
+					}
+
+					break;
+				//Согласована исполнительным директором
+				case PayoutRequestState.Agreed:
+					if(PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief)
 					{
 						PayoutRequestState = newState;
 					}
