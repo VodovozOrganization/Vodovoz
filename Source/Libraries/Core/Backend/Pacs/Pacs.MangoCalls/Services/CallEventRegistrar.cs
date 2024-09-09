@@ -99,6 +99,7 @@ namespace Pacs.MangoCalls.Services
 				}
 				catch(Exception ex)
 				{
+					needRetry = false;
 					_logger.LogError(ex, "Ошибка при обработке события");
 				}
 			}
@@ -150,6 +151,7 @@ namespace Pacs.MangoCalls.Services
 				}
 				catch(Exception ex)
 				{
+					needRetry = false;
 					_logger.LogError(ex, "Ошибка при обработке события");
 				}
 			}
