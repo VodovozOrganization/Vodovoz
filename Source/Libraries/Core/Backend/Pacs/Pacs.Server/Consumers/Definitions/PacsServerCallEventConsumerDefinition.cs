@@ -9,6 +9,7 @@ namespace Pacs.Server.Consumers.Definitions
 	{
 		public PacsServerCallEventConsumerDefinition()
 		{
+			ConcurrentMessageLimit = 1;
 			Endpoint(x =>
 			{
 				x.Name = $"pacs.event.call.consumer-server";
@@ -19,6 +20,7 @@ namespace Pacs.Server.Consumers.Definitions
 			IConsumerConfigurator<PacsServerCallEventConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
+			endpointConfigurator.PrefetchCount = 64;
 
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
