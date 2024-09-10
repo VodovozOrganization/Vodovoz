@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -45,6 +46,11 @@ namespace Vodovoz.Representations
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly ICashRepository _cashRepository;
 		private readonly bool _userCanChangePayTypeToByCard;
+
+		private readonly string _dataIsLoadingString = "Идёт загрузка данных... ";
+		private string _footerInfo;
+		private Task _footerInfoUpdateTask;
+		private CancellationTokenSource _cancellationToken = new CancellationTokenSource();
 
 		public SelfDeliveriesJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -86,6 +92,9 @@ namespace Vodovoz.Representations
 				typeof(VodovozOrder),
 				typeof(OrderItem));
 
+			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
+			UpdateFooterInfo();
+
 			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 		}
 
@@ -117,6 +126,35 @@ namespace Vodovoz.Representations
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 								   .Where(() => orderAlias.SelfDelivery)
 								   .Where(() => orderAlias.OrderAddressType != OrderAddressType.Service);
+
+			var bottleCountSubquery = QueryOver.Of(() => orderItemAlias)
+				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Select(Projections.Sum(() => orderItemAlias.Count));
+
+			var orderSumSubquery = QueryOver.Of(() => orderItemAlias)
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.Select(
+					Projections.Sum(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(IFNULL(?1, ?2) * ?3 - ?4, 2)"),
+							NHibernateUtil.Decimal,
+							Projections.Property<OrderItem>(x => x.ActualCount),
+							Projections.Property<OrderItem>(x => x.Count),
+							Projections.Property<OrderItem>(x => x.Price),
+							Projections.Property<OrderItem>(x => x.DiscountMoney)
+						)
+					)
+				);
+
+			var incomeSumSubquery = QueryOver.Of(() => incomeAlias)
+				.Where(() => incomeAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Sum(() => incomeAlias.Money));
+
+			var expenseSumSubquery = QueryOver.Of(() => expenseAlias)
+				.Where(() => expenseAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Sum(() => expenseAlias.Money));
 
 			if(FilterViewModel.RestrictStatus != null)
 				query.Where(o => o.OrderStatus == FilterViewModel.RestrictStatus);
@@ -160,12 +198,7 @@ namespace Vodovoz.Representations
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias)
-				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Left.JoinAlias(() => orderAlias.OrderDepositItems, () => orderDepositItemAlias)
-				.Left.JoinAlias(o => o.Contract, () => contractAlias)
-				.JoinEntityAlias(() => incomeAlias, () => orderAlias.Id == incomeAlias.Order.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => expenseAlias, () => orderAlias.Id == expenseAlias.Order.Id, JoinType.LeftOuterJoin);
+				.Left.JoinAlias(o => o.Contract, () => contractAlias);
 
 			query.Where(GetSearchCriterion(
 				() => counterpartyAlias.Name,
@@ -176,7 +209,7 @@ namespace Vodovoz.Representations
 			));
 
 			var result = query.SelectList(list => list
-					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
 					.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
@@ -185,25 +218,10 @@ namespace Vodovoz.Representations
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 					.Select(() => orderAlias.PayAfterShipment).WithAlias(() => resultAlias.PayAfterLoad)
 					.Select(() => orderAlias.PaymentType).WithAlias(() => resultAlias.PaymentTypeEnum)
-					.Select(Projections.Sum(
-						   Projections.Conditional(
-							   Restrictions.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L),
-							   Projections.Property(() => orderItemAlias.Count),
-							Projections.Constant(0, NHibernateUtil.Decimal)
-						)
-					)).WithAlias(() => resultAlias.BottleAmount)
-					.Select(Projections.Sum(
-						Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(IFNULL(?2, ?1) * ?3 - ?4, 2)"),
-							NHibernateUtil.Decimal,
-							Projections.Property(() => orderItemAlias.Count),
-							Projections.Property(() => orderItemAlias.ActualCount),
-							Projections.Property(() => orderItemAlias.Price),
-							Projections.Property(() => orderItemAlias.DiscountMoney)
-						   )
-					)).WithAlias(() => resultAlias.OrderSum)
-					.Select(Projections.Property(() => incomeAlias.Money)).WithAlias(() => resultAlias.CashPaid)
-					.Select(Projections.Property(() => expenseAlias.Money)).WithAlias(() => resultAlias.CashReturn)
+					.SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
+					.SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.OrderSum)
+					.SelectSubQuery(incomeSumSubquery).WithAlias(() => resultAlias.CashPaid)
+					.SelectSubQuery(expenseSumSubquery).WithAlias(() => resultAlias.CashReturn)
 					.SelectSubQuery(depositReturnQuery).WithAlias(() => resultAlias.OrderReturnSum)
 				)
 				.OrderBy(x => x.DeliveryDate).Desc.ThenBy(x => x.Id).Desc
@@ -220,26 +238,58 @@ namespace Vodovoz.Representations
 		//FIXME отделить от GTK
 		protected override Func<SelfDeliveryJournalNode, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
 
-		public override string FooterInfo {
-			get {
-				StringBuilder sb = new StringBuilder();
-				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
-					var lst = ItemsSourceQueryFunction(uow).List<SelfDeliveryJournalNode>();
-					sb.Append("Сумма БН: <b>").Append(lst.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Сумма нал: <b>").Append(lst.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Из них возврат: <b>").Append(lst.Sum(n => n.OrderReturnSum).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Приход: <b>").Append(lst.Sum(n => n.CashPaid).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Возврат: <b>").Append(lst.Sum(n => n.CashReturn).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Итог: <b>").Append(lst.Sum(n => n.CashTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-					var difference = lst.Sum(n => n.TotalCashDiff);
-					if(difference == 0)
-						sb.Append("Расх.нал: <b>").Append(difference.ToShortCurrencyString()).Append("</b>\t\t");
-					else
-						sb.Append($"Расх.нал: <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
-					sb.Append($"<span foreground=\"{GdkColors.InsensitiveText.ToHtmlColor()}\"><b>").Append(base.FooterInfo).Append("</b></span>");
-				}
-				return sb.ToString();
+		public override string FooterInfo
+		{
+			get => _footerInfo;
+			set => SetField(ref _footerInfo, value);
+		}
+
+		private void OnDataLoaderItemsListUpdated(object sender, EventArgs e)
+		{
+			UpdateFooterInfo();
+		}
+
+		private void UpdateFooterInfo()
+		{
+			FooterInfo = _dataIsLoadingString;
+
+			if(_footerInfoUpdateTask?.Status == TaskStatus.Running)
+			{
+				_cancellationToken.Cancel();
+				_cancellationToken = new CancellationTokenSource();
 			}
+
+			_footerInfoUpdateTask = Task.Run(() => SetInfo(_cancellationToken.Token));
+		}
+
+		protected async Task SetInfo(CancellationToken token)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var lst = await ItemsSourceQueryFunction(uow).ListAsync<SelfDeliveryJournalNode>(token);
+				sb.Append("Сумма БН: <b>").Append(lst.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Сумма нал: <b>").Append(lst.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Из них возврат: <b>").Append(lst.Sum(n => n.OrderReturnSum).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Приход: <b>").Append(lst.Sum(n => n.CashPaid).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Возврат: <b>").Append(lst.Sum(n => n.CashReturn).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Итог: <b>").Append(lst.Sum(n => n.CashTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				
+				var difference = lst.Sum(n => n.TotalCashDiff);
+				if(difference == 0)
+				{
+					sb.Append("Расх.нал: <b>").Append(difference.ToShortCurrencyString()).Append("</b>\t\t");
+				}
+				else
+				{
+					sb.Append($"Расх.нал: <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
+				}
+
+				sb.Append($"<span foreground=\"{GdkColors.InsensitiveText.ToHtmlColor()}\"><b>").Append(base.FooterInfo).Append("</b></span>");
+			};
+
+			FooterInfo = sb.ToString();
 		}
 
 		public INavigationManager NavigationManager { get; }
@@ -361,6 +411,12 @@ namespace Vodovoz.Representations
 				var page = NavigationManager.OpenViewModel<ExpenseSelfDeliveryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 				page.ViewModel.SetOrderById(orderId);
 			}
+		}
+
+		public override void Dispose()
+		{
+			FilterViewModel.OnFiltered -= OnDataLoaderItemsListUpdated;
+			base.Dispose();
 		}
 	}
 }
