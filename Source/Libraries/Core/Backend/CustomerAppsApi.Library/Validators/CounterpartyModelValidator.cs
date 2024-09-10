@@ -175,6 +175,12 @@ namespace CustomerAppsApi.Library.Validators
 
 		private void ValidateContactInfo(string counterpartyNumber)
 		{
+			if(string.IsNullOrWhiteSpace(counterpartyNumber))
+			{
+				_sb.AppendLine("Не заполнен номер телефона");
+				return;
+			}
+			
 			var phoneNumber = _phoneFormatter.FormatString(counterpartyNumber);
 			if(string.IsNullOrWhiteSpace(phoneNumber))
 			{

@@ -16,6 +16,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Roboats;
 
 namespace CustomerAppsApi.Library.Models
@@ -31,6 +32,7 @@ namespace CustomerAppsApi.Library.Models
 		private readonly IContactManagerForExternalCounterparty _contactManagerForExternalCounterparty;
 		private readonly ICounterpartyFactory _counterpartyFactory;
 		private readonly ICounterpartyServiceDataHandler _counterpartyServiceDataHandler;
+		private readonly IEmailRepository _emailRepository;
 
 		public CounterpartyModel(
 			ILogger<CounterpartyModel> logger,
@@ -41,7 +43,8 @@ namespace CustomerAppsApi.Library.Models
 			ICounterpartyModelValidator counterpartyModelValidator,
 			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty,
 			ICounterpartyFactory counterpartyFactory,
-			ICounterpartyServiceDataHandler counterpartyServiceDataHandler)
+			ICounterpartyServiceDataHandler counterpartyServiceDataHandler,
+			IEmailRepository emailRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -54,6 +57,7 @@ namespace CustomerAppsApi.Library.Models
 			_counterpartyFactory = counterpartyFactory ?? throw new ArgumentNullException(nameof(counterpartyFactory));
 			_counterpartyServiceDataHandler =
 				counterpartyServiceDataHandler ?? throw new ArgumentNullException(nameof(counterpartyServiceDataHandler));
+			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 		}
 
 		public CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto)
