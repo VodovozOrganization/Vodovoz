@@ -2,6 +2,9 @@
 
 namespace WarehouseApi.Contracts.Responses
 {
+	/// <summary>
+	/// Базовый класс DTO ответа
+	/// </summary>
 	public class WarehouseApiResponseBase
 	{
 		/// <summary>
