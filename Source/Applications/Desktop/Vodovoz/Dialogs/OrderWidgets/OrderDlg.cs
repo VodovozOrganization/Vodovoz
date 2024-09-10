@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -39,15 +39,12 @@ using System.Data.Bindings.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Vodovoz.Additions.Printing;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
-using Vodovoz.Core;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Cores;
 using Vodovoz.Dialogs;
@@ -57,7 +54,6 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
@@ -71,7 +67,6 @@ using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.BasicHandbooks;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Delivery;
@@ -98,14 +93,11 @@ using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
-using Vodovoz.NotificationRecievers;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Database.Logistics;
 using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
@@ -143,6 +135,7 @@ using Type = Vodovoz.Domain.Orders.Documents.Type;
 namespace Vodovoz
 {
 	public partial class OrderDlg : EntityDialogBase<Order>,
+		INotifyPropertyChanged,
 		ICounterpartyInfoProvider,
 		Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider,
 		ICustomWidthInfoProvider,
@@ -178,6 +171,7 @@ namespace Vodovoz
 		private string _lastDeliveryPointComment;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		private Order templateOrder;
 
@@ -294,6 +288,21 @@ namespace Vodovoz
 
 		private List<(int Id, decimal Count, decimal Sum)> _orderItemsOriginalValues = new List<(int Id, decimal Count, decimal Sum)>();
 
+		public EdoContainer SelectedEdoContainer
+		{
+			get => _selectedEdoContainer;
+			set
+			{
+				if(_selectedEdoContainer == value)
+				{
+					return;
+				}
+
+				_selectedEdoContainer = value;
+				CustomizeSendDocumentAgainButton();
+			}
+		}
+		
 		#region Работа с боковыми панелями
 
 		public int? WidthRequest => 420;
@@ -368,8 +377,6 @@ namespace Vodovoz
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
-
-			treeViewEdoContainers.Selection.Changed -= OnEdoContainerSelectionChanged;
 
 			base.Destroy();
 		}
@@ -1291,7 +1298,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var selectedType = _selectedEdoContainer?.Type;
+			var selectedType = SelectedEdoContainer?.Type;
 
 			if(selectedType == null)
 			{
@@ -1353,14 +1360,14 @@ namespace Vodovoz
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			ResendUpd(_selectedEdoContainer.Type);
+			ResendUpd(SelectedEdoContainer.Type);
 			CustomizeSendDocumentAgainButton();
 		}
 
 		private void ResendUpd(Type type)
 		{
-			var edoValidateDocumentResult = _edoService.ValidateOrderForDocument(Entity, _selectedEdoContainer.Type);
-			var outgoingDocuments = GetEdoOutgoingDocuments().Where(x => x.Type == _selectedEdoContainer.Type).ToList();
+			var edoValidateDocumentResult = _edoService.ValidateOrderForDocument(Entity, SelectedEdoContainer.Type);
+			var outgoingDocuments = GetEdoOutgoingDocuments().Where(x => x.Type == SelectedEdoContainer.Type).ToList();
 			var edoValidateContainerResult = _edoService.ValidateEdoContainers(outgoingDocuments);
 
 			var edoValidateResult = edoValidateDocumentResult.Errors.Concat(edoValidateContainerResult.Errors);
@@ -1715,6 +1722,7 @@ namespace Vodovoz
 				RefreshDeliveryPointWithPhones();
 			}
 		}
+
 		private void OnCounterpartyChanged(EntityChangeEvent[] changeevents)
 		{
 			if(Counterparty == null)
@@ -2044,13 +2052,15 @@ namespace Vodovoz
 				.AddColumn("")
 				.Finish();
 
-			treeViewEdoContainers.Selection.Changed += OnEdoContainerSelectionChanged;
+			treeViewEdoContainers.Binding
+				.AddBinding(this, vm => vm.SelectedEdoContainer, w => w.SelectedRow)
+				.InitializeFromSource();
 
 			if(Entity.Id != 0)
 			{
 				UpdateEdoContainers();
 				CustomizeSendDocumentAgainButton();
-			}			
+			}
 
 			treeViewEdoContainers.ItemsDataSource = _edoContainers;
 
@@ -2067,12 +2077,6 @@ namespace Vodovoz
 
 			treeServiceClaim.ItemsDataSource = Entity.ObservableInitialOrderService;
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
-		}
-
-		private void OnEdoContainerSelectionChanged(object sender, EventArgs e)
-		{
-			_selectedEdoContainer = treeViewEdoContainers.SelectedRow as EdoContainer;
-			CustomizeSendDocumentAgainButton();
 		}
 
 		private void OnSpinPriceEdited(object o, EditedArgs args)
@@ -3515,6 +3519,8 @@ namespace Vodovoz
 
 				enumTax.SelectedItem = Entity.Client.TaxType;
 				enumTax.Visible = lblTax.Visible = IsEnumTaxVisible();
+
+				UpdateBarterPaymentTypeVisible();
 			}
 			else
 			{
@@ -3526,6 +3532,18 @@ namespace Vodovoz
 			SetSensitivityOfPaymentType();
 
 			UpdateClientSecondOrderDiscount();
+		}
+
+		private void UpdateBarterPaymentTypeVisible()
+		{
+			if(Entity.Client.CounterpartyType is CounterpartyType.AdvertisingDepartmentClient)
+			{
+				_selectPaymentTypeViewModel.RemoveExcludedPaymentTypes(PaymentType.Barter);
+			}
+			else
+			{
+				_selectPaymentTypeViewModel.AddExcludedPaymentTypes(PaymentType.Barter);
+			}
 		}
 
 		private bool IsEnumTaxVisible() => Entity.Client != null &&

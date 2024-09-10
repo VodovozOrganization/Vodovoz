@@ -7,6 +7,8 @@ namespace Vodovoz.PrintableDocuments
 		[Display(Name = "Талон погрузки (вода)")]
 		WaterCarLoadDocument,
 		[Display(Name = "Талон погрузки (оборуд.)")]
-		EquipmentCarLoadDocument
+		EquipmentCarLoadDocument,
+		[Display(Name = "Талон погрузки (контроль)")]
+		ControlCarLoadDocument
 	}
 }

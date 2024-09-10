@@ -8,6 +8,7 @@ using Pacs.Server.Phones;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
@@ -562,9 +563,11 @@ namespace Pacs.Server.Operators
 			}
 		}
 
-		private OperatorStateEvent GetResultContent(OperatorServerStateMachine operatorServerStateMachine)
+		private OperatorStateEvent GetResultContent(OperatorServerStateMachine operatorServerStateMachine, [CallerMemberName] string caller = null)
 		{
 			var currentBreakAviability = _operatorBreakAvailabilityService.GetBreakAvailability(operatorServerStateMachine.OperatorId);
+
+			_logger.LogInformation("Получение контента события, состояние оператора: {OperatorState}, из метода {MethodName}", operatorServerStateMachine?.OperatorState?.State, caller);
 
 			var content = new OperatorStateEvent
 			{

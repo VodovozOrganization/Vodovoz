@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -285,6 +285,7 @@
     <Compile Include="Orders\Reports\OnlinePaymentsReport.PaymentWithoutOrderRow.cs" />
     <Compile Include="Orders\Reports\OnlinePaymentsReportViewModel.cs" />
     <Compile Include="Print\PrintEventArgs.cs" />
+    <Compile Include="Print\Store\ContorlCarLoadDocumentRdl.cs" />
     <Compile Include="Print\Store\EquipmentCarLoadDocumentRdl.cs" />
     <Compile Include="Print\Store\WaterCarLoadDocumentRdl.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.cs" />
@@ -566,7 +567,6 @@
     <Compile Include="TempAdapters\ICarManufacturerJournalFactory.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\IUserJournalFactory.cs" />
-    <Compile Include="ViewModels\Cash\CashlessRequestFilesViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashlessRequestViewModel.cs" />
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
@@ -666,7 +666,6 @@
     <Compile Include="ViewModels\Organizations\OrganizationOwnershipTypeViewModel.cs" />
     <Compile Include="ViewModels\Organizations\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
-    <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.OrderDiscrepanciesNode.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.PaymentDiscrepanciesNode.cs" />
@@ -929,7 +928,6 @@
     <Compile Include="Journals\JournalViewModels\HistoryTrace\HistoryTraceObjectJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\SelectUserJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
-    <Compile Include="Dialogs\Counterparties\CounterpartyFilesViewModel.cs" />
     <Compile Include="Journals\JournalSelectors\EmployeePostsJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeePostsJournalViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeePostViewModel.cs" />
