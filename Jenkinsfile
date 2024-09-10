@@ -179,26 +179,30 @@ stage('Web'){
 				PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
 
 				// Docker
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker/EmailStatusUpdateWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")
-
-				stage('Web.Build.TrueMarkCodePoolCheckWorker'){
-					PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
-					trueMarkCodePoolCheckWorkerImage = docker.build("true-mark-code-pool.check-worker:${TAG}", "-f ./${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/Dockerfile ./${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker")
-				}
-				
-				stage('Web.Build.RoboatsCallsWorker'){
-					PublishBuild("${APP_PATH}/Backend/Workers/IIS/RoboatsCallsWorker/RoboatsCallsWorker.csproj")
-					roboatsCallsWorkerImage = docker.build("roboats.calls-worker:${TAG}", "-f ./${APP_PATH}/Backend/Workers/IIS/RoboatsCallsWorker/Dockerfile ./${APP_PATH}/Backend/Workers/IIS/RoboatsCallsWorker")
-				}
+				driverApiImage = 
+					DockerPublishBuild("Backend/WebAPI/DriverAPI", "DriverAPI.csproj", "driver.api")
+				customerOnlineOrdersRegistrarImage = 
+					DockerPublishBuild("Backend/Workers/Docker/CustomerOnlineOrdersRegistrar", "CustomerOnlineOrdersRegistrar.csproj", "customer.online.orders.registrar")
+				customerOnlineOrdersUpdateNotifierImage = 
+					DockerPublishBuild("Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier", "CustomerOnlineOrdersStatusUpdateNotifier.csproj", "customer.online.orders.status.update.notifier")
+				databaseServiceWorkerImage = 
+					DockerPublishBuild("Backend/Workers/Docker/DatabaseServiceWorker", "DatabaseServiceWorker.csproj", "database.service.worker")
+				emailPrepareWorkerImage = 
+					DockerPublishBuild("Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker", "EmailPrepareWorker.csproj", "email.prepare.worker")
+				emailStatusUpdateWorkerImage = 
+					DockerPublishBuild("Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker", "EmailStatusUpdateWorker.csproj", "email.status.update.worker")
+				fastDeliveryLateWorkerImage = 
+					DockerPublishBuild("Backend/Workers/Docker/FastDeliveryLateWorker", "FastDeliveryLateWorker.csproj", "fast.delivery.late.worker")
+				logisticsEventsApiImage = 
+					DockerPublishBuild("Backend/WebAPI/LogisticsEventsApi", "LogisticsEventsApi.csproj", "logistics.events.api")
+				smsInformerWorkerImage = 
+					DockerPublishBuild("Backend/Workers/Vodovoz.SmsInformerWorker", "Vodovoz.SmsInformerWorker.csproj", "sms.informer.worker")
+				trueMarkWorkerImage = 
+					DockerPublishBuild("Backend/Workers/Docker/TrueMarkWorker", "TrueMarkWorker.csproj", "true.mark.worker")
+				trueMarkCodePoolCheckWorkerImage = 
+					DockerPublishBuild("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker", "TrueMarkCodePoolCheckWorker.csproj", "true-mark-code-pool.check-worker")
+				roboatsCallsWorkerImage = 
+					DockerPublishBuild("Backend/Workers/IIS/RoboatsCallsWorker", "RoboatsCallsWorker.csproj", "roboats.calls-worker")
 			}
 		}
 		else if(CAN_BUILD_WEB)
@@ -271,8 +275,19 @@ stage('Delivery.Docker'){
 	if(CAN_DELIVERY_WEB)
 	{
 		parallel(
+			"DriverApi" : { PushImage(driverApiImage) },
+			"CustomerOnlineOrdersRegistrar" : { PushImage(customerOnlineOrdersRegistrarImage) },
+			"CustomerOnlineOrdersUpdateNotifier" : { PushImage(customerOnlineOrdersUpdateNotifierImage) },
+			"DatabaseServiceWorker" : { PushImage(databaseServiceWorkerImage) },
+			"EmailPrepareWorker" : { PushImage(emailPrepareWorkerImage) },
+			"EmailStatusUpdateWorker" : { PushImage(emailStatusUpdateWorkerImage) },
+			"FastDeliveryLateWorker" : { PushImage(fastDeliveryLateWorkerImage) },
+			"LogisticsEventsApi" : { PushImage(logisticsEventsApiImage) },
+			"SmsInformerWorker" : { PushImage(smsInformerWorkerImage) },
+			"TrueMarkWorker" : { PushImage(trueMarkWorkerImage) },
 			"TrueMarkCodePoolCheckWorker" : { PushImage(trueMarkCodePoolCheckWorkerImage) },
 			"RoboatsCallsWorker" : { PushImage(roboatsCallsWorkerImage) }
+
 		)
 	}
 }
@@ -317,6 +332,17 @@ stage('Cleanup docker')
 	node(NODE_WIN_BUILD){
 		RemoveImage(trueMarkCodePoolCheckWorkerImage)
 		RemoveImage(roboatsCallsWorkerImage)
+		RemoveImage(driverApiImage)
+		RemoveImage(customerOnlineOrdersRegistrarImage)
+		RemoveImage(customerOnlineOrdersUpdateNotifierImage)
+		RemoveImage(databaseServiceWorkerImage)
+		RemoveImage(emailPrepareWorkerImage)
+		RemoveImage(emailStatusUpdateWorkerImage)
+		RemoveImage(fastDeliveryLateWorkerImage)
+		RemoveImage(logisticsEventsApiImage)
+		RemoveImage(smsInformerWorkerImage)
+		RemoveImage(trueMarkWorkerImage)
+
 		RunPowerShell("docker image prune -f")
 	}
 }
@@ -391,9 +417,9 @@ def PublishBuild(projectPath){
 	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=FolderProfile /maxcpucount:2"
 }
 
-def DockerPublishBuild(projectPath){
-	def workspacePath = GetWorkspacePath()
-	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
+def DockerPublishBuild(projectPath, projectFileName, imageName){
+	PublishBuild("${APP_PATH}/${projectPath}/${projectFileName}")
+	return docker.build("${imageName}:${TAG}", "-f ./${APP_PATH}/${projectPath}/Dockerfile ./${APP_PATH}/${projectPath}")
 }
 
 def DockerBuild(imageName, projectFolder){
