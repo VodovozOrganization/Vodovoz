@@ -1,14 +1,17 @@
 ﻿using QS.Attachments.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
+using VodovozBusiness.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
@@ -18,9 +21,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		GenitivePlural = "автомобилей")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
+	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject, IHasPhoto, IHasAttachedFilesInformations<CarFileInformation>
 	{
-		private IList<Attachment> _attachments = new List<Attachment>();
 		private CarModel _carModel;
 		private bool _isArchive;
 		private IList<CarVersion> _carVersions = new List<CarVersion>();
@@ -63,8 +65,21 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private IncomeChannel _incomeChannel;
 		private bool _isKaskoInsuranceNotRelevant = true;
 		private int? _techInspectForKm;
+		private string _photoFileName;
+		private IObservableList<CarFileInformation> _attachedFileInformations = new ObservableList<CarFileInformation>();
+		private int _id;
 
-		public virtual int Id { get; set; }
+		public virtual int Id
+		{
+			get => _id;
+			set
+			{
+				if(SetField(ref _id, value))
+				{
+					UpdateFileInformations();
+				}
+			}
+		}
 
 		[Display(Name = "Модель")]
 		public virtual CarModel CarModel
@@ -284,6 +299,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _photo, value);
 		}
 
+		[Display(Name = "Имя файла фотографии")]
+		public virtual string PhotoFileName
+		{
+			get => _photoFileName;
+			set => SetField(ref _photoFileName, value);
+		}
+
 		[Display(Name = "Порядковый номер автомобиля")]
 		public virtual int? OrderNumber
 		{
@@ -308,11 +330,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _geographicGroups, value);
 		}
 
-		[Display(Name = "Прикрепленные файлы")]
-		public virtual IList<Attachment> Attachments
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<CarFileInformation> AttachedFileInformations
 		{
-			get => _attachments;
-			set => SetField(ref _attachments, value);
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
 		}
 
 		[Display(Name = "Осталось до ТО, км")]
@@ -347,10 +369,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 		public virtual GenericObservableList<GeoGroup> ObservableGeographicGroups =>
 			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups));
 
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Attachment> ObservableAttachments =>
-			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(Attachments));
-
 		public virtual string Title => $"{CarModel?.Name} ({RegistrationNumber})";
 
 		/// <param name="dateTime">Если равно null, возвращает активную версию на текущее время</param>
@@ -378,6 +396,30 @@ namespace Vodovoz.Domain.Logistic.Cars
 		}
 
 		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle };
+
+		public virtual void AddFileInformation(string fileName)
+		{
+			if(AttachedFileInformations.Any(a => a.FileName == fileName))
+			{
+				return;
+			}
+
+			AttachedFileInformations.Add(new CarFileInformation
+			{
+				CarId = Id,
+				FileName = fileName
+			});
+		}
+
+		public virtual void RemoveFileInformation(string filename)
+		{
+			if(!AttachedFileInformations.Any(fi => fi.FileName == filename))
+			{
+				return;
+			}
+
+			AttachedFileInformations.Remove(AttachedFileInformations.First(x => x.FileName == filename));
+		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
@@ -447,6 +489,14 @@ namespace Vodovoz.Domain.Logistic.Cars
 			var result = CarModel.CarFuelVersions.OrderByDescending(x => x.StartDate).FirstOrDefault()?.FuelConsumption;
 
 			return result ?? 0;
+		}
+
+		private void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.CarId = Id;
+			}
 		}
 	}
 }

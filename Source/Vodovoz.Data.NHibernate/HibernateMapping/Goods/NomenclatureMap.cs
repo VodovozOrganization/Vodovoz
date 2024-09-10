@@ -130,7 +130,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 				.Where($"type='{NomenclaturePriceBase.NomenclaturePriceType.Alternative}'")
 				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 
-			HasMany(x => x.Images).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("nomenclature_id");
 			HasMany(x => x.CostPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.PurchasePrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.InnerDeliveryPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
@@ -139,4 +139,3 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 		}
 	}
 }
-

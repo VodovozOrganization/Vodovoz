@@ -26,10 +26,23 @@ namespace Vodovoz.Domain.Cash
 		private string _reasonForSendToReappropriate;
 		private string _cancelReason;
 		private Organization _organization;
+		private int _id;
 
 		#region Свойства
 
-		public virtual int Id { get; }
+		public virtual int Id
+		{
+			get => _id;
+			protected set
+			{
+				if(_id != value)
+				{
+					_id = value;
+
+					UpdateFileInformations();
+				}
+			}
+		}
 
 		public abstract string Title { get; }
 
@@ -157,6 +170,8 @@ namespace Vodovoz.Domain.Cash
 				yield return new ValidationResult("Необходимо выбрать статью расхода", new[] { nameof(ExpenseCategoryId) });
 			}
 		}
+
+		protected abstract void UpdateFileInformations();
 
 		public abstract void ChangeState(PayoutRequestState newState);
 	}

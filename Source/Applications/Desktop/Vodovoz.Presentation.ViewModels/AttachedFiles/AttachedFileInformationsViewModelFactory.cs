@@ -3,15 +3,15 @@ using QS.Attachments;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Project.Services.FileDialog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.EntityRepositories;
-using VodovozBusiness.Common;
-using VodovozBusiness.Domain.Common;
 
 namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 {
@@ -22,8 +22,6 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 		private readonly IUserRepository _userRepository;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IScanDialogService _scanDialogService;
-
-		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public AttachedFileInformationsViewModelFactory(
 			IOptions<FileSecurityOptions> fileSecurityOptions,
@@ -40,7 +38,8 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 				?? throw new ArgumentNullException(nameof(userRepository));
 			_fileDialogService = fileDialogService
 				?? throw new ArgumentNullException(nameof(fileDialogService));
-			_scanDialogService = scanDialogService ?? throw new ArgumentNullException(nameof(scanDialogService));
+			_scanDialogService = scanDialogService
+				?? throw new ArgumentNullException(nameof(scanDialogService));
 		}
 
 		public AttachedFileInformationsViewModel Create(
@@ -66,6 +65,8 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 				viewModel.DeleteFileCallback = deleteFileCallback;
 			}
 
+			viewModel.FileInformations = new ObservableList<FileInformation>();
+
 			return viewModel;
 		}
 
@@ -73,17 +74,12 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 			IUnitOfWork unitOfWork,
 			TEntity entity,
 			IEntityFileStorageService<TEntity> entityFileStorageService,
+			CancellationToken cancellationToken,
 			Action<string> addFileCallBack = null,
 			Action<string> deleteFileCallback = null)
 			where TEntity : IDomainObject, IHasAttachedFilesInformations<TFileInformationType>
 			where TFileInformationType : FileInformation
 		{
-			if(_cancellationTokenSource.IsCancellationRequested)
-			{
-				_cancellationTokenSource.Dispose();
-				_cancellationTokenSource = new CancellationTokenSource();
-			}
-
 			var viewModel = Create(unitOfWork, addFileCallBack, deleteFileCallback);
 			viewModel.FileInformations = entity.AttachedFileInformations;
 
@@ -97,7 +93,7 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 			foreach(var fileInformation in entity.AttachedFileInformations)
 			{
 				var fileResult = entityFileStorageService
-					.GetFileAsync(entity, fileInformation.FileName, _cancellationTokenSource.Token)
+					.GetFileAsync(entity, fileInformation.FileName, cancellationToken)
 					.GetAwaiter()
 					.GetResult();
 

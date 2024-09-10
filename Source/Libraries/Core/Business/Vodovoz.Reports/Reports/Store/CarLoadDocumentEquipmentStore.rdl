@@ -105,7 +105,7 @@ LIMIT 1
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	scldi.amount as count,
+	SUM(scldi.amount) as count,
 	mu.digits,
 	IF(scldi.own_type IS NOT NULL,
 		CASE scldi.own_type
@@ -391,7 +391,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox4" >
+                    <Textbox Name="Textbox4">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -417,7 +417,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5" >
+                    <Textbox Name="Textbox5">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -464,7 +464,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox24" >
+                    <Textbox Name="Textbox24">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -490,7 +490,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox25" >
+                    <Textbox Name="Textbox25">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -537,7 +537,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox6" >
+                    <Textbox Name="Textbox6">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -563,7 +563,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox7" >
+                    <Textbox Name="Textbox7">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -842,7 +842,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox26" >
+                    <Textbox Name="Textbox26">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
