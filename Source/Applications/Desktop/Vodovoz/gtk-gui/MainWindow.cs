@@ -1755,7 +1755,7 @@ public partial class MainWindow
 		this.Action90 = new global::Gtk.Action("Action90", global::Mono.Unix.Catalog.GetString("Оборачиваемость складских остатков"), null, null);
 		this.Action90.ShortLabel = global::Mono.Unix.Catalog.GetString("Оборачиваемость складских остатков");
 		w1.Add(this.Action90, null);
-		this.OrdersRatingsAction = new global::Gtk.Action("OrdersRatingsAction", global::Mono.Unix.Catalog.GetString("Оценки заказов"), null, null);
+		this.OrdersRatingsAction = new global::Gtk.Action("OrdersRatingsAction", global::Mono.Unix.Catalog.GetString("Оценки заказов"), null, "orders_ratings");
 		this.OrdersRatingsAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Оценки заказов");
 		w1.Add(this.OrdersRatingsAction, null);
 		this.ExternalOrdersSourcesGroupAction = new global::Gtk.Action("ExternalOrdersSourcesGroupAction", global::Mono.Unix.Catalog.GetString("ИПЗ"), null, null);
