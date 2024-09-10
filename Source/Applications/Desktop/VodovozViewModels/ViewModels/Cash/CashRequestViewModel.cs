@@ -133,15 +133,21 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				e => e.ExpenseCategoryId,
 				() => FinancialExpenseCategory);
 
-			ApproveCommand = new DelegateCommand(() =>
-				{
-					ChangeStateAndSave(PayoutRequestState.Agreed);
-				},
-				() => true);
-
 			AcceptCommand = new DelegateCommand(() =>
 				{
 					ChangeStateAndSave(PayoutRequestState.Submited);
+				},
+				() => true);
+
+			SubdivisionChiefApproveCommand = new DelegateCommand(() =>
+				{
+					ChangeStateAndSave(PayoutRequestState.AgreedBySubdivisionChief);
+				},
+				() => CanSubdivisionChiefApprove);
+
+			ApproveCommand = new DelegateCommand(() =>
+				{
+					ChangeStateAndSave(PayoutRequestState.Agreed);
 				},
 				() => true);
 
@@ -476,8 +482,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public bool CanAccept => Entity.PayoutRequestState == PayoutRequestState.New
 							  || Entity.PayoutRequestState == PayoutRequestState.OnClarification;
 
-		//Согласовать
-		public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.Submited
+		//Согласовать руководителем отдела
+		public bool CanSubdivisionChiefApprove => Entity.PayoutRequestState == PayoutRequestState.Submited
+							   && UserRole == PayoutRequestUserRole.SubdivisionChief;
+
+		//Согласовать исполнительным директором
+		public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
 							   && UserRole == PayoutRequestUserRole.Coordinator;
 
 		public bool CanConveyForResults => UserRole == PayoutRequestUserRole.Financier
@@ -523,6 +533,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			if(CheckRole("role_financier_cash_request", userId))
 			{
 				roles.Add(PayoutRequestUserRole.Financier);
+			}
+
+			if(Entity.Author?.Subdivision?.Chief?.Id == CurrentEmployee.Id || CurrentUser.IsAdmin)
+			{
+				roles.Add(PayoutRequestUserRole.SubdivisionChief);
 			}
 
 			if(CheckRole("role_coordinator_cash_request", userId))
@@ -619,6 +634,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		}
 
 		public DelegateCommand AcceptCommand { get; }
+		public DelegateCommand SubdivisionChiefApproveCommand {  get; }
 
 		public DelegateCommand ApproveCommand { get; }
 
