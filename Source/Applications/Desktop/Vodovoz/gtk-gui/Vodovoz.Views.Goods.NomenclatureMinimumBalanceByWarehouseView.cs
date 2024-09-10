@@ -4,6 +4,8 @@ namespace Vodovoz.Views.Goods
 {
 	public partial class NomenclatureMinimumBalanceByWarehouseView
 	{
+		private global::Gamma.GtkWidgets.yHBox yhbox1;
+
 		private global::Gamma.GtkWidgets.yVBox yvboxMain;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelInfo;
@@ -22,6 +24,28 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeMinimemBalances;
 
+		private global::Gamma.GtkWidgets.yVBox yhboxEdit;
+
+		private global::Gtk.Frame frameProperties;
+
+		private global::Gtk.Alignment GtkAlignment4;
+
+		private global::Gamma.GtkWidgets.yTable ytableProperties;
+
+		private global::QS.Views.Control.EntityEntry entityentryWarehouse;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelMinimumAmount;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelWarehouse;
+
+		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonAmount;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxEditButtons;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonSave;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonCancel;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -29,6 +53,10 @@ namespace Vodovoz.Views.Goods
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Goods.NomenclatureMinimumBalanceByWarehouseView";
 			// Container child Vodovoz.Views.Goods.NomenclatureMinimumBalanceByWarehouseView.Gtk.Container+ContainerChild
+			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox1.Name = "yhbox1";
+			this.yhbox1.Spacing = 6;
+			// Container child yhbox1.Gtk.Box+BoxChild
 			this.yvboxMain = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxMain.Name = "yvboxMain";
 			this.yvboxMain.Spacing = 6;
@@ -120,7 +148,126 @@ namespace Vodovoz.Views.Goods
 			this.yvboxMain.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
 			w12.Position = 2;
-			this.Add(this.yvboxMain);
+			this.yhbox1.Add(this.yvboxMain);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.yvboxMain]));
+			w13.Position = 0;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.yhboxEdit = new global::Gamma.GtkWidgets.yVBox();
+			this.yhboxEdit.Name = "yhboxEdit";
+			this.yhboxEdit.Spacing = 6;
+			// Container child yhboxEdit.Gtk.Box+BoxChild
+			this.frameProperties = new global::Gtk.Frame();
+			this.frameProperties.Name = "frameProperties";
+			this.frameProperties.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child frameProperties.Gtk.Container+ContainerChild
+			this.GtkAlignment4 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment4.Name = "GtkAlignment4";
+			this.GtkAlignment4.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment4.Gtk.Container+ContainerChild
+			this.ytableProperties = new global::Gamma.GtkWidgets.yTable();
+			this.ytableProperties.Name = "ytableProperties";
+			this.ytableProperties.NRows = ((uint)(2));
+			this.ytableProperties.NColumns = ((uint)(2));
+			this.ytableProperties.RowSpacing = ((uint)(6));
+			this.ytableProperties.ColumnSpacing = ((uint)(6));
+			// Container child ytableProperties.Gtk.Table+TableChild
+			this.entityentryWarehouse = new global::QS.Views.Control.EntityEntry();
+			this.entityentryWarehouse.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryWarehouse.Name = "entityentryWarehouse";
+			this.ytableProperties.Add(this.entityentryWarehouse);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.entityentryWarehouse]));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableProperties.Gtk.Table+TableChild
+			this.ylabelMinimumAmount = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelMinimumAmount.Name = "ylabelMinimumAmount";
+			this.ylabelMinimumAmount.Xalign = 1F;
+			this.ylabelMinimumAmount.LabelProp = global::Mono.Unix.Catalog.GetString("Количество:");
+			this.ytableProperties.Add(this.ylabelMinimumAmount);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelMinimumAmount]));
+			w15.TopAttach = ((uint)(1));
+			w15.BottomAttach = ((uint)(2));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableProperties.Gtk.Table+TableChild
+			this.ylabelWarehouse = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelWarehouse.Name = "ylabelWarehouse";
+			this.ylabelWarehouse.Xalign = 1F;
+			this.ylabelWarehouse.LabelProp = global::Mono.Unix.Catalog.GetString("Склад:");
+			this.ytableProperties.Add(this.ylabelWarehouse);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.ylabelWarehouse]));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableProperties.Gtk.Table+TableChild
+			this.yspinbuttonAmount = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
+			this.yspinbuttonAmount.CanFocus = true;
+			this.yspinbuttonAmount.Name = "yspinbuttonAmount";
+			this.yspinbuttonAmount.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonAmount.ClimbRate = 1D;
+			this.yspinbuttonAmount.Numeric = true;
+			this.yspinbuttonAmount.ValueAsDecimal = 0m;
+			this.yspinbuttonAmount.ValueAsInt = 0;
+			this.ytableProperties.Add(this.yspinbuttonAmount);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytableProperties[this.yspinbuttonAmount]));
+			w17.TopAttach = ((uint)(1));
+			w17.BottomAttach = ((uint)(2));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.GtkAlignment4.Add(this.ytableProperties);
+			this.frameProperties.Add(this.GtkAlignment4);
+			this.yhboxEdit.Add(this.frameProperties);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yhboxEdit[this.frameProperties]));
+			w20.Position = 0;
+			w20.Expand = false;
+			// Container child yhboxEdit.Gtk.Box+BoxChild
+			this.yhboxEditButtons = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxEditButtons.Name = "yhboxEditButtons";
+			this.yhboxEditButtons.Spacing = 6;
+			// Container child yhboxEditButtons.Gtk.Box+BoxChild
+			this.ybuttonSave = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonSave.CanFocus = true;
+			this.ybuttonSave.Name = "ybuttonSave";
+			this.ybuttonSave.UseUnderline = true;
+			this.ybuttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			global::Gtk.Image w21 = new global::Gtk.Image();
+			w21.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
+			this.ybuttonSave.Image = w21;
+			this.yhboxEditButtons.Add(this.ybuttonSave);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yhboxEditButtons[this.ybuttonSave]));
+			w22.Position = 0;
+			w22.Expand = false;
+			w22.Fill = false;
+			// Container child yhboxEditButtons.Gtk.Box+BoxChild
+			this.ybuttonCancel = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonCancel.CanFocus = true;
+			this.ybuttonCancel.Name = "ybuttonCancel";
+			this.ybuttonCancel.UseUnderline = true;
+			this.ybuttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
+			global::Gtk.Image w23 = new global::Gtk.Image();
+			w23.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.ybuttonCancel.Image = w23;
+			this.yhboxEditButtons.Add(this.ybuttonCancel);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yhboxEditButtons[this.ybuttonCancel]));
+			w24.Position = 1;
+			w24.Expand = false;
+			w24.Fill = false;
+			this.yhboxEdit.Add(this.yhboxEditButtons);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.yhboxEdit[this.yhboxEditButtons]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
+			this.yhbox1.Add(this.yhboxEdit);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.yhboxEdit]));
+			w26.Position = 1;
+			w26.Expand = false;
+			w26.Fill = false;
+			this.Add(this.yhbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
