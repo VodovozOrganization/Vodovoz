@@ -181,28 +181,28 @@ stage('Web'){
 				// Docker
 				driverApiImage = 
 					DockerPublishBuild("Backend/WebAPI/DriverAPI", "DriverAPI.csproj", "driver.api")
-				customerOnlineOrdersRegistrarImage = 
-					DockerPublishBuild("Backend/Workers/Docker/CustomerOnlineOrdersRegistrar", "CustomerOnlineOrdersRegistrar.csproj", "customer.online.orders.registrar")
-				customerOnlineOrdersUpdateNotifierImage = 
-					DockerPublishBuild("Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier", "CustomerOnlineOrdersStatusUpdateNotifier.csproj", "customer.online.orders.status.update.notifier")
-				databaseServiceWorkerImage = 
-					DockerPublishBuild("Backend/Workers/Docker/DatabaseServiceWorker", "DatabaseServiceWorker.csproj", "database.service.worker")
-				emailPrepareWorkerImage = 
-					DockerPublishBuild("Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker", "EmailPrepareWorker.csproj", "email.prepare.worker")
-				emailStatusUpdateWorkerImage = 
-					DockerPublishBuild("Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker", "EmailStatusUpdateWorker.csproj", "email.status.update.worker")
-				fastDeliveryLateWorkerImage = 
-					DockerPublishBuild("Backend/Workers/Docker/FastDeliveryLateWorker", "FastDeliveryLateWorker.csproj", "fast.delivery.late.worker")
-				logisticsEventsApiImage = 
-					DockerPublishBuild("Backend/WebAPI/LogisticsEventsApi", "LogisticsEventsApi.csproj", "logistics.events.api")
-				smsInformerWorkerImage = 
-					DockerPublishBuild("Backend/Workers/Vodovoz.SmsInformerWorker", "Vodovoz.SmsInformerWorker.csproj", "sms.informer.worker")
-				trueMarkWorkerImage = 
-					DockerPublishBuild("Backend/Workers/Docker/TrueMarkWorker", "TrueMarkWorker.csproj", "true.mark.worker")
-				trueMarkCodePoolCheckWorkerImage = 
-					DockerPublishBuild("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker", "TrueMarkCodePoolCheckWorker.csproj", "true-mark-code-pool.check-worker")
-				roboatsCallsWorkerImage = 
-					DockerPublishBuild("Backend/Workers/IIS/RoboatsCallsWorker", "RoboatsCallsWorker.csproj", "roboats.calls-worker")
+				// customerOnlineOrdersRegistrarImage = 
+				// 	DockerPublishBuild("Backend/Workers/Docker/CustomerOnlineOrdersRegistrar", "CustomerOnlineOrdersRegistrar.csproj", "customer.online.orders.registrar")
+				// customerOnlineOrdersUpdateNotifierImage = 
+				// 	DockerPublishBuild("Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier", "CustomerOnlineOrdersStatusUpdateNotifier.csproj", "customer.online.orders.status.update.notifier")
+				// databaseServiceWorkerImage = 
+				// 	DockerPublishBuild("Backend/Workers/Docker/DatabaseServiceWorker", "DatabaseServiceWorker.csproj", "database.service.worker")
+				// emailPrepareWorkerImage = 
+				// 	DockerPublishBuild("Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker", "EmailPrepareWorker.csproj", "email.prepare.worker")
+				// emailStatusUpdateWorkerImage = 
+				// 	DockerPublishBuild("Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker", "EmailStatusUpdateWorker.csproj", "email.status.update.worker")
+				// fastDeliveryLateWorkerImage = 
+				// 	DockerPublishBuild("Backend/Workers/Docker/FastDeliveryLateWorker", "FastDeliveryLateWorker.csproj", "fast.delivery.late.worker")
+				// logisticsEventsApiImage = 
+				// 	DockerPublishBuild("Backend/WebAPI/LogisticsEventsApi", "LogisticsEventsApi.csproj", "logistics.events.api")
+				// smsInformerWorkerImage = 
+				// 	DockerPublishBuild("Backend/Workers/Vodovoz.SmsInformerWorker", "Vodovoz.SmsInformerWorker.csproj", "sms.informer.worker")
+				// trueMarkWorkerImage = 
+				// 	DockerPublishBuild("Backend/Workers/Docker/TrueMarkWorker", "TrueMarkWorker.csproj", "true.mark.worker")
+				// trueMarkCodePoolCheckWorkerImage = 
+				// 	DockerPublishBuild("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker", "TrueMarkCodePoolCheckWorker.csproj", "true-mark-code-pool.check-worker")
+				// roboatsCallsWorkerImage = 
+				// 	DockerPublishBuild("Backend/Workers/IIS/RoboatsCallsWorker", "RoboatsCallsWorker.csproj", "roboats.calls-worker")
 			}
 		}
 		else if(CAN_BUILD_WEB)
@@ -279,7 +279,7 @@ stage('Delivery.Docker'){
 				RunPowerShell("docker tag driver.api:${TAG} docker.vod.qsolution.ru:5100/driver.api:${TAG}")
 				RunPowerShell("docker push docker.vod.qsolution.ru:5100/driver.api:${TAG}")
 				},
-			 "CustomerOnlineOrdersRegistrar" : { PushImage(customerOnlineOrdersRegistrarImage) },
+			// "CustomerOnlineOrdersRegistrar" : { PushImage(customerOnlineOrdersRegistrarImage) },
 			// "CustomerOnlineOrdersUpdateNotifier" : { PushImage(customerOnlineOrdersUpdateNotifierImage) },
 			// "DatabaseServiceWorker" : { PushImage(databaseServiceWorkerImage) },
 			// "EmailPrepareWorker" : { PushImage(emailPrepareWorkerImage) },
