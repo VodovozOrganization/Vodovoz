@@ -623,7 +623,7 @@ def PublishWeb(projectName){
 // 308	Фукнции. Очистка
 
 def RemoveImage(imageName) {
-	RunPowerShell("docker image rm -f ${image.imageName()}")
+	RunPowerShell("docker image rm -f ${imageName}")
 	RunPowerShell("docker image rm -f ${DOCKER_REGISTRY_URL}/${imageName}:${TAG}")
 }
 
