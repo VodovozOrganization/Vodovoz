@@ -88,9 +88,9 @@ namespace Vodovoz.ViewModels.Widgets.Users
 			var warehouseJournalVM = _navigationManager.OpenViewModel<WarehouseJournalViewModel>(null).ViewModel;
 
 			warehouseJournalVM.SelectionMode = JournalSelectionMode.Single;
-			warehouseJournalVM.OnEntitySelectedResult += (s, e) =>
+			warehouseJournalVM.OnSelectResult += (s, e) =>
 			{
-				if(e.SelectedNodes.FirstOrDefault() is JournalEntityNodeBase entityNode)
+				if(e.SelectedObjects.FirstOrDefault() is JournalEntityNodeBase entityNode)
 				{
 					if(entityNode.EntityType != typeof(Warehouse))
 					{

@@ -35,10 +35,8 @@ namespace Vodovoz
                 entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
 				Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = warehousesList.Select(x => x.Id);
 
-				var warehouseJournalFactory = new WarehouseJournalFactory();
-
-                entryWarehouses.SetEntityAutocompleteSelectorFactory(
-					warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope, filterParams));
+     //           entryWarehouses.SetEntityAutocompleteSelectorFactory(
+					//warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope, filterParams));
 
                 entryWarehouses.Visible = true;
                 yspeccomboWarehouse.Visible = false;

@@ -25,9 +25,8 @@ namespace Vodovoz
 		{
 			enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
 			enumcomboDocumentType.HiddenItems = new[] { DocumentType.DeliveryDocument as object };
-			var warehouseJournalFactory = new WarehouseJournalFactory();
 
-			evmeWarehouse.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope));
+			//evmeWarehouse.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope));
 
 			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NHibernate.Transform;
@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		{
 			var page = _navigationManager.OpenViewModel<WarehouseJournalViewModel>(null);
 			page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
-			page.ViewModel.OnEntitySelectedResult += OnEntityToAddSelected;
+			page.ViewModel.OnSelectResult += OnEntityToAddSelected;
 		}
 		
 		protected override void SaveEntities()
@@ -65,9 +65,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			}
 		}
 
-		private void OnEntityToAddSelected(object sender, JournalSelectedNodesEventArgs e)
+		private void OnEntityToAddSelected(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNodes = e.SelectedNodes.OfType<WarehouseJournalNode>().ToArray();
+			var selectedNodes = e.SelectedObjects.Cast<WarehouseJournalNode>().ToArray();
 
 			if(!selectedNodes.Any())
 			{
