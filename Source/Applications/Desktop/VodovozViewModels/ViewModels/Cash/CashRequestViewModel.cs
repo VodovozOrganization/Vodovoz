@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 {
 	public class CashRequestViewModel : EntityTabViewModelBase<CashRequest>, IAskSaveOnCloseViewModel
 	{
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICashRepository _cashRepository;
 		private readonly HashSet<CashRequestSumItem> _sumsGiven = new HashSet<CashRequestSumItem>();
 		private readonly ILifetimeScope _scope;
@@ -53,16 +54,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ICashRequestForDriverIsGivenForTakeNotificationReciever cashRequestForDriverIsGivenForTakeNotificationReciever)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			if(employeeRepository is null)
-			{
-				throw new ArgumentNullException(nameof(employeeRepository));
-			}
-
 			if(navigation is null)
 			{
 				throw new ArgumentNullException(nameof(navigation));
 			}
-
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 
 			IsNewEntity = uowBuilder?.IsNewEntity ?? throw new ArgumentNullException(nameof(uowBuilder));
@@ -313,6 +309,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => VisibleOnlyForStatusUpperThanCreated);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanSeeGiveSum);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanAccept);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanSubdivisionChiefApprove);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanApprove);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanConveyForResults);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanReturnToRenegotiation);
@@ -408,6 +405,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				OnPropertyChanged(() => VisibleOnlyForFinancer);
 				OnPropertyChanged(() => CanSeeGiveSum);
 				OnPropertyChanged(() => CanGiveSum);
+				OnPropertyChanged(() => CanSubdivisionChiefApprove);
 				OnPropertyChanged(() => CanApprove);
 				OnPropertyChanged(() => CanConveyForResults);
 				OnPropertyChanged(() => CanCancel);
@@ -493,15 +491,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public bool CanConveyForResults => UserRole == PayoutRequestUserRole.Financier
 										&& Entity.PayoutRequestState == PayoutRequestState.Agreed;
 
-		public bool CanReturnToRenegotiation => Entity.PayoutRequestState == PayoutRequestState.Agreed
+		public bool CanReturnToRenegotiation => Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
+											 || Entity.PayoutRequestState == PayoutRequestState.Agreed
 											 || Entity.PayoutRequestState == PayoutRequestState.GivenForTake
 											 || Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed
 											 || Entity.PayoutRequestState == PayoutRequestState.Canceled;
 
 		public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submited
 							  || Entity.PayoutRequestState == PayoutRequestState.OnClarification
-							  || Entity.PayoutRequestState == PayoutRequestState.Agreed
-							  && UserRole == PayoutRequestUserRole.Coordinator
+							  || ((Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief || Entity.PayoutRequestState == PayoutRequestState.Agreed)
+							  && (UserRole == PayoutRequestUserRole.SubdivisionChief || UserRole == PayoutRequestUserRole.Coordinator))
 							  || Entity.PayoutRequestState == PayoutRequestState.GivenForTake
 							  && UserRole == PayoutRequestUserRole.Coordinator;
 
@@ -535,7 +534,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				roles.Add(PayoutRequestUserRole.Financier);
 			}
 
-			if(Entity.Author?.Subdivision?.Chief?.Id == CurrentEmployee.Id || CurrentUser.IsAdmin)
+			if(IsAuthorSubdivisionControlledByCurrentEmployee() || CurrentUser.IsAdmin)
 			{
 				roles.Add(PayoutRequestUserRole.SubdivisionChief);
 			}
@@ -561,6 +560,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 
 			return roles;
+		}
+
+		private bool IsAuthorSubdivisionControlledByCurrentEmployee()
+		{
+			var subdivisionsControlledByCurrentEmployee =
+				_employeeRepository.GetControlledByEmployeeSubdivisionIds(UoW, CurrentEmployee.Id);
+
+			return subdivisionsControlledByCurrentEmployee.Contains(Entity.Author?.Subdivision?.Id ?? -1);
 		}
 
 		private void CreateNewExpenseForItem(CashRequestSumItem sumItem, decimal sum)

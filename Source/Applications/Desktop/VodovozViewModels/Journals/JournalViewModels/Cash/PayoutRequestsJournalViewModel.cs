@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -323,7 +323,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				selected =>
 				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToArray();
-					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.Submited))
+					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief))
 					{
 						return false;
 					}
@@ -336,7 +336,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				selected =>
 				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToArray();
-					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.Submited))
+					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief))
 					{
 						return;
 					}
