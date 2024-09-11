@@ -90,6 +90,7 @@ namespace Vodovoz.Dialogs.Cash
 
 			ybtnAccept.Clicked += (sender, args) => ViewModel.AcceptCommand.Execute();
 			ybtnApprove.Clicked += (sender, args) => ViewModel.ApproveCommand.Execute();
+			ybtnSubdivisionChiefApprove.Clicked += (sender, args) => ViewModel.SubdivisionChiefApproveCommand.Execute();
 			ybtnCancel.Clicked += (sender, args) => ViewModel.CancelCommand.Execute();
 			//Передать на выдачу
 			ybtnConveyForResults.Clicked += (sender, args) => ViewModel.ConveyForResultsCommand.Execute();
@@ -128,6 +129,9 @@ namespace Vodovoz.Dialogs.Cash
 			//Visible
 			ybtnAccept.Binding
 				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Visible)
+				.InitializeFromSource();
+			ybtnSubdivisionChiefApprove.Binding
+				.AddBinding(ViewModel, vm => vm.CanSubdivisionChiefApprove, w => w.Visible)
 				.InitializeFromSource();
 			ybtnApprove.Binding
 				.AddBinding(ViewModel, vm => vm.CanApprove, w => w.Visible)
