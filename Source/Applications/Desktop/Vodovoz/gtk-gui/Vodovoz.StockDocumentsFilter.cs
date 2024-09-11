@@ -10,11 +10,11 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodDocs;
 
+		private global::QS.Views.Control.EntityEntry entityentryDriver;
+
+		private global::QS.Views.Control.EntityEntry entityentryWarehouse;
+
 		private global::Gamma.Widgets.yEnumComboBox enumcomboDocumentType;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeWarehouse;
 
 		private global::Gtk.Label label1;
 
@@ -65,6 +65,30 @@ namespace Vodovoz
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.entityentryDriver = new global::QS.Views.Control.EntityEntry();
+			this.entityentryDriver.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryDriver.Name = "entityentryDriver";
+			this.table1.Add(this.entityentryDriver);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entityentryDriver]));
+			w3.TopAttach = ((uint)(1));
+			w3.BottomAttach = ((uint)(2));
+			w3.LeftAttach = ((uint)(3));
+			w3.RightAttach = ((uint)(4));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.entityentryWarehouse = new global::QS.Views.Control.EntityEntry();
+			this.entityentryWarehouse.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryWarehouse.Name = "entityentryWarehouse";
+			this.table1.Add(this.entityentryWarehouse);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.entityentryWarehouse]));
+			w4.TopAttach = ((uint)(1));
+			w4.BottomAttach = ((uint)(2));
+			w4.LeftAttach = ((uint)(1));
+			w4.RightAttach = ((uint)(2));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.enumcomboDocumentType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumcomboDocumentType.Name = "enumcomboDocumentType";
 			this.enumcomboDocumentType.ShowSpecialStateAll = true;
@@ -72,33 +96,7 @@ namespace Vodovoz
 			this.enumcomboDocumentType.UseShortTitle = false;
 			this.enumcomboDocumentType.DefaultFirst = false;
 			this.table1.Add(this.enumcomboDocumentType);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboDocumentType]));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.evmeDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
-			this.evmeDriver.Name = "evmeDriver";
-			this.evmeDriver.CanEditReference = true;
-			this.table1.Add(this.evmeDriver);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDriver]));
-			w4.TopAttach = ((uint)(1));
-			w4.BottomAttach = ((uint)(2));
-			w4.LeftAttach = ((uint)(3));
-			w4.RightAttach = ((uint)(4));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.evmeWarehouse = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.evmeWarehouse.Events = ((global::Gdk.EventMask)(256));
-			this.evmeWarehouse.Name = "evmeWarehouse";
-			this.evmeWarehouse.CanEditReference = true;
-			this.table1.Add(this.evmeWarehouse);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeWarehouse]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboDocumentType]));
 			w5.LeftAttach = ((uint)(1));
 			w5.RightAttach = ((uint)(2));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
