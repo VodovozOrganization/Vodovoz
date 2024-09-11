@@ -216,5 +216,13 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 					.SingleOrDefault();
 			}
 		}
+
+		public IEnumerable<int> GetControlledByEmployeeSubdivisionIds(IUnitOfWork uow, int employeeId)
+		{
+			return uow.GetAll<Subdivision>()
+				.Where(s => s.Chief.Id == employeeId)
+				.Select(s => s.Id)
+				.ToList();
+		}
 	}
 }

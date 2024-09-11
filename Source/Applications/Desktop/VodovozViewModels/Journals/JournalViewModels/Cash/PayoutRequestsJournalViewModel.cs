@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -211,15 +211,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
 		}
 
-		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow)
-		{
-			var controlledSubdivision = uow.GetAll<Subdivision>()
-				.Where(s => s.Chief.Id == _currentEmployee.Id)
-				.Select(s => s.Id)
-				.ToArray();
-
-			return controlledSubdivision;
-		}
+		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow) =>
+			_employeeRepository.GetControlledByEmployeeSubdivisionIds(uow, _currentEmployee.Id);
 
 		#region JournalActions
 
