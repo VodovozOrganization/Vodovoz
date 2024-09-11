@@ -275,18 +275,21 @@ stage('Delivery.Docker'){
 	if(CAN_DELIVERY_WEB)
 	{
 		parallel(
-			"DriverApi" : { PushImage(driverApiImage) },
-			"CustomerOnlineOrdersRegistrar" : { PushImage(customerOnlineOrdersRegistrarImage) },
-			"CustomerOnlineOrdersUpdateNotifier" : { PushImage(customerOnlineOrdersUpdateNotifierImage) },
-			"DatabaseServiceWorker" : { PushImage(databaseServiceWorkerImage) },
-			"EmailPrepareWorker" : { PushImage(emailPrepareWorkerImage) },
-			"EmailStatusUpdateWorker" : { PushImage(emailStatusUpdateWorkerImage) },
-			"FastDeliveryLateWorker" : { PushImage(fastDeliveryLateWorkerImage) },
-			"LogisticsEventsApi" : { PushImage(logisticsEventsApiImage) },
-			"SmsInformerWorker" : { PushImage(smsInformerWorkerImage) },
-			"TrueMarkWorker" : { PushImage(trueMarkWorkerImage) },
-			"TrueMarkCodePoolCheckWorker" : { PushImage(trueMarkCodePoolCheckWorkerImage) },
-			"RoboatsCallsWorker" : { PushImage(roboatsCallsWorkerImage) }
+			"DriverApi" : { 
+				RunPowerShell("docker tag driver.api:${TAG} docker.vod.qsolution.ru:5100/driver.api:${TAG}")
+				RunPowerShell("docker push docker.vod.qsolution.ru:5100/driver.api:${TAG}")
+				},
+			 "CustomerOnlineOrdersRegistrar" : { PushImage(customerOnlineOrdersRegistrarImage) },
+			// "CustomerOnlineOrdersUpdateNotifier" : { PushImage(customerOnlineOrdersUpdateNotifierImage) },
+			// "DatabaseServiceWorker" : { PushImage(databaseServiceWorkerImage) },
+			// "EmailPrepareWorker" : { PushImage(emailPrepareWorkerImage) },
+			// "EmailStatusUpdateWorker" : { PushImage(emailStatusUpdateWorkerImage) },
+			// "FastDeliveryLateWorker" : { PushImage(fastDeliveryLateWorkerImage) },
+			// "LogisticsEventsApi" : { PushImage(logisticsEventsApiImage) },
+			// "SmsInformerWorker" : { PushImage(smsInformerWorkerImage) },
+			// "TrueMarkWorker" : { PushImage(trueMarkWorkerImage) },
+			// "TrueMarkCodePoolCheckWorker" : { PushImage(trueMarkCodePoolCheckWorkerImage) },
+			// "RoboatsCallsWorker" : { PushImage(roboatsCallsWorkerImage) }
 
 		)
 	}
@@ -330,18 +333,22 @@ stage('Cleanup docker')
 	}
 
 	node(NODE_WIN_BUILD){
-		RemoveImage(trueMarkCodePoolCheckWorkerImage)
-		RemoveImage(roboatsCallsWorkerImage)
-		RemoveImage(driverApiImage)
-		RemoveImage(customerOnlineOrdersRegistrarImage)
-		RemoveImage(customerOnlineOrdersUpdateNotifierImage)
-		RemoveImage(databaseServiceWorkerImage)
-		RemoveImage(emailPrepareWorkerImage)
-		RemoveImage(emailStatusUpdateWorkerImage)
-		RemoveImage(fastDeliveryLateWorkerImage)
-		RemoveImage(logisticsEventsApiImage)
-		RemoveImage(smsInformerWorkerImage)
-		RemoveImage(trueMarkWorkerImage)
+		//RemoveImage(trueMarkCodePoolCheckWorkerImage)
+		//RemoveImage(roboatsCallsWorkerImage)
+
+		RunPowerShell("docker image rm -f driver.api:${TAG}")
+		RunPowerShell("docker image rm -f docker.vod.qsolution.ru:5100/driver.api:${TAG}")
+		//RemoveImage(driverApiImage)
+		
+		// RemoveImage(customerOnlineOrdersRegistrarImage)
+		// RemoveImage(customerOnlineOrdersUpdateNotifierImage)
+		// RemoveImage(databaseServiceWorkerImage)
+		// RemoveImage(emailPrepareWorkerImage)
+		// RemoveImage(emailStatusUpdateWorkerImage)
+		// RemoveImage(fastDeliveryLateWorkerImage)
+		// RemoveImage(logisticsEventsApiImage)
+		// RemoveImage(smsInformerWorkerImage)
+		// RemoveImage(trueMarkWorkerImage)
 
 		RunPowerShell("docker image prune -f")
 	}
