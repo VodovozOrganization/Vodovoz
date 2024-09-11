@@ -275,9 +275,11 @@ stage('Delivery.Docker'){
 	if(CAN_DELIVERY_WEB)
 	{
 		parallel(
-			"DriverApi" : { 
-				RunPowerShell("docker tag driver.api:${TAG} docker.vod.qsolution.ru:5100/driver.api:${TAG}")
-				RunPowerShell("docker push docker.vod.qsolution.ru:5100/driver.api:${TAG}")
+			"DriverApi" : {
+				node(NODE_WIN_BUILD){
+					RunPowerShell("docker tag driver.api:${TAG} docker.vod.qsolution.ru:5100/driver.api:${TAG}")
+					RunPowerShell("docker push docker.vod.qsolution.ru:5100/driver.api:${TAG}")
+				}
 				},
 			// "CustomerOnlineOrdersRegistrar" : { PushImage(customerOnlineOrdersRegistrarImage) },
 			// "CustomerOnlineOrdersUpdateNotifier" : { PushImage(customerOnlineOrdersUpdateNotifierImage) },
