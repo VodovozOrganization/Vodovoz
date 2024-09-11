@@ -77,7 +77,11 @@ namespace Pacs.MangoCalls.Services
 						await uow.CommitAsync();
 
 						var publishTasks = pacsCallEvents.Select(x => _messageBus.Publish(x));
-						await Task.WhenAll(publishTasks);
+
+						foreach(var publishTask in publishTasks)
+						{
+							await publishTask;
+						}
 					}
 					needRetry = false;
 				}
