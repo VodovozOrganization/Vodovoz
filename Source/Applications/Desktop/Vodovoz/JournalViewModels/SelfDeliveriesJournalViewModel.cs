@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DateTimeHelpers;
+using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -39,21 +41,24 @@ namespace Vodovoz.Representations
 {
 	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
 	{
+		private readonly ILogger<SelfDeliveriesJournalViewModel> _logger;
+		private readonly ICommonServices _commonServices;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly Employee _currentEmployee;
 		private readonly IOrderPaymentSettings _orderPaymentSettings;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly ICashRepository _cashRepository;
+		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly bool _userCanChangePayTypeToByCard;
 
 		private readonly string _dataIsLoadingString = "Идёт загрузка данных... ";
 		private string _footerInfo;
-		private Task _footerInfoUpdateTask;
-		private CancellationTokenSource _cancellationToken = new CancellationTokenSource();
+		private CancellationTokenSource _cancellationTokenSource;
 
 		public SelfDeliveriesJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
+			ILogger<SelfDeliveriesJournalViewModel> logger,
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
 			ICallTaskWorker callTaskWorker,
@@ -63,15 +68,19 @@ namespace Vodovoz.Representations
 			IEmployeeService employeeService,
 			ICashRepository cashRepository,
 			INavigationManager navigationManager,
+			IGuiDispatcher guiDispatcher,
 			Action<OrderJournalFilterViewModel> filterConfig = null) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
 					UoW,
@@ -93,7 +102,6 @@ namespace Vodovoz.Representations
 				typeof(OrderItem));
 
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
-			UpdateFooterInfo();
 
 			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 		}
@@ -249,34 +257,58 @@ namespace Vodovoz.Representations
 			UpdateFooterInfo();
 		}
 
-		private void UpdateFooterInfo()
+		private async Task UpdateFooterInfo()
 		{
 			FooterInfo = _dataIsLoadingString;
 
-			if(_footerInfoUpdateTask?.Status == TaskStatus.Running)
+			try
 			{
-				_cancellationToken.Cancel();
-				_cancellationToken = new CancellationTokenSource();
-			}
+				if(_cancellationTokenSource != null)
+				{
+					_cancellationTokenSource.Cancel();
+					_cancellationTokenSource.Dispose();
+					_cancellationTokenSource = null;
+				}
 
-			_footerInfoUpdateTask = Task.Run(() => SetInfo(_cancellationToken.Token));
+				_cancellationTokenSource = new CancellationTokenSource();
+
+				FooterInfo = await GetFooterInfo(_cancellationTokenSource.Token);
+			}
+			catch(OperationCanceledException ex)
+			{
+				return;
+			}
+			catch(Exception ex)
+			{
+				var errorMessage = "Ошибка при обновлении суммарной информации в журнале самовывозов";
+
+				_logger.LogError(ex, errorMessage);
+
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, errorMessage);
+				});
+
+				return;
+			}
 		}
 
-		protected async Task SetInfo(CancellationToken token)
+		protected async Task<string> GetFooterInfo(CancellationToken token)
 		{
 			StringBuilder sb = new StringBuilder();
 
 			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				var lst = await ItemsSourceQueryFunction(uow).ListAsync<SelfDeliveryJournalNode>(token);
-				sb.Append("Сумма БН: <b>").Append(lst.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-				sb.Append("Сумма нал: <b>").Append(lst.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-				sb.Append("Из них возврат: <b>").Append(lst.Sum(n => n.OrderReturnSum).ToShortCurrencyString()).Append("</b>\t|\t");
-				sb.Append("Приход: <b>").Append(lst.Sum(n => n.CashPaid).ToShortCurrencyString()).Append("</b>\t|\t");
-				sb.Append("Возврат: <b>").Append(lst.Sum(n => n.CashReturn).ToShortCurrencyString()).Append("</b>\t|\t");
-				sb.Append("Итог: <b>").Append(lst.Sum(n => n.CashTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				var nodes = await ItemsSourceQueryFunction(uow).ListAsync<SelfDeliveryJournalNode>(token);
+
+				sb.Append("Сумма БН: <b>").Append(nodes.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Сумма нал: <b>").Append(nodes.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Из них возврат: <b>").Append(nodes.Sum(n => n.OrderReturnSum).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Приход: <b>").Append(nodes.Sum(n => n.CashPaid).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Возврат: <b>").Append(nodes.Sum(n => n.CashReturn).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Итог: <b>").Append(nodes.Sum(n => n.CashTotal).ToShortCurrencyString()).Append("</b>\t|\t");
 				
-				var difference = lst.Sum(n => n.TotalCashDiff);
+				var difference = nodes.Sum(n => n.TotalCashDiff);
 				if(difference == 0)
 				{
 					sb.Append("Расх.нал: <b>").Append(difference.ToShortCurrencyString()).Append("</b>\t\t");
@@ -289,7 +321,7 @@ namespace Vodovoz.Representations
 				sb.Append($"<span foreground=\"{GdkColors.InsensitiveText.ToHtmlColor()}\"><b>").Append(base.FooterInfo).Append("</b></span>");
 			};
 
-			FooterInfo = sb.ToString();
+			return sb.ToString();
 		}
 
 		public INavigationManager NavigationManager { get; }
@@ -416,6 +448,10 @@ namespace Vodovoz.Representations
 		public override void Dispose()
 		{
 			FilterViewModel.OnFiltered -= OnDataLoaderItemsListUpdated;
+
+			_cancellationTokenSource?.Dispose();
+			_cancellationTokenSource = null;
+
 			base.Dispose();
 		}
 	}
