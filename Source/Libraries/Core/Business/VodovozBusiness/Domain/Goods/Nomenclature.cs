@@ -30,11 +30,13 @@ namespace Vodovoz.Domain.Goods
 		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
 		private IList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new List<NomenclatureInnerDeliveryPrice>();
 		private IList<AlternativeNomenclaturePrice> _alternativeNomenclaturePrices = new List<AlternativeNomenclaturePrice>();
+		private IList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse = new List<NomenclatureMinimumBalanceByWarehouse>();
 		private GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
 		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
+		private GenericObservableList<NomenclatureMinimumBalanceByWarehouse> _observableNomenclatureMinimumBalancesByWarehouse;
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
 		private GlassHolderType? _glassHolderType;
@@ -622,11 +624,26 @@ namespace Vodovoz.Domain.Goods
 			set => _observableAlternativeNomenclaturePrices = value;
 		}
 
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<NomenclatureMinimumBalanceByWarehouse> ObservableNomenclatureMinimumBalancesByWarehouse
+		{
+			get => _observableNomenclatureMinimumBalancesByWarehouse
+				?? (_observableNomenclatureMinimumBalancesByWarehouse =	new GenericObservableList<NomenclatureMinimumBalanceByWarehouse>(NomenclatureMinimumBalancesByWarehouse));
+			set => _observableNomenclatureMinimumBalancesByWarehouse = value;
+		}
+
 		[Display(Name = "Стоимости доставки ТМЦ на склад")]
 		public virtual IList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
 		{
 			get => _innerDeliveryPrices;
 			set => SetField(ref _innerDeliveryPrices, value);
+		}
+
+		[Display(Name = "Минимальный остаток на складе ")]
+		public virtual IList<NomenclatureMinimumBalanceByWarehouse> NomenclatureMinimumBalancesByWarehouse
+		{
+			get => _nomenclatureMinimumBalancesByWarehouse;
+			set => SetField(ref _nomenclatureMinimumBalancesByWarehouse, value);
 		}
 
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
@@ -1245,7 +1262,7 @@ namespace Vodovoz.Domain.Goods
 		#region Statics
 
 		public static string PrefixOfCode1c = "ДВ";
-		public static int LengthOfCode1c = 10;
+		public static int LengthOfCode1c = 10;		
 
 		/// <summary>
 		/// Категории товаров к которым применима категория продажи

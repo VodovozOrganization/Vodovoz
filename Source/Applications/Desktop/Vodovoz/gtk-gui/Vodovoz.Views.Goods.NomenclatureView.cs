@@ -220,7 +220,7 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gamma.GtkWidgets.yHBox yhboxWarehouseMinimumBalance;
 
-		private global::Vodovoz.Views.Goods.NomenclatureMinimumBalanceByWarehouseView nomenclatureminimumbalancebywarehouseview1;
+		private global::Vodovoz.Views.Goods.NomenclatureMinimumBalanceByWarehouseView nomenclatureMinimumBalanceByWarehouseView;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
 
@@ -1766,11 +1766,11 @@ namespace Vodovoz.Views.Goods
 			this.yhboxWarehouseMinimumBalance.Name = "yhboxWarehouseMinimumBalance";
 			this.yhboxWarehouseMinimumBalance.Spacing = 6;
 			// Container child yhboxWarehouseMinimumBalance.Gtk.Box+BoxChild
-			this.nomenclatureminimumbalancebywarehouseview1 = new global::Vodovoz.Views.Goods.NomenclatureMinimumBalanceByWarehouseView();
-			this.nomenclatureminimumbalancebywarehouseview1.Events = ((global::Gdk.EventMask)(256));
-			this.nomenclatureminimumbalancebywarehouseview1.Name = "nomenclatureminimumbalancebywarehouseview1";
-			this.yhboxWarehouseMinimumBalance.Add(this.nomenclatureminimumbalancebywarehouseview1);
-			global::Gtk.Box.BoxChild w108 = ((global::Gtk.Box.BoxChild)(this.yhboxWarehouseMinimumBalance[this.nomenclatureminimumbalancebywarehouseview1]));
+			this.nomenclatureMinimumBalanceByWarehouseView = new global::Vodovoz.Views.Goods.NomenclatureMinimumBalanceByWarehouseView();
+			this.nomenclatureMinimumBalanceByWarehouseView.Events = ((global::Gdk.EventMask)(256));
+			this.nomenclatureMinimumBalanceByWarehouseView.Name = "nomenclatureMinimumBalanceByWarehouseView";
+			this.yhboxWarehouseMinimumBalance.Add(this.nomenclatureMinimumBalanceByWarehouseView);
+			global::Gtk.Box.BoxChild w108 = ((global::Gtk.Box.BoxChild)(this.yhboxWarehouseMinimumBalance[this.nomenclatureMinimumBalanceByWarehouseView]));
 			w108.Position = 0;
 			w108.Expand = false;
 			w108.Fill = false;
