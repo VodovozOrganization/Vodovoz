@@ -1,6 +1,4 @@
-using System;
-using System.Linq;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
@@ -22,7 +20,7 @@ using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz
 {
-	public partial class WarehouseDocumentsView : QS.Dialog.Gtk.TdiTabBase
+	public partial class WarehouseDocumentsView : TdiTabBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -32,7 +30,9 @@ namespace Vodovoz
 		{
 			this.Build ();
 			this.TabName = "Журнал складских документов";
-			tableDocuments.RepresentationModel = new DocumentsVM ();
+			var documentsVM = new DocumentsVM(this);
+
+			tableDocuments.RepresentationModel = documentsVM;
 			hboxFilter.Add (tableDocuments.RepresentationModel.RepresentationFilter as Widget);
 			(tableDocuments.RepresentationModel.RepresentationFilter as Widget).Show ();
 			uow = tableDocuments.RepresentationModel.UoW;

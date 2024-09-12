@@ -1,11 +1,11 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
-using QS.Validation;
+using QS.ViewModels.Control.EEVM;
+using System;
+using System.ComponentModel;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories;
@@ -13,46 +13,52 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz
 {
-	public partial class RegradingOfGoodsDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<RegradingOfGoodsDocument>
+	public partial class RegradingOfGoodsDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<RegradingOfGoodsDocument>, INotifyPropertyChanged
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private IEmployeeRepository _employeeRepository;
 		private IUserRepository _userRepository;
+		private INavigationManager _navigationManager;
 		private IStoreDocumentHelper _storeDocumentHelper;
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+
+		public IEntityEntryViewModel WarehouseViewModel { get; private set; }
+
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		public RegradingOfGoodsDocumentDlg()
 		{
 			ResolveDependencies();
 			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<RegradingOfGoodsDocument> ();
-			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser (UoW);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<RegradingOfGoodsDocument>();
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null)
 			{
-				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
-			
+
 			Entity.Warehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.RegradingOfGoodsEdit);
 
 			ConfigureDlg();
 		}
 
-		public RegradingOfGoodsDocumentDlg (int id)
+		public RegradingOfGoodsDocumentDlg(int id)
 		{
 			ResolveDependencies();
-			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsDocument> (id);
-			
+			this.Build();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsDocument>(id);
+
 			ConfigureDlg();
 		}
 
-		public RegradingOfGoodsDocumentDlg (RegradingOfGoodsDocument sub) : this (sub.Id)
+		public RegradingOfGoodsDocumentDlg(RegradingOfGoodsDocument sub) : this(sub.Id)
 		{
 		}
 
@@ -60,15 +66,17 @@ namespace Vodovoz
 		{
 			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
 			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
+			_navigationManager = _lifetimeScope.Resolve<INavigationManager>();
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 		}
 
-		void ConfigureDlg ()
+		void ConfigureDlg()
 		{
 			regradingofgoodsitemsview.NavigationManager = Startup.MainWin.NavigationManager;
 			regradingofgoodsitemsview.ParrentDlg = this;
 
-			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse)) {
+			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse))
+			{
 				FailInitialize = true;
 				return;
 			}
@@ -77,46 +85,54 @@ namespace Vodovoz
 			regradingofgoodsitemsview.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			
+
 			var userHasOnlyAccessToWarehouseAndComplaints =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
-			if(userHasOnlyAccessToWarehouseAndComplaints)
-			{
-				warehouseEntry.CanEditReference = false;
-			}
-			else
-			{
-				warehouseEntry.CanEditReference = true;
-			}
-
 			var availableWarehousesIds =
 				_storeDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.RegradingOfGoodsEdit);
-			Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = availableWarehousesIds;
 
-			//warehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope, filterParams));
-			warehouseEntry.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+			var viewModelBuilderFactory = new LegacyEEVMBuilderFactory<RegradingOfGoodsDocument>(this, Entity, UoW, _navigationManager, _lifetimeScope);
+
+			WarehouseViewModel = viewModelBuilderFactory
+				.ForProperty(x => x.Warehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
+				{
+					filter.IncludeWarehouseIds = availableWarehousesIds;
+				})
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
+
+			WarehouseViewModel.IsEditable = !userHasOnlyAccessToWarehouseAndComplaints;
+
+			entityentryWarehouse.ViewModel = WarehouseViewModel;
+
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
 			regradingofgoodsitemsview.DocumentUoW = UoWGeneric;
-			if (Entity.Items.Count > 0)
-				warehouseEntry.Sensitive = false;
+			if(Entity.Items.Count > 0)
+			{
+				WarehouseViewModel.IsEditable = false;
+			}
 
 			var permmissionValidator = new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 			Entity.CanEdit = permmissionValidator.Validate(typeof(RegradingOfGoodsDocument), _userRepository.GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
-			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
+			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date)
+			{
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				warehouseEntry.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				entityentryWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				regradingofgoodsitemsview.Sensitive = false;
 
 				buttonSave.Sensitive = false;
-			} else {
+			}
+			else
+			{
 				Entity.CanEdit = true;
 			}
 		}
 
-		public override bool Save ()
+		public override bool Save()
 		{
 			if(!Entity.CanEdit)
 				return false;
@@ -127,20 +143,20 @@ namespace Vodovoz
 				return false;
 			}
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null)
 			{
-				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
-			logger.Info ("Сохраняем документ пересортицы...");
-			UoWGeneric.Save ();
-			logger.Info ("Ok.");
+			logger.Info("Сохраняем документ пересортицы...");
+			UoWGeneric.Save();
+			logger.Info("Ok.");
 			return true;
 		}
-		
+
 		protected override void OnDestroyed()
 		{
 			_employeeRepository = null;

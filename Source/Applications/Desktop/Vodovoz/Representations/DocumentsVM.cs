@@ -27,6 +27,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Infrastructure;
 using QS.Project.Services;
+using QS.Tdi;
 
 namespace Vodovoz.ViewModel
 {
@@ -79,12 +80,12 @@ namespace Vodovoz.ViewModel
 			List<DocumentVMNode> result = new List<DocumentVMNode>();
 
 			if((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.IncomingInvoice) &&
-			   Filter.RestrictDriver == null)
+			   Filter.Driver == null)
 			{
 				var invoiceQuery = UoW.Session.QueryOver<IncomingInvoice>(() => invoiceAlias);
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					invoiceQuery.Where(x => x.Warehouse.Id == Filter.RestrictWarehouse.Id);
+					invoiceQuery.Where(x => x.Warehouse.Id == Filter.Warehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -128,13 +129,13 @@ namespace Vodovoz.ViewModel
 			}
 
 			if((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.IncomingWater) &&
-			   Filter.RestrictDriver == null)
+			   Filter.Driver == null)
 			{
 				var waterQuery = UoW.Session.QueryOver<IncomingWater>(() => waterAlias);
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					waterQuery.Where(x => x.IncomingWarehouse.Id == Filter.RestrictWarehouse.Id ||
-					                      x.WriteOffWarehouse.Id == Filter.RestrictWarehouse.Id);
+					waterQuery.Where(x => x.IncomingWarehouse.Id == Filter.Warehouse.Id ||
+					                      x.WriteOffWarehouse.Id == Filter.Warehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -174,13 +175,13 @@ namespace Vodovoz.ViewModel
 			}
 
 			if((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.MovementDocument) &&
-			   Filter.RestrictDriver == null)
+			   Filter.Driver == null)
 			{
 				var movementQuery = UoW.Session.QueryOver<MovementDocument>(() => movementAlias);
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					movementQuery.Where(x => x.FromWarehouse.Id == Filter.RestrictWarehouse.Id ||
-					                         x.ToWarehouse.Id == Filter.RestrictWarehouse.Id);
+					movementQuery.Where(x => x.FromWarehouse.Id == Filter.Warehouse.Id ||
+					                         x.ToWarehouse.Id == Filter.Warehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -265,12 +266,12 @@ namespace Vodovoz.ViewModel
 			}
 
 			if((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.WriteoffDocument) &&
-			   Filter.RestrictDriver == null)
+			   Filter.Driver == null)
 			{
 				var writeoffQuery = UoW.Session.QueryOver<WriteOffDocument>(() => writeOffAlias);
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					writeoffQuery.Where(x => x.WriteOffFromWarehouse.Id == Filter.RestrictWarehouse.Id);
+					writeoffQuery.Where(x => x.WriteOffFromWarehouse.Id == Filter.Warehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -311,12 +312,12 @@ namespace Vodovoz.ViewModel
 			}
 
 			if((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.InventoryDocument) &&
-			   Filter.RestrictDriver == null)
+			   Filter.Driver == null)
 			{
 				var inventoryQuery = UoW.Session.QueryOver<InventoryDocument>(() => inventoryAlias);
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					inventoryQuery.Where(x => x.Warehouse.Id == Filter.RestrictWarehouse.Id);
+					inventoryQuery.Where(x => x.Warehouse.Id == Filter.Warehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -351,12 +352,12 @@ namespace Vodovoz.ViewModel
 			}
 
 			if((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.ShiftChangeDocument) &&
-			   Filter.RestrictDriver == null)
+			   Filter.Driver == null)
 			{
 				var shiftchangeQuery = UoW.Session.QueryOver<ShiftChangeWarehouseDocument>(() => shiftchangeAlias);
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					shiftchangeQuery.Where(x => x.Warehouse.Id == Filter.RestrictWarehouse.Id);
+					shiftchangeQuery.Where(x => x.Warehouse.Id == Filter.Warehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -391,12 +392,12 @@ namespace Vodovoz.ViewModel
 			}
 
 			if((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.RegradingOfGoodsDocument) &&
-			   Filter.RestrictDriver == null)
+			   Filter.Driver == null)
 			{
 				var regrandingQuery = UoW.Session.QueryOver<RegradingOfGoodsDocument>(() => regradingOfGoodsAlias);
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					regrandingQuery.Where(x => x.Warehouse.Id == Filter.RestrictWarehouse.Id);
+					regrandingQuery.Where(x => x.Warehouse.Id == Filter.Warehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -432,16 +433,16 @@ namespace Vodovoz.ViewModel
 			}
 
 			if((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.SelfDeliveryDocument) &&
-			   Filter.RestrictDriver == null)
+			   Filter.Driver == null)
 			{
 				var selfDeliveryQuery = UoW.Session.QueryOver<SelfDeliveryDocument>(() => selfDeliveryAlias)
 					.JoinQueryOver(() => selfDeliveryAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => selfDeliveryAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => orderAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					selfDeliveryQuery.Where(() => selfDeliveryAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
+					selfDeliveryQuery.Where(() => selfDeliveryAlias.Warehouse.Id == Filter.Warehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -485,9 +486,9 @@ namespace Vodovoz.ViewModel
 					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					carLoadQuery.Where(() => loadCarAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
+					carLoadQuery.Where(() => loadCarAlias.Warehouse.Id == Filter.Warehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -497,9 +498,9 @@ namespace Vodovoz.ViewModel
 				{
 					carLoadQuery.Where(() => loadCarAlias.TimeStamp < Filter.RestrictEndDate.Value.AddDays(1));
 				}
-				if(Filter.RestrictDriver != null)
+				if(Filter.Driver != null)
 				{
-					carLoadQuery.Where(() => routeListAlias.Driver.Id == Filter.RestrictDriver.Id);
+					carLoadQuery.Where(() => routeListAlias.Driver.Id == Filter.Driver.Id);
 				}
 
 				var carLoadList = carLoadQuery
@@ -539,9 +540,9 @@ namespace Vodovoz.ViewModel
 					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					carUnloadQuery.Where(() => unloadCarAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
+					carUnloadQuery.Where(() => unloadCarAlias.Warehouse.Id == Filter.Warehouse.Id);
 				}
 
 				if(Filter.RestrictStartDate.HasValue)
@@ -554,9 +555,9 @@ namespace Vodovoz.ViewModel
 					carUnloadQuery.Where(() => unloadCarAlias.TimeStamp < Filter.RestrictEndDate.Value.AddDays(1));
 				}
 
-				if(Filter.RestrictDriver != null)
+				if(Filter.Driver != null)
 				{
-					carUnloadQuery.Where(() => routeListAlias.Driver.Id == Filter.RestrictDriver.Id);
+					carUnloadQuery.Where(() => routeListAlias.Driver.Id == Filter.Driver.Id);
 				}
 
 				var carUnloadList = carUnloadQuery
@@ -600,9 +601,9 @@ namespace Vodovoz.ViewModel
 						Restrictions.Lt(Projections.Property(() => operationAlias.Amount), 0))
 					.JoinQueryOver(() => terminalGiveoutAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					driverTerminalGiveoutQuery.Where(() => operationAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
+					driverTerminalGiveoutQuery.Where(() => operationAlias.Warehouse.Id == Filter.Warehouse.Id);
 				}
 
 				if(Filter.RestrictStartDate.HasValue)
@@ -615,9 +616,9 @@ namespace Vodovoz.ViewModel
 					driverTerminalGiveoutQuery.Where(() => terminalGiveoutAlias.CreationDate < Filter.RestrictEndDate.Value.AddDays(1));
 				}
 
-				if(Filter.RestrictDriver != null)
+				if(Filter.Driver != null)
 				{
-					driverTerminalGiveoutQuery.Where(() => terminalGiveoutAlias.Driver.Id == Filter.RestrictDriver.Id);
+					driverTerminalGiveoutQuery.Where(() => terminalGiveoutAlias.Driver.Id == Filter.Driver.Id);
 				}
 
 				var terminalGiveoutDocs = driverTerminalGiveoutQuery
@@ -649,9 +650,9 @@ namespace Vodovoz.ViewModel
 						Restrictions.Gt(Projections.Property(() => operationAlias.Amount), 0))
 					.JoinQueryOver(() => terminalReturnAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					driverTerminalReturnQuery.Where(() => operationAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
+					driverTerminalReturnQuery.Where(() => operationAlias.Warehouse.Id == Filter.Warehouse.Id);
 				}
 
 				if(Filter.RestrictStartDate.HasValue)
@@ -664,9 +665,9 @@ namespace Vodovoz.ViewModel
 					driverTerminalReturnQuery.Where(() => terminalReturnAlias.CreationDate < Filter.RestrictEndDate.Value.AddDays(1));
 				}
 
-				if(Filter.RestrictDriver != null)
+				if(Filter.Driver != null)
 				{
-					driverTerminalReturnQuery.Where(() => terminalReturnAlias.Driver.Id == Filter.RestrictDriver.Id);
+					driverTerminalReturnQuery.Where(() => terminalReturnAlias.Driver.Id == Filter.Driver.Id);
 				}
 
 				var terminalReturnDocs = driverTerminalReturnQuery
@@ -699,9 +700,9 @@ namespace Vodovoz.ViewModel
 						Restrictions.Lt(Projections.Property(() => operationAlias.Amount), 0))
 					.JoinQueryOver(() => terminalGiveoutAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					driverterminalGiveoutQuery.Where(() => operationAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
+					driverterminalGiveoutQuery.Where(() => operationAlias.Warehouse.Id == Filter.Warehouse.Id);
 				}
 
 				if(Filter.RestrictStartDate.HasValue)
@@ -714,9 +715,9 @@ namespace Vodovoz.ViewModel
 					driverterminalGiveoutQuery.Where(() => terminalGiveoutAlias.CreationDate < Filter.RestrictEndDate.Value.AddDays(1));
 				}
 
-				if(Filter.RestrictDriver != null)
+				if(Filter.Driver != null)
 				{
-					driverterminalGiveoutQuery.Where(() => terminalGiveoutAlias.Driver.Id == Filter.RestrictDriver.Id);
+					driverterminalGiveoutQuery.Where(() => terminalGiveoutAlias.Driver.Id == Filter.Driver.Id);
 				}
 
 				var terminalGiveoutDocs = driverterminalGiveoutQuery
@@ -747,9 +748,9 @@ namespace Vodovoz.ViewModel
 						Restrictions.Gt(Projections.Property(() => operationAlias.Amount), 0))
 					.JoinQueryOver(() => terminalReturnAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-				if(Filter.RestrictWarehouse != null)
+				if(Filter.Warehouse != null)
 				{
-					driverTerminalReturnQuery.Where(() => operationAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
+					driverTerminalReturnQuery.Where(() => operationAlias.Warehouse.Id == Filter.Warehouse.Id);
 				}
 
 				if(Filter.RestrictStartDate.HasValue)
@@ -762,9 +763,9 @@ namespace Vodovoz.ViewModel
 					driverTerminalReturnQuery.Where(() => terminalReturnAlias.CreationDate < Filter.RestrictEndDate.Value.AddDays(1));
 				}
 
-				if(Filter.RestrictDriver != null)
+				if(Filter.Driver != null)
 				{
-					driverTerminalReturnQuery.Where(() => terminalReturnAlias.Driver.Id == Filter.RestrictDriver.Id);
+					driverTerminalReturnQuery.Where(() => terminalReturnAlias.Driver.Id == Filter.Driver.Id);
 				}
 
 				var terminalReturnDocs = driverTerminalReturnQuery
@@ -849,9 +850,9 @@ namespace Vodovoz.ViewModel
 			Filter = filter;
 		}
 
-		public DocumentsVM() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+		public DocumentsVM(ITdiTab tdiTab) : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			CreateRepresentationFilter = () => new StockDocumentsFilter(UoW);
+			CreateRepresentationFilter = () => new StockDocumentsFilter(UoW, tdiTab);
 		}
 
 		public DocumentsVM(IUnitOfWork uow) : base(
