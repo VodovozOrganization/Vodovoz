@@ -219,7 +219,7 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 
 		public IEnumerable<int> GetControlledByEmployeeSubdivisionIds(IUnitOfWork uow, int employeeId)
 		{
-			return uow.GetAll<Subdivision>()
+			return uow.Session.Query<Subdivision>()
 				.Where(s => s.Chief.Id == employeeId)
 				.Select(s => s.Id)
 				.ToList();
