@@ -408,6 +408,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				OnPropertyChanged(() => CanSubdivisionChiefApprove);
 				OnPropertyChanged(() => CanApprove);
 				OnPropertyChanged(() => CanConveyForResults);
+				OnPropertyChanged(() => CanReturnToRenegotiation); 
 				OnPropertyChanged(() => CanCancel);
 				OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
 				OnPropertyChanged(() => ExpenseCategoryVisibility);
@@ -491,11 +492,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public bool CanConveyForResults => UserRole == PayoutRequestUserRole.Financier
 										&& Entity.PayoutRequestState == PayoutRequestState.Agreed;
 
-		public bool CanReturnToRenegotiation => Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
-											 || Entity.PayoutRequestState == PayoutRequestState.Agreed
-											 || Entity.PayoutRequestState == PayoutRequestState.GivenForTake
-											 || Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed
-											 || Entity.PayoutRequestState == PayoutRequestState.Canceled;
+		public bool CanReturnToRenegotiation =>
+			(Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
+			|| Entity.PayoutRequestState == PayoutRequestState.Agreed
+			|| Entity.PayoutRequestState == PayoutRequestState.GivenForTake
+			|| Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed)
+			&& UserRole != PayoutRequestUserRole.RequestCreator
+			|| Entity.PayoutRequestState == PayoutRequestState.Canceled;
 
 		public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submited
 							  || Entity.PayoutRequestState == PayoutRequestState.OnClarification
