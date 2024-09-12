@@ -40,10 +40,10 @@ namespace Vodovoz.Views.Warehouse
 				.AddBinding(ViewModel, vm => vm.CanChangeStorage, w => w.Sensitive)
 				.InitializeFromSource();
 			
-			ySpecCmbWarehouses.ItemsList = ViewModel.Warehouses;
-			ySpecCmbWarehouses.Binding
-				.AddBinding(ViewModel.Entity, e => e.WriteOffFromWarehouse, w => w.SelectedItem)
-				.InitializeFromSource();
+			//ySpecCmbWarehouses.ItemsList = ViewModel.Warehouses;
+			//ySpecCmbWarehouses.Binding
+				//.AddBinding(ViewModel.Entity, e => e.WriteOffFromWarehouse, w => w.SelectedItem)
+				//.InitializeFromSource();
 			
 			hboxStorages.Binding
 				.AddBinding(ViewModel, vm => vm.CanChangeStorage, w => w.Sensitive)
