@@ -140,6 +140,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					ChangeStateAndSave(PayoutRequestState.AgreedBySubdivisionChief);
 				},
 				() => CanSubdivisionChiefApprove);
+			SubdivisionChiefApproveCommand.CanExecuteChangedWith(this, x => x.CanSubdivisionChiefApprove);
 
 			ApproveCommand = new DelegateCommand(() =>
 				{
