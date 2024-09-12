@@ -816,6 +816,7 @@
     <Compile Include="ViewModels\Suppliers\BalanceSummaryRow.cs" />
     <Compile Include="ViewModels\Suppliers\InstanceData.cs" />
     <Compile Include="ViewModels\Suppliers\NomenclatureStorageIds.cs" />
+    <Compile Include="ViewModels\Suppliers\NomenclatureMinimumBalanceByWarehouseNode.cs" />
     <Compile Include="ViewModels\Suppliers\PriceNode.cs" />
     <Compile Include="ViewModels\Suppliers\ReservedBalance.cs" />
     <Compile Include="ViewModels\Suppliers\WarehousesBalanceSummaryReportParameters.cs" />
