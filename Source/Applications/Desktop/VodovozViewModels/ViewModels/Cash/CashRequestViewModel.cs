@@ -482,8 +482,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 							  || Entity.PayoutRequestState == PayoutRequestState.OnClarification;
 
 		//Согласовать руководителем отдела
-		public bool CanSubdivisionChiefApprove => Entity.PayoutRequestState == PayoutRequestState.Submited
-							   && UserRole == PayoutRequestUserRole.SubdivisionChief;
+		public bool CanSubdivisionChiefApprove =>
+			Entity.PayoutRequestState == PayoutRequestState.Submited
+			&& UserRole == PayoutRequestUserRole.SubdivisionChief;
 
 		//Согласовать исполнительным директором
 		public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
@@ -494,9 +495,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public bool CanReturnToRenegotiation =>
 			(Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
-			|| Entity.PayoutRequestState == PayoutRequestState.Agreed
-			|| Entity.PayoutRequestState == PayoutRequestState.GivenForTake
-			|| Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed)
+				|| Entity.PayoutRequestState == PayoutRequestState.Agreed
+				|| Entity.PayoutRequestState == PayoutRequestState.GivenForTake
+				|| Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed)
 			&& UserRole != PayoutRequestUserRole.RequestCreator
 			|| Entity.PayoutRequestState == PayoutRequestState.Canceled;
 
