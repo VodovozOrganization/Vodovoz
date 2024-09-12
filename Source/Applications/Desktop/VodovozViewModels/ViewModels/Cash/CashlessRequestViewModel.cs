@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -11,7 +12,10 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
@@ -19,10 +23,12 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using VodovozBusiness.Domain.Cash.CashRequest;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -30,8 +36,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	{
 		private PayoutRequestUserRole _userRole;
 		private readonly Employee _currentEmployee;
+		private readonly ICashlessRequestFileStorageService _cashlessRequestFileStorageService;
 		private ILifetimeScope _lifetimeScope;
+		private IInteractiveService _interactiveService;
 		private FinancialExpenseCategory _financialExpenseCategory;
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public CashlessRequestViewModel(
 			IFileDialogService fileDialogService,
@@ -42,11 +51,20 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
+			ICashlessRequestFileStorageService cashlessRequestFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			ILifetimeScope lifetimeScope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			}
+
 			TabName = base.TabName;
+			_cashlessRequestFileStorageService = cashlessRequestFileStorageService ?? throw new ArgumentNullException(nameof(cashlessRequestFileStorageService));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 			CounterpartyAutocompleteSelector =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
@@ -54,7 +72,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
 				.GetEmployeeForCurrentUser(UoW);
 
-			if(UoW.IsNew)
+			if(Entity.Id == 0)
 			{
 				Entity.Author = _currentEmployee;
 				Entity.Subdivision = _currentEmployee.Subdivision;
@@ -74,11 +92,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			UserRole = UserRoles.First();
 
 			OurOrganisations = UoW.Session.QueryOver<Organization>().List();
-			var filesViewModel = new CashlessRequestFilesViewModel(Entity, UoW, fileDialogService, CommonServices, userRepository)
-			{
-				ReadOnly = !IsNotClosed || IsSecurityServiceRole
-			};
-			CashlessRequestFilesViewModel = filesViewModel;
 
 			var expenseCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashlessRequestViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
@@ -112,6 +125,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				.Finish();
 
 			SubdivisionViewModel.IsEditable = false;
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<CashlessRequest, CashlessRequestFileInformation>(
+				UoW,
+				Entity,
+				_cashlessRequestFileStorageService,
+				_cancellationTokenSource.Token,
+				Entity.AddFileInformation,
+				Entity.RemoveFileInformation);
+
+			AttachedFileInformationsViewModel.ReadOnly = !IsNotClosed || IsSecurityServiceRole;
 		}
 
 		#region Статья расхода
@@ -122,7 +145,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		#region Инициализация виджетов
 
-		public CashlessRequestFilesViewModel CashlessRequestFilesViewModel { get; }
 		public IEnumerable<Organization> OurOrganisations { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelector { get; }
 
@@ -211,6 +233,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public bool AskSaveOnClose => !IsSecurityServiceRole;
 
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
+
 		#endregion
 
 		#endregion
@@ -263,6 +287,21 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			{
 				Save(true);
 			}
+		}
+
+		public override bool Save(bool close)
+		{
+			if(!base.Save(false))
+			{
+				return false;
+			}
+
+			AddAttachedFilesIfNeeded();
+			UpdateAttachedFilesIfNeeded();
+			DeleteAttachedFilesIfNeeded();
+			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+
+			return base.Save(close);
 		}
 
 		#endregion
@@ -330,6 +369,80 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 
 			return roles;
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
+			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			do
+			{
+				foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _cashlessRequestFileStorageService.CreateFileAsync(Entity, fileName,
+					new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
+				else
+				{
+					repeat = false;
+				}
+			}
+			while(repeat);
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_cashlessRequestFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_cashlessRequestFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
 		}
 
 		#endregion

@@ -208,7 +208,7 @@ namespace Vodovoz.Views.Employees
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry defaultForwarderEntry;
 
-		private global::Gtk.HBox hbox10;
+		private global::Gtk.HBox hbox11;
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinDriverSpeed;
 
@@ -282,7 +282,7 @@ namespace Vodovoz.Views.Employees
 
 		private global::Gtk.VBox vbox5;
 
-		private global::Gtk.HBox hbox12;
+		private global::Gtk.HBox hbox13;
 
 		private global::Gtk.Label label19;
 
@@ -318,7 +318,7 @@ namespace Vodovoz.Views.Employees
 
 		private global::Gamma.GtkWidgets.yVBox vboxFiles;
 
-		private global::QSAttachment.Views.Widgets.AttachmentsView attachmentsView;
+		private global::Vodovoz.Presentation.Views.AttachedFileInformationsView attachedfileinformationsview;
 
 		private global::Gtk.Label label24;
 
@@ -754,6 +754,7 @@ namespace Vodovoz.Views.Employees
 			this.entityviewmodelUser.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelUser.Name = "entityviewmodelUser";
 			this.entityviewmodelUser.CanEditReference = false;
+			this.entityviewmodelUser.CanDisposeEntitySelectorFactory = false;
 			this.entityviewmodelUser.CanOpenWithoutTabParent = false;
 			this.datatableMain.Add(this.entityviewmodelUser);
 			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.entityviewmodelUser]));
@@ -796,6 +797,7 @@ namespace Vodovoz.Views.Employees
 			this.entryEmployeePost.Events = ((global::Gdk.EventMask)(256));
 			this.entryEmployeePost.Name = "entryEmployeePost";
 			this.entryEmployeePost.CanEditReference = false;
+			this.entryEmployeePost.CanDisposeEntitySelectorFactory = false;
 			this.entryEmployeePost.CanOpenWithoutTabParent = false;
 			this.datatableMain.Add(this.entryEmployeePost);
 			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.entryEmployeePost]));
@@ -1531,6 +1533,7 @@ namespace Vodovoz.Views.Employees
 			this.defaultForwarderEntry.Events = ((global::Gdk.EventMask)(256));
 			this.defaultForwarderEntry.Name = "defaultForwarderEntry";
 			this.defaultForwarderEntry.CanEditReference = false;
+			this.defaultForwarderEntry.CanDisposeEntitySelectorFactory = false;
 			this.defaultForwarderEntry.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.defaultForwarderEntry);
 			global::Gtk.Table.TableChild w102 = ((global::Gtk.Table.TableChild)(this.table1[this.defaultForwarderEntry]));
@@ -1541,10 +1544,10 @@ namespace Vodovoz.Views.Employees
 			w102.XOptions = ((global::Gtk.AttachOptions)(4));
 			w102.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.hbox10 = new global::Gtk.HBox();
-			this.hbox10.Name = "hbox10";
-			this.hbox10.Spacing = 6;
-			// Container child hbox10.Gtk.Box+BoxChild
+			this.hbox11 = new global::Gtk.HBox();
+			this.hbox11.Name = "hbox11";
+			this.hbox11.Spacing = 6;
+			// Container child hbox11.Gtk.Box+BoxChild
 			this.yspinDriverSpeed = new global::Gamma.GtkWidgets.ySpinButton(1D, 1000D, 1D);
 			this.yspinDriverSpeed.CanFocus = true;
 			this.yspinDriverSpeed.Name = "yspinDriverSpeed";
@@ -1554,20 +1557,20 @@ namespace Vodovoz.Views.Employees
 			this.yspinDriverSpeed.Value = 1D;
 			this.yspinDriverSpeed.ValueAsDecimal = 0m;
 			this.yspinDriverSpeed.ValueAsInt = 0;
-			this.hbox10.Add(this.yspinDriverSpeed);
-			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.yspinDriverSpeed]));
+			this.hbox11.Add(this.yspinDriverSpeed);
+			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.yspinDriverSpeed]));
 			w103.Position = 0;
-			// Container child hbox10.Gtk.Box+BoxChild
+			// Container child hbox11.Gtk.Box+BoxChild
 			this.label23 = new global::Gtk.Label();
 			this.label23.Name = "label23";
 			this.label23.LabelProp = global::Mono.Unix.Catalog.GetString("%");
-			this.hbox10.Add(this.label23);
-			global::Gtk.Box.BoxChild w104 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.label23]));
+			this.hbox11.Add(this.label23);
+			global::Gtk.Box.BoxChild w104 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.label23]));
 			w104.Position = 1;
 			w104.Expand = false;
 			w104.Fill = false;
-			this.table1.Add(this.hbox10);
-			global::Gtk.Table.TableChild w105 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox10]));
+			this.table1.Add(this.hbox11);
+			global::Gtk.Table.TableChild w105 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox11]));
 			w105.TopAttach = ((uint)(3));
 			w105.BottomAttach = ((uint)(4));
 			w105.LeftAttach = ((uint)(1));
@@ -1966,29 +1969,29 @@ namespace Vodovoz.Views.Employees
 			this.vbox5.Spacing = 6;
 			this.vbox5.BorderWidth = ((uint)(6));
 			// Container child vbox5.Gtk.Box+BoxChild
-			this.hbox12 = new global::Gtk.HBox();
-			this.hbox12.Name = "hbox12";
-			this.hbox12.Spacing = 6;
-			// Container child hbox12.Gtk.Box+BoxChild
+			this.hbox13 = new global::Gtk.HBox();
+			this.hbox13.Name = "hbox13";
+			this.hbox13.Spacing = 6;
+			// Container child hbox13.Gtk.Box+BoxChild
 			this.label19 = new global::Gtk.Label();
 			this.label19.Name = "label19";
 			this.label19.LabelProp = global::Mono.Unix.Catalog.GetString("ИНН:");
-			this.hbox12.Add(this.label19);
-			global::Gtk.Box.BoxChild w147 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.label19]));
+			this.hbox13.Add(this.label19);
+			global::Gtk.Box.BoxChild w147 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.label19]));
 			w147.Position = 0;
 			w147.Expand = false;
 			w147.Fill = false;
-			// Container child hbox12.Gtk.Box+BoxChild
+			// Container child hbox13.Gtk.Box+BoxChild
 			this.entryInn = new global::Gamma.GtkWidgets.yEntry();
 			this.entryInn.CanFocus = true;
 			this.entryInn.Name = "entryInn";
 			this.entryInn.IsEditable = true;
 			this.entryInn.InvisibleChar = '●';
-			this.hbox12.Add(this.entryInn);
-			global::Gtk.Box.BoxChild w148 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.entryInn]));
+			this.hbox13.Add(this.entryInn);
+			global::Gtk.Box.BoxChild w148 = ((global::Gtk.Box.BoxChild)(this.hbox13[this.entryInn]));
 			w148.Position = 1;
-			this.vbox5.Add(this.hbox12);
-			global::Gtk.Box.BoxChild w149 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox12]));
+			this.vbox5.Add(this.hbox13);
+			global::Gtk.Box.BoxChild w149 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox13]));
 			w149.Position = 0;
 			w149.Expand = false;
 			w149.Fill = false;
@@ -2122,11 +2125,11 @@ namespace Vodovoz.Views.Employees
 			this.vboxFiles.Name = "vboxFiles";
 			this.vboxFiles.Spacing = 6;
 			// Container child vboxFiles.Gtk.Box+BoxChild
-			this.attachmentsView = new global::QSAttachment.Views.Widgets.AttachmentsView();
-			this.attachmentsView.Events = ((global::Gdk.EventMask)(256));
-			this.attachmentsView.Name = "attachmentsView";
-			this.vboxFiles.Add(this.attachmentsView);
-			global::Gtk.Box.BoxChild w164 = ((global::Gtk.Box.BoxChild)(this.vboxFiles[this.attachmentsView]));
+			this.attachedfileinformationsview = new global::Vodovoz.Presentation.Views.AttachedFileInformationsView();
+			this.attachedfileinformationsview.Events = ((global::Gdk.EventMask)(256));
+			this.attachedfileinformationsview.Name = "attachedfileinformationsview";
+			this.vboxFiles.Add(this.attachedfileinformationsview);
+			global::Gtk.Box.BoxChild w164 = ((global::Gtk.Box.BoxChild)(this.vboxFiles[this.attachedfileinformationsview]));
 			w164.Position = 0;
 			this.notebookMain.Add(this.vboxFiles);
 			global::Gtk.Notebook.NotebookChild w165 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.vboxFiles]));

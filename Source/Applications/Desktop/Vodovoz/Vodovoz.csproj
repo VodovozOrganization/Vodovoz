@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -641,6 +641,7 @@
     <Compile Include="MainWindow.Navigation.Suggestions.cs" />
     <Compile Include="MainWindow.Notifications.cs" />
     <Compile Include="MainWindow.View.cs" />
+    <Compile Include="Options\ConfigureS3Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CreateProjectParam.cs" />
@@ -1061,8 +1062,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CardPaymentsOrdersReport.cs" />
     <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.ProductGroupDlg.cs" />
-    <Compile Include="Dialogs\OnlineStore\ExportToSiteDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.OnlineStore.ExportToSiteDlg.cs" />
     <Compile Include="ViewWidgets\UndeliveredOrderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderView.cs" />
     <Compile Include="SidePanel\InfoViews\UndeliveredOrdersPanelView.cs" />
@@ -1262,8 +1261,6 @@
     <Compile Include="Filters\GtkViews\ComplaintFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintFilterView.cs" />
     <Compile Include="ViewWidgets\GtkReportViewOpener.cs" />
-    <Compile Include="Views\Complaints\ComplaintFilesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintFilesView.cs" />
     <Compile Include="Dialogs\OrderWidgets\GtkTabsOpener.cs" />
     <Compile Include="Views\Client\SupplierPricesWidgetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.SupplierPricesWidgetView.cs" />
@@ -1543,8 +1540,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryPointResponsiblePersonTypeView.cs" />
     <Compile Include="Views\Retail\SalesChannelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Retail.SalesChannelView.cs" />
-    <Compile Include="Views\Client\CounterpartyFilesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyFilesView.cs" />
     <Compile Include="ServiceDialogs\RecalculateDriverWageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.RecalculateDriverWageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeePostView.cs" />
@@ -1634,8 +1629,6 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryTransferAbsenceReasonJournalFilterView.cs" />
     <Compile Include="SidePanel\InfoViews\CashInfoPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CashInfoPanelView.cs" />
-    <Compile Include="Views\Cash\CashlessRequestFilesView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Cash.CashlessRequestFilesView.cs" />
     <Compile Include="Views\Print\DocumentsPrinterView.cs" />
     <Compile Include="Views\Logistic\CarModelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarModelView.cs" />
@@ -2073,8 +2066,6 @@
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Store\" />
-    <Folder Include="Store\Reports\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2715,6 +2706,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="icons\buttons\wiki.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\toolbar\order_ratings.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

@@ -450,15 +450,9 @@ namespace Vodovoz.Views.Goods
 			nomenclatureMinimumBalanceByWarehouseView.ViewModel = ViewModel.NomenclatureMinimumBalanceByWarehouseViewModel;
 			nomenclatureMinimumBalanceByWarehouseView.HeightRequest = 170;
 
-			#region Вкладка изображения
+			#region Вкладка изображения			
 
-			Imageslist.Sensitive = ViewModel.CanEdit;
-			buttonAddImage.Sensitive = ViewModel.CanEdit;
-
-			if(ViewModel.CanEdit)
-			{
-				Imageslist.ImageButtonPressEvent += Imageslist_ImageButtonPressEvent;
-			}
+			attachedfileinformationsview1.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 
 			#endregion
 
@@ -1008,7 +1002,6 @@ namespace Vodovoz.Views.Goods
 		{
 			if(radioImages.Active) {
 				notebook.CurrentPage = 3;
-				ImageTabOpen();
 			}
 		}
 
@@ -1034,73 +1027,6 @@ namespace Vodovoz.Views.Goods
 			{
 				notebook.CurrentPage = 6;
 			}
-		}
-
-		#endregion
-
-		#region Вкладка изображений
-
-		private void ImageTabOpen()
-		{
-			if(!ViewModel.ImageLoaded) {
-				ReloadImages();
-				ViewModel.ImageLoaded = true;
-			}
-		}
-
-		private void ReloadImages()
-		{
-			Imageslist.Images.Clear();
-
-			foreach(var imageSource in ViewModel.Entity.Images) {
-				Imageslist.AddImage(new Gdk.Pixbuf(imageSource.Image), imageSource);
-			}
-			Imageslist.UpdateList();
-		}
-
-		protected void OnButtonAddImageClicked(object sender, EventArgs e)
-		{
-			FileChooserDialog Chooser = new FileChooserDialog("Выберите изображение...",
-				(Window)this.Toplevel,
-				FileChooserAction.Open,
-				"Отмена", ResponseType.Cancel,
-				"Загрузить", ResponseType.Accept);
-
-			FileFilter Filter = new FileFilter();
-			Filter.AddPixbufFormats();
-			Filter.Name = "Все изображения";
-			Chooser.AddFilter(Filter);
-
-			if((ResponseType)Chooser.Run() == ResponseType.Accept) {
-				Chooser.Hide();
-				logger.Info("Загрузка изображения...");
-
-				var imageFile = ImageHelper.LoadImageToJpgBytes(Chooser.Filename);
-				ViewModel.Entity.Images.Add(new NomenclatureImage(ViewModel.Entity, imageFile));
-				ReloadImages();
-
-				logger.Info("Ok");
-			}
-			Chooser.Destroy();
-		}
-
-		private void Imageslist_ImageButtonPressEvent(object sender, ImageButtonPressEventArgs e)
-		{
-			if((int)e.eventArgs.Event.Button == 3) {
-				ViewModel.PopupMenuOn = (NomenclatureImage)e.Tag;
-				Menu jBox = new Menu();
-				MenuItem MenuItem1 = new MenuItem("Удалить");
-				MenuItem1.Activated += DeleteImage_Activated; ;
-				jBox.Add(MenuItem1);
-				jBox.ShowAll();
-				jBox.Popup();
-			}
-		}
-
-		private void DeleteImage_Activated(object sender, EventArgs e)
-		{
-			ViewModel.DeleteImage();
-			ReloadImages();
 		}
 
 		#endregion
