@@ -409,7 +409,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				OnPropertyChanged(() => CanSubdivisionChiefApprove);
 				OnPropertyChanged(() => CanApprove);
 				OnPropertyChanged(() => CanConveyForResults);
-				OnPropertyChanged(() => CanReturnToRenegotiation); 
+				OnPropertyChanged(() => CanReturnToRenegotiation);
 				OnPropertyChanged(() => CanCancel);
 				OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
 				OnPropertyChanged(() => ExpenseCategoryVisibility);
@@ -646,7 +646,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		}
 
 		public DelegateCommand AcceptCommand { get; }
-		public DelegateCommand SubdivisionChiefApproveCommand {  get; }
+		public DelegateCommand SubdivisionChiefApproveCommand { get; }
 
 		public DelegateCommand ApproveCommand { get; }
 
