@@ -1,6 +1,7 @@
 ﻿using System;
-namespace Vodovoz.Views.Service
+namespace Vodovoz.Views.Orders
 {
+	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ServiceDistrictsSetView : Gtk.Bin
 	{
 		public ServiceDistrictsSetView()
