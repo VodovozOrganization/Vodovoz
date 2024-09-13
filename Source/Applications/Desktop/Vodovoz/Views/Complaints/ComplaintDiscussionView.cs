@@ -9,17 +9,20 @@ using Gamma.Binding.Core.LevelTreeConfig;
 using Vodovoz.Infrastructure;
 using VodovozBusiness.Domain.Complaints;
 using System.ComponentModel;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.Views.Complaints
 {
 	[ToolboxItem(true)]
-	public partial class ComplaintDiscussionView : WidgetViewBase<ComplaintDiscussionViewModel>
+	public partial class ComplaintDiscussionView : WidgetViewBase<ComplaintDiscussionViewModel>, INotifyPropertyChanged
 	{
 		public ComplaintDiscussionView(ComplaintDiscussionViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			ConfigureDlg();
 		}
+
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		private void ConfigureDlg()
 		{
@@ -75,6 +78,28 @@ namespace Vodovoz.Views.Complaints
 			smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 		}
 
+		public string TabName
+		{
+			get
+			{
+				string tabColor;
+				switch(ViewModel.Status)
+				{
+					case ComplaintDiscussionStatuses.Checking:
+						tabColor = GdkColors.SuccessText.ToHtmlColor();
+						break;
+					case ComplaintDiscussionStatuses.Closed:
+						tabColor = GdkColors.PrimaryText.ToHtmlColor();
+						break;
+					default:
+						tabColor = GdkColors.DangerText.ToHtmlColor();
+						break;
+				}
+
+				return $"<span foreground = '{tabColor}'><b>{ViewModel.SubdivisionShortName}</b></span>";
+			}
+		}
+
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(ViewModel.CanEditStatus))
@@ -85,6 +110,11 @@ namespace Vodovoz.Views.Complaints
 			if(e.PropertyName == nameof(ViewModel.AttachedFileInformationsViewModel))
 			{
 				smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+			}
+
+			if(e.PropertyName == nameof(ViewModel.Status))
+			{
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TabName)));
 			}
 		}
 
