@@ -67,6 +67,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				throw new ArgumentNullException(nameof(userService));
 			}
 
+			if(currentPermissionService is null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+
 			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports))
 			{
 				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
