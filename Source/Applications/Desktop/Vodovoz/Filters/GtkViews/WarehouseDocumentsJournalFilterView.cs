@@ -32,6 +32,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CanSelectMovementStatus, w => w.Visible)
 				.InitializeFromSource();
 
+			ylabelMovementStatus.Binding
+				.AddBinding(ViewModel, vm => vm.CanSelectMovementStatus, w => w.Visible)
+				.InitializeFromSource();
+
 			daterangepickerPeriod.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
