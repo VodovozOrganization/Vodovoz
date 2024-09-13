@@ -39,6 +39,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -76,9 +77,15 @@ namespace Vodovoz.ViewModels.Warehouses
 			CommonMessages commonMessages,
 			IEmployeeRepository employeeRepository,
 			StoreDocumentHelper storeDocumentHelper,
-			IEntityExtendedPermissionValidator extendedPermissionValidator)
+			IEntityExtendedPermissionValidator extendedPermissionValidator,
+			ViewModelEEVMBuilder<Warehouse> warehouseViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			if(warehouseViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(warehouseViewModelEEVMBuilder));
+			}
+
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -87,7 +94,15 @@ namespace Vodovoz.ViewModels.Warehouses
 				extendedPermissionValidator ?? throw new ArgumentNullException(nameof(extendedPermissionValidator));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 
-			Init();
+			Initialize();
+
+			WarehouseViewModel = warehouseViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.WriteOffFromWarehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
 		}
 
 		public bool CanChangeDocumentType
@@ -269,7 +284,9 @@ namespace Vodovoz.ViewModels.Warehouses
 		
 		private INomenclatureInstanceRepository NomenclatureInstanceRepository =>
 			_nomenclatureInstanceRepository ?? (_nomenclatureInstanceRepository = _scope.Resolve<INomenclatureInstanceRepository>());
-		
+
+		public IEntityEntryViewModel WarehouseViewModel { get; set; }
+
 		protected override bool BeforeValidation() => Entity.CanEdit;
 
 		protected override bool BeforeSave()
@@ -296,7 +313,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			return true;
 		}
 
-		private void Init()
+		private void Initialize()
 		{
 			if(Entity.Id == 0)
 			{
