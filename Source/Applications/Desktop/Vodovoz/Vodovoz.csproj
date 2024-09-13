@@ -2703,6 +2703,9 @@
   <ItemGroup>
     <EmbeddedResource Include="icons\buttons\wiki.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\toolbar\order_ratings.png" />
+  </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
