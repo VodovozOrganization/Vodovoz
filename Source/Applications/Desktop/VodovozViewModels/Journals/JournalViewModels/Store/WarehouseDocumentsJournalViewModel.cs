@@ -1168,7 +1168,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 								return isSensitive;
 							},
-							(selected) => entityConfig.PermissionResult.CanCreate,
+							(selected) => true,
 							(selected) =>
 							{
 								createDlgConfig.OpenEntityDialogFunction.Invoke();
