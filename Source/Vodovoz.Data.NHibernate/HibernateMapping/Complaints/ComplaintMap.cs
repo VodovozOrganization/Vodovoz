@@ -24,6 +24,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
 			Map(x => x.ComplaintType).Column("type");
 			Map(x => x.ActualCompletionDate).Column("actual_completion_date");
 			Map(x => x.DriverRating).Column("driver_rating");
+			Map(x => x.WorkWithClientResult).Column("work_with_client_result");
 
 			References(x => x.CreatedBy).Column("created_by_id");
 			References(x => x.ChangedBy).Column("changed_by_id");
