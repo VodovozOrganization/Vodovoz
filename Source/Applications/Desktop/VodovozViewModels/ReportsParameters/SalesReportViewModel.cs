@@ -22,6 +22,8 @@ using Vodovoz.Reports.Editing;
 using QS.DomainModel.Entity;
 using DateTimeHelpers;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
+using QS.Services;
+using QS.Navigation;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -54,9 +56,26 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IEmployeeRepository employeeRepository,
 			IInteractiveService interactiveService,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
-			ILeftRightListViewModelFactory leftRightListViewModelFactory)
+			ILeftRightListViewModelFactory leftRightListViewModelFactory,
+			IUserService userService,
+			ICurrentPermissionService currentPermissionService)
 			: base(rdlViewerViewModel)
 		{
+			if(userService is null)
+			{
+				throw new ArgumentNullException(nameof(userService));
+			}
+
+			if(currentPermissionService is null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports))
+			{
+				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
+			}
+
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
@@ -71,10 +90,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_unitOfWork.Session.DefaultReadOnly = true;
 
 			_userIsSalesRepresentative =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+				&& !userService.GetCurrentUser().IsAdmin;
 
-			_canSeePhones = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
+			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
 
 			SetupFilter();
 
