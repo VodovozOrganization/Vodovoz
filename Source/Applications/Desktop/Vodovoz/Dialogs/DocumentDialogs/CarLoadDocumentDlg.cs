@@ -27,8 +27,11 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Print;
+using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz
 {
@@ -140,12 +143,25 @@ namespace Vodovoz
 
 			entryRouteList.ViewModel.IsEditable = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			//entryRouteList.Sensitive = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
+			entryRouteList.Sensitive = editing;
+			ytextviewCommnet.Editable = editing;
 			carloaddocumentview1.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			//ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit);
-			//ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
+
+			var warehouseViewModel = new LegacyEEVMBuilderFactory< CarLoadDocument >(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x=>x.Warehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
+				{
+					filter.IncludeWarehouseIds = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit).Select(x => x.Id).ToList();
+				})
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
+
+			warehouseViewModel.IsEditable = editing;
+
+			entryWarehouse.ViewModel = warehouseViewModel;
+
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
 			enumPrint.ItemsEnum = typeof(CarLoadPrintableDocuments);
