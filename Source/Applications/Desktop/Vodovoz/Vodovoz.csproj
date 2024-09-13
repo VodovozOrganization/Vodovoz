@@ -2059,11 +2059,14 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BusinessActivitiesFilterView.cs" />
     <Compile Include="Filters\GtkViews\BusinessAccountsFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BusinessAccountsFilterView.cs" />
+    <Compile Include="Views\Service\ServiceDistrictsSetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Service.ServiceDistrictsSetView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\Service\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
