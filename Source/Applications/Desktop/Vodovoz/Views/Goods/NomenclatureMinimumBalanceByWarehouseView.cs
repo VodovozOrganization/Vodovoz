@@ -41,5 +41,11 @@ namespace Vodovoz.Views.Goods
 			ybuttonDelete.BindCommand(ViewModel.DeleteCommand);
 			ybuttonEdit.BindCommand(ViewModel.EditCommand);
 		}
+
+		public override void Dispose()
+		{
+			ViewModel.Dispose();
+			base.Dispose();
+		}
 	}
 }

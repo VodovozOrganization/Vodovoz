@@ -15,7 +15,7 @@ using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.ViewModels.Widgets.Goods
 {
-	public class NomenclatureMinimumBalanceByWarehouseViewModel : WidgetViewModelBase
+	public class NomenclatureMinimumBalanceByWarehouseViewModel : WidgetViewModelBase, IDisposable
 	{
 		private IUnitOfWork _unitOfWork;
 		private Nomenclature _nomenclature;
@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.Widgets.Goods
 
 		private void Delete()
 		{
-			_nomenclature.ObservableNomenclatureMinimumBalancesByWarehouse.Remove(SelectedNomenclatureMinimumBalanceByWarehouse);
+			_nomenclature.NomenclatureMinimumBalancesByWarehouse.Remove(SelectedNomenclatureMinimumBalanceByWarehouse);
 		}
 
 		private void Save()
@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModels.Widgets.Goods
 
 			if(_isNewBalance)
 			{
-				_nomenclature.ObservableNomenclatureMinimumBalancesByWarehouse.Add(CurrentNomenclatureMinimumBalanceByWarehouse);
+				_nomenclature.NomenclatureMinimumBalancesByWarehouse.Add(CurrentNomenclatureMinimumBalanceByWarehouse);
 			}
 			else
 			{
@@ -130,11 +130,11 @@ namespace Vodovoz.ViewModels.Widgets.Goods
 			WarehouseEntryViewModel = CreateWarehouseEntryViewModel();
 		}
 
-		public DelegateCommand AddCommand;
-		public DelegateCommand CancelCommand;
-		public DelegateCommand SaveCommand;
-		public DelegateCommand DeleteCommand;
-		public DelegateCommand EditCommand;
+		public DelegateCommand AddCommand { get; private set; }
+		public DelegateCommand CancelCommand { get; private set; }
+		public DelegateCommand SaveCommand { get; private set; }
+		public DelegateCommand DeleteCommand { get; private set; }
+		public DelegateCommand EditCommand { get; private set; }
 
 		public EntityEntryViewModel<Warehouse> WarehouseEntryViewModel { get; private set; }
 
@@ -200,8 +200,13 @@ namespace Vodovoz.ViewModels.Widgets.Goods
 			}
 		}
 
-		public IList<NomenclatureMinimumBalanceByWarehouse> Balances => _nomenclature.ObservableNomenclatureMinimumBalancesByWarehouse;
+		public IList<NomenclatureMinimumBalanceByWarehouse> Balances => _nomenclature.NomenclatureMinimumBalancesByWarehouse;
 
 		public bool HasSelectedBalance => SelectedNomenclatureMinimumBalanceByWarehouse != null;
+
+		public void Dispose()
+		{
+			_parrentDlg = null;
+		}
 	}
 }
