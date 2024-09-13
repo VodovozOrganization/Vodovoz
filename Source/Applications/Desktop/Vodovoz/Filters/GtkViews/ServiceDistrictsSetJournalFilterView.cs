@@ -1,12 +1,12 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.Journals.FilterViewModels;
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ServiceDistrictsSetJournalFilterView : Gtk.Bin
+	public partial class ServiceDistrictsSetJournalFilterView : FilterViewBase<ServiceDistrictsSetJournalFilterViewModel>
 	{
-		public ServiceDistrictsSetJournalFilterView()
+		public ServiceDistrictsSetJournalFilterView(ServiceDistrictsSetJournalFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
+			Build();
 		}
 	}
 }
