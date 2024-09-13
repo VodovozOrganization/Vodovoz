@@ -34,6 +34,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -128,7 +129,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(Entity, e => e.Warehouse)
-				.UseViewModelJournalAndAutocompleter<RoboatsWaterNomenclatureJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 		}
