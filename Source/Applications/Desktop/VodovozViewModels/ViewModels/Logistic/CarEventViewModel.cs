@@ -324,6 +324,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void OnWriteOffDocumentChangedByUser(object sender, EventArgs e)
 		{
 			RemoveWriteOffDocumentIfCarsNotEqual();
+			RemoveWriteOffDocumentIfItAlreadyAttachedToOtherCarEvents();
 
 			OnPropertyChanged(nameof(Entity.RepairPartsCost));
 			OnPropertyChanged(nameof(Entity.RepairAndPartsSummaryCost));
@@ -350,6 +351,29 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			Entity.WriteOffDocument = null;
 			ShowWarningMessage("Выбранный акт списания ТМЦ не может быть прикреплен, т.к. авто не совпадают!");
+		}
+
+		private void RemoveWriteOffDocumentIfItAlreadyAttachedToOtherCarEvents()
+		{
+			if(Entity.WriteOffDocument is null)
+			{
+				return;
+			}
+
+			var eventsIdsHavingAttachedWriteOffDocument =
+				_carEventRepository.GetCarEventIdsByWriteOffDocument(UoW, Entity.WriteOffDocument.Id)
+				.Where(x => x != Entity.Id)
+				.ToList()
+				.Distinct();
+
+			if(!eventsIdsHavingAttachedWriteOffDocument.Any())
+			{
+				return;
+			}
+
+			Entity.WriteOffDocument = null;
+			ShowWarningMessage(
+				$"Выбранный акт списания ТМЦ уже прикреплен к событиям {string.Join(", ", eventsIdsHavingAttachedWriteOffDocument)}");
 		}
 
 		private bool IsWriteOffDocumentCanBeAttachedToSelectedCar =>
