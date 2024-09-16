@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Complaints;
+using VodovozBusiness.Domain.Complaints;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Complaints
@@ -145,13 +146,27 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 			return query.FirstOrDefault();
 		}
 
-		public IQueryable<Complaint> GetClientComplaintsForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate)
+		public IQueryable<OksDailyReportComplaintDataNode> GetClientComplaintsForPeriod(
+			IUnitOfWork uow,
+			DateTime startDate,
+			DateTime endDate)
 		{
 			var query = 
 				from complaint in uow.Session.Query<Complaint>()
+				join ck in uow.Session.Query<ComplaintKind>() on complaint.ComplaintKind.Id equals ck.Id into complaintKinds
+				from complaintKind in complaintKinds.DefaultIfEmpty()
+				join co in uow.Session.Query<ComplaintObject>() on complaintKind.ComplaintObject.Id equals co.Id into complaintObjects
+				from complaintObject in complaintObjects.DefaultIfEmpty()
 				where complaint.CreationDate >= startDate && complaint.CreationDate <= endDate
 				&& complaint.ComplaintType == ComplaintType.Client
-				select complaint;
+				select new OksDailyReportComplaintDataNode
+				{
+					Id = complaint.Id,
+					WorkWithClientResult = complaint.WorkWithClientResult,
+					Status = complaint.Status,
+					ComplaintKind = complaint.ComplaintKind,
+					ComplaintObject = complaint.ComplaintKind == null ? null : complaint.ComplaintKind.ComplaintObject,
+				};
 
 			return query;
 		}
@@ -160,5 +175,9 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 	public class OksDailyReportComplaintDataNode
 	{
 		public int Id { get; set; }
+		public ComplaintWorkWithClientResult? WorkWithClientResult { get; set; }
+		public ComplaintStatuses Status { get; set; }
+		public ComplaintKind ComplaintKind { get; set; }
+		public ComplaintObject ComplaintObject { get; set; }
 	}
 }
