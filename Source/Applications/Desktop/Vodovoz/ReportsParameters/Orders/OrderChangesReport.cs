@@ -149,7 +149,10 @@ namespace Vodovoz.ReportsParameters.Orders
                 { "issue_types_rus", selectedIssueTypesTitles },
 			};
 
-			var reportInfo = _reportInfoFactory.Create(rdlPath, Title, parameters);
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = Title;
+			reportInfo.Parameters = parameters;
+			reportInfo.Path = rdlPath;
 			reportInfo.UseUserVariables = true;
 			return reportInfo;
 		}
