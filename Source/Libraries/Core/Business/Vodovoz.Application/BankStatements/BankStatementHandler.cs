@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -22,9 +22,10 @@ namespace Vodovoz.Application.BankStatements
 		//Исходящий остаток на 12.08.2024
 		private const string _outgoingBalanceWithDatePattern = @"(Исходящий остаток на \p{Nd}*\.\p{Nd}*\.\p{Nd}*)";
 		private const string _balanceWithDatePattern = @"([0-9]{1,}[,|\.][0-9]{1,2})\D+([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
-		private const string _balancePattern = @"([0-9]{1,}[,|\.]*[0-9]*)$";
+		private const string _balancePattern = @"(\d+\s?)+([,|\.]\d+)?$";
 		//30.07.2024 Исходящее сальдо дебет: 0 кредит: 6 748,87
 		private const string _balanceDebitCreditWithDatePattern = @"([0-9]\s?[0-9]*,*[0-9]*)";
+		private const string _credit = "кредит:";
 		private const string _singleDatePattern = @"([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
 		//с 15.07.2024 по 19.07.2024 | 15.07.2024 - 19.07.2024
 		private const string _dateNumberPattern = @"[Сc|Cс]?\s*([0-9]{2}\.[0-9]{2}\.[0-9]{4})\s(по|-)\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
@@ -594,7 +595,7 @@ namespace Vodovoz.Application.BankStatements
 						break;
 					}
 					
-					balanceValues.Add(balanceMatches[balanceMatches.Count - 1].Groups[1].Value);
+					balanceValues.Add(balanceMatches[balanceMatches.Count - 1].Value);
 				}
 			}
 
@@ -630,7 +631,7 @@ namespace Vodovoz.Application.BankStatements
 
 				if(balanceMatches.Count != 0)
 				{
-					balance = balanceMatches[balanceMatches.Count - 1].Groups[1].Value;
+					balance = balanceMatches[balanceMatches.Count - 1].Value;
 					break;
 				}
 			}
@@ -646,7 +647,7 @@ namespace Vodovoz.Application.BankStatements
 
 					if(balanceMatches.Count != 0)
 					{
-						balance = balanceMatches[balanceMatches.Count - 1].Groups[1].Value;
+						balance = balanceMatches[balanceMatches.Count - 1].Value;
 					}
 				}
 

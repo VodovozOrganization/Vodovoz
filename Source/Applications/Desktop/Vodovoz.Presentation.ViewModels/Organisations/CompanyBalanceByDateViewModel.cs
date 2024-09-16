@@ -26,7 +26,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 {
 	public class CompanyBalanceByDateViewModel : UowDialogViewModelBase, IAskSaveOnCloseViewModel
 	{
-		private const string _bankStatementsDirectory = @"Z:\SystemStatements\activities\CurrentStatements";
+		private const string _bankStatementsDirectory = @"D:\SystemStatements\activities\CurrentStatements";
 		private const string _xlsxFileFilter = "XLSX File (*.xlsx)";
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
@@ -389,8 +389,12 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 						fundWorkSheet.Cell(rowBeginActivity, bankColumn).Value = account.Bank;
 						fundWorkSheet.Cell(rowBeginActivity, accountNumberColumn).SetValue(account.AccountNumber);
 						var accountTotalCell = fundWorkSheet.Cell(rowBeginActivity, totalColumn);
-						accountTotalCell.Value = account.Total ?? 0m;
-						accountTotalCell.SetCurrencyFormat();
+
+						if(account.Total.HasValue)
+						{
+							accountTotalCell.Value = account.Total ?? 0m;
+							accountTotalCell.SetCurrencyFormat();
+						}
 
 						rowBeginActivity++;
 					}
