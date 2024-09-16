@@ -633,9 +633,7 @@ namespace Pacs.Server.Operators
 
 		private void ClearCall()
 		{
-			var callId = OperatorState.CallId;
-			OperatorState.CallId = null;
-			_logger.LogInformation("Оператор {OperatorId} завершил звонок {CallId}", OperatorId, callId);
+			_logger.LogInformation("Оператор {OperatorId} завершил звонок {CallId}", OperatorId, OperatorState?.CallId);
 		}
 
 		#endregion
