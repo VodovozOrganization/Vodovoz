@@ -1,14 +1,15 @@
-﻿using Dialogs.Logistic;
+﻿using Autofac;
+using Dialogs.Logistic;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Tdi;
-using System;
-using System.Linq;
-using Autofac;
 using QS.Navigation;
 using QS.Report.ViewModels;
+using QS.Tdi;
 using QS.ViewModels.Dialog;
+using QSOrmProject;
+using System;
+using System.Linq;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Client;
@@ -56,8 +57,8 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		}
 
 		public ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment) =>
-			new OrderDlg { IsForRetail = isForRetail, IsForSalesDepartment = isForSalesDepartment};
-		
+			new OrderDlg { IsForRetail = isForRetail, IsForSalesDepartment = isForSalesDepartment };
+
 		public ITdiTab CreateOrderDlg(int? orderId) => orderId.HasValue ? new OrderDlg(orderId.Value) : new OrderDlg();
 
 		public void OpenOrderDlg(ITdiTab tab, int id)
@@ -67,17 +68,17 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				() => CreateOrderDlg(id)
 			);
 		}
-		
+
 		public void OpenOrderDlgFromViewModelByNavigator(DialogViewModelBase from, int orderId)
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<OrderDlg, int>(from, orderId);
 		}
-		
+
 		public void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId)
 		{
 			var dlg = new OrderDlg();
 			dlg.CopyLesserOrderFrom(copiedOrderId);
-			
+
 			tab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Order>(65656),
 				() => dlg
@@ -109,7 +110,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<RouteListClosingDlg, int>(from, routeListId);
 		}
-		
+
 		public ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId) =>
 			OpenRouteListClosingDlg(master.TabParent, routelistId);
 
@@ -230,6 +231,23 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			var dlg = new CarLoadDocumentDlg();
 			fillCarLoadDocumentFunc(dlg.Entity, dlg.UoW, routeListId, warehouseId);
 			tabParent.OpenTab(() => dlg);
+		}
+
+		public ITdiTab CreateWarehouseDocumentOrmMainDialog(ITdiTabParent tabParent, DocumentType type)
+		{
+			switch(type)
+			{
+				case DocumentType.IncomingWater:
+				case DocumentType.SelfDeliveryDocument:
+				case DocumentType.CarLoadDocument:
+				case DocumentType.CarUnloadDocument:
+				case DocumentType.RegradingOfGoodsDocument:
+					return tabParent.OpenTab(
+						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
+						() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)));
+				default:
+					throw new NotImplementedException("Тип документа не подерживается");
+			}
 		}
 
 		public void ShowTrackWindow(int id)
