@@ -2,6 +2,7 @@
 using QS.Views;
 using System.ComponentModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ReportsParameters.Bottles;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -39,14 +40,17 @@ namespace Vodovoz.ReportsParameters.Bottles
 				.AddColumn("Название").AddTextRenderer(n => n.Substring)
 				.Finish();
 
+			srlWinSubstrings.Visible = !ViewModel.SubstringsVisible;
 			yTreeSubstrings.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.SubstringsToSearch, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.SubstringsVisible, w => w.Visible, new BooleanInvertedConverter())
 				.InitializeFromSource();
 
 			yEntSubstring.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.SubstringsVisible, w => w.Visible)
 				.AddBinding(vm => vm.SubstringToSearch, w => w.Text)
 				.InitializeFromSource();
+
 
 			dtrngPeriod.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
@@ -63,7 +67,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			switch(e.PropertyName)
 			{
 				case nameof(ViewModel.SubstringsVisible):
-					srlWinSubstrings.Visible = ViewModel.SubstringsVisible;
+					srlWinSubstrings.Visible = !ViewModel.SubstringsVisible;
 					break;
 				default:
 					break;

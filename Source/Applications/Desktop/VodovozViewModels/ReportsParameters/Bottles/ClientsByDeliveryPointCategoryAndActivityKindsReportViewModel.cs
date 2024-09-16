@@ -2,14 +2,17 @@
 using QS.DomainModel.UoW;
 using QS.Report;
 using QS.Report.ViewModels;
+using QS.Validation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Client;
+using Vodovoz.Presentation.Reports;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 {
-	public class ClientsByDeliveryPointCategoryAndActivityKindsReportViewModel : ReportParametersUowViewModelBase
+	public class ClientsByDeliveryPointCategoryAndActivityKindsReportViewModel : ValidatableUoWReportViewModelBase
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 
@@ -26,15 +29,18 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 		public ClientsByDeliveryPointCategoryAndActivityKindsReportViewModel(
 			IUnitOfWorkFactory uowFactory,
 			RdlViewerViewModel rdlViewerViewModel,
-			IReportInfoFactory reportInfoFactory
-		) : base(rdlViewerViewModel, uowFactory, reportInfoFactory)
+			IReportInfoFactory reportInfoFactory,
+			IValidator validator
+		) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
 			Title = "Клиенты по типам объектов и видам деятельности";
 			Identifier = "Bottles.ClientsByDeliveryPointCategoryAndActivityKindsReport";
 
-			GenerateReportCommand = new DelegateCommand(LoadReport);
+			UoW = _uowFactory.CreateWithoutRoot();
+
+			GenerateReportCommand = new DelegateCommand(GenerateReport);
 
 			_startDate = DateTime.Today;
 			_endDate = DateTime.Today;
@@ -95,7 +101,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 			set => SetField(ref _paymentType, value);
 		}
 
-		public bool SubstringsVisible => _activityKind != null;
+		public bool SubstringsVisible => _activityKind == null;
 
 		public virtual IEnumerable<SubstringToSearch> SubstringsToSearch
 		{
@@ -152,6 +158,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 			else
 			{
 				SubstringsToSearch = null;
+			}
+		}
+
+		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(StartDate == null || EndDate == null)
+			{
+				yield return new ValidationResult("Необходимо выбрать период.", new[] { nameof(StartDate), nameof(EndDate) });
 			}
 		}
 	}
