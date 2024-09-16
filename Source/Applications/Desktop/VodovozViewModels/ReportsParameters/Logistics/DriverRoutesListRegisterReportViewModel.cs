@@ -31,6 +31,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
+			_geoGroups = new GenericObservableList<GeoGroup>();
+
 			Title = "Реестр маршрутных листов (По водителям)";
 			Identifier = "Logistic.DriverRoutesListRegister";
 

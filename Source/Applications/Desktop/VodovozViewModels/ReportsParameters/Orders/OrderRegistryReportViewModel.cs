@@ -29,6 +29,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
+			_geoGroups = new GenericObservableList<GeoGroup>();
+
 			Title = "Реестр заказов";
 			Identifier = "Orders.OrderRegistryReport";
 

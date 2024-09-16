@@ -31,6 +31,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
+			_geoGroups = new GenericObservableList<GeoGroup>();
+
 			Title = "Отчет по выдаче топлива по МЛ";
 
 			UoW = _uowFactory.CreateWithoutRoot();
