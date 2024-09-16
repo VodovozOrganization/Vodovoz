@@ -389,8 +389,12 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 						fundWorkSheet.Cell(rowBeginActivity, bankColumn).Value = account.Bank;
 						fundWorkSheet.Cell(rowBeginActivity, accountNumberColumn).SetValue(account.AccountNumber);
 						var accountTotalCell = fundWorkSheet.Cell(rowBeginActivity, totalColumn);
-						accountTotalCell.Value = account.Total ?? 0m;
-						accountTotalCell.SetCurrencyFormat();
+
+						if(account.Total.HasValue)
+						{
+							accountTotalCell.Value = account.Total ?? 0m;
+							accountTotalCell.SetCurrencyFormat();
+						}
 
 						rowBeginActivity++;
 					}
