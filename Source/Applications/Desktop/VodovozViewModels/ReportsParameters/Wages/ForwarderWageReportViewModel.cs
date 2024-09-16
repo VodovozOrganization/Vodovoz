@@ -1,4 +1,5 @@
 ﻿using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Report.ViewModels;
@@ -14,10 +15,10 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Wages
 {
-	public class ForwarderWageReportViewModel : ValidatableReportViewModelBase
+	public class ForwarderWageReportViewModel : ValidatableUoWReportViewModelBase
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private Employee _forwarder;
@@ -28,13 +29,17 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			RdlViewerViewModel rdlViewerViewModel,
 			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
+			IUnitOfWorkFactory uowFactory,
 			IValidator validator
 		) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
 			Title = "Отчет по зарплате экспедитора";
 			Identifier = "Employees.ForwarderWage";
+
+			UoW = _uowFactory.CreateWithoutRoot();
 
 			var forwarderFilter = new EmployeeFilterViewModel();
 			forwarderFilter.SetAndRefilterAtOnce(

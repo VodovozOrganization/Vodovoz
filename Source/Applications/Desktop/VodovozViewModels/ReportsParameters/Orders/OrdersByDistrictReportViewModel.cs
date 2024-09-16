@@ -16,7 +16,7 @@ using Vodovoz.Presentation.Reports;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Orders
 {
-	public class OrdersByDistrictReportViewModel : ValidatableReportViewModelBase
+	public class OrdersByDistrictReportViewModel : ValidatableUoWReportViewModelBase
 	{
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -32,6 +32,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 		) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
 			Title = "Отчет по районам";
+
+			UoW = uowFactory.CreateWithoutRoot();
 
 			DistrictsSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () =>
 			{

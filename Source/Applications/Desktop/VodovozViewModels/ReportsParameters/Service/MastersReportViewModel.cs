@@ -1,4 +1,5 @@
 ﻿using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Report.ViewModels;
@@ -14,7 +15,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Service
 {
-	public class MastersReportViewModel : ValidatableReportViewModelBase
+	public class MastersReportViewModel : ValidatableUoWReportViewModelBase
 	{
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -24,13 +25,17 @@ namespace Vodovoz.ViewModels.ReportsParameters.Service
 			RdlViewerViewModel rdlViewerViewModel,
 			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
+			IUnitOfWorkFactory uowFactory,
 			IValidator validator
 		) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
 			Title = "Отчет по выездным мастерам";
 			Identifier = "ServiceCenter.MastersReport";
+
+			UoW = uowFactory.CreateWithoutRoot();
 
 			var driversFilter = new EmployeeFilterViewModel();
 			driversFilter.SetAndRefilterAtOnce(
@@ -45,6 +50,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Service
 
 		public DelegateCommand GenerateReportCommand;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly IUnitOfWorkFactory _uowFactory;
 
 		public virtual DateTime? StartDate
 		{

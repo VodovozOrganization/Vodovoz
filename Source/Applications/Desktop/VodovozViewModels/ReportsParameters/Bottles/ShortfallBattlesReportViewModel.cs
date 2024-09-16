@@ -1,4 +1,5 @@
 ﻿using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Report.ViewModels;
@@ -15,7 +16,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 {
-	public class ShortfallBattlesReportViewModel : ValidatableReportViewModelBase
+	public class ShortfallBattlesReportViewModel : ValidatableUoWReportViewModelBase
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 			RdlViewerViewModel rdlViewerViewModel,
 			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IValidator validator
 		) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
@@ -37,6 +39,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 
 			Title = "Отчет о несданных бутылях";
 			Identifier = "Bottles.ShortfallBattlesReport";
+
+			UoW = unitOfWorkFactory.CreateWithoutRoot();
 
 			_startDate = DateTime.Today;
 

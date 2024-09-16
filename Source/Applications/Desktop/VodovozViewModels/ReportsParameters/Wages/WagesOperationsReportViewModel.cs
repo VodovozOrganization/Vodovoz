@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICurrentPermissionService currentPermissionService,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWorkFactory uowFactory,
 			IValidator validator
 		) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			Title = "Отчет по зарплатным операциям";
 			Identifier = "Employees.WagesOperations";
 
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			UoW = uowFactory.CreateWithoutRoot();
 
 			var hasAccessToSalariesForLogistics = _currentPermissionService.ValidatePresetPermission("access_to_salary_reports_for_logistics");
 

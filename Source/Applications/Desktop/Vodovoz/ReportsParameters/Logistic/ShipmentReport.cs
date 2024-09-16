@@ -1,11 +1,13 @@
-﻿using QS.Views;
+﻿using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Views;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.ReportsParameters.Logistics;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ShipmentReport : ViewBase<ShipmentReportViewModel>
+	public partial class ShipmentReport : ViewBase<ShipmentReportViewModel>, ISingleUoWDialog
 	{
 		public ShipmentReport(ShipmentReportViewModel viewModel) : base(viewModel)
 		{
@@ -36,5 +38,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
+
+		public IUnitOfWork UoW => ViewModel.UoW;
 	}
 }

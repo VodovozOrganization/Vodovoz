@@ -9,6 +9,7 @@ namespace Vodovoz.ReportsParameters
 		public OrdersWithMinPriceLessThan(OrdersWithMinPriceLessThanViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
+			buttonCreateRepot.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }

@@ -1,10 +1,12 @@
-﻿using QS.Views;
+﻿using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Views;
 using Vodovoz.ViewModels.ReportsParameters.Bottles;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ShortfallBattlesReport : ViewBase<ShortfallBattlesReportViewModel>
+	public partial class ShortfallBattlesReport : ViewBase<ShortfallBattlesReportViewModel>, ISingleUoWDialog
 	{
 		public ShortfallBattlesReport(ShortfallBattlesReportViewModel viewModel) : base(viewModel)
 		{
@@ -36,5 +38,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 			buttonCreateRepot.BindCommand(ViewModel.GenerateReportCommand);
 		}
+
+		public IUnitOfWork UoW => ViewModel.UoW;
 	}
 }

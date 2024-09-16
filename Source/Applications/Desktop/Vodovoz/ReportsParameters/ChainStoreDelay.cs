@@ -1,4 +1,6 @@
-﻿using QS.Views;
+﻿using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Views;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
@@ -6,7 +8,7 @@ using Vodovoz.ViewModels.ReportsParameters.Payments;
 namespace Vodovoz.ReportsParameters
 {
 	[ToolboxItem(true)]
-	public partial class ChainStoreDelayReport : ViewBase<ChainStoreDelayReportViewModel>
+	public partial class ChainStoreDelayReport : ViewBase<ChainStoreDelayReportViewModel>, ISingleUoWDialog
 	{
 		public ChainStoreDelayReport(ChainStoreDelayReportViewModel viewModel) : base(viewModel)
 		{
@@ -40,5 +42,7 @@ namespace Vodovoz.ReportsParameters
 
 			buttonRun.BindCommand(ViewModel.GenerateReportCommand);
 		}
+
+		public IUnitOfWork UoW => ViewModel.UoW;
 	}
 }

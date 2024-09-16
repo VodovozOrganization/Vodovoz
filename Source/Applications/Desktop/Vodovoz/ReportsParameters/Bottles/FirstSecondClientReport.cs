@@ -1,10 +1,12 @@
-﻿using QS.Views;
+﻿using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Views;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class FirstSecondClientReport : ViewBase<FirstSecondClientReportViewModel>
+	public partial class FirstSecondClientReport : ViewBase<FirstSecondClientReportViewModel>, ISingleUoWDialog
 	{
 		public FirstSecondClientReport(FirstSecondClientReportViewModel viewModel) : base(viewModel)
 		{
@@ -35,5 +37,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
+
+		public IUnitOfWork UoW => ViewModel.UoW;
 	}
 }

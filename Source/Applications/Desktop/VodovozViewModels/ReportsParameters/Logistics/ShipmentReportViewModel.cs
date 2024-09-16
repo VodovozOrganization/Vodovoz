@@ -1,4 +1,5 @@
 ﻿using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QS.Report.ViewModels;
 using QS.Validation;
@@ -10,7 +11,7 @@ using Vodovoz.Presentation.Reports;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 {
-	public class ShipmentReportViewModel : ValidatableReportViewModelBase
+	public class ShipmentReportViewModel : ValidatableUoWReportViewModelBase
 	{
 		private DateTime? _startDate;
 		private Warehouse _warehouse;
@@ -21,11 +22,16 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 		public ShipmentReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
 			IReportInfoFactory reportInfoFactory,
+			IUnitOfWorkFactory uowFactory,
 			IValidator validator
 		) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+
 			Title = "Отчёт по отгрузке автомобилей";
 			Identifier = "Logistic.ShipmentReport";
+
+			UoW = _uowFactory.CreateWithoutRoot();
 
 			_startDate = DateTime.Today;
 
@@ -33,6 +39,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 		}
 
 		public DelegateCommand GenerateReportCommand;
+		private readonly IUnitOfWorkFactory _uowFactory;
 
 		public virtual DateTime? StartDate
 		{

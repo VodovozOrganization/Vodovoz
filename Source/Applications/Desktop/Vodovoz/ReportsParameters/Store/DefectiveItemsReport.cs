@@ -1,10 +1,12 @@
-﻿using QS.Views;
+﻿using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Views;
 using Vodovoz.ViewModels.ReportsParameters.Store;
 
 namespace Vodovoz.ReportsParameters.Store
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DefectiveItemsReport : ViewBase<DefectiveItemsReportViewModel>
+	public partial class DefectiveItemsReport : ViewBase<DefectiveItemsReportViewModel>, ISingleUoWDialog
 	{
 		public DefectiveItemsReport(DefectiveItemsReportViewModel viewModel) : base(viewModel)
 		{
@@ -28,5 +30,7 @@ namespace Vodovoz.ReportsParameters.Store
 
 			buttonRun.BindCommand(ViewModel.GenerateReportCommand);
 		}
+
+		public IUnitOfWork UoW => ViewModel.UoW;
 	}
 }

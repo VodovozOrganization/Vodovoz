@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Report.ViewModels;
@@ -16,8 +17,10 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Store
 {
-	public class DefectiveItemsReportViewModel : ValidatableReportViewModelBase
+	public class DefectiveItemsReportViewModel : ValidatableUoWReportViewModelBase
 	{
+		private readonly ILifetimeScope _lifetimeScope;
+
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private DefectSource _defectSource;
@@ -27,6 +30,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Store
 			RdlViewerViewModel rdlViewerViewModel,
 			ILifetimeScope lifetimeScope,
 			IReportInfoFactory reportInfoFactory,
+			IUnitOfWorkFactory uowFactory,
 			IValidator validator
 		) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
@@ -34,6 +38,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Store
 
 			Title = "Отчёт по браку";
 			Identifier = "Store.DefectiveItemsReport";
+
+			UoW = uowFactory.CreateWithoutRoot();
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 
@@ -50,7 +56,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Store
 		}
 
 		public DelegateCommand GenerateReportCommand;
-		private readonly ILifetimeScope _lifetimeScope;
 
 		public virtual DateTime? StartDate
 		{

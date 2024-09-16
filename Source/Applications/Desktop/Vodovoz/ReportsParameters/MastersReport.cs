@@ -1,10 +1,12 @@
-﻿using QS.Views;
+﻿using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Views;
 using Vodovoz.ViewModels.ReportsParameters.Service;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MastersReport : ViewBase<MastersReportViewModel>
+	public partial class MastersReport : ViewBase<MastersReportViewModel>, ISingleUoWDialog
 	{
 		public MastersReport(MastersReportViewModel viewModel) : base(viewModel)
 		{
@@ -22,5 +24,7 @@ namespace Vodovoz.ReportsParameters
 
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
+
+		public IUnitOfWork UoW => ViewModel.UoW;
 	}
 }

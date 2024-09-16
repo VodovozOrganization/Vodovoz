@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Report.ViewModels;
@@ -16,12 +17,12 @@ using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Payments
 {
-	public class ChainStoreDelayReportViewModel : ValidatableReportViewModelBase
+	public class ChainStoreDelayReportViewModel : ValidatableUoWReportViewModelBase
 	{
 		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private KeyValuePair<string, string> _mode;
@@ -37,15 +38,19 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ILifetimeScope autofacScope,
+			IUnitOfWorkFactory uowFactory,
 			IValidator validator
 		) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
 			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
 			Title = "Отсрочка сети";
 			Identifier = "Payments.PaymentsDelayNetwork";
+
+			UoW = _uowFactory.CreateWithoutRoot();
 
 			Mode = Modes.First();
 

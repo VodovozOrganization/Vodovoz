@@ -14,6 +14,7 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
+
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}

@@ -1,11 +1,13 @@
-﻿using QS.Views;
+﻿using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Views;
 using System.ComponentModel;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
 
 namespace Vodovoz.Reports
 {
 	[ToolboxItem(true)]
-	public partial class DriverWagesReport : ViewBase<DriverWagesReportViewModel>
+	public partial class DriverWagesReport : ViewBase<DriverWagesReportViewModel>, ISingleUoWDialog
 	{
 		public DriverWagesReport(DriverWagesReportViewModel viewModel) : base(viewModel)
 		{
@@ -27,5 +29,7 @@ namespace Vodovoz.Reports
 
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
+
+		public IUnitOfWork UoW => ViewModel.UoW;
 	}
 }

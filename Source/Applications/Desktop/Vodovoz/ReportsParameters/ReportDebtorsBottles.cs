@@ -21,6 +21,8 @@ namespace Vodovoz.ReportsParameters
 			radiobuttonOnlyManualEntered.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.OnlyManualEntered, w => w.Active)
 				.InitializeFromSource();
+
+			buttonRun.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }
