@@ -144,5 +144,21 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 
 			return query.FirstOrDefault();
 		}
+
+		public IQueryable<Complaint> GetClientComplaintsForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate)
+		{
+			var query = 
+				from complaint in uow.Session.Query<Complaint>()
+				where complaint.CreationDate >= startDate && complaint.CreationDate <= endDate
+				&& complaint.ComplaintType == ComplaintType.Client
+				select complaint;
+
+			return query;
+		}
+	}
+
+	public class OksDailyReportComplaintDataNode
+	{
+		public int Id { get; set; }
 	}
 }
