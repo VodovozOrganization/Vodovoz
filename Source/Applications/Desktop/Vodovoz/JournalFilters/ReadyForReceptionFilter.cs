@@ -27,7 +27,7 @@ namespace Vodovoz
                 .OrderBy(w => w.Name).ToList();
             
             bool accessToWarehouseAndComplaints =
-	            ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+	            ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 	            && !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
             
             if (warehousesList.Count > 5)
