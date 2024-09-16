@@ -1202,7 +1202,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanUpdate;
+					return config.PermissionResult.CanUpdate || config.PermissionResult.CanRead;
 				},
 				(selected) => true,
 				(selected) =>
