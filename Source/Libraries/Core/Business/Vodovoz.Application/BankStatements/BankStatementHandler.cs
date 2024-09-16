@@ -32,7 +32,7 @@ namespace Vodovoz.Application.BankStatements
 		//с 15.07.2024 по 19.07.2024 | 15.07.2024 - 19.07.2024
 		private const string _dateNumberPattern = @"[Сc|Cс]?\s*([0-9]{2}\.[0-9]{2}\.[0-9]{4})\s(по|-)\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
 		//с 15 июля 2024 по 19 июля 2024
-		private const string _dateStringMonthPattern = @"[Сc|Cс]\s([0-9]{2}\D+[0-9]{4})\D+([0-9]{2}\D+[0-9]{4})";
+		private const string _dateStringMonthPattern = @"[Сc|Cс]\s([0-9]{2}\D+[0-9]{4})?\D+([0-9]{2}\D+[0-9]{4})";
 
 		private readonly ILogger<BankStatementHandler> _logger;
 		private readonly BankStatementParser _parser;
