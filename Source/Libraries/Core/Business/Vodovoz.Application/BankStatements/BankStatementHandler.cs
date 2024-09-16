@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using Vodovoz.Extensions;
 
 namespace Vodovoz.Application.BankStatements

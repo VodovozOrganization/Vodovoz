@@ -26,7 +26,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 {
 	public class CompanyBalanceByDateViewModel : UowDialogViewModelBase, IAskSaveOnCloseViewModel
 	{
-		private const string _bankStatementsDirectory = @"D:\SystemStatements\activities\CurrentStatements";
+		private const string _bankStatementsDirectory = @"Z:\SystemStatements\activities\CurrentStatements";
 		private const string _xlsxFileFilter = "XLSX File (*.xlsx)";
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
