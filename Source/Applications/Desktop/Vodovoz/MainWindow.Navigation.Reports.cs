@@ -1175,29 +1175,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionWagesOperationsActivated(object sender, EventArgs e)
 	{
-		EmployeeFilterViewModel employeeFilter;
-
-		if(_hasAccessToSalariesForLogistics)
-		{
-			employeeFilter = new EmployeeFilterViewModel(EmployeeCategory.office);
-			employeeFilter.SetAndRefilterAtOnce(
-				x => x.Category = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking);
-		}
-		else
-		{
-			employeeFilter = new EmployeeFilterViewModel();
-			employeeFilter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
-		}
-
-		employeeFilter.HidenByDefault = true;
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
-
-		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(WagesOperationsReportViewModel), 
-			addingRegistrations: builder => builder.RegisterInstance(employeeJournalFactory)
-				.As<IEmployeeJournalFactory>()
-				.InstancePerLifetimeScope()
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(WagesOperationsReportViewModel));
 	}
 
 	/// <summary>
