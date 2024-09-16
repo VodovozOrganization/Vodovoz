@@ -259,6 +259,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				.UseViewModelDialog<PhoneViewModel>()
 				.Finish();
 
+			PhoneForCounterpartyCallsViewModel.CanViewEntity = false;
+
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
