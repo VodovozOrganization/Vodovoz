@@ -27,10 +27,11 @@ namespace TrueMarkWorker.Factories
 				{
 					Gtin = oi.Nomenclature.Gtin,
 					GtinQuantity = ((int)oi.ActualCount).ToString(),
+					// ProductCost - Обязательный, если указан ИНН покупателя. Если «action» = «DONATION» и поле «product_cost» заполнено, то значение должно быть «0.00»
 					ProductCost =
 						string.IsNullOrWhiteSpace(_order.Client.INN)
 						? null
-						: ((oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney) * 100).ToString("F2")
+						: "0"
 				})
 				.ToList();
 
