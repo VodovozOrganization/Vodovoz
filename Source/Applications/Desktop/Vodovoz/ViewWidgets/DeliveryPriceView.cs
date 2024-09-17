@@ -220,6 +220,8 @@ namespace Vodovoz.ViewWidgets
 					District.TodayDistrictRuleItems.Any()
 					? District.TodayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvToday.Visible = true;
 			}
 			else
 			{
@@ -234,6 +236,8 @@ namespace Vodovoz.ViewWidgets
 					District.MondayDistrictRuleItems.Any()
 					? District.MondayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvMonday.Visible = true;
 			}
 			else
 			{
@@ -248,6 +252,8 @@ namespace Vodovoz.ViewWidgets
 					District.TuesdayDistrictRuleItems.Any()
 					? District.TuesdayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvTuesday.Visible = true;
 			}
 			else
 			{
@@ -262,6 +268,8 @@ namespace Vodovoz.ViewWidgets
 					District.WednesdayDistrictRuleItems.Any()
 					? District.WednesdayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvWednesday.Visible = true;
 			}
 			else
 			{
@@ -276,6 +284,8 @@ namespace Vodovoz.ViewWidgets
 					District.ThursdayDistrictRuleItems.Any()
 					? District.ThursdayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvThursday.Visible = true;
 			}
 			else
 			{
@@ -290,6 +300,8 @@ namespace Vodovoz.ViewWidgets
 					District.FridayDistrictRuleItems.Any()
 					? District.FridayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvFriday.Visible = true;
 			}
 			else
 			{
@@ -304,6 +316,8 @@ namespace Vodovoz.ViewWidgets
 					District.SaturdayDistrictRuleItems.Any()
 					? District.SaturdayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvSaturday.Visible = true;
 			}
 			else
 			{
@@ -318,6 +332,8 @@ namespace Vodovoz.ViewWidgets
 					District.SundayDistrictRuleItems.Any()
 					? District.SundayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvSunday.Visible = true;
 			}
 			else
 			{

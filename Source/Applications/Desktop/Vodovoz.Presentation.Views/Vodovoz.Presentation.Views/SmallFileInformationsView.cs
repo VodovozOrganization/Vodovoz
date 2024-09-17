@@ -30,12 +30,12 @@ namespace Vodovoz.Presentation.Views
 				return;
 			}
 
-			ybuttonAddFileInformation.Binding.CleanSources();
+			CleanUpBindingsAndSubscribtions();
+
 			ybuttonAddFileInformation.Binding
 				.AddSource(ViewModel)
 				.AddFuncBinding(_ => ViewModel.AddCommand.CanExecute(), w => w.Sensitive);
 
-			ybuttonAddFileInformation.Clicked -= OnAddFileClicked;
 			ybuttonAddFileInformation.Clicked += OnAddFileClicked;
 
 			ytreeviewFiles.CreateFluentColumnsConfig<FileInformation>()
@@ -47,21 +47,15 @@ namespace Vodovoz.Presentation.Views
 				.AddColumn("")
 				.Finish();
 
-			ytreeviewFiles.Binding.CleanSources();
-
 			ytreeviewFiles.ItemsDataSource = ViewModel.FileInformations;
-			ytreeviewFiles.ButtonReleaseEvent -= KeystrokeHandler;
 			ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
-			ytreeviewFiles.RowActivated -= OnRowActivated;
 			ytreeviewFiles.RowActivated += OnRowActivated;
 
 			ytreeviewFiles.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedFile, w => w.SelectedRow)
-				.InitializeFromSource();
+				.AddBinding(ViewModel, vm => vm.SelectedFile, w => w.SelectedRow);
 
 			ConfigureMenu();
 
-			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
@@ -119,7 +113,7 @@ namespace Vodovoz.Presentation.Views
 			}
 		}
 
-		public override void Destroy()
+		private void CleanUpBindingsAndSubscribtions()
 		{
 			ybuttonAddFileInformation.Clicked -= OnAddFileClicked;
 			ytreeviewFiles.ButtonReleaseEvent -= KeystrokeHandler;
@@ -127,6 +121,14 @@ namespace Vodovoz.Presentation.Views
 
 			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
 			ytreeviewFiles.ButtonReleaseEvent -= KeystrokeHandler;
+			
+			ybuttonAddFileInformation.Binding.CleanSources();
+			ytreeviewFiles.Binding.CleanSources();
+		}
+
+		public override void Destroy()
+		{
+			CleanUpBindingsAndSubscribtions();
 
 			base.Destroy();
 		}
