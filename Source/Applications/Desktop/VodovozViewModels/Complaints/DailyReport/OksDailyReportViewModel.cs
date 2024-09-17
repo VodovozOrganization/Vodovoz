@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels.Dialog;
@@ -8,7 +9,7 @@ using Vodovoz.EntityRepositories.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints.DailyReport
 {
-	public class OksDailyReportViewModel : DialogViewModelBase
+	public class OksDailyReportViewModel : UowDialogViewModelBase
 	{
 		private readonly ILogger<OksDailyReportViewModel> _logger;
 		private readonly IFileDialogService _fileDialogService;
@@ -19,8 +20,9 @@ namespace Vodovoz.ViewModels.Complaints.DailyReport
 			ILogger<OksDailyReportViewModel> logger,
 			IFileDialogService fileDialogService,
 			IComplaintsRepository complaintsRepository,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigation
-			) : base(navigation)
+			) : base(unitOfWorkFactory, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -39,6 +41,8 @@ namespace Vodovoz.ViewModels.Complaints.DailyReport
 
 		private void CreateReport()
 		{
+			var complaints = _complaintsRepository.GetClientComplaintsForPeriod(UoW, Date, Date);
+
 			var dialogSettings = GetSaveExcelReportDialogSettings();
 			var saveFileDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
 

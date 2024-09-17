@@ -166,18 +166,10 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 					Status = complaint.Status,
 					ComplaintKind = complaint.ComplaintKind,
 					ComplaintObject = complaint.ComplaintKind == null ? null : complaint.ComplaintKind.ComplaintObject,
+					ComplaintSource = complaint.ComplaintSource
 				};
 
 			return query;
 		}
-	}
-
-	public class OksDailyReportComplaintDataNode
-	{
-		public int Id { get; set; }
-		public ComplaintWorkWithClientResult? WorkWithClientResult { get; set; }
-		public ComplaintStatuses Status { get; set; }
-		public ComplaintKind ComplaintKind { get; set; }
-		public ComplaintObject ComplaintObject { get; set; }
 	}
 }
