@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Navigation;
@@ -31,8 +31,8 @@ namespace Vodovoz
 		private IStoreDocumentHelper _storeDocumentHelper;
 
 		public INavigationManager NavigationManager { get; private set; }
-		public EntityEntryViewModel<Warehouse> SourceWarehouseViewModel { get; private set; }
-		public EntityEntryViewModel<Warehouse> DestinationWarehouseViewModel { get; private set; }
+		public IEntityEntryViewModel SourceWarehouseViewModel { get; private set; }
+		public IEntityEntryViewModel DestinationWarehouseViewModel { get; private set; }
 
 		public IncomingWaterDlg()
 		{
