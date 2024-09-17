@@ -131,7 +131,10 @@ namespace Vodovoz.ViewModels.Warehouses
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(Entity, e => e.FromWarehouse)
-				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
+				{
+					filter.IncludeWarehouseIds = WarehousesFrom.Select(w => w.Id);
+				})
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 
@@ -139,7 +142,10 @@ namespace Vodovoz.ViewModels.Warehouses
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(Entity, e => e.ToWarehouse)
-				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
+				{
+					filter.IncludeWarehouseIds = WarehousesTo.Select(w => w.Id);
+				})
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 		}
