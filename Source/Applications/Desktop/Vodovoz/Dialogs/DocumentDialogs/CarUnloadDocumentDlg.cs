@@ -168,10 +168,10 @@ namespace Vodovoz
 
 			entryRouteList.Sensitive = editing;
 			ytextviewCommnet.Editable = editing;
-			returnsreceptionview.Sensitive =
-				hbxTareToReturn.Sensitive =
-					nonserialequipmentreceptionview1.Sensitive =
-						defectiveitemsreceptionview1.Sensitive = editing;
+			returnsreceptionview.Sensitive = editing;
+			hbxTareToReturn.Sensitive = editing;
+			nonserialequipmentreceptionview1.Sensitive = editing;
+			defectiveitemsreceptionview1.Sensitive = editing;
 
 			// 20230309 Если спустя время не понадобится, то вырезать всё, что связано с этим, вместе с CarUnloadDocument.TareToReturn
 			hbxTareToReturn.Visible = false;
@@ -238,7 +238,7 @@ namespace Vodovoz
 			{
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				entryRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				//ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				entryWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				spnTareToReturn.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				defectiveitemsreceptionview1.Sensitive = false;
