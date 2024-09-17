@@ -47,9 +47,9 @@ namespace Vodovoz.Views.Warehouse
 			entryInvoiceNumber.Binding.AddBinding(ViewModel.Entity, e => e.InvoiceNumber, w => w.Text).InitializeFromSource();
 			entryWaybillNumber.Binding.AddBinding(ViewModel.Entity, e => e.WaybillNumber, w => w.Text).InitializeFromSource();
 			
-			lstWarehouse.SetRenderTextFunc<Domain.Store.Warehouse>(w => w.Name);
-			lstWarehouse.Binding.AddBinding(ViewModel, vm => vm.Warehouses, w => w.ItemsList).InitializeFromSource();
-			lstWarehouse.Binding.AddBinding(ViewModel.Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
+			//lstWarehouse.SetRenderTextFunc<Domain.Store.Warehouse>(w => w.Name);
+			//lstWarehouse.Binding.AddBinding(ViewModel, vm => vm.Warehouses, w => w.ItemsList).InitializeFromSource();
+			//lstWarehouse.Binding.AddBinding(ViewModel.Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			entityVMEntryClient.Binding.AddBinding(ViewModel.Entity, s => s.Contractor, w => w.Subject).InitializeFromSource();
