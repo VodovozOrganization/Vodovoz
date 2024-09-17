@@ -62,6 +62,7 @@ namespace TaxcomEdoApi.Library.Services
 				SignMode = DocumentSignMode.UseSpecifiedCertificate
 			};
 
+			var orderId = infoForCreatingEdoUpd.OrderInfoForEdo.Id;
 			var upd = new UniversalInvoiceDocument();
 			UniversalInvoiceConverter.Convert(upd, updXml);
 
@@ -70,9 +71,10 @@ namespace TaxcomEdoApi.Library.Services
 				var errorsString = string.Join(", ", errors);
 				_logger.LogError(
 					"УПД {OrderId} не прошла валидацию\nОшибки: {ErrorsString}",
-					infoForCreatingEdoUpd.OrderInfoForEdo.Id,
+					orderId,
 					errorsString);
-				
+
+				throw new InvalidOperationException($"УПД {orderId} не прошла валидацию, отправка не возможна");
 				//подумать, что делаем в таких случаях
 			}
 			
@@ -90,34 +92,6 @@ namespace TaxcomEdoApi.Library.Services
 					_warrantOptions.StartDate,
 					_warrantOptions.EndDate);
 			}
-			
-			//отсылаем сообщение обработчику, что контейнер создан
-			//либо переносим создание контейнера в момент отправки сообщения об создании УПД для апи
-			/*var edoContainer = new EdoContainer
-			{
-				Type = Type.Upd,
-				Created = DateTime.Now,
-				Container = new byte[64],
-				Order = order,
-				Counterparty = order.Client,
-				MainDocumentId = $"{upd.FileIdentifier}.xml",
-				EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
-			};
-
-			var actions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-				.Where(x => x.Order.Id == edoContainer.Order.Id)
-				.FirstOrDefault();
-
-			if(actions != null && actions.IsNeedToResendEdoUpd)
-			{
-				actions.IsNeedToResendEdoUpd = false;
-				uow.Save(actions);
-			}
-
-			_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
-			uow.Save(edoContainer);
-			uow.Commit();
-			*/
 
 			return container;
 		}
@@ -133,21 +107,6 @@ namespace TaxcomEdoApi.Library.Services
 
 			container.Documents.Add(document);
 			document.AddCertificateForSign(_certificate.Thumbprint);
-				
-			/*
-			var containerRawData = container.ExportToZip();
-
-			edoContainer.Container = containerRawData;
-			edoContainer.MainDocumentId = document.ExternalIdentifier;
-			edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
-
-			_logger.LogInformation("Сохраняем контейнер №{EdoContainerId} по заказу №{OrderId}",
-				edoContainer.Id,
-				edoContainer.Order.Id);
-
-			unitOfWork.Save(edoContainer);
-			unitOfWork.Commit();
-			*/
 
 			return container;
 		}
@@ -163,21 +122,6 @@ namespace TaxcomEdoApi.Library.Services
 
 			container.Documents.Add(document);
 			document.AddCertificateForSign(_certificate.Thumbprint);
-				
-			/*
-			var containerRawData = container.ExportToZip();
-
-			edoContainer.Container = containerRawData;
-			edoContainer.MainDocumentId = document.ExternalIdentifier;
-			edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
-
-			_logger.LogInformation("Сохраняем контейнер №{EdoContainerId} по заказу №{OrderId}",
-				edoContainer.Id,
-				edoContainer.Order.Id);
-
-			unitOfWork.Save(edoContainer);
-			unitOfWork.Commit();
-			*/
 
 			return container;
 		}
