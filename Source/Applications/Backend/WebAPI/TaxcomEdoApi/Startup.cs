@@ -10,6 +10,9 @@ using System.Text;
 using QS.Services;
 using TaxcomEdoApi.HealthChecks;
 using VodovozHealthCheck;
+using Vodovoz.Application;
+using Vodovoz.Infrastructure.FileStorage;
+using TaxcomEdoApi.Options;
 
 namespace TaxcomEdoApi
 {
@@ -69,6 +72,9 @@ namespace TaxcomEdoApi
 				//.AddStaticHistoryTracker()
 				//.AddStaticScopeForEntity()
 				.AddConfig(Configuration)
+				.ConfigureOptions<ConfigureS3Options>()
+				.AddApplication()
+				.AddFileStorage()
 				.AddDependencyGroup()
 				.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
 		}

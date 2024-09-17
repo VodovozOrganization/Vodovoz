@@ -31,7 +31,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		private OrderWithoutShipmentForDebt _orderWithoutShipmentForDebt;
 		private OrderWithoutShipmentForPayment _orderWithoutShipmentForPayment;
 		private Counterparty _counterparty;
-		private byte[] _container;
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
 		private Type _type;
@@ -108,13 +107,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
-		}
-		
-		[Display(Name = "Контейнер с документами для ЭДО")]
-		public virtual byte[] Container
-		{
-			get => _container;
-			set => SetField(ref _container, value);
 		}
 		
 		[Display(Name = "Статус")]

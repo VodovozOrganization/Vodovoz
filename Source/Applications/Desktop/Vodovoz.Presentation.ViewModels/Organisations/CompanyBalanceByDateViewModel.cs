@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -110,6 +110,8 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private void CreateCommands()
 		{
 			SaveCommand = new DelegateCommand(() => SaveAndClose(), () => CanUpdateData);
+			SaveCommand.CanExecuteChangedWith(this, x => x.CanUpdateData);
+
 			CancelCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 			
 			LoadAndProcessDataCommand = new DelegateCommand(
@@ -122,8 +124,10 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 				},
 				() => CanUpdateData
 			);
+			LoadAndProcessDataCommand.CanExecuteChangedWith(this, x => x.CanUpdateData);
 
 			ExportCommand = new DelegateCommand(ExportReport, () => CanUpdateData);
+			ExportCommand.CanExecuteChangedWith(this, x => x.CanUpdateData);
 		}
 
 		private void UpdateLocalData(BankStatementProcessedResult banksStatementsData)
@@ -385,8 +389,12 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 						fundWorkSheet.Cell(rowBeginActivity, bankColumn).Value = account.Bank;
 						fundWorkSheet.Cell(rowBeginActivity, accountNumberColumn).SetValue(account.AccountNumber);
 						var accountTotalCell = fundWorkSheet.Cell(rowBeginActivity, totalColumn);
-						accountTotalCell.Value = account.Total ?? 0m;
-						accountTotalCell.SetCurrencyFormat();
+
+						if(account.Total.HasValue)
+						{
+							accountTotalCell.Value = account.Total ?? 0m;
+							accountTotalCell.SetCurrencyFormat();
+						}
 
 						rowBeginActivity++;
 					}
@@ -517,6 +525,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private void GenerateNewData(CompanyBalanceByDay companyBalanceByDay)
 		{
 			var accountsByFunds = UoW.GetAll<BusinessAccount>()
+				.Where(x => !x.IsArchive)
 				.OrderBy(x => x.Funds.Id)
 				.ThenBy(x => x.BusinessActivity.Id)
 				.ToLookup(x => x.Funds);

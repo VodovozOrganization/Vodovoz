@@ -1,8 +1,9 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -17,6 +19,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -25,7 +28,7 @@ namespace Vodovoz.Domain.Goods
 		Nominative = "номенклатура")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Nomenclature : BusinessObjectBase<Nomenclature>, INamedDomainObject, INamed, IArchivable, IValidatableObject
+	public class Nomenclature : BusinessObjectBase<Nomenclature>, INamedDomainObject, INamed, IArchivable, IValidatableObject, IHasAttachedFilesInformations<NomenclatureFileInformation>
 	{
 		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
 		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
@@ -35,7 +38,7 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
-		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
+		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;		
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
 		private GlassHolderType? _glassHolderType;
@@ -115,7 +118,6 @@ namespace Vodovoz.Domain.Goods
 		private string _bottleCapColor;
 		private OnlineStore _onlineStore;
 		private ProductGroup _productGroup;
-		private IList<NomenclatureImage> _images = new List<NomenclatureImage>();
 
 		private string _onlineStoreExternalId;
 		private Counterparty _shipperCounterparty;
@@ -140,6 +142,8 @@ namespace Vodovoz.Domain.Goods
 		private int? _planMonth;
 		private string _amountInAPackage;
 		private int? _planDay;
+		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
+		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse = new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
 
 		public Nomenclature()
 		{
@@ -151,7 +155,13 @@ namespace Vodovoz.Domain.Goods
 		public virtual int Id
 		{
 			get => _id;
-			set => SetField(ref _id, value);
+			set
+			{
+				if(SetField(ref _id, value))
+				{
+					UpdateFileInformations();
+				}
+			}
 		}
 
 		[Display(Name = "Дата создания")]
@@ -540,13 +550,6 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _productGroup, value);
 		}
 
-		[Display(Name = "Изображения")]
-		public virtual IList<NomenclatureImage> Images
-		{
-			get => _images;
-			set => SetField(ref _images, value);
-		}
-
 		[Display(Name = "Каталог в мобильном приложении")]
 		public virtual MobileCatalog MobileCatalog
 		{
@@ -630,6 +633,13 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _innerDeliveryPrices, value);
 		}
 
+		[Display(Name = "Минимальный остаток на складе ")]
+		public virtual IObservableList<NomenclatureMinimumBalanceByWarehouse> NomenclatureMinimumBalancesByWarehouse
+		{
+			get => _nomenclatureMinimumBalancesByWarehouse;
+			set => SetField(ref _nomenclatureMinimumBalancesByWarehouse, value);
+		}
+
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
 
@@ -659,6 +669,13 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _glassHolderType;
 			set => SetField(ref _glassHolderType, value);
+		}
+
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<NomenclatureFileInformation> AttachedFileInformations
+		{
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
 		}
 
 		#endregion Свойства
@@ -1061,6 +1078,41 @@ namespace Vodovoz.Domain.Goods
 				parent = parent.Parent;
 			}
 			return false;
+		}
+
+		public virtual void AddFileInformation(string fileName)
+		{
+			if(AttachedFileInformations.Any(a => a.FileName == fileName))
+			{
+				return;
+			}
+
+			AttachedFileInformations.Add(new NomenclatureFileInformation
+			{
+				NomenclatureId = Id,
+				FileName = fileName
+			});
+		}
+
+		public virtual void RemoveFileInformation(string filename)
+		{
+			if(!AttachedFileInformations.Any(fi => fi.FileName == filename))
+			{
+				return;
+			}
+
+			AttachedFileInformations.Remove(AttachedFileInformations.First(x => x.FileName == filename));
+		}
+
+		public virtual decimal GetPurchasePriceOnDate(DateTime date)
+		{
+			var purchasePrice =
+				PurchasePrices
+				.Where(p => p.StartDate <= date && (p.EndDate == null || p.EndDate >= date))
+				.Select(p => p.PurchasePrice)
+				.FirstOrDefault();
+
+			return purchasePrice;
 		}
 
 		#endregion Методы
@@ -1538,6 +1590,14 @@ namespace Vodovoz.Domain.Goods
 		public virtual void ResetLockerRefrigeratorVolume()
 		{
 			LockerRefrigeratorVolume = null;
+		}
+
+		private void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.NomenclatureId = Id;
+			}
 		}
 	}
 }

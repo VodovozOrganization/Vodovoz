@@ -104,7 +104,7 @@ namespace Vodovoz
 			spinAmount.Binding.AddBinding(Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource();
 
 			var userHasOnlyAccessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			if(userHasOnlyAccessToWarehouseAndComplaints)

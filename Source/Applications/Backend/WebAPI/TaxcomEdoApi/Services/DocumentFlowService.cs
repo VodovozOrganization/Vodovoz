@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -74,7 +76,7 @@ namespace TaxcomEdoApi.Services
 
 					if(docFlowUpdates.Updates is null)
 					{
-						return Task.CompletedTask;
+						return;
 					}
 
 					_logger.LogInformation("Обрабатываем полученные контейнеры {DocFlowUpdatesCount}", docFlowUpdates.Updates.Count);
@@ -125,8 +127,6 @@ namespace TaxcomEdoApi.Services
 				_settingController.CreateOrUpdateSetting(
 					"last_event_outgoing_documents_timestamp", _lastEventOutgoingDocumentsTimeStamp.ToString());
 			}
-
-			return Task.CompletedTask;
 		}
 
 		private async Task DelayAsync(CancellationToken stoppingToken)

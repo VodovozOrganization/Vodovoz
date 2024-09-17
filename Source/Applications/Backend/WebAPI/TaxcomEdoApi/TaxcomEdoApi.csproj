@@ -1,8 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
 	    <UserSecretsId>723b09af-6fa1-433a-abf7-9c207d54b371</UserSecretsId>
+	    <PlatformTarget>x86</PlatformTarget>
     </PropertyGroup>
 
 	<ItemGroup>
@@ -23,7 +24,6 @@
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
         <PackageReference Include="FluentNHibernate" Version="3.1.0" />
 		<PackageReference Include="MySqlConnector" Version="2.2.6" />
-		<PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
         <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
     </ItemGroup>
@@ -62,6 +62,7 @@
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Report\QS.Report.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.FileStorage\Vodovoz.Infrastructure.FileStorage.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
       <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />-->
     </ItemGroup>

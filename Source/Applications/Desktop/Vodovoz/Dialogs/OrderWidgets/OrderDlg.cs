@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -39,6 +39,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using Vodovoz.Application.Orders;
@@ -138,6 +139,7 @@ using Type = Vodovoz.Domain.Orders.Documents.Type;
 namespace Vodovoz
 {
 	public partial class OrderDlg : EntityDialogBase<Order>,
+		INotifyPropertyChanged,
 		ICounterpartyInfoProvider,
 		Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider,
 		ICustomWidthInfoProvider,
@@ -173,6 +175,7 @@ namespace Vodovoz
 		private string _lastDeliveryPointComment;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		private Order templateOrder;
 
@@ -257,7 +260,8 @@ namespace Vodovoz
 		private EdoContainer _selectedEdoContainer;
 		private FastDeliveryHandler _fastDeliveryHandler;
 		private IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
-
+		private IBottlesRepository _bottlesRepository;
+		private IDeliveryPointRepository _deliveryPointRepository;
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
 		private bool _canEditOrderExtraCash;
@@ -288,6 +292,21 @@ namespace Vodovoz
 		private TimeSpan? _lastWaitUntilTime;
 
 		private List<(int Id, decimal Count, decimal Sum)> _orderItemsOriginalValues = new List<(int Id, decimal Count, decimal Sum)>();
+
+		public EdoContainer SelectedEdoContainer
+		{
+			get => _selectedEdoContainer;
+			set
+			{
+				if(_selectedEdoContainer == value)
+				{
+					return;
+				}
+
+				_selectedEdoContainer = value;
+				CustomizeSendDocumentAgainButton();
+			}
+		}
 
 		#region Работа с боковыми панелями
 
@@ -363,8 +382,6 @@ namespace Vodovoz
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
-
-			treeViewEdoContainers.Selection.Changed -= OnEdoContainerSelectionChanged;
 
 			base.Destroy();
 		}
@@ -568,6 +585,8 @@ namespace Vodovoz
 			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 			_orderFromOnlineOrderCreator = _lifetimeScope.Resolve<IOrderFromOnlineOrderCreator>();
+			_bottlesRepository = _lifetimeScope.Resolve<IBottlesRepository>();
+			_deliveryPointRepository = _lifetimeScope.Resolve<IDeliveryPointRepository>();
 
 			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
 
@@ -851,11 +870,11 @@ namespace Vodovoz
 			entryDeliveryPoint.ViewModel.Changed += OnReferenceDeliveryPointChanged;
 			entryDeliveryPoint.ViewModel.ChangedByUser += OnReferenceDeliveryPointChangedByUser;
 
-			_contactPhoneFilter = new PhonesJournalFilterViewModel
-			{
-				Counterparty = Counterparty,
-				DeliveryPoint = DeliveryPoint
-			};
+			_contactPhoneFilter = ScopeProvider.Scope.Resolve<PhonesJournalFilterViewModel>();
+
+			_contactPhoneFilter.Counterparty = Counterparty;
+			_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
+
 			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
 				() => new PhonesJournalViewModel(_contactPhoneFilter, ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices));
 			evmeContactPhone.SetEntitySelectorFactory(phoneSelectoFactory);
@@ -1102,6 +1121,8 @@ namespace Vodovoz
 			SetNearestDeliveryDateLoaderFunc();
 
 			UpdateOrderItemsOriginalValues();
+
+			RefreshBottlesDebtNotifier();
 		}
 
 		private void UpdateOrderItemsOriginalValues()
@@ -1286,7 +1307,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var selectedType = _selectedEdoContainer?.Type;
+			var selectedType = SelectedEdoContainer?.Type;
 
 			if(selectedType == null)
 			{
@@ -1348,14 +1369,14 @@ namespace Vodovoz
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			ResendUpd(_selectedEdoContainer.Type);
+			ResendUpd(SelectedEdoContainer.Type);
 			CustomizeSendDocumentAgainButton();
 		}
 
 		private void ResendUpd(Type type)
 		{
-			var edoValidateDocumentResult = _edoService.ValidateOrderForDocument(Entity, _selectedEdoContainer.Type);
-			var outgoingDocuments = GetEdoOutgoingDocuments().Where(x => x.Type == _selectedEdoContainer.Type).ToList();
+			var edoValidateDocumentResult = _edoService.ValidateOrderForDocument(Entity, SelectedEdoContainer.Type);
+			var outgoingDocuments = GetEdoOutgoingDocuments().Where(x => x.Type == SelectedEdoContainer.Type).ToList();
 			var edoValidateContainerResult = _edoService.ValidateEdoContainers(outgoingDocuments);
 
 			var edoValidateResult = edoValidateDocumentResult.Errors.Concat(edoValidateContainerResult.Errors);
@@ -1710,6 +1731,7 @@ namespace Vodovoz
 				RefreshDeliveryPointWithPhones();
 			}
 		}
+
 		private void OnCounterpartyChanged(EntityChangeEvent[] changeevents)
 		{
 			if(Counterparty == null)
@@ -2039,13 +2061,15 @@ namespace Vodovoz
 				.AddColumn("")
 				.Finish();
 
-			treeViewEdoContainers.Selection.Changed += OnEdoContainerSelectionChanged;
+			treeViewEdoContainers.Binding
+				.AddBinding(this, vm => vm.SelectedEdoContainer, w => w.SelectedRow)
+				.InitializeFromSource();
 
 			if(Entity.Id != 0)
 			{
 				UpdateEdoContainers();
 				CustomizeSendDocumentAgainButton();
-			}			
+			}
 
 			treeViewEdoContainers.ItemsDataSource = _edoContainers;
 
@@ -2062,12 +2086,6 @@ namespace Vodovoz
 
 			treeServiceClaim.ItemsDataSource = Entity.ObservableInitialOrderService;
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
-		}
-
-		private void OnEdoContainerSelectionChanged(object sender, EventArgs e)
-		{
-			_selectedEdoContainer = treeViewEdoContainers.SelectedRow as EdoContainer;
-			CustomizeSendDocumentAgainButton();
 		}
 
 		private void OnSpinPriceEdited(object o, EditedArgs args)
@@ -3589,6 +3607,8 @@ namespace Vodovoz
 
 			SetDeliveryDatePickerSensetive();
 			SetNearestDeliveryDateLoaderFunc();
+
+			RefreshBottlesDebtNotifier();
 		}
 
 		private void RemoveFlyers()
@@ -3616,6 +3636,29 @@ namespace Vodovoz
 			AddCommentsFromDeliveryPoint();
 
 			SetLogisticsRequirementsCheckboxes();
+		}
+
+		private void RefreshBottlesDebtNotifier()
+		{
+			ylabelBottlesDebtAtDeliveryPoint.UseMarkup = true;
+			if(DeliveryPoint is null)
+			{
+				ylabelBottlesDebtAtDeliveryPoint.Visible = false;
+				return;
+			}
+
+			var bottlesAtDeliveryPoint = _bottlesRepository.GetBottlesDebtAtDeliveryPoint(UoW, DeliveryPoint);
+			var bottlesAvgDeliveryPoint = _deliveryPointRepository.GetAvgBottlesOrdered(UoW, DeliveryPoint, 5);
+
+			if(bottlesAtDeliveryPoint > bottlesAvgDeliveryPoint)
+			{
+				ylabelBottlesDebtAtDeliveryPoint.Visible = true;
+				ylabelBottlesDebtAtDeliveryPoint.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Долг бутылей по адресу: {bottlesAtDeliveryPoint} бут.</span>";
+			}
+			else
+			{
+				ylabelBottlesDebtAtDeliveryPoint.Visible = false;
+			}
 		}
 
 		private void AddCommentsFromDeliveryPoint()
@@ -4252,6 +4295,7 @@ namespace Vodovoz
 		/// дополнительном соглашении
 		/// </summary>
 		private bool OrderItemEquipmentCountHasChanges;
+		private bool _showBottlesDebtNotifier;
 
 		/// <summary>
 		/// При изменении количества оборудования в списке товаров меняет его

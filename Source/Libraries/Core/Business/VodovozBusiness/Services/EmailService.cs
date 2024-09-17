@@ -133,7 +133,8 @@ namespace Vodovoz.Services
 			if(_emailRepository.NeedSendDocumentsByEmailOnFinish(unitOfWork, order, _deliveryScheduleSettings)
 				&& !_emailRepository.HasSendedEmailForUpd(order.Id)
 				&& (order.DeliveryDate is null || order.DeliveryDate >= threeMonthsBeforeToday)
-				&& !_orderRepository.HasSignedUpdDocumentFromEdo(unitOfWork, order.Id))
+				&& !_orderRepository.HasSignedUpdDocumentFromEdo(unitOfWork, order.Id)
+				&& order.OrderDocuments.Any(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD))
 			{
 				return SendUpdToEmail(unitOfWork, order);
 			}

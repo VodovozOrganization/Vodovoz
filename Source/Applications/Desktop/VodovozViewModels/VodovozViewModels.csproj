@@ -127,6 +127,9 @@
     <Compile Include="Dialogs\Orders\PrintOrdersDocumentsViewModel.OrdersToPrintNode.cs" />
     <Compile Include="Dialogs\Pacs\PacsOperatorReferenceBookViewModel.cs" />
     <Compile Include="Infrastructure\Print\ICustomPrintRdlDocumentsPrinter.cs" />
+    <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Store\WarehouseDocumentsJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Store\WarehouseDocumentsJournalViewModel.cs" />
     <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.cs" />
     <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.PrintDocumentSelectableNode.cs" />
     <Compile Include="Print\PrinterSelectionViewModel.cs" />
@@ -567,7 +570,6 @@
     <Compile Include="TempAdapters\ICarManufacturerJournalFactory.cs" />
     <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
     <Compile Include="TempAdapters\IUserJournalFactory.cs" />
-    <Compile Include="ViewModels\Cash\CashlessRequestFilesViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashlessRequestViewModel.cs" />
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
@@ -667,7 +669,6 @@
     <Compile Include="ViewModels\Organizations\OrganizationOwnershipTypeViewModel.cs" />
     <Compile Include="ViewModels\Organizations\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
-    <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.OrderDiscrepanciesNode.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.PaymentDiscrepanciesNode.cs" />
@@ -816,6 +817,7 @@
     <Compile Include="ViewModels\Suppliers\BalanceSummaryRow.cs" />
     <Compile Include="ViewModels\Suppliers\InstanceData.cs" />
     <Compile Include="ViewModels\Suppliers\NomenclatureStorageIds.cs" />
+    <Compile Include="ViewModels\Suppliers\NomenclatureMinimumBalanceByWarehouseNode.cs" />
     <Compile Include="ViewModels\Suppliers\PriceNode.cs" />
     <Compile Include="ViewModels\Suppliers\ReservedBalance.cs" />
     <Compile Include="ViewModels\Suppliers\WarehousesBalanceSummaryReportParameters.cs" />
@@ -887,6 +889,7 @@
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.cs" />
     <Compile Include="Widgets\Cars\Insurance\ChangeIsKaskoNotRelevantClickedEventArgs.cs" />
     <Compile Include="Widgets\Cars\Insurance\EditCarInsuranceEventArgs.cs" />
+    <Compile Include="Widgets\Goods\NomenclatureMinimumBalanceByWarehouseViewModel.cs" />
     <Compile Include="Widgets\Print\DocumentsPrinterSettingsViewModel.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchCriterion.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchViewModel.cs" />
@@ -930,7 +933,6 @@
     <Compile Include="Journals\JournalViewModels\HistoryTrace\HistoryTraceObjectJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\SelectUserJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
-    <Compile Include="Dialogs\Counterparties\CounterpartyFilesViewModel.cs" />
     <Compile Include="Journals\JournalSelectors\EmployeePostsJournalFactory.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeePostsJournalViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeePostViewModel.cs" />
