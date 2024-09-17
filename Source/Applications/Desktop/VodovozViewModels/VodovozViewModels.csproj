@@ -75,8 +75,8 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
-    <Compile Include="Complaints\DailyReport\OksDailyReportViewModel.cs" />
-    <Compile Include="Complaints\DailyReport\OksDailyReport.cs" />
+    <Compile Include="Reports\OKS\DailyReport\OksDailyReportViewModel.cs" />
+    <Compile Include="Reports\OKS\DailyReport\OksDailyReport.cs" />
     <Compile Include="Counterparties\CallTaskFilterViewModel.cs" />
     <Compile Include="Counterparties\CallTaskFilterViewModel.SortingDirectionType.cs" />
     <Compile Include="Counterparties\CallTaskFilterViewModel.SortingParamType.cs" />

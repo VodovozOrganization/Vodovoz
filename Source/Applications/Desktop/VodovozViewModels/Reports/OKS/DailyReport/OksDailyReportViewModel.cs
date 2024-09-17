@@ -7,7 +7,7 @@ using QS.ViewModels.Dialog;
 using System;
 using Vodovoz.EntityRepositories.Complaints;
 
-namespace Vodovoz.ViewModels.Complaints.DailyReport
+namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
 	public class OksDailyReportViewModel : UowDialogViewModelBase
 	{

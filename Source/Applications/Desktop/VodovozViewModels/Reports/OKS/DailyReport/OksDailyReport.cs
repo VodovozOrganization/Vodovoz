@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vodovoz.ViewModels.Complaints.DailyReport
+namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
 	public class OksDailyReport
 	{
