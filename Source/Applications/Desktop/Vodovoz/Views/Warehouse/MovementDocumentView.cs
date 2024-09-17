@@ -90,15 +90,11 @@ namespace Vodovoz.Views.Warehouse
 			vboxStorageFrom.Binding
 				.AddBinding(ViewModel, vm => vm.CanChangeDocumentTypeByStorageAndStorageFrom, w => w.Sensitive)
 				.InitializeFromSource();
-			//hboxWarehouseFrom.Binding
-			//	.AddBinding(ViewModel, vm => vm.CanShowWarehouseFrom, w => w.Visible)
-			//	.InitializeFromSource();
-			//comboWarehouseFrom.Binding
-			//	.AddBinding(ViewModel, vm => vm.WarehousesFrom, w => w.ItemsList)
-			//	.InitializeFromSource();
-			//comboWarehouseFrom.Binding
-				//.AddBinding(ViewModel.Entity, e => e.FromWarehouse, w => w.SelectedItem)
-				//.InitializeFromSource();
+
+			entryWarehouseFrom.ViewModel = ViewModel.SourceWarehouseViewModel;
+			entryWarehouseFrom.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanShowWarehouseFrom, w => w.Visible)
+				.InitializeFromSource();
 
 			employeeEntryFrom.ViewModel = ViewModel.FromEmployeeStorageEntryViewModel;
 			employeeEntryFrom.Binding
@@ -115,18 +111,12 @@ namespace Vodovoz.Views.Warehouse
 
 			#region Получатель
 
-			//hboxWarehouseTo.Binding
-			//	.AddBinding(ViewModel, vm => vm.CanShowWarehouseTo, w => w.Visible)
-			//	.InitializeFromSource();
-			//comboWarehouseTo.Binding
-			//	.AddBinding(ViewModel, vm => vm.WarehousesTo, w => w.ItemsList)
-			//	.InitializeFromSource();
-			//comboWarehouseTo.Binding
-			//	.AddBinding(ViewModel.Entity, e => e.ToWarehouse, w => w.SelectedItem)
-			//	.InitializeFromSource();
-			//comboWarehouseTo.Binding
-				//.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Sensitive)
-				//.InitializeFromSource();
+			entryWarehouseTo.ViewModel = ViewModel.TargetWarehouseViewModel;
+
+			entryWarehouseTo.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowWarehouseTo, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Sensitive)
+				.InitializeFromSource();
 
 			employeeEntryTo.ViewModel = ViewModel.ToEmployeeStorageEntryViewModel;
 			employeeEntryTo.Binding
