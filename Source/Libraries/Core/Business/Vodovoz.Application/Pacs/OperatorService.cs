@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using Pacs.Core.Messages.Events;
@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -143,9 +144,15 @@ namespace Vodovoz.Application.Pacs
 			}
 
 			_connectingTimer = new Timer(5000);
-			_connectingTimer.Elapsed += (s, e) =>
+			_connectingTimer.Elapsed += OnReconnectTimerElapsed;
+			_connectingTimer.Start();
+		}
+
+		private void OnReconnectTimerElapsed(object sender, ElapsedEventArgs e)
+		{
+			if(OperatorState == null || OperatorState.State == OperatorStateType.Disconnected)
 			{
-				if(OperatorState == null || OperatorState.State == OperatorStateType.Disconnected)
+				try
 				{
 					Connect().Wait();
 					_operatorKeepAliveController.Start();
@@ -154,9 +161,29 @@ namespace Vodovoz.Application.Pacs
 					_settings = _pacsRepository.GetPacsDomainSettings();
 					UpdateMango();
 					SubscribeEvents();
+					_connectingTimer.Elapsed -= OnReconnectTimerElapsed;
 				}
-			};
-			_connectingTimer.Start();
+				catch(AggregateException ex)
+				{
+					int counter = 1;
+
+					foreach(var exception in ex.InnerExceptions)
+					{
+						_logger.LogError(
+							ex,
+							"Произошла ошибка при подключении к службам СКУД ({CurrentExceptionNumber}/{ExceptionsCount}): {ExceptionMessage}",
+							exception.Message,
+							counter,
+							ex.InnerExceptions.Count);
+
+						counter++;
+					}
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Произошла ошибка при подключении к службам СКУД: {ExceptionMessage}", ex.Message);
+				}
+			}
 		}
 
 		private async Task Connect()
@@ -184,8 +211,7 @@ namespace Vodovoz.Application.Pacs
 
 		private async Task Disconnect()
 		{
-			_connectingTimer?.Dispose();
-			_connectingTimer = null;
+			_connectingTimer.Stop();
 			_client.StateChanged -= StateChanged;
 			var stateEvent = await _client.Disconnect();
 			SetState(stateEvent);
@@ -873,6 +899,8 @@ namespace Vodovoz.Application.Pacs
 
 		public void Dispose()
 		{
+			_connectingTimer.Stop();
+			_connectingTimer.Elapsed -= OnReconnectTimerElapsed;
 			_connectingTimer?.Dispose();
 			_delayedBreakUpdateTimer?.Dispose();
 			UnsubscribeEvents();

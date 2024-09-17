@@ -7,7 +7,6 @@ using QS.Services;
 using System;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
-using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
@@ -43,6 +42,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => carEventTypeAlias.NeedComment).WithAlias(() => resultAlias.NeedComment)
 					.Select(() => carEventTypeAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
 					.Select(() => carEventTypeAlias.IsDoNotShowInOperation).WithAlias(() => resultAlias.IsDoNotShowInOperation)
+					.Select(() => carEventTypeAlias.IsAttachWriteOffDocument).WithAlias(() => resultAlias.IsAttachWriteOffDocument)
 				)
 				.TransformUsing(Transformers.AliasToBean<CarEventTypeJournalNode>());
 

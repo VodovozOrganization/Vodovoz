@@ -32,7 +32,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
@@ -47,13 +46,17 @@ using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
+using PhoneViewModel = Vodovoz.ViewModels.ViewModels.Counterparty.PhoneViewModel;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
@@ -75,6 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
 		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private readonly IEmployeeFileStorageService _employeeFileStorageService;
+		private readonly ViewModelEEVMBuilder<Phone> _phoneViewModelEEVMBuilder;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private readonly IInteractiveService _interactiveService;
 		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
@@ -147,6 +151,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			INomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IEmployeeFileStorageService employeeFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			ViewModelEEVMBuilder<Phone> phoneViewModelEEVMBuilder,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -176,6 +181,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_nomenclatureFixedPriceController =
 				nomenclatureFixedPriceController ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
 			_employeeFileStorageService = employeeFileStorageService ?? throw new ArgumentNullException(nameof(employeeFileStorageService));
+			_phoneViewModelEEVMBuilder = phoneViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(phoneViewModelEEVMBuilder));
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
 			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 
@@ -204,8 +210,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				Entity.Phones = new List<Phone>();
 			}
-
-			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			organizations = UoW.GetAll<Organization>().ToList();
 
@@ -243,6 +247,21 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				_cancellationTokenSource.Token,
 				Entity.AddFileInformation,
 				Entity.RemoveFileInformation);
+
+			PhoneForCounterpartyCallsViewModel = _phoneViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.PhoneForCounterpartyCalls)
+				.UseViewModelJournalAndAutocompleter<PhonesJournalViewModel, PhonesJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictEmployee = Entity;
+				})
+				.UseViewModelDialog<PhoneViewModel>()
+				.Finish();
+
+			PhoneForCounterpartyCallsViewModel.CanViewEntity = false;
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public ILifetimeScope LifetimeScope { get; private set; }
@@ -868,7 +887,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				}));
 
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
-
+		public EntityEntryViewModel<Phone> PhoneForCounterpartyCallsViewModel { get; }
 		public byte[] Photo
 		{
 			get => _photo;
@@ -908,6 +927,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					break;
 				case nameof(Entity.Status):
 					_statusChangedByUser = true;
+					break;
+				case nameof(Entity.CanRecieveCounterpartyCalls):
+					if(!Entity.CanRecieveCounterpartyCalls)
+					{
+						Entity.PhoneForCounterpartyCalls = null;
+					}
 					break;
 				default:
 					break;

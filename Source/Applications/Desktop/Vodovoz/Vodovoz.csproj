@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -442,6 +442,7 @@
     <Compile Include="JournalColumnsConfigs\OrdersRatingReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OrdersRatingsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RequestsForCallClosedReasonsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\WarehouseDocumentsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WorkShiftJournalRegistrar.cs" />
     <Compile Include="MessagesHostedService.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisView.ReportLine.cs" />
@@ -748,7 +749,6 @@
     <Compile Include="Dialogs\CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ClientBalanceFilter.cs" />
-    <Compile Include="Representations\DocumentsVM.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Account1c.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Bank1c.cs" />
     <Compile Include="Representations\ContactsVM.cs" />
@@ -763,17 +763,13 @@
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimsView.cs" />
-    <Compile Include="JournalViewers\WarehouseDocumentsView.cs" />
     <Compile Include="JournalViewers\ReadyForShipmentView.cs" />
     <Compile Include="JournalViewers\ServiceClaimsView.cs" />
     <Compile Include="JournalFilters\EquipmentFilter.cs" />
     <Compile Include="JournalFilters\StockBalanceFilter.cs" />
     <Compile Include="JournalFilters\ClientBalanceFilter.cs" />
-    <Compile Include="JournalFilters\StockDocumentsFilter.cs" />
     <Compile Include="JournalFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="JournalFilters\ServiceClaimFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
     <Compile Include="Representations\AccountableDebtsVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableDebts.cs" />
     <Compile Include="Representations\AccountableSlipsVM.cs" />
@@ -2059,6 +2055,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BusinessActivitiesFilterView.cs" />
     <Compile Include="Filters\GtkViews\BusinessAccountsFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BusinessAccountsFilterView.cs" />
+    <Compile Include="Filters\GtkViews\WarehouseDocumentsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseDocumentsJournalFilterView.cs" />
     <Compile Include="Views\Goods\NomenclatureMinimumBalanceByWarehouseView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureMinimumBalanceByWarehouseView.cs" />
   </ItemGroup>

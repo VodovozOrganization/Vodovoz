@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -1101,6 +1101,17 @@ namespace Vodovoz.Domain.Goods
 			}
 
 			AttachedFileInformations.Remove(AttachedFileInformations.First(x => x.FileName == filename));
+		}
+
+		public virtual decimal GetPurchasePriceOnDate(DateTime date)
+		{
+			var purchasePrice =
+				PurchasePrices
+				.Where(p => p.StartDate <= date && (p.EndDate == null || p.EndDate >= date))
+				.Select(p => p.PurchasePrice)
+				.FirstOrDefault();
+
+			return purchasePrice;
 		}
 
 		#endregion Методы
