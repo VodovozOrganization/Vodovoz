@@ -11,9 +11,9 @@ using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Store;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Models;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using VodovozInfrastructure.Versions;
 
@@ -22,7 +22,6 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 	public class GeoGroupViewModel : EntityTabViewModelBase<GeoGroup>
 	{
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
-		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
 		private ILifetimeScope _lifetimeScope;
 		private bool _canEdit;
 		private IPermissionResult _versionsPermissionResult;
@@ -43,32 +42,49 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			INavigationManager navigationManager,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel,
-			IWarehouseJournalFactory warehouseJournalFactory,
+			ViewModelEEVMBuilder<Subdivision> geoGroupVersionViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Warehouse> warehouseVersionViewModelEEVMBuilder,
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(geoGroupVersionViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(geoGroupVersionViewModelEEVMBuilder));
+			}
+
+			if(warehouseVersionViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(warehouseVersionViewModelEEVMBuilder));
+			}
+
 			_geoGroupVersionsModel = geoGroupVersionsModel ?? throw new ArgumentNullException(nameof(geoGroupVersionsModel));
-			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CheckPermissions();
 			BindVersions();
 
-			CashSubdivisionViewModel = BuildCashSubdivisionViewModel();
+			CashSubdivisionViewModel = geoGroupVersionViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(SelectedVersion, x => x.CashSubdivision)
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.Finish();
+
+
+			WarehouseViewModel = warehouseVersionViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(SelectedVersion, x => x.Warehouse)
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.Finish();
 
 			Entity.PropertyChanged += EntityPropertyChanged;
 			Versions.ElementRemoved += VersionsElementRemoved;
 		}
 
-		public IEntityEntryViewModel CashSubdivisionViewModel { get; private set; }
-
-		private IEntityEntryViewModel BuildCashSubdivisionViewModel()
-		{
-			return new CommonEEVMBuilderFactory<GeoGroupVersionViewModel>(this, SelectedVersion, UoW, NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.CashSubdivision)
-				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
-				.UseViewModelDialog<SubdivisionViewModel>()
-				.Finish();
-		}
+		public IEntityEntryViewModel CashSubdivisionViewModel { get; }
+		public IEntityEntryViewModel WarehouseViewModel { get; }
 
 		private void CheckPermissions()
 		{
@@ -97,18 +113,6 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 
 		public bool CanEdit => _canEdit;
 		public bool CanReadVersions => _versionsPermissionResult.CanRead;
-
-		public IEntityAutocompleteSelectorFactory WarehouseSelectorFactory
-		{
-			get
-			{
-				if(_warehouseSelectorFactory == null)
-				{
-					_warehouseSelectorFactory = _warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope);
-				}
-				return _warehouseSelectorFactory;
-			}
-		}
 
 		#region Add version
 
