@@ -3,7 +3,7 @@ using EdoDocumentsConsumer.Services;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using TaxcomEdo.Contracts;
+using TaxcomEdo.Contracts.Documents;
 using Task = System.Threading.Tasks.Task;
 
 namespace EdoDocumentsConsumer.Consumers
@@ -20,15 +20,25 @@ namespace EdoDocumentsConsumer.Consumers
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 		}
-		
+
 		public async Task Consume(ConsumeContext<InfoForCreatingEdoUpd> context)
 		{
 			var message = context.Message;
-			_logger.LogInformation(
-				"Отправляем информацию по заказу {OrderId} в TaxcomApi, для создания и отправки УПД по ЭДО",
-				message.OrderInfoForEdo.Id);
-			
-			await SendUpdDataToTaxcomApi(message);
+
+			try
+			{
+				_logger.LogInformation(
+					"Отправляем информацию по заказу {OrderId} в TaxcomApi, для создания и отправки УПД по ЭДО",
+					message.OrderInfoForEdo.Id);
+
+				await SendUpdDataToTaxcomApi(message);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при отправке информации по УПД {OrderId} в TaxcomApi",
+					message.OrderInfoForEdo.Id);
+			}
 		}
 
 		private async Task SendUpdDataToTaxcomApi(InfoForCreatingEdoUpd updData)

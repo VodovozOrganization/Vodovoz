@@ -1,7 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
+using Autofac.Extensions.DependencyInjection;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +11,8 @@ using TaxcomEdo.Library;
 using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Data.NHibernate;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace EdoDocumentsPreparer
 {
@@ -25,15 +25,15 @@ namespace EdoDocumentsPreparer
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+				.ConfigureLogging((context, builder) => {
+					builder.AddNLog();
+					builder.AddConfiguration(context.Configuration.GetSection(nameof(NLog)));
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddLogging(logging =>
-					{
-						logging.ClearProviders();
-						logging.AddNLog();
-						logging.AddConfiguration(hostContext.Configuration.GetSection(nameof(NLog)));
-					});
-
+					Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+					
 					services
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -48,11 +48,14 @@ namespace EdoDocumentsPreparer
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
-						.AddOptions()
+						.AddInfrastructure()
 						.AddHostedService<EdoDocumentsPreparerWorker>()
+						.AddPreparerDependencyGroup()
+						.ConfigurePreparer(hostContext.Configuration)
 						
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
+						.AddStaticScopeForEntity()
 						;
 				});
 	}

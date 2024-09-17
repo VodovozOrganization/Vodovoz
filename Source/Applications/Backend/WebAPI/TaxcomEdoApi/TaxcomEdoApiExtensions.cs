@@ -15,8 +15,10 @@ namespace TaxcomEdoApi
 	{
 		public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration config)
 		{
-			services.Configure<WarrantOptions>(config.GetSection(WarrantOptions.Position))
-				.Configure<TaxcomEdoApiOptions>(config.GetSection(TaxcomEdoApiOptions.Position));
+			services.Configure<WarrantOptions>(config.GetSection(WarrantOptions.Path))
+				.Configure<TaxcomEdoApiOptions>(config.GetSection(TaxcomEdoApiOptions.Path))
+				.Configure<EdoServicesOptions>(config.GetSection(EdoServicesOptions.Path));
+			
 			return services;
 		}
 

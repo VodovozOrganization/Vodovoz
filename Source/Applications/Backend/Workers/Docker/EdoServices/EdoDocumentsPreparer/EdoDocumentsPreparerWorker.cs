@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EdoDocumentsPreparer.Factories;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using QS.Report;
-using TaxcomEdo.Contracts;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.OrdersWithoutShipment;
 using TaxcomEdo.Library.Options;
@@ -35,6 +35,7 @@ namespace EdoDocumentsPreparer
 			= new[] { OrderDocumentType.Bill, OrderDocumentType.SpecialBill };
 		
 		private readonly ILogger<EdoDocumentsPreparerWorker> _logger;
+		private readonly TaxcomEdoOptions _edoOptions;
 		private readonly DocumentFlowOptions _documentFlowOptions;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISettingsController _settingController;
@@ -46,8 +47,10 @@ namespace EdoDocumentsPreparer
 		private readonly IOrderWithoutShipmentConverter _orderWithoutShipmentConverter;
 		private readonly IPaymentConverter _paymentConverter;
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
+		private readonly IInfoForCreatingBillWithoutShipmentEdoFactory _billWithoutShipmentEdoInfoFactory;
+		private readonly IInfoForCreatingEdoBillFactory _billInfoFactory;
+		private readonly IFileDataFactory _fileDataFactory;
 		private readonly IPublishEndpoint _publishEndpoint;
-		private readonly TaxcomEdoOptions _edoOptions;
 		
 		private int _closingDocumentDeliveryScheduleId;
 		
@@ -65,6 +68,9 @@ namespace EdoDocumentsPreparer
 			IOrderWithoutShipmentConverter orderWithoutShipmentConverter,
 			IPaymentConverter paymentConverter,
 			PrintableDocumentSaver printableDocumentSaver,
+			IInfoForCreatingBillWithoutShipmentEdoFactory billWithoutShipmentEdoInfoFactory,
+			IInfoForCreatingEdoBillFactory billInfoFactory,
+			IFileDataFactory fileDataFactory,
 			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger;
@@ -81,6 +87,10 @@ namespace EdoDocumentsPreparer
 				orderWithoutShipmentConverter ?? throw new ArgumentNullException(nameof(orderWithoutShipmentConverter));
 			_paymentConverter = paymentConverter ?? throw new ArgumentNullException(nameof(paymentConverter));
 			_printableDocumentSaver = printableDocumentSaver ?? throw new ArgumentNullException(nameof(printableDocumentSaver));
+			_billWithoutShipmentEdoInfoFactory =
+				billWithoutShipmentEdoInfoFactory ?? throw new ArgumentNullException(nameof(billWithoutShipmentEdoInfoFactory));
+			_billInfoFactory = billInfoFactory ?? throw new ArgumentNullException(nameof(billInfoFactory));
+			_fileDataFactory = fileDataFactory ?? throw new ArgumentNullException(nameof(fileDataFactory));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
@@ -89,7 +99,7 @@ namespace EdoDocumentsPreparer
 			while(!stoppingToken.IsCancellationRequested)
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-				await Task.Delay(1000 * _documentFlowOptions.DelayBetweenPreparingSeconds, stoppingToken);
+				await Task.Delay(1000 * _documentFlowOptions.DelayBetweenPreparingInSeconds, stoppingToken);
 				
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
@@ -100,8 +110,8 @@ namespace EdoDocumentsPreparer
 						continue;
 					}
 					
-					await PrepareUpdDocumentsForSend(uow, organization.Id);
-					await PrepareBillsForSend(uow, organization.Id);
+					//await PrepareUpdDocumentsForSend(uow, organization.Id);
+					//await PrepareBillsForSend(uow, organization.Id);
 					await PrepareBillsWithoutShipmentForSend(uow, organization);
 				}
 			}
@@ -223,9 +233,9 @@ namespace EdoDocumentsPreparer
 									&& x.Order.Id == order.Id) as IPrintableRDLDocument;
 						var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
 						var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);
-						var infoForCreatingEdoBill = InfoForCreatingEdoBill.Create(
+						var infoForCreatingEdoBill = _billInfoFactory.CreateInfoForCreatingEdoBill(
 							orderInfo,
-							BillFileData.Create(orderInfo.Id.ToString(), orderInfo.CreationDate, billAttachment));
+							_fileDataFactory.CreateBillFileData(orderInfo.Id.ToString(), orderInfo.CreationDate, billAttachment));
 
 						try
 						{
@@ -294,13 +304,20 @@ namespace EdoDocumentsPreparer
 			{
 				var resendFromActions =
 					uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-						.Where(x => x.IsNeedToResendEdoBill && x.Order.Id == null)
+						.Where(x => x.IsNeedToResendEdoBill && x.Order == null)
 						.ToList();
 
 				_logger.LogInformation("Всего заказов для переотправки счётов без отгрузки: {OrdersCount}", resendFromActions.Count);
+				
+				var action = resendFromActions.FirstOrDefault();
 
-				foreach(var action in resendFromActions)
+				if(action is null)
 				{
+					return;
+				}
+				
+				//foreach(var action in resendFromActions)
+				//{
 					var now = DateTime.Now;
 
 					/*var edoContainer = new EdoContainer
@@ -319,7 +336,7 @@ namespace EdoDocumentsPreparer
 
 					if(infoForCreatingBillWithoutShipmentEdo is null)
 					{
-						continue;
+						return;//continue;
 					}
 
 					try
@@ -327,7 +344,20 @@ namespace EdoDocumentsPreparer
 						_logger.LogInformation(
 							"Отправляем данные по счету без отгрузки {OrderId} в очередь",
 							infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id);
-						await _publishEndpoint.Publish(infoForCreatingBillWithoutShipmentEdo);
+
+						if(infoForCreatingBillWithoutShipmentEdo is InfoForCreatingBillWithoutShipmentForDebtEdo billForDebt)
+						{
+							await _publishEndpoint.Publish(billForDebt);
+						}
+						else if(infoForCreatingBillWithoutShipmentEdo is InfoForCreatingBillWithoutShipmentForPaymentEdo billForPayment)
+						{
+							await _publishEndpoint.Publish(billForPayment);
+						}
+						else if(infoForCreatingBillWithoutShipmentEdo is
+						        InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo billForAdvancePayment)
+						{
+							await _publishEndpoint.Publish(billForAdvancePayment);
+						}
 					}
 					catch(Exception e)
 					{
@@ -335,7 +365,7 @@ namespace EdoDocumentsPreparer
 							e,
 							"Не удалось отправить данные по счету без отгрузки {OrderId} в очередь",
 							infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id);
-						continue;
+						return;//continue;
 					}
 
 					action.IsNeedToResendEdoBill = false;
@@ -346,7 +376,7 @@ namespace EdoDocumentsPreparer
 						infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id);
 					uow.Save(edoContainerBuilder.Build());
 					uow.Commit();
-				}
+				//}
 			}
 			catch(Exception e)
 			{
@@ -402,9 +432,10 @@ namespace EdoDocumentsPreparer
 				return null;
 			}
 			
-			var infoForCreatingBillWithoutShipmentEdo = InfoForCreatingBillWithoutShipmentEdo.Create(
+			var infoForCreatingBillWithoutShipmentEdo = _billWithoutShipmentEdoInfoFactory.CreateInfoForCreatingBillWithoutShipmentEdo(
 				orderWithoutShipmentInfo,
-				BillFileData.Create(orderWithoutShipmentInfo.BillNumber, orderWithoutShipmentInfo.CreationDate, billAttachment));
+				_fileDataFactory.CreateBillFileData(
+					orderWithoutShipmentInfo.BillNumber, orderWithoutShipmentInfo.CreationDate, billAttachment));
 			
 			edoContainerBuilder.MainDocumentId(infoForCreatingBillWithoutShipmentEdo.MainDocumentId.ToString());
 			

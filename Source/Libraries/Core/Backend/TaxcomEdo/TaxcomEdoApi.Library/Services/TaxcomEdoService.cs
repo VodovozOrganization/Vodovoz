@@ -75,7 +75,8 @@ namespace TaxcomEdoApi.Library.Services
 				
 				//подумать, что делаем в таких случаях
 			}
-
+			
+			upd.ExternalIdentifier = infoForCreatingEdoUpd.MainDocumentId.ToString();
 			container.Documents.Add(upd);
 			upd.AddCertificateForSign(_certificate.Thumbprint);
 			
@@ -89,7 +90,7 @@ namespace TaxcomEdoApi.Library.Services
 					_warrantOptions.StartDate,
 					_warrantOptions.EndDate);
 			}
-
+			
 			//отсылаем сообщение обработчику, что контейнер создан
 			//либо переносим создание контейнера в момент отправки сообщения об создании УПД для апи
 			/*var edoContainer = new EdoContainer

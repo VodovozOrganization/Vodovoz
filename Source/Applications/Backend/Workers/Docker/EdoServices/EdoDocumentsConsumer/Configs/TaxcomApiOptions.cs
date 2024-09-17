@@ -2,7 +2,7 @@
 {
 	public class TaxcomApiOptions
 	{
-		public const string Path = "TaxcomApi";
+		public const string Path = "TaxcomApiOptions";
 		
 		public string BaseAddress { get; set; }
 		public string SendUpdEndpoint { get; set; }

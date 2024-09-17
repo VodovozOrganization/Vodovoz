@@ -1,15 +1,19 @@
-﻿using System.Security.Authentication;
-using MassTransit;
-using Microsoft.Extensions.Configuration;
+﻿using EdoDocumentsPreparer.Factories;
 using Microsoft.Extensions.DependencyInjection;
-using RabbitMQ.Client;
-using TaxcomEdo.Library.Options;
-using Vodovoz.Settings.Pacs;
 
 namespace EdoDocumentsPreparer
 {
 	public static class EdoDocumentsPreparerExtensions
 	{
-		
+		public static IServiceCollection AddPreparerDependencyGroup(this IServiceCollection services)
+		{
+			services
+				.AddScoped<PrintableDocumentSaver>()
+				.AddScoped<IFileDataFactory, FileDataFactory>()
+				.AddScoped<IInfoForCreatingBillWithoutShipmentEdoFactory, InfoForCreatingBillWithoutShipmentEdoFactory>()
+				.AddScoped<IInfoForCreatingEdoBillFactory, InfoForCreatingEdoBillFactory>();
+				
+			return services;
+		}
 	}
 }

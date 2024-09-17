@@ -1,5 +1,5 @@
 ﻿using fyiReporting.RDL;
-using Microsoft.Extensions.Configuration;
+using MySqlConnector;
 using QS.Report;
 using RdlEngine;
 
@@ -9,10 +9,10 @@ namespace EdoDocumentsPreparer
 	{
 		private readonly string _connectionString;
 
-		public PrintableDocumentSaver(IConfiguration configuration)
+		public PrintableDocumentSaver(MySqlConnectionStringBuilder connectionStringBuilder)
 		{
-			_connectionString = (configuration ?? throw new System.ArgumentNullException(nameof(configuration)))
-				.GetConnectionString("DefaultConnection");
+			_connectionString = (connectionStringBuilder ?? throw new System.ArgumentNullException(nameof(connectionStringBuilder)))
+				.ConnectionString;
 		}
 
 		public byte[] SaveToPdf(IPrintableRDLDocument document)

@@ -3,8 +3,11 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Taxcom.Client.Api;
 using TaxcomEdo.Contracts.Counterparties;
+using TaxcomEdoApi.Library.Config;
+using TaxcomEdoApi.Library.Factories;
 using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Settings;
 
@@ -14,16 +17,21 @@ namespace TaxcomEdoApi.Services
 	{
 		private readonly ILogger<ContactsUpdaterService> _logger;
 		private readonly TaxcomApi _taxcomApi;
+		private readonly EdoServicesOptions _edoServicesOptions;
+		private readonly IEdoContactInfoFactory _edoContactInfoFactory;
 		private readonly ISettingsController _settingsController;
-		private const int _delaySec = 120;
 
 		public ContactsUpdaterService(
 			ILogger<ContactsUpdaterService> logger,
 			TaxcomApi taxcomApi,
+			IOptions<EdoServicesOptions> edoServicesOptions,
+			IEdoContactInfoFactory edoContactInfoFactory,
 			ISettingsController settingsController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
+			_edoServicesOptions = (edoServicesOptions ?? throw new ArgumentNullException(nameof(edoServicesOptions))).Value;
+			_edoContactInfoFactory = edoContactInfoFactory ?? throw new ArgumentNullException(nameof(edoContactInfoFactory));
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 
@@ -67,38 +75,14 @@ namespace TaxcomEdoApi.Services
 
 						foreach(var contact in contactUpdates.Contacts)
 						{
-							//TODO подумать, как будем поступать с входящими предложениями обмена
-							/*case ContactStateCode.Incoming:
-							_logger.LogInformation(
-								"Входящее приглашение от клиента с аккаунтом {EdxClientId}...", contact.EdxClientId);
-							_taxcomApi.AcceptContact(contact.EdxClientId);
-
-							counterparties = _counterpartyRepository.GetCounterpartiesByINN(uow, contact.Inn);
-
-							if(counterparties == null)
-							{
-								break;
-							}
-
-							foreach(var counterparty in counterparties)
-							{
-								_logger.LogInformation("Обновляем данные у клиента Id {CounterpartyId}", counterparty.Id);
-								counterparty.EdoOperator =
-									_counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
-								counterparty.PersonalAccountIdInEdo = contact.EdxClientId;
-								counterparty.ConsentForEdoStatus = ConsentForEdoStatus.Agree;
-
-								uow.Save(counterparty);
-								uow.Commit();
-							}*/
-							
 							var contactInfo =
-								EdoContactInfo.Create(
+								_edoContactInfoFactory.CreateEdoContactInfo(
 									contact.EdxClientId,
 									contact.Inn,
 									contact.State.Code.ToString());
 							
-							//отправляем сообщение в пулл
+							//TODO отправляем сообщение в пулл
+							
 
 							lastCheckContactsUpdates = contact.State.Changed;
 						}
@@ -117,8 +101,10 @@ namespace TaxcomEdoApi.Services
 
 		private async Task DelayAsync(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation("Ждем {DelaySec}сек", _delaySec);
-			await Task.Delay(_delaySec * 1000, stoppingToken);
+			var delay = _edoServicesOptions.DelayBetweenContactsProcessingInSeconds;
+			
+			_logger.LogInformation("Ждем {DelaySec}сек", delay);
+			await Task.Delay(delay * 1000, stoppingToken);
 		}
 	}
 }

@@ -1,15 +1,13 @@
-﻿namespace TaxcomEdo.Contracts.Documents
+﻿using System.Text.Json.Serialization;
+
+namespace TaxcomEdo.Contracts.Documents
 {
 	/// <summary>
 	/// Данные файла
 	/// </summary>
+	[JsonDerivedType(typeof(BillFileData))]
 	public abstract class FileData
 	{
-		protected FileData(byte[] data)
-		{
-			Image = data;
-		}
-		
 		/// <summary>
 		/// Имя файла
 		/// </summary>
@@ -17,6 +15,6 @@
 		/// <summary>
 		/// Содержимое файла
 		/// </summary>
-		public byte[] Image { get; }
+		public byte[] Image { get; set; }
 	}
 }

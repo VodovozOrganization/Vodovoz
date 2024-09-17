@@ -7,23 +7,15 @@ namespace TaxcomEdo.Contracts.Documents
 	/// </summary>
 	public class BillFileData : FileData
 	{
-		protected BillFileData(string billNumber, DateTime billDate, byte[] data) : base(data)
-		{
-			BillNumber = billNumber;
-			BillDate = billDate;
-		}
 		/// <summary>
 		/// Номер счета
 		/// </summary>
-		public string BillNumber { get; }
+		public string BillNumber { get; set; }
 		/// <summary>
 		/// Дата счета
 		/// </summary>
-		public DateTime BillDate { get; }
+		public DateTime BillDate { get; set; }
 
 		public override string Name => $"Счёт №{BillNumber} от {BillDate:d}.pdf";
-
-		public static BillFileData Create(string billId, DateTime billDate, byte[] data) =>
-			new BillFileData(billId, billDate, data);
 	}
 }

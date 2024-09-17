@@ -1,41 +1,42 @@
 ﻿using System;
 using System.Threading.Tasks;
 using EdoDocumentsConsumer.Services;
-using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using TaxcomEdo.Contracts;
+using TaxcomEdo.Contracts.Documents;
 
 namespace EdoDocumentsConsumer.Consumers
 {
-	public class BillWithoutShipmentEdoDocumentConsumer : IConsumer<InfoForCreatingBillWithoutShipmentEdo>
+	public abstract class BillWithoutShipmentEdoDocumentConsumer
 	{
-		private readonly ILogger<BillWithoutShipmentEdoDocumentConsumer> _logger;
 		private readonly IServiceScopeFactory _scopeFactory;
 
-		public BillWithoutShipmentEdoDocumentConsumer(
-			ILogger<BillWithoutShipmentEdoDocumentConsumer> logger,
-			IServiceScopeFactory scopeFactory)
+		protected BillWithoutShipmentEdoDocumentConsumer(
+			IServiceScopeFactory scopeFactory,
+			ILogger<BillWithoutShipmentEdoDocumentConsumer> logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
+		
+		protected ILogger<BillWithoutShipmentEdoDocumentConsumer> Logger { get; }
 
-		public async Task Consume(ConsumeContext<InfoForCreatingBillWithoutShipmentEdo> context)
-		{
-			var message = context.Message;
-			_logger.LogInformation(
-				"Отправляем информацию по счету без отгрузки {OrderId} в TaxcomApi, для создания и отправки счета по ЭДО",
-				message.OrderWithoutShipmentInfo.Id);
-
-			await SendDataToTaxcomApi(message);
-		}
-
-		private async Task SendDataToTaxcomApi(InfoForCreatingBillWithoutShipmentEdo data)
+		protected async Task SendDataToTaxcomApi(InfoForCreatingBillWithoutShipmentEdo data)
 		{
 			using var scope = _scopeFactory.CreateScope();
-			var taxcomService = scope.ServiceProvider.GetService<TaxcomService>();
-			await taxcomService.SendDataForCreateBillWithoutShipmentByEdo(data);
+			var taxcomService = scope.ServiceProvider.GetService<ITaxcomService>();
+
+			try
+			{
+				await taxcomService.SendDataForCreateBillWithoutShipmentByEdo(data);
+			}
+			catch(Exception e)
+			{
+				Logger.LogError(e,
+					"Ошибка при отправке {OrderWithoutShipment} {OrderId} в TaxcomApi",
+					data.GetBillWithoutShipmentInfoTitle(),
+					data.OrderWithoutShipmentInfo.Id);
+			}
 		}
 	}
 }

@@ -28,6 +28,7 @@ namespace Vodovoz
 		public static IServiceCollection AddBusiness(this IServiceCollection services, IConfiguration configuration) => services
 
 			.RegisterClassesByInterfaces("Controller")
+			.RegisterClassesByInterfaces("Converter")
 			.RegisterClassesByInterfaces("Repository")
 			.RegisterClassesByInterfaces("Service")
 			.RegisterClassesByInterfaces("Handler")

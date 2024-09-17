@@ -7,6 +7,8 @@ namespace TaxcomEdo.Contracts.Documents
 	/// </summary>
 	public class EdoContainerInfo
 	{
+		public static string ExchangeAndQueueName => "container-info";
+		
 		/// <summary>
 		/// Id главного документа
 		/// </summary>

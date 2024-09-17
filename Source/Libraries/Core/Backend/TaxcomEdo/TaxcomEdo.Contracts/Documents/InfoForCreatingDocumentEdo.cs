@@ -2,13 +2,14 @@
 
 namespace TaxcomEdo.Contracts.Documents
 {
+	/// <summary>
+	/// Информация о id главного документа
+	/// </summary>
 	public abstract class InfoForCreatingDocumentEdo
 	{
-		protected InfoForCreatingDocumentEdo()
-		{
-			MainDocumentId = Guid.NewGuid();
-		}
-		
-		public Guid MainDocumentId { get; }
+		/// <summary>
+		/// Id главного документа для идентификации контейнера
+		/// </summary>
+		public Guid MainDocumentId { get; set; }
 	}
 }

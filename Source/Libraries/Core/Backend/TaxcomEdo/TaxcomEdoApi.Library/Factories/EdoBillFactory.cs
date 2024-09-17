@@ -19,20 +19,26 @@ namespace TaxcomEdoApi.Library.Factories
 					Name = data.FileData.Name
 				},
 				Date = DateTime.Now,
-				ExternalIdentifier = Guid.NewGuid().ToString(),
+				ExternalIdentifier = data.MainDocumentId.ToString(),
 				Sender =
 				{
 					Inn = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.Inn,
 					Kpp = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.Kpp,
 					Identifier = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId,
-					Name = { Organization = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.FullName }
+					Name =
+					{
+						Organization = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.FullName
+					}
 				},
 				Recipient =
 				{
 					Inn = orderInfo.CounterpartyInfoForEdo.Inn,
 					Kpp = orderInfo.CounterpartyInfoForEdo.Kpp,
 					Identifier = orderInfo.CounterpartyInfoForEdo.PersonalAccountIdInEdo,
-					Name = { Organization = orderInfo.CounterpartyInfoForEdo.FullName }
+					Name =
+					{
+						Organization = orderInfo.CounterpartyInfoForEdo.FullName
+					}
 				},
 				Sum = orderInfo.OrderSum
 			};
@@ -54,20 +60,26 @@ namespace TaxcomEdoApi.Library.Factories
 					Name = data.FileData.Name
 				},
 				Date = DateTime.Now,
-				ExternalIdentifier = Guid.NewGuid().ToString(),
+				ExternalIdentifier = data.MainDocumentId.ToString(),
 				Sender =
 				{
 					Inn = organization.Inn,
 					Kpp = organization.Kpp,
 					Identifier = organization.TaxcomEdoAccountId,
-					Name = { Organization = organization.FullName }
+					Name =
+					{
+						Organization = organization.FullName
+					}
 				},
 				Recipient =
 				{
 					Inn = orderWithoutShipmentInfo.CounterpartyInfoForEdo.Inn,
 					Kpp = orderWithoutShipmentInfo.CounterpartyInfoForEdo.Kpp,
 					Identifier = orderWithoutShipmentInfo.CounterpartyInfoForEdo.PersonalAccountIdInEdo,
-					Name = { Organization = orderWithoutShipmentInfo.CounterpartyInfoForEdo.FullName }
+					Name =
+					{
+						Organization = orderWithoutShipmentInfo.CounterpartyInfoForEdo.FullName
+					}
 				},
 				Sum = orderWithoutShipmentInfo.Sum
 			};

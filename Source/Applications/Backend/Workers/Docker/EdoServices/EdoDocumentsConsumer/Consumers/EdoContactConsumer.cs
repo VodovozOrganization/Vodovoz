@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using EdoService.Library.Converters;
+using EdoDocumentsConsumer.Converters;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -11,18 +11,18 @@ using Vodovoz.EntityRepositories.Counterparties;
 
 namespace EdoDocumentsConsumer.Consumers
 {
-	public class EdoContactsConsumer : IConsumer<EdoContactInfo>
+	public class EdoContactConsumer : IConsumer<EdoContactInfo>
 	{
-		private readonly ILogger<EdoContactsConsumer> _logger;
+		private readonly ILogger<EdoContactConsumer> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICounterpartyRepository _counterpartyRepository;
-		private readonly IContactStateConverter _contactStateConverter;
+		private readonly IEdoContactStateCodeConverter _contactStateConverter;
 
-		public EdoContactsConsumer(
-			ILogger<EdoContactsConsumer> logger,
+		public EdoContactConsumer(
+			ILogger<EdoContactConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICounterpartyRepository counterpartyRepository,
-			IContactStateConverter contactStateConverter
+			IEdoContactStateCodeConverter contactStateConverter
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

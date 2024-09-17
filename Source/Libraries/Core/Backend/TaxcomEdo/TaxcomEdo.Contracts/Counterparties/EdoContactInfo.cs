@@ -1,33 +1,23 @@
 ﻿namespace TaxcomEdo.Contracts.Counterparties
 {
 	/// <summary>
-	/// Информация о контатке по ЭДО
+	/// Информация о контакте по ЭДО
 	/// </summary>
 	public class EdoContactInfo
 	{
-		protected EdoContactInfo(string edxClientId, string inn, string stateCode)
-		{
-			EdxClientId = edxClientId;
-			Inn = inn;
-			StateCode = stateCode;
-		}
+		public static readonly string ExchangeAndQueueName = "contacts-info";
 		
 		/// <summary>
 		/// Номер кабинета ЭДО
 		/// </summary>
-		public string EdxClientId { get; }
+		public string EdxClientId { get; set; }
 		/// <summary>
 		/// ИНН клиента
 		/// </summary>
-		public string Inn { get; }
+		public string Inn { get; set; }
 		/// <summary>
 		/// Статус
 		/// </summary>
-		public string StateCode { get; }
-
-		public static EdoContactInfo Create(string edxClientId, string inn, string stateCode)
-		{
-			return new EdoContactInfo(edxClientId, inn, stateCode);
-		}
+		public string StateCode { get; set; }
 	}
 }

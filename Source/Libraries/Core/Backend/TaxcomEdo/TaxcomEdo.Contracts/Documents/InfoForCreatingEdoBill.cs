@@ -7,17 +7,16 @@ namespace TaxcomEdo.Contracts.Documents
 	/// </summary>
 	public class InfoForCreatingEdoBill : InfoForCreatingDocumentEdoWithAttachment
 	{
-		protected InfoForCreatingEdoBill(OrderInfoForEdo orderInfoForEdo, FileData fileData) : base(fileData)
-		{
-			OrderInfoForEdo = orderInfoForEdo;
-		}
+		public static readonly string ExchangeAndQueueName = "info-for-create-bills";
+
+		/// <summary>
+		/// Конструктор, нужен для десериализации из Json
+		/// </summary>
+		public InfoForCreatingEdoBill() { }
 		
 		/// <summary>
 		/// Информация о заказе для ЭДО <see cref="OrderInfoForEdo"/>
 		/// </summary>
-		public OrderInfoForEdo OrderInfoForEdo { get; }
-
-		public static InfoForCreatingEdoBill Create(OrderInfoForEdo orderInfoForEdo, FileData fileData) =>
-			new InfoForCreatingEdoBill(orderInfoForEdo, fileData);
+		public OrderInfoForEdo OrderInfoForEdo { get; set; }
 	}
 }

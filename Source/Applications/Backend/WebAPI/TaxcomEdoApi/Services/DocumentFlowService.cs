@@ -4,11 +4,12 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Taxcom.Client.Api;
 using Taxcom.Client.Api.Entity.DocFlow;
-using TaxcomEdo.Contracts;
-using TaxcomEdo.Contracts.Documents;
 using TaxcomEdoApi.HealthChecks;
+using TaxcomEdoApi.Library.Config;
+using TaxcomEdoApi.Library.Factories;
 using Vodovoz.Settings;
 using VodovozHealthCheck.Dto;
 
@@ -18,21 +19,26 @@ namespace TaxcomEdoApi.Services
 	{
 		private readonly ILogger<DocumentFlowService> _logger;
 		private readonly TaxcomApi _taxcomApi;
+		private readonly EdoServicesOptions _edoServicesOptions;
 		private readonly ISettingsController _settingController;
+		private readonly IEdoContainerInfoFactory _edoContainerInfoFactory;
 		private readonly TaxcomEdoApiHealthCheck _taxcomEdoApiHealthCheck;
-		private const int _delaySec = 90;
 
 		private long? _lastEventOutgoingDocumentsTimeStamp;
 
 		public DocumentFlowService(
 			ILogger<DocumentFlowService> logger,
 			TaxcomApi taxcomApi,
+			IOptions<EdoServicesOptions> edoServicesOptions,
 			ISettingsController settingController,
+			IEdoContainerInfoFactory edoContainerInfoFactory,
 			TaxcomEdoApiHealthCheck taxcomEdoApiHealthCheck)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
+			_edoServicesOptions = (edoServicesOptions ?? throw new ArgumentNullException(nameof(edoServicesOptions))).Value;
 			_settingController = settingController ?? throw new ArgumentNullException(nameof(settingController));
+			_edoContainerInfoFactory = edoContainerInfoFactory ?? throw new ArgumentNullException(nameof(edoContainerInfoFactory));
 			_taxcomEdoApiHealthCheck = taxcomEdoApiHealthCheck ?? throw new ArgumentNullException(nameof(taxcomEdoApiHealthCheck));
 		}
 
@@ -84,15 +90,13 @@ namespace TaxcomEdoApi.Services
 							item.Documents.FirstOrDefault(x => x.TransactionCode == "PostDateConfirmation") != null;
 						var firstDocument = item.Documents[0];
 
-						var containerInfo = new EdoContainerInfo
-						{
-							MainDocumentId = firstDocument.ExternalIdentifier,
-							DocFlowId = item.Id,
-							Received = containerReceived,
-							InternalId = firstDocument.InternalId,
-							ErrorDescription = item.ErrorDescription,
-							EdoDocFlowStatus = item.Status.ToString()
-						};
+						var containerInfo = _edoContainerInfoFactory.CreateEdoContainerInfo(
+							firstDocument.ExternalIdentifier,
+							item.Id,
+							firstDocument.InternalId,
+							item.Status.ToString(),
+							containerReceived,
+							item.ErrorDescription);
 
 						if(containerInfo.EdoDocFlowStatus == "Succeed")
 						{
@@ -103,7 +107,7 @@ namespace TaxcomEdoApi.Services
 							"Отправляем в очередь информацию о контейнере c документом {MainDocumentId}",
 							containerInfo.MainDocumentId);
 						
-						//отправляем в очередь
+						//TODO отправляем в очередь
 
 						_lastEventOutgoingDocumentsTimeStamp = item.StatusChangeDateTime.ToBinary();
 					}
@@ -127,8 +131,10 @@ namespace TaxcomEdoApi.Services
 
 		private async Task DelayAsync(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation("Ждем {DelaySec}сек", _delaySec);
-			await Task.Delay(_delaySec * 1000, stoppingToken);
+			var delay = _edoServicesOptions.DelayBetweenDocumentFlowProcessingInSeconds;
+			
+			_logger.LogInformation("Ждем {DelaySec}сек", delay);
+			await Task.Delay(delay * 1000, stoppingToken);
 		}
 	}
 }

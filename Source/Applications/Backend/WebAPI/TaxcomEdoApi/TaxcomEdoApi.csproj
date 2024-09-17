@@ -65,5 +65,4 @@
       <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
       <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />-->
     </ItemGroup>
-	<Import Project="..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
 </Project>

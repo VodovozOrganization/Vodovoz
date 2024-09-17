@@ -38,20 +38,5 @@ namespace EdoService.Library.Converters
 					return EdoContactStateCode.Error;
 			}
 		}
-
-		public ConsentForEdoStatus ConvertStateToConsentForEdoStatus(EdoContactStateCode stateCode)
-		{
-			switch(stateCode)
-			{
-				case EdoContactStateCode.Accepted:
-					return ConsentForEdoStatus.Agree;
-				case EdoContactStateCode.Sent:
-					return ConsentForEdoStatus.Sent;
-				case EdoContactStateCode.Rejected:
-					return ConsentForEdoStatus.Rejected;
-				default:
-					return ConsentForEdoStatus.Unknown;
-			}
-		}
 	}
 }

@@ -1,8 +1,8 @@
 ﻿namespace TaxcomEdo.Library.Options
 {
-	public class TaxcomEdoOptions
+	public sealed class TaxcomEdoOptions
 	{
-		public const string Path = "TaxcomEdoOptions"; 
+		public const string Path = nameof(TaxcomEdoOptions); 
 		public string EdxClientId { get; set; }
 	}
 }

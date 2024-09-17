@@ -1,22 +1,18 @@
-﻿using TaxcomEdo.Contracts.OrdersWithoutShipment;
+﻿using System.Text.Json.Serialization;
+using TaxcomEdo.Contracts.OrdersWithoutShipment;
 
 namespace TaxcomEdo.Contracts.Documents
 {
 	/// <summary>
 	/// Необходимая информация для отправки счета без погрузки по ЭДО
 	/// </summary>
-	public class InfoForCreatingBillWithoutShipmentEdo : InfoForCreatingDocumentEdoWithAttachment
+	public abstract class InfoForCreatingBillWithoutShipmentEdo : InfoForCreatingDocumentEdoWithAttachment
 	{
-		protected InfoForCreatingBillWithoutShipmentEdo(OrderWithoutShipmentInfo orderWithoutShipmentInfo, FileData fileData)
-			: base(fileData)
-		{
-			OrderWithoutShipmentInfo = orderWithoutShipmentInfo;
-		}
-		
 		/// <summary>
 		/// Информация о счете без погрузки для ЭДО <see cref="OrderWithoutShipmentInfo"/>
 		/// </summary>
-		public OrderWithoutShipmentInfo OrderWithoutShipmentInfo { get; }
+		[JsonIgnore]
+		public OrderWithoutShipmentInfo OrderWithoutShipmentInfo { get; set; }
 
 		public string GetBillWithoutShipmentInfoTitle()
 		{
@@ -27,8 +23,5 @@ namespace TaxcomEdo.Contracts.Documents
 
 			return OrderWithoutShipmentInfo.ToString();
 		}
-
-		public static InfoForCreatingBillWithoutShipmentEdo Create(OrderWithoutShipmentInfo orderWithoutShipmentInfo, FileData fileData)
-			=> new InfoForCreatingBillWithoutShipmentEdo(orderWithoutShipmentInfo, fileData);
 	}
 }

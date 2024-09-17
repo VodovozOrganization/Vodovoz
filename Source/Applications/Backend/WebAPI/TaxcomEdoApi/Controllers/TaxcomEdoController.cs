@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Taxcom.Client.Api;
-using TaxcomEdo.Contracts;
+using TaxcomEdo.Contracts.Documents;
 using TaxcomEdoApi.Library.Services;
 
 namespace TaxcomEdoApi.Controllers

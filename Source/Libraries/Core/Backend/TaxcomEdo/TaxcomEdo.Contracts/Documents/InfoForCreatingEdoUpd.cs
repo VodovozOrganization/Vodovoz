@@ -6,6 +6,8 @@ namespace TaxcomEdo.Contracts.Documents
 {
 	public class InfoForCreatingEdoUpd : InfoForCreatingDocumentEdo
 	{
+		public static readonly string ExchangeAndQueueName = "info-for-create-upd";
+
 		protected InfoForCreatingEdoUpd(OrderInfoForEdo orderInfoForEdo, IEnumerable<PaymentInfoForEdo> paymentsInfoForEdo)
 		{
 			OrderInfoForEdo = orderInfoForEdo;

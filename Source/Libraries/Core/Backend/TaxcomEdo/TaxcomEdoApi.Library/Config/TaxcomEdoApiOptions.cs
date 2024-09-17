@@ -5,7 +5,7 @@
 	/// </summary>
 	public sealed class TaxcomEdoApiOptions
 	{
-		public const string Position = "Api";
+		public const string Path = "ApiOptions";
 		
 		/// <summary>
 		/// Адрес сервиса

@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using EdoDocumentsConsumer.Configs;
 using Microsoft.Extensions.Options;
-using TaxcomEdo.Contracts;
+using TaxcomEdo.Contracts.Documents;
 
 namespace EdoDocumentsConsumer.Services
 {

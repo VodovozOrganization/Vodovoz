@@ -7,7 +7,7 @@ namespace TaxcomEdoApi.Library.Config
 	/// </summary>
 	public sealed class WarrantOptions
 	{
-		public const string Position = "Warrant";
+		public const string Path = "WarrantOptions";
 		
 		/// <summary>
 		/// Начало действия доверенности

@@ -8,6 +8,5 @@ namespace EdoService.Library.Converters
 	{
 		ConsentForEdoStatus ConvertStateToConsentForEdoStatus(ContactStateCode stateCode);
 		EdoContactStateCode ConvertStateToEdoContactStateCode(ContactStateCode stateCode);
-		ConsentForEdoStatus ConvertStateToConsentForEdoStatus(EdoContactStateCode stateCode);
 	}
 }

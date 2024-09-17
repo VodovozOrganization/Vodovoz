@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
       <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
     </ItemGroup>
 

@@ -4,7 +4,7 @@ using EdoDocumentsConsumer.Services;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using TaxcomEdo.Contracts;
+using TaxcomEdo.Contracts.Documents;
 
 namespace EdoDocumentsConsumer.Consumers
 {
@@ -24,17 +24,27 @@ namespace EdoDocumentsConsumer.Consumers
 		public async Task Consume(ConsumeContext<InfoForCreatingEdoBill> context)
 		{
 			var message = context.Message;
-			_logger.LogInformation(
-				"Отправляем информацию по заказу {OrderId} в TaxcomApi, для создания и отправки счета по ЭДО",
-				message.OrderInfoForEdo.Id);
 
-			await SendDataToTaxcomApi(message);
+			try
+			{
+				_logger.LogInformation(
+					"Отправляем информацию по заказу {OrderId} в TaxcomApi, для создания и отправки счета по ЭДО",
+					message.OrderInfoForEdo.Id);
+
+				await SendDataToTaxcomApi(message);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при отправке информации по счету {OrderId} в TaxcomApi",
+					message.OrderInfoForEdo.Id);
+			}
 		}
 
 		private async Task SendDataToTaxcomApi(InfoForCreatingEdoBill data)
 		{
 			using var scope = _scopeFactory.CreateScope();
-			var taxcomService = scope.ServiceProvider.GetService<TaxcomService>();
+			var taxcomService = scope.ServiceProvider.GetService<ITaxcomService>();
 			await taxcomService.SendDataForCreateBillByEdo(data);
 		}
 	}
