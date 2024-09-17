@@ -76,8 +76,6 @@ namespace Vodovoz
 
 			WarehouseViewModel.Entity = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
 
-			comboWarehouses.Visible = false;
-
 			if(accessToWarehouseAndComplaints)
 			{
 				WarehouseViewModel.IsEditable = false;
