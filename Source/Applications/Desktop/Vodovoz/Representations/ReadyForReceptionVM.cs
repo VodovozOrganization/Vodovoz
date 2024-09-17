@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModel
 						 || routeListAlias.Status == RouteListStatus.MileageCheck
 						 || routeListAlias.Status == RouteListStatus.Delivered);
 
-			if(Filter.RestrictWarehouse != null) {
+			if(Filter.Warehouse != null) {
 				queryRoutes.JoinAlias(rl => rl.Addresses, () => routeListAddressAlias)
 					.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
 					.Where(new Disjunction()
