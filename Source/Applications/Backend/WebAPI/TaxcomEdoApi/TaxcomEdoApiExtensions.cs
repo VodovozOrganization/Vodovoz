@@ -44,14 +44,14 @@ namespace TaxcomEdoApi
 					{
 						throw new InvalidOperationException("Не найден сертификат в личном хранилище пользователя");
 					}
-					
+
 					return certificate;
 				})
 				.AddSingleton(provider =>
 				{
 					var apiOptions = provider.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;
 					var certificate = provider.GetRequiredService<X509Certificate2>();
-					
+
 					return new Factory().CreateApi(
 						apiOptions.BaseUrl,
 						true,
@@ -65,9 +65,7 @@ namespace TaxcomEdoApi
 				.AddSingleton<IParticipantDocFlowConverter, ParticipantDocFlowConverter>()
 				.AddSingleton<IEdoContainerMainDocumentIdParser, EdoContainerMainDocumentIdParser>()
 				.AddSingleton<IUpdProductConverter, UpdProductConverter>()
-				.AddSingleton<IContactStateConverter, ContactStateConverter>()
-
-				.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+				.AddSingleton<IContactStateConverter, ContactStateConverter>();
 
 			return services;
 		}

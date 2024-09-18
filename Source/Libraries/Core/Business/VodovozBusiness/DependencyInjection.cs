@@ -1,11 +1,8 @@
-using System.Linq;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using System.Linq;
 using Vodovoz.Controllers;
-using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.NotificationRecievers;
@@ -16,6 +13,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Orders;
 using Vodovoz.Validation;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace Vodovoz
 {
@@ -30,7 +28,6 @@ namespace Vodovoz
 			.RegisterClassesByInterfaces("Factory")
 			
 			.ConfigureBusinessOptions(configuration)
-			.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 			.AddScoped<RouteGeometryCalculator>()
 			.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())
 			.AddScoped<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>()
