@@ -109,8 +109,6 @@ namespace Vodovoz
 
 			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarLoadEdit);
-
-			entryWarehouse.ViewModel.ChangedByUser += OnWarehouseChangedByUser;
 		}
 
 		private void OnWarehouseChangedByUser(object sender, EventArgs e)
@@ -168,6 +166,7 @@ namespace Vodovoz
 			warehouseViewModel.IsEditable = editing;
 
 			entryWarehouse.ViewModel = warehouseViewModel;
+			entryWarehouse.ViewModel.ChangedByUser += OnWarehouseChangedByUser;
 
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
