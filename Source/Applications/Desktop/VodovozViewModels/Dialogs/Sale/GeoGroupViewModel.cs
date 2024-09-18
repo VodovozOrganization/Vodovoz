@@ -14,7 +14,9 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Models;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using Vodovoz.ViewModels.Warehouses;
 using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.ViewModels.Dialogs.Sales
@@ -75,8 +77,8 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(SelectedVersion, x => x.Warehouse)
-				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
-				.UseViewModelDialog<SubdivisionViewModel>()
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 
 			Entity.PropertyChanged += EntityPropertyChanged;
