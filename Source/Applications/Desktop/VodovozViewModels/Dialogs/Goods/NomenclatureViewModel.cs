@@ -37,6 +37,7 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Domain.Logistic.Cars;
+using Vodovoz.ViewModels.Widgets.Goods;
 using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
@@ -81,6 +82,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureOnlineSettings nomenclatureOnlineSettings,
 			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			INomenclatureService nomenclatureService,
+			NomenclatureMinimumBalanceByWarehouseViewModel nomenclatureMinimumBalanceByWarehouseViewModel,
 			INomenclatureFileStorageService nomenclatureFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
@@ -109,6 +111,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 			_nomenclatureFileStorageService = nomenclatureFileStorageService ?? throw new ArgumentNullException(nameof(nomenclatureFileStorageService));
+
 			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
 
 			ConfigureEntryViewModels();
@@ -139,6 +142,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					Entity.RemoveFileInformation);
 
 			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
+
+			NomenclatureMinimumBalanceByWarehouseViewModel = nomenclatureMinimumBalanceByWarehouseViewModel
+				?? throw new ArgumentNullException(nameof(nomenclatureMinimumBalanceByWarehouseViewModel));
+			NomenclatureMinimumBalanceByWarehouseViewModel.Initialize(this, Entity, UoW);
 		}
 
 		public IStringHandler StringHandler { get; }
@@ -417,6 +424,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				}
 			}
 		}
+
+		public NomenclatureMinimumBalanceByWarehouseViewModel NomenclatureMinimumBalanceByWarehouseViewModel { get; private set; }
 
 		private void SetGlassHolderCheckboxesSelection()
 		{

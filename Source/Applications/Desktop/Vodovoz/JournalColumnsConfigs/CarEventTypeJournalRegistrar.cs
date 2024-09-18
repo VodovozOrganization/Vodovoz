@@ -22,6 +22,10 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddToggleRenderer(node => node.IsDoNotShowInOperation)
 					.Editing(false)
 					.XAlign(0f)
+				.AddColumn("Прикреплять акт списания")
+				.AddToggleRenderer(node => node.IsAttachWriteOffDocument)
+					.Editing(false)
+					.XAlign(0f)
 				.Finish();
 	}
 }
