@@ -11,7 +11,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -83,13 +83,75 @@
 		'\n',
 		CONCAT('ИНН:', organizations.INN)
 	) AS org_address,
-	CONCAT('+7 ',
-		COALESCE (contact_phone.number, delivery_point_phone_work.number, delivery_point_phone_general.number,
-			delivery_point_phone_all.number, counterparty_phone_work.number, counterparty_phone_general.number, counterparty_phone_all.number),
-		' ',
-		IFNULL(COALESCE(contact_phone.comment, delivery_point_phone_work.comment, delivery_point_phone_general.comment,
-			delivery_point_phone_all.comment, counterparty_phone_work.comment, counterparty_phone_general.comment, counterparty_phone_all.comment)
-		, "")) AS contact_phone,
+	(SELECT
+		CONCAT('+7 ',
+			COALESCE (
+				phones_data.contact_phone,
+				phones_data.delivery_point_phone_work,
+				phones_data.delivery_point_phone_general,
+				phones_data.delivery_point_phone_all,
+				phones_data.counterparty_phone_work,
+				phones_data.counterparty_phone_general,
+				phones_data.counterparty_phone_all)
+			)
+	FROM 
+		((SELECT o.id,
+		(SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+		FROM phones p
+		WHERE p.is_archive = 0 AND 783800 = p.id
+		LIMIT 1
+		) AS contact_phone,
+		(SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+		FROM phones p
+		WHERE
+			p.is_archive = 0
+			AND p.delivery_point_id = o.delivery_point_id
+			AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')
+		LIMIT 1
+		) AS delivery_point_phone_work,
+		(SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+		FROM phones p
+		WHERE
+		 	p.is_archive = 0
+			AND p.delivery_point_id = o.delivery_point_id
+		 	AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
+		LIMIT 1
+		) AS delivery_point_phone_general,
+		(SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+		 FROM phones p
+		 WHERE
+		 	p.is_archive = 0
+			AND p.delivery_point_id = o.delivery_point_id
+		LIMIT 1
+		) AS delivery_point_phone_all,
+		(SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+		FROM phones p
+		WHERE
+			p.is_archive = 0
+			AND p.counterparty_id = o.client_id
+			AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')
+		LIMIT 1
+		) AS counterparty_phone_work,
+		(SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+		FROM phones p
+		WHERE
+			p.is_archive = 0
+			AND p.counterparty_id = o.client_id
+			AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
+		LIMIT 1
+		) AS counterparty_phone_general,
+		(SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+		FROM phones p
+		WHERE
+			p.is_archive = 0
+			AND p.counterparty_id = o.client_id
+		LIMIT 1
+		) AS counterparty_phone_all
+		FROM
+			orders o
+		WHERE
+			o.id = @order_id) phones_data
+	)) AS contact_phone,
 	districts.district_name AS logistics_area,
 	delivery_points.compiled_address_short AS del_point_address,
 	orders.daily_number_1c AS daily_number,
@@ -130,36 +192,6 @@ FROM
 	districts ON delivery_points.district_id = districts.id
 		LEFT JOIN
 	employees ON employees.id = orders.author_employee_id
-		LEFT JOIN (
-              SELECT p.id, p.number, p.comment
-              FROM phones p WHERE p.is_archive = 0)
-              AS contact_phone ON orders.contact_phone_id = contact_phone.id
-         LEFT JOIN (
-              SELECT p.delivery_point_id, p.id, p.number, p.comment
-              FROM phones p              
-              WHERE p.is_archive = 0
-              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')      
-              ) AS delivery_point_phone_work ON delivery_points.id = delivery_point_phone_work.delivery_point_id
-         LEFT JOIN (
-              SELECT p.delivery_point_id, p.id, p.number, p.comment
-              FROM phones p              
-              WHERE p.is_archive = 0
-              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
-              ) AS delivery_point_phone_general ON delivery_points.id = delivery_point_phone_general.delivery_point_id
-         LEFT JOIN phones delivery_point_phone_all ON delivery_point_phone_all.delivery_point_id = delivery_points.id AND delivery_point_phone_all.is_archive = 0
-         LEFT JOIN (
-              SELECT p.counterparty_id, p.id, p.number, p.comment
-              FROM phones p
-              WHERE p.is_archive = 0
-              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')
-              ) AS counterparty_phone_work ON counterparty.id = counterparty_phone_work.counterparty_id
-         LEFT JOIN (
-              SELECT p.counterparty_id, p.id, p.number, p.comment
-              FROM phones p
-              WHERE p.is_archive = 0
-              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
-              ) AS counterparty_phone_general ON counterparty.id = counterparty_phone_general.counterparty_id
-         LEFT JOIN phones counterparty_phone_all ON counterparty_phone_all.counterparty_id  = counterparty.id AND counterparty_phone_all.is_archive = 0
 WHERE
 	orders.id = @order_id
 ;</CommandText>
@@ -169,7 +201,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
