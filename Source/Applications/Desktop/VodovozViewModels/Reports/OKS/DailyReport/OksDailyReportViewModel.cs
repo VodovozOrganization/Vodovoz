@@ -47,10 +47,6 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 		private void CreateReport()
 		{
-			var dateFrom = Date;
-			var dateTo = Date.LatestDayTime();
-			var complaints = _complaintsRepository.GetClientComplaintsForPeriod(UoW, dateFrom, dateTo).ToList();
-
 			var dialogSettings = GetSaveExcelReportDialogSettings();
 			var saveFileDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
 
@@ -59,7 +55,8 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				return;
 			}
 
-			var report = OksDailyReport.Create();
+			var report = OksDailyReport.Create(UoW, Date, _complaintsRepository);
+			report.ExportReport(saveFileDialogResult.Path);
 		}
 
 		private DialogSettings GetSaveExcelReportDialogSettings()
@@ -68,7 +65,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			{
 				Title = "Сохранить",
 				DefaultFileExtention = ".xlsx",
-				FileName = $"{OksDailyReport.GetReportTitle(Date)}.xlsx"
+				FileName = $"Ежедневный отчет ОКС за {Date.ToString("dd.MM.yyyy")}.xlsx"
 			};
 
 			dialogSettings.FileFilters.Clear();
