@@ -31,11 +31,13 @@ namespace Vodovoz
 			w1.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.entityentryWarehouse = new global::QS.Views.Control.EntityEntry();
+			this.entityentryWarehouse.WidthRequest = 400;
 			this.entityentryWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.entityentryWarehouse.Name = "entityentryWarehouse";
 			this.hbox3.Add(this.entityentryWarehouse);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entityentryWarehouse]));
 			w2.Position = 1;
+			w2.Expand = false;
 			this.Add(this.hbox3);
 			if ((this.Child != null))
 			{
