@@ -10,11 +10,11 @@ using System.Linq;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Extensions;
+using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Services;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools;
-using Vodovoz.ViewModels.Extensions;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {
@@ -164,12 +164,12 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			if(!report.CarReceptionRows.Any())
 			{
-				template.Workbook.Worksheet(1).Rows(12, 14).Delete();
+				template.Workbook.Worksheet(1).Rows(13, 16).Delete();
 			}
 
 			if(!report.CarTransferRows.Any())
 			{
-				template.Workbook.Worksheet(1).Rows(7, 10).Delete();
+				template.Workbook.Worksheet(1).Rows(8, 11).Delete();
 			}
 
 			return template.RenderTemplate(report);

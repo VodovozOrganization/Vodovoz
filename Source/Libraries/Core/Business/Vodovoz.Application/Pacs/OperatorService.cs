@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -143,9 +144,15 @@ namespace Vodovoz.Application.Pacs
 			}
 
 			_connectingTimer = new Timer(5000);
-			_connectingTimer.Elapsed += (s, e) =>
+			_connectingTimer.Elapsed += OnReconnectTimerElapsed;
+			_connectingTimer.Start();
+		}
+
+		private void OnReconnectTimerElapsed(object sender, ElapsedEventArgs e)
+		{
+			if(OperatorState == null || OperatorState.State == OperatorStateType.Disconnected)
 			{
-				if(OperatorState == null || OperatorState.State == OperatorStateType.Disconnected)
+				try
 				{
 					Connect().Wait();
 					_operatorKeepAliveController.Start();
@@ -154,9 +161,29 @@ namespace Vodovoz.Application.Pacs
 					_settings = _pacsRepository.GetPacsDomainSettings();
 					UpdateMango();
 					SubscribeEvents();
+					_connectingTimer.Elapsed -= OnReconnectTimerElapsed;
 				}
-			};
-			_connectingTimer.Start();
+				catch(AggregateException ex)
+				{
+					int counter = 1;
+
+					foreach(var exception in ex.InnerExceptions)
+					{
+						_logger.LogError(
+							ex,
+							"Произошла ошибка при подключении к службам СКУД ({CurrentExceptionNumber}/{ExceptionsCount}): {ExceptionMessage}",
+							exception.Message,
+							counter,
+							ex.InnerExceptions.Count);
+
+						counter++;
+					}
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Произошла ошибка при подключении к службам СКУД: {ExceptionMessage}", ex.Message);
+				}
+			}
 		}
 
 		private async Task Connect()
@@ -184,8 +211,7 @@ namespace Vodovoz.Application.Pacs
 
 		private async Task Disconnect()
 		{
-			_connectingTimer?.Dispose();
-			_connectingTimer = null;
+			_connectingTimer.Stop();
 			_client.StateChanged -= StateChanged;
 			var stateEvent = await _client.Disconnect();
 			SetState(stateEvent);
@@ -199,10 +225,26 @@ namespace Vodovoz.Application.Pacs
 
 		private void SetState(OperatorStateEvent stateEvent)
 		{
+			_logger.LogInformation(
+				"Изменение состояния оператора с {PreviousOperatorState} на {NewOperatorState}",
+				OperatorState?.State,
+				stateEvent?.State?.State);
+
+			var previousShortBreakAvailable = BreakAvailability?.ShortBreakAvailable;
+			var previousLongBreakAvailable = BreakAvailability?.LongBreakAvailable;
+
 			if(OperatorState == null || OperatorState.Id != stateEvent.State.Id)
 			{
 				OperatorState = stateEvent.State;
 			}
+
+			_logger.LogInformation(
+				"Изменение доступности малого перерыва оператора с {PreviousShortBreakAvailability} на {NewShortBreakAvailability}," +
+				" большого перерыва оператора с {PreviousLongBreakAvailability} на {NewLongBreakAvailability}",
+				previousShortBreakAvailable,
+				stateEvent?.BreakAvailability?.ShortBreakAvailable,
+				previousLongBreakAvailable,
+				stateEvent?.BreakAvailability?.LongBreakAvailable);
 
 			if(BreakAvailability == null || !BreakAvailability.Equals(stateEvent.BreakAvailability))
 			{
@@ -737,7 +779,7 @@ namespace Vodovoz.Application.Pacs
 				var hasPhone = uint.TryParse(OperatorState?.PhoneNumber, out var phone);
 				if(!hasPhone)
 				{
-					_logger.LogWarning("Внутренний телефон оператора имеет не корректный формат и не может использоваться в Манго. Тел: {Phone}", OperatorState.PhoneNumber);
+					_logger.LogWarning("Внутренний телефон оператора имеет не корректный формат и не может использоваться в Манго. Тел: {Phone}", OperatorState?.PhoneNumber);
 				}
 
 				if(_operatorStateAgent.OnWorkshift)
@@ -857,6 +899,8 @@ namespace Vodovoz.Application.Pacs
 
 		public void Dispose()
 		{
+			_connectingTimer.Stop();
+			_connectingTimer.Elapsed -= OnReconnectTimerElapsed;
 			_connectingTimer?.Dispose();
 			_delayedBreakUpdateTimer?.Dispose();
 			UnsubscribeEvents();

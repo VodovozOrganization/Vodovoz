@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Errors;
 using VodovozBusiness.NotificationRecievers;
 
 namespace Vodovoz.NotificationRecievers
@@ -107,24 +109,30 @@ namespace Vodovoz.NotificationRecievers
 			_apiClient?.Dispose();
 		}
 
-		public async Task NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
+		public async Task<Result> NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
 		{
 			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfOrderWithGoodsTransferingIsTransferedUri, orderId))
 			{
-				var responseBody = await response.Content.ReadAsAsync<ProblemDetails>();
+				var responseBody = await response.Content.ReadAsStringAsync();
 
-				if(response.IsSuccessStatusCode && responseBody is null)
+				if(response.IsSuccessStatusCode && string.IsNullOrWhiteSpace(responseBody))
 				{
-					return;
+					return Result.Success();
 				}
 
-				if(responseBody is null)
+				if(string.IsNullOrWhiteSpace(responseBody))
 				{
-					throw new DriverAPIHelperException(response.ReasonPhrase);
+					return Result.Failure(Errors.Common.DriverApiClient.ApiError(response.ReasonPhrase));
+				}
+				else if(response.IsSuccessStatusCode)
+				{
+					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
+					return Result.Failure(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail));
 				}
 				else
 				{
-					throw new DriverAPIHelperException(responseBody.Detail);
+					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
+					return Result.Failure(Errors.Common.DriverApiClient.ApiError(problemDetails.Detail));
 				}
 			}
 		}

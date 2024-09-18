@@ -6,7 +6,7 @@ namespace Vodovoz.Views
 	{
 		private global::Gtk.Table table1;
 
-		private global::QSAttachment.Views.Widgets.AttachmentsView attachmentsEmailView;
+		private global::Vodovoz.Presentation.Views.AttachedFileInformationsView attachedfileinformationsview;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -65,11 +65,11 @@ namespace Vodovoz.Views
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.attachmentsEmailView = new global::QSAttachment.Views.Widgets.AttachmentsView();
-			this.attachmentsEmailView.Events = ((global::Gdk.EventMask)(256));
-			this.attachmentsEmailView.Name = "attachmentsEmailView";
-			this.table1.Add(this.attachmentsEmailView);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.attachmentsEmailView]));
+			this.attachedfileinformationsview = new global::Vodovoz.Presentation.Views.AttachedFileInformationsView();
+			this.attachedfileinformationsview.Events = ((global::Gdk.EventMask)(256));
+			this.attachedfileinformationsview.Name = "attachedfileinformationsview";
+			this.table1.Add(this.attachedfileinformationsview);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.attachedfileinformationsview]));
 			w2.TopAttach = ((uint)(2));
 			w2.BottomAttach = ((uint)(3));
 			w2.LeftAttach = ((uint)(1));
@@ -297,7 +297,7 @@ namespace Vodovoz.Views
 			{
 				this.Child.ShowAll();
 			}
-			this.DefaultWidth = 1027;
+			this.DefaultWidth = 1178;
 			this.DefaultHeight = 453;
 			this.yprogressbarSending.Hide();
 			this.Show();

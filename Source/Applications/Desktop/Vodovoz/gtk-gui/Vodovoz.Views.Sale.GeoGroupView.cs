@@ -54,7 +54,7 @@ namespace Vodovoz.Views.Sale
 
 		private global::Gtk.Label labelWarehouse;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryWarehouse;
+		private global::QS.Views.Control.EntityEntry entityentryWarehouse;
 
 		private global::GMap.NET.GtkSharp.GMapControl gMapWidget;
 
@@ -328,13 +328,11 @@ namespace Vodovoz.Views.Sale
 			w25.Expand = false;
 			w25.Fill = false;
 			// Container child hboxVersionFields.Gtk.Box+BoxChild
-			this.entryWarehouse = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryWarehouse.Events = ((global::Gdk.EventMask)(256));
-			this.entryWarehouse.Name = "entryWarehouse";
-			this.entryWarehouse.CanEditReference = false;
-			this.entryWarehouse.CanOpenWithoutTabParent = false;
-			this.hboxVersionFields.Add(this.entryWarehouse);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hboxVersionFields[this.entryWarehouse]));
+			this.entityentryWarehouse = new global::QS.Views.Control.EntityEntry();
+			this.entityentryWarehouse.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryWarehouse.Name = "entityentryWarehouse";
+			this.hboxVersionFields.Add(this.entityentryWarehouse);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hboxVersionFields[this.entityentryWarehouse]));
 			w26.Position = 3;
 			this.vboxDialog.Add(this.hboxVersionFields);
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hboxVersionFields]));

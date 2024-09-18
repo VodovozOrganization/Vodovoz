@@ -256,10 +256,12 @@ namespace Pacs.Server.Operators
 
 		public async Task Connect()
 		{
-			var opearator = _operatorRepository.GetOperator(OperatorId);
-
 			LoadOperatorState(OperatorId);
-			await _machine.FireAsync(OperatorStateTrigger.Connect);
+
+			if(_machine.CanFire(OperatorStateTrigger.Connect))
+			{
+				await _machine.FireAsync(OperatorStateTrigger.Connect);
+			}
 		}
 
 		private void OnConnect()
@@ -631,9 +633,7 @@ namespace Pacs.Server.Operators
 
 		private void ClearCall()
 		{
-			var callId = OperatorState.CallId;
-			OperatorState.CallId = null;
-			_logger.LogInformation("Оператор {OperatorId} завершил звонок {CallId}", OperatorId, callId);
+			_logger.LogInformation("Оператор {OperatorId} завершил звонок {CallId}", OperatorId, OperatorState?.CallId);
 		}
 
 		#endregion

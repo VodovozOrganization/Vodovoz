@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
 using System.Linq;
@@ -47,7 +48,8 @@ namespace Vodovoz
 			.AddDriverApiHelper()
 		;
 
-		private static IServiceCollection RegisterClassesByInterfaces(this IServiceCollection services, string classEndsWith)
+		private static IServiceCollection RegisterClassesByInterfaces(
+			this IServiceCollection services, string classEndsWith, DependencyType dependencyType = DependencyType.Scoped)
 		{
 			var settingsTypes = typeof(DependencyInjection).Assembly.GetTypes()
 				.Where(t => t.IsClass
@@ -56,7 +58,18 @@ namespace Vodovoz
 
 			foreach(var type in settingsTypes)
 			{
-				services.AddScoped(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
+				switch(dependencyType)
+				{
+					case DependencyType.Singleton:
+						services.AddSingleton(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
+						break;
+					case DependencyType.Scoped:
+						services.AddScoped(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
+						break;
+					case DependencyType.Transient:
+						services.AddTransient(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
+						break;
+				}
 			}
 			
 			return services;
@@ -84,5 +97,12 @@ namespace Vodovoz
 				.AddScoped<IWaitingTimeChangedNotificationReciever, DriverAPIHelper>()
 				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationReciever, DriverAPIHelper>()
 				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
+	}
+
+	public enum DependencyType
+	{
+		Singleton,
+		Scoped,
+		Transient
 	}
 }

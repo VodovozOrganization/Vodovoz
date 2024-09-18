@@ -7,7 +7,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
@@ -16,19 +15,23 @@ using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using Vodovoz.Application.Complaints;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Complaints;
@@ -39,9 +42,11 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Orders;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -56,6 +61,9 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IGeneralSettings _generalSettingsSettings;
 		private readonly IComplaintSettings _complaintSettings;
+		private readonly IComplaintFileStorageService _complaintFileStorageService;
+		private readonly IComplaintDiscussionCommentFileStorageService _complaintDiscussionCommentFileStorageService;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -64,14 +72,14 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly bool _canAddGuiltyInComplaintsPermissionResult;
 		private readonly bool _canCloseComplaintsPermissionResult;
 
-		private ILifetimeScope _scope;
 		private Employee _currentEmployee;
 		private ComplaintDiscussionsViewModel _discussionsViewModel;
 		private GuiltyItemsViewModel _guiltyItemsViewModel;
-		private ComplaintFilesViewModel _filesViewModel;
 		private List<ComplaintSource> _complaintSources;
 		private IEnumerable<ComplaintResultOfCounterparty> _complaintResults;
 		private IList<ComplaintKind> _complaintKindSource;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public ComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -82,37 +90,37 @@ namespace Vodovoz.ViewModels.Complaints
 			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
 			IUserRepository userRepository,
-			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory driverJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionSettings subdivisionSettings,
 			IRouteListItemRepository routeListItemRepository,
 			IGeneralSettings generalSettingsSettings,
 			IComplaintSettings complaintSettings,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			IComplaintFileStorageService complaintFileStorageService,
+			IComplaintDiscussionCommentFileStorageService complaintDiscussionCommentFileStorageService,
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			}
+
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));		
+			LifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
-			CounterpartyAutocompleteSelectorFactory =
-				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory(_scope);
-			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_generalSettingsSettings = generalSettingsSettings ?? throw new ArgumentNullException(nameof(generalSettingsSettings));
 			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
-			if(orderSelectorFactory == null)
-			{
-				throw new ArgumentNullException(nameof(orderSelectorFactory));
-			}
+			_complaintFileStorageService = complaintFileStorageService ?? throw new ArgumentNullException(nameof(complaintFileStorageService));
+			_complaintDiscussionCommentFileStorageService = complaintDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(complaintDiscussionCommentFileStorageService));
+			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
@@ -133,20 +141,6 @@ namespace Vodovoz.ViewModels.Complaints
 
 			CreateCommands();
 
-			var driverEntryViewModel =
-					new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope)
-					.ForProperty(x => x.Driver)
-					.UseViewModelDialog<EmployeeViewModel>()
-					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
-						filter =>
-						{
-							filter.RestrictCategory = EmployeeCategory.driver;
-						}
-					)
-					.Finish();
-
-			ComplaintDriverEntryViewModel = driverEntryViewModel;
-
 			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
@@ -155,21 +149,6 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
-
-			var complaintDetalizationEntryViewModelBuilder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope);
-
-			ComplaintDetalizationEntryViewModel = complaintDetalizationEntryViewModelBuilder
-				.ForProperty(x => x.ComplaintDetalization)
-				.UseViewModelDialog<ComplaintDetalizationViewModel>()
-				.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel, ComplaintDetalizationJournalFilterViewModel>(
-					filter =>
-					{
-						filter.RestrictComplaintObject = Entity.ComplaintKind?.ComplaintObject;
-						filter.RestrictComplaintKind = Entity.ComplaintKind;
-						filter.HideArchieve = true;
-					}
-				)
-				.Finish();
 
 			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
 
@@ -188,12 +167,24 @@ namespace Vodovoz.ViewModels.Complaints
 				ComplaintResultsOfEmployees = _complaintResultsRepository.GetActiveResultsOfEmployees(UoW);
 			}
 
-			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
+			InitializeEntryViewModels();
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory
+				.CreateAndInitialize<Complaint, ComplaintFileInformation>(
+					UoW,
+					Entity,
+					_complaintFileStorageService,
+					_cancellationTokenSource.Token,
+					Entity.AddFileInformation,
+					Entity.RemoveFileInformation);
+
+			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
 		}
 
-		public IEntityEntryViewModel ComplaintDriverEntryViewModel { get; }
-
-		public IEntityEntryViewModel ComplaintDetalizationEntryViewModel { get; }
+		public ILifetimeScope LifetimeScope { get; private set; }
+		public IEntityEntryViewModel ComplaintDriverEntryViewModel { get; private set; }
+		public IEntityEntryViewModel ComplaintDetalizationEntryViewModel { get; private set; }
+		public IEntityEntryViewModel OrderRatingEntryViewModel { get; private set; }
 
 		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
@@ -254,7 +245,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				if(_discussionsViewModel == null)
 				{
-					_discussionsViewModel = _scope.Resolve<ComplaintDiscussionsViewModel>(
+					_discussionsViewModel = LifetimeScope.Resolve<ComplaintDiscussionsViewModel>(
 						new TypedParameter(typeof(Complaint), Entity),
 						new TypedParameter(typeof(IUnitOfWork), UoW),
 						new TypedParameter(typeof(DialogViewModelBase), this));
@@ -274,7 +265,7 @@ namespace Vodovoz.ViewModels.Complaints
 							Entity,
 							UoW,
 							this,
-							_scope,
+							LifetimeScope,
 							CommonServices,
 							_subdivisionRepository,
 							EmployeeJournalFactory,
@@ -282,18 +273,6 @@ namespace Vodovoz.ViewModels.Complaints
 				}
 
 				return _guiltyItemsViewModel;
-			}
-		}
-
-		public ComplaintFilesViewModel FilesViewModel
-		{
-			get
-			{
-				if(_filesViewModel == null)
-				{
-					_filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, _userRepository);
-				}
-				return _filesViewModel;
 			}
 		}
 
@@ -331,7 +310,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public string ChangedByAndDate => $"Изм: {Entity.ChangedBy?.ShortName} {Entity.ChangedDate:g}";
 
 		public string CreatedByAndDate => $"Созд: {Entity.CreatedBy?.ShortName} {Entity.CreationDate:g}";
-
 
 		public IEnumerable<ComplaintSource> ComplaintSources
 		{
@@ -581,25 +559,13 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#endregion Commands
 
-		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
-		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
-		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 		private ISubdivisionSettings SubdivisionSettings { get; }
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
-		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
+		public void ShowMessage(string message)
 		{
-			var orderFilter = _scope.Resolve<OrderJournalFilterViewModel>();
-
-			if(Entity.Counterparty != null)
-			{
-				orderFilter.RestrictCounterparty = Entity.Counterparty;
-			}
-
-			OrderAutocompleteSelectorFactory =
-				(orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory)))
-				.CreateOrderAutocompleteSelectorFactory(orderFilter);
+			ShowInfoMessage(message);
 		}
 
 		protected void ConfigureEntityChangingRelations()
@@ -659,6 +625,12 @@ namespace Vodovoz.ViewModels.Complaints
 			OnPropertyChanged(() => FineItems);
 		}
 
+		public void SetOrderRating(int orderRatingId)
+		{
+			var orderRating = UoW.GetById<OrderRating>(orderRatingId);
+			Entity.OrderRating = orderRating;
+		}
+
 		public void ChangeComplaintStatus(ComplaintStatuses oldStatus, ComplaintStatuses newStatus)
 		{
 			if(newStatus == ComplaintStatuses.Closed)
@@ -694,6 +666,45 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 			OnPropertyChanged(nameof(Status));
 		}
+		
+		private void InitializeEntryViewModels()
+		{
+			var builder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, LifetimeScope);
+			
+			ComplaintDriverEntryViewModel =
+				builder
+					.ForProperty(x => x.Driver)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						filter =>
+						{
+							filter.RestrictCategory = EmployeeCategory.driver;
+						}
+					)
+					.Finish();
+			
+			ComplaintDetalizationEntryViewModel =
+				builder
+					.ForProperty(x => x.ComplaintDetalization)
+					.UseViewModelDialog<ComplaintDetalizationViewModel>()
+					.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel, ComplaintDetalizationJournalFilterViewModel>(
+						filter =>
+						{
+							filter.RestrictComplaintObject = Entity.ComplaintKind?.ComplaintObject;
+							filter.RestrictComplaintKind = Entity.ComplaintKind;
+							filter.HideArchieve = true;
+						}
+					)
+					.Finish();
+			
+			OrderRatingEntryViewModel =
+				builder
+					.ForProperty(x => x.OrderRating)
+					.UseViewModelDialog<OrderRatingViewModel>()
+					.UseViewModelJournalAndAutocompleter<OrdersRatingsJournalViewModel>()
+					.Finish();
+			OrderRatingEntryViewModel.IsEditable = false;
+		}
 
 		public override void Close(bool askSave, CloseSource source)
 		{
@@ -706,9 +717,94 @@ namespace Vodovoz.ViewModels.Complaints
 			base.Close(askSave, source);
 		}
 
+		private void AddAttachedFilesIfNeeded()
+		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
+			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			do
+			{
+				foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _complaintFileStorageService.CreateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
+				else
+				{
+					repeat = false;
+				}
+			}
+			while(repeat);
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_complaintFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_complaintFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
 		public override bool Save(bool close)
 		{
 			_logger.Debug("Вызываем {Method}()", nameof(Save));
+
+			if(!base.Save(false))
+			{
+				return false;
+			}
+
+			AddAttachedFilesIfNeeded();
+			UpdateAttachedFilesIfNeeded();
+			DeleteAttachedFilesIfNeeded();
+			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+			AddDiscussionsCommentFilesIfNeeded();
+
 			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
 			{
 				return false;
@@ -717,10 +813,69 @@ namespace Vodovoz.ViewModels.Complaints
 			return base.Save(close);
 		}
 
+		private void AddDiscussionsCommentFilesIfNeeded()
+		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
+			do
+			{
+				foreach(var complaintDiscussionViewModel in DiscussionsViewModel.ObservableComplaintDiscussionViewModels)
+				{
+					foreach(var keyValuePair in complaintDiscussionViewModel.FilesToUploadOnSave)
+					{
+						var commentId = keyValuePair.Key.Invoke();
+
+						var comment = Entity
+							.ObservableComplaintDiscussions
+							.FirstOrDefault(cd => cd.Comments.Any(c => c.Id == commentId))
+							?.Comments
+							?.FirstOrDefault(c => c.Id == commentId);
+
+						foreach(var fileToUploadPair in keyValuePair.Value)
+						{
+							using(var ms = new MemoryStream(fileToUploadPair.Value))
+							{
+								var result = _complaintDiscussionCommentFileStorageService.CreateFileAsync(
+									comment,
+									fileToUploadPair.Key,
+									ms,
+									_cancellationTokenSource.Token)
+									.GetAwaiter()
+									.GetResult();
+
+								if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
+								{
+									errors.Add(fileToUploadPair.Key, string.Join(", ", result.Errors.Select(e => e.Message)));
+								}
+							}
+						}
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
+				else
+				{
+					repeat = false;
+				}
+			}
+			while(repeat);
+		}
+
 		public override void Dispose()
 		{
 			_logger.Debug("Вызываем {Method}()", nameof(Dispose));
-			_scope = null;
+			LifetimeScope = null;
 			base.Dispose();
 		}
 	}

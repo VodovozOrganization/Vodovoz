@@ -434,10 +434,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void PrintSelectedDocument(RouteListPrintableDocuments choise)
 		{
-			var page = NavigationManager.OpenViewModel<DocumentsPrinterViewModel>(this);
-
+			var page = NavigationManager.OpenViewModel<DocumentsPrinterViewModel>(this, OpenPageOptions.AsSlave);
 			page.ViewModel.ConfigureForRouteListDocumentsPrint(UoW, Entity, choise);
-
 			page.ViewModel.DocumentsPrinted += RaiseDocumentPrinted;
 		}
 

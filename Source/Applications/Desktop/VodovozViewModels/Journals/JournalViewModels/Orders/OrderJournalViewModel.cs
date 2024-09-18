@@ -94,7 +94,7 @@ namespace Vodovoz.JournalViewModels
 
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			_userHasOnlyAccessToWarehouseAndComplaints =
-				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 			_userCanPrintManyOrdersDocuments = commonServices.CurrentPermissionService.ValidatePresetPermission("can_print_many_orders_documents");
 			_userCanExportOrdersToExcel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_export_orders_to_excel");
@@ -102,6 +102,7 @@ namespace Vodovoz.JournalViewModels
 			SearchEnabled = false;
 
 			filterViewModel.Journal = this;
+			JournalFilter = filterViewModel;
 
 			UseSlider = false;
 
@@ -1387,20 +1388,21 @@ namespace Vodovoz.JournalViewModels
 					"Создать рекламацию",
 					selectedItems => CanCreateComplaint(selectedItems),
 					selectedItems => true,
-					selectedItems => {
+					selectedItems =>
+					{
 						var selectedNodes = selectedItems.OfType<OrderJournalNode>().ToList();
+						
 						if(selectedNodes.Count != 1)
 						{
 							return;
 						}
+						
 						var selectedOrder = selectedNodes.First();
 
-						var complaintViewModel = NavigationManager.OpenViewModel<CreateComplaintViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
-
-						var order = complaintViewModel.UoW.GetById<VodovozOrder>(selectedOrder.Id);
-						complaintViewModel.Entity.Counterparty = order.Client;
-						complaintViewModel.Entity.Order = order;
-						complaintViewModel.Entity.DeliveryPoint = order.DeliveryPoint;
+						var complaintViewModel =
+							NavigationManager.OpenViewModel<CreateComplaintViewModel, IEntityUoWBuilder>(
+								this, EntityUoWBuilder.ForCreate()).ViewModel;
+						complaintViewModel.SetOrder(selectedOrder.Id);
 					}
 				)
 			);

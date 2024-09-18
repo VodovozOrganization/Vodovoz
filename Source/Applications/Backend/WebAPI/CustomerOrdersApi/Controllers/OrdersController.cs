@@ -9,11 +9,8 @@ using Microsoft.Extensions.Logging;
 
 namespace CustomerOrdersApi.Controllers
 {
-	[ApiController]
-	[Route("/api/")]
-	public class OrdersController : ControllerBase
+	public class OrdersController : SignatureControllerBase
 	{
-		private readonly ILogger<OrdersController> _logger;
 		private readonly ICustomerOrdersService _customerOrdersService;
 		private readonly IPublishEndpoint _publishEndpoint;
 
@@ -21,52 +18,155 @@ namespace CustomerOrdersApi.Controllers
 			ILogger<OrdersController> logger,
 			ICustomerOrdersService customerOrdersService,
 			IPublishEndpoint publishEndpoint
-			)
+			) : base(logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
-		[HttpPost("CreateOrder")]
+		[HttpPost]
 		public async Task<IActionResult> CreateOrderAsync(OnlineOrderInfoDto onlineOrderInfoDto)
 		{
 			var sourceName = onlineOrderInfoDto.Source.GetEnumTitle();
 			
 			try
 			{
-				_logger.LogInformation(
-					"Поступил запрос от {Source} на регистрацию заказа для {CounterpartyId} c подписью {Signature}, проверяем...",
+				Logger.LogInformation(
+					"Поступил запрос от {Source} на регистрацию заказа {ExternalOrderId} c подписью {Signature}, проверяем...",
 					sourceName,
-					onlineOrderInfoDto.CounterpartyErpId,
+					onlineOrderInfoDto.ExternalOrderId,
 					onlineOrderInfoDto.Signature);
 				
-				if(!_customerOrdersService.ValidateSignature(onlineOrderInfoDto, out var generatedSignature))
+				if(!_customerOrdersService.ValidateOrderSignature(onlineOrderInfoDto, out var generatedSignature))
 				{
-					const string invalidSignature = "Неккоректная подпись онлайн заказа";
-					_logger.LogWarning(
-						"{InvalidSignature}. Пришла {ReceivedSign}, должна быть {GeneratedSignature}",
-						invalidSignature,
-						onlineOrderInfoDto.Signature,
-						generatedSignature
-						);
-					return ValidationProblem(invalidSignature);
+					return InvalidSignature(onlineOrderInfoDto.Signature, generatedSignature);
 				}
 
-				_logger.LogInformation("Подпись валидна, отправляем в очередь");
+				Logger.LogInformation("Подпись валидна, отправляем в очередь");
 				await _publishEndpoint.Publish(onlineOrderInfoDto);
 				
 				return Accepted();
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e,
-					"Ошибка при регистрации заказа для клиента № {CounterpartyId} от {Source}",
-					onlineOrderInfoDto.CounterpartyErpId,
+				Logger.LogError(e,
+					"Ошибка при регистрации заказа {ExternalOrderId} от {Source}",
+					onlineOrderInfoDto.ExternalOrderId,
 					sourceName);
 
 				return Problem();
 			}
 		}
+
+		[HttpGet]
+		public IActionResult GetOrderInfo([FromBody] GetDetailedOrderInfoDto getDetailedOrderInfoDto)
+		{
+			var sourceName = getDetailedOrderInfoDto.Source.GetEnumTitle();
+			var orderId = getDetailedOrderInfoDto.OrderId ?? getDetailedOrderInfoDto.OnlineOrderId;
+			
+			try
+			{
+				Logger.LogInformation(
+					"Поступил запрос от {Source} на получение деталей заказа {OrderId} c подписью {Signature}, проверяем...",
+					sourceName,
+					orderId,
+					getDetailedOrderInfoDto.Signature);
+				
+				if(!_customerOrdersService.ValidateOrderInfoSignature(getDetailedOrderInfoDto, out var generatedSignature))
+				{
+					return InvalidSignature(getDetailedOrderInfoDto.Signature, generatedSignature);
+				}
+
+				Logger.LogInformation("Подпись валидна, получаем данные");
+				var orderInfo = _customerOrdersService.GetDetailedOrderInfo(getDetailedOrderInfoDto);
+				
+				return Ok(orderInfo);
+			}
+			catch(Exception e)
+			{
+				Logger.LogError(e,
+					"Ошибка при получении деталей заказа {OrderId} от {Source}",
+					orderId,
+					sourceName);
+
+				return Problem();
+			}
+		}
+		
+		[HttpGet]
+		public IActionResult GetOrders([FromBody] GetOrdersDto getOrdersDto)
+		{
+			var sourceName = getOrdersDto.Source.GetEnumTitle();
+			
+			try
+			{
+				Logger.LogInformation(
+					"Поступил запрос от {Source} на получение заказов клиента {CounterpartyId} c подписью {Signature}, проверяем...",
+					sourceName,
+					getOrdersDto.CounterpartyErpId,
+					getOrdersDto.Signature);
+				
+				if(!_customerOrdersService.ValidateCounterpartyOrdersSignature(getOrdersDto, out var generatedSignature))
+				{
+					return InvalidSignature(getOrdersDto.Signature, generatedSignature);
+				}
+
+				Logger.LogInformation(
+					"Подпись валидна, получаем заказы клиента {CounterpartyId} страница {Page}",
+					getOrdersDto.CounterpartyErpId,
+					getOrdersDto.Page);
+				
+				var orders = _customerOrdersService.GetOrders(getOrdersDto);
+				
+				return Ok(orders);
+			}
+			catch(Exception e)
+			{
+				Logger.LogError(e,
+					"Ошибка при получении заказов клиента {CounterpartyId} от {Source}",
+					getOrdersDto.CounterpartyErpId,
+					sourceName);
+
+				return Problem();
+			}
+		}
+		
+		/*[HttpPost]
+		public IActionResult UpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto)
+		{
+			var sourceName = paymentStatusUpdatedDto.Source.GetEnumTitle();
+
+			try
+			{
+				Logger.LogInformation(
+					"Поступил запрос от {Source} на обновление статуса оплаты онлайн заказа {ExternalOrderId} c подписью {Signature}, проверяем...",
+					sourceName,
+					paymentStatusUpdatedDto.ExternalOrderId,
+					paymentStatusUpdatedDto.Signature);
+				
+				if(!_customerOrdersService.ValidateOnlineOrderPaymentStatusUpdatedSignature(
+					paymentStatusUpdatedDto, out var generatedSignature))
+				{
+					return InvalidSignature(orderRatingInfo.Signature, generatedSignature);
+				}
+
+				if(!_customerOrdersService.TryUpdateOnlineOrderPaymentStatus(paymentStatusUpdatedDto))
+				{
+					//возвращаем код не найденного заказа
+					//return 
+				}
+				
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				Logger.LogError(
+					e,
+					"Ошибка при попытке обновить статус оплаты онлайн заказа {ExternalOrderId} от {Source}",
+					paymentStatusUpdatedDto.ExternalOrderId,
+					sourceName);
+				return Problem();
+			}
+		}*/
 	}
 }

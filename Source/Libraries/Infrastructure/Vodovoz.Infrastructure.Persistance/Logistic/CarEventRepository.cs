@@ -37,6 +37,20 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				).FirstOrDefault();
 		}
 
+		public CarEvent GetLastCarTechnicalCheckupEvent(IUnitOfWork uow, int carId, int technicalCheckupEventTypeId)
+		{
+			return
+				(
+					from ce in uow.Session.Query<CarEvent>()
+					join c in uow.GetAll<Car>() on ce.Car.Id equals c.Id
+					where c.Id == carId
+						&& ce.CarEventType.Id == technicalCheckupEventTypeId
+						&& ce.CarTechnicalCheckupEndingDate.HasValue
+					orderby ce.CarTechnicalCheckupEndingDate descending
+					select ce
+				).FirstOrDefault();
+		}
+
 		public IList<CarEvent> GetCarEventsByFine(IUnitOfWork uow, int fineId)
 		{
 			CarEvent carEventAlias = null;
@@ -46,6 +60,13 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.JoinAlias(() => carEventAlias.Fines, () => finesAlias)
 				.Where(() => finesAlias.Id == fineId)
 				.List();
+		}
+
+		public IQueryable<int> GetCarEventIdsByWriteOffDocument(IUnitOfWork uow, int documentId)
+		{
+			return uow.Session.Query<CarEvent>()
+				.Where(x => x.WriteOffDocument.Id == documentId)
+				.Select(x => x.Id);
 		}
 	}
 }

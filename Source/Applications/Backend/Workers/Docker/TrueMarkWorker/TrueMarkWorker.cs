@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -88,7 +88,7 @@ namespace TrueMarkWorker
 
 				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 
-				await zabbixSender.SendIsHealthyAsync();
+				await zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception e)
 			{

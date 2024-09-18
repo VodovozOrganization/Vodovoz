@@ -30,7 +30,7 @@
 	orders.payment_type AS order_payment_type,
 	orders.online_order AS order_online_number,
 	delivery_schedule.name AS delivery_schedule,
-	CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
+	counterparty_contract.number AS contract_number,
 	DATE_FORMAT(counterparty_contract.issue_date,
 			'%d.%m.%y') AS contract_date,
 	counterparty.full_name AS client_name,
@@ -227,6 +227,8 @@ WHERE
 							WHEN 'Repair' THEN ': Из ремонта'
 							WHEN 'Cleaning' THEN ': После сан.обр.'
 							WHEN 'RepairAndCleaning' THEN ': После сан.обр. и ремонта'
+                            WHEN 'TradeIn' THEN ': Акция Трейд-Ин'
+                            WHEN 'ClientGift' THEN ': Подарок клиента'
 							ELSE ''
 						END
 					),
@@ -265,6 +267,8 @@ WHERE
 							WHEN 'Repair' THEN ': В ремонт'
 							WHEN 'Cleaning' THEN ': На сан.обр.'
 							WHEN 'RepairAndCleaning' THEN ': На сан.обр.и ремонт'
+                            WHEN 'TradeIn' THEN ': Акция Трейд-Ин'
+                            WHEN 'ClientGift' THEN ': Подарок клиента'
 							ELSE ''
 						END
 					),

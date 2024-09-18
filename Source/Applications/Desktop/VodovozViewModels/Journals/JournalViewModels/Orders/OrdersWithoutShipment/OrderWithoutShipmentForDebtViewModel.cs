@@ -73,6 +73,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
@@ -143,7 +144,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() => true);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
-			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 		}
 
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }

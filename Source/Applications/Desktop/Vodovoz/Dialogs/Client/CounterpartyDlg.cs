@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Autofac.Core.Lifetime;
 using EdoService.Library;
 using EdoService.Library.Converters;
 using EdoService.Library.Dto;
@@ -11,6 +12,7 @@ using NHibernate;
 using NHibernate.Transform;
 using NLog;
 using QS.Attachments.Domain;
+using QS.Attachments.ViewModels.Widgets;
 using QS.Banks.Domain;
 using QS.Banks.Repositories;
 using QS.Dialog;
@@ -40,12 +42,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -71,6 +75,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
@@ -98,6 +103,8 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using VodovozBusiness.Domain.Client;
+using VodovozBusiness.Domain.Complaints;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
@@ -127,6 +134,7 @@ namespace Vodovoz
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = ScopeProvider.Scope.Resolve<IExternalCounterpartyRepository>();
 		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
+		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailSettings _emailSettings;
@@ -148,6 +156,8 @@ namespace Vodovoz
 		private IDeleteEntityService _deleteEntityService;
 		private ICurrentPermissionService _currentPermissionService;
 		private IEdoService _edoService;
+		private IAttachedFileInformationsViewModelFactory _attachmentsViewModelFactory;
+		private ICounterpartyFileStorageService _counterpartyFileStorageService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
@@ -316,6 +326,8 @@ namespace Vodovoz
 			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
 			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
+			_attachmentsViewModelFactory = _lifetimeScope.Resolve<IAttachedFileInformationsViewModelFactory>();
+			_counterpartyFileStorageService = _lifetimeScope.Resolve<ICounterpartyFileStorageService>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -509,7 +521,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 			SetSensitivityByPermission("can_arc_counterparty_and_deliverypoint", ycheckIsArchived);
 
-			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
+			lblVodovozNumber.Visible = false;
 
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0 || _canEditClientRefer;
 
@@ -675,12 +687,17 @@ namespace Vodovoz
 
 			// Прикрепляемые документы
 
-			var filesViewModel =
-				new CounterpartyFilesViewModel(Entity, UoW, new FileDialogService(), ServicesConfig.CommonServices, _userRepository)
-				{
-					ReadOnly = !CanEdit
-				};
-			counterpartyfilesview1.ViewModel = filesViewModel;
+			_attachedFileInformationsViewModel = _attachmentsViewModelFactory.CreateAndInitialize<Counterparty, CounterpartyFileInformation>(
+				UoW,
+				Entity,
+				_counterpartyFileStorageService,
+				_cancellationTokenSource.Token,
+				Entity.AddFileInformation,
+				Entity.RemoveFileInformation);
+
+			_attachedFileInformationsViewModel.ReadOnly = !CanEdit;
+
+			smallfileinformationsview.ViewModel = _attachedFileInformationsViewModel;
 
 			chkNeedNewBottles.Binding
 				.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active)
@@ -1394,7 +1411,7 @@ namespace Vodovoz
 
 			UpdateEdoContainers();
 			treeViewEdoDocumentsContainer.ItemsDataSource = _edoContainers;
-			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_edo_documents");
 			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnButtonEdoDocumentsSendAllUnsentClicked;
 			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoContainers();
 		}
@@ -1621,13 +1638,91 @@ namespace Vodovoz
 				}
 
 				_logger.Info("Сохраняем контрагента...");
-				UoWGeneric.Save();
+				UoW.Save();
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
+				_attachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				_logger.Info("Ok.");
 				return true;
 			}
 			finally
 			{
 				SetSensetivity(true);
+			}
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
+			if(!_attachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			do
+			{
+				foreach(var fileName in _attachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _counterpartyFileStorageService.CreateFileAsync(Entity, fileName,
+					new MemoryStream(_attachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
+				else
+				{
+					repeat = false;
+				}
+			}
+			while(repeat);
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!_attachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in _attachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_counterpartyFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(_attachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!_attachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in _attachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_counterpartyFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
 			}
 		}
 
@@ -2014,6 +2109,7 @@ namespace Vodovoz
 		}
 
 		private string _cargoReceiverBackupBuffer;
+		private AttachedFileInformationsViewModel _attachedFileInformationsViewModel;
 
 		private void UpdateCargoReceiver()
 		{

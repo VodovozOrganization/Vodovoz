@@ -7,6 +7,7 @@ using QSDocTemplates;
 using QSProjectsLib;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
+using FileWorker = QSDocTemplates.FileWorker;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -15,7 +16,7 @@ namespace Vodovoz.ViewWidgets
 	{
 		public BindingControler<SaveTemplateWidget> Binding { get; private set; }
 
-		private FileWorker worker = new FileWorker();
+		private QSDocTemplates.FileWorker worker = new QSDocTemplates.FileWorker();
 
 		public event EventHandler BeforeOpen;
 

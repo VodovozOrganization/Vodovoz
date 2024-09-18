@@ -47,9 +47,41 @@ namespace Vodovoz.Views.Logistic
 			ydatepickerStartEventDate.Binding.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date).InitializeFromSource();
 			ydatepickerEndEventDate.Binding.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date).InitializeFromSource();
 
-			yspinPaymentTotalCarEvent.Binding
+			ylabelCarTechnicalCheckupEndDate.Binding
+				.AddBinding(ViewModel, vm => vm.IsCarTechnicalCheckupEventType, w => w.Visible)
+				.InitializeFromSource();
+
+			datepickerCarTechnicalCheckupEndDate.Binding
+				.AddBinding(ViewModel, vm => vm.IsCarTechnicalCheckupEventType, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanChangeCarTechnicalCheckupEndDate, w => w.IsEditable)
+				.AddBinding(ViewModel.Entity, e => e.CarTechnicalCheckupEndingDate, w => w.DateOrNull)
+				.InitializeFromSource();
+
+			yspinRepairCost.Binding
 				.AddBinding(ViewModel, vm => vm.RepairCost, w => w.ValueAsDecimal)
 				.InitializeFromSource();
+
+			yspinRepairPartsCost.Sensitive = false;
+			yspinRepairPartsCost.Binding
+				.AddBinding(ViewModel.Entity, e => e.RepairPartsCost, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			yspinRepairSummaryCost.Sensitive = false;
+			yspinRepairSummaryCost.Binding
+				.AddBinding(ViewModel.Entity, e => e.RepairAndPartsSummaryCost, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			entityentryWriteOffDocument.ViewModel = ViewModel.WriteOffDocumentEntryViewModel;
+			entityentryWriteOffDocument.Binding
+				.AddBinding(ViewModel, vm => vm.CanAttachWriteOffDocument, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
+
+			ycheckbuttonIsWriteOffDocumentNotRequired.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeWriteOffDocumentNotRequired, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.IsWriteOffDocumentNotRequired, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonIsWriteOffDocumentNotRequired.Clicked += (s, e) => ViewModel.WriteOffDocumentNotRequiredChangedCommand.Execute();
 
 			checkbuttonDoNotShowInOperation.Binding
 				.AddBinding(ViewModel, vw => vw.DoNotShowInOperation, w => w.Active)
@@ -98,7 +130,7 @@ namespace Vodovoz.Views.Logistic
 				evmeDriver.Sensitive =
 				ydatepickerStartEventDate.Sensitive =
 				ydatepickerEndEventDate.Sensitive =
-				yspinPaymentTotalCarEvent.Sensitive =
+				yspinRepairCost.Sensitive =
 				checkbuttonDoNotShowInOperation.Sensitive =
 				ytextviewFoundation.Sensitive =
 				ytextviewCommnet.Sensitive =

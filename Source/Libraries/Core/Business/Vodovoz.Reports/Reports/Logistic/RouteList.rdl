@@ -1186,7 +1186,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value></Value>
+                      <Value>Сдача:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1200,44 +1200,12 @@ Switch(
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox61">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <TextDecoration>7</TextDecoration>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox68">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan >3</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value></Value>
+                      <Value>= Sum({Trifle} - {TotalWhereTrifle})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1249,22 +1217,7 @@ Switch(
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox51">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan >2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -2300,8 +2253,14 @@ LIMIT 1
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId,
-    CONCAT_WS('\n', orders.id, CONCAT((SELECT rcnc.name FROM roboats_counterparty_name_codes rcnc WHERE rcnc.id = p.roboats_counterparty_name_id), ' ',
-    	(SELECT rcpc.patronymic FROM roboats_counterparty_patronymic_codes rcpc WHERE rcpc.id = p.roboats_counterparty_patronymic_id)), p.`number`) as phone_and_name_and_order,
+    CONCAT_WS('\n', orders.id, CONCAT((SELECT rcnc.name FROM roboats_counterparty_name_codes rcnc WHERE rcnc.id = 
+         COALESCE (contact_phone.roboats_counterparty_name_id, delivery_point_phone_work.roboats_counterparty_name_id, delivery_point_phone_general.roboats_counterparty_name_id,
+             delivery_point_phone_all.roboats_counterparty_name_id, counterparty_phone_work.roboats_counterparty_name_id, counterparty_phone_general.roboats_counterparty_name_id, counterparty_phone_all.roboats_counterparty_name_id)), ' ',
+	     (SELECT rcpc.patronymic FROM roboats_counterparty_patronymic_codes rcpc WHERE rcpc.id =
+         COALESCE (contact_phone.roboats_counterparty_patronymic_id, delivery_point_phone_work.roboats_counterparty_patronymic_id, delivery_point_phone_general.roboats_counterparty_patronymic_id,
+             delivery_point_phone_all.roboats_counterparty_patronymic_id, counterparty_phone_work.roboats_counterparty_patronymic_id, counterparty_phone_general.roboats_counterparty_patronymic_id, counterparty_phone_all.roboats_counterparty_patronymic_id))),
+         COALESCE (contact_phone.`number`, delivery_point_phone_work.`number`, delivery_point_phone_general.`number`, delivery_point_phone_all.`number`,
+             counterparty_phone_work.`number`, counterparty_phone_general.`number`, counterparty_phone_all.`number`)) as phone_and_name_and_order,
     CONCAT_WS('\n', orders.id, orders.daily_number_1c) AS order_and_daily_nr,
     orders.daily_number_1c, orders.has_comment_for_driver, route_list_addresses.address_transfer_type = 'NeedToReload' AS Reloaded,
     (SELECT SUM(order_items.count * nomenclature.weight) FROM order_items
@@ -2311,6 +2270,8 @@ LIMIT 1
     CONCAT(DATE_FORMAT(route_list_addresses.plan_time_start, '%H:%i'),'-', DATE_FORMAT(route_list_addresses.plan_time_end, '%H:%i')) AS PlanTime,
     IFNULL(orders.bottles_return, 0) + IFNULL(orders.bottles_by_stock_count, 0) AS empty_btls_from_client,
     IF(orders.payment_type = 'Cash', orders.sum_to_receive, 0) AS Total,
+    IF(orders.payment_type = 'Cash', orders.trifle, 0) AS Trifle,
+    IF(orders.payment_type = 'Cash' AND orders.trifle &gt; 0, orders.sum_to_receive, 0) AS TotalWhereTrifle,
     IF((orders.payment_type = 'Terminal'
     OR orders.payment_type = 'DriverApplicationQR'
     OR (orders.payment_type = 'SmsQR' AND
@@ -2400,7 +2361,36 @@ FROM route_list_addresses
          LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
          LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
          LEFT JOIN counterparty ON counterparty.id = orders.client_id
-         LEFT JOIN phones p ON p.delivery_point_id = delivery_points.id AND p.is_archive = 0
+         LEFT JOIN (
+              SELECT p.id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id,  p.`number`, ~0 as sort_index
+              FROM phones p WHERE p.is_archive = 0)
+              AS contact_phone ON orders.contact_phone_id = contact_phone.id
+         LEFT JOIN (
+              SELECT p.delivery_point_id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id, p.`number`
+              FROM phones p              
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')
+              ) AS delivery_point_phone_work ON delivery_points.id = delivery_point_phone_work.delivery_point_id
+         LEFT JOIN (
+              SELECT p.delivery_point_id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id, p.`number`
+              FROM phones p              
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
+              ) AS delivery_point_phone_general ON delivery_points.id = delivery_point_phone_general.delivery_point_id
+         LEFT JOIN phones delivery_point_phone_all ON delivery_point_phone_all.delivery_point_id = delivery_points.id AND delivery_point_phone_all.is_archive = 0
+         LEFT JOIN (
+              SELECT p.counterparty_id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id, p.`number`
+              FROM phones p
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')
+              ) AS counterparty_phone_work ON counterparty.id = counterparty_phone_work.counterparty_id
+         LEFT JOIN (
+              SELECT p.counterparty_id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id, p.`number`
+              FROM phones p
+              WHERE p.is_archive = 0
+              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
+              ) AS counterparty_phone_general ON counterparty.id = counterparty_phone_general.counterparty_id
+         LEFT JOIN phones counterparty_phone_all ON counterparty_phone_all.counterparty_id  = counterparty.id AND counterparty_phone_all.is_archive = 0
          LEFT JOIN
      (SELECT
           route_list_addresses.id,
@@ -2602,6 +2592,14 @@ ORDER BY order_in_route
         <Field Name="is_order_from_undelivery">
           <DataField>is_order_from_undelivery</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="Trifle">
+          <DataField>Trifle</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="TotalWhereTrifle">
+          <DataField>TotalWhereTrifle</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <!--fields-->
       </Fields>

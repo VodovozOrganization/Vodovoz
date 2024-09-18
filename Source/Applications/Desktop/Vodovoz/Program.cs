@@ -99,7 +99,7 @@ using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Presentation.ViewModels.Mango;
 using Vodovoz.Presentation.ViewModels.Pacs;
-using Vodovoz.Presentation.ViewModels.PaymentType;
+using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Reports;
 using Vodovoz.Reports.Logistic;
 using Vodovoz.ReportsParameters;
@@ -157,6 +157,14 @@ using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.Application.Logistics.Fuel;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Infrastructure.FileStorage;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
+using QS.Attachments;
+using QSAttachment;
+using Vodovoz.Additions.Printing;
+using Vodovoz.ViewModels.Infrastructure.Print;
+using Vodovoz.Application.Options;
+using Vodovoz.Options;
 
 namespace Vodovoz
 {
@@ -221,6 +229,7 @@ namespace Vodovoz
 					builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 					builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
 					builder.RegisterType<ReportPrinter>().As<IReportPrinter>();
+					builder.RegisterType<CustomPrintRdlDocumentsPrinter>().As<ICustomPrintRdlDocumentsPrinter>();
 
 					builder.RegisterType<EntityDeleteWorker>().AsSelf().As<IEntityDeleteWorker>();
 					builder.RegisterType<CommonMessages>().AsSelf();
@@ -330,7 +339,8 @@ namespace Vodovoz
 
 					builder.RegisterAssemblyTypes(
 							Assembly.GetExecutingAssembly(),
-							Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder)))
+							Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder)),
+							Assembly.GetAssembly(typeof(Vodovoz.Presentation.ViewModels.AssemblyFinder)))
 						.Where(t => t.Name.EndsWith("Factory")
 							&& t.GetInterfaces()
 								.Where(i => i.Name == $"I{t.Name}")
@@ -475,7 +485,6 @@ namespace Vodovoz
 					builder.RegisterType<EquipmentBalance>().AsSelf();
 					builder.RegisterType<CardPaymentsOrdersReport>().AsSelf();
 					builder.RegisterType<DefectiveItemsReport>().AsSelf();
-					builder.RegisterType<PaymentsFromTinkoffReport>().AsSelf();
 					builder.RegisterType<OrdersByDistrictsAndDeliverySchedulesReport>().AsSelf();
 					builder.RegisterType<OrdersByCreationDateReport>().AsSelf();
 					builder.RegisterType<NomenclatureForShipment>().AsSelf();
@@ -658,6 +667,7 @@ namespace Vodovoz
 
 							config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
 						})
+						.ConfigureOptions<ConfigureS3Options>()
 						.AddCoreDataNHibernate()
 						.AddSpatialSqlConfiguration()
 						.AddNHibernateConfiguration()
@@ -666,10 +676,13 @@ namespace Vodovoz
 						.AddDatabaseSingletonSettings()
 						.AddCore()
 						.AddDesktop()
+						.AddFileStorage()
 						.AddGuiTrackedUoW()
 						.AddObjectValidatorWithGui()
 						.AddPermissionValidation()
 						.AddGuiInteracive()
+
+						.AddScoped<IScanDialogService, ScanDialogService>()
 
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<RouteGeometryCalculator>()

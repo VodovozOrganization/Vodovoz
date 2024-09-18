@@ -23,16 +23,24 @@ namespace Vodovoz.JournalColumnsConfigs
 						&& string.IsNullOrWhiteSpace(node.ManagerWorkWith)
 							? _greenCircle
 							: _emptyImg)
-				.AddColumn("Дата доставки").AddTextRenderer(node => node.DeliveryDate.ToShortDateString())
-				.AddColumn("Время доставки").AddTextRenderer(
-					node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
+				.AddColumn("Тип").AddTextRenderer(node => node.EntityTypeString)
+				.AddColumn("Дата создания").AddTextRenderer(node => node.CreationDate.ToString("G"))
+				.AddColumn("Дата доставки").AddTextRenderer(node =>
+						node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty)
+				.AddColumn("Время доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
 				.AddColumn("Оформленный заказ").AddTextRenderer(node => node.OrderId.ToString())
-				.AddColumn("Статус").AddTextRenderer(node => node.OnlineOrderStatus.GetEnumDisplayName(false))
+				.AddColumn("Статус").AddTextRenderer(node => node.Status)
 				.AddColumn("Клиент").AddTextRenderer(node => node.CounterpartyName)
 				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress)
-				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OnlineOrderSum))
+				.AddColumn("Сумма").AddTextRenderer(node =>
+						node.OnlineOrderSum.HasValue
+							? CurrencyWorks.GetShortCurrencyString(node.OnlineOrderSum.Value)
+							: string.Empty)
 				.AddColumn("Источник").AddTextRenderer(node => node.Source.GetEnumDisplayName(false))
-				.AddColumn("Статус оплаты").AddTextRenderer(node => node.OnlineOrderPaymentStatus.GetEnumDisplayName(false))
+				.AddColumn("Статус оплаты").AddTextRenderer(node =>
+						node.OnlineOrderPaymentStatus.HasValue
+							? node.OnlineOrderPaymentStatus.Value.GetEnumDisplayName(false)
+							: string.Empty)
 				.AddColumn("Номер оплаты").AddTextRenderer(node => node.OnlinePayment.ToString())
 				.AddColumn("В работе").AddTextRenderer(node => node.ManagerWorkWith)
 				.RowCells().AddSetter<CellRendererText>((cell, node) =>
