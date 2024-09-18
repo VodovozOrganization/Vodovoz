@@ -1,12 +1,25 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Reports.OKS.DailyReport;
+
 namespace Vodovoz.Views.Reports
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OksDailyReportView : Gtk.Bin
+	public partial class OksDailyReportView : TabViewBase<OksDailyReportViewModel>
 	{
-		public OksDailyReportView()
+		public OksDailyReportView(OksDailyReportViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			datepicker1.Binding
+				.AddBinding(ViewModel, vm => vm.Date, w => w.Date)
+				.InitializeFromSource();
+
+			datepicker1.IsEditable = true;
+
+			ybuttonCreate.BindCommand(ViewModel.CreateReportCommand);
 		}
 	}
 }

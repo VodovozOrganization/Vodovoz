@@ -1,15 +1,18 @@
 ﻿using Microsoft.Extensions.Logging;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
-using QS.ViewModels.Dialog;
+using QS.ViewModels;
 using System;
+using System.Linq;
 using Vodovoz.EntityRepositories.Complaints;
+using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
-	public class OksDailyReportViewModel : UowDialogViewModelBase
+	public class OksDailyReportViewModel : DialogTabViewModelBase
 	{
 		private readonly ILogger<OksDailyReportViewModel> _logger;
 		private readonly IFileDialogService _fileDialogService;
@@ -21,12 +24,15 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			IFileDialogService fileDialogService,
 			IComplaintsRepository complaintsRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			IInteractiveService interactiveService,
 			INavigationManager navigation
-			) : base(unitOfWorkFactory, navigation)
+			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
+
+			Title = "Ежедневный отчет ОКС";
 
 			CreateReportCommand = new DelegateCommand(CreateReport);
 		}
@@ -41,7 +47,9 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 		private void CreateReport()
 		{
-			var complaints = _complaintsRepository.GetClientComplaintsForPeriod(UoW, Date, Date);
+			var dateFrom = Date;
+			var dateTo = Date.LatestDayTime();
+			var complaints = _complaintsRepository.GetClientComplaintsForPeriod(UoW, dateFrom, dateTo).ToList();
 
 			var dialogSettings = GetSaveExcelReportDialogSettings();
 			var saveFileDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
