@@ -191,7 +191,6 @@
     <Compile Include="Journals\JournalFactories\IUndeliveryDetalizationlFactory.cs" />
     <Compile Include="Journals\JournalFactories\IRouteListJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ISalesChannelJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\IWarehouseJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\SalesChannelJournalFactory.cs" />
     <Compile Include="Journals\FilterViewModels\Organization\OrganizationOwnershipTypeJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Client\ExternalCounterpartyMatchingJournalNode.cs" />
@@ -451,7 +450,6 @@
     <Compile Include="Journals\JournalFactories\IDistrictJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\CarEventTypeJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventTypeJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\WarehouseJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\BulkEmailEventReasonJournalNode.cs" />
@@ -819,6 +817,7 @@
     <Compile Include="ViewModels\Suppliers\BalanceSummaryRow.cs" />
     <Compile Include="ViewModels\Suppliers\InstanceData.cs" />
     <Compile Include="ViewModels\Suppliers\NomenclatureStorageIds.cs" />
+    <Compile Include="ViewModels\Suppliers\NomenclatureMinimumBalanceByWarehouseNode.cs" />
     <Compile Include="ViewModels\Suppliers\PriceNode.cs" />
     <Compile Include="ViewModels\Suppliers\ReservedBalance.cs" />
     <Compile Include="ViewModels\Suppliers\WarehousesBalanceSummaryReportParameters.cs" />
@@ -890,6 +889,7 @@
     <Compile Include="Widgets\Cars\CarModelSelection\CarModelSelectionFilterViewModel.cs" />
     <Compile Include="Widgets\Cars\Insurance\ChangeIsKaskoNotRelevantClickedEventArgs.cs" />
     <Compile Include="Widgets\Cars\Insurance\EditCarInsuranceEventArgs.cs" />
+    <Compile Include="Widgets\Goods\NomenclatureMinimumBalanceByWarehouseViewModel.cs" />
     <Compile Include="Widgets\Print\DocumentsPrinterSettingsViewModel.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchCriterion.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchViewModel.cs" />

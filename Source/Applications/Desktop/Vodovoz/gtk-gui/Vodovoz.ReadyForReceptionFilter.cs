@@ -10,9 +10,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox2;
 
-		private global::QS.Widgets.GtkUI.SpecialListComboBox comboWarehouses;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryWarehouses;
+		private global::QS.Views.Control.EntityEntry entityentryWarehouse;
 
 		private global::Gtk.CheckButton checkWithoutUnload;
 
@@ -40,27 +38,14 @@ namespace Vodovoz
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.comboWarehouses = new global::QS.Widgets.GtkUI.SpecialListComboBox();
-			this.comboWarehouses.Name = "comboWarehouses";
-			this.comboWarehouses.AddIfNotExist = false;
-			this.comboWarehouses.DefaultFirst = false;
-			this.comboWarehouses.ShowSpecialStateAll = true;
-			this.comboWarehouses.ShowSpecialStateNot = false;
-			this.hbox2.Add(this.comboWarehouses);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.comboWarehouses]));
+			this.entityentryWarehouse = new global::QS.Views.Control.EntityEntry();
+			this.entityentryWarehouse.WidthRequest = 400;
+			this.entityentryWarehouse.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryWarehouse.Name = "entityentryWarehouse";
+			this.hbox2.Add(this.entityentryWarehouse);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityentryWarehouse]));
 			w2.Position = 0;
 			w2.Expand = false;
-			w2.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.entryWarehouses = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryWarehouses.WidthRequest = 350;
-			this.entryWarehouses.Events = ((global::Gdk.EventMask)(256));
-			this.entryWarehouses.Name = "entryWarehouses";
-			this.entryWarehouses.CanEditReference = false;
-			this.hbox2.Add(this.entryWarehouses);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entryWarehouses]));
-			w3.Position = 1;
-			w3.Expand = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.checkWithoutUnload = new global::Gtk.CheckButton();
 			this.checkWithoutUnload.CanFocus = true;
@@ -69,21 +54,17 @@ namespace Vodovoz
 			this.checkWithoutUnload.DrawIndicator = true;
 			this.checkWithoutUnload.UseUnderline = true;
 			this.hbox2.Add(this.checkWithoutUnload);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.checkWithoutUnload]));
-			w4.Position = 2;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.checkWithoutUnload]));
+			w3.Position = 1;
 			this.hbox3.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.hbox2]));
-			w5.Position = 1;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.hbox2]));
+			w4.Position = 1;
 			this.Add(this.hbox3);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
-			this.comboWarehouses.Hide();
-			this.entryWarehouses.Hide();
 			this.Hide();
-			this.comboWarehouses.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnComboWarehousesItemSelected);
-			this.entryWarehouses.ChangedByUser += new global::System.EventHandler(this.OnEntryWarehousesChangedByUser);
 			this.checkWithoutUnload.Toggled += new global::System.EventHandler(this.OnCheckWithoutUnloadToggled);
 		}
 	}
