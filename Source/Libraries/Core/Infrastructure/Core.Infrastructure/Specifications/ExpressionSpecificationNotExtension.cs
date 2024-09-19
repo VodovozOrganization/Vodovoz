@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Vodovoz.Core.Domain.Specifications
+namespace Core.Infrastructure.Specifications
 {
 	public static class ExpressionSpecificationNotExtension
 	{
