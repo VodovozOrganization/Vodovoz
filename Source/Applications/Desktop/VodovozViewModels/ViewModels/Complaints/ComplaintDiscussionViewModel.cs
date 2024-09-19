@@ -77,9 +77,13 @@ namespace Vodovoz.ViewModels.Complaints
 		private void ConfigureEntityPropertyChanges()
 		{
 			SetPropertyChangeRelation(e => e.Status,
-				() => CanEditStatus
-			);
+				() => Status);
+
+			SetPropertyChangeRelation(e => e.Status,
+				() => CanEditStatus);
 		}
+
+		public ComplaintDiscussionStatuses Status => Entity.Status;
 
 		private Employee currentEmployee;
 		public Employee CurrentEmployee {

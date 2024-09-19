@@ -13,7 +13,7 @@ namespace Vodovoz.Journals.JournalNodes
 		public decimal BulkStockAmount { get; set; }
 		public decimal InstanceStockAmount { get; set; }
 
-		public decimal MinNomenclatureAmount { get; set; }
+		public int MinNomenclatureAmount { get; set; }
 
 		public decimal DiffCount => StockAmount - MinNomenclatureAmount;
 

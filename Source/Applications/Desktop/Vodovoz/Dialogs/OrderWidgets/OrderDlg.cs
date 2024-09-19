@@ -256,7 +256,8 @@ namespace Vodovoz
 		private EdoContainer _selectedEdoContainer;
 		private FastDeliveryHandler _fastDeliveryHandler;
 		private IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
-
+		private IBottlesRepository _bottlesRepository;
+		private IDeliveryPointRepository _deliveryPointRepository;
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
 		private bool _canEditOrderExtraCash;
@@ -302,7 +303,7 @@ namespace Vodovoz
 				CustomizeSendDocumentAgainButton();
 			}
 		}
-		
+
 		#region Работа с боковыми панелями
 
 		public int? WidthRequest => 420;
@@ -580,6 +581,8 @@ namespace Vodovoz
 			_lastDeliveryPointComment = Entity.DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 			_orderFromOnlineOrderCreator = _lifetimeScope.Resolve<IOrderFromOnlineOrderCreator>();
+			_bottlesRepository = _lifetimeScope.Resolve<IBottlesRepository>();
+			_deliveryPointRepository = _lifetimeScope.Resolve<IDeliveryPointRepository>();
 
 			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
 
@@ -863,11 +866,11 @@ namespace Vodovoz
 			entryDeliveryPoint.ViewModel.Changed += OnReferenceDeliveryPointChanged;
 			entryDeliveryPoint.ViewModel.ChangedByUser += OnReferenceDeliveryPointChangedByUser;
 
-			_contactPhoneFilter = new PhonesJournalFilterViewModel
-			{
-				Counterparty = Counterparty,
-				DeliveryPoint = DeliveryPoint
-			};
+			_contactPhoneFilter = ScopeProvider.Scope.Resolve<PhonesJournalFilterViewModel>();
+
+			_contactPhoneFilter.Counterparty = Counterparty;
+			_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
+
 			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
 				() => new PhonesJournalViewModel(_contactPhoneFilter, ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices));
 			evmeContactPhone.SetEntitySelectorFactory(phoneSelectoFactory);
@@ -1114,6 +1117,8 @@ namespace Vodovoz
 			SetNearestDeliveryDateLoaderFunc();
 
 			UpdateOrderItemsOriginalValues();
+
+			RefreshBottlesDebtNotifier();
 		}
 
 		private void UpdateOrderItemsOriginalValues()
@@ -3598,6 +3603,8 @@ namespace Vodovoz
 
 			SetDeliveryDatePickerSensetive();
 			SetNearestDeliveryDateLoaderFunc();
+
+			RefreshBottlesDebtNotifier();
 		}
 
 		private void RemoveFlyers()
@@ -3625,6 +3632,29 @@ namespace Vodovoz
 			AddCommentsFromDeliveryPoint();
 
 			SetLogisticsRequirementsCheckboxes();
+		}
+
+		private void RefreshBottlesDebtNotifier()
+		{
+			ylabelBottlesDebtAtDeliveryPoint.UseMarkup = true;
+			if(DeliveryPoint is null)
+			{
+				ylabelBottlesDebtAtDeliveryPoint.Visible = false;
+				return;
+			}
+
+			var bottlesAtDeliveryPoint = _bottlesRepository.GetBottlesDebtAtDeliveryPoint(UoW, DeliveryPoint);
+			var bottlesAvgDeliveryPoint = _deliveryPointRepository.GetAvgBottlesOrdered(UoW, DeliveryPoint, 5);
+
+			if(bottlesAtDeliveryPoint > bottlesAvgDeliveryPoint)
+			{
+				ylabelBottlesDebtAtDeliveryPoint.Visible = true;
+				ylabelBottlesDebtAtDeliveryPoint.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Долг бутылей по адресу: {bottlesAtDeliveryPoint} бут.</span>";
+			}
+			else
+			{
+				ylabelBottlesDebtAtDeliveryPoint.Visible = false;
+			}
 		}
 
 		private void AddCommentsFromDeliveryPoint()
@@ -4261,6 +4291,7 @@ namespace Vodovoz
 		/// дополнительном соглашении
 		/// </summary>
 		private bool OrderItemEquipmentCountHasChanges;
+		private bool _showBottlesDebtNotifier;
 
 		/// <summary>
 		/// При изменении количества оборудования в списке товаров меняет его
