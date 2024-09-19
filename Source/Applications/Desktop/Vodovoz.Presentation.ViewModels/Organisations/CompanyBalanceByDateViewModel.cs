@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -121,6 +121,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 						_bankStatementHandler.ProcessBankStatementsFromDirectory(_bankStatementsDirectory, DatePickerViewModel.SelectedDate);
 					
 					UpdateLocalData(banksStatementsData);
+					Save();
 				},
 				() => CanUpdateData
 			);
@@ -148,6 +149,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 						
 						if(string.IsNullOrWhiteSpace(businessAccountSummary.BusinessAccount.Number))
 						{
+							TryUpdateLocalTotalActivityBalance(businessAccountSummary, ref totalActivityBalance);
 							continue;
 						}
 						
@@ -155,6 +157,10 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 						{
 							businessAccountSummary.Total = data.Balance;
 							totalActivityBalance += data.Balance;
+						}
+						else
+						{
+							TryUpdateLocalTotalActivityBalance(businessAccountSummary, ref totalActivityBalance);
 						}
 					}
 					
@@ -192,6 +198,16 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			
 			CompanyBalanceChangedAction?.Invoke();
 			UpdateResultMessage(banksStatementsData);
+		}
+
+		private void TryUpdateLocalTotalActivityBalance(
+			BusinessAccountSummary businessAccountSummary,
+			ref decimal? totalActivityBalance)
+		{
+			if(businessAccountSummary.Total.HasValue)
+			{
+				totalActivityBalance += businessAccountSummary.Total;
+			}
 		}
 
 		private bool TryGetCashSubdivisionBalanceAndFill(

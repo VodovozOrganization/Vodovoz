@@ -447,7 +447,9 @@ namespace Vodovoz.Views.Goods
 				&& ViewModel.CanEdit;
 			alternativePricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.Alternative;
 
-			#region Вкладка изображения
+			nomenclatureMinimumBalanceByWarehouseView.ViewModel = ViewModel.NomenclatureMinimumBalanceByWarehouseViewModel;
+
+			#region Вкладка изображения			
 
 			attachedfileinformationsview1.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 
