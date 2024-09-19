@@ -40,7 +40,7 @@
 		WHERE 
 			ssdd.order_id = orders.id 
 			AND
-			ssddr.nomenclature_id = CAST(GET_PARAMETER('default_bottle_nomenclature') AS INT)
+			ssddr.nomenclature_id = (SELECT str_value FROM base_parameters WHERE base_parameters.name = 'default_bottle_nomenclature')
 		)
 	) AS bottles_return_fact,
 	orders.sum_to_receive AS total,
