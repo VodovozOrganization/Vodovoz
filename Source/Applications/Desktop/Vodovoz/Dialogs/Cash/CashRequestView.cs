@@ -236,7 +236,6 @@ namespace Vodovoz.Dialogs.Cash
 			ylabelStatus.Binding
 				.AddBinding(ViewModel, vm => vm.StateName, w => w.Text)
 				.InitializeFromSource();
-			ylabelStatus.Text = ViewModel.Entity.PayoutRequestState.GetEnumTitle();
 
 			if(ViewModel.Entity.PayoutRequestState == PayoutRequestState.Closed || ViewModel.IsSecurityServiceRole)
 			{

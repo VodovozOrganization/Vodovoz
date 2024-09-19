@@ -132,6 +132,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			AcceptCommand = new DelegateCommand(() =>
 				{
 					ChangeStateAndSave(PayoutRequestState.Submited);
+					ShowInfoMessage($"Ваша заявка передана на согласование {AuthorsSubdivisionChiefName}");
 				},
 				() => true);
 
@@ -333,7 +334,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public DelegateCommand<(CashRequestSumItem, decimal)> GiveSumPartiallyCommand { get; }
 
-		public string StateName => Entity.PayoutRequestState.GetEnumTitle();
+		private string AuthorsSubdivisionChiefName =>
+			Entity.Author?.Subdivision?.Chief?.ShortName ?? "Руководитель не указан";
+
+		public string StateName =>
+			Entity.PayoutRequestState == PayoutRequestState.Submited
+			? $"{Entity.PayoutRequestState.GetEnumTitle()}. Ожидает согласования {AuthorsSubdivisionChiefName}"
+			: Entity.PayoutRequestState.GetEnumTitle();
 
 		public bool CanExecuteGive(CashRequestSumItem sumItem)
 		{
