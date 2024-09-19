@@ -10,6 +10,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents.MovementDocuments;
@@ -145,9 +146,25 @@ namespace Vodovoz.ViewModels.Warehouses
 				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
 				{
 					filter.IncludeWarehouseIds = WarehousesTo.Select(w => w.Id);
+					filter.IgnorePermissions = true;
 				})
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
+
+			Entity.PropertyChanged += OnMovementDocumentPropertyChanged;
+		}
+
+		private void OnMovementDocumentPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.FromWarehouse))
+			{
+				ReloadAllowedWarehousesTo();
+			}
+
+			if(e.PropertyName == nameof(Entity.ToWarehouse))
+			{
+				ReloadAllowedWarehousesFrom();
+			}
 		}
 
 		public IEntityEntryViewModel WagonEntryViewModel { get; private set; }
