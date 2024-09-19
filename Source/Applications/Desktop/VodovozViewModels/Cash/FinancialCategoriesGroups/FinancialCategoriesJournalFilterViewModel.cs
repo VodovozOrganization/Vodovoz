@@ -34,6 +34,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			ILifetimeScope lifetimeScope)
 		{
 			ExcludeFinancialGroupsIds.CollectionChanged += OnExcludeIdCollectionChanged;
+			IncludeExpenseCategoryIds.CollectionChanged += OnIncludeIdCollectionChanged;
 			RestrictNodeTypes.CollectionChanged += OnRestrictNodeTypesCollectionChanged;
 			RestrictNodeSelectTypes.CollectionChanged += OnRestrictNodeSelectTypesCollectionChanged;
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
@@ -45,6 +46,11 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		public ObservableCollection<Type> RestrictNodeTypes { get; } = new ObservableCollection<Type>();
 
 		public ObservableCollection<int> ExcludeFinancialGroupsIds { get; } = new ObservableCollection<int>();
+
+		/// <summary>
+		/// Включаемые идентификаторы категорий расхода
+		/// </summary>
+		public ObservableCollection<int> IncludeExpenseCategoryIds { get; } = new ObservableCollection<int>();
 
 		public ObservableCollection<Type> RestrictNodeSelectTypes { get; } = new ObservableCollection<Type>();
 
@@ -139,6 +145,11 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		}
 
 		private void OnRestrictNodeTypesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			Update();
+		}
+
+		private void OnIncludeIdCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
 			Update();
 		}
