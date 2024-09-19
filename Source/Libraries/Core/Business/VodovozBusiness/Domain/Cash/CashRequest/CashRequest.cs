@@ -102,7 +102,8 @@ namespace Vodovoz.Domain.Cash
 					break;
 				//Согласована исполнительным директором
 				case PayoutRequestState.Agreed:
-					if(PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief)
+					if(PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
+						|| PayoutRequestState == PayoutRequestState.Submited)
 					{
 						PayoutRequestState = newState;
 					}
