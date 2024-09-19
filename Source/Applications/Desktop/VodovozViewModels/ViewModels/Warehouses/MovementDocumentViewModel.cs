@@ -880,5 +880,12 @@ namespace Vodovoz.ViewModels.Warehouses
 			OnPropertyChanged(nameof(CanAcceptDiscrepancy));
 			OnPropertyChanged(nameof(CanChangeDocumentTypeByStorageAndStorageFrom));
 		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnMovementDocumentPropertyChanged;
+
+			base.Dispose();
+		}
 	}
 }
