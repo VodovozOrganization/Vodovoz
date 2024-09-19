@@ -500,6 +500,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edo.Transport2", "Edo.Trans
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaxcomEdoConsumer", "Applications\Backend\Workers\Docker\EdoServices\TaxcomEdoConsumer\TaxcomEdoConsumer.csproj", "{D0C8B4C9-C40F-4245-9157-9E7900B84F6C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Edo.OrderDocuments", "Libraries\Core\Backend\Edo\Edo.OrderDocuments\Edo.OrderDocuments.csproj", "{BF443992-FCF0-418C-B87D-925BA9F99DD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
