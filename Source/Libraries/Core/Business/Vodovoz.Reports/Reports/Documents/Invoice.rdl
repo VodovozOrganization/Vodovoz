@@ -98,7 +98,7 @@
 		((SELECT o.id,
 		(SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
 		FROM phones p
-		WHERE p.is_archive = 0 AND 783800 = p.id
+		WHERE p.is_archive = 0 AND p.id = o.contact_phone_id
 		LIMIT 1
 		) AS contact_phone,
 		(SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
