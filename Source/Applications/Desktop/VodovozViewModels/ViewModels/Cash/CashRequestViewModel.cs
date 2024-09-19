@@ -488,8 +488,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			&& UserRole == PayoutRequestUserRole.SubdivisionChief;
 
 		//Согласовать исполнительным директором
-		public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
-							   && UserRole == PayoutRequestUserRole.Coordinator;
+		public bool CanApprove =>
+			(Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief || Entity.PayoutRequestState == PayoutRequestState.Submited)
+			&& UserRole == PayoutRequestUserRole.Coordinator;
 
 		public bool CanConveyForResults => UserRole == PayoutRequestUserRole.Financier
 										&& Entity.PayoutRequestState == PayoutRequestState.Agreed;
