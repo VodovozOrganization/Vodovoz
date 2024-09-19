@@ -201,6 +201,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private IQueryable<FinancialCategoriesJournalNode> GetExpenseCategories(IUnitOfWork unitOfWork, int? parentId, string searchString, int subdivisionId) =>
 			from expenseCategory in unitOfWork.GetAll<FinancialExpenseCategory>()
 			where ((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || expenseCategory.ParentId == parentId)
+				&& (!_filter.IncludeExpenseCategoryIds.Any() || _filter.IncludeExpenseCategoryIds.Contains(expenseCategory.Id))
 				&& (_filter.ShowArchive || !expenseCategory.IsArchive)
 				&& (!expenseCategory.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancialCategories == expenseCategory.IsHiddenFromPublicAccess)
 				&& (string.IsNullOrWhiteSpace(searchString) || expenseCategory.Title.ToLower().Like(searchString)
