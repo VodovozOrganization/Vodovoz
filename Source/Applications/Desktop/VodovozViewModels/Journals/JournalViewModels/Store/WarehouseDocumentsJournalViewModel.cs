@@ -56,14 +56,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		{
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
-			filterViewModel.Journal = this;
-			JournalFilter = filterViewModel;
-
-			if(filterConfiguration != null)
-			{
-				filterViewModel.ConfigureWithoutFiltering(filterConfiguration);
-			}
-
 			UseSlider = false;
 			SearchEnabled = true;
 			TabName = "Журнал складских документов";
@@ -72,6 +64,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			var threadLoader = DataLoader as ThreadDataLoader<WarehouseDocumentsJournalNode>;
 			threadLoader.MergeInOrderBy(x => x.Date, true);
+
+			filterViewModel.Journal = this;
+			JournalFilter = filterViewModel;
+
+			if(filterConfiguration != null)
+			{
+				filterViewModel.ConfigureWithoutFiltering(filterConfiguration);
+			}
 
 			UpdateOnChanges(
 				typeof(IncomingInvoice),
