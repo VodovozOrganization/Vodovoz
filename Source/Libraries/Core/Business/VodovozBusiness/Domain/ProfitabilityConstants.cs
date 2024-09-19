@@ -532,7 +532,7 @@ namespace Vodovoz.Domain
 			
 			foreach(var companyCarEvent in companyCarEvents)
 			{
-				carRepairCost += companyCarEvent.RepairCost;
+				carRepairCost += companyCarEvent.RepairAndPartsSummaryCost;
 				carFines += companyCarEvent.Fines.Sum(x => x.TotalMoney);
 			}
 		}
