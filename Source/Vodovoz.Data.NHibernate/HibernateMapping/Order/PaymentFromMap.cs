@@ -13,6 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 
 			Map(x => x.Name).Column("name");
 			Map(x => x.IsArchive).Column("is_archive");
+			Map(x => x.ReceiptRequired).Column("receipt_required");
 
 			References(x => x.OrganizationForOnlinePayments).Column("organization_for_avangard_payments_id");
 		}
