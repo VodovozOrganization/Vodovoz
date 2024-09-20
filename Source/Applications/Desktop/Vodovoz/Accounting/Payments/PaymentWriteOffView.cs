@@ -40,10 +40,6 @@ namespace Vodovoz.Accounting.Payments
 				.AddBinding(ViewModel.Entity, e => e.Reason, w => w.Buffer.Text)
 				.InitializeFromSource();
 
-			entityentryCounterparty.ViewModel = ViewModel.CounterpartyViewModel;
-
-			entityentryOrganization.ViewModel = ViewModel.OrganizationViewModel;
-
 			yspinbuttonSum.Binding
 				.AddBinding(ViewModel.Entity, e => e.Sum, w => w.ValueAsDecimal)
 				.InitializeFromSource();
