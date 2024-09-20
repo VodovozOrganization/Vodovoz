@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using Vodovoz.EntityRepositories.Complaints;
+using Vodovoz.Settings.Complaints;
 
 namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
@@ -15,6 +16,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		private OksDailyReport() { }
 
 		public DateTime Date { get; private set; }
+		public int IncomingCallSourseId { get; private set; }
 
 		public void ExportReport(string path)
 		{
@@ -27,14 +29,46 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			}
 		}
 
+		private void FormatCells(
+			IXLRange cellsRange,
+			double fontSize = 11,
+			bool isBoldFont = false,
+			bool isWrapText = true,
+			XLColor bgColor = null,
+			XLAlignmentHorizontalValues horizontalAlignment = XLAlignmentHorizontalValues.Left,
+			XLAlignmentVerticalValues verticalAlignment = XLAlignmentVerticalValues.Top,
+			XLBorderStyleValues cellBorderStyle = XLBorderStyleValues.None)
+		{
+			cellsRange.Cells().Style.Font.FontSize = fontSize;
+			cellsRange.Cells().Style.Font.Bold = isBoldFont;
+
+			if(bgColor != null)
+			{
+				FillCellBackground(cellsRange, bgColor);
+			}
+
+			cellsRange.Cells().Style.Alignment.WrapText = isWrapText;
+			cellsRange.Cells().Style.Alignment.Horizontal = horizontalAlignment;
+			cellsRange.Cells().Style.Alignment.Vertical = verticalAlignment;
+			cellsRange.Cells().Style.Border.OutsideBorder = cellBorderStyle;
+		}
+
+		private void FillCellBackground(IXLRange cellsRange, XLColor color)
+		{
+			cellsRange.AddConditionalFormat().WhenNotBlank().Fill.BackgroundColor = color;
+			cellsRange.AddConditionalFormat().WhenIsBlank().Fill.BackgroundColor = color;
+		}
+
 		public static OksDailyReport Create(
 			IUnitOfWork uow,
 			DateTime date,
-			IComplaintsRepository complaintsRepository)
+			IComplaintsRepository complaintsRepository,
+			IComplaintSettings complaintSettings)
 		{
 			var report = new OksDailyReport();
 
 			report.Date = date;
+			report.IncomingCallSourseId = complaintSettings.IncomeCallComplaintSourceId;
 
 			report.ComplaintsDataForDate =
 				complaintsRepository.GetClientComplaintsForPeriod(uow, date, date.LatestDayTime()).ToList();
