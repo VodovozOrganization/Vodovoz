@@ -10,7 +10,6 @@ using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Converters;
 using TaxcomEdoApi.Factories;
 using TaxcomEdoApi.Services;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Tools.Orders;
 
