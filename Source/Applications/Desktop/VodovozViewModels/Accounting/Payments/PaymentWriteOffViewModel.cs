@@ -11,6 +11,7 @@ using System.Windows.Input;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using VodovozBusiness.Domain.Payments;
 
@@ -19,6 +20,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 	public class PaymentWriteOffViewModel : EntityTabViewModelBase<PaymentWriteOff>
 	{
 		private readonly IPermissionResult _permissionResult;
+		private readonly IGeneralSettings _generalSettings;
 		private Counterparty _counterparty;
 		private Organization _organization;
 
@@ -28,9 +30,12 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			ICommonServices commonServices,
 			INavigationManager navigation,
 			ICurrentPermissionService currentPermissionService,
+			IGeneralSettings generalSettings,
 			ViewModelEEVMBuilder<FinancialExpenseCategory> financialExpenseCategoryViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+
 			if(currentPermissionService is null)
 			{
 				throw new ArgumentNullException(nameof(currentPermissionService));
@@ -56,7 +61,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 					filter.RestrictFinancialSubtype = FinancialSubType.Expense;
 					filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
 
-					foreach(var includedId in new int[] { })
+					foreach(var includedId in _generalSettings.PaymentWriteOffAllowedFinancialExpenseCategories)
 					{
 						filter.IncludeExpenseCategoryIds.Add(includedId);
 					}
