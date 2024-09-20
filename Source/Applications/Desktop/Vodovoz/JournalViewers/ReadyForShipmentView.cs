@@ -20,6 +20,7 @@ namespace Vodovoz
 					return;
 				uow = value;
 				viewModel = new ReadyForShipmentVM(value);
+				readyforshipmentfilter1.ParentTab = this;
 				readyforshipmentfilter1.UoW = value;
 				viewModel.Filter = readyforshipmentfilter1;
 				tableReadyForShipment.RepresentationModel = viewModel;
@@ -48,7 +49,7 @@ namespace Vodovoz
 		protected void OnButtonOpenClicked(object sender, EventArgs e)
 		{
 			var node = tableReadyForShipment.GetSelectedNode() as ReadyForShipmentVMNode;
-			var dlg = new CarLoadDocumentDlg(node.Id, viewModel.Filter.RestrictWarehouse?.Id);
+			var dlg = new CarLoadDocumentDlg(node.Id, viewModel.Filter.Warehouse?.Id);
 			TabParent.AddTab(dlg, this);
 		}
 

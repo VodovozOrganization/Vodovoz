@@ -37,7 +37,7 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
-		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
+		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;		
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
 		private GlassHolderType? _glassHolderType;
@@ -142,6 +142,7 @@ namespace Vodovoz.Domain.Goods
 		private string _amountInAPackage;
 		private int? _planDay;
 		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
+		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse = new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
 
 		public Nomenclature()
 		{
@@ -629,6 +630,13 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _innerDeliveryPrices;
 			set => SetField(ref _innerDeliveryPrices, value);
+		}
+
+		[Display(Name = "Минимальный остаток на складе ")]
+		public virtual IObservableList<NomenclatureMinimumBalanceByWarehouse> NomenclatureMinimumBalancesByWarehouse
+		{
+			get => _nomenclatureMinimumBalancesByWarehouse;
+			set => SetField(ref _nomenclatureMinimumBalancesByWarehouse, value);
 		}
 
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>

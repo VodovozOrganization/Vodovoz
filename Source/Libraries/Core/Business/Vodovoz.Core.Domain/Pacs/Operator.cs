@@ -6,7 +6,7 @@ using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 
 namespace Vodovoz.Core.Domain.Pacs
 {

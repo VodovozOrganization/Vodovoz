@@ -136,6 +136,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			HasMany(x => x.InnerDeliveryPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.NomenclatureOnlineParameters)
 				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.NomenclatureMinimumBalancesByWarehouse).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 		}
 	}
 }

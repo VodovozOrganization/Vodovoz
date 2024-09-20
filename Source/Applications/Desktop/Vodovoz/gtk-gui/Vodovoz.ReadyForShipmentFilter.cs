@@ -8,9 +8,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label2;
 
-		private global::Gamma.Widgets.ySpecComboBox yspeccomboWarehouse;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryWarehouses;
+		private global::QS.Views.Control.EntityEntry entityentryWarehouse;
 
 		protected virtual void Build()
 		{
@@ -32,37 +30,20 @@ namespace Vodovoz
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yspeccomboWarehouse = new global::Gamma.Widgets.ySpecComboBox();
-			this.yspeccomboWarehouse.Name = "yspeccomboWarehouse";
-			this.yspeccomboWarehouse.AddIfNotExist = false;
-			this.yspeccomboWarehouse.DefaultFirst = false;
-			this.yspeccomboWarehouse.ShowSpecialStateAll = true;
-			this.yspeccomboWarehouse.ShowSpecialStateNot = false;
-			this.hbox3.Add(this.yspeccomboWarehouse);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yspeccomboWarehouse]));
+			this.entityentryWarehouse = new global::QS.Views.Control.EntityEntry();
+			this.entityentryWarehouse.WidthRequest = 400;
+			this.entityentryWarehouse.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryWarehouse.Name = "entityentryWarehouse";
+			this.hbox3.Add(this.entityentryWarehouse);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entityentryWarehouse]));
 			w2.Position = 1;
 			w2.Expand = false;
-			w2.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.entryWarehouses = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryWarehouses.WidthRequest = 350;
-			this.entryWarehouses.Events = ((global::Gdk.EventMask)(256));
-			this.entryWarehouses.Name = "entryWarehouses";
-			this.entryWarehouses.CanEditReference = false;
-			this.hbox3.Add(this.entryWarehouses);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entryWarehouses]));
-			w3.Position = 2;
-			w3.Expand = false;
 			this.Add(this.hbox3);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
-			this.yspeccomboWarehouse.Hide();
-			this.entryWarehouses.Hide();
 			this.Hide();
-			this.yspeccomboWarehouse.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYspeccomboWarehouseItemSelected);
-			this.entryWarehouses.ChangedByUser += new global::System.EventHandler(this.OnEntryWarehousesChangedByUser);
 		}
 	}
 }

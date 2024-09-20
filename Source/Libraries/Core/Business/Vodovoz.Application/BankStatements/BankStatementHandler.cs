@@ -287,6 +287,11 @@ namespace Vodovoz.Application.BankStatements
 						{
 							date = dateStringMonthMatches[dateStringMonthMatches.Count - 1].Groups[2].Value;
 						}
+
+						if(TryParseDate(date) is null)
+						{
+							date = null;
+						}
 					}
 
 					if(accountNumber != null && date != null)

@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Extensions.Observable\QS.Extensions.Observable.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
