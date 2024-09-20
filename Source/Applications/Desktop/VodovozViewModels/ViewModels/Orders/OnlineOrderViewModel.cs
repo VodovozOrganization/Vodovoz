@@ -23,6 +23,7 @@ using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -46,6 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IExternalCounterpartyMatchingRepository externalCounterpartyMatchingRepository,
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
+			IDiscountController discountController,
 			ILifetimeScope scope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -64,7 +66,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			_deliveryPointViewModelBuilder =
 				deliveryPointViewModelBuilder ?? throw new ArgumentNullException(nameof(deliveryPointViewModelBuilder));
 			_deliveryPointJournalFilterViewModel =
-				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));;
+				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));
+			DiscountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 			ExternalCounterpartyMatchingRepository =
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
@@ -84,6 +87,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public IList<OnlineOrderItem> OnlineOrderNotPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineFreeRentPackage> OnlineRentPackages { get; private set; }
 		public IExternalCounterpartyMatchingRepository ExternalCounterpartyMatchingRepository { get; }
+		public IDiscountController DiscountController { get; }
 
 		public bool CanShowId => Entity.Id > 0;
 
@@ -94,8 +98,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			&& Entity.IsDeliveryPointNotBelongCounterparty.Value
 			&& CurrentEmployeeIsEmployeeWorkWith
 			&& OrderIsNullAndOnlineOrderNotCanceledStatus;
-		public bool CanCreateOrder =>
-			OrderIsNullAndOnlineOrderNotCanceledStatus
+
+		public bool CanCreateOrder => OrderIsNullAndOnlineOrderNotCanceledStatus
 			&& CurrentEmployeeIsEmployeeWorkWith
 			&& (!Entity.IsDeliveryPointNotBelongCounterparty.HasValue || !Entity.IsDeliveryPointNotBelongCounterparty.Value);
 		public bool CanCancelOnlineOrder =>
