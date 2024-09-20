@@ -4,6 +4,10 @@ namespace Vodovoz
 {
 	public partial class ReadyForShipmentFilter
 	{
+		private global::Gamma.GtkWidgets.yVBox yvbox2;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker daterangepicker;
+
 		private global::Gtk.HBox hbox3;
 
 		private global::Gtk.Label label2;
@@ -17,6 +21,21 @@ namespace Vodovoz
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ReadyForShipmentFilter";
 			// Container child Vodovoz.ReadyForShipmentFilter.Gtk.Container+ContainerChild
+			this.yvbox2 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox2.Name = "yvbox2";
+			this.yvbox2.Spacing = 6;
+			// Container child yvbox2.Gtk.Box+BoxChild
+			this.daterangepicker = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.daterangepicker.Events = ((global::Gdk.EventMask)(256));
+			this.daterangepicker.Name = "daterangepicker";
+			this.daterangepicker.StartDate = new global::System.DateTime(0);
+			this.daterangepicker.EndDate = new global::System.DateTime(0);
+			this.yvbox2.Add(this.daterangepicker);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.daterangepicker]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child yvbox2.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
@@ -25,20 +44,25 @@ namespace Vodovoz
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Склад:");
 			this.hbox3.Add(this.label2);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label2]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label2]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.entityentryWarehouse = new global::QS.Views.Control.EntityEntry();
 			this.entityentryWarehouse.WidthRequest = 400;
 			this.entityentryWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.entityentryWarehouse.Name = "entityentryWarehouse";
 			this.hbox3.Add(this.entityentryWarehouse);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entityentryWarehouse]));
-			w2.Position = 1;
-			w2.Expand = false;
-			this.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entityentryWarehouse]));
+			w3.Position = 1;
+			w3.Expand = false;
+			this.yvbox2.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.hbox3]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			this.Add(this.yvbox2);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
