@@ -1,4 +1,4 @@
-﻿using EmailPrepareWorker.Prepares;
+using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
@@ -79,11 +79,17 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		{
 			var document = _counterpartyEmail.EmailableDocument;
 
-			var hasSendedEmailsForBill = _emailRepository.HasSendedEmailsForBillExceptOf(document.Order.Id, _counterpartyEmail.StoredEmail.Id);
+			var hasSendedEmailsForBill = false;
+			
+			if(document.Type == OrderDocumentType.Bill
+			   || document.Type == OrderDocumentType.SpecialBill)
+			{
+				hasSendedEmailsForBill = _emailRepository.HasSendedEmailsForBillExceptOf(document.Order.Id, _counterpartyEmail.StoredEmail.Id);
+			}
 
 			if(hasSendedEmailsForBill
-				&& document.Type == OrderDocumentType.Bill
-				&& document is BillDocument billDocument)
+			   && document.Type == OrderDocumentType.Bill
+			   && document is BillDocument billDocument)
 			{
 				_template = billDocument.GetResendEmailTemplate();
 			}
