@@ -76,6 +76,19 @@ namespace Vodovoz.ViewModel
 				.JoinAlias(rl => rl.Car, () => carAlias)
 				.Left.JoinAlias(rl => rl.Shift, () => shiftAlias)
 				.Where(r => routeListAlias.Status == RouteListStatus.InLoading);
+			
+			var startDate = Filter.StartDate;
+			var endDate = Filter.EndDate;
+
+			if(startDate.HasValue)
+			{
+				queryRoutes.Where(() => routeListAlias.Date >= startDate);
+			}
+
+			if(endDate.HasValue)
+			{
+				queryRoutes.Where(() => routeListAlias.Date <= endDate);
+			}
 
 			if(Filter.Warehouse != null) {
 				queryRoutes.JoinAlias(rl => rl.Addresses, () => routeListAddressAlias)
