@@ -487,7 +487,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionBottlesMovementSummaryReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(BottlesMovementSummaryReport));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(BottlesMovementSummaryReportViewModel));
 	}
 
 	/// <summary>
