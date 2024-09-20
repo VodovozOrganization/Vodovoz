@@ -49,11 +49,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			JournalFilter = _filterViewModel;
+			_filterViewModel.OnFiltered += OnFilterFiltered;
 
 			UpdateOnChanges(
 				typeof(Warehouse)
 			);
+		}
 
+		private void OnFilterFiltered(object sender, EventArgs e)
+		{
 			Refresh();
 		}
 
@@ -128,6 +132,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 		public override void Dispose()
 		{
+			_filterViewModel.OnFiltered -= OnFilterFiltered;
 			_lifetimeScope = null;
 			base.Dispose();
 		}
