@@ -38,6 +38,7 @@ namespace VodovozBusiness.Domain.Payments
 
 		public PaymentWriteOff()
 		{
+			CashlessMovementOperation = new CashlessMovementOperation();
 		}
 
 		/// <summary>
@@ -179,14 +180,5 @@ namespace VodovozBusiness.Domain.Payments
 		{
 			return Enumerable.Empty<ValidationResult>();
 		}
-
-		/// <summary>
-		/// Создание списания
-		/// </summary>
-		/// <returns></returns>
-		public static PaymentWriteOff Create() => new PaymentWriteOff
-		{
-			CashlessMovementOperation = new CashlessMovementOperation()
-		};
 	}
 }
