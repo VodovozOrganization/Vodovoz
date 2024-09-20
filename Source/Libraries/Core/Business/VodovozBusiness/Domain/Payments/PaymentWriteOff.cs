@@ -13,15 +13,15 @@ using Vodovoz.Domain.Organizations;
 namespace VodovozBusiness.Domain.Payments
 {
 	/// <summary>
-	/// Списание
+	/// Списание с баланса клиента
 	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Neuter,
-		NominativePlural = "списания",
-		Nominative = "списание",
-		Genitive = "списания",
-		GenitivePlural = "списаний",
-		Prepositional = "списании",
-		PrepositionalPlural = "списаниях")]
+		NominativePlural = "списания с баланса клиента",
+		Nominative = "списание с баланса клиента",
+		Genitive = "списания с баланса клиента",
+		GenitivePlural = "списаний с баланса клиента",
+		Prepositional = "списании с баланса клиента",
+		PrepositionalPlural = "списаниях с баланса клиента")]
 	[HistoryTrace]
 	[EntityPermission]
 	public class PaymentWriteOff : PropertyChangedBase, IDomainObject, IValidatableObject
