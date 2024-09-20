@@ -26,6 +26,7 @@ using Vodovoz.ViewModels.ViewModels.Payments;
 using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;
 using BaseOrg = Vodovoz.Domain.Organizations.Organization;
 using VodOrder = Vodovoz.Domain.Orders.Order;
+using Vodovoz.ViewModels.Accounting.Payments;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 {
@@ -276,6 +277,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			NodeActionsList.Clear();
 			CreateAddNewPaymentAction();
+			CreateAddNewPaymentWriteOffAction();
 
 			var addAction = new JournalAction("Добавить",
 				(selected) => _paymentPermissionResult.CanCreate,
@@ -315,6 +317,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					selectedItems =>
 					{
 						_navigationManager.OpenViewModel<CreateManualPaymentFromBankClientViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForCreate());
+					}
+				)
+			);
+		}
+
+		private void CreateAddNewPaymentWriteOffAction()
+		{
+			NodeActionsList.Add(new JournalAction(
+					"Создать новое списание",
+					x => _paymentPermissionResult.CanCreate,
+					x => _canCreateNewManualPayment,
+					selectedItems =>
+					{
+						_navigationManager.OpenViewModel<PaymentWriteOffViewModel, IEntityUoWBuilder>(
 							this, EntityUoWBuilder.ForCreate());
 					}
 				)
