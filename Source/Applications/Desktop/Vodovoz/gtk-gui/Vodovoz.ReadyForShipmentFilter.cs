@@ -6,17 +6,17 @@ namespace Vodovoz
 	{
 		private global::Gamma.GtkWidgets.yVBox yvbox2;
 
-		private global::Gamma.GtkWidgets.yHBox yhbox1;
-
-		private global::Gtk.Label lblDate;
-
-		private global::QS.Widgets.GtkUI.DateRangePicker daterangepicker;
-
 		private global::Gtk.HBox hbox3;
 
 		private global::Gtk.Label label2;
 
 		private global::QS.Views.Control.EntityEntry entityentryWarehouse;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox1;
+
+		private global::Gtk.Label lblDate;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker daterangepicker;
 
 		protected virtual void Build()
 		{
@@ -29,35 +29,6 @@ namespace Vodovoz
 			this.yvbox2.Name = "yvbox2";
 			this.yvbox2.Spacing = 6;
 			// Container child yvbox2.Gtk.Box+BoxChild
-			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
-			this.yhbox1.Name = "yhbox1";
-			this.yhbox1.Spacing = 6;
-			// Container child yhbox1.Gtk.Box+BoxChild
-			this.lblDate = new global::Gtk.Label();
-			this.lblDate.Name = "lblDate";
-			this.lblDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
-			this.yhbox1.Add(this.lblDate);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.lblDate]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
-			// Container child yhbox1.Gtk.Box+BoxChild
-			this.daterangepicker = new global::QS.Widgets.GtkUI.DateRangePicker();
-			this.daterangepicker.Events = ((global::Gdk.EventMask)(256));
-			this.daterangepicker.Name = "daterangepicker";
-			this.daterangepicker.StartDate = new global::System.DateTime(0);
-			this.daterangepicker.EndDate = new global::System.DateTime(0);
-			this.yhbox1.Add(this.daterangepicker);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.daterangepicker]));
-			w2.Position = 1;
-			w2.Expand = false;
-			w2.Fill = false;
-			this.yvbox2.Add(this.yhbox1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.yhbox1]));
-			w3.Position = 0;
-			w3.Expand = false;
-			w3.Fill = false;
-			// Container child yvbox2.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
@@ -66,21 +37,50 @@ namespace Vodovoz
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Склад:");
 			this.hbox3.Add(this.label2);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label2]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label2]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.entityentryWarehouse = new global::QS.Views.Control.EntityEntry();
 			this.entityentryWarehouse.WidthRequest = 400;
 			this.entityentryWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.entityentryWarehouse.Name = "entityentryWarehouse";
 			this.hbox3.Add(this.entityentryWarehouse);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entityentryWarehouse]));
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entityentryWarehouse]));
+			w2.Position = 1;
+			w2.Expand = false;
+			this.yvbox2.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.hbox3]));
+			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child yvbox2.Gtk.Box+BoxChild
+			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox1.Name = "yhbox1";
+			this.yhbox1.Spacing = 6;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.lblDate = new global::Gtk.Label();
+			this.lblDate.Name = "lblDate";
+			this.lblDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
+			this.yhbox1.Add(this.lblDate);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.lblDate]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.daterangepicker = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.daterangepicker.Events = ((global::Gdk.EventMask)(256));
+			this.daterangepicker.Name = "daterangepicker";
+			this.daterangepicker.StartDate = new global::System.DateTime(0);
+			this.daterangepicker.EndDate = new global::System.DateTime(0);
+			this.yhbox1.Add(this.daterangepicker);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.daterangepicker]));
 			w5.Position = 1;
 			w5.Expand = false;
-			this.yvbox2.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.hbox3]));
+			w5.Fill = false;
+			this.yvbox2.Add(this.yhbox1);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.yhbox1]));
 			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;
