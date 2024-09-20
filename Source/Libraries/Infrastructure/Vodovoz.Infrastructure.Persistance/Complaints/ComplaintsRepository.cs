@@ -149,16 +149,19 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 		public IQueryable<OksDailyReportComplaintDataNode> GetClientComplaintsForPeriod(
 			IUnitOfWork uow,
 			DateTime startDate,
-			DateTime endDate)
+			DateTime endDate,
+			int oksSubdivisionId)
 		{
 			var query = 
 				from complaint in uow.Session.Query<Complaint>()
+				join complaintDiscussion in uow.Session.Query<ComplaintDiscussion>() on complaint.Id equals complaintDiscussion.Complaint.Id
 				join ck in uow.Session.Query<ComplaintKind>() on complaint.ComplaintKind.Id equals ck.Id into complaintKinds
 				from complaintKind in complaintKinds.DefaultIfEmpty()
 				join co in uow.Session.Query<ComplaintObject>() on complaintKind.ComplaintObject.Id equals co.Id into complaintObjects
 				from complaintObject in complaintObjects.DefaultIfEmpty()
 				where complaint.CreationDate >= startDate && complaint.CreationDate <= endDate
 				&& complaint.ComplaintType == ComplaintType.Client
+				&& complaintDiscussion.Subdivision.Id == oksSubdivisionId
 				select new OksDailyReportComplaintDataNode
 				{
 					Id = complaint.Id,
@@ -166,7 +169,8 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 					Status = complaint.Status,
 					ComplaintKind = complaint.ComplaintKind,
 					ComplaintObject = complaint.ComplaintKind == null ? null : complaint.ComplaintKind.ComplaintObject,
-					ComplaintSource = complaint.ComplaintSource
+					ComplaintSource = complaint.ComplaintSource,
+					OksDiskussionStatuse = complaintDiscussion.Status
 				};
 
 			return query;

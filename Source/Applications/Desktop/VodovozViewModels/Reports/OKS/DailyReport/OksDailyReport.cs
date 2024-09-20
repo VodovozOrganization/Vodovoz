@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.Settings.Complaints;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
@@ -36,7 +37,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			bool isWrapText = true,
 			XLColor bgColor = null,
 			XLAlignmentHorizontalValues horizontalAlignment = XLAlignmentHorizontalValues.Left,
-			XLAlignmentVerticalValues verticalAlignment = XLAlignmentVerticalValues.Top,
+			XLAlignmentVerticalValues verticalAlignment = XLAlignmentVerticalValues.Center,
 			XLBorderStyleValues cellBorderStyle = XLBorderStyleValues.None)
 		{
 			cellsRange.Cells().Style.Font.FontSize = fontSize;
@@ -63,7 +64,8 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			IUnitOfWork uow,
 			DateTime date,
 			IComplaintsRepository complaintsRepository,
-			IComplaintSettings complaintSettings)
+			IComplaintSettings complaintSettings,
+			ISubdivisionSettings subdivisionSettings)
 		{
 			var report = new OksDailyReport();
 
@@ -71,10 +73,10 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			report.IncomingCallSourseId = complaintSettings.IncomeCallComplaintSourceId;
 
 			report.ComplaintsDataForDate =
-				complaintsRepository.GetClientComplaintsForPeriod(uow, date, date.LatestDayTime()).ToList();
+				complaintsRepository.GetClientComplaintsForPeriod(uow, date, date.LatestDayTime(), subdivisionSettings.GetOkkId()).ToList();
 
 			report.ComplaintsDataFromMonthBeginningToDate =
-				complaintsRepository.GetClientComplaintsForPeriod(uow, date.FirstDayOfMonth(), date.LatestDayTime()).ToList();
+				complaintsRepository.GetClientComplaintsForPeriod(uow, date.FirstDayOfMonth(), date.LatestDayTime(), subdivisionSettings.GetOkkId()).ToList();
 
 			return report;
 		}

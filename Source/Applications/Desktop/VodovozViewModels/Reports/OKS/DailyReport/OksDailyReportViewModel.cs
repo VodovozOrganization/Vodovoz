@@ -8,6 +8,7 @@ using QS.ViewModels;
 using System;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.Settings.Complaints;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
@@ -17,6 +18,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IComplaintsRepository _complaintsRepository;
 		private readonly IComplaintSettings _complaintSettings;
+		private readonly ISubdivisionSettings _subdivisionSettings;
 		private DateTime _date = DateTime.Today.AddDays(-1);
 
 		public OksDailyReportViewModel(
@@ -24,6 +26,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			IFileDialogService fileDialogService,
 			IComplaintsRepository complaintsRepository,
 			IComplaintSettings complaintSettings,
+			ISubdivisionSettings subdivisionSettings,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation
@@ -32,7 +35,8 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
-			_complaintSettings = complaintSettings;
+			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
+			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			Title = "Ежедневный отчет ОКС";
 
 			CreateReportCommand = new DelegateCommand(CreateReport);
@@ -56,7 +60,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				return;
 			}
 
-			var report = OksDailyReport.Create(UoW, Date, _complaintsRepository, _complaintSettings);
+			var report = OksDailyReport.Create(UoW, Date, _complaintsRepository, _complaintSettings, _subdivisionSettings);
 			report.ExportReport(saveFileDialogResult.Path);
 		}
 

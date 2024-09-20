@@ -27,7 +27,7 @@ namespace Vodovoz.EntityRepositories.Complaints
 		ComplaintSource GetComplaintSourceById(IUnitOfWork unitOfWork, int complaintSourceId);
 		(int, bool) GetComplaintIdByOrderRating(IUnitOfWork unitOfWork, int orderRatingId);
 		(int, bool) GetTodayComplaintIdByOrder(IUnitOfWork unitOfWork, int orderId);
-		IQueryable<OksDailyReportComplaintDataNode> GetClientComplaintsForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
+		IQueryable<OksDailyReportComplaintDataNode> GetClientComplaintsForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate, int oksSubdivisionId);
 	}
 
 	public class OksDailyReportComplaintDataNode
@@ -38,5 +38,6 @@ namespace Vodovoz.EntityRepositories.Complaints
 		public ComplaintKind ComplaintKind { get; set; }
 		public ComplaintObject ComplaintObject { get; set; }
 		public ComplaintSource ComplaintSource { get; set; }
+		public ComplaintDiscussionStatuses OksDiskussionStatuse { get; set; }
 	}
 }
