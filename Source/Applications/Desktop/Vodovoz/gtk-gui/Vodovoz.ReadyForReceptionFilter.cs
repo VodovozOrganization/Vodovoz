@@ -4,6 +4,10 @@ namespace Vodovoz
 {
 	public partial class ReadyForReceptionFilter
 	{
+		private global::Gamma.GtkWidgets.yVBox yvbox1;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker daterangepicker;
+
 		private global::Gtk.HBox hbox3;
 
 		private global::Gtk.Label label2;
@@ -21,6 +25,21 @@ namespace Vodovoz
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ReadyForReceptionFilter";
 			// Container child Vodovoz.ReadyForReceptionFilter.Gtk.Container+ContainerChild
+			this.yvbox1 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox1.Name = "yvbox1";
+			this.yvbox1.Spacing = 6;
+			// Container child yvbox1.Gtk.Box+BoxChild
+			this.daterangepicker = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.daterangepicker.Events = ((global::Gdk.EventMask)(256));
+			this.daterangepicker.Name = "daterangepicker";
+			this.daterangepicker.StartDate = new global::System.DateTime(0);
+			this.daterangepicker.EndDate = new global::System.DateTime(0);
+			this.yvbox1.Add(this.daterangepicker);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.daterangepicker]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child yvbox1.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
@@ -29,10 +48,10 @@ namespace Vodovoz
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Склад:");
 			this.hbox3.Add(this.label2);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label2]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label2]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox();
 			this.hbox2.Name = "hbox2";
@@ -43,9 +62,9 @@ namespace Vodovoz
 			this.entityentryWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.entityentryWarehouse.Name = "entityentryWarehouse";
 			this.hbox2.Add(this.entityentryWarehouse);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityentryWarehouse]));
-			w2.Position = 0;
-			w2.Expand = false;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityentryWarehouse]));
+			w3.Position = 0;
+			w3.Expand = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.checkWithoutUnload = new global::Gtk.CheckButton();
 			this.checkWithoutUnload.CanFocus = true;
@@ -54,12 +73,17 @@ namespace Vodovoz
 			this.checkWithoutUnload.DrawIndicator = true;
 			this.checkWithoutUnload.UseUnderline = true;
 			this.hbox2.Add(this.checkWithoutUnload);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.checkWithoutUnload]));
-			w3.Position = 1;
-			this.hbox3.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.hbox2]));
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.checkWithoutUnload]));
 			w4.Position = 1;
-			this.Add(this.hbox3);
+			this.hbox3.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.hbox2]));
+			w5.Position = 1;
+			this.yvbox1.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.hbox3]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
+			this.Add(this.yvbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
