@@ -15,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Accounting
 			Map(x => x.PaymentNumber).Column("payment_number");
 			Map(x => x.Reason).Column("reason");
 			Map(x => x.CounterpartyId).Column("counterparty_id");
+			Map(x => x.OrganizationId).Column("organization_id");
 			Map(x => x.Sum).Column("sum");
 			Map(x => x.FinancialExpenseCategoryId).Column("financial_expense_category_id");
 			Map(x => x.Comment).Column("comment");
