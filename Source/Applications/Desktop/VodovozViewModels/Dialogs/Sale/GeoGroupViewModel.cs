@@ -8,6 +8,7 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Sale;
@@ -67,16 +68,15 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			CashSubdivisionViewModel = geoGroupVersionViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
-				.ForProperty(SelectedVersion, x => x.CashSubdivision)
+				.ForProperty(this, x => x.SelectedVersionCashSubdivision)
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
 				.UseViewModelDialog<SubdivisionViewModel>()
 				.Finish();
 
-
 			WarehouseViewModel = warehouseVersionViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
-				.ForProperty(SelectedVersion, x => x.Warehouse)
+				.ForProperty(this, x => x.SelectedVersionWarehouse)
 				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
@@ -94,7 +94,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			_versionsPermissionResult = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(GeoGroupVersion));
 		}
 
-		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{
@@ -105,6 +105,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 					break;
 			}
 		}
+
 		private void VersionsElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			if(aObject == SelectedVersion)
@@ -115,6 +116,9 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 
 		public bool CanEdit => _canEdit;
 		public bool CanReadVersions => _versionsPermissionResult.CanRead;
+
+		public bool CanChangeCashSubdivision => _versionsPermissionResult.CanCreate && SelectedVersion != null && SelectedVersion.Status == VersionStatus.Draft;
+		public bool CanChangeWarehouse => _versionsPermissionResult.CanCreate && SelectedVersion != null && SelectedVersion.Status == VersionStatus.Draft;
 
 		#region Add version
 
@@ -261,6 +265,34 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 				UnsubscribeSelectedVersionPropertyChanged();
 				SetField(ref _selectedVersion, value);
 				SubscribeSelectedVersionPropertyChanged();
+				OnPropertyChanged(nameof(CanChangeCashSubdivision));
+				OnPropertyChanged(nameof(CanChangeWarehouse));
+				OnPropertyChanged(nameof(SelectedVersionWarehouse));
+				OnPropertyChanged(nameof(SelectedVersionCashSubdivision));
+			}
+		}
+
+		public Warehouse SelectedVersionWarehouse
+		{
+			get => SelectedVersion?.Warehouse;
+			set
+			{
+				if(SelectedVersion != null && CanChangeWarehouse)
+				{
+					SelectedVersion.Warehouse = value;
+				}
+			}
+		}
+
+		public Subdivision SelectedVersionCashSubdivision
+		{
+			get => SelectedVersion?.CashSubdivision;
+			set
+			{
+				if(SelectedVersion != null && CanChangeCashSubdivision)
+				{
+					SelectedVersion.CashSubdivision = value;
+				}
 			}
 		}
 
@@ -282,7 +314,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			}
 		}
 
-		private void SelectedVersion_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void SelectedVersion_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{
