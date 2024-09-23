@@ -496,7 +496,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		{
 			NodeActionsList.Add(new JournalAction(
 				"Создать новое списание",
-				x => _paymentPermissionResult.CanCreate,
+				x => _permissionService.ValidateEntityPermission(typeof(PaymentWriteOff)).CanCreate,
 				x => _canCreateNewManualPayment,
 				selectedItems =>
 				{
