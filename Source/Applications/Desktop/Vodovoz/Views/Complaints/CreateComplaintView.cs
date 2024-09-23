@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using Gamma.Widgets;
 using QS.ViewModels.Control.EEVM;
@@ -47,8 +47,8 @@ namespace Vodovoz.Views.Complaints
 			yentryPhone.Binding.AddBinding(ViewModel.Entity, e => e.Phone, w => w.Text).InitializeFromSource();
 			yentryPhone.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-            complaintfilesview.ViewModel = ViewModel.FilesViewModel;
-            complaintfilesview.Sensitive = ViewModel.CanEdit;
+            smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+            smallfileinformationsview.Sensitive = ViewModel.CanEdit;
 
 			comboboxComplaintSource.SetRenderTextFunc<ComplaintSource>(x => x.Name);
 			comboboxComplaintSource.ItemsList = ViewModel.ComplaintSources;

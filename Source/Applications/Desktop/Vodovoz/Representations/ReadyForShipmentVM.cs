@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModel
 			typeof(CarLoadDocument)
 		)
 		{
-			this.UoW = uow;
+			UoW = uow;
 		}
 		
 		private readonly ISubdivisionRepository subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
@@ -76,8 +76,21 @@ namespace Vodovoz.ViewModel
 				.JoinAlias(rl => rl.Car, () => carAlias)
 				.Left.JoinAlias(rl => rl.Shift, () => shiftAlias)
 				.Where(r => routeListAlias.Status == RouteListStatus.InLoading);
+			
+			var startDate = Filter.StartDate;
+			var endDate = Filter.EndDate;
 
-			if(Filter.RestrictWarehouse != null) {
+			if(startDate.HasValue)
+			{
+				queryRoutes.Where(() => routeListAlias.Date >= startDate);
+			}
+
+			if(endDate.HasValue)
+			{
+				queryRoutes.Where(() => routeListAlias.Date <= endDate);
+			}
+
+			if(Filter.Warehouse != null) {
 				queryRoutes.JoinAlias(rl => rl.Addresses, () => routeListAddressAlias)
 					.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
 					.Where(() => !routeListAddressAlias.WasTransfered || routeListAddressAlias.AddressTransferType == AddressTransferType.NeedToReload)
@@ -100,13 +113,13 @@ namespace Vodovoz.ViewModel
 				.TransformUsing(Transformers.AliasToBean<ReadyForShipmentVMNode>())
 				.List<ReadyForShipmentVMNode>();
 
-			if(Filter.RestrictWarehouse != null) {
+			if(Filter.Warehouse != null) {
 				var resultList = new List<ReadyForShipmentVMNode>();
 				var routes = UoW.GetById<RouteList>(dirtyList.Select(x => x.Id));
 				foreach(var dirty in dirtyList) {
 					var route = routes.First(x => x.Id == dirty.Id);
 					var inLoaded = routeListRepository.AllGoodsLoaded(UoW, route);
-					var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRL(UoW, route, subdivisionRepository, Filter.RestrictWarehouse);
+					var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRL(UoW, route, subdivisionRepository, Filter.Warehouse);
 
 					bool closed = true;
 					foreach(var rlItem in goodsAndEquips) {

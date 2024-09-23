@@ -10,6 +10,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents.MovementDocuments;
@@ -37,6 +38,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
@@ -85,12 +87,24 @@ namespace Vodovoz.ViewModels.Warehouses
 			INomenclatureInstanceRepository nomenclatureInstanceRepository,
 			IUserRepository userRepository,
 			IStockRepository stockRepository,
+			ViewModelEEVMBuilder<Warehouse> sourceWarehouseViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Warehouse> targetWarehouseViewModelEEVMBuilder,
 			ILifetimeScope scope) 
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
+			if(sourceWarehouseViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(sourceWarehouseViewModelEEVMBuilder));
+			}
+
+			if(targetWarehouseViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(targetWarehouseViewModelEEVMBuilder));
 			}
 
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -108,10 +122,48 @@ namespace Vodovoz.ViewModels.Warehouses
 			SetStoragesViewModels();
 			ConfigureEntityChangingRelations();
 
-			if(UoW.IsNew)
+			if(Entity.Id == 0)
 			{
 				Entity.DocumentType = MovementDocumentType.Transportation;
 				SetDefaultWarehouseFrom();
+			}
+
+			SourceWarehouseViewModel = sourceWarehouseViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.FromWarehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
+				{
+					filter.IncludeWarehouseIds = WarehousesFrom.Select(w => w.Id);
+				})
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
+
+			TargetWarehouseViewModel = targetWarehouseViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.ToWarehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
+				{
+					filter.IncludeWarehouseIds = WarehousesTo.Select(w => w.Id);
+					filter.IgnorePermissions = true;
+				})
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
+
+			Entity.PropertyChanged += OnMovementDocumentPropertyChanged;
+		}
+
+		private void OnMovementDocumentPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.FromWarehouse))
+			{
+				ReloadAllowedWarehousesTo();
+			}
+
+			if(e.PropertyName == nameof(Entity.ToWarehouse))
+			{
+				ReloadAllowedWarehousesFrom();
 			}
 		}
 
@@ -136,7 +188,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		public ILifetimeScope Scope => _scope;
 
 		public bool CanEdit => 
-			(UoW.IsNew && PermissionResult.CanCreate)
+			(Entity.Id == 0 && PermissionResult.CanCreate)
 			|| (PermissionResult.CanUpdate &&
 			    (Entity.TimeStamp.Date >= DateTime.Today || DateTime.Today <= Entity.TimeStamp.Date.AddDays(4).AddHours(23).AddMinutes(59)))
 			|| _canEditRectroactively;
@@ -731,7 +783,10 @@ namespace Vodovoz.ViewModels.Warehouses
 				return false;
 			}
 		}
-		
+
+		public IEntityEntryViewModel SourceWarehouseViewModel { get; }
+		public IEntityEntryViewModel TargetWarehouseViewModel { get; }
+
 		private void OnInventoryInstanceSelectResult(object sender, JournalSelectedEventArgs e)
 		{
 			var selectedItems = e.GetSelectedObjects<InventoryInstancesStockJournalNode>();
@@ -824,6 +879,13 @@ namespace Vodovoz.ViewModels.Warehouses
 			OnPropertyChanged(nameof(CanReceive));
 			OnPropertyChanged(nameof(CanAcceptDiscrepancy));
 			OnPropertyChanged(nameof(CanChangeDocumentTypeByStorageAndStorageFrom));
+		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnMovementDocumentPropertyChanged;
+
+			base.Dispose();
 		}
 	}
 }

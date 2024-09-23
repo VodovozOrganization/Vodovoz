@@ -18,8 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
@@ -29,7 +32,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
@@ -37,19 +39,24 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
+using PhoneViewModel = Vodovoz.ViewModels.ViewModels.Counterparty.PhoneViewModel;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
@@ -70,7 +77,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
 		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
+		private readonly IEmployeeFileStorageService _employeeFileStorageService;
+		private readonly ViewModelEEVMBuilder<Phone> _phoneViewModelEEVMBuilder;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
+		private readonly IInteractiveService _interactiveService;
 		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
@@ -105,7 +115,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DelegateCommand _createNewEmployeeRegistrationVersionCommand;
 		private DelegateCommand _changeEmployeeRegistrationVersionStartDateCommand;
 
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
 		public IReadOnlyList<Organization> organizations;
+		private string _photoFilename;
+		private byte[] _photo;
 
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
@@ -135,6 +149,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			EmployeeSettings.IEmployeeSettings employeeSettings,
 			INomenclatureFixedPriceController nomenclatureFixedPriceController,
+			IEmployeeFileStorageService employeeFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			ViewModelEEVMBuilder<Phone> phoneViewModelEEVMBuilder,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -163,8 +180,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_nomenclatureFixedPriceController =
 				nomenclatureFixedPriceController ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
-
+			_employeeFileStorageService = employeeFileStorageService ?? throw new ArgumentNullException(nameof(employeeFileStorageService));
+			_phoneViewModelEEVMBuilder = phoneViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(phoneViewModelEEVMBuilder));
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
+			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 
 			if(validationContextFactory == null)
 			{
@@ -187,15 +206,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				TabName = Entity.GetPersonNameWithInitials();
 			}
 			
-			AttachmentsViewModel = (attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory)))
-				.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
-			
 			if(Entity.Phones == null)
 			{
 				Entity.Phones = new List<Phone>();
 			}
-
-			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			organizations = UoW.GetAll<Organization>().ToList();
 
@@ -210,6 +224,44 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			SetPermissions();
 			CreateCommands();
 			InitializeSubdivisionEntryViewModel();
+
+			if(Entity.Id != 0 && !string.IsNullOrWhiteSpace(Entity.PhotoFileName))
+			{
+				var photoResult = _employeeFileStorageService.GetPhotoAsync(Entity, _cancellationTokenSource.Token).GetAwaiter().GetResult();
+
+				if(photoResult.IsSuccess)
+				{
+					using(var ms = new MemoryStream())
+					{
+						photoResult.Value.CopyTo(ms);
+						Photo = ms.ToArray();
+						PhotoFilename = Entity.PhotoFileName;
+					}
+				}
+			}
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<Employee, EmployeeFileInformation>(
+				UoW,
+				Entity,
+				_employeeFileStorageService,
+				_cancellationTokenSource.Token,
+				Entity.AddFileInformation,
+				Entity.RemoveFileInformation);
+
+			PhoneForCounterpartyCallsViewModel = _phoneViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.PhoneForCounterpartyCalls)
+				.UseViewModelJournalAndAutocompleter<PhonesJournalViewModel, PhonesJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictEmployee = Entity;
+				})
+				.UseViewModelDialog<PhoneViewModel>()
+				.Finish();
+
+			PhoneForCounterpartyCallsViewModel.CanViewEntity = false;
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public ILifetimeScope LifetimeScope { get; private set; }
@@ -292,19 +344,17 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		public PhonesViewModel PhonesViewModel { get; }
 		
-		public AttachmentsViewModel AttachmentsViewModel { get; }
-
 		public TerminalManagementViewModel TerminalManagementViewModel =>
 			_terminalManagementViewModel ?? (_terminalManagementViewModel =
 				new TerminalManagementViewModel(
 					_userSettings.DefaultWarehouse,
-				    Entity,
-				    this as ITdiTab,
-				    _employeeRepository,
-				    _warehouseRepository,
-				    _routeListRepository,
-				    CommonServices,
-				    UoW,
+					Entity,
+					this as ITdiTab,
+					_employeeRepository,
+					_warehouseRepository,
+					_routeListRepository,
+					CommonServices,
+					UoW,
 					_unitOfWorkFactory,
 					_nomenclatureSettings));
 
@@ -836,6 +886,20 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					OnPropertyChanged(nameof(CanChangeRegistrationVersionDate));
 				}));
 
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
+		public EntityEntryViewModel<Phone> PhoneForCounterpartyCallsViewModel { get; }
+		public byte[] Photo
+		{
+			get => _photo;
+			set => SetField(ref _photo, value);
+		}
+
+		public string PhotoFilename
+		{
+			get => _photoFilename;
+			set => SetField(ref _photoFilename, value);
+		}
+
 		public void CopyCredentialsToOtherUser(bool toWarehouseAppUser = true)
 		{
 			if(toWarehouseAppUser)
@@ -863,6 +927,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					break;
 				case nameof(Entity.Status):
 					_statusChangedByUser = true;
+					break;
+				case nameof(Entity.CanRecieveCounterpartyCalls):
+					if(!Entity.CanRecieveCounterpartyCalls)
+					{
+						Entity.PhoneForCounterpartyCalls = null;
+					}
 					break;
 				default:
 					break;
@@ -1157,6 +1227,109 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 		}
 
+		private void SavePhotoIfNeeded()
+		{
+			if(Photo is null)
+			{
+				return;
+			}
+
+			if(PhotoFilename != Entity.PhotoFileName)
+			{
+				var result = _employeeFileStorageService
+					.UpdatePhotoAsync(
+						Entity,
+						PhotoFilename,
+						new MemoryStream(Photo),
+						_cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+
+				if(result.IsSuccess)
+				{
+					Entity.PhotoFileName = PhotoFilename;
+				}
+				else
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error, "Не удалось обновить фотографию автомобиля", "Ошибка");
+				}
+			}
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
+			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			do
+			{
+				foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _employeeFileStorageService.CreateFileAsync(Entity, fileName,
+					new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
+				else
+				{
+					repeat = false;
+				}
+			}
+			while(repeat);
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_employeeFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_employeeFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
 		public bool Save()
 		{
 			if(Entity.Id == 0 && !CanManageOfficeWorkers && !CanManageDriversAndForwarders)
@@ -1285,10 +1458,16 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				TryRemoveEmployeeFixedPricesFromOldCounterparty();
 			}
 
-			UoWGeneric.Save(Entity);
+			UoW.Save();
+
+			SavePhotoIfNeeded();
+			AddAttachedFilesIfNeeded();
+			UpdateAttachedFilesIfNeeded();
+			DeleteAttachedFilesIfNeeded();
+			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 
 			#region Попытка сохранить логин для нового юзера
-			
+
 			if(!TrySaveNewUser())
 			{
 				return false;

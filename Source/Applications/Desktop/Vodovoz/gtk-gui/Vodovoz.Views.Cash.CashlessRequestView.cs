@@ -26,7 +26,7 @@ namespace Vodovoz.Views.Cash
 
 		private global::Gtk.Alignment alignmentFiles;
 
-		private global::Vodovoz.Views.Cash.CashlessRequestFilesView filesView;
+		private global::Vodovoz.Presentation.Views.SmallFileInformationsView smallfileinformationsview;
 
 		private global::Gamma.GtkWidgets.yCheckButton checkNotToReconcile;
 
@@ -223,10 +223,10 @@ namespace Vodovoz.Views.Cash
 			this.alignmentFiles.HeightRequest = 100;
 			this.alignmentFiles.Name = "alignmentFiles";
 			// Container child alignmentFiles.Gtk.Container+ContainerChild
-			this.filesView = new global::Vodovoz.Views.Cash.CashlessRequestFilesView();
-			this.filesView.Events = ((global::Gdk.EventMask)(256));
-			this.filesView.Name = "filesView";
-			this.alignmentFiles.Add(this.filesView);
+			this.smallfileinformationsview = new global::Vodovoz.Presentation.Views.SmallFileInformationsView();
+			this.smallfileinformationsview.Events = ((global::Gdk.EventMask)(256));
+			this.smallfileinformationsview.Name = "smallfileinformationsview";
+			this.alignmentFiles.Add(this.smallfileinformationsview);
 			this.tableMain.Add(this.alignmentFiles);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableMain[this.alignmentFiles]));
 			w12.TopAttach = ((uint)(4));
@@ -376,6 +376,7 @@ namespace Vodovoz.Views.Cash
 			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.evmeAuthor.Name = "evmeAuthor";
 			this.evmeAuthor.CanEditReference = false;
+			this.evmeAuthor.CanDisposeEntitySelectorFactory = false;
 			this.evmeAuthor.CanOpenWithoutTabParent = false;
 			this.tableMain.Add(this.evmeAuthor);
 			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.tableMain[this.evmeAuthor]));
@@ -389,6 +390,7 @@ namespace Vodovoz.Views.Cash
 			this.evmeCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.evmeCounterparty.Name = "evmeCounterparty";
 			this.evmeCounterparty.CanEditReference = false;
+			this.evmeCounterparty.CanDisposeEntitySelectorFactory = false;
 			this.evmeCounterparty.CanOpenWithoutTabParent = false;
 			this.tableMain.Add(this.evmeCounterparty);
 			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.tableMain[this.evmeCounterparty]));
@@ -632,7 +634,7 @@ namespace Vodovoz.Views.Cash
 			this.labelWhySentToReapproval.Name = "labelWhySentToReapproval";
 			this.labelWhySentToReapproval.Xalign = 1F;
 			this.labelWhySentToReapproval.Yalign = 0F;
-			this.labelWhySentToReapproval.LabelProp = global::Mono.Unix.Catalog.GetString("Причина отправки\r\nна пересогласование:\r\n");
+			this.labelWhySentToReapproval.LabelProp = global::Mono.Unix.Catalog.GetString("Причина отправки\nна пересогласование:\n");
 			this.tableMain.Add(this.labelWhySentToReapproval);
 			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelWhySentToReapproval]));
 			w50.TopAttach = ((uint)(12));

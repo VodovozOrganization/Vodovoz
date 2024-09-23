@@ -4,17 +4,23 @@ namespace Vodovoz
 {
 	public partial class ReadyForReceptionFilter
 	{
+		private global::Gamma.GtkWidgets.yVBox yvbox1;
+
 		private global::Gtk.HBox hbox3;
 
 		private global::Gtk.Label label2;
 
 		private global::Gtk.HBox hbox2;
 
-		private global::QS.Widgets.GtkUI.SpecialListComboBox comboWarehouses;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryWarehouses;
+		private global::QS.Views.Control.EntityEntry entityentryWarehouse;
 
 		private global::Gtk.CheckButton checkWithoutUnload;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox2;
+
+		private global::Gtk.Label lblDate;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker daterangepicker;
 
 		protected virtual void Build()
 		{
@@ -23,6 +29,10 @@ namespace Vodovoz
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ReadyForReceptionFilter";
 			// Container child Vodovoz.ReadyForReceptionFilter.Gtk.Container+ContainerChild
+			this.yvbox1 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox1.Name = "yvbox1";
+			this.yvbox1.Spacing = 6;
+			// Container child yvbox1.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
@@ -40,27 +50,14 @@ namespace Vodovoz
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.comboWarehouses = new global::QS.Widgets.GtkUI.SpecialListComboBox();
-			this.comboWarehouses.Name = "comboWarehouses";
-			this.comboWarehouses.AddIfNotExist = false;
-			this.comboWarehouses.DefaultFirst = false;
-			this.comboWarehouses.ShowSpecialStateAll = true;
-			this.comboWarehouses.ShowSpecialStateNot = false;
-			this.hbox2.Add(this.comboWarehouses);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.comboWarehouses]));
+			this.entityentryWarehouse = new global::QS.Views.Control.EntityEntry();
+			this.entityentryWarehouse.WidthRequest = 400;
+			this.entityentryWarehouse.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryWarehouse.Name = "entityentryWarehouse";
+			this.hbox2.Add(this.entityentryWarehouse);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityentryWarehouse]));
 			w2.Position = 0;
 			w2.Expand = false;
-			w2.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.entryWarehouses = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryWarehouses.WidthRequest = 350;
-			this.entryWarehouses.Events = ((global::Gdk.EventMask)(256));
-			this.entryWarehouses.Name = "entryWarehouses";
-			this.entryWarehouses.CanEditReference = false;
-			this.hbox2.Add(this.entryWarehouses);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entryWarehouses]));
-			w3.Position = 1;
-			w3.Expand = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.checkWithoutUnload = new global::Gtk.CheckButton();
 			this.checkWithoutUnload.CanFocus = true;
@@ -69,21 +66,51 @@ namespace Vodovoz
 			this.checkWithoutUnload.DrawIndicator = true;
 			this.checkWithoutUnload.UseUnderline = true;
 			this.hbox2.Add(this.checkWithoutUnload);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.checkWithoutUnload]));
-			w4.Position = 2;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.checkWithoutUnload]));
+			w3.Position = 1;
 			this.hbox3.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.hbox2]));
-			w5.Position = 1;
-			this.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.hbox2]));
+			w4.Position = 1;
+			this.yvbox1.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.hbox3]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child yvbox1.Gtk.Box+BoxChild
+			this.yhbox2 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox2.Name = "yhbox2";
+			this.yhbox2.Spacing = 6;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.lblDate = new global::Gtk.Label();
+			this.lblDate.Name = "lblDate";
+			this.lblDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
+			this.yhbox2.Add(this.lblDate);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.lblDate]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.daterangepicker = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.daterangepicker.Events = ((global::Gdk.EventMask)(256));
+			this.daterangepicker.Name = "daterangepicker";
+			this.daterangepicker.StartDate = new global::System.DateTime(0);
+			this.daterangepicker.EndDate = new global::System.DateTime(0);
+			this.yhbox2.Add(this.daterangepicker);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.daterangepicker]));
+			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
+			this.yvbox1.Add(this.yhbox2);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.yhbox2]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
+			this.Add(this.yvbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
-			this.comboWarehouses.Hide();
-			this.entryWarehouses.Hide();
 			this.Hide();
-			this.comboWarehouses.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnComboWarehousesItemSelected);
-			this.entryWarehouses.ChangedByUser += new global::System.EventHandler(this.OnEntryWarehousesChangedByUser);
 			this.checkWithoutUnload.Toggled += new global::System.EventHandler(this.OnCheckWithoutUnloadToggled);
 		}
 	}

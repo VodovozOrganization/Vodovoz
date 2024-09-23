@@ -23,8 +23,16 @@ namespace TrueMarkWorker.Factories
 			var accountableItems = _order.OrderItems.Where(oi =>
 					oi.Nomenclature.IsAccountableInTrueMark
 					&& oi.ActualCount > 0)
-				.GroupBy(oi => oi.Nomenclature.Gtin)
-				.Select(gp => new ProductDto { Gtin = gp.Key, GtinQuantity = gp.Sum(s => (int)s.ActualCount).ToString() })
+				.Select(oi => new ProductDto
+				{
+					Gtin = oi.Nomenclature.Gtin,
+					GtinQuantity = ((int)oi.ActualCount).ToString(),
+					// ProductCost - Обязательный, если указан ИНН покупателя. Если «action» = «DONATION» и поле «product_cost» заполнено, то значение должно быть «0.00»
+					ProductCost =
+						string.IsNullOrWhiteSpace(_order.Client.INN)
+						? null
+						: "0"
+				})
 				.ToList();
 
 			var productDocument = new ProductDocumentDto

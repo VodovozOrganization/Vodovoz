@@ -18,7 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
 			Map(x => x.CreationTime).Column("creation_time");
 			Map(x => x.Comment).Column("comment");
 
-			HasMany(x => x.Files).Cascade.All().Inverse().KeyColumn("complaint_discussion_comment_id");
+			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("complaint_discussion_comment_id");
 		}
 	}
 }
