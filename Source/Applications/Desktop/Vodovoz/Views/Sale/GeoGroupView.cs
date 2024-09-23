@@ -66,7 +66,13 @@ namespace Vodovoz.Views.Sale
 			ViewModel.RemoveVersionCommand.RaiseCanExecuteChanged();
 
 			entryCashSubdivision.ViewModel = ViewModel.CashSubdivisionViewModel;
+			entryCashSubdivision.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeCashSubdivision, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 			entityentryWarehouse.ViewModel = ViewModel.WarehouseViewModel;
+			entityentryWarehouse.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeWarehouse, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
@@ -112,22 +118,13 @@ namespace Vodovoz.Views.Sale
 
 		private void RebindEntry()
 		{
-			entryCashSubdivision.Binding.CleanSources();
 			labelCoordinatesValue.Binding.CleanSources();
 
-			var hasSelectedVersion = ViewModel.SelectedVersion != null;
-
-			entryCashSubdivision.Sensitive = hasSelectedVersion;
-			ViewModel.WarehouseViewModel.IsEditable = hasSelectedVersion;
-
-			if(!hasSelectedVersion)
+			if(ViewModel.SelectedVersion is null)
 			{
 				labelCoordinatesValue.LabelProp = "";
-				entryCashSubdivision.ViewModel.Entity = null;
 				return;
 			}
-
-			entryCashSubdivision.ViewModel = ViewModel.CashSubdivisionViewModel;
 
 			labelCoordinatesValue.Binding
 				.AddSource(ViewModel.SelectedVersion)
