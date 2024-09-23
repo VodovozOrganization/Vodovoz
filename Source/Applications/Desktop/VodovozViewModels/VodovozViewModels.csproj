@@ -77,6 +77,8 @@
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsList.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsSummary.cs" />
+    <Compile Include="Reports\OKS\DailyReport\OksDailyReport.Discounts.cs" />
+    <Compile Include="Reports\OKS\DailyReport\OksDailyReport.UndeliveredOrders.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReportViewModel.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.cs" />
     <Compile Include="Counterparties\CallTaskFilterViewModel.cs" />

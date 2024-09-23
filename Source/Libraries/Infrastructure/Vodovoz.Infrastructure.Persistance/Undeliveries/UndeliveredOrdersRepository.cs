@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DateTimeHelpers;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -234,6 +235,17 @@ namespace Vodovoz.Infrastructure.Persistance.Undeliveries
 				select uo;
 
 			return undeliveredOrder;
+		}
+
+		public IQueryable<UndeliveredOrder> GetUndeliveredOrdersForPeriod(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate)
+		{
+			var undeliveredOrders =
+				from undeliveredOrder in unitOfWork.Session.Query<UndeliveredOrder>()
+				where
+				undeliveredOrder.TimeOfCreation >= startDate.Date && undeliveredOrder.TimeOfCreation <= endDate.LatestDayTime()
+				select undeliveredOrder;
+
+			return undeliveredOrders;
 		}
 	}
 }

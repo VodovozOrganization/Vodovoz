@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using DateTimeHelpers;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using QS.DomainModel.UoW;
@@ -162,7 +163,7 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 				from complaintKind in complaintKinds.DefaultIfEmpty()
 				join co in uow.Session.Query<ComplaintObject>() on complaintKind.ComplaintObject.Id equals co.Id into complaintObjects
 				from complaintObject in complaintObjects.DefaultIfEmpty()
-				where complaint.CreationDate >= startDate && complaint.CreationDate <= endDate
+				where complaint.CreationDate >= startDate.Date && complaint.CreationDate <= endDate.LatestDayTime()
 				&& complaint.ComplaintType == ComplaintType.Client
 				&& complaintDiscussion.Subdivision.Id == oksSubdivisionId
 				orderby complaint.Id descending

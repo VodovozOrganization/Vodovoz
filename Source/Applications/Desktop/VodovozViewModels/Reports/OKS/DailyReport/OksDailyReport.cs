@@ -13,6 +13,8 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 	{
 		private const string _complaintsSummaryWorksheetName = "Сводка рекламаций";
 		private const string _complaintsListWorksheetName = "Рекламации поступившие сегодня";
+		private const string _undeliveredOrdersWorksheetName = "Недовозы";
+		private const string _discountsWorksheetName = "Отчет по скидкам";
 		private const string _dateFormatString = "dd.MM.yyyy";
 
 		private OksDailyReport() { }
@@ -29,6 +31,12 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 				var complaintsListWorksheet = workbook.Worksheets.Add(_complaintsListWorksheetName);
 				FillComplaintsListWorksheet(ref complaintsListWorksheet);
+
+				var undeliveredOrdersWorksheet = workbook.Worksheets.Add(_undeliveredOrdersWorksheetName);
+				FillUndeliveredOrdersWorksheet(ref undeliveredOrdersWorksheet);
+
+				var discountsWorksheet = workbook.Worksheets.Add(_discountsWorksheetName);
+				FillDiscountsWorksheet(ref discountsWorksheet);
 
 				workbook.SaveAs(path);
 			}
