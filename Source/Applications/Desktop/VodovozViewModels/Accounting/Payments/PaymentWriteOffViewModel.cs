@@ -1,5 +1,4 @@
 ﻿using QS.Commands;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -7,10 +6,13 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.Linq;
 using System.Windows.Input;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
@@ -22,6 +24,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 	{
 		private readonly IPermissionResult _permissionResult;
 		private readonly IGeneralSettings _generalSettings;
+		private readonly IPaymentsRepository _paymentsRepository;
 		private Counterparty _counterparty;
 		private Organization _organization;
 		private FinancialExpenseCategory _financialExpenseCategory;
@@ -33,10 +36,12 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			INavigationManager navigation,
 			ICurrentPermissionService currentPermissionService,
 			IGeneralSettings generalSettings,
+			IPaymentsRepository paymentsRepository,
 			ViewModelEEVMBuilder<FinancialExpenseCategory> financialExpenseCategoryViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 
 			if(currentPermissionService is null)
 			{
@@ -98,13 +103,25 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 		public Counterparty Counterparty
 		{
 			get => this.GetIdRefField(ref _counterparty, Entity.CounterpartyId);
-			set => this.SetIdRefField(SetField, ref _counterparty, () => Entity.CounterpartyId, value);
+			set
+			{
+				if(this.SetIdRefField(SetField, ref _counterparty, () => Entity.CounterpartyId, value))
+				{
+					UpdateSum();
+				}
+			}
 		}
 
 		public Organization Organization
 		{
 			get => this.GetIdRefField(ref _organization, Entity.OrganizationId);
-			set => this.SetIdRefField(SetField, ref _organization, () => Entity.OrganizationId, value);
+			set
+			{
+				if(this.SetIdRefField(SetField, ref _organization, () => Entity.OrganizationId, value))
+				{
+					UpdateSum();
+				}
+			}
 		}
 
 		public FinancialExpenseCategory FinancialExpenseCategory
@@ -118,6 +135,14 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
 		public ICommand SaveCommand { get; }
 		public ICommand CancelCommand { get; }
+
+		private void UpdateSum()
+		{
+			if(Entity.CounterpartyId.HasValue && Entity.OrganizationId.HasValue)
+			{
+				_paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.CounterpartyId.Value, Entity.OrganizationId.Value);
+			}
+		}
 
 		private void SaveHandler()
 		{
