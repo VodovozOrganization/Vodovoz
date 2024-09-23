@@ -297,7 +297,7 @@ namespace Vodovoz.Accounting.Payments
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinbuttonSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.yspinbuttonSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000000D, 1D);
 			this.yspinbuttonSum.CanFocus = true;
 			this.yspinbuttonSum.Name = "yspinbuttonSum";
 			this.yspinbuttonSum.Adjustment.PageIncrement = 10D;
