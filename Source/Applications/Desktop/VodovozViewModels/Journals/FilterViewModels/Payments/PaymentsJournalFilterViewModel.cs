@@ -3,7 +3,6 @@ using QS.Navigation;
 using QS.Project.Filter;
 using QS.Tdi;
 using System;
-using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Payments;
 
@@ -11,7 +10,7 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public partial class PaymentsJournalFilterViewModel : FilterViewModelBase<PaymentsJournalFilterViewModel>
 	{
-		private DateTime? _startDate;
+		private DateTime? _startDate = DateTime.Today.AddDays(-14);
 		private DateTime? _endDate;
 		private PaymentState? _paymentState;
 		private bool _hideCompleted;
@@ -26,14 +25,11 @@ namespace Vodovoz.Filters.ViewModels
 		public PaymentsJournalFilterViewModel(
 			ILifetimeScope scope,
 			INavigationManager navigationManager,
-			ITdiTab journalTab,
-			params Action<PaymentsJournalFilterViewModel>[] filterParams)
+			ITdiTab journalTab)
 		{
 			Scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			JournalTab = journalTab ?? throw new ArgumentNullException(nameof(journalTab));
-
-			Refilter(filterParams);
 		}
 
 		public ILifetimeScope Scope { get; }
@@ -107,13 +103,5 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		public override bool IsShow { get; set; } = true;
-
-		private void Refilter(Action<PaymentsJournalFilterViewModel>[] filterParams)
-		{
-			if(filterParams.Any())
-			{
-				SetAndRefilterAtOnce(filterParams);
-			}
-		}
 	}
 }
