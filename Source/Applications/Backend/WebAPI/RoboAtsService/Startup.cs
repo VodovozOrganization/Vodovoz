@@ -12,6 +12,7 @@ using QS.Project.Core;
 using QS.Services;
 using RoboatsService.Authentication;
 using RoboatsService.Monitoring;
+using RoboatsService.Options;
 using RoboatsService.OrderValidation;
 using Sms.External.SmsRu;
 using System.Linq;
@@ -49,6 +50,9 @@ namespace RoboatsService
 					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				}
 			);
+
+			services.Configure<RoboAtsOptions>(Configuration.GetSection(nameof(RoboAtsOptions)));
+
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
