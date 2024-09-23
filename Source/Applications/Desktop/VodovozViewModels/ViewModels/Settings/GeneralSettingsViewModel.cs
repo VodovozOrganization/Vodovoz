@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -631,6 +631,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					_unitOfWorkFactory,
 					NavigationManager,
 					_generalSettings,
+					_commonServices.CurrentPermissionService,
 					this)
 				{
 					CanEdit = true,
