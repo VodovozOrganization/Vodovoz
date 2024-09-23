@@ -30,6 +30,7 @@ namespace Vodovoz.Accounting.Payments
 
 			datepickerDate.Binding
 				.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date)
+				.AddBinding(ViewModel, vm => vm.CanSave, w => w.IsEditable)
 				.InitializeFromSource();
 
 			yspinbuttonNumber.Binding
@@ -51,7 +52,7 @@ namespace Vodovoz.Accounting.Payments
 				.Finish();
 
 			entityentryCounterparty.ViewModel = ViewModel.CounterpartyViewModel;
-
+			
 			ViewModel.OrganizationViewModel = new LegacyEEVMBuilderFactory<PaymentWriteOffViewModel>(ViewModel, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.Organization)
 				.UseTdiDialog<OrganizationDlg>()
