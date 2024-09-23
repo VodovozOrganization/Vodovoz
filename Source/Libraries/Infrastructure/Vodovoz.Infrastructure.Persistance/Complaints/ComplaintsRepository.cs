@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Complaints;
-using VodovozBusiness.Domain.Complaints;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Complaints
@@ -125,12 +125,12 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 		{
 			return unitOfWork.GetById<ComplaintSource>(complaintSourceId);
 		}
-		
+
 		public (int, bool) GetComplaintIdByOrderRating(IUnitOfWork unitOfWork, int orderRatingId)
 		{
 			var query = from complaint in unitOfWork.Session.Query<Complaint>()
-				where complaint.OrderRating.Id == orderRatingId
-				select new ValueTuple<int, bool>(complaint.Id, true);
+						where complaint.OrderRating.Id == orderRatingId
+						select new ValueTuple<int, bool>(complaint.Id, true);
 
 			return query.FirstOrDefault();
 		}
@@ -138,10 +138,10 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 		public (int, bool) GetTodayComplaintIdByOrder(IUnitOfWork unitOfWork, int orderId)
 		{
 			var query = from complaint in unitOfWork.Session.Query<Complaint>()
-				join order in unitOfWork.Session.Query<Order>()
-					on complaint.Order.Id equals orderId
-				where complaint.CreationDate >= DateTime.Now.AddDays(-1)
-				select new ValueTuple<int, bool>(complaint.Id, complaint.OrderRating != null);
+						join order in unitOfWork.Session.Query<Order>()
+							on complaint.Order.Id equals orderId
+						where complaint.CreationDate >= DateTime.Now.AddDays(-1)
+						select new ValueTuple<int, bool>(complaint.Id, complaint.OrderRating != null);
 
 			return query.FirstOrDefault();
 		}
@@ -152,9 +152,12 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 			DateTime endDate,
 			int oksSubdivisionId)
 		{
-			var query = 
+			var query =
 				from complaint in uow.Session.Query<Complaint>()
+				join counterparty in uow.Session.Query<Counterparty>() on complaint.Counterparty.Id equals counterparty.Id
 				join complaintDiscussion in uow.Session.Query<ComplaintDiscussion>() on complaint.Id equals complaintDiscussion.Complaint.Id
+				join dp in uow.Session.Query<DeliveryPoint>() on complaint.DeliveryPoint.Id equals dp.Id into deliveryPoints
+				from deliveryPoint in deliveryPoints.DefaultIfEmpty()
 				join ck in uow.Session.Query<ComplaintKind>() on complaint.ComplaintKind.Id equals ck.Id into complaintKinds
 				from complaintKind in complaintKinds.DefaultIfEmpty()
 				join co in uow.Session.Query<ComplaintObject>() on complaintKind.ComplaintObject.Id equals co.Id into complaintObjects
@@ -162,15 +165,19 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 				where complaint.CreationDate >= startDate && complaint.CreationDate <= endDate
 				&& complaint.ComplaintType == ComplaintType.Client
 				&& complaintDiscussion.Subdivision.Id == oksSubdivisionId
+
 				select new OksDailyReportComplaintDataNode
 				{
 					Id = complaint.Id,
+					CreationDate = complaint.CreationDate,
 					WorkWithClientResult = complaint.WorkWithClientResult,
 					Status = complaint.Status,
 					ComplaintKind = complaint.ComplaintKind,
 					ComplaintObject = complaint.ComplaintKind == null ? null : complaint.ComplaintKind.ComplaintObject,
 					ComplaintSource = complaint.ComplaintSource,
-					OksDiskussionStatuse = complaintDiscussion.Status
+					OksDiskussionStatuse = complaintDiscussion.Status,
+					ClientName = counterparty.Name,
+					DeliveryPointAddress = deliveryPoint == null ? string.Empty : deliveryPoint.CompiledAddress
 				};
 
 			return query;

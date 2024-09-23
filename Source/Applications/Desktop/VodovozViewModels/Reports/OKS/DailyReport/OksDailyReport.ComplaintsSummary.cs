@@ -149,7 +149,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Closed)
 				.Count();
 
-			FormatComplaintsSummaryTableHeaerCells(worksheet.Range(startRowNumber, firstColumnNumber, startRowNumber + 1, thirdColumnNumber));
+			FormatComplaintsSummaryTableHeaderCells(worksheet.Range(startRowNumber, firstColumnNumber, startRowNumber + 1, thirdColumnNumber));
 			FormatComplaintsSummaryDataCells(worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber));
 		}
 
@@ -187,7 +187,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Closed)
 				.Count();
 
-			FormatComplaintsSummaryTableHeaerCells(worksheet.Range(startRowNumber, firstColumnNumber, startRowNumber + 1, thirdColumnNumber));
+			FormatComplaintsSummaryTableHeaderCells(worksheet.Range(startRowNumber, firstColumnNumber, startRowNumber + 1, thirdColumnNumber));
 			FormatComplaintsSummaryDataCells(worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber));
 		}
 
@@ -200,7 +200,14 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			var rowNumber = startRowNumber;
 
 			worksheet.Cell(rowNumber, objectNameColumnNumber).Value = "Виды и объекты рекламаций";
-			worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber).Merge();
+
+			worksheet
+				.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber)
+				.Merge();
+
+			FormatComplaintsSummaryTableHeaderCells(
+				worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber));
+
 			rowNumber++;
 
 			var groupedByObjectItems = ComplaintsDataForDate
@@ -216,21 +223,39 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				var groupStartRowNumber = rowNumber;
 
 				worksheet.Cell(rowNumber, objectNameColumnNumber).Value = $"{objectItems.Key?.Name ?? "Объект не указан"}";
-				worksheet.Range(groupStartRowNumber, objectNameColumnNumber, groupStartRowNumber + groupedByTypeItems.Count, typeNameColumnNumber - 1).Merge();
+
+				worksheet
+					.Range(groupStartRowNumber, objectNameColumnNumber, groupStartRowNumber + groupedByTypeItems.Count - 1, typeNameColumnNumber - 1)
+					.Merge();
 
 				foreach(var typeItem in groupedByTypeItems)
 				{
 					worksheet.Cell(rowNumber, typeNameColumnNumber).Value = typeItem.Key.Name;
 					worksheet.Cell(rowNumber, dataColumnNumber).Value = typeItem.Value;
 
-					worksheet.Range(rowNumber, typeNameColumnNumber, rowNumber, dataColumnNumber - 1).Merge();
+					worksheet
+						.Range(rowNumber, typeNameColumnNumber, rowNumber, dataColumnNumber - 1)
+						.Merge();
 
 					rowNumber++;
 				}
 			}
 
-			//FormatComplaintsSummaryObjectTypeDataCells(worksheet.Range(startRowNumber + 1, objectNameColumnNumber, rowNumber - 1, dataColumnNumber));
-			FormatComplaintsSummaryTableHeaerCells(worksheet.Range(startRowNumber, objectNameColumnNumber, startRowNumber, typeNameColumnNumber - 1));
+			FormatComplaintsSummaryObjectTypeDataCells(
+				worksheet.Range(startRowNumber + 1, objectNameColumnNumber, rowNumber - 1, typeNameColumnNumber - 1));
+
+			FormatComplaintsSummaryObjectTypeDataCells(
+				worksheet.Range(startRowNumber + 1, typeNameColumnNumber, rowNumber - 1, dataColumnNumber - 1),
+				XLAlignmentHorizontalValues.Left);
+
+			FormatComplaintsSummaryObjectTypeDataCells(
+				worksheet.Range(startRowNumber + 1, dataColumnNumber, rowNumber - 1, dataColumnNumber));
+
+			worksheet.Cell(rowNumber, dataColumnNumber - 1).Value = "Всего:";
+			worksheet.Cell(rowNumber, dataColumnNumber).Value = ComplaintsDataForDate.Count;
+			worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber - 2).Merge();
+			FormatComplaintsSummaryTypesAndObjectsTotalCells(
+				worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber));
 		}
 
 		private void FormatComplaintsSummaryWorksheetTitleCells(IXLRange cellsRange)
@@ -244,7 +269,17 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				cellBorderStyle: XLBorderStyleValues.Medium);
 		}
 
-		private void FormatComplaintsSummaryTableHeaerCells(IXLRange cellsRange)
+		private void FormatComplaintsSummaryTableHeaderCells(IXLRange cellsRange)
+		{
+			FormatCells(
+				cellsRange,
+				isBoldFont: true,
+				bgColor: _complaintsSummaryMarkupBgColor,
+				horizontalAlignment: XLAlignmentHorizontalValues.Center,
+				cellBorderStyle: XLBorderStyleValues.Medium);
+		}
+
+		private void FormatComplaintsSummaryTypesAndObjectsTotalCells(IXLRange cellsRange)
 		{
 			FormatCells(
 				cellsRange,
@@ -267,18 +302,18 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		{
 			FormatCells(
 				cellsRange,
-				fontSize: 12,
 				isBoldFont: true,
 				horizontalAlignment: XLAlignmentHorizontalValues.Center,
 				cellBorderStyle: XLBorderStyleValues.Medium);
 		}
 
-		private void FormatComplaintsSummaryObjectTypeDataCells(IXLRange cellsRange)
+		private void FormatComplaintsSummaryObjectTypeDataCells(
+			IXLRange cellsRange,
+			XLAlignmentHorizontalValues horizontalAlignment = XLAlignmentHorizontalValues.Center)
 		{
 			FormatCells(
 				cellsRange,
-				fontSize: 11,
-				horizontalAlignment: XLAlignmentHorizontalValues.Center,
+				horizontalAlignment: horizontalAlignment,
 				cellBorderStyle: XLBorderStyleValues.Thin);
 		}
 	}
