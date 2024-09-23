@@ -10,7 +10,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
 	public partial class OksDailyReport
 	{
-		private readonly XLColor _complaintsSummaryMarkupBgColor = XLColor.FromColor(Color.FromArgb(226, 240, 217));
+		private readonly XLColor _complaintsTitlesMarkupBgColor = XLColor.FromColor(Color.FromArgb(226, 240, 217));
 
 		public IList<OksDailyReportComplaintDataNode> ComplaintsDataForDate { get; private set; } =
 			new List<OksDailyReportComplaintDataNode>();
@@ -55,7 +55,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			var cellsRange = worksheet.Range(rowNumber, 2, rowNumber, 14);
 			cellsRange.Merge();
 
-			FormatComplaintsSummaryWorksheetTitleCells(cellsRange);
+			FormatComplaintsWorksheetsTitleCells(cellsRange);
 		}
 
 		private void AddComplaintsSummaryByComplaintSourceTable(ref IXLWorksheet worksheet)
@@ -78,8 +78,12 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = " - Чат \"Обращения\"";
 			worksheet.Cell(rowNumber, dataColumnNumber).Value = ComplaintsDataForDate.Where(c => c.ComplaintSource.Id != IncomingCallSourseId).Count();
 
-			FormatComplaintsSummaryLabelCells(worksheet.Range(startRowNumber, labelColumnNumber, rowNumber, labelColumnNumber));
-			FormatComplaintsSummaryDataCells(worksheet.Range(startRowNumber, dataColumnNumber, rowNumber, dataColumnNumber));
+			FormatComplaintsBoldFontMediumBordersWithBackgroundCells(
+				worksheet.Range(startRowNumber, labelColumnNumber, rowNumber, labelColumnNumber),
+				XLAlignmentHorizontalValues.Left);
+
+			FormatComplaintsBoldFontMediumBordersCells(
+				worksheet.Range(startRowNumber, dataColumnNumber, rowNumber, dataColumnNumber));
 		}
 
 		private void AddComplaintsSummaryByComplaintResultTable(ref IXLWorksheet worksheet)
@@ -111,26 +115,34 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				.Where(c => c.WorkWithClientResult is null)
 				.Count();
 
-			FormatComplaintsSummaryLabelCells(worksheet.Range(startRowNumber, labelColumnNumber, rowNumber, labelColumnNumber));
-			FormatComplaintsSummaryDataCells(worksheet.Range(startRowNumber, dataColumnNumber, rowNumber, dataColumnNumber));
+			FormatComplaintsBoldFontMediumBordersWithBackgroundCells(
+				worksheet.Range(startRowNumber, labelColumnNumber, rowNumber, labelColumnNumber),
+				XLAlignmentHorizontalValues.Left);
+
+			FormatComplaintsBoldFontMediumBordersCells(
+				worksheet.Range(startRowNumber, dataColumnNumber, rowNumber, dataColumnNumber));
 		}
 
 		private void AddComplaintsSummaryByComplaintStatusOnDateTable(ref IXLWorksheet worksheet)
 		{
-			var startRowNumber = 4;
+			var rowNumber = 4;
 			var firstColumnNumber = 8;
 			var secondColumnNumber = firstColumnNumber + 1;
 			var thirdColumnNumber = firstColumnNumber + 2;
-			var rowNumber = startRowNumber;
 
 			worksheet.Cell(rowNumber, firstColumnNumber).Value = "Статус рекламаций за смену";
-			worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber).Merge();
+			var mainHeaderCellsRange = worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber);
+			mainHeaderCellsRange.Merge();
+			FormatComplaintsBoldFontMediumBordersWithBackgroundCells(mainHeaderCellsRange);
 
 			rowNumber++;
 
 			worksheet.Cell(rowNumber, firstColumnNumber).Value = "В работе";
 			worksheet.Cell(rowNumber, secondColumnNumber).Value = "На проверке";
 			worksheet.Cell(rowNumber, thirdColumnNumber).Value = "Закрыт";
+
+			var headerCellsRange = worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber);
+			FormatComplaintsBoldFontMediumBordersWithBackgroundCells(headerCellsRange);
 
 			rowNumber++;
 
@@ -149,8 +161,8 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Closed)
 				.Count();
 
-			FormatComplaintsSummaryTableHeaderCells(worksheet.Range(startRowNumber, firstColumnNumber, startRowNumber + 1, thirdColumnNumber));
-			FormatComplaintsSummaryDataCells(worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber));
+			var dataCellsRange = worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber);
+			FormatComplaintsBoldFontMediumBordersCells(dataCellsRange);
 		}
 
 		private void AddComplaintsSummaryByComplaintStatusFromMonthStartTable(ref IXLWorksheet worksheet)
@@ -161,14 +173,21 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			var thirdColumnNumber = firstColumnNumber + 2;
 			var rowNumber = startRowNumber;
 
-			worksheet.Cell(rowNumber, firstColumnNumber).Value = $"Статус рекламаций с {Date.FirstDayOfMonth().ToString(_dateFormatString)} по {Date.ToString(_dateFormatString)}";
-			worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber).Merge();
+			worksheet.Cell(rowNumber, firstColumnNumber).Value =
+				$"Статус рекламаций с {Date.FirstDayOfMonth().ToString(_dateFormatString)} по {Date.ToString(_dateFormatString)}";
+
+			var mainHeaderCellsRange = worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber);
+			mainHeaderCellsRange.Merge();
+			FormatComplaintsBoldFontMediumBordersWithBackgroundCells(mainHeaderCellsRange);
 
 			rowNumber++;
 
 			worksheet.Cell(rowNumber, firstColumnNumber).Value = "В работе";
 			worksheet.Cell(rowNumber, secondColumnNumber).Value = "На проверке";
 			worksheet.Cell(rowNumber, thirdColumnNumber).Value = "Закрыт";
+
+			var headerCellsRange = worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber);
+			FormatComplaintsBoldFontMediumBordersWithBackgroundCells(headerCellsRange);
 
 			rowNumber++;
 
@@ -187,8 +206,8 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Closed)
 				.Count();
 
-			FormatComplaintsSummaryTableHeaderCells(worksheet.Range(startRowNumber, firstColumnNumber, startRowNumber + 1, thirdColumnNumber));
-			FormatComplaintsSummaryDataCells(worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber));
+			var dataCellsRange = worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber);
+			FormatComplaintsBoldFontMediumBordersCells(dataCellsRange);
 		}
 
 		private void AddComplaintsSummaryTypesAndObjectsTable(ref IXLWorksheet worksheet)
@@ -201,12 +220,9 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			worksheet.Cell(rowNumber, objectNameColumnNumber).Value = "Виды и объекты рекламаций";
 
-			worksheet
-				.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber)
-				.Merge();
-
-			FormatComplaintsSummaryTableHeaderCells(
-				worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber));
+			var headerCellsRange = worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber);
+			headerCellsRange.Merge();
+			FormatComplaintsBoldFontMediumBordersWithBackgroundCells(headerCellsRange);
 
 			rowNumber++;
 
@@ -224,57 +240,42 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 				worksheet.Cell(rowNumber, objectNameColumnNumber).Value = $"{objectItems.Key?.Name ?? "Объект не указан"}";
 
-				worksheet
-					.Range(groupStartRowNumber, objectNameColumnNumber, groupStartRowNumber + groupedByTypeItems.Count - 1, typeNameColumnNumber - 1)
-					.Merge();
+				var groupByObjectCellsRange = worksheet
+					.Range(groupStartRowNumber, objectNameColumnNumber, groupStartRowNumber + groupedByTypeItems.Count - 1, typeNameColumnNumber - 1);
+				groupByObjectCellsRange.Merge();
+				FormatComplaintsDataCommonCells(groupByObjectCellsRange);
 
 				foreach(var typeItem in groupedByTypeItems)
 				{
 					worksheet.Cell(rowNumber, typeNameColumnNumber).Value = typeItem.Key.Name;
 					worksheet.Cell(rowNumber, dataColumnNumber).Value = typeItem.Value;
 
-					worksheet
-						.Range(rowNumber, typeNameColumnNumber, rowNumber, dataColumnNumber - 1)
-						.Merge();
+					var typeNameCellsRange = worksheet.Range(rowNumber, typeNameColumnNumber, rowNumber, dataColumnNumber - 1);
+					typeNameCellsRange.Merge();
+					FormatComplaintsDataCommonCells(typeNameCellsRange, XLAlignmentHorizontalValues.Left);
+
+					var dataCellsRange = worksheet.Range(rowNumber, dataColumnNumber, rowNumber, dataColumnNumber);
+					FormatComplaintsDataCommonCells(dataCellsRange);
 
 					rowNumber++;
 				}
 			}
 
-			FormatComplaintsSummaryObjectTypeDataCells(
-				worksheet.Range(startRowNumber + 1, objectNameColumnNumber, rowNumber - 1, typeNameColumnNumber - 1));
-
-			FormatComplaintsSummaryObjectTypeDataCells(
-				worksheet.Range(startRowNumber + 1, typeNameColumnNumber, rowNumber - 1, dataColumnNumber - 1),
-				XLAlignmentHorizontalValues.Left);
-
-			FormatComplaintsSummaryObjectTypeDataCells(
-				worksheet.Range(startRowNumber + 1, dataColumnNumber, rowNumber - 1, dataColumnNumber));
-
 			worksheet.Cell(rowNumber, dataColumnNumber - 1).Value = "Всего:";
 			worksheet.Cell(rowNumber, dataColumnNumber).Value = ComplaintsDataForDate.Count;
 			worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber - 2).Merge();
+
 			FormatComplaintsSummaryTypesAndObjectsTotalCells(
 				worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber));
 		}
 
-		private void FormatComplaintsSummaryWorksheetTitleCells(IXLRange cellsRange)
+		private void FormatComplaintsWorksheetsTitleCells(IXLRange cellsRange)
 		{
 			FormatCells(
 				cellsRange,
 				fontSize: 22,
 				isBoldFont: true,
-				bgColor: _complaintsSummaryMarkupBgColor,
-				horizontalAlignment: XLAlignmentHorizontalValues.Center,
-				cellBorderStyle: XLBorderStyleValues.Medium);
-		}
-
-		private void FormatComplaintsSummaryTableHeaderCells(IXLRange cellsRange)
-		{
-			FormatCells(
-				cellsRange,
-				isBoldFont: true,
-				bgColor: _complaintsSummaryMarkupBgColor,
+				bgColor: _complaintsTitlesMarkupBgColor,
 				horizontalAlignment: XLAlignmentHorizontalValues.Center,
 				cellBorderStyle: XLBorderStyleValues.Medium);
 		}
@@ -284,30 +285,35 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			FormatCells(
 				cellsRange,
 				isBoldFont: true,
-				bgColor: _complaintsSummaryMarkupBgColor,
+				bgColor: _complaintsTitlesMarkupBgColor,
 				horizontalAlignment: XLAlignmentHorizontalValues.Center,
 				cellBorderStyle: XLBorderStyleValues.Medium);
 		}
 
-		private void FormatComplaintsSummaryLabelCells(IXLRange cellsRange)
+		private void FormatComplaintsBoldFontMediumBordersWithBackgroundCells(
+			IXLRange cellsRange,
+			XLAlignmentHorizontalValues horizontalAlignment = XLAlignmentHorizontalValues.Center)
 		{
 			FormatCells(
 				cellsRange,
 				isBoldFont: true,
-				bgColor: _complaintsSummaryMarkupBgColor,
+				bgColor: _complaintsTitlesMarkupBgColor,
+				horizontalAlignment: horizontalAlignment,
 				cellBorderStyle: XLBorderStyleValues.Medium);
 		}
 
-		private void FormatComplaintsSummaryDataCells(IXLRange cellsRange)
+		private void FormatComplaintsBoldFontMediumBordersCells(
+			IXLRange cellsRange,
+			XLAlignmentHorizontalValues horizontalAlignment = XLAlignmentHorizontalValues.Center)
 		{
 			FormatCells(
 				cellsRange,
 				isBoldFont: true,
-				horizontalAlignment: XLAlignmentHorizontalValues.Center,
+				horizontalAlignment: horizontalAlignment,
 				cellBorderStyle: XLBorderStyleValues.Medium);
 		}
 
-		private void FormatComplaintsSummaryObjectTypeDataCells(
+		private void FormatComplaintsDataCommonCells(
 			IXLRange cellsRange,
 			XLAlignmentHorizontalValues horizontalAlignment = XLAlignmentHorizontalValues.Center)
 		{

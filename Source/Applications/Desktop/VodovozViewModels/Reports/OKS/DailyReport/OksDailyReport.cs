@@ -12,6 +12,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 	public partial class OksDailyReport
 	{
 		private const string _complaintsSummaryWorksheetName = "Сводка рекламаций";
+		private const string _complaintsListWorksheetName = "Рекламации поступившие сегодня";
 		private const string _dateFormatString = "dd.MM.yyyy";
 
 		private OksDailyReport() { }
@@ -25,6 +26,9 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			{
 				var complaintsSummaryWorksheet = workbook.Worksheets.Add(_complaintsSummaryWorksheetName);
 				FillComplaintsSummaryWorksheet(ref complaintsSummaryWorksheet);
+
+				var complaintsListWorksheet = workbook.Worksheets.Add(_complaintsListWorksheetName);
+				FillComplaintsListWorksheet(ref complaintsListWorksheet);
 
 				workbook.SaveAs(path);
 			}

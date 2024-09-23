@@ -165,11 +165,21 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 				where complaint.CreationDate >= startDate && complaint.CreationDate <= endDate
 				&& complaint.ComplaintType == ComplaintType.Client
 				&& complaintDiscussion.Subdivision.Id == oksSubdivisionId
+				orderby complaint.Id descending
+
+				let resultComments =
+				uow.Session.Query<ComplaintResultComment>()
+				.Where(r => r.Complaint.Id == complaint.Id)
+				.Select(r => r.Comment)
+				.ToList()
+
 
 				select new OksDailyReportComplaintDataNode
 				{
 					Id = complaint.Id,
 					CreationDate = complaint.CreationDate,
+					ComplaintText = complaint.ComplaintText,
+					ComplaintResults = string.Join(" || ", resultComments),
 					WorkWithClientResult = complaint.WorkWithClientResult,
 					Status = complaint.Status,
 					ComplaintKind = complaint.ComplaintKind,
