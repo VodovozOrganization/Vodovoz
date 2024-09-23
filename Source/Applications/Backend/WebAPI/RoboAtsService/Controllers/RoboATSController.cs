@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using RoboatsService.Handlers;
 using RoboatsService.Monitoring;
+using RoboatsService.Options;
 using RoboAtsService.Contracts.Requests;
 using RoboAtsService.Contracts.Responses;
 using System;
@@ -13,7 +15,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Application.Contacts;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
@@ -27,7 +29,7 @@ namespace RoboatsService.Controllers
 	public class RoboatsController : ControllerBase
 	{
 		private readonly ILogger<RoboatsController> _logger;
-
+		private readonly IOptions<RoboAtsOptions> _roboAtsOptions;
 		private readonly RequestHandlerFactory _handlerFactory;
 		private readonly RoboatsCallRegistrator _roboatsCallRegistrator;
 		private readonly IRoboatsRepository _roboatsRepository;
@@ -37,6 +39,7 @@ namespace RoboatsService.Controllers
 
 		public RoboatsController(
 			ILogger<RoboatsController> logger,
+			IOptions<RoboAtsOptions> roboAtsOptions,
 			RequestHandlerFactory handlerFactory,
 			RoboatsCallRegistrator roboatsCallRegistrator,
 			IRoboatsRepository roboatsRepository,
@@ -45,6 +48,7 @@ namespace RoboatsService.Controllers
 			IPhoneService phoneService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_roboAtsOptions = roboAtsOptions ?? throw new ArgumentNullException(nameof(roboAtsOptions));
 			_handlerFactory = handlerFactory ?? throw new ArgumentNullException(nameof(handlerFactory));
 			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new ArgumentNullException(nameof(roboatsCallRegistrator));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
@@ -189,7 +193,7 @@ namespace RoboatsService.Controllers
 				{
 					CourierPhone = phone,
 					CourierDispatcher = dispatcherPhone,
-					CallTimeout = 60
+					CallTimeout = (int)_roboAtsOptions.Value.CallToCourierTimeOut.TotalSeconds,
 				});
 			}
 			catch(Exception ex)

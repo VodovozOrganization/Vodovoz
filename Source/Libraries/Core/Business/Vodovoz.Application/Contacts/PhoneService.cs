@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -98,7 +99,12 @@ namespace Vodovoz.Application.Contacts
 					return Result.Failure<string>(Vodovoz.Errors.Employees.Driver.NotFound);
 				}
 
-				var phone = driver.Phones.FirstOrDefault();
+				if(!driver.CanRecieveCounterpartyCalls)
+				{
+					return Result.Failure<string>(Vodovoz.Errors.Employees.Driver.CantRecieveCounterpartyCalls);
+				}
+
+				var phone = driver.PhoneForCounterpartyCalls;
 
 				if(phone is null)
 				{
