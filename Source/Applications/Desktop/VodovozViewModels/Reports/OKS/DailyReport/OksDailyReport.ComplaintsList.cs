@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Gamma.Utilities;
 using System.Drawing;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
@@ -85,6 +86,13 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				worksheet.Cell(rowNumber, columnNumber++).Value = complaint.ComplaintText;
 				worksheet.Cell(rowNumber, columnNumber++).Value = complaint.ComplaintResults;
 				worksheet.Cell(rowNumber, columnNumber).Value = complaint.WorkWithClientResult?.GetEnumTitle();
+
+				if(complaint.WorkWithClientResult == ComplaintWorkWithClientResult.Solved)
+				{
+					FillCellBackground(
+						worksheet.Range(rowNumber, columnNumber, rowNumber, columnNumber),
+						_complaintsResultMarkupBgColor);
+				}
 
 				rowNumber++;
 			}
