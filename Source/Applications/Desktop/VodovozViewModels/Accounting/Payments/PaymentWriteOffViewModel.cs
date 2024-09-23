@@ -140,7 +140,11 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 		{
 			if(Entity.CounterpartyId.HasValue && Entity.OrganizationId.HasValue)
 			{
-				_paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.CounterpartyId.Value, Entity.OrganizationId.Value);
+				var balance = _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.CounterpartyId.Value, Entity.OrganizationId.Value);
+				if(balance > 0)
+				{
+					Entity.Sum = balance;
+				}
 			}
 		}
 
