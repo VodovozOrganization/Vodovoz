@@ -82,6 +82,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			_threadDataLoader = DataLoader as ThreadDataLoader<PaymentJournalNode>;
 
+			UseSlider = false;
+
 			FinishJournalConfiguration();
 
 			UpdateOnChanges(
@@ -456,7 +458,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				EntityUoWBuilder.ForOpen(DomainHelper.GetId(node))).ViewModel;
 
 		protected ITdiTab CreatePaymentWriteOffDialog() =>
-			NavigationManager.OpenViewModel<PaymentWriteOffViewModel>(this).ViewModel;
+			NavigationManager.OpenViewModel<PaymentWriteOffViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
 
 		protected ITdiTab EditPaymentWriteOffDialog(PaymentJournalNode node) =>
 			NavigationManager.OpenViewModel<PaymentWriteOffViewModel, IEntityUoWBuilder>(
@@ -465,7 +467,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 		protected override void CreateNodeActions()
 		{
-			base.CreateNodeActions();
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateAddActions();
+			CreateDefaultEditAction();
+			CreateDefaultDeleteAction();
 
 			_paymentPermissionResult = _permissionService.ValidateEntityPermission(typeof(Payment));
 
@@ -477,6 +483,46 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				x => true,
 				x => true,
 				selectedItems => CompleteAllocation()));
+		}
+
+		protected void CreateAddActions()
+		{
+			if(!EntityConfigs.Any())
+			{
+				return;
+			}
+
+			var totalCreateDialogConfigs = EntityConfigs
+				.Where(x => x.Value.PermissionResult.CanCreate)
+				.Sum(x => x.Value.EntityDocumentConfigurations
+					.Select(y => y.GetCreateEntityDlgConfigs().Count())
+					.Sum());
+
+			var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
+
+			foreach(var entityConfig in EntityConfigs.Values)
+			{
+				foreach(var documentConfig in entityConfig.EntityDocumentConfigurations)
+				{
+					foreach(var createDlgConfig in documentConfig.GetCreateEntityDlgConfigs())
+					{
+						var childNodeAction = new JournalAction(createDlgConfig.Title,
+							(selected) => entityConfig.PermissionResult.CanCreate,
+							(selected) => entityConfig.PermissionResult.CanCreate,
+							(selected) => {
+								createDlgConfig.OpenEntityDialogFunction.Invoke();
+								if(documentConfig.JournalParameters.HideJournalForCreateDialog)
+								{
+									HideJournal(TabParent);
+								}
+							}
+						);
+						addParentNodeAction.ChildActionsList.Add(childNodeAction);
+					}
+				}
+			}
+
+			NodeActionsList.Add(addParentNodeAction);
 		}
 
 		private void CreateAddNewPaymentAction()
