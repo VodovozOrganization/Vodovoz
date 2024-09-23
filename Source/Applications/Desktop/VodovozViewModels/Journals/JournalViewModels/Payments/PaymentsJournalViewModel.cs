@@ -470,7 +470,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
 			CreateAddActions();
-			CreateDefaultEditAction();
+			CreateEditAction();
 			CreateDefaultDeleteAction();
 
 			_paymentPermissionResult = _permissionService.ValidateEntityPermission(typeof(Payment));
@@ -524,6 +524,53 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			NodeActionsList.Add(addParentNodeAction);
 		}
+
+		protected void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<PaymentJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					PaymentJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanUpdate;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<PaymentJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					PaymentJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
+		}
+
 
 		private void CreateAddNewPaymentAction()
 		{
