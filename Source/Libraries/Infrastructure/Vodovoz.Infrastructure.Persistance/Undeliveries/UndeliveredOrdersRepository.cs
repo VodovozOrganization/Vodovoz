@@ -8,6 +8,8 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -237,13 +239,48 @@ namespace Vodovoz.Infrastructure.Persistance.Undeliveries
 			return undeliveredOrder;
 		}
 
-		public IQueryable<UndeliveredOrder> GetUndeliveredOrdersForPeriod(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate)
+		public IQueryable<OksDailyReportUndeliveredOrderDataNode> GetUndeliveredOrdersForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate)
 		{
 			var undeliveredOrders =
-				from undeliveredOrder in unitOfWork.Session.Query<UndeliveredOrder>()
+				from undeliveredOrder in uow.Session.Query<UndeliveredOrder>()
+				join oldOrder in uow.Session.Query<Order>() on undeliveredOrder.OldOrder.Id equals oldOrder.Id
+				join client in uow.Session.Query<Counterparty>() on oldOrder.Client.Id equals client.Id
+				join ug in uow.Session.Query<GuiltyInUndelivery>() on undeliveredOrder.Id equals ug.UndeliveredOrder.Id into undelieryGuiltys
+				from undelieryGuilty in undelieryGuiltys.DefaultIfEmpty()
+				join gd in uow.Session.Query<Subdivision>() on undelieryGuilty.GuiltyDepartment.Id equals gd.Id into guiltyDepartments
+				from guiltyDepartment in guiltyDepartments.DefaultIfEmpty()
 				where
-				undeliveredOrder.TimeOfCreation >= startDate.Date && undeliveredOrder.TimeOfCreation <= endDate.LatestDayTime()
-				select undeliveredOrder;
+				oldOrder.DeliveryDate >= startDate.Date && oldOrder.DeliveryDate <= endDate.LatestDayTime()
+
+				let drivers =
+				(from address in uow.Session.Query<RouteListItem>()
+				 join routeList in uow.Session.Query<RouteList>() on address.RouteList.Id equals routeList.Id
+				 join driver in uow.Session.Query<EmployeeEntity>() on routeList.Driver.Id equals driver.Id
+				 where address.Order.Id == oldOrder.Id
+				 orderby address.Id descending
+				 select driver.Name)
+				.ToList()
+
+				let resultComments =
+				(from comment in uow.Session.Query<UndeliveredOrderResultComment>()
+				 where comment.UndeliveredOrder.Id == undeliveredOrder.Id
+				 select comment.Comment)
+				 .ToList()
+
+				select new OksDailyReportUndeliveredOrderDataNode
+				{
+					UndeliveredOrderId = undeliveredOrder.Id,
+					GuiltySide = undelieryGuilty.GuiltySide,
+					GuiltySubdivisionId = undelieryGuilty.GuiltyDepartment == null ? -1 : undelieryGuilty.GuiltyDepartment.Id,
+					GuiltySubdivisionName = undelieryGuilty.GuiltyDepartment == null ? string.Empty : undelieryGuilty.GuiltyDepartment.Name,
+					UndeliveryStatus = undeliveredOrder.UndeliveryStatus,
+					TransferType = undeliveredOrder.OrderTransferType,
+					OldOrderDeliveryDate = oldOrder.DeliveryDate,
+					ClientName = client.Name,
+					Reason = undeliveredOrder.Reason,
+					DriverNames = string.Join(", ", drivers),
+					ResultComments = string.Join(" || ", resultComments)
+				};
 
 			return undeliveredOrders;
 		}

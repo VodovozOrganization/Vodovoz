@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using Vodovoz.EntityRepositories.Complaints;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Complaints;
 using Vodovoz.Settings.Organizations;
 
@@ -76,6 +77,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			IUnitOfWork uow,
 			DateTime date,
 			IComplaintsRepository complaintsRepository,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IComplaintSettings complaintSettings,
 			ISubdivisionSettings subdivisionSettings)
 		{
@@ -85,10 +87,24 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			report.IncomingCallSourseId = complaintSettings.IncomeCallComplaintSourceId;
 
 			report.ComplaintsDataForDate =
-				complaintsRepository.GetClientComplaintsForPeriod(uow, date, date.LatestDayTime(), subdivisionSettings.GetOkkId()).ToList();
+				complaintsRepository
+				.GetClientComplaintsForPeriod(uow, date, date, subdivisionSettings.GetOkkId())
+				.ToList();
 
 			report.ComplaintsDataFromMonthBeginningToDate =
-				complaintsRepository.GetClientComplaintsForPeriod(uow, date.FirstDayOfMonth(), date.LatestDayTime(), subdivisionSettings.GetOkkId()).ToList();
+				complaintsRepository
+				.GetClientComplaintsForPeriod(uow, date.FirstDayOfMonth(), date, subdivisionSettings.GetOkkId())
+				.ToList();
+
+			report.UndeliveredOrdersDataForDate =
+				undeliveredOrdersRepository
+				.GetUndeliveredOrdersForPeriod(uow, date, date)
+				.ToList();
+
+			report.UndeliveredOrdersDataFromMonthBeginningToDate =
+				undeliveredOrdersRepository
+				.GetUndeliveredOrdersForPeriod(uow, date.FirstDayOfMonth(), date)
+				.ToList();
 
 			return report;
 		}

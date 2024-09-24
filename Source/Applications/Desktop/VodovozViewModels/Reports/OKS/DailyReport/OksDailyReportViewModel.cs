@@ -21,7 +21,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IComplaintSettings _complaintSettings;
 		private readonly ISubdivisionSettings _subdivisionSettings;
-		private DateTime _date = DateTime.Today.AddDays(-1);
+		private DateTime _date = new DateTime(2023, 05, 22); //DateTime.Today.AddDays(-1);
 
 		public OksDailyReportViewModel(
 			ILogger<OksDailyReportViewModel> logger,
@@ -64,7 +64,14 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				return;
 			}
 
-			var report = OksDailyReport.Create(UoW, Date, _complaintsRepository, _complaintSettings, _subdivisionSettings);
+			var report = OksDailyReport.Create(
+				UoW,
+				Date,
+				_complaintsRepository,
+				_undeliveredOrdersRepository,
+				_complaintSettings,
+				_subdivisionSettings);
+
 			report.ExportReport(saveFileDialogResult.Path);
 		}
 

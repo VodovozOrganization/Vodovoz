@@ -1,5 +1,7 @@
 ﻿using ClosedXML.Excel;
+using System.Collections.Generic;
 using System.Drawing;
+using Vodovoz.EntityRepositories.Undeliveries;
 
 namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
@@ -7,6 +9,12 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 	{
 		private readonly XLColor _undeliveredOrdersTitlesMarkupBgColor = XLColor.FromColor(Color.FromArgb(222, 235, 247));
 		private readonly XLColor _undeliveredOrdersMarkupBgColor = XLColor.FromColor(Color.FromArgb(146, 208, 80));
+
+		public IList<OksDailyReportUndeliveredOrderDataNode> UndeliveredOrdersDataForDate { get; private set; } =
+			new List<OksDailyReportUndeliveredOrderDataNode>();
+
+		public IList<OksDailyReportUndeliveredOrderDataNode> UndeliveredOrdersDataFromMonthBeginningToDate { get; private set; } =
+			new List<OksDailyReportUndeliveredOrderDataNode>();
 
 		private void FillUndeliveredOrdersWorksheet(ref IXLWorksheet worksheet)
 		{
