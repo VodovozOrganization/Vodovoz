@@ -572,7 +572,6 @@ namespace Vodovoz.Views.Warehouse
 			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vboxStorageFrom[this.entryWarehouseFrom]));
 			w42.Position = 0;
 			w42.Expand = false;
-			w42.Fill = false;
 			// Container child vboxStorageFrom.Gtk.Box+BoxChild
 			this.employeeEntryFrom = new global::QS.Views.Control.EntityEntry();
 			this.employeeEntryFrom.Events = ((global::Gdk.EventMask)(256));
@@ -581,7 +580,6 @@ namespace Vodovoz.Views.Warehouse
 			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vboxStorageFrom[this.employeeEntryFrom]));
 			w43.Position = 1;
 			w43.Expand = false;
-			w43.Fill = false;
 			// Container child vboxStorageFrom.Gtk.Box+BoxChild
 			this.carEntryFrom = new global::QS.Views.Control.EntityEntry();
 			this.carEntryFrom.Events = ((global::Gdk.EventMask)(256));
@@ -590,7 +588,6 @@ namespace Vodovoz.Views.Warehouse
 			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.vboxStorageFrom[this.carEntryFrom]));
 			w44.Position = 2;
 			w44.Expand = false;
-			w44.Fill = false;
 			this.tableSenderReceiver.Add(this.vboxStorageFrom);
 			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.tableSenderReceiver[this.vboxStorageFrom]));
 			w45.TopAttach = ((uint)(2));
@@ -610,7 +607,6 @@ namespace Vodovoz.Views.Warehouse
 			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vboxStorageTo[this.entryWarehouseTo]));
 			w46.Position = 0;
 			w46.Expand = false;
-			w46.Fill = false;
 			// Container child vboxStorageTo.Gtk.Box+BoxChild
 			this.employeeEntryTo = new global::QS.Views.Control.EntityEntry();
 			this.employeeEntryTo.Events = ((global::Gdk.EventMask)(256));
@@ -619,7 +615,6 @@ namespace Vodovoz.Views.Warehouse
 			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vboxStorageTo[this.employeeEntryTo]));
 			w47.Position = 1;
 			w47.Expand = false;
-			w47.Fill = false;
 			// Container child vboxStorageTo.Gtk.Box+BoxChild
 			this.carEntryTo = new global::QS.Views.Control.EntityEntry();
 			this.carEntryTo.Events = ((global::Gdk.EventMask)(256));
@@ -628,7 +623,6 @@ namespace Vodovoz.Views.Warehouse
 			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.vboxStorageTo[this.carEntryTo]));
 			w48.Position = 2;
 			w48.Expand = false;
-			w48.Fill = false;
 			this.tableSenderReceiver.Add(this.vboxStorageTo);
 			global::Gtk.Table.TableChild w49 = ((global::Gtk.Table.TableChild)(this.tableSenderReceiver[this.vboxStorageTo]));
 			w49.TopAttach = ((uint)(2));
