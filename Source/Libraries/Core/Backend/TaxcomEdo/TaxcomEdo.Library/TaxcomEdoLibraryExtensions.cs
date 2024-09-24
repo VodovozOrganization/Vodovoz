@@ -42,9 +42,7 @@ namespace TaxcomEdo.Library
 					.ConfigureTopologyForEdoBill()
 					.ConfigureTopologyForBillWithoutShipmentForDebtEdo()
 					.ConfigureTopologyForBillWithoutShipmentForPaymentEdo()
-					.ConfigureTopologyForBillWithoutShipmentForAdvancePaymentEdo()
-					.ConfigureTopologyForEdoContactInfo()
-					.ConfigureTopologyForEdoContainerInfo();
+					.ConfigureTopologyForBillWithoutShipmentForAdvancePaymentEdo();
 
 				configurator.Publish<InfoForCreatingDocumentEdo>(x => x.Exclude = true);
 				configurator.Publish<InfoForCreatingDocumentEdoWithAttachment>(x => x.Exclude = true);
@@ -142,48 +140,6 @@ namespace TaxcomEdo.Library
 				x.BindQueue(
 					InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo.ExchangeAndQueueName,
 					InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo.ExchangeAndQueueName);
-			});
-
-			return configurator;
-		}
-		
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForEdoContactInfo(
-			this IRabbitMqBusFactoryConfigurator configurator)
-		{
-			configurator.Message<EdoContactInfo>(x => x.SetEntityName(EdoContactInfo.ExchangeAndQueueName));
-			configurator.Publish<EdoContactInfo>(x =>
-			{
-				x.ExchangeType = ExchangeType.Fanout;
-				x.Durable = true;
-				x.AutoDelete = false;
-				x.BindQueue(
-					EdoContactInfo.ExchangeAndQueueName,
-					EdoContactInfo.ExchangeAndQueueName,
-					conf =>
-					{
-						conf.ExchangeType = ExchangeType.Fanout;
-					});
-			});
-
-			return configurator;
-		}
-		
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForEdoContainerInfo(
-			this IRabbitMqBusFactoryConfigurator configurator)
-		{
-			configurator.Message<EdoContainerInfo>(x => x.SetEntityName(EdoContainerInfo.ExchangeAndQueueName));
-			configurator.Publish<EdoContainerInfo>(x =>
-			{
-				x.ExchangeType = ExchangeType.Fanout;
-				x.Durable = true;
-				x.AutoDelete = false;
-				x.BindQueue(
-					EdoContainerInfo.ExchangeAndQueueName,
-					EdoContainerInfo.ExchangeAndQueueName,
-					conf =>
-					{
-						conf.ExchangeType = ExchangeType.Fanout;
-					});
 			});
 
 			return configurator;

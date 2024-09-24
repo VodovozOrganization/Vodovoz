@@ -25,8 +25,6 @@ namespace TaxcomEdoApi
 		public static IServiceCollection AddDependencyGroup(this IServiceCollection services)
 		{
 			services.AddHostedService<AutoSendReceiveService>()
-				.AddHostedService<ContactsUpdaterService>()
-				.AddHostedService<DocumentFlowService>()
 
 				.AddSingleton(provider =>
 				{

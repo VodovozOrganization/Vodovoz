@@ -5,7 +5,7 @@ namespace TaxcomEdoApi.Library.Factories
 {
 	public interface IEdoContainerInfoFactory
 	{
-		EdoContainerInfo CreateEdoContainerInfo(
+		EdoDocFlow CreateEdoContainerInfo(
 			string mainDocumentId,
 			Guid? docFlowId,
 			Guid? internalId,

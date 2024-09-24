@@ -13,18 +13,16 @@ using QS.Report;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.OrdersWithoutShipment;
 using TaxcomEdo.Library.Options;
+using Vodovoz.Application.Documents;
 using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Settings;
 using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Converters;
 
 namespace EdoDocumentsPreparer
@@ -38,10 +36,8 @@ namespace EdoDocumentsPreparer
 		private readonly TaxcomEdoOptions _edoOptions;
 		private readonly DocumentFlowOptions _documentFlowOptions;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ISettingsController _settingController;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationRepository _organizationRepository;
-		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private readonly IOrderConverter _orderConverter;
 		private readonly IOrderWithoutShipmentConverter _orderWithoutShipmentConverter;
@@ -52,17 +48,13 @@ namespace EdoDocumentsPreparer
 		private readonly IFileDataFactory _fileDataFactory;
 		private readonly IPublishEndpoint _publishEndpoint;
 		
-		private int _closingDocumentDeliveryScheduleId;
-		
 		public EdoDocumentsPreparerWorker(
 			ILogger<EdoDocumentsPreparerWorker> logger,
 			IOptions<TaxcomEdoOptions> edoOptions,
 			IOptions<DocumentFlowOptions> documentFlowOptions,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ISettingsController settingController,
 			IOrderRepository orderRepository,
 			IOrganizationRepository organizationRepository,
-			IOrganizationSettings organizationSettings,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IOrderConverter orderConverter,
 			IOrderWithoutShipmentConverter orderWithoutShipmentConverter,
@@ -77,10 +69,8 @@ namespace EdoDocumentsPreparer
 			_documentFlowOptions = (documentFlowOptions ?? throw new ArgumentNullException(nameof(documentFlowOptions))).Value;
 			_edoOptions = (edoOptions ?? throw new ArgumentNullException(nameof(edoOptions))).Value;
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_settingController = settingController ?? throw new ArgumentNullException(nameof(settingController));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
 			_orderWithoutShipmentConverter =
@@ -131,7 +121,7 @@ namespace EdoDocumentsPreparer
 						organizationId,
 						_deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
 
-				//Фильтруем заказы в которых есть УПД и которые не в пути, если у клиента стоит выборка по статусу доставлен
+				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен
 				var filteredOrders =
 					orders.Where(o => o.Client.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
 									|| o.OrderStatus != OrderStatus.OnTheWay)
@@ -152,6 +142,28 @@ namespace EdoDocumentsPreparer
 							_orderConverter.ConvertOrderToOrderInfoForEdo(order),
 							_paymentConverter.ConvertPaymentToPaymentInfoForEdo(orderPayments));
 
+						var edoContainer = EdoContainerBuilder
+							.Create()
+							.Empty()
+							.OrderUpd(order)
+							.MainDocumentId(updInfo.MainDocumentId.ToString())
+							.Build();
+						
+						var actions = uow
+							.GetAll<OrderEdoTrueMarkDocumentsActions>()
+							.Where(x => x.Order.Id == edoContainer.Order.Id && x.IsNeedToResendEdoUpd)
+							.ToArray();
+
+						foreach(var action in actions)
+						{
+							action.IsNeedToResendEdoUpd = false;
+							uow.Save(action);
+						}
+
+						_logger.LogInformation("Сохраняем контейнер с УПД {OrderId}", order.Id);
+						uow.Save(edoContainer);
+						uow.Commit();
+						
 						try
 						{
 							_logger.LogInformation("Отправляем данные по УПД {OrderId} в очередь", order.Id);
@@ -160,40 +172,7 @@ namespace EdoDocumentsPreparer
 						catch(Exception e)
 						{
 							_logger.LogError(e, "Не удалось отправить данные по УПД {OrderId} в очередь", order.Id);
-							continue;
 						}
-
-						var edoContainer = EdoContainerBuilder.Create()
-							.Empty()
-							.EmptyContainer()
-							.OrderUpd(order)
-							.MainDocumentId(updInfo.MainDocumentId.ToString())
-							.Build();
-						
-						/*new EdoContainer
-						{
-							Type = Type.Upd,
-							Created = DateTime.Now,
-							Container = new byte[64],
-							Order = order,
-							Counterparty = order.Client,
-							MainDocumentId = updInfo.MainDocumentId.ToString(),
-							EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
-						};*/
-
-						var actions = uow
-							.GetAll<OrderEdoTrueMarkDocumentsActions>()
-							.FirstOrDefault(x => x.Order.Id == edoContainer.Order.Id);
-
-						if(actions != null && actions.IsNeedToResendEdoUpd)
-						{
-							actions.IsNeedToResendEdoUpd = false;
-							uow.Save(actions);
-						}
-
-						_logger.LogInformation("Сохраняем контейнер с УПД {OrderId}", order.Id);
-						uow.Save(edoContainer);
-						uow.Commit();
 					}
 					catch(Exception e)
 					{
@@ -237,6 +216,28 @@ namespace EdoDocumentsPreparer
 							orderInfo,
 							_fileDataFactory.CreateBillFileData(orderInfo.Id.ToString(), orderInfo.CreationDate, billAttachment));
 
+						var edoContainer = EdoContainerBuilder
+							.Create()
+							.Empty()
+							.OrderBill(order)
+							.MainDocumentId(infoForCreatingEdoBill.MainDocumentId.ToString())
+							.Build();
+
+						var actions = uow
+							.GetAll<OrderEdoTrueMarkDocumentsActions>()
+							.Where(x => x.Order.Id == edoContainer.Order.Id && x.IsNeedToResendEdoBill)
+							.ToArray();
+
+						foreach(var action in actions)
+						{
+							action.IsNeedToResendEdoBill = false;
+							uow.Save(action);
+						}
+
+						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
+						uow.Save(edoContainer);
+						uow.Commit();
+						
 						try
 						{
 							_logger.LogInformation("Отправляем данные по счету {OrderId} в очередь", order.Id);
@@ -245,40 +246,7 @@ namespace EdoDocumentsPreparer
 						catch(Exception e)
 						{
 							_logger.LogError(e, "Не удалось отправить данные по счету {OrderId} в очередь", order.Id);
-							continue;
 						}
-
-						var edoContainer = EdoContainerBuilder.Create()
-							.Empty()
-							.EmptyContainer()
-							.OrderBill(order)
-							.MainDocumentId(infoForCreatingEdoBill.MainDocumentId.ToString())
-							.Build();
-							
-						/*new EdoContainer
-						{
-							Type = Type.Bill,
-							Created = DateTime.Now,
-							Container = new byte[64],
-							Order = order,
-							Counterparty = order.Client,
-							MainDocumentId = infoForCreatingEdoBill.MainDocumentId.ToString(),
-							EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
-						};*/
-
-						var action = uow
-							.GetAll<OrderEdoTrueMarkDocumentsActions>()
-							.FirstOrDefault(x => x.Order.Id == edoContainer.Order.Id);
-
-						if(action != null && action.IsNeedToResendEdoBill)
-						{
-							action.IsNeedToResendEdoUpd = false;
-							uow.Save(action);
-						}
-
-						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
-						uow.Save(edoContainer);
-						uow.Commit();
 					}
 					catch(Exception e)
 					{
@@ -309,40 +277,40 @@ namespace EdoDocumentsPreparer
 
 				_logger.LogInformation("Всего заказов для переотправки счётов без отгрузки: {OrdersCount}", resendFromActions.Count);
 				
-				var action = resendFromActions.FirstOrDefault();
-
-				if(action is null)
+				foreach(var action in resendFromActions)
 				{
-					return;
-				}
-				
-				//foreach(var action in resendFromActions)
-				//{
 					var now = DateTime.Now;
 
-					/*var edoContainer = new EdoContainer
-					{
-						Created = now,
-						Container = new byte[64],
-						EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
-					};*/
-
-					var edoContainerBuilder = EdoContainerBuilder.Create()
-						.Empty()
-						.EmptyContainer();
+					var edoContainerBuilder = EdoContainerBuilder
+						.Create()
+						.Empty();
 
 					var infoForCreatingBillWithoutShipmentEdo =
 						GetBillWithoutShipmentDataForSend(action, edoContainerBuilder, organization, now);
 
 					if(infoForCreatingBillWithoutShipmentEdo is null)
 					{
-						return;//continue;
+						continue;
 					}
+					
+					action.IsNeedToResendEdoBill = false;
+					uow.Save(action);
+
+					var edoContainer = edoContainerBuilder.Build();
+					
+					_logger.LogInformation(
+						"Сохраняем контейнер по {OrderWithoutShipment} {OrderId}",
+						infoForCreatingBillWithoutShipmentEdo.GetBillWithoutShipmentInfoTitle(),
+						infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id);
+					
+					uow.Save(edoContainer);
+					uow.Commit();
 
 					try
 					{
 						_logger.LogInformation(
-							"Отправляем данные по счету без отгрузки {OrderId} в очередь",
+							"Отправляем данные по {OrderWithoutShipment} {OrderId} в очередь",
+							infoForCreatingBillWithoutShipmentEdo.GetBillWithoutShipmentInfoTitle(),
 							infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id);
 
 						if(infoForCreatingBillWithoutShipmentEdo is InfoForCreatingBillWithoutShipmentForDebtEdo billForDebt)
@@ -363,20 +331,11 @@ namespace EdoDocumentsPreparer
 					{
 						_logger.LogError(
 							e,
-							"Не удалось отправить данные по счету без отгрузки {OrderId} в очередь",
+							"Не удалось отправить данные по {OrderWithoutShipment} {OrderId} в очередь",
+							infoForCreatingBillWithoutShipmentEdo.GetBillWithoutShipmentInfoTitle(),
 							infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id);
-						return;//continue;
 					}
-
-					action.IsNeedToResendEdoBill = false;
-					uow.Save(action);
-
-					_logger.LogInformation(
-						"Сохраняем контейнер по счету без отгрузки {OrderId}",
-						infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id);
-					uow.Save(edoContainerBuilder.Build());
-					uow.Commit();
-				//}
+				}
 			}
 			catch(Exception e)
 			{

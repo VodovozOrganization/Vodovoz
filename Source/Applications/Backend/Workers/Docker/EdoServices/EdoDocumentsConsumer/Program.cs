@@ -1,19 +1,12 @@
-using System;
 using Autofac.Extensions.DependencyInjection;
-using EdoDocumentsConsumer.Configs;
 using EdoDocumentsConsumer.Consumers;
-using EdoDocumentsConsumer.Converters;
-using EdoDocumentsConsumer.Services;
 using MassTransit;
 using MessageTransport;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
 using TaxcomEdo.Library;
-using TaxcomEdo.Library.Options;
 using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
@@ -59,29 +52,19 @@ namespace EdoDocumentsConsumer
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
-							{
-								busConf.AddConsumer<BillEdoDocumentConsumer, BillEdoDocumentConsumerDefinition>();
-								busConf.AddConsumer<UpdEdoDocumentConsumer, UpdEdoDocumentConsumerDefinition>();
-								busConf.AddConsumer<BillWithoutShipmentForDebtEdoDocumentConsumer,
-									BillWithoutShipmentForDebtEdoDocumentConsumerDefinition>();
-								busConf.AddConsumer<BillWithoutShipmentForPaymentEdoDocumentConsumer,
-									BillWithoutShipmentForPaymentEdoDocumentConsumerDefinition>();
-								busConf.AddConsumer<BillWithoutShipmentForAdvancePaymentEdoDocumentConsumer,
-									BillWithoutShipmentForAdvancePaymentEdoDocumentConsumerDefinition>();
-								busConf.AddConsumer<EdoContactConsumer, EdoContactConsumerDefinition>();
-								busConf.AddConsumer<EdoContainerConsumer, EdoContainerConsumerDefinition>();
-								
-								busConf.ConfigureRabbitMq();
-							})
-
-						.Configure<TaxcomApiOptions>(hostContext.Configuration.GetSection(TaxcomApiOptions.Path))
-						.AddScoped<IEdoContactStateCodeConverter, EdoContactStateCodeConverter>()
-						
-						.AddHttpClient<ITaxcomService>((provider, client) =>
 						{
-							client.BaseAddress = new Uri(provider.GetRequiredService<IOptions<TaxcomApiOptions>>().Value.BaseAddress);
-							client.Timeout = TimeSpan.FromSeconds(15);
+							busConf.AddConsumer<BillEdoDocumentConsumer, BillEdoDocumentConsumerDefinition>();
+							busConf.AddConsumer<UpdEdoDocumentConsumer, UpdEdoDocumentConsumerDefinition>();
+							busConf.AddConsumer<BillWithoutShipmentForDebtEdoDocumentConsumer,
+								BillWithoutShipmentForDebtEdoDocumentConsumerDefinition>();
+							busConf.AddConsumer<BillWithoutShipmentForPaymentEdoDocumentConsumer,
+								BillWithoutShipmentForPaymentEdoDocumentConsumerDefinition>();
+							busConf.AddConsumer<BillWithoutShipmentForAdvancePaymentEdoDocumentConsumer,
+								BillWithoutShipmentForAdvancePaymentEdoDocumentConsumerDefinition>();
+
+							busConf.ConfigureRabbitMq();
 						});
+
 				});
 	}
 }

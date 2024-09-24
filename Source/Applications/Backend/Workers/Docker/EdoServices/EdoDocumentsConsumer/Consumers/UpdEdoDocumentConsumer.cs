@@ -1,8 +1,8 @@
 ﻿using System;
-using EdoDocumentsConsumer.Services;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
 using Task = System.Threading.Tasks.Task;
 
@@ -44,8 +44,8 @@ namespace EdoDocumentsConsumer.Consumers
 		private async Task SendUpdDataToTaxcomApi(InfoForCreatingEdoUpd updData)
 		{
 			using var scope = _scopeFactory.CreateScope();
-			var taxcomService = scope.ServiceProvider.GetService<TaxcomService>();
-			await taxcomService.SendDataForCreateUpdByEdo(updData);
+			var taxcomClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+			await taxcomClient.SendDataForCreateUpdByEdo(updData);
 		}
 	}
 }

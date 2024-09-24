@@ -34,8 +34,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
 		private Type _type;
-		
-		//protected EdoContainer() { }
 
 		public virtual int Id { get; set; }
 
@@ -155,93 +153,5 @@ namespace Vodovoz.Domain.Orders.Documents
 		BillWSForDebt,
 		[Display(Name = "Cчет без отгрузки на постоплату")]
 		BillWSForPayment
-	}
-
-	public class EdoContainerBuilder
-	{
-		private readonly EdoContainer _edoContainer;
-		
-		private EdoContainerBuilder()
-		{
-			_edoContainer = new EdoContainer();
-		}
-		
-		public EdoContainerBuilder Empty()
-		{
-			_edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
-			return this;
-		}
-		
-		public EdoContainerBuilder EmptyContainer()
-		{
-			_edoContainer.Container = new byte[64];
-			return this;
-		}
-		
-		public EdoContainerBuilder OrderUpd(Order order)
-		{
-			SetEdoContainerType(Type.Upd);
-			SetOrder(order);
-			return this;
-		}
-		
-		public EdoContainerBuilder OrderBill(Order order)
-		{
-			SetEdoContainerType(Type.Bill);
-			SetOrder(order);
-			return this;
-		}
-		
-		public EdoContainerBuilder BillWithoutShipmentForDebt(OrderWithoutShipmentForDebt orderWithoutShipment)
-		{
-			SetEdoContainerType(Type.BillWSForDebt);
-			_edoContainer.OrderWithoutShipmentForDebt = orderWithoutShipment;
-			SetCounterparty(orderWithoutShipment.Counterparty);
-			return this;
-		}
-		
-		public EdoContainerBuilder BillWithoutShipmentForPayment(OrderWithoutShipmentForPayment orderWithoutShipment)
-		{
-			SetEdoContainerType(Type.BillWSForPayment);
-			_edoContainer.OrderWithoutShipmentForPayment = orderWithoutShipment;
-			SetCounterparty(orderWithoutShipment.Counterparty);
-			return this;
-		}
-		
-		public EdoContainerBuilder BillWithoutShipmentForAdvancePayment(OrderWithoutShipmentForAdvancePayment orderWithoutShipment)
-		{
-			SetEdoContainerType(Type.BillWSForAdvancePayment);
-			_edoContainer.OrderWithoutShipmentForAdvancePayment = orderWithoutShipment;
-			SetCounterparty(orderWithoutShipment.Counterparty);
-			return this;
-		}
-		
-		public EdoContainerBuilder MainDocumentId(string mainDocumentId)
-		{
-			_edoContainer.MainDocumentId = mainDocumentId;
-			return this;
-		}
-
-		public EdoContainer Build()
-		{
-			_edoContainer.Created = DateTime.Now;
-			return _edoContainer;
-		}
-
-		public static EdoContainerBuilder Create()
-			=> new EdoContainerBuilder();
-
-		private void SetOrder(Order order)
-		{
-			_edoContainer.Order = order;
-			SetCounterparty(order.Client);
-		}
-
-		private void SetCounterparty(Counterparty counterparty)
-		{
-			_edoContainer.Counterparty = counterparty;
-		}
-
-		private void SetEdoContainerType(Type edoContainerType) => _edoContainer.Type = edoContainerType;
 	}
 }

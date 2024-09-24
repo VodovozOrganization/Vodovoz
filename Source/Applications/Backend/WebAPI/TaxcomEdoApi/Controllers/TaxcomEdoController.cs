@@ -1,9 +1,12 @@
 ﻿using System;
+using Core.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Taxcom.Client.Api;
+using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdoApi.Library.Services;
+using TISystems.TTC.CRM.BE.Serialization;
 
 namespace TaxcomEdoApi.Controllers
 {
@@ -86,7 +89,7 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogInformation("Отправляем контейнер по {OrderWithoutShipmentType} №{OrderWithoutShipmentId}",
 					documentType,
 					orderWithoutShipmentId);
-
+				
 				_taxcomApi.Send(container);
 			}
 			catch(Exception e)
@@ -95,6 +98,93 @@ namespace TaxcomEdoApi.Controllers
 					"Ошибка в процессе формирования контейнера по {OrderWithoutShipmentType} №{OrderWithoutShipmentId} и его отправки",
 					documentType,
 					orderWithoutShipmentId);
+			}
+		}
+		
+		[HttpGet]
+		public IActionResult GetContactListUpdates(DateTime? lastCheckContactsUpdates, EdoContactStateCode? contactState)
+		{
+			_logger.LogInformation("Получаем обновленный список контактов...");
+
+			ContactStatus? contactStatus = null;
+
+			if(contactState.HasValue)
+			{
+				if(Enum.TryParse(contactState.ToString(), out ContactStatus parsedContactStatus))
+				{
+					contactStatus = parsedContactStatus;
+				}
+			}
+			
+			try
+			{
+				var response = _taxcomApi.GetContactListUpdates(lastCheckContactsUpdates, contactStatus);
+				var contactUpdates = ContactListSerializer.DeserializeContactList(response);
+				
+				return Ok(contactUpdates);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при получении обновлений для списка контактов");
+				return Problem();
+			}
+		}
+		
+		[HttpGet]
+		public IActionResult GetDocFlowsUpdates(GetDocFlowsUpdatesParameters docFlowsUpdatesParams)
+		{
+			_logger.LogInformation("Получаем исходящие документы");
+			
+			try
+			{
+				var docFlowUpdates =
+					_taxcomApi.GetDocflowsUpdates(
+						docFlowsUpdatesParams.DocFlowStatus.TryParseAsEnum<DocFlowStatus>(),
+						docFlowsUpdatesParams.LastEventTimeStamp,
+						docFlowsUpdatesParams.DocFlowDirection.TryParseAsEnum<DocFlowDirection>(),
+						docFlowsUpdatesParams.DepartmentId,
+						docFlowsUpdatesParams.IncludeTransportInfo);
+
+				return Ok(docFlowUpdates);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при получении исходящих документов");
+				return Problem();
+			}
+		}
+		
+		[HttpPost]
+		public IActionResult AcceptContact(string edxClientId)
+		{
+			_logger.LogInformation("Принимаем приглашение другой стороны {EdxClientId}", edxClientId);
+			
+			try
+			{
+				_taxcomApi.AcceptContact(edxClientId);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при связке контактной пары {EdxClientId}", edxClientId);
+				return Problem();
+			}
+		}
+		
+		[HttpGet]
+		public IActionResult GetDocFlowRawData(string docFlowId)
+		{
+			_logger.LogInformation("Получение документов контейнера документооборота {DocFlowId}", docFlowId);
+			
+			try
+			{
+				var documents = _taxcomApi.GetDocflowRawData(docFlowId);
+				return Ok(documents);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при получении документов контейнера документооборота {DocFlowId}", docFlowId);
+				return Problem();
 			}
 		}
 	}

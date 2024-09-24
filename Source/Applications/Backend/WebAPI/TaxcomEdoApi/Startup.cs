@@ -7,12 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
 using System.Text;
-using QS.Services;
-using TaxcomEdoApi.HealthChecks;
 using VodovozHealthCheck;
-using Vodovoz.Application;
-using Vodovoz.Infrastructure.FileStorage;
-using TaxcomEdoApi.Options;
 
 namespace TaxcomEdoApi
 {
@@ -57,32 +52,15 @@ namespace TaxcomEdoApi
 				});
 			});
 
-			services/*.AddMappingAssemblies(
-				typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-				typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
-				typeof(QS.Banks.Domain.Bank).Assembly,
-				typeof(QS.HistoryLog.HistoryMain).Assembly,
-				typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-				typeof(QS.Attachments.Domain.Attachment).Assembly,
-				typeof(EmployeeWithLoginMap).Assembly
-			)*/
-				.AddDatabaseConnection()
-				.AddCore()
-				//.AddTrackedUoW()
-				//.AddStaticHistoryTracker()
-				//.AddStaticScopeForEntity()
+			services
 				.AddConfig(Configuration)
-				.ConfigureOptions<ConfigureS3Options>()
-				.AddApplication()
-				.AddFileStorage()
-				.AddDependencyGroup()
-				.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
+				.AddDependencyGroup();
+				//.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();

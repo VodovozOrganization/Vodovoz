@@ -5,7 +5,7 @@ namespace TaxcomEdoApi.Library.Factories
 {
 	public sealed class EdoContainerInfoFactory : IEdoContainerInfoFactory
 	{
-		public EdoContainerInfo CreateEdoContainerInfo(
+		public EdoDocFlow CreateEdoContainerInfo(
 			string mainDocumentId,
 			Guid? docFlowId,
 			Guid? internalId,
@@ -14,7 +14,7 @@ namespace TaxcomEdoApi.Library.Factories
 			byte[] documents, 
 			string errorDescription)
 		{
-			return new EdoContainerInfo
+			return new EdoDocFlow
 			{
 				MainDocumentId = mainDocumentId,
 				DocFlowId = docFlowId,

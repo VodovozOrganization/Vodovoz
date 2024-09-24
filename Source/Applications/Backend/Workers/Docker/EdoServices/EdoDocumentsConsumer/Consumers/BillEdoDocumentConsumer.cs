@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using EdoDocumentsConsumer.Services;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
 
 namespace EdoDocumentsConsumer.Consumers
@@ -44,8 +44,8 @@ namespace EdoDocumentsConsumer.Consumers
 		private async Task SendDataToTaxcomApi(InfoForCreatingEdoBill data)
 		{
 			using var scope = _scopeFactory.CreateScope();
-			var taxcomService = scope.ServiceProvider.GetService<ITaxcomService>();
-			await taxcomService.SendDataForCreateBillByEdo(data);
+			var taxcomClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+			await taxcomClient.SendDataForCreateBillByEdo(data);
 		}
 	}
 }

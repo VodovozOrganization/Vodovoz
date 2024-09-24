@@ -5,7 +5,5 @@
 		public const string Path = "ServicesOptions";
 		
 		public int DelayBetweenAutoSendReceiveProcessingInSeconds { get; set; }
-		public int DelayBetweenContactsProcessingInSeconds { get; set; }
-		public int DelayBetweenDocumentFlowProcessingInSeconds { get; set; }
 	}
 }

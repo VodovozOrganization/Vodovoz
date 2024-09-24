@@ -10,5 +10,15 @@ namespace Core.Infrastructure
 		{  
 			return string.IsNullOrWhiteSpace(s); 
 		}
+		
+		public static T? TryParseAsEnum<T>(this string value) where T : struct
+		{
+			if(string.IsNullOrEmpty(value))
+			{
+				return new T?();
+			}
+
+			return !Enum.TryParse<T>(value, true, out var result) ? new T?() : result;
+		}
 	}
 }
