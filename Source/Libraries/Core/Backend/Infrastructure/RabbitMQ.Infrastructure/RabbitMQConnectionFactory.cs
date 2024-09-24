@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
+using System.Net.Security;
 using System.Threading.Tasks;
 
 namespace RabbitMQ.Infrastructure
@@ -35,8 +36,9 @@ namespace RabbitMQ.Infrastructure
 				Ssl =
 				{
 					ServerName = hostname,
+					AcceptablePolicyErrors = section.GetValue<SslPolicyErrors>("AcceptablePolicyErrors", SslPolicyErrors.None),
 					Enabled = true
-				}
+				},
 			};
 
 			bool waitingForRabbit = true;
