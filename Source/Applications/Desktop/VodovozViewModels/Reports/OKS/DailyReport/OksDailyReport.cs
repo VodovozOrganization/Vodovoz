@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using Vodovoz.EntityRepositories.Complaints;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Complaints;
 using Vodovoz.Settings.Organizations;
@@ -78,6 +79,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			DateTime date,
 			IComplaintsRepository complaintsRepository,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			IOrderRepository orderRepository,
 			IComplaintSettings complaintSettings,
 			ISubdivisionSettings subdivisionSettings)
 		{
@@ -104,6 +106,16 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			report.UndeliveredOrdersDataFromMonthBeginningToDate =
 				undeliveredOrdersRepository
 				.GetUndeliveredOrdersForPeriod(uow, date.FirstDayOfMonth(), date)
+				.ToList();
+
+			report.OrdersDiscountsDataForDate =
+				orderRepository
+				.GetOrdersDiscountsDataForPeriod(uow, date, date)
+				.ToList();
+
+			report.OrdersDiscountsDataFromMonthBeginningToDate =
+				orderRepository
+				.GetOrdersDiscountsDataForPeriod(uow, date.FirstDayOfMonth(), date)
 				.ToList();
 
 			return report;

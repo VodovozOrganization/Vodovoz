@@ -1,11 +1,19 @@
 ﻿using ClosedXML.Excel;
+using System.Collections.Generic;
 using System.Drawing;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
 	public partial class OksDailyReport
 	{
 		private readonly XLColor _discountsTitlesMarkupBgColor = XLColor.FromColor(Color.FromArgb(220, 197, 225));
+
+		public IList<OksDailyReportOrderDiscountDataNode> OrdersDiscountsDataForDate { get; private set; } =
+			new List<OksDailyReportOrderDiscountDataNode>();
+
+		public IList<OksDailyReportOrderDiscountDataNode> OrdersDiscountsDataFromMonthBeginningToDate { get; private set; } =
+			new List<OksDailyReportOrderDiscountDataNode>();
 
 		private void FillDiscountsWorksheet(ref IXLWorksheet worksheet)
 		{
