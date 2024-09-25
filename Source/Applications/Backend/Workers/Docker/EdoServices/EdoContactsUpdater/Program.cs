@@ -1,4 +1,3 @@
-using System.Net.Http;
 using Autofac.Extensions.DependencyInjection;
 using EdoContactsUpdater.Configs;
 using EdoContactsUpdater.Converters;
@@ -8,12 +7,11 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
-using QS.Utilities.Extensions;
 using TaxcomEdo.Client;
+using TaxcomEdo.Client.Configs;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
-using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Infrastructure.Persistance;
 
 namespace EdoContactsUpdater
@@ -46,14 +44,16 @@ namespace EdoContactsUpdater
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
-						.AddInfrastructure(DependencyType.Singleton)
+						.AddInfrastructure(ServiceLifetime.Singleton)
 						.AddStaticHistoryTracker()
 						.AddStaticScopeForEntity()
 						.Configure<TaxcomContactsUpdaterOptions>(hostContext.Configuration.GetSection(TaxcomContactsUpdaterOptions.Path))
 
 						.AddSingleton<IEdoContactStateCodeConverter, EdoContactStateCodeConverter>()
 						.AddHttpClient()
-						.AddScoped<ITaxcomApiClient, TaxcomApiClient>();
+						.AddScoped<ITaxcomApiClient, TaxcomApiClient>()
+						.Configure<TaxcomApiOptions>(
+							hostContext.Configuration.GetSection(TaxcomApiOptions.Path));
 						//.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
 					
 					services.AddHostedService<TaxcomEdoContactsUpdaterService>();

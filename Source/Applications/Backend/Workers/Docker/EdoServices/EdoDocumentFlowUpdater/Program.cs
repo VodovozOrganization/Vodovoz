@@ -10,6 +10,7 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Utilities.Extensions;
 using TaxcomEdo.Client;
+using TaxcomEdo.Client.Configs;
 using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
@@ -49,7 +50,7 @@ namespace EdoDocumentFlowUpdater
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
-						.AddInfrastructure(DependencyType.Singleton)
+						.AddInfrastructure(ServiceLifetime.Singleton)
 						.ConfigureOptions<ConfigureS3Options>()
 						.AddApplication()
 						.AddFileStorage()
@@ -59,7 +60,9 @@ namespace EdoDocumentFlowUpdater
 							hostContext.Configuration.GetSection(TaxcomEdoDocumentFlowUpdaterOptions.Path))
 						.AddHttpClient()
 						.AddScoped<ITaxcomApiClient, TaxcomApiClient>()
-
+						.Configure<TaxcomApiOptions>(
+							hostContext.Configuration.GetSection(TaxcomApiOptions.Path))
+						
 						.ConfigureHealthCheckService<TaxcomEdoDocFlowUpdaterHealthCheck>(true)
 						.AddHostedService<TaxcomEdoDocumentFlowUpdater>();
 				});

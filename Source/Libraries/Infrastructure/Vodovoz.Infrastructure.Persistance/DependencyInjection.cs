@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
 using QS.Utilities.Extensions;
 using Vodovoz.Core.Domain.Common;
-using VodovozInfrastructure;
 
 namespace Vodovoz.Infrastructure.Persistance
 {
@@ -10,18 +8,18 @@ namespace Vodovoz.Infrastructure.Persistance
 	{
 		public static IServiceCollection AddInfrastructure(
 			this IServiceCollection services,
-			DependencyType dependencyType = DependencyType.Scoped)
+			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
 		{
 			return services
-				.AddService(typeof(IGenericRepository<>), typeof(GenericRepository<>), dependencyType)
-				.AddRepositories(dependencyType);
+				.AddService(typeof(IGenericRepository<>), typeof(GenericRepository<>), serviceLifetime)
+				.AddRepositories(serviceLifetime);
 		}
 
 		public static IServiceCollection AddRepositories(
 			this IServiceCollection services,
-			DependencyType dependencyType = DependencyType.Scoped)
+			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
 		{
-			return services.AddServicesEndsWith(typeof(DependencyInjection).Assembly, "Repository", dependencyType);
+			return services.AddServicesEndsWith(typeof(DependencyInjection).Assembly, "Repository", serviceLifetime);
 		}
 	}
 }

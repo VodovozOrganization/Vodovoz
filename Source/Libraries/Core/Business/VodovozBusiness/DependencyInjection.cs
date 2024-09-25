@@ -21,39 +21,39 @@ namespace Vodovoz
 		public static IServiceCollection AddBusiness(
 			this IServiceCollection services,
 			IConfiguration configuration,
-			DependencyType dependencyType = DependencyType.Scoped) =>
+			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped) =>
 			services
-				.RegisterClassesByInterfaces("Controller", dependencyType)
-				.RegisterClassesByInterfaces("Converter", dependencyType)
-				.RegisterClassesByInterfaces("Repository", dependencyType)
-				.RegisterClassesByInterfaces("Service", dependencyType)
-				.RegisterClassesByInterfaces("Handler", dependencyType)
-				.RegisterClassesByInterfaces("Factory", dependencyType)
+				.RegisterClassesByInterfaces("Controller", serviceLifetime)
+				.RegisterClassesByInterfaces("Converter", serviceLifetime)
+				.RegisterClassesByInterfaces("Repository", serviceLifetime)
+				.RegisterClassesByInterfaces("Service", serviceLifetime)
+				.RegisterClassesByInterfaces("Handler", serviceLifetime)
+				.RegisterClassesByInterfaces("Factory", serviceLifetime)
 				
 				.ConfigureBusinessOptions(configuration)
-				.AddService<RouteGeometryCalculator>(dependencyType)
-				.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())
-				.AddService<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>(dependencyType)
-				.AddService<IFastPaymentSender, FastPaymentSender>(dependencyType)
-				.AddService<IOrganizationProvider, Stage2OrganizationProvider>(dependencyType)
-				.AddService<ISmsClientChannelFactory, SmsClientChannelFactory>(dependencyType)
-				.AddService<IDeliveryPriceCalculator, DeliveryPriceCalculator>(dependencyType)
-				.AddService<FastDeliveryHandler>(dependencyType)
-				.AddService<IFastDeliveryValidator, FastDeliveryValidator>(dependencyType)
-				.AddService<ICallTaskWorker, CallTaskWorker>(dependencyType)
-				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
-				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
-				.AddService<OrderStateKey>(dependencyType)
-				.AddService<OnlineOrderStateKey>(dependencyType)
+				.AddService<RouteGeometryCalculator>(serviceLifetime)
+				.AddService<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>(), serviceLifetime)
+				.AddService<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>(serviceLifetime)
+				.AddService<IFastPaymentSender, FastPaymentSender>(serviceLifetime)
+				.AddService<IOrganizationProvider, Stage2OrganizationProvider>(serviceLifetime)
+				.AddService<ISmsClientChannelFactory, SmsClientChannelFactory>(serviceLifetime)
+				.AddService<IDeliveryPriceCalculator, DeliveryPriceCalculator>(serviceLifetime)
+				.AddService<FastDeliveryHandler>(serviceLifetime)
+				.AddService<IFastDeliveryValidator, FastDeliveryValidator>(serviceLifetime)
+				.AddService<ICallTaskWorker, CallTaskWorker>(serviceLifetime)
+				.AddService<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance(), serviceLifetime)
+				.AddService<IErrorReporter>(context => ErrorReporter.Instance, serviceLifetime)
+				.AddService<OrderStateKey>(serviceLifetime)
+				.AddService<OnlineOrderStateKey>(serviceLifetime)
 				.AddDriverApiHelper()
 			;
 
 		private static IServiceCollection RegisterClassesByInterfaces(
 			this IServiceCollection services,
 			string classEndsWith,
-			DependencyType dependencyType = DependencyType.Scoped)
+			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
 		{
-			services.AddServicesEndsWith(typeof(DependencyInjection).Assembly, classEndsWith, dependencyType);
+			services.AddServicesEndsWith(typeof(DependencyInjection).Assembly, classEndsWith, serviceLifetime);
 			return services;
 		}
 
