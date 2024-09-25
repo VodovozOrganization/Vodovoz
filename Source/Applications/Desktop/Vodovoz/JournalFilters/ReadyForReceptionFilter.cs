@@ -23,6 +23,8 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private Warehouse _warehouse;
+		private DateTime? _endDate;
+		private DateTime? _startDate = DateTime.Today.AddMonths(-1);
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -46,6 +48,32 @@ namespace Vodovoz
 					_warehouse = value;
 					OnRefiltered();
 					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Warehouse)));
+				}
+			}
+		}
+
+		public DateTime? StartDate
+		{
+			get => _startDate;
+			set
+			{
+				if(_startDate != value)
+				{
+					_startDate = value;
+					OnRefiltered();
+				}
+			}
+		}
+		
+		public DateTime? EndDate
+		{
+			get => _endDate;
+			set
+			{
+				if(_endDate != value)
+				{
+					_endDate = value;
+					OnRefiltered();
 				}
 			}
 		}
@@ -75,6 +103,11 @@ namespace Vodovoz
 				.Finish();
 
 			WarehouseViewModel.Entity = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
+			
+			daterangepicker.Binding
+				.AddBinding(this, f => f.StartDate, w => w.StartDateOrNull)
+				.AddBinding(this, f =>  f.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 
 			if(accessToWarehouseAndComplaints)
 			{

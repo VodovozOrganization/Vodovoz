@@ -10,6 +10,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents.MovementDocuments;
@@ -145,9 +146,25 @@ namespace Vodovoz.ViewModels.Warehouses
 				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
 				{
 					filter.IncludeWarehouseIds = WarehousesTo.Select(w => w.Id);
+					filter.IgnorePermissions = true;
 				})
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
+
+			Entity.PropertyChanged += OnMovementDocumentPropertyChanged;
+		}
+
+		private void OnMovementDocumentPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.FromWarehouse))
+			{
+				ReloadAllowedWarehousesTo();
+			}
+
+			if(e.PropertyName == nameof(Entity.ToWarehouse))
+			{
+				ReloadAllowedWarehousesFrom();
+			}
 		}
 
 		public IEntityEntryViewModel WagonEntryViewModel { get; private set; }
@@ -290,7 +307,8 @@ namespace Vodovoz.ViewModels.Warehouses
 				() => CanAcceptDiscrepancy);
 			SetPropertyChangeRelation(
 				e => e.Status,
-				() => CanEditNewDocument);
+				() => CanEditNewDocument,
+				() => CanChangeTargetWarehouseDocument);
 			SetPropertyChangeRelation(
 				e => e.ToWarehouse,
 				() => CanSend,
@@ -469,6 +487,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		public bool CanEditSentAmount => CanSend;
 		public bool CanEditReceivedAmount => CanReceive;
 		public bool CanEditNewDocument => CanEdit && Entity.NewOrSentStatus;
+		public bool CanChangeTargetWarehouseDocument => CanEditNewDocument || _canEditRectroactively;
 		public bool HasAccessToEmployeeStorages { get; private set; }
 		public bool HasAccessToCarStorages { get; private set; }
 		public bool CanEditStoreMovementDocumentTransporterData => _canEditStoreMovementDocumentTransporterData;
@@ -862,6 +881,13 @@ namespace Vodovoz.ViewModels.Warehouses
 			OnPropertyChanged(nameof(CanReceive));
 			OnPropertyChanged(nameof(CanAcceptDiscrepancy));
 			OnPropertyChanged(nameof(CanChangeDocumentTypeByStorageAndStorageFrom));
+		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnMovementDocumentPropertyChanged;
+
+			base.Dispose();
 		}
 	}
 }
