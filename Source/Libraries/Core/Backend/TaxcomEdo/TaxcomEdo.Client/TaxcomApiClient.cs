@@ -95,9 +95,9 @@ namespace TaxcomEdo.Client
 			await CreateClient().PostAsJsonAsync(endPoint, data);
 		}
 
-		private HttpClient CreateClient(string clientName = null)
+		private HttpClient CreateClient()
 		{
-			var client = _httpClientFactory.CreateClient(clientName);
+			var client = _httpClientFactory.CreateClient(nameof(TaxcomApiClient));
 			client.BaseAddress = new Uri(_taxcomApiOptions.BaseAddress);
 			
 			return client;
