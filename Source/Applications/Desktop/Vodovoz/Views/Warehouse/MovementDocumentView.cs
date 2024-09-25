@@ -115,7 +115,7 @@ namespace Vodovoz.Views.Warehouse
 
 			entryWarehouseTo.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowWarehouseTo, w => w.Visible)
-				.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanChangeTargetWarehouseDocument, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			employeeEntryTo.ViewModel = ViewModel.ToEmployeeStorageEntryViewModel;
