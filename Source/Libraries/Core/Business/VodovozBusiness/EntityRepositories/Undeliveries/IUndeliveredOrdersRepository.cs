@@ -25,6 +25,7 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 	public class OksDailyReportUndeliveredOrderDataNode
 	{
 		public int UndeliveredOrderId { get; set; }
+		public int? NewOrderId { get; set; }
 		public GuiltyTypes GuiltySide { get; set; }
 		public int? GuiltySubdivisionId { get; set; }
 		public string GuiltySubdivisionName { get; set; }

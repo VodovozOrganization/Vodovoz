@@ -258,21 +258,22 @@ namespace Vodovoz.Infrastructure.Persistance.Undeliveries
 				 join driver in uow.Session.Query<EmployeeEntity>() on routeList.Driver.Id equals driver.Id
 				 where address.Order.Id == oldOrder.Id
 				 orderby address.Id descending
-				 select driver.Name)
-				.ToList()
+				 select address.Id)
+				 .AsEnumerable()
 
 				let resultComments =
 				(from comment in uow.Session.Query<UndeliveredOrderResultComment>()
 				 where comment.UndeliveredOrder.Id == undeliveredOrder.Id
 				 select comment.Comment)
-				 .ToList()
+				 .AsEnumerable()
 
 				select new OksDailyReportUndeliveredOrderDataNode
 				{
 					UndeliveredOrderId = undeliveredOrder.Id,
+					NewOrderId = undeliveredOrder.NewOrder.Id,
 					GuiltySide = undelieryGuilty.GuiltySide,
 					GuiltySubdivisionId = undelieryGuilty.GuiltyDepartment == null ? -1 : undelieryGuilty.GuiltyDepartment.Id,
-					GuiltySubdivisionName = undelieryGuilty.GuiltyDepartment == null ? string.Empty : undelieryGuilty.GuiltyDepartment.Name,
+					GuiltySubdivisionName = undelieryGuilty.GuiltyDepartment == null ? string.Empty : undelieryGuilty.GuiltyDepartment.ShortName,
 					UndeliveryStatus = undeliveredOrder.UndeliveryStatus,
 					TransferType = undeliveredOrder.OrderTransferType,
 					OldOrderDeliveryDate = oldOrder.DeliveryDate,
