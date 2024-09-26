@@ -658,8 +658,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
-		//NavigationManager.OpenViewModel<BulkEmailEventReportViewModel>(null, OpenPageOptions.IgnoreHash);
-		OnActionOksDailyReportActivated(sender, e);
+		NavigationManager.OpenViewModel<BulkEmailEventReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
