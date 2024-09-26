@@ -10,7 +10,7 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gamma.GtkWidgets.yTable ytableControls;
 
-		private global::QS.Widgets.GtkUI.DatePicker datepicker1;
+		private global::QS.Widgets.GtkUI.DatePicker datepickerReportDate;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonCreate;
 
@@ -38,17 +38,17 @@ namespace Vodovoz.Views.Reports
 			this.ytableControls.RowSpacing = ((uint)(6));
 			this.ytableControls.ColumnSpacing = ((uint)(6));
 			// Container child ytableControls.Gtk.Table+TableChild
-			this.datepicker1 = new global::QS.Widgets.GtkUI.DatePicker();
-			this.datepicker1.Events = ((global::Gdk.EventMask)(256));
-			this.datepicker1.Name = "datepicker1";
-			this.datepicker1.WithTime = false;
-			this.datepicker1.HideCalendarButton = false;
-			this.datepicker1.Date = new global::System.DateTime(0);
-			this.datepicker1.IsEditable = false;
-			this.datepicker1.AutoSeparation = false;
-			this.datepicker1.HideButtonClearDate = false;
-			this.ytableControls.Add(this.datepicker1);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.datepicker1]));
+			this.datepickerReportDate = new global::QS.Widgets.GtkUI.DatePicker();
+			this.datepickerReportDate.Events = ((global::Gdk.EventMask)(256));
+			this.datepickerReportDate.Name = "datepickerReportDate";
+			this.datepickerReportDate.WithTime = false;
+			this.datepickerReportDate.HideCalendarButton = false;
+			this.datepickerReportDate.Date = new global::System.DateTime(0);
+			this.datepickerReportDate.IsEditable = true;
+			this.datepickerReportDate.AutoSeparation = false;
+			this.datepickerReportDate.HideButtonClearDate = false;
+			this.ytableControls.Add(this.datepickerReportDate);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.datepickerReportDate]));
 			w1.LeftAttach = ((uint)(1));
 			w1.RightAttach = ((uint)(2));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));

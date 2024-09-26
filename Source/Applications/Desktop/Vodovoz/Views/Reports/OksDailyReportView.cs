@@ -13,11 +13,9 @@ namespace Vodovoz.Views.Reports
 
 		private void Configure()
 		{
-			datepicker1.Binding
+			datepickerReportDate.Binding
 				.AddBinding(ViewModel, vm => vm.Date, w => w.Date)
 				.InitializeFromSource();
-
-			datepicker1.IsEditable = true;
 
 			ybuttonCreate.BindCommand(ViewModel.CreateReportCommand);
 		}
