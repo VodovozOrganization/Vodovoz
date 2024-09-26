@@ -21,20 +21,4 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 		IQueryable<UndeliveredOrder> GetUndeliveriesForOrders(IUnitOfWork unitOfWork, IList<int> ordersIds);
 		IQueryable<OksDailyReportUndeliveredOrderDataNode> GetUndeliveredOrdersForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
 	}
-
-	public class OksDailyReportUndeliveredOrderDataNode
-	{
-		public int UndeliveredOrderId { get; set; }
-		public int? NewOrderId { get; set; }
-		public GuiltyTypes GuiltySide { get; set; }
-		public int? GuiltySubdivisionId { get; set; }
-		public string GuiltySubdivisionName { get; set; }
-		public UndeliveryStatus UndeliveryStatus { get; set; }
-		public TransferType? TransferType { get; set; }
-		public DateTime? OldOrderDeliveryDate { get; set; }
-		public string ClientName { get; set; }
-		public string Reason { get; set; }
-		public string DriverNames { get; set; }
-		public string ResultComments { get; set; }
-	}
 }
