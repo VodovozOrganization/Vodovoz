@@ -2,6 +2,7 @@
 using DateTimeHelpers;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Orders;
@@ -113,10 +114,9 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				.GetOrdersDiscountsDataForPeriod(uow, date, date)
 				.ToList();
 
-			report.OrdersDiscountsDataFromMonthBeginningToDate =
-				orderRepository
-				.GetOrdersDiscountsDataForPeriod(uow, date.FirstDayOfMonth(), date)
-				.ToList();
+			report._oksDiscountReasonsIds = new List<int>() { 173, 174 };
+			report._changeDiscountReasonsIds = new List<int>() { 115 };
+			report._additionalDeliveryDiscountReasonsIds = new List<int>() { 175 };
 
 			return report;
 		}
