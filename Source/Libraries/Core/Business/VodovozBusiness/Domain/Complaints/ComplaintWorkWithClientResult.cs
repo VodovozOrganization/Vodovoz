@@ -8,9 +8,9 @@ namespace VodovozBusiness.Domain.Complaints
 		NominativePlural = "результаты работ по клиентам")]
 	public enum ComplaintWorkWithClientResult
 	{
-		[Display(Name = "Проблема не решена")]
-		NotSolved,
 		[Display(Name = "Проблема решена")]
-		Solved
+		Solved,
+		[Display(Name = "Проблема не решена")]
+		NotSolved
 	}
 }
