@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Undeliveries
@@ -16,8 +15,7 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 		public DateTime? OldOrderDeliveryDate { get; set; }
 		public string ClientName { get; set; }
 		public string Reason { get; set; }
-		public string DriverNames { get; set; }
-		public IEnumerable<string> DriverNamess { get; set; }
+		public string Drivers { get; set; }
 		public string ResultComments { get; set; }
 	}
 }

@@ -325,7 +325,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.ClientName;
 				worksheet.Cell(rowNumber, columnNumber++).Value = string.Join(", ", GetGuilties(_undeliveredOrdersDataForDate, item.UndeliveredOrderId));
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.Reason;
-				worksheet.Cell(rowNumber, columnNumber++).Value = item.DriverNames;
+				worksheet.Cell(rowNumber, columnNumber++).Value = item.Drivers;
 				worksheet.Cell(rowNumber, columnNumber).Value = item.ResultComments;
 			}
 
@@ -378,7 +378,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.ClientName;
 				worksheet.Cell(rowNumber, columnNumber++).Value = string.Join(", ", GetGuilties(_undeliveredOrdersDataForDate, item.UndeliveredOrderId));
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.Reason;
-				worksheet.Cell(rowNumber, columnNumber++).Value = item.DriverNames;
+				worksheet.Cell(rowNumber, columnNumber++).Value = item.Drivers;
 				worksheet.Cell(rowNumber, columnNumber).Value = item.ResultComments;
 			}
 
