@@ -8,15 +8,15 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
 	public partial class OksDailyReport
 	{
-		private const int _discountsTableStartColumnNumber = 2;
 		private readonly XLColor _discountsTitlesMarkupBgColor = XLColor.FromColor(Color.FromArgb(220, 197, 225));
+		private const int _discountsTableStartColumnNumber = 2;
 		private int _discountsNextEmptyRowNumber = 0;
 
 		private IEnumerable<int> _oksDiscountReasonsIds = new List<int>();
 		private IEnumerable<int> _changeDiscountReasonsIds = new List<int>();
 		private IEnumerable<int> _additionalDeliveryDiscountReasonsIds = new List<int>();
 
-		public IList<OksDailyReportOrderDiscountDataNode> OrdersDiscountsDataForDate { get; private set; } =
+		private IList<OksDailyReportOrderDiscountDataNode> _ordersDiscountsDataForDate =
 			new List<OksDailyReportOrderDiscountDataNode>();
 
 		private void FillDiscountsWorksheet(ref IXLWorksheet worksheet)
@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		{
 			var rowNumber = _discountsNextEmptyRowNumber;
 
-			worksheet.Cell(rowNumber, _discountsTableStartColumnNumber).Value = $"Отчет по скидкам {Date.ToString(_dateFormatString)}";
+			worksheet.Cell(rowNumber, _discountsTableStartColumnNumber).Value = $"Отчет по скидкам {_date.ToString(_dateFormatString)}";
 
 			var cellsRange = worksheet.Range(rowNumber, _discountsTableStartColumnNumber, rowNumber, 10);
 			cellsRange.Merge();
@@ -136,7 +136,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		private void AddDiscountsTablesData(ref IXLWorksheet worksheet, IEnumerable<int> discountReasons)
 		{
 			var discountsData =
-				OrdersDiscountsDataForDate
+				_ordersDiscountsDataForDate
 				.Where(d => discountReasons.Contains(d.DiscountResonId))
 				.ToList();
 

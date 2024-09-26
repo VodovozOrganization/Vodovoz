@@ -12,19 +12,18 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 	{
 		private readonly XLColor _undeliveredOrdersTitlesMarkupBgColor = XLColor.FromColor(Color.FromArgb(222, 235, 247));
 		private readonly XLColor _undeliveredOrdersMarkupBgColor = XLColor.FromColor(Color.FromArgb(146, 208, 80));
-		private const int _leftTablesFirstColumn = 2;
+		private const int _mainTablesFirstColumn = 2;
 		private const int _leftSmallTablesFirstColumn = 3;
 		private const int _leftSmallTablesSecondColumn = 4;
 		private const int _leftSmallTablesThirdColumn = 5;
-		private const int _rightTablesFirstColumn = 7;
-		private const int _rightTablesSecondColumn = 8;
+		private const int _rightSmallTablesFirstColumn = 7;
+		private const int _rightSmallTablesSecondColumn = 8;
 
 		private int _undeliveredNextEmptyRowNumber = 0;
 
-		public IList<OksDailyReportUndeliveredOrderDataNode> UndeliveredOrdersDataForDate { get; private set; } =
+		private IList<OksDailyReportUndeliveredOrderDataNode> _undeliveredOrdersDataForDate =
 			new List<OksDailyReportUndeliveredOrderDataNode>();
-
-		public IList<OksDailyReportUndeliveredOrderDataNode> UndeliveredOrdersDataFromMonthBeginningToDate { get; private set; } =
+		private IList<OksDailyReportUndeliveredOrderDataNode> _undeliveredOrdersDataFromMonthBeginningToDate =
 			new List<OksDailyReportUndeliveredOrderDataNode>();
 
 		private void FillUndeliveredOrdersWorksheet(ref IXLWorksheet worksheet)
@@ -61,9 +60,9 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		{
 			var rowNumber = _undeliveredNextEmptyRowNumber;
 
-			worksheet.Cell(rowNumber, _leftTablesFirstColumn).Value = $"Отчет по недовозам {Date.ToString(_dateFormatString)}";
+			worksheet.Cell(rowNumber, _mainTablesFirstColumn).Value = $"Отчет по недовозам {_date.ToString(_dateFormatString)}";
 
-			var cellsRange = worksheet.Range(rowNumber, _leftTablesFirstColumn, rowNumber, 9);
+			var cellsRange = worksheet.Range(rowNumber, _mainTablesFirstColumn, rowNumber, 9);
 			cellsRange.Merge();
 
 			FormatUndeliveredOrdersWorksheetsTitleCells(cellsRange);
@@ -77,7 +76,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			worksheet.Cell(rowNumber, _leftSmallTablesSecondColumn).Value = $"Всего:";
 
 			worksheet.Cell(rowNumber, _leftSmallTablesThirdColumn).Value =
-				UndeliveredOrdersDataForDate
+				_undeliveredOrdersDataForDate
 				.Select(uo => uo.UndeliveredOrderId)
 				.Distinct()
 				.Count();
@@ -102,7 +101,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				worksheet.Range(rowNumber, _leftSmallTablesFirstColumn, rowNumber, _leftSmallTablesThirdColumn));
 
 			var guityItems =
-				UndeliveredOrdersDataForDate
+				_undeliveredOrdersDataForDate
 				.GroupBy(g => new { g.GuiltySide, g.GuiltySubdivisionId })
 				.ToDictionary(g => g.Key, g => g.ToList())
 				.OrderBy(g => g.Key.GuiltySide);
@@ -142,7 +141,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				worksheet.Range(rowNumber, _leftSmallTablesFirstColumn, rowNumber, _leftSmallTablesThirdColumn));
 
 			var statuseItems =
-				UndeliveredOrdersDataForDate
+				_undeliveredOrdersDataForDate
 				.GroupBy(g => g.UndeliveryStatus)
 				.ToDictionary(g => g.Key, g => g.ToList())
 				.OrderBy(g => g.Key);
@@ -153,7 +152,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 				worksheet.Cell(rowNumber, _leftSmallTablesFirstColumn).Value = status.Key.GetEnumDisplayName();
 
-				worksheet.Range(rowNumber, _leftSmallTablesFirstColumn, rowNumber, _leftSmallTablesThirdColumn).Merge();
+				worksheet.Range(rowNumber, _leftSmallTablesFirstColumn, rowNumber, _leftSmallTablesSecondColumn).Merge();
 
 				worksheet.Cell(rowNumber, _leftSmallTablesThirdColumn).Value =
 					status.Value
@@ -179,7 +178,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				worksheet.Range(rowNumber, _leftSmallTablesFirstColumn, rowNumber, _leftSmallTablesThirdColumn));
 
 			var statuseItems =
-				UndeliveredOrdersDataFromMonthBeginningToDate
+				_undeliveredOrdersDataFromMonthBeginningToDate
 				.GroupBy(g => g.UndeliveryStatus)
 				.ToDictionary(g => g.Key, g => g.ToList())
 				.OrderBy(g => g.Key);
@@ -209,13 +208,13 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		{
 			var rowNumber = 4;
 
-			worksheet.Cell(rowNumber, _rightTablesFirstColumn).Value = $"Вид переноса:";
+			worksheet.Cell(rowNumber, _rightSmallTablesFirstColumn).Value = $"Вид переноса:";
 
 			FormatUndeliveredOrdersBoldFontMediumBordersWithBackgroundCells(
-				worksheet.Range(rowNumber, _rightTablesFirstColumn, rowNumber, _rightTablesSecondColumn));
+				worksheet.Range(rowNumber, _rightSmallTablesFirstColumn, rowNumber, _rightSmallTablesSecondColumn));
 
 			var transferTypeItems =
-				UndeliveredOrdersDataForDate
+				_undeliveredOrdersDataForDate
 				.GroupBy(g => g.TransferType)
 				.OrderBy(g => g.Key);
 
@@ -223,18 +222,18 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			{
 				rowNumber++;
 
-				worksheet.Cell(rowNumber, _rightTablesFirstColumn).Value =
+				worksheet.Cell(rowNumber, _rightSmallTablesFirstColumn).Value =
 					transferType.Key.HasValue
 					? transferType.Key.Value.GetEnumDisplayName()
 					: "Без переноса";
 
-				worksheet.Cell(rowNumber, _rightTablesSecondColumn).Value =
+				worksheet.Cell(rowNumber, _rightSmallTablesSecondColumn).Value =
 					transferType
 					.Select(ou => ou.UndeliveredOrderId)
 					.Distinct()
 					.Count();
 
-				FormatUndeliveredOrdersThinBordersCells(worksheet.Range(rowNumber, _rightTablesFirstColumn, rowNumber, _rightTablesSecondColumn));
+				FormatUndeliveredOrdersThinBordersCells(worksheet.Range(rowNumber, _rightSmallTablesFirstColumn, rowNumber, _rightSmallTablesSecondColumn));
 			}
 		}
 
@@ -242,10 +241,10 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		{
 			var rowNumber = 11;
 
-			worksheet.Cell(rowNumber, _rightTablesFirstColumn).Value = $"Без переноса на клиенте";
+			worksheet.Cell(rowNumber, _rightSmallTablesFirstColumn).Value = $"Без переноса на клиенте";
 
-			worksheet.Cell(rowNumber, _rightTablesSecondColumn).Value =
-				UndeliveredOrdersDataForDate
+			worksheet.Cell(rowNumber, _rightSmallTablesSecondColumn).Value =
+				_undeliveredOrdersDataForDate
 				.Where(uo =>
 					uo.GuiltySide == GuiltyTypes.Client
 					&& uo.NewOrderId is null)
@@ -254,20 +253,20 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				.Count();
 
 			FormatUndeliveredOrdersBoldFontMediumBordersWithBackgroundCells(
-				worksheet.Range(rowNumber, _rightTablesFirstColumn, rowNumber, _rightTablesFirstColumn));
+				worksheet.Range(rowNumber, _rightSmallTablesFirstColumn, rowNumber, _rightSmallTablesFirstColumn));
 
 			FormatUndeliveredOrdersBoldFontMediumBordersCells(
-				worksheet.Range(rowNumber, _rightTablesSecondColumn, rowNumber, _rightTablesSecondColumn));
+				worksheet.Range(rowNumber, _rightSmallTablesSecondColumn, rowNumber, _rightSmallTablesSecondColumn));
 		}
 
 		private void AddUndeliveredOrdersNoTransferOnSubdivisionSummaryTable(ref IXLWorksheet worksheet)
 		{
 			var rowNumber = 13;
 
-			worksheet.Cell(rowNumber, _rightTablesFirstColumn).Value = $"Без переноса на клиенте";
+			worksheet.Cell(rowNumber, _rightSmallTablesFirstColumn).Value = $"Без переноса на клиенте";
 
-			worksheet.Cell(rowNumber, _rightTablesSecondColumn).Value =
-				UndeliveredOrdersDataForDate
+			worksheet.Cell(rowNumber, _rightSmallTablesSecondColumn).Value =
+				_undeliveredOrdersDataForDate
 				.Where(uo =>
 					uo.GuiltySide == GuiltyTypes.Department
 					&& uo.NewOrderId is null)
@@ -276,17 +275,17 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				.Count();
 
 			FormatUndeliveredOrdersBoldFontMediumBordersWithBackgroundCells(
-				worksheet.Range(rowNumber, _rightTablesFirstColumn, rowNumber, _rightTablesFirstColumn));
+				worksheet.Range(rowNumber, _rightSmallTablesFirstColumn, rowNumber, _rightSmallTablesFirstColumn));
 
 			FormatUndeliveredOrdersBoldFontMediumBordersCells(
-				worksheet.Range(rowNumber, _rightTablesSecondColumn, rowNumber, _rightTablesSecondColumn));
+				worksheet.Range(rowNumber, _rightSmallTablesSecondColumn, rowNumber, _rightSmallTablesSecondColumn));
 		}
 
 		private void AddUndeliveredOrdersNoTransferOnClientTable(ref IXLWorksheet worksheet)
 		{
 			var rowNumber = _undeliveredNextEmptyRowNumber;
 
-			worksheet.Cell(rowNumber, _leftTablesFirstColumn).Value = "Таблица заказов без переноса на клиенте";
+			worksheet.Cell(rowNumber, _mainTablesFirstColumn).Value = "Таблица заказов без переноса на клиенте";
 
 			rowNumber++;
 
@@ -300,13 +299,13 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Водитель";
 			worksheet.Cell(rowNumber, headersColumnNumber).Value = "Контроль";
 
-			worksheet.Range(_undeliveredNextEmptyRowNumber, _leftTablesFirstColumn, _undeliveredNextEmptyRowNumber, headersColumnNumber).Merge();
+			worksheet.Range(_undeliveredNextEmptyRowNumber, _mainTablesFirstColumn, _undeliveredNextEmptyRowNumber, headersColumnNumber).Merge();
 
 			FormatUndeliveredOrdersBoldFontMediumBordersWithBackgroundCells(
-				worksheet.Range(_undeliveredNextEmptyRowNumber, _leftTablesFirstColumn, rowNumber, headersColumnNumber));
+				worksheet.Range(_undeliveredNextEmptyRowNumber, _mainTablesFirstColumn, rowNumber, headersColumnNumber));
 
 			var undeliveredOrders =
-				UndeliveredOrdersDataForDate
+				_undeliveredOrdersDataForDate
 				.Where(uo =>
 					uo.GuiltySide == GuiltyTypes.Client
 					&& uo.NewOrderId is null)
@@ -319,18 +318,18 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				rowNumber++;
 				counter++;
 
-				var columnNumber = _leftTablesFirstColumn;
+				var columnNumber = _mainTablesFirstColumn;
 				worksheet.Cell(rowNumber, columnNumber++).Value = counter;
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.UndeliveryStatus.GetEnumDisplayName();
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.OldOrderDeliveryDate?.ToString(_dateFormatString);
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.ClientName;
-				worksheet.Cell(rowNumber, columnNumber++).Value = string.Join(", ", GetGuilties(UndeliveredOrdersDataForDate, item.UndeliveredOrderId));
+				worksheet.Cell(rowNumber, columnNumber++).Value = string.Join(", ", GetGuilties(_undeliveredOrdersDataForDate, item.UndeliveredOrderId));
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.Reason;
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.DriverNames;
 				worksheet.Cell(rowNumber, columnNumber).Value = item.ResultComments;
 			}
 
-			FormatUndeliveredOrdersThinBordersCells(worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _leftTablesFirstColumn, rowNumber, headersColumnNumber));
+			FormatUndeliveredOrdersThinBordersCells(worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _mainTablesFirstColumn, rowNumber, headersColumnNumber));
 
 			_undeliveredNextEmptyRowNumber = rowNumber + 2;
 		}
@@ -339,7 +338,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		{
 			var rowNumber = _undeliveredNextEmptyRowNumber;
 
-			worksheet.Cell(rowNumber, _leftTablesFirstColumn).Value = "Таблица заказов без переноса на клиенте";
+			worksheet.Cell(rowNumber, _mainTablesFirstColumn).Value = "Таблица заказов без переноса на клиенте";
 
 			rowNumber++;
 
@@ -353,13 +352,13 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Водитель";
 			worksheet.Cell(rowNumber, headersColumnNumber).Value = "Контроль";
 
-			worksheet.Range(_undeliveredNextEmptyRowNumber, _leftTablesFirstColumn, _undeliveredNextEmptyRowNumber, headersColumnNumber).Merge();
+			worksheet.Range(_undeliveredNextEmptyRowNumber, _mainTablesFirstColumn, _undeliveredNextEmptyRowNumber, headersColumnNumber).Merge();
 
 			FormatUndeliveredOrdersBoldFontMediumBordersWithBackgroundCells(
-				worksheet.Range(_undeliveredNextEmptyRowNumber, _leftTablesFirstColumn, rowNumber, headersColumnNumber));
+				worksheet.Range(_undeliveredNextEmptyRowNumber, _mainTablesFirstColumn, rowNumber, headersColumnNumber));
 
 			var undeliveredOrders =
-				UndeliveredOrdersDataForDate
+				_undeliveredOrdersDataForDate
 				.Where(uo =>
 					uo.GuiltySide == GuiltyTypes.Department
 					&& uo.NewOrderId is null)
@@ -372,18 +371,18 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				rowNumber++;
 				counter++;
 
-				var columnNumber = _leftTablesFirstColumn;
+				var columnNumber = _mainTablesFirstColumn;
 				worksheet.Cell(rowNumber, columnNumber++).Value = counter;
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.UndeliveryStatus.GetEnumDisplayName();
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.OldOrderDeliveryDate?.ToString(_dateFormatString);
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.ClientName;
-				worksheet.Cell(rowNumber, columnNumber++).Value = string.Join(", ", GetGuilties(UndeliveredOrdersDataForDate, item.UndeliveredOrderId));
+				worksheet.Cell(rowNumber, columnNumber++).Value = string.Join(", ", GetGuilties(_undeliveredOrdersDataForDate, item.UndeliveredOrderId));
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.Reason;
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.DriverNames;
 				worksheet.Cell(rowNumber, columnNumber).Value = item.ResultComments;
 			}
 
-			FormatUndeliveredOrdersThinBordersCells(worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _leftTablesFirstColumn, rowNumber, headersColumnNumber));
+			FormatUndeliveredOrdersThinBordersCells(worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _mainTablesFirstColumn, rowNumber, headersColumnNumber));
 
 			_undeliveredNextEmptyRowNumber = rowNumber + 2;
 		}

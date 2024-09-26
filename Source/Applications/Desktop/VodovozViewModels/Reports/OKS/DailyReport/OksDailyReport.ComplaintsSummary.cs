@@ -10,15 +10,20 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
 	public partial class OksDailyReport
 	{
+		private const int _complaintsSummaryTableStartColumnNumber = 2;
+		private int _complaintsSummaryNextEmptyRowNumber = 0;
+		private int _incomingCallSourseId;
 		private readonly XLColor _complaintsTitlesMarkupBgColor = XLColor.FromColor(Color.FromArgb(226, 240, 217));
 
-		public IList<OksDailyReportComplaintDataNode> ComplaintsDataForDate { get; private set; } =
+		private IList<OksDailyReportComplaintDataNode> _complaintsDataForDate =
 			new List<OksDailyReportComplaintDataNode>();
-		public IList<OksDailyReportComplaintDataNode> ComplaintsDataFromMonthBeginningToDate { get; private set; } =
+		private IList<OksDailyReportComplaintDataNode> _complaintsDataFromMonthBeginningToDate =
 			new List<OksDailyReportComplaintDataNode>();
 
 		private void FillComplaintsSummaryWorksheet(ref IXLWorksheet worksheet)
 		{
+			_complaintsSummaryNextEmptyRowNumber = 2;
+
 			SetComplaintsSummaryColumnsWidth(ref worksheet);
 			AddComplaintsSummaryTitleTable(ref worksheet);
 			AddComplaintsSummaryByComplaintSourceTable(ref worksheet);
@@ -48,35 +53,37 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 		private void AddComplaintsSummaryTitleTable(ref IXLWorksheet worksheet)
 		{
-			var rowNumber = 2;
+			var rowNumber = _complaintsSummaryNextEmptyRowNumber;
 
-			worksheet.Cell(rowNumber, 2).Value = $"Отчет по рекламациям ОКС {Date.ToString(_dateFormatString)}";
+			worksheet.Cell(rowNumber, _complaintsSummaryTableStartColumnNumber).Value = $"Отчет по рекламациям ОКС {_date.ToString(_dateFormatString)}";
 
-			var cellsRange = worksheet.Range(rowNumber, 2, rowNumber, 14);
+			var cellsRange = worksheet.Range(rowNumber, _complaintsSummaryTableStartColumnNumber, rowNumber, 14);
 			cellsRange.Merge();
 
 			FormatComplaintsWorksheetsTitleCells(cellsRange);
+
+			_complaintsSummaryNextEmptyRowNumber += 2;
 		}
 
 		private void AddComplaintsSummaryByComplaintSourceTable(ref IXLWorksheet worksheet)
 		{
-			var startRowNumber = 4;
-			var labelColumnNumber = 2;
+			var startRowNumber = _complaintsSummaryNextEmptyRowNumber;
+			var labelColumnNumber = _complaintsSummaryTableStartColumnNumber;
 			var dataColumnNumber = labelColumnNumber + 1;
 			var rowNumber = startRowNumber;
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = "Всего рекламаций за смену:";
-			worksheet.Cell(rowNumber, dataColumnNumber).Value = ComplaintsDataForDate.Count;
+			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataForDate.Count;
 
 			rowNumber++;
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = " - Входящие звонки";
-			worksheet.Cell(rowNumber, dataColumnNumber).Value = ComplaintsDataForDate.Where(c => c.ComplaintSource.Id == IncomingCallSourseId).Count();
+			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataForDate.Where(c => c.ComplaintSource.Id == _incomingCallSourseId).Count();
 
 			rowNumber++;
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = " - Чат \"Обращения\"";
-			worksheet.Cell(rowNumber, dataColumnNumber).Value = ComplaintsDataForDate.Where(c => c.ComplaintSource.Id != IncomingCallSourseId).Count();
+			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataForDate.Where(c => c.ComplaintSource.Id != _incomingCallSourseId).Count();
 
 			FormatComplaintsBoldFontMediumBordersWithBackgroundCells(
 				worksheet.Range(startRowNumber, labelColumnNumber, rowNumber, labelColumnNumber),
@@ -84,18 +91,20 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			FormatComplaintsBoldFontMediumBordersCells(
 				worksheet.Range(startRowNumber, dataColumnNumber, rowNumber, dataColumnNumber));
+
+			_complaintsSummaryNextEmptyRowNumber = rowNumber + 2;
 		}
 
 		private void AddComplaintsSummaryByComplaintResultTable(ref IXLWorksheet worksheet)
 		{
 			var startRowNumber = 4;
-			var labelColumnNumber = 5;
+			var labelColumnNumber = _complaintsSummaryTableStartColumnNumber + 3;
 			var dataColumnNumber = labelColumnNumber + 1;
 			var rowNumber = startRowNumber;
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = "Проблема решена";
 			worksheet.Cell(rowNumber, dataColumnNumber).Value =
-				ComplaintsDataForDate
+				_complaintsDataForDate
 				.Where(c => c.WorkWithClientResult == VodovozBusiness.Domain.Complaints.ComplaintWorkWithClientResult.Solved)
 				.Count();
 
@@ -103,7 +112,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = "Проблема НЕ решена";
 			worksheet.Cell(rowNumber, dataColumnNumber).Value =
-				ComplaintsDataForDate
+				_complaintsDataForDate
 				.Where(c => c.WorkWithClientResult == VodovozBusiness.Domain.Complaints.ComplaintWorkWithClientResult.NotSolved)
 				.Count();
 
@@ -111,7 +120,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = "Результат не указан";
 			worksheet.Cell(rowNumber, dataColumnNumber).Value =
-				ComplaintsDataForDate
+				_complaintsDataForDate
 				.Where(c => c.WorkWithClientResult is null)
 				.Count();
 
@@ -126,7 +135,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		private void AddComplaintsSummaryByComplaintStatusOnDateTable(ref IXLWorksheet worksheet)
 		{
 			var rowNumber = 4;
-			var firstColumnNumber = 8;
+			var firstColumnNumber = _complaintsSummaryTableStartColumnNumber + 6;
 			var secondColumnNumber = firstColumnNumber + 1;
 			var thirdColumnNumber = firstColumnNumber + 2;
 
@@ -147,17 +156,17 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			rowNumber++;
 
 			worksheet.Cell(rowNumber, firstColumnNumber).Value =
-				ComplaintsDataForDate
+				_complaintsDataForDate
 				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.InProcess)
 				.Count();
 
 			worksheet.Cell(rowNumber, secondColumnNumber).Value =
-				ComplaintsDataForDate
+				_complaintsDataForDate
 				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Checking)
 				.Count();
 
 			worksheet.Cell(rowNumber, thirdColumnNumber).Value =
-				ComplaintsDataForDate
+				_complaintsDataForDate
 				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Closed)
 				.Count();
 
@@ -168,13 +177,13 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		private void AddComplaintsSummaryByComplaintStatusFromMonthStartTable(ref IXLWorksheet worksheet)
 		{
 			var startRowNumber = 4;
-			var firstColumnNumber = 12;
+			var firstColumnNumber = _complaintsSummaryTableStartColumnNumber + 10;
 			var secondColumnNumber = firstColumnNumber + 1;
 			var thirdColumnNumber = firstColumnNumber + 2;
 			var rowNumber = startRowNumber;
 
 			worksheet.Cell(rowNumber, firstColumnNumber).Value =
-				$"Статус рекламаций с {Date.FirstDayOfMonth().ToString(_dateFormatString)} по {Date.ToString(_dateFormatString)}";
+				$"Статус рекламаций с {_date.FirstDayOfMonth().ToString(_dateFormatString)} по {_date.ToString(_dateFormatString)}";
 
 			var mainHeaderCellsRange = worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber);
 			mainHeaderCellsRange.Merge();
@@ -192,17 +201,17 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			rowNumber++;
 
 			worksheet.Cell(rowNumber, firstColumnNumber).Value =
-				ComplaintsDataFromMonthBeginningToDate
+				_complaintsDataFromMonthBeginningToDate
 				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.InProcess)
 				.Count();
 
 			worksheet.Cell(rowNumber, secondColumnNumber).Value =
-				ComplaintsDataFromMonthBeginningToDate
+				_complaintsDataFromMonthBeginningToDate
 				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Checking)
 				.Count();
 
 			worksheet.Cell(rowNumber, thirdColumnNumber).Value =
-				ComplaintsDataFromMonthBeginningToDate
+				_complaintsDataFromMonthBeginningToDate
 				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Closed)
 				.Count();
 
@@ -212,10 +221,10 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 		private void AddComplaintsSummaryTypesAndObjectsTable(ref IXLWorksheet worksheet)
 		{
-			var startRowNumber = 9;
-			var objectNameColumnNumber = 2;
-			var typeNameColumnNumber = 4;
-			var dataColumnNumber = 10;
+			var startRowNumber = _complaintsSummaryNextEmptyRowNumber;
+			var objectNameColumnNumber = _complaintsSummaryTableStartColumnNumber;
+			var typeNameColumnNumber = _complaintsSummaryTableStartColumnNumber + 2;
+			var dataColumnNumber = typeNameColumnNumber + 6;
 			var rowNumber = startRowNumber;
 
 			worksheet.Cell(rowNumber, objectNameColumnNumber).Value = "Виды и объекты рекламаций";
@@ -226,7 +235,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			rowNumber++;
 
-			var groupedByObjectItems = ComplaintsDataForDate
+			var groupedByObjectItems = _complaintsDataForDate
 				.GroupBy(c => c.ComplaintObject)
 				.ToDictionary(c => c.Key, c => c.ToList());
 
@@ -262,11 +271,13 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			}
 
 			worksheet.Cell(rowNumber, dataColumnNumber - 1).Value = "Всего:";
-			worksheet.Cell(rowNumber, dataColumnNumber).Value = ComplaintsDataForDate.Count;
+			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataForDate.Count;
 			worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber - 2).Merge();
 
 			FormatComplaintsSummaryTypesAndObjectsTotalCells(
 				worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber));
+
+			_complaintsSummaryNextEmptyRowNumber = rowNumber + 2;
 		}
 
 		private void FormatComplaintsWorksheetsTitleCells(IXLRange cellsRange)

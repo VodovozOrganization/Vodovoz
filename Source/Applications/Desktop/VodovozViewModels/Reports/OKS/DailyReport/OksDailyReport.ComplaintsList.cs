@@ -7,10 +7,14 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {
 	public partial class OksDailyReport
 	{
+		private const int _complaintsListTableStartColumnNumber = 1;
+		private int _complaintsListNextEmptyRowNumber = 0;
 		private readonly XLColor _complaintsResultMarkupBgColor = XLColor.FromColor(Color.FromArgb(146, 208, 80));
 
 		private void FillComplaintsListWorksheet(ref IXLWorksheet worksheet)
 		{
+			_complaintsListNextEmptyRowNumber = 2;
+
 			SetComplaintsListColumnsWidth(ref worksheet);
 
 			AddComplaintsListTitleTable(ref worksheet);
@@ -35,20 +39,22 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 		private void AddComplaintsListTitleTable(ref IXLWorksheet worksheet)
 		{
-			var rowNumber = 2;
+			var rowNumber = _complaintsListNextEmptyRowNumber;
 
-			worksheet.Cell(rowNumber, 1).Value = $"Рекламации, поступившие {Date.ToString(_dateFormatString)}";
+			worksheet.Cell(rowNumber, _complaintsListTableStartColumnNumber).Value = $"Рекламации, поступившие {_date.ToString(_dateFormatString)}";
 
-			var cellsRange = worksheet.Range(rowNumber, 1, rowNumber, 11);
+			var cellsRange = worksheet.Range(rowNumber, _complaintsListTableStartColumnNumber, rowNumber, 11);
 			cellsRange.Merge();
 			FormatComplaintsWorksheetsTitleCells(cellsRange);
+
+			_complaintsListNextEmptyRowNumber = 4;
 		}
 
 		private void AddComplaintsListTableHeaders(ref IXLWorksheet worksheet)
 		{
-			var rowNumber = 4;
+			var rowNumber = _complaintsListNextEmptyRowNumber;
 
-			var columnNumber = 1;
+			var columnNumber = _complaintsListTableStartColumnNumber;
 			worksheet.Cell(rowNumber, columnNumber++).Value = "№";
 			worksheet.Cell(rowNumber, columnNumber++).Value = "Рекламация №";
 			worksheet.Cell(rowNumber, columnNumber++).Value = "Дата";
@@ -61,18 +67,20 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			worksheet.Cell(rowNumber, columnNumber++).Value = "Что сделали";
 			worksheet.Cell(rowNumber, columnNumber).Value = "Результат";
 
-			var tableHeaderCellsRange = worksheet.Range(rowNumber, 1, rowNumber, columnNumber);
+			var tableHeaderCellsRange = worksheet.Range(rowNumber, _complaintsListTableStartColumnNumber, rowNumber, columnNumber);
 			FormatComplaintsBoldFontMediumBordersWithBackgroundCells(tableHeaderCellsRange);
+
+			_complaintsListNextEmptyRowNumber = 5;
 		}
 
 		private void AddComplaintsListTableData(ref IXLWorksheet worksheet)
 		{
-			var startRowNumber = 5;
+			var startRowNumber = _complaintsListNextEmptyRowNumber;
 			var rowNumber = startRowNumber;
+			var columnNumber = _complaintsListTableStartColumnNumber;
 			var complaintsCounter = 0;
-			var columnNumber = 1;
 
-			foreach(var complaint in ComplaintsDataForDate)
+			foreach(var complaint in _complaintsDataForDate)
 			{
 				columnNumber = 1;
 				worksheet.Cell(rowNumber, columnNumber++).Value = ++complaintsCounter;
@@ -97,7 +105,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				rowNumber++;
 			}
 
-			var tableDataCellsRange = worksheet.Range(startRowNumber, 1, rowNumber - 1, columnNumber);
+			var tableDataCellsRange = worksheet.Range(startRowNumber, _complaintsListTableStartColumnNumber, rowNumber - 1, columnNumber);
 			FormatComplaintsDataCommonCells(tableDataCellsRange, XLAlignmentHorizontalValues.Left);
 		}
 	}

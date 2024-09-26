@@ -20,10 +20,9 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		private const string _discountsWorksheetName = "Отчет по скидкам";
 		private const string _dateFormatString = "dd.MM.yyyy";
 
-		private OksDailyReport() { }
+		private DateTime _date;
 
-		public DateTime Date { get; private set; }
-		public int IncomingCallSourseId { get; private set; }
+		private OksDailyReport() { }
 
 		public void ExportReport(string path)
 		{
@@ -75,6 +74,49 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			cellsRange.AddConditionalFormat().WhenIsBlank().Fill.BackgroundColor = color;
 		}
 
+		private void Initialize(
+			IUnitOfWork uow,
+			DateTime date,
+			IComplaintsRepository complaintsRepository,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			IOrderRepository orderRepository,
+			IComplaintSettings complaintSettings,
+			ISubdivisionSettings subdivisionSettings)
+		{
+			_date = date;
+
+			_incomingCallSourseId = complaintSettings.IncomeCallComplaintSourceId;
+
+			_complaintsDataForDate =
+				complaintsRepository
+				.GetClientComplaintsForPeriod(uow, date, date, subdivisionSettings.GetOkkId())
+				.ToList();
+
+			_complaintsDataFromMonthBeginningToDate =
+				complaintsRepository
+				.GetClientComplaintsForPeriod(uow, date.FirstDayOfMonth(), date, subdivisionSettings.GetOkkId())
+				.ToList();
+
+			_undeliveredOrdersDataForDate =
+				undeliveredOrdersRepository
+				.GetUndeliveredOrdersForPeriod(uow, date, date)
+				.ToList();
+
+			_undeliveredOrdersDataFromMonthBeginningToDate =
+				undeliveredOrdersRepository
+				.GetUndeliveredOrdersForPeriod(uow, date.FirstDayOfMonth(), date)
+				.ToList();
+
+			_ordersDiscountsDataForDate =
+				orderRepository
+				.GetOrdersDiscountsDataForPeriod(uow, date, date)
+				.ToList();
+
+			_oksDiscountReasonsIds = new List<int>() { 173, 174 };
+			_changeDiscountReasonsIds = new List<int>() { 115 };
+			_additionalDeliveryDiscountReasonsIds = new List<int>() { 175 };
+		}
+
 		public static OksDailyReport Create(
 			IUnitOfWork uow,
 			DateTime date,
@@ -86,37 +128,14 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		{
 			var report = new OksDailyReport();
 
-			report.Date = date;
-			report.IncomingCallSourseId = complaintSettings.IncomeCallComplaintSourceId;
-
-			report.ComplaintsDataForDate =
-				complaintsRepository
-				.GetClientComplaintsForPeriod(uow, date, date, subdivisionSettings.GetOkkId())
-				.ToList();
-
-			report.ComplaintsDataFromMonthBeginningToDate =
-				complaintsRepository
-				.GetClientComplaintsForPeriod(uow, date.FirstDayOfMonth(), date, subdivisionSettings.GetOkkId())
-				.ToList();
-
-			report.UndeliveredOrdersDataForDate =
-				undeliveredOrdersRepository
-				.GetUndeliveredOrdersForPeriod(uow, date, date)
-				.ToList();
-
-			report.UndeliveredOrdersDataFromMonthBeginningToDate =
-				undeliveredOrdersRepository
-				.GetUndeliveredOrdersForPeriod(uow, date.FirstDayOfMonth(), date)
-				.ToList();
-
-			report.OrdersDiscountsDataForDate =
-				orderRepository
-				.GetOrdersDiscountsDataForPeriod(uow, date, date)
-				.ToList();
-
-			report._oksDiscountReasonsIds = new List<int>() { 173, 174 };
-			report._changeDiscountReasonsIds = new List<int>() { 115 };
-			report._additionalDeliveryDiscountReasonsIds = new List<int>() { 175 };
+			report.Initialize(
+				uow,
+				date,
+				complaintsRepository,
+				undeliveredOrdersRepository,
+				orderRepository,
+				complaintSettings,
+				subdivisionSettings);
 
 			return report;
 		}
