@@ -858,7 +858,7 @@ namespace Vodovoz.Views.Complaints
 			this.yenumcomboboxWorkWithClientResult = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxWorkWithClientResult.Name = "yenumcomboboxWorkWithClientResult";
 			this.yenumcomboboxWorkWithClientResult.ShowSpecialStateAll = false;
-			this.yenumcomboboxWorkWithClientResult.ShowSpecialStateNot = true;
+			this.yenumcomboboxWorkWithClientResult.ShowSpecialStateNot = false;
 			this.yenumcomboboxWorkWithClientResult.UseShortTitle = false;
 			this.yenumcomboboxWorkWithClientResult.DefaultFirst = false;
 			this.ytableArrangementResult.Add(this.yenumcomboboxWorkWithClientResult);
