@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -26,6 +27,8 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 		private Counterparty _counterparty;
 		private Organization _organization;
 		private FinancialExpenseCategory _financialExpenseCategory;
+		private decimal _maxSum;
+		private decimal _maxLength;
 
 		public PaymentWriteOffViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -90,6 +93,10 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 				x => x.FinancialExpenseCategoryId,
 				() => FinancialExpenseCategory);
 
+			SetPropertyChangeRelation(
+				x => x.Sum,
+				() => Sum);
+
 			if(Entity.Id == 0)
 			{
 				Entity.Date = DateTime.Now;
@@ -128,6 +135,30 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			set => this.SetIdRefField(SetField, ref _financialExpenseCategory, () => Entity.FinancialExpenseCategoryId, value);
 		}
 
+		public decimal Sum
+		{
+			get => Entity.Sum;
+			set => Entity.Sum = Math.Min(value, MaxSum);
+		}
+
+		public decimal MaxSum
+		{
+			get => _maxSum;
+			private set
+			{
+				if(SetField(ref _maxSum, value))
+				{
+					MaxLength = value.ToString().Length;
+				}
+			}
+		}
+
+		public decimal MaxLength
+		{
+			get => _maxLength;
+			private set => SetField(ref _maxLength, value);
+		}
+
 		public IEntityEntryViewModel CounterpartyViewModel { get; set; }
 		public IEntityEntryViewModel OrganizationViewModel { get; set; }
 		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
@@ -139,9 +170,12 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			if(Entity.CounterpartyId.HasValue && Entity.OrganizationId.HasValue)
 			{
 				var balance = _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.CounterpartyId.Value, Entity.OrganizationId.Value);
+
+				MaxSum = balance + Sum;
+
 				if(balance > 0)
 				{
-					Entity.Sum = balance;
+					Sum = balance;
 				}
 			}
 		}
