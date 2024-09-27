@@ -25,7 +25,6 @@ using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -1634,10 +1633,8 @@ namespace Vodovoz
 
 			if(fd.FuelCashExpense != null)
 			{
-				var cashTransferDocumentsHavingExpense = UoW.Session.Query<ExpenseCashTransferedItem>()
-					.Where(ti => ti.Expense.Id == fd.FuelCashExpense.Id)
-					.Select(ti => ti.Document.Id)
-					.ToList();
+				var cashTransferDocumentsHavingExpense =
+					_cashRepository.GetCashTransferDocumentsIdsByExpenseId(UoW, fd.FuelCashExpense.Id);
 
 				if(cashTransferDocumentsHavingExpense.Count > 0)
 				{
@@ -1649,17 +1646,10 @@ namespace Vodovoz
 				}
 			}
 
-			var cashDistributionDocuments = UoW.Session.Query<FuelExpenseCashDistributionDocument>()
-				.Where(d => d.FuelDocument.Id == fd.Id)
-				.ToList();
+			var cashDistributionDocumentsIds =
+				_cashRepository.GetCashDistributionDocumentsIdsByFuelDocumentId(UoW, fd.Id);
 
-			if(cashDistributionDocuments.Count > 0)
-			{
-				foreach(var cashDistributionDocument in cashDistributionDocuments)
-				{
-					UoW.Delete(cashDistributionDocument);
-				}
-			}
+			_cashRepository.DeleteFuelExpenseCashDistributionDocuments(UoW, cashDistributionDocumentsIds);
 
 			Entity.ObservableFuelDocuments.Remove(fd);
 		}
