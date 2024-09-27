@@ -89,6 +89,9 @@ namespace EdoDocumentFlowUpdater
 
 						using var scope = _serviceScopeFactory.CreateScope();
 						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+						
+						/*var containerRawData2 =
+							await taxcomApiClient.GetDocFlowRawData("e0532bec-81fe-4517-94ad-497d6a4b4a13", cancellationToken);*/
 
 						docFlowUpdates =
 							await taxcomApiClient.GetDocFlowsUpdates(

@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using Taxcom.Client.Api;
 using TaxcomEdoApi.Library;
 using TaxcomEdoApi.Library.Config;
-using TaxcomEdoApi.Services;
 
 namespace TaxcomEdoApi
 {
@@ -16,16 +15,14 @@ namespace TaxcomEdoApi
 		public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration config)
 		{
 			services.Configure<WarrantOptions>(config.GetSection(WarrantOptions.Path))
-				.Configure<TaxcomEdoApiOptions>(config.GetSection(TaxcomEdoApiOptions.Path))
-				.Configure<EdoServicesOptions>(config.GetSection(EdoServicesOptions.Path));
+				.Configure<TaxcomEdoApiOptions>(config.GetSection(TaxcomEdoApiOptions.Path));
 			
 			return services;
 		}
 
 		public static IServiceCollection AddDependencyGroup(this IServiceCollection services)
 		{
-			services.AddHostedService<AutoSendReceiveService>()
-
+			services
 				.AddSingleton(provider =>
 				{
 					var apiOptions = provider.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;

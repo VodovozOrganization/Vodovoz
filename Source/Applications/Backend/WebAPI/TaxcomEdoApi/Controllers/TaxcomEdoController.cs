@@ -187,5 +187,26 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
+		
+		[HttpGet]
+		public IActionResult StartAutoSendReceive()
+		{
+			_logger.LogInformation("Запуск необходимых транзакций по ЭДО");
+			
+			try
+			{
+				if(_taxcomApi.AutoSendReceive())
+				{
+					return Ok();
+				}
+
+				return Problem("Не удалось запустить необходимые транзакции");
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при запуске необходимых транзакций по ЭДО");
+				return Problem();
+			}
+		}
 	}
 }

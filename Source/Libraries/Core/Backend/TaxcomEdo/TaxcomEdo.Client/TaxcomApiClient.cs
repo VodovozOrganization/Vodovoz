@@ -108,6 +108,11 @@ namespace TaxcomEdo.Client
 			}
 		}
 
+		public async Task StartProcessAutoSendReceive(CancellationToken cancellationToken = default)
+		{
+			await CreateClient().GetAsync(_taxcomApiOptions.AutoSendReceiveEndpoint, cancellationToken);
+		}
+
 		private async Task SendDocument<T>(string endPoint, T data)
 		{
 			await CreateClient().PostAsJsonAsync(endPoint, data);
@@ -119,40 +124,6 @@ namespace TaxcomEdo.Client
 			client.BaseAddress = new Uri(_taxcomApiOptions.BaseAddress);
 			
 			return client;
-		}
-
-		private string GetGetContactListUpdatesRequestUri(DateTime? lastCheckContactsUpdates, EdoContactStateCode? contactState)
-		{
-			var requestUriBuilder = new StringBuilder();
-			requestUriBuilder.Append(_taxcomApiOptions.GetContactListUpdatesEndPoint);
-			var hasFirstParameter = false;
-
-			if(lastCheckContactsUpdates.HasValue)
-			{
-				requestUriBuilder
-					.Append("?")
-					.Append(nameof(lastCheckContactsUpdates))
-					.Append("=")
-					.Append(lastCheckContactsUpdates.ToString());
-
-				hasFirstParameter = true;
-			}
-
-			if(contactState.HasValue)
-			{
-				if(hasFirstParameter)
-				{
-					requestUriBuilder.Append("&");
-				}
-				
-				requestUriBuilder
-					.Append("?")
-					.Append(nameof(contactState))
-					.Append("=")
-					.Append(contactState.ToString());
-			}
-
-			return requestUriBuilder.ToString();
 		}
 
 		public class HttpQueryBuilder : IHttpQueryBuilder

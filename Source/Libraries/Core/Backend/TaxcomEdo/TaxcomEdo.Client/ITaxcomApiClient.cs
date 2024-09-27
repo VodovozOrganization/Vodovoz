@@ -64,5 +64,11 @@ namespace TaxcomEdo.Client
 		/// <returns></returns>
 		Task<EdoDocFlowUpdates> GetDocFlowsUpdates(
 			GetDocFlowsUpdatesParameters docFlowsUpdatesParameters, CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Отправка запроса на запуск необходимых транзакций по ЭДО
+		/// </summary>
+		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
+		/// <returns></returns>
+		Task StartProcessAutoSendReceive(CancellationToken cancellationToken = default);
 	}
 }

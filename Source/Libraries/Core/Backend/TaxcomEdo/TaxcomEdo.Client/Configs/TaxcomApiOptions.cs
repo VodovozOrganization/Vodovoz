@@ -12,5 +12,6 @@
 		public string AcceptContactEndPoint { get; set; }
 		public string GetDocFlowRawDataEndPoint { get; set; }
 		public string GetDocFlowsUpdatesEndPoint { get; set; }
+		public string AutoSendReceiveEndpoint { get; set; }
 	}
 }
