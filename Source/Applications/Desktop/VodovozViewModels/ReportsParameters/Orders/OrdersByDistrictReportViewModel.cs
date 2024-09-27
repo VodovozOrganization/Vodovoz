@@ -35,6 +35,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 
 			UoW = uowFactory.CreateWithoutRoot();
 
+			_isAllDistricts = true;
+
 			DistrictsSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () =>
 			{
 				var filter = new DistrictJournalFilterViewModel

@@ -22,10 +22,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 		private bool _showTodayRouteLists;
 		private bool? _includeVisitingMasters;
 		private GeoGroup _geoGroup;
-		private IEnumerable<GeoGroup> _geoGroups;
-		private IEnumerable<Enum> _carTypeOfUseList;
-		private IEnumerable<Enum> _carOwnTypeList;
-		
+		private IEnumerable<GeoGroup> _geoGroups = Enumerable.Empty<GeoGroup>();
+		private IEnumerable<Enum> _carTypeOfUseList = Enumerable.Empty<Enum>();
+		private IEnumerable<Enum> _carOwnTypeList = Enumerable.Empty<Enum>();
+
 		public RouteListsOnClosingReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
 			IReportInfoFactory reportInfoFactory,

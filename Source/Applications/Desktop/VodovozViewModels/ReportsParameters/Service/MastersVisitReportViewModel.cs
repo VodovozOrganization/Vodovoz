@@ -80,7 +80,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Service
 					{
 						{ "start_date", StartDate },
 						{ "end_date", EndDate },
-						{ "master_id", Master.Id }
+						{ "master_id", Master ?.Id ?? 0 }
 					};
 
 				return parameters;

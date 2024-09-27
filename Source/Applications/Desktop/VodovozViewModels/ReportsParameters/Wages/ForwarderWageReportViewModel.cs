@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 						{ "start_date", StartDate },
 						{ "end_date", EndDate },
 						{ "show_fines_outside_period", ShowFinesOutsidePeriod },
-						{ "forwarder_id", Forwarder.Id },
+						{ "forwarder_id", Forwarder?.Id ?? 0 },
 						{ "showbalance", ShowBalance ? "1" : "0" }
 					};
 

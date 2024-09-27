@@ -27,6 +27,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 
 			_startDate = DateTime.Today.AddMonths(-1);
 			_endDate = DateTime.Today;
+			_delay = 2;
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}

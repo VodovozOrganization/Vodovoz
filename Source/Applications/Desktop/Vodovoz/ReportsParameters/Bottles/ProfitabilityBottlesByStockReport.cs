@@ -14,8 +14,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 		void ConfigureDlg()
 		{
 			dtrngPeriod.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
-				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.AddBinding(vm => vm.StartDate, w => w.StartDate)
+				.AddBinding(vm => vm.EndDate, w => w.EndDate)
 				.InitializeFromSource();
 
 			specCmbDiscountPct.SetRenderTextFunc<ProfitabilityBottlesByStockReportViewModel.PercentNode>(x => x.Name);

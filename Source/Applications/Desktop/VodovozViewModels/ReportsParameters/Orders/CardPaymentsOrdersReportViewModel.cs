@@ -41,6 +41,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 
 			_startDate = DateTime.Today;
 			_endDate = DateTime.Today;
+			_allGeoGroupsSelected = true;
+			_allPaymentsFromSelected = true;
 
 			UoW = _uowFactory.CreateWithoutRoot();
 

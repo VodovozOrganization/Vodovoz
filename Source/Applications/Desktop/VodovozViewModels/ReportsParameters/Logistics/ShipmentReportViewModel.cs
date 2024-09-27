@@ -32,6 +32,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 			Identifier = "Logistic.ShipmentReport";
 
 			UoW = _uowFactory.CreateWithoutRoot();
+			_all = true;
 
 			_startDate = DateTime.Today;
 

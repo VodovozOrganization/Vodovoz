@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Store
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 
-			var navigationManager = _lifetimeScope.Resolve<INavigationManager>();
+			_navigationManager = _lifetimeScope.Resolve<INavigationManager>();
 			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
 
 			UoW = uowFactory.CreateWithoutRoot();

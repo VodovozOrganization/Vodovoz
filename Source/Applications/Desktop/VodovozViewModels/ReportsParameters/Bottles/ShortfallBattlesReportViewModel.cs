@@ -44,6 +44,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 
 			_startDate = DateTime.Today;
 
+			DriverType = Drivers.AllDriver;
+
+			NonReturnReasons = UoW.Session.QueryOver<NonReturnReason>().List();
+
 			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,

@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 	{
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private IEnumerable<OrderStatus> _orderStatuses;
+		private List<OrderStatus> _orderStatuses = new List<OrderStatus>();
 		private IEnumerable<OnlineStore> _onlineStores;
 		private OnlineStore _onlineStore;
 
@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 
 		public Type OrderStatusType => typeof(OrderStatus);
 
-		public virtual IEnumerable<OrderStatus> OrderStatuses
+		public virtual List<OrderStatus> OrderStatuses
 		{
 			get => _orderStatuses;
 			set => SetField(ref _orderStatuses, value);
@@ -89,7 +89,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 					{
 						{ "start_date", StartDate },
 						{ "end_date", EndDate?.Date.AddDays(1).AddMilliseconds(-1) },
-						{ "e_shop_id", OnlineStore.Id },
+						{ "e_shop_id", OnlineStore?.Id ?? -1 },
 						{ "creation_timestamp", DateTime.Now },
 						{ "order_statuses", OrderStatuses },
 						{ "order_statuses_rus", string.Join(", ", OrderStatuses.Select(x => x.GetEnumTitle())) }

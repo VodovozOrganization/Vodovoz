@@ -8,8 +8,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 {
 	public class ProfitabilityBottlesByStockReportViewModel : ReportParametersViewModelBase
 	{
-		private DateTime? _startDate;
-		private DateTime? _endDate;
+		private DateTime _startDate;
+		private DateTime _endDate;
 		private PercentNode _percentNode;
 
 		public ProfitabilityBottlesByStockReportViewModel(
@@ -34,13 +34,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 
 		public DelegateCommand GenerateReportCommand;
 
-		public virtual DateTime? StartDate
+		public virtual DateTime StartDate
 		{
 			get => _startDate;
 			set => SetField(ref _startDate, value);
 		}
 
-		public virtual DateTime? EndDate
+		public virtual DateTime EndDate
 		{
 			get => _endDate;
 			set => SetField(ref _endDate, value);

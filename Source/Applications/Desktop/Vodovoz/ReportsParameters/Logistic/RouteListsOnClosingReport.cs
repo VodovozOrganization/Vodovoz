@@ -1,5 +1,7 @@
-﻿using QS.Views;
+﻿using Gamma.Widgets.Additions;
+using QS.Views;
 using QS.Widgets;
+using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Logistics;
 
 namespace Vodovoz.ReportsParameters.Logistic
@@ -36,13 +38,13 @@ namespace Vodovoz.ReportsParameters.Logistic
 			enumcheckCarTypeOfUse.AddEnumToHideList(ViewModel.HiddenCarTypeOfUse);
 			enumcheckCarTypeOfUse.SelectAll();
 			enumcheckCarTypeOfUse.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CarTypeOfUseList, w => w.SelectedValues)
+				.AddBinding(vm => vm.CarTypeOfUseList, w => w.SelectedValuesList)
 				.InitializeFromSource();
 
 			enumcheckCarOwnType.EnumType = ViewModel.CarOwnTypeType;
 			enumcheckCarOwnType.SelectAll();
 			enumcheckCarOwnType.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CarOwnTypeList, w => w.SelectedValues)
+				.AddBinding(vm => vm.CarOwnTypeList, w => w.SelectedValuesList)
 				.InitializeFromSource();
 
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);

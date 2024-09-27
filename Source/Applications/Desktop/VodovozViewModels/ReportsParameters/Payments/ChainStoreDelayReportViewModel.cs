@@ -83,7 +83,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 			}
 		}
 
-		public Dictionary<string, string> Modes = new Dictionary<string, string>
+		public Dictionary<string, string> Modes { get; set; } = new Dictionary<string, string>
 		{
 			{ "Networks", "Сетям" },
 			{ "Tenders", "Тендерам" }

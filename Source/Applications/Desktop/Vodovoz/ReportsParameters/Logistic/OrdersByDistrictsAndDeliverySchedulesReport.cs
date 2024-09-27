@@ -16,8 +16,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 		void ConfigureDlg()
 		{
 			pkrDate.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
-				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.AddBinding(vm => vm.StartDate, w => w.StartDate)
+				.AddBinding(vm => vm.EndDate, w => w.EndDate)
 				.InitializeFromSource();
 
 			lstGeographicGroup.SetRenderTextFunc<GeoGroup>(x => x.Name);

@@ -1,4 +1,5 @@
-﻿using QS.Views;
+﻿using Gamma.Widgets.Additions;
+using QS.Views;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 
@@ -26,10 +27,10 @@ namespace Vodovoz.ReportsParameters.Orders
 				.AddBinding(vm => vm.OnlineStore, w => w.SelectedItem)
 				.InitializeFromSource();
 
-			enumchecklistOrderStatus.EnumType =ViewModel.OrderStatusType;
+			enumchecklistOrderStatus.EnumType = ViewModel.OrderStatusType;
             enumchecklistOrderStatus.SelectAll();
 			enumchecklistOrderStatus.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.OrderStatuses, w => w.SelectedValues)
+				.AddBinding(vm => vm.OrderStatuses, w => w.SelectedValuesList, new EnumsListConverter<OrderStatus>())
 				.InitializeFromSource();
 
 			buttonRun.BindCommand(ViewModel.GenerateReportCommand);

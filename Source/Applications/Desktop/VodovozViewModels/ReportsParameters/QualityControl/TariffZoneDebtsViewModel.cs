@@ -92,7 +92,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.QualityControl
 						{ "date_to", EndDate },
 						{ "debt_from", DebtFrom },
 						{ "debt_to", DebtTo },
-						{ "tariff_zone_id", TariffZone.Id }
+						{ "tariff_zone_id", TariffZone?.Id ?? 0 }
 					};
 
 				return parameters;

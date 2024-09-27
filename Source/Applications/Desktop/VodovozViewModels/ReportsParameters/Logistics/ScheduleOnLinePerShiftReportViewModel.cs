@@ -19,8 +19,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private GenericObservableList<GeoGroup> _geoGroups;
-		private IEnumerable<Enum> _carTypeOfUseList;
-		private IEnumerable<Enum> _carOwnTypeList;
+		private IEnumerable<Enum> _carTypeOfUseList = Enumerable.Empty<Enum>();
+		private IEnumerable<Enum> _carOwnTypeList = Enumerable.Empty<Enum>();
 
 		public ScheduleOnLinePerShiftReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,

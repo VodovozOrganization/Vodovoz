@@ -91,7 +91,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Service
 					{
 						{ "start_date", StartDate },
 						{ "end_date", EndDate },
-						{ "driver_id", Driver.Id }
+						{ "driver_id", Driver?.Id ?? 0 }
 					};
 
 				return parameters;
