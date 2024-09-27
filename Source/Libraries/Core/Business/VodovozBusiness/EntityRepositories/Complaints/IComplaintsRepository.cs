@@ -28,6 +28,6 @@ namespace Vodovoz.EntityRepositories.Complaints
 		ComplaintSource GetComplaintSourceById(IUnitOfWork unitOfWork, int complaintSourceId);
 		(int, bool) GetComplaintIdByOrderRating(IUnitOfWork unitOfWork, int orderRatingId);
 		(int, bool) GetTodayComplaintIdByOrder(IUnitOfWork unitOfWork, int orderId);
-		IQueryable<OksDailyReportComplaintDataNode> GetClientComplaintsForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate, int oksSubdivisionId);
+		IQueryable<OksDailyReportComplaintDataNode> GetClientComplaintsForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
 	}
 }

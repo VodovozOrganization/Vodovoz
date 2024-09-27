@@ -10,6 +10,7 @@ using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Complaints;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
@@ -23,6 +24,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		private readonly IOrderRepository _orderRepository;
 		private readonly IComplaintSettings _complaintSettings;
 		private readonly ISubdivisionSettings _subdivisionSettings;
+		private readonly IOrderSettings _orderSettings;
 		private DateTime _date = new DateTime(2023, 05, 22); //DateTime.Today.AddDays(-1);
 
 		public OksDailyReportViewModel(
@@ -33,6 +35,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			IOrderRepository orderRepository,
 			IComplaintSettings complaintSettings,
 			ISubdivisionSettings subdivisionSettings,
+			IOrderSettings orderSettings,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation
@@ -45,6 +48,8 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+
 			Title = "Ежедневный отчет ОКС";
 
 			CreateReportCommand = new DelegateCommand(CreateReport);
@@ -75,7 +80,8 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				_undeliveredOrdersRepository,
 				_orderRepository,
 				_complaintSettings,
-				_subdivisionSettings);
+				_subdivisionSettings,
+				_orderSettings);
 
 			report.ExportReport(saveFileDialogResult.Path);
 		}

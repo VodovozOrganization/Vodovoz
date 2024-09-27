@@ -13,12 +13,27 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		private const int _complaintsSummaryTableStartColumnNumber = 2;
 		private int _complaintsSummaryNextEmptyRowNumber = 0;
 		private int _incomingCallSourseId;
+		private int _oksSubdivisionId;
 		private readonly XLColor _complaintsTitlesMarkupBgColor = XLColor.FromColor(Color.FromArgb(226, 240, 217));
 
-		private IList<OksDailyReportComplaintDataNode> _complaintsDataForDate =
+		private IList<OksDailyReportComplaintDataNode> _complaintsDataOnDate =
 			new List<OksDailyReportComplaintDataNode>();
 		private IList<OksDailyReportComplaintDataNode> _complaintsDataFromMonthBeginningToDate =
 			new List<OksDailyReportComplaintDataNode>();
+
+		private IList<DiscussionSubdivisionData> _oksDiscussionsDataOnDate =>
+			_complaintsDataOnDate
+			.SelectMany(c => c.DiscussionSubdivisions)
+			.Where(d => d.SubdivisionId == _oksSubdivisionId)
+			.Distinct()
+			.ToList();
+
+		private IList<DiscussionSubdivisionData> _oksDiscussionsDataFromMonthBeginningToDate =>
+			_complaintsDataFromMonthBeginningToDate
+			.SelectMany(c => c.DiscussionSubdivisions)
+			.Where(d => d.SubdivisionId == _oksSubdivisionId)
+			.Distinct()
+			.ToList();
 
 		private void FillComplaintsSummaryWorksheet(ref IXLWorksheet worksheet)
 		{
@@ -73,17 +88,17 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			var rowNumber = startRowNumber;
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = "Всего рекламаций за смену:";
-			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataForDate.Count;
+			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataOnDate.Count;
 
 			rowNumber++;
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = " - Входящие звонки";
-			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataForDate.Where(c => c.ComplaintSource.Id == _incomingCallSourseId).Count();
+			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataOnDate.Where(c => c.ComplaintSource.Id == _incomingCallSourseId).Count();
 
 			rowNumber++;
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = " - Чат \"Обращения\"";
-			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataForDate.Where(c => c.ComplaintSource.Id != _incomingCallSourseId).Count();
+			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataOnDate.Where(c => c.ComplaintSource.Id != _incomingCallSourseId).Count();
 
 			FormatComplaintsBoldFontMediumBordersWithBackgroundCells(
 				worksheet.Range(startRowNumber, labelColumnNumber, rowNumber, labelColumnNumber),
@@ -104,7 +119,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = "Проблема решена";
 			worksheet.Cell(rowNumber, dataColumnNumber).Value =
-				_complaintsDataForDate
+				_complaintsDataOnDate
 				.Where(c => c.WorkWithClientResult == VodovozBusiness.Domain.Complaints.ComplaintWorkWithClientResult.Solved)
 				.Count();
 
@@ -112,7 +127,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = "Проблема НЕ решена";
 			worksheet.Cell(rowNumber, dataColumnNumber).Value =
-				_complaintsDataForDate
+				_complaintsDataOnDate
 				.Where(c => c.WorkWithClientResult == VodovozBusiness.Domain.Complaints.ComplaintWorkWithClientResult.NotSolved)
 				.Count();
 
@@ -120,7 +135,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			worksheet.Cell(rowNumber, labelColumnNumber).Value = "Результат не указан";
 			worksheet.Cell(rowNumber, dataColumnNumber).Value =
-				_complaintsDataForDate
+				_complaintsDataOnDate
 				.Where(c => c.WorkWithClientResult is null)
 				.Count();
 
@@ -156,18 +171,24 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			rowNumber++;
 
 			worksheet.Cell(rowNumber, firstColumnNumber).Value =
-				_complaintsDataForDate
-				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.InProcess)
+				_oksDiscussionsDataOnDate
+				.Where(d => d.DiscussionStatuse == ComplaintDiscussionStatuses.InProcess)
+				.Select(d => d.ComplaintId)
+				.Distinct()
 				.Count();
 
 			worksheet.Cell(rowNumber, secondColumnNumber).Value =
-				_complaintsDataForDate
-				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Checking)
+				_oksDiscussionsDataOnDate
+				.Where(d => d.DiscussionStatuse == ComplaintDiscussionStatuses.Checking)
+				.Select(d => d.ComplaintId)
+				.Distinct()
 				.Count();
 
 			worksheet.Cell(rowNumber, thirdColumnNumber).Value =
-				_complaintsDataForDate
-				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Closed)
+				_oksDiscussionsDataOnDate
+				.Where(d => d.DiscussionStatuse == ComplaintDiscussionStatuses.Closed)
+				.Select(d => d.ComplaintId)
+				.Distinct()
 				.Count();
 
 			var dataCellsRange = worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber);
@@ -201,18 +222,24 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			rowNumber++;
 
 			worksheet.Cell(rowNumber, firstColumnNumber).Value =
-				_complaintsDataFromMonthBeginningToDate
-				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.InProcess)
+				_oksDiscussionsDataFromMonthBeginningToDate
+				.Where(d => d.DiscussionStatuse == ComplaintDiscussionStatuses.InProcess)
+				.Select(d => d.ComplaintId)
+				.Distinct()
 				.Count();
 
 			worksheet.Cell(rowNumber, secondColumnNumber).Value =
-				_complaintsDataFromMonthBeginningToDate
-				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Checking)
+				_oksDiscussionsDataFromMonthBeginningToDate
+				.Where(d => d.DiscussionStatuse == ComplaintDiscussionStatuses.Checking)
+				.Select(d => d.ComplaintId)
+				.Distinct()
 				.Count();
 
 			worksheet.Cell(rowNumber, thirdColumnNumber).Value =
-				_complaintsDataFromMonthBeginningToDate
-				.Where(c => c.OksDiskussionStatuse == ComplaintDiscussionStatuses.Closed)
+				_oksDiscussionsDataFromMonthBeginningToDate
+				.Where(d => d.DiscussionStatuse == ComplaintDiscussionStatuses.Closed)
+				.Select(d => d.ComplaintId)
+				.Distinct()
 				.Count();
 
 			var dataCellsRange = worksheet.Range(rowNumber, firstColumnNumber, rowNumber, thirdColumnNumber);
@@ -235,7 +262,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			rowNumber++;
 
-			var groupedByObjectItems = _complaintsDataForDate
+			var groupedByObjectItems = _complaintsDataOnDate
 				.GroupBy(c => c.ComplaintObject)
 				.ToDictionary(c => c.Key, c => c.ToList());
 
@@ -271,7 +298,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			}
 
 			worksheet.Cell(rowNumber, dataColumnNumber - 1).Value = "Всего:";
-			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataForDate.Count;
+			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataOnDate.Count;
 			worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber - 2).Merge();
 
 			FormatComplaintsSummaryTypesAndObjectsTotalCells(

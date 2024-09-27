@@ -2,12 +2,12 @@
 using DateTimeHelpers;
 using QS.DomainModel.UoW;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Complaints;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
@@ -81,20 +81,25 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IOrderRepository orderRepository,
 			IComplaintSettings complaintSettings,
-			ISubdivisionSettings subdivisionSettings)
+			ISubdivisionSettings subdivisionSettings,
+			IOrderSettings orderSettings)
 		{
 			_date = date;
-
 			_incomingCallSourseId = complaintSettings.IncomeCallComplaintSourceId;
+			_oksSubdivisionId = subdivisionSettings.GetOkkId();
 
-			_complaintsDataForDate =
+			_oksDiscountReasonsIds = orderSettings.OksDiscountReasonsIds;
+			_productChangeDiscountReasonsIds = orderSettings.ProductChangeDiscountReasonsIds;
+			_additionalDeliveryDiscountReasonsIds = orderSettings.AdditionalDeliveryDiscountReasonsIds;
+
+			_complaintsDataOnDate =
 				complaintsRepository
-				.GetClientComplaintsForPeriod(uow, date, date, subdivisionSettings.GetOkkId())
+				.GetClientComplaintsForPeriod(uow, date, date)
 				.ToList();
 
 			_complaintsDataFromMonthBeginningToDate =
 				complaintsRepository
-				.GetClientComplaintsForPeriod(uow, date.FirstDayOfMonth(), date, subdivisionSettings.GetOkkId())
+				.GetClientComplaintsForPeriod(uow, date.FirstDayOfMonth(), date)
 				.ToList();
 
 			_undeliveredOrdersDataForDate =
@@ -111,10 +116,6 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				orderRepository
 				.GetOrdersDiscountsDataForPeriod(uow, date, date)
 				.ToList();
-
-			_oksDiscountReasonsIds = new List<int>() { 173, 174 };
-			_changeDiscountReasonsIds = new List<int>() { 115 };
-			_additionalDeliveryDiscountReasonsIds = new List<int>() { 175 };
 		}
 
 		public static OksDailyReport Create(
@@ -124,7 +125,8 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IOrderRepository orderRepository,
 			IComplaintSettings complaintSettings,
-			ISubdivisionSettings subdivisionSettings)
+			ISubdivisionSettings subdivisionSettings,
+			IOrderSettings orderSettings)
 		{
 			var report = new OksDailyReport();
 
@@ -135,7 +137,8 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				undeliveredOrdersRepository,
 				orderRepository,
 				complaintSettings,
-				subdivisionSettings);
+				subdivisionSettings,
+				orderSettings);
 
 			return report;
 		}

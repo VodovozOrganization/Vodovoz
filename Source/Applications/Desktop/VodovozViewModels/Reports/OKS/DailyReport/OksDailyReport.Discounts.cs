@@ -13,7 +13,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		private int _discountsNextEmptyRowNumber = 0;
 
 		private IEnumerable<int> _oksDiscountReasonsIds = new List<int>();
-		private IEnumerable<int> _changeDiscountReasonsIds = new List<int>();
+		private IEnumerable<int> _productChangeDiscountReasonsIds = new List<int>();
 		private IEnumerable<int> _additionalDeliveryDiscountReasonsIds = new List<int>();
 
 		private IList<OksDailyReportOrderDiscountDataNode> _ordersDiscountsDataForDate =
@@ -91,7 +91,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			_discountsNextEmptyRowNumber++;
 
 			AddDiscountsTablesHeaders(ref worksheet);
-			AddDiscountsTablesData(ref worksheet, _changeDiscountReasonsIds);
+			AddDiscountsTablesData(ref worksheet, _productChangeDiscountReasonsIds);
 		}
 
 		private void AddAdditionalDeliveryDiscountsTable(ref IXLWorksheet worksheet)

@@ -150,13 +150,11 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 		public IQueryable<OksDailyReportComplaintDataNode> GetClientComplaintsForPeriod(
 			IUnitOfWork uow,
 			DateTime startDate,
-			DateTime endDate,
-			int oksSubdivisionId)
+			DateTime endDate)
 		{
 			var query =
 				from complaint in uow.Session.Query<Complaint>()
 				join counterparty in uow.Session.Query<Counterparty>() on complaint.Counterparty.Id equals counterparty.Id
-				join complaintDiscussion in uow.Session.Query<ComplaintDiscussion>() on complaint.Id equals complaintDiscussion.Complaint.Id
 				join dp in uow.Session.Query<DeliveryPoint>() on complaint.DeliveryPoint.Id equals dp.Id into deliveryPoints
 				from deliveryPoint in deliveryPoints.DefaultIfEmpty()
 				join ck in uow.Session.Query<ComplaintKind>() on complaint.ComplaintKind.Id equals ck.Id into complaintKinds
@@ -165,15 +163,23 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 				from complaintObject in complaintObjects.DefaultIfEmpty()
 				where complaint.CreationDate >= startDate.Date && complaint.CreationDate <= endDate.LatestDayTime()
 				&& complaint.ComplaintType == ComplaintType.Client
-				&& complaintDiscussion.Subdivision.Id == oksSubdivisionId
 				orderby complaint.Id descending
 
 				let resultComments =
 				uow.Session.Query<ComplaintResultComment>()
 				.Where(r => r.Complaint.Id == complaint.Id)
 				.Select(r => r.Comment)
-				.ToList()
 
+				let discussionSubdivisions =
+				uow.Session.Query<ComplaintDiscussion>()
+				.Where(d => d.Complaint.Id == complaint.Id)
+				.Select(d => new DiscussionSubdivisionData
+				{
+					DiscussionId = d.Id,
+					ComplaintId = d.Complaint.Id,
+					SubdivisionId = d.Subdivision.Id,
+					DiscussionStatuse = d.Status
+				})
 
 				select new OksDailyReportComplaintDataNode
 				{
@@ -186,9 +192,9 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 					ComplaintKind = complaint.ComplaintKind,
 					ComplaintObject = complaint.ComplaintKind == null ? null : complaint.ComplaintKind.ComplaintObject,
 					ComplaintSource = complaint.ComplaintSource,
-					OksDiskussionStatuse = complaintDiscussion.Status,
 					ClientName = counterparty.Name,
-					DeliveryPointAddress = deliveryPoint == null ? string.Empty : deliveryPoint.CompiledAddress
+					DeliveryPointAddress = deliveryPoint == null ? string.Empty : deliveryPoint.CompiledAddress,
+					DiscussionSubdivisions = discussionSubdivisions
 				};
 
 			return query;

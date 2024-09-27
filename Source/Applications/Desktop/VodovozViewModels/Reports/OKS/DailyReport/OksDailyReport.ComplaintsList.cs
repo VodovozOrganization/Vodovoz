@@ -80,7 +80,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			var columnNumber = _complaintsListTableStartColumnNumber;
 			var complaintsCounter = 0;
 
-			foreach(var complaint in _complaintsDataForDate)
+			foreach(var complaint in _complaintsDataOnDate)
 			{
 				columnNumber = 1;
 				worksheet.Cell(rowNumber, columnNumber++).Value = ++complaintsCounter;
