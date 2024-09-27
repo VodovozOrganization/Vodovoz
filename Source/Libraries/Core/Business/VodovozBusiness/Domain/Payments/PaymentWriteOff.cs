@@ -1,5 +1,7 @@
-﻿using QS.DomainModel.Entity;
+﻿using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
@@ -9,6 +11,7 @@ using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Payments;
 
 namespace VodovozBusiness.Domain.Payments
 {
@@ -133,6 +136,11 @@ namespace VodovozBusiness.Domain.Payments
 			get => _sum;
 			set
 			{
+				if(value <= 0)
+				{
+					return;
+				}
+
 				if(SetField(ref _sum, value))
 				{
 					CashlessMovementOperation.Expense = value;
@@ -178,7 +186,68 @@ namespace VodovozBusiness.Domain.Payments
 		/// <returns></returns>
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			return Enumerable.Empty<ValidationResult>();
+			if(Date == default)
+			{
+				yield return new ValidationResult("Необходимо заполнить дату", new[] { nameof(Date) });
+			}
+
+			if(PaymentNumber == default)
+			{
+				yield return new ValidationResult("Необходимо заполнить номер платежа", new[] { nameof(PaymentNumber) });
+			}
+
+			if(CounterpartyId is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить контрагента", new[] { nameof(CounterpartyId) });
+			}
+
+			if(CounterpartyId is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить контрагента", new[] { nameof(CounterpartyId) });
+			}
+
+			if(OrganizationId is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить организацию", new[] { nameof(OrganizationId) });
+			}
+
+			if(string.IsNullOrWhiteSpace(Reason))
+			{
+				yield return new ValidationResult("Необходимо заполнить причину", new[] { nameof(Reason) });
+			}
+
+			if(Sum <= 0)
+			{
+				yield return new ValidationResult("Сумма должна быть больше нуля", new[] { nameof(Sum) });
+			}
+
+			if(CounterpartyId != null && OrganizationId != null)
+			{
+				var paymentsRepository = validationContext.GetRequiredService<IPaymentsRepository>();
+				var unitOfWork = validationContext.GetRequiredService<IUnitOfWork>();
+
+				var balance = paymentsRepository.GetCounterpartyLastBalance(unitOfWork, CounterpartyId.Value, OrganizationId.Value);
+
+				if(Id == 0)
+				{
+					if(Sum > balance)
+					{
+						yield return new ValidationResult($"Для нового списания сумма должна быть меньше текущего баланса контрагента по компании: {balance}", new[] { nameof(Sum) });
+					}
+				}
+				else
+				{
+					if(Sum > balance + Sum)
+					{
+						yield return new ValidationResult($"Сумма должна быть меньше текущего баланса контрагента по компании и суммы текущего списания: {balance + Sum}", new[] { nameof(Sum) });
+					}
+				}
+			}
+
+			if(FinancialExpenseCategoryId is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить статью списания", new[] { nameof(FinancialExpenseCategoryId) });
+			}
 		}
 	}
 }
