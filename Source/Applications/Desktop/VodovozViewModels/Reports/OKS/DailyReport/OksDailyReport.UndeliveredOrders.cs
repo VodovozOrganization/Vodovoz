@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DateTimeHelpers;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -134,7 +135,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		{
 			var rowNumber = _undeliveredNextEmptyRowNumber;
 
-			worksheet.Cell(rowNumber, _leftSmallTablesFirstColumn).Value = $"Статус недовоза:";
+			worksheet.Cell(rowNumber, _leftSmallTablesFirstColumn).Value = "Статус недовоза:";
 			worksheet.Range(rowNumber, _leftSmallTablesFirstColumn, rowNumber, _leftSmallTablesSecondColumn).Merge();
 
 			FormatUndeliveredOrdersBoldFontMediumBordersWithBackgroundCells(
@@ -171,7 +172,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		{
 			var rowNumber = _undeliveredNextEmptyRowNumber;
 
-			worksheet.Cell(rowNumber, _leftSmallTablesFirstColumn).Value = $"Статус недовоза:";
+			worksheet.Cell(rowNumber, _leftSmallTablesFirstColumn).Value = $"Статус недовоза с {_date.FirstDayOfMonth().ToString(_dateFormatString)} по {_date.ToString(_dateFormatString)}";
 			worksheet.Range(rowNumber, _leftSmallTablesFirstColumn, rowNumber, _leftSmallTablesSecondColumn).Merge();
 
 			FormatUndeliveredOrdersBoldFontMediumBordersWithBackgroundCells(
@@ -263,7 +264,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		{
 			var rowNumber = 13;
 
-			worksheet.Cell(rowNumber, _rightSmallTablesFirstColumn).Value = $"Без переноса на клиенте";
+			worksheet.Cell(rowNumber, _rightSmallTablesFirstColumn).Value = $"Без переноса на отделах";
 
 			worksheet.Cell(rowNumber, _rightSmallTablesSecondColumn).Value =
 				_undeliveredOrdersDataForDate
@@ -327,6 +328,10 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.Reason;
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.Drivers;
 				worksheet.Cell(rowNumber, columnNumber).Value = item.ResultComments;
+
+				FillCellBackground(
+						worksheet.Range(rowNumber, columnNumber, rowNumber, columnNumber),
+						_undeliveredOrdersMarkupBgColor);
 			}
 
 			FormatUndeliveredOrdersThinBordersCells(worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _mainTablesFirstColumn, rowNumber, headersColumnNumber));
@@ -338,24 +343,11 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		{
 			var rowNumber = _undeliveredNextEmptyRowNumber;
 
-			worksheet.Cell(rowNumber, _mainTablesFirstColumn).Value = "Таблица заказов без переноса на клиенте";
+			worksheet.Cell(rowNumber, _mainTablesFirstColumn).Value = "Таблица заказов без переноса на отделах";
 
-			rowNumber++;
-
-			var headersColumnNumber = 2;
-			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "№";
-			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Статус недовоза";
-			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Дата заказа";
-			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Клиент";
-			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Ответственный";
-			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Причина";
-			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Водитель";
-			worksheet.Cell(rowNumber, headersColumnNumber).Value = "Контроль";
-
-			worksheet.Range(_undeliveredNextEmptyRowNumber, _mainTablesFirstColumn, _undeliveredNextEmptyRowNumber, headersColumnNumber).Merge();
-
-			FormatUndeliveredOrdersBoldFontMediumBordersWithBackgroundCells(
-				worksheet.Range(_undeliveredNextEmptyRowNumber, _mainTablesFirstColumn, rowNumber, headersColumnNumber));
+			var titleCellsRange = worksheet.Range(rowNumber, _mainTablesFirstColumn, rowNumber, 9);
+			titleCellsRange.Merge();
+			FormatUndeliveredOrdersBoldFontMediumBordersWithBackgroundCells(titleCellsRange);
 
 			var undeliveredOrders =
 				_undeliveredOrdersDataForDate
@@ -380,9 +372,13 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.Reason;
 				worksheet.Cell(rowNumber, columnNumber++).Value = item.Drivers;
 				worksheet.Cell(rowNumber, columnNumber).Value = item.ResultComments;
+
+				FillCellBackground(
+						worksheet.Range(rowNumber, columnNumber, rowNumber, columnNumber),
+						_undeliveredOrdersMarkupBgColor);
 			}
 
-			FormatUndeliveredOrdersThinBordersCells(worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _mainTablesFirstColumn, rowNumber, headersColumnNumber));
+			FormatUndeliveredOrdersThinBordersCells(worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _mainTablesFirstColumn, rowNumber, 9));
 
 			_undeliveredNextEmptyRowNumber = rowNumber + 2;
 		}
