@@ -41,8 +41,9 @@ namespace Vodovoz.Accounting.Payments
 				.AddBinding(ViewModel.Entity, e => e.Reason, w => w.Buffer.Text)
 				.InitializeFromSource();
 
-			yspinbuttonSum.Binding
-				.AddBinding(ViewModel.Entity, e => e.Sum, w => w.ValueAsDecimal)
+			yspinbuttonSum.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Sum, w => w.ValueAsDecimal)
+				.AddBinding(vm => vm.MaxLength, w => w.MaxLength)
 				.InitializeFromSource();
 
 			ViewModel.CounterpartyViewModel = new LegacyEEVMBuilderFactory<PaymentWriteOffViewModel>(ViewModel, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, _lifetimeScope)
