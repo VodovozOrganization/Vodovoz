@@ -25,6 +25,7 @@ using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -1629,6 +1630,35 @@ namespace Vodovoz
 			{
 				MessageDialogHelper.RunErrorDialog("Нельзя удалить талоны по которым выдавались топливные лимиты");
 				return;
+			}
+
+			if(fd.FuelCashExpense != null)
+			{
+				var cashTransferDocumentsHavingExpense = UoW.Session.Query<ExpenseCashTransferedItem>()
+					.Where(ti => ti.Expense.Id == fd.FuelCashExpense.Id)
+					.Select(ti => ti.Document.Id)
+					.ToList();
+
+				if(cashTransferDocumentsHavingExpense.Count > 0)
+				{
+					MessageDialogHelper.RunErrorDialog(
+						$"Удалить талоны невозможно, т.к. расходный ордер талона задействован " +
+						$"в документах перемещении ДС: {string.Join(", ", cashTransferDocumentsHavingExpense)}");
+
+					return;
+				}
+			}
+
+			var cashDistributionDocuments = UoW.Session.Query<FuelExpenseCashDistributionDocument>()
+				.Where(d => d.FuelDocument.Id == fd.Id)
+				.ToList();
+
+			if(cashDistributionDocuments.Count > 0)
+			{
+				foreach(var cashDistributionDocument in cashDistributionDocuments)
+				{
+					UoW.Delete(cashDistributionDocument);
+				}
 			}
 
 			Entity.ObservableFuelDocuments.Remove(fd);
