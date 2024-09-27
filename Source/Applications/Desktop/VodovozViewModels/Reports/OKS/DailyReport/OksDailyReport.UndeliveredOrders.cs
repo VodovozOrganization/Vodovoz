@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using DateTimeHelpers;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -202,7 +203,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 					worksheet.Range(rowNumber, _leftSmallTablesFirstColumn, rowNumber, _leftSmallTablesThirdColumn));
 			}
 
-			_undeliveredNextEmptyRowNumber = rowNumber + 2;
+			_undeliveredNextEmptyRowNumber = Math.Max(15, rowNumber + 2);
 		}
 
 		private void AddUndeliveredOrdersTransferTypesTable(ref IXLWorksheet worksheet)
@@ -334,7 +335,11 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 						_undeliveredOrdersMarkupBgColor);
 			}
 
-			FormatUndeliveredOrdersThinBordersCells(worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _mainTablesFirstColumn, rowNumber, headersColumnNumber));
+			if(undeliveredOrders.Any())
+			{
+				FormatUndeliveredOrdersThinBordersCells(
+					worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _mainTablesFirstColumn, rowNumber, headersColumnNumber));
+			}
 
 			_undeliveredNextEmptyRowNumber = rowNumber + 2;
 		}
@@ -378,7 +383,11 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 						_undeliveredOrdersMarkupBgColor);
 			}
 
-			FormatUndeliveredOrdersThinBordersCells(worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _mainTablesFirstColumn, rowNumber, 9));
+			if(undeliveredOrders.Any())
+			{
+				FormatUndeliveredOrdersThinBordersCells(
+					worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _mainTablesFirstColumn, rowNumber, 9));
+			}
 
 			_undeliveredNextEmptyRowNumber = rowNumber + 2;
 		}

@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 		private readonly IComplaintSettings _complaintSettings;
 		private readonly ISubdivisionSettings _subdivisionSettings;
 		private readonly IOrderSettings _orderSettings;
-		private DateTime _date = new DateTime(2023, 05, 22); //DateTime.Today.AddDays(-1);
+		private DateTime _date = DateTime.Today.AddDays(-1);
 
 		public OksDailyReportViewModel(
 			ILogger<OksDailyReportViewModel> logger,
@@ -72,6 +72,8 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			{
 				return;
 			}
+
+			_logger.LogInformation("Формирование ежедневного отчета ОКС за {Date}", Date);
 
 			var report = OksDailyReport.Create(
 				UoW,
