@@ -180,6 +180,12 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			}
 		}
 
+		protected override bool BeforeValidation()
+		{
+			ValidationContext.ServiceContainer.AddService(typeof(IUnitOfWork), UoW);
+			return base.BeforeValidation();
+		}
+
 		private void SaveHandler()
 		{
 			SaveAndClose();
