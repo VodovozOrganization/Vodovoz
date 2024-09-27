@@ -19,10 +19,6 @@ namespace TaxcomEdo.Contracts.Contacts
 		/// <summary>
 		/// Статус
 		/// </summary>
-		public EdoContactStateCode StateCode { get; set; }
-		/// <summary>
-		/// Время изменения состояния
-		/// </summary>
-		public DateTime StateChanged { get; set; }
+		public EdoContactState State { get; set; }
 	}
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 namespace TaxcomEdo.Contracts.Documents
 {
@@ -11,7 +11,7 @@ namespace TaxcomEdo.Contracts.Documents
 		/// <summary>
 		/// Информация о документооборотах
 		/// </summary>
-		public ReadOnlyCollection<EdoDocFlow> Updates { get; set; }
+		public IEnumerable<EdoDocFlow> Updates { get; set; }
 		/// <summary>
 		/// Время запроса
 		/// </summary>

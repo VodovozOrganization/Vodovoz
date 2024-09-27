@@ -16,12 +16,12 @@ namespace TaxcomEdoApi.Controllers
 	{
 		private readonly ILogger<TaxcomEdoController> _logger;
 		private readonly TaxcomApi _taxcomApi;
-		private readonly TaxcomEdoService _taxcomEdoService;
+		private readonly ITaxcomEdoService _taxcomEdoService;
 		
 		public TaxcomEdoController(
 			ILogger<TaxcomEdoController> logger,
 			TaxcomApi taxcomApi,
-			TaxcomEdoService taxcomEdoService)
+			ITaxcomEdoService taxcomEdoService)
 		{
 			_logger = logger;
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
@@ -131,7 +131,7 @@ namespace TaxcomEdoApi.Controllers
 		}
 		
 		[HttpGet]
-		public IActionResult GetDocFlowsUpdates(GetDocFlowsUpdatesParameters docFlowsUpdatesParams)
+		public IActionResult GetDocFlowsUpdates([FromBody] GetDocFlowsUpdatesParameters docFlowsUpdatesParams)
 		{
 			_logger.LogInformation("Получаем исходящие документы");
 			

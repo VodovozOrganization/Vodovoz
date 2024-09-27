@@ -83,7 +83,6 @@ namespace EdoContactsUpdater
 							catch(Exception e)
 							{
 								_logger.LogError(e, "Ошибка при запросе списка контактов");
-								return;
 							}
 
 							if(contactUpdates.Contacts is null)
@@ -95,7 +94,7 @@ namespace EdoContactsUpdater
 							{
 								IList<Counterparty> counterparties;
 
-								switch(contact.StateCode)
+								switch(contact.State.Code)
 								{
 									case EdoContactStateCode.Incoming:
 										await TryAcceptIncomingInvite(contact, uow, taxcomApiClient, cancellationToken);
@@ -104,7 +103,7 @@ namespace EdoContactsUpdater
 									case EdoContactStateCode.Accepted:
 									case EdoContactStateCode.Rejected:
 									case EdoContactStateCode.Error:
-										_logger.LogInformation("Обрабатываем контакт в статусе {StateCode}", contact.StateCode);
+										_logger.LogInformation("Обрабатываем контакт в статусе {StateCode}", contact.State.Code);
 										counterparties = _counterpartyRepository.GetCounterpartiesByINN(uow, contact.Inn);
 
 										if(counterparties == null)
@@ -113,7 +112,7 @@ namespace EdoContactsUpdater
 										}
 
 										var consentForEdoStatus =
-											_edoContactStateCodeConverter.ConvertStateToConsentForEdoStatus(contact.StateCode);
+											_edoContactStateCodeConverter.ConvertStateToConsentForEdoStatus(contact.State.Code);
 										
 										foreach(var counterparty in counterparties)
 										{
@@ -154,7 +153,7 @@ namespace EdoContactsUpdater
 										break;
 								}
 
-								lastCheckContactsUpdates = contact.StateChanged;
+								lastCheckContactsUpdates = contact.State.Changed;
 							}
 						} while(contactUpdates.Contacts != null && contactUpdates.Contacts.Length >= 100);
 					}

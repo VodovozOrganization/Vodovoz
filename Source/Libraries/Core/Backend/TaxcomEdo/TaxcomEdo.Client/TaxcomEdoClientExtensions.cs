@@ -1,18 +1,28 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using TaxcomEdo.Client.Configs;
 
 namespace TaxcomEdo.Client
 {
 	public static class TaxcomEdoClientExtensions
 	{
-		public static IServiceCollection AddTaxcomClient(this IServiceCollection services, IConfiguration configuration)
+		public static IServiceCollection AddTaxcomClient(this IServiceCollection services)
 		{
 			return services
 				.AddScoped<ITaxcomApiClient, TaxcomApiClient>()
-				.Configure<TaxcomApiOptions>(c => configuration.GetSection(TaxcomApiOptions.Path))
-				.AddSingleton(c => c.GetService<IOptions<TaxcomApiOptions>>().Value);
+				.AddSingleton<TaxcomApiOptions>(c =>
+				{
+					var configuration = c.GetService<IConfiguration>();
+					var taxcomApiOptions = new TaxcomApiOptions();
+					configuration.Bind(TaxcomApiOptions.Path, taxcomApiOptions);
+					
+					return taxcomApiOptions;
+				})
+				.AddSingleton(_ => new JsonSerializerOptions
+				{
+					PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+				});
 		}
 	}
 }

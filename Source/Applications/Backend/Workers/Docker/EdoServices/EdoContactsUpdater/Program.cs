@@ -8,7 +8,6 @@ using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
 using TaxcomEdo.Client;
-using TaxcomEdo.Client.Configs;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
@@ -51,9 +50,7 @@ namespace EdoContactsUpdater
 
 						.AddSingleton<IEdoContactStateCodeConverter, EdoContactStateCodeConverter>()
 						.AddHttpClient()
-						.AddScoped<ITaxcomApiClient, TaxcomApiClient>()
-						.Configure<TaxcomApiOptions>(
-							hostContext.Configuration.GetSection(TaxcomApiOptions.Path));
+						.AddTaxcomClient();
 						//.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
 					
 					services.AddHostedService<TaxcomEdoContactsUpdaterService>();

@@ -107,15 +107,17 @@ namespace EdoDocumentFlowUpdater
 							return;
 						}
 
-						_logger.LogInformation("Обрабатываем полученные контейнеры {DocFlowUpdatesCount}", docFlowUpdates.Updates.Count);
+						_logger.LogInformation("Обрабатываем полученные контейнеры {DocFlowUpdatesCount}", docFlowUpdates.Updates.Count());
 
 						foreach(var item in docFlowUpdates.Updates)
 						{
 							EdoContainer container = null;
+							EdoDocFlowDocument mainDocument = null;
 
-							if(item.Documents.Count > 0)
+							if(item.Documents.Any())
 							{
-								container = _orderRepository.GetEdoContainerByMainDocumentId(uow, item.Documents[0].ExternalIdentifier);
+								mainDocument = item.Documents.First();
+								container = _orderRepository.GetEdoContainerByMainDocumentId(uow, mainDocument.ExternalIdentifier);
 							}
 
 							if(container != null)
@@ -125,16 +127,16 @@ namespace EdoDocumentFlowUpdater
 
 								container.DocFlowId = item.Id;
 								container.Received = containerReceived;
-								container.InternalId = item.Documents[0].InternalId;
+								container.InternalId = mainDocument.InternalId;
 								container.ErrorDescription = item.ErrorDescription;
-								container.EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status);
+								container.EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status.ToString());
 
 								if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 								{
 									var containerRawData =
 										await taxcomApiClient.GetDocFlowRawData(item.Id.Value.ToString(), cancellationToken);
 
-									using var ms = new MemoryStream(containerRawData.ToArray());
+									/*using var ms = new MemoryStream(containerRawData.ToArray());
 
 									var result =
 										await _edoContainerFileStorageService.UpdateContainerAsync(container, ms, cancellationToken);
@@ -144,12 +146,12 @@ namespace EdoDocumentFlowUpdater
 										var errors = string.Join(", ", result.Errors.Select(e => e.Message));
 
 										_logger.LogError("Не удалось обновить контейнер, ошибка: {Errors}", errors);
-									}
+									}*/
 								}
 
 								_logger.LogInformation("Сохраняем изменения контейнера по заказу №{OrderId}", container.Order?.Id);
-								await uow.SaveAsync(container);
-								await uow.CommitAsync();
+								//await uow.SaveAsync(container);
+								//await uow.CommitAsync();
 							}
 
 							_lastEventOutgoingDocumentsTimeStamp = item.StatusChangeDateTime.ToBinary();

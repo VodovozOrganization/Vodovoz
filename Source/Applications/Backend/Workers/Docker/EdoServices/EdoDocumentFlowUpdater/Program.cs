@@ -52,16 +52,13 @@ namespace EdoDocumentFlowUpdater
 						.AddTrackedUoW()
 						.AddInfrastructure(ServiceLifetime.Singleton)
 						.ConfigureOptions<ConfigureS3Options>()
-						.AddApplication()
 						.AddFileStorage()
 						.AddStaticHistoryTracker()
 						.AddStaticScopeForEntity()
 						.Configure<TaxcomEdoDocumentFlowUpdaterOptions>(
 							hostContext.Configuration.GetSection(TaxcomEdoDocumentFlowUpdaterOptions.Path))
 						.AddHttpClient()
-						.AddScoped<ITaxcomApiClient, TaxcomApiClient>()
-						.Configure<TaxcomApiOptions>(
-							hostContext.Configuration.GetSection(TaxcomApiOptions.Path))
+						.AddTaxcomClient()
 						
 						.ConfigureHealthCheckService<TaxcomEdoDocFlowUpdaterHealthCheck>(true)
 						.AddHostedService<TaxcomEdoDocumentFlowUpdater>();
