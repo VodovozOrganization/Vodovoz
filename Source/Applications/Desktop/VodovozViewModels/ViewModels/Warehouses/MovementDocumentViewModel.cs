@@ -307,7 +307,8 @@ namespace Vodovoz.ViewModels.Warehouses
 				() => CanAcceptDiscrepancy);
 			SetPropertyChangeRelation(
 				e => e.Status,
-				() => CanEditNewDocument);
+				() => CanEditNewDocument,
+				() => CanChangeTargetWarehouseDocument);
 			SetPropertyChangeRelation(
 				e => e.ToWarehouse,
 				() => CanSend,
@@ -486,6 +487,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		public bool CanEditSentAmount => CanSend;
 		public bool CanEditReceivedAmount => CanReceive;
 		public bool CanEditNewDocument => CanEdit && Entity.NewOrSentStatus;
+		public bool CanChangeTargetWarehouseDocument => CanEditNewDocument || _canEditRectroactively;
 		public bool HasAccessToEmployeeStorages { get; private set; }
 		public bool HasAccessToCarStorages { get; private set; }
 		public bool CanEditStoreMovementDocumentTransporterData => _canEditStoreMovementDocumentTransporterData;
