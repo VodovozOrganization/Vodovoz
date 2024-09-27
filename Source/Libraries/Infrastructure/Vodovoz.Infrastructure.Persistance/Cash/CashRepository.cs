@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
