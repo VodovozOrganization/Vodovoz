@@ -36,16 +36,16 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 			enumcheckCarTypeOfUse.EnumType = ViewModel.CarTypeOfUseType;
 			enumcheckCarTypeOfUse.AddEnumToHideList(ViewModel.HiddenCarTypeOfUse);
-			enumcheckCarTypeOfUse.SelectAll();
 			enumcheckCarTypeOfUse.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CarTypeOfUseList, w => w.SelectedValuesList)
 				.InitializeFromSource();
+			enumcheckCarTypeOfUse.SelectAll();
 
 			enumcheckCarOwnType.EnumType = ViewModel.CarOwnTypeType;
-			enumcheckCarOwnType.SelectAll();
 			enumcheckCarOwnType.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CarOwnTypeList, w => w.SelectedValuesList)
 				.InitializeFromSource();
+			enumcheckCarOwnType.SelectAll();
 
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}

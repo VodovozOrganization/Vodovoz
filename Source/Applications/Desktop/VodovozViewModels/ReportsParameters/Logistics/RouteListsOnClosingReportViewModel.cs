@@ -41,6 +41,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 			UoW = _uowFactory.CreateWithoutRoot();
 
 			GeoGroups = UoW.GetAll<GeoGroup>().ToList();
+			_showTodayRouteLists = true;
+
 
 			_endDate = DateTime.Now.FirstDayOfMonth();
 
