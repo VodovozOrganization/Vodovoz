@@ -691,13 +691,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private void SetPermissions()
 		{
 			CanCreateAndArcNomenclatures =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanCreateAndArcNomenclatures);
 			CanCreateNomenclaturesWithInventoryAccountingPermission =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_nomenclatures_with_inventory_accounting");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanCreateNomenclaturesWithInventoryAccounting);
 			CanEditAlternativeNomenclaturePrices =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanEditAlternativeNomenclaturePrices);
 			HasAccessToSitesAndAppsTab =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("Nomenclature.HasAccessToSitesAndAppsTab");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
 		}
 		
 		private void ConfigureOnlineParameters()

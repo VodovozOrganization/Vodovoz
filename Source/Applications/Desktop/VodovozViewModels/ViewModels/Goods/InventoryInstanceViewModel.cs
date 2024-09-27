@@ -47,6 +47,8 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		public bool CanEdit { get; private set; }
 		public bool CanEditNewEntity { get; private set; }
+		public bool CanEditUsedParameter { get; private set; }
+
 		public bool AskSaveOnClose => CanEdit;
 		public ILifetimeScope Scope { get; }
 		public IEntityEntryViewModel NomenclatureViewModel { get; private set; }
@@ -75,6 +77,10 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		{
 			CanEdit = PermissionResult.CanUpdate || (Entity.Id == 0 && PermissionResult.CanCreate);
 			CanEditNewEntity = Entity.Id == 0 && (PermissionResult.CanUpdate || PermissionResult.CanCreate);
+			CanEditUsedParameter =
+				!Entity.IsUsed
+			    || CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.InventoryNomenclatureInstance.CanEditUsedParameter);
 			_oldIsArchive = Entity.IsArchive;
 			
 			var builder = new CommonEEVMBuilderFactory<InventoryNomenclatureInstance>(

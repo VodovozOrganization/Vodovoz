@@ -20,6 +20,7 @@ namespace Vodovoz.Domain.Goods
 	public class InventoryNomenclatureInstance : NomenclatureInstance
 	{
 		private bool _isArchive;
+		private bool _isUsed;
 		private string _inventoryNumber;
 		
 		[Display(Name = "Инвентарный номер")]
@@ -35,10 +36,18 @@ namespace Vodovoz.Domain.Goods
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
+		
+		[Display(Name = "Бывшее в употреблении", ShortName = "Б/у")]
+		public virtual bool IsUsed
+		{
+			get => _isUsed;
+			set => SetField(ref _isUsed, value);
+		}
 
 		public override NomenclatureInstanceType Type => NomenclatureInstanceType.InventoryNomenclatureInstance;
 
 		public virtual string Name => Nomenclature != null ? Nomenclature.Name : string.Empty;
+		public virtual string GetInventoryNumber => IsUsed ? $"Б/У - {InventoryNumber}" : $"{InventoryNumber}";
 		
 		public override string ToString()
 		{
