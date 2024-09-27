@@ -239,7 +239,14 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		{
 			if(StartDate == null || StartDate == default(DateTime))
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату начала выборки");
+				return;
+			}
+			
+			if(EndDate == null || EndDate == default(DateTime))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату окончания выборки");
+				return;
 			}
 
 			_parameters = FilterViewModel.GetReportParametersSet();
