@@ -101,7 +101,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				_template = specialBillDocument.GetResendEmailTemplate();
 			}
 			else if(_counterpartyEmail.StoredEmail.ManualSending == true
-				&& document is IManuallyResendEmailableDocument resendableDocument)
+				&& document is ICustomResendTemplateEmailableDocument resendableDocument)
 			{
 				_template = resendableDocument.GetResendDocumentEmailTemplate();
 			}

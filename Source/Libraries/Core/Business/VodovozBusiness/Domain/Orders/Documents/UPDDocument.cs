@@ -12,7 +12,7 @@ using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class UPDDocument : PrintableOrderDocument, IPrintableRDLDocument, IManuallyResendEmailableDocument
+	public class UPDDocument : PrintableOrderDocument, IPrintableRDLDocument, ICustomResendTemplateEmailableDocument
 	{
 		private static readonly DateTime _edition2017LastDate =
 			Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));

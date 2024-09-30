@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		ReportInfo GetReportInfo(string connectionString = null);
 	}
 
-	public interface IManuallyResendEmailableDocument : IEmailableDocument
+	public interface ICustomResendTemplateEmailableDocument : IEmailableDocument
 	{
 		EmailTemplate GetResendDocumentEmailTemplate();
 	}
