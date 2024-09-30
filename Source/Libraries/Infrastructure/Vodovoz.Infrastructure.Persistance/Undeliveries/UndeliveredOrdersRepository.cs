@@ -294,6 +294,7 @@ namespace Vodovoz.Infrastructure.Persistance.Undeliveries
 				.Select(() => subdivisionAlias.Id).WithAlias(() => resultAlias.GuiltySubdivisionId)
 				.Select(() => subdivisionAlias.ShortName).WithAlias(() => resultAlias.GuiltySubdivisionName)
 				.Select(() => undeliveredOrderAlias.UndeliveryStatus).WithAlias(() => resultAlias.UndeliveryStatus)
+				.Select(() => undeliveredOrderAlias.OrderTransferType).WithAlias(() => resultAlias.TransferType)
 				.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OldOrderDeliveryDate)
 				.Select(() => counterpartyAlias.FullName).WithAlias(() => resultAlias.ClientName)
 				.Select(() => undeliveredOrderAlias.Reason).WithAlias(() => resultAlias.Reason)
