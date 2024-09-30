@@ -16,6 +16,69 @@ namespace VodovozBusiness.Controllers
 			_fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
 		}
 
+		public void RemoveDiscountFromOrder(IList<OrderItem> orderItems)
+		{
+			foreach(var item in orderItems)
+			{
+				RemoveDiscountFromOrderItem(item);
+			}
+		}
+		
+		public void SetCustomDiscountForOrder(DiscountReason reason, decimal discount, DiscountUnits unit, IList<OrderItem> orderItems)
+		{
+			foreach(var item in orderItems)
+			{
+				SetCustomDiscountForOrderItem(reason, discount, unit, item);
+			}
+		}
+
+		public void SetDiscountFromDiscountReasonForOrder(
+			DiscountReason reason, IList<OrderItem> orderItems, bool canChangeDiscountValue, out string messages)
+		{
+			messages = null;
+			
+			for(var i = 0; i < orderItems.Count; i++)
+			{
+				SetDiscountFromDiscountReasonForOrderItem(reason, orderItems[i], canChangeDiscountValue, out string message);
+
+				if(message != null)
+				{
+					messages += $"№{i + 1} {message}";
+				}
+			}
+		}
+
+		public bool SetDiscountFromDiscountReasonForOrderItem(
+			DiscountReason reason, OrderItem orderItem, bool canChangeDiscountValue, out string message)
+		{
+			message = null;
+			
+			if(!CanSetDiscount(reason, orderItem))
+			{
+				return false;
+			}
+			
+			if(!canChangeDiscountValue && OrderItemContainsPromoSetOrFixedPrice(orderItem))
+			{
+				message = $"{orderItem.Nomenclature.Name}\n";
+				return false;
+			}
+
+			SetDiscount(reason, orderItem);
+			return true;
+		}
+
+		public void SetDiscountFromDiscountReasonForOrderItemWithoutShipment(
+			DiscountReason reason, OrderWithoutShipmentForAdvancePaymentItem orderItem)
+		{
+			if(!CanSetDiscountForOrderWithoutShipment(reason, orderItem))
+			{
+				return;
+			}
+
+			SetDiscount(reason, orderItem);
+		}
+
 		/// <summary>
 		/// Возможность установки скидки на строку заказа
 		/// </summary>
@@ -25,7 +88,7 @@ namespace VodovozBusiness.Controllers
 		private bool CanSetDiscount(DiscountReason reason, OrderItem orderItem) =>
 			IsApplicableDiscount(reason, orderItem.Nomenclature)
 			&& orderItem.Price * orderItem.CurrentCount != default(decimal);
-		
+
 		/// <summary>
 		/// Возможность установки скидки на строку счета без отгрузки на предоплату
 		/// </summary>
@@ -35,7 +98,7 @@ namespace VodovozBusiness.Controllers
 		private bool CanSetDiscountForOrderWithoutShipment(DiscountReason reason, OrderWithoutShipmentForAdvancePaymentItem orderItem) =>
 			IsApplicableDiscount(reason, orderItem.Nomenclature)
 			&& orderItem.Price * orderItem.Count != default(decimal);
-		
+
 		/// <summary>
 		/// Содержит ли строка заказа промонабор или есть фикса
 		/// </summary>
@@ -88,7 +151,7 @@ namespace VodovozBusiness.Controllers
 
 			SetCustomDiscount(reason, discount, unit, orderItem);
 		}
-		
+
 		/// <summary>
 		/// Установка определенной скидки на строку заказа с прикреплением указанного основания скидки
 		/// </summary>
@@ -100,7 +163,7 @@ namespace VodovozBusiness.Controllers
 		{
 			orderItem.SetDiscount(unit == DiscountUnits.money, discount, reason);
 		}
-		
+
 		/// <summary>
 		/// Установка скидки из основания скидки на конкретную позицию
 		/// </summary>
@@ -118,99 +181,6 @@ namespace VodovozBusiness.Controllers
 		private void RemoveDiscountFromOrderItem(OrderItem orderItem)
 		{
 			orderItem.RemoveDiscount();
-		}
-
-		/// <summary>
-		/// Удаление скидки из заказа
-		/// </summary>
-		public void RemoveDiscountFromOrder(IList<OrderItem> orderItems)
-		{
-			foreach(var item in orderItems)
-			{
-				RemoveDiscountFromOrderItem(item);
-			}
-		}
-
-		/// <summary>
-		/// Устанавливает основание скидки с введенными значениями в рублях или процентах для всего заказа
-		/// </summary>
-		/// <param name="reason">Основание скидки</param>
-		/// <param name="discount">Скидки</param>
-		/// <param name="unit">Скидка в процентах или рублях</param>
-		/// <param name="orderItems">Список строк заказа</param>
-		public void SetCustomDiscountForOrder(DiscountReason reason, decimal discount, DiscountUnits unit, IList<OrderItem> orderItems)
-		{
-			foreach(var item in orderItems)
-			{
-				SetCustomDiscountForOrderItem(reason, discount, unit, item);
-			}
-		}
-
-		/// <summary>
-		/// Установка скидки исходя из выбранного основания скидки для всего заказа
-		/// </summary>
-		/// <param name="reason">Основание скидки</param>
-		/// <param name="orderItems">Список строк заказа</param>
-		/// <param name="canChangeDiscountValue">Может ли пользователь менять скидку</param>
-		/// <param name="messages">Описание позиций на которые не применилась скидка</param>
-		public void SetDiscountFromDiscountReasonForOrder(
-			DiscountReason reason, IList<OrderItem> orderItems, bool canChangeDiscountValue, out string messages)
-		{
-			messages = null;
-			
-			for(var i = 0; i < orderItems.Count; i++)
-			{
-				SetDiscountFromDiscountReasonForOrderItem(reason, orderItems[i], canChangeDiscountValue, out string message);
-
-				if(message != null)
-				{
-					messages += $"№{i + 1} {message}";
-				}
-			}
-		}
-
-		/// <summary>
-		/// Установка скидки исходя из выбранного основания скидки для строки заказа
-		/// </summary>
-		/// <param name="reason">Основание скидки</param>
-		/// <param name="orderItem">Строка заказа</param>
-		/// <param name="canChangeDiscountValue">Может ли пользователь менять скидку</param>
-		/// <param name="message">Описание позици на которую не применилась скидка</param>
-		/// <returns>true/false - установилась скидка или нет</returns>
-		public bool SetDiscountFromDiscountReasonForOrderItem(
-			DiscountReason reason, OrderItem orderItem, bool canChangeDiscountValue, out string message)
-		{
-			message = null;
-			
-			if(!CanSetDiscount(reason, orderItem))
-			{
-				return false;
-			}
-			
-			if(!canChangeDiscountValue && OrderItemContainsPromoSetOrFixedPrice(orderItem))
-			{
-				message = $"{orderItem.Nomenclature.Name}\n";
-				return false;
-			}
-
-			SetDiscount(reason, orderItem);
-			return true;
-		}
-		
-		/// <summary>
-		/// Установка скидки исходя из выбранного основания скидки для строки счета без отгрузки на предоплату
-		/// </summary>
-		/// <param name="reason">Основание скидки</param>
-		/// <param name="orderItem">Строка счета без отгрузки на предоплату</param>
-		public void SetDiscountFromDiscountReasonForOrderItemWithoutShipment(
-			DiscountReason reason, OrderWithoutShipmentForAdvancePaymentItem orderItem)
-		{
-			if(!CanSetDiscountForOrderWithoutShipment(reason, orderItem))
-			{
-				return;
-			}
-
-			SetDiscount(reason, orderItem);
 		}
 	}
 }
