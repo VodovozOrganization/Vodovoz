@@ -262,7 +262,10 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			rowNumber++;
 
-			var groupedByObjectItems = _complaintsDataOnDate
+			var complaintsHavingObjects = _complaintsDataOnDate
+				.Where(c => c.ComplaintObject != null);
+
+			var groupedByObjectItems = complaintsHavingObjects
 				.GroupBy(c => c.ComplaintObject)
 				.ToDictionary(c => c.Key, c => c.ToList());
 
@@ -298,7 +301,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			}
 
 			worksheet.Cell(rowNumber, dataColumnNumber - 1).Value = "Всего:";
-			worksheet.Cell(rowNumber, dataColumnNumber).Value = _complaintsDataOnDate.Count;
+			worksheet.Cell(rowNumber, dataColumnNumber).Value = complaintsHavingObjects.Count();
 			worksheet.Range(rowNumber, objectNameColumnNumber, rowNumber, dataColumnNumber - 2).Merge();
 
 			FormatComplaintsSummaryTypesAndObjectsTotalCells(
