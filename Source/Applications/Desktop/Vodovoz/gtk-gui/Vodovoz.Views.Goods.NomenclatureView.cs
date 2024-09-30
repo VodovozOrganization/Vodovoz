@@ -120,7 +120,7 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gamma.GtkWidgets.yLabel lblConditionAccounting;
 
-		private global::Gamma.GtkWidgets.yCheckButton chkInventoryAccounting1;
+		private global::Gamma.GtkWidgets.yCheckButton chkConditionAccounting;
 
 		private global::Gtk.HBox hboxTare;
 
@@ -1174,13 +1174,13 @@ namespace Vodovoz.Views.Goods
 			w57.Expand = false;
 			w57.Fill = false;
 			// Container child hboxInventoryAccounting.Gtk.Box+BoxChild
-			this.chkInventoryAccounting1 = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkInventoryAccounting1.CanFocus = true;
-			this.chkInventoryAccounting1.Name = "chkInventoryAccounting1";
-			this.chkInventoryAccounting1.Label = "";
-			this.chkInventoryAccounting1.DrawIndicator = true;
-			this.hboxInventoryAccounting.Add(this.chkInventoryAccounting1);
-			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.hboxInventoryAccounting[this.chkInventoryAccounting1]));
+			this.chkConditionAccounting = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkConditionAccounting.CanFocus = true;
+			this.chkConditionAccounting.Name = "chkConditionAccounting";
+			this.chkConditionAccounting.Label = "";
+			this.chkConditionAccounting.DrawIndicator = true;
+			this.hboxInventoryAccounting.Add(this.chkConditionAccounting);
+			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.hboxInventoryAccounting[this.chkConditionAccounting]));
 			w58.Position = 2;
 			w58.Expand = false;
 			w58.Fill = false;
@@ -1797,7 +1797,9 @@ namespace Vodovoz.Views.Goods
 			this.yhboxWarehouseMinimumBalance.Name = "yhboxWarehouseMinimumBalance";
 			this.yhboxWarehouseMinimumBalance.Spacing = 6;
 			// Container child yhboxWarehouseMinimumBalance.Gtk.Box+BoxChild
-			this.nomenclatureMinimumBalanceByWarehouseView = null;
+			this.nomenclatureMinimumBalanceByWarehouseView = new global::Vodovoz.Views.Goods.NomenclatureMinimumBalanceByWarehouseView();
+			this.nomenclatureMinimumBalanceByWarehouseView.Events = ((global::Gdk.EventMask)(256));
+			this.nomenclatureMinimumBalanceByWarehouseView.Name = "nomenclatureMinimumBalanceByWarehouseView";
 			this.yhboxWarehouseMinimumBalance.Add(this.nomenclatureMinimumBalanceByWarehouseView);
 			global::Gtk.Box.BoxChild w111 = ((global::Gtk.Box.BoxChild)(this.yhboxWarehouseMinimumBalance[this.nomenclatureMinimumBalanceByWarehouseView]));
 			w111.Position = 0;
@@ -2080,7 +2082,9 @@ namespace Vodovoz.Views.Goods
 			this.vbox4.Name = "vbox4";
 			this.vbox4.Spacing = 6;
 			// Container child vbox4.Gtk.Box+BoxChild
-			this.nomenclaturecharacteristicsview1 = null;
+			this.nomenclaturecharacteristicsview1 = new global::Vodovoz.Dialogs.Goods.NomenclatureCharacteristicsView();
+			this.nomenclaturecharacteristicsview1.Events = ((global::Gdk.EventMask)(256));
+			this.nomenclaturecharacteristicsview1.Name = "nomenclaturecharacteristicsview1";
 			this.vbox4.Add(this.nomenclaturecharacteristicsview1);
 			global::Gtk.Box.BoxChild w137 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.nomenclaturecharacteristicsview1]));
 			w137.Position = 0;
@@ -2135,7 +2139,9 @@ namespace Vodovoz.Views.Goods
 			this.datatable2.RowSpacing = ((uint)(6));
 			this.datatable2.ColumnSpacing = ((uint)(6));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.alternativePricesView = null;
+			this.alternativePricesView = new global::Vodovoz.PricesView();
+			this.alternativePricesView.Events = ((global::Gdk.EventMask)(256));
+			this.alternativePricesView.Name = "alternativePricesView";
 			this.datatable2.Add(this.alternativePricesView);
 			global::Gtk.Table.TableChild w143 = ((global::Gtk.Table.TableChild)(this.datatable2[this.alternativePricesView]));
 			w143.TopAttach = ((uint)(4));
@@ -2155,7 +2161,9 @@ namespace Vodovoz.Views.Goods
 			w144.XOptions = ((global::Gtk.AttachOptions)(4));
 			w144.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.pricesView = null;
+			this.pricesView = new global::Vodovoz.PricesView();
+			this.pricesView.Events = ((global::Gdk.EventMask)(256));
+			this.pricesView.Name = "pricesView";
 			this.datatable2.Add(this.pricesView);
 			global::Gtk.Table.TableChild w145 = ((global::Gtk.Table.TableChild)(this.datatable2[this.pricesView]));
 			w145.TopAttach = ((uint)(1));
@@ -2216,7 +2224,9 @@ namespace Vodovoz.Views.Goods
 			w149.Expand = false;
 			w149.Fill = false;
 			// Container child vbox8.Gtk.Box+BoxChild
-			this.nomenclaturecostpricesview = null;
+			this.nomenclaturecostpricesview = new global::Vodovoz.Views.Goods.NomenclatureCostPricesView();
+			this.nomenclaturecostpricesview.Events = ((global::Gdk.EventMask)(256));
+			this.nomenclaturecostpricesview.Name = "nomenclaturecostpricesview";
 			this.vbox8.Add(this.nomenclaturecostpricesview);
 			global::Gtk.Box.BoxChild w150 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.nomenclaturecostpricesview]));
 			w150.Position = 1;
@@ -2236,8 +2246,10 @@ namespace Vodovoz.Views.Goods
 			w152.Position = 0;
 			w152.Expand = false;
 			w152.Fill = false;
-			// Container child vbox7.Gtk.Box+BoxChild
-			this.nomenclaturePurchasePricesView = null;
+			// Container child vbox7.Gtk.Box+
+			this.nomenclaturePurchasePricesView = new global::Vodovoz.Views.Goods.NomenclaturePurchasePricesView();
+			this.nomenclaturePurchasePricesView.Events = ((global::Gdk.EventMask)(256));
+			this.nomenclaturePurchasePricesView.Name = "nomenclaturePurchasePricesView";
 			this.vbox7.Add(this.nomenclaturePurchasePricesView);
 			global::Gtk.Box.BoxChild w153 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.nomenclaturePurchasePricesView]));
 			w153.Position = 1;
@@ -2258,7 +2270,9 @@ namespace Vodovoz.Views.Goods
 			w155.Expand = false;
 			w155.Fill = false;
 			// Container child vbox9.Gtk.Box+BoxChild
-			this.nomenclatureinnerdeliverypricesview1 = null;
+			this.nomenclatureinnerdeliverypricesview1 = new global::Vodovoz.Views.Goods.NomenclatureInnerDeliveryPricesView();
+			this.nomenclatureinnerdeliverypricesview1.Events = ((global::Gdk.EventMask)(256));
+			this.nomenclatureinnerdeliverypricesview1.Name = "nomenclatureinnerdeliverypricesview1";
 			this.vbox9.Add(this.nomenclatureinnerdeliverypricesview1);
 			global::Gtk.Box.BoxChild w156 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.nomenclatureinnerdeliverypricesview1]));
 			w156.Position = 1;

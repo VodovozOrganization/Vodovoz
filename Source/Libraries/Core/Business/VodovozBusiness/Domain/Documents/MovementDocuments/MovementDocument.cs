@@ -705,6 +705,12 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 
 			foreach(var item in Items) {
 				item.UpdateIncomeOperation();
+
+				if(MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToWarehouse
+				   && StorageFrom != StorageType.Warehouse)
+				{
+					item.TrySetIsUsed();
+				}
 			}
 		}
 

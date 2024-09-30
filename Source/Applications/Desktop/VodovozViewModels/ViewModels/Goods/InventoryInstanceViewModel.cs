@@ -16,6 +16,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 	public class InventoryInstanceViewModel : EntityTabViewModelBase<InventoryNomenclatureInstance>, IAskSaveOnCloseViewModel
 	{
 		private readonly INomenclatureInstanceRepository _nomenclatureInstanceRepository;
+		private bool _canEditUsedParameterPermission;
 		private bool _oldIsArchive;
 		
 		public InventoryInstanceViewModel(
@@ -47,7 +48,9 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		public bool CanEdit { get; private set; }
 		public bool CanEditNewEntity { get; private set; }
-		public bool CanEditUsedParameter { get; private set; }
+		public bool CanShowIsUsed { get; private set; }
+		public bool CanEditUsedParameter => !Entity.IsUsed || _canEditUsedParameterPermission;
+		public bool CanShowUsedPrefix => Entity.IsUsed;
 
 		public bool AskSaveOnClose => CanEdit;
 		public ILifetimeScope Scope { get; }
@@ -77,10 +80,9 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		{
 			CanEdit = PermissionResult.CanUpdate || (Entity.Id == 0 && PermissionResult.CanCreate);
 			CanEditNewEntity = Entity.Id == 0 && (PermissionResult.CanUpdate || PermissionResult.CanCreate);
-			CanEditUsedParameter =
-				!Entity.IsUsed
-			    || CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.InventoryNomenclatureInstance.CanEditUsedParameter);
+			_canEditUsedParameterPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission(
+				Vodovoz.Permissions.InventoryNomenclatureInstance.CanEditUsedParameter);
+			CanShowIsUsed = Entity.Nomenclature != null && Entity.Nomenclature.HasConditionAccounting;
 			_oldIsArchive = Entity.IsArchive;
 			
 			var builder = new CommonEEVMBuilderFactory<InventoryNomenclatureInstance>(
@@ -90,11 +92,20 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				.UseViewModelDialog<NomenclatureViewModel>()
 				.UseViewModelJournalAndAutocompleter<InventoryNomenclaturesJournalViewModel>()
 				.Finish();
+
+			ConfigureEntityPropertyChanges();
 		}
 		
 		private void CopyEntityWithoutInventoryNumber(Nomenclature nomenclature)
 		{
 			Entity.Nomenclature = nomenclature;
+		}
+		
+		private void ConfigureEntityPropertyChanges()
+		{
+			SetPropertyChangeRelation(e => e.IsUsed,
+				() => CanEditUsedParameter,
+				() => CanShowUsedPrefix);
 		}
 	}
 }

@@ -873,7 +873,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			{
 				_instancesDiscrepancies.Add(
 					instanceData.Id,
-					$"{instanceData.Name} {instanceData.InventoryNumber} числится на этом складе");
+					$"{instanceData.Name} {instanceData.GetInventoryNumber} числится на этом складе");
 			}
 
 			var currentInstancesOnOtherStorages =
@@ -888,7 +888,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var instanceData = groupInstanceData.First();
 					var storages = string.Join(",", groupInstanceData.Select(x => x.StorageName));
 
-					_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.InventoryNumber} числится на: {storages}");
+					_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.GetInventoryNumber} числится на: {storages}");
 				}
 			}
 

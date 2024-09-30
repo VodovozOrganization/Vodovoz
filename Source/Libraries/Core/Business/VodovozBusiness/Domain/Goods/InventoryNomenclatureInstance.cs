@@ -47,8 +47,10 @@ namespace Vodovoz.Domain.Goods
 		public override NomenclatureInstanceType Type => NomenclatureInstanceType.InventoryNomenclatureInstance;
 
 		public virtual string Name => Nomenclature != null ? Nomenclature.Name : string.Empty;
-		public virtual string GetInventoryNumber => IsUsed ? $"Б/У - {InventoryNumber}" : $"{InventoryNumber}";
-		
+		public virtual string GetInventoryNumber => GetInventoryNumberString(IsUsed, InventoryNumber);
+		public static string GetInventoryNumberString(bool isUsed, string inventoryNumber) =>
+			isUsed ? $"Б/У - {inventoryNumber}" : $"{inventoryNumber}";
+
 		public override string ToString()
 		{
 			if(Id == 0)
@@ -56,7 +58,7 @@ namespace Vodovoz.Domain.Goods
 				return "Новый экземпляр";
 			}
 			
-			return $"{Name} инв. номер: {InventoryNumber}";
+			return $"{Name} инв. номер: {GetInventoryNumber}";
 		}
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
