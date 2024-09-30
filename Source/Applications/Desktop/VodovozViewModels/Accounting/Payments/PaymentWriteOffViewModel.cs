@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Wordprocessing;
 using QS.Commands;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -12,6 +13,7 @@ using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
@@ -38,9 +40,15 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			ICurrentPermissionService currentPermissionService,
 			IGeneralSettings generalSettings,
 			IPaymentsRepository paymentsRepository,
+			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
 			ViewModelEEVMBuilder<FinancialExpenseCategory> financialExpenseCategoryViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			if(entityExtendedPermissionValidator is null)
+			{
+				throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
+			}
+
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 
@@ -60,6 +68,8 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			{
 				throw new ArgumentNullException(nameof(financialExpenseCategoryViewModelEEVMBuilder));
 			}
+
+			CanEditDate = entityExtendedPermissionValidator.Validate(typeof(PaymentWriteOff), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 
 			FinancialExpenseCategoryViewModel = financialExpenseCategoryViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
@@ -104,6 +114,8 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 		}
 
 		public bool CanSave => (Entity.Id == 0 && _permissionResult.CanCreate) || _permissionResult.CanUpdate;
+
+		public bool CanEditDate { get; }
 
 		public Counterparty Counterparty
 		{
