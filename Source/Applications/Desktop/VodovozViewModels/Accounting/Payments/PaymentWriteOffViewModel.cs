@@ -182,7 +182,10 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 
 		protected override bool BeforeValidation()
 		{
-			ValidationContext.ServiceContainer.AddService(typeof(IUnitOfWork), UoW);
+			if(ValidationContext.ServiceContainer.GetService(typeof(IUnitOfWork)) == null)
+			{
+				ValidationContext.ServiceContainer.AddService(typeof(IUnitOfWork), UoW);
+			}
 			return base.BeforeValidation();
 		}
 
