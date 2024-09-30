@@ -83,6 +83,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 					foreach(var includedId in _generalSettings.PaymentWriteOffAllowedFinancialExpenseCategories)
 					{
 						filter.IncludeExpenseCategoryIds.Add(includedId);
+						filter.HideEmptyGroups = true;
 					}
 				})
 				.UseViewModelDialog<FinancialExpenseCategoryViewModel>()
