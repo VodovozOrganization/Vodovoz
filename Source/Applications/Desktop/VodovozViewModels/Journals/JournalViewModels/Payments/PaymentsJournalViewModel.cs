@@ -470,6 +470,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			CreateDefaultSelectAction();
 
 			CreateAddNewPaymentAction();
+			CreateAddNewPaymentWriteOffAction();
 
 			CreateAddActions();
 			CreateEditAction();
@@ -477,7 +478,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			_paymentPermissionResult = _permissionService.ValidateEntityPermission(typeof(Payment));
 
-			CreateAddNewPaymentWriteOffAction();
 			CreateCancelPaymentAction();
 
 			NodeActionsList.Add(new JournalAction(
