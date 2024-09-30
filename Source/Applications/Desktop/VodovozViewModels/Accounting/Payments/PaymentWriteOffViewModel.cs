@@ -28,7 +28,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 		private Organization _organization;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private decimal _maxSum;
-		private decimal _maxLength;
+		private int _maxLength;
 
 		public PaymentWriteOffViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -153,7 +153,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			}
 		}
 
-		public decimal MaxLength
+		public int MaxLength
 		{
 			get => _maxLength;
 			private set => SetField(ref _maxLength, value);
