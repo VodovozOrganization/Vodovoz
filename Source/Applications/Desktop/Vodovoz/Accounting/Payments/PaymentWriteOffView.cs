@@ -30,7 +30,7 @@ namespace Vodovoz.Accounting.Payments
 
 			datepickerDate.Binding
 				.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date)
-				.AddBinding(ViewModel, vm => vm.CanSave, w => w.IsEditable)
+				.AddBinding(ViewModel, vm => vm.CanEditDate, w => w.IsEditable)
 				.InitializeFromSource();
 
 			yspinbuttonNumber.Binding
