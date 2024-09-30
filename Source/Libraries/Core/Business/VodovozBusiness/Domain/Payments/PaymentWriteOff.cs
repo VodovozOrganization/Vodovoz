@@ -30,7 +30,7 @@ namespace VodovozBusiness.Domain.Payments
 	{
 		private int _paymentNumber;
 		private DateTime _date;
-		private string _comment;
+		private string _comment = "";
 		private int? _counterpartyId;
 		private int? _financialExpenseCategoryId;
 		private decimal _sum;
