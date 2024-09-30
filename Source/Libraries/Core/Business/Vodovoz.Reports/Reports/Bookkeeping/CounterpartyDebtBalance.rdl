@@ -49,7 +49,7 @@
           <TableColumn>
             <Width>67.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>64.5pt</Width>
           </TableColumn>
           <TableColumn>
@@ -278,7 +278,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
                       <Value>Возращеный баланс</Value>
@@ -540,7 +540,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
                       <Value>=Sum({writeoffs_sum})</Value>
@@ -828,7 +828,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
                       <Value>={writeoffs_sum}</Value>
@@ -1015,7 +1015,7 @@
                   AND pi.payment_item_status != 'Cancelled')
         ) AS unallocated_balance,
         (
-            SELECT cmo.expense
+            SELECT IFNULL(SUM(cmo.expense), 0)
             FROM payment_write_offs pwo
             INNER JOIN cashless_movement_operations cmo
             ON pwo.cashless_movement_operation_id = cmo.id
