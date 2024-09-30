@@ -543,7 +543,7 @@
                 <TableCell >
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>=Sum{{writeoffs_sum})</Value>
+                      <Value>=Sum({writeoffs_sum})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
