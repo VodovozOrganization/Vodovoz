@@ -31,6 +31,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			
 			ParameterName = parameterName;
 			ObservableEntities.ListChanged += OnEntitiesListChanged;
+			ObservableEntities.ListContentChanged += OnObservableEntitiesListContentChanged;
+		}
+
+		private void OnObservableEntitiesListContentChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(CanSave));
 		}
 
 		private void OnEntitiesListChanged(object aList)
