@@ -138,6 +138,7 @@ namespace VodovozBusiness.Domain.Payments
 			{
 				if(value <= 0)
 				{
+					OnPropertyChanged(nameof(Sum));
 					return;
 				}
 
