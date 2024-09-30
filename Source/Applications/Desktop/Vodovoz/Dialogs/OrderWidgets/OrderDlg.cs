@@ -2230,7 +2230,7 @@ namespace Vodovoz
 					_emailRepository,
 					_lifetimeScope.Resolve<IEmailSettings>(),
 					_currentEmployee,
-					ServicesConfig.InteractiveService);
+					ServicesConfig.CommonServices);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
 			hbox20.Add(sendEmailView);
 			sendEmailView.Show();

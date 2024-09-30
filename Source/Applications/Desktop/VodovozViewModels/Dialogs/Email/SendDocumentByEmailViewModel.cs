@@ -9,6 +9,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
+using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -50,7 +51,11 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailSettings _emailSettings;
 		private readonly Employee _employee;
+		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
+
+		private bool _canManuallyResendUpd =>
+			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.Documents.CanManuallyResendUpd);
 
 		private IEmailableDocument Document { get; set; }
 
@@ -61,13 +66,14 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 		public DelegateCommand RefreshEmailListCommand { get; private set; }
 
 		public SendDocumentByEmailViewModel(IUnitOfWorkFactory uowFactory, IEmailRepository emailRepository, IEmailSettings emailSettings,
-									  Employee employee, IInteractiveService interactiveService, IUnitOfWork uow = null)
+									  Employee employee, ICommonServices commonServices, IUnitOfWork uow = null)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_employee = employee;
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_interactiveService = _commonServices.InteractiveService;
 			StoredEmails = new GenericObservableList<StoredEmail>();
 			UoW = uow;
 
@@ -220,7 +226,9 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive =
+							_emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
+							&& _canManuallyResendUpd;
 						break;
 					default:
 						BtnSendEmailSensitive = false;
