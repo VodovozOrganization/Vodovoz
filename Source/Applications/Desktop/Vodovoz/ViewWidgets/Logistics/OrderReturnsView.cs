@@ -296,14 +296,12 @@ namespace Vodovoz
 					.AddToggleRenderer(node => node.IsDelivered, false)
 						.AddSetter((cell, node) => cell.Visible = node.IsSerialEquipment)
 					.AddNumericRenderer(node => node.ActualCount, false)
-						.EditedEvent(OnSpinActualCountEdited)
 						.AddSetter((cell, node) => cell.Editable = node.Nomenclature.Category != NomenclatureCategory.deposit)
 						.Adjustment(new Adjustment(0, 0, 9999, 1, 1, 0))
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
-						.EditedEvent(OnSpinPriceEdited)
 						.Adjustment(new Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice && _canEditPrices)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
@@ -424,30 +422,6 @@ namespace Vodovoz
 					Restrictions.WhereNot(() => paymentFromAlias.IsArchive),
 					Restrictions.IdEq(selectedPaymentFromId)))
 				.List();
-		}
-
-		private void OnSpinActualCountEdited(object o, EditedArgs args)
-		{
-			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newActualCount);
-			var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
-			if(!(node is OrderItem orderItem))
-			{
-				return;
-			}
-
-			orderItem.SetActualCountWithPreserveOrRestoreDiscount(newActualCount);
-		}
-
-		private void OnSpinPriceEdited(object o, EditedArgs args)
-		{
-			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
-			var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
-			if(!(node is OrderItem orderItem))
-			{
-				return;
-			}
-
-			orderItem.SetPrice(newPrice);
 		}
 
 		private void OnDiscountReasonComboEdited(object o, EditedArgs args)

@@ -75,7 +75,7 @@ namespace Vodovoz
 				}
 				else
 				{
-					_orderItem.SetActualCount(value);
+					_orderItem.SetActualCountWithPreserveOrRestoreDiscount(value);
 				}
 			}
 		}
