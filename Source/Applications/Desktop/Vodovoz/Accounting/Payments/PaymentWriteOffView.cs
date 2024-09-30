@@ -46,19 +46,27 @@ namespace Vodovoz.Accounting.Payments
 				.AddBinding(vm => vm.MaxLength, w => w.MaxLength)
 				.InitializeFromSource();
 
-			ViewModel.CounterpartyViewModel = new LegacyEEVMBuilderFactory<PaymentWriteOffViewModel>(ViewModel, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, _lifetimeScope)
+			var counterpartyViewModel = new LegacyEEVMBuilderFactory<PaymentWriteOffViewModel>(ViewModel, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.Counterparty)
 				.UseTdiDialog<CounterpartyDlg>()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 				.Finish();
 
+			counterpartyViewModel.CanViewEntity = false;
+
+			ViewModel.CounterpartyViewModel = counterpartyViewModel;
+
 			entityentryCounterparty.ViewModel = ViewModel.CounterpartyViewModel;
-			
-			ViewModel.OrganizationViewModel = new LegacyEEVMBuilderFactory<PaymentWriteOffViewModel>(ViewModel, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, _lifetimeScope)
+
+			var organizationViewModel = new LegacyEEVMBuilderFactory<PaymentWriteOffViewModel>(ViewModel, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.Organization)
 				.UseTdiDialog<OrganizationDlg>()
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
 				.Finish();
+
+			organizationViewModel.CanViewEntity = false;
+
+			ViewModel.OrganizationViewModel = organizationViewModel;
 
 			entityentryOrganization.ViewModel = ViewModel.OrganizationViewModel;
 
