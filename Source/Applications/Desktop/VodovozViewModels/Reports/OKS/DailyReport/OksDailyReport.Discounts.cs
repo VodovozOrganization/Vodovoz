@@ -173,6 +173,11 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			FormatDiscountsBoldFontMediumBordersCells(
 				worksheet.Range(rowNumber, 5, rowNumber, 7));
 
+			worksheet.Cell(rowNumber, headersColumnNumber).Value = discountsData.Sum(d => d.Amount);
+
+			FormatDiscountsBoldFontMediumBordersCells(
+				worksheet.Range(rowNumber, headersColumnNumber, rowNumber, headersColumnNumber));
+
 			rowNumber++;
 
 			_discountsNextEmptyRowNumber = rowNumber + 1;
