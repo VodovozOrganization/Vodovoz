@@ -13,6 +13,7 @@ namespace Vodovoz
 		public OrderItemReturnsNode(OrderItem item)
 		{
 			_orderItem = item;
+			PromoSetName = _orderItem.PromoSet?.Name;
 		}
 
 		public OrderItemReturnsNode(OrderEquipment equipment)
@@ -255,5 +256,6 @@ namespace Vodovoz
 		}
 
 		public decimal Sum => Price * ActualCount - DiscountMoney;
+		public string PromoSetName { get; }
 	}
 }

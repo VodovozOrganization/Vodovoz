@@ -352,6 +352,9 @@ namespace Vodovoz
 				.AddColumn("Стоимость")
 					.AddNumericRenderer(node => node.Sum).Digits(2)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName)
+				.AddColumn("Промонаборы")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.PromoSetName)
 				.AddColumn("")
 				.Finish();
 
@@ -432,7 +435,7 @@ namespace Vodovoz
 				return;
 			}
 
-			orderItem.SetActualCount(newActualCount);
+			orderItem.SetActualCountWithPreserveOrRestoreDiscount(newActualCount);
 		}
 
 		private void OnSpinPriceEdited(object o, EditedArgs args)
