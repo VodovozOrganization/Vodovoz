@@ -386,7 +386,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			if(undeliveredOrders.Any())
 			{
 				FormatUndeliveredOrdersThinBordersCells(
-					worksheet.Range(_undeliveredNextEmptyRowNumber + 2, _mainTablesFirstColumn, rowNumber, 9));
+					worksheet.Range(_undeliveredNextEmptyRowNumber + 1, _mainTablesFirstColumn, rowNumber, 9));
 			}
 
 			_undeliveredNextEmptyRowNumber = rowNumber + 2;
