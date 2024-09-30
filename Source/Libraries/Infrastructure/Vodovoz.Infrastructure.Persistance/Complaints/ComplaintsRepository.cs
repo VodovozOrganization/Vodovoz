@@ -154,7 +154,8 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 		{
 			var query =
 				from complaint in uow.Session.Query<Complaint>()
-				join counterparty in uow.Session.Query<Counterparty>() on complaint.Counterparty.Id equals counterparty.Id
+				join c in uow.Session.Query<Counterparty>() on complaint.Counterparty.Id equals c.Id into counterpartes
+				from counterparty in counterpartes.DefaultIfEmpty()
 				join dp in uow.Session.Query<DeliveryPoint>() on complaint.DeliveryPoint.Id equals dp.Id into deliveryPoints
 				from deliveryPoint in deliveryPoints.DefaultIfEmpty()
 				join ck in uow.Session.Query<ComplaintKind>() on complaint.ComplaintKind.Id equals ck.Id into complaintKinds
@@ -192,7 +193,7 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 					ComplaintKind = complaint.ComplaintKind,
 					ComplaintObject = complaint.ComplaintKind == null ? null : complaint.ComplaintKind.ComplaintObject,
 					ComplaintSource = complaint.ComplaintSource,
-					ClientName = counterparty.Name,
+					ClientName = counterparty == null ? string.Empty : counterparty.Name,
 					DeliveryPointAddress = deliveryPoint == null ? string.Empty : deliveryPoint.CompiledAddress,
 					DiscussionSubdivisions = discussionSubdivisions
 				};
