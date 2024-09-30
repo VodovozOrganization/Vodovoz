@@ -6,14 +6,14 @@ namespace Vodovoz.NHibernateProjections.Goods
 {
 	public static class InventoryNomenclatureInstanceProjections
 	{
-		public static IProjection InventoryNumberProjection(InventoryNomenclatureInstance instanceAlias)
+		public static IProjection InventoryNumberProjection()
 		{
 			return Projections.Conditional(
-				Restrictions.Where(() => instanceAlias.IsUsed),
+				Restrictions.Where<InventoryNomenclatureInstance>(ini => ini.IsUsed),
 				CustomProjections.Concat(
 					Projections.Constant("Б/У - "),
-					Projections.Property(() => instanceAlias.InventoryNumber)),
-				Projections.Property(() => instanceAlias.InventoryNumber)
+					Projections.Property<InventoryNomenclatureInstance>(ini => ini.InventoryNumber)),
+				Projections.Property<InventoryNomenclatureInstance>(ini => ini.InventoryNumber)
 			);
 		}
 	}

@@ -27,6 +27,7 @@ using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -660,7 +661,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var customName = CustomProjections.Concat(
 						Projections.Property(() => nomenclatureAlias.OfficialName),
 						Projections.Constant(" "),
-						Projections.Property(() => instanceAlias.InventoryNumber));
+						InventoryNomenclatureInstanceProjections.InventoryNumberProjection());
 
 					query.SelectList(list => list
 						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)

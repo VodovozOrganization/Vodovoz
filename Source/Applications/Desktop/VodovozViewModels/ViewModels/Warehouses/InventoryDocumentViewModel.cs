@@ -937,7 +937,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var customName = CustomProjections.Concat(
 						Projections.Property(() => nomenclatureAlias.OfficialName),
 						Projections.Constant(" "),
-						InventoryNomenclatureInstanceProjections.InventoryNumberProjection(instanceAlias));
+						InventoryNomenclatureInstanceProjections.InventoryNumberProjection());
 
 					query.SelectList(list => list
 						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
