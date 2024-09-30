@@ -5,6 +5,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Deletion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -474,7 +475,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			CreateAddActions();
 			CreateEditAction();
-			CreateDefaultDeleteAction();
+			CreateDeleteAction();
 
 			_paymentPermissionResult = _permissionService.ValidateEntityPermission(typeof(Payment));
 
@@ -573,6 +574,49 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			NodeActionsList.Add(editAction);
 		}
 
+		protected void CreateDeleteAction()
+		{
+			var deleteAction = new JournalAction("Удалить",
+				(selected) => {
+					var selectedNodes = selected.OfType<PaymentJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					PaymentJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					if(selectedNode.EntityType == typeof(Payment))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanDelete;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<PaymentJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					PaymentJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					if(config.PermissionResult.CanDelete)
+					{
+						DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
+					}
+				},
+				"Delete"
+			);
+			NodeActionsList.Add(deleteAction);
+		}
 
 		private void CreateAddNewPaymentAction()
 		{
