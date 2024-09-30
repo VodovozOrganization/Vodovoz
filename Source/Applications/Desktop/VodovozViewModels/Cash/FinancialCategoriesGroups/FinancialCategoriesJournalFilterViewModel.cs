@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private TargetDocument? _targetDocument;
 		private TargetDocument? _restrictTargetDocument;
 		private FinancialSubType? _restrictFinancialSubtype;
+		private bool _hideEmptyGroups;
 
 		public FinancialCategoriesJournalFilterViewModel(
 			INavigationManager navigationManager,
@@ -70,6 +71,12 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		{
 			get => _showArchive;
 			set => UpdateFilterField(ref _showArchive, value);
+		}
+
+		public bool HideEmptyGroups
+		{
+			get => _hideEmptyGroups;
+			set => UpdateFilterField(ref _hideEmptyGroups, value);
 		}
 
 		public FinancialCategoriesGroup ParentFinancialGroup
