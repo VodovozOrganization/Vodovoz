@@ -75,8 +75,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			SetPermissions();
 
-			CreateCancelPaymentAction();
-
 			RegisterPayments();
 			RegisterPaymentWriteOffs();
 
@@ -468,15 +466,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+
 			CreateDefaultSelectAction();
+
+			CreateAddNewPaymentAction();
+
 			CreateAddActions();
 			CreateEditAction();
 			CreateDefaultDeleteAction();
 
 			_paymentPermissionResult = _permissionService.ValidateEntityPermission(typeof(Payment));
 
-			CreateAddNewPaymentAction();
 			CreateAddNewPaymentWriteOffAction();
+			CreateCancelPaymentAction();
 
 			NodeActionsList.Add(new JournalAction(
 				"Завершить распределение", 
