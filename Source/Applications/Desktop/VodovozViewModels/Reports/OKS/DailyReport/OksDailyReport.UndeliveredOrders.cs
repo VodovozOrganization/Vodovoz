@@ -102,28 +102,22 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			FormatUndeliveredOrdersBoldFontMediumBordersWithBackgroundCells(
 				worksheet.Range(rowNumber, _leftSmallTablesFirstColumn, rowNumber, _leftSmallTablesThirdColumn));
 
-			var guityItems =
-				_undeliveredOrdersDataForDate
-				.GroupBy(g => new { g.GuiltySide, g.GuiltySubdivisionId })
-				.ToDictionary(g => g.Key, g => g.ToList())
-				.OrderBy(g => g.Key.GuiltySide);
+			var guityItems = _undeliveredOrdersDataForDate
+				.OrderBy(u => u.GuiltySide)
+				.GroupBy(u => u.UndeliveredOrderId)
+				.Select(d => string.Join("; ", d.Select(u => GetGuiltyString(u))))
+				.GroupBy(g => g)
+				.ToDictionary(g => g.Key, g => g.Count());
 
 			foreach(var guiltySideData in guityItems)
 			{
 				rowNumber++;
 
-				worksheet.Cell(rowNumber, _leftSmallTablesFirstColumn).Value =
-					guiltySideData.Key.GuiltySide == Domain.Orders.GuiltyTypes.Department
-					? $"Отд: {guiltySideData.Value.FirstOrDefault()?.GuiltySubdivisionName}"
-					: guiltySideData.Key.GuiltySide.GetEnumDisplayName();
+				worksheet.Cell(rowNumber, _leftSmallTablesFirstColumn).Value = guiltySideData.Key;
 
 				worksheet.Range(rowNumber, _leftSmallTablesFirstColumn, rowNumber, _leftSmallTablesSecondColumn).Merge();
 
-				worksheet.Cell(rowNumber, _leftSmallTablesThirdColumn).Value =
-					guiltySideData.Value
-					.Select(ou => ou.UndeliveredOrderId)
-					.Distinct()
-					.Count();
+				worksheet.Cell(rowNumber, _leftSmallTablesThirdColumn).Value = guiltySideData.Value;
 
 				FormatUndeliveredOrdersThinBordersCells(
 					worksheet.Range(rowNumber, _leftSmallTablesFirstColumn, rowNumber, _leftSmallTablesThirdColumn));
@@ -131,6 +125,11 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			_undeliveredNextEmptyRowNumber = rowNumber + 2;
 		}
+
+		private string GetGuiltyString(OksDailyReportUndeliveredOrderDataNode undelivered) =>
+			undelivered.GuiltySide == GuiltyTypes.Department
+			? $"Отд:{undelivered.GuiltySubdivisionName}"
+			: undelivered.GuiltySide.GetEnumDisplayName();
 
 		private void AddUndeliveredOrdersStatusesOnDateTable(ref IXLWorksheet worksheet)
 		{
