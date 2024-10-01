@@ -1649,7 +1649,15 @@ namespace Vodovoz
 			var cashDistributionDocumentsIds =
 				_cashRepository.GetCashDistributionDocumentsIdsByFuelDocumentId(UoW, fd.Id);
 
-			_cashRepository.DeleteFuelExpenseCashDistributionDocuments(UoW, cashDistributionDocumentsIds);
+			if(cashDistributionDocumentsIds.Count > 0)
+			{
+				if(!MessageDialogHelper.RunQuestionDialog("Вы действительно хотите удалить талон выдачи топлива вместе документом расхода налички?"))
+				{
+					return;
+				}
+
+				_cashRepository.DeleteFuelExpenseCashDistributionDocuments(UoW, cashDistributionDocumentsIds);
+			}
 
 			Entity.ObservableFuelDocuments.Remove(fd);
 		}
