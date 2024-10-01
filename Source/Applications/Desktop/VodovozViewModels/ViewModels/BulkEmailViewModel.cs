@@ -189,6 +189,7 @@ namespace Vodovoz.ViewModels.ViewModels
 				$"Использование вложений повышает вероятность попадания в спам. Лучше передать информацию в тексте письма.\nВы точно хотите использовать вложения?"))
 			{
 				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+				_attachments.Clear();
 			}
 			else
 			{
@@ -205,7 +206,7 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			_attachmentsSize = 0;
 
-			foreach(var attachment in AttachedFileInformationsViewModel.AttachedFiles)
+			foreach(var attachment in AttachedFileInformationsViewModel.AttachedFiles.Where(af => _attachments.Any(a => a.FileName == af.Key)))
 			{
 				_attachmentsSize += (attachment.Value.Length / 1024f) / 1024f;
 			}
