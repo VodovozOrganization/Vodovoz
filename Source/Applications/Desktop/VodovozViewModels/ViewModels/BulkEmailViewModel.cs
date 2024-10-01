@@ -103,7 +103,7 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			CreateRabbitMQChannel();
 
-			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.Create(_uow, ObservableAttachments_ListContentChanged, ObservableAttachments_ListContentChanged, _attachments);
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.Create(_uow, OnAttachmentsAdded, OnAttachmentDeleted, _attachments);
 			AttachedFileInformationsViewModel.FileInformations = _attachments;
 		}
 
@@ -183,13 +183,12 @@ namespace Vodovoz.ViewModels.ViewModels
 			_rabbitMQChannelProperties.Persistent = true;
 		}
 
-		private void ObservableAttachments_ListContentChanged(string fileName)
+		private void OnAttachmentsAdded(string fileName)
 		{
-			if(AttachedFileInformationsViewModel.AttachedFiles.Count > 0 && !_commonServices.InteractiveService.Question(
+			if(_attachments.Count > 0 && !_commonServices.InteractiveService.Question(
 				$"Использование вложений повышает вероятность попадания в спам. Лучше передать информацию в тексте письма.\nВы точно хотите использовать вложения?"))
 			{
-				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
-				_attachments.Clear();
+				return;
 			}
 			else
 			{
@@ -202,8 +201,19 @@ namespace Vodovoz.ViewModels.ViewModels
 				{
 					FileName = fileName,
 				});
-			}
 
+				RecalculateSize();
+			}
+		}
+
+		private void OnAttachmentDeleted(string fileName)
+		{
+			_attachments.Remove(_attachments.FirstOrDefault(a => a.FileName == fileName));
+			RecalculateSize();
+		}
+
+		private void RecalculateSize()
+		{
 			_attachmentsSize = 0;
 
 			foreach(var attachment in AttachedFileInformationsViewModel.AttachedFiles.Where(af => _attachments.Any(a => a.FileName == af.Key)))
@@ -213,7 +223,6 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			OnPropertyChanged(nameof(AttachmentsSizeInfoDanger));
 		}
-
 
 		private Email SelectPriorityEmail(IList<Email> counterpartyEmails)
 		{
