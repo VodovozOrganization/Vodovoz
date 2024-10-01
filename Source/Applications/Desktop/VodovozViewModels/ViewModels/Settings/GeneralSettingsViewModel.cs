@@ -636,8 +636,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				{
 					CanEdit = true,
 					MainTitle = "<b>Настройки списаний с баланса клиента</b>",
-					DetailTitle = "Статьи расхода доступные для выбора в карточке списаний с баланса клиента:",
-					Info = ""
+					DetailTitle = "Статьи расхода доступные для выбора в карточке списаний с баланса клиента:"
 				};
 		}
 
