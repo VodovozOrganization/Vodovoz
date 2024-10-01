@@ -2,13 +2,11 @@
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
-using NLog.Extensions.Logging;
-using QS.Attachments.Domain;
-using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels.Dialog;
@@ -17,11 +15,11 @@ using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Web;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -48,8 +46,7 @@ namespace Vodovoz.ViewModels.ViewModels
 		private readonly int _instanceId;
 		private readonly InstanceMailingConfiguration _configuration;
 		private DelegateCommand _startEmailSendingCommand;
-		private IList<Attachment> _attachments = new List<Attachment>();
-		private GenericObservableList<Attachment> _observableAttachments;
+		private readonly IObservableList<DetachedFileInformation> _attachments = new ObservableList<DetachedFileInformation>();
 		private bool _isInSendingProcess;
 		private readonly Employee _author;
 		private float _attachmentsSize;
@@ -106,7 +103,8 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			CreateRabbitMQChannel();
 
-			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.Create(_uow, ObservableAttachments_ListContentChanged, ObservableAttachments_ListContentChanged);
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.Create(_uow, OnAttachmentsAdded, OnAttachmentDeleted, _attachments);
+			AttachedFileInformationsViewModel.FileInformations = _attachments;
 		}
 
 		private void Init()
@@ -185,24 +183,46 @@ namespace Vodovoz.ViewModels.ViewModels
 			_rabbitMQChannelProperties.Persistent = true;
 		}
 
-		private void ObservableAttachments_ListContentChanged(string fileName)
+		private void OnAttachmentsAdded(string fileName)
 		{
-			if(AttachedFileInformationsViewModel.AttachedFiles.Count > 0 && !_commonServices.InteractiveService.Question(
+			if(!_commonServices.InteractiveService.Question(
 				$"Использование вложений повышает вероятность попадания в спам. Лучше передать информацию в тексте письма.\nВы точно хотите использовать вложения?"))
 			{
-				AttachedFileInformationsViewModel.AttachedFiles.Clear();
+				return;
 			}
+			else
+			{
+				if(_attachments.Any(afi => afi.FileName == fileName))
+				{
+					return;
+				}
 
+				_attachments.Add(new DetachedFileInformation
+				{
+					FileName = fileName,
+				});
+
+				RecalculateSize();
+			}
+		}
+
+		private void OnAttachmentDeleted(string fileName)
+		{
+			_attachments.Remove(_attachments.FirstOrDefault(a => a.FileName == fileName));
+			RecalculateSize();
+		}
+
+		private void RecalculateSize()
+		{
 			_attachmentsSize = 0;
 
-			foreach(var attachment in AttachedFileInformationsViewModel.AttachedFiles)
+			foreach(var attachment in AttachedFileInformationsViewModel.AttachedFiles.Where(af => _attachments.Any(a => a.FileName == af.Key)))
 			{
 				_attachmentsSize += (attachment.Value.Length / 1024f) / 1024f;
 			}
 
 			OnPropertyChanged(nameof(AttachmentsSizeInfoDanger));
 		}
-
 
 		private Email SelectPriorityEmail(IList<Email> counterpartyEmails)
 		{
@@ -251,7 +271,7 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			var emailAttachments = new List<EmailAttachment>();
 
-			foreach(var keyValuePair in AttachedFileInformationsViewModel.AttachedFiles)
+			foreach(var keyValuePair in AttachedFileInformationsViewModel.AttachedFiles.Where(af => _attachments.Any(a => a.FileName == af.Key)))
 			{
 				emailAttachments.Add(new EmailAttachment
 				{
