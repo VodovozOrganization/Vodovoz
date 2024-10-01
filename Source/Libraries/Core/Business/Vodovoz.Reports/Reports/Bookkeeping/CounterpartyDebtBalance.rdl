@@ -477,7 +477,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>=Sum({unallocated_balance})</Value>
+                      <Value>=Sum({unallocated_balance})-Sum({writeoffs_sum})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -764,7 +764,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value>={unallocated_balance}</Value>
+                      <Value>={unallocated_balance}-{writeoffs_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -995,7 +995,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
     (SELECT
@@ -1159,7 +1159,7 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="inn">
           <DataField>inn</DataField>
           <TypeName>System.String</TypeName>
