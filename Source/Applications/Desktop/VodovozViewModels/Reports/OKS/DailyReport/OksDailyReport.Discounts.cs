@@ -120,7 +120,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "№";
 			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Клиент";
 			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Заказ №";
-			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Сумма без скидки";
+			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Сумма без скидки, руб";
 			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "% Скидки";
 			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Сумма, руб";
 			worksheet.Cell(rowNumber, headersColumnNumber++).Value = "Основание скидки";
