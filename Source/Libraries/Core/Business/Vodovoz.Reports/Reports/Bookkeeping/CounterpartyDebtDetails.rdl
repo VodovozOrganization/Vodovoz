@@ -649,6 +649,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor >Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -665,6 +666,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor >Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -681,6 +683,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor >Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -697,6 +700,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor >Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -713,6 +717,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor >Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -729,6 +734,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor >Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -745,6 +751,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor >Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1027,7 +1034,7 @@ WHERE c.id = @counterparty_id</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="WriteOffs">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	pwo.`date` AS `date`,
@@ -1057,7 +1064,7 @@ ORDER BY `date` DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
