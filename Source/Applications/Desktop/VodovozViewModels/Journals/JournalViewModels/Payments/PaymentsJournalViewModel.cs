@@ -35,7 +35,7 @@ using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 {
-	public class PaymentsJournalViewModel : MultipleEntityJournalViewModelBase<PaymentJournalNode>
+	public partial class PaymentsJournalViewModel : MultipleEntityJournalViewModelBase<PaymentJournalNode>
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly IPaymentsRepository _paymentsRepository;
@@ -48,12 +48,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 		private PaymentsJournalFilterViewModel _filterViewModel;
 		private ThreadDataLoader<PaymentJournalNode> _threadDataLoader;
-
-		private readonly Type[] _nodeTypes = new Type[] 
-		{
-			typeof(Payment),
-			typeof(PaymentWriteOff)
-		};
 
 		public PaymentsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -124,7 +118,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
 		{
-			var sortExpressions= GetOrdering();
+			var sortExpressions = GetOrdering();
 			_threadDataLoader.OrderRules.Clear();
 			_threadDataLoader.OrderRules.AddRange(sortExpressions);
 			Refresh();
@@ -328,7 +322,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			var paymentQuery = uow.Session.QueryOver(() => paymentWriteOff)
 				.Inner.JoinAlias(p => p.CashlessMovementOperation, () => expenseOperationAlias)
 				.JoinEntityAlias(
-					() => counterpartyAlias, 
+					() => counterpartyAlias,
 					() => paymentWriteOff.CounterpartyId == counterpartyAlias.Id,
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinEntityAlias(
@@ -427,8 +421,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				case PaymentJournalSortType.Status:
 					return new List<SortRule<PaymentJournalNode>>
 						{
-							new SortRule<PaymentJournalNode>(node => _nodeTypes.IndexOf(node.EntityType), false),
-							new SortRule<PaymentJournalNode>(node => node.Status, false),
+							new SortRule<PaymentJournalNode>(node => new StatusAndTypeComparer
+							{
+								NodeType = node.EntityType,
+								PaymentState = node.Status
+							}, false),
 							new SortRule<PaymentJournalNode>(node => node.CounterpartyName, false),
 							new SortRule<PaymentJournalNode>(node => node.Total, false)
 						};
@@ -489,7 +486,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			CreateCancelPaymentAction();
 
 			NodeActionsList.Add(new JournalAction(
-				"Завершить распределение", 
+				"Завершить распределение",
 				x => true,
 				x => true,
 				selectedItems => CompleteAllocation()));
@@ -519,7 +516,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 						var childNodeAction = new JournalAction(createDlgConfig.Title,
 							(selected) => entityConfig.PermissionResult.CanCreate,
 							(selected) => entityConfig.PermissionResult.CanCreate,
-							(selected) => {
+							(selected) =>
+							{
 								createDlgConfig.OpenEntityDialogFunction.Invoke();
 								if(documentConfig.JournalParameters.HideJournalForCreateDialog)
 								{
@@ -538,7 +536,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		protected void CreateEditAction()
 		{
 			var editAction = new JournalAction("Изменить",
-				(selected) => {
+				(selected) =>
+				{
 					var selectedNodes = selected.OfType<PaymentJournalNode>();
 					if(selectedNodes == null || selectedNodes.Count() != 1)
 					{
@@ -553,7 +552,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					return config.PermissionResult.CanUpdate;
 				},
 				(selected) => true,
-				(selected) => {
+				(selected) =>
+				{
 					var selectedNodes = selected.OfType<PaymentJournalNode>();
 					if(selectedNodes == null || selectedNodes.Count() != 1)
 					{
@@ -584,7 +584,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		protected void CreateDeleteAction()
 		{
 			var deleteAction = new JournalAction("Удалить",
-				(selected) => {
+				(selected) =>
+				{
 					var selectedNodes = selected.OfType<PaymentJournalNode>();
 					if(selectedNodes == null || selectedNodes.Count() != 1)
 					{
@@ -603,7 +604,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					return config.PermissionResult.CanDelete;
 				},
 				(selected) => true,
-				(selected) => {
+				(selected) =>
+				{
 					var selectedNodes = selected.OfType<PaymentJournalNode>();
 					if(selectedNodes == null || selectedNodes.Count() != 1)
 					{
@@ -628,7 +630,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		private void CreateAddNewPaymentAction()
 		{
 			NodeActionsList.Add(new JournalAction(
-				"Создать новый платеж", 
+				"Создать новый платеж",
 				x => _paymentPermissionResult.CanCreate,
 				x => _canCreateNewManualPayment,
 				selectedItems =>
