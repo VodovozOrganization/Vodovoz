@@ -114,7 +114,9 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			}
 		}
 
-		public bool CanSave => (Entity.Id == 0 && _permissionResult.CanCreate) || _permissionResult.CanUpdate;
+		public bool IsNew => Entity.Id == 0;
+
+		public bool CanSave => (IsNew && _permissionResult.CanCreate) || _permissionResult.CanUpdate;
 
 		public bool CanEditDate { get; }
 
