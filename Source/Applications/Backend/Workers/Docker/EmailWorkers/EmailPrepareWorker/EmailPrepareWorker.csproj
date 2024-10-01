@@ -48,17 +48,5 @@
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
 	</ItemGroup>
-	<ItemGroup>
-	  <None Update="Properties\PublishProfiles\registry-dev.pubxml">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-	  </None>
-	  <None Update="Properties\PublishProfiles\registry-prod.pubxml">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-	  </None>
-	</ItemGroup>
 	<Import Project="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
 </Project>
