@@ -49,6 +49,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		private PaymentsJournalFilterViewModel _filterViewModel;
 		private ThreadDataLoader<PaymentJournalNode> _threadDataLoader;
 
+		private readonly Type[] _nodeTypes = new Type[] 
+		{
+			typeof(Payment),
+			typeof(PaymentWriteOff)
+		};
+
 		public PaymentsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -421,6 +427,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				case PaymentJournalSortType.Status:
 					return new List<SortRule<PaymentJournalNode>>
 						{
+							new SortRule<PaymentJournalNode>(node => _nodeTypes.IndexOf(node.EntityType), false),
 							new SortRule<PaymentJournalNode>(node => node.Status, false),
 							new SortRule<PaymentJournalNode>(node => node.CounterpartyName, false),
 							new SortRule<PaymentJournalNode>(node => node.Total, false)
@@ -428,18 +435,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				case PaymentJournalSortType.Date:
 					return new List<SortRule<PaymentJournalNode>>
 						{
+							new SortRule<PaymentJournalNode>(node => _nodeTypes.IndexOf(node.EntityType), false),
 							new SortRule<PaymentJournalNode>(node => node.Date.Date, true),
 							new SortRule<PaymentJournalNode>(node => node.PaymentNum, true)
 						};
 				case PaymentJournalSortType.PaymentNum:
 					return new List<SortRule<PaymentJournalNode>>
 						{
+							new SortRule<PaymentJournalNode>(node =>_nodeTypes.IndexOf(node.EntityType), false),
 							new SortRule<PaymentJournalNode>(node => node.PaymentNum, true),
 							new SortRule<PaymentJournalNode>(node => node.Date.Date, true)
 						};
 				case PaymentJournalSortType.TotalSum:
 					return new List<SortRule<PaymentJournalNode>>
 						{
+							new SortRule<PaymentJournalNode>(node => _nodeTypes.IndexOf(node.EntityType), false),
 							new SortRule<PaymentJournalNode>(node => node.Total, true),
 							new SortRule<PaymentJournalNode>(node => node.Date.Date, true)
 						};
