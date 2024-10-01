@@ -435,21 +435,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				case PaymentJournalSortType.Date:
 					return new List<SortRule<PaymentJournalNode>>
 						{
-							new SortRule<PaymentJournalNode>(node => _nodeTypes.IndexOf(node.EntityType), false),
 							new SortRule<PaymentJournalNode>(node => node.Date.Date, true),
 							new SortRule<PaymentJournalNode>(node => node.PaymentNum, true)
 						};
 				case PaymentJournalSortType.PaymentNum:
 					return new List<SortRule<PaymentJournalNode>>
 						{
-							new SortRule<PaymentJournalNode>(node =>_nodeTypes.IndexOf(node.EntityType), false),
 							new SortRule<PaymentJournalNode>(node => node.PaymentNum, true),
 							new SortRule<PaymentJournalNode>(node => node.Date.Date, true)
 						};
 				case PaymentJournalSortType.TotalSum:
 					return new List<SortRule<PaymentJournalNode>>
 						{
-							new SortRule<PaymentJournalNode>(node => _nodeTypes.IndexOf(node.EntityType), false),
 							new SortRule<PaymentJournalNode>(node => node.Total, true),
 							new SortRule<PaymentJournalNode>(node => node.Date.Date, true)
 						};
