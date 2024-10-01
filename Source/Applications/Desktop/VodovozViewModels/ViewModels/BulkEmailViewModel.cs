@@ -185,7 +185,7 @@ namespace Vodovoz.ViewModels.ViewModels
 
 		private void OnAttachmentsAdded(string fileName)
 		{
-			if(_attachments.Count > 0 && !_commonServices.InteractiveService.Question(
+			if(!_commonServices.InteractiveService.Question(
 				$"Использование вложений повышает вероятность попадания в спам. Лучше передать информацию в тексте письма.\nВы точно хотите использовать вложения?"))
 			{
 				return;
