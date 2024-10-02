@@ -680,7 +680,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 			}
 		}
 
-		public virtual void Receive(Employee employeeReceiver)
+		public virtual void Receive(Employee employeeReceiver, IUnitOfWork unitOfWork)
 		{
 			if(employeeReceiver == null) {
 				throw new ArgumentNullException(nameof(employeeReceiver));
@@ -710,6 +710,11 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 				   && StorageFrom != StorageType.Warehouse)
 				{
 					item.TrySetIsUsed();
+
+					if(item is InstanceMovementDocumentItem instanceItem)
+					{
+						unitOfWork.Save(instanceItem.InventoryNomenclatureInstance);
+					}
 				}
 			}
 		}
