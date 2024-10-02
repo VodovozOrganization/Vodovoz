@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		public bool CanEdit { get; private set; }
 		public bool CanEditNewEntity { get; private set; }
-		public bool CanShowIsUsed { get; private set; }
+		public bool CanShowIsUsed => Entity.Nomenclature != null && Entity.Nomenclature.HasConditionAccounting;
 		public bool CanEditUsedParameter => !Entity.IsUsed || _canEditUsedParameterPermission;
 		public bool CanShowUsedPrefix => Entity.IsUsed;
 
@@ -72,6 +72,11 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 					return false;
 				}
 			}
+			
+			if(Entity.Nomenclature != null && !Entity.Nomenclature.HasConditionAccounting && Entity.IsUsed)
+			{
+				Entity.IsUsed = false;
+			}
 
 			return true;
 		}
@@ -82,7 +87,6 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			CanEditNewEntity = Entity.Id == 0 && (PermissionResult.CanUpdate || PermissionResult.CanCreate);
 			_canEditUsedParameterPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission(
 				Vodovoz.Permissions.InventoryNomenclatureInstance.CanEditUsedParameter);
-			CanShowIsUsed = Entity.Nomenclature != null && Entity.Nomenclature.HasConditionAccounting;
 			_oldIsArchive = Entity.IsArchive;
 			
 			var builder = new CommonEEVMBuilderFactory<InventoryNomenclatureInstance>(
@@ -106,6 +110,9 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			SetPropertyChangeRelation(e => e.IsUsed,
 				() => CanEditUsedParameter,
 				() => CanShowUsedPrefix);
+			
+			SetPropertyChangeRelation(e => e.Nomenclature,
+				() => CanShowIsUsed);
 		}
 	}
 }
