@@ -207,11 +207,6 @@ namespace VodovozBusiness.Domain.Payments
 				yield return new ValidationResult("Необходимо заполнить контрагента", new[] { nameof(CounterpartyId) });
 			}
 
-			if(CounterpartyId is null)
-			{
-				yield return new ValidationResult("Необходимо заполнить контрагента", new[] { nameof(CounterpartyId) });
-			}
-
 			if(OrganizationId is null)
 			{
 				yield return new ValidationResult("Необходимо заполнить организацию", new[] { nameof(OrganizationId) });
