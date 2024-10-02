@@ -1,5 +1,8 @@
 ﻿using CustomerAppsApi.HealthChecks;
+using CustomerAppsApi.Library;
 using CustomerAppsApi.Middleware;
+using MassTransit;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -67,6 +70,9 @@ namespace CustomerAppsApi
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>()
 				.AddHttpClient()
+				.AddConfig(Configuration)
+				.AddMessageTransportSettings()
+				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
 				.AddControllers()
 				;
 
