@@ -182,13 +182,13 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 
 		private void UpdateSum()
 		{
-			if(Entity.CounterpartyId.HasValue && Entity.OrganizationId.HasValue)
+			if(IsNew && Entity.CounterpartyId.HasValue && Entity.OrganizationId.HasValue)
 			{
 				var balance = _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.CounterpartyId.Value, Entity.OrganizationId.Value);
 
-				MaxSum = balance + Sum;
+				MaxSum = balance;
 
-				if(balance > 0)
+				if(balance > 0 || MaxSum < Sum)
 				{
 					Sum = balance;
 				}
