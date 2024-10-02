@@ -38,7 +38,5 @@ namespace Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting
 			WriteOffCarInstanceGoodsAccountingOperation.InventoryNomenclatureInstance = InventoryNomenclatureInstance;
 			WriteOffCarInstanceGoodsAccountingOperation.Car = Document.FromCar;
 		}
-		
-		
 	}
 }

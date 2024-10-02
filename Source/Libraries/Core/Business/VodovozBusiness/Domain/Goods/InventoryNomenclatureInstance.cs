@@ -37,6 +37,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _isArchive, value);
 		}
 		
+		/// <summary>
+		/// Бывшее в употреблении (б/у)
+		/// </summary>
 		[Display(Name = "Бывшее в употреблении", ShortName = "Б/у")]
 		public virtual bool IsUsed
 		{

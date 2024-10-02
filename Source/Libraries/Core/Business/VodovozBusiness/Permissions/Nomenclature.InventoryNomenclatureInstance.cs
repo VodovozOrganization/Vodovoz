@@ -2,6 +2,9 @@
 
 namespace Vodovoz.Permissions
 {
+	/// <summary>
+	/// Права Экземпляр номенклатуры
+	/// </summary>
 	public static class InventoryNomenclatureInstance
 	{
 		/// <summary>
