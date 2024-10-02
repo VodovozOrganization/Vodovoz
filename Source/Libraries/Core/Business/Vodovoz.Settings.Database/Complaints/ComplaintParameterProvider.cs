@@ -21,5 +21,6 @@ namespace Vodovoz.Settings.Database.Complaints
 
 		public int ComplaintResultOfEmployeesIsGuiltyId => _settingsController.GetIntValue(_complaintResultOfEmployeesIsGuiltyIdParameterName);
 		public int GuiltProvenComplaintResultId => _settingsController.GetIntValue(_guiltProvenComplaintResultParameterName);
+		public int IncomeCallComplaintSourceId => _settingsController.GetIntValue($"Complaints.{nameof(IncomeCallComplaintSourceId)}");
 	}
 }

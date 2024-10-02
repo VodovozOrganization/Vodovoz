@@ -177,7 +177,7 @@ namespace Vodovoz
 			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
 			Entity.UpdateInRouteListAmount(UoW, _routeListRepository);
 			carloaddocumentview1.DocumentUoW = UoWGeneric;
-			carloaddocumentview1.SetButtonEditing(editing);
+			carloaddocumentview1.SetIsCanEditDocument(editing);
 			buttonSave.Sensitive = editing;
 			if(!editing)
 			{
