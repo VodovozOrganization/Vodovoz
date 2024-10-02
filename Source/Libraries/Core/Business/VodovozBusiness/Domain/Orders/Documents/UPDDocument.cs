@@ -143,6 +143,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual EmailTemplate GetResendDocumentEmailTemplate()
 		{
 			var text = $"Добрый день!" +
+				$"<br>" +
 				$"<br>Во вложении {Title}" +
 				$"<br>" +
 				$"<br>С Уважением," +
