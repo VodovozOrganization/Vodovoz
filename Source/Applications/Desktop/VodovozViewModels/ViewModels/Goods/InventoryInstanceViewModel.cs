@@ -52,6 +52,22 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		public bool CanEditUsedParameter => !Entity.IsUsed || _canEditUsedParameterPermission;
 		public bool CanShowUsedPrefix => Entity.IsUsed;
 
+		public Nomenclature Nomenclature
+		{
+			get => Entity.Nomenclature;
+			set
+			{
+				Entity.Nomenclature = value;
+
+				if(Entity.IsUsed && (Entity.Nomenclature is null || !Entity.Nomenclature.HasConditionAccounting))
+				{
+					Entity.IsUsed = false;
+				}
+				
+				OnPropertyChanged(nameof(CanShowIsUsed));
+			}
+		}
+
 		public bool AskSaveOnClose => CanEdit;
 		public ILifetimeScope Scope { get; }
 		public IEntityEntryViewModel NomenclatureViewModel { get; private set; }
@@ -72,11 +88,6 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 					return false;
 				}
 			}
-			
-			if(Entity.Nomenclature != null && !Entity.Nomenclature.HasConditionAccounting && Entity.IsUsed)
-			{
-				Entity.IsUsed = false;
-			}
 
 			return true;
 		}
@@ -89,8 +100,8 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				Vodovoz.Permissions.InventoryNomenclatureInstance.CanEditUsedParameter);
 			_oldIsArchive = Entity.IsArchive;
 			
-			var builder = new CommonEEVMBuilderFactory<InventoryNomenclatureInstance>(
-				this, Entity, UoW, NavigationManager, Scope);
+			var builder = new CommonEEVMBuilderFactory<InventoryInstanceViewModel>(
+				this, this, UoW, NavigationManager, Scope);
 
 			NomenclatureViewModel = builder.ForProperty(x => x.Nomenclature)
 				.UseViewModelDialog<NomenclatureViewModel>()
@@ -110,9 +121,6 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			SetPropertyChangeRelation(e => e.IsUsed,
 				() => CanEditUsedParameter,
 				() => CanShowUsedPrefix);
-			
-			SetPropertyChangeRelation(e => e.Nomenclature,
-				() => CanShowIsUsed);
 		}
 	}
 }
