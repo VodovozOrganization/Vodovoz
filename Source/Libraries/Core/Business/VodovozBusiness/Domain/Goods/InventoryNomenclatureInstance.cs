@@ -51,8 +51,6 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual string Name => Nomenclature != null ? Nomenclature.Name : string.Empty;
 		public virtual string GetInventoryNumber => GetInventoryNumberString(IsUsed, InventoryNumber);
-		public static string GetInventoryNumberString(bool isUsed, string inventoryNumber) =>
-			isUsed ? $"Б/У - {inventoryNumber}" : $"{inventoryNumber}";
 
 		public override string ToString()
 		{
@@ -93,5 +91,8 @@ namespace Vodovoz.Domain.Goods
 				}
 			}
 		}
+
+		public static string GetInventoryNumberString(bool isUsed, string inventoryNumber) =>
+			isUsed ? $"Б/У - {inventoryNumber}" : $"{inventoryNumber}";
 	}
 }
