@@ -99,6 +99,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public void Dispose()
 		{
 			ObservableEntities.ListChanged -= OnEntitiesListChanged;
+			ObservableEntities.ListContentChanged -= OnObservableEntitiesListContentChanged;
 		}
 	}
 }
