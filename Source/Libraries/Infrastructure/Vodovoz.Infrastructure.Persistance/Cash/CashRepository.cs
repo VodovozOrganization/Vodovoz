@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
@@ -309,6 +310,44 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 			}
 
 			return query.SingleOrDefault<decimal>();
+		}
+
+		public IList<int> GetCashTransferDocumentsIdsByExpenseId(IUnitOfWork uow, int expenseId)
+		{
+			var cashTransferDocumentsHavingExpense = uow.Session.Query<ExpenseCashTransferedItem>()
+				.Where(ti => ti.Expense.Id == expenseId)
+				.Select(ti => ti.Document.Id)
+				.ToList();
+
+			return cashTransferDocumentsHavingExpense;
+		}
+
+		public IList<int> GetCashDistributionDocumentsIdsByFuelDocumentId(IUnitOfWork uow, int fuelDocumentId)
+		{
+			var cashDistributionDocuments = uow.Session.Query<FuelExpenseCashDistributionDocument>()
+				.Where(d => d.FuelDocument.Id == fuelDocumentId)
+				.Select(d => d.Id)
+				.ToList();
+
+			return cashDistributionDocuments;
+		}
+
+		public void DeleteFuelExpenseCashDistributionDocuments(IUnitOfWork uow, IEnumerable<int> documentIds)
+		{
+			if(!documentIds.Any())
+			{
+				return;
+			}
+
+			foreach(var cashDistributionDocumentsId in documentIds)
+			{
+				var document = uow.GetById<FuelExpenseCashDistributionDocument>(cashDistributionDocumentsId);
+
+				if(document != null)
+				{
+					uow.Delete(document);
+				}
+			}
 		}
 	}
 }

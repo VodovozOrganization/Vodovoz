@@ -1,16 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using EdoService.Library.Converters;
+﻿using EdoService.Library.Converters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Taxcom.Client.Api;
 using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Converters;
 using TaxcomEdoApi.Factories;
 using TaxcomEdoApi.Services;
-using Vodovoz.Core.Domain.Common;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Tools.Orders;
 
@@ -30,6 +29,7 @@ namespace TaxcomEdoApi
 			services.AddHostedService<AutoSendReceiveService>()
 				.AddHostedService<ContactsUpdaterService>()
 				.AddHostedService<DocumentFlowService>()
+
 				.AddInfrastructure()
 
 				.AddSingleton(provider =>
@@ -43,14 +43,14 @@ namespace TaxcomEdoApi
 					{
 						throw new InvalidOperationException("Не найден сертификат в личном хранилище пользователя");
 					}
-					
+
 					return certificate;
 				})
 				.AddSingleton(provider =>
 				{
 					var apiOptions = provider.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;
 					var certificate = provider.GetRequiredService<X509Certificate2>();
-					
+
 					return new Factory().CreateApi(
 						apiOptions.BaseUrl,
 						true,

@@ -1,5 +1,7 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Security;
+using System;
 using System.Security.Authentication;
 using Vodovoz.Settings.Pacs;
 
@@ -13,15 +15,23 @@ namespace Mango.CallsPublishing
 			{
 				busCfg.UsingRabbitMq((context, rabbitCfg) =>
 				{
-					var ts = context.GetRequiredService<IMessageTransportSettings>();
-					rabbitCfg.Host(ts.Host, (ushort)ts.Port, ts.VirtualHost,
+					var messageSettings = context.GetRequiredService<IMessageTransportSettings>();
+					rabbitCfg.Host(messageSettings.Host, (ushort)messageSettings.Port, messageSettings.VirtualHost,
 						rabbitHostCfg =>
 						{
-							rabbitHostCfg.Username(ts.Username);
-							rabbitHostCfg.Password(ts.Password);
-							if(ts.UseSSL)
+							rabbitHostCfg.Username(messageSettings.Username);
+							rabbitHostCfg.Password(messageSettings.Password);
+							if(messageSettings.UseSSL)
 							{
-								rabbitHostCfg.UseSsl(ssl => ssl.Protocol = SslProtocols.Tls12);
+								rabbitHostCfg.UseSsl(ssl =>
+								{
+									if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
+									{
+										ssl.AllowPolicyErrors(allowedPolicyErrors);
+									}
+
+									ssl.Protocol = SslProtocols.Tls12;
+								});
 							}
 						}
 					);

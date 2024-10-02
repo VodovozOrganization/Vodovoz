@@ -36,6 +36,18 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+			
+			lblUsed.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowUsedPrefix, w => w.Visible)
+				.InitializeFromSource();
+			lblIsUsed.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowIsUsed, w => w.Visible)
+				.InitializeFromSource();
+			chkIsUsed.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsUsed, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditUsedParameter, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanShowIsUsed, w => w.Visible)
+				.InitializeFromSource();
 		}
 
 		private void OnSaveClicked(object sender, EventArgs e)

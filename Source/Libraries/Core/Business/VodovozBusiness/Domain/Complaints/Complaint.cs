@@ -64,6 +64,7 @@ namespace Vodovoz.Domain.Complaints
 		private OrderRating _orderRating;
 		private IObservableList<ComplaintFileInformation> _attachedFileInformations = new ObservableList<ComplaintFileInformation>();
 		private int _id;
+		private ComplaintWorkWithClientResult? _workWithClientResult;
 
 		public virtual int Id
 		{
@@ -197,6 +198,13 @@ namespace Vodovoz.Domain.Complaints
 		{
 			get => _plannedCompletionDate;
 			set => SetField(ref _plannedCompletionDate, value);
+		}
+
+		[Display(Name = "Результат работы по клиенту")]
+		public virtual ComplaintWorkWithClientResult? WorkWithClientResult
+		{
+			get => _workWithClientResult;
+			set => SetField(ref _workWithClientResult, value);
 		}
 
 		[Display(Name = "Комментарии - результаты")]

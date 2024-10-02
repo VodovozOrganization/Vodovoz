@@ -179,7 +179,7 @@ namespace Vodovoz.Views.Warehouse
 				.AddColumn("Экземпляр")
 					.AddTextRenderer(x => x.InventoryNomenclatureInstance.Name)
 				.AddColumn("Инвентарный номер")
-					.AddTextRenderer(x => x.InventoryNomenclatureInstance.InventoryNumber)
+					.AddTextRenderer(x => x.InventoryNomenclatureInstance.GetInventoryNumber)
 				.AddColumn("Сумма ущерба")
 					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Что произошло")

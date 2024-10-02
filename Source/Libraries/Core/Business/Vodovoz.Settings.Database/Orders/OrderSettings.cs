@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Linq;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Orders;
 
@@ -73,5 +74,22 @@ namespace Vodovoz.Settings.Database.Orders
 				PaymentByCardFromSiteId
 			};
 
+		public int[] OksDiscountReasonsIds => _settingsController
+			.GetStringValue(nameof(OksDiscountReasonsIds))
+			.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
+			.Select(x => int.Parse(x.Trim(' ')))
+			.ToArray();
+
+		public int[] ProductChangeDiscountReasonsIds => _settingsController
+			.GetStringValue(nameof(ProductChangeDiscountReasonsIds))
+			.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
+			.Select(x => int.Parse(x.Trim(' ')))
+			.ToArray();
+
+		public int[] AdditionalDeliveryDiscountReasonsIds => _settingsController
+			.GetStringValue(nameof(AdditionalDeliveryDiscountReasonsIds))
+			.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
+			.Select(x => int.Parse(x.Trim(' ')))
+			.ToArray();
 	}
 }
