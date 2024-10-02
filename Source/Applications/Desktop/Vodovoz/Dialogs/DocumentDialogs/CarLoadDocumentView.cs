@@ -20,7 +20,7 @@ namespace Vodovoz
 		private readonly IStockRepository _stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
 		private readonly IRouteListRepository _routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
 		private readonly ISubdivisionRepository _subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
-		private bool _isIsCanEditDocument;
+		private bool _isCanEditDocument;
 
 		public CarLoadDocumentView()
 		{
@@ -38,7 +38,7 @@ namespace Vodovoz
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
 				.AddSetter((w, x) =>
 				{
-					if(_isIsCanEditDocument)
+					if(_isCanEditDocument)
 					{
 						w.ForegroundGdk = CalculateAmountAndColor(x);
 					}
@@ -60,7 +60,7 @@ namespace Vodovoz
 
 		public void SetIsCanEditDocument(bool isEditable)
 		{
-			_isIsCanEditDocument = isEditable;
+			_isCanEditDocument = isEditable;
 			buttonFillAllItems.Sensitive = buttonFillWarehouseItems.Sensitive = isEditable;
 		}
 
