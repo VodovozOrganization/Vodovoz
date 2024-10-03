@@ -204,6 +204,8 @@ namespace Vodovoz
 				carloaddocumentview1.Sensitive = false;
 
 				buttonSave.Sensitive = false;
+
+				carloaddocumentview1.SetIsCanEditDocument(false);
 			}
 			else
 			{
