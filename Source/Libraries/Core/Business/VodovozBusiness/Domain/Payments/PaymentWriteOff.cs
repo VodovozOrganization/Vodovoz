@@ -141,7 +141,7 @@ namespace VodovozBusiness.Domain.Payments
 			get => _sum;
 			set
 			{
-				if(value <= 0)
+				if(value < 0)
 				{
 					OnPropertyChanged(nameof(Sum));
 					return;
