@@ -14,6 +14,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -264,6 +265,12 @@ namespace Vodovoz.Views.Complaints
 			ybuttonAddResult.Clicked += (sender, e) => ViewModel.AddResultCommentCommand.Execute();
 			ybuttonAddResult.Binding
 				.AddBinding(ViewModel, vm => vm.CanAddResultComment, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yenumcomboboxWorkWithClientResult.ItemsEnum = typeof(ComplaintWorkWithClientResult);
+			yenumcomboboxWorkWithClientResult.ShowSpecialStateNot = false;
+			yenumcomboboxWorkWithClientResult.Binding
+				.AddBinding(ViewModel.Entity, e => e.WorkWithClientResult, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			_popupCopyArrangementsMenu = new Menu();

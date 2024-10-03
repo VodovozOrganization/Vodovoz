@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Vodovoz.Settings.Orders
 {
@@ -27,5 +27,20 @@ namespace Vodovoz.Settings.Orders
 		int FastDeliveryLateDiscountReasonId { get; }
 		int GetOrderRatingForMandatoryProcessing { get; }
 		DateTime GetDateAvailabilityRatingOrder { get; }
+
+		/// <summary>
+		/// Id оснований для скидки ОКС
+		/// </summary>
+		int[] OksDiscountReasonsIds { get; }
+
+		/// <summary>
+		/// Id оснований для скидки Замена
+		/// </summary>
+		int[] ProductChangeDiscountReasonsIds { get; }
+
+		/// <summary>
+		/// Id оснований для скидки Довоз
+		/// </summary>
+		int[] AdditionalDeliveryDiscountReasonsIds { get; }
 	}
 }

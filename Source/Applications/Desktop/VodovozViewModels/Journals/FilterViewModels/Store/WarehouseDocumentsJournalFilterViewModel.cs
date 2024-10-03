@@ -5,7 +5,7 @@ using QS.Services;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;

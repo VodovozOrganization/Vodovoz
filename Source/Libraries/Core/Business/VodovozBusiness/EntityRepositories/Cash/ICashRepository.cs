@@ -32,5 +32,8 @@ namespace Vodovoz.EntityRepositories.Cash
 		IList<OperationNode> GetCashBalanceForOrganizations(IUnitOfWork uow);
 		decimal GetIncomeSumByRouteListId(IUnitOfWork uow, int routeListId, IncomeType[] includedIncomeTypes = null, IncomeType[] excludedIncomeTypes = null);
 		decimal GetExpenseSumByRouteListId(IUnitOfWork uow, int routeListId, ExpenseType[] includedExpenseTypes = null, ExpenseType[] excludedExpenseTypes = null);
+		IList<int> GetCashTransferDocumentsIdsByExpenseId(IUnitOfWork uow, int expenseId);
+		IList<int> GetCashDistributionDocumentsIdsByFuelDocumentId(IUnitOfWork uow, int fuelDocumentId);
+		void DeleteFuelExpenseCashDistributionDocuments(IUnitOfWork uow, IEnumerable<int> documentIds);
 	}
 }
