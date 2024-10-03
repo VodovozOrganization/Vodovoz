@@ -202,10 +202,9 @@ namespace Vodovoz
 				entryWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				carloaddocumentview1.Sensitive = false;
+				carloaddocumentview1.SetIsCanEditDocument(false);
 
 				buttonSave.Sensitive = false;
-
-				carloaddocumentview1.SetIsCanEditDocument(false);
 			}
 			else
 			{
