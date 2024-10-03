@@ -2327,12 +2327,12 @@ namespace Vodovoz
 		{
 			try
 			{
+				SetSensitivity(false);
+
 				if(_orderRepository.GetStatusesForFreeBalanceOperations().Contains(Entity.OrderStatus))
 				{
 					CreateDeliveryFreeBalanceOperations();
 				}
-
-				SetSensitivity(false);
 
 				_lastSaveResult = null;
 
