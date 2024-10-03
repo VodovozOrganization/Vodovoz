@@ -38,6 +38,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Orders.Reports;
 using Vodovoz.ViewModels.Reports;
+using Vodovoz.ViewModels.Reports.OKS.DailyReport;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
@@ -622,6 +623,16 @@ public partial class MainWindow
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<BulkEmailEventReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Ежедневный отчет ОКС
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionOksDailyReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OksDailyReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Отчеты ОСК/ОКК

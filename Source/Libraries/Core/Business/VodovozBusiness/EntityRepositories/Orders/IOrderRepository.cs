@@ -1,7 +1,8 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -172,5 +173,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId);
 		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
 		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
+		IQueryable<OksDailyReportOrderDiscountDataNode> GetOrdersDiscountsDataForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
 	}
 }

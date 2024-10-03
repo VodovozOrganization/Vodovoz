@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -20,7 +21,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderFactory onlineOrderFactory,
 			IOrderService orderService,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			IBus bus) : base(logger, unitOfWorkFactory, onlineOrderFactory, deliveryRulesSettings, orderService)
+			IDiscountReasonSettings discountReasonSettings,
+			IBus bus) : base(logger, unitOfWorkFactory, onlineOrderFactory, deliveryRulesSettings, discountReasonSettings, orderService)
 		{
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}

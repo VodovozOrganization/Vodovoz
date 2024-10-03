@@ -1631,6 +1631,34 @@ namespace Vodovoz
 				return;
 			}
 
+			if(fd.FuelCashExpense != null)
+			{
+				var cashTransferDocumentsHavingExpense =
+					_cashRepository.GetCashTransferDocumentsIdsByExpenseId(UoW, fd.FuelCashExpense.Id);
+
+				if(cashTransferDocumentsHavingExpense.Count > 0)
+				{
+					MessageDialogHelper.RunErrorDialog(
+						$"Удалить талоны невозможно, т.к. расходный ордер талона задействован " +
+						$"в документах перемещении ДС: {string.Join(", ", cashTransferDocumentsHavingExpense)}");
+
+					return;
+				}
+			}
+
+			var cashDistributionDocumentsIds =
+				_cashRepository.GetCashDistributionDocumentsIdsByFuelDocumentId(UoW, fd.Id);
+
+			if(cashDistributionDocumentsIds.Count > 0)
+			{
+				if(!MessageDialogHelper.RunQuestionDialog("Вы действительно хотите удалить талон выдачи топлива вместе документом расхода налички?"))
+				{
+					return;
+				}
+
+				_cashRepository.DeleteFuelExpenseCashDistributionDocuments(UoW, cashDistributionDocumentsIds);
+			}
+
 			Entity.ObservableFuelDocuments.Remove(fd);
 		}
 
