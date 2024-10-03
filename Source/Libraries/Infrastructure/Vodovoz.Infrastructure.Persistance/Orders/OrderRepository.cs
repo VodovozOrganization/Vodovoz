@@ -1,8 +1,10 @@
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -1911,6 +1913,34 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List();
 
 			return result;
+		}
+
+		public IQueryable<OksDailyReportOrderDiscountDataNode> GetOrdersDiscountsDataForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate)
+		{
+			var discounts =
+				from orderItem in uow.Session.Query<OrderItem>()
+				join nomenclature in uow.Session.Query<Nomenclature>() on orderItem.Nomenclature.Id equals nomenclature.Id
+				join order in uow.Session.Query<Order>() on orderItem.Order.Id equals order.Id
+				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
+				join discountReason in uow.Session.Query<DiscountReason>() on orderItem.DiscountReason.Id equals discountReason.Id
+				join un in uow.Session.Query<MeasurementUnits>() on nomenclature.Unit.Id equals un.Id into units
+				from unit in units.DefaultIfEmpty()
+				where 
+				order.DeliveryDate >= startDate && order.DeliveryDate < endDate.LatestDayTime()
+				select new OksDailyReportOrderDiscountDataNode
+				{
+					OrderId = order.Id,
+					ClientName = counterparty.FullName,
+					NomenclatureName = nomenclature.Name,
+					OrderItemPrice = orderItem.Price,
+					Amount = orderItem.ActualCount == null ? orderItem.Count : orderItem.ActualCount.Value,
+					Discount = orderItem.Discount,
+					DiscountMoney = orderItem.DiscountMoney,
+					DiscountResonId = discountReason.Id,
+					DiscountReasonName = discountReason.Name
+				};
+
+			return discounts;
 		}
 	}
 }
