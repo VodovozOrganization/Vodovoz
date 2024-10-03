@@ -10,7 +10,7 @@ namespace Vodovoz.EntityRepositories.Complaints
 		public int Id { get; set; }
 		public DateTime CreationDate { get; set; }
 		public string ComplaintText { get; set; }
-		public string ComplaintResults { get; set; }
+		public IEnumerable<OksDailyReportComplaintResultCommentsData> ComplaintResults { get; set; }
 		public ComplaintWorkWithClientResult? WorkWithClientResult { get; set; }
 		public ComplaintStatuses Status { get; set; }
 		public ComplaintKind ComplaintKind { get; set; }
