@@ -227,7 +227,9 @@ namespace VodovozBusiness.Domain.Payments
 				var paymentsRepository = validationContext.GetRequiredService<IPaymentsRepository>();
 				var unitOfWork = validationContext.GetRequiredService<IUnitOfWork>();
 
-				var balance = paymentsRepository.GetCounterpartyLastBalance(unitOfWork, CounterpartyId.Value, OrganizationId.Value);
+				var balance = Math.Max(
+					0,
+					paymentsRepository.GetCounterpartyLastBalance(unitOfWork, CounterpartyId.Value, OrganizationId.Value));
 
 				if(Id == 0)
 				{
