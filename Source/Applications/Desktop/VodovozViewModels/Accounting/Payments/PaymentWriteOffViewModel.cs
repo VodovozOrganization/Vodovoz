@@ -187,11 +187,13 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 		{
 			if(IsNew && Entity.CounterpartyId.HasValue && Entity.OrganizationId.HasValue)
 			{
-				var balance = _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.CounterpartyId.Value, Entity.OrganizationId.Value);
+				var balance = Math.Max(
+					0,
+					_paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.CounterpartyId.Value, Entity.OrganizationId.Value));
 
 				MaxSum = balance;
 
-				if(balance > 0 || MaxSum < Sum)
+				if((Sum == 0 && balance > 0) || MaxSum < Sum)
 				{
 					Sum = balance;
 				}
