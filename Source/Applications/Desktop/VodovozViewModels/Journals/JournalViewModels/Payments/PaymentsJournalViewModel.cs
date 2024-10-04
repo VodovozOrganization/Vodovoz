@@ -458,7 +458,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		protected ITdiTab EditPaymentDialog(PaymentJournalNode node) =>
 			NavigationManager.OpenViewModel<ManualPaymentMatchingViewModel, IEntityUoWBuilder>(
 				this,
-				EntityUoWBuilder.ForOpen(DomainHelper.GetId(node))).ViewModel;
+				EntityUoWBuilder.ForOpen(DomainHelper.GetId(node)))?.ViewModel;
 
 		protected ITdiTab CreatePaymentWriteOffDialog() =>
 			NavigationManager.OpenViewModel<PaymentWriteOffViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
