@@ -58,5 +58,20 @@ namespace Vodovoz.Models.TrueMark
 				receiptServiceChannel.Client.RefreshFiscalDocument(request);
 			}
 		}
+
+		public void RequeueFiscalDoc(int receiptId)
+		{
+			if(receiptId <= 0)
+			{
+				throw new ArgumentException("Должен быть указан валидный код чека", nameof(receiptId));
+			}
+
+			using(var receiptServiceChannel = _cashReceiptClientChannelFactory.OpenChannel())
+			{
+				var request = new RequeueDocumentRequest();
+				request.CashReceiptId = receiptId;
+				receiptServiceChannel.Client.RequeueFiscalDocument(request);
+			}
+		}
 	}
 }
