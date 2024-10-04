@@ -634,7 +634,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					_commonServices.CurrentPermissionService,
 					this)
 				{
-					CanEdit = true,
 					MainTitle = "<b>Настройки списаний с баланса клиента</b>",
 					DetailTitle = "Статьи расхода доступные для выбора в карточке списаний с баланса клиента:"
 				};
