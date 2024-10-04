@@ -11,6 +11,7 @@ using System.Linq;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.ViewModels.Accounting.Payments;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
@@ -156,6 +157,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			CanEditDailyFuelLimitsSetting =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Fuel.CanEditMaxDailyFuelLimit);
 			SaveDailyFuelLimitsCommand = new DelegateCommand(SaveDailyFuelLimits, () => CanEditDailyFuelLimitsSetting);
+
+			InitializeAccountingSettingsViewModels();
 		}
 
 		#region RouteListPrintedFormPhones
@@ -605,6 +608,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		public DelegateCommand SaveDailyFuelLimitsCommand { get; }
 		public bool CanEditDailyFuelLimitsSetting { get; }
+		public PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel PaymentWriteOffAllowedFinancialExpenseCategoriesViewModel { get; private set; }
 
 		private void SaveDailyFuelLimits()
 		{
@@ -616,6 +620,26 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 		#endregion
+
+		#region Бухгалтерия
+
+		private void InitializeAccountingSettingsViewModels()
+		{
+			PaymentWriteOffAllowedFinancialExpenseCategoriesViewModel
+				= new PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel(
+					_commonServices,
+					_unitOfWorkFactory,
+					NavigationManager,
+					_generalSettings,
+					_commonServices.CurrentPermissionService,
+					this)
+				{
+					MainTitle = "<b>Настройки списаний с баланса клиента</b>",
+					DetailTitle = "Статьи расхода доступные для выбора в карточке списаний с баланса клиента:"
+				};
+		}
+
+		#endregion Бухгалтерия
 
 		private void InitializeSettingsViewModels()
 		{

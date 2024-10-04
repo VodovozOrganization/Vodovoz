@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		Genitive = "финансовой статьи расхода")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class FinancialExpenseCategory : PropertyChangedBase, IDomainObject
+	public class FinancialExpenseCategory : PropertyChangedBase, IDomainObject, ITitled
 	{
 		private int? _parentId;
 		private string _title;
