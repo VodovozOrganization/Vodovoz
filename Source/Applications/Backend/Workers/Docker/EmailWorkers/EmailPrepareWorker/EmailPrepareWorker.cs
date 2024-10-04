@@ -30,8 +30,10 @@ namespace EmailPrepareWorker
 		private string _emailSendKey;
 		private string _emailSendExchange;
 		private int _instanceId;
+
+		// Это для костыля с остановкой сервиса, при устранении утечек удалить вместе со связанным функционалом
 		private int _crutchCounter = 0;
-		private const int _crutchCounterLimit = 500;
+		private const int _crutchCounterLimit = 100;
 
 		private bool _initialized = false;
 		private readonly ILogger<EmailPrepareWorker> _logger;
@@ -206,6 +208,7 @@ namespace EmailPrepareWorker
 					unitOfWork.Commit();
 
 					_crutchCounter++;
+					_logger.LogInformation("Email prepairing processed {ProcessedCount} of {ProcessMaxCount} (At maximum - service will be stopped)", _crutchCounter, _crutchCounterLimit);
 				}
 				catch(Exception ex)
 				{
