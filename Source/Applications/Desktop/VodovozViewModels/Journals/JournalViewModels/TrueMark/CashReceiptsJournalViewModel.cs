@@ -183,6 +183,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			CreateAutorefreshAction();
 			CreateNodeManualSendAction();
 			CreateNodeRefreshFiscalDocAction();
+			CreateNodeRequeueFiscalDocAction();
 			CreateLoadCodesToPoolAction();
 			CreateProductCodesScanningReportAction();
 			CreateExportAction();
@@ -505,7 +506,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		#endregion Manual send
 
-		#region Refresh fiscal document
+		#region Refresh and requeue fiscal document
 
 		private void CreatePopupRefreshFiscalDocAction()
 		{
@@ -519,12 +520,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			NodeActionsList.Add(refreshFiscalDocAction);
 		}
 
+		private void CreateNodeRequeueFiscalDocAction()
+		{
+			var requeueFiscalDocAction = GetRequeueFiscalDocAction();
+			NodeActionsList.Add(requeueFiscalDocAction);
+		}
+
 		private JournalAction GetRefreshFiscalDocAction()
 		{
 			var manualSentAction = new JournalAction("Обновить статус фиск. документа",
 				(selected) => RefreshFiscalDocActionSensitive(selected),
 				(selected) => true,
 				RefreshFiscalDoc
+			);
+			return manualSentAction;
+		}
+
+		private JournalAction GetRequeueFiscalDocAction()
+		{
+			var manualSentAction = new JournalAction("Повторное проведение чека",
+				(selected) => RequeueFiscalDocActionSensitive(selected),
+				(selected) => true,
+				RequeueFiscalDoc
 			);
 			return manualSentAction;
 		}
@@ -572,7 +589,51 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			Refresh();
 		}
 
-		#endregion Refresh fiscal document
+		private bool RequeueFiscalDocActionSensitive(object[] selectedNodes)
+		{
+			var nodes = selectedNodes.OfType<CashReceiptJournalNode>();
+			if(!nodes.Any())
+			{
+				return false;
+			}
+
+			if(nodes.Count() > 1)
+			{
+				return false;
+			}
+
+			var node = nodes.First();
+
+			if(node.NodeType != CashReceiptNodeType.Receipt)
+			{
+				return false;
+			}
+
+			if(node.FiscalDocStatus == FiscalDocumentStatus.Failed)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private void RequeueFiscalDoc(object[] selectedNodes)
+		{
+			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
+
+			try
+			{
+				_receiptManualController.RequeueFiscalDoc(node.Id);
+			}
+			catch(Exception ex)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Невозможно подключиться к сервису обработки чеков. Повторите попытку позже.\n{ex.Message}");
+			}
+
+			Refresh();
+		}
+
+		#endregion Refresh and requeue fiscal document
 
 		#region Load codes to pool
 
