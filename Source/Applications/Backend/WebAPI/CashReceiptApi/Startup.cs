@@ -15,6 +15,7 @@ using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace CashReceiptApi
 {
@@ -49,6 +50,7 @@ namespace CashReceiptApi
 				.AddCore()
 				.AddTrackedUoW()
 				.AddDatabaseSettings()
+				.AddInfrastructure()
 				;
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
