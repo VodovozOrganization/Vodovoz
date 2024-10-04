@@ -8,8 +8,13 @@ package cashReceiptApi;
 
 service CashReceiptServiceGrpc {
   rpc RefreshFiscalDocument (RefreshReceiptRequest) returns (google.protobuf.Empty);
+  rpc RequeueFiscalDocument (RequeueDocumentRequest) returns (google.protobuf.Empty);
 }
 
 message RefreshReceiptRequest {
+  int32 cashReceiptId = 1;
+}
+
+message RequeueDocumentRequest {
   int32 cashReceiptId = 1;
 }

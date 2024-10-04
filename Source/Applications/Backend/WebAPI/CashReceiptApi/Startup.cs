@@ -16,6 +16,7 @@ using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Persistance;
+using VodovozBusiness.Models.CashReceipts;
 
 namespace CashReceiptApi
 {
@@ -80,6 +81,10 @@ namespace CashReceiptApi
 				.InstancePerLifetimeScope();
 
 			builder.RegisterType<FiscalDocumentRefresher>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<FiscalDocumentRequeueService>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
 

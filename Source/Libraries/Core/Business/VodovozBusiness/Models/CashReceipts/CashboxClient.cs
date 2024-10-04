@@ -19,6 +19,7 @@ namespace Vodovoz.Models.CashReceipts
 		private readonly string _baseUrl;
 		private readonly string _fiscalizationStatusUrl;
 		private readonly string _documentStatusUrl;
+		private readonly string _documentRequeueUrl;
 		private readonly string _sendDocumentUrl;
 		private readonly HttpClient _httpClient;
 
@@ -35,6 +36,7 @@ namespace Vodovoz.Models.CashReceipts
 
 			_fiscalizationStatusUrl = _baseUrl + "fn/v1/status";
 			_documentStatusUrl = _baseUrl + "fn/v1/doc/{0}/status";
+			_documentRequeueUrl = _baseUrl + "fn/v1/doc/{0}/re-queue";
 			_sendDocumentUrl = _baseUrl + "fn/v2/doc";
 
 			_httpClient = CreateHttpClient();
@@ -159,6 +161,30 @@ namespace Vodovoz.Models.CashReceipts
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при получении статуса чека для документа №{fiscalDocumentId}", fiscalDocumentId);
+				return CreateFailResult(ex.Message);
+			}
+		}
+
+		public async Task<FiscalizationResult> RequeueFiscalDocument(string fiscalDocumentId, CancellationToken cancellationToken)
+		{
+			try
+			{
+				var completedUrl = string.Format(_documentRequeueUrl, fiscalDocumentId);
+				var responseContent = await _httpClient.GetAsync(completedUrl, cancellationToken);
+				if(!responseContent.IsSuccessStatusCode)
+				{
+					var httpCodeMessage = $"HTTP Code: {(int)responseContent.StatusCode} {responseContent.StatusCode}";
+					_logger.LogWarning("Не удалось выполнить повторное проведение фискального документа №{fiscalDocumentId}. {httpCodeMessage}", fiscalDocumentId, httpCodeMessage);
+					return CreateFailResult(httpCodeMessage);
+				}
+
+				var response = await responseContent.Content.ReadAsAsync<FiscalDocumentInfoResponse>();
+				return CreateSucessResult(response);
+
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при выполнении повторного проведени фискального документа №{fiscalDocumentId}", fiscalDocumentId);
 				return CreateFailResult(ex.Message);
 			}
 		}

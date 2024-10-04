@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Vodovoz.Models.TrueMark;
+using VodovozBusiness.Models.CashReceipts;
 
 namespace CashReceiptApi
 {
@@ -11,11 +12,16 @@ namespace CashReceiptApi
 	{
 		private readonly ILogger<CashReceiptService> _logger;
 		private readonly FiscalDocumentRefresher _fiscalDocumentRefresher;
+		private readonly FiscalDocumentRequeueService _fiscalDocumentRequeueService;
 
-		public CashReceiptService(ILogger<CashReceiptService> logger, FiscalDocumentRefresher fiscalDocumentRefresher)
+		public CashReceiptService(
+			ILogger<CashReceiptService> logger,
+			FiscalDocumentRefresher fiscalDocumentRefresher,
+			FiscalDocumentRequeueService fiscalDocumentRequeueService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fiscalDocumentRefresher = fiscalDocumentRefresher ?? throw new ArgumentNullException(nameof(fiscalDocumentRefresher));
+			_fiscalDocumentRequeueService = fiscalDocumentRequeueService ?? throw new ArgumentNullException(nameof(fiscalDocumentRequeueService));
 		}
 
 		public override async Task<Empty> RefreshFiscalDocument(RefreshReceiptRequest request, ServerCallContext context)
@@ -29,6 +35,22 @@ namespace CashReceiptApi
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Обновление статуса фискального документа для чека Id {0} не удалось.", request.CashReceiptId);
+			}
+
+			return new Empty();
+		}
+
+		public override async Task<Empty> RequeueFiscalDocument(RequeueDocumentRequest request, ServerCallContext context)
+		{
+			_logger.LogInformation("Повторное проведение фискального документа для чека Id {0}", request.CashReceiptId);
+
+			try
+			{
+				await _fiscalDocumentRequeueService.RequeueDocForReceipt(request.CashReceiptId, context.CancellationToken);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Повторное проведение фискального документа для чека Id {0} не удалось.", request.CashReceiptId);
 			}
 
 			return new Empty();
