@@ -222,7 +222,7 @@ namespace VodovozBusiness.Domain.Payments
 				yield return new ValidationResult("Сумма должна быть больше нуля", new[] { nameof(Sum) });
 			}
 
-			if(CounterpartyId != null && OrganizationId != null)
+			if(Id == 0 && CounterpartyId != null && OrganizationId != null)
 			{
 				var paymentsRepository = validationContext.GetRequiredService<IPaymentsRepository>();
 				var unitOfWork = validationContext.GetRequiredService<IUnitOfWork>();
@@ -231,7 +231,7 @@ namespace VodovozBusiness.Domain.Payments
 					0,
 					paymentsRepository.GetCounterpartyLastBalance(unitOfWork, CounterpartyId.Value, OrganizationId.Value));
 
-				if(Id == 0 && Sum > balance)
+				if(Sum > balance)
 				{
 					yield return new ValidationResult($"Для нового списания сумма должна быть меньше текущего баланса контрагента по компании: {balance}", new[] { nameof(Sum) });
 				}
