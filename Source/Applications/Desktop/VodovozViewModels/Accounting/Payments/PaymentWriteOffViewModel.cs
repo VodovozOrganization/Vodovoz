@@ -30,7 +30,6 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 		private Organization _organization;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private decimal _maxSum;
-		private int _maxLength;
 
 		public PaymentWriteOffViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -112,6 +111,10 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			{
 				Entity.Date = DateTime.Now;
 			}
+			else
+			{
+				MaxSum = Entity.Sum;
+			}
 		}
 
 		public bool IsNew => Entity.Id == 0;
@@ -153,25 +156,25 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 		public decimal Sum
 		{
 			get => Entity.Sum;
-			set => Entity.Sum = Math.Min(value, MaxSum);
+			set
+			{
+				var clampedSum = Math.Min(value, MaxSum);
+				if(Entity.Sum != clampedSum)
+				{
+					Entity.Sum = clampedSum;
+					OnPropertyChanged(nameof(Sum));
+				}
+				else if (clampedSum != value)
+				{
+					OnPropertyChanged(nameof(Sum));
+				}
+			}
 		}
 
 		public decimal MaxSum
 		{
 			get => _maxSum;
-			private set
-			{
-				if(SetField(ref _maxSum, value))
-				{
-					MaxLength = value.ToString().Length;
-				}
-			}
-		}
-
-		public int MaxLength
-		{
-			get => _maxLength;
-			private set => SetField(ref _maxLength, value);
+			private set => SetField(ref _maxSum, value);
 		}
 
 		public IEntityEntryViewModel CounterpartyViewModel { get; set; }
@@ -182,13 +185,13 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 
 		private void UpdateSum()
 		{
-			if(Entity.CounterpartyId.HasValue && Entity.OrganizationId.HasValue)
+			if(IsNew && Entity.CounterpartyId.HasValue && Entity.OrganizationId.HasValue)
 			{
 				var balance = _paymentsRepository.GetCounterpartyLastBalance(UoW, Entity.CounterpartyId.Value, Entity.OrganizationId.Value);
 
-				MaxSum = balance + Sum;
+				MaxSum = balance;
 
-				if(balance > 0)
+				if(balance > 0 || MaxSum < Sum)
 				{
 					Sum = balance;
 				}
