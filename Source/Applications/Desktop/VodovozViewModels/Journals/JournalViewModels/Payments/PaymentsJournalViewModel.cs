@@ -661,19 +661,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				"Отменить платеж",
 				(selected) =>
 				{
-					if(!selected.Any())
+					var selectedNodes = selected.Cast<PaymentJournalNode>();
+
+					if(!selectedNodes.Any())
 					{
 						return false;
 					}
 
-					var selectedPayments = selected.OfType<PaymentJournalNode>().ToArray();
-
-					if(selectedPayments.Any(p => p.Status == PaymentState.Cancelled))
+					if(selectedNodes.Any(pjn => pjn.EntityType != typeof(Payment)))
 					{
 						return false;
 					}
 
-					var canCancel = (_canCancelManualPaymentFromBankClient && !selectedPayments.Any(p => !p.IsManualCreated))
+					if(selectedNodes.Any(p => p.Status == PaymentState.Cancelled))
+					{
+						return false;
+					}
+
+					var canCancel = (_canCancelManualPaymentFromBankClient && !selectedNodes.Any(p => !p.IsManualCreated))
 						|| userIsAdmin;
 
 					return canCancel;
