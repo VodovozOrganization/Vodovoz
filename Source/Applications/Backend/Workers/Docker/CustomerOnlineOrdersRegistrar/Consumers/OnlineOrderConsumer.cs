@@ -3,8 +3,8 @@ using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Application.Orders.Services;
 using Vodovoz.Settings.Delivery;
+using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {

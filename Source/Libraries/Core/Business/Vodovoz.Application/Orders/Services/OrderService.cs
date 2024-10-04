@@ -1,6 +1,7 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
@@ -15,6 +16,8 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Errors;
 using Vodovoz.Factories;
 using Vodovoz.Models.Orders;
@@ -23,6 +26,11 @@ using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using Gamma.Utilities;
+using NHibernate.Criterion;
+using Core.Infrastructure;
+using Order = Vodovoz.Domain.Orders.Order;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -48,6 +56,8 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderDiscountsController _orderDiscountsController;
 		private readonly IOrderDeliveryPriceGetter _orderDeliveryPriceGetter;
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -69,7 +79,9 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
 			IOrderDiscountsController orderDiscountsController,
-			IOrderDeliveryPriceGetter orderDeliveryPriceGetter)
+			IOrderDeliveryPriceGetter orderDeliveryPriceGetter,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ISubdivisionRepository subdivisionRepository)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -95,7 +107,8 @@ namespace Vodovoz.Application.Orders.Services
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderDiscountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
 			_orderDeliveryPriceGetter = orderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(orderDeliveryPriceGetter));
-
+			_undeliveredOrdersRepository = undeliveredOrdersRepository;
+			_subdivisionRepository = subdivisionRepository;
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 
@@ -389,6 +402,110 @@ namespace Vodovoz.Application.Orders.Services
 			return _orderRepository
 				.GetEdoContainersByOrderId(unitOfWork, order.Id)
 				.Count(x => x.Type == Domain.Orders.Documents.Type.Bill) > 0;
+		}
+
+		/// <summary>
+		/// Автоотмена автопереноса - недовоз, созданный из возвращенного в путь заказа , получает комментарий, а также ответственного "Нет (не недовоз)"
+		/// Заказ, созданный из недовоза переходит в статус "Отменен".
+		/// Недовоз, созданный из автопереноса получает ответственного "Автоотмена автопереноса", а также аналогичный комментарий.
+		/// </summary>
+		public void AutoCancelAutoTransfer(IUnitOfWork uow, Order order)
+		{
+			OrderStatus actualOrderStatus;
+
+			using(var localUnitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Получние актуального статуса заказа"))
+			{
+				actualOrderStatus = localUnitOfWork.GetById<Order>(order.Id).OrderStatus;
+
+				if(actualOrderStatus == order.OrderStatus || actualOrderStatus == OrderStatus.Closed)
+				{
+					return;
+				}
+
+
+				var oldUndeliveriesExists = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(localUnitOfWork, order).Select(x=>x.Id).ToArray();
+
+				if(!oldUndeliveriesExists.Any())
+				{
+					return;
+				}
+
+				var oldUndeliveries = uow.GetAll<UndeliveredOrder>().Where(x => oldUndeliveriesExists.Contains(x.Id)).ToList();// _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, order);
+
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+
+				var oldUndeliveryCommentText = "Доставлен в тот же день";
+
+				foreach(var oldUndelivery in oldUndeliveries)
+				{
+					oldUndelivery.NewOrder?.ChangeStatus(OrderStatus.Canceled);
+
+					var oldUndeliveredOrderResultComment = new UndeliveredOrderResultComment
+					{
+						Author = currentEmployee,
+						Comment = oldUndeliveryCommentText,
+						CreationTime = DateTime.Now,
+						UndeliveredOrder = oldUndelivery
+					};
+
+					oldUndelivery.ResultComments.Add(oldUndeliveredOrderResultComment);
+
+					var oldOrderGuiltyInUndelivery = new GuiltyInUndelivery
+					{
+						GuiltySide = GuiltyTypes.None,
+						UndeliveredOrder = oldUndelivery
+					};
+
+					oldUndelivery.GuiltyInUndelivery.Clear();
+					oldUndelivery.GuiltyInUndelivery.Add(oldOrderGuiltyInUndelivery);
+
+					oldUndelivery.AddAutoCommentToOkkDiscussion(uow, oldUndeliveryCommentText);
+					uow.Save(oldUndelivery);
+
+					if(oldUndelivery.NewOrder == null)
+					{
+						continue;
+					}
+
+					var newUndeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, oldUndelivery.NewOrder);
+
+					if(newUndeliveries.Any())
+					{
+						return;
+					}
+
+					var newUndeliveredOrder = new UndeliveredOrder
+					{
+						Author = currentEmployee,
+						OldOrder = oldUndelivery.NewOrder,
+						EmployeeRegistrator = currentEmployee,
+						TimeOfCreation = DateTime.Now,
+						InProcessAtDepartment = _subdivisionRepository.GetQCDepartment(uow)
+					};
+
+					var undeliveredOrderResultComment = new UndeliveredOrderResultComment
+					{
+						Author = currentEmployee,
+						Comment = GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle(),
+						CreationTime = DateTime.Now,
+						UndeliveredOrder = newUndeliveredOrder
+					};
+
+					newUndeliveredOrder.ResultComments.Add(undeliveredOrderResultComment);
+
+					var newOrderGuiltyInUndelivery = new GuiltyInUndelivery
+					{
+						GuiltySide = GuiltyTypes.AutoСancelAutoTransfer,
+						UndeliveredOrder = newUndeliveredOrder
+					};
+
+					newUndeliveredOrder.GuiltyInUndelivery = new List<GuiltyInUndelivery> { newOrderGuiltyInUndelivery };
+
+					uow.Save(newUndeliveredOrder);
+
+					newUndeliveredOrder.AddAutoCommentToOkkDiscussion(uow, GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle());
+				}
+			}
 		}
 	}
 }
