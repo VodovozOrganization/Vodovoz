@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Vodovoz.Models.Orders;
 
-namespace Vodovoz.Application.Orders.Services
+namespace VodovozBusiness.Services.Orders
 {
 	public class RoboatsOrderArgs
 	{
