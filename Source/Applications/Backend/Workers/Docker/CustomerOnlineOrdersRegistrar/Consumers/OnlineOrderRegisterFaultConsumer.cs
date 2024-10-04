@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
@@ -6,6 +6,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
@@ -17,8 +18,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderFactory onlineOrderFactory,
 			IOrderService orderService,
-			IDeliveryRulesSettings deliveryRulesSettings)
-			: base(logger, unitOfWorkFactory, onlineOrderFactory, deliveryRulesSettings, orderService)
+			IDeliveryRulesSettings deliveryRulesSettings,
+			IDiscountReasonSettings discountReasonSettings)
+			: base(logger, unitOfWorkFactory, onlineOrderFactory, deliveryRulesSettings, discountReasonSettings, orderService)
 		{
 		}
 		

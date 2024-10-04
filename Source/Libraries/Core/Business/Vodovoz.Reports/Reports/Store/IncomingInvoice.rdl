@@ -89,7 +89,7 @@ WHERE doc.id = @document_id
         <CommandText>SELECT
     i.nomenclature_id AS nom_id,
     IFNULL(n.short_name, n.name) AS nomenclature,
-    IFNULL(ni.inventory_number, '-') AS inventory_number,
+    IFNULL(GET_INVENTORY_NUMBER(ni.is_used, ni.inventory_number), '-') AS inventory_number,
     '-' AS sn,
     (CASE i.vat
          WHEN 'No' THEN '0%'

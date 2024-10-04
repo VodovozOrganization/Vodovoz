@@ -434,7 +434,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					.Select(() => instanceAlias.Id).WithAlias(() => instanceDataAlias.Id)
 					.Select(() => instanceAlias.PurchasePrice).WithAlias(() => instanceDataAlias.PurchasePrice)
 					.Select(n => n.Name).WithAlias(() => instanceDataAlias.Name)
-					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => instanceDataAlias.InventoryNumber))
+					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => instanceDataAlias.InventoryNumber)
+					.Select(() => instanceAlias.IsUsed).WithAlias(() => instanceDataAlias.IsUsed)
+				)
 				.TransformUsing(Transformers.AliasToBean<InstanceData>())
 				.OrderBy(() => instanceAlias.Id).Asc;
 
@@ -739,7 +741,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					Num = ++counter,
 					EntityId = instanceId,
 					NomTitle = instanceData[instancesCounter].Name,
-					InventoryNumber = instanceData[instancesCounter].InventoryNumber,
+					InventoryNumber = instanceData[instancesCounter].GetInventoryNumber,
 					WarehousesBalances = new List<decimal>(),
 					EmployeesBalances = new List<decimal>(),
 					CarsBalances = new List<decimal>()
