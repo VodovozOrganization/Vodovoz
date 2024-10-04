@@ -6,22 +6,26 @@ using System.Threading;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersStatusUpdateNotifier.Contracts;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 {
 	public class OnlineOrdersStatusUpdatedNotificationService : IOnlineOrdersStatusUpdatedNotificationService
 	{
+		private readonly ILogger<OnlineOrdersStatusUpdatedNotificationService> _logger;
 		private readonly HttpClient _httpClient;
 		private readonly JsonSerializerOptions _jsonSerializerOptions;
 		private readonly IConfigurationSection _mobileAppSection;
 		private readonly IConfigurationSection _vodovozSiteSection;
 
 		public OnlineOrdersStatusUpdatedNotificationService(
+			ILogger<OnlineOrdersStatusUpdatedNotificationService> logger,
 			HttpClient client,
 			IConfiguration configuration,
 			JsonSerializerOptions jsonSerializerOptions)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_httpClient = client ?? throw new ArgumentNullException(nameof(client));
 			_jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
 
@@ -38,6 +42,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 			OnlineOrderStatusUpdatedDto statusUpdatedDto, Source source, CancellationToken cancellationToken = default)
 		{
 			var content = JsonContent.Create(statusUpdatedDto, mediaType: null, _jsonSerializerOptions);
+			_logger.LogInformation("Уведомление: {Notification}", await content.ReadAsStringAsync(cancellationToken));
 			var response = await _httpClient.PutAsync(GetUriString(source), content, cancellationToken);
 			return (int)response.StatusCode;
 		}
