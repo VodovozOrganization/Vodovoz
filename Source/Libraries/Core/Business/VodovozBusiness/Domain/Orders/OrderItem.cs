@@ -457,6 +457,12 @@ namespace Vodovoz.Domain.Orders
 					IncomingDeliveryPoint = Order.DeliveryPoint,
 				};
 			}
+			else
+			{
+				CounterpartyMovementOperation.Amount = ActualCount.Value;
+				CounterpartyMovementOperation.IncomingCounterparty = Order.Client;
+				CounterpartyMovementOperation.IncomingDeliveryPoint = Order.DeliveryPoint;
+			}
 
 			return CounterpartyMovementOperation;
 		}
