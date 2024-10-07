@@ -177,7 +177,7 @@ namespace Vodovoz
 			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
 			Entity.UpdateInRouteListAmount(UoW, _routeListRepository);
 			carloaddocumentview1.DocumentUoW = UoWGeneric;
-			carloaddocumentview1.SetButtonEditing(editing);
+			carloaddocumentview1.SetIsCanEditDocument(editing);
 			buttonSave.Sensitive = editing;
 			if(!editing)
 			{
@@ -202,6 +202,7 @@ namespace Vodovoz
 				entryWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				carloaddocumentview1.Sensitive = false;
+				carloaddocumentview1.SetIsCanEditDocument(false);
 
 				buttonSave.Sensitive = false;
 			}

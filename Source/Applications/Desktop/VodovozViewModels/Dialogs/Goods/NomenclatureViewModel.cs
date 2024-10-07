@@ -360,12 +360,14 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; private set; }
 		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; private set; }
 		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; private set; }
+		public bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; private set; }
+		public bool CanShowConditionAccounting => Entity.HasInventoryAccounting;
 		private bool IsNewEntity => Entity.Id == 0;
-		private bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; set; }
 
 		#region Commands
 
 		public DelegateCommand SaveCommand { get; }
+
 
 		private DelegateCommand CreateSaveCommand()
 		{
@@ -392,6 +394,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public DelegateCommand CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand { get; }
 
+
 		private DelegateCommand CreateCopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand()
 		{
 			return new DelegateCommand(
@@ -406,7 +409,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public DelegateCommand ArchiveCommand { get; }
 		public DelegateCommand UnArchiveCommand { get; }
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
-
 
 		#endregion Commands
 
@@ -649,6 +651,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				() => IsPurifierParameters,
 				() => IsCupHolderParameters
 			);
+			
+			SetPropertyChangeRelation(
+				e => e.HasInventoryAccounting,
+				() => CanShowConditionAccounting);
 		}
 
 		public string GetUserEmployeeName() {
@@ -691,13 +697,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private void SetPermissions()
 		{
 			CanCreateAndArcNomenclatures =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanCreateAndArcNomenclatures);
 			CanCreateNomenclaturesWithInventoryAccountingPermission =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_nomenclatures_with_inventory_accounting");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanCreateNomenclaturesWithInventoryAccounting);
 			CanEditAlternativeNomenclaturePrices =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanEditAlternativeNomenclaturePrices);
 			HasAccessToSitesAndAppsTab =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("Nomenclature.HasAccessToSitesAndAppsTab");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
 		}
 		
 		private void ConfigureOnlineParameters()

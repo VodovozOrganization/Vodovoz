@@ -44,6 +44,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AboutAuthorsViewModel.cs" />
+    <Compile Include="Accounting\Payments\PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel.cs" />
+    <Compile Include="Accounting\Payments\PaymentWriteOffViewModel.cs" />
     <Compile Include="BaseParameters\BaseParametersViewModel.cs" />
     <Compile Include="Cash\AdvanceReportViewModel.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentNode.cs" />
@@ -75,6 +77,12 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsList.cs" />
+    <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsSummary.cs" />
+    <Compile Include="Reports\OKS\DailyReport\OksDailyReport.Discounts.cs" />
+    <Compile Include="Reports\OKS\DailyReport\OksDailyReport.UndeliveredOrders.cs" />
+    <Compile Include="Reports\OKS\DailyReport\OksDailyReportViewModel.cs" />
+    <Compile Include="Reports\OKS\DailyReport\OksDailyReport.cs" />
     <Compile Include="Counterparties\CallTaskFilterViewModel.cs" />
     <Compile Include="Counterparties\CallTaskFilterViewModel.SortingDirectionType.cs" />
     <Compile Include="Counterparties\CallTaskFilterViewModel.SortingParamType.cs" />
@@ -129,6 +137,7 @@
     <Compile Include="Infrastructure\Print\ICustomPrintRdlDocumentsPrinter.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Store\WarehouseDocumentsJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.StatusAndTypeComparer.cs" />
     <Compile Include="Journals\JournalViewModels\Store\WarehouseDocumentsJournalViewModel.cs" />
     <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.cs" />
     <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.PrintDocumentSelectableNode.cs" />
@@ -1053,6 +1062,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
       <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
       <Name>FuelControl.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj">
+      <Project>{b318a2c2-a980-41bd-b072-321bccd70bbb}</Project>
+      <Name>Core.Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>

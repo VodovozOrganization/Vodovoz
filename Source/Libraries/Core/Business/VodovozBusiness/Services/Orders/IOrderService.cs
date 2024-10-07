@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Application.Orders.Services
+namespace VodovozBusiness.Services.Orders
 {
 	public interface IOrderService
 	{
@@ -15,5 +15,6 @@ namespace Vodovoz.Application.Orders.Services
 		int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder);
 		(int OrderId, int AuthorId, OrderStatus OrderStatus) AcceptOrder(int orderId, int roboatsEmployeeId);
 		bool NeedResendByEdo(IUnitOfWork unitOfWork, Order entity);
+		void AutoCancelAutoTransfer(IUnitOfWork uow, Order order);
 	}
 }

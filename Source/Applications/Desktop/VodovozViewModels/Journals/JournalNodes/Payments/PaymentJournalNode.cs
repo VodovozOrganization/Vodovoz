@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 		public string CounterpartyName { get; set; }
 		public string Organization { get; set; }
 		public string PaymentPurpose { get; set; }
-		public PaymentState Status { get; set; }
+		public PaymentState? Status { get; set; }
 		public string ProfitCategory { get; set; }
 		public bool IsManualCreated { get; set; }
 	}

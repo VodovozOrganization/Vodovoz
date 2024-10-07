@@ -1,26 +1,16 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using ExternalCounterpartyAssignNotifier.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Extensions.Logging;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
 using QS.HistoryLog;
 using QS.Project.Core;
-using QS.Project.DB;
-using QS.Project.Domain;
 using System;
-using System.Reflection;
 using System.Text.Json;
-using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Settings.Database;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
 

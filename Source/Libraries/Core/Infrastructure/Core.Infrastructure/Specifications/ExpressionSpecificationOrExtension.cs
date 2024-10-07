@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Vodovoz.Core.Domain.Specifications
+namespace Core.Infrastructure.Specifications
 {
-	public static class ExpressionSpecificationAndExtension
+	public static class ExpressionSpecificationOrExtension
 	{
-		public static ExpressionSpecification<T> And<T>(this ExpressionSpecification<T> specificationLeft, ExpressionSpecification<T> specificationRight)
+		public static ExpressionSpecification<T> Or<T>(this ExpressionSpecification<T> specificationLeft, ExpressionSpecification<T> specificationRight)
 		{
 			Expression<Func<T, bool>> resultExpression;
 
@@ -15,12 +15,12 @@ namespace Vodovoz.Core.Domain.Specifications
 			if(ReferenceEquals(param, specificationRight.Expression.Parameters.First()))
 			{
 				resultExpression = Expression.Lambda<Func<T, bool>>(
-					Expression.AndAlso(specificationLeft.Expression.Body, specificationRight.Expression.Body), param);
+					Expression.OrElse(specificationLeft.Expression.Body, specificationRight.Expression.Body), param);
 			}
 			else
 			{
 				resultExpression = Expression.Lambda<Func<T, bool>>(
-					Expression.AndAlso(
+					Expression.OrElse(
 						specificationLeft.Expression.Body,
 						Expression.Invoke(specificationRight.Expression, param)), param);
 			}

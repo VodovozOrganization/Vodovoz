@@ -45,7 +45,8 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 		public AttachedFileInformationsViewModel Create(
 			IUnitOfWork unitOfWork,
 			Action<string> addFileCallBack = null,
-			Action<string> deleteFileCallback = null)
+			Action<string> deleteFileCallback = null,
+			IEnumerable<FileInformation> fileInformation = null)
 		{
 			var viewModel = new AttachedFileInformationsViewModel(
 				_fileSecurityOptions,
@@ -65,7 +66,14 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 				viewModel.DeleteFileCallback = deleteFileCallback;
 			}
 
-			viewModel.FileInformations = new ObservableList<FileInformation>();
+			if(fileInformation is null)
+			{
+				viewModel.FileInformations = new ObservableList<FileInformation>();
+			}
+			else
+			{
+				viewModel.FileInformations = fileInformation;
+			}
 
 			return viewModel;
 		}

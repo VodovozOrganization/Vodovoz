@@ -532,7 +532,7 @@ namespace Vodovoz.ViewModels.Warehouses
 							if(!Validate()) {
 								return;
 							}
-							Entity.Receive(CurrentEmployee);
+							Entity.Receive(CurrentEmployee, UoW);
 							SaveAndClose();
 						}, 
 						() => CanReceive

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -42,10 +42,13 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using Vodovoz.Additions.Printing;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
+using Vodovoz.Core;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
@@ -126,6 +129,8 @@ using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Utils;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
@@ -2323,12 +2328,12 @@ namespace Vodovoz
 		{
 			try
 			{
+				SetSensitivity(false);
+
 				if(_orderRepository.GetStatusesForFreeBalanceOperations().Contains(Entity.OrderStatus))
 				{
 					CreateDeliveryFreeBalanceOperations();
 				}
-
-				SetSensitivity(false);
 
 				_lastSaveResult = null;
 

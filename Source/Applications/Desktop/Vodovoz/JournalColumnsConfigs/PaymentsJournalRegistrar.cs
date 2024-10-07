@@ -4,6 +4,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
+using Vodovoz.Tools;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -27,13 +28,16 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddTextRenderer(x => x.CounterpartyName)
 					.WrapWidth(450)
 					.WrapMode(WrapMode.WordChar)
-				.AddColumn("Получатель")
+				.AddColumn("Получатель\n" +
+						"/Организация списания")
 					.AddTextRenderer(x => x.Organization)
-				.AddColumn("Назначение платежа")
+				.AddColumn("Назначение платежа\n" +
+						"/Причина списания")
 					.AddTextRenderer(x => x.PaymentPurpose)
 					.WrapWidth(600)
 					.WrapMode(WrapMode.WordChar)
-				.AddColumn("Категория дохода/расхода")
+				.AddColumn("Категория дохода/расхода\n" +
+						"/Статья расхода")
 					.AddTextRenderer(x => x.ProfitCategory)
 					.XAlign(0.5f)
 				.AddColumn("Создан вручную?")
@@ -42,6 +46,8 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Нераспределенная сумма")
 					.AddNumericRenderer(x => x.UnAllocatedSum)
 					.Digits(2)
+				.AddColumn("Тип документа")
+					.AddTextRenderer(x => x.EntityType.GetClassUserFriendlyName().Nominative.CapitalizeSentence())
 				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>(
 					(c, n) =>
