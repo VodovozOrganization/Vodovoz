@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>209.804mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
@@ -81,7 +79,7 @@
           <TableColumn>
             <Width>63.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>65.4pt</Width>
           </TableColumn>
           <TableColumn>
@@ -202,7 +200,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
                       <Value>Дата создания</Value>
@@ -394,7 +392,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>={additional_promoset_order_creation_date}</Value>
@@ -811,157 +809,98 @@ FROM (
 					#заказы с телефонами по контрагенту
 
 					SELECT
-
 						o.id,
-
 						o.client_id,
-
 						o.delivery_point_id,
-
 						o.create_date,
-
 						o.delivery_date,
-
 						o.author_employee_id,
-
 						p.`number` as phone,
-
 						p.digits_number as digit_phone
-
-					FROM orders o
-
-						LEFT JOIN order_items oi ON oi.order_id = o.id
-
-						LEFT JOIN phones p ON o.client_id = p.counterparty_id AND p.is_archive = 0
-
-					WHERE
-
-						p.digits_number IN (
-
+					FROM
+						orders o
+						JOIN order_items oi ON oi.order_id = o.id
+						JOIN phones p ON o.client_id = p.counterparty_id
+						JOIN (
 							SELECT
-
-								DISTINCT pp.digits_number 
-
+								DISTINCT pp.digits_number as digits_number
 							FROM
-
-								phones pp
-
-								LEFT JOIN (
-
-									SELECT
-
-										o.id,
-
-										o.client_id,
-
-										o.delivery_point_id
-
-									FROM 
-
-										orders o
-
-										LEFT JOIN order_items oi ON o.id = oi.order_id
-
-									WHERE 
-
-										oi.promotional_set_id IN (@promosets)
-
-										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
-
-										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-										
-
-								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id AND pp.is_archive = 0
-
+								orders o
+								JOIN order_items oi ON o.id = oi.order_id
+								LEFT JOIN phones pp ON o.delivery_point_id = pp.delivery_point_id
 							WHERE
-
-								oo.id IS NOT NULL
-
-						)
-
-						AND oi.promotional_set_id IS NOT NULL
-
-						AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-
-			
-
-				UNION ALL
-
-				
-
+								o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+								and (pp.is_archive = 0)
+								AND oi.promotional_set_id IN (@promosets)
+								AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+								AND NOT ISNULL(pp.digits_number) 
+							UNION
+							SELECT
+								DISTINCT CONCAT(pp.digits_number) as digits_number
+							FROM
+								orders o
+								JOIN order_items oi ON o.id = oi.order_id
+								LEFT JOIN phones pp ON o.client_id = pp.counterparty_id 
+							WHERE
+								o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+								and (pp.is_archive = 0)
+								AND oi.promotional_set_id IN (@promosets)
+								AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+								AND NOT ISNULL(pp.digits_number)
+						) as all_phones ON all_phones.digits_number = p.digits_number
+					WHERE
+						oi.promotional_set_id &gt; 0
+						AND o.order_status NOT IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
+						AND p.is_archive = 0
+					
+					UNION ALL
+					
 					#заказы с телефонами по точке доставки
-
+					
 					SELECT
-
 						o.id,
-
 						o.client_id,
-
 						o.delivery_point_id,
-
 						o.create_date,
-
 						o.delivery_date,
-
 						o.author_employee_id,
-
 						p.`number` as phone,
-
 						p.digits_number as digit_phone
-
-					FROM orders o
-
-						LEFT JOIN order_items oi ON oi.order_id = o.id
-
-						LEFT JOIN phones p ON o.delivery_point_id = p.delivery_point_id AND p.is_archive = 0
-
-					WHERE
-
-						p.digits_number IN (
-
+					FROM	
+						orders o
+						JOIN order_items oi ON oi.order_id = o.id
+						JOIN phones p ON o.delivery_point_id = p.delivery_point_id
+						JOIN (
 							SELECT
-
-								DISTINCT pp.digits_number 
-
+								DISTINCT pp.digits_number as digits_number
 							FROM
-
-								phones pp
-
-								LEFT JOIN (
-
-									SELECT
-
-										o.id,
-
-										o.client_id,
-
-										o.delivery_point_id
-
-									FROM 
-
-										orders o
-
-										LEFT JOIN order_items oi ON o.id = oi.order_id
-
-									WHERE 
-
-										oi.promotional_set_id IN (@promosets)
-
-										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
-
-										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-
-								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id AND pp.is_archive = 0
-
+								orders o
+								JOIN order_items oi ON o.id = oi.order_id
+								LEFT JOIN phones pp ON o.delivery_point_id = pp.delivery_point_id
 							WHERE
-
-								oo.id IS NOT NULL
-
-						)
-
-						AND oi.promotional_set_id IS NOT NULL
-
-						AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+								o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+								and (pp.is_archive = 0)
+								AND oi.promotional_set_id IN (@promosets)
+								AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+								AND NOT ISNULL(pp.digits_number) 
+							UNION
+							SELECT
+								DISTINCT CONCAT(pp.digits_number) as digits_number
+							FROM
+								orders o
+								JOIN order_items oi ON o.id = oi.order_id
+								LEFT JOIN phones pp ON o.client_id = pp.counterparty_id 
+							WHERE
+								o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+								and (pp.is_archive = 0)
+								AND oi.promotional_set_id IN (@promosets)
+								AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+								AND NOT ISNULL(pp.digits_number)
+						) as all_phones ON all_phones.digits_number = p.digits_number
+					WHERE
+						oi.promotional_set_id &gt; 0
+						AND o.order_status NOT IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
+						AND p.is_archive = 0
 
 				) as orders_phone_info
 
@@ -1060,152 +999,102 @@ FROM (
 			FROM
 
 				(
-
+				
 					#заказы с телефонами по контрагенту
 
 					SELECT
-
-						api_o.id,
-
-						api_o.client_id,
-
-						api_o.delivery_point_id,
-
-						api_o.delivery_date,
-
-						api_p.`number` as phone,
-
-						api_p.digits_number as digit_phone
-
-					FROM orders api_o
-
-						LEFT JOIN order_items api_oi ON api_oi.order_id = api_o.id
-
-						LEFT JOIN phones api_p ON api_o.client_id = api_p.counterparty_id AND api_p.is_archive = 0
-
-					WHERE
-
-						api_p.digits_number IN (
-
+						o.id,
+						o.client_id,
+						o.delivery_point_id,
+						o.create_date,
+						o.delivery_date,
+						o.author_employee_id,
+						p.`number` as phone,
+						p.digits_number as digit_phone
+					FROM
+						orders o
+						JOIN order_items oi ON oi.order_id = o.id
+						JOIN phones p ON o.client_id = p.counterparty_id
+						JOIN (
 							SELECT
-
-								DISTINCT pp.digits_number 
-
+								DISTINCT pp.digits_number as digits_number
 							FROM
-
-								phones pp
-
-								LEFT JOIN (
-
-									SELECT
-
-										inner_api_o.id,
-
-										inner_api_o.client_id,
-
-										inner_api_o.delivery_point_id
-
-									FROM 
-
-										orders inner_api_o
-
-										LEFT JOIN order_items inner_api_oi ON inner_api_o.id = inner_api_oi.order_id
-
-									WHERE 
-
-										inner_api_oi.promotional_set_id IN (@promosets)
-
-										AND inner_api_o.create_date &gt;= DATE(@start_date) AND inner_api_o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
-
-										AND inner_api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-
-								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id AND pp.is_archive = 0
-
+								orders o
+								JOIN order_items oi ON o.id = oi.order_id
+								LEFT JOIN phones pp ON o.delivery_point_id = pp.delivery_point_id
 							WHERE
-
-								oo.id IS NOT NULL
-
-						)
-
-						AND api_oi.promotional_set_id IS NOT NULL
-
-						AND api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-
-			
-
-				UNION ALL
-
-				
-
+								o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+								and (pp.is_archive = 0)
+								AND oi.promotional_set_id IN (@promosets)
+								AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+								AND NOT ISNULL(pp.digits_number) 
+							UNION
+							SELECT
+								DISTINCT CONCAT(pp.digits_number) as digits_number
+							FROM
+								orders o
+								JOIN order_items oi ON o.id = oi.order_id
+								LEFT JOIN phones pp ON o.client_id = pp.counterparty_id 
+							WHERE
+								o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+								and (pp.is_archive = 0)
+								AND oi.promotional_set_id IN (@promosets)
+								AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+								AND NOT ISNULL(pp.digits_number)
+						) as all_phones ON all_phones.digits_number = p.digits_number
+					WHERE
+						oi.promotional_set_id &gt; 0
+						AND o.order_status NOT IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
+						AND p.is_archive = 0
+					
+					UNION ALL
+					
 					#заказы с телефонами по точке доставки
-
+					
 					SELECT
-
-						api_o.id,
-
-						api_o.client_id,
-
-						api_o.delivery_point_id,
-
-						api_o.delivery_date,
-
-						api_p.`number` as phone,
-
-						api_p.digits_number as digit_phone
-
-					FROM orders api_o
-
-						LEFT JOIN order_items api_oi ON api_oi.order_id = api_o.id
-
-						LEFT JOIN phones api_p ON api_o.delivery_point_id = api_p.delivery_point_id
-
-					WHERE
-
-						api_p.digits_number IN (
-
+						o.id,
+						o.client_id,
+						o.delivery_point_id,
+						o.create_date,
+						o.delivery_date,
+						o.author_employee_id,
+						p.`number` as phone,
+						p.digits_number as digit_phone
+					FROM	
+						orders o
+						JOIN order_items oi ON oi.order_id = o.id
+						JOIN phones p ON o.delivery_point_id = p.delivery_point_id
+						JOIN (
 							SELECT
-
-								DISTINCT pp.digits_number 
-
+								DISTINCT pp.digits_number as digits_number
 							FROM
-
-								phones pp
-
-								LEFT JOIN (
-
-									SELECT
-
-										inner_api_o.id,
-
-										inner_api_o.client_id,
-
-										inner_api_o.delivery_point_id
-
-									FROM 
-
-										orders inner_api_o
-
-										LEFT JOIN order_items inner_api_oi ON inner_api_o.id = inner_api_oi.order_id
-
-									WHERE 
-
-										inner_api_oi.promotional_set_id IN (@promosets)
-
-										AND inner_api_o.create_date &gt;= DATE(@start_date) AND inner_api_o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
-
-										AND inner_api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-
-								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
-
+								orders o
+								JOIN order_items oi ON o.id = oi.order_id
+								LEFT JOIN phones pp ON o.delivery_point_id = pp.delivery_point_id
 							WHERE
-
-								oo.id IS NOT NULL
-
-						)
-
-						AND api_oi.promotional_set_id IS NOT NULL
-
-						AND api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+								o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+								and (pp.is_archive = 0)
+								AND oi.promotional_set_id IN (@promosets)
+								AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+								AND NOT ISNULL(pp.digits_number) 
+							UNION
+							SELECT
+								DISTINCT CONCAT(pp.digits_number) as digits_number
+							FROM
+								orders o
+								JOIN order_items oi ON o.id = oi.order_id
+								LEFT JOIN phones pp ON o.client_id = pp.counterparty_id 
+							WHERE
+								o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+								and (pp.is_archive = 0)
+								AND oi.promotional_set_id IN (@promosets)
+								AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+								AND NOT ISNULL(pp.digits_number)
+						) as all_phones ON all_phones.digits_number = p.digits_number
+					WHERE
+						oi.promotional_set_id &gt; 0
+						AND o.order_status NOT IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
+						#AND p.is_archive = 0
 
 				) as orders_phone_info
 
@@ -1301,24 +1190,21 @@ ORDER BY query_group_ordering, base_order_id, first_base_order_ordering</Command
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="promosets">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
