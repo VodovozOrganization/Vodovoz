@@ -10,6 +10,7 @@ using CustomerAppsApi.Library.Repositories;
 using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
 using CustomerAppsApi.Models;
+using Mailjet.Api.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,15 +24,7 @@ using Vodovoz.Factories;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Validation;
-using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Database.Common;
-using Vodovoz.Settings.Database.Delivery;
-using Vodovoz.Settings.Database.Logistics;
-using Vodovoz.Settings.Database.Roboats;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Pacs;
-using Vodovoz.Settings.Roboats;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerAppsApi.Library
@@ -51,8 +44,6 @@ namespace CustomerAppsApi.Library
 			services
 				.AddScoped<ISendingService, SendingService>()
 				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
-				.AddScoped<IRoboatsSettings, RoboatsSettings>()
-				.AddScoped<IGlobalSettings, GlobalSettings>()
 				.AddScoped<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
 				.AddScoped<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()
 				.AddScoped<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>()
@@ -78,8 +69,6 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<FastDeliveryHandler>()
-				.AddScoped<IDriverApiSettings, DriverApiSettings>()
-				.AddScoped<IDeliveryRulesSettings, DeliveryRulesSettings>()
 				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
 				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
@@ -95,64 +84,6 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<RentPackagesFrequencyRequestsHandler>();
 
 			return services;
-		}
-		
-		public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration config)
-		{
-			services.Configure<RabbitOptions>(config.GetSection(RabbitOptions.Path));
-			
-			return services;
-		}
-		
-		public static IBusRegistrationConfigurator ConfigureRabbitMq(this IBusRegistrationConfigurator busConf)
-		{
-			busConf.UsingRabbitMq((context, configurator) =>
-			{
-				var messageSettings = context.GetRequiredService<IMessageTransportSettings>();
-				var rabbitOptions = context.GetRequiredService<IOptions<RabbitOptions>>().Value;
-
-				configurator.Host(
-					messageSettings.Host,
-					(ushort)messageSettings.Port,
-					messageSettings.VirtualHost, hostConfigurator =>
-					{
-						hostConfigurator.Username(messageSettings.Username);
-						hostConfigurator.Password(messageSettings.Password);
-
-						if(messageSettings.UseSSL)
-						{
-							hostConfigurator.UseSsl(ssl =>
-							{
-								if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
-								{
-									ssl.AllowPolicyErrors(allowedPolicyErrors);
-								}
-
-								ssl.Protocol = SslProtocols.Tls12;
-							});
-						}
-					});
-								
-				//configurator.Send<OnlineOrderInfoDto>();
-				configurator.Message<SendEmailMessage>(x => x.SetEntityName(rabbitOptions.SendExchange));
-				configurator.Publish<SendEmailMessage>(x =>
-				{
-					x.ExchangeType = ExchangeType.Fanout;
-					x.Durable = true;
-					x.AutoDelete = false;
-					x.BindQueue(
-						rabbitOptions.SendExchange,
-						rabbitOptions.SendQueue,
-						conf =>
-						{
-							conf.ExchangeType = ExchangeType.Fanout;
-						});
-				});
-								
-				configurator.ConfigureEndpoints(context);
-			});
-			
-			return busConf;
 		}
 	}
 }

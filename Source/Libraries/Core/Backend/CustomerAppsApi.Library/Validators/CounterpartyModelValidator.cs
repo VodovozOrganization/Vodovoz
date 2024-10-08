@@ -52,6 +52,12 @@ namespace CustomerAppsApi.Library.Validators
 			return _sb.ToString();
 		}
 
+		public string SendingCodeToEmailDtoValidate(SendingCodeToEmailDto codeToEmailDto)
+		{
+			// реализация будет позже, после слития интеграции юриков
+			return string.Empty;
+		}
+
 		private void ValidateContactInfo(string counterpartyNumber)
 		{
 			var phoneNumber = _phoneFormatter.FormatString(counterpartyNumber);

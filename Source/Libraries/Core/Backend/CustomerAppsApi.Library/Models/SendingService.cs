@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Dto;
+using Gamma.Utilities;
 using Mailjet.Api.Abstractions;
 using MassTransit;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
 using Vodovoz.Core.Domain.Clients;
@@ -23,45 +26,79 @@ namespace CustomerAppsApi.Library.Models
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IEmailSettings _emailSettings;
-		//private readonly ISourceConverter _sourceConverter;
-		//private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
+		private readonly ISourceConverter _sourceConverter;
 		private readonly IPublishEndpoint _publishEndpoint;
 
 		public SendingService(
 			IUnitOfWork unitOfWork,
 			IEmployeeSettings employeeSettings,
 			IEmailSettings emailSettings,
-			//ISourceConverter sourceConverter,
-			//IExternalCounterpartyRepository externalCounterpartyRepository,
+			IExternalCounterpartyRepository externalCounterpartyRepository,
+			ISourceConverter sourceConverter,
 			IPublishEndpoint publishEndpoint)
 		{
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
-			//_sourceConverter = sourceConverter ?? throw new ArgumentNullException(nameof(sourceConverter));
-			//_externalCounterpartyRepository =
-			//	externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
+			_externalCounterpartyRepository =
+				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
+			_sourceConverter = sourceConverter ?? throw new ArgumentNullException(nameof(sourceConverter));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		public Result SendCodeToEmail(SendingCodeToEmailDto codeToEmailDto)
 		{
-			var createdStoredEmailResult = TryCreateStoredEmail(codeToEmailDto, out var mailSubject);
+			var instanceId = Convert.ToInt32(_unitOfWork.Session
+				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
+				.List<object>()
+				.FirstOrDefault());
 
-			if(createdStoredEmailResult.IsFailure)
-			{
-				return createdStoredEmailResult;
-			}
-
-			//var counterpartyFrom = _sourceConverter.ConvertToCounterpartyFrom(codeToEmailDto.Source);
+			//TODO сделать отдельный обработчик для проверок
 			var counterparty = _unitOfWork.GetById<Counterparty>(codeToEmailDto.CounterpartyId);
 
 			if(counterparty is null)
 			{
-				return Result.Failure(new Error("UnknownClient", "Неизвестный клиент"));
+				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClient.UnknownCounterparty);
+			}
+
+			var externalCounterparty = _externalCounterpartyRepository.GetExternalCounterparty(
+				_unitOfWork, codeToEmailDto.ExternalUserId, _sourceConverter.ConvertToCounterpartyFrom(codeToEmailDto.Source));
+			
+			if(externalCounterparty is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClient.UnknownUser);
 			}
 			
-			var sendEmailMessage = new SendEmailMessage()
+			Employee employee = null;
+			
+			switch(codeToEmailDto.Source)
+			{
+				case Source.MobileApp:
+					employee = _unitOfWork.GetById<Employee>(_employeeSettings.MobileAppEmployee);
+					break;
+				case Source.VodovozWebSite:
+					employee = _unitOfWork.GetById<Employee>(_employeeSettings.VodovozWebSiteEmployee);
+					break;
+				case Source.KulerSaleWebSite:
+					employee = _unitOfWork.GetById<Employee>(_employeeSettings.KulerSaleWebSiteEmployee);
+					break;
+			}
+
+			if(employee is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClient.UnsupportedSource);
+			}
+
+			CreateAuthorizationCodeEmail(
+				employee,
+				counterparty,
+				codeToEmailDto.Source,
+				externalCounterparty.Id,
+				codeToEmailDto.EmailAddress,
+				out var mailSubject);
+
+			var sendEmailMessage = new SendEmailMessage
 			{
 				From = new EmailContact
 				{
@@ -86,7 +123,7 @@ namespace CustomerAppsApi.Library.Models
 				{
 					Id = 0,
 					Trackable = false,
-					InstanceId = 0
+					InstanceId = instanceId
 				}
 			};
 
@@ -94,47 +131,26 @@ namespace CustomerAppsApi.Library.Models
 			return Result.Success();
 		}
 
-		private Result TryCreateStoredEmail(SendingCodeToEmailDto codeToEmailDto, out string mailSubject)
+		private void CreateAuthorizationCodeEmail(
+			Employee employee,
+			Counterparty counterparty,
+			Source source,
+			int externalCounterpartyId,
+			string emailAddress,
+			out string mailSubject)
 		{
-			Employee employee = null;
-			mailSubject = string.Empty;
+			mailSubject = $"{_authorizationCodeFor} {source.GetAttribute<AppellativeAttribute>()?.Genitive}";
 			
-			switch(codeToEmailDto.Source)
-			{
-				case Source.MobileApp:
-					employee = _unitOfWork.GetById<Employee>(_employeeSettings.MobileAppEmployee);
-					break;
-				case Source.VodovozWebSite:
-					employee = _unitOfWork.GetById<Employee>(_employeeSettings.VodovozWebSiteEmployee);
-					break;
-				case Source.KulerSaleWebSite:
-					employee = _unitOfWork.GetById<Employee>(_employeeSettings.KulerSaleWebSiteEmployee);
-					break;
-			}
-
-			if(employee is null)
-			{
-				return Result.Failure(new Error("UnsupportedSource", "Неизвестный источник запроса"));
-			}
+			var authorizationCodeEmail = AuthorizationCodeEmail.Create(
+				employee,
+				counterparty,
+				externalCounterpartyId,
+				mailSubject,
+				emailAddress);
 			
-			mailSubject = $"{_authorizationCodeFor} мобильного приложения Веселый водовоз";
-			
-			var storedEmail = new StoredEmail
-			{
-				State = StoredEmailStates.WaitingToSend,
-				Author = employee,
-				ManualSending = false,
-				SendDate = DateTime.Now,
-				StateChangeDate = DateTime.Now,
-				Subject = mailSubject,
-				RecipientAddress = codeToEmailDto.EmailAddress,
-				Guid = Guid.NewGuid()
-			};
-			
-			_unitOfWork.Save(storedEmail);
+			_unitOfWork.Save(authorizationCodeEmail.StoredEmail);
+			_unitOfWork.Save(authorizationCodeEmail);
 			_unitOfWork.Commit();
-			
-			return Result.Success();
 		}
 	}
 }

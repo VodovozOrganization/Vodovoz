@@ -1,7 +1,7 @@
 ﻿using System;
 using CustomerAppsApi.Library.Dto;
-using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Models;
+using CustomerAppsApi.Library.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -13,15 +13,23 @@ namespace CustomerAppsApi.Controllers
 	{
 		private readonly ILogger<SendingController> _logger;
 		private readonly ISendingService _sendingService;
+		private readonly ICounterpartyModelValidator _counterpartyModelValidator;
 
 		public SendingController(
 			ILogger<SendingController> logger,
-			ISendingService sendingService)
+			ISendingService sendingService,
+			ICounterpartyModelValidator counterpartyModelValidator)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_sendingService = sendingService ?? throw new ArgumentNullException(nameof(sendingService));
+			_counterpartyModelValidator = counterpartyModelValidator ?? throw new ArgumentNullException(nameof(counterpartyModelValidator));
 		}
 
+		/// <summary>
+		/// Отправка кода авторизации на указанный email
+		/// </summary>
+		/// <param name="codeToEmailDto">Данные для отправки</param>
+		/// <returns>Http код</returns>
 		[HttpPost]
 		public IActionResult SendCodeToEmail(SendingCodeToEmailDto codeToEmailDto)
 		{
@@ -32,7 +40,7 @@ namespace CustomerAppsApi.Controllers
 			
 			try
 			{
-				/*var validationResult = _counterpartyModelValidator.CounterpartyContactInfoDtoValidate(codeToEmailDto);
+				var validationResult = _counterpartyModelValidator.SendingCodeToEmailDtoValidate(codeToEmailDto);
 				if(!string.IsNullOrWhiteSpace(validationResult))
 				{
 					_logger.LogWarning(
@@ -42,13 +50,13 @@ namespace CustomerAppsApi.Controllers
 						validationResult);
 					
 					return ValidationProblem(validationResult);
-				}*/
+				}
 
 				var result = _sendingService.SendCodeToEmail(codeToEmailDto);
 
 				if(result.IsFailure)
 				{
-					return Problem(result.GetErrorsString());
+					return BadRequest(result.GetErrorsString());
 				}
 
 				return Ok();
