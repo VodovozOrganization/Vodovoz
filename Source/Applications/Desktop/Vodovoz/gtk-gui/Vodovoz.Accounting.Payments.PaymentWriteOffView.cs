@@ -302,6 +302,7 @@ namespace Vodovoz.Accounting.Payments
 			this.yspinbuttonSum.Name = "yspinbuttonSum";
 			this.yspinbuttonSum.Adjustment.PageIncrement = 10D;
 			this.yspinbuttonSum.ClimbRate = 1D;
+			this.yspinbuttonSum.Digits = ((uint)(2));
 			this.yspinbuttonSum.Numeric = true;
 			this.yspinbuttonSum.ValueAsDecimal = 0m;
 			this.yspinbuttonSum.ValueAsInt = 0;
