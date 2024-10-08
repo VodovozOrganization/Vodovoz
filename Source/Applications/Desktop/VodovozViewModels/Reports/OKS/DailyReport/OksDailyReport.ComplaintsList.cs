@@ -1,6 +1,8 @@
 ﻿using ClosedXML.Excel;
 using Gamma.Utilities;
+using MoreLinq;
 using System.Drawing;
+using System.Linq;
 using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
@@ -82,6 +84,10 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 
 			foreach(var complaint in _complaintsDataOnDate)
 			{
+				var resultComments =
+					string.Join(" || ",
+					complaint.ComplaintResults.DistinctBy(c => c.ComplaintResultCommentId).Select(r => r.ComplaintResultComment));
+
 				columnNumber = 1;
 				worksheet.Cell(rowNumber, columnNumber++).Value = ++complaintsCounter;
 				worksheet.Cell(rowNumber, columnNumber++).Value = complaint.Id;
@@ -92,7 +98,7 @@ namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 				worksheet.Cell(rowNumber, columnNumber++).Value = complaint.ComplaintObject?.Name;
 				worksheet.Cell(rowNumber, columnNumber++).Value = complaint.ComplaintKind?.Name;
 				worksheet.Cell(rowNumber, columnNumber++).Value = complaint.ComplaintText;
-				worksheet.Cell(rowNumber, columnNumber++).Value = complaint.ComplaintResults;
+				worksheet.Cell(rowNumber, columnNumber++).Value = resultComments;
 				worksheet.Cell(rowNumber, columnNumber).Value = complaint.WorkWithClientResult?.GetEnumTitle();
 
 				if(complaint.WorkWithClientResult == ComplaintWorkWithClientResult.Solved)

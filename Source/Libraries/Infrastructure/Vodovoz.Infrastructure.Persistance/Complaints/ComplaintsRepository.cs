@@ -169,7 +169,11 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 				let resultComments =
 				uow.Session.Query<ComplaintResultComment>()
 				.Where(r => r.Complaint.Id == complaint.Id)
-				.Select(r => r.Comment)
+				.Select(r => new OksDailyReportComplaintResultCommentsData
+				{
+					ComplaintResultCommentId = r.Id,
+					ComplaintResultComment = r.Comment
+				})
 
 				let discussionSubdivisions =
 				uow.Session.Query<ComplaintDiscussion>()
@@ -187,7 +191,7 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 					Id = complaint.Id,
 					CreationDate = complaint.CreationDate,
 					ComplaintText = complaint.ComplaintText,
-					ComplaintResults = string.Join(" || ", resultComments),
+					ComplaintResults = resultComments,
 					WorkWithClientResult = complaint.WorkWithClientResult,
 					Status = complaint.Status,
 					ComplaintKind = complaint.ComplaintKind,
