@@ -1,7 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
@@ -9,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ReportsParameters
@@ -86,8 +87,107 @@ namespace Vodovoz.ReportsParameters
 				return;
 			}
 
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+			MakeQueries();
+
+			//LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
+
+		private void MakeQueries()
+		{
+			var selectedPromosets = GetSelectedPromotionalSets();
+			var notDeliveredOrderStatuses = new List<OrderStatus> { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
+
+			var phonesHavingPromotionalSetsByDeliveryPointsForPeriod =
+				(from order in UoW.Session.Query<Order>()
+				 join orderItem in UoW.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
+				 join phone in UoW.Session.Query<Phone>() on order.DeliveryPoint.Id equals phone.DeliveryPoint.Id
+				 where
+				 order.CreateDate >= dateperiodpicker.StartDate.Date
+				 && order.CreateDate < dateperiodpicker.EndDate.Date.AddDays(1)
+				 && !phone.IsArchive
+				 && selectedPromosets.Contains(orderItem.PromoSet.Id)
+				 && !notDeliveredOrderStatuses.Contains(order.OrderStatus)
+				 && phone.DigitsNumber != null
+				 select phone.DigitsNumber).Distinct().ToList();
+
+			var phonesHavingPromotionalSetsByClientForPeriod =
+				(from order in UoW.Session.Query<Order>()
+				 join orderItem in UoW.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
+				 join phone in UoW.Session.Query<Phone>() on order.Client.Id equals phone.Counterparty.Id
+				 where
+				 order.CreateDate >= dateperiodpicker.StartDate.Date
+				 && order.CreateDate < dateperiodpicker.EndDate.Date.AddDays(1)
+				 && !phone.IsArchive
+				 && selectedPromosets.Contains(orderItem.PromoSet.Id)
+				 && !notDeliveredOrderStatuses.Contains(order.OrderStatus)
+				 && phone.DigitsNumber != null
+				 select phone.DigitsNumber).Distinct().ToList();
+
+			var allPhonesHavingPromotionalSetsForPeriod =
+				phonesHavingPromotionalSetsByDeliveryPointsForPeriod
+				.Union(phonesHavingPromotionalSetsByClientForPeriod)
+				.Distinct()
+				.ToList();
+
+			var ordersWithPhonesByDeliveryPoint =
+				(from order in UoW.Session.Query<Order>()
+				 join orderItem in UoW.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
+				 join phone in UoW.Session.Query<Phone>() on order.DeliveryPoint.Id equals phone.DeliveryPoint.Id
+				 where
+				 orderItem.PromoSet.Id != null
+				 && !phone.IsArchive
+				 && !notDeliveredOrderStatuses.Contains(order.OrderStatus)
+				 && allPhonesHavingPromotionalSetsForPeriod.Contains(phone.DigitsNumber)
+				 select new OrderWithPhoneDataNode
+				 {
+					 OrderId = order.Id,
+					 ClientId = order.Client.Id,
+					 DeliveryPointId = order.DeliveryPoint.Id,
+					 OrderCreateDate = order.CreateDate,
+					 OrderDeliveryDate = order.DeliveryDate,
+					 AuthorId = order.Author.Id,
+					 PhoneNumber = phone.Number,
+					 PhoneDigitNumber = phone.DigitsNumber
+				 }).ToList();
+
+			var ordersWithPhonesByClient =
+				(from order in UoW.Session.Query<Order>()
+				 join orderItem in UoW.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
+				 join phone in UoW.Session.Query<Phone>() on order.Client.Id equals phone.Counterparty.Id
+				 where
+				 orderItem.PromoSet.Id != null
+				 && !phone.IsArchive
+				 && !notDeliveredOrderStatuses.Contains(order.OrderStatus)
+				 && allPhonesHavingPromotionalSetsForPeriod.Contains(phone.DigitsNumber)
+				 select new OrderWithPhoneDataNode
+				 {
+					 OrderId = order.Id,
+					 ClientId = order.Client.Id,
+					 DeliveryPointId = order.DeliveryPoint.Id,
+					 OrderCreateDate = order.CreateDate,
+					 OrderDeliveryDate = order.DeliveryDate,
+					 AuthorId = order.Author.Id,
+					 PhoneNumber = phone.Number,
+					 PhoneDigitNumber = phone.DigitsNumber
+				 }).ToList();
+
+			var ordersWithPhones = new List<OrderWithPhoneDataNode>();
+
+			ordersWithPhones.AddRange(ordersWithPhonesByDeliveryPoint);
+			ordersWithPhones.AddRange(ordersWithPhonesByClient);
+		}
+	}
+
+	public class OrderWithPhoneDataNode
+	{
+		public int OrderId { get; set; }
+		public int ClientId { get; set; }
+		public int DeliveryPointId { get; set; }
+		public DateTime? OrderCreateDate { get; set; }
+		public DateTime? OrderDeliveryDate { get; set; }
+		public int AuthorId { get; set; }
+		public string PhoneNumber { get; set; }
+		public string PhoneDigitNumber { get; set; }
 	}
 
 	public class PromosetReportNode : PropertyChangedBase
