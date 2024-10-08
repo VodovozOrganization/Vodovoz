@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V5;
+﻿using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Responses;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.V5.Converters;
@@ -7,8 +7,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;

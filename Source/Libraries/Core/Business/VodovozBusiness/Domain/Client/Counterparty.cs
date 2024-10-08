@@ -1,9 +1,10 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using QS.Services;
 using QS.Utilities;
@@ -14,6 +15,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Data.Interfaces.Counterparties;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -28,6 +30,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Counterparty;
+using VodovozBusiness.Domain.Client;
 using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Client
@@ -43,7 +46,7 @@ namespace Vodovoz.Domain.Client
 	]
 	[HistoryTrace]
 	[EntityPermission]
-	public class Counterparty : AccountOwnerBase, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class Counterparty : AccountOwnerBase, IDomainObject, IValidatableObject, INamed, IArchivable, IHasAttachedFilesInformations<CounterpartyFileInformation>
 	{
 		public const int NameMaxSimbols = 500;
 		public const int InnPrivateBusinessmanLength = 12;
@@ -53,6 +56,7 @@ namespace Vodovoz.Domain.Client
 		private const int _specialContractNameLimit = 800;
 		private const int _cargoReceiverLimitSymbols = 500;
 
+		private int _id;
 		private bool _roboatsExclude;
 		private bool _isForSalesDepartment;
 		private ReasonForLeaving _reasonForLeaving;
@@ -160,8 +164,6 @@ namespace Vodovoz.Domain.Client
 		private bool _alwaysSendReceipts;
 		private IList<NomenclatureFixedPrice> _nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
 		private GenericObservableList<NomenclatureFixedPrice> _observableNomenclatureFixedPrices;
-		private IList<CounterpartyFile> _files = new List<CounterpartyFile>();
-		private GenericObservableList<CounterpartyFile> _observableFiles;
 		private Organization _worksThroughOrganization;
 		private IList<ISupplierPriceNode> _priceNodes = new List<ISupplierPriceNode>();
 		private GenericObservableList<ISupplierPriceNode> _observablePriceNodes;
@@ -171,8 +173,22 @@ namespace Vodovoz.Domain.Client
 		private bool _excludeFromAutoCalls;
 		private Counterparty _refferer;
 		private bool _hideDeliveryPointForBill;
+		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
 
 		#region Свойства
+
+		[Display(Name = "Код")]
+		public virtual int Id
+		{
+			get => _id;
+			set
+			{
+				if(SetField(ref _id, value))
+				{
+					UpdateFileInformations();
+				}
+			}
+		}
 
 		[Display(Name = "Договоры")]
 		public virtual IList<CounterpartyContract> CounterpartyContracts
@@ -274,8 +290,6 @@ namespace Vodovoz.Domain.Client
 			get => _proxies;
 			set => SetField(ref _proxies, value);
 		}
-
-		public virtual int Id { get; set; }
 
 		[Display(Name = "Максимальный кредит")]
 		public virtual decimal MaxCredit
@@ -1022,27 +1036,6 @@ namespace Vodovoz.Domain.Client
 				new GenericObservableList<NomenclatureFixedPrice>(NomenclatureFixedPrices));
 		}
 
-		[Display(Name = "Документы")]
-		public virtual IList<CounterpartyFile> Files
-		{
-			get => _files;
-			set => SetField(ref _files, value);
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<CounterpartyFile> ObservableFiles
-		{
-			get
-			{
-				if(_observableFiles == null)
-				{
-					_observableFiles = new GenericObservableList<CounterpartyFile>(Files);
-				}
-
-				return _observableFiles;
-			}
-		}
-
 		[Display(Name = "Работает через организацию")]
 		public virtual Organization WorksThroughOrganization
 		{
@@ -1113,6 +1106,13 @@ namespace Vodovoz.Domain.Client
 
 				return _observablePriceNodes;
 			}
+		}
+
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<CounterpartyFileInformation> AttachedFileInformations
+		{
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
 		}
 
 		#endregion
@@ -1238,23 +1238,23 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		public virtual void AddFile(CounterpartyFile file)
+		public virtual void AddFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
+			if(AttachedFileInformations.Any(afi => afi.FileName == fileName))
 			{
 				return;
 			}
 
-			file.Counterparty = this;
-			ObservableFiles.Add(file);
+			AttachedFileInformations.Add(new CounterpartyFileInformation
+			{
+				FileName = fileName,
+				CounterpartyId = Id
+			});
 		}
 
-		public virtual void RemoveFile(CounterpartyFile file)
+		public virtual void RemoveFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
-			{
-				ObservableFiles.Remove(file);
-			}
+			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
 
 		public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
@@ -1558,7 +1558,7 @@ namespace Vodovoz.Domain.Client
 					}
 				}
 
-				if(TechnicalProcessingDelay > 0 && Files.Count == 0)
+				if(TechnicalProcessingDelay > 0 && AttachedFileInformations.Count == 0)
 				{
 					yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
 				}
@@ -1651,5 +1651,13 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
+
+		private void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.CounterpartyId = Id;
+			}
+		}
 	}
 }

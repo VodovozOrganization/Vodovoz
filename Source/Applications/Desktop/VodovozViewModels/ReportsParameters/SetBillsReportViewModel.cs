@@ -7,6 +7,8 @@ using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using QS.Navigation;
 using Autofac;
+using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Report;
 
@@ -16,6 +18,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 	{
 		private readonly RdlViewerViewModel _rdlViewerViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -25,12 +28,14 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			RdlViewerViewModel rdlViewerViewModel,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
+			IInteractiveService interactiveService,
 			IUnitOfWorkFactory unitOfWorkFactory)
 			: base(rdlViewerViewModel)
 		{
 			_rdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
 			Title = "Отчет по выставленным счетам";
 
@@ -40,6 +45,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			EndDate = DateTime.Today;
 
 			SubdivisionViewModel = CreateSubdivisionViewModel();
+			CreateCommands();
+		}
+
+		private void CreateCommands()
+		{
+			LoadReportCommand = new DelegateCommand(LoadReport, CheckParameters);
 		}
 
 		public DateTime? StartDate
@@ -60,8 +71,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			set => SetField(ref _authorSubdivision, value);
 		}
 
+		public DelegateCommand LoadReportCommand { get; private set; }
 		public IEntityEntryViewModel SubdivisionViewModel { get; }
-
 		public INavigationManager NavigationManager { get; }
 
 		public override ReportInfo ReportInfo => new ReportInfo
@@ -78,7 +89,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{ "endDate", EndDate.Value.LatestDayTime() },
 			{ "authorSubdivision", AuthorSubdivision?.Id }
 		};
-
+		
 		public void Dispose()
 		{
 			_unitOfWork?.Dispose();
@@ -91,6 +102,17 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
 				.UseViewModelDialog<SubdivisionViewModel>()
 				.Finish();
+		}
+		
+		private bool CheckParameters()
+		{
+			if(!EndDate.HasValue)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату окончания выборки");
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

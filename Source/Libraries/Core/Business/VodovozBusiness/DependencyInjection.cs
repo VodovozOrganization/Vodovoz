@@ -1,7 +1,7 @@
-using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sms.Internal.Client.Framework;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Common;
@@ -10,17 +10,13 @@ using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.NotificationRecievers;
 using Vodovoz.Options;
-using Vodovoz.Services;
-using Vodovoz.Settings.Database.Delivery;
-using Vodovoz.Settings.Database.Fuel;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Orders;
 using Vodovoz.Validation;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace Vodovoz
 {

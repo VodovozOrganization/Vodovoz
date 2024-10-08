@@ -73,8 +73,12 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 
 		private async Task NotifyAsync(int pastDaysForSend)
 		{
+			_logger.LogInformation("Запущен метод отправки уведомлений");
+
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
+				_logger.LogInformation("Получение списка уведомлений для отправки");
+
 				var notificationsToSend =
 					_notificationRepository.GetNotificationsForSend(uow, pastDaysForSend);
 
@@ -82,6 +86,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 				{
 					return;
 				}
+
+				_logger.LogInformation("Подготовка к отправке");
 
 				using(var scope = _serviceScopeFactory.CreateScope())
 				{
@@ -97,6 +103,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 							_logger.LogInformation("Отправляем данные в ИПЗ по онлайн заказу {OnlineOrderId}", onlineOrderId);
 							httpCode = await notificationService.NotifyOfOnlineOrderStatusUpdatedAsync(
 								GetOnlineOrderStatusUpdatedDto(notification), notification.OnlineOrder.Source);
+							
+							_logger.LogInformation("Данные отправлены");
 						}
 						catch(Exception e)
 						{
@@ -136,6 +144,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 				notification.SentDate = DateTime.Now;
 				uow.Save(notification);
 				uow.Commit();
+
+				_logger.LogInformation("Данные обновлены");
 			}
 			catch(Exception e)
 			{

@@ -19,6 +19,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _number;
 		private string _bank;
 		private int? _subdivisionId;
+		private bool _isArchive;
 		private BusinessActivity _businessActivity;
 		private Funds _funds;
 		private AccountFillType _accountFillType;
@@ -51,6 +52,13 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _subdivisionId;
 			set => SetField (ref _subdivisionId, value);
+		}
+		
+		[Display(Name = "Архивный")]
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField (ref _isArchive, value);
 		}
 
 		[Display(Name = "Направление деятельности")]
