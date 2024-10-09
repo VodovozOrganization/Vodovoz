@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -37,9 +37,10 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
-		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
+		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;		
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
+		private bool _hasConditionAccounting;
 		private GlassHolderType? _glassHolderType;
 		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
 		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
@@ -142,6 +143,7 @@ namespace Vodovoz.Domain.Goods
 		private string _amountInAPackage;
 		private int? _planDay;
 		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
+		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse = new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
 
 		public Nomenclature()
 		{
@@ -631,6 +633,13 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _innerDeliveryPrices, value);
 		}
 
+		[Display(Name = "Минимальный остаток на складе ")]
+		public virtual IObservableList<NomenclatureMinimumBalanceByWarehouse> NomenclatureMinimumBalancesByWarehouse
+		{
+			get => _nomenclatureMinimumBalancesByWarehouse;
+			set => SetField(ref _nomenclatureMinimumBalancesByWarehouse, value);
+		}
+
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
 
@@ -653,6 +662,13 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _hasInventoryAccounting;
 			set => SetField(ref _hasInventoryAccounting, value);
+		}
+		
+		[Display(Name = "Учет состояния ТМЦ(б/у | Нов)")]
+		public virtual bool HasConditionAccounting
+		{
+			get => _hasConditionAccounting;
+			set => SetField(ref _hasConditionAccounting, value);
 		}
 
 		[Display(Name = "Тип стаканодержателя")]
@@ -1093,6 +1109,17 @@ namespace Vodovoz.Domain.Goods
 			}
 
 			AttachedFileInformations.Remove(AttachedFileInformations.First(x => x.FileName == filename));
+		}
+
+		public virtual decimal GetPurchasePriceOnDate(DateTime date)
+		{
+			var purchasePrice =
+				PurchasePrices
+				.Where(p => p.StartDate <= date && (p.EndDate == null || p.EndDate >= date))
+				.Select(p => p.PurchasePrice)
+				.FirstOrDefault();
+
+			return purchasePrice;
 		}
 
 		#endregion Методы

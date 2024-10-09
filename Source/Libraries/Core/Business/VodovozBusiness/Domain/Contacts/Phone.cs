@@ -1,10 +1,10 @@
 ﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Utilities.Numeric;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Settings.Contacts;
 
 namespace Vodovoz.Domain.Contacts
@@ -21,12 +21,13 @@ namespace Vodovoz.Domain.Contacts
 		private Counterparty _counterparty;
 		private RoboAtsCounterpartyName _roboAtsCounterpartyName;
 		private RoboAtsCounterpartyPatronymic _roboAtsCounterpartyPatronymic;
+		private PhoneType _phoneType;
+		private Employee _employee;
 
-		private PhoneType phoneType;
 		public virtual PhoneType PhoneType
 		{
-			get => phoneType;
-			set => SetField(ref phoneType, value);
+			get => _phoneType;
+			set => SetField(ref _phoneType, value);
 		}
 
 		[Display(Name = "Точка доставки")]
@@ -41,6 +42,13 @@ namespace Vodovoz.Domain.Contacts
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
+		}
+
+		[Display(Name = "Сотрудник")]
+		public virtual Employee Employee
+		{
+			get => _employee;
+			set => SetField(ref _employee, value);
 		}
 
 		[Display(Name = "Имя контрагента")]
@@ -66,9 +74,9 @@ namespace Vodovoz.Domain.Contacts
 			get
 			{
 				return PhoneType?.Name
-					 + (String.IsNullOrWhiteSpace(Number) ? "" : " +7 " + Number)
-					 + (String.IsNullOrWhiteSpace(Additional) ? "" : " доп." + Additional)
-					 + (String.IsNullOrWhiteSpace(Comment) ? "" : $"\n[{Comment}]");
+					 + (string.IsNullOrWhiteSpace(Number) ? "" : " +7 " + Number)
+					 + (string.IsNullOrWhiteSpace(Additional) ? "" : " доп." + Additional)
+					 + (string.IsNullOrWhiteSpace(Comment) ? "" : $"\n[{Comment}]");
 			}
 		}
 
@@ -106,8 +114,8 @@ namespace Vodovoz.Domain.Contacts
 
 		public virtual Phone Init(IContactSettings contactsParameters)
 		{
-			Number = String.Empty;
-			Additional = String.Empty;
+			Number = string.Empty;
+			Additional = string.Empty;
 			return this;
 		}
 

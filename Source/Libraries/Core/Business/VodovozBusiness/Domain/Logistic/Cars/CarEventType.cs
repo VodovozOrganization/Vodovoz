@@ -19,6 +19,7 @@ namespace Vodovoz.Domain.Logistic
 		private bool _needComment;
 		private bool _isArchive;
 		private bool _isDoNotShowInOperation;
+		private bool _isAttachWriteOffDocument;
 
 		#region Свойства
 
@@ -57,6 +58,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _isDoNotShowInOperation;
 			set => SetField(ref _isDoNotShowInOperation, value);
+		}
+
+		[Display(Name = "Прикреплять акт списания")]
+		public virtual bool IsAttachWriteOffDocument
+		{
+			get => _isAttachWriteOffDocument;
+			set => SetField(ref _isAttachWriteOffDocument, value);
 		}
 		#endregion
 

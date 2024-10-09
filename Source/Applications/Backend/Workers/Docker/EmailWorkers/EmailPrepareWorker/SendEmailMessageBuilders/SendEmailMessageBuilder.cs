@@ -5,6 +5,7 @@ using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
@@ -79,11 +80,17 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		{
 			var document = _counterpartyEmail.EmailableDocument;
 
-			var hasSendedEmailsForBill = _emailRepository.HasSendedEmailsForBillExceptOf(document.Order.Id, _counterpartyEmail.StoredEmail.Id);
+			var hasSendedEmailsForBill = false;
+			
+			if(document.Type == OrderDocumentType.Bill
+			   || document.Type == OrderDocumentType.SpecialBill)
+			{
+				hasSendedEmailsForBill = _emailRepository.HasSendedEmailsForBillExceptOf(document.Order.Id, _counterpartyEmail.StoredEmail.Id);
+			}
 
 			if(hasSendedEmailsForBill
-				&& document.Type == OrderDocumentType.Bill
-				&& document is BillDocument billDocument)
+			   && document.Type == OrderDocumentType.Bill
+			   && document is BillDocument billDocument)
 			{
 				_template = billDocument.GetResendEmailTemplate();
 			}
@@ -92,6 +99,11 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				&& document is SpecialBillDocument specialBillDocument)
 			{
 				_template = specialBillDocument.GetResendEmailTemplate();
+			}
+			else if(_counterpartyEmail.StoredEmail.ManualSending == true
+				&& document is ICustomResendTemplateEmailableDocument resendableDocument)
+			{
+				_template = resendableDocument.GetResendDocumentEmailTemplate();
 			}
 			else
 			{

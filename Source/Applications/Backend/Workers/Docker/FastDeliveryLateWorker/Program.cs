@@ -7,12 +7,12 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database.Orders;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.Orders;
 using Vodovoz.Zabbix.Sender;
-using Vodovoz.Infrastructure.Persistance;
 
 namespace FastDeliveryLateWorker
 {

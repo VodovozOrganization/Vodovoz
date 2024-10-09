@@ -49,6 +49,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.OnlineStoreExternalId).Column("online_store_external_id");
 			Map(x => x.UsingInGroupPriceSet).Column("using_in_group_price_set");
 			Map(x => x.HasInventoryAccounting).Column("has_inventory_accounting");
+			Map(x => x.HasConditionAccounting).Column("has_condition_accounting");
 			Map(x => x.GlassHolderType).Column("glass_holder_type");
 
 			//Характеристики товара
@@ -136,6 +137,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			HasMany(x => x.InnerDeliveryPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.NomenclatureOnlineParameters)
 				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.NomenclatureMinimumBalancesByWarehouse).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 		}
 	}
 }

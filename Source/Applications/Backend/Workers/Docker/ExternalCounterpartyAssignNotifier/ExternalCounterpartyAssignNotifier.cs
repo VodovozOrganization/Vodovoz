@@ -58,10 +58,16 @@ namespace ExternalCounterpartyAssignNotifier
 
 		private async Task NotifyAsync(int pastDaysForSend, CancellationToken stoppingToken)
 		{
+			_logger.LogInformation("Запущен метод отправки уведомлений");
+
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
+				_logger.LogInformation("Получение списка уведомлений для отправки");
+
 				var notificationsToSend =
 					_externalCounterpartyAssignNotificationRepository.GetNotificationsForSend(uow, pastDaysForSend);
+
+				_logger.LogInformation("Подготовка к отправке");
 
 				using(var scope = _serviceScopeFactory.CreateScope())
 				{
@@ -75,6 +81,8 @@ namespace ExternalCounterpartyAssignNotifier
 							_logger.LogInformation("Отправляем данные в ИПЗ");
 							httpCode = await notificationService.NotifyOfCounterpartyAssignAsync(
 								GetRegisteredNaturalCounterpartyDto(notification), notification.ExternalCounterparty.CounterpartyFrom);
+
+							_logger.LogInformation("Данные отправлены");
 						}
 						catch(Exception e)
 						{
@@ -114,6 +122,8 @@ namespace ExternalCounterpartyAssignNotifier
 				notification.SentDate = DateTime.Now;
 				uow.Save(notification);
 				uow.Commit();
+
+				_logger.LogInformation("Данные обновлены");
 			}
 			catch(Exception e)
 			{

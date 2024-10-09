@@ -16,6 +16,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.NeedComment).Column("need_comment");
 			Map(x => x.IsArchive).Column("is_archive");
 			Map(x => x.IsDoNotShowInOperation).Column("is_do_not_show_in_operation");
+			Map(x => x.IsAttachWriteOffDocument).Column("is_attach_write_off_document");
 		}
 	}
 }
