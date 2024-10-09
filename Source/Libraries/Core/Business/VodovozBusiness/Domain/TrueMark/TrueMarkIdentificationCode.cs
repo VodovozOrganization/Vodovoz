@@ -1,26 +1,17 @@
-﻿using QS.DomainModel.Entity;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Models.TrueMark;
 
 namespace Vodovoz.Domain.TrueMark
 {
-	[
-		Appellative(
-			Gender = GrammaticalGender.Masculine,
-			NominativePlural = "код честного знака",
-			Nominative = "код честного знака"
-		)
-	]
-	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode
+	public class TrueMarkWaterIdentificationCode : TrueMarkWaterIdentificationCodeEntity, ITrueMarkWaterCode
 	{
 		private string _rawCode;
 		private bool _isInvalid;
 		private string _gtin;
 		private string _serialNumber;
 		private string _checkCode;
-
-		public virtual int Id { get; set; }
 
 		[Display(Name = "Необработанный код")]
 		public virtual string RawCode
