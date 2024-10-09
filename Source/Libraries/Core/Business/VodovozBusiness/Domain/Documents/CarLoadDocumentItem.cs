@@ -2,11 +2,11 @@
 using System.ComponentModel.DataAnnotations;
 using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using VodovozBusiness.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Domain.Documents
 {
