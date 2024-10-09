@@ -19,14 +19,9 @@ namespace Vodovoz.Domain.Documents
 		private Nomenclature _nomenclature;
 		private Equipment _equipment;
 		private OwnTypes _ownType;
-		private decimal _amount;
-		private decimal? _expireDatePercent;
-		private int? _orderId;
-		private bool _isIndividualSetForOrder;
 		private decimal _amountInStock;
 		private decimal _amountInRouteList;
 		private decimal _amountLoaded;
-		private IObservableList<CarLoadDocumentItemTrueMarkProductCode> _trueMarkCodes = new ObservableList<CarLoadDocumentItemTrueMarkProductCode>();
 
 		#region Свойства
 
@@ -73,41 +68,6 @@ namespace Vodovoz.Domain.Documents
 		{
 			get => _ownType;
 			set => SetField(ref _ownType, value);
-		}
-
-		[Display (Name = "Количество")]
-		public virtual decimal Amount {
-			get => _amount;
-			set => SetField (ref _amount, value);
-		}
-
-		[Display(Name = "Процент срока годности")]
-		public virtual decimal? ExpireDatePercent {
-			get => _expireDatePercent; 
-			set {
-				SetField(ref _expireDatePercent, value);
-			} 
-		}
-
-		[Display(Name ="Номер заказа")]
-		public virtual int? OrderId
-		{
-			get => _orderId;
-			set => SetField(ref _orderId, value);
-		}
-
-		[Display(Name = "Отделить номенклатуры заказа при погрузке")]
-		public virtual bool IsIndividualSetForOrder
-		{
-			get => _isIndividualSetForOrder;
-			set => SetField(ref _isIndividualSetForOrder, value);
-		}
-
-		[Display(Name = "Коды ЧЗ товаров")]
-		public virtual IObservableList<CarLoadDocumentItemTrueMarkProductCode> TrueMarkCodes
-		{
-			get => _trueMarkCodes;
-			set => SetField(ref _trueMarkCodes, value);
 		}
 
 		#endregion
