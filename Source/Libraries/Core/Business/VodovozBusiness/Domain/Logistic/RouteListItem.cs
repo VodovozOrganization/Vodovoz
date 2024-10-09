@@ -11,6 +11,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -30,11 +31,7 @@ using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "адреса маршрутного листа",
-		Nominative = "адрес маршрутного листа")]
-	[HistoryTrace]
-	public class RouteListItem : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class RouteListItem : RouteListItemEntity, IValidatableObject
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -109,7 +106,6 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Свойства
 
-		public virtual int Id { get; set; }
 		[Display(Name = "Версия")]
 		public virtual DateTime Version
 		{

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
-using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -11,11 +10,7 @@ using VodovozBusiness.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Domain.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки талона погрузки",
-		Nominative = "строка талона погрузки")]
-	[HistoryTrace]
-	public class CarLoadDocumentItem: PropertyChangedBase, IDomainObject
+	public class CarLoadDocumentItem: CarLoadDocumentItemEntity
 	{
 		private CarLoadDocument _document;
 		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
@@ -34,7 +29,6 @@ namespace Vodovoz.Domain.Documents
 		private IObservableList<CarLoadDocumentItemTrueMarkProductCode> _trueMarkCodes = new ObservableList<CarLoadDocumentItemTrueMarkProductCode>();
 
 		#region Свойства
-		public virtual int Id { get; set; }
 
 		public virtual CarLoadDocument Document {
 			get { return _document; }
