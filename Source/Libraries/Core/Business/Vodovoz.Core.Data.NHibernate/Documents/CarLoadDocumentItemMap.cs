@@ -1,7 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.Core.Data.NHibernate.Documents

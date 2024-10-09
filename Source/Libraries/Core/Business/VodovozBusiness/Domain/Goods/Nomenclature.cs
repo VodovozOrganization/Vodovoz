@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -11,6 +11,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -27,7 +28,7 @@ namespace Vodovoz.Domain.Goods
 		Nominative = "номенклатура")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Nomenclature : BusinessObjectBase<Nomenclature>, INamedDomainObject, INamed, IArchivable, IValidatableObject, IHasAttachedFilesInformations<NomenclatureFileInformation>
+	public class Nomenclature : NomenclatureEntity, INamed, IArchivable, IValidatableObject, IHasAttachedFilesInformations<NomenclatureFileInformation>
 	{
 		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
 		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
@@ -65,15 +66,11 @@ namespace Vodovoz.Domain.Goods
 		private TapType? _tapType;
 		private bool _isSparklingWater;
 
-		private int _id;
-
 		private decimal _length;
 		private decimal _width;
 		private decimal _height;
 		private IList<NomenclatureOnlineParameters> _nomenclatureOnlineParameters = new List<NomenclatureOnlineParameters>();
 
-		private bool _isAccountableInTrueMark;
-		private string _gtin;
 		private DateTime? _createDate;
 		private User _createdBy;
 		private string _name;
@@ -151,18 +148,6 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		#region Свойства
-
-		public virtual int Id
-		{
-			get => _id;
-			set
-			{
-				if(SetField(ref _id, value))
-				{
-					UpdateFileInformations();
-				}
-			}
-		}
 
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate
@@ -642,20 +627,6 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
-
-		[Display(Name = "Подлежит учету в Честном Знаке")]
-		public virtual bool IsAccountableInTrueMark
-		{
-			get => _isAccountableInTrueMark;
-			set => SetField(ref _isAccountableInTrueMark, value);
-		}
-
-		[Display(Name = "Номер товарной продукции GTIN")]
-		public virtual string Gtin
-		{
-			get => _gtin;
-			set => SetField(ref _gtin, value);
-		}
 
 		[Display(Name = "Инвентарный учет")]
 		public virtual bool HasInventoryAccounting
@@ -1599,7 +1570,7 @@ namespace Vodovoz.Domain.Goods
 			LockerRefrigeratorVolume = null;
 		}
 
-		private void UpdateFileInformations()
+		protected override void UpdateFileInformations()
 		{
 			foreach(var fileInformation in AttachedFileInformations)
 			{

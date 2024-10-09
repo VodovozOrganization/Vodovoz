@@ -2,6 +2,7 @@
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Domain.Documents
@@ -12,13 +13,22 @@ namespace Vodovoz.Core.Domain.Documents
 	[HistoryTrace]
 	public class CarLoadDocumentItemEntity : PropertyChangedBase, IDomainObject
 	{
+		private CarLoadDocumentEntity _document;
 		private decimal _amount;
 		private decimal? _expireDatePercent;
 		private int? _orderId;
 		private bool _isIndividualSetForOrder;
+		private NomenclatureEntity _nomenclature;
 		private IObservableList<CarLoadDocumentItemTrueMarkProductCode> _trueMarkCodes = new ObservableList<CarLoadDocumentItemTrueMarkProductCode>();
 
 		public virtual int Id { get; set; }
+
+		[Display(Name = "Талон погрузки")]
+		public virtual CarLoadDocumentEntity Document
+		{
+			get => _document;
+			set => SetField(ref _document, value);
+		}
 
 		[Display(Name = "Количество")]
 		public virtual decimal Amount
@@ -49,6 +59,13 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _isIndividualSetForOrder;
 			set => SetField(ref _isIndividualSetForOrder, value);
+		}
+
+		[Display(Name = "Номенклатура")]
+		public virtual NomenclatureEntity Nomenclature
+		{
+			get => _nomenclature;
+			set => SetField(ref _nomenclature, value);
 		}
 
 		[Display(Name = "Коды ЧЗ товаров")]

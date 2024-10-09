@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Documents
+namespace Vodovoz.Core.Domain.Documents
 {
 	[Appellative(
 			Gender = GrammaticalGender.Masculine,

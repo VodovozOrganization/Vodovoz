@@ -1,8 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -25,7 +23,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region Свойства
 
-		public virtual CarLoadDocument Document {
+		public virtual new CarLoadDocument Document {
 			get { return _document; }
 			set { SetField (ref _document, value); }
 		}
@@ -47,7 +45,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		[Display (Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
+		public virtual new Nomenclature Nomenclature {
 			get { return _nomenclature; }
 			set {
 				SetField (ref _nomenclature, value);

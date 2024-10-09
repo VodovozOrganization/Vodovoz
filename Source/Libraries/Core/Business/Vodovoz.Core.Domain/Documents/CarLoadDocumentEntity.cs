@@ -1,9 +1,7 @@
-﻿using QS.DomainModel.Entity.EntityPermissions;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Documents
 {
@@ -12,8 +10,17 @@ namespace Vodovoz.Core.Domain.Documents
 		Nominative = "талон погрузки автомобиля")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class CarLoadDocumentEntity
+	public class CarLoadDocumentEntity : PropertyChangedBase, IDomainObject
 	{
+		private CarLoadDocumentLoadOperationState _loadOperationState;
+
 		public virtual int Id { get; set; }
+
+		[Display(Name = "Статус талона погрузки")]
+		public virtual CarLoadDocumentLoadOperationState LoadOperationState
+		{
+			get => _loadOperationState;
+			set => SetField(ref _loadOperationState, value);
+		}
 	}
 }
