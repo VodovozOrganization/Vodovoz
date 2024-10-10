@@ -16,7 +16,7 @@ namespace Vodovoz.ViewWidgets.Store
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonAddEquipment;
+		private global::Gamma.GtkWidgets.yButton buttonAddEquipment;
 
 		private global::Gtk.Label GtkLabel4;
 
@@ -55,7 +55,7 @@ namespace Vodovoz.ViewWidgets.Store
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonAddEquipment = new global::Gtk.Button();
+			this.buttonAddEquipment = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddEquipment.CanFocus = true;
 			this.buttonAddEquipment.Name = "buttonAddEquipment";
 			this.buttonAddEquipment.UseUnderline = true;

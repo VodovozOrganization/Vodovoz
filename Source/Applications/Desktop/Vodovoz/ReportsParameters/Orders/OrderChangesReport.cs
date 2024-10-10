@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
+﻿using Gamma.ColumnConfig;
+using QS.Dialog;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Vodovoz.Domain.Organizations;
-using Gamma.ColumnConfig;
-using QS.Dialog;
-using QS.DomainModel.Entity;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Project.Services;
-using Vodovoz.Settings.Reports;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Reports;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -21,16 +20,19 @@ namespace Vodovoz.ReportsParameters.Orders
     {
         private List<SelectedChangeTypeNode> _changeTypes = new List<SelectedChangeTypeNode>();
         private List<SelectedIssueTypeNode> _issueTypes = new List<SelectedIssueTypeNode>();
-        private readonly IReportSettings reportDefaultsProvider;
+		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly IReportSettings reportDefaultsProvider;
 		private readonly IInteractiveService _interactiveService;
 		private readonly int _monitoringPeriodAvailable;
 
 		public OrderChangesReport(
+			IReportInfoFactory reportInfoFactory,
 			IReportSettings reportDefaultsProvider,
 			IInteractiveService interactiveService,
 			IArchiveDataSettings archiveDataSettings)
         {
-            this.reportDefaultsProvider = reportDefaultsProvider ?? throw new ArgumentNullException(nameof(reportDefaultsProvider));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			this.reportDefaultsProvider = reportDefaultsProvider ?? throw new ArgumentNullException(nameof(reportDefaultsProvider));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_monitoringPeriodAvailable =
 				(archiveDataSettings ?? throw new ArgumentNullException(nameof(archiveDataSettings))).GetMonitoringPeriodAvailableInDays;
@@ -137,22 +139,22 @@ namespace Vodovoz.ReportsParameters.Orders
 				: string.Join(", ", _issueTypes.Where(x => x.Selected).Select(x => x.Title));
 
             var parameters = new Dictionary<string, object>
-                {
-                    { "start_date", dateperiodpicker.StartDate },
-                    { "end_date", dateperiodpicker.EndDate },
-                    { "organization_id", ordganizationId },
-                    { "change_types", selectedChangeTypes },
-                    { "change_types_rus", selectedChangeTypesTitles },
-                    { "issue_types", selectedIssueTypes },
-                    { "issue_types_rus", selectedIssueTypesTitles },
-				};
-
-            return new ReportInfo
             {
-				Path = rdlPath,
-                UseUserVariables = true,
-                Parameters = parameters
-            };
+                { "start_date", dateperiodpicker.StartDate },
+                { "end_date", dateperiodpicker.EndDate },
+                { "organization_id", ordganizationId },
+                { "change_types", selectedChangeTypes },
+                { "change_types_rus", selectedChangeTypesTitles },
+                { "issue_types", selectedIssueTypes },
+                { "issue_types_rus", selectedIssueTypesTitles },
+			};
+
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = Title;
+			reportInfo.Parameters = parameters;
+			reportInfo.Path = rdlPath;
+			reportInfo.UseUserVariables = true;
+			return reportInfo;
 		}
 
 		private string GetTempRdl()

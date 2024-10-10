@@ -8,7 +8,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		private global::Gtk.Table table1;
 
-		private global::Gtk.Button buttonReplace;
+		private global::Gamma.GtkWidgets.yButton buttonReplace;
 
 		private global::QSOrmProject.EntryReference entryreference1;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonReplace = new global::Gtk.Button();
+			this.buttonReplace = new global::Gamma.GtkWidgets.yButton();
 			this.buttonReplace.Sensitive = false;
 			this.buttonReplace.CanFocus = true;
 			this.buttonReplace.Name = "buttonReplace";

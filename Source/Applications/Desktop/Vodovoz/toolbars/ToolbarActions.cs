@@ -62,6 +62,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ReportsParameters;
+using Vodovoz.ViewModels.ReportsParameters.Bottles;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
@@ -563,10 +564,7 @@ public partial class MainWindow : Window
 
 	void ActionReportDebtorsBottles_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.ReportDebtorsBottles>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.ReportDebtorsBottles())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ReportDebtorsBottlesViewModel));
 	}
 
 	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)

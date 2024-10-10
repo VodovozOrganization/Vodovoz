@@ -3,6 +3,7 @@ using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using QSReport;
@@ -72,6 +73,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IContactSettings _contactsParameters;
+		private readonly IReportInfoFactory _reportInfoFactory;
 
 		public ClientTaskViewModel(
 			IEmployeeRepository employeeRepository,
@@ -99,6 +101,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_lifetimeScope = lifetimeScope;
+			_reportInfoFactory = _lifetimeScope.Resolve<IReportInfoFactory>();
+
 			if(uowBuilder.IsNewEntity) {
 				TabName = "Новая задача";
 				Entity.CreationDate = DateTime.Now;
@@ -248,7 +252,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private void CreateReportByDPCommand()
 		{
 			OpenReportByDPCommand = new DelegateCommand(
-				() => { TabParent.AddTab(new ReportViewDlg(Entity.CreateReportInfoByDeliveryPoint()), this); },
+				() => { TabParent.AddTab(new ReportViewDlg(Entity.CreateReportInfoByDeliveryPoint(_reportInfoFactory)), this); },
 				() => true
 			);
 		}
@@ -258,7 +262,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private void CreateReportByClientcommand()
 		{
 			OpenReportByClientCommand = new DelegateCommand(
-				() => { TabParent.AddTab(new ReportViewDlg(Entity.CreateReportInfoByClient()), this); },
+				() => { TabParent.AddTab(new ReportViewDlg(Entity.CreateReportInfoByClient(_reportInfoFactory)), this); },
 				() => true
 			);
 		}

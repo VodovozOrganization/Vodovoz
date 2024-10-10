@@ -14,9 +14,9 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget geographicGroup;
 
-		private global::Gtk.CheckButton chkDetailed;
+		private global::Gamma.GtkWidgets.yCheckButton chkDetailed;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -66,7 +66,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.chkDetailed = new global::Gtk.CheckButton();
+			this.chkDetailed = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkDetailed.CanFocus = true;
 			this.chkDetailed.Name = "chkDetailed";
 			this.chkDetailed.Label = global::Mono.Unix.Catalog.GetString("Подробный отчёт");
@@ -78,7 +78,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
@@ -94,7 +94,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

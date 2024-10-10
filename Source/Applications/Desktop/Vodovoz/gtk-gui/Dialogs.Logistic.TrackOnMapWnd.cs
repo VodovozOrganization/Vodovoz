@@ -20,11 +20,11 @@ namespace Dialogs.Logistic
 
 		private global::Gtk.VBox vbox2;
 
-		private global::Gtk.Button buttonRecalculateToBase;
+		private global::Gamma.GtkWidgets.yButton buttonRecalculateToBase;
 
-		private global::Gtk.Button buttonFindGap;
+		private global::Gamma.GtkWidgets.yButton buttonFindGap;
 
-		private global::Gtk.Button buttonRecountMileage;
+		private global::Gamma.GtkWidgets.yButton buttonRecountMileage;
 
 		private global::Gtk.VBox vbox7;
 
@@ -32,9 +32,9 @@ namespace Dialogs.Logistic
 
 		private global::Gtk.VBox vbox5;
 
-		private global::Gtk.Button buttonLastAddress;
+		private global::Gamma.GtkWidgets.yButton buttonLastAddress;
 
-		private global::Gtk.Button buttonCutTrack;
+		private global::Gamma.GtkWidgets.yButton buttonCutTrack;
 
 		private global::Gtk.VBox vbox4;
 
@@ -131,7 +131,7 @@ namespace Dialogs.Logistic
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 3;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonRecalculateToBase = new global::Gtk.Button();
+			this.buttonRecalculateToBase = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRecalculateToBase.CanFocus = true;
 			this.buttonRecalculateToBase.Name = "buttonRecalculateToBase";
 			this.buttonRecalculateToBase.UseUnderline = true;
@@ -142,7 +142,7 @@ namespace Dialogs.Logistic
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonFindGap = new global::Gtk.Button();
+			this.buttonFindGap = new global::Gamma.GtkWidgets.yButton();
 			this.buttonFindGap.CanFocus = true;
 			this.buttonFindGap.Name = "buttonFindGap";
 			this.buttonFindGap.UseUnderline = true;
@@ -153,7 +153,7 @@ namespace Dialogs.Logistic
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonRecountMileage = new global::Gtk.Button();
+			this.buttonRecountMileage = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRecountMileage.CanFocus = true;
 			this.buttonRecountMileage.Name = "buttonRecountMileage";
 			this.buttonRecountMileage.UseUnderline = true;
@@ -192,7 +192,7 @@ namespace Dialogs.Logistic
 			this.vbox5.Name = "vbox5";
 			this.vbox5.Spacing = 6;
 			// Container child vbox5.Gtk.Box+BoxChild
-			this.buttonLastAddress = new global::Gtk.Button();
+			this.buttonLastAddress = new global::Gamma.GtkWidgets.yButton();
 			this.buttonLastAddress.CanFocus = true;
 			this.buttonLastAddress.Name = "buttonLastAddress";
 			this.buttonLastAddress.UseUnderline = true;
@@ -203,7 +203,7 @@ namespace Dialogs.Logistic
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child vbox5.Gtk.Box+BoxChild
-			this.buttonCutTrack = new global::Gtk.Button();
+			this.buttonCutTrack = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCutTrack.CanFocus = true;
 			this.buttonCutTrack.Name = "buttonCutTrack";
 			this.buttonCutTrack.UseUnderline = true;

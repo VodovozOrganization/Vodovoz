@@ -29,14 +29,17 @@ namespace Vodovoz.Reports
 	{
 		private ITdiTab _parentTab;
 		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
+		private readonly IReportInfoFactory _reportFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly INavigationManager _navigationManager;
 		private Car _car;
 
 		public FuelReport(
+			IReportInfoFactory reportFactory,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
@@ -165,23 +168,20 @@ namespace Vodovoz.Reports
 				parameters.Add("exclude_car_models", new int[] { 0 });
 			}
 
+			string reportName = "Logistic.FuelReport";
+
 			if(radioSumm.Active) {
 				parameters.Add("author", (evmeAuthor.Subject as Employee)?.Id ?? -1);
 				parameters.Add("include_car_models", _carModelSelectionFilterViewModel.IncludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.IncludedCarModelIds : new int[] { 0 });
 				parameters.Add("exclude_car_models", _carModelSelectionFilterViewModel.ExcludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.ExcludedCarModelIds : new int[] { 0 });
 
-				return new ReportInfo {
-					Identifier = yCheckButtonDatailedSummary.Active?"Logistic.FuelReportSummaryDetailed":"Logistic.FuelReportSummaryBasic",
-					UseUserVariables = true,
-					Parameters = parameters
-				};
+				reportName = yCheckButtonDatailedSummary.Active ? "Logistic.FuelReportSummaryDetailed" : "Logistic.FuelReportSummaryBasic";
 			}
-			 
-			return new ReportInfo {
-				Identifier = "Logistic.FuelReport",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+
+			var reportInfo = _reportFactory.Create(reportName, Title, parameters);
+			reportInfo.UseUserVariables = true;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

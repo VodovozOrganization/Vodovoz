@@ -18,8 +18,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			RdlViewerViewModel rdlViewerViewModel)
-			: base(rdlViewerViewModel)
+			RdlViewerViewModel rdlViewerViewModel,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
@@ -27,6 +28,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			RdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
 
 			Title = "Акт сверки";
+			Identifier = "Client.Revision";
 		}
 
 		public DateTime? StartDate { get; set; }
@@ -50,12 +52,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{ "StartDate", StartDate },
 			{ "EndDate", EndDate },
 			{ "CounterpartyID", Counterparty?.Id }
-		};
-
-		public override ReportInfo ReportInfo => new ReportInfo
-		{
-			Identifier = "Client.Revision",
-			Parameters = Parameters
 		};
 
 		public void Dispose()
