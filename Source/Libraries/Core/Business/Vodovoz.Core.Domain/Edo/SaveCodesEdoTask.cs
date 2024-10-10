@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Vodovoz.Core.Domain.TrueMark
+namespace Vodovoz.Core.Domain.Edo
 {
 	public class SaveCodesEdoTask : EdoTask
 	{

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Vodovoz.Core.Domain.TrueMark
+namespace Vodovoz.Core.Domain.Edo
 {
 	public class EdoTask : PropertyChangedBase, IDomainObject
 	{
@@ -56,7 +56,5 @@ namespace Vodovoz.Core.Domain.TrueMark
 			get => _endTime;
 			set => SetField(ref _endTime, value);
 		}
-
-
 	}
 }
