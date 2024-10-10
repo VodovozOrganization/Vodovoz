@@ -9,9 +9,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModels.Reports

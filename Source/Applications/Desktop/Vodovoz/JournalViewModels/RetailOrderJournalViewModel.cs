@@ -31,6 +31,7 @@ using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using QS.Deletion;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.JournalViewModels
 {

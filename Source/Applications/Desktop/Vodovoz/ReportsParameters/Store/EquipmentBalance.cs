@@ -12,6 +12,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ReportsParameters.Store

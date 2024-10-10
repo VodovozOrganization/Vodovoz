@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
@@ -67,7 +68,7 @@ namespace Vodovoz.Tools.Orders
 		#endregion
 
 		public IEnumerable<OrderEquipment> OnlyEquipments =>
-			Order.OrderEquipments.Where(x => x.Nomenclature.Category == Domain.Goods.NomenclatureCategory.equipment);
+			Order.OrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment);
 
 		public override void InitializeFields(Order order, OrderStatus? requiredStatus = null)
 		{
@@ -98,7 +99,7 @@ namespace Vodovoz.Tools.Orders
 			NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();
 			PaymentType = Order.PaymentType;
 			HaveSpecialFields = Order.Client.UseSpecialDocFields;
-			NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == Domain.Goods.NomenclatureCategory.master);
+			NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 			IsSelfDelivery = Order.SelfDelivery;
 			PayAfterShipment = Order.PayAfterShipment;
 			HasEShopOrder = Order.EShopOrder.HasValue;

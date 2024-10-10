@@ -1,8 +1,8 @@
 ﻿using QS.Project.DB;
 using System;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
-using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.Infrastructure.FileStorage
 {

@@ -124,6 +124,27 @@ namespace Vodovoz.Presentation.WebApi.Common
 		}
 
 		/// <summary>
+		/// Маппинг результата к ответу сервера.
+		/// Предполагается, что все данные об ошибке будут содержаться в свойстве FailureValue объекта результата
+		/// Метод MapErrors не вызывается
+		/// </summary>
+		/// <typeparam name="TValue">Тип ответа c ошибкой (тип содержащий тело ответа)</typeparam>
+		/// <param name="result">Результат, который требуется привести к ответу сервера</param>
+		/// <param name="statusCodeSelectorFunc">Селектор Http-кода ответа сервера</param>
+		/// <returns></returns>
+		protected IActionResult MapFailureValueResult<TValue>(Result<TValue> result, Func<Result, int?> statusCodeSelectorFunc)
+		{
+			if(result.IsSuccess)
+			{
+				HttpContext.Response.StatusCode = statusCodeSelectorFunc(result) ?? StatusCodes.Status204NoContent;
+				return new NoContentResult();
+			}
+
+			HttpContext.Response.StatusCode = statusCodeSelectorFunc(result) ?? StatusCodes.Status400BadRequest;
+			return new ObjectResult(result.FailureValue);
+		}
+
+		/// <summary>
 		/// Получение параметра Name у <see cref="DisplayAttribute"/> указанной ошибки
 		/// </summary>
 		/// <param name="name">полностью квалифициролванное имя свойства с ошибкой</param>

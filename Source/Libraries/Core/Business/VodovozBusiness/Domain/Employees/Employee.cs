@@ -486,18 +486,6 @@ namespace Vodovoz.Domain.Employees
 
 		#region Без маппинга
 
-		[Display(Name = "ФИО")]
-		public virtual string FullName
-		{
-			get => String.Format("{0} {1} {2}", LastName, Name, Patronymic);
-		}
-
-		[Display(Name = "Фамилия и инициалы")]
-		public virtual string ShortName
-		{
-			get => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
-		}
-
 		public virtual string Title
 		{
 			get => ShortName;
