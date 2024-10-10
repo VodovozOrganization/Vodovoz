@@ -38,7 +38,8 @@
 // 305		Доставка
 // 306		Развертывание
 // 307		Публикация
-// 308		Утилитарные
+// 308		Очистка
+// 309		Утилитарные
 
 //-----------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ NODE_VOD5 = "Vod5"
 NODE_VOD6 = "Vod6"
 NODE_VOD7 = "Vod7"
 NODE_VOD13 = "Vod13"
-NODE_WIN_BUILD = "WIN_BUILD"
+NODE_WIN_BUILD = "Vod15"
 NODE_DOCKER_BUILD = "DOCKER_BUILD"
 
 // 102	Настройки. Глобальные
@@ -58,6 +59,7 @@ ARCHIVE_EXTENTION = '.7z'
 APP_PATH = "Vodovoz/Source/Applications"
 WEB_BUILD_OUTPUT_CATALOG = "bin/Release/net5.0_publish"
 WIN_BUILD_TOOL = "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe"
+DOCKER_REGISTRY_URL = "docker.vod.qsolution.ru:5100"
 DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
 DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
@@ -74,9 +76,11 @@ IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
 // 105	Настройки. Сборка
 
-CAN_BUILD_DESKTOP = true
+//CAN_BUILD_DESKTOP = true
+CAN_BUILD_DESKTOP = false
 CAN_BUILD_WEB = true
-CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
+//CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
+CAN_PUBLISH_BUILD_WEB = true
 
 // 106	Настройки. Архивация
 CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
@@ -120,6 +124,12 @@ stage('Checkout'){
 		"Win" : {
 			node(NODE_WIN_BUILD){
 				PrepareSources()
+
+				if (IS_HOTFIX || IS_RELEASE) {
+					TAG = "latest" 
+				} else {
+					TAG = "dev"  
+				}
 			}
 		}
 	)
@@ -130,7 +140,7 @@ stage('Desktop'){
 		if(CAN_BUILD_DESKTOP)
 		{
 			stage('Desktop.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86"
 			}
 
 			stage('Desktop.Build'){
@@ -151,7 +161,7 @@ stage('Web'){
 		if(CAN_PUBLISH_BUILD_WEB)
 		{
 			stage('Web.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86"
 			}
 			stage('Web.Build'){
 				// IIS
@@ -166,26 +176,27 @@ stage('Web'){
 				PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
 				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
 				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
-				PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
 				PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
 
 				// Docker
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker/EmailStatusUpdateWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")
+				DockerPublishBuild("Backend/WebAPI/DriverAPI", "DriverAPI.csproj", "driver.api")
+				DockerPublishBuild("Backend/Workers/Docker/CustomerOnlineOrdersRegistrar", "CustomerOnlineOrdersRegistrar.csproj", "customer.online.orders.registrar")
+				DockerPublishBuild("Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier", "CustomerOnlineOrdersStatusUpdateNotifier.csproj", "customer.online.orders.status.update.notifier")
+				DockerPublishBuild("Backend/Workers/Docker/DatabaseServiceWorker", "DatabaseServiceWorker.csproj", "database.service.worker")
+				DockerPublishBuild("Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker", "EmailPrepareWorker.csproj", "email.prepare.worker")
+				DockerPublishBuild("Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker", "EmailStatusUpdateWorker.csproj", "email.status.update.worker")
+				DockerPublishBuild("Backend/Workers/Docker/FastDeliveryLateWorker", "FastDeliveryLateWorker.csproj", "fast.delivery.late.worker")
+				DockerPublishBuild("Backend/WebAPI/LogisticsEventsApi", "LogisticsEventsApi.csproj", "logistics.events.api")
+				DockerPublishBuild("Backend/Workers/Vodovoz.SmsInformerWorker", "Vodovoz.SmsInformerWorker.csproj", "sms.informer.worker")
+				DockerPublishBuild("Backend/Workers/Docker/TrueMarkWorker", "TrueMarkWorker.csproj", "true.mark.worker")
+				DockerPublishBuild("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker", "TrueMarkCodePoolCheckWorker.csproj", "true-mark-code-pool.check-worker")
+				DockerPublishBuild("Backend/Workers/IIS/RoboatsCallsWorker", "RoboatsCallsWorker.csproj", "roboats.calls-worker")
 			}
 		}
 		else if(CAN_BUILD_WEB)
 		{
 			stage('Web.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Web /p:Platform=x86 /maxcpucount:2"
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86"
 			}
 			stage('Web.Build'){
 				//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
@@ -205,7 +216,6 @@ stage('Web'){
 stage('Compress'){
 	parallel(
 		"Desktop" : { CompressDesktopArtifact() },
-
 		"FastPaymentsAPI" : { CompressWebArtifact("Backend/WebAPI/FastPaymentsAPI") },
 		"PayPageAPI" : { CompressWebArtifact("Frontend/PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { CompressWebArtifact("Backend/WebAPI/Email/MailjetEventsDistributorAPI") },
@@ -217,8 +227,7 @@ stage('Compress'){
 		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
-		"TrueMarkCodePoolCheckWorker" : { CompressWebArtifact("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker") },
-		"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") },
+		"PushNotificationsWorker" : { CompressWebArtifact("Backend/Workers/Docker/PushNotificationsWorker") }
 	)
 }
 
@@ -245,9 +254,28 @@ stage('Delivery'){
 		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
-		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
 		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") }
 	)
+}
+
+stage('Delivery.Docker'){
+	if(CAN_DELIVERY_WEB)
+	{
+		parallel(
+			"DriverApi" : { PushImage("driver.api") },
+			"CustomerOnlineOrdersRegistrar" : { PushImage("customer.online.orders.registrar") },
+			"CustomerOnlineOrdersUpdateNotifier" : { PushImage("customer.online.orders.status.update.notifier") },
+			"DatabaseServiceWorker" : { PushImage("database.service.worker") },
+			"EmailPrepareWorker" : { PushImage("email.prepare.worker") },
+			"EmailStatusUpdateWorker" : { PushImage("email.status.update.worker") },
+			"FastDeliveryLateWorker" : { PushImage("fast.delivery.late.worker") },
+			"LogisticsEventsApi" : { PushImage("logistics.events.api") },
+			"SmsInformerWorker" : { PushImage("sms.informer.worker") },
+			"TrueMarkWorker" : { PushImage("true.mark.worker") },
+			"TrueMarkCodePoolCheckWorker" : { PushImage("true-mark-code-pool.check-worker") },
+			"RoboatsCallsWorker" : { PushImage("roboats.calls-worker") }
+		)
+	}
 }
 
 // 206	Этапы. Развертывание
@@ -275,11 +303,35 @@ stage('Publish'){
 		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
-		"TrueMarkCodePoolCheckWorker" : { PublishWeb("TrueMarkCodePoolCheckWorker") },
 		"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
 	)
 }
 
+stage('Cleanup docker')
+{
+	if(!CAN_PUBLISH_BUILD_WEB)
+	{
+		echo "Cleanup docker not needed"
+		return
+	}
+
+	node(NODE_WIN_BUILD){
+		RemoveImage("driver.api")
+		RemoveImage("customer.online.orders.registrar")
+		RemoveImage("customer.online.orders.status.update.notifier")
+		RemoveImage("database.service.worker")
+		RemoveImage("email.prepare.worker")
+		RemoveImage("email.status.update.worker")
+		RemoveImage("fast.delivery.late.worker")
+		RemoveImage("logistics.events.api")
+		RemoveImage("sms.informer.worker")
+		RemoveImage("true.mark.worker")
+		RemoveImage("true-mark-code-pool.check-worker")
+		RemoveImage("roboats.calls-worker")
+
+		RunPowerShell("docker image prune -f")
+	}
+}
 //-----------------------------------------------------------------------
 
 // 300	Фукнции
@@ -293,31 +345,19 @@ def PrepareSources() {
 	if(fileExists(REFERENCE_REPOSITORY_PATH)){
 		// fetch all on reference repository
 		if (isUnix()) {
-			sh script: """\
-				cd ${REFERENCE_REPOSITORY_PATH} \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects \
-				git fetch --all \
-			""", returnStdout: true
+			sh "git -C ${REFERENCE_REPOSITORY_PATH} fetch --all"
+			sh "git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET fetch --all"
+			sh "git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings fetch --all"
+			sh "git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting fetch --all"
+			sh "git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects fetch --all"
 		}
 		else {
 			RunPowerShell("""
-				cd ${REFERENCE_REPOSITORY_PATH}
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects
-				git fetch --all
+				git -C ${REFERENCE_REPOSITORY_PATH} fetch --all
+				git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET fetch --all
+				git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings fetch --all
+				git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting fetch --all
+				git -C ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects fetch --all
 			""")
 		}		
 	}else{
@@ -363,9 +403,19 @@ def PublishBuild(projectPath){
 	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=FolderProfile /maxcpucount:2"
 }
 
-def DockerPublishBuild(projectPath){
+def DockerPublishBuild(projectPath, projectFileName, imageName){
+	PublishBuild("${APP_PATH}/${projectPath}/${projectFileName}")
+	RunPowerShell("docker build -t docker.vod.qsolution.ru:5100/${imageName}:${TAG} -f ./${APP_PATH}/${projectPath}/Dockerfile ./${APP_PATH}/${projectPath}")
+}
+
+def DockerBuild(imageName, projectFolder){
 	def workspacePath = GetWorkspacePath()
-	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
+	return docker.build("${imageName}:${TAG}", "-f ./${projectFolder}/Dockerfile ./${projectFolder}")
+}
+
+def DockerPush(projectFolder){
+	def workspacePath = GetWorkspacePath()
+	bat "docker build -t true-mark-code-pool.check-worker:latest -f ${workspacePath}/${projectFolder}/Dockerfile ${workspacePath}/${projectFolder}"
 }
 
 def Build(config){
@@ -496,6 +546,17 @@ def DeployDesktop(){
 	}
 }
 
+def PushImage(imageName) {
+	if(!CAN_PUBLISH_BUILD_WEB)
+	{
+		echo "Push image not needed"
+		return
+	}
+	node(NODE_WIN_BUILD){
+		RunPowerShell("docker push ${DOCKER_REGISTRY_URL}/${imageName}:${TAG}")
+	}
+}
+
 // 307	Фукнции. Публикация
 
 def PublishDesktop(nodeName){
@@ -559,7 +620,14 @@ def PublishWeb(projectName){
 	}
 }
 
-// 308	Фукнции. Утилитарные
+// 308	Фукнции. Очистка
+
+def RemoveImage(imageName) {
+	RunPowerShell("docker image rm -f ${imageName}")
+	RunPowerShell("docker image rm -f ${DOCKER_REGISTRY_URL}/${imageName}:${TAG}")
+}
+
+// 309	Фукнции. Утилитарные
 
 
 def LockHotfix(hotfixName){

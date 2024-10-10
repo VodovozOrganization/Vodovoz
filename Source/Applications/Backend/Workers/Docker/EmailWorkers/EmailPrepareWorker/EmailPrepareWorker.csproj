@@ -49,6 +49,11 @@
 		<ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Update="Properties\PublishProfiles\FolderProfile.pubxml">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </None>
 	  <None Update="Properties\PublishProfiles\registry-dev.pubxml">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
