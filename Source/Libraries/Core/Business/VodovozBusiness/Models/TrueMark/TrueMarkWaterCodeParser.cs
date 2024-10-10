@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Vodovoz.Core.Domain.Interfaces.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
 {

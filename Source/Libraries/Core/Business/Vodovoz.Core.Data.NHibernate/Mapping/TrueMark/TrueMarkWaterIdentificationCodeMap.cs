@@ -3,7 +3,7 @@ using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark
 {
-	public class TrueMarkWaterIdentificationCodeMap : ClassMap<TrueMarkWaterIdentificationCodeEntity>
+	public class TrueMarkWaterIdentificationCodeMap : ClassMap<TrueMarkWaterIdentificationCode>
 	{
 		public TrueMarkWaterIdentificationCodeMap()
 		{

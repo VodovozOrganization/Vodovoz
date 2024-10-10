@@ -8,6 +8,7 @@ using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Store;

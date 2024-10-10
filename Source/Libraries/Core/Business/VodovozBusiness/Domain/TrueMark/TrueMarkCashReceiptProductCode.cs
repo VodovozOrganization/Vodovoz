@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.TrueMark

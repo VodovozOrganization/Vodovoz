@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.EntityRepositories.TrueMark
 {
