@@ -112,7 +112,7 @@ namespace TaxcomEdoApi.Factories
 			{
 				new FajlDokumentSvSchFaktDokPodtvOtgr
 				{
-					NaimDokOtgr = "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
+					NaimDokOtgr = "Универсальный передаточный документ",
 					NomDokOtgr = order.Id.ToString(),
 					DataDokOtgr = order.DeliveryDate.Value.ToShortDateString()
 				}
