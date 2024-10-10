@@ -147,7 +147,7 @@ namespace TaxcomEdoApi.Services
 
 				_logger.LogInformation("Получаем заказы по которым надо создать и отправить УПД");
 				var orders = _orderRepository.GetCashlessOrdersForEdoSendUpd(uow, startDate, organization.Id, _closingDocumentDeliveryScheduleId);
-				var notLoadedOrders = _orderRepository.GetOrdersThatMustBeLoadedBeforeUpdSending(uow, orders.Select(o => o.Id);
+				var notLoadedOrders = _orderRepository.GetOrdersThatMustBeLoadedBeforeUpdSending(uow, orders.Select(o => o.Id));
 
 				//Фильтруем заказы в которых есть УПД и которые не в пути, если у клиента стоит выборка по статусу доставлен
 				var filteredOrders =
