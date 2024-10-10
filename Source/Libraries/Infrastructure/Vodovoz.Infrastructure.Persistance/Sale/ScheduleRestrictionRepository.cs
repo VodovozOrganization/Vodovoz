@@ -5,6 +5,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -158,7 +159,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.Where(x => x.OrderStatus == OrderStatus.Accepted || x.OrderStatus == OrderStatus.InTravelList)
 				.JoinQueryOver(x => x.OrderItems, () => orderItemsAlias)
 				.JoinQueryOver(x => x.Nomenclature)
-				.Where(x => x.Category == Domain.Goods.NomenclatureCategory.water && !x.IsDisposableTare)
+				.Where(x => x.Category == NomenclatureCategory.water && !x.IsDisposableTare)
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.SelectList(list => list.SelectGroup(x => x.Id).WithAlias(() => resultAlias.OrderId)
 					.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.WaterCount)

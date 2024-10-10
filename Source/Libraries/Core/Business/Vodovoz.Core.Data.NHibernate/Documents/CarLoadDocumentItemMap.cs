@@ -9,6 +9,8 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 		{
 			Table("store_car_load_document_items");
 
+			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
+
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.Amount).Column("amount");

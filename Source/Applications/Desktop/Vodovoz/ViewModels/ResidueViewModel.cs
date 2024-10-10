@@ -11,6 +11,7 @@ using QS.ViewModels;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;

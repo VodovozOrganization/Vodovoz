@@ -17,6 +17,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
 using QS.ViewModels.Extension;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Orders
 {

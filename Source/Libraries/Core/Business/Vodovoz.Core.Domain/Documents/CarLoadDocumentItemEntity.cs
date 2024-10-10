@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -13,6 +14,7 @@ namespace Vodovoz.Core.Domain.Documents
 	[HistoryTrace]
 	public class CarLoadDocumentItemEntity : PropertyChangedBase, IDomainObject
 	{
+		private int _id;
 		private CarLoadDocumentEntity _document;
 		private decimal _amount;
 		private decimal? _expireDatePercent;
@@ -21,7 +23,12 @@ namespace Vodovoz.Core.Domain.Documents
 		private NomenclatureEntity _nomenclature;
 		private IObservableList<CarLoadDocumentItemTrueMarkProductCode> _trueMarkCodes = new ObservableList<CarLoadDocumentItemTrueMarkProductCode>();
 
-		public virtual int Id { get; set; }
+		[Display(Name = "Код")]
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
 
 		[Display(Name = "Талон погрузки")]
 		public virtual CarLoadDocumentEntity Document
@@ -65,7 +72,8 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
-			set => SetField(ref _nomenclature, value);
+			//Нельзя устанавливать, см. логику в CarLoadDocumentItem.cs
+			protected set => SetField(ref _nomenclature, value);
 		}
 
 		[Display(Name = "Коды ЧЗ товаров")]
@@ -73,6 +81,30 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _trueMarkCodes;
 			set => SetField(ref _trueMarkCodes, value);
+		}
+
+		public virtual CarLoadDocumentLoadOperationState GetDocumentItemLoadOperationState()
+		{
+			if(OrderId is null)
+			{
+				throw new InvalidOperationException("Получение статуса погрузки строки документа погрузки доступно только для товаров сетвых клиентов");
+			}
+
+			if(Nomenclature.Category != NomenclatureCategory.water)
+			{
+				throw new InvalidOperationException("Получение статуса погрузки строки документа погрузки доступно только для товаров категории \"Вода\"");
+			}
+
+			var loadedItemsCount = TrueMarkCodes.Count;
+
+			var state =
+				loadedItemsCount == 0
+				? CarLoadDocumentLoadOperationState.NotStarted
+				: loadedItemsCount < Amount
+					? CarLoadDocumentLoadOperationState.InProgress
+					: CarLoadDocumentLoadOperationState.Done;
+
+			return state;
 		}
 	}
 }

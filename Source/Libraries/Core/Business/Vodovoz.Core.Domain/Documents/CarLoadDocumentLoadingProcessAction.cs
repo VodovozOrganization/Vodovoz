@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace VodovozBusiness.Domain.Documents
+namespace Vodovoz.Core.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "действия при сборке талонов погрузки автомобилей",
@@ -22,19 +22,5 @@ namespace VodovozBusiness.Domain.Documents
 
 		[Display(Name = "Тип действия")]
 		public virtual CarLoadDocumentLoadingProcessActionType ActionType { get; set; }
-	}
-
-	public enum CarLoadDocumentLoadingProcessActionType
-	{
-		[Display(Name = "Начало погрузки")]
-		StartLoad,
-		[Display(Name = "Добавление кода ЧЗ")]
-		AddTrueMarkCode,
-		[Display(Name = "Замена кода ЧЗ")]
-		ChangeTrueMarkCode,
-		[Display(Name = "Завершение погрузки")]
-		EndLoad,
-		[Display(Name = "Запрос данных заказа")]
-		OrderDataRequest
 	}
 }

@@ -7,6 +7,7 @@ using QS.Project.Services;
 using QS.Services;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;

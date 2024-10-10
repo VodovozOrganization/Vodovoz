@@ -152,30 +152,6 @@ namespace Vodovoz.Domain.Documents
 			DeliveryFreeBalanceOperation.RouteList = Document.RouteList;
 		}
 
-		public virtual CarLoadDocumentLoadOperationState GetDocumentItemLoadOperationState()
-		{
-			if(OrderId is null)
-			{
-				throw new InvalidOperationException("Получение статуса погрузки строки документа погрузки доступно только для товаров сетвых клиентов");
-			}
-
-			if(Nomenclature.Category != NomenclatureCategory.water)
-			{
-				throw new InvalidOperationException("Получение статуса погрузки строки документа погрузки доступно только для товаров категории \"Вода\"");
-			}
-
-			var loadedItemsCount = TrueMarkCodes.Count;
-
-			var state =
-				loadedItemsCount == 0
-				? CarLoadDocumentLoadOperationState.NotStarted
-				: loadedItemsCount < Amount
-					? CarLoadDocumentLoadOperationState.InProgress
-					: CarLoadDocumentLoadOperationState.Done;
-
-			return state;
-		}
-
 		#endregion
 	}
 }

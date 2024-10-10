@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Utilities.Text;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;

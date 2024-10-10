@@ -20,6 +20,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;

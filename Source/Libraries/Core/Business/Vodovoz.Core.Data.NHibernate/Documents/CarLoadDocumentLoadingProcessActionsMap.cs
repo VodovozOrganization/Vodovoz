@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
-using VodovozBusiness.Domain.Documents;
+using Vodovoz.Core.Domain.Documents;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
+namespace Vodovoz.Core.Data.NHibernate.Documents
 {
 	public class CarLoadDocumentLoadingProcessActionsMap : ClassMap<CarLoadDocumentLoadingProcessAction>
 	{

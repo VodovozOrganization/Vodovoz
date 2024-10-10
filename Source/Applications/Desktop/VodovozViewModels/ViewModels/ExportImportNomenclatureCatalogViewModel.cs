@@ -26,6 +26,7 @@ using QS.Navigation;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;

@@ -17,6 +17,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ReportsParameters.Store
 {

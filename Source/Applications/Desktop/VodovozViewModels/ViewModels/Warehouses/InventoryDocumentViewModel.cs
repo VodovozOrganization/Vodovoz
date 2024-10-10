@@ -49,6 +49,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {
