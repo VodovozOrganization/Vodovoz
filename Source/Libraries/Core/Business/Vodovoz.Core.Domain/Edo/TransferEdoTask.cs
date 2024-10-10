@@ -1,4 +1,4 @@
-﻿using QS.Extensions.Observable.Collections.List;
+using QS.Extensions.Observable.Collections.List;
 using System;
 using System.ComponentModel.DataAnnotations;
 
