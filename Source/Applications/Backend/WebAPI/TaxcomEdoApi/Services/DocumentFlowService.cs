@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -147,10 +147,11 @@ namespace TaxcomEdoApi.Services
 
 				_logger.LogInformation("Получаем заказы по которым надо создать и отправить УПД");
 				var orders = _orderRepository.GetCashlessOrdersForEdoSendUpd(uow, startDate, organization.Id, _closingDocumentDeliveryScheduleId);
+				var notLoadedOrders = _orderRepository.GetOrdersThatMustBeLoadedBeforeUpdSending(uow, orders.Select(o => o.Id);
 
 				//Фильтруем заказы в которых есть УПД и которые не в пути, если у клиента стоит выборка по статусу доставлен
 				var filteredOrders =
-					orders.Where(o => o.Client.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
+					orders.Where(o => (o.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute && !notLoadedOrders.Contains(o.Id))
 										|| o.OrderStatus != OrderStatus.OnTheWay)
 						.Where(o => o.OrderDocuments.Any(
 							x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD)).ToList();

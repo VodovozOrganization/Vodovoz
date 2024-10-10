@@ -1118,6 +1118,23 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return result;
 		}
 
+		public IEnumerable<int> GetOrdersThatMustBeLoadedBeforeUpdSending(IUnitOfWork uow, IEnumerable<int> orderIds)
+		{
+			var query =
+				from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItem>()
+				join carLoadDocument in uow.Session.Query<CarLoadDocument>() on carLoadDocumentItem.Document.Id equals carLoadDocument.Id
+				join nomenclature in uow.Session.Query<Nomenclature>() on carLoadDocumentItem.Nomenclature.Id equals nomenclature.Id
+				where
+				orderIds.Contains((int)carLoadDocumentItem.OrderId)
+				&& carLoadDocumentItem.IsIndividualSetForOrder
+				&& nomenclature.Category == NomenclatureCategory.water
+				&& nomenclature.IsAccountableInTrueMark
+				&& carLoadDocument.LoadOperationState != Core.Domain.Documents.CarLoadDocumentLoadOperationState.Done
+				select (int)carLoadDocumentItem.OrderId;
+
+			return query.Distinct().ToList();
+		}
+
 		public IList<VodovozOrder> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
 		{
 			Counterparty counterpartyAlias = null;
