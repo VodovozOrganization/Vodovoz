@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Core.Domain.TrueMark
+namespace Vodovoz.Core.Domain.Edo
 {
 	public class EdoDocument : PropertyChangedBase, IDomainObject
 	{
