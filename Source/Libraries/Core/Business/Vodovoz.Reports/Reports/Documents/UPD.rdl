@@ -4314,7 +4314,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox221">
-                      <Value>='Универсальный передаточный документ' + ' №' + {order_id} + ' от ' + Format({order_date}, 'dd.MM.yyyy') + ' г.'</Value>
+                      <Value>='Универсальный передаточный документ,' + ' №' + {order_id} + ' от ' + Format({order_date}, 'dd.MM.yyyy') + ' г.'</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
