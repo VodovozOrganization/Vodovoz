@@ -10,16 +10,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
-using VodovozBusiness.Domain.Documents;
-using VodovozBusiness.Domain.TrueMark.TrueMarkProductCodes;
 using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Converters;
@@ -304,7 +303,7 @@ namespace WarehouseApi.Library.Services
 			return Result.Success(successResponse);
 		}
 
-		private async Task<IList<CarLoadDocumentItem>> GetCarLoadDocumentWaterOrderItems(int orderId)
+		private async Task<IList<CarLoadDocumentItemEntity>> GetCarLoadDocumentWaterOrderItems(int orderId)
 		{
 			_logger.LogInformation("Получаем данные по заказу #{OrderId} из талона погрузки", orderId);
 			var documentOrderItems = await _carLoadDocumentRepository.GetWaterItemsInCarLoadDocumentById(_uow, orderId).ToListAsync();
@@ -312,7 +311,7 @@ namespace WarehouseApi.Library.Services
 			return documentOrderItems;
 		}
 
-		private CarLoadDocumentDto GetCarLoadDocumentDto(CarLoadDocument carLoadDocument)
+		private CarLoadDocumentDto GetCarLoadDocumentDto(CarLoadDocumentEntity carLoadDocument)
 		{
 			var loadPriority =
 				_routeListDailyNumberProvider.GetOrCreateDailyNumber(carLoadDocument.RouteList.Id, carLoadDocument.RouteList.Date);
@@ -324,7 +323,7 @@ namespace WarehouseApi.Library.Services
 		}
 
 		private async Task<bool> SetLoadOperationStateAndSaveDocument(
-			CarLoadDocument document,
+			CarLoadDocumentEntity document,
 			CarLoadDocumentLoadOperationState newLoadOperationState,
 			string logisticsEventApiAccessToken)
 		{
@@ -365,7 +364,7 @@ namespace WarehouseApi.Library.Services
 			return true;
 		}
 
-		private void AddTrueMarkCodeAndSaveCarLoadDocumentItem(CarLoadDocumentItem carLoadDocumentItem, TrueMarkWaterCode trueMarkCode)
+		private void AddTrueMarkCodeAndSaveCarLoadDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterCode trueMarkCode)
 		{
 			var codeEntity = CreateTrueMarkCodeEntity(trueMarkCode);
 
@@ -379,7 +378,7 @@ namespace WarehouseApi.Library.Services
 			_uow.Commit();
 		}
 
-		private void ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(CarLoadDocumentItem carLoadDocumentItem, TrueMarkWaterCode oldTrueMarkCode, TrueMarkWaterCode newTrueMarkCode)
+		private void ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterCode oldTrueMarkCode, TrueMarkWaterCode newTrueMarkCode)
 		{
 			var codeToRemove = carLoadDocumentItem.TrueMarkCodes
 				.Where(x =>
@@ -421,8 +420,7 @@ namespace WarehouseApi.Library.Services
 			CarLoadDocumentLoadingProcessActionType actionType)
 		{
 			var action = CreateCarLoadDocumentLoadingProcessAction(documentId, employee.Id, actionType);
-			_uow.Save(action);
-			_uow.Commit();
+			SaveCarLoadDocumentLoadingProcessAction(action);
 		}
 
 		private CarLoadDocumentLoadingProcessAction CreateCarLoadDocumentLoadingProcessAction(

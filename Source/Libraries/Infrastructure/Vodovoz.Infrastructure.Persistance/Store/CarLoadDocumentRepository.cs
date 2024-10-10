@@ -1,12 +1,12 @@
 ﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System.Linq;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
-using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.Infrastructure.Persistance.Store
 {
@@ -35,18 +35,18 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			return query;
 		}
 
-		public IQueryable<CarLoadDocument> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId)
+		public IQueryable<CarLoadDocumentEntity> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId)
 		{
-			var documents = uow.Session.Query<CarLoadDocument>()
+			var documents = uow.Session.Query<CarLoadDocumentEntity>()
 				.Where(d => d.Id == carLoadDocumentId);
 
 			return documents;
 		}
 
-		public IQueryable<CarLoadDocumentItem> GetWaterItemsInCarLoadDocumentById(IUnitOfWork uow, int orderId)
+		public IQueryable<CarLoadDocumentItemEntity> GetWaterItemsInCarLoadDocumentById(IUnitOfWork uow, int orderId)
 		{
-			var documentItems = from documentItem in uow.Session.Query<CarLoadDocumentItem>()
-								join nomenclature in uow.Session.Query<Nomenclature>() on documentItem.Nomenclature.Id equals nomenclature.Id
+			var documentItems = from documentItem in uow.Session.Query<CarLoadDocumentItemEntity>()
+								join nomenclature in uow.Session.Query<NomenclatureEntity>() on documentItem.Nomenclature.Id equals nomenclature.Id
 								where documentItem.OrderId == orderId && nomenclature.Category == NomenclatureCategory.water
 								select documentItem;
 

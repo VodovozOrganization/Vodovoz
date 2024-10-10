@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Store;
@@ -47,7 +49,7 @@ namespace WarehouseApi.Library.Errors
 		}
 
 		public bool IsCarLoadDocumentLoadingCanBeStarted(
-			CarLoadDocument carLoadDocument,
+			CarLoadDocumentEntity carLoadDocument,
 			int documentId,
 			out Error error)
 		{
@@ -56,7 +58,7 @@ namespace WarehouseApi.Library.Errors
 		}
 
 		public bool IsCarLoadDocumentLoadingCanBeDone(
-			CarLoadDocument carLoadDocument,
+			CarLoadDocumentEntity carLoadDocument,
 			int documentId,
 			out Error error)
 		{
@@ -65,7 +67,7 @@ namespace WarehouseApi.Library.Errors
 				&& IsAllTrueMarkCodesInCarLoadDocumentAdded(carLoadDocument, documentId, out error);
 		}
 
-		private bool IsCarLoadDocumentNotNull(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		private bool IsCarLoadDocumentNotNull(CarLoadDocumentEntity carLoadDocument, int documentId, out Error error)
 		{
 			error = null;
 
@@ -128,12 +130,12 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		private bool IsAllTrueMarkCodesInCarLoadDocumentAdded(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		private bool IsAllTrueMarkCodesInCarLoadDocumentAdded(CarLoadDocumentEntity carLoadDocument, int documentId, out Error error)
 		{
 			error = null;
 
 			var isNotAllCodesAdded = carLoadDocument.Items
-				.Where(x => x.OrderId != null && x.Nomenclature.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water)
+				.Where(x => x.OrderId != null && x.Nomenclature.Category == NomenclatureCategory.water)
 				.Any(x => x.TrueMarkCodes.Count < x.Amount);
 
 			if(isNotAllCodesAdded)
@@ -146,7 +148,7 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		private bool IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		private bool IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocumentEntity carLoadDocument, int documentId, out Error error)
 		{
 			error = null;
 
@@ -161,7 +163,7 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		private bool IsCarLoadDocumentLoadOperationStateInProgress(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		private bool IsCarLoadDocumentLoadOperationStateInProgress(CarLoadDocumentEntity carLoadDocument, int documentId, out Error error)
 		{
 			error = null;
 
@@ -175,7 +177,7 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		public bool IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(int orderId, IList<CarLoadDocumentItem> documentOrderItems, out Error error)
+		public bool IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(int orderId, IList<CarLoadDocumentItemEntity> documentOrderItems, out Error error)
 		{
 			error = null;
 
@@ -202,9 +204,9 @@ namespace WarehouseApi.Library.Errors
 			string scannedCode,
 			bool isScannedCodeValid,
 			TrueMarkWaterCode trueMarkCode,
-			IList<CarLoadDocumentItem> allWaterOrderItems,
-			IEnumerable<CarLoadDocumentItem> itemsHavingRequiredNomenclature,
-			CarLoadDocumentItem documentItemToEdit,
+			IList<CarLoadDocumentItemEntity> allWaterOrderItems,
+			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
+			CarLoadDocumentItemEntity documentItemToEdit,
 			out Error error)
 		{
 			return IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
@@ -225,9 +227,9 @@ namespace WarehouseApi.Library.Errors
 			string newScannedCode,
 			bool isNewScannedCodeValid,
 			TrueMarkWaterCode newTrueMarkCode,
-			IList<CarLoadDocumentItem> allWaterOrderItems,
-			IEnumerable<CarLoadDocumentItem> itemsHavingRequiredNomenclature,
-			CarLoadDocumentItem documentItemToEdit,
+			IList<CarLoadDocumentItemEntity> allWaterOrderItems,
+			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
+			CarLoadDocumentItemEntity documentItemToEdit,
 			out Error error)
 		{
 			return IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
@@ -244,7 +246,7 @@ namespace WarehouseApi.Library.Errors
 		private bool IsSingleItemHavingRequiredOrderAndNomenclatureExists(
 			int orderId,
 			int nomenclatureId,
-			IEnumerable<CarLoadDocumentItem> documentNomenclatureOrderItems,
+			IEnumerable<CarLoadDocumentItemEntity> documentNomenclatureOrderItems,
 			out Error error)
 		{
 			error = null;
@@ -269,7 +271,7 @@ namespace WarehouseApi.Library.Errors
 		private bool IsNotAllProductsHasTrueMarkCode(
 			int orderId,
 			int nomenclatureId,
-			CarLoadDocumentItem carLoadDocumentItem,
+			CarLoadDocumentItemEntity carLoadDocumentItem,
 			out Error error)
 		{
 			error = null;
@@ -285,7 +287,7 @@ namespace WarehouseApi.Library.Errors
 		}
 
 		private bool IsProductsHavingRequiredTrueMarkCodeExists(
-			CarLoadDocumentItem carLoadDocumentItem,
+			CarLoadDocumentItemEntity carLoadDocumentItem,
 			TrueMarkWaterCode trueMarkCode,
 			out Error error)
 		{

@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
-using VodovozBusiness.Domain.TrueMark.TrueMarkProductCodes;
 using WarehouseApi.Contracts.Dto;
 
 namespace WarehouseApi.Library.Converters
 {
 	public class CarLoadDocumentConverter
 	{
-		public CarLoadDocumentDto ConvertToApiCarLoadDocument(CarLoadDocument carLoadDocument, int loadPriority)
+		public CarLoadDocumentDto ConvertToApiCarLoadDocument(CarLoadDocumentEntity carLoadDocument, int loadPriority)
 		{
 			var carLoadDocumentDto = new CarLoadDocumentDto
 			{
@@ -23,10 +25,10 @@ namespace WarehouseApi.Library.Converters
 			return carLoadDocumentDto;
 		}
 
-		public OrderDto ConvertToApiOrder(IEnumerable<CarLoadDocumentItem> carLoadDocumentItems)
+		public OrderDto ConvertToApiOrder(IEnumerable<CarLoadDocumentItemEntity> carLoadDocumentItems)
 		{
 			var waterCarLoadDocumentItems = carLoadDocumentItems
-				.Where(item => item.Nomenclature.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water)
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.ToList();
 
 			var firstDocumentItem = waterCarLoadDocumentItems.FirstOrDefault();
@@ -42,7 +44,7 @@ namespace WarehouseApi.Library.Converters
 			return apiOrder;
 		}
 
-		public NomenclatureDto ConvertToApiNomenclature(CarLoadDocumentItem documentItem)
+		public NomenclatureDto ConvertToApiNomenclature(CarLoadDocumentItemEntity documentItem)
 		{
 			var apiNomenclature = new NomenclatureDto
 			{
@@ -56,7 +58,7 @@ namespace WarehouseApi.Library.Converters
 			return apiNomenclature;
 		}
 
-		private List<OrderItemDto> GetApiOrderItems(List<CarLoadDocumentItem> waterCarLoadDocuemntItems)
+		private List<OrderItemDto> GetApiOrderItems(List<CarLoadDocumentItemEntity> waterCarLoadDocuemntItems)
 		{
 			var apiOrderItems = new List<OrderItemDto>();
 
@@ -77,7 +79,7 @@ namespace WarehouseApi.Library.Converters
 			return apiOrderItems;
 		}
 
-		private LoadOperationStateEnumDto GetApiOrderLoadOperationState(IEnumerable<CarLoadDocumentItem> carLoadDocumentItems)
+		private LoadOperationStateEnumDto GetApiOrderLoadOperationState(IEnumerable<CarLoadDocumentItemEntity> carLoadDocumentItems)
 		{
 			var itemsLoadState = new List<CarLoadDocumentLoadOperationState>();
 
@@ -101,7 +103,7 @@ namespace WarehouseApi.Library.Converters
 			return apiOrderLoadOperationState;
 		}
 
-		private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(CarLoadDocumentItem documentItem)
+		private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(CarLoadDocumentItemEntity documentItem)
 		{
 			var sequenceNumber = 0;
 
