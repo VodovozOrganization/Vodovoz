@@ -97,7 +97,9 @@ namespace Vodovoz.ReportsParameters
 			var selectedPromosets = GetSelectedPromotionalSets();
 			var notDeliveredOrderStatuses = new List<OrderStatus> { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
 
-			var phonesHavingPromotionalSetsByDeliveryPointsForPeriod =
+			//Все строки номеров телефонов в карочках точек доставки,
+			//на которые оформлялись доставленные заказы с промонабором за период
+			var deliveryPointPhoneDigitNumbersHavingPromotionalSetsForPeriod =
 				(from order in UoW.Session.Query<Order>()
 				 join orderItem in UoW.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
 				 join phone in UoW.Session.Query<Phone>() on order.DeliveryPoint.Id equals phone.DeliveryPoint.Id
@@ -110,7 +112,9 @@ namespace Vodovoz.ReportsParameters
 				 && phone.DigitsNumber != null
 				 select phone.DigitsNumber).Distinct().ToList();
 
-			var phonesHavingPromotionalSetsByClientForPeriod =
+			//Все строки номеров телефонов в карточках контаргентов,
+			//которым оформлялись доставленные заказы с промонабором за период
+			var clientPhoneDigitNumbersHavingPromotionalSetsForPeriod =
 				(from order in UoW.Session.Query<Order>()
 				 join orderItem in UoW.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
 				 join phone in UoW.Session.Query<Phone>() on order.Client.Id equals phone.Counterparty.Id
@@ -123,21 +127,29 @@ namespace Vodovoz.ReportsParameters
 				 && phone.DigitsNumber != null
 				 select phone.DigitsNumber).Distinct().ToList();
 
-			var allPhonesHavingPromotionalSetsForPeriod =
-				phonesHavingPromotionalSetsByDeliveryPointsForPeriod
-				.Union(phonesHavingPromotionalSetsByClientForPeriod)
+			//Все строки номеров телефонов в карточке клиента и карточке точек доставки,
+			//на которые оформлялись доставленные заказы с промонабором за период
+			var allDigitNumbersHavingPromotionalSetsForPeriod =
+				deliveryPointPhoneDigitNumbersHavingPromotionalSetsForPeriod
+				.Union(clientPhoneDigitNumbersHavingPromotionalSetsForPeriod)
 				.Distinct()
 				.ToList();
 
-			var ordersWithPhonesByDeliveryPoint =
+			var ordersWithPhonesHavingPromotionalSetsByDeliveryPointPhoneDigitNumbers =
 				(from order in UoW.Session.Query<Order>()
 				 join orderItem in UoW.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
 				 join phone in UoW.Session.Query<Phone>() on order.DeliveryPoint.Id equals phone.DeliveryPoint.Id
+				 join dp in UoW.Session.Query<DeliveryPoint>() on order.DeliveryPoint.Id equals dp.Id into deliveryPoints
+				 from deliveryPoint in deliveryPoints.DefaultIfEmpty()
+				 join cl in UoW.Session.Query<Counterparty>() on order.Client.Id equals cl.Id into clients
+				 from client in clients.DefaultIfEmpty()
+				 join dpc in UoW.Session.Query<DeliveryPointCategory>() on deliveryPoint.Category.Id equals dpc.Id into deliveryPointCategories
+				 from deliveryPointCategory in deliveryPointCategories.DefaultIfEmpty()
 				 where
 				 orderItem.PromoSet.Id != null
 				 && !phone.IsArchive
 				 && !notDeliveredOrderStatuses.Contains(order.OrderStatus)
-				 && allPhonesHavingPromotionalSetsForPeriod.Contains(phone.DigitsNumber)
+				 && allDigitNumbersHavingPromotionalSetsForPeriod.Contains(phone.DigitsNumber)
 				 select new OrderWithPhoneDataNode
 				 {
 					 OrderId = order.Id,
@@ -147,18 +159,27 @@ namespace Vodovoz.ReportsParameters
 					 OrderDeliveryDate = order.DeliveryDate,
 					 AuthorId = order.Author.Id,
 					 PhoneNumber = phone.Number,
-					 PhoneDigitNumber = phone.DigitsNumber
+					 PhoneDigitNumber = phone.DigitsNumber,
+					 ClientName = client.FullName,
+					 DeliveryPointAddress = deliveryPoint.ShortAddress,
+					 DeliveryPointCategory = deliveryPointCategory.Name
 				 }).ToList();
 
-			var ordersWithPhonesByClient =
+			var ordersWithPhonesHavingPromotionalSetsByClientPhoneDigitNumbers =
 				(from order in UoW.Session.Query<Order>()
 				 join orderItem in UoW.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
 				 join phone in UoW.Session.Query<Phone>() on order.Client.Id equals phone.Counterparty.Id
+				 join dp in UoW.Session.Query<DeliveryPoint>() on order.DeliveryPoint.Id equals dp.Id into deliveryPoints
+				 from deliveryPoint in deliveryPoints.DefaultIfEmpty()
+				 join cl in UoW.Session.Query<Counterparty>() on order.Client.Id equals cl.Id into clients
+				 from client in clients.DefaultIfEmpty()
+				 join dpc in UoW.Session.Query<DeliveryPointCategory>() on deliveryPoint.Category.Id equals dpc.Id into deliveryPointCategories
+				 from deliveryPointCategory in deliveryPointCategories.DefaultIfEmpty()
 				 where
 				 orderItem.PromoSet.Id != null
 				 && !phone.IsArchive
 				 && !notDeliveredOrderStatuses.Contains(order.OrderStatus)
-				 && allPhonesHavingPromotionalSetsForPeriod.Contains(phone.DigitsNumber)
+				 && allDigitNumbersHavingPromotionalSetsForPeriod.Contains(phone.DigitsNumber)
 				 select new OrderWithPhoneDataNode
 				 {
 					 OrderId = order.Id,
@@ -168,13 +189,27 @@ namespace Vodovoz.ReportsParameters
 					 OrderDeliveryDate = order.DeliveryDate,
 					 AuthorId = order.Author.Id,
 					 PhoneNumber = phone.Number,
-					 PhoneDigitNumber = phone.DigitsNumber
+					 PhoneDigitNumber = phone.DigitsNumber,
+					 ClientName = client.FullName,
+					 DeliveryPointAddress = deliveryPoint.ShortAddress,
+					 DeliveryPointCategory = deliveryPointCategory.Name
 				 }).ToList();
 
-			var ordersWithPhones = new List<OrderWithPhoneDataNode>();
+			var ordersWithPhonesHavingPromotionalSetsByAllDigitNumbers = new List<OrderWithPhoneDataNode>();
+			ordersWithPhonesHavingPromotionalSetsByAllDigitNumbers.AddRange(ordersWithPhonesHavingPromotionalSetsByDeliveryPointPhoneDigitNumbers);
+			ordersWithPhonesHavingPromotionalSetsByAllDigitNumbers.AddRange(ordersWithPhonesHavingPromotionalSetsByClientPhoneDigitNumbers);
 
-			ordersWithPhones.AddRange(ordersWithPhonesByDeliveryPoint);
-			ordersWithPhones.AddRange(ordersWithPhonesByClient);
+			//var ordersHavignPromosetsAndSameDiditPhoneNumber =
+			//	from order in UoW.Session.Query<Order>()
+			//	join cp1 in UoW.Session.Query<Phone>()
+			//	on new { ClientId = order.Client.Id, IsPhoneNotArchived = true } equals new { ClientId = cp1.Counterparty.Id, IsPhoneNotArchived = cp1.IsArchive }
+			//	into clientPhones
+			//	from clientPhone in clientPhones.DefaultIfEmpty()
+			//	join cp2 in UoW.Session.Query<Phone>()
+			//	on new { DeliveryPointId = order.DeliveryPoint.Id, IsPhoneNotArchived = true } equals new { DeliveryPointId = cp2.DeliveryPoint.Id, IsPhoneNotArchived = cp2.IsArchive }
+			//	into deliveryPointPhones
+			//	from deliveryPointPhone in deliveryPointPhones.DefaultIfEmpty()
+			//	select order;
 		}
 	}
 
@@ -188,6 +223,9 @@ namespace Vodovoz.ReportsParameters
 		public int AuthorId { get; set; }
 		public string PhoneNumber { get; set; }
 		public string PhoneDigitNumber { get; set; }
+		public string ClientName { get; set; }
+		public string DeliveryPointAddress { get; set; }
+		public string DeliveryPointCategory { get; set; }
 	}
 
 	public class PromosetReportNode : PropertyChangedBase
