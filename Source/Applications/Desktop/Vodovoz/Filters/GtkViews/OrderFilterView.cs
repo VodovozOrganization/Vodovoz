@@ -108,6 +108,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.SortDeliveryDate, w => w.Active, new NullableBooleanToBooleanConverter())
 				.AddBinding(ViewModel, vm => vm.SortDeliveryDateVisibility, w => w.Visible)
 				.InitializeFromSource();
+			chkBtnClosingDocumentDeliverySchedule.RenderMode = RenderMode.Symbol;
 			chkBtnClosingDocumentDeliverySchedule.Binding
 				.AddBinding(ViewModel, vm => vm.FilterClosingDocumentDeliverySchedule, w => w.Active)
 				.InitializeFromSource();
