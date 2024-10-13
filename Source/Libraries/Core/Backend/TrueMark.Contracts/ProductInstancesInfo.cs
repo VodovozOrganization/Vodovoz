@@ -20,6 +20,4 @@ namespace TrueMark.Contracts
 		[JsonPropertyName("errorMessage")]
 		public string ErrorMessage { get; set; }
 	}
-
-
 }

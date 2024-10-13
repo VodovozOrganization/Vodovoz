@@ -2,11 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	<GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <ProjectReference Include="..\Libraries\Core\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
