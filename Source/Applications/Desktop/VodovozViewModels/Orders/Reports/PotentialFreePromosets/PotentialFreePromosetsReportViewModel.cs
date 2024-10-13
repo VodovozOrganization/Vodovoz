@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Presentation.ViewModels.Extensions;
 using Vodovoz.Presentation.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
@@ -105,7 +106,16 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 				return;
 			}
 
+			if(StartDate is null || EndDate is null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Необходимо ввести полный период");
+
+				return;
+			}
+
 			IsReportGenerationInProgress = true;
+
+			Report = new PotentialFreePromosetsReport();
 
 			IsReportGenerationInProgress = false;
 		}
@@ -117,12 +127,24 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 				return;
 			}
 
-			IsReportGenerationInProgress &= !IsReportGenerationInProgress;
+			IsReportGenerationInProgress = false;
 		}
 
 		private void SaveReport()
 		{
+			if(Report is null)
+			{
+				return;
+			}
 
+			var dialogSettings = _dialogSettingsFactory.CreateForClosedXmlReport(_report);
+
+			var saveDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(saveDialogResult.Successful)
+			{
+				_report.RenderTemplate().Export(saveDialogResult.Path);
+			}
 		}
 
 		public void Dispose()

@@ -64,7 +64,7 @@ namespace Vodovoz.Orders.Reports
 			ytreeData.Binding
 				.AddSource(ViewModel)
 				.AddFuncBinding(vm => vm.Report != null, w => w.Visible)
-				.AddFuncBinding(vm => vm.Report != null ? vm.Report.ReportRows : Enumerable.Empty<PromosetReportRow>(), w => w.ItemsDataSource)
+				.AddFuncBinding(vm => vm.Report != null ? vm.Report.Rows : Enumerable.Empty<PromosetReportRow>(), w => w.ItemsDataSource)
 				.InitializeFromSource();
 
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
