@@ -20,9 +20,9 @@ namespace Vodovoz.Orders.Reports
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodpicker;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		private global::Gtk.ScrolledWindow GtkScrolledWindowPromosets;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeview1;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewPromosets;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonSave;
 
@@ -107,16 +107,16 @@ namespace Vodovoz.Orders.Reports
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child vboxReportParameters.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeview1 = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeview1.CanFocus = true;
-			this.ytreeview1.Name = "ytreeview1";
-			this.GtkScrolledWindow.Add(this.ytreeview1);
-			this.vboxReportParameters.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxReportParameters[this.GtkScrolledWindow]));
+			this.GtkScrolledWindowPromosets = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowPromosets.Name = "GtkScrolledWindowPromosets";
+			this.GtkScrolledWindowPromosets.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowPromosets.Gtk.Container+ContainerChild
+			this.ytreeviewPromosets = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewPromosets.CanFocus = true;
+			this.ytreeviewPromosets.Name = "ytreeviewPromosets";
+			this.GtkScrolledWindowPromosets.Add(this.ytreeviewPromosets);
+			this.vboxReportParameters.Add(this.GtkScrolledWindowPromosets);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxReportParameters[this.GtkScrolledWindowPromosets]));
 			w6.Position = 1;
 			this.vboxReportContorls.Add(this.vboxReportParameters);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxReportContorls[this.vboxReportParameters]));
