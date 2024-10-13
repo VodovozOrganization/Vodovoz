@@ -2063,6 +2063,8 @@
     <Compile Include="gtk-gui\Vodovoz.Accounting.Payments.PaymentWriteOffView.cs" />
     <Compile Include="Views\Reports\OksDailyReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.OksDailyReportView.cs" />
+    <Compile Include="Orders\Reports\PotentialFreePromosetsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Orders.Reports.PotentialFreePromosetsReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
