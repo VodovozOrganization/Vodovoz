@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +17,10 @@ using TrueMark.Api.Extensions;
 using TrueMark.Api.Options;
 using TrueMark.Api.Responses;
 using TrueMark.Contracts;
-using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorizationService;
+using TrueMark.Contracts.Responses;
+using TrueMarkApi.Options;
+using TrueMarkApi.Responses;
+using IAuthorizationService = TrueMarkApi.Services.Authorization.IAuthorizationService;
 
 namespace TrueMark.Api.Controllers;
 
@@ -135,7 +138,7 @@ public class TrueMarkApiController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<ProductInstancesInfo> RequestProductInstanceInfo([FromBody] IEnumerable<string> identificationCodes)
+	public async Task<ProductInstancesInfoResponse> RequestProductInstanceInfo([FromBody] IEnumerable<string> identificationCodes)
 	{
 		var uri = $"cises/info";
 
@@ -154,7 +157,7 @@ public class TrueMarkApiController : ControllerBase
 
 			if(!response.IsSuccessStatusCode)
 			{
-				return new ProductInstancesInfo
+				return new ProductInstancesInfoResponse
 				{
 					ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
 				};
@@ -174,7 +177,7 @@ public class TrueMarkApiController : ControllerBase
 				}
 			);
 
-			return new ProductInstancesInfo
+			return new ProductInstancesInfoResponse
 			{
 				InstanceStatuses = new List<ProductInstanceStatus>(productInstancesInfo)
 			};
@@ -183,7 +186,7 @@ public class TrueMarkApiController : ControllerBase
 		{
 			_logger.LogError(e, errorMessage.ToString());
 
-			return new ProductInstancesInfo
+			return new ProductInstancesInfoResponse
 			{
 				ErrorMessage = errorMessage.AppendLine(e.Message).ToString()
 			};

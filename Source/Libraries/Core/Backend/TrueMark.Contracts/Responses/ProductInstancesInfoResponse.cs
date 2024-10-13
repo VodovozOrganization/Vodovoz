@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace TrueMark.Contracts
+namespace TrueMark.Contracts.Responses
 {
 	/// <summary>
 	/// Информация о статусе регистрации участника
 	/// </summary>
-	public class ProductInstancesInfo
+	public class ProductInstancesInfoResponse
 	{
 		/// <summary>
 		/// Статус экземпляров товаров
