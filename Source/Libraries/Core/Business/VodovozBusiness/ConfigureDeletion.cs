@@ -1,4 +1,4 @@
-﻿using QS.Banks;
+using QS.Banks;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Deletion;
@@ -45,6 +45,8 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.Domain.WageCalculation;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Service;
 
 namespace Vodovoz
 {
@@ -663,6 +665,27 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<FinancialDistrict>()
 				.AddClearDependence<FinancialDistrict>(i => i.CopyOf)
 				.AddRemoveFromDependence<FinancialDistrictsSet>(x => x.FinancialDistricts);
+
+			#endregion
+
+			#region Service District
+
+			DeleteConfig.AddHibernateDeleteInfo<ServiceDistrictsSet>()
+				.AddDeleteDependence<ServiceDistrict>(x => x.ServiceDistrictsSet);
+
+			DeleteConfig.AddHibernateDeleteInfo<ServiceDistrict>()
+				.AddClearDependence<ServiceDistrict>(i => i.CopyOf)
+				.AddDeleteDependence<CommonServiceDistrictRule >(item => item.ServiceDistrict)
+				.AddDeleteDependence<WeekDayServiceDistrictRule>(item => item.ServiceDistrict)
+				.AddDeleteDependence<ServiceDeliveryScheduleRestriction>(item => item.ServiceDistrict)				
+				.AddDeleteDependence<ServiceDistrictCopyItem>(item => item.ServiceDistrict)
+				.AddDeleteDependence<ServiceDistrictCopyItem>(item => item.CopiedToServiceDistrict)
+				.AddRemoveFromDependence<ServiceDistrictsSet>(x => x.ServiceDistricts);
+
+			DeleteConfig.AddHibernateDeleteInfo<CommonServiceDistrictRule>();
+			DeleteConfig.AddHibernateDeleteInfo<WeekDayServiceDistrictRule>();
+			DeleteConfig.AddHibernateDeleteInfo<ServiceDeliveryScheduleRestriction>();
+			DeleteConfig.AddHibernateDeleteInfo<ServiceDistrictCopyItem>();
 
 			#endregion
 

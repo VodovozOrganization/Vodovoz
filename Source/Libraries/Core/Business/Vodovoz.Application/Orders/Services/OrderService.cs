@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -23,6 +23,7 @@ using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Services;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -48,6 +49,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderDiscountsController _orderDiscountsController;
 		private readonly IOrderDeliveryPriceGetter _orderDeliveryPriceGetter;
+		private readonly INomenclatureService _nomenclatureService;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -69,7 +71,8 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
 			IOrderDiscountsController orderDiscountsController,
-			IOrderDeliveryPriceGetter orderDeliveryPriceGetter)
+			IOrderDeliveryPriceGetter orderDeliveryPriceGetter,
+			INomenclatureService nomenclatureService)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -95,7 +98,7 @@ namespace Vodovoz.Application.Orders.Services
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderDiscountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
 			_orderDeliveryPriceGetter = orderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(orderDeliveryPriceGetter));
-
+			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 

@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+using Autofac;
+using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -18,7 +19,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Services;
 using VodovozBusiness.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -382,6 +385,10 @@ namespace Vodovoz.Domain.Goods
 					{
 						SaleCategory = null;
 					}
+					if(value != NomenclatureCategory.master)
+					{
+						MasterServiceType = null;
+					}
 				}
 			}
 		}
@@ -398,6 +405,13 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _typeOfDepositCategory;
 			set => SetField(ref _typeOfDepositCategory, value);
+		}
+
+		[Display(Name = "Тип выезда мастера")]
+		public virtual MasterServiceType? MasterServiceType
+		{
+			get => _masterServiceType;
+			set => SetField(ref _masterServiceType, value);
 		}
 
 		[Display(Name = "Цвет оборудования")]
@@ -1279,6 +1293,7 @@ namespace Vodovoz.Domain.Goods
 
 		public static string PrefixOfCode1c = "ДВ";
 		public static int LengthOfCode1c = 10;
+		private MasterServiceType? _masterServiceType;
 
 		/// <summary>
 		/// Категории товаров к которым применима категория продажи

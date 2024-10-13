@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,8 +55,10 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
+using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
+using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -89,6 +91,10 @@ namespace Vodovoz.Domain.Orders
 			.Resolve<IEmailRepository>();
 		private IEmailService _emailService => ScopeProvider.Scope
 			.Resolve<IEmailService>();
+		private INomenclatureService _nomenclatureService => ScopeProvider.Scope
+			.Resolve<INomenclatureService>();
+		private IDeliveryRepository _deliveryRepository => ScopeProvider.Scope
+			.Resolve<IDeliveryRepository>();
 		private IGeneralSettings _generalSettingsParameters => ScopeProvider.Scope
 			.Resolve<IGeneralSettings>();
 		private IOrderSettings _orderSettings => ScopeProvider.Scope
@@ -224,6 +230,11 @@ namespace Vodovoz.Domain.Orders
 						UpdateContract();
 						RefreshContactPhone();
 					}
+
+					if(orderItems.Any(x => x.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId))
+					{
+						_nomenclatureService.CalculateMasterCallNomenclaturePriceIfNeeded(UoW, this);
+					}
 				}
 			}
 		}
@@ -253,6 +264,11 @@ namespace Vodovoz.Domain.Orders
 					Contract.IssueDate = DeliveryDate.Value.Date;
 					InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Дата договора будет изменена при сохранении текущего заказа!");
+				}
+
+				if(orderItems.Any(x => x.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId))
+				{
+					_nomenclatureService.CalculateMasterCallNomenclaturePriceIfNeeded(UoW, this);
 				}
 			}
 		}
@@ -1250,16 +1266,19 @@ namespace Vodovoz.Domain.Orders
 				decimal fixedPrice = GetFixedPrice(item);
 				decimal nomenclaturePrice = GetNomenclaturePrice(item, false);
 				var alternativeNomenclaturePrice = GetNomenclaturePrice(item, true);
+				var isMasterCallNomenclature = item.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId;
 
 				var conditionForNomenclaturePrice = nomenclaturePrice > default(decimal)
-				          && item.Price < nomenclaturePrice
-				          && (alternativeNomenclaturePrice == default(decimal)
-							  || item.Price < alternativeNomenclaturePrice);
+						  && item.Price < nomenclaturePrice
+						  && (alternativeNomenclaturePrice == default(decimal)
+							  || item.Price < alternativeNomenclaturePrice)
+						  && !isMasterCallNomenclature;
 
 				var conditionForAlternativeNomenclaturePrice = alternativeNomenclaturePrice > default(decimal)
 				          && item.Price < alternativeNomenclaturePrice
 						  && (nomenclaturePrice == default(decimal)
-						      || item.Price < nomenclaturePrice);
+						      || item.Price < nomenclaturePrice)
+						  && !isMasterCallNomenclature;
 
 				if(fixedPrice > 0m)
 				{
@@ -1601,6 +1620,11 @@ namespace Vodovoz.Domain.Orders
 			ObservableOrderItems.Add(orderItem);
 			Recalculate();
 			UpdateContract();
+
+			if(orderItems.Any(x => x.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId))
+			{
+				_nomenclatureService.CalculateMasterCallNomenclaturePriceIfNeeded(UoW, this);
+			}
 		}
 
 		public virtual void RemoveOrderItem(OrderItem orderItem)
@@ -1622,7 +1646,9 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			//Если была удалена последняя номенклатура "мастер" - переходит в стандартный тип адреса
-			if(!OrderItems.Any(x => x.IsMasterNomenclature) && orderItem.IsMasterNomenclature)
+			if(!OrderItems.Any(x => x.IsMasterNomenclature)
+				&& orderItem.IsMasterNomenclature
+				&& !OrderItems.Any(x => x.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				OrderAddressType = OrderAddressType.Delivery;
 			}
@@ -2587,6 +2613,7 @@ namespace Vodovoz.Domain.Orders
 			RemoveOrderItem(item);
 			DeleteOrderEquipmentOnOrderItem(item);
 			UpdateDocuments();
+			_nomenclatureService.CalculateMasterCallNomenclaturePriceIfNeeded(UoW, this);
 		}
 
 		public virtual void RemoveEquipment(OrderEquipment item)
@@ -4668,7 +4695,14 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		#region Правила доставки
+		#region Правила сервисной доставки
+		public virtual IList<int> GetAvailableDeliveryScheduleIds(bool isForMasterCall = false)
+		{
+			return isForMasterCall 
+				? GetAvailableServiceDeliveryScheduleIds() 
+				: GetAvailableDeliveryScheduleIds();
+		}
+
 		public virtual IList<int> GetAvailableDeliveryScheduleIds()
 		{
 			var availableDeliverySchedules = new List<int>();
@@ -4685,7 +4719,68 @@ namespace Vodovoz.Domain.Orders
 
 			return availableDeliverySchedules;
 		}
-		#endregion
+
+		public virtual IList<int> GetAvailableServiceDeliveryScheduleIds()
+		{
+			var latitude = DeliveryPoint.Latitude;
+			var longitude = DeliveryPoint.Longitude;
+
+			var district = _deliveryRepository.GetServiceDistrictByCoordinates(UoW, latitude.Value, longitude.Value);
+
+			var availableDeliverySchedules = new List<int>();
+
+			if(district != null)
+			{
+				availableDeliverySchedules = district
+					.GetAvailableServiceDeliveryScheduleRestrictionsByDeliveryDate(DeliveryDate)
+					.OrderBy(s => s.DeliverySchedule.DeliveryTime)
+					.Select(r => r.DeliverySchedule.Id)
+					.ToList();
+			}
+
+			return availableDeliverySchedules;
+		}
+		#endregion Правила сервисной доставка
+
+		public virtual bool IsOldServiceOrder => OrderAddressType == OrderAddressType.Service && CreateDate < new DateTime(2024, 10, 10);
+
+		/// <summary>
+		/// Добавление/удаление номенклатуры для вызова мастера в зависимости от типа адреса
+		/// </summary>
+		public virtual void AddMasterCallNomenclatureIfNeeded(IUnitOfWork unitOfWork)
+		{
+			var masterCallNomenclature = _nomenclatureRepository.GetMasterCallNomenclature(unitOfWork);
+
+			if(OrderAddressType == OrderAddressType.Service)
+			{
+				AddMasterCallNomenclatureIfNeeded(masterCallNomenclature);
+			}
+			else
+			{
+				RemoveMasterCallNomenclature(masterCallNomenclature);
+			}
+		}
+
+		private void AddMasterCallNomenclatureIfNeeded(Nomenclature masterCallNomenclature)
+		{
+			if(OrderItems.Any(x => x.Nomenclature.Id == masterCallNomenclature.Id))
+			{
+				return;
+			}
+
+			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
+				&& masterCallNomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= 1);
+
+			AddOrderItem(OrderItem.CreateForSale(this, masterCallNomenclature, 1, 0));
+		}
+
+		private void RemoveMasterCallNomenclature(Nomenclature masterCallNomenclature)
+		{
+			var fastDeliveryItemToRemove =
+					ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == masterCallNomenclature.Id);
+
+			RemoveOrderItem(fastDeliveryItemToRemove);
+		}
 
 		#region Obsolete
 

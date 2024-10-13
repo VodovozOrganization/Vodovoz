@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Service;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
@@ -17,11 +17,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.DateClosed).Column("date_closed");
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.Status).Column("status");
-			Map(x => x.OnlineStoreOrderSumForFreeDelivery).Column("online_store_order_sum_for_free_delivery");
 
 			References(x => x.Author).Column("author_id");
 
-			HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse().KeyColumn("districts_set_id");
+			HasMany(x => x.ServiceDistricts).Cascade.AllDeleteOrphan().Inverse().KeyColumn("service_districts_set_id");
 		}
 	}
 }

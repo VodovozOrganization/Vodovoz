@@ -1,4 +1,4 @@
-using QS.Dialog.GtkUI;
+﻿using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
 using System;
@@ -7,6 +7,8 @@ using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Logistic;
@@ -16,6 +18,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
@@ -230,7 +233,8 @@ public partial class MainWindow
 
 	protected void OnActionWayBillJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<WayBillGeneratorViewModel, Action<EmployeeFilterViewModel>>(null, filter => filter.Status = EmployeeStatus.IsWorking);
+		NavigationManager.OpenViewModel<ServiceDistrictsSetJournalViewModel, Action<ServiceDistrictsSetJournalFilterViewModel>>(null, filter => filter.HidenByDefault = true);
+		//NavigationManager.OpenViewModel<WayBillGeneratorViewModel, Action<EmployeeFilterViewModel>>(null, filter => filter.Status = EmployeeStatus.IsWorking);
 	}
 
 	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
