@@ -13,6 +13,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TrueMark.Api.Extensions;
 using TrueMark.Api.Options;
 using TrueMark.Api.Responses;
 using TrueMark.Contracts;
@@ -167,7 +168,7 @@ public class TrueMarkApiController : ControllerBase
 				new ProductInstanceStatus
 				{
 					IdentificationCode = x.CisInfo.RequestedCis,
-					Status = GetStatus(x.CisInfo.Status),
+					Status = x.CisInfo.Status.ToProductInstanceStatusEnum(),
 					OwnerInn = x.CisInfo.OwnerInn,
 					OwnerName = x.CisInfo.OwnerName
 				}
@@ -223,35 +224,6 @@ public class TrueMarkApiController : ControllerBase
 			{
 				ErrorMessage = e.Message
 			};
-		}
-	}
-
-	private ProductInstanceStatusEnum? GetStatus(string statusName)
-	{
-		switch(statusName)
-		{
-			case "EMITTED":
-				return ProductInstanceStatusEnum.Emitted;
-			case "APPLIED":
-				return ProductInstanceStatusEnum.Applied;
-			case "APPLIED_PAID":
-				return ProductInstanceStatusEnum.AppliedPaid;
-			case "INTRODUCED":
-				return ProductInstanceStatusEnum.Introduced;
-			case "WRITTEN_OFF":
-				return ProductInstanceStatusEnum.WrittenOff;
-			case "RETIRED":
-				return ProductInstanceStatusEnum.Retired;
-			case "WITHDRAWN":
-				return ProductInstanceStatusEnum.Withdrawn;
-			case "DISAGGREGATION":
-				return ProductInstanceStatusEnum.Disaggregation;
-			case "DISAGGREGATED":
-				return ProductInstanceStatusEnum.Disaggregated;
-			case "APPLIED_NOT_PAID":
-				return ProductInstanceStatusEnum.AppliedNotPaid;
-			default:
-				return null;
 		}
 	}
 }
