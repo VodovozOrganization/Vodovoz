@@ -20,12 +20,6 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yLabel ylabelSelectedDistrictsSetStr;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelPriorities;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-
-		private global::Gamma.GtkWidgets.yTreeView ytreePrioritiesToDelete;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -114,27 +108,6 @@ namespace Vodovoz.Views.Orders
 			w7.Position = 0;
 			w7.Expand = false;
 			w7.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.ylabelPriorities = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelPriorities.Name = "ylabelPriorities";
-			this.ylabelPriorities.LabelProp = global::Mono.Unix.Catalog.GetString("На новую версию не были перенесены следующие приоритеты районов водителей:");
-			this.vbox1.Add(this.ylabelPriorities);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelPriorities]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreePrioritiesToDelete = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreePrioritiesToDelete.CanFocus = true;
-			this.ytreePrioritiesToDelete.Name = "ytreePrioritiesToDelete";
-			this.GtkScrolledWindow.Add(this.ytreePrioritiesToDelete);
-			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w10.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

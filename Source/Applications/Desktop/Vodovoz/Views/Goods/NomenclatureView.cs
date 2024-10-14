@@ -143,17 +143,17 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.IsDepositCategory, w => w.Visible)
 				.InitializeFromSource();
 
-			ylabelServiceType.Binding
+			/*ylabelServiceType.Binding
 				.AddBinding(ViewModel, vm => vm.IsMasterCategory, w => w.Visible)
-				.InitializeFromSource ();
+				.InitializeFromSource ();*/
 
-			enumServiceType.ItemsEnum = typeof(MasterServiceType);
+			/*enumServiceType.ItemsEnum = typeof(MasterServiceType);
 			enumServiceType.ShowSpecialStateNot = false;
 			enumServiceType.Binding
 				.AddBinding(ViewModel.Entity, e => e.MasterServiceType, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.IsMasterCategory, w => w.Visible)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
 
 			comboMobileCatalog.ItemsEnum = typeof(MobileCatalog);
 			comboMobileCatalog.Binding

@@ -17,8 +17,6 @@ namespace Vodovoz.Views.Orders
 		{
 			ylabelCurrentDistrictsSetStr.Text = ViewModel.ActiveServiceDistrictsSet?.Name ?? "-";
 			ylabelSelectedDistrictsSetStr.Text = ViewModel.Entity?.Name ?? "";
-			ylabelPriorities.Text =
-				"На новую версию не были перенесены следующие приоритеты районов водителей (необходимо вручную проконтролировать настройку приоритетов районов указанных водителей):";
 
 			ybuttonActivate.Clicked += async (sender, args) =>
 			{
@@ -51,10 +49,6 @@ namespace Vodovoz.Views.Orders
 					if(args.PropertyName == nameof(ViewModel.ActiveServiceDistrictsSet))
 					{
 						ylabelCurrentDistrictsSetStr.Text = ViewModel.ActiveServiceDistrictsSet.Name;
-					}
-					if(args.PropertyName == nameof(ViewModel.NotCopiedPriorities))
-					{
-						ytreePrioritiesToDelete.ItemsDataSource = ViewModel.NotCopiedPriorities;
 					}
 				});
 			};
