@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +14,10 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TrueMark.Api.Extensions;
 using TrueMark.Api.Options;
 using TrueMark.Api.Responses;
 using TrueMark.Contracts;
-using TrueMark.Contracts.Requests;
-using TrueMark.Contracts.Responses;
-using TrueMarkApi.Options;
-using TrueMarkApi.Responses;
-using IAuthorizationService = TrueMarkApi.Services.Authorization.IAuthorizationService;
+using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorizationService;
 
 namespace TrueMark.Api.Controllers;
 
@@ -140,8 +135,8 @@ public class TrueMarkApiController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<ProductInstancesInfoResponse> RequestProductInstanceInfo(
-		[FromServices] IRequestClient<ProductInstanceInfoRequest> requestClient,
+	public async Task<ProductInstancesInfo> RequestProductInstanceInfo(
+		[FromServices] IRequestClient<ProductInstancesInfo> requestClient,
 		[FromBody] IEnumerable<string> identificationCodes)
 	{
 		var uri = $"cises/info";
@@ -159,13 +154,13 @@ public class TrueMarkApiController : ControllerBase
 
 			//var response = await _httpClient.PostAsync(uri, httpContent);
 
-			var request = new ProductInstanceInfoRequest
-			{
-				Bearer = token,
-				ProductCodes = identificationCodes
-			};
+			var request = new ProductInstancesInfo();
+			//{
+			//	Bearer = token,
+			//	ProductCodes = identificationCodes
+			//};
 
-			var result = await requestClient.GetResponse<ProductInstancesInfoResponse>(request);
+			var result = await requestClient.GetResponse<ProductInstancesInfo>(request);
 
 			return result.Message;
 
@@ -200,7 +195,7 @@ public class TrueMarkApiController : ControllerBase
 		{
 			_logger.LogError(e, errorMessage.ToString());
 
-			return new ProductInstancesInfoResponse
+			return new ProductInstancesInfo
 			{
 				ErrorMessage = errorMessage.AppendLine(e.Message).ToString()
 			};
