@@ -6,7 +6,7 @@ namespace Vodovoz
 	{
 		private global::Gtk.Table table1;
 
-		private global::Gtk.Button buttonTransfer;
+		private global::Gamma.GtkWidgets.yButton buttonTransfer;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -18,13 +18,13 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.HBox hbox4;
 
-		private global::Gtk.Button buttonCreateNewReceptionTicket;
+		private global::Gamma.GtkWidgets.yButton buttonCreateNewReceptionTicket;
 
 		private global::Gtk.HBox hbox5;
 
@@ -54,7 +54,7 @@ namespace Vodovoz
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonTransfer = new global::Gtk.Button();
+			this.buttonTransfer = new global::Gamma.GtkWidgets.yButton();
 			this.buttonTransfer.CanFocus = true;
 			this.buttonTransfer.Name = "buttonTransfer";
 			this.buttonTransfer.UseUnderline = true;
@@ -100,7 +100,7 @@ namespace Vodovoz
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -111,7 +111,7 @@ namespace Vodovoz
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -130,7 +130,7 @@ namespace Vodovoz
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonCreateNewReceptionTicket = new global::Gtk.Button();
+			this.buttonCreateNewReceptionTicket = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateNewReceptionTicket.CanFocus = true;
 			this.buttonCreateNewReceptionTicket.Name = "buttonCreateNewReceptionTicket";
 			this.buttonCreateNewReceptionTicket.UseUnderline = true;

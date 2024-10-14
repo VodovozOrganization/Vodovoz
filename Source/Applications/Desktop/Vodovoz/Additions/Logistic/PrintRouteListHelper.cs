@@ -28,6 +28,7 @@ namespace Vodovoz.Additions.Logistic
 		private static readonly IRouteColumnRepository _routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
 		private static readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
 		private static readonly ICachedDistanceRepository _cachedDistanceRepository = ScopeProvider.Scope.Resolve<ICachedDistanceRepository>();
+		private static readonly IReportInfoFactory _reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
 		private const string _orderCommentTagName = "OrderComment";
 		private const string _orderPrioritizedTagName = "prioritized";
 		private const string _waterTagNamePrefix = "Water";
@@ -224,7 +225,7 @@ namespace Vodovoz.Additions.Logistic
 			{
 				var qrPlacer = new EventsQrPlacer(
 					new CustomReportFactory(new CustomPropertiesFactory(), new CustomReportItemFactory(), new RdlTextBoxFactory()),
-					ScopeProvider.Scope.Resolve<IDriverWarehouseEventRepository>());
+					ScopeProvider.Scope.Resolve<IDriverWarehouseEventRepository>(), _reportInfoFactory);
 
 				qrPlacer.AddQrEventForDocument(uow, routeList.Id, ref RdlText);
 			}
@@ -241,19 +242,18 @@ namespace Vodovoz.Additions.Logistic
 			string printDatestr = $"Дата печати: { DateTime.Now:g}";
 			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
-			return new ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Маршрутный лист № { routeList.Id }";
+			reportInfo.Path = TempFile;
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Маршрутный лист № { routeList.Id }",
-				Path = TempFile,
-				Parameters = new Dictionary<string, object>
-				{
-					{ "RouteListId", routeList.Id },
-					{ "Print_date", printDatestr},
-					{ "RouteListDate", routeList.Date},
-					{ "need_terminal", needTerminal },
-					{ "phones", _generalSettingsSettings.GetRouteListPrintedFormPhones}
-				}
+				{ "RouteListId", routeList.Id },
+				{ "Print_date", printDatestr},
+				{ "RouteListDate", routeList.Date},
+				{ "need_terminal", needTerminal },
+				{ "phones", _generalSettingsSettings.GetRouteListPrintedFormPhones}
 			};
+			return reportInfo;
 		}
 
 		private static string GetColumnHeader(int id, string name)
@@ -288,28 +288,26 @@ namespace Vodovoz.Additions.Logistic
 
 		public static ReportInfo GetRDLTimeList(int routeListId)
 		{
-			return new ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Лист времени для МЛ № { routeListId }";
+			reportInfo.Identifier = "Documents.TimeList";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Лист времени для МЛ № { routeListId }",
-				Identifier = "Documents.TimeList",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "route_list_id", routeListId }
-				}
+				{ "route_list_id", routeListId }
 			};
+			return reportInfo;
 		}
 
 		public static ReportInfo GetRDLDailyList(int routeListId)
 		{
-			return new ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Ежедневные номера МЛ № { routeListId }";
+			reportInfo.Identifier = "Logistic.AddressesByDailyNumber";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Ежедневные номера МЛ № { routeListId }",
-				Identifier = "Logistic.AddressesByDailyNumber",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "route_list", routeListId }
-				}
+				{ "route_list", routeListId }
 			};
+			return reportInfo;
 		}
 
 		public static ReportInfo GetRDLRouteMap(IUnitOfWork uow, RouteList routeList, ICachedDistanceRepository cachedDistanceRepository, bool batchPrint)
@@ -357,64 +355,57 @@ namespace Vodovoz.Additions.Logistic
 			string base64image = Convert.ToBase64String(img);
 			imageData.InnerText = base64image;
 
-			return new ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Карта маршрута № { routeList.Id }";
+			reportInfo.Source = rdlText.InnerXml;
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Карта маршрута № { routeList.Id }",
-				Source = rdlText.InnerXml,
-				Parameters = new Dictionary<string, object>
-				{
-					{ "route_id", routeList.Id }
-				}
+				{ "route_id", routeList.Id }
 			};
+			return reportInfo;
 		}
 
 		[Obsolete("Удалить метод вместе с rdl, если не будет запросов на использование после 10.10.2022")]
 		public static ReportInfo GetRDLLoadDocument(int routeListId)
 		{
-			return new ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Документ погрузки для МЛ № { routeListId }";
+			reportInfo.Identifier = "RouteList.CarLoadDocument";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Документ погрузки для МЛ № { routeListId }",
-				Identifier = "RouteList.CarLoadDocument",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "route_list_id", routeListId },
-				},
-				UseUserVariables = true
+				{ "route_list_id", routeListId }
 			};
+			return reportInfo;
 		}
 
 		public static ReportInfo GetRDLFine(RouteList routeList)
 		{
-
-			return new ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Штрафы сотрудника { routeList.Driver.LastName }";
+			reportInfo.Identifier = "Employees.Fines";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Штрафы сотрудника { routeList.Driver.LastName }",
-				Identifier = "Employees.Fines",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "drivers", routeList.Driver.Id },
-					{ "startDate", routeList.Date },
-					{ "endDate", routeList.Date },
-					{ "routelist", routeList.Id },
-					{ "showbottom", true}
-				},
-				UseUserVariables = true
+				{ "drivers", routeList.Driver.Id },
+				{ "startDate", routeList.Date },
+				{ "endDate", routeList.Date },
+				{ "routelist", routeList.Id },
+				{ "showbottom", true}
 			};
+			return reportInfo;
 		}
 
 		public static ReportInfo GetRDLForwarderReceipt(RouteList routeList)
 		{
-			return new ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Экспедиторская расписка для МЛ №{routeList.Id}";
+			reportInfo.Identifier = "Documents.ForwarderReceipt";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Экспедиторская расписка для МЛ №{routeList.Id}",
-				Identifier = "Documents.ForwarderReceipt",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "routeListId", routeList.Id },
-					{ "routeListDate", routeList.Date },
-					{ "driverId", routeList.Driver.Id }
-				}
+				{ "routeListId", routeList.Id },
+				{ "routeListDate", routeList.Date },
+				{ "driverId", routeList.Driver.Id }
 			};
+			return reportInfo;
 		}
 
 		public static ReportInfo GetRDL(RouteList routeList, RouteListPrintableDocuments type, IUnitOfWork uow = null, bool batchPrint = false)

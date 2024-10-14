@@ -12,9 +12,9 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodpicker;
 
-		private global::Gtk.CheckButton checkbutton1;
+		private global::Gamma.GtkWidgets.yCheckButton checkbutton1;
 
-		private global::Gtk.Button buttonCreateRepot;
+		private global::Gamma.GtkWidgets.yButton buttonCreateRepot;
 
 		protected virtual void Build()
 		{
@@ -54,7 +54,7 @@ namespace Vodovoz.ReportsParameters
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.checkbutton1 = new global::Gtk.CheckButton();
+			this.checkbutton1 = new global::Gamma.GtkWidgets.yCheckButton();
 			this.checkbutton1.CanFocus = true;
 			this.checkbutton1.Name = "checkbutton1";
 			this.checkbutton1.Label = global::Mono.Unix.Catalog.GetString("За весь период");
@@ -66,7 +66,7 @@ namespace Vodovoz.ReportsParameters
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateRepot = new global::Gtk.Button();
+			this.buttonCreateRepot = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateRepot.CanFocus = true;
 			this.buttonCreateRepot.Name = "buttonCreateRepot";
 			this.buttonCreateRepot.UseUnderline = true;
@@ -82,8 +82,6 @@ namespace Vodovoz.ReportsParameters
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.checkbutton1.Toggled += new global::System.EventHandler(this.OnCheckbutton1Toggled);
-			this.buttonCreateRepot.Clicked += new global::System.EventHandler(this.OnButtonCreateRepotClicked);
 		}
 	}
 }

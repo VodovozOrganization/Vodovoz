@@ -1,77 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Dialog;
-using QS.Report;
-using QSReport;
-using QS.Dialog.GtkUI;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Selfdelivery;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class SelfDeliveryReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class SelfDeliveryReport : ViewBase<SelfDeliveryReportViewModel>
 	{
-		private const int REPORT_MAX_PERIOD = 62;
-
-		public SelfDeliveryReport()
+		public SelfDeliveryReport(SelfDeliveryReportViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			dateperiodpicker.StartDate = DateTime.Now.Date;
-			dateperiodpicker.EndDate = DateTime.Now.Date;
-			dateperiodpicker.PeriodChanged += DateperiodpickerPeriodChanged;
-			this.ylabelWarningMessage.Visible = false;
-		}
 
-		private void DateperiodpickerPeriodChanged(object sender, EventArgs e)
-		{
-			if (dateperiodpicker.StartDate.Date.AddDays(REPORT_MAX_PERIOD - 1) < dateperiodpicker.EndDate.Date)
-			{
-				this.ylabelWarningMessage.Visible = true;
-				this.ylabelWarningMessage.Text = $"Выбран период более {REPORT_MAX_PERIOD} дней";
-				this.buttonCreateRepot.Sensitive = false;
-			}
-			else
-			{
-				this.ylabelWarningMessage.Visible = false;
-				this.buttonCreateRepot.Sensitive = true;
-			}
-		}
+			dateperiodpicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDate)
+				.AddBinding(vm => vm.EndDate, w => w.EndDate)
+				.InitializeFromSource();
 
-		#region IParametersWidget implementation
+			ylabelWarningMessage.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.WarningText, w => w.Text)
+				.AddBinding(vm => vm.WarningVisible, w => w.Visible)
+				.InitializeFromSource();
 
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		public string Title {
-			get {
-				return "Отчет по самовывозу";
-			}
-		}
-
-		#endregion
-
-		private ReportInfo GetReportInfo()
-		{
-			return new ReportInfo {
-				Identifier = "Orders.SelfDeliveryReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", dateperiodpicker.StartDate },
-					{ "endDate", dateperiodpicker.EndDate },
-					{ "isOneDayReport", dateperiodpicker.StartDate.Date == dateperiodpicker.EndDate.Date }
-				}
-			};
-		}
-
-		void OnUpdate(bool hide = false)
-		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
-		}
-
-		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
+			buttonCreateRepot.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }

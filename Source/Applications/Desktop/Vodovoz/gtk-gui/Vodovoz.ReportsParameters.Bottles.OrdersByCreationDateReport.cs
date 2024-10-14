@@ -12,7 +12,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::QS.Widgets.GtkUI.DatePicker pkrDate;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -54,7 +54,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
@@ -70,7 +70,6 @@ namespace Vodovoz.ReportsParameters.Bottles
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonRunClicked);
 		}
 	}
 }

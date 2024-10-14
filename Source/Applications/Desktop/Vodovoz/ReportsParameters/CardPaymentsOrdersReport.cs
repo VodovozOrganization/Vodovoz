@@ -1,71 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Report;
-using QSReport;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Sale;
+﻿using QS.Views;
 using System.ComponentModel;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.ReportsParameters
 {
 	[ToolboxItem(true)]
-	public partial class CardPaymentsOrdersReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class CardPaymentsOrdersReport : ViewBase<CardPaymentsOrdersReportViewModel>
 	{
-		public CardPaymentsOrdersReport(IUnitOfWorkFactory unitOfWorkFactory)
+		public CardPaymentsOrdersReport(CardPaymentsOrdersReportViewModel viewModel) : base(viewModel)
 		{
 			Build();
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
-			ydateperiodpicker.StartDate = DateTime.Now.Date;
-			ydateperiodpicker.EndDate = DateTime.Now.Date;
-			comboPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>();
-			comboGeoGroup.ItemsList = UoW.GetAll<GeoGroup>();
 
-			comboPaymentFrom.ItemSelected += (sender, e) =>
-			{
-				if(comboPaymentFrom.IsSelectedAll)
-				{
-					ycheckbuttonShowArchive.Sensitive = true;
-				}
-				else
-				{
-					ycheckbuttonShowArchive.Sensitive = false;
-					ycheckbuttonShowArchive.Active = false;
-				}
-			};
-		}
+			ydateperiodpicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 
-		public event EventHandler<LoadReportEventArgs> LoadReport;
+			comboPaymentFrom.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.PaymentsFrom, w => w.ItemsList)
+				.AddBinding(vm => vm.PaymentFrom, w => w.SelectedItem)
+				.InitializeFromSource();
+			comboPaymentFrom.Changed += (sender, e) => ViewModel.AllPaymentsFromSelected = comboPaymentFrom.IsSelectedAll;
 
-		public string Title => "Отчет по оплатам по картам";
+			comboGeoGroup.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.GeoGroups, w => w.ItemsList)
+				.AddBinding(vm => vm.GeoGroup, w => w.SelectedItem)
+				.InitializeFromSource();
+			comboGeoGroup.Changed += (sender, e) => ViewModel.AllGeoGroupsSelected = comboGeoGroup.IsSelectedAll;
 
-		private ReportInfo GetReportInfo()
-		{
-			return new ReportInfo
-			{
-				Identifier = "Orders.CardPaymentsOrdersReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", ydateperiodpicker.StartDate },
-					{ "end_date", ydateperiodpicker.EndDate },
-					{
-						"payment_from_id",
-						comboPaymentFrom.IsSelectedAll ? "" : ((PaymentFrom)comboPaymentFrom.SelectedItem).Id.ToString()
-					},
-					{
-						"geo_group_id",
-						comboGeoGroup.IsSelectedAll ? "" : ((GeoGroup)comboGeoGroup.SelectedItem).Id.ToString()
-					},
-					{ "ShowArchived", !ycheckbuttonShowArchive.Sensitive || ycheckbuttonShowArchive.Active }
-				}
-			};
-		}
+			ycheckbuttonShowArchive.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.AllPaymentsFromSelected, w => w.Sensitive)
+				.AddBinding(vm => vm.ShowArchive, w => w.Active)
+				.InitializeFromSource();
 
-
-		private void OnButtonCreateRepotClicked(object sender, EventArgs e)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
+			buttonCreateRepot.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }

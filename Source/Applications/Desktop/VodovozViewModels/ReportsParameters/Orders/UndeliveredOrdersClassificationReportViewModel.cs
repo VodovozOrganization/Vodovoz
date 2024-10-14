@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using QS.Report;
 using QS.Report.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 	{
 		private UndeliveredOrdersFilterViewModel _filterViewModel;
 
-		public UndeliveredOrdersClassificationReportViewModel(RdlViewerViewModel rdlViewerViewModel) : base(rdlViewerViewModel)
+		public UndeliveredOrdersClassificationReportViewModel(
+			RdlViewerViewModel rdlViewerViewModel,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			Title = "Сводка по классификации недовозов";
 		}

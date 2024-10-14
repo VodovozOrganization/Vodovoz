@@ -12,7 +12,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.HBox hbox5;
 
-		private global::Gtk.Button buttonRefresh;
+		private global::Gamma.GtkWidgets.yButton buttonRefresh;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -53,7 +53,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.buttonRefresh = new global::Gtk.Button();
+			this.buttonRefresh = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;

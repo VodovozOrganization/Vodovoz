@@ -36,7 +36,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::Gtk.HBox hbox11;
 
-		private global::Gtk.Button buttonAddForSale;
+		private global::Gamma.GtkWidgets.yButton buttonAddForSale;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -207,7 +207,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.hbox11.Name = "hbox11";
 			this.hbox11.Spacing = 6;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.buttonAddForSale = new global::Gtk.Button();
+			this.buttonAddForSale = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddForSale.CanFocus = true;
 			this.buttonAddForSale.Name = "buttonAddForSale";
 			this.buttonAddForSale.Label = global::Mono.Unix.Catalog.GetString("На продажу");

@@ -8,11 +8,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.HBox hbox7;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
-		private global::Gtk.Button btnSendEnRoute;
+		private global::Gamma.GtkWidgets.yButton btnSendEnRoute;
 
 		private global::Gtk.Label label2;
 
@@ -35,7 +35,7 @@ namespace Vodovoz.Dialogs.Logistic
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -49,7 +49,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -63,7 +63,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.btnSendEnRoute = new global::Gtk.Button();
+			this.btnSendEnRoute = new global::Gamma.GtkWidgets.yButton();
 			this.btnSendEnRoute.CanFocus = true;
 			this.btnSendEnRoute.Name = "btnSendEnRoute";
 			this.btnSendEnRoute.UseUnderline = true;

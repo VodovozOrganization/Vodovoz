@@ -5,6 +5,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Report;
 using QS.Report.ViewModels;
 using QS.Services;
 using System;
@@ -27,8 +28,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Cash
 		public DayOfSalaryGiveoutReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
 			IUnitOfWorkFactory uowFactory,
-			ICommonServices commonServices
-		) : base(rdlViewerViewModel)
+			ICommonServices commonServices,
+			IReportInfoFactory reportInfoFactory
+		) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			Title = "Дата выдачи ЗП водителей и экспедиторов";
 			Identifier = "Cash.DayOfSalaryGiveout";

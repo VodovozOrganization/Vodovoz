@@ -1,74 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Dialog;
-using QS.Report;
-using QSReport;
-using QS.Dialog.GtkUI;
-using QS.Project.Services;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Bottles;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ReportDebtorsBottles : SingleUoWWidgetBase, IParametersWidget
+	public partial class ReportDebtorsBottles : ViewBase<ReportDebtorsBottlesViewModel>
 	{
-		public ReportDebtorsBottles()
+		public ReportDebtorsBottles(ReportDebtorsBottlesViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+
+			radiobuttonAllShow.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowAll, w => w.Active)
+				.InitializeFromSource();
+
+			radiobuttonNotManualEntered.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.NotManualEntered, w => w.Active)
+				.InitializeFromSource();
+
+			radiobuttonOnlyManualEntered.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.OnlyManualEntered, w => w.Active)
+				.InitializeFromSource();
+
+			buttonRun.BindCommand(ViewModel.GenerateReportCommand);
 		}
-
-		#region IParametersWidget implementation
-
-		public string Title {
-			get {
-				return "Отчет по должникам тары";
-			}
-		}
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		#endregion
-
-		void OnUpdate(bool hide = false)
-		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
-		}
-
-		protected void OnButtonRunClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
-		}
-
-		private ReportInfo GetReportInfo()
-		{
-			var parameters = new Dictionary<string, object>();
-			if(radiobuttonAllShow.Active){
-				parameters.Clear();
-				parameters.Add("allshow", "1");
-				parameters.Add("withresidue", "-1");
-			}
-				
-			if(radiobuttonNotManualEntered.Active){
-				parameters.Clear();
-				parameters.Add("allshow", "0");
-				parameters.Add("withresidue", "0");
-			}
-				
-			if(radiobuttonOnlyManualEntered.Active){
-				parameters.Clear();
-				parameters.Add("allshow", "0");
-				parameters.Add("withresidue", "1");
-			}
-			
-			return new ReportInfo {
-				Identifier = "Client.DebtorsBottles",
-				Parameters = parameters
-			};
-		}
- 
-
 	}
 }
