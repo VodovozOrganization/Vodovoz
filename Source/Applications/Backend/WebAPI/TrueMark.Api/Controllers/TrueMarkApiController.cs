@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,7 @@ using TrueMark.Api.Extensions;
 using TrueMark.Api.Options;
 using TrueMark.Api.Responses;
 using TrueMark.Contracts;
+using TrueMark.Contracts.Requests;
 using TrueMark.Contracts.Responses;
 using TrueMarkApi.Options;
 using TrueMarkApi.Responses;
@@ -138,7 +140,9 @@ public class TrueMarkApiController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<ProductInstancesInfoResponse> RequestProductInstanceInfo([FromBody] IEnumerable<string> identificationCodes)
+	public async Task<ProductInstancesInfoResponse> RequestProductInstanceInfo(
+		[FromServices] IRequestClient<ProductInstanceInfoRequest> requestClient,
+		[FromBody] IEnumerable<string> identificationCodes)
 	{
 		var uri = $"cises/info";
 
@@ -147,40 +151,50 @@ public class TrueMarkApiController : ControllerBase
 
 		try
 		{
-			string content = JsonSerializer.Serialize(identificationCodes.ToArray());
-			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+			//string content = JsonSerializer.Serialize(identificationCodes.ToArray());
+			//HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
 			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
-			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			//_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-			var response = await _httpClient.PostAsync(uri, httpContent);
+			//var response = await _httpClient.PostAsync(uri, httpContent);
 
-			if(!response.IsSuccessStatusCode)
+			var request = new ProductInstanceInfoRequest
 			{
-				return new ProductInstancesInfoResponse
-				{
-					ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
-				};
-			}
-
-			string responseBody = await response.Content.ReadAsStringAsync();
-			var cisesInformation = JsonSerializer.Deserialize<IList<CisInfoRoot>>(responseBody);
-			_logger.LogInformation($"responseBody: {responseBody}");
-
-			var productInstancesInfo = cisesInformation.Select(x =>
-				new ProductInstanceStatus
-				{
-					IdentificationCode = x.CisInfo.RequestedCis,
-					Status = x.CisInfo.Status.ToProductInstanceStatusEnum(),
-					OwnerInn = x.CisInfo.OwnerInn,
-					OwnerName = x.CisInfo.OwnerName
-				}
-			);
-
-			return new ProductInstancesInfoResponse
-			{
-				InstanceStatuses = new List<ProductInstanceStatus>(productInstancesInfo)
+				Bearer = token,
+				ProductCodes = identificationCodes
 			};
+
+			var result = await requestClient.GetResponse<ProductInstancesInfoResponse>(request);
+
+			return result.Message;
+
+			//if(!response.IsSuccessStatusCode)
+			//{
+			//	return new ProductInstancesInfoResponse
+			//	{
+			//		ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
+			//	};
+			//}
+
+			//string responseBody = await response.Content.ReadAsStringAsync();
+			//var cisesInformation = JsonSerializer.Deserialize<IList<CisInfoRoot>>(responseBody);
+			//_logger.LogInformation($"responseBody: {responseBody}");
+
+			//var productInstancesInfo = cisesInformation.Select(x =>
+			//	new ProductInstanceStatus
+			//	{
+			//		IdentificationCode = x.CisInfo.RequestedCis,
+			//		Status = GetStatus(x.CisInfo.Status),
+			//		OwnerInn = x.CisInfo.OwnerInn,
+			//		OwnerName = x.CisInfo.OwnerName
+			//	}
+			//);
+
+			//return new ProductInstancesInfoResponse
+			//{
+			//	InstanceStatuses = new List<ProductInstanceStatus>(productInstancesInfo)
+			//};
 		}
 		catch(Exception e)
 		{
