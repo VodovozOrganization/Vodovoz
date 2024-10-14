@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.Commands;
@@ -11,7 +11,7 @@ using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
-	public abstract class NamedDomainEntitiesSettingsViewModelBase : WidgetViewModelBase
+	public abstract class NamedDomainEntitiesSettingsViewModelBase : WidgetViewModelBase, IDisposable
 	{
 		private INamedDomainObject _selectedEntity;
 
@@ -30,6 +30,18 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			InitializeCommands();
 			
 			ParameterName = parameterName;
+			ObservableEntities.ListChanged += OnEntitiesListChanged;
+			ObservableEntities.ListContentChanged += OnObservableEntitiesListContentChanged;
+		}
+
+		private void OnObservableEntitiesListContentChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(CanSave));
+		}
+
+		private void OnEntitiesListChanged(object aList)
+		{
+			OnPropertyChanged(nameof(CanSave));
 		}
 
 		protected abstract void GetEntitiesCollection();
@@ -83,5 +95,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		}
 
 		private void ShowInfo() => CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, Info);
+
+		public void Dispose()
+		{
+			ObservableEntities.ListChanged -= OnEntitiesListChanged;
+			ObservableEntities.ListContentChanged -= OnObservableEntitiesListContentChanged;
+		}
 	}
 }

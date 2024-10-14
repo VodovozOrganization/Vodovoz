@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Settings.Delivery;
+using VodovozBusiness.Services.Orders;
 using Vodovoz.Settings.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers

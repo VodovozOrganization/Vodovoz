@@ -44,6 +44,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AboutAuthorsViewModel.cs" />
+    <Compile Include="Accounting\Payments\PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel.cs" />
+    <Compile Include="Accounting\Payments\PaymentWriteOffViewModel.cs" />
     <Compile Include="BaseParameters\BaseParametersViewModel.cs" />
     <Compile Include="Cash\AdvanceReportViewModel.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentNode.cs" />
@@ -135,6 +137,7 @@
     <Compile Include="Infrastructure\Print\ICustomPrintRdlDocumentsPrinter.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Store\WarehouseDocumentsJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.StatusAndTypeComparer.cs" />
     <Compile Include="Journals\JournalViewModels\Store\WarehouseDocumentsJournalViewModel.cs" />
     <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.cs" />
     <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.PrintDocumentSelectableNode.cs" />

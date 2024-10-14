@@ -1,6 +1,5 @@
-using DriverApi.Contracts.V5;
+﻿using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Responses;
-using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Converters;
 using Microsoft.Extensions.Logging;
@@ -21,10 +20,10 @@ using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
-using Vodovoz.Models.TrueMark;
 using Vodovoz.Extensions;
-using Vodovoz.Settings.Orders;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Orders;
 
 namespace DriverAPI.Library.V5.Services
 {
