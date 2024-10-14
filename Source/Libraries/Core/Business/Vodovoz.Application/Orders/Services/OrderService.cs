@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -15,6 +17,8 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Errors;
 using Vodovoz.Factories;
 using Vodovoz.Models.Orders;
@@ -23,6 +27,8 @@ using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Services.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
 using VodovozBusiness.Services;
 
 namespace Vodovoz.Application.Orders.Services
@@ -49,6 +55,8 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderDiscountsController _orderDiscountsController;
 		private readonly IOrderDeliveryPriceGetter _orderDeliveryPriceGetter;
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly INomenclatureService _nomenclatureService;
 
 		public OrderService(
@@ -72,6 +80,8 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderRepository orderRepository,
 			IOrderDiscountsController orderDiscountsController,
 			IOrderDeliveryPriceGetter orderDeliveryPriceGetter,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ISubdivisionRepository subdivisionRepository,
 			INomenclatureService nomenclatureService)
 		{
 			if(nomenclatureSettings is null)
@@ -98,6 +108,8 @@ namespace Vodovoz.Application.Orders.Services
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderDiscountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
 			_orderDeliveryPriceGetter = orderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(orderDeliveryPriceGetter));
+			_undeliveredOrdersRepository = undeliveredOrdersRepository;
+			_subdivisionRepository = subdivisionRepository;
 			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
@@ -393,5 +405,92 @@ namespace Vodovoz.Application.Orders.Services
 				.GetEdoContainersByOrderId(unitOfWork, order.Id)
 				.Count(x => x.Type == Domain.Orders.Documents.Type.Bill) > 0;
 		}
+
+
+		/// <summary>
+		/// Автоотмена автопереноса - недовоз, созданный из возвращенного в путь заказа , получает комментарий, а также ответственного "Нет (не недовоз)"
+		/// Заказ, созданный из недовоза переходит в статус "Отменен".
+		/// Недовоз, созданный из автопереноса получает ответственного "Автоотмена автопереноса", а также аналогичный комментарий.
+		/// </summary>
+		public void AutoCancelAutoTransfer(IUnitOfWork uow, Order order)
+		{
+			var oldUndeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, order);
+
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+
+			var oldUndeliveryCommentText = "Доставлен в тот же день";
+
+			foreach(var oldUndelivery in oldUndeliveries)
+			{
+				oldUndelivery.NewOrder?.ChangeStatus(OrderStatus.Canceled);
+
+				var oldUndeliveredOrderResultComment = new UndeliveredOrderResultComment
+				{
+					Author = currentEmployee,
+					Comment = oldUndeliveryCommentText,
+					CreationTime = DateTime.Now,
+					UndeliveredOrder = oldUndelivery
+				};
+
+				oldUndelivery.ResultComments.Add(oldUndeliveredOrderResultComment);
+
+				var oldOrderGuiltyInUndelivery = new GuiltyInUndelivery
+				{
+					GuiltySide = GuiltyTypes.None,
+					UndeliveredOrder = oldUndelivery
+				};
+
+				oldUndelivery.GuiltyInUndelivery.Clear();
+				oldUndelivery.GuiltyInUndelivery.Add(oldOrderGuiltyInUndelivery);
+
+				oldUndelivery.AddAutoCommentToOkkDiscussion(uow, oldUndeliveryCommentText);
+
+				uow.Save(oldUndelivery);
+
+				if(oldUndelivery.NewOrder == null)
+				{
+					continue;
+				}
+
+				var newUndeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, oldUndelivery.NewOrder);
+
+				if(newUndeliveries.Any())
+				{
+					return;
+				}
+
+				var newUndeliveredOrder = new UndeliveredOrder
+				{
+					Author = currentEmployee,
+					OldOrder = oldUndelivery.NewOrder,
+					EmployeeRegistrator = currentEmployee,
+					TimeOfCreation = DateTime.Now,
+					InProcessAtDepartment = _subdivisionRepository.GetQCDepartment(uow)
+				};
+
+				var undeliveredOrderResultComment = new UndeliveredOrderResultComment
+				{
+					Author = currentEmployee,
+					Comment = GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle(),
+					CreationTime = DateTime.Now,
+					UndeliveredOrder = newUndeliveredOrder
+				};
+
+				newUndeliveredOrder.ResultComments.Add(undeliveredOrderResultComment);
+
+				var newOrderGuiltyInUndelivery = new GuiltyInUndelivery
+				{
+					GuiltySide = GuiltyTypes.AutoСancelAutoTransfer,
+					UndeliveredOrder = newUndeliveredOrder
+				};
+
+				newUndeliveredOrder.GuiltyInUndelivery = new List<GuiltyInUndelivery> { newOrderGuiltyInUndelivery };
+
+				uow.Save(newUndeliveredOrder);
+
+				newUndeliveredOrder.AddAutoCommentToOkkDiscussion(uow, GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle());
+			}
+		}
 	}
 }
+

@@ -119,10 +119,13 @@ namespace Vodovoz.Domain.Orders
 		
 		[Display(Name = "Тип скидки из промонабора")]
 		public virtual bool IsDiscountInMoneyFromPromoSet { get; set; }
+		
+		[Display(Name = "Тип ошибки валидации онлайн товара")]
+		public virtual OnlineOrderErrorState? OnlineOrderErrorState { get; set; }
 
+		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 		public virtual decimal Sum => Math.Round(Price * Count - MoneyDiscount, 2);
 		public virtual decimal ActualSum => Sum;
-		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 		public virtual decimal CurrentCount => Count;
 		
 		public static OnlineOrderItem Create(
@@ -132,6 +135,7 @@ namespace Vodovoz.Domain.Orders
 			decimal discount,
 			decimal price,
 			int? promoSetId,
+			DiscountReason discountReason,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
 			OnlineOrder onlineOrder
@@ -144,6 +148,7 @@ namespace Vodovoz.Domain.Orders
 				IsDiscountInMoney = isDiscountInMoney,
 				Price = price,
 				PromoSetId = promoSetId,
+				DiscountReason = discountReason,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
 				OnlineOrder = onlineOrder

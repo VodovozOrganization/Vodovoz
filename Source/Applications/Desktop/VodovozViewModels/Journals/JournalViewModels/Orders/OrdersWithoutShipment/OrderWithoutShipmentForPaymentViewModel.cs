@@ -15,7 +15,7 @@ using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -114,7 +114,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					_emailRepository,
 					_emailSettings,
 					currentEmployee,
-					commonServices.InteractiveService,
+					commonServices,
 					UoW);
 
 			ObservableAvailableOrders = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -36,6 +36,7 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Domain.Logistic.Cars;
+using Vodovoz.ViewModels.Widgets.Goods;
 using VodovozBusiness.Services;
 using VodovozInfrastructure.StringHandlers;
 
@@ -81,6 +82,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureOnlineSettings nomenclatureOnlineSettings,
 			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			INomenclatureService nomenclatureService,
+			NomenclatureMinimumBalanceByWarehouseViewModel nomenclatureMinimumBalanceByWarehouseViewModel,
 			INomenclatureFileStorageService nomenclatureFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
@@ -109,6 +111,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 			_nomenclatureFileStorageService = nomenclatureFileStorageService ?? throw new ArgumentNullException(nameof(nomenclatureFileStorageService));
+
 			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
 
 			ConfigureEntryViewModels();
@@ -139,6 +142,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					Entity.RemoveFileInformation);
 
 			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
+
+			NomenclatureMinimumBalanceByWarehouseViewModel = nomenclatureMinimumBalanceByWarehouseViewModel
+				?? throw new ArgumentNullException(nameof(nomenclatureMinimumBalanceByWarehouseViewModel));
+			NomenclatureMinimumBalanceByWarehouseViewModel.Initialize(this, Entity, UoW);
 		}
 
 		public IStringHandler StringHandler { get; }
@@ -353,12 +360,14 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; private set; }
 		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; private set; }
 		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; private set; }
+		public bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; private set; }
+		public bool CanShowConditionAccounting => Entity.HasInventoryAccounting;
 		private bool IsNewEntity => Entity.Id == 0;
-		private bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; set; }
 
 		#region Commands
 
 		public DelegateCommand SaveCommand { get; }
+
 
 		private DelegateCommand CreateSaveCommand()
 		{
@@ -385,6 +394,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public DelegateCommand CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand { get; }
 
+
 		private DelegateCommand CreateCopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand()
 		{
 			return new DelegateCommand(
@@ -399,7 +409,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public DelegateCommand ArchiveCommand { get; }
 		public DelegateCommand UnArchiveCommand { get; }
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
-
 
 		#endregion Commands
 
@@ -417,6 +426,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				}
 			}
 		}
+
+		public NomenclatureMinimumBalanceByWarehouseViewModel NomenclatureMinimumBalanceByWarehouseViewModel { get; private set; }
 
 		private void SetGlassHolderCheckboxesSelection()
 		{
@@ -640,6 +651,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				() => IsPurifierParameters,
 				() => IsCupHolderParameters
 			);
+			
+			SetPropertyChangeRelation(
+				e => e.HasInventoryAccounting,
+				() => CanShowConditionAccounting);
 		}
 
 		public string GetUserEmployeeName() {
@@ -682,13 +697,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private void SetPermissions()
 		{
 			CanCreateAndArcNomenclatures =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanCreateAndArcNomenclatures);
 			CanCreateNomenclaturesWithInventoryAccountingPermission =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_nomenclatures_with_inventory_accounting");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanCreateNomenclaturesWithInventoryAccounting);
 			CanEditAlternativeNomenclaturePrices =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanEditAlternativeNomenclaturePrices);
 			HasAccessToSitesAndAppsTab =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("Nomenclature.HasAccessToSitesAndAppsTab");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
 		}
 		
 		private void ConfigureOnlineParameters()

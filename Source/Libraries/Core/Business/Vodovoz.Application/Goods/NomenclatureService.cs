@@ -3,7 +3,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;

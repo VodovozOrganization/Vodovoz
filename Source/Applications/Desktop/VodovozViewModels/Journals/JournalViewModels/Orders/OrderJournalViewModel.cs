@@ -94,7 +94,7 @@ namespace Vodovoz.JournalViewModels
 
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			_userHasOnlyAccessToWarehouseAndComplaints =
-				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 			_userCanPrintManyOrdersDocuments = commonServices.CurrentPermissionService.ValidatePresetPermission("can_print_many_orders_documents");
 			_userCanExportOrdersToExcel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_export_orders_to_excel");
@@ -584,9 +584,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
 			}
 			
-			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+			if(FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
-				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				if(!FilterViewModel.FilterClosingDocumentDeliverySchedule.Value)
+				{
+					query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				}
+				else
+				{
+					query.Where(o => o.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId);
+				}
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
@@ -762,7 +769,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -910,7 +917,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -1079,7 +1086,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}

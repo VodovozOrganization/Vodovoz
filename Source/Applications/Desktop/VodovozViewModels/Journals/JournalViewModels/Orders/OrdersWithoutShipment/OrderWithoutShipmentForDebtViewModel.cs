@@ -13,7 +13,7 @@ using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -114,7 +114,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					_emailRepository,
 					_emailSettings,
 					currentEmployee,
-					commonServices.InteractiveService,
+					commonServices,
 					UoW);
 
 			UpdateEdoContainers();

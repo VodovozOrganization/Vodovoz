@@ -45,6 +45,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.Domain.WageCalculation;
+using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Service;
 
@@ -1308,6 +1309,9 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(pi => pi.CashlessMovementOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CashlessMovementOperation>();
+
+			DeleteConfig.AddHibernateDeleteInfo<PaymentWriteOff>()
+				.AddDeleteCascadeDependence(pwo => pwo.CashlessMovementOperation);
 
 			#endregion
 

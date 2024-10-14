@@ -357,6 +357,15 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.Entity, e => e.HasInventoryAccounting, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.UserCanCreateNomenclaturesWithInventoryAccounting, w => w.Sensitive)
 				.InitializeFromSource();
+			
+			lblConditionAccounting.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowConditionAccounting, w => w.Visible)
+				.InitializeFromSource();
+			chkConditionAccounting.Binding
+				.AddBinding(ViewModel.Entity, e => e.HasConditionAccounting, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanShowConditionAccounting, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanCreateNomenclaturesWithInventoryAccountingPermission, w => w.Sensitive)
+				.InitializeFromSource();
 
 			#region Вкладка Оборудование
 
@@ -459,7 +468,9 @@ namespace Vodovoz.Views.Goods
 				&& ViewModel.CanEdit;
 			alternativePricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.Alternative;
 
-			#region Вкладка изображения
+			nomenclatureMinimumBalanceByWarehouseView.ViewModel = ViewModel.NomenclatureMinimumBalanceByWarehouseViewModel;
+
+			#region Вкладка изображения			
 
 			attachedfileinformationsview1.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 
