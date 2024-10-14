@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
@@ -752,11 +752,8 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 											on serviceDistrict.ServiceDistrictsSet.Id equals serviceDistrictSet.Id
 								where serviceDistrictSet.Status == ServiceDistrictsSetStatus.Active
 												&& serviceDistrict.ServiceDistrictBorder != null
-												//&& serviceDistrict.ServiceDistrictBorder.Contains(point)
 								select serviceDistrict)
 			.ToList();
-
-
 
 			var result = serviceDistricts.FirstOrDefault(x => x.ServiceDistrictBorder.Contains(point));
 

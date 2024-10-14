@@ -97,7 +97,7 @@ namespace Vodovoz.ViewModels.Logistic
 			private set => SetField(ref _wasActivated, value);
 		}
 		public DelegateCommand ActivateCommand { get; set; }
-		public string ActiveServiceDistrictsSetName => ActiveServiceDistrictsSet.Name;
+		public string ActiveServiceDistrictsSetName => ActiveServiceDistrictsSet?.Name ?? "-";
 
 		public object SelectedServiceDistrictName => Entity?.Name ?? "";
 

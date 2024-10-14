@@ -29,7 +29,6 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
-using VodovozBusiness.Services;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -57,7 +56,6 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderDeliveryPriceGetter _orderDeliveryPriceGetter;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
-		private readonly INomenclatureService _nomenclatureService;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -81,8 +79,7 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderDiscountsController orderDiscountsController,
 			IOrderDeliveryPriceGetter orderDeliveryPriceGetter,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			ISubdivisionRepository subdivisionRepository,
-			INomenclatureService nomenclatureService)
+			ISubdivisionRepository subdivisionRepository)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -110,7 +107,6 @@ namespace Vodovoz.Application.Orders.Services
 			_orderDeliveryPriceGetter = orderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(orderDeliveryPriceGetter));
 			_undeliveredOrdersRepository = undeliveredOrdersRepository;
 			_subdivisionRepository = subdivisionRepository;
-			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 

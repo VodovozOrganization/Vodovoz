@@ -432,24 +432,24 @@ namespace Vodovoz.ViewWidgets
 					}
 				}
 			}
-				
-				#endregion DeliveryRules
 
-				#region Sheduules
+			#endregion DeliveryRules
 
-				ScheduleRestrictionsToday = GetServiceSheduleRestrictionsFor(WeekDayName.Today);
-				ScheduleRestrictionsMonday = GetServiceSheduleRestrictionsFor(WeekDayName.Monday);
-				ScheduleRestrictionsTuesday = GetServiceSheduleRestrictionsFor(WeekDayName.Tuesday);
-				ScheduleRestrictionsWednesday = GetServiceSheduleRestrictionsFor(WeekDayName.Wednesday);
-				ScheduleRestrictionsThursday = GetServiceSheduleRestrictionsFor(WeekDayName.Thursday);
-				ScheduleRestrictionsFriday = GetServiceSheduleRestrictionsFor(WeekDayName.Friday);
-				ScheduleRestrictionsSaturday = GetServiceSheduleRestrictionsFor(WeekDayName.Saturday);
-				ScheduleRestrictionsSunday = GetServiceSheduleRestrictionsFor(WeekDayName.Sunday);
+			#region Sheduules
 
-				#endregion Shedules
-			}
+			ScheduleRestrictionsToday = GetServiceSheduleRestrictionsForDay(WeekDayName.Today);
+			ScheduleRestrictionsMonday = GetServiceSheduleRestrictionsForDay(WeekDayName.Monday);
+			ScheduleRestrictionsTuesday = GetServiceSheduleRestrictionsForDay(WeekDayName.Tuesday);
+			ScheduleRestrictionsWednesday = GetServiceSheduleRestrictionsForDay(WeekDayName.Wednesday);
+			ScheduleRestrictionsThursday = GetServiceSheduleRestrictionsForDay(WeekDayName.Thursday);
+			ScheduleRestrictionsFriday = GetServiceSheduleRestrictionsForDay(WeekDayName.Friday);
+			ScheduleRestrictionsSaturday = GetServiceSheduleRestrictionsForDay(WeekDayName.Saturday);
+			ScheduleRestrictionsSunday = GetServiceSheduleRestrictionsForDay(WeekDayName.Sunday);
 
-			private string GetSheduleRestrictionsFor(WeekDayName weekDayName, bool isForServiceDistrict = false)
+			#endregion Shedules
+		}
+
+		private string GetSheduleRestrictionsFor(WeekDayName weekDayName, bool isForServiceDistrict = false)
 			{
 
 			var restrictions = District.GetAllDeliveryScheduleRestrictions()
@@ -535,7 +535,7 @@ namespace Vodovoz.ViewWidgets
 			return result.ToString();
 		}
 
-		private string GetServiceSheduleRestrictionsFor(WeekDayName weekDayName)
+		private string GetServiceSheduleRestrictionsForDay(WeekDayName weekDayName)
 		{
 			if(ServiceDistrict is null)
 			{
@@ -688,7 +688,7 @@ namespace Vodovoz.ViewWidgets
 			};
 
 			deliveryRuleHeader.DynamicColumns.Add("Тип сервисной доставки");
-			deliveryRuleHeader.DynamicColumns.Add("Цена2");
+			deliveryRuleHeader.DynamicColumns.Add("Цена");
 
 			deliveryRuleRows.Add(deliveryRuleHeader);
 
