@@ -75,8 +75,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", startDate },
-						{ "end_date", endDate }
+						{ "dateFrom", startDate },
+						{ "dateTo", endDate }
 					};
 
 				return parameters;

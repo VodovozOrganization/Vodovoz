@@ -25,13 +25,13 @@ namespace Vodovoz.ReportsParameters.Orders
 			yChooseOrderStatus.ItemsEnum = ViewModel.OrderStatusType;
 			yChooseOrderStatus.ShowSpecialStateAll = true;
 			yChooseOrderStatus.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.OrderStatus, w => w.SelectedItem)
+				.AddBinding(vm => vm.OrderStatus, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			yChooseThePaymentTypeForTheOrder.ItemsEnum = ViewModel.PaymentTypeType;
 			yChooseThePaymentTypeForTheOrder.ShowSpecialStateAll = true;
 			yChooseThePaymentTypeForTheOrder.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.PaymentType, w => w.SelectedItem)
+				.AddBinding(vm => vm.PaymentType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			entryDistrict.SetEntityAutocompleteSelectorFactory(ViewModel.DistrictSelectorFactory);

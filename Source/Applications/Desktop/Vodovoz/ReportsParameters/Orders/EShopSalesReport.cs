@@ -28,10 +28,10 @@ namespace Vodovoz.ReportsParameters.Orders
 				.InitializeFromSource();
 
 			enumchecklistOrderStatus.EnumType = ViewModel.OrderStatusType;
-            enumchecklistOrderStatus.SelectAll();
 			enumchecklistOrderStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.OrderStatuses, w => w.SelectedValuesList, new EnumsListConverter<OrderStatus>())
 				.InitializeFromSource();
+			enumchecklistOrderStatus.SelectAll();
 
 			buttonRun.BindCommand(ViewModel.GenerateReportCommand);
 		}

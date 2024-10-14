@@ -53,10 +53,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 			UoW = _uowFactory.CreateWithoutRoot();
 
 			Mode = Modes.First();
+			_modeAllowed = true;
 
 			CounterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(autofacScope);
-			SellManagerSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			OrderAuthorSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			SellManagerSelectorFactory = _employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+			OrderAuthorSelectorFactory = _employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 
 			_startDate = DateTime.Today;
 

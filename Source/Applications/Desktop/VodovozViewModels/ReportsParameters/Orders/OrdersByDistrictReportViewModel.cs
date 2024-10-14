@@ -35,8 +35,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 
 			UoW = uowFactory.CreateWithoutRoot();
 
-			_isAllDistricts = true;
-
 			DistrictsSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () =>
 			{
 				var filter = new DistrictJournalFilterViewModel
@@ -117,7 +115,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 						{ "end_date", EndDate?.Date.AddHours(23).AddMinutes(59).AddSeconds(59) }
 					};
 
-				if(!IsAllDistricts)
+				if(!IsAllDistricts && District != null)
 				{
 					parameters.Add("id_district", District.Id);
 				}

@@ -25,8 +25,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 		private DateTime? _endDate;
 		private IEnumerable<DiscountReason> _discountReasons;
 		private DiscountReason _discountReason;
-		private OrderStatus _orderStatus;
-		private PaymentType _paymentType;
+		private OrderStatus? _orderStatus;
+		private PaymentType? _paymentType;
 		private District _district;
 		private bool _withPromosets;
 
@@ -91,7 +91,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 
 		public Type OrderStatusType => typeof(OrderStatus);
 
-		public virtual OrderStatus OrderStatus
+		public virtual OrderStatus? OrderStatus
 		{
 			get => _orderStatus;
 			set => SetField(ref _orderStatus, value);
@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 
 		public Type PaymentTypeType => typeof(PaymentType);
 
-		public virtual PaymentType PaymentType
+		public virtual PaymentType? PaymentType
 		{
 			get => _paymentType;
 			set => SetField(ref _paymentType, value);
@@ -129,9 +129,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 						{ "start_date", StartDate },
 						{ "end_date", EndDate },
 						{ "discount_id", DiscountReason?.Id ?? 0 },
-						{ "order_status", OrderStatus.ToString() },
-						{ "payment_type", PaymentType.ToString() },
-						{ "district_id", District?.Id ?? 0 },
+						{ "order_status", OrderStatus == null ? "All" : OrderStatus.ToString() },
+						{ "payment_type", PaymentType == null ? "All" : PaymentType.ToString()  },
+						{ "district_id", District?.Id },
 						{ "has_promotional_sets", WithPromosets }
 					};
 

@@ -38,6 +38,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			var onlineStores = UoW.Session.QueryOver<OnlineStore>().List();
 			onlineStores.Insert(0, new OnlineStore() { Id = -1, Name = "Все" });
 			OnlineStores = onlineStores;
+			OnlineStore = OnlineStores.FirstOrDefault();
 
 			_startDate = DateTime.Today;
 			_endDate = DateTime.Today;
