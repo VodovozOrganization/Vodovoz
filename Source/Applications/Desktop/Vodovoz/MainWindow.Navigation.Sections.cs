@@ -232,9 +232,8 @@ public partial class MainWindow
 	}
 
 	protected void OnActionWayBillJournalActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<ServiceDistrictsSetJournalViewModel, Action<ServiceDistrictsSetJournalFilterViewModel>>(null, filter => filter.HidenByDefault = true);
-		//NavigationManager.OpenViewModel<WayBillGeneratorViewModel, Action<EmployeeFilterViewModel>>(null, filter => filter.Status = EmployeeStatus.IsWorking);
+	{		
+		NavigationManager.OpenViewModel<WayBillGeneratorViewModel, Action<EmployeeFilterViewModel>>(null, filter => filter.Status = EmployeeStatus.IsWorking);
 	}
 
 	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)

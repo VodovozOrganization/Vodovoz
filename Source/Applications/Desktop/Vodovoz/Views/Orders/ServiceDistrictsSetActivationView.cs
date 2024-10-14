@@ -1,10 +1,7 @@
-﻿using QS.Dialog.GtkUI;
-using QS.Views.GtkUI;
-using System;
+﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Logistic;
 namespace Vodovoz.Views.Orders
 {
-	// Art8m Переделать
 	public partial class ServiceDistrictsSetActivationView : TabViewBase<ServiceDistrictsSetActivationViewModel>
 	{
 		public ServiceDistrictsSetActivationView(ServiceDistrictsSetActivationViewModel viewModel) : base(viewModel)
@@ -15,43 +12,25 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
-			ylabelCurrentDistrictsSetStr.Text = ViewModel.ActiveServiceDistrictsSet?.Name ?? "-";
 			ylabelSelectedDistrictsSetStr.Text = ViewModel.Entity?.Name ?? "";
 
-			ybuttonActivate.Clicked += async (sender, args) =>
-			{
-				if(!MessageDialogHelper.RunQuestionDialog($"Переключить базу на версию районов \"{ViewModel.Entity.Name}\""))
-				{
-					return;
-				}
-				try
-				{
-					await ViewModel.ActivateAsync();
-				}
-				catch(Exception ex)
-				{
-					Gtk.Application.Invoke((s, e) => throw ex);
-				}
-			};
+			ybuttonActivate.BindCommand(ViewModel.ActivateCommand);
 
-			ViewModel.PropertyChanged += (sender, args) =>
-			{
-				Gtk.Application.Invoke((s, e) =>
-				{
-					if(args.PropertyName == nameof(ViewModel.ActivationStatus))
-					{
-						ylabelActivationStatus.Text = ViewModel.ActivationStatus;
-					}
-					if(args.PropertyName == nameof(ViewModel.ActivationInProgress) || args.PropertyName == nameof(ViewModel.WasActivated))
-					{
-						ybuttonActivate.Sensitive = !ViewModel.ActivationInProgress && !ViewModel.WasActivated;
-					}
-					if(args.PropertyName == nameof(ViewModel.ActiveServiceDistrictsSet))
-					{
-						ylabelCurrentDistrictsSetStr.Text = ViewModel.ActiveServiceDistrictsSet.Name;
-					}
-				});
-			};
+			ybuttonActivate.Binding
+				.AddFuncBinding(ViewModel, vm => !ViewModel.ActivationInProgress && !ViewModel.WasActivated, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ylabelActivationStatus.Binding
+				.AddBinding(ViewModel, vm => vm.ActivationStatus, w => w.LabelProp)
+				.InitializeFromSource();
+
+			ylabelCurrentDistrictsSetStr.Binding
+				.AddBinding(ViewModel, vm => vm.ActiveServiceDistrictsSetName, w => w.LabelProp)
+				.InitializeFromSource();
+
+			ylabelSelectedDistrictsSetStr.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedServiceDistrictName, w => w.LabelProp)
+				.InitializeFromSource();
 		}
 	}
 }

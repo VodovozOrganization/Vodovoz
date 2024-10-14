@@ -1,6 +1,5 @@
 ﻿using NHibernate;
-using NHibernate.Persister.Entity;
-using NHibernate.Transform;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -11,13 +10,9 @@ using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Tools.Logistic;
 using VodovozBusiness.Domain.Service;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -47,7 +42,26 @@ namespace Vodovoz.ViewModels.Logistic
 				.Where(x => x.Status == ServiceDistrictsSetStatus.Active)
 				.Take(1)
 				.SingleOrDefault();
+
 			_employeeRepository = employeeRepository;
+
+			ActivateCommand = new DelegateCommand(Activate);
+		}
+
+		private void Activate()
+		{
+			if(!CommonServices.InteractiveService.Question($"Переключить базу на версию районов \"{Entity.Name}\""))
+			{
+				return;
+			}
+			try
+			{
+				_ = ActivateAsync();
+			}
+			catch
+			{
+				throw;
+			}
 		}
 
 		public override bool HasChanges => false;
@@ -82,6 +96,10 @@ namespace Vodovoz.ViewModels.Logistic
 			get => _wasActivated;
 			private set => SetField(ref _wasActivated, value);
 		}
+		public DelegateCommand ActivateCommand { get; set; }
+		public string ActiveServiceDistrictsSetName => ActiveServiceDistrictsSet.Name;
+
+		public object SelectedServiceDistrictName => Entity?.Name ?? "";
 
 		public bool CanClose()
 		{
