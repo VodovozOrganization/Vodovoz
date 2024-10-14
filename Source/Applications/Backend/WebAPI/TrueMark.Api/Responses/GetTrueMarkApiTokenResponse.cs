@@ -1,8 +1,7 @@
-﻿namespace TrueMark.Api.Responses
+﻿namespace TrueMark.Api.Responses;
+
+public class GetTrueMarkApiTokenResponse
 {
-	public class GetTrueMarkApiTokenResponse
-	{
-		public string Token { get; set; }
-		public string ErrorMessage { get; set; }
-	}
+	public string Token { get; set; }
+	public string ErrorMessage { get; set; }
 }

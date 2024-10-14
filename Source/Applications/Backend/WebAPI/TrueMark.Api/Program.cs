@@ -5,33 +5,32 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
 
-namespace TrueMark.Api
+namespace TrueMark.Api;
+
+public class Program
 {
-	public class Program
+	private const string _nlogSectionName = nameof(NLog);
+
+	public static void Main(string[] args)
 	{
-		private const string _nlogSectionName = nameof(NLog);
-
-		public static void Main(string[] args)
-		{
-			CreateHostBuilder(args).Build().Run();
-		}
-
-		public static IHostBuilder CreateHostBuilder(string[] args) =>
-			Host.CreateDefaultBuilder(args)
-				.ConfigureLogging((context, logging) =>
-				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(context.Configuration.GetSection(_nlogSectionName));
-				})
-				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
-				.ConfigureWebHostDefaults(webBuilder =>
-				{
-					webBuilder.UseStartup<Startup>();
-				})
-			.ConfigureServices((hostContext, services) =>
-			{
-				services.ConfigureTrueMarkApi(hostContext);
-			});
+		CreateHostBuilder(args).Build().Run();
 	}
+
+	public static IHostBuilder CreateHostBuilder(string[] args) =>
+		Host.CreateDefaultBuilder(args)
+			.ConfigureLogging((context, logging) =>
+			{
+				logging.ClearProviders();
+				logging.AddNLogWeb();
+				logging.AddConfiguration(context.Configuration.GetSection(_nlogSectionName));
+			})
+			.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+			.ConfigureWebHostDefaults(webBuilder =>
+			{
+				webBuilder.UseStartup<Startup>();
+			})
+		.ConfigureServices((hostContext, services) =>
+		{
+			services.ConfigureTrueMarkApi(hostContext);
+		});
 }
