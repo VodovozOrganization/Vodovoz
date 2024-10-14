@@ -5,6 +5,8 @@ using System.Linq;
 using Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets;
 using static Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets.PotentialFreePromosetsReport;
 using static Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets.PotentialFreePromosetsReportViewModel;
+using WrapMode = Pango.WrapMode;
+
 namespace Vodovoz.Orders.Reports
 {
 	public partial class PotentialFreePromosetsReportView : DialogViewBase<PotentialFreePromosetsReportViewModel>
@@ -50,15 +52,91 @@ namespace Vodovoz.Orders.Reports
 
 			ytreeData.ColumnsConfig = FluentColumnsConfig<PromosetReportRow>.Create()
 				.AddColumn("№ п/п").AddNumericRenderer(x => x.SequenceNumber)
+				.AddSetter((cell, node) =>
+				{
+					if(node.IsRootRow)
+					{
+						cell.Markup = $"<b>{node.SequenceNumber}</b>";
+					}
+				})
 				.AddColumn("Адрес").AddTextRenderer(x => x.Address)
-				.AddColumn("Тип объекта").AddTextRenderer(x => x.AddressType)
+				.AddSetter((cell, node) =>
+				{
+					if(node.IsRootRow)
+					{
+						cell.Markup = $"<b>{node.Address}</b>";
+					}
+				})
+				.WrapWidth(350).WrapMode(WrapMode.WordChar)
+				.AddColumn("Тип объекта").AddTextRenderer(x => x.AddressCategory)
+				.AddSetter((cell, node) =>
+				{
+					if(node.IsRootRow)
+					{
+						cell.Markup = $"<b>{node.AddressCategory}</b>";
+					}
+				})
+				.WrapWidth(150).WrapMode(WrapMode.WordChar)
 				.AddColumn("Телефон").AddTextRenderer(x => x.Phone)
+				.AddSetter((cell, node) =>
+				{
+					if(node.IsRootRow)
+					{
+						cell.Markup = $"<b>{node.Phone}</b>";
+					}
+				})
 				.AddColumn("Клиент").AddTextRenderer(x => x.Client)
+				.AddSetter((cell, node) =>
+				{
+					if(node.IsRootRow)
+					{
+						cell.Markup = $"<b>{node.Client}</b>";
+					}
+				})
+				.WrapWidth(200).WrapMode(WrapMode.WordChar)
 				.AddColumn("Заказ").AddNumericRenderer(x => x.Order)
-				.AddColumn("Дата создания").AddNumericRenderer(x => x.OrderCreationDate.ToShortDateString())
+				.AddSetter((cell, node) =>
+				{
+					if(node.IsRootRow)
+					{
+						cell.Markup = $"<b>{node.Order}</b>";
+					}
+				})
+				.AddColumn("Дата создания").AddNumericRenderer(x => x.OrderCreationDate.HasValue ? x.OrderCreationDate.Value.ToShortDateString() : string.Empty)
+				.AddSetter((cell, node) =>
+				{
+					var value = node.OrderCreationDate.HasValue ? node.OrderCreationDate.Value.ToShortDateString() : string.Empty;
+					if(node.IsRootRow)
+					{
+						cell.Markup = $"<b>{value}</b>";
+					}
+				})
 				.AddColumn("Дата доставки").AddNumericRenderer(x => x.OrderDeliveryDate.HasValue ? x.OrderDeliveryDate.Value.ToShortDateString() : string.Empty)
+				.AddSetter((cell, node) =>
+				{
+					var value = node.OrderDeliveryDate.HasValue ? node.OrderDeliveryDate.Value.ToShortDateString() : string.Empty;
+					if(node.IsRootRow)
+					{
+						cell.Markup = $"<b>{value}</b>";
+					}
+				})
 				.AddColumn("Промонабор").AddTextRenderer(x => x.Promoset)
+				.AddSetter((cell, node) =>
+				{
+					if(node.IsRootRow)
+					{
+						cell.Markup = $"<b>{node.Promoset}</b>";
+					}
+				})
+				.WrapWidth(150).WrapMode(WrapMode.WordChar)
 				.AddColumn("Автор").AddTextRenderer(x => x.Author)
+				.AddSetter((cell, node) =>
+				{
+					if(node.IsRootRow)
+					{
+						cell.Markup = $"<b>{node.Author}</b>";
+					}
+				})
 				.Finish();
 
 			ytreeData.Binding
