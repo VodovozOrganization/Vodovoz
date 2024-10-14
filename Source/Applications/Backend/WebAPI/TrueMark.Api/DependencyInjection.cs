@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TrueMarkApi.Options;
+using TrueMark.Api.Options;
 
-namespace TrueMarkApi
+namespace TrueMark.Api
 {
 	public static class DependencyInjection
 	{

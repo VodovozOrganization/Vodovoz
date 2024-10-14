@@ -13,12 +13,12 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TrueMark.Api.Options;
+using TrueMark.Api.Responses;
 using TrueMark.Contracts;
-using TrueMarkApi.Options;
-using TrueMarkApi.Responses;
-using IAuthorizationService = TrueMarkApi.Services.Authorization.IAuthorizationService;
+using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorizationService;
 
-namespace TrueMarkApi.Controllers
+namespace TrueMark.Api.Controllers
 {
 	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[ApiController]

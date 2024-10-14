@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TrueMarkApi.Services.Authorization
+namespace TrueMark.Api.Services.Authorization
 {
 	public class AuthorizationTokenCache
 	{

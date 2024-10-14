@@ -1,4 +1,4 @@
-﻿namespace TrueMarkApi.Responses
+﻿namespace TrueMark.Api.Responses
 {
 	public class GetTrueMarkApiTokenResponse
 	{

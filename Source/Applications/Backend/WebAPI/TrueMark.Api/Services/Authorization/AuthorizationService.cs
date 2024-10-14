@@ -12,10 +12,10 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TrueMark.Api.Options;
 using TrueMark.Contracts.Auth;
-using TrueMarkApi.Options;
 
-namespace TrueMarkApi.Services.Authorization
+namespace TrueMark.Api.Services.Authorization
 {
 	public class AuthorizationService : IAuthorizationService
 	{

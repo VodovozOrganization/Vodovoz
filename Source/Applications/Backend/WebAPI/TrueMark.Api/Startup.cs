@@ -7,10 +7,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using TrueMarkApi.Options;
-using TrueMarkApi.Services.Authorization;
+using TrueMark.Api.Options;
+using TrueMark.Api.Services.Authorization;
 
-namespace TrueMarkApi
+namespace TrueMark.Api
 {
 	public class Startup
 	{

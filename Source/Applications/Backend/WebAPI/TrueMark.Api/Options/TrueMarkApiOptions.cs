@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using TrueMark.Contracts;
 
-namespace TrueMarkApi.Options
+namespace TrueMark.Api.Options
 {
 	public class TrueMarkApiOptions
 	{
