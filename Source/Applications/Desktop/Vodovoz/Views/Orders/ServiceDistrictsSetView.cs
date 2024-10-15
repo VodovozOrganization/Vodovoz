@@ -70,7 +70,8 @@ namespace Vodovoz.Views.Orders
 			PrepareDistrictsTreeView();
 			PrepareServiceDeliveryScheduleRestrictionsTreeView();
 			PrepareCommonDistrictRuleItemsTreeView();
-			PrepareWeekDayServiceDistrictPriceRulesTreeView();
+			// Пока не используем
+			//PrepareWeekDayServiceDistrictPriceRulesTreeView();
 
 			#endregion
 

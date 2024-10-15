@@ -233,15 +233,15 @@ namespace Vodovoz.Application.Goods
 			var serviceDistrictRuleByWeekDay = serviceDistrict.GetWeekDayServiceDistrictRuleByDeliveryDate(deliveryDate)
 				.Where(x => x.ServiceType == masterServiceType);
 
-			if(serviceDistrictRuleByWeekDay != null)
+			if(serviceDistrictRuleByWeekDay.Any())
 			{
 				return serviceDistrictRuleByWeekDay.Single().Price;
 			}
 
-			var commonServiceDistrictRule = serviceDistrict.GetCommonRuleItemCollection()
+			var commonServiceDistrictRule = serviceDistrict.GetCommonServiceDistrictRules()
 				.Where(x => x.ServiceType == masterServiceType);
 
-			if(commonServiceDistrictRule != null)
+			if(commonServiceDistrictRule.Any())
 			{
 				return commonServiceDistrictRule.Single().Price;
 			}

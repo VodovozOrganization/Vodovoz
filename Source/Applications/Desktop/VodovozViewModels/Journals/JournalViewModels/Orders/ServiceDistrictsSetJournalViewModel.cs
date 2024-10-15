@@ -230,12 +230,6 @@ namespace Vodovoz.Journals.JournalViewModels
 							_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя активировать, так как дата создания выбранной версии меньше чем дата создания активной версии");
 							return;
 						}
-						var selectedServiceDistrictsSet = UoW.GetById<ServiceDistrictsSet>(selectedNode.Id);
-						if(selectedServiceDistrictsSet.ServiceDistricts.Any(x => x.CopyOf == null)
-							&& !_interactiveService.Question("Для выбранной версии невозможно перенести все приоритеты работы водителей\nПродолжить?"))
-						{
-							return;
-						}
 
 						NavigationManager.OpenViewModel<ServiceDistrictsSetActivationViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 					}

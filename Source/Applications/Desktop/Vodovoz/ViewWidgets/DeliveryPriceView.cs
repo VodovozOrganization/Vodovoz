@@ -391,7 +391,7 @@ namespace Vodovoz.ViewWidgets
 				{
 					var dayRule = ConvertToServiceDeliveryRuleRows(dayyServiceDistrictRule.Any()
 						? dayyServiceDistrictRule
-						: ServiceDistrict?.GetCommonRuleItemCollection() as IEnumerable<ServiceDistrictRule>);
+						: ServiceDistrict?.GetCommonServiceDistrictRules() as IEnumerable<ServiceDistrictRule>);
 
 					var isDayVisible = dayRule.Any();
 

@@ -159,7 +159,7 @@ namespace VodovozBusiness.Domain.Service
 				.Where(x => x.WeekDay == weekDayName)
 				.ToList();
 
-		public virtual IList<CommonServiceDistrictRule> GetCommonRuleItemCollection() =>
+		public virtual IList<CommonServiceDistrictRule> GetCommonServiceDistrictRules() =>
 			AllServiceDistrictRules.Where(x => x is CommonServiceDistrictRule)
 			.Cast<CommonServiceDistrictRule>()
 			.ToList();

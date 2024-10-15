@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -5215,7 +5215,7 @@ namespace Vodovoz
 			if((Entity.OrderAddressType == OrderAddressType.Delivery
 				|| Entity.OrderAddressType == OrderAddressType.Service)
 			   && !Entity.Client.IsChainStore
-			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
+			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
 			}
@@ -5226,7 +5226,7 @@ namespace Vodovoz
 			if((Entity.OrderAddressType == OrderAddressType.StorageLogistics
 				|| Entity.OrderAddressType == OrderAddressType.Service)
 			   && !Entity.Client.IsChainStore
-			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
+			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				Entity.OrderAddressType = OrderAddressType.Delivery;
 			}

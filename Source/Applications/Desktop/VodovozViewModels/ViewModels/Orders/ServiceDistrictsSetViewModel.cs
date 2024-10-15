@@ -445,7 +445,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			SelectedServiceDistrict = newDistrict;
 
 			CreateCommonRules();
-			CreateWeekDayRules();
+
+			//Пока не используем
+			//CreateWeekDayRules();
 		}
 
 		private void CreateCommonRules()
