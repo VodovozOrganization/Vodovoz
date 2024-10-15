@@ -76,7 +76,7 @@ namespace Vodovoz.Orders.Reports
 						cell.Markup = $"<b>{node.AddressCategory}</b>";
 					}
 				})
-				.WrapWidth(150).WrapMode(WrapMode.WordChar)
+				.WrapWidth(120).WrapMode(WrapMode.WordChar)
 				.AddColumn("Телефон").AddTextRenderer(x => x.Phone)
 				.AddSetter((cell, node) =>
 				{
@@ -85,6 +85,7 @@ namespace Vodovoz.Orders.Reports
 						cell.Markup = $"<b>{node.Phone}</b>";
 					}
 				})
+				.WrapWidth(150).WrapMode(WrapMode.WordChar)
 				.AddColumn("Клиент").AddTextRenderer(x => x.Client)
 				.AddSetter((cell, node) =>
 				{
@@ -128,7 +129,7 @@ namespace Vodovoz.Orders.Reports
 						cell.Markup = $"<b>{node.Promoset}</b>";
 					}
 				})
-				.WrapWidth(150).WrapMode(WrapMode.WordChar)
+				.WrapWidth(120).WrapMode(WrapMode.WordChar)
 				.AddColumn("Автор").AddTextRenderer(x => x.Author)
 				.AddSetter((cell, node) =>
 				{
