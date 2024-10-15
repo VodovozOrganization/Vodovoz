@@ -1,10 +1,11 @@
-using EmailPrepareWorker.Prepares;
+﻿using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
@@ -98,6 +99,11 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				&& document is SpecialBillDocument specialBillDocument)
 			{
 				_template = specialBillDocument.GetResendEmailTemplate();
+			}
+			else if(_counterpartyEmail.StoredEmail.ManualSending == true
+				&& document is ICustomResendTemplateEmailableDocument resendableDocument)
+			{
+				_template = resendableDocument.GetResendDocumentEmailTemplate();
 			}
 			else
 			{

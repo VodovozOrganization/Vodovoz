@@ -163,10 +163,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void RecalculateDiscount()
 		{
-			if(!NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
-			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Discount))
-			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Price))
-			   || (Order == null || !NHibernateUtil.IsInitialized(Order.OrderItems)))
+			if(!CheckInitializedProperties())
 			{
 				return;
 			}
@@ -191,6 +188,36 @@ namespace Vodovoz.Domain.Orders
 						: Discount;
 
 				CalculateAndSetDiscount(discount);
+			}
+		}
+
+		private bool CheckInitializedProperties()
+		{
+			if(!NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
+			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Discount))
+			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Price))
+			   || (Order == null || !NHibernateUtil.IsInitialized(Order.OrderItems)))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		private void RecalculateDiscountWithPreserveOrRestoreDiscount()
+		{
+			if(!CheckInitializedProperties())
+			{
+				return;
+			}
+			
+			if(CurrentCount == 0)
+			{
+				RemoveAndPreserveDiscount();
+			}
+			else
+			{
+				RestoreOriginalDiscount();
 			}
 		}
 
@@ -430,6 +457,12 @@ namespace Vodovoz.Domain.Orders
 					IncomingDeliveryPoint = Order.DeliveryPoint,
 				};
 			}
+			else
+			{
+				CounterpartyMovementOperation.Amount = ActualCount.Value;
+				CounterpartyMovementOperation.IncomingCounterparty = Order.Client;
+				CounterpartyMovementOperation.IncomingDeliveryPoint = Order.DeliveryPoint;
+			}
 
 			return CounterpartyMovementOperation;
 		}
@@ -538,6 +571,12 @@ namespace Vodovoz.Domain.Orders
 			RecalculateDiscount();
 			RecalculateVAT();
 		}
+		
+		public virtual void SetActualCountWithPreserveOrRestoreDiscount(decimal? newValue)
+		{
+			ActualCount = newValue;
+			RecalculateDiscountWithPreserveOrRestoreDiscount();
+		}
 
 		public virtual void SetActualCountZero()
 		{
@@ -578,7 +617,22 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		protected internal virtual void RestoreOriginalDiscount()
+		protected internal virtual void RestoreOriginalDiscountFromRestoreOrder()
+		{
+			TryRestoreOriginalDiscount();
+			ActualCount = null;
+
+			RecalculateDiscount();
+			RecalculateVAT();
+		}
+		
+		private void RestoreOriginalDiscount()
+		{
+			TryRestoreOriginalDiscount();
+			CalculateAndSetDiscount(IsDiscountInMoney ? DiscountMoney : Discount);
+		}
+
+		private void TryRestoreOriginalDiscount()
 		{
 			if(OriginalDiscountMoney.HasValue || OriginalDiscount.HasValue)
 			{
@@ -589,10 +643,6 @@ namespace Vodovoz.Domain.Orders
 				OriginalDiscountReason = null;
 				OriginalDiscount = null;
 			}
-			ActualCount = null;
-
-			RecalculateDiscount();
-			RecalculateVAT();
 		}
 
 		public virtual void SetDiscount(decimal discount)
