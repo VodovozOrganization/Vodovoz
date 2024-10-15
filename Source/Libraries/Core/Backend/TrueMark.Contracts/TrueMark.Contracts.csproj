@@ -4,12 +4,18 @@
     <TargetFramework>netstandard2.0</TargetFramework>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<PackageVersion>$(AssemblyVersion)</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
-    <AssemblyVersion>1.0.*</AssemblyVersion>
+    <VersionSuffix>1.0.0.$([System.DateTime]::UtcNow.ToString(mmff))</VersionSuffix>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">0.0.0.1</AssemblyVersion>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
+    <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
+    <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
     <Deterministic>false</Deterministic>
+    <PackageOutputPath>../../../../Applications/Backend/WebAPI/TrueMark.Api/Nuget/packages</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
