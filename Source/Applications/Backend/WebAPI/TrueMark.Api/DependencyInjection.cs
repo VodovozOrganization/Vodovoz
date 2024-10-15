@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System;
 using System.Text;
 using TrueMark.Api.Options;
 using TrueMark.Api.Services.Authorization;
@@ -43,7 +44,11 @@ public static class DependencyInjection
 					.AddAspNetCoreInstrumentation()
 					.AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName);
 
-				tracing.AddOtlpExporter();
+				tracing.AddOtlpExporter(exporter =>
+				{
+					exporter.Endpoint = new Uri();
+					exporter.Protocol = 
+				});
 			});
 
 		return services;
