@@ -127,7 +127,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			RemoveNewBorderVertexCommand = new DelegateCommand<PointLatLng>(RemoveNewBorderVertex, point => IsCreatingNewBorder && !point.IsEmpty);
 			RemoveNewBorderVertexCommand.CanExecuteChangedWith(this, x => x.IsCreatingNewBorder);
 
-			AddScheduleRestrictionCommand = new DelegateCommand(AddScheduleRestriction, ()=>CanAddScheduleRestriction);
+			AddScheduleRestrictionCommand = new DelegateCommand(AddScheduleRestriction, () => CanAddScheduleRestriction);
 			AddScheduleRestrictionCommand.CanExecuteChangedWith(this, x => x.CanAddScheduleRestriction);
 
 			RemoveScheduleRestrictionCommand = new DelegateCommand(RemoveScheduleRestriction, () => CanEditSchedule);
@@ -151,6 +151,287 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 			RefreshBordersAction?.Invoke();
 		}
+
+		[PropertyChangedAlso(nameof(CanCreateBorder), nameof(CanRemoveBorder))]
+		public bool CanEditServiceDistrict { get; }
+		public bool CanEditServiceDeliveryRules { get; }
+
+		[PropertyChangedAlso(nameof(CanAddScheduleRestriction), nameof(CanEditSchedule))]
+		public bool CanEditDeliveryScheduleRestriction { get; }
+
+		[PropertyChangedAlso(nameof(CanRemoveDistrict))]
+		public bool CanDeleteDistrict { get; }
+
+		public bool CanCreateDistrict { get; }
+		public bool CanSave { get; }
+		public bool CanEdit { get; }
+
+		public bool CanCopyDeliveryScheduleRestrictions =>
+			CanEditDeliveryScheduleRestriction
+			&& SelectedServiceDistrict != null;
+
+		public bool CanPasteDeliveryScheduleRestrictions =>
+			CanEditDeliveryScheduleRestriction
+			&& SelectedServiceDistrict != null
+			&& _copiedDistrict != null;
+
+		public bool CanRemoveDistrict => SelectedServiceDistrict != null && CanDeleteDistrict;
+
+		public bool CanCreateBorder =>
+			CanEditServiceDistrict
+			&& !IsCreatingNewBorder
+			&& SelectedServiceDistrict != null
+			&& SelectedServiceDistrict.ServiceDistrictBorder == null;
+
+		public bool CanRemoveBorder =>
+			CanEditServiceDistrict
+			&& !IsCreatingNewBorder
+			&& SelectedServiceDistrict != null
+			&& SelectedServiceDistrict.ServiceDistrictBorder != null;
+
+		public bool CanEditSchedule => SelectedScheduleRestriction != null
+			&& CanEditDeliveryScheduleRestriction
+			&& SelectedServiceDistrict != null
+			&& SelectedScheduleRestriction != null;
+
+		public bool CanAddScheduleRestriction =>
+			CanEditDeliveryScheduleRestriction
+			&& SelectedServiceDistrict != null
+			&& SelectedWeekDayName.HasValue;
+
+		public bool CanConfirmNewBorder => SelectedServiceDistrict != null && IsCreatingNewBorder;
+
+		public string CopyDistrictScheduleMenuItemLabel =>
+			$"Копировать график доставки {SelectedServiceDistrict?.Id} {SelectedServiceDistrict?.ServiceDistrictName}";
+
+		public string PasteScheduleToDistrictMenuItemLabel =>
+			$"Вставить график доставки {_copiedDistrict?.Id} {_copiedDistrict?.ServiceDistrictName} В {SelectedServiceDistrict?.Id} {SelectedServiceDistrict?.ServiceDistrictName}";
+
+		public IList<ServiceDeliveryScheduleRestriction> ScheduleRestrictions => SelectedWeekDayName.HasValue && SelectedServiceDistrict != null
+			? SelectedServiceDistrict.GetServiceScheduleRestrictionsByWeekDay(SelectedWeekDayName.Value)
+			: null;
+
+		public List<PointLatLng> SelectedDistrictBorderVertices
+		{
+			get => _selectedDistrictBorderVertices;
+			set
+			{
+				if(SetField(ref _selectedDistrictBorderVertices, value) && value != null)
+				{
+					SelectedDistrictBorderVerticesChangedAction?.Invoke();
+				}
+			}
+		}
+
+		public List<PointLatLng> NewBorderVertices
+		{
+			get => _newBorderVertices;
+			set
+			{
+				if(SetField(ref _newBorderVertices, value))
+				{
+					NewBorderVerticiesAction?.Invoke();
+				}
+			}
+		}
+
+		[PropertyChangedAlso(nameof(CanRemoveDistrict), nameof(CanAddScheduleRestriction), nameof(CanEditSchedule), nameof(CanCreateBorder),
+			nameof(CanConfirmNewBorder), nameof(CanRemoveBorder))]
+		public ServiceDistrict SelectedServiceDistrict
+		{
+			get => _selectedDistrict;
+			set
+			{
+				if(!SetField(ref _selectedDistrict, value))
+				{
+					return;
+				}
+
+				SelectedDistrictBorderVertices.Clear();
+
+				if(_selectedDistrict != null)
+				{
+					if(!SelectedWeekDayName.HasValue)
+					{
+						IsToDaySelected = true;
+					}
+					else
+					{
+						OnPropertyChanged(nameof(WeekDayServiceDistrictRules));
+						OnPropertyChanged(nameof(ScheduleRestrictions));
+					}
+
+					if(SelectedServiceDistrict.ServiceDistrictBorder?.Coordinates != null)
+					{
+						foreach(Coordinate coord in SelectedServiceDistrict.ServiceDistrictBorder.Coordinates)
+						{
+							SelectedDistrictBorderVertices.Add(new PointLatLng
+							{
+								Lat = coord.X,
+								Lng = coord.Y
+							});
+						}
+					}
+
+					OnPropertyChanged(nameof(CommonServiceDistrictRules));
+					OnPropertyChanged(nameof(SelectedGeoGroup));
+
+					SelectedDistrictBorderVerticesChangedAction?.Invoke();
+				}
+
+				OnPropertyChanged(nameof(SelectedDistrictBorderVertices));
+				OnPropertyChanged(nameof(WeekDayServiceDistrictRules));
+				OnPropertyChanged(nameof(ScheduleRestrictions));
+			}
+		}
+
+		public GeoGroup SelectedGeoGroup
+		{
+			get => SelectedServiceDistrict?.GeographicGroup;
+			set
+			{
+				if(SelectedServiceDistrict.GeographicGroup != value)
+				{
+					SelectedServiceDistrict.GeographicGroup = value;
+					OnPropertyChanged(nameof(SelectedGeoGroup));
+				}
+			}
+		}
+
+		[PropertyChangedAlso(nameof(ScheduleRestrictions), nameof(WeekDayServiceDistrictRules), nameof(CanAddScheduleRestriction))]
+		public WeekDayName? SelectedWeekDayName
+		{
+			get => _selectedWeekDayName;
+			set
+			{
+				if(SetField(ref _selectedWeekDayName, value))
+				{
+					SelectedWeekDayChangedAction?.Invoke();
+				}
+			}
+		}
+
+		[PropertyChangedAlso(nameof(CanEditSchedule))]
+		public ServiceDeliveryScheduleRestriction SelectedScheduleRestriction
+		{
+			get => _selectedScheduleRestriction;
+			set => SetField(ref _selectedScheduleRestriction, value);
+		}
+
+		[PropertyChangedAlso(nameof(CanCreateBorder), nameof(CanConfirmNewBorder), nameof(CanRemoveBorder))]
+		public bool IsCreatingNewBorder
+		{
+			get => _isCreatingNewBorder;
+			private set
+			{
+				if(value && SelectedServiceDistrict == null)
+				{
+					throw new ArgumentNullException(nameof(SelectedServiceDistrict));
+				}
+
+				SetField(ref _isCreatingNewBorder, value);
+			}
+		}
+
+		public IList<WeekDayServiceDistrictRule> WeekDayServiceDistrictRules =>
+			SelectedServiceDistrict?.AllServiceDistrictRules
+			.Where(x => x is WeekDayServiceDistrictRule && (x as WeekDayServiceDistrictRule).WeekDay == SelectedWeekDayName)
+			.Cast<WeekDayServiceDistrictRule>().ToList();
+
+		public IList<CommonServiceDistrictRule> CommonServiceDistrictRules =>
+			SelectedServiceDistrict?.AllServiceDistrictRules.Where(x => x is CommonServiceDistrictRule)
+			.Cast<CommonServiceDistrictRule>()
+			.ToList();
+
+		#region Commands
+
+		public DelegateCommand CopyDistrictSchedulesCommand { get; }
+		public DelegateCommand PasteSchedulesToDistrictCommand { get; }
+		public DelegateCommand AddAcceptBeforeCommand { get; }
+		public DelegateCommand RemoveAcceptBeforeCommand { get; }
+		public DelegateCommand<PointLatLng> RemoveNewBorderVertexCommand { get; }
+		public DelegateCommand<PointLatLng> AddNewVertexCommand { get; }
+		public DelegateCommand AddScheduleRestrictionCommand { get; }
+		public DelegateCommand RemoveScheduleRestrictionCommand { get; }
+		public DelegateCommand SaveCommand { get; }
+		public DelegateCommand CancelCommand { get; }
+		public DelegateCommand AddDistrictCommand { get; }
+		public DelegateCommand RemoveDistrictCommand { get; }
+		public DelegateCommand CreateBorderCommand { get; }
+		public DelegateCommand ConfirmNewBorderCommand { get; }
+		public DelegateCommand CancelNewBorderCommand { get; }
+		public DelegateCommand RemoveBorderCommand { get; }
+
+		#endregion
+
+		public Action RefreshBordersAction { get; set; }
+
+		public override bool HasChanges
+		{
+			get => base.HasChanges && (CanEditServiceDistrict || CanSave);
+			set => base.HasChanges = value;
+		}
+
+		#region Days
+		public bool IsToDaySelected
+		{
+			get => GetActiveStatusByWeekDay(WeekDayName.Today);
+			set => SelectedWeekDayName = WeekDayName.Today;
+		}
+
+		public bool IsMondaySelected
+		{
+			get => GetActiveStatusByWeekDay(WeekDayName.Monday);
+			set => SelectedWeekDayName = WeekDayName.Monday;
+		}
+
+		public bool IsTuesdaySelected
+		{
+			get => GetActiveStatusByWeekDay(WeekDayName.Tuesday);
+			set => SelectedWeekDayName = WeekDayName.Tuesday;
+		}
+
+		public bool IsToWednesdaySelected
+		{
+			get => GetActiveStatusByWeekDay(WeekDayName.Wednesday);
+			set => SelectedWeekDayName = WeekDayName.Wednesday;
+		}
+
+		public bool IsThursdaySelected
+		{
+			get => GetActiveStatusByWeekDay(WeekDayName.Thursday);
+			set => SelectedWeekDayName = WeekDayName.Thursday;
+		}
+
+		public bool IsFridaySelected
+		{
+			get => GetActiveStatusByWeekDay(WeekDayName.Friday);
+			set => SelectedWeekDayName = WeekDayName.Friday;
+		}
+
+		public bool IsSaturdaySelected
+		{
+			get => GetActiveStatusByWeekDay(WeekDayName.Saturday);
+			set => SelectedWeekDayName = WeekDayName.Saturday;
+		}
+
+		public bool IsSundaySelected
+		{
+			get => GetActiveStatusByWeekDay(WeekDayName.Sunday);
+			set => SelectedWeekDayName = WeekDayName.Sunday;
+		}
+
+		public bool IsNewBorderPreviewActive
+		{
+			get => _isNewBorderPreviewActive;
+			set => SetField(ref _isNewBorderPreviewActive, value);
+		}
+
+		public Action SelectedWeekDayChangedAction { get; set; }
+		public Action SelectedDistrictBorderVerticesChangedAction { get; set; }
+		public Action NewBorderVerticiesAction { get; set; }
+
+		#endregion Days
 
 		private void Cancel()
 		{
@@ -460,219 +741,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 		}
 
-		[PropertyChangedAlso(nameof(CanCreateBorder), nameof(CanRemoveBorder))]
-		public bool CanEditServiceDistrict { get; }
-		public bool CanEditServiceDeliveryRules { get; }
-
-		[PropertyChangedAlso(nameof(CanAddScheduleRestriction), nameof(CanEditSchedule))]
-		public bool CanEditDeliveryScheduleRestriction { get; }
-		
-		[PropertyChangedAlso(nameof(CanRemoveDistrict))]
-		public bool CanDeleteDistrict { get; }
-		public bool CanCreateDistrict { get; }
-		public bool CanSave { get; }
-		public bool CanEdit { get; }
-
-		public bool CanCopyDeliveryScheduleRestrictions =>
-			CanEditDeliveryScheduleRestriction
-			&& SelectedServiceDistrict != null;
-
-		public bool CanPasteDeliveryScheduleRestrictions =>
-			CanEditDeliveryScheduleRestriction
-			&& SelectedServiceDistrict != null
-			&& _copiedDistrict != null;
-
-		public bool CanRemoveDistrict => SelectedServiceDistrict != null && CanDeleteDistrict;
-
-		public bool CanCreateBorder => 
-			CanEditServiceDistrict
-			&& !IsCreatingNewBorder
-			&& SelectedServiceDistrict != null
-			&& SelectedServiceDistrict.ServiceDistrictBorder == null;
-
-		public bool CanRemoveBorder =>
-			CanEditServiceDistrict
-			&& !IsCreatingNewBorder
-			&& SelectedServiceDistrict != null
-			&& SelectedServiceDistrict.ServiceDistrictBorder != null;
-
-		public bool CanEditSchedule => SelectedScheduleRestriction != null
-			&& CanEditDeliveryScheduleRestriction
-			&& SelectedServiceDistrict != null
-			&& SelectedScheduleRestriction != null;
-
-		public bool CanAddScheduleRestriction =>
-			CanEditDeliveryScheduleRestriction
-			&& SelectedServiceDistrict != null
-			&& SelectedWeekDayName.HasValue;
-
-		public bool CanConfirmNewBorder => SelectedServiceDistrict != null && IsCreatingNewBorder;
-
-		public string CopyDistrictScheduleMenuItemLabel =>
-			$"Копировать график доставки {SelectedServiceDistrict?.Id} {SelectedServiceDistrict?.ServiceDistrictName}";
-
-		public string PasteScheduleToDistrictMenuItemLabel =>
-			$"Вставить график доставки {_copiedDistrict?.Id} {_copiedDistrict?.ServiceDistrictName} В {SelectedServiceDistrict?.Id} {SelectedServiceDistrict?.ServiceDistrictName}";
-
-		public IList<ServiceDeliveryScheduleRestriction> ScheduleRestrictions => SelectedWeekDayName.HasValue && SelectedServiceDistrict != null
-			? SelectedServiceDistrict.GetServiceScheduleRestrictionsByWeekDay(SelectedWeekDayName.Value)
-			: null;
-
-		public List<PointLatLng> SelectedDistrictBorderVertices
-		{
-			get => _selectedDistrictBorderVertices;
-			set
-			{
-				if(SetField(ref _selectedDistrictBorderVertices, value) && value != null)
-				{
-					SelectedDistrictBorderVerticesChangedAction?.Invoke();
-				}
-			}
-		}
-
-		public List<PointLatLng> NewBorderVertices
-		{
-			get => _newBorderVertices;
-			set
-			{
-				if(SetField(ref _newBorderVertices, value))
-				{
-					NewBorderVerticiesAction?.Invoke();
-				}
-			}
-		}
-
-		[PropertyChangedAlso(nameof(CanRemoveDistrict), nameof(CanAddScheduleRestriction), nameof(CanEditSchedule), nameof(CanCreateBorder),
-			nameof(CanConfirmNewBorder), nameof(CanRemoveBorder))]
-		public ServiceDistrict SelectedServiceDistrict
-		{
-			get => _selectedDistrict;
-			set
-			{
-				if(!SetField(ref _selectedDistrict, value))
-				{
-					return;
-				}
-
-				SelectedDistrictBorderVertices.Clear();
-
-				if(_selectedDistrict != null)
-				{
-					if(!SelectedWeekDayName.HasValue)
-					{
-						IsToDaySelected = true;
-					}
-					else
-					{
-						OnPropertyChanged(nameof(WeekDayServiceDistrictRules));
-						OnPropertyChanged(nameof(ScheduleRestrictions));
-					}
-
-					if(SelectedServiceDistrict.ServiceDistrictBorder?.Coordinates != null)
-					{
-						foreach(Coordinate coord in SelectedServiceDistrict.ServiceDistrictBorder.Coordinates)
-						{
-							SelectedDistrictBorderVertices.Add(new PointLatLng
-							{
-								Lat = coord.X,
-								Lng = coord.Y
-							});
-						}
-					}
-
-					OnPropertyChanged(nameof(CommonServiceDistrictRules));
-					OnPropertyChanged(nameof(SelectedGeoGroup));
-
-					SelectedDistrictBorderVerticesChangedAction?.Invoke();
-				}
-
-				OnPropertyChanged(nameof(SelectedDistrictBorderVertices));
-				OnPropertyChanged(nameof(WeekDayServiceDistrictRules));
-				OnPropertyChanged(nameof(ScheduleRestrictions));
-			}
-		}
-
-		public GeoGroup SelectedGeoGroup
-		{
-			get => SelectedServiceDistrict?.GeographicGroup;
-			set
-			{
-				if(SelectedServiceDistrict.GeographicGroup != value)
-				{
-					SelectedServiceDistrict.GeographicGroup = value;
-					OnPropertyChanged(nameof(SelectedGeoGroup));
-				}
-			}
-		}
-
-		[PropertyChangedAlso(nameof(ScheduleRestrictions), nameof(WeekDayServiceDistrictRules), nameof(CanAddScheduleRestriction))]
-		public WeekDayName? SelectedWeekDayName
-		{
-			get => _selectedWeekDayName;
-			set
-			{
-				if(SetField(ref _selectedWeekDayName, value))
-				{
-					SelectedWeekDayChangedAction?.Invoke();
-				}
-			}
-		}
-
-		[PropertyChangedAlso(nameof(CanEditSchedule))]
-		public ServiceDeliveryScheduleRestriction SelectedScheduleRestriction
-		{
-			get => _selectedScheduleRestriction;
-			set => SetField(ref _selectedScheduleRestriction, value);
-		}
-
-		[PropertyChangedAlso(nameof(CanCreateBorder), nameof(CanConfirmNewBorder), nameof(CanRemoveBorder))]
-		public bool IsCreatingNewBorder
-		{
-			get => _isCreatingNewBorder;
-			private set
-			{
-				if(value && SelectedServiceDistrict == null)
-				{
-					throw new ArgumentNullException(nameof(SelectedServiceDistrict));
-				}
-
-				SetField(ref _isCreatingNewBorder, value);
-			}
-		}
-
-		public IList<WeekDayServiceDistrictRule> WeekDayServiceDistrictRules =>
-			SelectedServiceDistrict?.AllServiceDistrictRules
-			.Where(x => x is WeekDayServiceDistrictRule && (x as WeekDayServiceDistrictRule).WeekDay == SelectedWeekDayName)
-			.Cast<WeekDayServiceDistrictRule>().ToList();
-
-		public IList<CommonServiceDistrictRule> CommonServiceDistrictRules =>
-			SelectedServiceDistrict?.AllServiceDistrictRules.Where(x => x is CommonServiceDistrictRule)
-			.Cast<CommonServiceDistrictRule>()
-			.ToList();
-
-		#region Commands
-
-		public DelegateCommand CopyDistrictSchedulesCommand { get; }
-		public DelegateCommand PasteSchedulesToDistrictCommand { get; }
-		public DelegateCommand AddAcceptBeforeCommand { get; }
-		public DelegateCommand RemoveAcceptBeforeCommand { get; }
-		public DelegateCommand<PointLatLng> RemoveNewBorderVertexCommand { get; }
-		public DelegateCommand<PointLatLng> AddNewVertexCommand { get; }
-		public DelegateCommand AddScheduleRestrictionCommand { get; }
-		public DelegateCommand RemoveScheduleRestrictionCommand { get; }
-		public DelegateCommand SaveCommand { get; }
-		public DelegateCommand CancelCommand { get; }
-		public DelegateCommand AddDistrictCommand { get; }
-		public DelegateCommand RemoveDistrictCommand { get; }
-		public DelegateCommand CreateBorderCommand { get; }
-		public DelegateCommand ConfirmNewBorderCommand { get; }
-		public DelegateCommand CancelNewBorderCommand { get; }
-		public DelegateCommand RemoveBorderCommand { get; }
-
-		#endregion
-
-		public Action RefreshBordersAction { get; set; }
-
 		public override bool Save(bool close)
 		{
 			if(Entity.Id == 0)
@@ -703,72 +771,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				TabParent?.ForceCloseTab(this, source);
 			}
 		}
-
-		public override bool HasChanges
-		{
-			get => base.HasChanges && (CanEditServiceDistrict || CanSave);
-			set => base.HasChanges = value;
-		}
-
-		#region Days
-		public bool IsToDaySelected
-		{
-			get => GetActiveStatusByWeekDay(WeekDayName.Today);
-			set => SelectedWeekDayName = WeekDayName.Today;
-		}
-
-		public bool IsMondaySelected
-		{
-			get => GetActiveStatusByWeekDay(WeekDayName.Monday);
-			set => SelectedWeekDayName = WeekDayName.Monday;
-		}
-
-		public bool IsTuesdaySelected
-		{
-			get => GetActiveStatusByWeekDay(WeekDayName.Tuesday);
-			set => SelectedWeekDayName = WeekDayName.Tuesday;
-		}
-
-		public bool IsToWednesdaySelected
-		{
-			get => GetActiveStatusByWeekDay(WeekDayName.Wednesday);
-			set => SelectedWeekDayName = WeekDayName.Wednesday;
-		}
-
-		public bool IsThursdaySelected
-		{
-			get => GetActiveStatusByWeekDay(WeekDayName.Thursday);
-			set => SelectedWeekDayName = WeekDayName.Thursday;
-		}
-
-		public bool IsFridaySelected
-		{
-			get => GetActiveStatusByWeekDay(WeekDayName.Friday);
-			set => SelectedWeekDayName = WeekDayName.Friday;
-		}
-
-		public bool IsSaturdaySelected
-		{
-			get => GetActiveStatusByWeekDay(WeekDayName.Saturday);
-			set => SelectedWeekDayName = WeekDayName.Saturday;
-		}
-
-		public bool IsSundaySelected
-		{
-			get => GetActiveStatusByWeekDay(WeekDayName.Sunday);
-			set => SelectedWeekDayName = WeekDayName.Sunday;
-		}
-
-		public bool IsNewBorderPreviewActive
-		{
-			get => _isNewBorderPreviewActive;
-			set => SetField(ref _isNewBorderPreviewActive, value);
-		}
-		public Action SelectedWeekDayChangedAction { get; set; }
-		public Action SelectedDistrictBorderVerticesChangedAction { get; set; }
-		public Action NewBorderVerticiesAction { get; set; }
-
-		#endregion Days
 
 		public override void Dispose()
 		{

@@ -47,11 +47,11 @@ namespace Vodovoz.Journals.JournalViewModels
 			ICurrentPermissionService currentPermissionService)
 			: base
 			(
-				  unitOfWorkFactory,
-				  interactiveService,
-				  navigationManager,
-				  deleteEntityService,
-				  currentPermissionService
+				unitOfWorkFactory,
+				interactiveService,
+				navigationManager,
+				deleteEntityService,
+				currentPermissionService
 			)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));

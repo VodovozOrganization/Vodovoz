@@ -26,7 +26,7 @@ namespace Vodovoz.Views.Orders
 {
 	public partial class ServiceDistrictsSetView : TabViewBase<ServiceDistrictsSetViewModel>
 	{
-		private const string _acceptBeforeColumnTag = "Прием до прошлого дня";
+		private const string _acceptBeforeColumnTag = "Прием до";
 		private readonly PointLatLng _defaultWidgetMapPosition = new PointLatLng(59.93900, 30.31646);
 		private readonly MapProviders _defaultMapProvicer = MapProviders.GoogleMap;
 
@@ -417,13 +417,13 @@ namespace Vodovoz.Views.Orders
 			_popupDistrictScheduleMenu = new Menu();
 			_popupDistiictScheduleStateActions = new List<Action>();
 
-			_copyDistrictScheduleMenuEntry = new MenuItem("Копировать график доставки123");
+			_copyDistrictScheduleMenuEntry = new MenuItem("Копировать график доставки");
 			_copyDistrictScheduleMenuEntry.ButtonPressEvent += OnCopyDistrictScheduleButtonPress;
 			_copyDistrictScheduleMenuEntry.Visible = true;
 
 			_popupDistrictScheduleMenu.Add(_copyDistrictScheduleMenuEntry);
 
-			_pasteScheduleToDistrictMenuEntry = new MenuItem("Вставить график доставки в район456");
+			_pasteScheduleToDistrictMenuEntry = new MenuItem("Вставить график доставки в район");
 			_pasteScheduleToDistrictMenuEntry.ButtonPressEvent += OnPasteScheduleToDistrictButtonPress;
 			_pasteScheduleToDistrictMenuEntry.Visible = true;
 
