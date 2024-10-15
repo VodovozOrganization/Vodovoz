@@ -112,14 +112,14 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			CreateBorderCommand = new DelegateCommand(CreateBorder, () => CanCreateBorder);
 			CreateBorderCommand.CanExecuteChangedWith(this, x => x.CanCreateBorder);
 
-			ConfirmNewBorderCommand = new DelegateCommand(ConfirmNewBorder, () => IsCreatingNewBorder);
-			ConfirmNewBorderCommand.CanExecuteChangedWith(this, x => x.IsCreatingNewBorder);
+			RemoveBorderCommand = new DelegateCommand(RemoveBorder, () => CanRemoveBorder);
+			RemoveBorderCommand.CanExecuteChangedWith(this, x => x.CanRemoveBorder);
 
-			CancelNewBorderCommand = new DelegateCommand(CancelNewBorder, () => IsCreatingNewBorder);
-			CancelNewBorderCommand.CanExecuteChangedWith(this, x => x.IsCreatingNewBorder);
+			ConfirmNewBorderCommand = new DelegateCommand(ConfirmNewBorder, () => CanConfirmNewBorder);
+			ConfirmNewBorderCommand.CanExecuteChangedWith(this, x => x.CanConfirmNewBorder);
 
-			RemoveBorderCommand = new DelegateCommand(RemoveBorder, () => CanCreateBorder);
-			RemoveBorderCommand.CanExecuteChangedWith(this, x => x.CanCreateBorder);
+			CancelNewBorderCommand = new DelegateCommand(CancelNewBorder, () => CanConfirmNewBorder);
+			CancelNewBorderCommand.CanExecuteChangedWith(this, x => x.CanConfirmNewBorder);
 
 			AddNewVertexCommand = new DelegateCommand<PointLatLng>(AddNewVertex, point => IsCreatingNewBorder);
 			AddNewVertexCommand.CanExecuteChangedWith(this, x => x.IsCreatingNewBorder);
@@ -127,19 +127,24 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			RemoveNewBorderVertexCommand = new DelegateCommand<PointLatLng>(RemoveNewBorderVertex, point => IsCreatingNewBorder && !point.IsEmpty);
 			RemoveNewBorderVertexCommand.CanExecuteChangedWith(this, x => x.IsCreatingNewBorder);
 
-			AddScheduleRestrictionCommand = new DelegateCommand(AddScheduleRestriction);
+			AddScheduleRestrictionCommand = new DelegateCommand(AddScheduleRestriction, ()=>CanAddScheduleRestriction);
+			AddScheduleRestrictionCommand.CanExecuteChangedWith(this, x => x.CanAddScheduleRestriction);
 
-			RemoveScheduleRestrictionCommand = new DelegateCommand(RemoveScheduleRestriction, () => CanRemoveSchedule);
-			RemoveScheduleRestrictionCommand.CanExecuteChangedWith(this, x => x.CanRemoveSchedule);
+			RemoveScheduleRestrictionCommand = new DelegateCommand(RemoveScheduleRestriction, () => CanEditSchedule);
+			RemoveScheduleRestrictionCommand.CanExecuteChangedWith(this, x => x.CanEditSchedule);
 
-			AddAcceptBeforeCommand = new DelegateCommand(AddAcceptBefore);
+			AddAcceptBeforeCommand = new DelegateCommand(AddAcceptBefore, () => CanEditSchedule);
+			AddAcceptBeforeCommand.CanExecuteChangedWith(this, x => x.CanEditSchedule);
 
-			RemoveAcceptBeforeCommand = new DelegateCommand(RemoveAcceptBefore, () => CanRemoveSchedule);
-			RemoveAcceptBeforeCommand.CanExecuteChangedWith(this, x => x.CanRemoveSchedule);
+			RemoveAcceptBeforeCommand = new DelegateCommand(RemoveAcceptBefore, () => CanEditSchedule);
+			RemoveAcceptBeforeCommand.CanExecuteChangedWith(this, x => x.CanEditSchedule);
 
 			CopyDistrictSchedulesCommand = new DelegateCommand(CopyDistrictSchedules);
 			PasteSchedulesToDistrictCommand = new DelegateCommand(PasteSchedulesToSelectedDistrict);
-			SaveCommand = new DelegateCommand(Save);
+
+			SaveCommand = new DelegateCommand(Save, () => CanSave);
+			SaveCommand.CanExecuteChangedWith(this, x => x.CanSave);
+
 			CancelCommand = new DelegateCommand(Cancel);
 
 			#endregion Command Initialization
@@ -455,9 +460,14 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 		}
 
+		[PropertyChangedAlso(nameof(CanCreateBorder), nameof(CanRemoveBorder))]
 		public bool CanEditServiceDistrict { get; }
 		public bool CanEditServiceDeliveryRules { get; }
+
+		[PropertyChangedAlso(nameof(CanAddScheduleRestriction), nameof(CanEditSchedule))]
 		public bool CanEditDeliveryScheduleRestriction { get; }
+		
+		[PropertyChangedAlso(nameof(CanRemoveDistrict))]
 		public bool CanDeleteDistrict { get; }
 		public bool CanCreateDistrict { get; }
 		public bool CanSave { get; }
@@ -472,9 +482,31 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			&& SelectedServiceDistrict != null
 			&& _copiedDistrict != null;
 
-		public bool CanRemoveDistrict => SelectedServiceDistrict != null;
-		public bool CanCreateBorder => !IsCreatingNewBorder;
-		public bool CanRemoveSchedule => SelectedScheduleRestriction != null;
+		public bool CanRemoveDistrict => SelectedServiceDistrict != null && CanDeleteDistrict;
+
+		public bool CanCreateBorder => 
+			CanEditServiceDistrict
+			&& !IsCreatingNewBorder
+			&& SelectedServiceDistrict != null
+			&& SelectedServiceDistrict.ServiceDistrictBorder == null;
+
+		public bool CanRemoveBorder =>
+			CanEditServiceDistrict
+			&& !IsCreatingNewBorder
+			&& SelectedServiceDistrict != null
+			&& SelectedServiceDistrict.ServiceDistrictBorder != null;
+
+		public bool CanEditSchedule => SelectedScheduleRestriction != null
+			&& CanEditDeliveryScheduleRestriction
+			&& SelectedServiceDistrict != null
+			&& SelectedScheduleRestriction != null;
+
+		public bool CanAddScheduleRestriction =>
+			CanEditDeliveryScheduleRestriction
+			&& SelectedServiceDistrict != null
+			&& SelectedWeekDayName.HasValue;
+
+		public bool CanConfirmNewBorder => SelectedServiceDistrict != null && IsCreatingNewBorder;
 
 		public string CopyDistrictScheduleMenuItemLabel =>
 			$"Копировать график доставки {SelectedServiceDistrict?.Id} {SelectedServiceDistrict?.ServiceDistrictName}";
@@ -510,7 +542,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 		}
 
-		[PropertyChangedAlso(nameof(CanRemoveDistrict))]
+		[PropertyChangedAlso(nameof(CanRemoveDistrict), nameof(CanAddScheduleRestriction), nameof(CanEditSchedule), nameof(CanCreateBorder),
+			nameof(CanConfirmNewBorder), nameof(CanRemoveBorder))]
 		public ServiceDistrict SelectedServiceDistrict
 		{
 			get => _selectedDistrict;
@@ -572,7 +605,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 		}
 
-		[PropertyChangedAlso(nameof(ScheduleRestrictions), nameof(WeekDayServiceDistrictRules))]
+		[PropertyChangedAlso(nameof(ScheduleRestrictions), nameof(WeekDayServiceDistrictRules), nameof(CanAddScheduleRestriction))]
 		public WeekDayName? SelectedWeekDayName
 		{
 			get => _selectedWeekDayName;
@@ -585,14 +618,14 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 		}
 
-		[PropertyChangedAlso(nameof(CanRemoveSchedule))]
+		[PropertyChangedAlso(nameof(CanEditSchedule))]
 		public ServiceDeliveryScheduleRestriction SelectedScheduleRestriction
 		{
 			get => _selectedScheduleRestriction;
 			set => SetField(ref _selectedScheduleRestriction, value);
 		}
 
-		[PropertyChangedAlso(nameof(CanCreateBorder))]
+		[PropertyChangedAlso(nameof(CanCreateBorder), nameof(CanConfirmNewBorder), nameof(CanRemoveBorder))]
 		public bool IsCreatingNewBorder
 		{
 			get => _isCreatingNewBorder;

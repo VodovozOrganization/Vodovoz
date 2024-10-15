@@ -45,12 +45,14 @@ namespace Vodovoz.Journals.JournalViewModels
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService)
-			: base(
+			: base
+			(
 				  unitOfWorkFactory,
 				  interactiveService,
 				  navigationManager,
 				  deleteEntityService,
-				  currentPermissionService)
+				  currentPermissionService
+			)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));

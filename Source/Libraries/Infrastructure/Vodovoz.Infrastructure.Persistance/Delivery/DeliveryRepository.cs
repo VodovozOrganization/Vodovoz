@@ -747,14 +747,17 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 		{
 			var point = new Point((double)latitude, (double)longitude);
 
-			var serviceDistricts = (from serviceDistrict in unitOfWork.Session.Query<ServiceDistrict>()
-								join serviceDistrictSet in unitOfWork.Session.Query<ServiceDistrictsSet>()
-											on serviceDistrict.ServiceDistrictsSet.Id equals serviceDistrictSet.Id
-								where serviceDistrictSet.Status == ServiceDistrictsSetStatus.Active
-												&& serviceDistrict.ServiceDistrictBorder != null
-								select serviceDistrict)
-			.ToList();
-
+			var serviceDistricts =
+				(
+					from serviceDistrict in unitOfWork.Session.Query<ServiceDistrict>()
+					join serviceDistrictSet in unitOfWork.Session.Query<ServiceDistrictsSet>()
+					on serviceDistrict.ServiceDistrictsSet.Id equals serviceDistrictSet.Id
+					where serviceDistrictSet.Status == ServiceDistrictsSetStatus.Active
+						&& serviceDistrict.ServiceDistrictBorder != null
+					select serviceDistrict
+				)
+				.ToList();
+			
 			var result = serviceDistricts.FirstOrDefault(x => x.ServiceDistrictBorder.Contains(point));
 
 			return result;

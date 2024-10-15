@@ -26,7 +26,7 @@ namespace Vodovoz.Views.Orders
 {
 	public partial class ServiceDistrictsSetView : TabViewBase<ServiceDistrictsSetViewModel>
 	{
-		private const string _acceptBeforeColumnTag = "Прием до";
+		private const string _acceptBeforeColumnTag = "Прием до прошлого дня";
 		private readonly PointLatLng _defaultWidgetMapPosition = new PointLatLng(59.93900, 30.31646);
 		private readonly MapProviders _defaultMapProvicer = MapProviders.GoogleMap;
 
@@ -75,9 +75,6 @@ namespace Vodovoz.Views.Orders
 			#endregion
 
 			btnSave.BindCommand(ViewModel.SaveCommand);
-			btnSave.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive)
-				.InitializeFromSource();
 
 			btnCancel.BindCommand(ViewModel.CancelCommand);
 
@@ -99,10 +96,6 @@ namespace Vodovoz.Views.Orders
 
 			btnRemoveDistrict.BindCommand(ViewModel.RemoveDistrictCommand);
 
-			btnRemoveDistrict.Binding
-				.AddFuncBinding(ViewModel, vm => vm.SelectedServiceDistrict != null && vm.CanDeleteDistrict, w => w.Sensitive)
-				.InitializeFromSource();
-
 			ytextComment.Binding
 				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
 				.InitializeFromSource();
@@ -122,50 +115,13 @@ namespace Vodovoz.Views.Orders
 			btnThursday.Binding.AddBinding(ViewModel, vm => vm.IsThursdaySelected, w => w.Active).InitializeFromSource();
 			btnFriday.Binding.AddBinding(ViewModel, vm => vm.IsFridaySelected, w => w.Active).InitializeFromSource();
 			btnSaturday.Binding.AddBinding(ViewModel, vm => vm.IsSaturdaySelected, w => w.Active).InitializeFromSource();
-			btnSunday.Binding.AddBinding(ViewModel, vm => vm.IsSundaySelected, w => w.Active).InitializeFromSource();
-
-			btnAddSchedule.Binding
-				.AddFuncBinding(
-					ViewModel,
-					vm => vm.CanEditDeliveryScheduleRestriction
-						&& vm.SelectedServiceDistrict != null
-						&& vm.SelectedWeekDayName.HasValue,
-					w => w.Sensitive)
-				.InitializeFromSource();
+			btnSunday.Binding.AddBinding(ViewModel, vm => vm.IsSundaySelected, w => w.Active).InitializeFromSource();			
 
 			btnAddSchedule.BindCommand(ViewModel.AddScheduleRestrictionCommand);
 
-			btnRemoveSchedule.Binding
-				.AddFuncBinding(
-					ViewModel,
-					vm => vm.CanEditDeliveryScheduleRestriction
-						&& vm.SelectedServiceDistrict != null
-						&& vm.SelectedScheduleRestriction != null,
-					w => w.Sensitive)
-				.InitializeFromSource();
-
 			btnRemoveSchedule.BindCommand(ViewModel.RemoveScheduleRestrictionCommand);
 
-			btnAddAcceptBefore.Binding
-				.AddFuncBinding(
-					ViewModel,
-					vm => vm.CanEditDeliveryScheduleRestriction
-						&& vm.SelectedServiceDistrict != null
-						&& vm.SelectedScheduleRestriction != null,
-					w => w.Sensitive)
-				.InitializeFromSource();
-
 			btnAddAcceptBefore.BindCommand(ViewModel.AddAcceptBeforeCommand);
-
-			btnRemoveAcceptBefore.Binding
-				.AddFuncBinding(
-					ViewModel,
-					vm => vm.CanEditDeliveryScheduleRestriction
-						&& vm.SelectedServiceDistrict != null
-						&& vm.SelectedScheduleRestriction != null
-						&& vm.SelectedScheduleRestriction.AcceptBefore != null,
-					w => w.Sensitive)
-				.InitializeFromSource();
 
 			btnRemoveAcceptBefore.BindCommand(ViewModel.RemoveAcceptBeforeCommand);
 
@@ -189,30 +145,10 @@ namespace Vodovoz.Views.Orders
 				.AddFuncBinding(ViewModel, vm => !vm.IsCreatingNewBorder, w => w.Visible)
 				.InitializeFromSource();
 
-			btnAddBorder.Binding
-				.AddFuncBinding(
-					ViewModel,
-					vm => vm.CanEditServiceDistrict
-						&& !vm.IsCreatingNewBorder
-						&& vm.SelectedServiceDistrict != null
-						&& vm.SelectedServiceDistrict.ServiceDistrictBorder == null,
-					w => w.Sensitive)
-				.InitializeFromSource();
-
 			btnAddBorder.BindCommand(ViewModel.CreateBorderCommand);
 
 			btnRemoveBorder.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsCreatingNewBorder, w => w.Visible)
-				.InitializeFromSource();
-
-			btnRemoveBorder.Binding
-				.AddFuncBinding(
-					ViewModel,
-					vm => vm.CanEditServiceDistrict
-						&& !vm.IsCreatingNewBorder
-						&& vm.SelectedServiceDistrict != null
-						&& vm.SelectedServiceDistrict.ServiceDistrictBorder != null,
-					w => w.Sensitive)
 				.InitializeFromSource();
 
 			btnRemoveBorder.BindCommand(ViewModel.RemoveBorderCommand);
@@ -221,18 +157,10 @@ namespace Vodovoz.Views.Orders
 				.AddFuncBinding(ViewModel, vm => vm.IsCreatingNewBorder, w => w.Visible)
 				.InitializeFromSource();
 
-			btnConfirmNewBorder.Binding
-				.AddFuncBinding(ViewModel, vm => vm.SelectedServiceDistrict != null && vm.IsCreatingNewBorder, w => w.Sensitive)
-				.InitializeFromSource();
-
 			btnConfirmNewBorder.BindCommand(ViewModel.ConfirmNewBorderCommand);
 
 			btnCancelNewBorder.Binding
 				.AddFuncBinding(ViewModel, vm => vm.IsCreatingNewBorder, w => w.Visible)
-				.InitializeFromSource();
-
-			btnCancelNewBorder.Binding
-				.AddFuncBinding(ViewModel, vm => vm.SelectedServiceDistrict != null && vm.IsCreatingNewBorder, w => w.Sensitive)
 				.InitializeFromSource();
 
 			btnCancelNewBorder.BindCommand(ViewModel.CancelNewBorderCommand);
@@ -301,7 +229,7 @@ namespace Vodovoz.Views.Orders
 					.Editing(ViewModel.CanEditServiceDeliveryRules)
 					.AddSetter((c, r) => c.BackgroundGdk = r.Price <= 0 ? _dangerBaseColor : _primaryBaseColor)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn("Правило")
+				.AddColumn("Тип услуги")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(p => p.ServiceType.GetEnumTitle())
 					.WrapMode(Pango.WrapMode.WordChar)
@@ -325,7 +253,7 @@ namespace Vodovoz.Views.Orders
 					.Editing(ViewModel.CanEditServiceDeliveryRules)
 					.AddSetter((c, r) => c.BackgroundGdk = r.Price <= 0 ? _dangerBaseColor : _primaryBaseColor)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn("Правило")
+				.AddColumn("Тип услуги")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(p => p.ServiceType.GetEnumTitle())
 					.WrapMode(Pango.WrapMode.WordChar)

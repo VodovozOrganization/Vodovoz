@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Extensions;
 
 namespace VodovozBusiness.Domain.Service
 {
@@ -93,30 +94,7 @@ namespace VodovozBusiness.Domain.Service
 				return GetServiceScheduleRestrictionsByWeekDay(WeekDayName.Today);
 			}
 
-			return GetServiceScheduleRestrictionsByWeekDay(ConvertToWeekDayName(deliveryDate.Value.DayOfWeek));
-		}
-
-		private WeekDayName ConvertToWeekDayName(DayOfWeek dayOfWeek)
-		{
-			switch(dayOfWeek)
-			{
-				case DayOfWeek.Sunday:
-					return WeekDayName.Sunday;
-				case DayOfWeek.Monday:
-					return WeekDayName.Monday;
-				case DayOfWeek.Tuesday:
-					return WeekDayName.Tuesday;
-				case DayOfWeek.Wednesday:
-					return WeekDayName.Wednesday;
-				case DayOfWeek.Thursday:
-					return WeekDayName.Thursday;
-				case DayOfWeek.Friday:
-					return WeekDayName.Friday;
-				case DayOfWeek.Saturday:
-					return WeekDayName.Saturday;
-				default:
-					throw new NotSupportedException();
-			}
+			return GetServiceScheduleRestrictionsByWeekDay(deliveryDate.Value.DayOfWeek.ConvertToWeekDayName());
 		}
 
 		public virtual IEnumerable<ServiceDistrictRule> GetWeekDayServiceDistrictRuleByDeliveryDate(DateTime? deliveryDate)
@@ -128,7 +106,7 @@ namespace VodovozBusiness.Domain.Service
 
 			var serviceDistrictRules = deliveryDate.Value == DateTime.Today
 				? GetWeekDayRulesByWeekDayName(WeekDayName.Today)
-				: GetWeekDayRulesByWeekDayName(ConvertToWeekDayName(deliveryDate.Value.DayOfWeek));
+				: GetWeekDayRulesByWeekDayName(deliveryDate.Value.DayOfWeek.ConvertToWeekDayName());
 
 			return serviceDistrictRules;
 		}
