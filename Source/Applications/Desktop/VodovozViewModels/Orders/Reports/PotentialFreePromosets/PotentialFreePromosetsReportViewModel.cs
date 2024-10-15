@@ -161,6 +161,23 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 		{
 			var selectedPromosets = GetSelectedPromotionalSets();
 
+			var deliveryPointsHavingAddresses =
+				(from orderItem in _uow.Session.Query<OrderItem>()
+				 join order in _uow.Session.Query<Order>() on orderItem.Order.Id equals order.Id
+				 join deliveryPoint in _uow.Session.Query<DeliveryPoint>() on order.DeliveryPoint.Id equals deliveryPoint.Id
+				 join deliveryPoint2 in _uow.Session.Query<DeliveryPoint>()
+				 on new { deliveryPoint.City, deliveryPoint.Street, deliveryPoint.Building, deliveryPoint.Room }
+				 equals new { deliveryPoint2.City, deliveryPoint2.Street, deliveryPoint2.Building, deliveryPoint2.Room }
+				 where
+				 order.CreateDate >= StartDate.Value
+				 && order.CreateDate < EndDate.Value.Date.AddDays(1)
+				 && selectedPromosets.Contains(orderItem.PromoSet.Id)
+				 && orderItem.Order.Id != null
+				 && !_notDeliveredOrderStatuses.Contains(order.OrderStatus)
+				 select deliveryPoint2.Id)
+				 .Distinct()
+				 .ToList();
+
 			var ordersHavingPromosetAndDeliveryPoint =
 				(from orderItem in _uow.Session.Query<OrderItem>()
 				 join order in _uow.Session.Query<Order>() on orderItem.Order.Id equals order.Id
@@ -169,6 +186,7 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 				 orderItem.PromoSet.Id != null
 				 && orderItem.Order.Id != null
 				 && !_notDeliveredOrderStatuses.Contains(order.OrderStatus)
+				 && deliveryPointsHavingAddresses.Contains(order.DeliveryPoint.Id)
 				 select new OrderDeliveryPointDataNode
 				 {
 					 OrderId = order.Id,
@@ -179,10 +197,10 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 					 PromosetId = orderItem.PromoSet.Id,
 					 AddressDataNode = new AddressDataNode
 					 {
-						 City = deliveryPoint.City,
-						 Street = deliveryPoint.Street,
-						 Building = deliveryPoint.Building,
-						 Room = deliveryPoint.Room
+						 City = deliveryPoint.City.ToLower().Trim(),
+						 Street = deliveryPoint.Street.ToLower().Trim(),
+						 Building = deliveryPoint.Building.ToLower().Trim(),
+						 Room = deliveryPoint.Room.ToLower().Trim()
 					 },
 					 DeliveryPointCompiledAddress = deliveryPoint.CompiledAddress,
 					 DeliveryPointAddressCategoryId = deliveryPoint.Category.Id
@@ -191,13 +209,13 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 				 .ToList();
 
 			var ordersHavingSelectedPromosetsForPeriod =
-				(from op in ordersHavingPromosetAndDeliveryPoint
+				(from ordersData in ordersHavingPromosetAndDeliveryPoint
 				 where
-				 op.OrderCreateDate >= StartDate.Value
-				 && op.OrderCreateDate < EndDate.Value.Date.AddDays(1)
-				 && selectedPromosets.Contains(op.PromosetId)
-				 select op)
-				 .DistinctBy(op => op.AddressDataNode)
+				 ordersData.OrderCreateDate >= StartDate.Value
+				 && ordersData.OrderCreateDate < EndDate.Value.Date.AddDays(1)
+				 && selectedPromosets.Contains(ordersData.PromosetId)
+				 select ordersData)
+				 .Distinct()
 				 .ToList();
 
 			var orderAndDuplicatesOnDeliveryAddresses =
