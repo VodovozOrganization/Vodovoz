@@ -93,7 +93,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryScheduleRestriction));
 			CanEditDeliveryScheduleRestriction =
 				deliveryScheduleRestrictionPermissionResult.CanUpdate
-					|| deliveryScheduleRestrictionPermissionResult.CanCreate && Entity.Id == 0
+				|| deliveryScheduleRestrictionPermissionResult.CanCreate && Entity.Id == 0
 				|| CanEditServiceDistrict;
 
 			var districtSetPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(ServiceDistrictsSet));
@@ -105,17 +105,38 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			#region Command Initialization
 
 			AddDistrictCommand = new DelegateCommand(AddDistrict);
-			RemoveDistrictCommand = new DelegateCommand(RemoveDistrict, () => SelectedServiceDistrict != null);
-			CreateBorderCommand = new DelegateCommand(CreateBorder, () => !IsCreatingNewBorder);
+
+			RemoveDistrictCommand = new DelegateCommand(RemoveDistrict, () => CanRemoveDistrict);
+			RemoveDistrictCommand.CanExecuteChangedWith(this, x => x.CanRemoveDistrict);
+
+			CreateBorderCommand = new DelegateCommand(CreateBorder, () => CanCreateBorder);
+			CreateBorderCommand.CanExecuteChangedWith(this, x => x.CanCreateBorder);
+
 			ConfirmNewBorderCommand = new DelegateCommand(ConfirmNewBorder, () => IsCreatingNewBorder);
+			ConfirmNewBorderCommand.CanExecuteChangedWith(this, x => x.IsCreatingNewBorder);
+
 			CancelNewBorderCommand = new DelegateCommand(CancelNewBorder, () => IsCreatingNewBorder);
-			RemoveBorderCommand = new DelegateCommand(RemoveBorder, () => !IsCreatingNewBorder);
+			CancelNewBorderCommand.CanExecuteChangedWith(this, x => x.IsCreatingNewBorder);
+
+			RemoveBorderCommand = new DelegateCommand(RemoveBorder, () => CanCreateBorder);
+			RemoveBorderCommand.CanExecuteChangedWith(this, x => x.CanCreateBorder);
+
 			AddNewVertexCommand = new DelegateCommand<PointLatLng>(AddNewVertex, point => IsCreatingNewBorder);
+			AddNewVertexCommand.CanExecuteChangedWith(this, x => x.IsCreatingNewBorder);
+
 			RemoveNewBorderVertexCommand = new DelegateCommand<PointLatLng>(RemoveNewBorderVertex, point => IsCreatingNewBorder && !point.IsEmpty);
+			RemoveNewBorderVertexCommand.CanExecuteChangedWith(this, x => x.IsCreatingNewBorder);
+
 			AddScheduleRestrictionCommand = new DelegateCommand(AddScheduleRestriction);
-			RemoveScheduleRestrictionCommand = new DelegateCommand(RemoveScheduleRestriction, () => SelectedScheduleRestriction != null);
+
+			RemoveScheduleRestrictionCommand = new DelegateCommand(RemoveScheduleRestriction, () => CanRemoveSchedule);
+			RemoveScheduleRestrictionCommand.CanExecuteChangedWith(this, x => x.CanRemoveSchedule);
+
 			AddAcceptBeforeCommand = new DelegateCommand(AddAcceptBefore);
-			RemoveAcceptBeforeCommand = new DelegateCommand(RemoveAcceptBefore, () => SelectedScheduleRestriction != null);
+
+			RemoveAcceptBeforeCommand = new DelegateCommand(RemoveAcceptBefore, () => CanRemoveSchedule);
+			RemoveAcceptBeforeCommand.CanExecuteChangedWith(this, x => x.CanRemoveSchedule);
+
 			CopyDistrictSchedulesCommand = new DelegateCommand(CopyDistrictSchedules);
 			PasteSchedulesToDistrictCommand = new DelegateCommand(PasteSchedulesToSelectedDistrict);
 			SaveCommand = new DelegateCommand(Save);
@@ -205,12 +226,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			{
 				return;
 			}
-
-
-			//Entity.ServiceDistricts.Remove(distrToDel);
-
-			//UoW.Delete(distrToDel);
-
 
 			if(_entityDeleteWorker.DeleteObject<ServiceDistrict>(distrToDel.Id, UoW))
 			{
@@ -308,20 +323,24 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		private void AddAcceptBefore()
 		{
-			_acceptBeforeTimeViewModel = new SimpleEntityJournalViewModel<AcceptBefore, AcceptBeforeViewModel>(
-			x => x.Name,
-			() => new AcceptBeforeViewModel(
-				EntityUoWBuilder.ForCreate(),
-				UnitOfWorkFactory,
-				CommonServices
-			),
-			node => new AcceptBeforeViewModel(
-				EntityUoWBuilder.ForOpen(node.Id),
-				UnitOfWorkFactory,
-				CommonServices
-			),
-			UnitOfWorkFactory,
-			CommonServices);
+			_acceptBeforeTimeViewModel = new SimpleEntityJournalViewModel<AcceptBefore, AcceptBeforeViewModel>
+				(
+					x => x.Name,
+					() => new AcceptBeforeViewModel
+					(
+						EntityUoWBuilder.ForCreate(),
+						UnitOfWorkFactory,
+						CommonServices
+					),
+					node => new AcceptBeforeViewModel
+					(
+						EntityUoWBuilder.ForOpen(node.Id),
+						UnitOfWorkFactory,
+						CommonServices
+					),
+					UnitOfWorkFactory,
+					CommonServices
+				);
 
 			_acceptBeforeTimeViewModel.SelectionMode = JournalSelectionMode.Single;
 			_acceptBeforeTimeViewModel.SetActionsVisible(deleteActionEnabled: false, editActionEnabled: false);
@@ -453,6 +472,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			&& SelectedServiceDistrict != null
 			&& _copiedDistrict != null;
 
+		public bool CanRemoveDistrict => SelectedServiceDistrict != null;
+		public bool CanCreateBorder => !IsCreatingNewBorder;
+		public bool CanRemoveSchedule => SelectedScheduleRestriction != null;
+
 		public string CopyDistrictScheduleMenuItemLabel =>
 			$"Копировать график доставки {SelectedServiceDistrict?.Id} {SelectedServiceDistrict?.ServiceDistrictName}";
 
@@ -487,6 +510,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 		}
 
+		[PropertyChangedAlso(nameof(CanRemoveDistrict))]
 		public ServiceDistrict SelectedServiceDistrict
 		{
 			get => _selectedDistrict;
@@ -561,12 +585,14 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 		}
 
+		[PropertyChangedAlso(nameof(CanRemoveSchedule))]
 		public ServiceDeliveryScheduleRestriction SelectedScheduleRestriction
 		{
 			get => _selectedScheduleRestriction;
 			set => SetField(ref _selectedScheduleRestriction, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanCreateBorder))]
 		public bool IsCreatingNewBorder
 		{
 			get => _isCreatingNewBorder;

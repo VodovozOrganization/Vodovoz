@@ -64,8 +64,13 @@ namespace Vodovoz.Application.Goods
 			_movementDocumentRepository = movementDocumentRepository
 				?? throw new ArgumentNullException(nameof(movementDocumentRepository));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
-			_masterCallNomenclatureId = (nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings)))
-				.MasterCallNomenclatureId;
+
+			if(nomenclatureSettings is null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
+			}
+
+			_masterCallNomenclatureId = nomenclatureSettings.MasterCallNomenclatureId;
 		}
 
 		public Result Archive(IUnitOfWork unitOfWork, int nomenclatureId)
