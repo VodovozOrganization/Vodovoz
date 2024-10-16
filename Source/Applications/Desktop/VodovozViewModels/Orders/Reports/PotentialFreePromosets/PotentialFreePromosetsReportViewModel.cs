@@ -4,7 +4,8 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
-using QS.ViewModels.Dialog;
+using QS.Tdi;
+using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +19,8 @@ using static Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets.PotentialF
 
 namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 {
-	public partial class PotentialFreePromosetsReportViewModel : DialogViewModelBase, IDisposable
+	public partial class PotentialFreePromosetsReportViewModel : DialogTabViewModelBase, IDisposable, ITDICloseControlTab
 	{
-		private readonly IUnitOfWork _uow;
 		private readonly ILogger<PotentialFreePromosetsReportViewModel> _logger;
 		private readonly IGenericRepository<PromotionalSet> _promotionalSetRepository;
 		private readonly IGuiDispatcher _guiDispatcher;
@@ -36,14 +36,14 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 
 		public PotentialFreePromosetsReportViewModel(
 			ILogger<PotentialFreePromosetsReportViewModel> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWorkFactory uowFactory,
 			INavigationManager navigation,
 			IGenericRepository<PromotionalSet> promotionalSetRepository,
 			IGuiDispatcher guiDispatcher,
 			IInteractiveService interactiveService,
 			IDialogSettingsFactory dialogSettingsFactory,
 			IFileDialogService fileDialogService)
-			: base(navigation)
+			: base(uowFactory, interactiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
@@ -51,8 +51,6 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_dialogSettingsFactory = dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-			_uow = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory)))
-				.CreateWithoutRoot(nameof(PotentialFreePromosetsReportViewModel));
 
 			Title = "Отчет по потенциальным халявщикам";
 
@@ -97,7 +95,7 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 		{
 			PromotionalSets =
 				_promotionalSetRepository
-				.Get(_uow)
+				.Get(UoW)
 				.Select(ps => new PromosetNode
 				{
 					Id = ps.Id,
@@ -141,7 +139,7 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 			try
 			{
 				var report = await Create(
-					_uow,
+					UoW,
 					StartDate.Value,
 					EndDate.Value,
 					selectedPromosets,
@@ -227,11 +225,28 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 			});
 		}
 
-		public void Dispose()
+		public bool CanClose()
 		{
-			_uow?.Dispose();
+			if(!IsReportGenerationInProgress)
+			{
+				return true;
+			}
+
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Error,
+				   "Формирование отчета в процессе.\n\n" +
+				   "Чтобы закрыть вкладку необходимо либо дождаться результата формирования отчета,\n" +
+				   "либо отменить его выполнение");
+
+			return false;
+		}
+
+		public override void Dispose()
+		{
 			_cancellationTokenSource?.Dispose();
 			_cancellationTokenSource = null;
+
+			base.Dispose();
 		}
 	}
 }
