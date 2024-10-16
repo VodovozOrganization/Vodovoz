@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -663,7 +663,6 @@
     <Compile Include="Infrastructure\InfoProviders\IInfoProvider.cs" />
     <Compile Include="Infrastructure\InfoProviders\PanelViewType.cs" />
     <Compile Include="ViewModels\Goods\FixedPriceItemViewModel.cs" />
-    <Compile Include="ViewModels\Logistic\AcceptBeforeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DeliveryPointResponsiblePersonTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DeliveryPointResponsiblePersonViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetActivationViewModel.cs" />

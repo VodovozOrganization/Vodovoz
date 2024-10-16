@@ -23,6 +23,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Action = System.Action;
 using GdkColor = Gdk.Color;
@@ -164,16 +165,7 @@ namespace Vodovoz.Views.Logistic
 
 			btnRemoveSchedule.Clicked += (sender, args) => ViewModel.RemoveScheduleRestrictionCommand.Execute();
 
-			btnAddAcceptBefore.Binding
-				.AddFuncBinding(
-					ViewModel,
-					vm => vm.CanEditDeliveryScheduleRestriction
-						&& vm.SelectedDistrict != null
-						&& vm.SelectedScheduleRestriction != null,
-					w => w.Sensitive)
-				.InitializeFromSource();
-
-			btnAddAcceptBefore.Clicked += OnBottonAcceptBeforeClicked;
+			btnAddAcceptBefore.BindCommand(ViewModel.AddAcceptBeforeCommand);
 
 			btnRemoveAcceptBefore.Binding
 				.AddFuncBinding(
@@ -377,39 +369,6 @@ namespace Vodovoz.Views.Logistic
 		{
 			ViewModel.AddDistrictCommand.Execute();
 			ScrollToSelectedDistrict();
-		}
-
-		private void OnBottonAcceptBeforeClicked(object sender, EventArgs e)
-		{
-			var acceptBeforeTimeViewModel = new SimpleEntityJournalViewModel<AcceptBefore, AcceptBeforeViewModel>(
-				x => x.Name,
-				() => new AcceptBeforeViewModel(
-					EntityUoWBuilder.ForCreate(),
-					ViewModel.UoWFactory,
-					_commonServices
-				),
-				node => new AcceptBeforeViewModel(
-					EntityUoWBuilder.ForOpen(node.Id),
-					ViewModel.UoWFactory,
-					_commonServices
-				),
-				ViewModel.UoWFactory,
-				_commonServices);
-
-			acceptBeforeTimeViewModel.SelectionMode = JournalSelectionMode.Single;
-			acceptBeforeTimeViewModel.SetActionsVisible(deleteActionEnabled: false, editActionEnabled: false);
-			acceptBeforeTimeViewModel.OnEntitySelectedResult += OnAcceptBeforeSelected;
-			Tab.TabParent.AddSlaveTab(Tab, acceptBeforeTimeViewModel);
-		}
-
-		private void OnAcceptBeforeSelected(object sender, JournalSelectedNodesEventArgs eventArgs)
-		{
-			var node = eventArgs.SelectedNodes.FirstOrDefault();
-
-			if(node != null)
-			{
-				ViewModel.AddAcceptBeforeCommand.Execute(ViewModel.UoW.GetById<AcceptBefore>(node.Id));
-			}
 		}
 
 		private void PrepareWeekDayDistrictRuleItemsTreeView()

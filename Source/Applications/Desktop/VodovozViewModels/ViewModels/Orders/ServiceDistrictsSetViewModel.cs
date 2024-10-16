@@ -16,9 +16,9 @@ using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Presentation.ViewModels.Logistic;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Service;
@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		private WeekDayName? _selectedWeekDayName;
 		private DeliveryScheduleJournalViewModel _deliveryScheduleJournal;
-		private SimpleEntityJournalViewModel<AcceptBefore, AcceptBeforeViewModel> _acceptBeforeTimeViewModel;
+		private AcceptBeforeJournalViewModel _acceptBeforeJournalViewModel;
 		private bool _isNewBorderPreviewActive;
 
 		public ServiceDistrictsSetViewModel(IEntityUoWBuilder uowBuilder,
@@ -611,29 +611,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		private void AddAcceptBefore()
 		{
-			_acceptBeforeTimeViewModel = new SimpleEntityJournalViewModel<AcceptBefore, AcceptBeforeViewModel>
-				(
-					x => x.Name,
-					() => new AcceptBeforeViewModel
-					(
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory,
-						CommonServices
-					),
-					node => new AcceptBeforeViewModel
-					(
-						EntityUoWBuilder.ForOpen(node.Id),
-						UnitOfWorkFactory,
-						CommonServices
-					),
-					UnitOfWorkFactory,
-					CommonServices
-				);
-
-			_acceptBeforeTimeViewModel.SelectionMode = JournalSelectionMode.Single;
-			_acceptBeforeTimeViewModel.SetActionsVisible(deleteActionEnabled: false, editActionEnabled: false);
-			_acceptBeforeTimeViewModel.OnEntitySelectedResult += OnAcceptBeforeSelected;
-			TabParent.AddSlaveTab(this, _acceptBeforeTimeViewModel);
+			var acceptBeforePage = NavigationManager.OpenViewModel<AcceptBeforeJournalViewModel>(null);
+			_acceptBeforeJournalViewModel = acceptBeforePage.ViewModel;
+			_acceptBeforeJournalViewModel.VisibleEditAction = false;
+			_acceptBeforeJournalViewModel.VisibleDeleteAction = false;
+			_acceptBeforeJournalViewModel.SelectionMode = JournalSelectionMode.Single;
+			_acceptBeforeJournalViewModel.OnSelectResult += OnAcceptBeforeJournalViewModelSelectResult;
 		}
 
 		#region Copy Paste District Schedule
@@ -699,6 +682,22 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			Save(false);
 		}
 
+		private void OnAcceptBeforeJournalViewModelSelectResult(object sender, JournalSelectedEventArgs e)
+		{
+			var node = e.GetSelectedObjects<AcceptBefore>().FirstOrDefault();
+
+			if(node != null)
+			{
+				var acceptBefore = UoW.GetById<AcceptBefore>(node.Id);
+
+				if(acceptBefore != null && SelectedScheduleRestriction != null)
+				{
+
+					SelectedScheduleRestriction.AcceptBefore = acceptBefore;
+				}
+			}
+		}
+
 		private void OnDeliveryScheduleJournalEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var selectedNodes = e.SelectedNodes.OfType<DeliveryScheduleJournalNode>();
@@ -724,22 +723,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				});
 
 				OnPropertyChanged(nameof(ScheduleRestrictions));
-			}
-		}
-
-		private void OnAcceptBeforeSelected(object sender, JournalSelectedNodesEventArgs eventArgs)
-		{
-			var node = eventArgs.SelectedNodes.FirstOrDefault();
-
-			if(node != null)
-			{
-				var acceptBefore = UoW.GetById<AcceptBefore>(node.Id);
-
-				if(acceptBefore != null && SelectedScheduleRestriction != null)
-				{
-
-					SelectedScheduleRestriction.AcceptBefore = acceptBefore;
-				}
 			}
 		}
 
@@ -781,9 +764,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				_deliveryScheduleJournal.OnEntitySelectedResult -= OnDeliveryScheduleJournalEntitySelectedResult;
 			}
 
-			if(_acceptBeforeTimeViewModel != null)
+			if(_acceptBeforeJournalViewModel != null)
 			{
-				_acceptBeforeTimeViewModel.OnEntitySelectedResult -= OnAcceptBeforeSelected;
+				_acceptBeforeJournalViewModel.OnSelectResult -= OnAcceptBeforeJournalViewModelSelectResult;
 			}
 
 			UoW?.Dispose();
