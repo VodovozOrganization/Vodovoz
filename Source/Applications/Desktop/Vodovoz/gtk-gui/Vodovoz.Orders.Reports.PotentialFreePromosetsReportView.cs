@@ -123,6 +123,7 @@ namespace Vodovoz.Orders.Reports
 			w7.Position = 0;
 			// Container child vboxReportContorls.Gtk.Box+BoxChild
 			this.ybuttonSave = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonSave.Sensitive = false;
 			this.ybuttonSave.CanFocus = true;
 			this.ybuttonSave.Name = "ybuttonSave";
 			this.ybuttonSave.UseUnderline = true;
