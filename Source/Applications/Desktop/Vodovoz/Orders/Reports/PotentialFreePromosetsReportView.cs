@@ -149,6 +149,8 @@ namespace Vodovoz.Orders.Reports
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 
 			UpdateSliderArrow();
+
+			ybuttonSave.Sensitive = false;
 		}
 
 		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
