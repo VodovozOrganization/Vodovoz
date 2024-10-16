@@ -390,9 +390,9 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 			IDictionary<(int ClientId, int DeliveryPointId), List<string>> phonesByClientAndDeliveryPoint)
 		{
 			var duplicateOrderPhones =
-						phonesByClientAndDeliveryPoint.TryGetValue((orderWithPhoneDataNode.ClientId, orderWithPhoneDataNode.DeliveryPointId), out var duplicatePhoneNumbers)
-						? string.Join(", ", duplicatePhoneNumbers)
-						: orderWithPhoneDataNode.PhoneNumber;
+				phonesByClientAndDeliveryPoint.TryGetValue((orderWithPhoneDataNode.ClientId, orderWithPhoneDataNode.DeliveryPointId), out var duplicatePhoneNumbers)
+				? string.Join(", ", duplicatePhoneNumbers)
+				: orderWithPhoneDataNode.PhoneNumber;
 
 			var row = new PromosetReportRow
 			{
