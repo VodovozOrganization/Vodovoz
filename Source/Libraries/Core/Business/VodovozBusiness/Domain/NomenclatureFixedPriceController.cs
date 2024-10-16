@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;

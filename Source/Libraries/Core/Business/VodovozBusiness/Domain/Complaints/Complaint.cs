@@ -12,7 +12,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Complaints;
-using VodovozBusiness.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.Complaints
 {

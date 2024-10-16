@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.Models.TrueMark

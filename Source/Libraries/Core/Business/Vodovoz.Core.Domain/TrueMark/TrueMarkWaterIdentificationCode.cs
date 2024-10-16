@@ -1,12 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using QS.DomainModel.Entity;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Models.TrueMark;
+using Vodovoz.Core.Domain.Interfaces.TrueMark;
 
-namespace Vodovoz.Domain.TrueMark
+namespace Vodovoz.Core.Domain.TrueMark
 {
-	public class TrueMarkWaterIdentificationCode : TrueMarkWaterIdentificationCodeEntity, ITrueMarkWaterCode
+	[
+		Appellative(
+			Gender = GrammaticalGender.Masculine,
+			NominativePlural = "код честного знака",
+			Nominative = "код честного знака"
+		)
+	]
+	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode
 	{
+		public virtual int Id { get; set; }
 		private string _rawCode;
 		private bool _isInvalid;
 		private string _gtin;
@@ -47,13 +55,12 @@ namespace Vodovoz.Domain.TrueMark
 			get => _checkCode;
 			set => SetField(ref _checkCode, value);
 		}
-
 		public override bool Equals(object obj)
 		{
 			if(obj is TrueMarkWaterIdentificationCode)
 			{
 				var code = (TrueMarkWaterIdentificationCode)obj;
-				var result = _rawCode == code.RawCode;
+				var result = RawCode == code.RawCode;
 				return result;
 			}
 			else
@@ -64,7 +71,7 @@ namespace Vodovoz.Domain.TrueMark
 
 		public override int GetHashCode()
 		{
-			return -1155050507 + EqualityComparer<string>.Default.GetHashCode(_rawCode);
+			return -1155050507 + EqualityComparer<string>.Default.GetHashCode(RawCode);
 		}
 	}
 }

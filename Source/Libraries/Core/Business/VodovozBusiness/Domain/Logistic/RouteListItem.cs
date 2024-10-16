@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Gamma.Utilities;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Utilities.Debug;
@@ -11,6 +10,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -24,7 +24,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using VodovozBusiness.Services.Orders;
@@ -53,7 +52,6 @@ namespace Vodovoz.Domain.Logistic
 		private IOrderService _orderService => ScopeProvider.Scope
 			.Resolve<IOrderService>();
 
-		private DateTime _version;
 		private Order _order;
 		private RouteList _routeList;
 		private RouteListItemStatus _status;
@@ -105,13 +103,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#region Свойства
-
-		[Display(Name = "Версия")]
-		public virtual DateTime Version
-		{
-			get => _version;
-			set => SetField(ref _version, value);
-		}
 
 		[Display(Name = "Заказ")]
 		public virtual Order Order
@@ -858,7 +849,7 @@ namespace Vodovoz.Domain.Logistic
 
 			foreach(var item in Order.OrderItems)
 			{
-				item.RestoreOriginalDiscountFromRestoreOrder();
+				item.RestoreOriginalDiscount();
 
 				if(newStatus == RouteListItemStatus.EnRoute)
 				{

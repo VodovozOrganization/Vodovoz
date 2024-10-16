@@ -3,6 +3,7 @@ using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;

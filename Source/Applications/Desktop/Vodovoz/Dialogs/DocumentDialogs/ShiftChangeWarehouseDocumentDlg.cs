@@ -29,6 +29,7 @@ using QS.Project.Journal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Autofac;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {

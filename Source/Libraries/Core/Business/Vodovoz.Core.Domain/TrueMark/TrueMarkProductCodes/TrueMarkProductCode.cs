@@ -12,12 +12,12 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 	[HistoryTrace]
 	public abstract class TrueMarkProductCode : PropertyChangedBase, IDomainObject
 	{
-		private TrueMarkWaterIdentificationCodeEntity _trueMarkCode;
+		private TrueMarkWaterIdentificationCode _trueMarkCode;
 
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Код честного знака")]
-		public virtual TrueMarkWaterIdentificationCodeEntity TrueMarkCode
+		public virtual TrueMarkWaterIdentificationCode TrueMarkCode
 		{
 			get => _trueMarkCode;
 			set => SetField(ref _trueMarkCode, value);

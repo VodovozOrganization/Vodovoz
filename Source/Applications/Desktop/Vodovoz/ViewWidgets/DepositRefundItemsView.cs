@@ -5,6 +5,7 @@ using QS.Navigation;
 using QS.Project.Journal;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;

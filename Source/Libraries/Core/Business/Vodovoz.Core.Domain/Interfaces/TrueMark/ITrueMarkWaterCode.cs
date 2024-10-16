@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Models.TrueMark
+﻿namespace Vodovoz.Core.Domain.Interfaces.TrueMark
 {
 	public interface ITrueMarkWaterCode
 	{
