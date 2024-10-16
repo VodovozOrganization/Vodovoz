@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic.FileIO;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -13,7 +14,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Presentation.ViewModels.Extensions;
 using Vodovoz.Presentation.ViewModels.Factories;
 using static Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets.PotentialFreePromosetsReport;
 
@@ -190,19 +190,37 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 
 		private void SaveReport()
 		{
-			if(Report is null)
+			if(Report is null || IsReportGenerationInProgress)
 			{
 				return;
 			}
 
-			var dialogSettings = _dialogSettingsFactory.CreateForClosedXmlReport(_report);
+			var dialogSettings = CreateDialogSettings();
 
 			var saveDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
 
 			if(saveDialogResult.Successful)
 			{
-				_report.RenderTemplate().Export(saveDialogResult.Path);
+				_report.ExportToExcel(saveDialogResult.Path);
 			}
+		}
+
+		private DialogSettings CreateDialogSettings()
+		{
+			var reportFileExtension = ".xlsx";
+
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить",
+				DefaultFileExtention = reportFileExtension,
+				InitialDirectory = SpecialDirectories.Desktop,
+				FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			dialogSettings.FileFilters.Clear();
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Отчет Excel", "*" + reportFileExtension));
+
+			return dialogSettings;
 		}
 
 		private IEnumerable<int> GetSelectedPromotionalSets()

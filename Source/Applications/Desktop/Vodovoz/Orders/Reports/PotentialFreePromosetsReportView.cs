@@ -43,7 +43,7 @@ namespace Vodovoz.Orders.Reports
 				.InitializeFromSource();
 
 			ybuttonSave.Binding
-				.AddFuncBinding(ViewModel, vm => vm.Report != null, w => w.Sensitive)
+				.AddFuncBinding(ViewModel, vm => vm.Report != null && !vm.IsReportGenerationInProgress, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybuttonGenerate.BindCommand(ViewModel.GenerateReportCommand);
