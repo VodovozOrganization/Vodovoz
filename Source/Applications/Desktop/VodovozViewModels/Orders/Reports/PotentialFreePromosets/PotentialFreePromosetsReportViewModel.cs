@@ -2,6 +2,7 @@
 using Microsoft.VisualBasic.FileIO;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
@@ -58,7 +59,8 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 
 			GenerateReportCommand = new DelegateCommand(async () => await GenerateReport());
 			AbortReportGenerationCommand = new DelegateCommand(AbortReportGeneration);
-			SaveReportCommand = new DelegateCommand(SaveReport);
+			SaveReportCommand = new DelegateCommand(SaveReport, () => CanSaveReport);
+			SaveReportCommand.CanExecuteChangedWith(this, vm => vm.CanSaveReport);
 		}
 
 		public DelegateCommand GenerateReportCommand { get; }
@@ -79,17 +81,23 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 			set => SetField(ref _endDate, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanSaveReport))]
 		public PotentialFreePromosetsReport Report
 		{
 			get => _report;
 			set => SetField(ref _report, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanSaveReport))]
 		public bool IsReportGenerationInProgress
 		{
 			get => _isReportGenerationInProgress;
 			set => SetField(ref _isReportGenerationInProgress, value);
 		}
+
+		public bool CanSaveReport =>
+			Report != null
+			&& !IsReportGenerationInProgress;
 
 		private void FillPromotionalSets()
 		{

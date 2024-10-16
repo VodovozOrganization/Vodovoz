@@ -42,10 +42,6 @@ namespace Vodovoz.Orders.Reports
 				.AddFuncBinding(ViewModel, vm => vm.IsReportGenerationInProgress, w => w.Visible)
 				.InitializeFromSource();
 
-			ybuttonSave.Binding
-				.AddFuncBinding(ViewModel, vm => vm.Report != null && !vm.IsReportGenerationInProgress, w => w.Sensitive)
-				.InitializeFromSource();
-
 			ybuttonGenerate.BindCommand(ViewModel.GenerateReportCommand);
 			ybuttonAbortCreateReport.BindCommand(ViewModel.AbortReportGenerationCommand);
 			ybuttonSave.BindCommand(ViewModel.SaveReportCommand);
@@ -149,8 +145,6 @@ namespace Vodovoz.Orders.Reports
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 
 			UpdateSliderArrow();
-
-			ybuttonSave.Sensitive = false;
 		}
 
 		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
