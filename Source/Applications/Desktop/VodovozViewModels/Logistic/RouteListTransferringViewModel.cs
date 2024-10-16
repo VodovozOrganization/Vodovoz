@@ -512,7 +512,7 @@ namespace Vodovoz.ViewModels.Logistic
 				filter.RestrictWithoutSelfDelivery = true;
 				filter.RestrictOnlySelfDelivery = false;
 				filter.RestrictHideService = true;
-				filter.ExcludeClosingDocumentDeliverySchedule = true;
+				filter.FilterClosingDocumentDeliverySchedule = false;
 				filter.ExceptIds = excludeOrdersIds;
 			});
 		}

@@ -65,7 +65,7 @@ namespace Vodovoz.Filters.ViewModels
 		private IEnumerable<Organization> _organisations;
 		private IEnumerable<PaymentFrom> _paymentsFrom;
 		private IEnumerable<GeoGroup> _geographicGroups;
-		private bool _excludeClosingDocumentDeliverySchedule;
+		private bool? _filterClosingDocumentDeliverySchedule;
 		private string _counterpartyInn;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 		private ILifetimeScope _lifetimeScope;
@@ -519,10 +519,10 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _counterpartyNameLike, value);
 		}
 
-		public bool ExcludeClosingDocumentDeliverySchedule
+		public bool? FilterClosingDocumentDeliverySchedule
 		{
-			get => _excludeClosingDocumentDeliverySchedule;
-			set => UpdateFilterField(ref _excludeClosingDocumentDeliverySchedule, value);
+			get => _filterClosingDocumentDeliverySchedule;
+			set => UpdateFilterField(ref _filterClosingDocumentDeliverySchedule, value);
 		}
 		public override bool IsShow { get; set; } = true;
 
