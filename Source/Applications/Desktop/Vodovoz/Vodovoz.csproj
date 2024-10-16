@@ -1381,8 +1381,6 @@
     <Compile Include="ViewModels\Comments\DocumentCommentViewModel.cs" />
     <Compile Include="Views\Comments\DocumentCommentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Comments.DocumentCommentView.cs" />
-    <Compile Include="ReportsParameters\PotentialFreePromosetsReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PotentialFreePromosetsReport.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportOperation.cs" />
     <Compile Include="Cores\PromosetDuplicateFinder.cs" />
     <Compile Include="ReportsParameters\WayBillReport.cs" />
