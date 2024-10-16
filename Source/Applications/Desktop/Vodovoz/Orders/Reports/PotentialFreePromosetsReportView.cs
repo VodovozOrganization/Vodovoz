@@ -11,8 +11,8 @@ namespace Vodovoz.Orders.Reports
 {
 	public partial class PotentialFreePromosetsReportView : DialogViewBase<PotentialFreePromosetsReportViewModel>
 	{
-		private int _hpanedDefaultPosition = 428;
-		private int _hpanedMinimalPosition = 16;
+		private const int _hpanedDefaultPosition = 428;
+		private const int _hpanedMinimalPosition = 16;
 
 		public PotentialFreePromosetsReportView(PotentialFreePromosetsReportViewModel viewModel) : base(viewModel)
 		{
