@@ -147,8 +147,7 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.IsMasterCategory, w => w.Visible)
 				.InitializeFromSource();
 
-			enumServiceType.ItemsEnum = typeof(MasterServiceType);
-			enumServiceType.ShowSpecialStateNot = false;
+			enumServiceType.ItemsEnum = typeof(MasterServiceType);			
 			enumServiceType.Binding
 				.AddBinding(ViewModel.Entity, e => e.MasterServiceType, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.IsMasterCategory, w => w.Visible)

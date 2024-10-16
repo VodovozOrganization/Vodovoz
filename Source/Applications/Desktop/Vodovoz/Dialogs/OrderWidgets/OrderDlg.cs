@@ -5218,6 +5218,8 @@ namespace Vodovoz
 			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
+				Entity.DeliveryDate = null;
+				Entity.DeliverySchedule = null;
 			}
 		}
 
@@ -5229,6 +5231,8 @@ namespace Vodovoz
 			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				Entity.OrderAddressType = OrderAddressType.Delivery;
+				Entity.DeliveryDate = null;
+				Entity.DeliverySchedule = null;
 			}
 		}
 
