@@ -3990,7 +3990,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			foreach(var item in OrderItems)
 			{
-				item.RestoreOriginalDiscount();
+				item.RestoreOriginalDiscountFromRestoreOrder();
 			}
 
 			foreach(var equip in OrderEquipments)

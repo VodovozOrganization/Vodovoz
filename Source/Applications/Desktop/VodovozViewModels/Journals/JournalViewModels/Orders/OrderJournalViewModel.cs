@@ -585,9 +585,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
 			}
 			
-			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+			if(FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
-				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				if(!FilterViewModel.FilterClosingDocumentDeliverySchedule.Value)
+				{
+					query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				}
+				else
+				{
+					query.Where(o => o.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId);
+				}
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
@@ -763,7 +770,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -911,7 +918,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -1080,7 +1087,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
