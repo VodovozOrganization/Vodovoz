@@ -81,7 +81,7 @@ namespace Vodovoz.QualityControl.Reports
 				.AddColumn("")
 				.Finish();
 
-			ytreeSubdivisionRows .CreateFluentColumnsConfig<NumberOfComplaintsAgainstDriversReport.SubdivisionRow>()
+			ytreeSubdivisionRows.CreateFluentColumnsConfig<NumberOfComplaintsAgainstDriversReport.SubdivisionRow>()
 				.AddColumn("Подразделение").AddTextRenderer(x => x.Subdivision)
 				.AddColumn("Кол-во рекламаций").AddNumericRenderer(x => x.ComplaintsCount)
 				.AddColumn("")
