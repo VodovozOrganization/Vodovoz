@@ -68,6 +68,7 @@ namespace Vodovoz.QualityControl.Reports
 			if(e.PropertyName == nameof(NumberOfComplaintsAgainstDriversReportViewModel.Report))
 			{
 				ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report.DriverRows;
+				ytreeSubdivisionRows.ItemsDataSource = ViewModel.Report.SubdivisionRows;
 			}
 		}
 
@@ -77,6 +78,12 @@ namespace Vodovoz.QualityControl.Reports
 				.AddColumn("ФИО").AddTextRenderer(x => x.DriverFullName)
 				.AddColumn("Кол-во рекламаций").AddNumericRenderer(x => x.ComplaintsCount)
 				.AddColumn("Номера рекламаций").AddTextRenderer(x => x.ComplaintsList)
+				.AddColumn("")
+				.Finish();
+
+			ytreeSubdivisionRows .CreateFluentColumnsConfig<NumberOfComplaintsAgainstDriversReport.SubdivisionRow>()
+				.AddColumn("Подразделение").AddTextRenderer(x => x.Subdivision)
+				.AddColumn("Кол-во рекламаций").AddNumericRenderer(x => x.ComplaintsCount)
 				.AddColumn("")
 				.Finish();
 		}

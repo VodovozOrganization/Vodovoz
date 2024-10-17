@@ -6,10 +6,8 @@
 		{
 			public class SubdivisionRow
 			{
-				public string Subduvusion { get; set; }
-
+				public string Subdivision { get; set; }
 				public int ComplaintsCount { get; set; }
-
 			}
 		}
 	}
