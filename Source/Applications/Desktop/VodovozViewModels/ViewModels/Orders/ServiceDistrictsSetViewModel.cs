@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				Entity.Status = ServiceDistrictsSetStatus.Draft;
 			}
 
-			var districtPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District));
+			var districtPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(ServiceDistrict));
 			CanEditServiceDistrict = districtPermissionResult.CanUpdate && Entity.Status != ServiceDistrictsSetStatus.Active;
 
 			CanEditServiceDeliveryRules = (commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.ServiceDistrictsSet.CanEditServiceDeliveryRules))
@@ -104,7 +104,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 			#region Command Initialization
 
-			AddDistrictCommand = new DelegateCommand(AddDistrict);
+			AddDistrictCommand = new DelegateCommand(AddDistrict, () => CanCreateDistrict);
+			AddDistrictCommand.CanExecuteChangedWith(this, x => x.CanCreateDistrict);
 
 			RemoveDistrictCommand = new DelegateCommand(RemoveDistrict, () => CanRemoveDistrict);
 			RemoveDistrictCommand.CanExecuteChangedWith(this, x => x.CanRemoveDistrict);
@@ -506,21 +507,20 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		private void RemoveDistrict()
 		{
-			var distrToDel = SelectedServiceDistrict;
+			var districtToDelete = SelectedServiceDistrict;
 
-			Entity.ServiceDistricts.Remove(SelectedServiceDistrict);
-
-			if(distrToDel.Id == 0)
+			if(districtToDelete.Id == 0)
 			{
 				return;
 			}
 
-			if(_entityDeleteWorker.DeleteObject<ServiceDistrict>(distrToDel.Id, UoW))
-			{
-				SelectedServiceDistrict = null;
-				RefreshBordersAction?.Invoke();
-				SelectedDistrictBorderVerticesChangedAction?.Invoke();
-			}
+			UoW.Delete(districtToDelete);
+
+			Entity.ServiceDistricts.Remove(SelectedServiceDistrict);
+
+			SelectedServiceDistrict = null;
+			RefreshBordersAction?.Invoke();
+			SelectedDistrictBorderVerticesChangedAction?.Invoke();
 		}
 
 		private void ConfirmNewBorder()

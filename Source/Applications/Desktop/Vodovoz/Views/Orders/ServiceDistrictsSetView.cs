@@ -89,10 +89,6 @@ namespace Vodovoz.Views.Orders
 				.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			btnAddDistrict.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CanCreateDistrict, w => w.Sensitive)
-				.InitializeFromSource();
-
 			btnAddDistrict.BindCommand(ViewModel.AddDistrictCommand);
 
 			btnRemoveDistrict.BindCommand(ViewModel.RemoveDistrictCommand);

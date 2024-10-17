@@ -23,10 +23,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("service_district_id");
 
 			HasMany(x => x.AllServiceDistrictRules)
-				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("service_district_id").Not.LazyLoad();
+				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("service_district_id");
 
 			HasMany(x => x.AllServiceDeliveryScheduleRestrictions)
-				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("service_district_id").Not.LazyLoad();
+				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("service_district_id");
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -1646,9 +1646,9 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			//Если была удалена последняя номенклатура "мастер" - переходит в стандартный тип адреса
-			if(!OrderItems.Any(x => x.IsMasterNomenclature)
+			if(OrderItems.All(x => !(x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId))
 				&& orderItem.IsMasterNomenclature
-				&& !OrderItems.Any(x => x.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId))
+				&& orderItem.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId)
 			{
 				OrderAddressType = OrderAddressType.Delivery;
 			}
