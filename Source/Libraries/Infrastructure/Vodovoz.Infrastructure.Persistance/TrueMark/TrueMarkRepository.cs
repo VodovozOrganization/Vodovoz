@@ -6,7 +6,6 @@ using System.Linq;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.TrueMark;
 
 namespace Vodovoz.Infrastructure.Persistance.TrueMark
@@ -52,12 +51,16 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			}
 		}
 
-		public IQueryable<TrueMarkWaterIdentificationCode> GetTrueMarkCodeDuplicates(IUnitOfWork uow, string gtin, string serialNumber, string checkCode)
+		public IEnumerable<TrueMarkWaterIdentificationCode> GetTrueMarkCodeDuplicates(
+			IUnitOfWork uow,
+			string gtin,
+			string serialNumber,
+			string checkCode)
 		{
 			var query = uow.Session.Query<TrueMarkWaterIdentificationCode>()
 				.Where(x => x.GTIN == gtin && x.SerialNumber == serialNumber && x.CheckCode == checkCode);
 
-			return query;
+			return query.ToList();
 		}
 	}
 }

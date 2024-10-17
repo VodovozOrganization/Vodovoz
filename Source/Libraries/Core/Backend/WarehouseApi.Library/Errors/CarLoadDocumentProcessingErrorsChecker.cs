@@ -370,9 +370,10 @@ namespace WarehouseApi.Library.Errors
 			//Логика проверки доступности кода будет исправлена в дальнейшем, по мере внедрения нового функционала привязки кодов к чекам товаров
 			// из МЛ и документов самовывоза
 			var existingDuplicatedCodes =
-				_trueMarkRepository.GetTrueMarkCodeDuplicates(_uow, trueMarkCode.GTIN, trueMarkCode.SerialNumber, trueMarkCode.CheckCode).ToList();
+				_trueMarkRepository
+				.GetTrueMarkCodeDuplicates(_uow, trueMarkCode.GTIN, trueMarkCode.SerialNumber, trueMarkCode.CheckCode);
 
-			if(existingDuplicatedCodes.Count > 0)
+			if(existingDuplicatedCodes.Count() > 0)
 			{
 				error = TrueMarkCodeErrors.CreateTrueMarkCodeIsAlreadyExists(scannedCode);
 				LogError(error);
