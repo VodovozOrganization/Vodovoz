@@ -34,6 +34,7 @@ using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Orders.Reports;
+using Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.OKS.DailyReport;
 using Vodovoz.ViewModels.Reports.Sales;
@@ -233,9 +234,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction66Activated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<PotentialFreePromosetsReport>(),
-			() => new QSReport.ReportViewDlg(new PotentialFreePromosetsReport()));
+		NavigationManager.OpenViewModel<PotentialFreePromosetsReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
