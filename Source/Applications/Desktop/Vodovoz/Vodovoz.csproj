@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1383,8 +1383,6 @@
     <Compile Include="ViewModels\Comments\DocumentCommentViewModel.cs" />
     <Compile Include="Views\Comments\DocumentCommentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Comments.DocumentCommentView.cs" />
-    <Compile Include="ReportsParameters\PotentialFreePromosetsReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PotentialFreePromosetsReport.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportOperation.cs" />
     <Compile Include="Cores\PromosetDuplicateFinder.cs" />
     <Compile Include="ReportsParameters\WayBillReport.cs" />
@@ -2065,6 +2063,8 @@
     <Compile Include="gtk-gui\Vodovoz.Accounting.Payments.PaymentWriteOffView.cs" />
     <Compile Include="Views\Reports\OksDailyReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.OksDailyReportView.cs" />
+    <Compile Include="Orders\Reports\PotentialFreePromosetsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Orders.Reports.PotentialFreePromosetsReportView.cs" />
     <Compile Include="Views\Orders\ServiceDistrictsSetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ServiceDistrictsSetView.cs" />
     <Compile Include="Filters\GtkViews\ServiceDistrictsSetJournalFilterView.cs" />
