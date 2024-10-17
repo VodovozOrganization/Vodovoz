@@ -33,8 +33,8 @@ namespace WarehouseApi.Controllers
 			: base(logger)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_securityOptions = securityOptions;
-			_externalApplicationUserRepository = externalApplicationUserRepository;
+			_securityOptions = securityOptions ?? throw new System.ArgumentNullException(nameof(securityOptions));
+			_externalApplicationUserRepository = externalApplicationUserRepository ?? throw new System.ArgumentNullException(nameof(externalApplicationUserRepository));
 			_userManager = userManager ?? throw new System.ArgumentNullException(nameof(userManager));
 		}
 
