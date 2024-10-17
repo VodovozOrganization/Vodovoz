@@ -67,7 +67,7 @@ namespace Vodovoz.QualityControl.Reports
 		{
 			if(e.PropertyName == nameof(NumberOfComplaintsAgainstDriversReportViewModel.Report))
 			{
-				ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report.Rows;
+				ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report.DriverRows;
 			}
 		}
 

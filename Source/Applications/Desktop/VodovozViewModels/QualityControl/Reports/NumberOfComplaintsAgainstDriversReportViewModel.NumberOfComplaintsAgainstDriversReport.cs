@@ -15,18 +15,20 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 		[Appellative(Nominative = "Отчет по количеству рекламаций на водителей")]
 		public partial class NumberOfComplaintsAgainstDriversReport
 		{
-			private NumberOfComplaintsAgainstDriversReport(DateTime startDate, DateTime endDate, List<Row> rows)
+			private NumberOfComplaintsAgainstDriversReport(DateTime startDate, DateTime endDate, List<Row> driverRows, List<SubdivisionRow> subdivisionRows)
 			{
 				CreatedAt = DateTime.Now;
 				StartDate = startDate;
 				EndDate = endDate;
-				Rows = rows;
+				DriverRows = driverRows;
+				SubdivisionRows = subdivisionRows;
 			}
 
 			public DateTime	CreatedAt { get; }
 			public DateTime StartDate { get; }
 			public DateTime EndDate { get; }
-			public List<Row> Rows { get; }
+			public List<Row> DriverRows { get; }
+			public List<SubdivisionRow> SubdivisionRows { get; }
 
 			public static NumberOfComplaintsAgainstDriversReport Generate(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate,
 				int geoGroupId, int complaintResultId, ReportSortOrder sortOrder,
@@ -52,32 +54,36 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 						          || complaint.ComplaintResultOfEmployees.Id == complaintResultId)
 						let driverFullName = $"{driver.LastName} {driver.Name} {driver.Patronymic}"
 
-						let guiltyRestriction = (from guilty in unitOfWork.Session.Query<ComplaintGuiltyItem>() 
+						let guiltySubdivisionRestriction = (from guilty in unitOfWork.Session.Query<ComplaintGuiltyItem>() 
 							where guilty.Complaint.Id == complaint.Id 
 							      &&  (!includedSubdivisions.Any() || includedSubdivisions.Contains(guilty.Subdivision.Id)) 
 							      &&  (!excludedSubdivisions.Any() || !excludedSubdivisions.Contains(guilty.Subdivision.Id)) 
-							select guilty.Id)
+							select guilty.Subdivision.ShortName )
 							.FirstOrDefault() 
 						
-						where guiltyRestriction != null
+						where guiltySubdivisionRestriction != null
 
 						select new
 						{
 							ComplaintId = complaint.Id,
 							DriverId = driver.Id,
 							DriverFullName = driverFullName,
-							ComplaintsKind = complaintKind.Name
+							ComplaintsKind = complaintKind.Name,
+							Subdivision = guiltySubdivisionRestriction
 						})
 					.ToList()
 					.OrderBy(x => x.DriverFullName);
 
-				var groupedComplaints = complaints.GroupBy(x => x.DriverId);
 
-				var result = new List<Row>();
+				#region Driver
 
-				foreach(var group in groupedComplaints)
+				var groupedByDriverComplaints = complaints.GroupBy(x => x.DriverId);
+
+				var driverResult = new List<Row>();
+
+				foreach(var group in groupedByDriverComplaints)
 				{
-					result.Add(new Row
+					driverResult.Add(new Row
 					{
 						DriverFullName = group.First().DriverFullName,
 						ComplaintsCount = group.Count(),
@@ -85,11 +91,30 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 					});
 				}
 
-				result = sortOrder == ReportSortOrder.DriverName
-					? result.OrderBy(x => x.DriverFullName).ToList()
-					: result.OrderByDescending(x => x.ComplaintsCount).ToList();
+				driverResult = sortOrder == ReportSortOrder.DriverName
+					? driverResult.OrderBy(x => x.DriverFullName).ToList()
+					: driverResult.OrderByDescending(x => x.ComplaintsCount).ToList();
 
-				return new NumberOfComplaintsAgainstDriversReport(startDate, endDate, result);
+				#endregion Driver
+
+				#region Subdivision
+
+				var grouppedBySubdivisionComplaints = complaints.GroupBy(x => x.Subdivision);
+
+				var subdivisionResult = grouppedBySubdivisionComplaints.Select
+					(
+						group =>
+							new SubdivisionRow
+							{
+								Subduvusion = group.First().Subdivision,
+								ComplaintsCount = group.Count()
+							}
+					)
+					.OrderByDescending(x => x.ComplaintsCount).ToList();				
+
+				#endregion Subdivision
+
+				return new NumberOfComplaintsAgainstDriversReport(startDate, endDate, driverResult, subdivisionResult);
 			}
 		}
 	}
