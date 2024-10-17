@@ -7,10 +7,8 @@ using System.Threading;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
@@ -136,7 +134,10 @@ namespace WarehouseApi.Library.Errors
 			error = null;
 
 			var isNotAllCodesAdded = carLoadDocument.Items
-				.Where(x => x.OrderId != null && x.Nomenclature.Category == NomenclatureCategory.water)
+				.Where(x =>
+					x.OrderId != null
+					&& x.Nomenclature.IsAccountableInTrueMark
+					&& x.Nomenclature.Gtin != null)
 				.Any(x => x.TrueMarkCodes.Count < x.Amount);
 
 			if(isNotAllCodesAdded)
