@@ -2,9 +2,8 @@
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Common;
-using Vodovoz.Domain.Goods;
 
-namespace VodovozBusiness.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "информация о прикрепляемых файлах номенклатур",
@@ -15,7 +14,7 @@ namespace VodovozBusiness.Domain.Goods
 		private int _nomenclatureId;
 
 		[Display(Name = "Идентификатор номенклатуры")]
-		[HistoryIdentifier(TargetType = typeof(Nomenclature))]
+		[HistoryIdentifier(TargetType = typeof(NomenclatureEntity))]
 		public virtual int NomenclatureId
 		{
 			get => _nomenclatureId;

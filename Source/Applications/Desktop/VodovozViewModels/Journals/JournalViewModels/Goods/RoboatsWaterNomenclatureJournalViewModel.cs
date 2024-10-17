@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;

@@ -35,10 +35,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using VodovozBusiness.Domain.Goods;
-using VodovozBusiness.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Widgets.Goods;
 using VodovozInfrastructure.StringHandlers;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
