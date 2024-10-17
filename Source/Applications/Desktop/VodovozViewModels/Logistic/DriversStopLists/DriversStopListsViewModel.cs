@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			Title = "Снятие стоп-листов";
 
-			FilterSubdivisionViewModel = CreateSubdivisionEntityEntry();
+			FilterSubdivisionEntityEntryViewModel = CreateSubdivisionEntityEntryViewModel();
 
 			_currentUserRouteListRemovalPermissions =
 				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval));
@@ -142,7 +142,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			_currentUserRouteListRemovalPermissions.CanRead
 			|| _currentUserRouteListRemovalPermissions.CanCreate;
 
-		public IEntityEntryViewModel FilterSubdivisionViewModel { get; private set; }
+		public IEntityEntryViewModel FilterSubdivisionEntityEntryViewModel { get; }
 
 		#endregion
 
@@ -299,7 +299,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			return driversStopListsRemovals;
 		}
 
-		private IEntityEntryViewModel CreateSubdivisionEntityEntry()
+		private IEntityEntryViewModel CreateSubdivisionEntityEntryViewModel()
 		{
 			var viewModel = _subdivisionViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)

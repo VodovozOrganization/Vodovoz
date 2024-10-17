@@ -28,7 +28,7 @@ namespace Vodovoz.Views.Logistic
 
 			yvboxMain.Visible = ViewModel.DialogVisibility;
 
-			entityentrySubdivision.ViewModel = ViewModel.FilterSubdivisionViewModel;
+			entityentrySubdivision.ViewModel = ViewModel.FilterSubdivisionEntityEntryViewModel;
 
 			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
 			yenumcomboStatus.Binding.AddSource(ViewModel)
