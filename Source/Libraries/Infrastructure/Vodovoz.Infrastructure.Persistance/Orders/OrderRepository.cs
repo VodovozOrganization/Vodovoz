@@ -1127,8 +1127,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				where
 				orderIds.Contains((int)carLoadDocumentItem.OrderId)
 				&& carLoadDocumentItem.IsIndividualSetForOrder
-				&& nomenclature.Category == NomenclatureCategory.water
 				&& nomenclature.IsAccountableInTrueMark
+				&& nomenclature.Gtin != null
 				&& carLoadDocument.LoadOperationState != Core.Domain.Documents.CarLoadDocumentLoadOperationState.Done
 				select (int)carLoadDocumentItem.OrderId;
 
