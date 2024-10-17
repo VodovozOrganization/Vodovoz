@@ -13,7 +13,7 @@
     <PackageReference Include="MySqlConnector" Version="2.2.6" />
     <PackageReference Include="NHibernate" Version="5.4.1" />
     <PackageReference Include="NLog" Version="5.1.2" />
-    <PackageReference Include="System.Text.Json" Version="6.0.8" />
+    <PackageReference Include="System.Text.Json" Version="8.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />
