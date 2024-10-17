@@ -782,6 +782,11 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
+		public int EmptyRoutesOnDayCount =>
+			RoutesOnDay
+			.Where(rl => rl.Addresses.Count == 0)
+			.Count();
+
 		#endregion
 
 		public IEnumerable<OrderAddressTypeNode> OrderAddressTypes { get; } = new[] {
@@ -1720,6 +1725,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			text.Add(NumberToTextRus.FormatCase(RoutesOnDay.Count, "Всего {0} маршрутный лист.", "Всего {0} маршрутных листа.", "Всего {0} маршрутных листов."));
+			text.Add($"Пустых маршрутных листов {EmptyRoutesOnDayCount}.");
 
 			return string.Join("\n", text);
 		}
