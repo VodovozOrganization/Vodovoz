@@ -68,7 +68,7 @@ namespace WarehouseApi.Library.Services
 		{
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
 			var carLoadDocument =
-				(await _carLoadDocumentRepository.GetCarLoadDocumentsById(_uow, documentId).ToListAsync())
+				(await _carLoadDocumentRepository.GetCarLoadDocumentsById(_uow, documentId))
 				.FirstOrDefault();
 
 			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
@@ -259,7 +259,7 @@ namespace WarehouseApi.Library.Services
 		{
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
 			var carLoadDocument =
-				(await _carLoadDocumentRepository.GetCarLoadDocumentsById(_uow, documentId).ToListAsync())
+				(await _carLoadDocumentRepository.GetCarLoadDocumentsById(_uow, documentId))
 				.FirstOrDefault();
 
 			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
@@ -303,10 +303,11 @@ namespace WarehouseApi.Library.Services
 			return Result.Success(successResponse);
 		}
 
-		private async Task<IList<CarLoadDocumentItemEntity>> GetCarLoadDocumentWaterOrderItems(int orderId)
+		private async Task<IEnumerable<CarLoadDocumentItemEntity>> GetCarLoadDocumentWaterOrderItems(int orderId)
 		{
 			_logger.LogInformation("Получаем данные по заказу #{OrderId} из талона погрузки", orderId);
-			var documentOrderItems = await _carLoadDocumentRepository.GetWaterItemsInCarLoadDocumentById(_uow, orderId).ToListAsync();
+			var documentOrderItems =
+				await _carLoadDocumentRepository.GeAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(_uow, orderId);
 
 			return documentOrderItems;
 		}

@@ -99,9 +99,7 @@ namespace WarehouseApi.Library.Errors
 			error = null;
 
 			var lastDocumentLoadingProcessAction =
-				_carLoadDocumentRepository.GetLoadingProcessActionsByDocumentId(_uow, documentId)
-				.OrderByDescending(action => action.Id)
-				.FirstOrDefault();
+				_carLoadDocumentRepository.GetLastLoadingProcessActionByDocumentId(_uow, documentId);
 
 			var noLoadingActionsTimeout = _carLoadDocumentLoadingProcessSettings.NoLoadingActionsTimeout;
 
@@ -114,8 +112,8 @@ namespace WarehouseApi.Library.Errors
 			{
 				var leftToEndNoLoadingActionsTimeout = lastDocumentLoadingProcessAction.ActionTime.Add(noLoadingActionsTimeout) - DateTime.Now;
 				var pickerEmployee =
-					_employeeWithLoginRepository.GetEmployeeWithLoginById(_uow, lastDocumentLoadingProcessAction.PickerEmployeeId)
-					.FirstOrDefault();
+					_employeeWithLoginRepository
+					.GetEmployeeWithLoginById(_uow, lastDocumentLoadingProcessAction.PickerEmployeeId);
 
 				error = CarLoadDocumentErrors.CreateCarLoadDocumentAlreadyHasPickerError(
 					documentId,
@@ -179,11 +177,11 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		public bool IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(int orderId, IList<CarLoadDocumentItemEntity> documentOrderItems, out Error error)
+		public bool IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(int orderId, IEnumerable<CarLoadDocumentItemEntity> documentOrderItems, out Error error)
 		{
 			error = null;
 
-			if(documentOrderItems is null || documentOrderItems.Count == 0)
+			if(documentOrderItems is null || documentOrderItems.Count() == 0)
 			{
 				error = CarLoadDocumentErrors.CreateOrderNotFound(orderId);
 				LogError(error);
@@ -206,7 +204,7 @@ namespace WarehouseApi.Library.Errors
 			string scannedCode,
 			bool isScannedCodeValid,
 			TrueMarkWaterCode trueMarkCode,
-			IList<CarLoadDocumentItemEntity> allWaterOrderItems,
+			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
 			out Error error)
@@ -229,7 +227,7 @@ namespace WarehouseApi.Library.Errors
 			string newScannedCode,
 			bool isNewScannedCodeValid,
 			TrueMarkWaterCode newTrueMarkCode,
-			IList<CarLoadDocumentItemEntity> allWaterOrderItems,
+			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
 			out Error error)

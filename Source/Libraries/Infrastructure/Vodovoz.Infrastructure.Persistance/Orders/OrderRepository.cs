@@ -1122,8 +1122,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			var query =
 				from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItem>()
-				join carLoadDocument in uow.Session.Query<CarLoadDocument>() on carLoadDocumentItem.Document.Id equals carLoadDocument.Id
-				join nomenclature in uow.Session.Query<Nomenclature>() on carLoadDocumentItem.Nomenclature.Id equals nomenclature.Id
+				join carLoadDocument in uow.Session.Query<CarLoadDocument>()
+				on carLoadDocumentItem.Document.Id equals carLoadDocument.Id
+				join nomenclature in uow.Session.Query<Nomenclature>()
+				on carLoadDocumentItem.Nomenclature.Id equals nomenclature.Id
 				where
 				orderIds.Contains((int)carLoadDocumentItem.OrderId)
 				&& carLoadDocumentItem.IsIndividualSetForOrder

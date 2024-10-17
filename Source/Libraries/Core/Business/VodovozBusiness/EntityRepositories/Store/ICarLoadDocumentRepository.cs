@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.UoW;
-using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.EntityRepositories.Store
@@ -7,8 +8,8 @@ namespace Vodovoz.EntityRepositories.Store
 	public interface ICarLoadDocumentRepository
 	{
 		decimal LoadedTerminalAmount(IUnitOfWork uow, int routelistId, int terminalId);
-		IQueryable<CarLoadDocumentEntity> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId);
-		IQueryable<CarLoadDocumentItemEntity> GetWaterItemsInCarLoadDocumentById(IUnitOfWork uow, int orderId);
-		IQueryable<CarLoadDocumentLoadingProcessAction> GetLoadingProcessActionsByDocumentId(IUnitOfWork uow, int documentId);
+		Task<IEnumerable<CarLoadDocumentEntity>> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId);
+		Task<IEnumerable<CarLoadDocumentItemEntity>> GeAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(IUnitOfWork uow, int orderId);
+		CarLoadDocumentLoadingProcessAction GetLastLoadingProcessActionByDocumentId(IUnitOfWork uow, int documentId);
 	}
 }
