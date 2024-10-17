@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -19,7 +19,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Vodovoz.Application.FileStorage;
-using Vodovoz.Application.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
@@ -38,6 +37,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Widgets.Goods;
+using VodovozBusiness.Services;
 using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
