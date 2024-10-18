@@ -29,6 +29,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Selfdelivery
 
 			_startDate = DateTime.Now.Date;
 			_endDate = DateTime.Now.Date;
+			Validate();
 		}
 
 		public DelegateCommand GenerateReportCommand;
@@ -81,8 +82,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Selfdelivery
 			{
 				var parameters = new Dictionary<string, object>
 					{
-						{ "start_date", StartDate },
-						{ "end_date", EndDate },
+						{ "startDate", StartDate },
+						{ "endDate", EndDate },
 						{ "isOneDayReport", StartDate.Date == EndDate.Date }
 					};
 

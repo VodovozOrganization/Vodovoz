@@ -23,7 +23,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Store
 
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private DefectSource _defectSource;
+		private DefectSource? _defectSource;
 		private Employee _driver;
 
 		public DefectiveItemsReportViewModel(
@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Store
 			set => SetField(ref _endDate, value);
 		}
 
-		public virtual DefectSource DefectSource
+		public virtual DefectSource? DefectSource
 		{
 			get => _defectSource;
 			set => SetField(ref _defectSource, value);
@@ -86,7 +86,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Store
 
 		public Type DefectSourceType => typeof(DefectSource);
 
-		public Enum[] HiddenDefectSources => new Enum[] { DefectSource.None };
+		public Enum[] HiddenDefectSources => new Enum[] { Domain.Documents.DefectSource.None };
 
 		protected override Dictionary<string, object> Parameters
 		{
@@ -96,7 +96,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Store
 					{
 						{ "start_date", StartDate ?.ToString("yyyy-MM-dd") },
 						{ "end_date", EndDate ?.ToString("yyyy-MM-dd") },
-						{ "source", DefectSource },
+						{ "source", DefectSource == null ? "All" : DefectSource.ToString() },
 						{ "driver_id", Driver?.Id ?? 0 }
 					};
 

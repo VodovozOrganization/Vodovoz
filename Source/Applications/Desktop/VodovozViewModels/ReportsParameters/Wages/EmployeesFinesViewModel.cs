@@ -19,6 +19,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly EmployeeFilterViewModel _employeeFilter;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private Employee _driver;
@@ -42,9 +43,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 			UoW = _uowFactory.CreateWithoutRoot();
 
-			var _employeeFilter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking };
+			_employeeFilter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking };
 			_employeeJournalFactory.SetEmployeeFilterViewModel(_employeeFilter);
-			DriverSelectorFactory = _employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory();
+			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}
@@ -72,19 +73,31 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 		public virtual bool CategoryDriver
 		{
 			get => _categoryDriver;
-			set => SetField(ref _categoryDriver, value);
+			set
+			{
+				SetField(ref _categoryDriver, value);
+				UpdateEmployeeCategoryFilter();
+			}
 		}
 
 		public virtual bool CategoryForwarder
 		{
 			get => _categoryForwarder;
-			set => SetField(ref _categoryForwarder, value);
+			set
+			{
+				SetField(ref _categoryForwarder, value);
+				UpdateEmployeeCategoryFilter();
+			}
 		}
 
 		public virtual bool CategoryOffice
 		{
 			get => _categoryOffice;
-			set => SetField(ref _categoryOffice, value);
+			set
+			{
+				SetField(ref _categoryOffice, value);
+				UpdateEmployeeCategoryFilter();
+			}
 		}
 
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
@@ -122,6 +135,29 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			}
 		}
 
+		private void UpdateEmployeeCategoryFilter() 
+		{
+			if(CategoryDriver)
+			{
+				_employeeFilter.RestrictCategory = EmployeeCategory.driver;
+			}
+
+			if(CategoryForwarder)
+			{
+				_employeeFilter.RestrictCategory = EmployeeCategory.forwarder;
+			}
+
+			if(CategoryOffice)
+			{
+				_employeeFilter.RestrictCategory = EmployeeCategory.office;
+			}
+
+			if(!CategoryDriver && !CategoryForwarder && !CategoryOffice)
+			{
+				_employeeFilter.RestrictCategory = null;
+			}
+		}
+
 		private string GetCategory()
 		{
 			string cat = "-1";
@@ -148,7 +184,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			var driverSelected = Driver != null;
 			if (!datePeriodSelected && !driverSelected)
 			{
-				yield return new ValidationResult("Необходимо выбрать период или водителя.", new[] { nameof(StartDate), nameof(EndDate), nameof(Driver) });
+				yield return new ValidationResult("Необходимо выбрать период или сотрудника.", new[] { nameof(StartDate), nameof(EndDate), nameof(Driver) });
 			}
 			
 		}

@@ -18,7 +18,7 @@ namespace Vodovoz.Reports
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
 
-		private global::Gtk.CheckButton checkShowBalance;
+		private global::Gamma.GtkWidgets.yCheckButton checkShowBalance;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowFinesOutsidePeriod;
 
@@ -89,7 +89,7 @@ namespace Vodovoz.Reports
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.checkShowBalance = new global::Gtk.CheckButton();
+			this.checkShowBalance = new global::Gamma.GtkWidgets.yCheckButton();
 			this.checkShowBalance.CanFocus = true;
 			this.checkShowBalance.Name = "checkShowBalance";
 			this.checkShowBalance.Label = global::Mono.Unix.Catalog.GetString("вывести баланс");

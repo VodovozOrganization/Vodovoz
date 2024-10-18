@@ -119,7 +119,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 			if(Driver == null)
 			{
-				yield return new ValidationResult("Необходимо выбрать экспедитора.", new[] { nameof(Driver) });
+				yield return new ValidationResult("Необходимо выбрать водителя.", new[] { nameof(Driver) });
 			}
 		}
 	}

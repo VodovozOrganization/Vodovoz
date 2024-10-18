@@ -42,6 +42,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.QualityControl
 			_startDate = DateTime.Today.AddMonths(-1);
 			_endDate = DateTime.Today;
 			_tariffZones = UoW.GetAll<TariffZone>().ToList();
+			_debtTo = 10;
 		}
 
 		public DelegateCommand GenerateReportCommand;

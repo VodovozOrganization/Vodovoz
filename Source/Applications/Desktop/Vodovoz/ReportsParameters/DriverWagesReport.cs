@@ -22,6 +22,10 @@ namespace Vodovoz.Reports
 				.AddBinding(vm => vm.ShowFinesOutsidePeriod, w => w.Active)
 				.InitializeFromSource();
 
+			checkShowBalance.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowBalance, w => w.Active)
+				.InitializeFromSource();
+
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			evmeDriver.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Driver, w => w.Subject)

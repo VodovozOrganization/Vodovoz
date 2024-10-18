@@ -15,7 +15,7 @@ namespace Vodovoz.ReportsParameters.Store
 			yEnumCmbSource.ItemsEnum = ViewModel.DefectSourceType;
 			yEnumCmbSource.AddEnumToHideList(ViewModel.HiddenDefectSources);
 			yEnumCmbSource.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.DefectSource, w => w.SelectedItem)
+				.AddBinding(vm => vm.DefectSource, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			datePeriod.Binding.AddSource(ViewModel)

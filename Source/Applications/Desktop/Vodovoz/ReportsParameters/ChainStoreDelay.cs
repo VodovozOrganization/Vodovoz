@@ -20,8 +20,8 @@ namespace Vodovoz.ReportsParameters
 
 			speciallistcomboboxReportBy.SetRenderTextFunc<KeyValuePair<string, string>>(node => node.Value);
 			speciallistcomboboxReportBy.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.Mode, w => w.SelectedItem)
 				.AddBinding(vm => vm.Modes, w => w.ItemsList)
+				.AddBinding(vm => vm.Mode, w => w.SelectedItem)
 				.AddBinding(vm => vm.ModeAllowed, w => w.Sensitive)
 				.InitializeFromSource();
 

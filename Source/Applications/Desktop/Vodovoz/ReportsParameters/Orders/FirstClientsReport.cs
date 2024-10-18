@@ -40,6 +40,10 @@ namespace Vodovoz.ReportsParameters.Orders
 				.AddBinding(vm => vm.District, w => w.Subject)
 				.InitializeFromSource();
 
+			chkBtnWithPromotionalSets.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.WithPromosets, w => w.Active)
+				.InitializeFromSource();
+
 			buttonRun.BindCommand(ViewModel.GenerateReportCommand);
 		}
 
