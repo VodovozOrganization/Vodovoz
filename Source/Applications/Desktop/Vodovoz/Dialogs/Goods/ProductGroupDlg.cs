@@ -123,6 +123,18 @@ namespace Vodovoz.Dialogs.Goods
 			Entity.SetIsHighlightInCarLoadDocumenToAllChildGroups(Entity.IsHighlightInCarLoadDocument);
 		}
 
+		private void OnIsNeedAdditionalControlToggled(object sender, EventArgs e)
+		{
+			var infoMessage = $"Атрибут \"Требует доп. контроля водителя\" будет " +
+				$"{(Entity.IsNeedAdditionalControl ? "проставлен" : "снят")} " +
+				$"также для всех дочерних групп";
+
+			MessageDialogHelper.RunInfoDialog(infoMessage);
+
+			Entity.FetchChilds(UoW);
+			Entity.SetIsNeedAdditionalControlToAllChildGroups(Entity.IsNeedAdditionalControl);
+		}
+
 		public override void Destroy()
 		{
 			ycheckArchived.Toggled -= OnArchiveToggled;
