@@ -3,6 +3,7 @@ using NHibernate.Criterion;
 using NLog;
 using QS.Project.Services;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;

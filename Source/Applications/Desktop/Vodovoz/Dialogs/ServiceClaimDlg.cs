@@ -9,6 +9,7 @@ using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
 using QSProjectsLib;
 using System;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
