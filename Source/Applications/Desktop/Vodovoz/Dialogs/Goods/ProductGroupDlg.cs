@@ -51,6 +51,12 @@ namespace Vodovoz.Dialogs.Goods
 				.InitializeFromSource();
 
 			ycheckbuttonIsHighlightInCarLoadDocument.Toggled += OnIsHighlightInCarLoadDocumentToggled;
+
+			ycheckbuttonIsNeedAdditionalControl.Binding
+				.AddBinding(Entity, e => e.IsNeedAdditionalControl, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonIsNeedAdditionalControl.Toggled += OnIsNeedAdditionalControlToggled;
 			
 			entryParent.JournalButtons = Buttons.None;
 			entryParent.RepresentationModel = new ProductGroupVM(UoW, new ProductGroupFilterViewModel
@@ -139,6 +145,7 @@ namespace Vodovoz.Dialogs.Goods
 		{
 			ycheckArchived.Toggled -= OnArchiveToggled;
 			ycheckbuttonIsHighlightInCarLoadDocument.Toggled -= OnIsHighlightInCarLoadDocumentToggled;
+			ycheckbuttonIsNeedAdditionalControl.Toggled -= OnIsNeedAdditionalControlToggled;
 			base.Destroy();
 		}
 	}
