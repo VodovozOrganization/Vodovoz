@@ -18,6 +18,7 @@ using WarehouseApi.Filters;
 using WarehouseApi.Library.Common;
 using WarehouseApi.Library.Services;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace WarehouseApi.Controllers
 {
@@ -69,17 +70,7 @@ namespace WarehouseApi.Controllers
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
-					result =>
-					{
-						var firstError = result.Errors.FirstOrDefault();
-
-						if(firstError != null && firstError.Code == CarLoadDocumentErrors.DocumentNotFound)
-						{
-							return HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-						}
-
-						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-					});
+					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
@@ -106,17 +97,7 @@ namespace WarehouseApi.Controllers
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
-					result =>
-					{
-						var firstError = result.Errors.FirstOrDefault();
-
-						if(firstError != null && firstError.Code == CarLoadDocumentErrors.OrderNotFound)
-						{
-							return HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-						}
-
-						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-					});
+					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
@@ -148,10 +129,7 @@ namespace WarehouseApi.Controllers
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
-					result =>
-					{
-						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-					});
+					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
@@ -189,10 +167,7 @@ namespace WarehouseApi.Controllers
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
-					result =>
-					{
-						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-					});
+					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
@@ -222,17 +197,7 @@ namespace WarehouseApi.Controllers
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
-					result =>
-					{
-						var firstError = result.Errors.FirstOrDefault();
-
-						if(firstError != null && firstError.Code == CarLoadDocumentErrors.DocumentNotFound)
-						{
-							return HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-						}
-
-						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-					});
+					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
@@ -267,6 +232,27 @@ namespace WarehouseApi.Controllers
 			{
 				StatusCode = StatusCodes.Status500InternalServerError
 			};
+		}
+
+		private int GetStatusCode(Result result)
+		{
+			if(result.IsSuccess)
+			{
+				return StatusCodes.Status200OK;
+			}
+
+			var firstError = result.Errors.FirstOrDefault();
+
+			if(
+				firstError != null
+				&& (firstError.Code == CarLoadDocumentErrors.DocumentNotFound
+					|| firstError.Code == CarLoadDocumentErrors.OrderNotFound
+					|| firstError.Code == TrueMarkCodeErrors.TrueMarkCodeForCarLoadDocumentItemNotFound))
+			{
+				return StatusCodes.Status404NotFound;
+			}
+
+			return StatusCodes.Status400BadRequest;
 		}
 	}
 }
