@@ -209,7 +209,8 @@ namespace WarehouseApi.Library.Errors
 			CarLoadDocumentItemEntity documentItemToEdit,
 			out Error error)
 		{
-			return IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
+			return IsDocumentItemToEditNotNull(documentItemToEdit, orderId, out error)
+				&& IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
 				&& IsScannedCodeValid(scannedCode, isScannedCodeValid, out error)
 				&& IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems, out error)
 				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
@@ -232,7 +233,8 @@ namespace WarehouseApi.Library.Errors
 			CarLoadDocumentItemEntity documentItemToEdit,
 			out Error error)
 		{
-			return IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
+			return IsDocumentItemToEditNotNull(documentItemToEdit, orderId, out error)
+				&& IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
 				&& IsScannedCodeValid(oldScannedCode, isOldScannedCodeValid, out error)
 				&& IsScannedCodeValid(newScannedCode, isNewScannedCodeValid, out error)
 				&& IsTrueMarkCodesHasEqualGtins(oldTrueMarkCode, newTrueMarkCode, out error)
@@ -241,6 +243,20 @@ namespace WarehouseApi.Library.Errors
 				&& IsProductsHavingRequiredTrueMarkCodeExists(documentItemToEdit, oldTrueMarkCode, out error)
 				&& IsTrueMarkCodeNotExists(newTrueMarkCode, newScannedCode, out error)
 				&& IsTrueMarkCodeIntroduced(newTrueMarkCode, out error);
+		}
+
+		private bool IsDocumentItemToEditNotNull(CarLoadDocumentItemEntity documentItemToEdit, int orderId, out Error error)
+		{
+			error = null;
+
+			if(documentItemToEdit is null)
+			{
+				error = CarLoadDocumentErrors.CreateOrderNotFound(orderId);
+				LogError(error);
+				return false;
+			}
+
+			return true;
 		}
 
 		private bool IsSingleItemHavingRequiredOrderAndNomenclatureExists(

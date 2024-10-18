@@ -229,6 +229,16 @@ namespace WarehouseApi.Library.Services
 				Result = OperationResultEnumDto.Error,
 			};
 
+			if(documentItemToEdit is null)
+			{
+				var notFoundError = CarLoadDocumentErrors.DocumentNotFound;
+				failureResponse.Error = notFoundError.Message;
+
+				var result = Result.Failure<ChangeOrderCodeResponse>(notFoundError);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
+
 			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee, out Error error))
 			{
 				failureResponse.Error = error.Message;
