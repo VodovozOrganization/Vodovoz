@@ -1,4 +1,4 @@
-using QS.Dialog.GtkUI;
+﻿using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
 using System;

@@ -9,6 +9,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Settings.Common;
+using VodovozBusiness.Domain.Service;
 
 namespace Vodovoz.EntityRepositories.Delivery
 {
@@ -43,6 +44,6 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 		IList<Order> GetFastDeliveryLateOrders(IUnitOfWork uow, DateTime fromDateTime, IGeneralSettings generalSettings,
 			int complaintDetalizationId);
-
+		ServiceDistrict GetServiceDistrictByCoordinates(IUnitOfWork unitOfWork, decimal latitude, decimal longitude);
 	}
 }

@@ -3,6 +3,7 @@ using MoreLinq;
 using NetTopologySuite.Geometries;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -19,6 +20,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Presentation.ViewModels.Logistic;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
@@ -36,11 +38,13 @@ namespace Vodovoz.ViewModels.Logistic
 		public readonly bool CanChangeDistrictWageTypePermissionResult;
 		public readonly bool CanEditDistrict;
 		public readonly bool CanEditDeliveryRules;
-		public readonly bool CanEditDeliveryScheduleRestriction;
+
 		public readonly bool CanDeleteDistrict;
 		public readonly bool CanCreateDistrict;
 		public readonly bool CanSave;
 		public readonly bool CanEdit;
+
+		private AcceptBeforeJournalViewModel _acceptBeforeJournalViewModel;
 
 		private District _copiedDistrict;
 
@@ -116,7 +120,10 @@ namespace Vodovoz.ViewModels.Logistic
 			RemoveCommonDistrictRuleItemCommand = CreateRemoveCommonDistrictRuleItemCommand();
 			AddWeekDayDeliveryPriceRuleCommand = CreateAddWeekDayDeliveryPriceRuleCommand();
 			AddCommonDeliveryPriceRuleCommand = CreateAddCommonDeliveryPriceRuleCommand();
-			AddAcceptBeforeCommand = CreateAddAcceptBeforeCommand();
+
+			AddAcceptBeforeCommand = new DelegateCommand(AddAcceptBefore, () => CanEditSchedule);
+			AddAcceptBeforeCommand.CanExecuteChangedWith(this, x => x.CanEditSchedule);
+
 			RemoveAcceptBeforeCommand = CreateRemoveAcceptBeforeCommand();
 			CopyDistrictSchedulesCommand = new DelegateCommand(CopyDistrictSchedules);
 			PasteSchedulesToDistrictCommand = new DelegateCommand(PasteSchedulesToSelectedDistrict);
@@ -126,6 +133,11 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 
 		public IUnitOfWorkFactory UoWFactory => UnitOfWorkFactory;
+
+		public bool CanEditSchedule => SelectedScheduleRestriction != null
+			&& CanEditDeliveryScheduleRestriction
+			&& SelectedDistrict != null
+			&& SelectedScheduleRestriction != null;
 
 		public bool CanCopyDeliveryScheduleRestrictions =>
 			CanEditDeliveryScheduleRestriction
@@ -168,6 +180,7 @@ namespace Vodovoz.ViewModels.Logistic
 			set => SetField(ref _newBorderVertices, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanEditSchedule))]
 		public District SelectedDistrict
 		{
 			get => _selectedDistrict;
@@ -265,11 +278,15 @@ namespace Vodovoz.ViewModels.Logistic
 			set => SetField(ref _selectedWeekDayDistrictRuleItem, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanEditSchedule))]
 		public DeliveryScheduleRestriction SelectedScheduleRestriction
 		{
 			get => _selectedScheduleRestriction;
 			set => SetField(ref _selectedScheduleRestriction, value);
 		}
+
+		[PropertyChangedAlso(nameof(CanEditSchedule))]
+		public bool CanEditDeliveryScheduleRestriction { get; }
 
 		public bool IsCreatingNewBorder
 		{
@@ -286,6 +303,8 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 
 		#region Commands
+
+		public DelegateCommand AddAcceptBeforeCommand { get; }
 
 		public DelegateCommand AddDistrictCommand { get; }
 
@@ -537,15 +556,21 @@ namespace Vodovoz.ViewModels.Logistic
 
 		#endregion Команда добавления общего правила цен доставки
 
-		public DelegateCommand<AcceptBefore> AddAcceptBeforeCommand { get; }
 
-		private DelegateCommand<AcceptBefore> CreateAddAcceptBeforeCommand() =>
-			new DelegateCommand<AcceptBefore>(
-				acceptBefore =>
+		private void OnAcceptBeforeJournalViewModelSelectResult(object sender, JournalSelectedEventArgs e)
+		{
+			var node = e.GetSelectedObjects<AcceptBefore>().FirstOrDefault();
+
+			if(node != null)
+			{
+				var acceptBefore = UoW.GetById<AcceptBefore>(node.Id);
+
+				if(acceptBefore != null && SelectedScheduleRestriction != null)
 				{
 					SelectedScheduleRestriction.AcceptBefore = acceptBefore;
-				},
-				acceptBefore => acceptBefore != null && SelectedScheduleRestriction != null);
+				}
+			}
+		}
 
 		public DelegateCommand RemoveAcceptBeforeCommand { get; }
 
@@ -646,6 +671,16 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 		#endregion Copy Paste District Schedule
 
+		private void AddAcceptBefore()
+		{
+			var acceptBeforePage = NavigationManager.OpenViewModel<AcceptBeforeJournalViewModel>(null);
+			_acceptBeforeJournalViewModel = acceptBeforePage.ViewModel;
+			_acceptBeforeJournalViewModel.VisibleEditAction = false;
+			_acceptBeforeJournalViewModel.VisibleDeleteAction = false;
+			_acceptBeforeJournalViewModel.SelectionMode = JournalSelectionMode.Single;
+			_acceptBeforeJournalViewModel.OnSelectResult += OnAcceptBeforeJournalViewModelSelectResult;
+		}
+
 		private void SortDistricts()
 		{
 			for(int i = 0; i < Entity.Districts.Count - 1; i++)
@@ -744,6 +779,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public override void Dispose()
 		{
+			if(_acceptBeforeJournalViewModel != null)
+			{
+				_acceptBeforeJournalViewModel.OnSelectResult -= OnAcceptBeforeJournalViewModelSelectResult;
+			}
+
 			UoW?.Dispose();
 			base.Dispose();
 		}
