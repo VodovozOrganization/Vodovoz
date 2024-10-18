@@ -146,7 +146,7 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual void SetIsNeedAdditionalControlToAllChildGroups(bool value)
 		{
-			IsHighlightInCarLoadDocument = value;
+			IsNeedAdditionalControl = value;
 			foreach(var child in Childs)
 			{
 				child.SetIsNeedAdditionalControlToAllChildGroups(value);
