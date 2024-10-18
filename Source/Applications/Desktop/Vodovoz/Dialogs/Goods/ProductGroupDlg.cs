@@ -55,6 +55,8 @@ namespace Vodovoz.Dialogs.Goods
 			ycheckbuttonIsNeedAdditionalControl.Binding
 				.AddBinding(Entity, e => e.IsNeedAdditionalControl, w => w.Active)
 				.InitializeFromSource();
+			ycheckbuttonIsNeedAdditionalControl.Sensitive =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.ProductGroup.CanEditAdditionalControlSettingsInProductGroups);
 
 			ycheckbuttonIsNeedAdditionalControl.Toggled += OnIsNeedAdditionalControlToggled;
 			
