@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,12 +18,16 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Settings.Common;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 {
 	public partial class DriversStopListsViewModel : DialogTabViewModelBase
 	{
+		private readonly ICommonServices _commonServices;
+		private readonly ViewModelEEVMBuilder<Subdivision> _subdivisionViewModelEEVMBuilder;
 		private readonly IPermissionResult _currentUserRouteListRemovalPermissions;
 		private readonly int _driversUnclosedRouteListsMaxCountParameter;
 		private readonly int _driversRouteListsDebtsMaxSumParameter;
@@ -30,8 +35,10 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		private EmployeeStatus? _filterEmployeeStatus = EmployeeStatus.IsWorking;
 		private CarTypeOfUse? _filterCarTypeOfUse;
 		private CarOwnType? _filterCarOwnType;
+		private Subdivision _filterSubdivision;
 		private DriversSortOrder _currentDriversListSortOrder;
 		private bool _isExcludeVisitingMasters;
+		private DelegateCommand _closeFilterCommand;
 
 		private bool _filterVisibility = true;
 		private DriverNode _selectedDriverNode;
@@ -41,10 +48,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ICommonServices commonServices,
-			IGeneralSettings generalSettingsSettings
+			IGeneralSettings generalSettingsSettings,
+			ViewModelEEVMBuilder<Subdivision> subdivisionViewModelEEVMBuilder
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionViewModelEEVMBuilder = subdivisionViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(subdivisionViewModelEEVMBuilder));
 
 			if(generalSettingsSettings is null)
 			{
@@ -52,6 +61,8 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			}
 
 			Title = "Снятие стоп-листов";
+
+			FilterSubdivisionEntityEntryViewModel = CreateSubdivisionEntityEntryViewModel();
 
 			_currentUserRouteListRemovalPermissions =
 				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval));
@@ -89,6 +100,13 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		}
 
 		[PropertyChangedAlso(nameof(CurrentDriversList), nameof(StopListsRemovalHistory))]
+		public Subdivision FilterSubdivision
+		{
+			get => _filterSubdivision;
+			set => SetField(ref _filterSubdivision, value);
+		}
+
+		[PropertyChangedAlso(nameof(CurrentDriversList), nameof(StopListsRemovalHistory))]
 		public bool IsExcludeVisitingMasters
 		{
 			get => _isExcludeVisitingMasters;
@@ -123,6 +141,8 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		public bool DialogVisibility =>
 			_currentUserRouteListRemovalPermissions.CanRead
 			|| _currentUserRouteListRemovalPermissions.CanCreate;
+
+		public IEntityEntryViewModel FilterSubdivisionEntityEntryViewModel { get; }
 
 		#endregion
 
@@ -166,6 +186,11 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			if(IsExcludeVisitingMasters)
 			{
 				query.Where(() => !driverAlias.VisitingMaster);
+			}
+
+			if(FilterSubdivision != null)
+			{
+				query.Where(() => driverAlias.Subdivision.Id == FilterSubdivision.Id);
 			}
 
 			var unclosedRouteListsDebtsSumSubquery = QueryOver.Of(() => routeListDebtAlias)
@@ -260,6 +285,11 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 				query.Where(() => !driverAlias.VisitingMaster);
 			}
 
+			if(FilterSubdivision != null)
+			{
+				query.Where(() => driverAlias.Subdivision.Id == FilterSubdivision.Id);
+			}
+
 			var driversStopListsRemovals = query
 				.OrderBy(() => driverStopListRemovalAlias.Id).Desc()
 				.Take(100)
@@ -267,6 +297,21 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 				.ToList();
 
 			return driversStopListsRemovals;
+		}
+
+		private IEntityEntryViewModel CreateSubdivisionEntityEntryViewModel()
+		{
+			var viewModel = _subdivisionViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, x => x.FilterSubdivision)
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.Finish();
+
+			viewModel.CanViewEntity = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Subdivision)).CanUpdate;
+
+			return viewModel;
 		}
 
 		#region Команды
@@ -324,8 +369,6 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		#endregion#
 
 		#region CloseFilter
-		private DelegateCommand _closeFilterCommand;
-		private readonly ICommonServices _commonServices;
 
 		public DelegateCommand CloseFilterCommand
 		{
