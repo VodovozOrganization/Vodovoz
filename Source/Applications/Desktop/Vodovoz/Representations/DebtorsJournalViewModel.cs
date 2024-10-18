@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -10,6 +11,7 @@ using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
+using QS.Report;
 using QS.Services;
 using QSReport;
 using RabbitMQ.Infrastructure;
@@ -691,17 +693,16 @@ namespace Vodovoz.Representations
 
 		private ReportViewDlg CreateReportDlg(int counterpartyId, int deliveryPointId = -1)
 		{
-			var reportInfo = new QS.Report.ReportInfo
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Title = "Акт по бутылям-залогам";
+			reportInfo.Identifier = "Client.SummaryBottlesAndDeposits";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = "Акт по бутылям-залогам",
-				Identifier = "Client.SummaryBottlesAndDeposits",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", null },
-					{ "endDate", null },
-					{ "client_id", counterpartyId},
-					{ "delivery_point_id", deliveryPointId}
-				}
+				{ "startDate", null },
+				{ "endDate", null },
+				{ "client_id", counterpartyId},
+				{ "delivery_point_id", deliveryPointId}
 			};
 
 			return new ReportViewDlg(reportInfo);

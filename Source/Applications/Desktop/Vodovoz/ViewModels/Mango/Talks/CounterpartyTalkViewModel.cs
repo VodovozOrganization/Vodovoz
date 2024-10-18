@@ -3,6 +3,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Report;
 using QSReport;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
@@ -68,7 +70,9 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ICallTaskWorker callTaskWorker,
 			IEmployeeRepository employeeRepository,
-			ICallTaskRepository callTaskRepository)
+			ICallTaskRepository callTaskRepository,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(tdinavigation, manager)
 		{
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));
@@ -87,6 +91,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			if(ActiveCall.CounterpartyIds.Any())
 			{
 				var clients = _uow.GetById<Counterparty>(ActiveCall.CounterpartyIds);
@@ -249,6 +254,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		public void BottleActCommand()
 		{
 			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits(
+				_reportInfoFactory,
 				_orderRepository,
 				_counterpartyJournalFactory,
 				_deliveryPointJournalFactory);

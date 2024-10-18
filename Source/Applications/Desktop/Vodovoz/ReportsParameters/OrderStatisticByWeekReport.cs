@@ -1,3 +1,11 @@
+﻿using Gamma.ColumnConfig;
+using Gamma.Utilities;
+using MoreLinq;
+using NHibernate.Exceptions;
+using QS.Dialog.GtkUI;
+using QS.Project.Services;
+using QS.Report;
+using QSReport;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -5,15 +13,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using Gamma.ColumnConfig;
-using Gamma.Utilities;
-using MoreLinq;
-using NHibernate.Exceptions;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Project.Services;
-using QS.Report;
-using QSReport;
 using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.Logistic;
 
@@ -25,9 +24,11 @@ namespace Vodovoz.ReportsParameters
 		private readonly GenericObservableList<GeographicGroupNode> _geographicGroupNodes;
 		private bool _showPotentialOrders;
 		private OrderStatisticsByWeekReportType _reportType;
+		private readonly IReportInfoFactory _reportInfoFactory;
 
-		public OrderStatisticByWeekReport()
+		public OrderStatisticByWeekReport(IReportInfoFactory reportInfoFactory)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -120,19 +121,18 @@ namespace Vodovoz.ReportsParameters
 				? _geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.GeographicGroup.Id)
 				: _geographicGroupNodes.Select(ggn => ggn.GeographicGroup.Id);
 
-			var reportInfo = new ReportInfo
-			{
-				
-				Parameters = new Dictionary<string, object>
+			var parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDate },
 					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
 					{ "report_mode", (int)ReportType },
 					{ "geographic_group_id", selectedGeoGroupsIds },
 					{ "selected_filters", GetSelectedFilters() },
-				}
-			};
+				};
 
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Parameters = parameters;
+			reportInfo.Title = Title;
 			if(ShowPotentialOrders)
 			{
 				reportInfo.Identifier = "Logistic.OrderStatisticByWeekWithPotentialOrders";

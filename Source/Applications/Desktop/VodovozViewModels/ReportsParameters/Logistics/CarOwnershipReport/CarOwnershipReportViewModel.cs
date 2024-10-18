@@ -1,6 +1,7 @@
 ﻿using DateTimeHelpers;
 using QS.Commands;
 using QS.Dialog;
+using QS.Report;
 using QS.Report.ViewModels;
 using QS.Services;
 using QS.Utilities.Enums;
@@ -30,7 +31,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 
 		public CarOwnershipReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
-			ICommonServices commonServices) : base(rdlViewerViewModel)
+			ICommonServices commonServices,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 

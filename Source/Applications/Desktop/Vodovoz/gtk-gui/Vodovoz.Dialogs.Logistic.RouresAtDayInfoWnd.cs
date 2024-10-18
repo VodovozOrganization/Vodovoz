@@ -20,7 +20,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewOrderInfoMarkers;
 
-		private global::Gtk.Button btnOk;
+		private global::Gamma.GtkWidgets.yButton btnOk;
 
 		protected virtual void Build()
 		{
@@ -95,7 +95,7 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ytreeviewOrderInfoMarkers]));
 			w7.Position = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.btnOk = new global::Gtk.Button();
+			this.btnOk = new global::Gamma.GtkWidgets.yButton();
 			this.btnOk.CanFocus = true;
 			this.btnOk.Name = "btnOk";
 			this.btnOk.UseUnderline = true;

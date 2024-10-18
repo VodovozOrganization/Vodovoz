@@ -163,6 +163,7 @@ using QS.Attachments;
 using QSAttachment;
 using Vodovoz.Additions.Printing;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using VodovozInfrastructure;
 using Vodovoz.Application.Options;
 using Vodovoz.Options;
 
@@ -680,6 +681,7 @@ namespace Vodovoz
 						.AddObjectValidatorWithGui()
 						.AddPermissionValidation()
 						.AddGuiInteracive()
+						.AddSlaveDbPreferredReportsCore()
 
 						.AddScoped<IScanDialogService, ScanDialogService>()
 

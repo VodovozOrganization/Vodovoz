@@ -8,7 +8,7 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.Table tblSettings;
 
-		private global::Gtk.Button buttonSearch;
+		private global::Gamma.GtkWidgets.yButton buttonSearch;
 
 		private global::Gamma.Widgets.yEnumComboBox comboAction;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.Dialogs
 
 		private global::QSWidgetLib.SelectPeriod selectperiod;
 
-		private global::Gtk.Button btnFilter;
+		private global::Gamma.GtkWidgets.yButton btnFilter;
 
 		private global::Gtk.VPaned vpaned1;
 
@@ -86,7 +86,7 @@ namespace Vodovoz.Dialogs
 			this.tblSettings.RowSpacing = ((uint)(6));
 			this.tblSettings.ColumnSpacing = ((uint)(6));
 			// Container child tblSettings.Gtk.Table+TableChild
-			this.buttonSearch = new global::Gtk.Button();
+			this.buttonSearch = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSearch.CanFocus = true;
 			this.buttonSearch.Name = "buttonSearch";
 			this.buttonSearch.UseUnderline = true;
@@ -310,7 +310,7 @@ namespace Vodovoz.Dialogs
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.btnFilter = new global::Gtk.Button();
+			this.btnFilter = new global::Gamma.GtkWidgets.yButton();
 			this.btnFilter.CanFocus = true;
 			this.btnFilter.Name = "btnFilter";
 			this.btnFilter.UseUnderline = true;
