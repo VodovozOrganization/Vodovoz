@@ -243,8 +243,7 @@ namespace WarehouseApi.Controllers
 
 			var firstError = result.Errors.FirstOrDefault();
 
-			if(
-				firstError != null
+			if(firstError != null
 				&& (firstError.Code == CarLoadDocumentErrors.DocumentNotFound
 					|| firstError.Code == CarLoadDocumentErrors.OrderNotFound
 					|| firstError.Code == TrueMarkCodeErrors.TrueMarkCodeForCarLoadDocumentItemNotFound))
