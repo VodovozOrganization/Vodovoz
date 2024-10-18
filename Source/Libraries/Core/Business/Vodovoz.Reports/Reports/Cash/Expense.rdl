@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>11in</PageHeight>
   <PageWidth>8.5in</PageWidth>
   <DataSources>
@@ -33,7 +31,7 @@
   </ReportParameters>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT cash_expense.date as edate, cash_expense.money as sum, cash_expense.description as details, financial_categories_groups.title as expense, 
 CONCAT_WS('', CONCAT(employees.last_name, ' '), if(employees.name = '', '', CONCAT(LEFT(employees.name, 1),'.')), if(employees.patronymic = '', '', CONCAT(LEFT(employees.patronymic, 1),'.'))) as employee 
@@ -47,7 +45,7 @@ WHERE cash_expense.id=@id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="edate">
           <DataField>edate</DataField>
           <rd:TypeName>System.DateTime</rd:TypeName>
@@ -164,6 +162,7 @@ WHERE cash_expense.id=@id</CommandText>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <PaddingBottom >6pt</PaddingBottom>
             </Style>
           </Textbox>
           <Textbox Name="expense">
@@ -214,7 +213,7 @@ WHERE cash_expense.id=@id</CommandText>
               <BorderWidth />
             </Style>
           </Textbox>
-          <Textbox Name="Textbox16" >
+          <Textbox Name="Textbox16">
             <Height>12.00pt</Height>
             <Width>196.37pt</Width>
             <Value></Value>
@@ -227,7 +226,7 @@ WHERE cash_expense.id=@id</CommandText>
               <BorderWidth />
             </Style>
           </Textbox>
-          <Textbox Name="Textbox17" >
+          <Textbox Name="Textbox17">
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>Контрагент:</Value>
@@ -246,13 +245,13 @@ WHERE cash_expense.id=@id</CommandText>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
           <BorderColor />
           <BorderWidth />
         </Style>
@@ -378,6 +377,7 @@ WHERE cash_expense.id=@id</CommandText>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <PaddingBottom >6pt</PaddingBottom>
             </Style>
           </Textbox>
           <Textbox Name="Textbox23">
@@ -389,9 +389,9 @@ WHERE cash_expense.id=@id</CommandText>
             <CanGrow>true</CanGrow>
             <Style>
               <PaddingLeft>2pt</PaddingLeft>
-              <BorderStyle  />
-              <BorderColor  />
-              <BorderWidth  />
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
             </Style>
           </Textbox>
           <Textbox Name="Textbox24">
@@ -486,7 +486,7 @@ WHERE cash_expense.id=@id</CommandText>
               <BorderWidth />
             </Style>
           </Textbox>
-          <Textbox Name="Textbox14" >
+          <Textbox Name="Textbox14">
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>Контрагент:</Value>
@@ -500,7 +500,7 @@ WHERE cash_expense.id=@id</CommandText>
               <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox15" >
+          <Textbox Name="Textbox15">
             <Height>12.00pt</Height>
             <Width>196.37pt</Width>
             <Value></Value>
@@ -518,15 +518,15 @@ WHERE cash_expense.id=@id</CommandText>
         <Left>295.40pt</Left>
         <Top>0.00pt</Top>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </List>
     </ReportItems>
