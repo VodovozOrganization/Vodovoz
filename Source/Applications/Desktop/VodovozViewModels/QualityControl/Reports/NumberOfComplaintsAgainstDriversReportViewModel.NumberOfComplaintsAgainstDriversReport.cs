@@ -62,6 +62,9 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 					
 						let driverFullName = $"{driver.LastName} {driver.Name} {driver.Patronymic}"
 
+						where (!includedSubdivisions.Any() || includedSubdivisions.Contains(guiltes.Subdivision.Id))
+							&& (!excludedSubdivisions.Any() || !excludedSubdivisions.Contains(guiltes.Subdivision.Id))
+
 						select new
 						{
 							ComplaintId = complaint.Id,
