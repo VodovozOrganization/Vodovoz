@@ -9,10 +9,13 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Presentation.WebApi.Common;
+using Vodovoz.Errors;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
+using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Requests;
 using WarehouseApi.Contracts.Responses;
+using WarehouseApi.Filters;
+using WarehouseApi.Library.Common;
 using WarehouseApi.Library.Services;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 
@@ -20,12 +23,15 @@ namespace WarehouseApi.Controllers
 {
 	[Authorize(Roles = _rolesToAccess)]
 	[ApiController]
+	[WarehouseErrorHandlingFilter]
 	[OnlyOneSession]
 	[Route("/api/")]
-	public class CarLoadController : ApiControllerBase
+	public class CarLoadController : ControllerBase
 	{
 		private const string _rolesToAccess =
 			nameof(ApplicationUserRole.WarehousePicker) + "," + nameof(ApplicationUserRole.WarehouseDriver);
+		private const string _exceptionMessage =
+			"Внутренняя ошибка сервера. Обратитесь в техподдержку";
 
 		private readonly ILogger<CarLoadController> _logger;
 		private readonly UserManager<IdentityUser> _userManager;
@@ -34,7 +40,7 @@ namespace WarehouseApi.Controllers
 		public CarLoadController(
 			ILogger<CarLoadController> logger,
 			UserManager<IdentityUser> userManager,
-			ICarLoadService carLoadService) : base(logger)
+			ICarLoadService carLoadService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -59,15 +65,10 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result = await _carLoadService.StartLoad(documentId, user.UserName, accessToken);
+				var requestProcessingResult = await _carLoadService.StartLoad(documentId, user.UserName, accessToken);
 
-				if(result.IsSuccess)
-				{
-					return MapResult(result);
-				}
-
-				return MapFailureValueResult(
-					result,
+				return MapRequestProcessingResult(
+					requestProcessingResult,
 					result =>
 					{
 						var firstError = result.Errors.FirstOrDefault();
@@ -83,7 +84,7 @@ namespace WarehouseApi.Controllers
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
+				return GetProblemResult();
 			}
 		}
 
@@ -101,15 +102,10 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result = await _carLoadService.GetOrder(orderId);
+				var requestProcessingResult = await _carLoadService.GetOrder(orderId);
 
-				if(result.IsSuccess)
-				{
-					return MapResult(result);
-				}
-
-				return MapFailureValueResult(
-					result,
+				return MapRequestProcessingResult(
+					requestProcessingResult,
 					result =>
 					{
 						var firstError = result.Errors.FirstOrDefault();
@@ -125,7 +121,7 @@ namespace WarehouseApi.Controllers
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
+				return GetProblemResult();
 			}
 		}
 
@@ -147,15 +143,11 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result = await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName);
+				var requestProcessingResult =
+					await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName);
 
-				if(result.IsSuccess)
-				{
-					return MapResult(result);
-				}
-
-				return MapFailureValueResult(
-					result,
+				return MapRequestProcessingResult(
+					requestProcessingResult,
 					result =>
 					{
 						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -164,7 +156,7 @@ namespace WarehouseApi.Controllers
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
+				return GetProblemResult();
 			}
 		}
 
@@ -187,7 +179,7 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result =
+				var requestProcessingResult =
 					await _carLoadService.ChangeOrderCode(
 						requestData.OrderId,
 						requestData.NomenclatureId,
@@ -195,13 +187,8 @@ namespace WarehouseApi.Controllers
 						requestData.NewCode,
 						user.UserName);
 
-				if(result.IsSuccess)
-				{
-					return MapResult(result);
-				}
-
-				return MapFailureValueResult(
-					result,
+				return MapRequestProcessingResult(
+					requestProcessingResult,
 					result =>
 					{
 						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -210,7 +197,7 @@ namespace WarehouseApi.Controllers
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
+				return GetProblemResult();
 			}
 		}
 
@@ -231,15 +218,10 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result = await _carLoadService.EndLoad(documentId, user.UserName, accessToken);
+				var requestProcessingResult = await _carLoadService.EndLoad(documentId, user.UserName, accessToken);
 
-				if(result.IsSuccess)
-				{
-					return MapResult(result);
-				}
-
-				return MapFailureValueResult(
-					result,
+				return MapRequestProcessingResult(
+					requestProcessingResult,
 					result =>
 					{
 						var firstError = result.Errors.FirstOrDefault();
@@ -255,16 +237,30 @@ namespace WarehouseApi.Controllers
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
+				return GetProblemResult();
 			}
 		}
 
-		private IActionResult GetProblemResult(string message)
+		private IActionResult MapRequestProcessingResult<TValue>(
+			RequestProcessingResult<TValue> processingResult,
+			Func<Result, int?> statusCodeSelectorFunc)
+		{
+			if(processingResult.Result.IsSuccess)
+			{
+				HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status200OK;
+				return new ObjectResult(processingResult.Result.Value);
+			}
+
+			HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status400BadRequest;
+			return new ObjectResult(processingResult.FailureData);
+		}
+
+		private IActionResult GetProblemResult(string exceptionMessage = null)
 		{
 			var response = new WarehouseApiResponseBase
 			{
-				Result = Contracts.Dto.OperationResultEnumDto.Error,
-				Error = message,
+				Result = OperationResultEnumDto.Error,
+				Error = string.IsNullOrWhiteSpace(exceptionMessage) ? _exceptionMessage : exceptionMessage,
 			};
 
 			return new ObjectResult(response)

@@ -81,9 +81,6 @@ namespace Vodovoz.Errors
 		public static Result<TValue> Success<TValue>(TValue value) =>
 			new Result<TValue>(value, true, Error.None);
 
-		public static Result<TValue> Failure<TValue>(TValue value, Error error) =>
-			new Result<TValue>(value, false, error);
-
 		public static Result<TValue> Failure<TValue>(Error error) =>
 			new Result<TValue>(default, false, error);
 

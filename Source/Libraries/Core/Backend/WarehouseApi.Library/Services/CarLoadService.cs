@@ -1,7 +1,6 @@
 ﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
-using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -21,6 +20,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Responses;
+using WarehouseApi.Library.Common;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
@@ -64,7 +64,7 @@ namespace WarehouseApi.Library.Services
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
 		}
 
-		public async Task<Result<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken)
+		public async Task<RequestProcessingResult<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken)
 		{
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
 			var carLoadDocument =
@@ -82,7 +82,10 @@ namespace WarehouseApi.Library.Services
 			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee, out Error error))
 			{
 				failureResponse.Error = error.Message;
-				return Result.Failure(failureResponse, error);
+
+				var result = Result.Failure<StartLoadResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
 			CreateAndSaveCarLoadDocumentLoadingProcessAction(carLoadDocument?.Id ?? 0, pickerEmployee, CarLoadDocumentLoadingProcessActionType.StartLoad);
@@ -90,7 +93,10 @@ namespace WarehouseApi.Library.Services
 			if(!_documentErrorsChecker.IsCarLoadDocumentLoadingCanBeStarted(carLoadDocument, documentId, out error))
 			{
 				failureResponse.Error = error.Message;
-				return Result.Failure(failureResponse, error);
+
+				var result = Result.Failure<StartLoadResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
 			var isDocumentSavedAndEventsCreated =
@@ -99,9 +105,11 @@ namespace WarehouseApi.Library.Services
 			if(!isDocumentSavedAndEventsCreated)
 			{
 				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
-
 				failureResponse.Error = error.Message;
-				return Result.Failure(failureResponse, error);
+
+				var result = Result.Failure<StartLoadResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
 			var successResponse = new StartLoadResponse
@@ -111,10 +119,10 @@ namespace WarehouseApi.Library.Services
 				Error = null
 			};
 
-			return Result.Success(successResponse);
+			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		public async Task<Result<GetOrderResponse>> GetOrder(int orderId)
+		public async Task<RequestProcessingResult<GetOrderResponse>> GetOrder(int orderId)
 		{
 			var documentOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 
@@ -128,16 +136,18 @@ namespace WarehouseApi.Library.Services
 				response.Result = OperationResultEnumDto.Error;
 				response.Error = error.Message;
 
-				return Result.Failure(response, error);
+				var result = Result.Failure<GetOrderResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, response);
 			}
 
 			response.Result = OperationResultEnumDto.Success;
 			response.Error = null;
 
-			return Result.Success(response);
+			return RequestProcessingResult.CreateSuccess(Result.Success(response));
 		}
 
-		public async Task<Result<AddOrderCodeResponse>> AddOrderCode(int orderId, int nomenclatureId, string scannedCode, string userLogin)
+		public async Task<RequestProcessingResult<AddOrderCodeResponse>> AddOrderCode(int orderId, int nomenclatureId, string scannedCode, string userLogin)
 		{
 			var isScannedCodeValid = _trueMarkWaterCodeParser.TryParse(scannedCode, out TrueMarkWaterCode trueMarkCode);
 
@@ -157,7 +167,9 @@ namespace WarehouseApi.Library.Services
 			{
 				failureResponse.Error = error.Message;
 
-				return Result.Failure(failureResponse, error);
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
 			CreateAndSaveCarLoadDocumentLoadingProcessAction(
@@ -177,7 +189,10 @@ namespace WarehouseApi.Library.Services
 				out error))
 			{
 				failureResponse.Error = error.Message;
-				return Result.Failure(failureResponse, error);
+
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
 			AddTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, trueMarkCode);
@@ -189,10 +204,10 @@ namespace WarehouseApi.Library.Services
 				Error = null
 			};
 
-			return Result.Success(successResponse);
+			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		public async Task<Result<ChangeOrderCodeResponse>> ChangeOrderCode(
+		public async Task<RequestProcessingResult<ChangeOrderCodeResponse>> ChangeOrderCode(
 			int orderId,
 			int nomenclatureId,
 			string oldScannedCode,
@@ -217,7 +232,10 @@ namespace WarehouseApi.Library.Services
 			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee, out Error error))
 			{
 				failureResponse.Error = error.Message;
-				return Result.Failure(failureResponse, error);
+
+				var result = Result.Failure<ChangeOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
 			CreateAndSaveCarLoadDocumentLoadingProcessAction(
@@ -240,7 +258,10 @@ namespace WarehouseApi.Library.Services
 				out error))
 			{
 				failureResponse.Error = error.Message;
-				return Result.Failure(failureResponse, error);
+
+				var result = Result.Failure<ChangeOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
 			ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, oldTrueMarkCode, newTrueMarkCode);
@@ -252,10 +273,10 @@ namespace WarehouseApi.Library.Services
 				Error = null
 			};
 
-			return Result.Success(successResponse);
+			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		public async Task<Result<EndLoadResponse>> EndLoad(int documentId, string userLogin, string accessToken)
+		public async Task<RequestProcessingResult<EndLoadResponse>> EndLoad(int documentId, string userLogin, string accessToken)
 		{
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
 			var carLoadDocument =
@@ -272,7 +293,10 @@ namespace WarehouseApi.Library.Services
 			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee, out Error error))
 			{
 				failureResponse.Error = error.Message;
-				return Result.Failure(failureResponse, error);
+
+				var result = Result.Failure<EndLoadResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
 			CreateAndSaveCarLoadDocumentLoadingProcessAction(carLoadDocument?.Id ?? 0, pickerEmployee, CarLoadDocumentLoadingProcessActionType.EndLoad);
@@ -280,7 +304,10 @@ namespace WarehouseApi.Library.Services
 			if(!_documentErrorsChecker.IsCarLoadDocumentLoadingCanBeDone(carLoadDocument, documentId, out error))
 			{
 				failureResponse.Error = error.Message;
-				return Result.Failure(failureResponse, error);
+
+				var result = Result.Failure<EndLoadResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
 			var isDocumentSavedAndEventsCreated =
@@ -291,7 +318,10 @@ namespace WarehouseApi.Library.Services
 				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
 
 				failureResponse.Error = error.Message;
-				return Result.Failure(failureResponse, error);
+
+				var result = Result.Failure<EndLoadResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
 			var successResponse = new EndLoadResponse
@@ -300,7 +330,7 @@ namespace WarehouseApi.Library.Services
 				Error = null
 			};
 
-			return Result.Success(successResponse);
+			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
 		private async Task<IEnumerable<CarLoadDocumentItemEntity>> GetCarLoadDocumentWaterOrderItems(int orderId)
