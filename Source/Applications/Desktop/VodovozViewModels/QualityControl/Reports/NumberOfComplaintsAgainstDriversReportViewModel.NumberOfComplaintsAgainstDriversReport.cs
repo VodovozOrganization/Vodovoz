@@ -38,41 +38,44 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 				var includedSubdivisions = subdivisionsFilter.GetIncluded().ToArray();
 				var excludedSubdivisions = subdivisionsFilter.GetExcluded().ToArray();
 
-				var complaints = (from complaint in unitOfWork.Session.Query<Complaint>()
-						join complaintKind in unitOfWork.Session.Query<ComplaintKind>()
-							on complaint.ComplaintKind.Id equals complaintKind.Id
-						join driver in unitOfWork.Session.Query<Employee>()
-							on complaint.Driver.Id equals driver.Id
-						join order in unitOfWork.Session.Query<Order>()
-							on complaint.Order.Id equals order.Id
-						join guilty in unitOfWork.Session.Query<ComplaintGuiltyItem>()
-							on complaint.Id equals guilty.Complaint.Id into guiltyLeft
-						from guiltes in guiltyLeft.DefaultIfEmpty()
-						join subdivision in unitOfWork.Session.Query<Subdivision>()
-							on guiltes.Subdivision.Id equals subdivision.Id into subdivisionLeft
-						from subdivisions in subdivisionLeft.DefaultIfEmpty()
+				var complaints =
+				(
+					from complaint in unitOfWork.Session.Query<Complaint>()
+					join complaintKind in unitOfWork.Session.Query<ComplaintKind>()
+						on complaint.ComplaintKind.Id equals complaintKind.Id
+					join driver in unitOfWork.Session.Query<Employee>()
+						on complaint.Driver.Id equals driver.Id
+					join order in unitOfWork.Session.Query<Order>()
+						on complaint.Order.Id equals order.Id
+					join guilty in unitOfWork.Session.Query<ComplaintGuiltyItem>()
+						on complaint.Id equals guilty.Complaint.Id into guiltyLeft
+					from guiltes in guiltyLeft.DefaultIfEmpty()
+					join subdivision in unitOfWork.Session.Query<Subdivision>()
+						on guiltes.Subdivision.Id equals subdivision.Id into subdivisionLeft
+					from subdivisions in subdivisionLeft.DefaultIfEmpty()
 
-						where complaint.CreationDate >= startDate
-							&& complaint.CreationDate <= endDate
-							&& complaint.ComplaintType != ComplaintType.Driver
-							&& (geoGroupId == 0 || order.DeliveryPoint.District.GeographicGroup.Id == geoGroupId)
-							&& (complaintResultId == 0
-								|| complaint.ComplaintResultOfCounterparty.Id == complaintResultId
-								|| complaint.ComplaintResultOfEmployees.Id == complaintResultId)
+					where complaint.CreationDate >= startDate
+						&& complaint.CreationDate <= endDate
+						&& complaint.ComplaintType != ComplaintType.Driver
+						&& (geoGroupId == 0 || order.DeliveryPoint.District.GeographicGroup.Id == geoGroupId)
+						&& (complaintResultId == 0
+							|| complaint.ComplaintResultOfCounterparty.Id == complaintResultId
+							|| complaint.ComplaintResultOfEmployees.Id == complaintResultId)
 					
-						let driverFullName = $"{driver.LastName} {driver.Name} {driver.Patronymic}"
+					let driverFullName = $"{driver.LastName} {driver.Name} {driver.Patronymic}"
 
-						where (!includedSubdivisions.Any() || includedSubdivisions.Contains(guiltes.Subdivision.Id))
-							&& (!excludedSubdivisions.Any() || !excludedSubdivisions.Contains(guiltes.Subdivision.Id))
+					where (!includedSubdivisions.Any() || includedSubdivisions.Contains(guiltes.Subdivision.Id))
+						&& (!excludedSubdivisions.Any() || !excludedSubdivisions.Contains(guiltes.Subdivision.Id))
 
-						select new
-						{
-							ComplaintId = complaint.Id,
-							DriverId = driver.Id,
-							DriverFullName = driverFullName,
-							ComplaintsKind = complaintKind.Name,
-							Subdivision = subdivisions.ShortName
-						})
+					select new
+					{
+						ComplaintId = complaint.Id,
+						DriverId = driver.Id,
+						DriverFullName = driverFullName,
+						ComplaintsKind = complaintKind.Name,
+						Subdivision = subdivisions.ShortName
+					}
+				)
 				.ToList()
 				.OrderBy(x => x.DriverFullName);
 
@@ -102,14 +105,16 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 
 				#region Subdivision
 
-				var grouppedBySubdivisionComplaints = complaints.GroupBy(x => x.Subdivision);
+				var grouppedBySubdivisionComplaints = complaints
+					.Where(c => c.Subdivision != null)
+					.GroupBy(x => x.Subdivision);
 
 				var subdivisionResult = grouppedBySubdivisionComplaints.Select
 					(
 						group =>
 							new SubdivisionRow
 							{
-								Subdivision = group.First().Subdivision ?? "Без подразделения",
+								Subdivision = group.First().Subdivision,
 								ComplaintsCount = group.Count()
 							}
 					)
