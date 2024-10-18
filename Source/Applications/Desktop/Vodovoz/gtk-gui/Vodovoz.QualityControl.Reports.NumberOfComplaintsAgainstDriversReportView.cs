@@ -58,6 +58,8 @@ namespace Vodovoz.QualityControl.Reports
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeReportIndicatorsRows;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelTotal;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeSubdivisionRows;
@@ -319,6 +321,16 @@ namespace Vodovoz.QualityControl.Reports
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.yvboxTrees[this.GtkScrolledWindow2]));
 			w26.Position = 0;
 			// Container child yvboxTrees.Gtk.Box+BoxChild
+			this.ylabelTotal = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelTotal.Name = "ylabelTotal";
+			this.ylabelTotal.Xalign = 0F;
+			this.ylabelTotal.LabelProp = global::Mono.Unix.Catalog.GetString("ИТОГ:");
+			this.yvboxTrees.Add(this.ylabelTotal);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yvboxTrees[this.ylabelTotal]));
+			w27.Position = 1;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child yvboxTrees.Gtk.Box+BoxChild
 			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow3.HeightRequest = 120;
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
@@ -329,13 +341,13 @@ namespace Vodovoz.QualityControl.Reports
 			this.ytreeSubdivisionRows.Name = "ytreeSubdivisionRows";
 			this.GtkScrolledWindow3.Add(this.ytreeSubdivisionRows);
 			this.yvboxTrees.Add(this.GtkScrolledWindow3);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yvboxTrees[this.GtkScrolledWindow3]));
-			w28.Position = 1;
-			w28.Expand = false;
-			w28.Fill = false;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.yvboxTrees[this.GtkScrolledWindow3]));
+			w29.Position = 2;
+			w29.Expand = false;
+			w29.Fill = false;
 			this.hbox1.Add(this.yvboxTrees);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yvboxTrees]));
-			w29.Position = 1;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yvboxTrees]));
+			w30.Position = 1;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
