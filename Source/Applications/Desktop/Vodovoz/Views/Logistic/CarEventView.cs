@@ -35,6 +35,10 @@ namespace Vodovoz.Views.Logistic
 
 			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
+			entityentryCar.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.InitializeFromSource();
+
 			entryOriginalCarEvent.ViewModel = ViewModel.OriginalCarEventViewModel;
 
 			entryOriginalCarEvent.Binding
@@ -42,10 +46,20 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
-			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			evmeDriver.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject)
+				.InitializeFromSource();
 
-			ydatepickerStartEventDate.Binding.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date).InitializeFromSource();
-			ydatepickerEndEventDate.Binding.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date).InitializeFromSource();
+			ydatepickerStartEventDate.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date)
+				.InitializeFromSource();
+			
+			ydatepickerEndEventDate.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date)
+				.InitializeFromSource();
 
 			ylabelCarTechnicalCheckupEndDate.Binding
 				.AddBinding(ViewModel, vm => vm.IsCarTechnicalCheckupEventType, w => w.Visible)
@@ -105,6 +119,14 @@ namespace Vodovoz.Views.Logistic
 
 			ylblOdometerReading.Binding
 				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelActualFuelBalance.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yhboxFuel.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
 				.InitializeFromSource();
 
 			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
