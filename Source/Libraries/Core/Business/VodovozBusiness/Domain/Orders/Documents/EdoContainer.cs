@@ -28,6 +28,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		private OrderWithoutShipmentForPayment _orderWithoutShipmentForPayment;
 		private Counterparty _counterparty;
 		private EdoDocFlowStatus _edoDocFlowStatus;
+		private InternalEdoDocFlowStatus _internalEdoDocFlowStatus;
 		private DateTime _created;
 		private EdoDocumentType _edoDocumentType;
 
@@ -108,6 +109,13 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			get => _edoDocFlowStatus;
 			set => SetField(ref _edoDocFlowStatus, value);
+		}
+		
+		[Display(Name = "Внутренний статус")]
+		public virtual InternalEdoDocFlowStatus InternalEdoDocFlowStatus
+		{
+			get => _internalEdoDocFlowStatus;
+			set => SetField(ref _internalEdoDocFlowStatus, value);
 		}
 		
 		[Display(Name = "Описание ошибки")]

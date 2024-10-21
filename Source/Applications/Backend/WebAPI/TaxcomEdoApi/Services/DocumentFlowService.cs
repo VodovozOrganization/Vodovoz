@@ -678,6 +678,7 @@ namespace TaxcomEdoApi.Services
 							container.InternalId = item.Documents[0].InternalId;
 							container.ErrorDescription = item.ErrorDescription;
 							container.EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status.ToString());
+							container.InternalEdoDocFlowStatus = Enum.Parse<InternalEdoDocFlowStatus>(item.InternalStatus.ToString());
 
 							if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 							{

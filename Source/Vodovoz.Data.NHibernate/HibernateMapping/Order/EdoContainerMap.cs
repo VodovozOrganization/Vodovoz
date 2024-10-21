@@ -16,6 +16,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.DocFlowId).Column("doc_flow_id");
 			Map(x => x.InternalId).Column("internal_id");
 			Map(x => x.EdoDocFlowStatus).Column("edo_doc_flow_status");
+			Map(x => x.InternalEdoDocFlowStatus).Column("internal_edo_doc_flow_status");
 			Map(x => x.ErrorDescription).Column("error_description");
 			Map(x => x.MainDocumentId).Column("main_document_id");
 			Map(x => x.Created).Column("created");
