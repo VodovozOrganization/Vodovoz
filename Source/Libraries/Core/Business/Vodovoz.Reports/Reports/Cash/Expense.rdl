@@ -188,6 +188,7 @@ WHERE cash_expense.id=@id</CommandText>
                         <BorderWidth />
                         <PaddingLeft >2pt</PaddingLeft>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>2</ColSpan>
@@ -195,7 +196,7 @@ WHERE cash_expense.id=@id</CommandText>
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>12.0pt</Height>
+              <Height>13.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -233,51 +234,7 @@ WHERE cash_expense.id=@id</CommandText>
                         <BorderWidth />
                         <PaddingLeft >2pt</PaddingLeft>
                       </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>2</ColSpan>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>13.6pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>Контрагент:</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <PaddingRight >2pt</PaddingRight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox30">
-                      <Value></Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <PaddingLeft >2pt</PaddingLeft>
-                      </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>2</ColSpan>
@@ -376,6 +333,7 @@ WHERE cash_expense.id=@id</CommandText>
                         <PaddingLeft >2pt</PaddingLeft>
                         <Format >C</Format>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>2</ColSpan>
@@ -465,6 +423,7 @@ WHERE cash_expense.id=@id</CommandText>
                         <BorderWidth />
                         <VerticalAlign >Bottom</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -541,6 +500,7 @@ WHERE cash_expense.id=@id</CommandText>
                         <BorderWidth />
                         <PaddingLeft >2pt</PaddingLeft>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>2</ColSpan>
@@ -586,51 +546,7 @@ WHERE cash_expense.id=@id</CommandText>
                         <BorderWidth />
                         <PaddingLeft >2pt</PaddingLeft>
                       </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>2</ColSpan>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>13.6pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value>Контрагент:</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <PaddingRight >2pt</PaddingRight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox8">
-                      <Value></Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <PaddingLeft >2pt</PaddingLeft>
-                      </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>2</ColSpan>
@@ -729,6 +645,7 @@ WHERE cash_expense.id=@id</CommandText>
                         <PaddingLeft >2pt</PaddingLeft>
                         <Format >C</Format>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>2</ColSpan>
@@ -818,6 +735,7 @@ WHERE cash_expense.id=@id</CommandText>
                         <BorderWidth />
                         <VerticalAlign >Bottom</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
