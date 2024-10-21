@@ -1,5 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Gamma.Binding.Core.RecursiveTreeConfig;
+using Grpc.Core;
+using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -33,6 +35,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
 	public class CashReceiptsJournalViewModel : JournalViewModelBase
 	{
+		private readonly ILogger<CashReceiptsJournalViewModel> _logger;
 		private readonly ICommonServices _commonServices;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
@@ -48,6 +51,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		public CashReceiptsJournalViewModel(
 			CashReceiptJournalFilterViewModel filter,
+			ILogger<CashReceiptsJournalViewModel> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			TrueMarkCodesPool trueMarkCodesPool,
@@ -63,6 +67,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				throw new ArgumentNullException(nameof(filter));
 			}
 
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
@@ -71,14 +76,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			var permissionService = _commonServices.CurrentPermissionService;
-			
+
 			var allReceiptStatusesAvailable =
 				permissionService.ValidatePresetPermission(CashReceiptPermissions.AllReceiptStatusesAvailable);
 			var showOnlyCodeErrorStatusReceipts =
 				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyCodeErrorStatusReceipts);
 			var showOnlyReceiptSendErrorStatusReceipts =
 				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyReceiptSendErrorStatusReceipts);
-			
+
 			var canReadReceipts = allReceiptStatusesAvailable || showOnlyCodeErrorStatusReceipts || showOnlyReceiptSendErrorStatusReceipts;
 			if(!canReadReceipts)
 			{
@@ -99,7 +104,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 
 			Filter = filter;
-
 			_autoRefreshInterval = 30;
 
 			Title = "Журнал чеков";
@@ -149,10 +153,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 		}
 
-		public bool CanCreateProductCodesScanningReportReport => 
-			Filter.StartDate.HasValue 
-			&& Filter.EndDate.HasValue 
-			&& Filter.EndDate.Value >= Filter.StartDate.Value 
+		public bool CanCreateProductCodesScanningReportReport =>
+			Filter.StartDate.HasValue
+			&& Filter.EndDate.HasValue
+			&& Filter.EndDate.Value >= Filter.StartDate.Value
 			&& !IsReportGeneratingInProcess;
 
 		public IRecursiveConfig RecuresiveConfig { get; }
@@ -211,7 +215,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			query.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias);
 			query.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias);
 			query.Where(() => !cashReceiptAlias.WithoutMarks);
-			
+
 			if(_filter.Status.HasValue)
 			{
 				query.Where(Restrictions.Eq(Projections.Property(() => cashReceiptAlias.Status), _filter.Status.Value));
@@ -582,9 +586,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			{
 				_receiptManualController.RefreshFiscalDoc(node.Id);
 			}
+			catch(RpcException ex)
+			{
+				var message = $"При обращении к сервису обработки чеков произошла ошибка.";
+				_logger.LogCritical(ex, message);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, message);
+			}
 			catch(Exception ex)
 			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Невозможно подключиться к сервису обработки чеков. Повторите попытку позже.\n{ex.Message}");
+				var message = $"При обновлении статус фискального документа произошла ошибка:\n{ex.Message}";
+				_logger.LogCritical(ex, message);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, message);
 			}
 			Refresh();
 		}
@@ -625,9 +637,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			{
 				_receiptManualController.RequeueFiscalDoc(node.Id);
 			}
+			catch(RpcException ex)
+			{
+				var message = $"При обращении к сервису обработки чеков произошла ошибка.";
+				_logger.LogCritical(ex, message);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, message);
+			}
 			catch(Exception ex)
 			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Невозможно подключиться к сервису обработки чеков. Повторите попытку позже.\n{ex.Message}");
+				var message = $"При попытке повторного проведения чека произошла ошибка:\n{ex.Message}";
+				_logger.LogCritical(ex, message);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, message);
 			}
 
 			Refresh();
@@ -710,7 +730,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			var dialogSettings = new DialogSettings();
 			dialogSettings.Title = "Сохранить";
-			dialogSettings.FileName = typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative 
+			dialogSettings.FileName = typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative
 				+ $" с {Filter.StartDate:dd.MM.yyyy} по {Filter.EndDate.Value.Date:dd.MM.yyyy}";
 			dialogSettings.DefaultFileExtention = ".xlsx";
 			dialogSettings.FileFilters.Clear();
@@ -730,7 +750,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			{
 				report = await ProductCodesScanningReport.GenerateAsync(unitOfWork, Filter.StartDate.Value, Filter.EndDate.Value);
 			}
-			
+
 			await report?.ExportReportToExcelAsync(result.Path);
 
 			IsReportGeneratingInProcess = false;
