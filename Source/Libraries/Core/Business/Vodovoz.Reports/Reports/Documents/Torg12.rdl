@@ -157,15 +157,20 @@ WHERE
     IF(counterparty.use_special_doc_fields, IF(!IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp), counterparty.kpp) AS KPP,
     (
         select NUMBER_TO_STRING_DESCRIPTION(
-            ifnull(
-                sum(
-                    Round(ifnull(oi.actual_count, oi.count) * oi.price - oi.discount_money, 2)
-                ),
-            0)
-       )
+                       ifnull(
+                               sum(
+                                       Round(ifnull(oi.actual_count, oi.count) * oi.price - oi.discount_money, 2)
+                               ),
+                               0)
+               )
         from order_items oi
         where oi.order_id = orders.id
-    ) AS order_sum_string
+    ) AS order_sum_string,
+    (
+        select INT_NUMBER_TO_STRING_DESCRIPTION(IFNULL(count(id), 0))
+        from order_items oi
+        where oi.order_id = orders.id
+    ) AS order_items_count_string
 FROM
     orders
         LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id AND client_phones.is_archive = 0
@@ -314,6 +319,10 @@ GROUP BY orders.id
         </Field>
         <Field Name="order_sum_string">
           <DataField>order_sum_string</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_items_count_string">
+          <DataField>order_items_count_string</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1645,8 +1654,8 @@ GROUP BY orders.id
             <Width>173.43pt</Width>
             <Value>Товарная накладная имеет приложение на</Value>
             <ZIndex>0</ZIndex>
-            <Left>129.2pt</Left>
-            <Top>12.8pt</Top>
+            <Left>129.20pt</Left>
+            <Top>12.80pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2737,7 +2746,7 @@ GROUP BY orders.id
           <Textbox Name="Textbox65" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
             <Width>350.15pt</Width>
-            <Value>=String_Val(Convert.ToString(Count({id}, "Goods")))</Value>
+            <Value>=First({order_items_count_string}, "Order"))</Value>
             <ZIndex>0</ZIndex>
             <Left>179.5pt</Left>
             <Top>23.5pt</Top>
