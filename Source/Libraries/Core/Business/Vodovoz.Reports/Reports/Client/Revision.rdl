@@ -1043,14 +1043,14 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
         <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " задолженность в пользу"
 + " "+
 Iif(
-First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')&gt;0
+First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')&gt;0
 ,
 First(Fields!org_name,'Organization')
 ,
 First(Fields!counterparty_name,'Counterparty')
 )
 + " " +
-Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations'))
+Math.Abs(First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations'))
 +" руб." + "\n"+
 "( "+
 First({total_string}, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')))
