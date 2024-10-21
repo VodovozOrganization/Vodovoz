@@ -2,6 +2,9 @@
 
 namespace Vodovoz.Permissions
 {
+	/// <summary>
+	/// Права группы товаров
+	/// </summary>
 	public static partial class ProductGroup
 	{
 		/// <summary>
