@@ -196,7 +196,7 @@ WHERE cash_expense.id=@id</CommandText>
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>13.6pt</Height>
+              <Height>20.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -508,7 +508,7 @@ WHERE cash_expense.id=@id</CommandText>
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>12.0pt</Height>
+              <Height>20.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
