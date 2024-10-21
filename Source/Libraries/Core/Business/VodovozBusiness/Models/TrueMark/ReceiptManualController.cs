@@ -1,6 +1,5 @@
 ﻿using CashReceiptApi;
 using CashReceiptApi.Client.Framework;
-using Grpc.Core;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using System;
@@ -51,11 +50,13 @@ namespace Vodovoz.Models.TrueMark
 				throw new ArgumentException("Должен быть указан валидный код чека", nameof(receiptId));
 			}
 
+			RequestProcessingResult response;
+
 			using(var receiptServiceChannel = _cashReceiptClientChannelFactory.OpenChannel())
 			{
 				var request = new RefreshReceiptRequest();
 				request.CashReceiptId = receiptId;
-				receiptServiceChannel.Client.RefreshFiscalDocument(request);
+				response = receiptServiceChannel.Client.RefreshFiscalDocument(request);
 			}
 		}
 
@@ -66,11 +67,13 @@ namespace Vodovoz.Models.TrueMark
 				throw new ArgumentException("Должен быть указан валидный код чека", nameof(receiptId));
 			}
 
+			RequestProcessingResult response;
+
 			using(var receiptServiceChannel = _cashReceiptClientChannelFactory.OpenChannel())
 			{
 				var request = new RequeueDocumentRequest();
 				request.CashReceiptId = receiptId;
-				receiptServiceChannel.Client.RequeueFiscalDocument(request);
+				response = receiptServiceChannel.Client.RequeueFiscalDocument(request);
 			}
 		}
 	}

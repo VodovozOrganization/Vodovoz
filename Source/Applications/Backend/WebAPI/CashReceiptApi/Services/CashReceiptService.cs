@@ -1,5 +1,4 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using Grpc.Core;
+﻿using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -24,36 +23,48 @@ namespace CashReceiptApi
 			_fiscalDocumentRequeueService = fiscalDocumentRequeueService ?? throw new ArgumentNullException(nameof(fiscalDocumentRequeueService));
 		}
 
-		public override async Task<Empty> RefreshFiscalDocument(RefreshReceiptRequest request, ServerCallContext context)
+		public override async Task<RequestProcessingResult> RefreshFiscalDocument(RefreshReceiptRequest request, ServerCallContext context)
 		{
 			_logger.LogInformation("Обновление статуса фискального документа для чека Id {0}", request.CashReceiptId);
+			var response = new RequestProcessingResult();
 
 			try
 			{
 				await _fiscalDocumentRefresher.RefreshDocForReceipt(request.CashReceiptId, context.CancellationToken);
+
+				response.IsSuccess = true;
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Обновление статуса фискального документа для чека Id {0} не удалось.", request.CashReceiptId);
+
+				response.IsSuccess = false;
+				response.Error = ex.Message;
 			}
 
-			return new Empty();
+			return response;
 		}
 
-		public override async Task<Empty> RequeueFiscalDocument(RequeueDocumentRequest request, ServerCallContext context)
+		public override async Task<RequestProcessingResult> RequeueFiscalDocument(RequeueDocumentRequest request, ServerCallContext context)
 		{
 			_logger.LogInformation("Повторное проведение фискального документа для чека Id {0}", request.CashReceiptId);
+			var response = new RequestProcessingResult();
 
 			try
 			{
 				await _fiscalDocumentRequeueService.RequeueDocForReceipt(request.CashReceiptId, context.CancellationToken);
+
+				response.IsSuccess = true;
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Повторное проведение фискального документа для чека Id {0} не удалось.", request.CashReceiptId);
+
+				response.IsSuccess = false;
+				response.Error = ex.Message;
 			}
 
-			return new Empty();
+			return response;
 		}
 	}
 }
