@@ -24,7 +24,6 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
-using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -224,7 +223,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 				if(action != null)
 				{
-					var tempContainer = new EdoContainer { Type = EdoDocumentType.BillWSForAdvancePayment, EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend};
+					var tempContainer = new EdoContainer { EdoDocumentType = EdoDocumentType.BillWSForAdvancePayment, EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend};
 					EdoContainers.Add(tempContainer);
 				}
 			}

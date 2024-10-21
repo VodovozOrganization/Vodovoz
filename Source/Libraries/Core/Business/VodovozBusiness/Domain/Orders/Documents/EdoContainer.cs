@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
@@ -29,7 +29,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		private Counterparty _counterparty;
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
-		private Type _type;
+		private EdoDocumentType _edoDocumentType;
 
 		public virtual int Id { get; set; }
 
@@ -124,14 +124,14 @@ namespace Vodovoz.Domain.Orders.Documents
 			set => SetField(ref _created, value);
 		}
 
-		public virtual Type Type
+		public virtual EdoDocumentType EdoDocumentType
 		{
-			get => _type;
-			set => SetField(ref _type, value);
+			get => _edoDocumentType;
+			set => SetField(ref _edoDocumentType, value);
 		}
 
 		[Display(Name = "Отправленные документы")]
-		public virtual string SentDocuments => Type.GetEnumTitle();
+		public virtual string SentDocuments => EdoDocumentType.GetEnumTitle();
 	}
 
 	public enum EdoDocFlowStatus
@@ -159,7 +159,7 @@ namespace Vodovoz.Domain.Orders.Documents
 	/// <summary>
 	/// WS - используется потому, что enum в NHibernate не может быть более 36 символов для 1 значения
 	/// </summary>
-	public enum Type
+	public enum EdoDocumentType
 	{
 		[Display(Name = "УПД")]
 		Upd,

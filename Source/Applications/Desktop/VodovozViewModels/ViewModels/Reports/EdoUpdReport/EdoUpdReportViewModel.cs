@@ -18,7 +18,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Order = Vodovoz.Domain.Orders.Order;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 {
@@ -68,7 +67,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 
 			var edoContainerMaxDateSubquery = QueryOver.Of(() => edoContainerAlias)
 					.Where(() => edoContainerAlias.Order.Id == orderAlias.Id)
-					.And(() => edoContainerAlias.Type == Type.Upd)
+					.And(() => edoContainerAlias.EdoDocumentType == EdoDocumentType.Upd)
 					.OrderBy(() => edoContainerAlias.Created).Desc
 				.Select(Projections.Max(() => edoContainerAlias.Created))
 				.Take(1);

@@ -10,11 +10,11 @@ namespace Vodovoz.Errors.Edo
 				nameof(AlreadyPaidUpd),
 				"Маршрутный лист не найден");
 
-		public static Error CreateAlreadyPaidUpd(int orderId, Type type) =>
+		public static Error CreateAlreadyPaidUpd(int orderId, EdoDocumentType edoDocumentType) =>
 			 new Error(
 				typeof(Edo),
 				nameof(AlreadyPaidUpd),
-				$"Счет по заказу №{orderId} оплачен.\r\nПроверьте, пожалуйста, статус {type.GetEnumDisplayName()} в ЭДО перед повторной отправкой на предмет аннулирован/не аннулирован, подписан/не подписан.");
+				$"Счет по заказу №{orderId} оплачен.\r\nПроверьте, пожалуйста, статус {edoDocumentType.GetEnumDisplayName()} в ЭДО перед повторной отправкой на предмет аннулирован/не аннулирован, подписан/не подписан.");
 
 		public static Error AlreadySuccefullSended =>
 			new Error(typeof(Edo),

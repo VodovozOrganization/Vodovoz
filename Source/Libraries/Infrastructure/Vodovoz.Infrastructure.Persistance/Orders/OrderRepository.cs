@@ -30,7 +30,6 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
@@ -1133,7 +1132,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
-					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Bill, JoinType.LeftOuterJoin)
+					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.EdoDocumentType == EdoDocumentType.Bill, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
 					() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
 
@@ -1224,7 +1223,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			var result = uow.Session.QueryOver<EdoContainer>()
 				.Where(x => x.Order.Id == orderId)
-				.And(x => x.Type == Type.Upd)
+				.And(x => x.EdoDocumentType == EdoDocumentType.Upd)
 				.And(x => x.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 				.Take(1)
 				.SingleOrDefault();
@@ -1858,7 +1857,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
-					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
+					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.EdoDocumentType == EdoDocumentType.Upd, JoinType.LeftOuterJoin)
 				.Where(() => orderAlias.DeliveryDate >= startDate);
 
 			var orderStatusRestriction = Restrictions.Or(

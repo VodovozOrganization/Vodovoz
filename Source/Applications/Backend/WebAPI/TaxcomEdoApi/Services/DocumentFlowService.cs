@@ -32,7 +32,6 @@ using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.Tools.Orders;
 using VodovozHealthCheck.Dto;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace TaxcomEdoApi.Services
 {
@@ -199,7 +198,7 @@ namespace TaxcomEdoApi.Services
 
 						var edoContainer = new EdoContainer
 						{
-							Type = Type.Upd,
+							EdoDocumentType = EdoDocumentType.Upd,
 							Created = DateTime.Now,
 							Order = order,
 							Counterparty = order.Client,
@@ -269,7 +268,7 @@ namespace TaxcomEdoApi.Services
 				{
 					var containersToOfferCancellation = unitOfWork.Session.Query<EdoContainer>()
 						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
-							&& ec.Type == Type.Bill
+							&& ec.EdoDocumentType == EdoDocumentType.Bill
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error)
 						.ToList();
@@ -294,7 +293,7 @@ namespace TaxcomEdoApi.Services
 				{
 					var edoContainer = new EdoContainer
 					{
-						Type = Type.Bill,
+						EdoDocumentType = EdoDocumentType.Bill,
 						Created = DateTime.Now,
 						Order = order,
 						Counterparty = order.Client,
@@ -328,28 +327,28 @@ namespace TaxcomEdoApi.Services
 
 					if(action.Order is Order order)
 					{
-						edoContainer.Type = Type.Bill;
+						edoContainer.EdoDocumentType = EdoDocumentType.Bill;
 						edoContainer.Order = order;
 						edoContainer.Counterparty = order.Client;
 					}
 
 					if(action.OrderWithoutShipmentForPayment is OrderWithoutShipmentForPayment orderWithoutShipmentForPayment)
 					{
-						edoContainer.Type = Type.BillWSForPayment;
+						edoContainer.EdoDocumentType = EdoDocumentType.BillWSForPayment;
 						edoContainer.OrderWithoutShipmentForPayment = orderWithoutShipmentForPayment;
 						edoContainer.Counterparty = orderWithoutShipmentForPayment.Counterparty;
 					}
 
 					if(action.OrderWithoutShipmentForAdvancePayment is OrderWithoutShipmentForAdvancePayment orderWithoutShipmentForAdvancePayment)
 					{
-						edoContainer.Type = Type.BillWSForAdvancePayment;
+						edoContainer.EdoDocumentType = EdoDocumentType.BillWSForAdvancePayment;
 						edoContainer.OrderWithoutShipmentForAdvancePayment = orderWithoutShipmentForAdvancePayment;
 						edoContainer.Counterparty = orderWithoutShipmentForAdvancePayment.Counterparty;
 					}
 
 					if(action.OrderWithoutShipmentForDebt is OrderWithoutShipmentForDebt orderWithoutShipmentForDebt)
 					{
-						edoContainer.Type = Type.BillWSForDebt;
+						edoContainer.EdoDocumentType = EdoDocumentType.BillWSForDebt;
 						edoContainer.OrderWithoutShipmentForDebt = orderWithoutShipmentForDebt;
 						edoContainer.Counterparty = orderWithoutShipmentForDebt.Counterparty;
 					}

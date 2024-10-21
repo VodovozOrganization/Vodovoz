@@ -135,7 +135,6 @@ using VodovozInfrastructure.Utils;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using LogLevel = NLog.LogLevel;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
 {
@@ -1307,7 +1306,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var selectedType = SelectedEdoContainer?.Type;
+			var selectedType = SelectedEdoContainer?.EdoDocumentType;
 
 			if(selectedType == null)
 			{
@@ -1326,10 +1325,10 @@ namespace Vodovoz
 
 				switch(selectedType)
 				{
-					case Type.Upd:
+					case EdoDocumentType.Upd:
 						resendActionQuery.Where(x => x.IsNeedToResendEdoUpd);
 						break;
-					case Type.Bill:
+					case EdoDocumentType.Bill:
 						resendActionQuery.Where(x => x.IsNeedToResendEdoBill);
 						break;
 				}
@@ -1339,8 +1338,8 @@ namespace Vodovoz
 
 			var alreadyInProcess = resendAction != null
 				&& (
-						(resendAction.IsNeedToResendEdoUpd && selectedType == Type.Upd)
-						|| (resendAction.IsNeedToResendEdoBill && selectedType == Type.Bill)
+						(resendAction.IsNeedToResendEdoUpd && selectedType == EdoDocumentType.Upd)
+						|| (resendAction.IsNeedToResendEdoBill && selectedType == EdoDocumentType.Bill)
 					);
 
 			if(alreadyInProcess)
@@ -1352,8 +1351,8 @@ namespace Vodovoz
 			}
 
 			var outgoingEdoDocuments = GetEdoOutgoingDocuments();
-			var canResendUpd = selectedType is Type.Upd && outgoingEdoDocuments.Any(x => x.Type == Type.Upd);
-			var canResendBill = selectedType is Type.Bill && outgoingEdoDocuments.Any(x => x.Type == Type.Bill);
+			var canResendUpd = selectedType is EdoDocumentType.Upd && outgoingEdoDocuments.Any(x => x.EdoDocumentType == EdoDocumentType.Upd);
+			var canResendBill = selectedType is EdoDocumentType.Bill && outgoingEdoDocuments.Any(x => x.EdoDocumentType == EdoDocumentType.Bill);
 
 			if(canResendUpd || canResendBill)
 			{
@@ -1369,14 +1368,14 @@ namespace Vodovoz
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			ResendUpd(SelectedEdoContainer.Type);
+			ResendUpd(SelectedEdoContainer.EdoDocumentType);
 			CustomizeSendDocumentAgainButton();
 		}
 
-		private void ResendUpd(Type type)
+		private void ResendUpd(EdoDocumentType edoDocumentType)
 		{
-			var edoValidateDocumentResult = _edoService.ValidateOrderForDocument(Entity, SelectedEdoContainer.Type);
-			var outgoingDocuments = GetEdoOutgoingDocuments().Where(x => x.Type == SelectedEdoContainer.Type).ToList();
+			var edoValidateDocumentResult = _edoService.ValidateOrderForDocument(Entity, SelectedEdoContainer.EdoDocumentType);
+			var outgoingDocuments = GetEdoOutgoingDocuments().Where(x => x.EdoDocumentType == SelectedEdoContainer.EdoDocumentType).ToList();
 			var edoValidateContainerResult = _edoService.ValidateEdoContainers(outgoingDocuments);
 
 			var edoValidateResult = edoValidateDocumentResult.Errors.Concat(edoValidateContainerResult.Errors);
@@ -1399,7 +1398,7 @@ namespace Vodovoz
 				}
 			}
 
-			_edoService.SetNeedToResendEdoDocumentForOrder(Entity, type);
+			_edoService.SetNeedToResendEdoDocumentForOrder(Entity, edoDocumentType);
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
@@ -2380,7 +2379,7 @@ namespace Vodovoz
 						else if(_orderService.NeedResendByEdo(UoW, Entity))
 						{
 							_edoService.CancelOldEdoOffers(UoW, Entity);
-							_edoService.SetNeedToResendEdoDocumentForOrder(Entity, Type.Bill);
+							_edoService.SetNeedToResendEdoDocumentForOrder(Entity, EdoDocumentType.Bill);
 						}
 					}
 				}

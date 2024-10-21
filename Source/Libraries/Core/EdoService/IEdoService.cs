@@ -10,8 +10,8 @@ namespace EdoService.Library
 	public interface IEdoService
 	{
 		void CancelOldEdoOffers(IUnitOfWork unitOfWork, Order order);
-		void SetNeedToResendEdoDocumentForOrder<T>(T entity, Type type) where T : IDomainObject;
+		void SetNeedToResendEdoDocumentForOrder<T>(T entity, EdoDocumentType edoDocumentType) where T : IDomainObject;
 		Result ValidateEdoContainers(IList<EdoContainer> edoContainers);
-		Result ValidateOrderForDocument(Order order, Type type);
+		Result ValidateOrderForDocument(Order order, EdoDocumentType edoDocumentType);
 	}
 }
