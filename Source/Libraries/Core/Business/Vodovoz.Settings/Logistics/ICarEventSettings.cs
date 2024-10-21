@@ -10,5 +10,6 @@
 		int CarTransferEventTypeId { get; }
 		int CarReceptionEventTypeId { get; }
 		int[] CarsExcludedFromReportsIds { get; }
+		int FuelBalanceCalibrationCarEventTypeId { get; }
 	}
 }

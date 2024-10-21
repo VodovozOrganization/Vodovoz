@@ -113,8 +113,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 			Entity.PropertyChanged += EntityPropertyChanged;
 
-			CanChangeCarEventType = !(IsTechInspectCarEventType && Entity.Id > 0);
-
 			WriteOffDocumentNotRequiredChangedCommand = new DelegateCommand(WriteOffDocumentNotRequiredChanged);
 		}
 
@@ -146,7 +144,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool CanEdit => PermissionResult.CanUpdate && CheckDatePeriod();
 		public bool CanChangeWithClosedPeriod { get; }
-		public bool CanChangeCarEventType { get; }
+		public bool CanChangeCarEventType => !(IsTechInspectCarEventType && Entity.Id > 0) && !IsFuelBalanceCalibrationCarEventType;
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 		public bool CanChangeCarTechnicalCheckupEndDate => CanEdit && IsCarTechnicalCheckupEventType;
@@ -164,6 +162,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool IsCarTechnicalCheckupEventType =>
 			Entity.CarEventType?.Id == _carEventSettings.CarTechnicalCheckupEventTypeId;
+
+		public bool IsFuelBalanceCalibrationCarEventType =>
+			Entity.CarEventType?.Id == _carEventSettings.FuelBalanceCalibrationCarEventTypeId;
 
 		public IEmployeeService EmployeeService { get; }
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
@@ -397,6 +398,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OnPropertyChanged(nameof(CanChangeCarTechnicalCheckupEndDate));
 			OnPropertyChanged(nameof(CanAttachWriteOffDocument));
 			OnPropertyChanged(nameof(CanChangeWriteOffDocumentNotRequired));
+			OnPropertyChanged(nameof(IsFuelBalanceCalibrationCarEventType));
+			OnPropertyChanged(nameof(CanChangeCarEventType));
 
 			if(CarEventType?.IsAttachWriteOffDocument == false)
 			{

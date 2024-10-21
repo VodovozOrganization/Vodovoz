@@ -25,5 +25,7 @@ namespace Vodovoz.Settings.Database.Logistics
 			.Split(new [] { "," }, StringSplitOptions.RemoveEmptyEntries)
 			.Select(x => int.Parse(x.Trim(' ')))
 			.ToArray();
+
+		public int FuelBalanceCalibrationCarEventTypeId => _settingsController.GetIntValue(nameof(FuelBalanceCalibrationCarEventTypeId));
 	}
 }
