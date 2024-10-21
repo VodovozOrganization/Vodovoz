@@ -170,7 +170,7 @@ namespace Vodovoz.Models.CashReceipts
 			try
 			{
 				var completedUrl = string.Format(_documentRequeueUrl, fiscalDocumentId);
-				var responseContent = await _httpClient.GetAsync(completedUrl, cancellationToken);
+				var responseContent = await _httpClient.PutAsync(completedUrl, null, cancellationToken);
 				if(!responseContent.IsSuccessStatusCode)
 				{
 					var httpCodeMessage = $"HTTP Code: {(int)responseContent.StatusCode} {responseContent.StatusCode}";
