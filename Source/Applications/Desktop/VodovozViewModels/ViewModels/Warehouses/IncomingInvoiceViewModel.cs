@@ -9,6 +9,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -76,9 +78,15 @@ namespace Vodovoz.ViewModels.Warehouses
 			INomenclaturePurchasePriceModel nomenclaturePurchasePriceModel,
 			IStockRepository stockRepository,
 			INavigationManager navigationManager,
-			ICounterpartyJournalFactory counterpartyJournalFactory)
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			ViewModelEEVMBuilder<Warehouse> warehouseViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(warehouseViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(warehouseViewModelEEVMBuilder));
+			}
+
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 
@@ -117,6 +125,14 @@ namespace Vodovoz.ViewModels.Warehouses
 			_canDuplicateInstance = instancePermissionResult.CanUpdate || instancePermissionResult.CanCreate;
 
 			Entity.ObservableItems.ListContentChanged += OnObservableItemsContentChanged;
+
+			WarehouseViewModel = warehouseViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.Warehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
 		}
 
 		#endregion
@@ -450,6 +466,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				}));
 
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
+		public IEntityEntryViewModel WarehouseViewModel { get; }
 
 		#endregion Commands
 

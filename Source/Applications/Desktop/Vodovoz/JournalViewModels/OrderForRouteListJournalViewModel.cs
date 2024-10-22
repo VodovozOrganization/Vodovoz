@@ -226,9 +226,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.OrderPaymentStatus == FilterViewModel.OrderPaymentStatus);
 			}
 
-			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+			if(FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
-				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				if(!FilterViewModel.FilterClosingDocumentDeliverySchedule.Value)
+				{
+					query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				}
+				else
+				{
+					query.Where(o => o.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId);
+				}
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)

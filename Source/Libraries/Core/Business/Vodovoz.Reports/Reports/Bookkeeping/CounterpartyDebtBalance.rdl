@@ -35,7 +35,7 @@
             <Width>57.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>173.2pt</Width>
+            <Width>99.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>110.3pt</Width>
@@ -48,6 +48,9 @@
           </TableColumn>
           <TableColumn>
             <Width>67.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>64.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>74.1pt</Width>
@@ -91,7 +94,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>12</ColSpan>
+                  <ColSpan>13</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -143,7 +146,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>8</ColSpan>
+                  <ColSpan>9</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -262,6 +265,23 @@
                   <ReportItems>
                     <Textbox Name="Textbox9">
                       <Value>Сумма частичной оплаты</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>Возращеный баланс</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -457,7 +477,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>=Sum({unallocated_balance})</Value>
+                      <Value>=Sum({unallocated_balance})-Sum({writeoffs_sum})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -502,6 +522,28 @@
                   <ReportItems>
                     <Textbox Name="Textbox23">
                       <Value>=Sum({partial_paid_orders_sum})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight>1pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>=Sum({writeoffs_sum})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -722,7 +764,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value>={unallocated_balance}</Value>
+                      <Value>={unallocated_balance}-{writeoffs_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -783,6 +825,27 @@
                         <Format>#,##0.00</Format>
                       </Style>
                       <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>={writeoffs_sum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingRight>1pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -951,6 +1014,14 @@
                 WHERE pfbc.counterparty_id = c.id
                   AND pi.payment_item_status != 'Cancelled')
         ) AS unallocated_balance,
+        (
+            SELECT IFNULL(SUM(cmo.expense), 0)
+            FROM payment_write_offs pwo
+            INNER JOIN cashless_movement_operations cmo
+            ON pwo.cashless_movement_operation_id = cmo.id
+            WHERE pwo.counterparty_id = c.id
+              AND pwo.organization_id = org.id
+        )AS writeoffs_sum,
         IFNULL(
             ROUND(
                    SUM(
@@ -1128,6 +1199,10 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
         <Field Name="liquidating_info">
           <DataField>liquidating_info</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="writeoffs_sum">
+          <DataField>writeoffs_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>

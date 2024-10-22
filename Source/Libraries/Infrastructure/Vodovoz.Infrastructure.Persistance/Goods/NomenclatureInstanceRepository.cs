@@ -197,7 +197,9 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 				.SelectList(list => list
 					.SelectGroup(i => i.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber))
+					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+					.Select(() => instanceAlias.IsUsed).WithAlias(() => resultAlias.IsUsed)
+				)
 				.TransformUsing(Transformers.AliasToBean<InstanceOnStorageData>())
 				.List<InstanceOnStorageData>();
 		}
@@ -255,6 +257,7 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 					.SelectGroup(() => warehouseAlias.Id).WithAlias(() => resultAlias.StorageId)
 					.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+					.Select(() => instanceAlias.IsUsed).WithAlias(() => resultAlias.IsUsed)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(warehouseProjection).WithAlias(() => resultAlias.StorageName)
 					.SelectSum(o => o.Amount).WithAlias(() => resultAlias.Balance)
@@ -273,6 +276,7 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 					.SelectGroup(() => employeeStorageAlias.Id).WithAlias(() => resultAlias.StorageId)
 					.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+					.Select(() => instanceAlias.IsUsed).WithAlias(() => resultAlias.IsUsed)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(employeeStorageProjection).WithAlias(() => resultAlias.StorageName)
 					.SelectSum(o => o.Amount).WithAlias(() => resultAlias.Balance)
@@ -292,6 +296,7 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 					.SelectGroup(() => carStorageAlias.Id).WithAlias(() => resultAlias.StorageId)
 					.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+					.Select(() => instanceAlias.IsUsed).WithAlias(() => resultAlias.IsUsed)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(carStorageProjection).WithAlias(() => resultAlias.StorageName)
 					.SelectSum(o => o.Amount).WithAlias(() => resultAlias.Balance)

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -39,17 +39,15 @@ using System.Data.Bindings.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
-using Vodovoz.Core;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
@@ -117,7 +115,6 @@ using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
@@ -130,6 +127,8 @@ using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Utils;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
@@ -253,7 +252,6 @@ namespace Vodovoz
 		private bool _isNeedSendBillToEmail;
 		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
-		private PhonesJournalFilterViewModel _contactPhoneFilter;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
@@ -432,7 +430,7 @@ namespace Vodovoz
 		public OrderDlg(Counterparty client, Phone contactPhone) : this()
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
-			_contactPhoneFilter.Counterparty = Entity.Client;
+			_phonesJournal.FilterViewModel.Counterparty = Counterparty;
 			Entity.PaymentType = Entity.Client.PaymentMethod;
 			IsForRetail = Entity.Client.IsForRetail;
 			IsForSalesDepartment = Entity.Client.IsForSalesDepartment;
@@ -870,14 +868,14 @@ namespace Vodovoz
 			entryDeliveryPoint.ViewModel.Changed += OnReferenceDeliveryPointChanged;
 			entryDeliveryPoint.ViewModel.ChangedByUser += OnReferenceDeliveryPointChangedByUser;
 
-			_contactPhoneFilter = ScopeProvider.Scope.Resolve<PhonesJournalFilterViewModel>();
-
-			_contactPhoneFilter.Counterparty = Counterparty;
-			_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
+			_phonesJournal = ScopeProvider.Scope.Resolve<PhonesJournalViewModel>();
 
 			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
-				() => new PhonesJournalViewModel(_contactPhoneFilter, ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices));
+				() => _phonesJournal);
 			evmeContactPhone.SetEntitySelectorFactory(phoneSelectoFactory);
+
+			_phonesJournal.FilterViewModel.Counterparty = Counterparty;
+			_phonesJournal.FilterViewModel.DeliveryPoint = DeliveryPoint;
 
 			entryDeliveryPoint.ViewModel.ChangedByUser += (s, e) =>
 			{
@@ -2232,7 +2230,7 @@ namespace Vodovoz
 					_emailRepository,
 					_lifetimeScope.Resolve<IEmailSettings>(),
 					_currentEmployee,
-					ServicesConfig.InteractiveService);
+					ServicesConfig.CommonServices);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
 			hbox20.Add(sendEmailView);
 			sendEmailView.Show();
@@ -2328,12 +2326,12 @@ namespace Vodovoz
 		{
 			try
 			{
+				SetSensitivity(false);
+
 				if(_orderRepository.GetStatusesForFreeBalanceOperations().Contains(Entity.OrderStatus))
 				{
 					CreateDeliveryFreeBalanceOperations();
 				}
-
-				SetSensitivity(false);
 
 				_lastSaveResult = null;
 
@@ -3879,10 +3877,10 @@ namespace Vodovoz
 
 		private void UpdateContactPhoneFilter()
 		{
-			if(_contactPhoneFilter != null)
+			if(_phonesJournal != null)
 			{
-				_contactPhoneFilter.Counterparty = Counterparty;
-				_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
+				_phonesJournal.FilterViewModel.Counterparty = Counterparty;
+				_phonesJournal.FilterViewModel.DeliveryPoint = DeliveryPoint;
 			}
 		}
 
@@ -4296,6 +4294,7 @@ namespace Vodovoz
 		/// </summary>
 		private bool OrderItemEquipmentCountHasChanges;
 		private bool _showBottlesDebtNotifier;
+		private PhonesJournalViewModel _phonesJournal;
 
 		/// <summary>
 		/// При изменении количества оборудования в списке товаров меняет его

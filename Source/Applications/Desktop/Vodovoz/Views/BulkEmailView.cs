@@ -69,7 +69,7 @@ namespace Vodovoz.Views
 				.AddBinding(vm => vm.MonthsSinceUnsubscribing, w => w.ValueAsInt)
 				.InitializeFromSource();
 
-			attachedfileinformationsview.ViewModel = _bulkEmailViewModel.AttachedFileInformationsViewModel;
+			attachedfileinformationsview.InitializeViewModel(_bulkEmailViewModel.AttachedFileInformationsViewModel);
 
 			buttonSend.Clicked += (sender, args) => _bulkEmailViewModel.StartEmailSendingCommand.Execute();
 

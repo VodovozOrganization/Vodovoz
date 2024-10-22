@@ -899,8 +899,11 @@ namespace Vodovoz.Application.Pacs
 
 		public void Dispose()
 		{
-			_connectingTimer.Stop();
-			_connectingTimer.Elapsed -= OnReconnectTimerElapsed;
+			if(_connectingTimer != null)
+			{
+				_connectingTimer.Stop();
+				_connectingTimer.Elapsed -= OnReconnectTimerElapsed;
+			}
 			_connectingTimer?.Dispose();
 			_delayedBreakUpdateTimer?.Dispose();
 			UnsubscribeEvents();

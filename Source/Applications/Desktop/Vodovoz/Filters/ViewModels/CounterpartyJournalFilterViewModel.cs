@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate.Transform;
 using QS.Project.Filter;
 using QS.Project.Journal;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Retail;

@@ -24,6 +24,7 @@ namespace Vodovoz.Views.Settings
 			yradiobuttonComplaints.Toggled += OnNotepadRadiobuttonToggled;
 			yradiobuttonOrders.Toggled += OnNotepadRadiobuttonToggled;
 			yradiobuttonWarehouse.Toggled += OnNotepadRadiobuttonToggled;
+			yradiobuttonAccounting.Toggled += OnNotepadRadiobuttonToggled;
 
 			#region Вкладка Логистика
 			btnSaveRouteListPrintedPhones.Clicked += (sender, args) => ViewModel.SaveRouteListPrintedFormPhonesCommand.Execute();
@@ -154,6 +155,12 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
 			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
 			#endregion Вкладка Склад
+
+			#region Вкладка Бухгалтерия
+
+			ConfigureAccountingSettings();
+
+			#endregion Вкладка Бухгалтерия
 		}
 
 		private void ConfigureEmployeesFixedPrices()
@@ -308,26 +315,41 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveCarTechnicalCheckupNotificationDays.BindCommand(ViewModel.SaveCarTechnicalCheckupSettingsCommand);
 		}
 
-		private void OnNotepadRadiobuttonToggled(object sender, System.EventArgs e)
+		private void ConfigureAccountingSettings()
+		{
+			paymentWriteOffFinancialExpenseCatogories.ViewModel = ViewModel.PaymentWriteOffAllowedFinancialExpenseCategoriesViewModel;
+		}
+
+		private void OnNotepadRadiobuttonToggled(object sender, EventArgs e)
 		{
 			if(yradiobuttonLogistics.Active)
 			{
 				ynotebookData.CurrentPage = 0;
+				return;
 			}
 
 			if(yradiobuttonComplaints.Active)
 			{
 				ynotebookData.CurrentPage = 1;
+				return;
 			}
 
 			if(yradiobuttonOrders.Active)
 			{
 				ynotebookData.CurrentPage = 2;
+				return;
 			}
 
 			if(yradiobuttonWarehouse.Active)
 			{
 				ynotebookData.CurrentPage = 3;
+				return;
+			}
+
+			if(yradiobuttonAccounting.Active)
+			{
+				ynotebookData.CurrentPage = 4;
+				return;
 			}
 		}
 

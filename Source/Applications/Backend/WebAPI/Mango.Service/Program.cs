@@ -16,6 +16,8 @@ using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using NLog.Web;
 using QS.Project.Core;
+using System;
+using System.Net.Security;
 using System.Reflection;
 using System.Security.Authentication;
 using Vodovoz.Core.Data.NHibernate;
@@ -84,16 +86,21 @@ namespace Mango.Service
 
 						busCfg.UsingRabbitMq((context, rabbitCfg) =>
 						{
-							var ts = context.GetRequiredService<IMessageTransportSettings>();
-							rabbitCfg.Host(ts.Host, (ushort)ts.Port, ts.VirtualHost,
+							var messageSettings = context.GetRequiredService<IMessageTransportSettings>();
+							rabbitCfg.Host(messageSettings.Host, (ushort)messageSettings.Port, messageSettings.VirtualHost,
 								rabbitHostCfg =>
 								{
-									rabbitHostCfg.Username(ts.Username);
-									rabbitHostCfg.Password(ts.Password);
-									if(ts.UseSSL)
+									rabbitHostCfg.Username(messageSettings.Username);
+									rabbitHostCfg.Password(messageSettings.Password);
+									rabbitHostCfg.UseSsl(ssl =>
 									{
-										rabbitHostCfg.UseSsl(ssl => ssl.Protocol = SslProtocols.Tls12);
-									}
+										if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
+										{
+											ssl.AllowPolicyErrors(allowedPolicyErrors);
+										}
+
+										ssl.Protocol = SslProtocols.Tls12;
+									});
 								}
 							);
 

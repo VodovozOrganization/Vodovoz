@@ -38,8 +38,8 @@ namespace Vodovoz.ReportsParameters.Store
 		void ConfigureDlg()
 		{
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-			lstGeoGrp.SetRenderTextFunc<GeoGroup>(g => string.Format("{0}", g.Name));
-			lstGeoGrp.ItemsList = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
+			lstGeoGrp.SetRenderTextFunc<GeoGroup>(g => $"{g.Name}");
+			lstGeoGrp.ItemsList = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, true);
 
 			var nomenclatureTypeParam = _filter.CreateParameterSet(
 				"Типы номенклатур",

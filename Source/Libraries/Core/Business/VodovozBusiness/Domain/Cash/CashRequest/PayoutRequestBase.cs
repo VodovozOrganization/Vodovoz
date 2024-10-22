@@ -196,8 +196,11 @@ namespace Vodovoz.Domain.Cash
 		[Display(Name = "Подана")]
 		Submited, // после подтверждения
 
-		[Display(Name = "Согласована")]
-		Agreed, // после согласования
+		[Display(Name = "Согласована руководителем отдела")]
+		AgreedBySubdivisionChief, // после согласования руководителем
+
+		[Display(Name = "Согласована исполнительным директором")]
+		Agreed, // после согласования исполнительным директором
 
 		[Display(Name = "Передана на выдачу")]
 		GivenForTake,
@@ -216,6 +219,9 @@ namespace Vodovoz.Domain.Cash
 	{
 		[Display(Name = "Заявитель")]
 		RequestCreator,
+
+		[Display(Name = "Руководитель отдела")]
+		SubdivisionChief,
 
 		[Display(Name = "Согласователь")]
 		Coordinator,

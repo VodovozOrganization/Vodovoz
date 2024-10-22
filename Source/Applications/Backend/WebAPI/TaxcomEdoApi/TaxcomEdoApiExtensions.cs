@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Taxcom.Client.Api;
 using TaxcomEdoApi.Library;
 using TaxcomEdoApi.Library.Config;
@@ -34,14 +37,14 @@ namespace TaxcomEdoApi
 					{
 						throw new InvalidOperationException("Не найден сертификат в личном хранилище пользователя");
 					}
-					
+
 					return certificate;
 				})
 				.AddSingleton(provider =>
 				{
 					var apiOptions = provider.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;
 					var certificate = provider.GetRequiredService<X509Certificate2>();
-					
+
 					return new Factory().CreateApi(
 						apiOptions.BaseUrl,
 						true,

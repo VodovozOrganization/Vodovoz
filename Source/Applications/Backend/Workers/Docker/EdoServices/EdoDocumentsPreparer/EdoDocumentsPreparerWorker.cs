@@ -206,10 +206,15 @@ namespace EdoDocumentsPreparer
 				{
 					try
 					{
-						var printableRdlDocument = order.OrderDocuments
-							.FirstOrDefault(x =>
-								_orderDocumentTypesForSendBill.Contains(x.Type)
-									&& x.Order.Id == order.Id) as IPrintableRDLDocument;
+						if(order.OrderDocuments
+							   .FirstOrDefault(x =>
+								   _orderDocumentTypesForSendBill.Contains(x.Type)
+								   && x.Order.Id == order.Id) is not IPrintableRDLDocument printableRdlDocument)
+						{
+							_logger.LogWarning("У заказа {OrderId} не найден документ для отправки счета", order.Id);
+							continue;
+						}
+						
 						var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
 						var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);
 						var infoForCreatingEdoBill = _billInfoFactory.CreateInfoForCreatingEdoBill(

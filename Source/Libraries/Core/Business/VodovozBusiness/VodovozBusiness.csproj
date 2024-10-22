@@ -150,6 +150,7 @@
       <Project>{C2085920-3B31-4406-8074-470A26BA26AA}</Project>
       <Name>TrueMarkApi.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj">
       <Project>{056ba782-edef-4e8e-abb1-01fd3502a8f0}</Project>
       <Name>Vodovoz.RDL</Name>
@@ -158,6 +159,7 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
     <ProjectReference Include="..\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">
       <Project>{ec987b0b-d857-4ec5-85a8-f8821363698f}</Project>
       <Name>Vodovoz.Core.Data</Name>

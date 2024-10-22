@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
@@ -117,7 +117,7 @@ namespace TaxcomEdoApi.Library.Factories
 			{
 				new FajlDokumentSvSchFaktDokPodtvOtgr
 				{
-					NaimDokOtgr = "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
+					NaimDokOtgr = "Универсальный передаточный документ,",
 					NomDokOtgr = orderInfoForEdo.Id.ToString(),
 					DataDokOtgr = orderInfoForEdo.DeliveryDate.ToShortDateString()
 				}

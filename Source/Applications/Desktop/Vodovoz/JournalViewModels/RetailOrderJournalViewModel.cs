@@ -360,10 +360,17 @@ namespace Vodovoz.JournalViewModels
 													)
 												)
 											);
-			
-			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+
+			if(FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
-				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				if(!FilterViewModel.FilterClosingDocumentDeliverySchedule.Value)
+				{
+					query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				}
+				else
+				{
+					query.Where(o => o.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId);
+				}
 			}
 
 			query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
@@ -462,7 +469,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.Organisation != null
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -587,7 +594,7 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -734,7 +741,7 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}

@@ -211,15 +211,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
 		}
 
-		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow)
-		{
-			var controlledSubdivision = uow.GetAll<Subdivision>()
-				.Where(s => s.Chief.Id == _currentEmployee.Id)
-				.Select(s => s.Id)
-				.ToArray();
-
-			return controlledSubdivision;
-		}
+		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow) =>
+			_employeeRepository.GetControlledByEmployeeSubdivisionIds(uow, _currentEmployee.Id);
 
 		#region JournalActions
 
@@ -323,7 +316,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				selected =>
 				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToArray();
-					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.Submited))
+					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief))
 					{
 						return false;
 					}
@@ -336,7 +329,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				selected =>
 				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToArray();
-					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.Submited))
+					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief))
 					{
 						return;
 					}

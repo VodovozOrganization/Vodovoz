@@ -41,6 +41,7 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;		
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
+		private bool _hasConditionAccounting;
 		private GlassHolderType? _glassHolderType;
 		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
 		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
@@ -662,6 +663,13 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _hasInventoryAccounting;
 			set => SetField(ref _hasInventoryAccounting, value);
+		}
+		
+		[Display(Name = "Учет состояния ТМЦ(б/у | Нов)")]
+		public virtual bool HasConditionAccounting
+		{
+			get => _hasConditionAccounting;
+			set => SetField(ref _hasConditionAccounting, value);
 		}
 
 		[Display(Name = "Тип стаканодержателя")]

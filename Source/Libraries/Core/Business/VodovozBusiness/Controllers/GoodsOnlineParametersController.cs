@@ -49,9 +49,16 @@ namespace Vodovoz.Controllers
 			var warehouses = _generalSettings.WarehousesForPricesAndStocksIntegration;
 			var stocksForShowAndSellParams = _stockRepository.NomenclatureInStock(uow, nomenclaturesIds.ToArray(), warehouses);
 
-			foreach(var keyPairValue in stocksForShowAndSellParams.Where(keyPairValue => keyPairValue.Value <= 0))
+			//Если по выбранным складам не было движений номенклатуры, то она будет отсутствовать в итоговой выборке.
+			//Поэтому просто берем баланс по Id номенклатуры и если ее там нет, вернется дефолтное значение 0
+			foreach(var parameter in parameters)
 			{
-				parameters[keyPairValue.Key].AvailableForSale = GoodsOnlineAvailability.Show;
+				stocksForShowAndSellParams.TryGetValue(parameter.Key, out var balance);
+
+				if(balance <= 0)
+				{
+					parameter.Value.AvailableForSale = GoodsOnlineAvailability.Show;
+				}
 			}
 
 			return new NomenclatureOnlineParametersData(parameters, prices);

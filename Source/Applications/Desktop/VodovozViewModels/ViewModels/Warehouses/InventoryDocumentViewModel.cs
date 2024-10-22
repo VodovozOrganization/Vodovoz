@@ -31,6 +31,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -648,7 +649,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			{
 				_instancesDiscrepancies.Add(
 					instanceData.Id,
-					$"{instanceData.Name} {instanceData.InventoryNumber} числится на этом складе");
+					$"{instanceData.Name} {instanceData.GetInventoryNumber} числится на этом складе");
 			}
 
 			var currentInstancesOnOtherStorages =
@@ -662,7 +663,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var instanceData = groupInstanceData.First();
 					var storages = string.Join(",", groupInstanceData.Select(x => x.StorageName));
 					
-					_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.InventoryNumber} числится на: {storages}");
+					_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.GetInventoryNumber} числится на: {storages}");
 				}
 			}
 
@@ -937,7 +938,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var customName = CustomProjections.Concat(
 						Projections.Property(() => nomenclatureAlias.OfficialName),
 						Projections.Constant(" "),
-						Projections.Property(() => instanceAlias.InventoryNumber));
+						InventoryNomenclatureInstanceProjections.InventoryNumberProjection());
 
 					query.SelectList(list => list
 						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)

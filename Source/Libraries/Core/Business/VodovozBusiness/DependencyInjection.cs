@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Extensions;
 using Sms.Internal.Client.Framework;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Factories;
 using Vodovoz.Models;
@@ -13,6 +14,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Orders;
 using Vodovoz.Validation;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace Vodovoz
 {
