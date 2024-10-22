@@ -1,7 +1,5 @@
 ﻿using ClosedXML.Excel;
 using Gamma.Binding.Core.RecursiveTreeConfig;
-using Grpc.Core;
-using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -24,6 +22,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
@@ -35,7 +34,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
 	public class CashReceiptsJournalViewModel : JournalViewModelBase
 	{
-		private readonly ILogger<CashReceiptsJournalViewModel> _logger;
 		private readonly ICommonServices _commonServices;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
@@ -51,7 +49,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		public CashReceiptsJournalViewModel(
 			CashReceiptJournalFilterViewModel filter,
-			ILogger<CashReceiptsJournalViewModel> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			TrueMarkCodesPool trueMarkCodesPool,
@@ -67,7 +64,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				throw new ArgumentNullException(nameof(filter));
 			}
 
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
@@ -582,22 +578,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		{
 			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
 
-			try
-			{
-				_receiptManualController.RefreshFiscalDoc(node.Id);
-			}
-			catch(RpcException ex)
-			{
-				var message = $"При обращении к сервису обработки чеков произошла ошибка.";
-				_logger.LogCritical(ex, message);
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, message);
-			}
-			catch(Exception ex)
-			{
-				var message = $"При обновлении статус фискального документа произошла ошибка:\n{ex.Message}";
-				_logger.LogCritical(ex, message);
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, message);
-			}
+			var result = _receiptManualController.RefreshFiscalDoc(node.Id);
+
+			ShowResultToUser(result);
+
 			Refresh();
 		}
 
@@ -633,24 +617,29 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		{
 			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
 
-			try
-			{
-				_receiptManualController.RequeueFiscalDoc(node.Id);
-			}
-			catch(RpcException ex)
-			{
-				var message = $"При обращении к сервису обработки чеков произошла ошибка.";
-				_logger.LogCritical(ex, message);
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, message);
-			}
-			catch(Exception ex)
-			{
-				var message = $"При попытке повторного проведения чека произошла ошибка:\n{ex.Message}";
-				_logger.LogCritical(ex, message);
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, message);
-			}
+			var result = _receiptManualController.RequeueFiscalDoc(node.Id);
+
+			ShowResultToUser(result);
 
 			Refresh();
+		}
+
+		private void ShowResultToUser(Result result)
+		{
+			if(result.IsSuccess)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"Запрос выполнен успешно");
+			}
+			else
+			{
+				var firstError = result.Errors.FirstOrDefault();
+
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					firstError.Message ?? "При выполнении запроса произошла непредвиденная ошибка");
+			}
 		}
 
 		#endregion Refresh and requeue fiscal document
