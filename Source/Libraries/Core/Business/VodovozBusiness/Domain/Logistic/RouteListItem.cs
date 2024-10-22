@@ -862,7 +862,7 @@ namespace Vodovoz.Domain.Logistic
 
 			foreach(var item in Order.OrderItems)
 			{
-				item.RestoreOriginalDiscount();
+				item.RestoreOriginalDiscountFromRestoreOrder();
 
 				if(newStatus == RouteListItemStatus.EnRoute)
 				{
