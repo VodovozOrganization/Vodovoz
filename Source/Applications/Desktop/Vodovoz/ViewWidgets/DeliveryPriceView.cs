@@ -385,6 +385,7 @@ namespace Vodovoz.ViewWidgets
 						result.Append($"<b>Без ограничений:</b> ");
 					}
 
+					i = 1;
 					int maxScheduleCountOnLine = 3;
 					var restrictionsInGroup = group.ToList();
 					int lastItemOnDayId = restrictionsInGroup.Last().Id;
@@ -421,6 +422,7 @@ namespace Vodovoz.ViewWidgets
 					result.Append($"<b>Без ограничений:</b> ");
 				}
 
+				i = 1;
 				int maxScheduleCountOnLine = 3;
 				var restrictionsInGroup = group.ToList();
 				int lastItemOnDayId = restrictionsInGroup.Last().Id;
