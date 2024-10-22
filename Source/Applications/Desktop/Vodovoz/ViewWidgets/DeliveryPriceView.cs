@@ -342,7 +342,7 @@ namespace Vodovoz.ViewWidgets
 
 			#endregion DeliveryRules
 
-			#region Sheduules
+			#region Shedules
 
 			ScheduleRestrictionsToday = GetSheduleRestrictionsFor(WeekDayName.Today);
 			ScheduleRestrictionsMonday = GetSheduleRestrictionsFor(WeekDayName.Monday);
