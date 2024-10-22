@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Models.TrueMark
+﻿using Vodovoz.Core.Domain.Interfaces.TrueMark;
+
+namespace Vodovoz.Models.TrueMark
 {
 	public class TrueMarkWaterCode : ITrueMarkWaterCode
 	{

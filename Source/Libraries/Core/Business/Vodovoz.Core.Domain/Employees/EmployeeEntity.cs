@@ -2,6 +2,7 @@
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using QS.Utilities.Text;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -346,6 +347,18 @@ namespace Vodovoz.Core.Domain.Employees
 		{
 			get => _attachedFileInformations;
 			set => SetField(ref _attachedFileInformations, value);
+		}
+
+		[Display(Name = "ФИО")]
+		public virtual string FullName
+		{
+			get => string.Format("{0} {1} {2}", LastName, Name, Patronymic);
+		}
+
+		[Display(Name = "Фамилия и инициалы")]
+		public virtual string ShortName
+		{
+			get => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 		}
 
 		public virtual void AddFileInformation(string fileName)

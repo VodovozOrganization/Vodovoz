@@ -42,7 +42,7 @@ namespace DriverAPI.Controllers.V5
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_driverWarehouseEventsService = driverWarehouseEventsService ?? throw new ArgumentNullException(nameof(driverWarehouseEventsService));
 		}
-		
+
 		/// <summary>
 		/// Завершение события нахождения на складе
 		/// </summary>
@@ -56,8 +56,8 @@ namespace DriverAPI.Controllers.V5
 		public async Task<IActionResult> CompleteDriverWarehouseEventAsync(DriverWarehouseEventData eventData)
 		{
 			var userName = HttpContext.User.Identity?.Name ?? "Unknown";
-			DriverWarehouseEventQrData qrData = null; 
-			
+			DriverWarehouseEventQrData qrData = null;
+
 			try
 			{
 				qrData = _driverWarehouseEventsService.ConvertAndValidateQrData(eventData.QrData);
@@ -73,7 +73,7 @@ namespace DriverAPI.Controllers.V5
 			{
 				return ValidationProblem("Неправильный QR код");
 			}
-			
+
 			_logger.LogInformation("Попытка завершения события {EventId} пользователем {Username} User token: {AccessToken}",
 				qrData.EventId,
 				userName,
@@ -87,12 +87,12 @@ namespace DriverAPI.Controllers.V5
 			{
 				var completedEvent = _driverWarehouseEventsService.CompleteDriverWarehouseEvent(
 					qrData, eventData, driver, out var distanceMetersFromScanningLocation);
-				
+
 				if(completedEvent is null)
 				{
 					return Problem($"Слишком большое расстояние от Qr кода: {distanceMetersFromScanningLocation}м", statusCode: StatusCodes.Status403Forbidden);
 				}
-				
+
 				return Ok(
 					new CompletedDriverWarehouseEventDto
 					{

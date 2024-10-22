@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.TrueMark
 {
