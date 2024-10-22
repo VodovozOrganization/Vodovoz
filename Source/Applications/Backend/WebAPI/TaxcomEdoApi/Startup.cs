@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
 using System.Text;
-using VodovozHealthCheck;
 
 namespace TaxcomEdoApi
 {
@@ -67,7 +66,6 @@ namespace TaxcomEdoApi
 				app.UseSwagger();
 				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TaxcomEdoApi v1"));
 			}
-
 			app.UseHttpsRedirection();
 			app.UseRouting();
 			app.UseAuthorization();
@@ -75,7 +73,7 @@ namespace TaxcomEdoApi
 			{
 				endpoints.MapControllers();
 			});
-			app.ConfigureHealthCheckApplicationBuilder();
+			//app.ConfigureHealthCheckApplicationBuilder();
 		}
 	}
 }
