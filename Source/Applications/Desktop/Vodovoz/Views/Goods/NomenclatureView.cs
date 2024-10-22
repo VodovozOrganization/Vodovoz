@@ -352,7 +352,7 @@ namespace Vodovoz.Views.Goods
 			chkConditionAccounting.Binding
 				.AddBinding(ViewModel.Entity, e => e.HasConditionAccounting, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanShowConditionAccounting, w => w.Visible)
-				.AddBinding(ViewModel, vm => vm.CanCreateNomenclaturesWithInventoryAccountingPermission, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.UserCanEditConditionAccounting, w => w.Sensitive)
 				.InitializeFromSource();
 
 			#region Вкладка Оборудование
