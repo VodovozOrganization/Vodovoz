@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Operations">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     COALESCE(orders.id,account_income.number) as num,
@@ -30,7 +30,7 @@
 	END AS document,
     IFNULL(debt, 0) as debt,
     IFNULL(deposit, 0) as deposit,
-    money,
+    IFNULL(money, 0) as money,
     money_movement_operations.operation_time as date
 FROM
     money_movement_operations
@@ -55,7 +55,7 @@ ORDER BY date ASC</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="num">
           <DataField>num</DataField>
           <TypeName>System.String</TypeName>
@@ -141,23 +141,41 @@ WHERE
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    IFNULL(SUM(IFNULL(debt,0)) - SUM(IFNULL(money,0)),0) as total,
-    NUMBER_TO_STRING_DESCRIPTION(ABS((select total))) as total_string
+    T.total,
+    NUMBER_TO_STRING_DESCRIPTION(T.total + T.total_by_period) as total_string
 FROM
-    money_movement_operations
-where
-    money_movement_operations.counterparty_id=@counterparty_id
-  and
-    money_movement_operations.payment_type='Cashless'
-  and operation_time &lt; @date_start
-;
-</CommandText>
+(
+    SELECT
+        IFNULL(SUM(IFNULL(debt,0)) - SUM(IFNULL(money,0)),0) as total,
+        (
+            SELECT IFNULL(SUM(IFNULL(debt,0)) - SUM(IFNULL(money,0)),0)
+            FROM
+                money_movement_operations
+            WHERE
+                money_movement_operations.counterparty_id=@counterparty_id
+              and
+                money_movement_operations.payment_type='Cashless'
+              and
+                operation_time BETWEEN @date_start and DATE_ADD(@date_end, INTERVAL 1 DAY)
+        ) as total_by_period
+    FROM
+        money_movement_operations
+    where
+        money_movement_operations.counterparty_id=@counterparty_id
+      and
+        money_movement_operations.payment_type='Cashless'
+      and operation_time &lt; @date_start
+) as T
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
             <Value>=Parameters!CounterpartyID</Value>
           </QueryParameter>
           <QueryParameter Name="date_start">
             <Value>=Parameters!StartDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="date_end">
+            <Value>=Parameters!EndDate</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -452,8 +470,8 @@ where
                   <ReportItems>
                     <Textbox Name="Textbox21">
                       <Value>=Iif(
-First(Fields!total,'Initial')&gt;0,
-First(Fields!total,'Initial'),
+First(Fields!total.Value,'Initial')&gt;0,
+First(Fields!total.Value,'Initial'),
 ""
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -472,8 +490,8 @@ First(Fields!total,'Initial'),
                   <ReportItems>
                     <Textbox Name="Textbox20">
                       <Value>=Iif(
-First(Fields!total,'Initial')&lt;0,
--First(Fields!total,'Initial'),
+First(Fields!total.Value,'Initial')&lt;0,
+-First(Fields!total.Value,'Initial'),
 ""
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -926,13 +944,13 @@ Fields!deposit.Value&lt;0
                   <ReportItems>
                     <Textbox Name="Textbox37">
                       <Value>=Iif(
-First(Fields!total, 'Initial')
+First(Fields!total.Value, 'Initial')
 +
 Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
 -
 Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')&gt;0
 ,
-First(Fields!total, 'Initial')
+First(Fields!total.Value, 'Initial')
 +
 Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
 -
@@ -955,13 +973,13 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
                   <ReportItems>
                     <Textbox Name="Textbox38">
                       <Value>=Iif(
-First(Fields!total, 'Initial')
+First(Fields!total.Value, 'Initial')
 +
 Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
 -
 Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')&lt;0
 ,
--First(Fields!total, 'Initial')
+-First(Fields!total.Value, 'Initial')
 -
 Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
 +
@@ -1036,6 +1054,11 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
         <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>250.90pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
       </Textbox>
       <Textbox Name="Textbox73">
         <Height>52.66pt</Height>
@@ -1053,8 +1076,7 @@ First(Fields!counterparty_name,'Counterparty')
 Math.Abs(First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations'))
 +" руб." + "\n"+
 "( "+
-First({total_string}, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')))
-)
+First({total_string}, 'Initial')
 +" )"
 + "\n" +
 "в том числе "+ Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit),'Operations') + " руб. залогов."</Value>
