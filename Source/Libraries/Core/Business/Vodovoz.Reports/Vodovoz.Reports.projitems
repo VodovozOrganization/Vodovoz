@@ -190,9 +190,6 @@
     <None Include="$(MSBuildThisFileDirectory)\Reports\Client\DebtorsBottles.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="$(MSBuildThisFileDirectory)\Reports\Client\PotentialFreePromosets.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="$(MSBuildThisFileDirectory)\Reports\Client\Revision.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
