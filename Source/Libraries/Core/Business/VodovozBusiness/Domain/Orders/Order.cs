@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -1700,11 +1700,16 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateAddressType()
 		{
-			if(Client != null && Client.IsChainStore && !OrderItems.Any(x => x.IsMasterNomenclature))
+			if(Client != null
+				&& Client.IsChainStore
+				&& !OrderItems.Any(x => x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				OrderAddressType = OrderAddressType.ChainStore;
 			}
-			if(Client != null && !Client.IsChainStore && !OrderItems.Any(x => x.IsMasterNomenclature) && OrderAddressType != OrderAddressType.StorageLogistics)
+			if(Client != null
+				&& !Client.IsChainStore
+				&& !OrderItems.Any(x => x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId)
+				&& OrderAddressType != OrderAddressType.StorageLogistics)
 			{
 				OrderAddressType = OrderAddressType.Delivery;
 			}
