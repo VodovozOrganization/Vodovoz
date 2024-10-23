@@ -7,6 +7,7 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -61,6 +62,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		private readonly List<SelectableNode<Expense>> _selectableAdvances = new List<SelectableNode<Expense>>();
 		private readonly IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> _financialExpenseCategoryNodeInMemoryCacheRepository;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private IEntityEntryViewModel _clientViewModel;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private FinancialIncomeCategory _financialIncomeCategory;
@@ -89,7 +91,9 @@ namespace Vodovoz.ViewModels.Cash
 			IReportViewOpener reportViewOpener,
 			ILifetimeScope lifetimeScope,
 			IIncomeSettings incomeSettings,
-			IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> domainEntityNodeInMemoryCacheRepository)
+			IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> domainEntityNodeInMemoryCacheRepository,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(navigation is null)
@@ -126,6 +130,7 @@ namespace Vodovoz.ViewModels.Cash
 				?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_financialExpenseCategoryNodeInMemoryCacheRepository = domainEntityNodeInMemoryCacheRepository
 				?? throw new ArgumentNullException(nameof(domainEntityNodeInMemoryCacheRepository));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_reportViewOpener = reportViewOpener
 				?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_lifetimeScope = lifetimeScope
@@ -735,14 +740,12 @@ namespace Vodovoz.ViewModels.Cash
 				return;
 			}
 
-			var reportInfo = new QS.Report.ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}";
+			reportInfo.Identifier = "Cash.ReturnTicket";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}",
-				Identifier = "Cash.ReturnTicket",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "id",  Entity.Id }
-				}
+				{ "id", Entity.Id }
 			};
 
 			_reportViewOpener.OpenReport(this, reportInfo);

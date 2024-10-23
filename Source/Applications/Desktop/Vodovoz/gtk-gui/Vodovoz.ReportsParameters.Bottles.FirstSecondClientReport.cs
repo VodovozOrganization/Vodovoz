@@ -26,7 +26,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeAuthor;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -151,7 +151,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;

@@ -16,11 +16,11 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.HBox hboxSaveLogisticsRequirements;
 
-		private global::Gtk.Button buttonSaveLogisticsRequirements;
+		private global::Gamma.GtkWidgets.yButton buttonSaveLogisticsRequirements;
 
 		private global::Gtk.HBox hboxSaveComment;
 
-		private global::Gtk.Button buttonSaveComment;
+		private global::Gamma.GtkWidgets.yButton buttonSaveComment;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -113,7 +113,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.hboxSaveLogisticsRequirements.Name = "hboxSaveLogisticsRequirements";
 			this.hboxSaveLogisticsRequirements.Spacing = 6;
 			// Container child hboxSaveLogisticsRequirements.Gtk.Box+BoxChild
-			this.buttonSaveLogisticsRequirements = new global::Gtk.Button();
+			this.buttonSaveLogisticsRequirements = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSaveLogisticsRequirements.CanFocus = true;
 			this.buttonSaveLogisticsRequirements.Name = "buttonSaveLogisticsRequirements";
 			this.buttonSaveLogisticsRequirements.UseUnderline = true;
@@ -142,7 +142,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.hboxSaveComment.Name = "hboxSaveComment";
 			this.hboxSaveComment.Spacing = 6;
 			// Container child hboxSaveComment.Gtk.Box+BoxChild
-			this.buttonSaveComment = new global::Gtk.Button();
+			this.buttonSaveComment = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSaveComment.CanFocus = true;
 			this.buttonSaveComment.Name = "buttonSaveComment";
 			this.buttonSaveComment.UseUnderline = true;

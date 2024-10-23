@@ -1,14 +1,13 @@
-﻿using System;
-using QSReport;
-using QS.Report;
-using System.Collections.Generic;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Payments;
 
 namespace Vodovoz.ReportsParameters.Payments
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PaymentsFromAvangardReport : Gtk.Bin, IParametersWidget
+	public partial class PaymentsFromAvangardReport : ViewBase<PaymentsFromAvangardReportViewModel>
 	{
-		public PaymentsFromAvangardReport()
+
+		public PaymentsFromAvangardReport(PaymentsFromAvangardReportViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			Configure();
@@ -16,70 +15,25 @@ namespace Vodovoz.ReportsParameters.Payments
 
 		void Configure()
 		{
-			SetControlsAccessibility();
-			rbtnLast3Days.Clicked += OnRbtnLast3DaysToggled;
-			rbtnYesterday.Clicked += OnRbtnYesterdayToggled;
-			rbtnCustomPeriod.Clicked += OnCustomPeriodChanged;
-			dateperiodpicker.PeriodChangedByUser += OnCustomPeriodChanged;
-			buttonRun.Clicked += OnButtonRunClicked;
-			rbtnYesterday.Active = true;
-		}
+			dateperiodpicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.AddBinding(vm => vm.IsCustomPeriod, w => w.Sensitive)
+				.InitializeFromSource();
 
-		void SetControlsAccessibility()
-		{
-			dateperiodpicker.Sensitive = rbtnCustomPeriod.Active;
-		}
+			rbtnCustomPeriod.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsCustomPeriod, w => w.Active)
+				.InitializeFromSource();
 
-		#region IParametersWidget implementation
+			rbtnLast3Days.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsLast3DaysPeriod, w => w.Active)
+				.InitializeFromSource();
 
-		public string Title => "Отчет по оплатам Авангарда";
+			rbtnYesterday.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsYesterdayPeriod, w => w.Active)
+				.InitializeFromSource();
 
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		#endregion
-
-		private void OnButtonRunClicked(object sender, EventArgs e)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
-		}
-
-		private ReportInfo GetReportInfo()
-		{
-			var info = new ReportInfo
-			{
-				Identifier = "Payments.PaymentsFromAvangardReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", dateperiodpicker.StartDate },
-					{ "endDate", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-				}
-			};
-			return info;
-		}
-
-		private void OnRbtnLast3DaysToggled(object sender, EventArgs e)
-		{
-			if(rbtnLast3Days.Active)
-			{
-				dateperiodpicker.StartDate = DateTime.Today.AddDays(-3);
-				dateperiodpicker.EndDate = DateTime.Today;
-			}
-
-			SetControlsAccessibility();
-		}
-
-		private void OnRbtnYesterdayToggled(object sender, EventArgs e)
-		{
-			if(rbtnYesterday.Active)
-			{
-				dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today.AddDays(-1);
-			}
-			SetControlsAccessibility();
-		}
-
-		private void OnCustomPeriodChanged(object sender, EventArgs e)
-		{
-			SetControlsAccessibility();
+			buttonRun.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }

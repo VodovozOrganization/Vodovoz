@@ -24,9 +24,9 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonCalculate;
+		private global::Gamma.GtkWidgets.yButton buttonCalculate;
 
-		private global::Gtk.Button buttonLoad;
+		private global::Gamma.GtkWidgets.yButton buttonLoad;
 
 		protected virtual void Build()
 		{
@@ -125,7 +125,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCalculate = new global::Gtk.Button();
+			this.buttonCalculate = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCalculate.Sensitive = false;
 			this.buttonCalculate.CanFocus = true;
 			this.buttonCalculate.Name = "buttonCalculate";
@@ -138,7 +138,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonLoad = new global::Gtk.Button();
+			this.buttonLoad = new global::Gamma.GtkWidgets.yButton();
 			this.buttonLoad.CanFocus = true;
 			this.buttonLoad.Name = "buttonLoad";
 			this.buttonLoad.UseUnderline = true;

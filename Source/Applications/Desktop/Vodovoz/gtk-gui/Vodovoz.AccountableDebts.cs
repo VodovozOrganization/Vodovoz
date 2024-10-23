@@ -14,7 +14,7 @@ namespace Vodovoz
 
 		private global::Gtk.Entry entrySearch;
 
-		private global::Gtk.Button buttonSearchClear;
+		private global::Gamma.GtkWidgets.yButton buttonSearchClear;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -22,11 +22,11 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gtk.Button buttonSlips;
+		private global::Gamma.GtkWidgets.yButton buttonSlips;
 
-		private global::Gtk.Button buttonUnclosed;
+		private global::Gamma.GtkWidgets.yButton buttonUnclosed;
 
-		private global::Gtk.Button buttonAdvanceReport;
+		private global::Gamma.GtkWidgets.yButton buttonAdvanceReport;
 
 		protected virtual void Build()
 		{
@@ -70,7 +70,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entrySearch]));
 			w3.Position = 1;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonSearchClear = new global::Gtk.Button();
+			this.buttonSearchClear = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSearchClear.TooltipMarkup = "Очистить";
 			this.buttonSearchClear.CanFocus = true;
 			this.buttonSearchClear.Name = "buttonSearchClear";
@@ -105,7 +105,7 @@ namespace Vodovoz
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonSlips = new global::Gtk.Button();
+			this.buttonSlips = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSlips.CanFocus = true;
 			this.buttonSlips.Name = "buttonSlips";
 			this.buttonSlips.UseUnderline = true;
@@ -116,7 +116,7 @@ namespace Vodovoz
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonUnclosed = new global::Gtk.Button();
+			this.buttonUnclosed = new global::Gamma.GtkWidgets.yButton();
 			this.buttonUnclosed.CanFocus = true;
 			this.buttonUnclosed.Name = "buttonUnclosed";
 			this.buttonUnclosed.UseUnderline = true;
@@ -127,7 +127,7 @@ namespace Vodovoz
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonAdvanceReport = new global::Gtk.Button();
+			this.buttonAdvanceReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAdvanceReport.CanFocus = true;
 			this.buttonAdvanceReport.Name = "buttonAdvanceReport";
 			this.buttonAdvanceReport.UseUnderline = true;

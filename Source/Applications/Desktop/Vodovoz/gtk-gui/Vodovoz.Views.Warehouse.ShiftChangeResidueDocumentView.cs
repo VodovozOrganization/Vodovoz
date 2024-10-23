@@ -12,7 +12,7 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gamma.GtkWidgets.yButton btnCancel;
 
-		private global::Gtk.Button buttonPrint;
+		private global::Gamma.GtkWidgets.yButton buttonPrint;
 
 		private global::Gamma.GtkWidgets.yRadioButton radioBtnBulkAccounting;
 
@@ -141,7 +141,7 @@ namespace Vodovoz.Views.Warehouse
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hboxHandleDlgBtns.Gtk.Box+BoxChild
-			this.buttonPrint = new global::Gtk.Button();
+			this.buttonPrint = new global::Gamma.GtkWidgets.yButton();
 			this.buttonPrint.CanFocus = true;
 			this.buttonPrint.Name = "buttonPrint";
 			this.buttonPrint.UseUnderline = true;

@@ -20,11 +20,11 @@ namespace Vodovoz.Views
 
 		private global::Gtk.HBox hboxChangeTasks;
 
-		private global::Gtk.Button btnChangeEmployee;
+		private global::Gamma.GtkWidgets.yButton btnChangeEmployee;
 
 		private global::Gamma.Widgets.yEnumComboBox cmbBoxTaskStatus;
 
-		private global::Gtk.Button btnCompleteSelected;
+		private global::Gamma.GtkWidgets.yButton btnCompleteSelected;
 
 		private global::QS.Widgets.GtkUI.DatePicker datepickerDeadlineChange;
 
@@ -109,7 +109,7 @@ namespace Vodovoz.Views
 			this.hboxChangeTasks.Name = "hboxChangeTasks";
 			this.hboxChangeTasks.Spacing = 6;
 			// Container child hboxChangeTasks.Gtk.Box+BoxChild
-			this.btnChangeEmployee = new global::Gtk.Button();
+			this.btnChangeEmployee = new global::Gamma.GtkWidgets.yButton();
 			this.btnChangeEmployee.CanFocus = true;
 			this.btnChangeEmployee.Name = "btnChangeEmployee";
 			this.btnChangeEmployee.UseUnderline = true;
@@ -132,7 +132,7 @@ namespace Vodovoz.Views
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hboxChangeTasks.Gtk.Box+BoxChild
-			this.btnCompleteSelected = new global::Gtk.Button();
+			this.btnCompleteSelected = new global::Gamma.GtkWidgets.yButton();
 			this.btnCompleteSelected.CanFocus = true;
 			this.btnCompleteSelected.Name = "btnCompleteSelected";
 			this.btnCompleteSelected.UseUnderline = true;

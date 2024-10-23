@@ -12,19 +12,19 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton ybuttonCancel;
 
-		private global::Gtk.Button btnCopyEntityId;
+		private global::Gamma.GtkWidgets.yButton btnCopyEntityId;
 
 		private global::Gamma.GtkWidgets.yTable ytableMain;
 
-		private global::Gtk.Button buttonAcceptFine;
+		private global::Gamma.GtkWidgets.yButton buttonAcceptFine;
 
 		private global::Vodovoz.ViewWidgets.Mango.EmployeePhone ButtonAcceptFine;
 
-		private global::Gtk.Button buttonFromTrack;
+		private global::Gamma.GtkWidgets.yButton buttonFromTrack;
 
-		private global::Gtk.Button buttonMileageDistribution;
+		private global::Gamma.GtkWidgets.yButton buttonMileageDistribution;
 
-		private global::Gtk.Button buttonOpenMap;
+		private global::Gamma.GtkWidgets.yButton buttonOpenMap;
 
 		private global::QS.Widgets.GtkUI.DatePicker datePickerDate;
 
@@ -129,7 +129,7 @@ namespace Vodovoz.Views.Logistic
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hboxHeader.Gtk.Box+BoxChild
-			this.btnCopyEntityId = new global::Gtk.Button();
+			this.btnCopyEntityId = new global::Gamma.GtkWidgets.yButton();
 			this.btnCopyEntityId.CanFocus = true;
 			this.btnCopyEntityId.Name = "btnCopyEntityId";
 			this.btnCopyEntityId.UseUnderline = true;
@@ -156,7 +156,7 @@ namespace Vodovoz.Views.Logistic
 			this.ytableMain.RowSpacing = ((uint)(6));
 			this.ytableMain.ColumnSpacing = ((uint)(6));
 			// Container child ytableMain.Gtk.Table+TableChild
-			this.buttonAcceptFine = new global::Gtk.Button();
+			this.buttonAcceptFine = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAcceptFine.CanFocus = true;
 			this.buttonAcceptFine.Name = "buttonAcceptFine";
 			this.buttonAcceptFine.UseUnderline = true;
@@ -188,7 +188,7 @@ namespace Vodovoz.Views.Logistic
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
-			this.buttonFromTrack = new global::Gtk.Button();
+			this.buttonFromTrack = new global::Gamma.GtkWidgets.yButton();
 			this.buttonFromTrack.CanFocus = true;
 			this.buttonFromTrack.Name = "buttonFromTrack";
 			this.buttonFromTrack.UseUnderline = true;
@@ -202,7 +202,7 @@ namespace Vodovoz.Views.Logistic
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
-			this.buttonMileageDistribution = new global::Gtk.Button();
+			this.buttonMileageDistribution = new global::Gamma.GtkWidgets.yButton();
 			this.buttonMileageDistribution.CanFocus = true;
 			this.buttonMileageDistribution.Name = "buttonMileageDistribution";
 			this.buttonMileageDistribution.UseUnderline = true;
@@ -216,7 +216,7 @@ namespace Vodovoz.Views.Logistic
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
-			this.buttonOpenMap = new global::Gtk.Button();
+			this.buttonOpenMap = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOpenMap.CanFocus = true;
 			this.buttonOpenMap.Name = "buttonOpenMap";
 			this.buttonOpenMap.UseUnderline = true;
