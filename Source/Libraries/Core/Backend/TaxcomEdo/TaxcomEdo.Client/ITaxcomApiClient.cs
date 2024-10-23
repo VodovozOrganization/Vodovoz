@@ -43,7 +43,7 @@ namespace TaxcomEdo.Client
 		Task<EdoContactList> GetContactListUpdates(
 			DateTime? lastCheckContactsUpdates, EdoContactStateCode? contactState, CancellationToken cancellationToken = default);
 		/// <summary>
-		/// Принятие приглашение к обмену по ЭДО
+		/// Принятие приглашения к обмену по ЭДО
 		/// </summary>
 		/// <param name="edxClientId">Номер кабинета ЭДО провайдера клиента</param>
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
