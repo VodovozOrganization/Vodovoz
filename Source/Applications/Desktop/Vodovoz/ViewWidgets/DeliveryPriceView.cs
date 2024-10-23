@@ -367,7 +367,7 @@ namespace Vodovoz.ViewWidgets
 
 			#endregion DeliveryRules
 
-			#region Sheduules
+			#region Shedules
 
 			ScheduleRestrictionsToday = GetSheduleRestrictionsFor(WeekDayName.Today);
 			ScheduleRestrictionsMonday = GetSheduleRestrictionsFor(WeekDayName.Monday);
@@ -478,6 +478,7 @@ namespace Vodovoz.ViewWidgets
 						result.Append($"<b>Без ограничений:</b> ");
 					}
 
+					i = 1;
 					int maxScheduleCountOnLine = 3;
 					var restrictionsInGroup = group.ToList();
 					int lastItemOnDayId = restrictionsInGroup.Last().Id;
@@ -514,6 +515,7 @@ namespace Vodovoz.ViewWidgets
 					result.Append($"<b>Без ограничений:</b> ");
 				}
 
+				i = 1;
 				int maxScheduleCountOnLine = 3;
 				var restrictionsInGroup = group.ToList();
 				int lastItemOnDayId = restrictionsInGroup.Last().Id;
