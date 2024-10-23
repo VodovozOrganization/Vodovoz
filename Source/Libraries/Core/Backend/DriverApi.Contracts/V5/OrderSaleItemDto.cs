@@ -64,5 +64,10 @@
 		/// Скидка
 		/// </summary>
 		public decimal Discount { get; set; }
+
+		/// <summary>
+		/// Требуется дополнительный контроль водителя
+		/// </summary>
+		public bool IsNeedAdditionalControl { get; set; }
 	}
 }
