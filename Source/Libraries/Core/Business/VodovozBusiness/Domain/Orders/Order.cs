@@ -4747,7 +4747,7 @@ namespace Vodovoz.Domain.Orders
 		}
 		#endregion Правила сервисной доставка
 
-		public virtual bool IsOldServiceOrder => OrderAddressType == OrderAddressType.Service && CreateDate < new DateTime(2024, 10, 10);
+		public virtual bool IsOldServiceOrder => OrderAddressType == OrderAddressType.Service && CreateDate < new DateTime(2024, 10, 24);
 
 		/// <summary>
 		/// Добавление/удаление номенклатуры для вызова мастера в зависимости от типа адреса
