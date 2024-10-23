@@ -92,7 +92,17 @@ namespace Vodovoz.Models.TrueMark
 			}
 			catch(RpcException ex)
 			{
-				var error = CashReceiptErrors.CashReceiptApiServiceUnavailableError;
+				Error error = null;
+
+				if(ex.StatusCode == StatusCode.Unauthenticated)
+				{
+					error = CashReceiptErrors.CashReceiptApiUnauthenticatedError;
+				}
+				else
+				{
+					error = CashReceiptErrors.CashReceiptApiServiceUnavailableError;
+				}
+
 				_logger.LogCritical(ex, error.Message);
 
 				return Result.Failure(error);
@@ -145,7 +155,17 @@ namespace Vodovoz.Models.TrueMark
 			}
 			catch(RpcException ex)
 			{
-				var error = CashReceiptErrors.CashReceiptApiServiceUnavailableError;
+				Error error = null;
+
+				if(ex.StatusCode == StatusCode.Unauthenticated)
+				{
+					error = CashReceiptErrors.CashReceiptApiUnauthenticatedError;
+				}
+				else
+				{
+					error = CashReceiptErrors.CashReceiptApiServiceUnavailableError;
+				}
+
 				_logger.LogCritical(ex, error.Message);
 
 				return Result.Failure(error);

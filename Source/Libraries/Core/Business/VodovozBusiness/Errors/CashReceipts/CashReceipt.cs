@@ -39,5 +39,14 @@
 				typeof(CashReceipt),
 				nameof(CashReceiptApiRequestProcessingError),
 				"Сервис обработки кассовых чеков недоступен");
+
+		/// <summary>
+		/// Ошибка аутентификации при обращении к сервису кассовых чеков
+		/// </summary>
+		public static Error CashReceiptApiUnauthenticatedError =>
+			new Error(
+				typeof(CashReceipt),
+				nameof(CashReceiptApiUnauthenticatedError),
+				"Ошибка аутентификации при обращении к сервису кассовых чеков");
 	}
 }
