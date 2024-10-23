@@ -12,11 +12,13 @@ namespace DeliveryRulesService.Middleware
 	{
 		private readonly ILogger _logger;
 		private readonly RecyclableMemoryStreamManager _recyclableMemoryStreamManager;
+		private readonly RequestDelegate _next;
 
 		public RequestLoggingMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
 		{
 			_logger = loggerFactory.CreateLogger<RequestLoggingMiddleware>();
 			_recyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
+			_next = next;
 		}
 
 		public async Task Invoke(HttpContext context)
@@ -53,6 +55,8 @@ namespace DeliveryRulesService.Middleware
 								   ReadStreamInChunks(requestStream));
 
 			context.Request.Body.Position = 0;
+
+			await _next?.Invoke(context);
 		}
 
 		private static string ReadStreamInChunks(Stream stream)
