@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -19,7 +19,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Vodovoz.Application.FileStorage;
-using Vodovoz.Application.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
@@ -36,8 +35,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using VodovozBusiness.Domain.Goods;
-using VodovozBusiness.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Widgets.Goods;
+using VodovozBusiness.Services;
 using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
@@ -119,6 +118,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();
 			SetPermissions();
+			SetProperties();
 
 			_equipmentKindsHavingGlassHolder = nomenclatureSettings.EquipmentKindsHavingGlassHolder;
 			SetGlassHolderCheckboxesSelection();
@@ -176,10 +176,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool CanCreateAndArcNomenclatures { get; private set; }
 		public bool CanEditAlternativeNomenclaturePrices { get; private set; }
 		public bool HasAccessToSitesAndAppsTab { get; private set; }
+		public bool OldHasConditionAccounting { get; private set; }
 		public bool AskSaveOnClose => CanEdit;
 		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
-
+		public bool UserCanEditConditionAccounting =>
+			!OldHasConditionAccounting && CanCreateNomenclaturesWithInventoryAccountingPermission;
 		public bool IsShowGlassHolderSelectionControls => 
 			_equipmentKindsHavingGlassHolder.Any(i => i == Entity.Kind?.Id);
 
@@ -292,7 +294,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			get => _onlineCategories;
 			set => SetField(ref _onlineCategories, value);
 		}
-		
+
 		public NomenclatureOnlineCategory SelectedOnlineCategory
 		{
 			get => Entity.NomenclatureOnlineCategory;
@@ -322,7 +324,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				}
 			}
 		}
-		
+
 		public bool? HasHeating
 		{
 			get => Entity.HasHeating;
@@ -520,7 +522,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			
 			_needCheckOnlinePrices = true;
 		}
-		
+
 		public void AddKulerSaleOnlinePrice(AlternativeNomenclaturePrice price)
 		{
 			KulerSaleWebSiteNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
@@ -548,7 +550,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			
 			UpdateNomenclatureOnlinePricesNodes();
 		}
-		
+
 		public void RemoveKulerSalePrices(AlternativeNomenclaturePrice alternativePrice)
 		{
 			var kulerSaleWebSitePrice = alternativePrice.Id == 0
@@ -571,7 +573,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			ValidationContext.ServiceContainer.AddService(typeof(INomenclatureRepository), _nomenclatureRepository);
 		}
-		
+
 		private void ConfigureEntryViewModels()
 		{
 			DependsOnNomenclatureEntryViewModel = new CommonEEVMBuilderFactory<Nomenclature>(this, Entity, UoW, NavigationManager, _lifetimeScope)
@@ -709,7 +711,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
 					Vodovoz.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
 		}
-		
+
+		private void SetProperties()
+		{
+			OldHasConditionAccounting = Entity.HasConditionAccounting;
+		}
+
 		private void ConfigureOnlineParameters()
 		{
 			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
