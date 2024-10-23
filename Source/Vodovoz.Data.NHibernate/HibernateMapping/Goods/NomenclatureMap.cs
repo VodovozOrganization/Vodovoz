@@ -40,6 +40,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.IsDiler).Column("is_diler");
 			Map(x => x.PercentForMaster).Column("percent_for_master");
 			Map(x => x.TypeOfDepositCategory).Column("type_of_deposit");
+			Map(x => x.MasterServiceType).Column("master_service_type");
 			Map(x => x.SaleCategory).Column("subtype_of_equipment");
 			Map(x => x.OnlineStoreGuid).Column("online_store_guid");
 			Map(x => x.MinStockCount).Column("min_stock_count");
