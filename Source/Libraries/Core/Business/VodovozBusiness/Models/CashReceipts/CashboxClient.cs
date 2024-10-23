@@ -150,17 +150,24 @@ namespace Vodovoz.Models.CashReceipts
 				if(!responseContent.IsSuccessStatusCode)
 				{
 					var httpCodeMessage = $"HTTP Code: {(int)responseContent.StatusCode} {responseContent.StatusCode}";
-					_logger.LogWarning("Не удалось получить актуальный статус чека для документа №{fiscalDocumentId}. {httpCodeMessage}", fiscalDocumentId, httpCodeMessage);
-					return CreateFailResult(httpCodeMessage);
+					var errorMessage =
+						$"Не удалось получить актуальный статус чека для документа №{fiscalDocumentId}. {httpCodeMessage}";
+					_logger.LogWarning(errorMessage);
+					return CreateFailResult(errorMessage);
 				}
 
 				var response = await responseContent.Content.ReadAsAsync<FiscalDocumentInfoResponse>();
+
 				return CreateSucessResult(response);
 
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Ошибка при получении статуса чека для документа №{fiscalDocumentId}", fiscalDocumentId);
+				_logger.LogError(
+					ex,
+					"Ошибка при получении статуса чека для документа №{FiscalDocumentId}",
+					fiscalDocumentId);
+
 				return CreateFailResult(ex.Message);
 			}
 		}
@@ -174,17 +181,25 @@ namespace Vodovoz.Models.CashReceipts
 				if(!responseContent.IsSuccessStatusCode)
 				{
 					var httpCodeMessage = $"HTTP Code: {(int)responseContent.StatusCode} {responseContent.StatusCode}";
-					_logger.LogWarning("Не удалось выполнить повторное проведение фискального документа №{fiscalDocumentId}. {httpCodeMessage}", fiscalDocumentId, httpCodeMessage);
+					var errorMessage =
+						$"Не удалось выполнить повторное проведение фискального документа №{fiscalDocumentId}. {httpCodeMessage}";
+					_logger.LogWarning(errorMessage);
+
 					return CreateFailResult(httpCodeMessage);
 				}
 
 				var response = await responseContent.Content.ReadAsAsync<FiscalDocumentInfoResponse>();
+
 				return CreateSucessResult(response);
 
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Ошибка при выполнении повторного проведени фискального документа №{fiscalDocumentId}", fiscalDocumentId);
+				_logger.LogError(
+					ex,
+					"Ошибка при выполнении повторного проведени фискального документа №{FiscalDocumentId}",
+					fiscalDocumentId);
+
 				return CreateFailResult(ex.Message);
 			}
 		}
