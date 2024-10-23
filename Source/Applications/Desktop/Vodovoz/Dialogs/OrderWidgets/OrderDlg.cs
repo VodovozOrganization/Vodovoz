@@ -1091,8 +1091,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 			var canChangeOrderAddressType =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
-			ybuttonToStorageLogicAddressType.Sensitive = canChangeOrderAddressType;
-			ybuttonToDeliveryAddressType.Sensitive = canChangeOrderAddressType;
+			ybuttonToStorageLogicAddressType.Sensitive = canChangeOrderAddressType;			
 
 			UpdateAvailableEnumSignatureTypes();
 
