@@ -1,4 +1,5 @@
 ﻿using Grpc.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ namespace CashReceiptApi
 			_fiscalDocumentRequeueService = fiscalDocumentRequeueService ?? throw new ArgumentNullException(nameof(fiscalDocumentRequeueService));
 		}
 
+		[Authorize]
 		public override async Task<RequestProcessingResult> RefreshFiscalDocument(RefreshReceiptRequest request, ServerCallContext context)
 		{
 			_logger.LogInformation("Обновление статуса фискального документа для чека Id {0}", request.CashReceiptId);
@@ -45,6 +47,7 @@ namespace CashReceiptApi
 			return response;
 		}
 
+		[Authorize]
 		public override async Task<RequestProcessingResult> RequeueFiscalDocument(RequeueDocumentRequest request, ServerCallContext context)
 		{
 			_logger.LogInformation("Повторное проведение фискального документа для чека Id {0}", request.CashReceiptId);

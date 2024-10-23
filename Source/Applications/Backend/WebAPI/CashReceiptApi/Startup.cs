@@ -17,11 +17,14 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Persistance;
 using VodovozBusiness.Models.CashReceipts;
+using CashReceiptApi.Options;
 
 namespace CashReceiptApi
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = nameof(NLog);
+
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -37,7 +40,7 @@ namespace CashReceiptApi
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection("NLog"));
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				})
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -56,6 +59,7 @@ namespace CashReceiptApi
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
+			services.Configure<ServiceOptions>(Configuration.GetSection(nameof(ServiceOptions)));
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
