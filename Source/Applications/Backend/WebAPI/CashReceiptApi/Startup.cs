@@ -1,5 +1,7 @@
 ﻿using Autofac;
 using CashReceiptApi.Authentication;
+using CashReceiptApi.HealthChecks;
+using CashReceiptApi.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,12 +13,12 @@ using QS.Project.Core;
 using System.Configuration;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
-using Vodovoz.Infrastructure.Persistance;
-using CashReceiptApi.Options;
+using VodovozHealthCheck;
 
 namespace CashReceiptApi
 {
@@ -58,6 +60,7 @@ namespace CashReceiptApi
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
+			services.ConfigureHealthCheckService<CashReceiptApiHealthChecks>();
 			services.Configure<ServiceOptions>(Configuration.GetSection(nameof(ServiceOptions)));
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
@@ -129,6 +132,8 @@ namespace CashReceiptApi
 			{
 				endpoints.MapGrpcService<CashReceiptService>().EnableGrpcWeb();
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private IConfigurationSection GetCashboxesConfiguration()
