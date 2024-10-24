@@ -3,7 +3,6 @@ using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -867,32 +866,5 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				Entity.CashlessMovementOperation.Counterparty = Entity.Counterparty;
 			}
 		}
-	}
-
-	public class ManualPaymentMatchingViewModelNode : JournalEntityNodeBase<VodOrder>
-	{
-		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
-		public OrderStatus OrderStatus { get; set; }
-		public DateTime OrderDate { get; set; }
-		public decimal ActualOrderSum { get; set; }
-		public decimal LastPayments { get; set; }
-		public decimal OldCurrentPayment { get; set; }
-		public decimal CurrentPayment { get; set; }
-		public bool Calculate { get; set; }
-		public OrderPaymentStatus OrderPaymentStatus { get; set; }
-		public bool IsClosingDocumentsOrder { get; set; }
-	}
-
-	public class ManualPaymentMatchingViewModelAllocatedNode
-	{
-		public int PaymentItemId { get; set; }
-		public int OrderId { get; set; }
-		public OrderStatus OrderStatus { get; set; }
-		public DateTime OrderDate { get; set; }
-		public decimal OrderSum { get; set; }
-		public decimal AllocatedSum { get; set; }
-		public decimal AllAllocatedSum { get; set; }
-		public OrderPaymentStatus OrderPaymentStatus { get; set; }
-		public AllocationStatus PaymentItemStatus { get; set; }
 	}
 }
