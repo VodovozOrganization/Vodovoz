@@ -6,4 +6,4 @@ WORKDIR /app
 FROM base AS final
 WORKDIR /app
 COPY ["./bin/Release/net5.0/publish", "."]
-ENTRYPOINT ["dotnet", "EmailStatusUpdateWorker.dll"]
+ENTRYPOINT ["dotnet", "RoboatsCallsWorker.dll"]
