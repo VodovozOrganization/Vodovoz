@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
-using VodovozBusiness.Models.CashReceipts;
 
 namespace CashReceiptApi
 {
@@ -32,7 +32,7 @@ namespace CashReceiptApi
 
 			try
 			{
-				await _fiscalDocumentRefresher.RefreshDocForReceipt(request.CashReceiptId, context.CancellationToken);
+				await _fiscalDocumentRefresher.RefreshDocForReceiptManually(request.CashReceiptId, context.CancellationToken);
 
 				response.IsSuccess = true;
 			}
@@ -55,7 +55,7 @@ namespace CashReceiptApi
 
 			try
 			{
-				await _fiscalDocumentRequeueService.RequeueDocForReceipt(request.CashReceiptId, context.CancellationToken);
+				await _fiscalDocumentRequeueService.RequeueDocForReceiptManually(request.CashReceiptId, context.CancellationToken);
 
 				response.IsSuccess = true;
 			}

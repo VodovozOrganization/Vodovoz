@@ -16,7 +16,6 @@ using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Persistance;
-using VodovozBusiness.Models.CashReceipts;
 using CashReceiptApi.Options;
 
 namespace CashReceiptApi
