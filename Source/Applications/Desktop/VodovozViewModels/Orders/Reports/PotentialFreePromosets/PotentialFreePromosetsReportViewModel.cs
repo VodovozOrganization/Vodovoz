@@ -141,35 +141,31 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 				string.Join(", ", selectedPromosets));
 
 			IsReportGenerationInProgress = true;
+			Report = null;
+			PotentialFreePromosetsReport report = null;
 
 			_cancellationTokenSource = new CancellationTokenSource();
 
 			try
 			{
-				var report = await Create(
+				report = await Create(
 					UoW,
 					StartDate.Value,
 					EndDate.Value,
 					selectedPromosets,
 					_cancellationTokenSource.Token);
 
-				Report = report;
-
 				_logger.LogInformation(
 					"Отчет по потенциальным халявщикам успешно сформирован");
 			}
 			catch(OperationCanceledException ex)
 			{
-				Report = null;
-
 				var message = "Формирование отчета было прервано вручную";
 
 				LogErrorAndShowMessageInGuiThread(ex, message);
 			}
 			catch(Exception ex)
 			{
-				Report = null;
-
 				var message = $"При формировании отчета возникла ошибка:\n{ex.Message}";
 
 				LogErrorAndShowMessageInGuiThread(ex, message);
@@ -177,7 +173,15 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 			}
 			finally
 			{
-				IsReportGenerationInProgress = false;
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					if(report != null)
+					{
+						Report = report;
+					}
+
+					IsReportGenerationInProgress = false;
+				});
 
 				_cancellationTokenSource?.Dispose();
 				_cancellationTokenSource = null;

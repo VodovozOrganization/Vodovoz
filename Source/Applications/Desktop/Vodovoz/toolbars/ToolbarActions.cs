@@ -79,6 +79,7 @@ public partial class MainWindow : Window
 	Action OnlineOrdersJournalAction;
 
 	Action ActionServiceClaims;
+	Action ActionServiceDeliveryRules;
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
@@ -171,7 +172,7 @@ public partial class MainWindow : Window
 		ActionCashReceiptsJournal = new Action(nameof(ActionCashReceiptsJournal), "Журнал чеков", null, "table");
 		ActionOrdersWithReceiptJournal = new Action(nameof(ActionOrdersWithReceiptJournal), "Журнал заказов с чеками", null, "table");
 		OnlineOrdersJournalAction = new Action(nameof(OnlineOrdersJournalAction), "Журнал онлайн заказов", null, null);
-		
+
 		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
@@ -181,6 +182,7 @@ public partial class MainWindow : Window
 		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
+		ActionServiceDeliveryRules = new Action(nameof(ActionServiceDeliveryRules), "Условия доставки", null, null);
 
 		//Склад
 		ActionWarehouseDocuments = new Action("ActionWarehouseDocuments", "Журнал документов", null, "table");
@@ -272,6 +274,7 @@ public partial class MainWindow : Window
 		
 		//
 		w1.Add(ActionServiceClaims, null);
+		w1.Add(ActionServiceDeliveryRules, null);
 		w1.Add(ActionWarehouseDocuments, null);
 		w1.Add(ActionReadyForShipment, null);
 		w1.Add(ActionReadyForReception, null);
@@ -372,6 +375,7 @@ public partial class MainWindow : Window
 		OnlineOrdersJournalAction.Activated += OnOnlineOrdersJournalActionActivated;
 
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
+		ActionServiceDeliveryRules.Activated += OnActionServiceDeliveryRulesActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionReadyForShipment.Activated += ActionReadyForShipmentActivated;
 		ActionReadyForReception.Activated += ActionReadyForReceptionActivated;
@@ -938,5 +942,10 @@ public partial class MainWindow : Window
 	private void OnOnlineOrdersJournalActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<OnlineOrdersJournalViewModel>(null);
+	}
+
+	private void OnActionServiceDeliveryRulesActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ServiceDistrictsSetJournalViewModel>(null);
 	}
 }

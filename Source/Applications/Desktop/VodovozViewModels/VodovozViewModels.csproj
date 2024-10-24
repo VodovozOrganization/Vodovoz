@@ -149,6 +149,9 @@
     <Compile Include="Journals\JournalNodes\Store\WarehouseDocumentsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.StatusAndTypeComparer.cs" />
     <Compile Include="Journals\JournalViewModels\Store\WarehouseDocumentsJournalViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\ServiceDistrictsSetJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\ServiceDistrictsSetJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\ServiceDistrictsSetJournalViewModel.cs" />
     <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.cs" />
     <Compile Include="Print\PrintDocumentsSelectablePrinterViewModel.PrintDocumentSelectableNode.cs" />
     <Compile Include="Print\PrinterSelectionViewModel.cs" />
@@ -613,6 +616,8 @@
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarViewModel.cs" />
+    <Compile Include="ViewModels\Orders\ServiceDistrictsSetActivationViewModel.cs" />
+    <Compile Include="ViewModels\Orders\ServiceDistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderCancellationReasonViewModel.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderViewModel.cs" />
     <Compile Include="Dialogs\Mango\IncomingCallViewModel.cs" />
@@ -668,7 +673,6 @@
     <Compile Include="Infrastructure\InfoProviders\IInfoProvider.cs" />
     <Compile Include="Infrastructure\InfoProviders\PanelViewType.cs" />
     <Compile Include="ViewModels\Goods\FixedPriceItemViewModel.cs" />
-    <Compile Include="ViewModels\Logistic\AcceptBeforeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DeliveryPointResponsiblePersonTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DeliveryPointResponsiblePersonViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictsSetActivationViewModel.cs" />
