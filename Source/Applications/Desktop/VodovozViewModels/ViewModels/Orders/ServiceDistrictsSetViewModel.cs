@@ -13,6 +13,7 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
@@ -679,6 +680,24 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		private void Save()
 		{
+			var zeroPriceDistrictsStringBuilder = new StringBuilder();
+
+			foreach(var serviceDistrict in Entity.ServiceDistricts)
+			{
+				if(serviceDistrict.AllServiceDistrictRules.Any(
+					x => x is CommonServiceDistrictRule
+					&& x.Price == 0))
+				{
+					zeroPriceDistrictsStringBuilder.AppendLine($"- {serviceDistrict.ServiceDistrictName}");
+				}
+			}
+
+			if(zeroPriceDistrictsStringBuilder.Length > 0
+				&& !_interactiveService.Question($"Для следующих райнов указаны не все цены, продолжить сохранение?\n{zeroPriceDistrictsStringBuilder}"))
+			{
+				return;
+			}
+
 			Save(false);
 		}
 
