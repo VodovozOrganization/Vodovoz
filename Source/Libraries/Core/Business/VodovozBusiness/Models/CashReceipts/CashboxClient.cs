@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Extensions;
 using Vodovoz.Models.CashReceipts.DTO;
 
 namespace Vodovoz.Models.CashReceipts
@@ -176,6 +177,20 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			try
 			{
+				var fiscalDocumentData = await CheckFiscalDocument(fiscalDocumentId, cancellationToken);
+
+				if(fiscalDocumentData.Status != FiscalDocumentStatus.Failed)
+				{
+					var currentStatus =
+						fiscalDocumentData.Status.HasValue
+						? fiscalDocumentData.Status.Value.GetEnumDisplayName()
+						: "Не указан";
+
+					CreateFailResult(
+						$"Для повторного проведения чека статус фискального документа должен быть {FiscalDocumentStatus.Failed.GetEnumDisplayName()}\n" +
+						$"Текущий статус: {currentStatus}");
+				}
+
 				var completedUrl = string.Format(_documentRequeueUrl, fiscalDocumentId);
 				var responseContent = await _httpClient.PutAsync(completedUrl, null, cancellationToken);
 				if(!responseContent.IsSuccessStatusCode)
