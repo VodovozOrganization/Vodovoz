@@ -5359,9 +5359,27 @@ namespace Vodovoz
 		private void SetNearestDeliveryDateLoaderFunc()
 		{
 			pickerDeliveryDate.ButtonsDatesLoaderFunc =
-				() => Entity.SelfDelivery
-				? new List<DateTime> { DateTime.Today, DateTime.Today.AddDays(1) }
-				: Entity.DeliveryPoint?.District?.GetNearestDatesWhenDeliveryIsPossible();
+				() =>
+				{
+					if(Entity.SelfDelivery)
+					{
+						return new List<DateTime> { DateTime.Today, DateTime.Today.AddDays(1) };
+					}
+
+					if(Entity.OrderAddressType == OrderAddressType.Service)
+					{
+						if(DeliveryPoint?.Latitude is null || DeliveryPoint?.Longitude is null)
+						{
+							return null;
+						}
+
+						var serviceDistrict = _deliveryRepository.GetServiceDistrictByCoordinates(UoW, DeliveryPoint.Latitude.Value, DeliveryPoint.Longitude.Value);
+						
+						return serviceDistrict?.GetNearestDatesWhenDeliveryIsPossible();
+					}
+
+					return Entity.DeliveryPoint?.District?.GetNearestDatesWhenDeliveryIsPossible();
+				};
 		}
 
 		private Nomenclature TryGetSelectedNomenclature(JournalSelectedEventArgs e)
