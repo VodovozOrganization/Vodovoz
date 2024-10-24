@@ -220,13 +220,13 @@ namespace VodovozBusiness.Domain.Service
 				);
 			}
 
-			if(AllServiceDistrictRules.Any(x => x is CommonServiceDistrictRule &&  x.Price == 0))
-			{
-				yield return new ValidationResult(
-					$"Для района \"{ServiceDistrictName}\" необходимо указать цену доставки",
-					new[] { nameof(ServiceDistrictBorder) }
-				);
-			}
+			//if(AllServiceDistrictRules.Any(x => x is CommonServiceDistrictRule &&  x.Price == 0))
+			//{
+			//	yield return new ValidationResult(
+			//		$"Для района \"{ServiceDistrictName}\" необходимо указать цену доставки",
+			//		new[] { nameof(ServiceDistrictBorder) }
+			//	);
+			//}
 		}
 
 		#endregion
