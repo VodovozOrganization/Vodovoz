@@ -387,13 +387,13 @@ namespace Vodovoz.ViewWidgets
 
 			foreach(var weekDay in Enum.GetValues(typeof(WeekDayName)).Cast<WeekDayName>())
 			{
-				if(ServiceDistrict?.GetWeekDayRulesByWeekDayName(weekDay) is IList<WeekDayServiceDistrictRule> dayyServiceDistrictRule)
+				if(ServiceDistrict?.GetWeekDayRulesByWeekDayName(weekDay) is IList<WeekDayServiceDistrictRule> dayServiceDistrictRule)
 				{
-					var dayRule = ConvertToServiceDeliveryRuleRows(dayyServiceDistrictRule.Any()
-						? dayyServiceDistrictRule
+					var dayRule = ConvertToServiceDeliveryRuleRows(dayServiceDistrictRule.Any()
+						? dayServiceDistrictRule
 						: ServiceDistrict?.GetCommonServiceDistrictRules() as IEnumerable<ServiceDistrictRule>);
 
-					var isDayVisible = dayRule.Any();
+					var isDayVisible = dayRule.Any() && GetServiceSheduleRestrictionsForDay(weekDay).Any(); //Удали меня
 
 					switch(weekDay)
 					{
@@ -446,7 +446,7 @@ namespace Vodovoz.ViewWidgets
 			ScheduleRestrictionsSaturday = GetServiceSheduleRestrictionsForDay(WeekDayName.Saturday);
 			ScheduleRestrictionsSunday = GetServiceSheduleRestrictionsForDay(WeekDayName.Sunday);
 
-			#endregion Shedules
+			#endregion Shedules			
 		}
 
 		private string GetSheduleRestrictionsFor(WeekDayName weekDayName, bool isForServiceDistrict = false)

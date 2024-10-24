@@ -219,14 +219,6 @@ namespace VodovozBusiness.Domain.Service
 					$"Для графиков доставки \"день в день\" для района \"{ServiceDistrictName}\" должно быть указано время приема до"
 				);
 			}
-
-			//if(AllServiceDistrictRules.Any(x => x is CommonServiceDistrictRule &&  x.Price == 0))
-			//{
-			//	yield return new ValidationResult(
-			//		$"Для района \"{ServiceDistrictName}\" необходимо указать цену доставки",
-			//		new[] { nameof(ServiceDistrictBorder) }
-			//	);
-			//}
 		}
 
 		#endregion
