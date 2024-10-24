@@ -186,6 +186,33 @@ namespace VodovozBusiness.Domain.Service
 			}
 		}
 
+		public virtual IEnumerable<DateTime> GetNearestDatesWhenDeliveryIsPossible(
+			int datesCountInResult = 2,
+			int maxSearchPeriodInDays = 30)
+		{
+			var nearestDates = new List<DateTime>();
+			var startDate = DateTime.Today;
+
+			for(int i = 0; i < maxSearchPeriodInDays; i++)
+			{
+				var date = startDate.AddDays(i);
+
+				var serviceDeliveryScheduleRestrictions = GetAvailableServiceDeliveryScheduleRestrictionsByDeliveryDate(date);
+
+				if(serviceDeliveryScheduleRestrictions.Count() > 0)
+				{
+					nearestDates.Add(date);
+				}
+
+				if(nearestDates.Count == 2)
+				{
+					break;
+				}
+			}
+
+			return nearestDates;
+		}
+
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
