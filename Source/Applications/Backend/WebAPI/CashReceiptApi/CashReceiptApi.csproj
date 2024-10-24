@@ -45,6 +45,7 @@
 
 	<ItemGroup>
 		<Protobuf Include="..\..\..\..\Libraries\Core\Backend\CashReceipt\CashReceipt.Grpc\CashReceiptService.proto" GrpcServices="Server" />
+		<Protobuf Include="HealthCheckProtos\CashReceiptServiceHealthCheck.proto" GrpcServices="Client" />
 	</ItemGroup>
 
 </Project>
