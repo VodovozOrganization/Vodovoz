@@ -18,8 +18,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 {
 	public class ShortfallBattlesReportViewModel : ValidatableUoWReportViewModelBase
 	{
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-
 		private DateTime? _startDate;
 		private Employee _driver;
 		private bool _oneDriver;
@@ -33,28 +31,20 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IValidator validator
-		) : base(rdlViewerViewModel, reportInfoFactory, validator)
+		) : base(rdlViewerViewModel, unitOfWorkFactory, reportInfoFactory, validator)
 		{
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			var employeesFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 
 			Title = "Отчет о несданных бутылях";
 			Identifier = "Bottles.ShortfallBattlesReport";
-
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
 
 			_startDate = DateTime.Today;
 
 			DriverType = Drivers.AllDriver;
 
 			NonReturnReasons = UoW.Session.QueryOver<NonReturnReason>().List();
-
-			var filter = new EmployeeFilterViewModel();
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			_employeeJournalFactory.SetEmployeeFilterViewModel(filter);
-			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			
+			DriverSelectorFactory = employeesFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true);
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}

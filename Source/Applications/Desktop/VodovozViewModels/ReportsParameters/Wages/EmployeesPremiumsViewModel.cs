@@ -17,8 +17,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 {
 	public class EmployeesPremiumsViewModel : ValidatableUoWReportViewModelBase
 	{
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly EmployeeFilterViewModel _employeeFilter;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -29,23 +27,21 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 		public EmployeesPremiumsViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
+			EmployeeFilterViewModel employeeFilter,
 			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUnitOfWorkFactory uowFactory,
 			IValidator validator
-		) : base(rdlViewerViewModel, reportInfoFactory, validator)
+		) : base(rdlViewerViewModel, uowFactory, reportInfoFactory, validator)
 		{
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			var employeesFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_employeeFilter = employeeFilter ?? throw new ArgumentNullException(nameof(employeeFilter));
 
 			Title = "Премии сотрудников";
 			Identifier = "Employees.Premiums";
 
-			UoW = _uowFactory.CreateWithoutRoot();
-
-			_employeeFilter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking };
-			_employeeJournalFactory.SetEmployeeFilterViewModel(_employeeFilter);
-			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			employeesFactory.SetEmployeeFilterViewModel(_employeeFilter);
+			DriverSelectorFactory = employeesFactory.CreateEmployeeAutocompleteSelectorFactory();
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}
@@ -184,7 +180,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			{
 				yield return new ValidationResult("Необходимо выбрать период или сотрудника.", new[] { nameof(StartDate), nameof(EndDate), nameof(Driver) });
 			}
-			
 		}
 	}
 }

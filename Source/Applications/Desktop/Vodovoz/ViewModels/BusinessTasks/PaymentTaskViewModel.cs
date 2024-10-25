@@ -16,6 +16,7 @@ using QS.Project.Services;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
+	//TODO удалить неиспользуемый класс
 	public class PaymentTaskViewModel : EntityTabViewModelBase<PaymentTask>
 	{
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }

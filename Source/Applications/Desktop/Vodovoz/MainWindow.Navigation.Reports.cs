@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -740,7 +740,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
 	{
-		var filter = new EmployeeFilterViewModel
+		/*var filter = new EmployeeFilterViewModel
 		{
 			Category = EmployeeCategory.driver
 		};
@@ -751,7 +751,18 @@ public partial class MainWindow
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
-			() => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(reportInfoFactory, employeeJournalFactory, interactiveService)));
+			() => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(employeeJournalFactory, ServicesConfig.InteractiveService)));*/
+		
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			addingRegistrations: builder =>
+			{
+				builder.Register(c => new EmployeeFilterViewModel
+				{
+					Category = EmployeeCategory.driver
+				});
+				builder.RegisterType<GeneralSalaryInfoReport>().As<IParametersWidget>();
+			});
 	}
 
 	/// <summary>
@@ -771,16 +782,16 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
 	{
-		var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, driverFilter);
-		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+		//TODO
+		/*var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
+		var employeeJournalFactory = new EmployeeJournalFactory(driverFilter);
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
 			() => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
 				reportInfoFactory,
 				employeeJournalFactory,
-				ServicesConfig.InteractiveService)));
+				ServicesConfig.InteractiveService)));*/
 	}
 
 	/// <summary>
@@ -1312,19 +1323,19 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionQualityRetailReport(object sender, EventArgs e)
 	{
-		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
-		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
-
-		tdiMain.OpenTab(
+		/*tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
 			() => new QSReport.ReportViewDlg(new QualityReport(
 				reportInfoFactory,
 				new CounterpartyJournalFactory(),
 				new EmployeeJournalFactory(NavigationManager),
 				new SalesChannelJournalFactory(),
-				uowFactory,
-				interactiveService)));
+				ServicesConfig.UnitOfWorkFactory,
+				ServicesConfig.InteractiveService)));*/
+		
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			addingRegistrations: builder => builder.RegisterType<QualityReport>().As<IParametersWidget>());
 	}
 
 	/// <summary>

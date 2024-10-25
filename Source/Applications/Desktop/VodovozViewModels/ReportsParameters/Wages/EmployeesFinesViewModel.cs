@@ -29,21 +29,20 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 		public EmployeesFinesViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
+			EmployeeFilterViewModel employeeFilterViewModel,
 			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUnitOfWorkFactory uowFactory,
 			IValidator validator
-		) : base(rdlViewerViewModel, reportInfoFactory, validator)
+		) : base(rdlViewerViewModel, uowFactory, reportInfoFactory, validator)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_employeeFilter = employeeFilterViewModel ?? throw new ArgumentNullException(nameof(employeeFilterViewModel));
 
 			Title = "Штрафы сотрудников";
 			Identifier = "Employees.Fines";
 
-			UoW = _uowFactory.CreateWithoutRoot();
-
-			_employeeFilter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking };
+			_employeeFilter.Status = EmployeeStatus.IsWorking;
 			_employeeJournalFactory.SetEmployeeFilterViewModel(_employeeFilter);
 			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 

@@ -7,18 +7,14 @@ using QS.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.Reports;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Wages
 {
 	public class DriverWagesReportViewModel : ValidatableUoWReportViewModelBase
 	{
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IUnitOfWorkFactory _uowFactory;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private Employee _driver;
@@ -31,23 +27,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUnitOfWorkFactory uowFactory,
 			IValidator validator
-		) : base(rdlViewerViewModel, reportInfoFactory, validator)
+		) : base(rdlViewerViewModel, uowFactory, reportInfoFactory, validator)
 		{
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			var employeesFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 
 			Title = "Зарплата водителя";
 			Identifier = "Wages.DriverWage";
-
-			UoW = _uowFactory.CreateWithoutRoot();
-
-			var forwarderFilter = new EmployeeFilterViewModel();
-			forwarderFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.driver
-			);
-			_employeeJournalFactory.SetEmployeeFilterViewModel(forwarderFilter);
-			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			
+			DriverSelectorFactory = employeesFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true);
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}

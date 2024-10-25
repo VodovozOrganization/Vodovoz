@@ -1,4 +1,4 @@
-﻿using QS.Dialog;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Views;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
@@ -9,7 +9,7 @@ namespace Vodovoz.Reports
 	{
 		public EmployeesFines(EmployeesFinesViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 
 			dateperiodpicker1.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)

@@ -57,6 +57,7 @@ namespace Vodovoz.Reports
 		public CashFlow(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IReportInfoFactory reportInfoFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
@@ -64,6 +65,11 @@ namespace Vodovoz.Reports
 			IFileDialogService fileDialogService
 			)
 		{
+			if(employeeJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(employeeJournalFactory));
+			}
+
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -85,18 +91,11 @@ namespace Vodovoz.Reports
 			dateStart.Binding.AddBinding(this, dlg => dlg.StartDate, w => w.Date).InitializeFromSource();
 			dateEnd.Binding.AddBinding(this, dlg => dlg.EndDate, w => w.Date).InitializeFromSource();
 
-			var officeFilter = new EmployeeFilterViewModel();
-
-			officeFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.office);
-
-			var employeeFactory = new EmployeeJournalFactory(navigationManager, officeFilter);
-
-			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+			evmeCashier.SetEntityAutocompleteSelectorFactory(
+				employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory(true));
 			evmeCashier.CanOpenWithoutTabParent = true;
 
-			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.CanOpenWithoutTabParent = true;
 
 			UserSubdivisions = GetSubdivisionsForUser();

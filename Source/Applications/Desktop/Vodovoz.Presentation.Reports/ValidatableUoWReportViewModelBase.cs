@@ -15,6 +15,16 @@ namespace Vodovoz.Presentation.Reports
 			) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
 		}
+		
+		protected ValidatableUoWReportViewModelBase(
+			RdlViewerViewModel rdlViewerViewModel,
+			IUnitOfWorkFactory uowFactory,
+			IReportInfoFactory reportInfoFactory,
+			IValidator validator
+			) : base(rdlViewerViewModel, reportInfoFactory, validator)
+		{
+			UoW = (uowFactory ?? throw new ArgumentNullException(nameof(uowFactory))).CreateWithoutRoot();
+		}
 
 		public virtual IUnitOfWork UoW { get; set; }
 

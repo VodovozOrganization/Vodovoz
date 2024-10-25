@@ -547,10 +547,7 @@ public partial class MainWindow : Window
 
 	void ActionEmployeeWorkChart_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<EmployeeWorkChartDlg>(),
-			() => new EmployeeWorkChartDlg()
-		);
+		NavigationManager.OpenTdiTab<EmployeeWorkChartDlg>(null);
 	}
 
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
@@ -634,13 +631,15 @@ public partial class MainWindow : Window
 
 	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
+		//TODO
+		/*var scope = Startup.AppDIContainer.BeginLifetimeScope();
 
-		var report = scope.Resolve<Vodovoz.Reports.CashFlow>();
+		var report = scope.Resolve<Vodovoz.Reports.CashFlow>();*/
 
-		var page = NavigationManager.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, report);
-
-		report.ParentTab = page.TdiTab;
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			configureTab: vm => (vm.ParametersWidget as CashFlow).ParentTab = vm,
+			addingRegistrations: builder => builder.RegisterType<CashFlow>().As<IParametersWidget>());
 	}
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
@@ -667,7 +666,7 @@ public partial class MainWindow : Window
 
 	void ActionOrganizationCashTransferDocuments_Activated(object sender, EventArgs e)
 	{
-		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+		/*var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
 		var employeeService = _autofacScope.Resolve<IEmployeeService>();
 		var entityExtendedPermissionValidator = _autofacScope.Resolve<IEntityExtendedPermissionValidator>();
 
@@ -687,7 +686,13 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			entityExtendedPermissionValidator,
 			employeeService)
-		);
+		);*/
+		NavigationManager.OpenViewModel<OrganizationCashTransferDocumentJournalViewModel>(
+			null,
+			addingRegistrations: builder => builder.Register(c => new EmployeeFilterViewModel
+			{
+				Status = EmployeeStatus.IsWorking
+			}));
 	}
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)

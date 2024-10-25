@@ -27,30 +27,19 @@ namespace Vodovoz.ViewModels.ReportsParameters.Service
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUnitOfWorkFactory uowFactory,
 			IValidator validator
-		) : base(rdlViewerViewModel, reportInfoFactory, validator)
+		) : base(rdlViewerViewModel, uowFactory, reportInfoFactory, validator)
 		{
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			var employeesFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 
 			Title = "Отчет по выездным мастерам";
 			Identifier = "ServiceCenter.MastersReport";
-
-			UoW = uowFactory.CreateWithoutRoot();
-
-			var driversFilter = new EmployeeFilterViewModel();
-			driversFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.driver
-			);
-			_employeeJournalFactory.SetEmployeeFilterViewModel(driversFilter);
-			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			
+			DriverSelectorFactory = employeesFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true);
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}
 
 		public DelegateCommand GenerateReportCommand;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IUnitOfWorkFactory _uowFactory;
 
 		public virtual DateTime? StartDate
 		{
@@ -109,7 +98,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Service
 			{
 				yield return new ValidationResult("Необходимо выбрать водителя.", new[] { nameof(Driver) });
 			}
-
 		}
 	}
 }

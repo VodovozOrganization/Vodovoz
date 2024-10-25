@@ -28,6 +28,7 @@ using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {
+	//TODO удалить неиспользуемый класс
 	public class ClientTaskViewModel : EntityTabViewModelBase<ClientTask>
 	{
 		private string oldComments;

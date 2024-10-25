@@ -1,4 +1,4 @@
-﻿using QS.Dialog;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Views;
 using Vodovoz.ViewModels.ReportsParameters.Service;

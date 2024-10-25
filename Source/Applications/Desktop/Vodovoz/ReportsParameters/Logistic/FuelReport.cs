@@ -10,13 +10,11 @@ using QSProjectsLib;
 using QSReport;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Core.Domain.Employees;
 using System.ComponentModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Settings.Car;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -35,32 +33,25 @@ namespace Vodovoz.Reports
 		private Car _car;
 
 		public FuelReport(
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IReportInfoFactory reportFactory,
 			ILifetimeScope lifetimeScope,
-			INavigationManager navigationManager)
+			INavigationManager navigationManager,
+			IEmployeeJournalFactory employeeJournalFactory)
 		{
 			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			Build();
-			var uowFactory = lifetimeScope.Resolve<IUnitOfWorkFactory>();
-			UoW = uowFactory.CreateWithoutRoot();
-			var filterDriver = new EmployeeFilterViewModel();
-			filterDriver.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			var driverFactory = new EmployeeJournalFactory(navigationManager, filterDriver);
-			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
-
-			var officeFilter = new EmployeeFilterViewModel();
-			officeFilter.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.office,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			var officeFactory = new EmployeeJournalFactory(navigationManager, officeFilter);
-			evmeAuthor.SetEntityAutocompleteSelectorFactory(officeFactory.CreateEmployeeAutocompleteSelectorFactory());
+			
+			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			
+			evmeDriver.SetEntityAutocompleteSelectorFactory(
+				employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true));
+			
+			evmeAuthor.SetEntityAutocompleteSelectorFactory(
+				employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory(true));
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
 

@@ -8,19 +8,15 @@ using QS.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.Reports;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Store
 {
 	public class DefectiveItemsReportViewModel : ValidatableUoWReportViewModelBase
 	{
-		private readonly ILifetimeScope _lifetimeScope;
-
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private DefectSource? _defectSource;
@@ -28,28 +24,22 @@ namespace Vodovoz.ViewModels.ReportsParameters.Store
 
 		public DefectiveItemsReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
-			ILifetimeScope lifetimeScope,
+			IEmployeeJournalFactory employeeJournalFactory,
 			IReportInfoFactory reportInfoFactory,
 			IUnitOfWorkFactory uowFactory,
 			IValidator validator
-		) : base(rdlViewerViewModel, reportInfoFactory, validator)
+		) : base(rdlViewerViewModel, uowFactory, reportInfoFactory, validator)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-
+			if(employeeJournalFactory is null)
+			{
+				throw new ArgumentNullException(nameof(employeeJournalFactory));
+			}
+			
 			Title = "Отчёт по браку";
 			Identifier = "Store.DefectiveItemsReport";
 
-			UoW = uowFactory.CreateWithoutRoot();
-
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
-
-			var driverFilter = _lifetimeScope.Resolve<EmployeeFilterViewModel>();
-			driverFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.driver
-			);
-			var employeeFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>(new TypedParameter(typeof(EmployeeFilterViewModel), driverFilter));
-			EmployeeSelectorFactory = employeeFactory.CreateEmployeeAutocompleteSelectorFactory();
+			EmployeeSelectorFactory = employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true);
 
 			_startDate = DateTime.Today;
 			_endDate = DateTime.Today;

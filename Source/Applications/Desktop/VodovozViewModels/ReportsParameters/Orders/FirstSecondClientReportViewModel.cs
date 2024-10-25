@@ -14,8 +14,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 {
 	public class FirstSecondClientReportViewModel : ReportParametersUowViewModelBase
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 
 		private DateTime? _startDate;
@@ -34,8 +32,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			IDiscountReasonRepository discountReasonRepository
 		) : base(rdlViewerViewModel, uowFactory, reportInfoFactory)
 		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			var employeesFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 
 			Title = "Отчёт по первичным/вторичным заказам";
@@ -44,7 +41,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			_startDate = DateTime.Now.AddDays(-7);
 			_endDate = DateTime.Now.AddDays(1);
 
-			AuthorSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			AuthorSelectorFactory = employeesFactory.CreateEmployeeAutocompleteSelectorFactory();
 
 			DiscountReasons = _discountReasonRepository.GetDiscountReasons(UoW);
 
