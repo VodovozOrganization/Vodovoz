@@ -29,12 +29,12 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 
 			var query = uow.Session.QueryOver(() => carLoadDocumentAlias)
-									.JoinAlias(c => c.Items, () => carLoadDocumentItemAlias)
-									.Where(() => carLoadDocumentAlias.RouteList.Id == routelistId)
-									.And(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
-									.Select(Projections.Sum(() => carLoadDocumentItemAlias.Amount))
-									.SingleOrDefault<decimal>()
-						+ _routeListRepository.TerminalTransferedCountToRouteList(uow, uow.GetById<RouteList>(routelistId));
+				.JoinAlias(c => c.Items, () => carLoadDocumentItemAlias)
+				.Where(() => carLoadDocumentAlias.RouteList.Id == routelistId)
+				.And(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
+				.Select(Projections.Sum(() => carLoadDocumentItemAlias.Amount))
+				.SingleOrDefault<decimal>()
+				+ _routeListRepository.TerminalTransferedCountToRouteList(uow, uow.GetById<RouteList>(routelistId));
 
 			return query;
 		}
@@ -55,9 +55,9 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 				from documentItem in uow.Session.Query<CarLoadDocumentItemEntity>()
 				join nomenclature in uow.Session.Query<NomenclatureEntity>() on documentItem.Nomenclature.Id equals nomenclature.Id
 				where
-				documentItem.OrderId == orderId
-				&& nomenclature.IsAccountableInTrueMark
-				&& nomenclature.Gtin != null
+					documentItem.OrderId == orderId
+					&& nomenclature.IsAccountableInTrueMark
+					&& nomenclature.Gtin != null
 				select documentItem;
 
 			return await documentItems.ToListAsync();
