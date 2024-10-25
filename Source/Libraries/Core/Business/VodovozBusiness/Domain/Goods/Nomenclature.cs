@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
@@ -18,8 +18,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Services;
-using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Goods
