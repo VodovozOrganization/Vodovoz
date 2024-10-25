@@ -5255,6 +5255,7 @@ namespace Vodovoz
 				ylabelOrderAddressType.Visible = false;
 				ybuttonToDeliveryAddressType.Visible = false;
 				ybuttonToStorageLogicAddressType.Visible = false;
+				ybuttonToServiceType.Visible = false;
 				return;
 			}
 
