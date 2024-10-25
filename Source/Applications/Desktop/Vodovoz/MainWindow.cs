@@ -387,4 +387,8 @@ public partial class MainWindow : Gtk.Window
 
 		base.OnDestroyed();
 	}
+
+	protected void OnServiceDeliveryRulesActivated(object sender, EventArgs e)
+	{
+	}
 }

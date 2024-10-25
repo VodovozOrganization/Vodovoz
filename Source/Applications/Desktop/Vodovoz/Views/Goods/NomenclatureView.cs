@@ -3,7 +3,6 @@ using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.BusinessCommon.Domain;
-using QS.Helpers;
 using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
 using QS.Views.GtkUI;
@@ -25,6 +24,7 @@ using Vodovoz.Representations.ProductGroups;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Nodes;
+using VodovozBusiness.Domain.Orders;
 using Menu = Gtk.Menu;
 using MenuItem = Gtk.MenuItem;
 using ValidationType = QSWidgetLib.ValidationType;
@@ -142,6 +142,17 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			lblSubType.Binding
 				.AddBinding(ViewModel, vm => vm.IsDepositCategory, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelServiceType.Binding
+				.AddBinding(ViewModel, vm => vm.IsMasterCategory, w => w.Visible)
+				.InitializeFromSource();
+
+			enumServiceType.ItemsEnum = typeof(MasterServiceType);			
+			enumServiceType.Binding
+				.AddBinding(ViewModel.Entity, e => e.MasterServiceType, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.IsMasterCategory, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			comboMobileCatalog.ItemsEnum = typeof(MobileCatalog);
@@ -353,7 +364,7 @@ namespace Vodovoz.Views.Goods
 			chkConditionAccounting.Binding
 				.AddBinding(ViewModel.Entity, e => e.HasConditionAccounting, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanShowConditionAccounting, w => w.Visible)
-				.AddBinding(ViewModel, vm => vm.CanCreateNomenclaturesWithInventoryAccountingPermission, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.UserCanEditConditionAccounting, w => w.Sensitive)
 				.InitializeFromSource();
 
 			#region Вкладка Оборудование

@@ -76,6 +76,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetWaterStroika(IUnitOfWork uow);
 		Nomenclature GetWaterRuchki(IUnitOfWork uow);
 		Nomenclature GetFastDeliveryNomenclature(IUnitOfWork uow);
+		Nomenclature GetMasterCallNomenclature(IUnitOfWork uow);
 		/// <summary>
 		/// Идентификатор для группы товаров, принадлежащей интернет-магазину
 		/// </summary>

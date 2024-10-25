@@ -386,6 +386,10 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 		{
 			return uow.GetById<Nomenclature>(_nomenclatureSettings.FastDeliveryNomenclatureId);
 		}
+		public Nomenclature GetMasterCallNomenclature(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.MasterCallNomenclatureId);
+		}
 
 		#endregion
 

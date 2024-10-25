@@ -44,6 +44,11 @@ namespace Vodovoz.Views.Logistic
 		private IDictionary<int, CarMarkerType> _lastSelectedDrivers;
 		private IList<DistanceTextInfo> _tracksDistanceTextInfo;
 
+		private readonly Gdk.Color _dangerBaseColor = GdkColors.DangerBase;
+		private readonly Gdk.Color _successBaseColor = GdkColors.SuccessBase;
+		private readonly Gdk.Color _insensitiveBaseColor = GdkColors.InsensitiveBase;
+		private readonly Gdk.Color _primaryBaseColor = GdkColors.PrimaryBase;
+
 		public CarsMonitoringView(CarsMonitoringViewModel viewModel) : base(viewModel)
 		{
 			_carsOverlay = new GMapOverlay(ViewModel.CarsOverlayId);
@@ -163,6 +168,25 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Время").AddTextRenderer(node => node.Time.DeliveryTime)
 				.AddColumn("Статус").AddTextRenderer(node => node.Status.GetEnumTitle())
 				.AddColumn("Адрес").AddTextRenderer(node => node.DeliveryPoint.CompiledAddress)
+				.RowCells()
+				.AddSetter<CellRenderer>((cell, node) =>
+				{
+					switch(node.Status)
+					{
+						case RouteListItemStatus.Overdue:
+							cell.CellBackgroundGdk = _dangerBaseColor;
+							break;
+						case RouteListItemStatus.Completed:
+							cell.CellBackgroundGdk = _successBaseColor;
+							break;
+						case RouteListItemStatus.Canceled:
+							cell.CellBackgroundGdk = _insensitiveBaseColor;
+							break;
+						default:
+							cell.CellBackgroundGdk = _primaryBaseColor;
+							break;
+					}
+				})
 				.Finish();
 
 			yTreeAddresses.ItemsDataSource = ViewModel.RouteListAddresses;

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -71,6 +71,8 @@ namespace Vodovoz
 		#endregion
 
 		public DeliveryPoint DeliveryPoint => evmeDeliveryPoint.Subject as DeliveryPoint;
+
+		public OrderAddressType? TypeOfAddress => null;
 
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 
