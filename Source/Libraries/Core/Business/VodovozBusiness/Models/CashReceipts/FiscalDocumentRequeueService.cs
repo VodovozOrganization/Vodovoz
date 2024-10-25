@@ -25,7 +25,7 @@ namespace Vodovoz.Models.CashReceipts
 
 		public async Task RequeueDocForReceiptManually(int receiptId, CancellationToken cancellationToken)
 		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot("Повторное проведение чека"))
 			{
 				var cashReceipt = uow.GetById<CashReceipt>(receiptId);
 				if(cashReceipt == null)

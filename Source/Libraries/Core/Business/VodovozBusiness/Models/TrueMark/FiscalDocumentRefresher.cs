@@ -46,7 +46,7 @@ namespace Vodovoz.Models.TrueMark
 
 		public async Task RefreshDocForReceiptManually(int receiptId, CancellationToken cancellationToken)
 		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot("Обновление статуса фискального документа"))
 			{
 				var cashReceipt = uow.GetById<CashReceipt>(receiptId);
 				if(cashReceipt == null)
