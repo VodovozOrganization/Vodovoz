@@ -34,5 +34,13 @@
       "useSSL": false
     }
   },
-  "$schema": "http://json.schemastore.org/launchsettings.json"
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:53672/",
+      "sslPort": 44353
+    }
+  }
 }
