@@ -378,8 +378,8 @@ namespace WarehouseApi.Library.Services
 
 			_logger.LogInformation("Меняем статус талона погрузки #{DocumentId} с \"{CurrentStatus}\" на \"{NewStatus}\"",
 				document.Id,
-				currentLoadOperationState.GetEnumTitle(),
-				newLoadOperationState.GetEnumTitle());
+				currentLoadOperationState,
+				newLoadOperationState);
 
 			document.LoadOperationState = newLoadOperationState;
 			_uow.Save(document);
@@ -446,7 +446,7 @@ namespace WarehouseApi.Library.Services
 			var codeEntity = new TrueMarkWaterIdentificationCode
 			{
 				IsInvalid = false,
-				RawCode = trueMarkCode.SourceCode.Substring(0, Math.Min(255, trueMarkCode.SourceCode.Length)),
+				RawCode = trueMarkCode.SourceCode?.Substring(0, Math.Min(255, trueMarkCode.SourceCode.Length)),
 				GTIN = trueMarkCode.GTIN,
 				SerialNumber = trueMarkCode.SerialNumber,
 				CheckCode = trueMarkCode.CheckCode

@@ -433,7 +433,7 @@ namespace WarehouseApi.Library.Errors
 				error = TrueMarkCodeErrors.CreateTrueMarkApiRequestError(
 					"При выполнении запроса к API ЧЗ для проверки кода возникла непредвиденная ошибка. " +
 					"Обратитесь в техподдержку");
-				_logger.LogError(error.Message, ex);
+				_logger.LogError(ex, error.Message);
 				return false;
 			}
 		}
