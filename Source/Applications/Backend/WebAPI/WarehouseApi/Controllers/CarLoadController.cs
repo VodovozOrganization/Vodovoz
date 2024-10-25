@@ -7,6 +7,7 @@ using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Errors;
@@ -26,7 +27,7 @@ namespace WarehouseApi.Controllers
 	[ApiController]
 	[WarehouseErrorHandlingFilter]
 	[OnlyOneSession]
-	[Route("/api/")]
+	[Route("/api/[action]")]
 	public class CarLoadController : ControllerBase
 	{
 		private const string _rolesToAccess =
@@ -52,8 +53,10 @@ namespace WarehouseApi.Controllers
 		/// Начало погрузки по талону погрузки погрузки
 		/// </summary>
 		/// <param name="documentId"></param>
-		/// <returns></returns>
-		[HttpPost("StartLoad")]
+		/// <returns><see cref="StartLoadResponse"/></returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StartLoadResponse))]
 		public async Task<IActionResult> StartLoad([FromQuery] int documentId)
 		{
 			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
@@ -83,8 +86,10 @@ namespace WarehouseApi.Controllers
 		/// Получение информации о заказе
 		/// </summary>
 		/// <param name="orderId"></param>
-		/// <returns></returns>
-		[HttpGet("GetOrder")]
+		/// <returns><see cref="GetOrderResponse"/></returns>
+		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetOrderResponse))]
 		public async Task<IActionResult> GetOrder([FromQuery] int orderId)
 		{
 			_logger.LogInformation("Запрос получения информации о заказе. OrderId: {OrderId}. User token: {AccessToken}",
@@ -110,8 +115,10 @@ namespace WarehouseApi.Controllers
 		/// Добавление отсканированного кода маркировки ЧЗ в заказ
 		/// </summary>
 		/// <param name="requestData"></param>
-		/// <returns></returns>
-		[HttpPost("AddOrderCode")]
+		/// <returns><see cref="AddOrderCodeResponse"/></returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AddOrderCodeResponse))]
 		public async Task<IActionResult> AddOrderCode(AddOrderCodeRequest requestData)
 		{
 			_logger.LogInformation("Запрос добавления кода ЧЗ в заказ. OrderId: {OrderId}, NomenclatureId: {NomenclatureId}, Code: {Code}. User token: {AccessToken}",
@@ -141,8 +148,10 @@ namespace WarehouseApi.Controllers
 		/// <summary>
 		/// Замена отсканированного кода ЧЗ номенклатуры в заказе
 		/// </summary>
-		/// <returns></returns>
-		[HttpPost("ChangeOrderCode")]
+		/// <returns><see cref="ChangeOrderCodeResponse"/></returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ChangeOrderCodeResponse))]
 		public async Task<IActionResult> ChangeOrderCode(ChangeOrderCodeRequest requestData)
 		{
 			_logger.LogInformation("Запрос замены кода ЧЗ в заказе." +
@@ -179,8 +188,10 @@ namespace WarehouseApi.Controllers
 		/// <summary>
 		/// Завершение погрузки по талону погрузки
 		/// </summary>
-		/// <returns></returns>
-		[HttpPost("EndLoad")]
+		/// <returns><see cref="EndLoadResponse"/></returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EndLoadResponse))]
 		public async Task<IActionResult> EndLoad([FromQuery] int documentId)
 		{
 			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
