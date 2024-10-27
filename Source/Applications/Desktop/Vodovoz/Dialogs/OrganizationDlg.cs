@@ -14,7 +14,7 @@ namespace Vodovoz
 	public partial class OrganizationDlg : QS.Dialog.Gtk.EntityDialogBase<Organization>, IAskSaveOnCloseViewModel
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory;
 
 		public override bool HasChanges {
@@ -124,6 +124,16 @@ namespace Vodovoz
 		{
 			if (radioTabAccounts.Active)
 				notebookMain.CurrentPage = 1;
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.Destroy();
 		}
 	}
 }
