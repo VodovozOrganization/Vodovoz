@@ -628,14 +628,13 @@ public partial class MainWindow : Window
 		tdiMain.AddTab(paymentsJournalViewModel);
 	}
 
-
+	/// <summary>
+	/// Доходы и расходы
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{
-		//TODO
-		/*var scope = Startup.AppDIContainer.BeginLifetimeScope();
-
-		var report = scope.Resolve<Vodovoz.Reports.CashFlow>();*/
-
 		NavigationManager.OpenTdiTab<ReportViewDlg>(
 			null,
 			configureTab: vm => (vm.ParametersWidget as CashFlow).ParentTab = vm,
@@ -664,29 +663,13 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<FuelDocumentsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
+	/// <summary>
+	/// Журнал перемещения д/с для юр.лиц
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	void ActionOrganizationCashTransferDocuments_Activated(object sender, EventArgs e)
 	{
-		/*var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
-		var employeeService = _autofacScope.Resolve<IEmployeeService>();
-		var entityExtendedPermissionValidator = _autofacScope.Resolve<IEntityExtendedPermissionValidator>();
-
-		var employeeFilter = new EmployeeFilterViewModel
-		{
-			Status = EmployeeStatus.IsWorking,
-		};
-
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
-
-		tdiMain.OpenTab(() => new OrganizationCashTransferDocumentJournalViewModel(
-			new OrganizationCashTransferDocumentFilterViewModel(employeeJournalFactory)
-			{
-				HidenByDefault = true
-			},
-			uowFactory,
-			ServicesConfig.CommonServices,
-			entityExtendedPermissionValidator,
-			employeeService)
-		);*/
 		NavigationManager.OpenViewModel<OrganizationCashTransferDocumentJournalViewModel>(
 			null,
 			addingRegistrations: builder => builder.Register(c => new EmployeeFilterViewModel

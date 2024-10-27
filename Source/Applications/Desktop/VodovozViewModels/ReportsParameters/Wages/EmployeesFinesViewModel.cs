@@ -18,7 +18,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 	public class EmployeesFinesViewModel : ValidatableUoWReportViewModelBase
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly EmployeeFilterViewModel _employeeFilter;
 		private DateTime? _startDate;
 		private DateTime? _endDate;

@@ -740,19 +740,6 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
 	{
-		/*var filter = new EmployeeFilterViewModel
-		{
-			Category = EmployeeCategory.driver
-		};
-
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, filter);
-		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
-		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
-			() => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(employeeJournalFactory, ServicesConfig.InteractiveService)));*/
-		
 		NavigationManager.OpenTdiTab<ReportViewDlg>(
 			null,
 			addingRegistrations: builder =>
@@ -782,16 +769,16 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
 	{
-		//TODO
-		/*var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
-		var employeeJournalFactory = new EmployeeJournalFactory(driverFilter);
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
-			() => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
-				reportInfoFactory,
-				employeeJournalFactory,
-				ServicesConfig.InteractiveService)));*/
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			addingRegistrations: builder =>
+			{
+				builder.Register(c => new EmployeeFilterViewModel
+				{
+					RestrictCategory = EmployeeCategory.driver
+				});
+				builder.RegisterType<AddressesOverpaymentsReport>().As<IParametersWidget>();
+			});
 	}
 
 	/// <summary>
@@ -1323,16 +1310,6 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionQualityRetailReport(object sender, EventArgs e)
 	{
-		/*tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
-			() => new QSReport.ReportViewDlg(new QualityReport(
-				reportInfoFactory,
-				new CounterpartyJournalFactory(),
-				new EmployeeJournalFactory(NavigationManager),
-				new SalesChannelJournalFactory(),
-				ServicesConfig.UnitOfWorkFactory,
-				ServicesConfig.InteractiveService)));*/
-		
 		NavigationManager.OpenTdiTab<ReportViewDlg>(
 			null,
 			addingRegistrations: builder => builder.RegisterType<QualityReport>().As<IParametersWidget>());
