@@ -744,6 +744,13 @@ namespace Vodovoz
 		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
+
+			if(node is null)
+			{
+				MessageDialogHelper.RunErrorDialog("Не выбран адрес. Если ошибка будет повторяться - переоткройте вкладку");
+				return;
+			}
+			
 			var dlg = new OrderReturnsView(
 				UoW,
 				_orderDiscountsController,
@@ -762,6 +769,7 @@ namespace Vodovoz
 				_flyerRepository,
 				NavigationManager,
 				_lifetimeScope);
+			
 			dlg.ConfigureForRouteListAddress(node);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;
 			TabParent.AddSlaveTab(this, dlg);

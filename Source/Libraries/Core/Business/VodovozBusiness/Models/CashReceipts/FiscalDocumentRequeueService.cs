@@ -3,17 +3,17 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.TrueMark;
-using Vodovoz.Models.CashReceipts;
+using Vodovoz.Models.TrueMark;
 
-namespace Vodovoz.Models.TrueMark
+namespace Vodovoz.Models.CashReceipts
 {
-	public class FiscalDocumentRefresher
+	public class FiscalDocumentRequeueService
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly CashboxClientProvider _cashboxClientProvider;
 		private readonly FiscalizationResultSaver _fiscalizationResultSaver;
 
-		public FiscalDocumentRefresher(
+		public FiscalDocumentRequeueService(
 			IUnitOfWorkFactory uowFactory,
 			CashboxClientProvider cashboxClientProvider,
 			FiscalizationResultSaver fiscalizationResultSaver)
@@ -23,30 +23,9 @@ namespace Vodovoz.Models.TrueMark
 			_fiscalizationResultSaver = fiscalizationResultSaver ?? throw new ArgumentNullException(nameof(fiscalizationResultSaver));
 		}
 
-		public async Task RefreshDocForReceipt(int receiptId, CancellationToken cancellationToken)
+		public async Task RequeueDocForReceiptManually(int receiptId, CancellationToken cancellationToken)
 		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var cashReceipt = uow.GetById<CashReceipt>(receiptId);
-				if(cashReceipt == null)
-				{
-					return;
-				}
-
-				var cashboxClient = await _cashboxClientProvider.GetCashboxAsync(cashReceipt, cancellationToken);
-				var fiscalResult = await cashboxClient.CheckFiscalDocument(cashReceipt.DocumentId, cancellationToken);
-				_fiscalizationResultSaver.SaveResult(cashReceipt, fiscalResult);
-
-				uow.Save(cashReceipt);
-				uow.Commit();
-
-				return;
-			}
-		}
-
-		public async Task RefreshDocForReceiptManually(int receiptId, CancellationToken cancellationToken)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot("Обновление статуса фискального документа"))
+			using(var uow = _uowFactory.CreateWithoutRoot("Повторное проведение чека"))
 			{
 				var cashReceipt = uow.GetById<CashReceipt>(receiptId);
 				if(cashReceipt == null)
@@ -56,19 +35,23 @@ namespace Vodovoz.Models.TrueMark
 				}
 
 				var cashboxClient = await _cashboxClientProvider.GetCashboxAsync(cashReceipt, cancellationToken);
-				var fiscalResult = await cashboxClient.CheckFiscalDocument(cashReceipt.DocumentId, cancellationToken);
+				var fiscalResult = await cashboxClient.RequeueFiscalDocument(cashReceipt.DocumentId, cancellationToken);
 
-				if(fiscalResult?.SendStatus == CashReceipts.DTO.SendStatus.Error)
+				if(fiscalResult?.SendStatus == DTO.SendStatus.Error)
 				{
 					throw new InvalidOperationException(fiscalResult?.FailDescription ?? "Непредвиденная ошибка");
 				}
 
+				if(fiscalResult?.Status != DTO.FiscalDocumentStatus.Queued)
+				{
+					throw new InvalidOperationException("В результате выполнения операции статус чека не изменился на \"В очереди\"");
+				}
+
 				_fiscalizationResultSaver.SaveResult(cashReceipt, fiscalResult);
+				cashReceipt.FiscalDocumentStatus = FiscalDocumentStatus.Queued;
 
 				uow.Save(cashReceipt);
 				uow.Commit();
-
-				return;
 			}
 		}
 	}

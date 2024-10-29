@@ -4752,11 +4752,12 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Добавление/удаление номенклатуры для вызова мастера в зависимости от типа адреса
 		/// </summary>
-		public virtual void AddMasterCallNomenclatureIfNeeded(IUnitOfWork unitOfWork)
+		public virtual void UpdateMasterCallNomenclatureIfNeeded(IUnitOfWork unitOfWork)
 		{
 			var masterCallNomenclature = _nomenclatureRepository.GetMasterCallNomenclature(unitOfWork);
 
-			if(OrderAddressType == OrderAddressType.Service)
+			if(OrderAddressType == OrderAddressType.Service
+				&& !SelfDelivery)
 			{
 				AddMasterCallNomenclatureIfNeeded(masterCallNomenclature);
 			}

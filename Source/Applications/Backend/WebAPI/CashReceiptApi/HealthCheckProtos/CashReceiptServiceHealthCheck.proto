@@ -1,6 +1,6 @@
 ﻿syntax = "proto3";
 
-option csharp_namespace = "CashReceiptApi";
+option csharp_namespace = "CashReceiptApiHealthCheck";
 
 import "google/protobuf/empty.proto";
 
