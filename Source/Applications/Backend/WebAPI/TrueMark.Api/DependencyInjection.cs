@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System;
@@ -23,16 +24,14 @@ public static class DependencyInjection
 
 		services.AddHttpClient()
 			.AddAuthorization(configuration)
-			.ConfigureTrueMarkApi(configuration);
-
-		services.AddTrueMarkApiOpenTelemetry();
-
-		services.AddMassTransit();
+			.ConfigureTrueMarkApi(configuration)
+			.AddTrueMarkApiOpenTelemetry(configuration)
+			.AddMassTransit();
 
 		return services;
 	}
 
-	public static IServiceCollection AddTrueMarkApiOpenTelemetry(this IServiceCollection services)
+	public static IServiceCollection AddTrueMarkApiOpenTelemetry(this IServiceCollection services, IConfiguration configuration)
 	{
 		services
 			.AddOpenTelemetry()
@@ -46,8 +45,8 @@ public static class DependencyInjection
 
 				tracing.AddOtlpExporter(exporter =>
 				{
-					exporter.Endpoint = new Uri();
-					exporter.Protocol = 
+					exporter.Endpoint = new Uri(configuration.GetSection("OtlpExporter").GetValue<string>("Endpoint"));
+					exporter.Protocol = OtlpExportProtocol.HttpProtobuf;
 				});
 			});
 
