@@ -1,14 +1,19 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using TrueMark.Api.Extensions;
 using TrueMark.Contracts;
+using TrueMark.Contracts.Requests;
+using TrueMark.Contracts.Responses;
 
 namespace TrueMark.ProductInstanceInfoCheck.Worker;
-internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstancesInfo>>
+internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstanceInfoRequest>>
 {
 	private const string _uri = "cises/info";
+	private const int _codePortionLimit = 100;
 	private readonly ILogger<ProductInstanceInfoRequestConsumer> _logger;
 	private readonly IOptionsMonitor<TrueMarkProductInstanceInfoCheckOptions> _optionsMonitor;
 	private readonly HttpClient _httpClient;
@@ -23,71 +28,80 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 		_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 	}
 
-	public async Task Consume(ConsumeContext<Batch<ProductInstancesInfo>> context)
+	public async Task Consume(ConsumeContext<Batch<ProductInstanceInfoRequest>> context)
 	{
-		//var grouped = context.Message.GroupBy(m => m.Message.Bearer);
+		var grouped = context.Message.GroupBy(m => m.Message.Bearer);
 
-		//foreach(var group in grouped)
-		//{
-		//	_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", group.First().Message.Bearer);
+		foreach(var group in grouped)
+		{
+			await ProcessBearerGroup(group);
+		}
+	}
 
-		//	var codes = group.SelectMany(m => m.Message.ProductCodes).ToList();
+	private async Task ProcessBearerGroup(IGrouping<string, ConsumeContext<ProductInstanceInfoRequest>> group)
+	{
+		var codes = group.Select(m => m.Message.ProductCode).ToList();
 
-		//	ConsumeContext<ProductInstanceInfoRequest> currentContext = null!;
+		if(!codes.Any())
+		{
+			return;
+		}
 
-		//	List<ProductInstanceStatus> productInstanceStatuses = new List<ProductInstanceStatus>();
+		_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", group.First().Message.Bearer);
 
-		//	if(!codes.Any())
-		//	{
-		//		continue;
-		//	}
+		ConsumeContext<ProductInstanceInfoRequest> currentContext = null!;
 
-		//	while(codes.Any())
-		//	{
-		//		var codesPortion = codes.Take(100).ToArray();
+		var productInstanceStatuses = new List<ProductInstanceStatus>();
 
-		//		var errorMessage = new StringBuilder();
-		//		errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
+		while(codes.Any())
+		{
+			var codesPortion = codes.Take(_codePortionLimit).ToArray();
 
-		//		string content = JsonSerializer.Serialize(codesPortion);
-		//		HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+			var errorMessage = new StringBuilder();
+			errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
 
-		//		var response = await _httpClient.PostAsync(_uri, httpContent);
+			var response = await _httpClient.PostAsJsonAsync<IEnumerable<string>>(_uri, codesPortion);
 
-		//		currentContext = group.Where(g => g.Message.ProductCodes.All(pc => codesPortion.Contains(pc))).First();
-				
-		//		if(!response.IsSuccessStatusCode)
-		//		{
-		//			currentContext.Respond(new ProductInstancesInfoResponse
-		//			{
-		//				ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
-		//			});
+			currentContext = group.Where(g => codesPortion.Contains(g.Message.ProductCode)).First(); // Error: not all codes will be notified
 
-		//			break;
-		//		}
+			if(!response.IsSuccessStatusCode)
+			{
+				currentContext.Respond(new ProductInstancesInfoResponse
+				{
+					ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
+				});
 
-		//		string responseBody = await response.Content.ReadAsStringAsync();
-		//		var cisesInformation = JsonSerializer.Deserialize<IList<CisInfoRoot>>(responseBody);
-		//		_logger.LogInformation("responseBody: {ResponseBody}", responseBody);
+				return;
+			}
 
-		//		productInstanceStatuses.AddRange(cisesInformation.Select(x =>
-		//			new ProductInstanceStatus
-		//			{
-		//				IdentificationCode = x.CisInfo.RequestedCis,
-		//				Status = x.CisInfo.Status.ToProductInstanceStatusEnum(),
-		//				OwnerInn = x.CisInfo.OwnerInn,
-		//				OwnerName = x.CisInfo.OwnerName
-		//			}));
+			string responseBody = await response.Content.ReadAsStringAsync();
+			var cisesInformations = JsonSerializer.Deserialize<IList<CisInfoRoot>>(responseBody);
+			_logger.LogInformation("responseBody: {ResponseBody}", responseBody);
 
-		//		codes.RemoveRange(0, 100);
+			if(cisesInformations is null) // Retry here ????
+			{
+				continue;
+			}
 
-		//		await Task.Delay(_optionsMonitor.CurrentValue.RequestsDelay);
-		//	}
+			foreach(var cisesInformation in cisesInformations)
+			{
+				var matchingGroup = group.Where(g => g.Message.ProductCode == cisesInformation.CisInfo.RequestedCis).FirstOrDefault();
 
-		//	currentContext.Respond(new ProductInstancesInfoResponse
-		//	{
-		//		InstanceStatuses = new List<ProductInstanceStatus>(productInstanceStatuses)
-		//	});
-		//}
+				matchingGroup?.Respond(new ProductInstanceInfoResponse
+				{
+					InstanceStatus = new ProductInstanceStatus
+					{
+						IdentificationCode = cisesInformation.CisInfo.RequestedCis,
+						Status = cisesInformation.CisInfo.Status.ToProductInstanceStatusEnum(),
+						OwnerInn = cisesInformation.CisInfo.OwnerInn,
+						OwnerName = cisesInformation.CisInfo.OwnerName
+					}
+				});
+			}
+
+			codes.RemoveRange(0, _codePortionLimit);
+
+			await Task.Delay(_optionsMonitor.CurrentValue.RequestsDelay);
+		}
 	}
 }

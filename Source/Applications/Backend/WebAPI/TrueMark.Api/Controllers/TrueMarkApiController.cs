@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 using TrueMark.Api.Options;
 using TrueMark.Api.Responses;
 using TrueMark.Contracts;
+using TrueMark.Contracts.Requests;
+using TrueMark.Contracts.Responses;
 using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorizationService;
 
 namespace TrueMark.Api.Controllers;
@@ -135,67 +137,55 @@ public class TrueMarkApiController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<ProductInstancesInfo> RequestProductInstanceInfo(
-		[FromServices] IRequestClient<ProductInstancesInfo> requestClient,
+	public async Task<ProductInstancesInfoResponse> RequestProductInstanceInfo(
+		[FromServices] IRequestClient<ProductInstanceInfoRequest> requestClient,
 		[FromBody] IEnumerable<string> identificationCodes)
 	{
-		var uri = $"cises/info";
-
-		StringBuilder errorMessage = new StringBuilder();
+		var errorMessage = new StringBuilder();
 		errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
 
 		try
 		{
-			//string content = JsonSerializer.Serialize(identificationCodes.ToArray());
-			//HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-
 			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
-			//_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-			//var response = await _httpClient.PostAsync(uri, httpContent);
+			var requestsTasks = new List<Task<Response<ProductInstanceInfoResponse>>>();
 
-			var request = new ProductInstancesInfo();
-			//{
-			//	Bearer = token,
-			//	ProductCodes = identificationCodes
-			//};
+			foreach(var code in identificationCodes)
+			{
+				requestsTasks.Add(requestClient.GetResponse<ProductInstanceInfoResponse>(new ProductInstanceInfoRequest
+				{
+					Bearer = token,
+					ProductCode = code
+				}));
+			}
 
-			var result = await requestClient.GetResponse<ProductInstancesInfo>(request);
+			var results = await Task.WhenAll(requestsTasks);
 
-			return result.Message;
+			var productInstancesInfoResponses = new List<ProductInstanceStatus>();
 
-			//if(!response.IsSuccessStatusCode)
-			//{
-			//	return new ProductInstancesInfoResponse
-			//	{
-			//		ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
-			//	};
-			//}
+			foreach(var result in results)
+			{
+				if(string.IsNullOrWhiteSpace(result.Message.ErrorMessage))
+				{
+					productInstancesInfoResponses.Add(result.Message.InstanceStatus);
+				}
+				else
+				{
+					errorMessage.AppendLine(result.Message.ErrorMessage);
+				}
+			}
 
-			//string responseBody = await response.Content.ReadAsStringAsync();
-			//var cisesInformation = JsonSerializer.Deserialize<IList<CisInfoRoot>>(responseBody);
-			//_logger.LogInformation($"responseBody: {responseBody}");
-
-			//var productInstancesInfo = cisesInformation.Select(x =>
-			//	new ProductInstanceStatus
-			//	{
-			//		IdentificationCode = x.CisInfo.RequestedCis,
-			//		Status = GetStatus(x.CisInfo.Status),
-			//		OwnerInn = x.CisInfo.OwnerInn,
-			//		OwnerName = x.CisInfo.OwnerName
-			//	}
-			//);
-
-			//return new ProductInstancesInfoResponse
-			//{
-			//	InstanceStatuses = new List<ProductInstanceStatus>(productInstancesInfo)
-			//};
+			return new ProductInstancesInfoResponse
+			{
+				InstanceStatuses = productInstancesInfoResponses,
+				ErrorMessage = errorMessage.ToString()
+			};
 		}
 		catch(Exception e)
 		{
-			_logger.LogError(e, errorMessage.ToString());
+			_logger.LogError(e, "Error: {CombinedErrorMessage}", errorMessage.ToString());
 
-			return new ProductInstancesInfo
+			return new ProductInstancesInfoResponse
 			{
 				ErrorMessage = errorMessage.AppendLine(e.Message).ToString()
 			};
