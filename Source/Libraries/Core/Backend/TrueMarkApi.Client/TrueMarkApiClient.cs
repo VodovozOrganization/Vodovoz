@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
+using TrueMark.Contracts.Responses;
 
 namespace TrueMarkApi.Client
 {
@@ -36,14 +37,14 @@ namespace TrueMarkApi.Client
 			return responseResult;
 		}
 
-		public async Task<ProductInstancesInfo> GetProductInstanceInfoAsync(IEnumerable<string> identificationCodes, CancellationToken cancellationToken)
+		public async Task<ProductInstancesInfoResponse> GetProductInstanceInfoAsync(IEnumerable<string> identificationCodes, CancellationToken cancellationToken)
 		{
 			string content = JsonSerializer.Serialize(identificationCodes.ToArray());
 			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
 			var response = await _httpClient.PostAsync("api/RequestProductInstanceInfo", httpContent, cancellationToken);
 			var responseBody = await response.Content.ReadAsStreamAsync();
-			var responseResult = await JsonSerializer.DeserializeAsync<ProductInstancesInfo>(responseBody, cancellationToken: cancellationToken);
+			var responseResult = await JsonSerializer.DeserializeAsync<ProductInstancesInfoResponse>(responseBody, cancellationToken: cancellationToken);
 
 			return responseResult;
 		}		
