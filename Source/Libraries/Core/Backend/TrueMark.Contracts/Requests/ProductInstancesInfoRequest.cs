@@ -1,9 +1,11 @@
-﻿namespace TrueMark.Contracts.Requests
+﻿using System.Collections.Generic;
+
+namespace TrueMark.Contracts.Requests
 {
 	/// <summary>
 	/// Запрос информации о продукте
 	/// </summary>
-	public class ProductInstanceInfoRequest
+	public class ProductInstancesInfoRequest
 	{
 		/// <summary>
 		/// Токен для запроса в Честный знак
@@ -11,8 +13,8 @@
 		public string Bearer { get; set; }
 
 		/// <summary>
-		/// Код продукта для проверки
+		/// Коды продуктов для проверки
 		/// </summary>
-		public string ProductCode { get; set; }
+		public IEnumerable<string> ProductCodes { get; set; }
 	}
 }
