@@ -181,6 +181,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailSendWorker/EmailSendWorker.csproj")
 			}
 		}
 		else if(CAN_BUILD_WEB)
