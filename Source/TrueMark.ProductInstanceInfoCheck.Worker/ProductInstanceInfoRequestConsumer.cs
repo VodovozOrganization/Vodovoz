@@ -14,6 +14,7 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 {
 	private const string _uri = "cises/info";
 	private const int _codePortionLimit = 100;
+	private const int _retriesLimit = 3;
 	private readonly ILogger<ProductInstanceInfoRequestConsumer> _logger;
 	private readonly IOptionsMonitor<TrueMarkProductInstanceInfoCheckOptions> _optionsMonitor;
 	private readonly HttpClient _httpClient;
@@ -53,6 +54,8 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 
 		var productInstanceStatuses = new List<ProductInstanceStatus>();
 
+		var retriesCount = _retriesLimit;
+
 		while(codes.Any())
 		{
 			var codesPortion = codes.Take(_codePortionLimit).ToArray();
@@ -80,6 +83,18 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 
 			if(cisesInformations is null) // Retry here ????
 			{
+				if(retriesCount <= 0)
+				{
+					currentContext.Respond(new ProductInstancesInfoResponse
+					{
+						ErrorMessage = errorMessage.AppendLine("Не удалось получить ответ от сервера").ToString()
+					});
+
+					return;
+				}
+
+				await Task.Delay(_optionsMonitor.CurrentValue.RequestsDelay);
+				retriesCount--;
 				continue;
 			}
 
