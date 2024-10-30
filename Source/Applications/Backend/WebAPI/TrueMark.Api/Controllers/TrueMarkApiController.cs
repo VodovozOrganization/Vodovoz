@@ -159,7 +159,7 @@ public class TrueMarkApiController : ControllerBase
 				}));
 			}
 
-			var results = await Task.WhenAll(requestsTasks);
+			var results = await Task.WhenAll(requestsTasks); // Таймаут, добавить таймаут на стороне сообщений в Rabbit
 
 			var productInstancesInfoResponses = new List<ProductInstanceStatus>();
 
@@ -175,10 +175,10 @@ public class TrueMarkApiController : ControllerBase
 				}
 			}
 
-			return new ProductInstancesInfoResponse
+			return new ProductInstancesInfoResponse // Поправить обработку на стороне клиента
 			{
 				InstanceStatuses = productInstancesInfoResponses,
-				ErrorMessage = errorMessage.ToString()
+				ErrorMessage = errorMessage.ToString() // проверить, что клиент корректно обработает
 			};
 		}
 		catch(Exception e)
