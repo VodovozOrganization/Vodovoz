@@ -1,9 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using TaxcomEdo.Client;
 
 namespace EdoAutoSendReceiveWorker
 {
@@ -18,7 +15,10 @@ namespace EdoAutoSendReceiveWorker
 			Host.CreateDefaultBuilder(args)
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddHostedService<TaxcomEdoAutoSendReceiveWorker>();
+					services
+						.AddHttpClient()
+						.AddTaxcomClient()
+						.AddHostedService<TaxcomEdoAutoSendReceiveWorker>();
 				});
 	}
 }
