@@ -14,7 +14,6 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 {
 	private const string _uri = "cises/info";
 	private const int _codePortionLimit = 100;
-	private const int _retriesLimit = 3;
 	private readonly ILogger<ProductInstanceInfoRequestConsumer> _logger;
 	private readonly IOptionsMonitor<TrueMarkProductInstanceInfoCheckOptions> _optionsMonitor;
 	private readonly HttpClient _httpClient;
@@ -48,13 +47,9 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 			return;
 		}
 
-		_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", group.First().Message.Bearer);
-
-		ConsumeContext<ProductInstanceInfoRequest> currentContext = null!;
+		_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", group.Key);
 
 		var productInstanceStatuses = new List<ProductInstanceStatus>();
-
-		var retriesCount = _retriesLimit;
 
 		while(codes.Any())
 		{
@@ -63,38 +58,33 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 			var errorMessage = new StringBuilder();
 			errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
 
-			var response = await _httpClient.PostAsJsonAsync<IEnumerable<string>>(_uri, codesPortion);
+			var response = await _httpClient.PostAsJsonAsync<IEnumerable<string>>(_uri, codesPortion); // try catch, настроить клиент, таймаут 60 сек
 
-			currentContext = group.Where(g => codesPortion.Contains(g.Message.ProductCode)).First(); // Error: not all codes will be notified
+			var currentPortionContexts = group.Where(g => codesPortion.Contains(g.Message.ProductCode));
 
 			if(!response.IsSuccessStatusCode)
 			{
-				currentContext.Respond(new ProductInstancesInfoResponse
-				{
-					ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
-				});
+				errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}");
 
-				return;
+				await RespondError(errorMessage, currentPortionContexts);
+
+				codes.RemoveRange(0, _codePortionLimit);
+
+				continue;
 			}
 
 			string responseBody = await response.Content.ReadAsStringAsync();
-			var cisesInformations = JsonSerializer.Deserialize<IList<CisInfoRoot>>(responseBody);
+			var cisesInformations = JsonSerializer.Deserialize<IEnumerable<CisInfoRoot>>(responseBody); // try catch
 			_logger.LogInformation("responseBody: {ResponseBody}", responseBody);
 
-			if(cisesInformations is null) // Retry here ????
+			if(cisesInformations is null)
 			{
-				if(retriesCount <= 0)
-				{
-					currentContext.Respond(new ProductInstancesInfoResponse
-					{
-						ErrorMessage = errorMessage.AppendLine("Не удалось получить ответ от сервера").ToString()
-					});
+				errorMessage.AppendLine("Не удалось получить ожидаемый ответ от сервера");
 
-					return;
-				}
+				await RespondError(errorMessage, currentPortionContexts);
 
-				await Task.Delay(_optionsMonitor.CurrentValue.RequestsDelay);
-				retriesCount--;
+				codes.RemoveRange(0, _codePortionLimit);
+
 				continue;
 			}
 
@@ -118,5 +108,18 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 
 			await Task.Delay(_optionsMonitor.CurrentValue.RequestsDelay);
 		}
+	}
+
+	private async Task RespondError(StringBuilder errorMessage, IEnumerable<ConsumeContext<ProductInstanceInfoRequest>> currentPortionContexts)
+	{
+		foreach(var context in currentPortionContexts)
+		{
+			context.Respond(new ProductInstanceInfoResponse
+			{
+				ErrorMessage = errorMessage.ToString()
+			});
+		}
+
+		await Task.Delay(_optionsMonitor.CurrentValue.RequestsDelay);
 	}
 }
