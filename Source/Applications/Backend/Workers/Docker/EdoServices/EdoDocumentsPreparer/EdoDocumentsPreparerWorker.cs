@@ -29,7 +29,7 @@ namespace EdoDocumentsPreparer
 {
 	public class EdoDocumentsPreparerWorker : BackgroundService
 	{
-		private static IEnumerable<OrderDocumentType> _orderDocumentTypesForSendBill
+		private static readonly IEnumerable<OrderDocumentType> _orderDocumentTypesForSendBill
 			= new[] { OrderDocumentType.Bill, OrderDocumentType.SpecialBill };
 		
 		private readonly ILogger<EdoDocumentsPreparerWorker> _logger;
@@ -90,20 +90,18 @@ namespace EdoDocumentsPreparer
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 				await Task.Delay(1000 * _documentFlowOptions.DelayBetweenPreparingInSeconds, stoppingToken);
-				
-				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-				{
-					var organization = GetOrganization(uow);
 
-					if(organization is null)
-					{
-						continue;
-					}
-					
-					//await PrepareUpdDocumentsForSend(uow, organization.Id);
-					//await PrepareBillsForSend(uow, organization.Id);
-					await PrepareBillsWithoutShipmentForSend(uow, organization);
+				using var uow = _unitOfWorkFactory.CreateWithoutRoot();
+				var organization = GetOrganization(uow);
+
+				if(organization is null)
+				{
+					continue;
 				}
+					
+				await PrepareUpdDocumentsForSend(uow, organization.Id);
+				await PrepareBillsForSend(uow, organization.Id);
+				await PrepareBillsWithoutShipmentForSend(uow, organization);
 			}
 		}
 
@@ -157,12 +155,12 @@ namespace EdoDocumentsPreparer
 						foreach(var action in actions)
 						{
 							action.IsNeedToResendEdoUpd = false;
-							uow.Save(action);
+							await uow.SaveAsync(action);
 						}
 
 						_logger.LogInformation("Сохраняем контейнер с УПД {OrderId}", order.Id);
-						uow.Save(edoContainer);
-						uow.Commit();
+						await uow.SaveAsync(edoContainer);
+						await uow.CommitAsync();
 						
 						try
 						{
@@ -236,12 +234,12 @@ namespace EdoDocumentsPreparer
 						foreach(var action in actions)
 						{
 							action.IsNeedToResendEdoBill = false;
-							uow.Save(action);
+							await uow.SaveAsync(action);
 						}
 
 						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
-						uow.Save(edoContainer);
-						uow.Commit();
+						await uow.SaveAsync(edoContainer);
+						await uow.CommitAsync();
 						
 						try
 						{
@@ -299,7 +297,7 @@ namespace EdoDocumentsPreparer
 					}
 					
 					action.IsNeedToResendEdoBill = false;
-					uow.Save(action);
+					await uow.SaveAsync(action);
 
 					var edoContainer = edoContainerBuilder.Build();
 					
@@ -308,8 +306,8 @@ namespace EdoDocumentsPreparer
 						infoForCreatingBillWithoutShipmentEdo.GetBillWithoutShipmentInfoTitle(),
 						infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id);
 					
-					uow.Save(edoContainer);
-					uow.Commit();
+					await uow.SaveAsync(edoContainer);
+					await uow.CommitAsync();
 
 					try
 					{

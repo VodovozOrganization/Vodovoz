@@ -18,18 +18,5 @@ namespace EdoDocumentsPreparer.Factories
 			
 			return data;
 		}
-		
-		/*public InfoForCreatingBillWithoutShipmentEdo CreateInfoForCreatingBillWithoutShipmentEdo(
-			OrderWithoutShipmentInfo orderWithoutShipmentInfo, FileData fileData)
-		{
-			var data = new InfoForCreatingBillWithoutShipmentEdo
-			{
-				OrderWithoutShipmentInfo = orderWithoutShipmentInfo,
-				FileData = fileData,
-				MainDocumentId = Guid.NewGuid()
-			};
-			
-			return data;
-		}*/
 	}
 }
