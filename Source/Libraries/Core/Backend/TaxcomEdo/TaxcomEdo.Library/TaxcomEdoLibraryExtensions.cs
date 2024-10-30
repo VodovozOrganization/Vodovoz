@@ -1,9 +1,10 @@
-﻿using System.Security.Authentication;
+﻿using System;
+using System.Net.Security;
+using System.Security.Authentication;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
-using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Library.Options;
 using Vodovoz.Settings.Pacs;
@@ -33,7 +34,15 @@ namespace TaxcomEdo.Library
 
 						if(messageSettings.UseSSL)
 						{
-							hostConfigurator.UseSsl(ssl => ssl.Protocol = SslProtocols.Tls12);
+							hostConfigurator.UseSsl(ssl =>
+							{
+								if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
+								{
+									ssl.AllowPolicyErrors(allowedPolicyErrors);
+								}
+
+								ssl.Protocol = SslProtocols.Tls12;
+							});
 						}
 					});
 				
