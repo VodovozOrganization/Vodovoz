@@ -1,6 +1,5 @@
 ﻿using System;
 using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
@@ -11,14 +10,14 @@ namespace EdoDocumentsConsumer.Consumers
 	public class UpdEdoDocumentConsumer : IConsumer<InfoForCreatingEdoUpd>
 	{
 		private readonly ILogger<UpdEdoDocumentConsumer> _logger;
-		private readonly IServiceScopeFactory _scopeFactory;
+		private readonly ITaxcomApiClient _taxcomApiClient;
 
 		public UpdEdoDocumentConsumer(
 			ILogger<UpdEdoDocumentConsumer> logger,
-			IServiceScopeFactory scopeFactory)
+			ITaxcomApiClient taxcomApiClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+			_taxcomApiClient = taxcomApiClient ?? throw new ArgumentNullException(nameof(taxcomApiClient));
 		}
 
 		public async Task Consume(ConsumeContext<InfoForCreatingEdoUpd> context)
@@ -43,9 +42,7 @@ namespace EdoDocumentsConsumer.Consumers
 
 		private async Task SendUpdDataToTaxcomApi(InfoForCreatingEdoUpd updData)
 		{
-			using var scope = _scopeFactory.CreateScope();
-			var taxcomClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
-			await taxcomClient.SendDataForCreateUpdByEdo(updData);
+			await _taxcomApiClient.SendDataForCreateUpdByEdo(updData);
 		}
 	}
 }

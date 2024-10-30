@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
@@ -9,13 +8,13 @@ namespace EdoDocumentsConsumer.Consumers
 {
 	public abstract class BillWithoutShipmentEdoDocumentConsumer
 	{
-		private readonly IServiceScopeFactory _scopeFactory;
+		private readonly ITaxcomApiClient _taxcomApiClient;
 
 		protected BillWithoutShipmentEdoDocumentConsumer(
-			IServiceScopeFactory scopeFactory,
+			ITaxcomApiClient taxcomApiClient,
 			ILogger<BillWithoutShipmentEdoDocumentConsumer> logger)
 		{
-			_scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+			_taxcomApiClient = taxcomApiClient ?? throw new ArgumentNullException(nameof(taxcomApiClient));
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 		
@@ -23,12 +22,9 @@ namespace EdoDocumentsConsumer.Consumers
 
 		protected async Task SendDataToTaxcomApi(InfoForCreatingBillWithoutShipmentEdo data)
 		{
-			using var scope = _scopeFactory.CreateScope();
-			var taxcomClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
-
 			try
 			{
-				await taxcomClient.SendDataForCreateBillWithoutShipmentByEdo(data);
+				await _taxcomApiClient.SendDataForCreateBillWithoutShipmentByEdo(data);
 			}
 			catch(Exception e)
 			{

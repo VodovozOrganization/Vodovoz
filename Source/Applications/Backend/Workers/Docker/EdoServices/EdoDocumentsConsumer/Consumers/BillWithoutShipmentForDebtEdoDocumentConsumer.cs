@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
 
 namespace EdoDocumentsConsumer.Consumers
@@ -12,8 +12,8 @@ namespace EdoDocumentsConsumer.Consumers
 	{
 		public BillWithoutShipmentForDebtEdoDocumentConsumer(
 			ILogger<BillWithoutShipmentForDebtEdoDocumentConsumer> logger,
-			IServiceScopeFactory scopeFactory)
-			: base(scopeFactory, logger)
+			ITaxcomApiClient taxcomApiClient)
+			: base(taxcomApiClient, logger)
 		{
 		}
 
