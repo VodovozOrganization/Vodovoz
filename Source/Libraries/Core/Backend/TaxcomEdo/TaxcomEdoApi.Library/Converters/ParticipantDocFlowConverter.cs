@@ -2,7 +2,6 @@
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Organizations;
-using Vodovoz.Core.Domain.Clients;
 
 namespace TaxcomEdoApi.Library.Converters
 {
