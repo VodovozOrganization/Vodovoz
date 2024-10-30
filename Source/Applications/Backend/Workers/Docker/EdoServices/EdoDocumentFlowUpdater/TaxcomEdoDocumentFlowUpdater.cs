@@ -89,9 +89,6 @@ namespace EdoDocumentFlowUpdater
 
 						using var scope = _serviceScopeFactory.CreateScope();
 						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
-						
-						/*var containerRawData2 =
-							await taxcomApiClient.GetDocFlowRawData("e0532bec-81fe-4517-94ad-497d6a4b4a13", cancellationToken);*/
 
 						docFlowUpdates =
 							await taxcomApiClient.GetDocFlowsUpdates(
@@ -139,7 +136,7 @@ namespace EdoDocumentFlowUpdater
 									var containerRawData =
 										await taxcomApiClient.GetDocFlowRawData(item.Id.Value.ToString(), cancellationToken);
 
-									/*using var ms = new MemoryStream(containerRawData.ToArray());
+									using var ms = new MemoryStream(containerRawData.ToArray());
 
 									var result =
 										await _edoContainerFileStorageService.UpdateContainerAsync(container, ms, cancellationToken);
@@ -149,12 +146,12 @@ namespace EdoDocumentFlowUpdater
 										var errors = string.Join(", ", result.Errors.Select(e => e.Message));
 
 										_logger.LogError("Не удалось обновить контейнер, ошибка: {Errors}", errors);
-									}*/
+									}
 								}
 
 								_logger.LogInformation("Сохраняем изменения контейнера по заказу №{OrderId}", container.Order?.Id);
-								//await uow.SaveAsync(container);
-								//await uow.CommitAsync();
+								await uow.SaveAsync(container);
+								await uow.CommitAsync();
 							}
 
 							_lastEventOutgoingDocumentsTimeStamp = item.StatusChangeDateTime.ToBinary();
