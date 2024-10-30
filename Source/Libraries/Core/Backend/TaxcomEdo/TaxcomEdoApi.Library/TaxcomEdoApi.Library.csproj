@@ -31,7 +31,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
 	  <ProjectReference Include="..\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
 	</ItemGroup>
 
