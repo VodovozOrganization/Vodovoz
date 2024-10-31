@@ -3,6 +3,9 @@ using QS.Navigation;
 using QS.Views.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -19,6 +22,9 @@ namespace Vodovoz.Views.Logistic
 
 		private void Configure()
 		{
+			var primaryTextColor = GdkColors.PrimaryText.ToHtmlColor();
+			var dangerTextColor = GdkColors.DangerText.ToHtmlColor();
+
 			ylabelCreateDate.Binding.AddFuncBinding(ViewModel.Entity, e => e.CreateDate.ToString("g"), w => w.LabelProp).InitializeFromSource();
 
 			ylabelOriginalCarEvent.Binding.AddBinding(ViewModel, vm => vm.CompensationFromInsuranceByCourt, w => w.Visible).InitializeFromSource();
@@ -35,9 +41,9 @@ namespace Vodovoz.Views.Logistic
 
 			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
-			entityentryCar.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
-				.InitializeFromSource();
+			//entityentryCar.Binding
+			//	.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+			//	.InitializeFromSource();
 
 			entryOriginalCarEvent.ViewModel = ViewModel.OriginalCarEventViewModel;
 
@@ -47,17 +53,17 @@ namespace Vodovoz.Views.Logistic
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			evmeDriver.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				//.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject)
 				.InitializeFromSource();
 
 			ydatepickerStartEventDate.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				//.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date)
 				.InitializeFromSource();
-			
+
 			ydatepickerEndEventDate.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				//.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date)
 				.InitializeFromSource();
 
@@ -121,12 +127,41 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)
 				.InitializeFromSource();
 
+			//yhboxFuel.Binding
+			//	.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+			//	.InitializeFromSource();
+
 			ylabelActualFuelBalance.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibrationCarEventType, w => w.Visible)
 				.InitializeFromSource();
 
 			yhboxFuel.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibrationCarEventType, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelFuelCost.Binding
+				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibrationCarEventType, w => w.Visible)
+				.InitializeFromSource();
+
+			yentryFuelCost.Binding
+				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibrationCarEventType, w => w.Visible)
+				.InitializeFromSource();
+			
+			yspinActualFuelBalance.Binding
+				.AddBinding(ViewModel.Entity, e => e.ActualFuelBalance, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			yentryCurrentFuelBalance.Binding
+				.AddBinding(ViewModel.Entity, e => e.CurrentFuelBalance, w => w.Text, new NullableDecimalToStringConverter())
+				.InitializeFromSource();
+
+			yentryFuelCost.Binding.AddSource(ViewModel.Entity)
+			.AddFuncBinding(e => e.FuelCost < 0 ? dangerTextColor : primaryTextColor, w => w.TextColor)
+			.AddBinding(e => e.FuelCost, w => w.Text, new NullableDecimalToStringConverter())
+			.InitializeFromSource();
+
+			yentrySubstractionFuelBalance.Binding
+				.AddBinding(ViewModel.Entity, e => e.SubstractionFuelBalance, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
 
 			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };

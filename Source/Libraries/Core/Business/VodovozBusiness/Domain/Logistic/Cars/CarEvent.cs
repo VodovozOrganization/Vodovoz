@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,11 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime? _carTechnicalCheckupEndingDate;
 		private WriteOffDocument _writeOffDocument;
 		private bool _isWriteOffDocumentNotRequired;
+		private decimal? _actualFuelBalance;
+		private decimal? _currentFuelBalance;
+		private decimal? _substractionFuelBalance;
+		private decimal? _fuelCost;
+		private FuelOperation _calibrationFuelOperation;
 
 		#region Свойства
 
@@ -174,6 +180,44 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _isWriteOffDocumentNotRequired, value);
 		}
 
+		#region Калибровка баланса топлива
+
+		[Display(Name = "Актуальный баланс топлива")]
+		public virtual decimal? ActualFuelBalance 
+		{
+			get => _actualFuelBalance;
+			set => SetField(ref _actualFuelBalance, value);
+		}
+
+		[Display(Name = "Текущий баланс топлива")]
+		public virtual decimal? CurrentFuelBalance
+		{
+			get => _currentFuelBalance;
+			set => SetField(ref _currentFuelBalance, value);
+		}
+
+		[Display(Name = "Разность километража")]
+		public virtual decimal? SubstractionFuelBalance
+		{
+			get => _substractionFuelBalance;
+			set => SetField(ref _substractionFuelBalance, value);
+		}
+
+		[Display(Name = "Стоимость топлива")]
+		public virtual decimal? FuelCost
+		{
+			get => _fuelCost;
+			set => SetField(ref _fuelCost, value);
+		}
+
+		public virtual FuelOperation CalibrationFuelOperation
+		{
+			get => _calibrationFuelOperation;
+			set => SetField(ref _calibrationFuelOperation, value);
+		}
+
+		#endregion Калибровка баланса топлива
+
 		GenericObservableList<Fine> observableFines;
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
@@ -212,6 +256,32 @@ namespace Vodovoz.Domain.Logistic
 		public override string ToString()
 		{
 			return $"Событие ТС №{Id} {CarEventType.Name}";
+		}
+
+		public virtual void UpdateCalibrationFuelOeration(IUnitOfWork unitOfWork)
+		{
+			var litersOutlayed = (SubstractionFuelBalance ??0) * (-1);
+
+			if(CalibrationFuelOperation is null)
+			{
+				CalibrationFuelOperation = new FuelOperation
+				{
+					Car = Car,
+					Fuel = Car.FuelType,
+					Driver = Driver,
+					LitersOutlayed = litersOutlayed,
+					OperationTime = DateTime.Now
+				};
+			}
+			else
+			{
+				CalibrationFuelOperation.Car = Car;
+				CalibrationFuelOperation.Fuel = Car.FuelType;
+				CalibrationFuelOperation.LitersOutlayed = litersOutlayed;
+				CalibrationFuelOperation.OperationTime = DateTime.Now;
+			}
+
+			unitOfWork.Save(CalibrationFuelOperation);
 		}
 
 		#region IValidatableObject implementation

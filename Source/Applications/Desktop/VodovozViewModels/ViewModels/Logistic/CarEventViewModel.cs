@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -17,6 +17,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
@@ -41,6 +42,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICarEventRepository _carEventRepository;
 		private readonly ViewModelEEVMBuilder<WriteOffDocument> _writeOffDocumentViewModelEEVMBuilder;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IFuelRepository _fuelRepository;
+		private readonly ViewModelEEVMBuilder<CarEventType> _carEventViewModelEEVMBuilder;
 		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
 		private EntityEntryViewModel<Car> _carEntryViewModel;
 		private int _startNewPeriodDay;
@@ -56,7 +59,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			INavigationManager navigationManager,
 			ICarEventRepository carEventRepository,
 			ViewModelEEVMBuilder<WriteOffDocument> writeOffDocumentViewModelEEVMBuilder,
-			ILifetimeScope lifetimeScope)
+			ILifetimeScope lifetimeScope,
+			IFuelRepository fuelRepository,
+			ViewModelEEVMBuilder<CarEventType> carEventViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -70,6 +75,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_writeOffDocumentViewModelEEVMBuilder = writeOffDocumentViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(writeOffDocumentViewModelEEVMBuilder));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_carEventViewModelEEVMBuilder = carEventViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carEventViewModelEEVMBuilder));
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
@@ -144,7 +151,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool CanEdit => PermissionResult.CanUpdate && CheckDatePeriod();
 		public bool CanChangeWithClosedPeriod { get; }
-		public bool CanChangeCarEventType => !(IsTechInspectCarEventType && Entity.Id > 0) && !IsFuelBalanceCalibrationCarEventType;
+		public bool CanChangeCarEventType => !(IsTechInspectCarEventType && Entity.Id > 0) /*&& !IsFuelBalanceCalibrationCarEventType*/;
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 		public bool CanChangeCarTechnicalCheckupEndDate => CanEdit && IsCarTechnicalCheckupEventType;
@@ -177,6 +184,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				case nameof(Entity.CarEventType):
 					OnPropertyChanged(nameof(CarEventType));
+					SetFuelBalanceCorrectionIfNeeded();
 					break;
 				case nameof(Entity.RepairCost):
 					OnPropertyChanged(nameof(RepairCost));
@@ -189,10 +197,64 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					break;
 				case nameof(Entity.Car):
 					OnPropertyChanged(nameof(Car));
+					UpdateCurrentFuelBalance();
+					UpdateSubstractionFuelBalance();
+					UpdateFuelCost();
+					break;
+				case nameof(Entity.ActualFuelBalance):
+					UpdateSubstractionFuelBalance();
+					UpdateFuelCost();
 					break;
 				default:
 					break;
 			}
+		}
+
+		private void SetFuelBalanceCorrectionIfNeeded()
+		{
+			if(Entity.CarEventType.Id == _carEventSettings.FuelBalanceCalibrationCarEventTypeId)
+			{
+				UpdateCurrentFuelBalance();
+				UpdateSubstractionFuelBalance();
+				UpdateFuelCost();
+			}
+			else
+			{
+				Entity.ActualFuelBalance = null;
+				Entity.CurrentFuelBalance = null;
+				Entity.SubstractionFuelBalance = null;
+				Entity.FuelCost = null;
+			}
+		}
+
+		private void UpdateCurrentFuelBalance()
+		{
+			if(Entity.CarEventType?.Id != _carEventSettings.FuelBalanceCalibrationCarEventTypeId)
+			{
+				return;
+			}
+
+			Entity.CurrentFuelBalance = _fuelRepository.GetFuelBalance(UoW, null, Entity.Car);
+		}
+
+		private void UpdateSubstractionFuelBalance()
+		{
+			if(Entity.CarEventType?.Id != _carEventSettings.FuelBalanceCalibrationCarEventTypeId)
+			{
+				return;
+			}
+
+			Entity.SubstractionFuelBalance = (Entity.ActualFuelBalance ?? 0) - (Entity.CurrentFuelBalance ?? 0);
+		}
+
+		private void UpdateFuelCost()
+		{
+			if(Entity.CarEventType?.Id != _carEventSettings.FuelBalanceCalibrationCarEventTypeId)
+			{
+				return;
+			}
+
+			Entity.FuelCost = Entity.SubstractionFuelBalance * Entity.Car?.FuelType?.Cost;
 		}
 
 		private bool CheckDatePeriod()
@@ -212,6 +274,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public new void SaveAndClose()
 		{
+			if(Entity.CarEventType?.Id == _carEventSettings?.FuelBalanceCalibrationCarEventTypeId)
+			{
+				Entity.UpdateCalibrationFuelOeration(UoW);
+			}
+
 			if(Entity.StartDate == default)
 			{
 				ShowWarningMessage("Дата начала события должна быть указана.");
