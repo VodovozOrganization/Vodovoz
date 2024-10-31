@@ -195,18 +195,20 @@ namespace TaxcomEdoApi.Controllers
 			
 			try
 			{
-				if(_taxcomApi.AutoSendReceive())
-				{
-					return Ok();
-				}
-
-				return Problem("Не удалось запустить необходимые транзакции");
+				_taxcomApi.AutoSendReceive();
+				return Ok();
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при запуске необходимых транзакций по ЭДО");
 				return Problem();
 			}
+		}
+		
+		[HttpGet]
+		public IActionResult GetStatus()
+		{
+			return Ok("It's working!!!");
 		}
 	}
 }
