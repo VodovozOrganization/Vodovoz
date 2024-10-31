@@ -46,6 +46,7 @@ namespace EdoContactsUpdater
 						.AddInfrastructure(ServiceLifetime.Singleton)
 						.AddStaticHistoryTracker()
 						.AddStaticScopeForEntity()
+						
 						.Configure<TaxcomContactsUpdaterOptions>(hostContext.Configuration.GetSection(TaxcomContactsUpdaterOptions.Path))
 
 						.AddSingleton<IEdoContactStateCodeConverter, EdoContactStateCodeConverter>()

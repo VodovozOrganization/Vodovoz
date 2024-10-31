@@ -1,3 +1,4 @@
+using EdoAutoSendReceiveWorker.Configs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TaxcomEdo.Client;
@@ -18,6 +19,8 @@ namespace EdoAutoSendReceiveWorker
 					services
 						.AddHttpClient()
 						.AddTaxcomClient()
+						.Configure<TaxcomEdoAutoSendReceiveWorkerOptions>(
+							hostContext.Configuration.GetSection(TaxcomEdoAutoSendReceiveWorkerOptions.Path))
 						.AddHostedService<TaxcomEdoAutoSendReceiveWorker>();
 				});
 	}
