@@ -184,14 +184,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 
 			var userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
 
-			if(CheckRole("role_financier_cash_request", userId))
-			{
-				return PayoutRequestUserRole.Financier;
-			}
-
 			if(CheckRole("role_coordinator_cash_request", userId))
 			{
 				return PayoutRequestUserRole.Coordinator;
+			}
+
+			if(CheckRole("role_financier_cash_request", userId))
+			{
+				return PayoutRequestUserRole.Financier;
 			}
 
 			if(CheckRole(Vodovoz.Permissions.Cash.RoleCashier, userId))
