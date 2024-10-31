@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using QSProjectsLib;
