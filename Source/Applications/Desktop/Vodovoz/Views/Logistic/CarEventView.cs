@@ -33,11 +33,11 @@ namespace Vodovoz.Views.Logistic
 				.AddFuncBinding(ViewModel.Entity, e => e.Author != null ? e.Author.GetPersonNameWithInitials() : "", w => w.LabelProp)
 				.InitializeFromSource();
 
-			entityviewmodelentryCarEventType.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventTypeSelectorFactory);
+			/*entityviewmodelentryCarEventType.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventTypeSelectorFactory);
 			entityviewmodelentryCarEventType.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CarEventType, e => e.Subject)
 				.AddBinding(vm => vm.CanChangeCarEventType, w => w.Sensitive)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
 
 			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
