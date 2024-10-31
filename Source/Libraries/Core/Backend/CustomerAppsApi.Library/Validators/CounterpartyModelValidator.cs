@@ -3,6 +3,7 @@ using QS.Utilities.Numeric;
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using CustomerAppsApi.Library.Dto;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Counterparty;
@@ -245,20 +246,30 @@ namespace CustomerAppsApi.Library.Validators
 			}
 		}
 		
-		private void ValidateKpp(string kpp)
+		private void ValidateKpp(string kpp, string typeOfOwnership = null)
 		{
-			if(string.IsNullOrWhiteSpace(kpp))
+			if(!string.IsNullOrWhiteSpace(typeOfOwnership) && typeOfOwnership == "ИП")
 			{
-				_sb.AppendLine("Не заполнено КПП");
+				if(!string.IsNullOrWhiteSpace(kpp))
+				{
+					_sb.AppendLine("У индивидуальных предпринимателей не может быть КПП");
+				}
 			}
 			else
 			{
-				if(kpp.Length != Counterparty.KppLength)
+				if(string.IsNullOrWhiteSpace(kpp))
 				{
-					_sb.AppendLine($"КПП должен содержать {Counterparty.KppLength} символов");
+					_sb.AppendLine("Не заполнено КПП");
 				}
+				else
+				{
+					if(kpp.Length != Counterparty.KppLength)
+					{
+						_sb.AppendLine($"КПП должен содержать {Counterparty.KppLength} символов");
+					}
 
-				CheckOnlyNumbers(kpp, "КПП");
+					CheckOnlyNumbers(kpp, "КПП");
+				}
 			}
 		}
 		
