@@ -82,7 +82,7 @@ namespace CustomerAppsApi.Library.Validators
 			ValidateName(dto.Name);
 			ValidateTypeOfOwnership(dto.CodeTypeOfOwnership, dto.ShortTypeOfOwnership, dto.FullTypeOfOwnership);
 			ValidateInn(dto.Inn, dto.ShortTypeOfOwnership);
-			ValidateKpp(dto.Kpp);
+			ValidateKpp(dto.Kpp, dto.ShortTypeOfOwnership);
 			ValidateJurAddress(dto.JurAddress);
 			
 			return ValidationResult();
@@ -203,7 +203,7 @@ namespace CustomerAppsApi.Library.Validators
 			ValidateName(counterpartyDto.Name);
 			ValidateTypeOfOwnership(counterpartyDto.ShortTypeOfOwnership);
 			ValidateInn(counterpartyDto.Inn);
-			ValidateKpp(counterpartyDto.Kpp);
+			ValidateKpp(counterpartyDto.Kpp, counterpartyDto.ShortTypeOfOwnership);
 			ValidateTaxType(counterpartyDto.TaxType);
 			ValidateJurAddress(counterpartyDto.JurAddress);
 		}
@@ -246,11 +246,11 @@ namespace CustomerAppsApi.Library.Validators
 			}
 		}
 		
-		private void ValidateKpp(string kpp, string typeOfOwnership = null)
+		private void ValidateKpp(string kpp, string typeOfOwnership)
 		{
 			if(!string.IsNullOrWhiteSpace(typeOfOwnership) && typeOfOwnership == "ИП")
 			{
-				if(!string.IsNullOrWhiteSpace(kpp))
+				if(kpp != null)
 				{
 					_sb.AppendLine("У индивидуальных предпринимателей не может быть КПП");
 				}
