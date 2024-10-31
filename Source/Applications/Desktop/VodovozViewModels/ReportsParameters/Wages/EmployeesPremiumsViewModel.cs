@@ -40,6 +40,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			Title = "Премии сотрудников";
 			Identifier = "Employees.Premiums";
 
+			_employeeFilter.Status = EmployeeStatus.IsWorking;
 			employeesFactory.SetEmployeeFilterViewModel(_employeeFilter);
 			DriverSelectorFactory = employeesFactory.CreateEmployeeAutocompleteSelectorFactory();
 
