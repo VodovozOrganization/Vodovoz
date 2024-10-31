@@ -14,10 +14,12 @@ using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings;
 using VodovozHealthCheck.Dto;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace EdoDocumentFlowUpdater
 {
@@ -72,6 +74,7 @@ namespace EdoDocumentFlowUpdater
 			{
 				await DelayAsync(cancellationToken);
 				await ProcessOutgoingDocuments(cancellationToken);
+				await CancellationDocFlows(cancellationToken);
 			}
 		}
 
@@ -170,6 +173,69 @@ namespace EdoDocumentFlowUpdater
 			{
 				_settingController.CreateOrUpdateSetting(
 					"last_event_outgoing_documents_timestamp", _lastEventOutgoingDocumentsTimeStamp.ToString());
+			}
+		}
+
+		private async Task CancellationDocFlows(CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("Получаем заказы по которым нужно отменить счёт");
+
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис аннулирования документов");
+			var offerCancellationFromActions = uow
+				.GetAll<OrderEdoTrueMarkDocumentsActions>()
+				.Where(x => x.IsNeedOfferCancellation)
+				.ToList();
+			
+			_logger.LogInformation("Всего нужно аннулировать {Count}", offerCancellationFromActions.Count);
+
+			foreach(var offerCancellation in offerCancellationFromActions)
+			{
+				using var scope = _serviceScopeFactory.CreateScope();
+				var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+				
+				var containersToOfferCancellation = uow.Session.Query<EdoContainer>()
+					.Where(ec => ec.Order.Id == offerCancellation.Order.Id
+						&& ec.Type == Type.Bill
+						&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
+						&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error)
+					.ToList();
+
+				foreach(var container in containersToOfferCancellation)
+				{
+					//Не отменяем контейнеры, которые были созданы после запроса на аннулирование
+					if(offerCancellation.Created.HasValue && offerCancellation.Created < container.Created)
+					{
+						continue;
+					}
+					
+					_logger.LogInformation("Отменяется оффер из контейнера №{EdoContainerId}, Заказа №{OrderId}, документооборота {DocFlow}",
+						container.Id,
+						container.Order?.Id,
+						container.DocFlowId);
+					
+					await SendOfferCancellationContainer(taxcomApiClient, container, cancellationToken);
+				}
+
+				offerCancellation.IsNeedOfferCancellation = false;
+				await uow.SaveAsync(offerCancellation);
+				await uow.CommitAsync();
+			}
+		}
+		
+		private async Task SendOfferCancellationContainer(
+			ITaxcomApiClient taxcomApiClient, EdoContainer edoContainer, CancellationToken cancellationToken)
+		{
+			try
+			{
+				await taxcomApiClient.SendOfferCancellation(
+					edoContainer.DocFlowId.ToString(), "Состав заказа был изменен", cancellationToken);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка в процессе аннулирования документооборота {DocFlow} из контейнера №{EdoContainerId}, Заказа №{OrderId}",
+					edoContainer.DocFlowId,
+					edoContainer.Id,
+					edoContainer.Order.Id);
 			}
 		}
 

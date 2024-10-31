@@ -206,6 +206,28 @@ namespace TaxcomEdoApi.Controllers
 		}
 		
 		[HttpGet]
+		public IActionResult OfferCancellation(string docFlowId, string reason)
+		{
+			_logger.LogInformation(
+				"Пришел запрос на аннулирование документооборота {DocFlow} по причине {Reason}",
+				docFlowId,
+				reason);
+			
+			try
+			{
+				_taxcomApi.OfferCancellation(docFlowId, reason);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при аннулировании документооборота {DocFlow} с причиной {Reason}",
+					docFlowId,
+					reason);
+				return Problem();
+			}
+		}
+		
+		[HttpGet]
 		public IActionResult GetStatus()
 		{
 			return Ok("It's working!!!");

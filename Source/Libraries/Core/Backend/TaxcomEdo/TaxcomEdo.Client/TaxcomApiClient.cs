@@ -113,6 +113,11 @@ namespace TaxcomEdo.Client
 			await CreateClient().GetAsync(_taxcomApiOptions.AutoSendReceiveEndpoint, cancellationToken);
 		}
 
+		public async Task SendOfferCancellation(string docFlowId, string reason, CancellationToken cancellationToken = default)
+		{
+			await CreateClient().GetAsync(_taxcomApiOptions.OfferCancellationEndpoint, cancellationToken);
+		}
+
 		private async Task SendDocument<T>(string endPoint, T data)
 		{
 			await CreateClient().PostAsJsonAsync(endPoint, data);

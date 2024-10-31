@@ -13,5 +13,6 @@
 		public string GetDocFlowRawDataEndPoint { get; set; }
 		public string GetDocFlowsUpdatesEndPoint { get; set; }
 		public string AutoSendReceiveEndpoint { get; set; }
+		public string OfferCancellationEndpoint { get; set; }
 	}
 }

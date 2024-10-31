@@ -70,5 +70,13 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task StartProcessAutoSendReceive(CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Отправка запроса на аннулироване документооборота
+		/// </summary>
+		/// <param name="docFlowId">Идентификатор документооборота</param>
+		/// <param name="reason">Причина аннулирования</param>
+		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
+		/// <returns></returns>
+		Task SendOfferCancellation(string docFlowId, string reason, CancellationToken cancellationToken = default);
 	}
 }
