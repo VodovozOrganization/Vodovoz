@@ -200,63 +200,7 @@ namespace EdoDocumentsPreparer
 
 				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", orders.Count);
 
-				foreach(var order in orders)
-				{
-					try
-					{
-						if(order.OrderDocuments
-							   .FirstOrDefault(x =>
-								   _orderDocumentTypesForSendBill.Contains(x.Type)
-								   && x.Order.Id == order.Id) is not IPrintableRDLDocument printableRdlDocument)
-						{
-							_logger.LogWarning("У заказа {OrderId} не найден документ для отправки счета", order.Id);
-							continue;
-						}
-						
-						var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
-						var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);
-						var infoForCreatingEdoBill = _billInfoFactory.CreateInfoForCreatingEdoBill(
-							orderInfo,
-							_fileDataFactory.CreateBillFileData(orderInfo.Id.ToString(), orderInfo.CreationDate, billAttachment));
-
-						var edoContainer = EdoContainerBuilder
-							.Create()
-							.Empty()
-							.OrderBill(order)
-							.MainDocumentId(infoForCreatingEdoBill.MainDocumentId.ToString())
-							.Build();
-
-						var actions = uow
-							.GetAll<OrderEdoTrueMarkDocumentsActions>()
-							.Where(x => x.Order.Id == edoContainer.Order.Id && x.IsNeedToResendEdoBill)
-							.ToArray();
-
-						foreach(var action in actions)
-						{
-							action.IsNeedToResendEdoBill = false;
-							await uow.SaveAsync(action);
-						}
-
-						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
-						await uow.SaveAsync(edoContainer);
-						await uow.CommitAsync();
-						
-						try
-						{
-							_logger.LogInformation("Отправляем данные по счету {OrderId} в очередь", order.Id);
-							await _publishEndpoint.Publish(infoForCreatingEdoBill);
-						}
-						catch(Exception e)
-						{
-							_logger.LogError(e, "Не удалось отправить данные по счету {OrderId} в очередь", order.Id);
-						}
-					}
-					catch(Exception e)
-					{
-						_logger.LogError(e, "Ошибка в процессе подготовки счёта заказа №{OrderId} и его отправки",
-							order.Id);
-					}
-				}
+				await SendBillsData(uow, orders);
 			}
 			catch(Exception e)
 			{
@@ -264,6 +208,72 @@ namespace EdoDocumentsPreparer
 				//_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
 				//_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"{message}: {e.Message}");
 				_logger.LogError(e, message);
+			}
+		}
+
+		private async Task SendBillsData(IUnitOfWork uow, IEnumerable<Order> orders)
+		{
+			foreach(var order in orders)
+			{
+				try
+				{
+					if(order.OrderDocuments
+						   .FirstOrDefault(x =>
+							   _orderDocumentTypesForSendBill.Contains(x.Type)
+							   && x.Order.Id == order.Id) is not IPrintableRDLDocument printableRdlDocument)
+					{
+						_logger.LogWarning("У заказа {OrderId} не найден документ для отправки счета", order.Id);
+						continue;
+					}
+						
+					var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
+					var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);
+					var infoForCreatingEdoBill = _billInfoFactory.CreateInfoForCreatingEdoBill(
+						orderInfo,
+						_fileDataFactory.CreateBillFileData(orderInfo.Id.ToString(), orderInfo.CreationDate, billAttachment));
+
+					var edoContainer = EdoContainerBuilder
+						.Create()
+						.Empty()
+						.OrderBill(order)
+						.MainDocumentId(infoForCreatingEdoBill.MainDocumentId.ToString())
+						.Build();
+
+					var actions = uow
+						.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == edoContainer.Order.Id && x.IsNeedToResendEdoBill)
+						.ToArray();
+
+					foreach(var action in actions)
+					{
+						action.IsNeedToResendEdoBill = false;
+						await uow.SaveAsync(action);
+					}
+
+					_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
+					await uow.SaveAsync(edoContainer);
+					await uow.CommitAsync();
+						
+					await SendBillData(order, infoForCreatingEdoBill);
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Ошибка в процессе подготовки счёта заказа №{OrderId} и его отправки",
+						order.Id);
+				}
+			}
+		}
+
+		private async Task SendBillData(Order order, InfoForCreatingEdoBill infoForCreatingEdoBill)
+		{
+			try
+			{
+				_logger.LogInformation("Отправляем данные по счету {OrderId} в очередь", order.Id);
+				await _publishEndpoint.Publish(infoForCreatingEdoBill);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Не удалось отправить данные по счету {OrderId} в очередь", order.Id);
 			}
 		}
 
