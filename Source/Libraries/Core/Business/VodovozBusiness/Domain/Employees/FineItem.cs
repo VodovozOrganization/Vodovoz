@@ -11,6 +11,8 @@ namespace Vodovoz.Domain.Employees
 		Nominative = "строка штрафа")]
 	public class FineItem: PropertyChangedBase, IDomainObject
 	{
+		public const decimal LitersOverspendingLimit = FuelOperation.LitersOutlayedLimit;
+
 		public virtual int Id { get; set; }
 
 		public virtual Fine Fine { get; set; }

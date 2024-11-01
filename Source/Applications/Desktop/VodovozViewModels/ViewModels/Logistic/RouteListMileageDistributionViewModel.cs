@@ -80,6 +80,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_tdiTab = tdiTab ?? throw new ArgumentNullException(nameof(tdiTab));
 
 			GenerateDistributionRows();
+			AskSaveOnClose = CanEdit;
 		}
 
 		#region Private methods
@@ -175,7 +176,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		}
 
-		private void AcceptDistribution(RouteList routeList)
+		private bool AcceptDistribution(RouteList routeList)
 		{
 			var validationContext = _validationContextFactory.CreateNewValidationContext(routeList,
 				new Dictionary<object, object>
@@ -186,7 +187,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(!CommonServices.ValidationService.Validate(routeList, validationContext))
 			{
-				return;
+				return false;
 			}
 
 			routeList.AcceptMileage(_callTaskWorker);
@@ -198,11 +199,27 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					if(!CommonServices.InteractiveService.Question(
 						   "Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?"))
 					{
-						return;
+						return false;
 					}
 				}
 
 				routeList.UpdateFuelOperation();
+			}
+
+			if(Entity.FuelOutlayedOperation != null)
+			{
+				var fuelValidationContext =
+					_validationContextFactory.CreateNewValidationContext(
+						Entity.FuelOutlayedOperation,
+						new Dictionary<object, object>
+						{
+							{ FuelOperation.DialogMessage, $"Неверный разнос километража в МЛ {Entity.Id}"},
+						});
+				
+				if(!CommonServices.ValidationService.Validate(Entity.FuelOutlayedOperation, fuelValidationContext))
+				{
+					return false;
+				}
 			}
 
 			if(routeList.Status == RouteListStatus.Delivered)
@@ -211,6 +228,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 
 			routeList.CalculateWages(_wageParameterService);
+			return true;
 		}
 
 		private void ChangeStatusAndCreateTaskFromDelivered(RouteList routeList)
@@ -252,7 +270,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 		
 		public bool CanEdit { get; set; } = true;
-		public bool AskSaveOnClose => CanEdit;
+		public bool AskSaveOnClose { get; private set; }
 
 		public RouteListMileageDistributionNode SelectedNode
 		{
@@ -282,7 +300,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 					foreach(var distributionNode in Rows.Where(r => r.RouteList != null).ToList())
 					{
-						AcceptDistribution(distributionNode.RouteList);
+						if(!AcceptDistribution(distributionNode.RouteList))
+						{
+							AskSaveOnClose = false;
+							return;
+						}
 						UoW.Save(distributionNode.RouteList);
 					}
 

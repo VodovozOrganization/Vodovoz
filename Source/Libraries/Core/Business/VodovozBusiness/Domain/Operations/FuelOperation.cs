@@ -1,4 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using System.Text;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
@@ -17,6 +21,9 @@ namespace Vodovoz
 	[HistoryTrace]
 	public class FuelOperation : OperationBase
 	{
+		public const decimal LitersOutlayedLimit = 9_999.99m;
+		public const string DialogMessage = nameof(DialogMessage);
+
 		private FuelType _fuel;
 		private Employee _driver;
 		private Car _car;
@@ -98,6 +105,26 @@ namespace Vodovoz
 		public FuelOperation() { }
 
 		public virtual string Title => $"{GetType().GetSubjectName()} №{Id}";
+		
+		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(LitersOutlayed > LitersOutlayedLimit)
+			{
+				var sb = new StringBuilder();
+				var propertyName = this.GetPropertyInfo(x => x.LitersOutlayed).GetCustomAttribute<DisplayAttribute>(true).Name;
+				validationContext.Items.TryGetValue(DialogMessage, out var message);
+
+				sb.Append(
+					$"Поле {propertyName} в операции топлива с значением {LitersOutlayed} не должно превышать лимит {LitersOutlayedLimit}");
+
+				if(message != null)
+				{
+					sb.Insert(0, $"{message}\n");
+				}
+				
+				yield return new ValidationResult(sb.ToString(), new []{ nameof(LitersOutlayed) });
+			}
+		}
 	}
 }
 
