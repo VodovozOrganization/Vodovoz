@@ -27,7 +27,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Common;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
@@ -124,6 +123,8 @@ namespace Vodovoz
 
 			UpdateNodes();
 
+			CreateInitialRouteListItemStatuses();
+
 			SetPropertyChangeRelation(rl => rl.Status,
 				() => CanReturnRouteListToEnRouteStatus,
 				() => CanSave,
@@ -138,6 +139,14 @@ namespace Vodovoz
 			ChangeDeliveryTimeCommand = new DelegateCommand(ChangeDeliveryTimeHandler, () => CanChangeDeliveryTime);
 			SetStatusCompleteCommand = new DelegateCommand(SetStatusCompleteHandler, () => CanComplete);
 			ReDeliverCommand = new DelegateCommand(ReDeliverHandler, () => Entity.CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument);
+		}
+
+		private void CreateInitialRouteListItemStatuses()
+		{
+			foreach(var item in Items)
+			{
+				item.InitialRouteListItemStatusIsInUndeliveryStatuses = RouteListItem.GetUndeliveryStatuses().Contains(item.RouteListItem.Status);
+			}
 		}
 
 		public Func<Order, IUnitOfWork, RouteListItemStatus, ITdiTab> UndeliveryOpenDlgAction { get; set; }
@@ -423,43 +432,62 @@ namespace Vodovoz
 		{
 			_routeListItemStatusToChange = e.NewStatus;
 
-			if(sender is RouteListKeepingItemNode rli)
+			var rli = sender as RouteListKeepingItemNode;
+
+			if(rli is null)
 			{
-				if(_routeListItemStatusToChange == RouteListItemStatus.Canceled
-					|| _routeListItemStatusToChange == RouteListItemStatus.Overdue)
-				{					
-					_undeliveryViewModel = NavigationManager.OpenViewModel<UndeliveryViewModel>(
-						this,
-						OpenPageOptions.AsSlave,
-						vm =>
-						{
-							vm.Saved += OnUndeliveryViewModelSaved;
-							vm.Initialize(rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id);
-						}
-						).ViewModel;
-
-					return;
-				}
-
-				var validationContext = new ValidationContext(Entity, _serviceProvider, new Dictionary<object, object>
-				{
-					{ "uowFactory", UnitOfWorkFactory }
-				});
-
-				var canCreateSeveralOrdersValidationResult =
-					rli.RouteListItem.Order.ValidateCanCreateSeveralOrderForDateAndDeliveryPoint(validationContext);
-
-				if(canCreateSeveralOrdersValidationResult != ValidationResult.Success)
-				{
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Warning,
-						$"Нельзя перевести адрес в статус \"{_routeListItemStatusToChange.GetEnumTitle()}\": {canCreateSeveralOrdersValidationResult.ErrorMessage} ");
-
-					return;
-				}
-
-				rli.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
+				return;
 			}
+
+			if(RouteListItem.GetUndeliveryStatuses().Contains(_routeListItemStatusToChange))
+			{
+				if(rli.InitialRouteListItemStatusIsInUndeliveryStatuses
+					&& rli.RouteListItemStatusHasChangedToCompeteStatus
+					&& RouteListItem.GetUndeliveryStatuses().Contains(_routeListItemStatusToChange))
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning,
+						"Вы вернули отменённый заказ  в статус \"Выполнен\" и была создана автоотмена автопереноса.\n" +
+						"Если всё же снова хотите отменить данный заказ - переоткройте диалог.");
+
+					return;
+				}
+
+				_undeliveryViewModel = NavigationManager.OpenViewModel<UndeliveryViewModel>(
+					this,
+					OpenPageOptions.AsSlave,
+					vm =>
+					{
+						vm.Saved += OnUndeliveryViewModelSaved;
+						vm.Initialize(rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id);
+					}
+					).ViewModel;
+
+				return;
+			}
+
+			var validationContext = new ValidationContext(Entity, _serviceProvider, new Dictionary<object, object>
+			{
+				{ "uowFactory", UnitOfWorkFactory }
+			});
+
+			var canCreateSeveralOrdersValidationResult =
+				rli.RouteListItem.Order.ValidateCanCreateSeveralOrderForDateAndDeliveryPoint(validationContext);
+
+			if(canCreateSeveralOrdersValidationResult != ValidationResult.Success)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Нельзя перевести адрес в статус \"{_routeListItemStatusToChange.GetEnumTitle()}\": {canCreateSeveralOrdersValidationResult.ErrorMessage} ");
+
+				return;
+			}
+
+			if(_routeListItemStatusToChange == RouteListItemStatus.Completed)
+			{
+				rli.RouteListItemStatusHasChangedToCompeteStatus = true;
+			}
+
+			rli.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
 		}
 
 		private void OnUndeliveryViewModelSaved(object sender, Application.Orders.UndeliveryOnOrderCloseEventArgs e)
@@ -470,7 +498,6 @@ namespace Vodovoz
 
 			address.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
 			UoW.Save(address.RouteListItem);
-			UoW.Commit();
 		}
 
 		private void OnForwarderChanged(object sender, EventArgs e)

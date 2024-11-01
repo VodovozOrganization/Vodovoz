@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Settings.Database.Common
@@ -10,6 +9,8 @@ namespace Vodovoz.Settings.Database.Common
 	public class GeneralSettings : IGeneralSettings
 	{
 		private readonly ISettingsController _settingsController;
+		public const string PaymentWriteOffAllowedFinancialExpenseCategoriesParameterName =
+			"Accounting.PaymentWriteOff.AllowedFinancialExpenseCategories";
 		private const string _routeListPrintedFormPhones = "route_list_printed_form_phones";
 		private const string _canAddForwarderToLargus = "can_add_forwarders_to_largus";
 		private const string _orderAutoComment = "OrderAutoComment";
@@ -170,6 +171,8 @@ namespace Vodovoz.Settings.Database.Common
 			}
 		}
 
+		public int[] PaymentWriteOffAllowedFinancialExpenseCategories => GetPaymentWriteOffAllowedFinancialExpenseCategoriesParameter();
+
 		public void UpdateCarLoadDocumentInfoString(string value) =>
 			_settingsController.CreateOrUpdateSetting(_carLoadDocumentInfoString, value);
 
@@ -188,6 +191,16 @@ namespace Vodovoz.Settings.Database.Common
 			return splitedIds
 				.Select(x => int.Parse(x))
 				.ToArray();
+		}
+
+		private int[] GetPaymentWriteOffAllowedFinancialExpenseCategoriesParameter()
+		{
+			return ParseIdsFromString(PaymentWriteOffAllowedFinancialExpenseCategoriesParameterName);
+		}
+
+		public void UpdatePaymentWriteOffAllowedFinancialExpenseCategoriesParameter(int[] ids, string parameterName)
+		{
+			_settingsController.CreateOrUpdateSetting(parameterName, string.Join(", ", ids));
 		}
 	}
 }

@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V5;
+﻿using DriverApi.Contracts.V5;
 using QS.Utilities.Numeric;
 using System;
 using System.Collections.Generic;
@@ -211,7 +211,8 @@ namespace DriverAPI.Library.V5.Converters
 				IsDiscountInMoney = saleItem.IsDiscountInMoney,
 				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
 				DiscountReason = saleItem.DiscountReason?.Name,
-				CapColor = saleItem.Nomenclature.BottleCapColor
+				CapColor = saleItem.Nomenclature.BottleCapColor,
+				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false
 			};
 
 			if(saleItem.Nomenclature.TareVolume != null)

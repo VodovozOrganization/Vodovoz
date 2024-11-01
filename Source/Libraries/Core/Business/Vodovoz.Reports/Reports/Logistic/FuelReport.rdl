@@ -814,7 +814,7 @@
     <DataSet Name="Fuel">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>60</Timeout>
+        <Timeout>300</Timeout>
         <CommandText>#Получаем данные по операциям с топливом в ДВ
 WITH all_fuel_operations as
 ((SELECT

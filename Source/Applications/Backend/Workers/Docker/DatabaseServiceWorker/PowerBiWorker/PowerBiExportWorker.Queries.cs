@@ -43,7 +43,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 					WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN 'Мастер СЦ'
 					WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN 'Форс-мажор'
 					WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN 'Доставка за час'
-					WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN 'Доставка в тот же день'
+					WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN 'Довезли в тот же день'
 					WHEN '{nameof(GuiltyTypes.AutoСancelAutoTransfer)}' THEN 'Автоотмена автопереноса'
 					WHEN '{nameof(GuiltyTypes.None)}' THEN 'Нет (не недовоз)'
 					ELSE guilty.guilty_side

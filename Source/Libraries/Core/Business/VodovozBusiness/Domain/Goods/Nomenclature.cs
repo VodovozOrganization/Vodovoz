@@ -1,3 +1,4 @@
+using Autofac;
 using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
@@ -18,7 +19,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Services;
 using VodovozBusiness.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -40,6 +43,7 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;		
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
+		private bool _hasConditionAccounting;
 		private GlassHolderType? _glassHolderType;
 		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
 		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
@@ -383,6 +387,10 @@ namespace Vodovoz.Domain.Goods
 					{
 						SaleCategory = null;
 					}
+					if(value != NomenclatureCategory.master)
+					{
+						MasterServiceType = null;
+					}
 				}
 			}
 		}
@@ -399,6 +407,13 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _typeOfDepositCategory;
 			set => SetField(ref _typeOfDepositCategory, value);
+		}
+
+		[Display(Name = "Тип выезда мастера")]
+		public virtual MasterServiceType? MasterServiceType
+		{
+			get => _masterServiceType;
+			set => SetField(ref _masterServiceType, value);
 		}
 
 		[Display(Name = "Цвет оборудования")]
@@ -661,6 +676,13 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _hasInventoryAccounting;
 			set => SetField(ref _hasInventoryAccounting, value);
+		}
+		
+		[Display(Name = "Учет состояния ТМЦ(б/у | Нов)")]
+		public virtual bool HasConditionAccounting
+		{
+			get => _hasConditionAccounting;
+			set => SetField(ref _hasConditionAccounting, value);
 		}
 
 		[Display(Name = "Тип стаканодержателя")]
@@ -1298,6 +1320,7 @@ namespace Vodovoz.Domain.Goods
 
 		public static string PrefixOfCode1c = "ДВ";
 		public static int LengthOfCode1c = 10;
+		private MasterServiceType? _masterServiceType;
 
 		/// <summary>
 		/// Категории товаров к которым применима категория продажи

@@ -133,7 +133,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					_emailRepository,
 					_emailSettings,
 					currentEmployee,
-					commonServices.InteractiveService,
+					commonServices,
 					UoW);
 
 			FillDiscountReasons(discountReasonRepository);

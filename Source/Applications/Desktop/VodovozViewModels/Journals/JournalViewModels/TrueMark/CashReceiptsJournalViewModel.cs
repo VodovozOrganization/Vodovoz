@@ -22,6 +22,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
@@ -71,14 +72,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			var permissionService = _commonServices.CurrentPermissionService;
-			
+
 			var allReceiptStatusesAvailable =
 				permissionService.ValidatePresetPermission(CashReceiptPermissions.AllReceiptStatusesAvailable);
 			var showOnlyCodeErrorStatusReceipts =
 				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyCodeErrorStatusReceipts);
 			var showOnlyReceiptSendErrorStatusReceipts =
 				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyReceiptSendErrorStatusReceipts);
-			
+
 			var canReadReceipts = allReceiptStatusesAvailable || showOnlyCodeErrorStatusReceipts || showOnlyReceiptSendErrorStatusReceipts;
 			if(!canReadReceipts)
 			{
@@ -99,7 +100,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 
 			Filter = filter;
-
 			_autoRefreshInterval = 30;
 
 			Title = "Журнал чеков";
@@ -149,10 +149,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 		}
 
-		public bool CanCreateProductCodesScanningReportReport => 
-			Filter.StartDate.HasValue 
-			&& Filter.EndDate.HasValue 
-			&& Filter.EndDate.Value >= Filter.StartDate.Value 
+		public bool CanCreateProductCodesScanningReportReport =>
+			Filter.StartDate.HasValue
+			&& Filter.EndDate.HasValue
+			&& Filter.EndDate.Value >= Filter.StartDate.Value
 			&& !IsReportGeneratingInProcess;
 
 		public IRecursiveConfig RecuresiveConfig { get; }
@@ -183,6 +183,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			CreateAutorefreshAction();
 			CreateNodeManualSendAction();
 			CreateNodeRefreshFiscalDocAction();
+			CreateNodeRequeueFiscalDocAction();
 			CreateLoadCodesToPoolAction();
 			CreateProductCodesScanningReportAction();
 			CreateExportAction();
@@ -210,7 +211,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			query.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias);
 			query.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias);
 			query.Where(() => !cashReceiptAlias.WithoutMarks);
-			
+
 			if(_filter.Status.HasValue)
 			{
 				query.Where(Restrictions.Eq(Projections.Property(() => cashReceiptAlias.Status), _filter.Status.Value));
@@ -505,7 +506,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		#endregion Manual send
 
-		#region Refresh fiscal document
+		#region Refresh and requeue fiscal document
 
 		private void CreatePopupRefreshFiscalDocAction()
 		{
@@ -519,12 +520,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			NodeActionsList.Add(refreshFiscalDocAction);
 		}
 
+		private void CreateNodeRequeueFiscalDocAction()
+		{
+			var requeueFiscalDocAction = GetRequeueFiscalDocAction();
+			NodeActionsList.Add(requeueFiscalDocAction);
+		}
+
 		private JournalAction GetRefreshFiscalDocAction()
 		{
 			var manualSentAction = new JournalAction("Обновить статус фиск. документа",
 				(selected) => RefreshFiscalDocActionSensitive(selected),
 				(selected) => true,
 				RefreshFiscalDoc
+			);
+			return manualSentAction;
+		}
+
+		private JournalAction GetRequeueFiscalDocAction()
+		{
+			var manualSentAction = new JournalAction("Повторное проведение чека",
+				(selected) => RequeueFiscalDocActionSensitive(selected),
+				(selected) => true,
+				RequeueFiscalDoc
 			);
 			return manualSentAction;
 		}
@@ -561,18 +578,71 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		{
 			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
 
-			try
-			{
-				_receiptManualController.RefreshFiscalDoc(node.Id);
-			}
-			catch(Exception ex)
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Невозможно подключиться к сервису обработки чеков. Повторите попытку позже.\n{ex.Message}");
-			}
+			var result = _receiptManualController.RefreshFiscalDoc(node.Id);
+
+			ShowResultToUser(result);
+
 			Refresh();
 		}
 
-		#endregion Refresh fiscal document
+		private bool RequeueFiscalDocActionSensitive(object[] selectedNodes)
+		{
+			var nodes = selectedNodes.OfType<CashReceiptJournalNode>();
+			if(!nodes.Any())
+			{
+				return false;
+			}
+
+			if(nodes.Count() > 1)
+			{
+				return false;
+			}
+
+			var node = nodes.First();
+
+			if(node.NodeType != CashReceiptNodeType.Receipt)
+			{
+				return false;
+			}
+
+			if(node.FiscalDocStatus == FiscalDocumentStatus.Failed)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private void RequeueFiscalDoc(object[] selectedNodes)
+		{
+			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
+
+			var result = _receiptManualController.RequeueFiscalDoc(node.Id);
+
+			ShowResultToUser(result);
+
+			Refresh();
+		}
+
+		private void ShowResultToUser(Result result)
+		{
+			if(result.IsSuccess)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"Запрос выполнен успешно");
+			}
+			else
+			{
+				var firstError = result.Errors.FirstOrDefault();
+
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					firstError.Message ?? "При выполнении запроса произошла непредвиденная ошибка");
+			}
+		}
+
+		#endregion Refresh and requeue fiscal document
 
 		#region Load codes to pool
 
@@ -649,7 +719,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			var dialogSettings = new DialogSettings();
 			dialogSettings.Title = "Сохранить";
-			dialogSettings.FileName = typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative 
+			dialogSettings.FileName = typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative
 				+ $" с {Filter.StartDate:dd.MM.yyyy} по {Filter.EndDate.Value.Date:dd.MM.yyyy}";
 			dialogSettings.DefaultFileExtention = ".xlsx";
 			dialogSettings.FileFilters.Clear();
@@ -669,7 +739,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			{
 				report = await ProductCodesScanningReport.GenerateAsync(unitOfWork, Filter.StartDate.Value, Filter.EndDate.Value);
 			}
-			
+
 			await report?.ExportReportToExcelAsync(result.Path);
 
 			IsReportGeneratingInProcess = false;

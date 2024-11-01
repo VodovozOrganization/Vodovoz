@@ -750,6 +750,13 @@ namespace Vodovoz
 		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
+
+			if(node is null)
+			{
+				MessageDialogHelper.RunErrorDialog("Не выбран адрес. Если ошибка будет повторяться - переоткройте вкладку");
+				return;
+			}
+			
 			var dlg = new OrderReturnsView(
 				UoW,
 				_orderDiscountsController,
@@ -768,6 +775,7 @@ namespace Vodovoz
 				_flyerRepository,
 				NavigationManager,
 				_lifetimeScope);
+			
 			dlg.ConfigureForRouteListAddress(node);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;
 			TabParent.AddSlaveTab(this, dlg);
@@ -1629,6 +1637,34 @@ namespace Vodovoz
 			{
 				MessageDialogHelper.RunErrorDialog("Нельзя удалить талоны по которым выдавались топливные лимиты");
 				return;
+			}
+
+			if(fd.FuelCashExpense != null)
+			{
+				var cashTransferDocumentsHavingExpense =
+					_cashRepository.GetCashTransferDocumentsIdsByExpenseId(UoW, fd.FuelCashExpense.Id);
+
+				if(cashTransferDocumentsHavingExpense.Count > 0)
+				{
+					MessageDialogHelper.RunErrorDialog(
+						$"Удалить талоны невозможно, т.к. расходный ордер талона задействован " +
+						$"в документах перемещении ДС: {string.Join(", ", cashTransferDocumentsHavingExpense)}");
+
+					return;
+				}
+			}
+
+			var cashDistributionDocumentsIds =
+				_cashRepository.GetCashDistributionDocumentsIdsByFuelDocumentId(UoW, fd.Id);
+
+			if(cashDistributionDocumentsIds.Count > 0)
+			{
+				if(!MessageDialogHelper.RunQuestionDialog("Вы действительно хотите удалить талон выдачи топлива вместе документом расхода налички?"))
+				{
+					return;
+				}
+
+				_cashRepository.DeleteFuelExpenseCashDistributionDocuments(UoW, cashDistributionDocumentsIds);
 			}
 
 			Entity.ObservableFuelDocuments.Remove(fd);

@@ -28,6 +28,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Employees;
+using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.ViewModels.Reports;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -434,7 +435,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					.Select(() => instanceAlias.Id).WithAlias(() => instanceDataAlias.Id)
 					.Select(() => instanceAlias.PurchasePrice).WithAlias(() => instanceDataAlias.PurchasePrice)
 					.Select(n => n.Name).WithAlias(() => instanceDataAlias.Name)
-					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => instanceDataAlias.InventoryNumber))
+					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => instanceDataAlias.InventoryNumber)
+					.Select(() => instanceAlias.IsUsed).WithAlias(() => instanceDataAlias.IsUsed)
+				)
 				.TransformUsing(Transformers.AliasToBean<InstanceData>())
 				.OrderBy(() => instanceAlias.Id).Asc;
 
@@ -739,7 +742,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					Num = ++counter,
 					EntityId = instanceId,
 					NomTitle = instanceData[instancesCounter].Name,
-					InventoryNumber = instanceData[instancesCounter].InventoryNumber,
+					InventoryNumber = instanceData[instancesCounter].GetInventoryNumber,
 					WarehousesBalances = new List<decimal>(),
 					EmployeesBalances = new List<decimal>(),
 					CarsBalances = new List<decimal>()
@@ -1019,7 +1022,8 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						.SelectGroup(() => employeeInstanceOperationAlias.Employee.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.EntityId)
 						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
-						.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+						.Select(InventoryNomenclatureInstanceProjections.InventoryNumberProjection())
+							.WithAlias(() => resultAlias.InventoryNumber)
 						.SelectSum(() => employeeInstanceOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
 					.Where(Restrictions.Gt(Projections.Sum(() => employeeInstanceOperationAlias.Amount), 0))
@@ -1060,7 +1064,8 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						.SelectGroup(() => carInstanceOperationAlias.Car.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.EntityId)
 						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
-						.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+						.Select(InventoryNomenclatureInstanceProjections.InventoryNumberProjection())
+							.WithAlias(() => resultAlias.InventoryNumber)
 						.SelectSum(() => carInstanceOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
 					.Where(Restrictions.Gt(Projections.Sum(() => carInstanceOperationAlias.Amount), 0))
