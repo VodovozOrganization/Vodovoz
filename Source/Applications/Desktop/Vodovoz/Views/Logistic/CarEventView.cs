@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using QSProjectsLib;
@@ -38,6 +38,8 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(vm => vm.CarEventType, e => e.Subject)
 				.AddBinding(vm => vm.CanChangeCarEventType, w => w.Sensitive)
 				.InitializeFromSource();*/
+
+			entityEntryCarEventType.ViewModel = ViewModel.CarEventTypeEntryViewModel;
 
 			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
@@ -182,7 +184,7 @@ namespace Vodovoz.Views.Logistic
 			{
 				ylabelCreateDate.Sensitive =
 				ylabelAuthor.Sensitive =
-				entityviewmodelentryCarEventType.Sensitive =
+				entityEntryCarEventType.Sensitive =
 				entityentryCar.Sensitive =
 				evmeDriver.Sensitive =
 				ydatepickerStartEventDate.Sensitive =

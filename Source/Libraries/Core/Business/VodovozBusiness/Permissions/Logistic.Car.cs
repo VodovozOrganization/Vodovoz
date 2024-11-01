@@ -68,6 +68,14 @@ namespace Vodovoz.Permissions
 			[Display(
 				Name = "Доступ к настройке уведомления о приближающейся страховке")]
 			public static string CanEditCarTechnicalCheckupNotificationsSettings => "can_edit_car_technical_checkup_notifications_settings";
+
+			/// <summary>
+			/// Создание калибровки баланса топлива
+			/// </summary>
+			[Display(
+				Name = "Калибровка баланса топлива",
+				Description = "Пользователь может создавать событие авто для калибровки баланса топлива")]
+			public static string CanCreateFuelBalanceCalibrationCarEvent => "can_create_fuel_balance_calibration_car_event";
 		}
 	}
 }

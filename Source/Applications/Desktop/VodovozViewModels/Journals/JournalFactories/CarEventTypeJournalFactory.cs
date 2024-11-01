@@ -2,6 +2,7 @@
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
@@ -19,7 +20,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 		{
 			return new EntityAutocompleteSelectorFactory<CarEventTypeJournalViewModel>(typeof(CarEventType), () =>
 			{
-				return new CarEventTypeJournalViewModel(_uowFactory, ServicesConfig.CommonServices);
+				return new CarEventTypeJournalViewModel(_uowFactory, ServicesConfig.CommonServices, new CarEventTypeFilterViewModel());
 			});
 		}
 	}

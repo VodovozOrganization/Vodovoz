@@ -43,10 +43,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ViewModelEEVMBuilder<WriteOffDocument> _writeOffDocumentViewModelEEVMBuilder;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IFuelRepository _fuelRepository;
-		private readonly ViewModelEEVMBuilder<CarEventType> _carEventViewModelEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<CarEventType> _carEventTypeViewModelEEVMBuilder;
 		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
 		private EntityEntryViewModel<Car> _carEntryViewModel;
-		private int _startNewPeriodDay;
+		private readonly int _startNewPeriodDay;
+		private bool _canCreateFuelBalanceCalibrationCarEvent;
 
 		public CarEventViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -76,9 +77,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_writeOffDocumentViewModelEEVMBuilder = writeOffDocumentViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(writeOffDocumentViewModelEEVMBuilder));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			_carEventViewModelEEVMBuilder = carEventViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carEventViewModelEEVMBuilder));
+			_carEventTypeViewModelEEVMBuilder = carEventViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carEventViewModelEEVMBuilder));
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
+			_canCreateFuelBalanceCalibrationCarEvent = commonServices.CurrentPermissionService.ValidatePresetPermission(
+				Vodovoz.Permissions.Logistic.Car.CanCreateFuelBalanceCalibrationCarEvent);
 			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
 			UpdateFileItems();
 
@@ -104,6 +107,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OriginalCarEventViewModel.IsEditable = CanEdit;
 
 			CarEntryViewModel = BuildCarEntryViewModel();
+			CarEventTypeEntryViewModel = BuildCarEventTypeEntryViewModel();
 			WriteOffDocumentEntryViewModel = BuildWriteOffDocumentEntryViewModel();
 			WriteOffDocumentEntryViewModel.ChangedByUser += OnWriteOffDocumentChangedByUser;
 
@@ -150,7 +154,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate && CheckDatePeriod();
-		public bool CanChangeWithClosedPeriod { get; }
+		public bool CanChangeWithClosedPeriod { get; }		
 		public bool CanChangeCarEventType => !(IsTechInspectCarEventType && Entity.Id > 0) /*&& !IsFuelBalanceCalibrationCarEventType*/;
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
@@ -348,6 +352,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public IEntityEntryViewModel OriginalCarEventViewModel { get; private set; }
 		public IEntityEntryViewModel CarEntryViewModel { get; }
 		public IEntityEntryViewModel WriteOffDocumentEntryViewModel { get; }
+		public IEntityEntryViewModel CarEventTypeEntryViewModel { get; }
 
 		private IEntityEntryViewModel BuildCarEntryViewModel()
 		{
@@ -388,6 +393,29 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			return viewModel;
 		}
+
+		private IEntityEntryViewModel BuildCarEventTypeEntryViewModel()
+		{
+			var viewModel = _carEventTypeViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.CarEventType)
+				.UseViewModelJournalAndAutocompleter<CarEventTypeJournalViewModel, CarEventTypeFilterViewModel>(
+				filter =>
+				{
+					if(!_canCreateFuelBalanceCalibrationCarEvent)
+					{
+						filter.ExcludeCarEventTypeIds.Add(_carEventSettings.FuelBalanceCalibrationCarEventTypeId);
+					}
+				})
+				.UseViewModelDialog<WriteOffDocumentViewModel>()
+				.Finish();
+
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarEvent)).CanUpdate;
+
+			return viewModel;
+		}
+
 
 		private void OnWriteOffDocumentChangedByUser(object sender, EventArgs e)
 		{

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -77,6 +77,7 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\CarEventTypeFilterViewModel.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.AddressDataNode.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.ExportToExcel.cs" />
