@@ -144,6 +144,8 @@ public class TrueMarkApiController : ControllerBase
 		IEnumerable<string> identificationCodes,
 		CancellationToken cancellationToken)
 	{
+		var identificationCodesArray = identificationCodes.ToArray();
+
 		var errorMessage = new StringBuilder();
 		errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
 
@@ -165,7 +167,7 @@ public class TrueMarkApiController : ControllerBase
 			};
 		}
 
-		List<Task<Response<ProductInstanceInfoResponse>>> requestsTasks = CreateRequestsTasks(requestClient, identificationCodes, bearerToken, cancellationToken);
+		List<Task<Response<ProductInstanceInfoResponse>>> requestsTasks = CreateRequestsTasks(requestClient, identificationCodesArray, bearerToken, cancellationToken);
 
 		var productInstancesInfoResponses = new List<ProductInstanceStatus>();
 
@@ -183,7 +185,35 @@ public class TrueMarkApiController : ControllerBase
 			{
 				if(requestTask.Status != TaskStatus.Canceled)
 				{
-					partiallyProcessedResults.Add(requestTask.Result.Message);
+					if(requestTask.Exception != null)
+					{
+						var indexOfFaultedTask = requestsTasks.IndexOf(requestTask);
+
+						if(indexOfFaultedTask != -1 && identificationCodesArray.Length < indexOfFaultedTask)
+						{
+							_logger.LogError(
+							requestTask.Exception,
+							"Request of code #{Code} was faulted with exception",
+							identificationCodesArray[indexOfFaultedTask]);
+						}
+
+						errorMessage.AppendLine(requestTask.Exception.Message);
+					}
+					else
+					{
+						partiallyProcessedResults.Add(requestTask.Result.Message);
+					}
+				}
+				else
+				{
+					var indexOfCancelledTask = requestsTasks.IndexOf(requestTask);
+
+					if(indexOfCancelledTask != -1 && identificationCodesArray.Length < indexOfCancelledTask)
+					{
+						_logger.LogWarning(
+							"Request of code #{Code} was cancelled",
+							identificationCodesArray[indexOfCancelledTask]);
+					}
 				}
 			}
 
