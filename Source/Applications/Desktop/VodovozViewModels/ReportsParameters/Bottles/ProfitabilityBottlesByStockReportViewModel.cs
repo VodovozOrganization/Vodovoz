@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 {
-	public class ProfitabilityBottlesByStockReportViewModel : ReportParametersViewModelBase
+	public partial class ProfitabilityBottlesByStockReportViewModel : ReportParametersViewModelBase
 	{
 		private DateTime _startDate;
 		private DateTime _endDate;
@@ -67,14 +67,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 
 				return parameters;
 			}
-		}
-
-		public class PercentNode
-		{
-			public PercentNode(int pct) => Pct = pct;
-
-			public int Pct { get; set; }
-			public string Name => string.Format("{0}%", Pct);
 		}
 	}
 }

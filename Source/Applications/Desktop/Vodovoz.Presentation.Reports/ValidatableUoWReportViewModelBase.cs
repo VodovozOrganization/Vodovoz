@@ -23,10 +23,15 @@ namespace Vodovoz.Presentation.Reports
 			IValidator validator
 			) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
-			UoW = (uowFactory ?? throw new ArgumentNullException(nameof(uowFactory))).CreateWithoutRoot();
+			if(uowFactory is null)
+			{
+				throw new ArgumentNullException(nameof(uowFactory));
+			}
+
+			UoW = uowFactory.CreateWithoutRoot();
 		}
 
-		public virtual IUnitOfWork UoW { get; set; }
+		public virtual IUnitOfWork UoW { get; protected set; }
 
 		public virtual void Dispose()
 		{

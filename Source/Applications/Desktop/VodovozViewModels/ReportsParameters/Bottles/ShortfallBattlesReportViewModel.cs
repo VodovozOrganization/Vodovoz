@@ -16,7 +16,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 {
-	public class ShortfallBattlesReportViewModel : ValidatableUoWReportViewModelBase
+	public partial class ShortfallBattlesReportViewModel : ValidatableUoWReportViewModelBase
 	{
 		private DateTime? _startDate;
 		private Employee _driver;
@@ -130,20 +130,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 			{
 				yield return new ValidationResult("Необходимо выбрать дату.", new[] { nameof(StartDate) });
 			}
-		}
-
-		public enum Drivers
-		{
-			[Display(Name = "Все")]
-			AllDriver = -1,
-			[Display(Name = "Отзвон не с адреса")]
-			CallFromAnywhere = 3,
-			[Display(Name = "Без отзвона")]
-			NoCall = 2,
-			[Display(Name = "Ларгусы")]
-			Largus = 1,
-			[Display(Name = "Наемники")]
-			Hirelings = 0
 		}
 	}
 }
