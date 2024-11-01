@@ -1,6 +1,7 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,7 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Api.Options;
 using TrueMark.Api.Responses;
@@ -139,56 +141,58 @@ public class TrueMarkApiController : ControllerBase
 	[HttpPost]
 	public async Task<ProductInstancesInfoResponse> RequestProductInstanceInfo(
 		[FromServices] IRequestClient<ProductInstanceInfoRequest> requestClient,
-		[FromBody] IEnumerable<string> identificationCodes)
+		IEnumerable<string> identificationCodes,
+		CancellationToken cancellationToken)
 	{
 		var errorMessage = new StringBuilder();
 		errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
 
+		string bearerToken;
+
 		try
 		{
-			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
-
-			var requestsTasks = new List<Task<Response<ProductInstanceInfoResponse>>>();
-
-			foreach(var code in identificationCodes)
-			{
-				requestsTasks.Add(requestClient.GetResponse<ProductInstanceInfoResponse>(new ProductInstanceInfoRequest
-				{
-					Bearer = token,
-					ProductCode = code
-				}));
-			}
-
-			var results = await Task.WhenAll(requestsTasks); // Таймаут, добавить таймаут на стороне сообщений в Rabbit
-
-			var productInstancesInfoResponses = new List<ProductInstanceStatus>();
-
-			foreach(var result in results)
-			{
-				if(string.IsNullOrWhiteSpace(result.Message.ErrorMessage))
-				{
-					productInstancesInfoResponses.Add(result.Message.InstanceStatus);
-				}
-				else
-				{
-					errorMessage.AppendLine(result.Message.ErrorMessage);
-				}
-			}
-
-			return new ProductInstancesInfoResponse // Поправить обработку на стороне клиента
-			{
-				InstanceStatuses = productInstancesInfoResponses,
-				ErrorMessage = errorMessage.ToString() // проверить, что клиент корректно обработает
-			};
+			bearerToken = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
 		}
 		catch(Exception e)
 		{
-			_logger.LogError(e, "Error: {CombinedErrorMessage}", errorMessage.ToString());
+			const string tokenRequestFailedMessage = "Ошибка получения токена авторизации в Честном знаке";
+
+			_logger.LogError(e, tokenRequestFailedMessage);
 
 			return new ProductInstancesInfoResponse
 			{
-				ErrorMessage = errorMessage.AppendLine(e.Message).ToString()
+				ErrorMessage = tokenRequestFailedMessage
 			};
+		}
+
+		List<Task<Response<ProductInstanceInfoResponse>>> requestsTasks = CreateRequestsTasks(requestClient, identificationCodes, bearerToken, cancellationToken);
+
+		var productInstancesInfoResponses = new List<ProductInstanceStatus>();
+
+		try
+		{
+			var results = await Task.WhenAll(requestsTasks); // Таймаут, добавить таймаут на стороне сообщений в Rabbit
+
+			return ProcessResponses(errorMessage, productInstancesInfoResponses, results.Select(r => r.Message));
+		}
+		catch
+		{
+			var partiallyProcessedResults = new List<ProductInstanceInfoResponse>();
+
+			foreach(var requestTask in requestsTasks)
+			{
+				if(requestTask.Status != TaskStatus.Canceled)
+				{
+					partiallyProcessedResults.Add(requestTask.Result.Message);
+				}
+			}
+
+			if(requestsTasks.Any(rt => rt.Status == TaskStatus.Canceled))
+			{
+				errorMessage.AppendLine("Часть запросов была отменена");
+			}
+
+			return ProcessResponses(errorMessage, productInstancesInfoResponses, partiallyProcessedResults);
 		}
 	}
 
@@ -227,5 +231,51 @@ public class TrueMarkApiController : ControllerBase
 				ErrorMessage = e.Message
 			};
 		}
+	}
+
+	private static List<Task<Response<ProductInstanceInfoResponse>>> CreateRequestsTasks(
+		IRequestClient<ProductInstanceInfoRequest> requestClient,
+		IEnumerable<string> identificationCodes,
+		string token,
+		CancellationToken cancellationToken)
+	{
+		var requestsTasks = new List<Task<Response<ProductInstanceInfoResponse>>>();
+
+		foreach(var code in identificationCodes)
+		{
+			requestsTasks.Add(requestClient.GetResponse<ProductInstanceInfoResponse>(
+				new ProductInstanceInfoRequest
+				{
+					Bearer = token,
+					ProductCode = code
+				},
+				cancellationToken));
+		}
+
+		return requestsTasks;
+	}
+
+	private static ProductInstancesInfoResponse ProcessResponses(
+		StringBuilder errorMessage,
+		List<ProductInstanceStatus> productInstancesInfoResponses,
+		IEnumerable<ProductInstanceInfoResponse> results)
+	{
+		foreach(var result in results)
+		{
+			if(string.IsNullOrWhiteSpace(result.ErrorMessage))
+			{
+				productInstancesInfoResponses.Add(result.InstanceStatus);
+			}
+			else
+			{
+				errorMessage.AppendLine(result.ErrorMessage);
+			}
+		}
+
+		return new ProductInstancesInfoResponse // Поправить обработку на стороне клиента
+		{
+			InstanceStatuses = productInstancesInfoResponses,
+			ErrorMessage = errorMessage.ToString() // проверить, что клиент корректно обработает
+		};
 	}
 }
