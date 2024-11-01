@@ -89,6 +89,7 @@
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.SubdivisionRow.cs" />
     <Compile Include="ReportsParameters\Bottles\Drivers.cs" />
     <Compile Include="ReportsParameters\Bottles\PercentNode.cs" />
+    <Compile Include="ReportsParameters\Sales\IncomeReportType.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsList.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsSummary.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.Discounts.cs" />
