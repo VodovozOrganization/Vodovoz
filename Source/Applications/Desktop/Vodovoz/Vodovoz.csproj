@@ -2073,6 +2073,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ServiceDistrictsSetActivationView.cs" />
     <Compile Include="Views\Reports\AverageFlowDiscrepanciesReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.AverageFlowDiscrepanciesReportView.cs" />
+    <Compile Include="Filters\GtkViews\CarEventTypeFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventTypeFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
