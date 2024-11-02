@@ -41,6 +41,8 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 	{
 		var currentCodesPreRequestLimit = _optionsMonitor.CurrentValue.CodesPerRequestLimit;
 		var currentRequestDelay = _optionsMonitor.CurrentValue.RequestsDelay;
+		
+		using var apiRequestCancellationTokenSource = new CancellationTokenSource(_optionsMonitor.CurrentValue.RequestsTimeOut);
 
 		var codes = group.Select(m => m.Message.ProductCode).ToList();
 
@@ -60,7 +62,7 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 			var errorMessage = new StringBuilder();
 			errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
 
-			var response = await _httpClient.PostAsJsonAsync<IEnumerable<string>>(_uri, codesPortion); // try catch, настроить клиент, таймаут 60 сек
+			var response = await _httpClient.PostAsJsonAsync<IEnumerable<string>>(_uri, codesPortion, apiRequestCancellationTokenSource.Token); // try catch, настроить клиент, таймаут 60 сек
 
 			var currentPortionContexts = group.Where(g => codesPortion.Contains(g.Message.ProductCode));
 
