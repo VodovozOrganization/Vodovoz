@@ -1,16 +1,13 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
@@ -175,7 +172,7 @@ public class TrueMarkApiController : ControllerBase
 
 		try
 		{
-			var results = await Task.WhenAll(requestsTasks); // Таймаут, добавить таймаут на стороне сообщений в Rabbit
+			var results = await Task.WhenAll(requestsTasks); // Добавить таймаут на стороне сообщений в Rabbit
 
 			return ProcessResponses(errorMessage, productInstancesInfoResponses, results.Select(r => r.Message));
 		}
@@ -281,7 +278,8 @@ public class TrueMarkApiController : ControllerBase
 					Bearer = token,
 					ProductCode = code
 				},
-				cancellationToken));
+				cancellationToken,
+				RequestTimeout.After(s: 120)));
 		}
 
 		return requestsTasks;
