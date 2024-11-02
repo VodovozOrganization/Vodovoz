@@ -27,8 +27,4 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
     <PackageReference Include="TrueMark.Contracts" Version="1.0.0.1" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Libraries\Core\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj" />
-  </ItemGroup>
 </Project>
