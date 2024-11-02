@@ -119,19 +119,18 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var settings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
-
-			return new ReportInfo(connectionString)
-			{
-				Title = Title,
-				Identifier = "Documents.BillWithoutShipmentForAdvancePayment",
-				Parameters = new Dictionary<string, object> {
-					{ "bill_ws_for_advance_payment_id", Id },
-					{ "special_contract_number", SpecialContractNumber },
-					{ "organization_id", settings.GetCashlessOrganisationId },
-					{ "hide_signature", HideSignature },
-					{ "special", false }
-				}
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Identifier = "Documents.BillWithoutShipmentForAdvancePayment";
+			reportInfo.Title = Title;
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "bill_ws_for_advance_payment_id", Id },
+				{ "special_contract_number", SpecialContractNumber },
+				{ "organization_id", settings.GetCashlessOrganisationId },
+				{ "hide_signature", HideSignature },
+				{ "special", false }
 			};
+			return reportInfo;
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion

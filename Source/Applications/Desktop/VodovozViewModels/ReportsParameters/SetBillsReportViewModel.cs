@@ -7,18 +7,19 @@ using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using QS.Navigation;
 using Autofac;
-using QS.Commands;
-using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Report;
+using Vodovoz.Presentation.Reports;
+using QS.Validation;
+using System.ComponentModel.DataAnnotations;
+using QS.Commands;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
-	public class SetBillsReportViewModel : ReportParametersViewModelBase, IDisposable
+	public class SetBillsReportViewModel : ValidatableReportViewModelBase, IDisposable
 	{
 		private readonly RdlViewerViewModel _rdlViewerViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
-		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -28,16 +29,17 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			RdlViewerViewModel rdlViewerViewModel,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			IInteractiveService interactiveService,
-			IUnitOfWorkFactory unitOfWorkFactory)
-			: base(rdlViewerViewModel)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IReportInfoFactory reportInfoFactory,
+			IValidator validator
+			) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
 			_rdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
 			Title = "Отчет по выставленным счетам";
+			Identifier = "Sales.SetBillsReport";
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 
@@ -45,13 +47,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			EndDate = DateTime.Today;
 
 			SubdivisionViewModel = CreateSubdivisionViewModel();
-			CreateCommands();
+			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}
 
-		private void CreateCommands()
-		{
-			LoadReportCommand = new DelegateCommand(LoadReport, CheckParameters);
-		}
+		public DelegateCommand GenerateReportCommand { get; }
 
 		public DateTime? StartDate
 		{
@@ -71,16 +70,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			set => SetField(ref _authorSubdivision, value);
 		}
 
-		public DelegateCommand LoadReportCommand { get; private set; }
 		public IEntityEntryViewModel SubdivisionViewModel { get; }
-		public INavigationManager NavigationManager { get; }
 
-		public override ReportInfo ReportInfo => new ReportInfo
-		{
-			Identifier = "Sales.SetBillsReport",
-			Title = Title,
-			Parameters = Parameters
-		};
+		public INavigationManager NavigationManager { get; }
 
 		protected override Dictionary<string, object> Parameters => new Dictionary<string, object>
 		{
@@ -89,12 +81,11 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{ "endDate", EndDate.Value.LatestDayTime() },
 			{ "authorSubdivision", AuthorSubdivision?.Id }
 		};
-		
+
 		public void Dispose()
 		{
 			_unitOfWork?.Dispose();
 		}
-
 		private IEntityEntryViewModel CreateSubdivisionViewModel()
 		{
 			return new CommonEEVMBuilderFactory<SetBillsReportViewModel>(_rdlViewerViewModel, this, _unitOfWork, NavigationManager, _lifetimeScope)
@@ -104,15 +95,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				.Finish();
 		}
 		
-		private bool CheckParameters()
+		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!EndDate.HasValue)
+			if(EndDate == null)
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату окончания выборки");
-				return false;
+				yield return new ValidationResult("Заполните дату окончания выборки.", new[] { nameof(EndDate) });
 			}
-
-			return true;
 		}
 	}
 }

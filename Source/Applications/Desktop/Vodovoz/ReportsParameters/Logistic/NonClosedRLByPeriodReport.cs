@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Report;
-using QSReport;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
-	public partial class NonClosedRLByPeriodReport : Gtk.Bin, IParametersWidget
+	public partial class NonClosedRLByPeriodReport : ViewBase<NonClosedRLByPeriodReportViewModel>
 	{
-		public NonClosedRLByPeriodReport()
+		public NonClosedRLByPeriodReport(NonClosedRLByPeriodReportViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			Configure();
@@ -15,37 +13,16 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private void Configure()
 		{
-			ybtnCreateReport.Clicked += (sender, e) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo()));
-			dateperiodpicker.SetPeriod(DateTime.Today.AddMonths(-1), DateTime.Today);
-			dateperiodpicker.PeriodChangedByUser += OnDateperiodpickerPeriodChangedByUser;
-		}
+			dateperiodpicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 
-		#region IParametersWidget implementation
+			yspinbtnDelay.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Delay, w => w.ValueAsInt)
+				.InitializeFromSource();
 
-		public string Title => "Отчет по незакрытым МЛ за период";
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		#endregion
-
-		private ReportInfo GetReportInfo()
-		{
-			return new ReportInfo
-			{
-				Identifier = "Logistic.NonClosedRLByPeriodReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDate },
-					{ "end_date", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-					{ "create_date", DateTime.Now },
-					{ "delay", yspinbtnDelay.ValueAsInt }
-				}
-			};
-		}
-
-		private void OnDateperiodpickerPeriodChangedByUser(object sender, EventArgs e)
-		{
-			ybtnCreateReport.Sensitive = dateperiodpicker.StartDateOrNull.HasValue && dateperiodpicker.EndDateOrNull.HasValue;
+			ybtnCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }

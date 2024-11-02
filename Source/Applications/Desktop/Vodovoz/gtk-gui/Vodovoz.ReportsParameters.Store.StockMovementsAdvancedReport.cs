@@ -18,9 +18,9 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private global::Gamma.GtkWidgets.yLabel yLblWarehouses;
 
-		private global::Gtk.Button btnWarehousesSelect;
+		private global::Gamma.GtkWidgets.yButton btnWarehousesSelect;
 
-		private global::Gtk.Button btnWarehousesDeselect;
+		private global::Gamma.GtkWidgets.yButton btnWarehousesDeselect;
 
 		private global::Gtk.HBox hboxNomType;
 
@@ -28,9 +28,9 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private global::Gamma.GtkWidgets.yLabel ylabelNomType;
 
-		private global::Gtk.Button buttonNomTypeSelect;
+		private global::Gamma.GtkWidgets.yButton buttonNomTypeSelect;
 
-		private global::Gtk.Button buttonNomTypeUnselect;
+		private global::Gamma.GtkWidgets.yButton buttonNomTypeUnselect;
 
 		private global::Gtk.HBox hboxNomen;
 
@@ -38,9 +38,9 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private global::Gamma.GtkWidgets.yLabel ylabelNomen;
 
-		private global::Gtk.Button buttonNomenSelect;
+		private global::Gamma.GtkWidgets.yButton buttonNomenSelect;
 
-		private global::Gtk.Button buttonNomenUnselect;
+		private global::Gamma.GtkWidgets.yButton buttonNomenUnselect;
 
 		private global::Gtk.HBox hbxDocTypes;
 
@@ -48,9 +48,9 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private global::Gamma.GtkWidgets.yLabel yLblDocTypes;
 
-		private global::Gtk.Button btnDocTypesSelect;
+		private global::Gamma.GtkWidgets.yButton btnDocTypesSelect;
 
-		private global::Gtk.Button btnDocTypesDeselect;
+		private global::Gamma.GtkWidgets.yButton btnDocTypesDeselect;
 
 		private global::Gtk.HSeparator hseparator1;
 
@@ -60,15 +60,15 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private global::Gtk.Table table1;
 
-		private global::Gtk.Button buttonSelectAll;
+		private global::Gamma.GtkWidgets.yButton buttonSelectAll;
 
-		private global::Gtk.Button buttonUnselectAll;
+		private global::Gamma.GtkWidgets.yButton buttonUnselectAll;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewSelectedList;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -130,7 +130,7 @@ namespace Vodovoz.ReportsParameters.Store
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbxWarehouses[this.yLblWarehouses]));
 			w5.Position = 1;
 			// Container child hbxWarehouses.Gtk.Box+BoxChild
-			this.btnWarehousesSelect = new global::Gtk.Button();
+			this.btnWarehousesSelect = new global::Gamma.GtkWidgets.yButton();
 			this.btnWarehousesSelect.CanFocus = true;
 			this.btnWarehousesSelect.Name = "btnWarehousesSelect";
 			this.btnWarehousesSelect.UseUnderline = true;
@@ -141,7 +141,7 @@ namespace Vodovoz.ReportsParameters.Store
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hbxWarehouses.Gtk.Box+BoxChild
-			this.btnWarehousesDeselect = new global::Gtk.Button();
+			this.btnWarehousesDeselect = new global::Gamma.GtkWidgets.yButton();
 			this.btnWarehousesDeselect.CanFocus = true;
 			this.btnWarehousesDeselect.Name = "btnWarehousesDeselect";
 			this.btnWarehousesDeselect.UseUnderline = true;
@@ -178,7 +178,7 @@ namespace Vodovoz.ReportsParameters.Store
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxNomType[this.ylabelNomType]));
 			w10.Position = 1;
 			// Container child hboxNomType.Gtk.Box+BoxChild
-			this.buttonNomTypeSelect = new global::Gtk.Button();
+			this.buttonNomTypeSelect = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNomTypeSelect.CanFocus = true;
 			this.buttonNomTypeSelect.Name = "buttonNomTypeSelect";
 			this.buttonNomTypeSelect.UseUnderline = true;
@@ -189,7 +189,7 @@ namespace Vodovoz.ReportsParameters.Store
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child hboxNomType.Gtk.Box+BoxChild
-			this.buttonNomTypeUnselect = new global::Gtk.Button();
+			this.buttonNomTypeUnselect = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNomTypeUnselect.CanFocus = true;
 			this.buttonNomTypeUnselect.Name = "buttonNomTypeUnselect";
 			this.buttonNomTypeUnselect.UseUnderline = true;
@@ -226,7 +226,7 @@ namespace Vodovoz.ReportsParameters.Store
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxNomen[this.ylabelNomen]));
 			w15.Position = 1;
 			// Container child hboxNomen.Gtk.Box+BoxChild
-			this.buttonNomenSelect = new global::Gtk.Button();
+			this.buttonNomenSelect = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNomenSelect.CanFocus = true;
 			this.buttonNomenSelect.Name = "buttonNomenSelect";
 			this.buttonNomenSelect.UseUnderline = true;
@@ -237,7 +237,7 @@ namespace Vodovoz.ReportsParameters.Store
 			w16.Expand = false;
 			w16.Fill = false;
 			// Container child hboxNomen.Gtk.Box+BoxChild
-			this.buttonNomenUnselect = new global::Gtk.Button();
+			this.buttonNomenUnselect = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNomenUnselect.CanFocus = true;
 			this.buttonNomenUnselect.Name = "buttonNomenUnselect";
 			this.buttonNomenUnselect.UseUnderline = true;
@@ -274,7 +274,7 @@ namespace Vodovoz.ReportsParameters.Store
 			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbxDocTypes[this.yLblDocTypes]));
 			w20.Position = 1;
 			// Container child hbxDocTypes.Gtk.Box+BoxChild
-			this.btnDocTypesSelect = new global::Gtk.Button();
+			this.btnDocTypesSelect = new global::Gamma.GtkWidgets.yButton();
 			this.btnDocTypesSelect.CanFocus = true;
 			this.btnDocTypesSelect.Name = "btnDocTypesSelect";
 			this.btnDocTypesSelect.UseUnderline = true;
@@ -285,7 +285,7 @@ namespace Vodovoz.ReportsParameters.Store
 			w21.Expand = false;
 			w21.Fill = false;
 			// Container child hbxDocTypes.Gtk.Box+BoxChild
-			this.btnDocTypesDeselect = new global::Gtk.Button();
+			this.btnDocTypesDeselect = new global::Gamma.GtkWidgets.yButton();
 			this.btnDocTypesDeselect.CanFocus = true;
 			this.btnDocTypesDeselect.Name = "btnDocTypesDeselect";
 			this.btnDocTypesDeselect.UseUnderline = true;
@@ -332,7 +332,7 @@ namespace Vodovoz.ReportsParameters.Store
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonSelectAll = new global::Gtk.Button();
+			this.buttonSelectAll = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSelectAll.CanFocus = true;
 			this.buttonSelectAll.Name = "buttonSelectAll";
 			this.buttonSelectAll.UseUnderline = true;
@@ -344,7 +344,7 @@ namespace Vodovoz.ReportsParameters.Store
 			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonUnselectAll = new global::Gtk.Button();
+			this.buttonUnselectAll = new global::Gamma.GtkWidgets.yButton();
 			this.buttonUnselectAll.CanFocus = true;
 			this.buttonUnselectAll.Name = "buttonUnselectAll";
 			this.buttonUnselectAll.UseUnderline = true;
@@ -374,7 +374,7 @@ namespace Vodovoz.ReportsParameters.Store
 			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
 			w31.Position = 8;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
