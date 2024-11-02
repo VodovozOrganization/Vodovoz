@@ -16,6 +16,7 @@ using TrueMark.Api.Controllers;
 using TrueMark.Api.Options;
 using TrueMark.Api.Services.Authorization;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.HttpLogging;
 
 namespace TrueMark.Api;
 
@@ -23,6 +24,15 @@ public static class DependencyInjection
 {
 	public static IServiceCollection AddTrueMarkApi(this IServiceCollection services, IConfiguration configuration)
 	{
+		services.AddHttpLogging(logging =>
+		{
+			// Customize HTTP logging here.
+			logging.LoggingFields = HttpLoggingFields.All;
+			logging.MediaTypeOptions.AddText("application/json", Encoding.UTF8);
+			logging.RequestBodyLogLimit = 4096;
+			logging.ResponseBodyLogLimit = 4096;
+		});
+
 		services.AddTrueMarkApiSwagger();
 
 		services.AddControllers();

@@ -1,9 +1,12 @@
-﻿using System.Net.Http.Headers;
+﻿using OpenTelemetry.Exporter;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using System.Net.Http.Headers;
 
 namespace TrueMark.ProductInstanceInfoCheck.Worker;
 public static class DependencyInjection
 {
-	public static IServiceCollection AddProductInstanceInfoCheckWorker(this IServiceCollection services)
+	public static IServiceCollection AddProductInstanceInfoCheckWorker(this IServiceCollection services, IConfiguration configuration)
 	{
 		services
 			.AddHttpClient<ProductInstanceInfoRequestConsumer>((serviceProvider, client) =>
@@ -23,6 +26,29 @@ public static class DependencyInjection
 				};
 			})
 			.SetHandlerLifetime(Timeout.InfiniteTimeSpan);
+
+		services.AddTrueMarkWorkerOpenTelemetry(configuration);
+
+		return services;
+	}
+
+	public static IServiceCollection AddTrueMarkWorkerOpenTelemetry(this IServiceCollection services, IConfiguration configuration)
+	{
+		services
+			.AddOpenTelemetry()
+			.ConfigureResource(resource => resource.AddService("TrueMark.Api"))
+			.WithTracing(tracing =>
+			{
+				tracing
+					.AddHttpClientInstrumentation()
+					.AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName);
+
+				tracing.AddOtlpExporter(exporter =>
+				{
+					exporter.Endpoint = new Uri(configuration.GetSection("OtlpExporter").GetValue<string>("Endpoint"));
+					exporter.Protocol = OtlpExportProtocol.HttpProtobuf;
+				});
+			});
 
 		return services;
 	}
