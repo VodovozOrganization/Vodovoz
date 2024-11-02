@@ -119,12 +119,17 @@ public static class DependencyInjection
 				var appConfiguration = busContext.GetRequiredService<IConfiguration>();
 
 				configurator.Host(
-					appConfiguration.GetValue("RabbitMQ::Host", ""),
-					appConfiguration.GetValue("RabbitMQ::VirtualHost", ""),
+					host: appConfiguration.GetValue("RabbitMQ:Host", ""),
+					port: 5671,
+					virtualHost: appConfiguration.GetValue("RabbitMQ:VirtualHost", ""),
 					h =>
 					{
-						h.Username(appConfiguration.GetValue("RabbitMQ::UserName", "")!);
-						h.Password(appConfiguration.GetValue("RabbitMQ::Password", "")!);
+						h.Username(appConfiguration.GetValue("RabbitMQ:UserName", "")!);
+						h.Password(appConfiguration.GetValue("RabbitMQ:Password", "")!);
+						h.UseSsl(configureSsl =>
+						{
+							configureSsl.AllowPolicyErrors(System.Net.Security.SslPolicyErrors.RemoteCertificateNameMismatch);
+						});
 					});
 				configurator.ConfigureEndpoints(busContext);
 			});

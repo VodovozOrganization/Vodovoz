@@ -62,11 +62,11 @@ public static class DependencyInjection
 				var appConfiguration = busContext.GetRequiredService<IConfiguration>();
 
 				configurator.Host(
-					appConfiguration.GetValue("RabbitMQ::Host", ""),
+					appConfiguration.GetValue("RabbitMQ:Host", ""),
 					h =>
 					{
-						h.Username(appConfiguration.GetValue("RabbitMQ::UserName", "")!);
-						h.Password(appConfiguration.GetValue("RabbitMQ::Password", "")!);
+						h.Username(appConfiguration.GetValue("RabbitMQ:UserName", "")!);
+						h.Password(appConfiguration.GetValue("RabbitMQ:Password", "")!);
 					});
 				configurator.ConfigureEndpoints(busContext);
 			});
