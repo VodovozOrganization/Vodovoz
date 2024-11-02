@@ -29,7 +29,7 @@ namespace TrueMarkApi.Client
 
 		public async Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn, CancellationToken cancellationToken)
 		{
-			var urlWithParams =  $"{url}?inn={inn}";
+			var urlWithParams = $"{url}?inn={inn}";
 			var response = await _httpClient.GetAsync(urlWithParams, cancellationToken);
 			var responseBody = await response.Content.ReadAsStreamAsync();
 			var responseResult = await JsonSerializer.DeserializeAsync<TrueMarkRegistrationResultDto>(responseBody, cancellationToken: cancellationToken);
@@ -47,6 +47,6 @@ namespace TrueMarkApi.Client
 			var responseResult = await JsonSerializer.DeserializeAsync<ProductInstancesInfoResponse>(responseBody, cancellationToken: cancellationToken);
 
 			return responseResult;
-		}		
+		}
 	}
 }
