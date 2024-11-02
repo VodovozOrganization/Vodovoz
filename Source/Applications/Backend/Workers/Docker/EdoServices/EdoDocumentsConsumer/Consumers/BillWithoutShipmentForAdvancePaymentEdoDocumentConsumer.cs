@@ -19,7 +19,7 @@ namespace EdoDocumentsConsumer.Consumers
 
 		public async Task Consume(ConsumeContext<InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo> context)
 		{
-			var message = context.Message as InfoForCreatingBillWithoutShipmentEdo;
+			var message = context.Message;
 			Logger.LogInformation(
 				"Отправляем информацию по счету на предоплату {OrderId} в TaxcomApi, для создания и отправки счета по ЭДО",
 				message.OrderWithoutShipmentInfo.Id);

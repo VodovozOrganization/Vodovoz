@@ -21,7 +21,7 @@ namespace Vodovoz.Application.Documents
 		}
 		
 		/// <summary>
-		/// Установка статуса "Не принят" контейнеру <see cref="EdoDocFlowStatus"/>
+		/// Установка статуса "Не начат" контейнеру <see cref="EdoDocFlowStatus"/>
 		/// </summary>
 		/// <returns></returns>
 		public EdoContainerBuilder Empty()

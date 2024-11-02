@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 using TaxcomEdo.Contracts.OrdersWithoutShipment;
 
 namespace TaxcomEdo.Contracts.Documents
@@ -13,6 +14,13 @@ namespace TaxcomEdo.Contracts.Documents
 		/// </summary>
 		[JsonIgnore]
 		public OrderWithoutShipmentInfo OrderWithoutShipmentInfo { get; set; }
+
+		public void Initialize(OrderWithoutShipmentInfo orderWithoutShipmentInfo, FileData fileData)
+		{
+			OrderWithoutShipmentInfo = orderWithoutShipmentInfo;
+			FileData = fileData;
+			MainDocumentId = Guid.NewGuid();
+		}
 
 		public string GetBillWithoutShipmentInfoTitle()
 		{

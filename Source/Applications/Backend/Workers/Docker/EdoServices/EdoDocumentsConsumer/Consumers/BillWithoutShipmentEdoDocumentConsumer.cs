@@ -20,11 +20,23 @@ namespace EdoDocumentsConsumer.Consumers
 		
 		protected ILogger<BillWithoutShipmentEdoDocumentConsumer> Logger { get; }
 
-		protected async Task SendDataToTaxcomApi(InfoForCreatingBillWithoutShipmentEdo data)
+		protected async Task SendDataToTaxcomApi<T>(T data)
+			where T : InfoForCreatingBillWithoutShipmentEdo
 		{
 			try
 			{
-				await _taxcomApiClient.SendDataForCreateBillWithoutShipmentByEdo(data);
+				switch (data)
+				{
+					case InfoForCreatingBillWithoutShipmentForDebtEdo debtData:
+						await _taxcomApiClient.SendDataForCreateBillWithoutShipmentForDebtByEdo(debtData);
+						break;
+					case InfoForCreatingBillWithoutShipmentForPaymentEdo paymentData:
+						await _taxcomApiClient.SendDataForCreateBillWithoutShipmentForPaymentByEdo(paymentData);
+						break;
+					case InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo advancePaymentData:
+						await _taxcomApiClient.SendDataForCreateBillWithoutShipmentForAdvancePaymentByEdo(advancePaymentData);
+						break;
+				}
 			}
 			catch(Exception e)
 			{

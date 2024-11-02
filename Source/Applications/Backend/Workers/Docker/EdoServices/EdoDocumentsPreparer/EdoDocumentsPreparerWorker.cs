@@ -194,9 +194,12 @@ namespace EdoDocumentsPreparer
 			try
 			{
 				var startDate = DateTime.Today.AddDays(_documentFlowOptions.AddDaysForBillsPreparing);
-				var orders =
+				var newOrdersToSend =
 					_orderRepository.GetOrdersForEdoSendBills(
 						uow, startDate, organizationId, _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
+				var ordersToResend = _orderRepository.GetOrdersForResendBills(uow);
+
+				var orders = newOrdersToSend.Union(ordersToResend).ToList();
 
 				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", orders.Count);
 
@@ -326,18 +329,17 @@ namespace EdoDocumentsPreparer
 							infoForCreatingBillWithoutShipmentEdo.GetBillWithoutShipmentInfoTitle(),
 							infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id);
 
-						if(infoForCreatingBillWithoutShipmentEdo is InfoForCreatingBillWithoutShipmentForDebtEdo billForDebt)
+						switch (infoForCreatingBillWithoutShipmentEdo)
 						{
-							await _publishEndpoint.Publish(billForDebt);
-						}
-						else if(infoForCreatingBillWithoutShipmentEdo is InfoForCreatingBillWithoutShipmentForPaymentEdo billForPayment)
-						{
-							await _publishEndpoint.Publish(billForPayment);
-						}
-						else if(infoForCreatingBillWithoutShipmentEdo is
-						        InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo billForAdvancePayment)
-						{
-							await _publishEndpoint.Publish(billForAdvancePayment);
+							case InfoForCreatingBillWithoutShipmentForDebtEdo billForDebt:
+								await _publishEndpoint.Publish(billForDebt);
+								break;
+							case InfoForCreatingBillWithoutShipmentForPaymentEdo billForPayment:
+								await _publishEndpoint.Publish(billForPayment);
+								break;
+							case InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo billForAdvancePayment:
+								await _publishEndpoint.Publish(billForAdvancePayment);
+								break;
 						}
 					}
 					catch(Exception e)

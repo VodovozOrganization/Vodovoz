@@ -40,10 +40,22 @@ namespace TaxcomEdo.Client
 			await SendDocument(_taxcomApiOptions.SendBillEndpoint, data);
 		}
 		
-		public async Task SendDataForCreateBillWithoutShipmentByEdo(
-			InfoForCreatingBillWithoutShipmentEdo data, CancellationToken cancellationToken = default)
+		public async Task SendDataForCreateBillWithoutShipmentForDebtByEdo(
+			InfoForCreatingBillWithoutShipmentForDebtEdo data, CancellationToken cancellationToken = default)
 		{
-			await SendDocument(_taxcomApiOptions.SendBillsWithoutShipmentEndpoint, data);
+			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForDebtEndpoint, data);
+		}
+		
+		public async Task SendDataForCreateBillWithoutShipmentForPaymentByEdo(
+			InfoForCreatingBillWithoutShipmentForPaymentEdo data, CancellationToken cancellationToken = default)
+		{
+			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForPaymentEndpoint, data);
+		}
+		
+		public async Task SendDataForCreateBillWithoutShipmentForAdvancePaymentByEdo(
+			InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo data, CancellationToken cancellationToken = default)
+		{
+			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForAdvancePaymentEndpoint, data);
 		}
 
 		public async Task<EdoContactList> GetContactListUpdates(

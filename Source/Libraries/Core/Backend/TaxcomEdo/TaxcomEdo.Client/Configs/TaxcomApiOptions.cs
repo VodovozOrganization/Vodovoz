@@ -7,7 +7,9 @@
 		public string BaseAddress { get; set; }
 		public string SendUpdEndpoint { get; set; }
 		public string SendBillEndpoint { get; set; }
-		public string SendBillsWithoutShipmentEndpoint { get; set; }
+		public string SendBillWithoutShipmentForDebtEndpoint { get; set; }
+		public string SendBillWithoutShipmentForPaymentEndpoint { get; set; }
+		public string SendBillWithoutShipmentForAdvancePaymentEndpoint { get; set; }
 		public string GetContactListUpdatesEndPoint { get; set; }
 		public string AcceptContactEndPoint { get; set; }
 		public string GetDocFlowRawDataEndPoint { get; set; }

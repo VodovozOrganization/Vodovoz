@@ -39,7 +39,7 @@ namespace Vodovoz.Converters
 		{
 			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(orderForPayment.Client);
 			
-			return new OrderWithoutShipmentForDebtInfo
+			return new OrderWithoutShipmentForPaymentInfo
 			{
 				Id = orderForPayment.Id,
 				CreationDate = orderForPayment.CreateDate ?? default,
@@ -54,7 +54,7 @@ namespace Vodovoz.Converters
 		{
 			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(orderForAdvancePayment.Client);
 			
-			return new OrderWithoutShipmentForDebtInfo
+			return new OrderWithoutShipmentForAdvancePaymentInfo
 			{
 				Id = orderForAdvancePayment.Id,
 				CreationDate = orderForAdvancePayment.CreateDate ?? default,

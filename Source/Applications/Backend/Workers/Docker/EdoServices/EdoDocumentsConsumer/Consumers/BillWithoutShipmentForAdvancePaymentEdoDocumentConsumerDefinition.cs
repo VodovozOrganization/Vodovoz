@@ -8,7 +8,7 @@ namespace EdoDocumentsConsumer.Consumers
 	{
 		public BillWithoutShipmentForAdvancePaymentEdoDocumentConsumerDefinition()
 		{
-			EndpointName = InfoForCreatingBillWithoutShipmentForPaymentEdo.ExchangeAndQueueName;
+			EndpointName = InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo.ExchangeAndQueueName;
 		}
 
 		protected override void ConfigureConsumer(

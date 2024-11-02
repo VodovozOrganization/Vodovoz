@@ -1,21 +1,30 @@
-﻿using System;
-using TaxcomEdo.Contracts.Documents;
+﻿using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.OrdersWithoutShipment;
 
 namespace EdoDocumentsPreparer.Factories
 {
 	public class InfoForCreatingBillWithoutShipmentEdoFactory : IInfoForCreatingBillWithoutShipmentEdoFactory
 	{
-		public InfoForCreatingBillWithoutShipmentForDebtEdo CreateInfoForCreatingBillWithoutShipmentEdo(
+		public InfoForCreatingBillWithoutShipmentEdo CreateInfoForCreatingBillWithoutShipmentEdo(
 			OrderWithoutShipmentInfo orderWithoutShipmentInfo, FileData fileData)
 		{
-			var data = new InfoForCreatingBillWithoutShipmentForDebtEdo
+			InfoForCreatingBillWithoutShipmentEdo data = null;
+
+			switch(orderWithoutShipmentInfo)
 			{
-				OrderWithoutShipmentInfo = orderWithoutShipmentInfo,
-				FileData = fileData,
-				MainDocumentId = Guid.NewGuid()
-			};
-			
+				case OrderWithoutShipmentForDebtInfo:
+					data = new InfoForCreatingBillWithoutShipmentForDebtEdo();
+					break;
+				case OrderWithoutShipmentForPaymentInfo:
+					data = new InfoForCreatingBillWithoutShipmentForPaymentEdo();
+					break;
+				case OrderWithoutShipmentForAdvancePaymentInfo:
+					data = new InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo();
+					break;
+			}
+
+			data.Initialize(orderWithoutShipmentInfo, fileData);
+
 			return data;
 		}
 	}

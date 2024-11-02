@@ -29,7 +29,7 @@ namespace TaxcomEdoApi.Controllers
 		}
 
 		[HttpPost]
-		public void CreateAndSendUpd(InfoForCreatingEdoUpd data)
+		public IActionResult CreateAndSendUpd(InfoForCreatingEdoUpd data)
 		{
 			var orderId = data.OrderInfoForEdo.Id;
 			_logger.LogInformation(
@@ -42,15 +42,17 @@ namespace TaxcomEdoApi.Controllers
 				
 				_logger.LogInformation("Отправляем контейнер с УПД по заказу №{OrderId}", orderId);
 				_taxcomApi.Send(container);
+				return Ok();
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", orderId);
+				return Problem();
 			}
 		}
 		
 		[HttpPost]
-		public void CreateAndSendBill(InfoForCreatingEdoBill data)
+		public IActionResult CreateAndSendBill(InfoForCreatingEdoBill data)
 		{
 			var orderId = data.OrderInfoForEdo.Id;
 			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", orderId);
@@ -61,6 +63,7 @@ namespace TaxcomEdoApi.Controllers
 				
 				_logger.LogInformation("Отправляем контейнер со счетом по заказу №{OrderId}", orderId);
 				_taxcomApi.Send(container);
+				return Ok();
 			}
 			catch(Exception e)
 			{
@@ -68,39 +71,28 @@ namespace TaxcomEdoApi.Controllers
 					e,
 					"Ошибка в процессе формирования контейнера по заказу №{OrderId} для отправки счета",
 					orderId);
+				return Problem();
 			}
 		}
 		
 		[HttpPost]
-		public void CreateAndSendBillWithoutShipment(InfoForCreatingBillWithoutShipmentEdo data)
+		public IActionResult CreateAndSendBillWithoutShipmentForDebt(InfoForCreatingBillWithoutShipmentForDebtEdo data)
 		{
-			var documentType = data.GetBillWithoutShipmentInfoTitle();
-			var orderWithoutShipmentId = data.OrderWithoutShipmentInfo.Id;
-			
-			_logger.LogInformation("Создаем {OrderWithoutShipmentType} №{OrderWithoutShipmentForPaymentId}",
-				documentType,
-				orderWithoutShipmentId
-			);
-			
-			try
-			{
-				var container = _taxcomEdoService.CreateContainerWithBillWithoutShipment(data);
-				
-				_logger.LogInformation("Отправляем контейнер по {OrderWithoutShipmentType} №{OrderWithoutShipmentId}",
-					documentType,
-					orderWithoutShipmentId);
-				
-				_taxcomApi.Send(container);
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e,
-					"Ошибка в процессе формирования контейнера по {OrderWithoutShipmentType} №{OrderWithoutShipmentId} и его отправки",
-					documentType,
-					orderWithoutShipmentId);
-			}
+			return CreateAndSendBillWithoutShipment(data);
 		}
 		
+		[HttpPost]
+		public IActionResult CreateAndSendBillWithoutShipmentForPayment(InfoForCreatingBillWithoutShipmentForPaymentEdo data)
+		{
+			return CreateAndSendBillWithoutShipment(data);
+		}
+		
+		[HttpPost]
+		public IActionResult CreateAndSendBillWithoutShipmentForAdvancePayment(InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo data)
+		{
+			return CreateAndSendBillWithoutShipment(data);
+		}
+
 		[HttpGet]
 		public IActionResult GetContactListUpdates(DateTime? lastCheckContactsUpdates, EdoContactStateCode? contactState)
 		{
@@ -129,7 +121,7 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
-		
+
 		[HttpGet]
 		public IActionResult GetDocFlowsUpdates([FromBody] GetDocFlowsUpdatesParameters docFlowsUpdatesParams)
 		{
@@ -153,7 +145,7 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
-		
+
 		[HttpPost]
 		public IActionResult AcceptContact(string edxClientId)
 		{
@@ -170,7 +162,7 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
-		
+
 		[HttpGet]
 		public IActionResult GetDocFlowRawData(string docFlowId)
 		{
@@ -187,7 +179,7 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
-		
+
 		[HttpGet]
 		public IActionResult StartAutoSendReceive()
 		{
@@ -204,7 +196,7 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
-		
+
 		[HttpGet]
 		public IActionResult OfferCancellation(string docFlowId, string reason)
 		{
@@ -226,11 +218,42 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
-		
+
 		[HttpGet]
 		public IActionResult GetStatus()
 		{
 			return Ok("It's working!!!");
+		}
+
+		private IActionResult CreateAndSendBillWithoutShipment(InfoForCreatingBillWithoutShipmentEdo data)
+		{
+			var documentType = data.GetBillWithoutShipmentInfoTitle();
+			var orderWithoutShipmentId = data.OrderWithoutShipmentInfo.Id;
+			
+			_logger.LogInformation("Создаем {OrderWithoutShipmentType} №{OrderWithoutShipmentForPaymentId}",
+				documentType,
+				orderWithoutShipmentId
+			);
+			
+			try
+			{
+				var container = _taxcomEdoService.CreateContainerWithBillWithoutShipment(data);
+				
+				_logger.LogInformation("Отправляем контейнер по {OrderWithoutShipmentType} №{OrderWithoutShipmentId}",
+					documentType,
+					orderWithoutShipmentId);
+				
+				_taxcomApi.Send(container);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка в процессе формирования контейнера по {OrderWithoutShipmentType} №{OrderWithoutShipmentId} и его отправки",
+					documentType,
+					orderWithoutShipmentId);
+				return Problem();
+			}
 		}
 	}
 }

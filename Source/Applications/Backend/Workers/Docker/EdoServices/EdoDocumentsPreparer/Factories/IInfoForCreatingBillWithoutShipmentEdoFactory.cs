@@ -5,7 +5,7 @@ namespace EdoDocumentsPreparer.Factories
 {
 	public interface IInfoForCreatingBillWithoutShipmentEdoFactory
 	{
-		InfoForCreatingBillWithoutShipmentForDebtEdo CreateInfoForCreatingBillWithoutShipmentEdo(
+		InfoForCreatingBillWithoutShipmentEdo CreateInfoForCreatingBillWithoutShipmentEdo(
 			OrderWithoutShipmentInfo orderWithoutShipmentInfo, FileData fileData);
 	}
 }
