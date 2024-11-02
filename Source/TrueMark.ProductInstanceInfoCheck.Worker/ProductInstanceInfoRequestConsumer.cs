@@ -13,7 +13,6 @@ namespace TrueMark.ProductInstanceInfoCheck.Worker;
 internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstanceInfoRequest>>
 {
 	private const string _uri = "cises/info";
-	private const int _codePortionLimit = 100;
 	private readonly ILogger<ProductInstanceInfoRequestConsumer> _logger;
 	private readonly IOptionsMonitor<TrueMarkProductInstanceInfoCheckOptions> _optionsMonitor;
 	private readonly HttpClient _httpClient;
@@ -40,6 +39,9 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 
 	private async Task ProcessBearerGroup(IGrouping<string, ConsumeContext<ProductInstanceInfoRequest>> group)
 	{
+		var currentCodesPreRequestLimit = _optionsMonitor.CurrentValue.CodesPerRequestLimit;
+		var currentRequestDelay = _optionsMonitor.CurrentValue.RequestsDelay;
+
 		var codes = group.Select(m => m.Message.ProductCode).ToList();
 
 		if(!codes.Any())
@@ -53,7 +55,7 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 
 		while(codes.Any())
 		{
-			var codesPortion = codes.Take(_codePortionLimit).ToArray();
+			var codesPortion = codes.Take(currentCodesPreRequestLimit).ToArray();
 
 			var errorMessage = new StringBuilder();
 			errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
@@ -66,9 +68,11 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 			{
 				errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}");
 
-				await RespondError(errorMessage, currentPortionContexts);
+				RespondError(errorMessage, currentPortionContexts);
 
-				codes.RemoveRange(0, _codePortionLimit);
+				codes.RemoveRange(0, currentCodesPreRequestLimit);
+
+				await Task.Delay(currentRequestDelay);
 
 				continue;
 			}
@@ -81,9 +85,11 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 			{
 				errorMessage.AppendLine("Не удалось получить ожидаемый ответ от сервера");
 
-				await RespondError(errorMessage, currentPortionContexts);
+				RespondError(errorMessage, currentPortionContexts);
 
-				codes.RemoveRange(0, _codePortionLimit);
+				codes.RemoveRange(0, currentCodesPreRequestLimit);
+
+				await Task.Delay(currentRequestDelay);
 
 				continue;
 			}
@@ -104,13 +110,13 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 				});
 			}
 
-			codes.RemoveRange(0, _codePortionLimit);
+			codes.RemoveRange(0, currentCodesPreRequestLimit);
 
-			await Task.Delay(_optionsMonitor.CurrentValue.RequestsDelay);
+			await Task.Delay(currentRequestDelay);
 		}
 	}
 
-	private async Task RespondError(StringBuilder errorMessage, IEnumerable<ConsumeContext<ProductInstanceInfoRequest>> currentPortionContexts)
+	private static void RespondError(StringBuilder errorMessage, IEnumerable<ConsumeContext<ProductInstanceInfoRequest>> currentPortionContexts)
 	{
 		foreach(var context in currentPortionContexts)
 		{
@@ -119,7 +125,5 @@ internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInsta
 				ErrorMessage = errorMessage.ToString()
 			});
 		}
-
-		await Task.Delay(_optionsMonitor.CurrentValue.RequestsDelay);
 	}
 }
