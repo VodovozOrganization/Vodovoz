@@ -10,7 +10,7 @@ using TrueMark.Contracts.Requests;
 using TrueMark.Contracts.Responses;
 
 namespace TrueMark.ProductInstanceInfoCheck.Worker;
-internal class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstanceInfoRequest>>
+public class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstanceInfoRequest>>
 {
 	private const string _uri = "cises/info";
 	private readonly ILogger<ProductInstanceInfoRequestConsumer> _logger;
