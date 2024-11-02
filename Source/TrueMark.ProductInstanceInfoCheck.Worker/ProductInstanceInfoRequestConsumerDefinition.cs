@@ -11,10 +11,6 @@ public class ProductInstanceInfoRequestConsumerDefinition : ConsumerDefinition<P
 	protected ProductInstanceInfoRequestConsumerDefinition(
 		IOptionsMonitor<TrueMarkProductInstanceInfoCheckOptions> optionsMonitor)
 	{
-		Endpoint(x =>
-		{
-			x.Name = "product.instance.info.requests";
-		});
 		_optionsMonitor = optionsMonitor;
 	}
 
@@ -29,15 +25,16 @@ public class ProductInstanceInfoRequestConsumerDefinition : ConsumerDefinition<P
 			rmqc.Durable = true;
 			rmqc.ExchangeType = ExchangeType.Fanout;
 
-			rmqc.ConcurrentMessageLimit = _optionsMonitor.CurrentValue.CodesPerRequestLimit;
-			rmqc.PrefetchCount = _optionsMonitor.CurrentValue.CodesPerRequestLimit;
+			var currentCodesPerRequestLimit = _optionsMonitor.CurrentValue.CodesPerRequestLimit;
+			var currentRequestsTimeOut = _optionsMonitor.CurrentValue.RequestsTimeOut;
 
-			rmqc.UseTimeout(configure =>
+			rmqc.PrefetchCount = currentCodesPerRequestLimit;
+
+			rmqc.Batch<ProductInstanceInfoRequest>(batchConfig =>
 			{
-				configure.Timeout = _optionsMonitor.CurrentValue.RequestsTimeOut;
+				batchConfig.MessageLimit = currentCodesPerRequestLimit;
+				batchConfig.TimeLimit = currentRequestsTimeOut;
 			});
-
-			rmqc.Bind<ProductInstanceInfoRequest>();
 		}
 	}
 }

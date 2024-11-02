@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System;
@@ -57,13 +56,13 @@ public static class DependencyInjection
 		services
 			.AddAuthorization(configuration)
 			.ConfigureTrueMarkApi(configuration)
-			.AddTrueMarkApiOpenTelemetry(configuration)
-			.AddMassTransit();
+			.AddTrueMarkApiOpenTelemetry()
+			.AddTrueMarkApiMassTransit();
 
 		return services;
 	}
 
-	public static IServiceCollection AddTrueMarkApiOpenTelemetry(this IServiceCollection services, IConfiguration configuration)
+	public static IServiceCollection AddTrueMarkApiOpenTelemetry(this IServiceCollection services)
 	{
 		services
 			.AddOpenTelemetry()
@@ -75,11 +74,7 @@ public static class DependencyInjection
 					.AddAspNetCoreInstrumentation()
 					.AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName);
 
-				tracing.AddOtlpExporter(exporter =>
-				{
-					exporter.Endpoint = new Uri(configuration.GetSection("OtlpExporter").GetValue<string>("Endpoint"));
-					exporter.Protocol = OtlpExportProtocol.HttpProtobuf;
-				});
+				tracing.AddOtlpExporter();
 			});
 
 		return services;
@@ -114,4 +109,26 @@ public static class DependencyInjection
 
 	public static IServiceCollection ConfigureTrueMarkApi(this IServiceCollection services, IConfiguration configuration) => services
 		.Configure<TrueMarkApiOptions>(configuration.GetSection(nameof(TrueMarkApiOptions)));
+
+	public static IServiceCollection AddTrueMarkApiMassTransit(this IServiceCollection services)
+	{
+		services.AddMassTransit(configuration =>
+		{
+			configuration.UsingRabbitMq((busContext, configurator) =>
+			{
+				var appConfiguration = busContext.GetRequiredService<IConfiguration>();
+
+				configurator.Host(
+					appConfiguration.GetValue("RabbitMQ::Host", ""),
+					h =>
+					{
+						h.Username(appConfiguration.GetValue("RabbitMQ::UserName", "")!);
+						h.Password(appConfiguration.GetValue("RabbitMQ::Password", "")!);
+					});
+				configurator.ConfigureEndpoints(busContext);
+			});
+		});
+
+		return services;
+	}
 }

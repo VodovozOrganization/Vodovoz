@@ -12,7 +12,7 @@ IHost host = Host.CreateDefaultBuilder(args)
 	})
 	.ConfigureServices((context, services) =>
 	{
-		services.AddProductInstanceInfoCheckWorker(context.Configuration);
+		services.AddProductInstanceInfoCheckWorker();
 		services.AddHostedService<Worker>();
 	})
 	.Build();
