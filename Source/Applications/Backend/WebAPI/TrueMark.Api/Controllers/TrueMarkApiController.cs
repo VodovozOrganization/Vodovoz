@@ -31,28 +31,28 @@ namespace TrueMark.Api.Controllers;
 
 public class TrueMarkApiController : ControllerBase
 {
+	private readonly ILogger<TrueMarkApiController> _logger;
+	private readonly HttpClient _httpClient;
 	private readonly IAuthorizationService _authorizationService;
 	private readonly IOptions<TrueMarkApiOptions> _options;
-	private static HttpClient _httpClient;
-	private readonly ILogger<TrueMarkApiController> _logger;
 	private readonly OrganizationCertificate _organizationCertificate;
 
 	public TrueMarkApiController(
-		IConfiguration configuration,
-		IHttpClientFactory httpClientFactory,
+		HttpClient httpClient,
 		IAuthorizationService authorizationService,
 		IOptions<TrueMarkApiOptions> options,
 		ILogger<TrueMarkApiController> logger)
 	{
-		_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-		_options = options ?? throw new ArgumentNullException(nameof(options));
-		_httpClient = httpClientFactory.CreateClient();
-		_httpClient.BaseAddress = new Uri(options.Value.ExternalTrueMarkBaseUrl);
-		_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+		_logger = logger
+			?? throw new ArgumentNullException(nameof(logger));
+		_httpClient = httpClient
+			?? throw new ArgumentNullException(nameof(httpClient));
+		_authorizationService = authorizationService
+			?? throw new ArgumentNullException(nameof(authorizationService));
+		_options = options
+			?? throw new ArgumentNullException(nameof(options));
 
 		_organizationCertificate = options.Value.OrganizationCertificates.FirstOrDefault();
-
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
 	[HttpGet]
@@ -127,7 +127,9 @@ public class TrueMarkApiController : ControllerBase
 		if(!response.IsSuccessStatusCode)
 		{
 			_logger.LogError(
-				$"Ошибка при получении статуса регистрации в ЧЗ: Http code {response.StatusCode}, причина {response.ReasonPhrase}");
+				"Ошибка при получении статуса регистрации в ЧЗ: Http code {ResponseStatusCode}, причина {ResponseReasonPhrase}",
+				response.StatusCode,
+				response.ReasonPhrase);
 
 			return null;
 		}

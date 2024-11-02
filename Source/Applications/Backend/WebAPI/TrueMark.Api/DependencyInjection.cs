@@ -8,9 +8,14 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System;
+using System.Net.Http.Headers;
+using System.Net.Http;
 using System.Text;
+using System.Threading;
+using TrueMark.Api.Controllers;
 using TrueMark.Api.Options;
 using TrueMark.Api.Services.Authorization;
+using Microsoft.Extensions.Options;
 
 namespace TrueMark.Api;
 
@@ -23,7 +28,23 @@ public static class DependencyInjection
 		services.AddControllers();
 
 		services
-			.AddHttpClient()
+			.AddHttpClient<TrueMarkApiController>((serviceProvider, client) =>
+			{
+				var trueMarkOptions = serviceProvider.GetRequiredService<IOptions<TrueMarkApiOptions>>();
+
+				client.BaseAddress = new Uri(trueMarkOptions.Value.ExternalTrueMarkBaseUrl);
+				client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			})
+			.ConfigurePrimaryHttpMessageHandler(() =>
+			{
+				return new SocketsHttpHandler
+				{
+					PooledConnectionLifetime = TimeSpan.FromMinutes(5)
+				};
+			})
+			.SetHandlerLifetime(Timeout.InfiniteTimeSpan);
+
+		services
 			.AddAuthorization(configuration)
 			.ConfigureTrueMarkApi(configuration)
 			.AddTrueMarkApiOpenTelemetry(configuration)
