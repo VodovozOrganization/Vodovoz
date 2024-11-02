@@ -120,6 +120,7 @@ public static class DependencyInjection
 
 				configurator.Host(
 					appConfiguration.GetValue("RabbitMQ::Host", ""),
+					appConfiguration.GetValue("RabbitMQ::VirtualHost", ""),
 					h =>
 					{
 						h.Username(appConfiguration.GetValue("RabbitMQ::UserName", "")!);
