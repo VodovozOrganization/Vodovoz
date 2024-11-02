@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Sales
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}
 
-		public DelegateCommand GenerateReportCommand;
+		public DelegateCommand GenerateReportCommand { get; }
 
 		public virtual DateTime? StartDate
 		{
