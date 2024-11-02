@@ -22,7 +22,8 @@ public static class DependencyInjection
 
 		services.AddControllers();
 
-		services.AddHttpClient()
+		services
+			.AddHttpClient()
 			.AddAuthorization(configuration)
 			.ConfigureTrueMarkApi(configuration)
 			.AddTrueMarkApiOpenTelemetry(configuration)
