@@ -44,11 +44,5 @@
     <PackageReference Include="TrueMark.Contracts" Version="1.0.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Nuget\packages\CryptoPro.Security.Cryptography.Pkcs.2024.4.17.nupkg">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 
 </Project>

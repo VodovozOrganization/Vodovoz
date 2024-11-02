@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-TrueMark.ProductInstanceInfoCheck.Worker-ab919ed2-7797-4aed-aed6-612fd9dbd9bd</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	<DockerfileContext>..\..\..\..</DockerfileContext>
   </PropertyGroup>
 
   <PropertyGroup>
