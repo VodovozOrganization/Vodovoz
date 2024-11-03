@@ -10,7 +10,7 @@ namespace Vodovoz
 
 		private global::Gtk.Table table2;
 
-		private global::Gtk.Button buttonExportBookkeeping;
+		private global::Gamma.GtkWidgets.yButton buttonExportBookkeeping;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox comboOrganization;
 
@@ -18,7 +18,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox4;
 
-		private global::Gtk.Button buttonExportIPTinkoff;
+		private global::Gamma.GtkWidgets.yButton buttonExportIPTinkoff;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonExportBookkeepingNew;
 
@@ -64,7 +64,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
 		protected virtual void Build()
 		{
@@ -86,7 +86,7 @@ namespace Vodovoz
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
 			// Container child table2.Gtk.Table+TableChild
-			this.buttonExportBookkeeping = new global::Gtk.Button();
+			this.buttonExportBookkeeping = new global::Gamma.GtkWidgets.yButton();
 			this.buttonExportBookkeeping.Sensitive = false;
 			this.buttonExportBookkeeping.CanFocus = true;
 			this.buttonExportBookkeeping.Name = "buttonExportBookkeeping";
@@ -133,7 +133,7 @@ namespace Vodovoz
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonExportIPTinkoff = new global::Gtk.Button();
+			this.buttonExportIPTinkoff = new global::Gamma.GtkWidgets.yButton();
 			this.buttonExportIPTinkoff.Sensitive = false;
 			this.buttonExportIPTinkoff.CanFocus = true;
 			this.buttonExportIPTinkoff.Name = "buttonExportIPTinkoff";
@@ -379,7 +379,7 @@ namespace Vodovoz
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.Sensitive = false;
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";

@@ -1261,25 +1261,33 @@ namespace Vodovoz
 				case nameof(Entity.OrderAddressType):
 					UpdateOrderAddressTypeUI();
 					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderAddressType));
-					Entity.AddMasterCallNomenclatureIfNeeded(UoW);
+					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW);
 					break;
 				case nameof(Entity.Client.IsChainStore):
 					UpdateOrderAddressTypeWithUI();
 					break;
 				case nameof(Entity.SelfDelivery):
+					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW);
+					UpdateCallBeforeArrival();					
+					break;
 				case nameof(Entity.IsFastDelivery):
-					var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
-
-					UpdateCallBeforeArrivalVisibility();
-
-					if(isNotFastDeliveryOrSelfDelivery)
-					{
-						Entity.CallBeforeArrivalMinutes = _defaultCallBeforeArrival;
-					}
+					UpdateCallBeforeArrival();
 					break;
 				case nameof(Entity.PaymentType):
 					OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 					break;
+			}
+		}
+
+		private void UpdateCallBeforeArrival()
+		{
+			var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
+
+			UpdateCallBeforeArrivalVisibility();
+
+			if(isNotFastDeliveryOrSelfDelivery)
+			{
+				Entity.CallBeforeArrivalMinutes = _defaultCallBeforeArrival;
 			}
 		}
 
@@ -4241,7 +4249,7 @@ namespace Vodovoz
 			}
 
 			Entity.AddFastDeliveryNomenclatureIfNeeded();
-			Entity.AddMasterCallNomenclatureIfNeeded(UoW);
+			Entity.UpdateMasterCallNomenclatureIfNeeded(UoW);
 
 			UpdateClientSecondOrderDiscount();
 		}
@@ -5255,6 +5263,7 @@ namespace Vodovoz
 				ylabelOrderAddressType.Visible = false;
 				ybuttonToDeliveryAddressType.Visible = false;
 				ybuttonToStorageLogicAddressType.Visible = false;
+				ybuttonToServiceType.Visible = false;
 				return;
 			}
 

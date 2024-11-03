@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -20,6 +19,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ReturnedTareReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly SelectableParametersReportFilter _filter;
 
@@ -31,8 +31,9 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		#endregion
 
-		public ReturnedTareReport(IInteractiveService interactiveService)
+		public ReturnedTareReport(IReportInfoFactory reportInfoFactory, IInteractiveService interactiveService)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
@@ -162,12 +163,11 @@ namespace Vodovoz.ReportsParameters.Bottles
 			{
 				parameters.Add(item.Key, item.Value);
 			}
-			
-			return new ReportInfo
-			{
-				Identifier = "Bottles.ReturnedTareReport",
-				Parameters = parameters
-			};
+
+			var identifier = "Bottles.ReturnedTareReport";
+			var reportInfo = _reportInfoFactory.Create(identifier, Title, parameters);
+
+			return reportInfo;
 		}
 
 		private void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));

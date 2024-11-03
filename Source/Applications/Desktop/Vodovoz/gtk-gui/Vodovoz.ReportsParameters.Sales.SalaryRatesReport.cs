@@ -12,7 +12,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewSalaryProperties;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		private global::Gtk.VBox vbox2;
 
@@ -48,7 +48,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
 			w2.Position = 0;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;

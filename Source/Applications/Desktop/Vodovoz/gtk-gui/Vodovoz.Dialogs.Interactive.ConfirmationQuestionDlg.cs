@@ -40,9 +40,9 @@ namespace Vodovoz.Dialogs.Interactive
 
 		private global::Gamma.GtkWidgets.yLabel ylabelBottomText;
 
-		private global::Gtk.Button buttonYes;
+		private global::Gamma.GtkWidgets.yButton buttonYes;
 
-		private global::Gtk.Button buttonNo;
+		private global::Gamma.GtkWidgets.yButton buttonNo;
 
 		protected virtual void Build()
 		{
@@ -241,7 +241,7 @@ namespace Vodovoz.Dialogs.Interactive
 			w20.BorderWidth = ((uint)(5));
 			w20.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(1));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonYes = new global::Gtk.Button();
+			this.buttonYes = new global::Gamma.GtkWidgets.yButton();
 			this.buttonYes.Sensitive = false;
 			this.buttonYes.CanDefault = true;
 			this.buttonYes.CanFocus = true;
@@ -256,7 +256,7 @@ namespace Vodovoz.Dialogs.Interactive
 			w22.Expand = false;
 			w22.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
-			this.buttonNo = new global::Gtk.Button();
+			this.buttonNo = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNo.Sensitive = false;
 			this.buttonNo.CanDefault = true;
 			this.buttonNo.CanFocus = true;

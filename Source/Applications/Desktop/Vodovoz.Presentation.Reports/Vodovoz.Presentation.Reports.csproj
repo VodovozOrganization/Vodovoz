@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Report\QS.Report.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,69 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Dialog;
-using QS.Report;
-using QSReport;
-using QS.Dialog.GtkUI;
+﻿using QS.Views;
+using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrderIncorrectPrices : SingleUoWWidgetBase, IParametersWidget
+	public partial class OrderIncorrectPrices : ViewBase<OrderIncorrectPricesViewModel>
 	{
-		public OrderIncorrectPrices()
+		public OrderIncorrectPrices(OrderIncorrectPricesViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			dateperiodpicker.StartDate = DateTime.Now.Date;
-			dateperiodpicker.EndDate = DateTime.Now.Date;
-		}
 
-		#region IParametersWidget implementation
+			dateperiodpicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.AddBinding(vm => vm.EntirePeriod, w => w.Sensitive, new BooleanInvertedConverter())
+				.InitializeFromSource();
 
-		public string Title {
-			get {
-				return "Отчет по некорректным ценам";
-			}
-		}
+			checkbutton1.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.EntirePeriod, w => w.Active)
+				.InitializeFromSource();
 
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		#endregion
-
-		private ReportInfo GetReportInfo()
-		{
-			string dateFrom = "";
-			string dateTo = "";
-			if(dateperiodpicker.Sensitive) {
-				dateFrom = String.Format("{0:yyyy-MM-dd}", dateperiodpicker.StartDate);
-				dateTo = String.Format("{0:yyyy-MM-dd}", dateperiodpicker.EndDate);
-			}
-			var parameters = new Dictionary<string, object>();
-			parameters.Add("dateFrom", dateFrom);
-			parameters.Add("dateTo", dateTo);
-
-			return new ReportInfo {
-				Identifier = "Orders.OrdersIncorrectPrices",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
-		}
-
-		void OnUpdate(bool hide = false)
-		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
-		}
-
-		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
-		}
-
-		protected void OnCheckbutton1Toggled(object sender, EventArgs e)
-		{
-			dateperiodpicker.Sensitive = !checkbutton1.Active;
+			buttonCreateRepot.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }
