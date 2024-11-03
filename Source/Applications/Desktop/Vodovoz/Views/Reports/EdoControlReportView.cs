@@ -1,12 +1,34 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Reports.Bookkeepping.EdoControl;
+using Vodovoz.ViewWidgets.Reports;
+
 namespace Vodovoz.Views.Reports
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EdoControlReportView : Gtk.Bin
+	public partial class EdoControlReportView : TabViewBase<EdoControlReportViewModel>
 	{
-		public EdoControlReportView()
+		private IncludeExludeFiltersView _filterView;
+
+		public EdoControlReportView(EdoControlReportViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			hpanedMain.Position = 500;
+			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
+
+			ShowIncludeExludeFilter();
+		}
+
+		private void ShowIncludeExludeFilter()
+		{
+			_filterView?.Destroy();
+			_filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);
+			yvboxParameters.Add(_filterView);
+			_filterView.HeightRequest = ViewModel.FilterViewModel.Filters.Count * 21 + 70;
+			_filterView.Show();
 		}
 	}
 }
