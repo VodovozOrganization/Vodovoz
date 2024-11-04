@@ -35,19 +35,23 @@ public class TrueMarkApiController : ControllerBase
 	private readonly OrganizationCertificate _organizationCertificate;
 
 	public TrueMarkApiController(
-		HttpClient httpClient,
+		IHttpClientFactory httpClientFactory,
 		IAuthorizationService authorizationService,
 		IOptions<TrueMarkApiOptions> options,
 		ILogger<TrueMarkApiController> logger)
 	{
+		if(httpClientFactory is null)
+		{
+			throw new ArgumentNullException(nameof(httpClientFactory));
+		}
+
 		_logger = logger
 			?? throw new ArgumentNullException(nameof(logger));
-		_httpClient = httpClient
-			?? throw new ArgumentNullException(nameof(httpClient));
 		_authorizationService = authorizationService
 			?? throw new ArgumentNullException(nameof(authorizationService));
 		_options = options
 			?? throw new ArgumentNullException(nameof(options));
+		_httpClient = httpClientFactory.CreateClient("truemark-external");
 
 		_organizationCertificate = options.Value.OrganizationCertificates.FirstOrDefault();
 	}

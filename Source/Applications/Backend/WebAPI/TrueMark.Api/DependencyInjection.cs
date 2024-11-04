@@ -1,4 +1,4 @@
-﻿using MassTransit;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +25,6 @@ public static class DependencyInjection
 	{
 		services.AddHttpLogging(logging =>
 		{
-			// Customize HTTP logging here.
 			logging.LoggingFields = HttpLoggingFields.All;
 			logging.MediaTypeOptions.AddText("application/json", Encoding.UTF8);
 			logging.RequestBodyLogLimit = 4096;
@@ -37,7 +36,7 @@ public static class DependencyInjection
 		services.AddControllers();
 
 		services
-			.AddHttpClient<TrueMarkApiController>((serviceProvider, client) =>
+			.AddHttpClient("truemark-external", (serviceProvider, client) =>
 			{
 				var trueMarkOptions = serviceProvider.GetRequiredService<IOptions<TrueMarkApiOptions>>();
 
@@ -114,24 +113,24 @@ public static class DependencyInjection
 	{
 		services.AddMassTransit(configuration =>
 		{
-			configuration.UsingRabbitMq((busContext, configurator) =>
+			configuration.UsingRabbitMq((busContext, rabbitMqBusConfig) =>
 			{
 				var appConfiguration = busContext.GetRequiredService<IConfiguration>();
 
-				configurator.Host(
+				rabbitMqBusConfig.Host(
 					host: appConfiguration.GetValue("RabbitMQ:Host", ""),
 					port: 5671,
 					virtualHost: appConfiguration.GetValue("RabbitMQ:VirtualHost", ""),
-					h =>
+					rabbitMqHostConfig =>
 					{
-						h.Username(appConfiguration.GetValue("RabbitMQ:UserName", "")!);
-						h.Password(appConfiguration.GetValue("RabbitMQ:Password", "")!);
-						h.UseSsl(configureSsl =>
+						rabbitMqHostConfig.Username(appConfiguration.GetValue("RabbitMQ:UserName", "")!);
+						rabbitMqHostConfig.Password(appConfiguration.GetValue("RabbitMQ:Password", "")!);
+						rabbitMqHostConfig.UseSsl(configureSsl =>
 						{
 							configureSsl.AllowPolicyErrors(System.Net.Security.SslPolicyErrors.RemoteCertificateNameMismatch);
 						});
 					});
-				configurator.ConfigureEndpoints(busContext);
+				rabbitMqBusConfig.ConfigureEndpoints(busContext);
 			});
 		});
 

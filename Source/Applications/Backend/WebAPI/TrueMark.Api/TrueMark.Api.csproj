@@ -33,6 +33,7 @@
 	<PackageReference Include="CryptoPro.Security.Cryptography.Pkcs" Version="2024.4.17" />
 	<PackageReference Include="MassTransit.RabbitMQ" Version="8.3.0" />
 	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.35" />
+	<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
 	<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 	<PackageReference Include="NLog.Targets.Seq" Version="4.0.1" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.14" />
