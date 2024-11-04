@@ -16,11 +16,11 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox lstGeographicGroup;
 
-		private global::QSWidgetLib.DatePeriodPicker pkrDate;
+		private global::QS.Widgets.GtkUI.DateRangePicker pkrDate;
 
 		private global::Gamma.Widgets.ySpecComboBox yspeccomboboxTariffZone;
 
-		private global::Gtk.Button buttonRun;
+		private global::Gamma.GtkWidgets.yButton buttonRun;
 
 		protected virtual void Build()
 		{
@@ -85,7 +85,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.pkrDate = new global::QSWidgetLib.DatePeriodPicker();
+			this.pkrDate = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.pkrDate.Events = ((global::Gdk.EventMask)(256));
 			this.pkrDate.Name = "pkrDate";
 			this.pkrDate.StartDate = new global::System.DateTime(0);
@@ -116,7 +116,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonRun = new global::Gtk.Button();
+			this.buttonRun = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRun.CanFocus = true;
 			this.buttonRun.Name = "buttonRun";
 			this.buttonRun.UseUnderline = true;
@@ -133,7 +133,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonRun.Clicked += new global::System.EventHandler(this.OnButtonRunClicked);
 		}
 	}
 }

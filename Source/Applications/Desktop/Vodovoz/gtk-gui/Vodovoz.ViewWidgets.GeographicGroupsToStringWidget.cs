@@ -10,9 +10,9 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gamma.GtkWidgets.yLabel lblElements;
 
-		private global::Gtk.Button btnChangeList;
+		private global::Gamma.GtkWidgets.yButton btnChangeList;
 
-		private global::Gtk.Button btnRemove;
+		private global::Gamma.GtkWidgets.yButton btnRemove;
 
 		protected virtual void Build()
 		{
@@ -45,7 +45,7 @@ namespace Vodovoz.ViewWidgets
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lblElements]));
 			w2.Position = 1;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.btnChangeList = new global::Gtk.Button();
+			this.btnChangeList = new global::Gamma.GtkWidgets.yButton();
 			this.btnChangeList.CanFocus = true;
 			this.btnChangeList.Name = "btnChangeList";
 			this.btnChangeList.UseUnderline = true;
@@ -58,7 +58,7 @@ namespace Vodovoz.ViewWidgets
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.btnRemove = new global::Gtk.Button();
+			this.btnRemove = new global::Gamma.GtkWidgets.yButton();
 			this.btnRemove.CanFocus = true;
 			this.btnRemove.Name = "btnRemove";
 			this.btnRemove.UseUnderline = true;

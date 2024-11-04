@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.Widgets;
 using Gtk;
 using NLog;
@@ -17,10 +18,11 @@ namespace Vodovoz.Views.Logistic
     public partial class DeliveryPointResponsiblePersonsView : Gtk.Bin
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        private readonly IEmployeeJournalFactory _employeeJournalFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
+        private readonly IEmployeeJournalFactory _employeeJournalFactory;
         private GenericObservableList<DeliveryPointResponsiblePerson> responsiblePersonsList;
         private IList<DeliveryPointResponsiblePersonType> responsiblePersonTypes;
         private IUnitOfWork uow;
+        private ILifetimeScope _scope = Startup.AppDIContainer.BeginLifetimeScope();
 
         public IUnitOfWork UoW {
             get => uow;
@@ -285,7 +287,8 @@ namespace Vodovoz.Views.Logistic
 
         public DeliveryPointResponsiblePersonsView()
         {
-            this.Build();
+	        _employeeJournalFactory = new EmployeeJournalFactory(_scope);
+            Build();
         }
 
         protected void OnButtonAddClicked(object sender, EventArgs e)
@@ -302,6 +305,16 @@ namespace Vodovoz.Views.Logistic
                   || p.DeliveryPointResponsiblePersonType == null 
                   || p.Employee == null
                 ).ToList().ForEach(p => ResponsiblePersonsList.Remove(p));
+        }
+
+        protected override void OnDestroyed()
+        {
+	        if(_scope != null)
+	        {
+		        _scope.Dispose();
+		        _scope = null;
+	        }
+	        base.OnDestroyed();
         }
     }
 }

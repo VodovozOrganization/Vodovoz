@@ -245,30 +245,24 @@ namespace Vodovoz
 
 			entityentryCar.ViewModel = BuildCarEntryViewModel();
 
-			var driverFilter = new EmployeeFilterViewModel();
-			driverFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.driver);
-			var driverFactory = new EmployeeJournalFactory(NavigationManager, driverFilter);
-			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
+			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
+			
+			evmeDriver.SetEntityAutocompleteSelectorFactory(
+				employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true));
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			evmeDriver.Changed += OnEvmeDriverChanged;
 
 			previousForwarder = Entity.Forwarder;
-			var forwarderFilter = new EmployeeFilterViewModel();
-			forwarderFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.forwarder);
-			var forwarderFactory = new EmployeeJournalFactory(NavigationManager, forwarderFilter);
-			evmeForwarder.SetEntityAutocompleteSelectorFactory(forwarderFactory.CreateEmployeeAutocompleteSelectorFactory());
+			
+			evmeForwarder.SetEntityAutocompleteSelectorFactory(
+				employeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory(true));
 			evmeForwarder.Binding.AddSource(Entity)
 				.AddBinding(rl => rl.Forwarder, widget => widget.Subject)
 				.AddFuncBinding(rl => rl.CanAddForwarder && _canEdit, widget => widget.Sensitive)
 				.InitializeFromSource();
 			evmeForwarder.Changed += ReferenceForwarder_Changed;
-
-			var employeeFactory = new EmployeeJournalFactory(NavigationManager);
-			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			
+			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeLogistician.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 
 			speccomboShift.ItemsList = _deliveryShiftRepository.ActiveShifts(UoW);
@@ -751,6 +745,13 @@ namespace Vodovoz
 		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
+
+			if(node is null)
+			{
+				MessageDialogHelper.RunErrorDialog("Не выбран адрес. Если ошибка будет повторяться - переоткройте вкладку");
+				return;
+			}
+			
 			var dlg = new OrderReturnsView(
 				UoW,
 				_orderDiscountsController,
@@ -769,6 +770,7 @@ namespace Vodovoz
 				_flyerRepository,
 				NavigationManager,
 				_lifetimeScope);
+			
 			dlg.ConfigureForRouteListAddress(node);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;
 			TabParent.AddSlaveTab(this, dlg);

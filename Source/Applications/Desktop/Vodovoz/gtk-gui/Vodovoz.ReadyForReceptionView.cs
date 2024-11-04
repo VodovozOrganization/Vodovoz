@@ -10,7 +10,7 @@ namespace Vodovoz
 
 		private global::Vodovoz.ReadyForReceptionFilter readyforreceptionfilter1;
 
-		private global::Gtk.Button buttonRefresh;
+		private global::Gamma.GtkWidgets.yButton buttonRefresh;
 
 		private global::QSWidgetLib.SearchEntity searchentity1;
 
@@ -20,7 +20,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox4;
 
-		private global::Gtk.Button buttonOpen;
+		private global::Gamma.GtkWidgets.yButton buttonOpen;
 
 		protected virtual void Build()
 		{
@@ -44,7 +44,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.readyforreceptionfilter1]));
 			w1.Position = 0;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonRefresh = new global::Gtk.Button();
+			this.buttonRefresh = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;
@@ -85,7 +85,7 @@ namespace Vodovoz
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonOpen = new global::Gtk.Button();
+			this.buttonOpen = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOpen.Sensitive = false;
 			this.buttonOpen.CanFocus = true;
 			this.buttonOpen.Name = "buttonOpen";

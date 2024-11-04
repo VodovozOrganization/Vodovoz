@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Report;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -59,7 +60,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private readonly StoreDocumentHelper _storeDocumentHelper;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly IEntityExtendedPermissionValidator _extendedPermissionValidator;
-
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private DelegateCommand _printCommand;
 		private DelegateCommand _addNomenclatureCommand;
 		private DelegateCommand _addOrEditFineCommand;
@@ -79,6 +80,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			IEmployeeRepository employeeRepository,
 			StoreDocumentHelper storeDocumentHelper,
 			IEntityExtendedPermissionValidator extendedPermissionValidator,
+			IReportInfoFactory reportInfoFactory,
 			ViewModelEEVMBuilder<Employee> responsibleEmployeeViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> writeOffEmployeeViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
@@ -111,6 +113,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			_storeDocumentHelper = storeDocumentHelper ?? throw new ArgumentNullException(nameof(storeDocumentHelper));
 			_extendedPermissionValidator =
 				extendedPermissionValidator ?? throw new ArgumentNullException(nameof(extendedPermissionValidator));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 
 			Initialize();
@@ -205,14 +208,12 @@ namespace Vodovoz.ViewModels.Warehouses
 					}
 				}
 
-				var reportInfo = new QS.Report.ReportInfo
+				var reportInfo = _reportInfoFactory.Create();
+				reportInfo.Title = $"Акт выбраковки №{Entity.Id} от {Entity.TimeStamp:d}";
+				reportInfo.Identifier = "Store.WriteOff";
+				reportInfo.Parameters = new Dictionary<string, object>
 				{
-					Title = $"Акт выбраковки №{Entity.Id} от {Entity.TimeStamp:d}",
-					Identifier = "Store.WriteOff",
-					Parameters = new Dictionary<string, object>
-					{
-						{ "writeoff_id", Entity.Id }
-					}
+					{ "writeoff_id", Entity.Id }
 				};
 
 				_reportViewOpener.OpenReport(this, reportInfo);

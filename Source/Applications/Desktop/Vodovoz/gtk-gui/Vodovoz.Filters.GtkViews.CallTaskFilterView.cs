@@ -34,15 +34,15 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.HBox hbox5;
 
-		private global::Gtk.Button buttonExpired;
+		private global::Gamma.GtkWidgets.yButton buttonExpired;
 
-		private global::Gtk.Button buttonToday;
+		private global::Gamma.GtkWidgets.yButton buttonToday;
 
-		private global::Gtk.Button buttonTomorrow;
+		private global::Gamma.GtkWidgets.yButton buttonTomorrow;
 
-		private global::Gtk.Button buttonThisWeek;
+		private global::Gamma.GtkWidgets.yButton buttonThisWeek;
 
-		private global::Gtk.Button buttonNextWeek;
+		private global::Gamma.GtkWidgets.yButton buttonNextWeek;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -201,7 +201,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.buttonExpired = new global::Gtk.Button();
+			this.buttonExpired = new global::Gamma.GtkWidgets.yButton();
 			this.buttonExpired.CanFocus = true;
 			this.buttonExpired.Name = "buttonExpired";
 			this.buttonExpired.UseUnderline = true;
@@ -212,7 +212,7 @@ namespace Vodovoz.Filters.GtkViews
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.buttonToday = new global::Gtk.Button();
+			this.buttonToday = new global::Gamma.GtkWidgets.yButton();
 			this.buttonToday.CanFocus = true;
 			this.buttonToday.Name = "buttonToday";
 			this.buttonToday.UseUnderline = true;
@@ -223,7 +223,7 @@ namespace Vodovoz.Filters.GtkViews
 			w15.Expand = false;
 			w15.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.buttonTomorrow = new global::Gtk.Button();
+			this.buttonTomorrow = new global::Gamma.GtkWidgets.yButton();
 			this.buttonTomorrow.CanFocus = true;
 			this.buttonTomorrow.Name = "buttonTomorrow";
 			this.buttonTomorrow.UseUnderline = true;
@@ -234,7 +234,7 @@ namespace Vodovoz.Filters.GtkViews
 			w16.Expand = false;
 			w16.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.buttonThisWeek = new global::Gtk.Button();
+			this.buttonThisWeek = new global::Gamma.GtkWidgets.yButton();
 			this.buttonThisWeek.CanFocus = true;
 			this.buttonThisWeek.Name = "buttonThisWeek";
 			this.buttonThisWeek.UseUnderline = true;
@@ -245,7 +245,7 @@ namespace Vodovoz.Filters.GtkViews
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.buttonNextWeek = new global::Gtk.Button();
+			this.buttonNextWeek = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNextWeek.CanFocus = true;
 			this.buttonNextWeek.Name = "buttonNextWeek";
 			this.buttonNextWeek.UseUnderline = true;

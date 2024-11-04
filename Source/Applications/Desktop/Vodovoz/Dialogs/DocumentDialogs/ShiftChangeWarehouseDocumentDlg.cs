@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -29,6 +29,7 @@ using QS.Project.Journal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Autofac;
+using QS.Report;
 using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
@@ -270,12 +271,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(ShiftChangeWarehouseDocument), "акта передачи склада"))
 				Save();
 
-			var reportInfo = new QS.Report.ReportInfo {
-				Title = String.Format("Акт передачи склада №{0} от {1:d}", Entity.Id, Entity.TimeStamp),
-				Identifier = "Store.ShiftChangeWarehouse",
-				Parameters = new Dictionary<string, object> {
-					{ "document_id",  Entity.Id }
-				}
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Title = String.Format("Акт передачи склада №{0} от {1:d}", Entity.Id, Entity.TimeStamp);
+			reportInfo.Identifier = "Store.ShiftChangeWarehouse";
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "document_id",  Entity.Id }
 			};
 
 			TabParent.OpenTab(

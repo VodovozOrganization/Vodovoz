@@ -8,9 +8,9 @@ namespace Vodovoz.Views
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button btnSave;
+		private global::Gamma.GtkWidgets.yButton btnSave;
 
-		private global::Gtk.Button btnCancel;
+		private global::Gamma.GtkWidgets.yButton btnCancel;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -136,7 +136,7 @@ namespace Vodovoz.Views
 
 		private global::Gamma.GtkWidgets.yLabel ylabelWaitForPaymentValue;
 
-		private global::Gtk.Button buttonComplete;
+		private global::Gamma.GtkWidgets.yButton buttonComplete;
 
 		private global::Gtk.Label lblAllocateOrders;
 
@@ -173,7 +173,7 @@ namespace Vodovoz.Views
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.btnSave = new global::Gtk.Button();
+			this.btnSave = new global::Gamma.GtkWidgets.yButton();
 			this.btnSave.CanFocus = true;
 			this.btnSave.Name = "btnSave";
 			this.btnSave.UseUnderline = true;
@@ -187,7 +187,7 @@ namespace Vodovoz.Views
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.btnCancel = new global::Gtk.Button();
+			this.btnCancel = new global::Gamma.GtkWidgets.yButton();
 			this.btnCancel.CanFocus = true;
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.UseUnderline = true;
@@ -759,7 +759,7 @@ namespace Vodovoz.Views
 			w67.Expand = false;
 			w67.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.buttonComplete = new global::Gtk.Button();
+			this.buttonComplete = new global::Gamma.GtkWidgets.yButton();
 			this.buttonComplete.CanFocus = true;
 			this.buttonComplete.Name = "buttonComplete";
 			this.buttonComplete.UseUnderline = true;

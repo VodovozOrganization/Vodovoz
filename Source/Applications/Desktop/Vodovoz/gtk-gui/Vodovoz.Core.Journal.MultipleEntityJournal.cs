@@ -12,7 +12,7 @@ namespace Vodovoz.Core.Journal
 
 		private global::Gtk.CheckButton checkShowFilter;
 
-		private global::Gtk.Button buttonRefresh;
+		private global::Gamma.GtkWidgets.yButton buttonRefresh;
 
 		private global::Gtk.HBox hboxFilter;
 
@@ -34,9 +34,9 @@ namespace Vodovoz.Core.Journal
 
 		private global::Gtk.Entry entrySearch4;
 
-		private global::Gtk.Button buttonAddAnd;
+		private global::Gamma.GtkWidgets.yButton buttonAddAnd;
 
-		private global::Gtk.Button buttonSearchClear;
+		private global::Gamma.GtkWidgets.yButton buttonSearchClear;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -80,7 +80,7 @@ namespace Vodovoz.Core.Journal
 			w2.Position = 1;
 			w2.Expand = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonRefresh = new global::Gtk.Button();
+			this.buttonRefresh = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;
@@ -189,7 +189,7 @@ namespace Vodovoz.Core.Journal
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.entrySearch4]));
 			w14.Position = 7;
 			// Container child hboxSearch.Gtk.Box+BoxChild
-			this.buttonAddAnd = new global::Gtk.Button();
+			this.buttonAddAnd = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddAnd.CanFocus = true;
 			this.buttonAddAnd.Name = "buttonAddAnd";
 			this.buttonAddAnd.UseUnderline = true;
@@ -203,7 +203,7 @@ namespace Vodovoz.Core.Journal
 			w16.Expand = false;
 			w16.Fill = false;
 			// Container child hboxSearch.Gtk.Box+BoxChild
-			this.buttonSearchClear = new global::Gtk.Button();
+			this.buttonSearchClear = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSearchClear.TooltipMarkup = "Очистить";
 			this.buttonSearchClear.CanFocus = true;
 			this.buttonSearchClear.Name = "buttonSearchClear";

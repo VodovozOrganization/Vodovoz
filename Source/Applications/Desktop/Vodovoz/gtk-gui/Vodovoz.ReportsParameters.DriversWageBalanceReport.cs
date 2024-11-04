@@ -14,11 +14,11 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gtk.Table table1;
 
-		private global::Gtk.Button buttonSelectAll;
+		private global::Gamma.GtkWidgets.yButton buttonSelectAll;
 
-		private global::Gtk.Button buttonSelectWage;
+		private global::Gamma.GtkWidgets.yButton buttonSelectWage;
 
-		private global::Gtk.Button buttonUnselectAll;
+		private global::Gamma.GtkWidgets.yButton buttonUnselectAll;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -28,7 +28,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.DatePicker ydateDateSolary;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -76,7 +76,7 @@ namespace Vodovoz.ReportsParameters
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonSelectAll = new global::Gtk.Button();
+			this.buttonSelectAll = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSelectAll.CanFocus = true;
 			this.buttonSelectAll.Name = "buttonSelectAll";
 			this.buttonSelectAll.UseUnderline = true;
@@ -88,7 +88,7 @@ namespace Vodovoz.ReportsParameters
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonSelectWage = new global::Gtk.Button();
+			this.buttonSelectWage = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSelectWage.CanFocus = true;
 			this.buttonSelectWage.Name = "buttonSelectWage";
 			this.buttonSelectWage.UseUnderline = true;
@@ -102,7 +102,7 @@ namespace Vodovoz.ReportsParameters
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonUnselectAll = new global::Gtk.Button();
+			this.buttonUnselectAll = new global::Gamma.GtkWidgets.yButton();
 			this.buttonUnselectAll.CanFocus = true;
 			this.buttonUnselectAll.Name = "buttonUnselectAll";
 			this.buttonUnselectAll.UseUnderline = true;
@@ -158,7 +158,7 @@ namespace Vodovoz.ReportsParameters
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
 			w11.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;

@@ -14,9 +14,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonAdd;
+		private global::Gamma.GtkWidgets.yButton buttonAdd;
 
-		private global::Gtk.Button buttonDelete;
+		private global::Gamma.GtkWidgets.yButton buttonDelete;
 
 		protected virtual void Build()
 		{
@@ -55,7 +55,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonAdd = new global::Gtk.Button();
+			this.buttonAdd = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAdd.Sensitive = false;
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
@@ -70,7 +70,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonDelete = new global::Gtk.Button();
+			this.buttonDelete = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDelete.Sensitive = false;
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";

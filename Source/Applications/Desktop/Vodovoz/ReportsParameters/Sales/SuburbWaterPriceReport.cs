@@ -1,51 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Dialog;
-using QS.Report;
-using QSReport;
-using QS.Dialog.GtkUI;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Sales;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
-	public partial class SuburbWaterPriceReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class SuburbWaterPriceReport : ViewBase<SuburbWaterPriceReportViewModel>
 	{
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		public string Title {
-			get {
-				return "Отчет по ценам пригорода";
-			}
-		}
-
-
-		public SuburbWaterPriceReport()
+		public SuburbWaterPriceReport(SuburbWaterPriceReportViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-		}
 
-		private ReportInfo GetReportInfo()
-		{
-			return new ReportInfo {
-				Identifier = "Sales.SuburbWaterPrice",
-				ParameterDatesWithTime = false,
-				Parameters = new Dictionary<string, object>
-				{
-					{ "report_date", ydatepicker.Date }
-				}
-			};
-		}
+			ydatepicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.DateOrNull)
+				.InitializeFromSource();
 
-		void OnUpdate(bool hide = false)
-		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
-		}
-
-		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
+			buttonCreateRepot.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }
