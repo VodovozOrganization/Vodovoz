@@ -600,7 +600,8 @@ namespace Vodovoz.Core.Domain.Orders
 		public virtual CounterpartyEntity Client
 		{
 			get => _client;
-			set => SetField(ref _client, value);
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _client, value);
 		}
 
 		#region Вычисляемые свойства
