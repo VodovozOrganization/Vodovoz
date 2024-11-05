@@ -9,6 +9,7 @@ using System.Linq;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Reports.Editing.Modifiers;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 
 namespace Vodovoz.ViewModels.Reports.Bookkeepping.EdoControl
@@ -16,6 +17,7 @@ namespace Vodovoz.ViewModels.Reports.Bookkeepping.EdoControl
 	public class EdoControlReportViewModel : DialogTabViewModelBase
 	{
 		private readonly IIncludeExcludeBookkeeppingReportsFilterFactory _includeExcludeBookkeeppingReportsFilterFactory;
+		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -24,14 +26,18 @@ namespace Vodovoz.ViewModels.Reports.Bookkeepping.EdoControl
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
-			IIncludeExcludeBookkeeppingReportsFilterFactory includeExcludeBookkeeppingReportsFilterFactory)
+			IIncludeExcludeBookkeeppingReportsFilterFactory includeExcludeBookkeeppingReportsFilterFactory,
+			ILeftRightListViewModelFactory leftRightListViewModelFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_includeExcludeBookkeeppingReportsFilterFactory = includeExcludeBookkeeppingReportsFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeBookkeeppingReportsFilterFactory));
-
+			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 			Title = "Контроль за ЭДО";
 
 			FilterViewModel = _includeExcludeBookkeeppingReportsFilterFactory.CreateEdoControlReportIncludeExcludeFilter(UoW);
+
+			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateEdoControlReportGroupingsConstructor();
+			GroupingSelectViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
 		}
 
 		public IncludeExludeFiltersViewModel FilterViewModel { get; }
@@ -54,9 +60,14 @@ namespace Vodovoz.ViewModels.Reports.Bookkeepping.EdoControl
 			set => SetField(ref _endDate, value);
 		}
 
-		private IEnumerable<GroupingType> GetSelectedGroupings() =>
+		private IEnumerable<GroupingType> SelectedGroupings =>
 			GroupingSelectViewModel
 			.GetRightItems()
 			.Select(x => x.GroupType);
+
+		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(SelectedGroupings));
+		}
 	}
 }

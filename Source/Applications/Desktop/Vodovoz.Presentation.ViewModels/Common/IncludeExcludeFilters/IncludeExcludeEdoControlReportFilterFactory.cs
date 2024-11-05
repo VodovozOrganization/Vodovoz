@@ -45,6 +45,8 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			AddCounterpartyPersonTypeFilter(filter);
 			AddPaymentTypeFilter(unitOfWork, filter);
 			AddEdoDocFlowStatusFilter(filter);
+			AddDeliveryTypeFilter(filter);
+			AddAddressTransferTypeFilter(filter);
 
 			return filter;
 		}
@@ -381,7 +383,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 
 		private void AddDeliveryTypeFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{
-			includeExludeFiltersViewModel.AddFilter<EdoControlReportDeliveryType>(config =>
+			includeExludeFiltersViewModel.AddFilter<EdoControlReportOrderDeliveryType>(config =>
 			{
 				config.RefreshFilteredElements();
 			});
@@ -398,7 +400,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 		[Appellative(
 			Nominative = "Тип доставки",
 			NominativePlural = "Типы доставки")]
-		public enum EdoControlReportDeliveryType
+		public enum EdoControlReportOrderDeliveryType
 		{
 			[Display(Name = "Доставка за час")]
 			FastDelivery,

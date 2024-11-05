@@ -20,6 +20,7 @@ namespace Vodovoz.Views.Reports
 			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
 
 			ShowIncludeExludeFilter();
+			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
 		}
 
 		private void ShowIncludeExludeFilter()
