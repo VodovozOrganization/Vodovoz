@@ -208,6 +208,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			References(x => x.PaymentByCardFrom)
 				.Column("payment_from_id");
 
+			References(x => x.Client)
+				.Column("client_id");
+
 			HasMany(x => x.OrderItems)
 				.KeyColumn("order_id")
 				.Cascade.AllDeleteOrphan()

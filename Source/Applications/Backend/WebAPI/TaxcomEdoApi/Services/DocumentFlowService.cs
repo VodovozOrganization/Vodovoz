@@ -18,7 +18,7 @@ using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Factories;
 using TaxcomEdoApi.HealthChecks;
 using Vodovoz.Application.FileStorage;
-using Vodovoz.Domain.Client;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;

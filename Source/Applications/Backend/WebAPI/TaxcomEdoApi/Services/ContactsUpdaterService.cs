@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Taxcom.Client.Api;
 using TISystems.TTC.CRM.BE.Serialization;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Settings;

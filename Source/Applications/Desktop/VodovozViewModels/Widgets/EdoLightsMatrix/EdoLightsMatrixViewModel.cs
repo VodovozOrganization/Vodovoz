@@ -2,6 +2,7 @@
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix

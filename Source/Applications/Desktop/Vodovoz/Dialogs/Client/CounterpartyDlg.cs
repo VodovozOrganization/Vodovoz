@@ -50,6 +50,7 @@ using TISystems.TTC.CRM.BE.Serialization;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -103,7 +104,6 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
-using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Complaints;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
