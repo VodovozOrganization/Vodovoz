@@ -69,6 +69,7 @@ namespace Vodovoz.Domain.Logistic
 	[EntityPermission]
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
+		private const decimal _confirmedDistanceLimit = 99_999.99m;
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private static IGeneralSettings _generalSettingsSettingsGap;
 
@@ -2011,6 +2012,12 @@ namespace Vodovoz.Domain.Logistic
 			if(onlineOrders.Any())
 			{
 				yield return new ValidationResult($"В МЛ дублируются номера оплат: {string.Join(", ", onlineOrders)}", new[] { nameof(Addresses) });
+			}
+
+			if(ConfirmedDistance > _confirmedDistanceLimit)
+			{
+				yield return new ValidationResult($"Подтверждённое расстояние не может быть больше {_confirmedDistanceLimit}", 
+					new[] { nameof(ConfirmedDistance) });
 			}
 		}
 
