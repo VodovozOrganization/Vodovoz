@@ -150,7 +150,6 @@ public class TrueMarkApiController : ControllerBase
 		var identificationCodesArray = identificationCodes.ToArray();
 
 		var errorMessage = new StringBuilder();
-		errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
 
 		string bearerToken;
 
@@ -283,7 +282,7 @@ public class TrueMarkApiController : ControllerBase
 					ProductCode = code
 				},
 				cancellationToken,
-				RequestTimeout.After(s: 4)));
+				RequestTimeout.After(s: 10)));
 		}
 
 		return requestsTasks;
@@ -294,6 +293,8 @@ public class TrueMarkApiController : ControllerBase
 		List<ProductInstanceStatus> productInstancesInfoResponses,
 		IEnumerable<ProductInstanceInfoResponse> results)
 	{
+		const string baseErrorMessage = "Не удалось получить данные о статусах экземпляров товаров.";
+
 		foreach(var result in results)
 		{
 			if(string.IsNullOrWhiteSpace(result.ErrorMessage))
@@ -309,7 +310,7 @@ public class TrueMarkApiController : ControllerBase
 		return new ProductInstancesInfoResponse // Поправить обработку на стороне клиента
 		{
 			InstanceStatuses = productInstancesInfoResponses,
-			ErrorMessage = errorMessage.ToString() // проверить, что клиент корректно обработает
+			ErrorMessage = errorMessage.Length > 0 ? baseErrorMessage + errorMessage.ToString() : "" // проверить, что клиент корректно обработает
 		};
 	}
 }

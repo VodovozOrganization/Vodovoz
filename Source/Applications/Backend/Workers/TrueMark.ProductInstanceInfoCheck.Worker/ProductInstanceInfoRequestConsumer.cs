@@ -25,6 +25,8 @@ public class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstanc
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		_optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 		_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+
+		_logger.LogInformation("Consumer succesfully created");
 	}
 
 	public async Task Consume(ConsumeContext<Batch<ProductInstanceInfoRequest>> context)
@@ -60,19 +62,44 @@ public class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstanc
 			var codesPortion = codes.Take(currentCodesPreRequestLimit).ToArray();
 
 			var errorMessage = new StringBuilder();
-			errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
 
-			var response = await _httpClient.PostAsJsonAsync<IEnumerable<string>>(_uri, codesPortion, apiRequestCancellationTokenSource.Token); // try catch, настроить клиент, таймаут 60 сек
+			const string baseErrorMessage = "Не удалось получить данные о статусах экземпляров товаров.";
+
+			HttpResponseMessage? response = null;
 
 			var currentPortionContexts = group.Where(g => codesPortion.Contains(g.Message.ProductCode));
 
-			if(!response.IsSuccessStatusCode)
+			try
 			{
-				errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}");
+				response = await _httpClient.PostAsJsonAsync<IEnumerable<string>>(_uri, codesPortion, apiRequestCancellationTokenSource.Token); // try catch, настроить клиент, таймаут 60 сек
+			}
+			catch(Exception ex)
+			{
+				errorMessage.AppendLine(baseErrorMessage);
+				errorMessage.AppendLine($"Ошибка при получении информации из Честного знака: {ex.Message}");
+				RespondError(errorMessage, currentPortionContexts);
+
+				if(codes.Count > 0)
+				{
+					codes.RemoveRange(0, Math.Min(codes.Count, currentCodesPreRequestLimit));
+				}
+
+				await Task.Delay(currentRequestDelay);
+
+				continue;
+			}
+
+			if(response is null || !response.IsSuccessStatusCode)
+			{
+				errorMessage.AppendLine(baseErrorMessage);
+				errorMessage.AppendLine($"{response?.StatusCode} {response?.ReasonPhrase}");
 
 				RespondError(errorMessage, currentPortionContexts);
 
-				codes.RemoveRange(0, currentCodesPreRequestLimit);
+				if(codes.Count > 0)
+				{
+					codes.RemoveRange(0, Math.Min(codes.Count, currentCodesPreRequestLimit));
+				}
 
 				await Task.Delay(currentRequestDelay);
 
@@ -85,11 +112,15 @@ public class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstanc
 
 			if(cisesInformations is null)
 			{
+				errorMessage.AppendLine(baseErrorMessage);
 				errorMessage.AppendLine("Не удалось получить ожидаемый ответ от сервера");
 
 				RespondError(errorMessage, currentPortionContexts);
 
-				codes.RemoveRange(0, currentCodesPreRequestLimit);
+				if(codes.Count > 0)
+				{
+					codes.RemoveRange(0, Math.Min(codes.Count, currentCodesPreRequestLimit));
+				}
 
 				await Task.Delay(currentRequestDelay);
 
@@ -112,7 +143,10 @@ public class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstanc
 				});
 			}
 
-			codes.RemoveRange(0, currentCodesPreRequestLimit);
+			if(codes.Count > 0)
+			{
+				codes.RemoveRange(0, Math.Min(codes.Count, currentCodesPreRequestLimit));
+			}
 
 			await Task.Delay(currentRequestDelay);
 		}

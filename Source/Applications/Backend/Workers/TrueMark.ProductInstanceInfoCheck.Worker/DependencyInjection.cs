@@ -57,17 +57,26 @@ public static class DependencyInjection
 		{
 			configuration.AddConsumers(typeof(DependencyInjection).Assembly);
 
+			configuration.SetKebabCaseEndpointNameFormatter();
+
 			configuration.UsingRabbitMq((busContext, configurator) =>
 			{
 				var appConfiguration = busContext.GetRequiredService<IConfiguration>();
 
 				configurator.Host(
 					appConfiguration.GetValue("RabbitMQ:Host", ""),
+					port: 5671,
+					virtualHost: appConfiguration.GetValue("RabbitMQ:VirtualHost", ""),
 					h =>
 					{
 						h.Username(appConfiguration.GetValue("RabbitMQ:UserName", "")!);
 						h.Password(appConfiguration.GetValue("RabbitMQ:Password", "")!);
+						h.UseSsl(configureSsl =>
+						{
+							configureSsl.AllowPolicyErrors(System.Net.Security.SslPolicyErrors.RemoteCertificateNameMismatch);
+						});
 					});
+
 				configurator.ConfigureEndpoints(busContext);
 			});
 		});

@@ -8,7 +8,7 @@ public class ProductInstanceInfoRequestConsumerDefinition : ConsumerDefinition<P
 {
 	private readonly IOptionsMonitor<TrueMarkProductInstanceInfoCheckOptions> _optionsMonitor;
 
-	protected ProductInstanceInfoRequestConsumerDefinition(
+	public ProductInstanceInfoRequestConsumerDefinition(
 		IOptionsMonitor<TrueMarkProductInstanceInfoCheckOptions> optionsMonitor)
 	{
 		_optionsMonitor = optionsMonitor;
@@ -19,14 +19,18 @@ public class ProductInstanceInfoRequestConsumerDefinition : ConsumerDefinition<P
 		IConsumerConfigurator<ProductInstanceInfoRequestConsumer> consumerConfigurator,
 		IRegistrationContext context)
 	{
-		if(consumerConfigurator is IRabbitMqReceiveEndpointConfigurator rmqc)
+		var currentCodesPerRequestLimit = _optionsMonitor.CurrentValue.CodesPerRequestLimit;
+		var currentRequestsTimeOut = _optionsMonitor.CurrentValue.RequestsTimeOut;
+
+		consumerConfigurator.Options<BatchOptions>(options => options
+			.SetMessageLimit(currentCodesPerRequestLimit)
+			.SetTimeLimit(currentRequestsTimeOut)
+			.SetTimeLimitStart(BatchTimeLimitStart.FromLast));
+
+		if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmqc)
 		{
-			rmqc.Exclusive = true;
 			rmqc.Durable = true;
 			rmqc.ExchangeType = ExchangeType.Fanout;
-
-			var currentCodesPerRequestLimit = _optionsMonitor.CurrentValue.CodesPerRequestLimit;
-			var currentRequestsTimeOut = _optionsMonitor.CurrentValue.RequestsTimeOut;
 
 			rmqc.PrefetchCount = currentCodesPerRequestLimit;
 
@@ -34,6 +38,7 @@ public class ProductInstanceInfoRequestConsumerDefinition : ConsumerDefinition<P
 			{
 				batchConfig.MessageLimit = currentCodesPerRequestLimit;
 				batchConfig.TimeLimit = currentRequestsTimeOut;
+				batchConfig.ConcurrencyLimit = 1;
 			});
 		}
 	}
