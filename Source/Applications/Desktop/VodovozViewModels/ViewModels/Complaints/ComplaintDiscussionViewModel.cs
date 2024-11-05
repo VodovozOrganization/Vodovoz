@@ -1,26 +1,18 @@
-﻿using Microsoft.Extensions.Primitives;
-using QS.Commands;
-using QS.Dialog;
-using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
-using QS.Project.Services.FileDialog;
+﻿using QS.Commands;
 using QS.Services;
 using QS.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Complaints;
+using System.Data.Bindings.Collections.Generic;
+using QS.DomainModel.Entity;
+using System;
+using QS.Project.Services;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure.Services;
+using QS.Dialog;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Presentation.ViewModels.AttachedFiles;
+using QS.Project.Services.FileDialog;
 using Vodovoz.Services;
-using Vodovoz.ViewModelBased;
-using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -29,12 +21,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
-		private readonly IComplaintDiscussionCommentFileStorageService _complaintDiscussionCommentFileStorageService;
-		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
 		private readonly bool _canCompleteComplaintDiscussionPermission;
 		private readonly IPermissionResult _complaintPermissionResult;
-
-		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public ComplaintDiscussionViewModel(
 			ComplaintDiscussion complaintDiscussion,
@@ -42,48 +30,26 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			IUnitOfWork uow,
-			IUserRepository userRepository,
-			IComplaintDiscussionCommentFileStorageService complaintDiscussionCommentFileStorageService,
-			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
-			: base(complaintDiscussion, commonServices)
+			IUserRepository userRepository
+			) : base(complaintDiscussion, commonServices)
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_complaintDiscussionCommentFileStorageService = complaintDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(complaintDiscussionCommentFileStorageService));
-			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			newCommentFiles = new GenericObservableList<ComplaintFile>();
 			_canCompleteComplaintDiscussionPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_complete_complaint_discussion");
 			UoW = uow;
 			_complaintPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Complaint));
+			CreateCommands();
 			ConfigureEntityPropertyChanges();
-
-			AddCommentCommand = new DelegateCommand(AddCommentHandler, () => CanAddComment);
-			AddCommentCommand.CanExecuteChangedWith(this, x => x.CanAddComment);
-
-			OpenFileCommand = new DelegateCommand<ComplaintDiscussionCommentFileInformation>(OpenFile);
-
-			ComplaintDiscussionComment = new ComplaintDiscussionComment();
-			AttachedFileInformationsViewModel = _attachedFileInformationsViewModelFactory.CreateAndInitialize<ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>(
-				UoW,
-				ComplaintDiscussionComment,
-				_complaintDiscussionCommentFileStorageService,
-				_cancellationTokenSource.Token,
-				ComplaintDiscussionComment.AddFileInformation,
-				ComplaintDiscussionComment.DeleteFileInformation);
-
-			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
 		}
 
 		private void ConfigureEntityPropertyChanges()
 		{
 			SetPropertyChangeRelation(e => e.Status,
-				() => Status);
-
-			SetPropertyChangeRelation(e => e.Status,
-				() => CanEditStatus);
+				() => CanEditStatus
+			);
 		}
-
-		public ComplaintDiscussionStatuses Status => Entity.Status;
 
 		private Employee currentEmployee;
 		public Employee CurrentEmployee {
@@ -95,22 +61,17 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		private ComplaintDiscussionComment _complaintDiscussionComment;
+		private FilesViewModel filesViewModel;
+		public FilesViewModel FilesViewModel {
+			get {
+				if(filesViewModel == null) {
+					filesViewModel = new FilesViewModel(_fileDialogService, CommonServices.InteractiveService, UoW, _userRepository);
+					filesViewModel.FilesList = NewCommentFiles;
+				}
 
-		public ComplaintDiscussionComment ComplaintDiscussionComment
-		{
-			get => _complaintDiscussionComment;
-			set => _complaintDiscussionComment = value;
+				return filesViewModel;
+			}
 		}
-
-		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel
-		{
-			get => _attachedFileInformationsViewModel;
-			private set => SetField(ref _attachedFileInformationsViewModel, value);
-		}
-
-		public Dictionary<Func<int>, Dictionary<string, byte[]>> FilesToUploadOnSave { get; }
-			= new Dictionary<Func<int>, Dictionary<string, byte[]>>();
 
 		[PropertyChangedAlso(nameof(CanEditDate), nameof(CanEditStatus))]
 		public bool CanEdit => PermissionResult.CanUpdate && _complaintPermissionResult.CanUpdate;
@@ -138,9 +99,20 @@ namespace Vodovoz.ViewModels.Complaints
 			set => SetField(ref newCommentText, value, () => NewCommentText);
 		}
 
-		private AttachedFileInformationsViewModel _attachedFileInformationsViewModel;
+		private GenericObservableList<ComplaintFile> newCommentFiles;
+
+		public virtual GenericObservableList<ComplaintFile> NewCommentFiles {
+			get => newCommentFiles;
+			set => SetField(ref newCommentFiles, value, () => NewCommentFiles);
+		}
 
 		#region Commands
+
+		private void CreateCommands()
+		{
+			CreateAddCommentCommand();
+			CreateOpenFileCommand();
+		}
 
 		#region AddCommentCommand
 
@@ -148,110 +120,50 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public DelegateCommand AddCommentCommand { get; private set; }
 
-		private void AddCommentHandler()
+		private void CreateAddCommentCommand()
 		{
-			if(CurrentEmployee == null)
-			{
-				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
-				return;
-			}
-
-			ComplaintDiscussionComment.Author = CurrentEmployee;
-			ComplaintDiscussionComment.CreationTime = DateTime.Now;
-			ComplaintDiscussionComment.Comment = NewCommentText;
-
-			ComplaintDiscussionComment.ComplaintDiscussion = Entity;
-			Entity.ObservableComments.Add(ComplaintDiscussionComment);
-			NewCommentText = string.Empty;
-
-			var newComment = ComplaintDiscussionComment;
-			FilesToUploadOnSave.Add(() => newComment.Id, AttachedFileInformationsViewModel.AttachedFiles.ToDictionary(kv => kv.Key, kv => kv.Value));
-
-			ComplaintDiscussionComment = new ComplaintDiscussionComment();
-			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
-			AttachedFileInformationsViewModel = _attachedFileInformationsViewModelFactory.CreateAndInitialize<ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>(
-				UoW,
-				ComplaintDiscussionComment,
-				_complaintDiscussionCommentFileStorageService,
-				_cancellationTokenSource.Token,
-				ComplaintDiscussionComment.AddFileInformation,
-				ComplaintDiscussionComment.DeleteFileInformation);
-
-			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
+			AddCommentCommand = new DelegateCommand(
+				() => {
+					var newComment = new ComplaintDiscussionComment();
+					if(CurrentEmployee == null) {
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
+						return;
+					}
+					newComment.Author = CurrentEmployee;
+					newComment.CreationTime = DateTime.Now;
+					newComment.Comment = NewCommentText;
+					foreach(ComplaintFile file in newCommentFiles) {
+						file.ComplaintDiscussionComment = newComment;
+						newComment.ObservableFiles.Add(file);
+					}
+					newComment.ComplaintDiscussion = Entity;
+					Entity.ObservableComments.Add(newComment);
+					NewCommentText = string.Empty;
+					NewCommentFiles.Clear();
+				},
+				() => CanAddComment
+			);
+			AddCommentCommand.CanExecuteChangedWith(this, x => x.CanAddComment);
 		}
 
 		#endregion AddCommentCommand
 
 		#region OpenFileCommand
 
-		public DelegateCommand<ComplaintDiscussionCommentFileInformation> OpenFileCommand { get; }
+		public DelegateCommand<ComplaintFile> OpenFileCommand { get; private set; }
 
-		public void OpenFile(ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation)
+		private void CreateOpenFileCommand()
 		{
-			byte[] blob;
-
-			if(complaintDiscussionCommentFileInformation.ComplaintDiscussionCommentId == 0)
-			{
-				blob = FilesToUploadOnSave.FirstOrDefault(actionCommentIdToFile => actionCommentIdToFile.Value.ContainsKey(complaintDiscussionCommentFileInformation.FileName))
-					.Value[complaintDiscussionCommentFileInformation.FileName];
-			}
-			else
-			{
-				var comment = Entity.Comments.FirstOrDefault(cdc => cdc.Id == complaintDiscussionCommentFileInformation.ComplaintDiscussionCommentId);
-
-				var fileResult = _complaintDiscussionCommentFileStorageService.GetFileAsync(comment, complaintDiscussionCommentFileInformation.FileName, _cancellationTokenSource.Token)
-					.GetAwaiter()
-					.GetResult();
-
-				if(fileResult.IsFailure)
-				{
-					return;
-				}
-
-				using(var ms = new MemoryStream())
-				{
-					fileResult.Value.CopyTo(ms);
-
-					blob = ms.ToArray();
-				}
-			}
-
-			var vodovozUserTempDirectory = _userRepository.GetTempDirForCurrentUser(UoW);
-
-			if(string.IsNullOrWhiteSpace(vodovozUserTempDirectory))
-			{
-				return;
-			}
-
-			var tempFilePath = Path.Combine(Path.GetTempPath(), vodovozUserTempDirectory, complaintDiscussionCommentFileInformation.FileName);
-
-			if(!File.Exists(tempFilePath))
-			{
-				File.WriteAllBytes(tempFilePath, blob);
-			}
-
-			var process = new Process
-			{
-				EnableRaisingEvents = true
-			};
-
-			process.StartInfo.FileName = Path.Combine(vodovozUserTempDirectory, complaintDiscussionCommentFileInformation.FileName);
-
-			process.Exited += OnProcessExited;
-			process.Start();
+			OpenFileCommand = new DelegateCommand<ComplaintFile>(
+				(file) => {
+					FilesViewModel.OpenItemCommand.Execute(file);
+				},
+				(file) => file != null && FilesViewModel.OpenItemCommand.CanExecute(file)
+			);
 		}
 
 		#endregion OpenFileCommand
 
 		#endregion Commands
-
-		private void OnProcessExited(object sender, EventArgs e)
-		{
-			if(sender is Process process)
-			{
-				File.Delete(process.StartInfo.FileName);
-				process.Exited -= OnProcessExited;
-			}
-		}
 	}
 }

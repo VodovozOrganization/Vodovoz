@@ -101,29 +101,24 @@ namespace Vodovoz.Application.BankStatements
 				workbook = (VodovozInfrastructure.BankStatements.Workbook)serializer.Deserialize(reader);
 			}
 
-			IList<IEnumerable<string>> result = new List<IEnumerable<string>>();
+			IEnumerable<string> result = Array.Empty<string>();
 			
 			if(workbook.Worksheet.Any())
 			{
-				var firstSheet = workbook.Worksheet.First();
-
-				if(firstSheet != null)
-				{
-					foreach(var row in firstSheet.Table.Row)
-					{
-						var dataCells = row.Cell.Where(x => x.Data != null && !string.IsNullOrWhiteSpace(x.Data.Value))
-							.Select(x => x.Data.Value)
-							.ToArray();
-
-						if(dataCells.Any())
-						{
-							result.Add(dataCells);
-						}
-					}
-				}
+				result =
+					workbook
+						.Worksheet.First()
+						.Table.Row.SelectMany(x => x.Cell)
+						.Where(x => x.Data != null && !string.IsNullOrWhiteSpace(x.Data.Value))
+						.Select(x => x.Data.Value);
 			}
 
-			return result;
+			var list = new List<IEnumerable<string>>
+			{
+				result
+			};
+
+			return list;
 		}
 		
 		private IList<IList<string>> GetRowsCellsValues(IEnumerable<Row> rows, SharedStringTable sharedStringTable)

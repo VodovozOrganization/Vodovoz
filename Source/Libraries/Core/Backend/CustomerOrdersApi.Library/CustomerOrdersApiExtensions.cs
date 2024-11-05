@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Net.Security;
-using System.Security.Authentication;
+﻿using System.Security.Authentication;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Dto.Orders;
@@ -52,15 +49,7 @@ namespace CustomerOrdersApi.Library
 
 						if(messageSettings.UseSSL)
 						{
-							hostConfigurator.UseSsl(ssl =>
-							{
-								if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
-								{
-									ssl.AllowPolicyErrors(allowedPolicyErrors);
-								}
-
-								ssl.Protocol = SslProtocols.Tls12;
-							});
+							hostConfigurator.UseSsl(ssl => ssl.Protocol = SslProtocols.Tls12);
 						}
 					});
 								

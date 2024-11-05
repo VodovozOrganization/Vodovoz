@@ -239,110 +239,94 @@ namespace Vodovoz.Application.Orders.Services
 		
 		private void ValidateDiscountProperties(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
 		{
-			if(onlineOrderItem.OnlineOrder.IsSelfDelivery)
+			switch (onlineOrderItem.OnlineOrder.IsSelfDelivery)
 			{
-				ValidateDiscountParametersFromSelfDelivery(onlineOrderItem, errors);
-			}
-			else
-			{
-				ValidateDiscountParametersFromDeliveryOrder(onlineOrderItem, errors);
-			}
-		}
-
-		private void ValidateDiscountParametersFromSelfDelivery(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
-		{
-			if(onlineOrderItem.DiscountReason != null)
-			{
-				var applicableDiscount =
-					_discountController.IsApplicableDiscount(onlineOrderItem.DiscountReason, onlineOrderItem.Nomenclature);
-
-				if(applicableDiscount)
+				case false:
 				{
-					ValidateApplicableDiscountFromSelfDelivery(onlineOrderItem, errors);
-				}
-				else
-				{
-					ValidateNotApplicableDiscountFromSelfDelivery(onlineOrderItem, errors);
-				}
-			}
-			else
-			{
-				if(onlineOrderItem.GetDiscount > 0)
-				{
-					errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
-						onlineOrderItem.Nomenclature.ToString(), 0, onlineOrderItem.GetDiscount));
-				}
-						
-				onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
-			}
-		}
-
-		private void ValidateApplicableDiscountFromSelfDelivery(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
-		{
-			if(onlineOrderItem.GetDiscount != onlineOrderItem.DiscountReason.Value)
-			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
-					onlineOrderItem.Nomenclature.ToString(),
-					onlineOrderItem.DiscountReason.Value,
-					onlineOrderItem.GetDiscount));
-				onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
-			}
-
-			switch(onlineOrderItem.DiscountReason.ValueType)
-			{
-				case DiscountUnits.money:
-					if(!onlineOrderItem.IsDiscountInMoney)
+					if(onlineOrderItem.GetDiscount > 0)
 					{
-						errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
-							onlineOrderItem.Nomenclature.ToString(), true, onlineOrderItem.IsDiscountInMoney));
-						onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+						errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInDeliveryOnlineOrder(
+							onlineOrderItem.Nomenclature.ToString()));
 					}
-					break;
-				case DiscountUnits.percent:
+
 					if(onlineOrderItem.IsDiscountInMoney)
 					{
 						errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
 							onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
+					}
+
+					onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+					break;
+				}
+				case true:
+					if(onlineOrderItem.DiscountReason != null)
+					{
+						var applicableDiscount =
+							_discountController.IsApplicableDiscount(onlineOrderItem.DiscountReason, onlineOrderItem.Nomenclature);
+
+						if(applicableDiscount)
+						{
+							if(onlineOrderItem.GetDiscount != onlineOrderItem.DiscountReason.Value)
+							{
+								errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
+									onlineOrderItem.Nomenclature.ToString(),
+									onlineOrderItem.DiscountReason.Value,
+									onlineOrderItem.GetDiscount));
+								onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+							}
+
+							switch(onlineOrderItem.DiscountReason.ValueType)
+							{
+								case DiscountUnits.money:
+									if(!onlineOrderItem.IsDiscountInMoney)
+									{
+										errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
+											onlineOrderItem.Nomenclature.ToString(), true, onlineOrderItem.IsDiscountInMoney));
+										onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+									}
+									break;
+								case DiscountUnits.percent:
+									if(onlineOrderItem.IsDiscountInMoney)
+									{
+										errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
+											onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
+										onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+									}
+									break;
+							}
+						}
+						else
+						{
+							if(onlineOrderItem.GetDiscount > 0)
+							{
+								errors.Add(Vodovoz.Errors.Orders.OnlineOrder.NotApplicableDiscountToNomenclatureSelfDeliveryOnlineOrder(
+									onlineOrderItem.Nomenclature.ToString()));
+							}
+							
+							if(onlineOrderItem.IsDiscountInMoney)
+							{
+								errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
+									onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
+							}
+
+							onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+						}
+					}
+					else
+					{
+						if(onlineOrderItem.GetDiscount > 0)
+						{
+							errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
+								onlineOrderItem.Nomenclature.ToString(), 0, onlineOrderItem.GetDiscount));
+						}
+						
 						onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
 					}
+					
 					break;
 			}
 		}
-
-		private void ValidateNotApplicableDiscountFromSelfDelivery(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
-		{
-			if(onlineOrderItem.GetDiscount > 0)
-			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.NotApplicableDiscountToNomenclatureSelfDeliveryOnlineOrder(
-					onlineOrderItem.Nomenclature.ToString()));
-			}
-							
-			if(onlineOrderItem.IsDiscountInMoney)
-			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
-					onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
-			}
-
-			onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
-		}
-
-		private void ValidateDiscountParametersFromDeliveryOrder(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
-		{
-			if(onlineOrderItem.GetDiscount > 0)
-			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInDeliveryOnlineOrder(
-					onlineOrderItem.Nomenclature.ToString()));
-			}
-
-			if(onlineOrderItem.IsDiscountInMoney)
-			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
-					onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
-			}
-
-			onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
-		}
-
+		
 		private void ValidateDiscountFromPromoSet(OnlineOrderItem onlineOrderItem, int index, ICollection<Error> errors)
 		{
 			var promoSetItem = onlineOrderItem.PromoSet.PromotionalSetItems[index];

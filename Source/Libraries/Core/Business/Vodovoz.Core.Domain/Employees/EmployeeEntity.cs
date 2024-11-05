@@ -1,11 +1,8 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.Core.Domain.Employees
 {
@@ -14,7 +11,7 @@ namespace Vodovoz.Core.Domain.Employees
 		Nominative = "сотрудник")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class EmployeeEntity : PropertyChangedBase, IDomainObject, IHasAttachedFilesInformations<EmployeeFileInformation>, IHasPhoto
+	public class EmployeeEntity : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private DateTime _creationDate;
@@ -53,8 +50,6 @@ namespace Vodovoz.Core.Domain.Employees
 		private bool _isChainStoreDriver;
 		private bool _isDriverForOneDay;
 		private string _loginForNewUser;
-		private IObservableList<EmployeeFileInformation> _attachedFileInformations = new ObservableList<EmployeeFileInformation>();
-		private string _photoFileName;
 
 		public EmployeeEntity()
 		{
@@ -71,13 +66,7 @@ namespace Vodovoz.Core.Domain.Employees
 		public virtual int Id
 		{
 			get => _id;
-			set
-			{
-				if(SetField(ref _id, value))
-				{
-					UpdateFileInformations();
-				}
-			}
+			set => SetField(ref _id, value);
 		}
 
 		[Display(Name = "Дата создания")]
@@ -332,47 +321,6 @@ namespace Vodovoz.Core.Domain.Employees
 		{
 			get => _loginForNewUser;
 			set => SetField(ref _loginForNewUser, value);
-		}
-
-		[Display(Name = "Имя файла фотографии")]
-		public virtual string PhotoFileName
-		{
-			get => _photoFileName;
-			set => SetField(ref _photoFileName, value);
-		}
-
-		[Display(Name = "Информация о прикрепленных файлах")]
-		public virtual IObservableList<EmployeeFileInformation> AttachedFileInformations
-		{
-			get => _attachedFileInformations;
-			set => SetField(ref _attachedFileInformations, value);
-		}
-
-		public virtual void AddFileInformation(string fileName)
-		{
-			if(AttachedFileInformations.Any(a => a.FileName == fileName))
-			{
-				return;
-			}
-
-			AttachedFileInformations.Add(new EmployeeFileInformation
-			{
-				FileName = fileName,
-				EmployeeId = Id
-			});
-		}
-
-		public virtual void RemoveFileInformation(string fileName)
-		{
-			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
-		}
-
-		private void UpdateFileInformations()
-		{
-			foreach(var fileInformation in AttachedFileInformations)
-			{
-				fileInformation.EmployeeId = Id;
-			}
 		}
 	}
 }

@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Counterparties
 			JournalFilter = _clientBalanceFilterViewModel;
 
 			UserHaveAccessOnlyToWarehouseAndComplaints =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				currentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 					&& !userService.GetCurrentUser().IsAdmin;
 
 			_clientBalanceFilterViewModel.CanChangeDeliveryPoint = !UserHaveAccessOnlyToWarehouseAndComplaints;

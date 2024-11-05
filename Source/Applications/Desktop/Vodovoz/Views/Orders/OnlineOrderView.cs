@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
 using Gamma.ColumnConfig;
-using Microsoft.Extensions.Logging;
-using NHibernate.Engine;
 using Gtk;
 using QS.Views.GtkUI;
 using QS.Navigation;
@@ -479,27 +477,10 @@ namespace Vodovoz.Views.Orders
 			var page = sender as ITdiPage;
 			page.PageClosed -= OnOrderTabClosed;
 			var dlg = page.TdiTab as OrderDlg;
-			var orderId = dlg.Entity.Id;
 
-			if(!ViewModel.UoW.Session.IsOpen)
+			if(dlg.Entity.Id > 0)
 			{
-				ViewModel.Logger.LogError(
-					"Закрытая сессия {SessionId} при попытке обновить данные онлайн заказа {OnlineOrderId} после выставления заказа {OrderId}",
-					(ViewModel.UoW.Session as ISessionImplementor).SessionId,
-					ViewModel.Entity.Id,
-					orderId);
-				
-				return;
-			}
-
-			if(orderId > 0)
-			{
-				ViewModel.Logger.LogInformation(
-					"Обновляем данные онлайн заказа {OnlineOrderId} после выставления заказа {OrderId}",
-					ViewModel.Entity.Id,
-					orderId);
-				
-				var order = ViewModel.UoW.GetById<Order>(orderId);
+				var order = ViewModel.UoW.GetById<Order>(dlg.Entity.Id);
 				ViewModel.Entity.SetOrderPerformed(order);
 				var notification = ViewModel.CreateNewNotification();
 				ViewModel.UoW.Save(notification);

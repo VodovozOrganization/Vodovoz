@@ -7,6 +7,5 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 		public override string Title => Name;
 		public int Id { get; set; }
 		public string Name { get; set; }
-		public bool IsArchive { get; set; }
 	}
 }

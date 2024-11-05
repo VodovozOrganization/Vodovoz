@@ -109,7 +109,7 @@ namespace Vodovoz.Views.Cash
 				.AddBinding(ViewModel.Entity, e => e.ReasonForSendToReappropriate, w => w.Buffer.Text)
 				.InitializeFromSource();
 
-			smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+			filesView.ViewModel = ViewModel.CashlessRequestFilesViewModel;
 
 			buttonSave.Clicked += (s, a) => ViewModel.Save(true);
 			buttonSave.Sensitive = !ViewModel.IsSecurityServiceRole;

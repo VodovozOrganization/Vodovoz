@@ -70,7 +70,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.Where(d =>
 					oldDistricts.ContainsKey(d.Key)
 					&& (d.Value.TariffZone.Id != oldDistricts[d.Key].TariffZone.Id
-						|| d.Value.GeographicGroup.Id != oldDistricts[d.Key].GeographicGroup.Id
 						|| d.Value.DistrictBorder != oldDistricts[d.Key].DistrictBorder
 						|| GetMinimalBottlesCount(d.Value) != GetMinimalBottlesCount(oldDistricts[d.Key])
 						|| AllDistrictRuleItemsChanged(d.Value.AllDistrictRuleItems, oldDistricts[d.Key].AllDistrictRuleItems)
@@ -84,8 +83,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			foreach(var districtPair in onlyDifferentDistricts)
 			{
 				var tarifZoneChanged = oldDistricts[districtPair.Key].TariffZone?.Name != districtPair.Value.TariffZone?.Name;
-
-				var geoGroupChanged = oldDistricts[districtPair.Key].GeographicGroup?.Id != districtPair.Value.GeographicGroup?.Id;
 
 				var minimalBottlesCountChanged = GetMinimalBottlesCount(oldDistricts[districtPair.Key]) != GetMinimalBottlesCount(districtPair.Value);
 
@@ -102,14 +99,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 					TariffZoneNameNew = tarifZoneChanged
 						? districtPair.Value.TariffZone?.Name ?? ""
-						: "",
-
-					GeoGroupOld = geoGroupChanged
-						? oldDistricts[districtPair.Key].GeographicGroup?.Name
-						: "",
-
-					GeoGroupNew = geoGroupChanged
-						? districtPair.Value.GeographicGroup?.Name
 						: "",
 
 					MinimalBottlesCountOld = minimalBottlesCountChanged

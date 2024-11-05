@@ -174,12 +174,6 @@ namespace CustomerAppsApi.Library.Validators
 			return _sb.ToString().Trim('\r', '\n');
 		}
 
-		public string SendingCodeToEmailDtoValidate(SendingCodeToEmailDto codeToEmailDto)
-		{
-			// реализация будет позже, после слития интеграции юриков
-			return string.Empty;
-		}
-
 		private void ValidateContactInfo(string counterpartyNumber)
 		{
 			if(string.IsNullOrWhiteSpace(counterpartyNumber))

@@ -1,4 +1,5 @@
-﻿using Gamma.ColumnConfig;
+﻿using System;
+using Gamma.ColumnConfig;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
@@ -66,13 +67,7 @@ namespace Vodovoz.Views.Sale
 			ViewModel.RemoveVersionCommand.RaiseCanExecuteChanged();
 
 			entryCashSubdivision.ViewModel = ViewModel.CashSubdivisionViewModel;
-			entryCashSubdivision.Binding
-				.AddBinding(ViewModel, vm => vm.CanChangeCashSubdivision, w => w.ViewModel.IsEditable)
-				.InitializeFromSource();
-			entityentryWarehouse.ViewModel = ViewModel.WarehouseViewModel;
-			entityentryWarehouse.Binding
-				.AddBinding(ViewModel, vm => vm.CanChangeWarehouse, w => w.ViewModel.IsEditable)
-				.InitializeFromSource();
+			entryWarehouse.SetEntityAutocompleteSelectorFactory(ViewModel.WarehouseSelectorFactory);
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
@@ -118,13 +113,29 @@ namespace Vodovoz.Views.Sale
 
 		private void RebindEntry()
 		{
+			entryCashSubdivision.Binding.CleanSources();
+			entryWarehouse.Binding.CleanSources();
 			labelCoordinatesValue.Binding.CleanSources();
 
-			if(ViewModel.SelectedVersion is null)
+			var hasSelectedVersion = ViewModel.SelectedVersion != null;
+
+			entryCashSubdivision.Sensitive = hasSelectedVersion;
+			entryWarehouse.Sensitive = hasSelectedVersion;
+
+			if(!hasSelectedVersion)
 			{
 				labelCoordinatesValue.LabelProp = "";
+				entryCashSubdivision.ViewModel.Entity = null;
+				entryWarehouse.Subject = null;
 				return;
 			}
+
+			entryCashSubdivision.ViewModel = ViewModel.CashSubdivisionViewModel;
+
+			entryWarehouse.Binding
+				.AddSource(ViewModel.SelectedVersion)
+				.AddBinding(vm => vm.Warehouse, w => w.Subject)
+				.InitializeFromSource();
 
 			labelCoordinatesValue.Binding
 				.AddSource(ViewModel.SelectedVersion)
@@ -254,8 +265,7 @@ namespace Vodovoz.Views.Sale
 
 		void UpdateAddressOnMap()
 		{
-			if(_addressMarker != null)
-			{
+			if(_addressMarker != null) {
 				_addressOverlay.Markers.Clear();
 				_addressMarker = null;
 			}

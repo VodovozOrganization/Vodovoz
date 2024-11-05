@@ -12,8 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
@@ -32,6 +32,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
 	public class WarehouseDocumentsItemsJournalFilterViewModel : FilterViewModelBase<WarehouseDocumentsItemsJournalFilterViewModel>
 	{
+		private const string _haveAccessOnlyToWarehouseAndComplaintsPermissionName = "user_have_access_only_to_warehouse_and_complaints";
+
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _lifetimeScope;
@@ -247,7 +249,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			}
 		}
 
-		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints) || _userService.GetCurrentUser().IsAdmin;
+		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(_haveAccessOnlyToWarehouseAndComplaintsPermissionName) || _userService.GetCurrentUser().IsAdmin;
 
 		public bool CanUpdateWarehouse => CanReadWarehouse;
 

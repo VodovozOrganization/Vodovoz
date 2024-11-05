@@ -1,139 +1,102 @@
-﻿using Autofac;
+﻿using System;
+using System.Linq;
+using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Project.Services;
-using QS.Tdi;
-using QS.ViewModels.Control.EEVM;
 using QSOrmProject.RepresentationModel;
-using System;
-using System.ComponentModel;
-using System.Linq;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
-using Vodovoz.ViewModels.Warehouses;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz
 {
-	[ToolboxItem(true)]
-	public partial class ReadyForReceptionFilter : RepresentationFilterBase<ReadyForReceptionFilter>, ISingleUoWDialog, INotifyPropertyChanged
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class ReadyForReceptionFilter : RepresentationFilterBase<ReadyForReceptionFilter>, ISingleUoWDialog
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private Warehouse _warehouse;
-		private DateTime? _endDate;
-		private DateTime? _startDate = DateTime.Today.AddMonths(-1);
+		
+        public Warehouse RestrictWarehouse { get; set; }
 
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		public ReadyForReceptionFilter()
+        protected override void ConfigureWithUow()
 		{
-			Build();
-		}
+            var warehousesList = new StoreDocumentHelper(new UserSettingsService())
+	            .GetRestrictedWarehousesList(UoW, WarehousePermissionsType.WarehouseView)
+                .OrderBy(w => w.Name).ToList();
+            
+            bool accessToWarehouseAndComplaints =
+	            ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+	            && !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
+            
+            if (warehousesList.Count > 5)
+            {
+                entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
+				Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = warehousesList.Select(x => x.Id);
+				
+				var warehouseJournalFactory = new WarehouseJournalFactory();
+
+				entryWarehouses.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope, filterParams));
+
+                entryWarehouses.Visible = true;
+                comboWarehouses.Visible = false;
+            }
+            else
+            {
+                comboWarehouses.ItemsList = warehousesList;
+                comboWarehouses.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
+
+                entryWarehouses.Visible = false;
+                comboWarehouses.Visible = true;
+            }
+            
+            if(accessToWarehouseAndComplaints)
+            {
+	            entryWarehouses.Sensitive = comboWarehouses.Sensitive = false;
+            }
+        }
 
 		public ReadyForReceptionFilter(IUnitOfWork uow) : this()
 		{
 			UoW = uow;
 		}
-
-		public Warehouse Warehouse
+		public ReadyForReceptionFilter()
 		{
-			get => _warehouse;
-			set
-			{
-				if(_warehouse != value)
-				{
-					_warehouse = value;
-					OnRefiltered();
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Warehouse)));
-				}
-			}
+			this.Build();
 		}
 
-		public DateTime? StartDate
+		void UpdateCreteria()
 		{
-			get => _startDate;
-			set
-			{
-				if(_startDate != value)
-				{
-					_startDate = value;
-					OnRefiltered();
-				}
-			}
+			OnRefiltered();
 		}
-		
-		public DateTime? EndDate
-		{
-			get => _endDate;
-			set
-			{
-				if(_endDate != value)
-				{
-					_endDate = value;
-					OnRefiltered();
-				}
-			}
-		}
+	
 
-		public ITdiTab ParentTab { get; set; }
-
-		protected override void ConfigureWithUow()
-		{
-			var warehousesList = new StoreDocumentHelper(new UserSettingsService())
-				.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.WarehouseView)
-				.OrderBy(w => w.Name).ToList();
-
-			bool accessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
-
-			var navigatiuonManager = _lifetimeScope.Resolve<INavigationManager>();
-
-			var builderFactory = new LegacyEEVMBuilderFactory<ReadyForReceptionFilter>(ParentTab, this, UoW, navigatiuonManager, _lifetimeScope);
-
-			WarehouseViewModel = builderFactory.ForProperty(x => x.Warehouse)
-				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
-				{
-					filter.IncludeWarehouseIds = warehousesList.Select(x => x.Id);
-				})
-				.UseViewModelDialog<WarehouseViewModel>()
-				.Finish();
-
-			WarehouseViewModel.Entity = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
-			
-			daterangepicker.Binding
-				.AddBinding(this, f => f.StartDate, w => w.StartDateOrNull)
-				.AddBinding(this, f =>  f.EndDate, w => w.EndDateOrNull)
-				.InitializeFromSource();
-
-			if(accessToWarehouseAndComplaints)
-			{
-				WarehouseViewModel.IsEditable = false;
-			}
-
-			entityentryWarehouse.ViewModel = WarehouseViewModel;
-		}
-
-		[Browsable(false)]
-		public bool RestrictWithoutUnload
-		{
-			get => checkWithoutUnload.Active;
-			set
-			{
+		[System.ComponentModel.Browsable(false)]
+		public bool RestrictWithoutUnload {
+			get { return checkWithoutUnload.Active; }
+			set {
 				checkWithoutUnload.Active = value;
 				checkWithoutUnload.Sensitive = false;
 			}
 		}
 
-		public IEntityEntryViewModel WarehouseViewModel { get; private set; }
-
 		protected void OnCheckWithoutUnloadToggled(object sender, EventArgs e)
 		{
-			OnRefiltered();
+			UpdateCreteria();
 		}
+
+        protected void OnEntryWarehousesChangedByUser(object sender, EventArgs e)
+        {
+            RestrictWarehouse = entryWarehouses.Subject as Warehouse;
+            UpdateCreteria();
+        }
+
+        protected void OnComboWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+        {
+            RestrictWarehouse = e.SelectedItem as Warehouse;
+            UpdateCreteria();
+        }
 		
 		protected override void OnDestroyed()
 		{
@@ -144,5 +107,6 @@ namespace Vodovoz
 			}
 			base.OnDestroyed();
 		}
-	}
+    }
 }
+

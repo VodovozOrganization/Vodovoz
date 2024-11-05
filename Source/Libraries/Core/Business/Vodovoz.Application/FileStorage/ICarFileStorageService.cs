@@ -2,7 +2,8 @@
 
 namespace Vodovoz.Application.FileStorage
 {
-	public interface ICarFileStorageService : IEntityFileStorageService<Car>, IEntityPhotoStorageService<Car>
-	{
-	}
+	// TODO: Отключено до реализации 4963, мешает сборке
+	//public interface ICarFileStorageService : IEntityFileStorageService<Car>, IEntityPhotoStorageService<Car>
+	//{
+	//}
 }

@@ -28,7 +28,7 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gtk.Label label4;
 
-		private global::QS.Views.Control.EntityEntry entryWarehouse;
+		private global::Gamma.Widgets.ySpecComboBox ySpecCmbWarehouses;
 
 		private global::Gamma.GtkWidgets.yHBox hboxEmployeeStorage;
 
@@ -192,11 +192,14 @@ namespace Vodovoz.Views.Warehouse
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxWarehouseStorage[this.label4]));
 			w11.Position = 0;
 			// Container child hboxWarehouseStorage.Gtk.Box+BoxChild
-			this.entryWarehouse = new global::QS.Views.Control.EntityEntry();
-			this.entryWarehouse.Events = ((global::Gdk.EventMask)(256));
-			this.entryWarehouse.Name = "entryWarehouse";
-			this.hboxWarehouseStorage.Add(this.entryWarehouse);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxWarehouseStorage[this.entryWarehouse]));
+			this.ySpecCmbWarehouses = new global::Gamma.Widgets.ySpecComboBox();
+			this.ySpecCmbWarehouses.Name = "ySpecCmbWarehouses";
+			this.ySpecCmbWarehouses.AddIfNotExist = false;
+			this.ySpecCmbWarehouses.DefaultFirst = false;
+			this.ySpecCmbWarehouses.ShowSpecialStateAll = false;
+			this.ySpecCmbWarehouses.ShowSpecialStateNot = true;
+			this.hboxWarehouseStorage.Add(this.ySpecCmbWarehouses);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxWarehouseStorage[this.ySpecCmbWarehouses]));
 			w12.Position = 1;
 			this.hboxStorages.Add(this.hboxWarehouseStorage);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hboxStorages[this.hboxWarehouseStorage]));

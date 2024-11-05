@@ -186,7 +186,7 @@ namespace Vodovoz.Core
 				.GetConstructors()
 				.Where(x => x
 					.GetParameters()
-					.FirstOrDefault(p => p.ParameterType.IsAssignableFrom(footerType)) != null)
+					.FirstOrDefault(p => p.ParameterType == footerType) != null)
 				.FirstOrDefault();
 
 			var constructorParameterTypes = constructor
@@ -199,7 +199,7 @@ namespace Vodovoz.Core
 
 			foreach(var parameterType in constructorParameterTypes)
 			{
-				if(parameterType.IsAssignableFrom(footerType))
+				if(parameterType == footer.GetType())
 				{
 					constructorParameters.Add(footer);
 					continue;

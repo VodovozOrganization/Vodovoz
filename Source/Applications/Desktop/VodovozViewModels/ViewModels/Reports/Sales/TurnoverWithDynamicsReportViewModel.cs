@@ -48,6 +48,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 	{
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
 		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
+		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
 
@@ -77,29 +78,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public TurnoverWithDynamicsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
+			ICommonServices commonServices,
 			INavigationManager navigation,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
-			ILeftRightListViewModelFactory leftRightListViewModelFactory,
-			ICurrentPermissionService currentPermissionService,
-			IUserService userService)
+			ILeftRightListViewModelFactory leftRightListViewModelFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			if(currentPermissionService is null)
-			{
-				throw new ArgumentNullException(nameof(currentPermissionService));
-			}
-
-			if(userService is null)
-			{
-				throw new ArgumentNullException(nameof(userService));
-			}
-
-			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports))
-			{
-				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
-			}
-
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_interactiveService = commonServices.InteractiveService;
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 
@@ -107,11 +93,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
 
-			_userIsSalesRepresentative = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
-				&& !userService.GetCurrentUser().IsAdmin;
+			_userIsSalesRepresentative =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+				&& !_commonServices.UserService.GetCurrentUser().IsAdmin;
 
 			_userCanGetContactsInSalesReports =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
@@ -283,7 +270,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void ConfigureFilter()
 		{
-			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, !_userIsSalesRepresentative);
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
 
 			var additionalParams = new Dictionary<string, string>
 			{

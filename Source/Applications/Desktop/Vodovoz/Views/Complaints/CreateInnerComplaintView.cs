@@ -26,8 +26,8 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
 
-			smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
-            smallfileinformationsview.Sensitive = ViewModel.CanEdit;
+			complaintfilesview.ViewModel = ViewModel.FilesViewModel;
+            complaintfilesview.Sensitive = ViewModel.CanEdit;
 
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 

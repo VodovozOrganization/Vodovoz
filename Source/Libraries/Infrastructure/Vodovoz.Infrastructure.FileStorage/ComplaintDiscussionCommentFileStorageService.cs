@@ -1,23 +1,19 @@
-﻿using QS.Project.DB;
-using System;
-using Vodovoz.Application.FileStorage;
+﻿using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Complaints;
 using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.Infrastructure.FileStorage
 {
-	internal sealed class ComplaintDiscussionCommentFileStorageService
-		: AttachedFilesOnlyFileStorageByS3Base<ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>,
-		IComplaintDiscussionCommentFileStorageService
-	{
-		private readonly IDatabaseConnectionSettings _databaseConnectionSettings;
+	// TODO: Отключено до реализации 4963, мешает сборке
+	//internal sealed class ComplaintDiscussionCommentFileStorageService
+	//	: AttachedFilesOnlyFileStorageByS3Base<ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>,
+	//	IComplaintDiscussionCommentFileStorageService
+	//{
+	//	public ComplaintDiscussionCommentFileStorageService(IS3FileStorageService s3FileStorageService)
+	//		: base(s3FileStorageService)
+	//	{
+	//	}
 
-		public ComplaintDiscussionCommentFileStorageService(IS3FileStorageService s3FileStorageService, IDatabaseConnectionSettings databaseConnectionSettings)
-			: base(s3FileStorageService)
-		{
-			_databaseConnectionSettings = databaseConnectionSettings ?? throw new ArgumentNullException(nameof(databaseConnectionSettings));
-		}
-
-		protected override string BucketName => $"{_databaseConnectionSettings.DatabaseName.ToLower().Replace("_", "-")}-complaint-discussion-comment-attachments";
-	}
+	//	protected override string BucketName => "vodovoz-complaint-discussion-comment-attachments";
+	//}
 }

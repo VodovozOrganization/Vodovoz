@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Extensions;
@@ -23,15 +22,14 @@ namespace Vodovoz.Application.BankStatements
 		//Исходящий остаток на 12.08.2024
 		private const string _outgoingBalanceWithDatePattern = @"(Исходящий остаток на \p{Nd}*\.\p{Nd}*\.\p{Nd}*)";
 		private const string _balanceWithDatePattern = @"([0-9]{1,}[,|\.][0-9]{1,2})\D+([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
-		private const string _balancePattern = @"(\d+\s?)+([,|\.]\d+)?$";
+		private const string _balancePattern = @"([0-9]{1,}[,|\.]*[0-9]*)$";
 		//30.07.2024 Исходящее сальдо дебет: 0 кредит: 6 748,87
 		private const string _balanceDebitCreditWithDatePattern = @"([0-9]\s?[0-9]*,*[0-9]*)";
-		private const string _credit = "кредит:";
 		private const string _singleDatePattern = @"([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
 		//с 15.07.2024 по 19.07.2024 | 15.07.2024 - 19.07.2024
 		private const string _dateNumberPattern = @"[Сc|Cс]?\s*([0-9]{2}\.[0-9]{2}\.[0-9]{4})\s(по|-)\s([0-9]{2}\.[0-9]{2}\.[0-9]{4})";
 		//с 15 июля 2024 по 19 июля 2024
-		private const string _dateStringMonthPattern = @"[Сc|Cс]\s([0-9]{2}\D+[0-9]{4})?\D+([0-9]{2}\D+[0-9]{4})";
+		private const string _dateStringMonthPattern = @"[Сc|Cс]\s([0-9]{2}\D+[0-9]{4})\D+([0-9]{2}\D+[0-9]{4})";
 
 		private readonly ILogger<BankStatementHandler> _logger;
 		private readonly BankStatementParser _parser;
@@ -286,11 +284,6 @@ namespace Vodovoz.Application.BankStatements
 						if(dateStringMonthMatches.Count != 0)
 						{
 							date = dateStringMonthMatches[dateStringMonthMatches.Count - 1].Groups[2].Value;
-						}
-
-						if(TryParseDate(date) is null)
-						{
-							date = null;
 						}
 					}
 
@@ -601,7 +594,7 @@ namespace Vodovoz.Application.BankStatements
 						break;
 					}
 					
-					balanceValues.Add(balanceMatches[balanceMatches.Count - 1].Value);
+					balanceValues.Add(balanceMatches[balanceMatches.Count - 1].Groups[1].Value);
 				}
 			}
 
@@ -637,7 +630,7 @@ namespace Vodovoz.Application.BankStatements
 
 				if(balanceMatches.Count != 0)
 				{
-					balance = balanceMatches[balanceMatches.Count - 1].Value;
+					balance = balanceMatches[balanceMatches.Count - 1].Groups[1].Value;
 					break;
 				}
 			}
@@ -653,7 +646,7 @@ namespace Vodovoz.Application.BankStatements
 
 					if(balanceMatches.Count != 0)
 					{
-						balance = balanceMatches[balanceMatches.Count - 1].Value;
+						balance = balanceMatches[balanceMatches.Count - 1].Groups[1].Value;
 					}
 				}
 
@@ -670,31 +663,16 @@ namespace Vodovoz.Application.BankStatements
 			{
 				if(string.IsNullOrWhiteSpace(balance))
 				{
-					var str = cell.Split(' ', '\u00a0');
+					var str = cell.Remove(0, 20);
+					var balanceMatches = Regex.Matches(str, _balanceDebitCreditWithDatePattern);
 
-					if(str.Contains(_credit))
+					if(balanceMatches.Count != 0)
 					{
-						var sb = new StringBuilder();
-						var isCreditValue = false;
-						
-						foreach(var s in str)
-						{
-							if(isCreditValue)
-							{
-								sb.Append(s);
-								continue;
-							}
-							
-							if(s == _credit)
-							{
-								isCreditValue = true;
-							}
-						}
+						var balanceDebit = balanceMatches[balanceMatches.Count - 2].Groups[1].Value;
+						var balanceCredit = balanceMatches[balanceMatches.Count - 1].Groups[1].Value;
+						balanceDebit = balanceDebit.Trim(' ');
 
-						if(sb.Length > 0)
-						{
-							balance = sb.ToString();
-						}
+						balance = balanceDebit == "0" ? balanceCredit : $"-{balanceDebit}";
 					}
 				}
 			}
@@ -706,8 +684,6 @@ namespace Vodovoz.Application.BankStatements
 			{
 				return null;
 			}
-			
-			balance = balance.Replace('.', ',');
 
 			if(decimal.TryParse(balance, NumberStyles.Any, CultureInfo.CurrentUICulture, out var convertedBalance1))
 			{

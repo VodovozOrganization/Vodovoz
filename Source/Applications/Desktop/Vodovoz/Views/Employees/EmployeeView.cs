@@ -315,15 +315,6 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ycheckbuttonCarRecieveCounterpartyCalls.Binding
-				.AddBinding(ViewModel.Entity, e => e.CanRecieveCounterpartyCalls, w => w.Active)
-				.InitializeFromSource();
-
-			entityentryPhoneForCounterpartyCalls.ViewModel = ViewModel.PhoneForCounterpartyCallsViewModel;
-			entityentryPhoneForCounterpartyCalls.Binding
-				.AddBinding(ViewModel.Entity, e => e.CanRecieveCounterpartyCalls, w => w.ViewModel.IsEditable)
-				.InitializeFromSource();
-
 			ConfigureWorkSchedules();
 			ConfigureDistrictPriorities();
 
@@ -384,8 +375,8 @@ namespace Vodovoz.Views.Employees
 
 			#region Вкладка Файлы
 
-			attachedfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
-			attachedfileinformationsview.Sensitive = ViewModel.CanEditEmployee;
+			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
+			attachmentsView.Sensitive = ViewModel.CanEditEmployee;
 
 			#endregion
 
@@ -945,7 +936,7 @@ namespace Vodovoz.Views.Employees
 
 		public override void Destroy()
 		{
-			attachedfileinformationsview?.Destroy();
+			attachmentsView?.Destroy();
 			base.Destroy();
 		}
 	}

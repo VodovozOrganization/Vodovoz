@@ -1,18 +1,14 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using VodovozBusiness.Domain.Complaints;
-using VodovozBusiness.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -24,7 +20,7 @@ namespace Vodovoz.Domain.Complaints
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class Complaint : BusinessObjectBase<Complaint>, IDomainObject, IValidatableObject, IHasAttachedFilesInformations<ComplaintFileInformation>
+	public class Complaint : BusinessObjectBase<Complaint>, IDomainObject, IValidatableObject
 	{
 		private const int _phoneLimit = 45;
 		private DateTime _version;
@@ -55,6 +51,8 @@ namespace Vodovoz.Domain.Complaints
 		private GenericObservableList<ComplaintDiscussion> _observableComplaintDiscussions;
 		private IList<ComplaintGuiltyItem> _guilties = new List<ComplaintGuiltyItem>();
 		private GenericObservableList<ComplaintGuiltyItem> _observableGuilties;
+		private IList<ComplaintFile> _files = new List<ComplaintFile>();
+		private GenericObservableList<ComplaintFile> _observableFiles;
 		private ComplaintDetalization _complaintDetalization;
 		private IList<ComplaintArrangementComment> _arrangementComments = new List<ComplaintArrangementComment>();
 		private GenericObservableList<ComplaintArrangementComment> _observableArrangementComments;
@@ -62,23 +60,8 @@ namespace Vodovoz.Domain.Complaints
 		private GenericObservableList<ComplaintResultComment> _observableResultComments;
 		private Employee _driver;
 		private OrderRating _orderRating;
-		private IObservableList<ComplaintFileInformation> _attachedFileInformations = new ObservableList<ComplaintFileInformation>();
-		private int _id;
 
-		public virtual int Id
-		{
-			get => _id;
-			set
-			{
-				if(value == _id)
-				{
-					return;
-				}
-
-				_id = value;
-				UpdateFileInformations();
-			}
-		}
+		public virtual int Id { get; set; }
 
 		[Display(Name = "Версия")]
 		public virtual DateTime Version
@@ -352,11 +335,25 @@ namespace Vodovoz.Domain.Complaints
 			}
 		}
 
-		[Display(Name = "Информация о прикрепленных файлах")]
-		public virtual IObservableList<ComplaintFileInformation> AttachedFileInformations
+		[Display(Name = "Файлы")]
+		public virtual IList<ComplaintFile> Files
 		{
-			get => _attachedFileInformations;
-			set => SetField(ref _attachedFileInformations, value);
+			get => _files;
+			set => SetField(ref _files, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ComplaintFile> ObservableFiles
+		{
+			get
+			{
+				if(_observableFiles == null)
+				{
+					_observableFiles = new GenericObservableList<ComplaintFile>(Files);
+				}
+
+				return _observableFiles;
+			}
 		}
 
 		public virtual string Title => string.Format("Рекламация №{0}", Id);
@@ -378,25 +375,22 @@ namespace Vodovoz.Domain.Complaints
 			}
 		}
 
-		public virtual void AddFileInformation(string fileName)
+		public virtual void AddFile(ComplaintFile file)
 		{
-			if(AttachedFileInformations.Any(f => f.FileName == fileName))
+			if(ObservableFiles.Contains(file))
 			{
 				return;
 			}
-
-			var fileInformation = new ComplaintFileInformation
-			{
-				ComplaintId = Id,
-				FileName = fileName,
-			};
-			
-			AttachedFileInformations.Add(fileInformation);
+			file.Complaint = this;
+			ObservableFiles.Add(file);
 		}
 
-		public virtual void RemoveFileInformation(string fileName)
+		public virtual void RemoveFile(ComplaintFile file)
 		{
-			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
+			if(ObservableFiles.Contains(file))
+			{
+				ObservableFiles.Remove(file);
+			}
 		}
 
 		public virtual void AttachSubdivisionToDiscussions(Subdivision subdivision)
@@ -467,6 +461,7 @@ namespace Vodovoz.Domain.Complaints
 			return result;
 		}
 
+
 		public virtual string GetFineReason()
 		{
 			string result = $"Рекламация №{Id} от {CreationDate.ToShortDateString()}";
@@ -494,14 +489,6 @@ namespace Vodovoz.Domain.Complaints
 		public virtual (bool CanChange, string Message) CanChangeOrder()
 		{
 			return OrderRating != null ? (false, "Нельзя менять заказ у рекламации, созданной по оценке заказа!") : (true, null);
-		}
-
-		private void UpdateFileInformations()
-		{
-			foreach(var fileInformation in AttachedFileInformations)
-			{
-				fileInformation.ComplaintId = Id;
-			}
 		}
 
 		#region IValidatableObject implementation

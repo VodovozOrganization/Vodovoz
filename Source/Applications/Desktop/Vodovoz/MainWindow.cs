@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using MassTransit;
 using NLog;
 using Pacs.Core;
@@ -208,7 +208,7 @@ public partial class MainWindow : Gtk.Window
 		using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_accessOnlyToWarehouseAndComplaints =
-				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 

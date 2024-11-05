@@ -11,6 +11,5 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public bool NeedComment { get; set; }
 		public bool IsArchive { get; set; }
 		public bool IsDoNotShowInOperation { get; set; }
-		public bool IsAttachWriteOffDocument { get; set; }
 	}
 }

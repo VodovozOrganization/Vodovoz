@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Report;
+using FluentNHibernate.Utils;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
@@ -61,23 +62,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IUserRepository userRepository,
-			IUserService userService,
-			ICurrentPermissionService currentPermissionService)
+			IUserService userService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(userService is null)
 			{
 				throw new ArgumentNullException(nameof(userService));
-			}
-
-			if(currentPermissionService is null)
-			{
-				throw new ArgumentNullException(nameof(currentPermissionService));
-			}
-
-			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports))
-			{
-				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
 			}
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));

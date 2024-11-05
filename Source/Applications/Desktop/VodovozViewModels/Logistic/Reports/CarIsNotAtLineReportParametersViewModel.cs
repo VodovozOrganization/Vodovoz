@@ -7,7 +7,7 @@ using QS.Project.Services.FileDialog;
 using QS.ViewModels.Dialog;
 using System;
 using System.Linq;
-using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Extensions;

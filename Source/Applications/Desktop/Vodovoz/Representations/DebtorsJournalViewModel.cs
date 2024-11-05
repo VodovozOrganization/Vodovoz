@@ -29,7 +29,6 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.TempAdapters;
@@ -57,7 +56,6 @@ namespace Vodovoz.Representations
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IFileDialogService _fileDialogService;
-		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
 		private readonly Employee _currentEmployee;
 		private readonly bool _canSendBulkEmails;
 		private Task _newTask;
@@ -80,8 +78,7 @@ namespace Vodovoz.Representations
 			IEmailRepository emailRepository,
 			IFileDialogService fileDialogService,
 			IDeleteEntityService deleteEntityService,
-			ICurrentPermissionService currentPermissionService,
-			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
+			ICurrentPermissionService currentPermissionService)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			if(unitOfWorkFactory is null)
@@ -98,7 +95,6 @@ namespace Vodovoz.Representations
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
 			_debtorsParameters = debtorsParameters ?? throw new ArgumentNullException(nameof(debtorsParameters));
 			_loggerBulkEmailViewModel = loggerBulkEmailViewModel ?? throw new ArgumentNullException(nameof(loggerBulkEmailViewModel));
 			_rabbitConnectionFactoryLogger = rabbitConnectionFactoryLogger;
@@ -606,8 +602,7 @@ namespace Vodovoz.Representations
 						_commonServices,
 						_attachmentsViewModelFactory,
 						_currentEmployee,
-						_emailRepository,
-						_attachedFileInformationsViewModelFactory);
+						_emailRepository);
 
 					var bulkEmailView = new BulkEmailView(bulkEmailViewModel);
 

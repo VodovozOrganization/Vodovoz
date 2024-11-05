@@ -30,7 +30,6 @@ namespace Vodovoz.Reports
 
 			ycheckbuttonDetail.Binding
 				.AddBinding(ViewModel, vm => vm.IsDetailed, w => w.Active)
-				.AddBinding(ViewModel, vm => vm.CanAccessSalesReports, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ycheckbuttonPhones.Binding

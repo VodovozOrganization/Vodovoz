@@ -69,12 +69,9 @@ namespace Vodovoz.Views.Logistic
 			minBottlesFromAddressSpin.Binding.AddBinding(ViewModel.Entity, e => e.MinBottlesFromAddress, w => w.ValueAsInt).InitializeFromSource();
 			maxBottlesFromAddressSpin.Binding.AddBinding(ViewModel.Entity, e => e.MaxBottlesFromAddress, w => w.ValueAsInt).InitializeFromSource();
 
-			photoviewCar.Binding
-				.AddBinding(ViewModel, vm => vm.Photo, w => w.ImageFile)
-				.AddBinding(ViewModel, vm => vm.PhotoFilename, w => w.FileName)
-				.InitializeFromSource();
+			photoviewCar.Binding.AddBinding(ViewModel.Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 
-			attachedfileinformationsview1.InitializeViewModel(ViewModel.AttachedFileInformationsViewModel);
+			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
 
 			checkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 

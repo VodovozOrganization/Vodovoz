@@ -136,8 +136,7 @@ namespace Vodovoz.Domain.Documents
 					.Where(x =>
 						x.NomenclatureId == inRoute.NomenclatureId
 						&& x.ExpireDatePercent == inRoute.ExpireDatePercent
-						&& x.OrderId == inRoute.OrderId
-						&& x.OwnType == inRoute.OwnType)
+						&& x.OrderId == inRoute.OrderId)
 					.Sum(x => x.Amount);
 
 				items.Add(new CarLoadDocumentItem
@@ -175,8 +174,7 @@ namespace Vodovoz.Domain.Documents
 				var aGoods = goodsAndEquips.Where(x =>
 					x.NomenclatureId == item.Nomenclature.Id
 					&& x.ExpireDatePercent == item.ExpireDatePercent
-					&& x.OrderId == item.OrderId
-					&& x.OwnType == item.OwnType);
+					&& x.OrderId == item.OrderId);
 
 				if(aGoods != null)
 				{

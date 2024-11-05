@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;

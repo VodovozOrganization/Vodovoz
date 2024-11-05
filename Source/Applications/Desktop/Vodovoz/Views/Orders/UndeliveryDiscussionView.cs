@@ -1,19 +1,12 @@
-﻿using Gamma.Binding.Core.LevelTreeConfig;
-using Gamma.Binding;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
-using System;
-using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Presentation.Views;
 using Vodovoz.ViewModels.Orders;
-using VodovozBusiness.Domain.Complaints;
-using VodovozBusiness.Domain.Orders;
 namespace Vodovoz.Views.Orders
 {
 	[System.ComponentModel.ToolboxItem(true)]
@@ -42,7 +35,7 @@ namespace Vodovoz.Views.Orders
 			UpdateStatusEnum();
 
 			ytreeviewComments.ShowExpanders = false;
-			ytreeviewComments.ColumnsConfig = FluentColumnsConfig<object>.Create()
+			ytreeviewComments.ColumnsConfig = FluentColumnsConfig<UndeliveryDiscussionComment>.Create()
 				.AddColumn("Время")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => GetTime(n), useMarkup: true)
@@ -51,26 +44,14 @@ namespace Vodovoz.Views.Orders
 					.AddTextRenderer(n => GetAuthor(n), useMarkup: true)
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetNodeName(x), useMarkup: true)
+					.AddTextRenderer(n => n.Comment, useMarkup: true)
 						.WrapWidth(300)
 						.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
 
-			var levels = LevelConfigFactory
-				.FirstLevel<UndeliveryDiscussionComment, UndeliveryDiscussionCommentFileInformation>(x => x.AttachedFileInformations)
-				.LastLevel(afi => ViewModel.Entity.ObservableComments.FirstOrDefault(c => c.Id == afi.UndeliveryDiscussionCommentId))
-				.EndConfig();
-
-			ytreeviewComments.YTreeModel = new LevelTreeModel<UndeliveryDiscussionComment>(ViewModel.Entity.Comments, levels);
-
-			ViewModel.Entity.ObservableComments.ListContentChanged += (sender, e) => {
-				ytreeviewComments.YTreeModel.EmitModelChanged();
-				ytreeviewComments.ExpandAll();
-			};
-
+			ytreeviewComments.ItemsDataSource = ViewModel.Entity.ObservableComments;			
 			ytreeviewComments.ExpandAll();
-			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
 
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -78,44 +59,15 @@ namespace Vodovoz.Views.Orders
 			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
 			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
 
-			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
-
-			smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
-		}
-
-		private void YtreeviewComments_RowActivated(object o, Gtk.RowActivatedArgs args)
-		{
-			if(!(ytreeviewComments.GetSelectedObject() is UndeliveryDiscussionCommentFileInformation complaintDiscussionCommentFileInformation))
+			ViewModel.PropertyChanged += (sender, e) =>
 			{
-				return;
-			}
-			ViewModel.OpenFileCommand.Execute(complaintDiscussionCommentFileInformation);
-		}
+				if(e.PropertyName == nameof(ViewModel.CanEditStatus))
+				{
+					UpdateStatusEnum();
+				}
+			};
 
-		private string GetNodeName(object node)
-		{
-			if(node is UndeliveryDiscussionComment complaintDiscussionComment)
-			{
-				return complaintDiscussionComment.Comment;
-			}
-			if(node is UndeliveryDiscussionCommentFileInformation complaintDiscussionCommentFileInformation)
-			{
-				return complaintDiscussionCommentFileInformation.FileName;
-			}
-			return "";
-		}
-
-		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(ViewModel.CanEditStatus))
-			{
-				UpdateStatusEnum();
-			}
-
-			if(e.PropertyName == nameof(ViewModel.AttachedFileInformationsViewModel))
-			{
-				smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
-			}
+			filesView.Sensitive = false;
 		}
 
 		private void SetColor(CellRenderer cell, object node)
@@ -137,15 +89,8 @@ namespace Vodovoz.Views.Orders
 			yenumcomboStatus.SelectedItem = ViewModel.Entity.Status;
 		}
 
-		private string GetTime(object node)
-		{
-			if(node is UndeliveryDiscussionComment undeliveryDiscussionComment)
-			{
-				return undeliveryDiscussionComment?.CreationTime.ToShortDateString() + "\n" + undeliveryDiscussionComment?.CreationTime.ToShortTimeString();
-			}
-
-			return "";
-		}
+		private string GetTime(UndeliveryDiscussionComment comment) =>
+			comment.CreationTime.ToShortDateString() + "\n" + comment.CreationTime.ToShortTimeString();
 
 		private string GetAuthor(object node)
 		{
@@ -157,14 +102,6 @@ namespace Vodovoz.Views.Orders
 				return result;
 			}
 			return "";
-		}
-
-		public override void Destroy()
-		{
-			ytreeviewComments.RowActivated -= YtreeviewComments_RowActivated;
-			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-
-			base.Destroy();
 		}
 	}
 }

@@ -14,10 +14,11 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Application.FirebaseCloudMessaging;
-using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories;
 using ApiRouteListService = DriverAPI.Library.V5.Services.IRouteListService;
 using IRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 

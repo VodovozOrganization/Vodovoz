@@ -123,7 +123,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.SuplierPriceItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
 				.KeyColumn("supplier_id");
-			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("counterparty_id");
+			HasMany(x => x.Files).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.CounterpartyEdoOperators).Cascade.AllDeleteOrphan().Inverse().LazyLoad()
 				.KeyColumn("counterparty_id");
 

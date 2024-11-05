@@ -5,24 +5,20 @@ using Gamma.ColumnConfig;
 using Gamma.Binding;
 using System.Linq;
 using Gtk;
+using System;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Vodovoz.Infrastructure;
-using VodovozBusiness.Domain.Complaints;
-using System.ComponentModel;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.Views.Complaints
 {
-	[ToolboxItem(true)]
-	public partial class ComplaintDiscussionView : WidgetViewBase<ComplaintDiscussionViewModel>, INotifyPropertyChanged
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class ComplaintDiscussionView : WidgetViewBase<ComplaintDiscussionViewModel>
 	{
 		public ComplaintDiscussionView(ComplaintDiscussionViewModel viewModel) : base(viewModel)
 		{
-			Build();
+			this.Build();
 			ConfigureDlg();
 		}
-
-		public event PropertyChangedEventHandler PropertyChanged;
 
 		private void ConfigureDlg()
 		{
@@ -32,7 +28,11 @@ namespace Vodovoz.Views.Complaints
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date).InitializeFromSource();
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel, vm => vm.CanEditDate, w => w.Sensitive).InitializeFromSource();
 
-			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+			ViewModel.PropertyChanged += (sender, e) => {
+				if(e.PropertyName == nameof(ViewModel.CanEditStatus)) {
+					UpdateStatusEnum();
+				}
+			};
 			yenumcomboStatus.ItemsEnum = typeof(ComplaintDiscussionStatuses);
 			yenumcomboStatus.Binding.AddBinding(ViewModel.Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.CanEditStatus, w => w.Sensitive).InitializeFromSource();
@@ -53,69 +53,24 @@ namespace Vodovoz.Views.Complaints
 						.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
-
-			var levels = LevelConfigFactory
-				.FirstLevel<ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>(x => x.AttachedFileInformations)
-				.LastLevel(afi => ViewModel.Entity.ObservableComments.FirstOrDefault(c => c.Id == afi.ComplaintDiscussionCommentId))
-				.EndConfig();
-
+			var levels = LevelConfigFactory.FirstLevel<ComplaintDiscussionComment, ComplaintFile>(x => x.ComplaintFiles).LastLevel(c => c.ComplaintDiscussionComment).EndConfig();
 			ytreeviewComments.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
 
 			ViewModel.Entity.ObservableComments.ListContentChanged += (sender, e) => {
 				ytreeviewComments.YTreeModel.EmitModelChanged();
 				ytreeviewComments.ExpandAll();
 			};
-
 			ytreeviewComments.ExpandAll();
 			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
 
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
+			filesview.ViewModel = ViewModel.FilesViewModel;
+			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
+
 			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
 			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
-
-			smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
-		}
-
-		public string TabName
-		{
-			get
-			{
-				string tabColor;
-				switch(ViewModel.Status)
-				{
-					case ComplaintDiscussionStatuses.Checking:
-						tabColor = GdkColors.SuccessText.ToHtmlColor();
-						break;
-					case ComplaintDiscussionStatuses.Closed:
-						tabColor = GdkColors.PrimaryText.ToHtmlColor();
-						break;
-					default:
-						tabColor = GdkColors.DangerText.ToHtmlColor();
-						break;
-				}
-
-				return $"<span foreground = '{tabColor}'><b>{ViewModel.SubdivisionShortName}</b></span>";
-			}
-		}
-
-		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(ViewModel.CanEditStatus))
-			{
-				UpdateStatusEnum();
-			}
-
-			if(e.PropertyName == nameof(ViewModel.AttachedFileInformationsViewModel))
-			{
-				smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
-			}
-
-			if(e.PropertyName == nameof(ViewModel.Status))
-			{
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TabName)));
-			}
 		}
 
 		private void UpdateStatusEnum()
@@ -129,20 +84,16 @@ namespace Vodovoz.Views.Complaints
 
 		void YtreeviewComments_RowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			if(!(ytreeviewComments.GetSelectedObject() is ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation))
-			{
-				return;
-			}
-			ViewModel.OpenFileCommand.Execute(complaintDiscussionCommentFileInformation);
+			ViewModel.OpenFileCommand.Execute(ytreeviewComments.GetSelectedObject() as ComplaintFile);
 		}
 
 		private string GetNodeName(object node)
 		{
-			if(node is ComplaintDiscussionComment complaintDiscussionComment) {
-				return complaintDiscussionComment.Comment;
+			if(node is ComplaintDiscussionComment) {
+				return (node as ComplaintDiscussionComment).Comment;
 			}
-			if(node is ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation) {
-				return complaintDiscussionCommentFileInformation.FileName;
+			if(node is ComplaintFile) {
+				return (node as ComplaintFile).FileStorageId;
 			}
 			return "";
 		}
@@ -174,14 +125,6 @@ namespace Vodovoz.Views.Complaints
 			} else {
 				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 			}
-		}
-
-		public override void Destroy()
-		{
-			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-			ytreeviewComments.RowActivated -= YtreeviewComments_RowActivated;
-
-			base.Destroy();
 		}
 	}
 }

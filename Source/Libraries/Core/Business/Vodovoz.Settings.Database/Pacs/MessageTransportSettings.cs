@@ -35,10 +35,5 @@ namespace Vodovoz.Settings.Database.Pacs
 				return testDatabase == _dataBaseInfo.Name;
 			}
 		}
-
-		/// <summary>
-		/// Нельзя устанавливать в БД
-		/// </summary>
-		public string AllowSslPolicyErrors => "";
 	}
 }

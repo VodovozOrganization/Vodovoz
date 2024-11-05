@@ -1,5 +1,7 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QSOrmProject;
+using QS.Tdi;
 using QS.Project.Services;
 
 namespace Vodovoz
@@ -20,13 +22,13 @@ namespace Vodovoz
 					return;
 				uow = value;
 				viewModel = new ViewModel.ReadyForReceptionVM (value);
-				readyforreceptionfilter1.ParentTab = this;
 				readyforreceptionfilter1.UoW = value;
 				viewModel.Filter = readyforreceptionfilter1;
 				tableReadyForReception.RepresentationModel = viewModel;
 				tableReadyForReception.RepresentationModel.UpdateNodes ();
 			}
 		}
+
 
 		public ReadyForReceptionView ()
 		{
@@ -44,7 +46,7 @@ namespace Vodovoz
 		protected void OnButtonOpenClicked (object sender, EventArgs e)
 		{
 			var node = tableReadyForReception.GetSelectedNode () as ViewModel.ReadyForReceptionVMNode;
-			var dlg = new CarUnloadDocumentDlg (node.Id, viewModel.Filter.Warehouse?.Id);
+			var dlg = new CarUnloadDocumentDlg (node.Id, viewModel.Filter.RestrictWarehouse?.Id);
 			TabParent.AddTab (dlg, this);
 		}
 

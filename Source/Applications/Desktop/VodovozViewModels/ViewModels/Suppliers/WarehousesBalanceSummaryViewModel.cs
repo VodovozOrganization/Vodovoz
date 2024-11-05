@@ -398,35 +398,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
 			}
 
-			#region Минимальный остаток номенклатуры на складе
-
-			NomenclatureMinimumBalanceByWarehouse nomenclatureMinimumBalanceByWarehouseAlias = null;
-
-			var minWarehouseBalanceSubquery = QueryOver.Of(() => nomenclatureMinimumBalanceByWarehouseAlias)
-				.Where(() => nomenclatureMinimumBalanceByWarehouseAlias.Nomenclature.Id == nomAlias.Id)
-				.Select(Projections.Max(() => nomenclatureMinimumBalanceByWarehouseAlias.MinimumBalance));
-
-			if(parameters.WarehousesIds.Any())
-			{
-				minWarehouseBalanceSubquery.Where(Restrictions.In(Projections.Property(() => nomenclatureMinimumBalanceByWarehouseAlias.Warehouse.Id), parameters.WarehousesIds));
-			};
-
-			NomenclatureMinimumBalanceByWarehouseNode nomenclatureMinimumBalanceByWarehouseNode = null;
-
-			var minStockQuery = localUow.Session.QueryOver(() => nomAlias)				
+			var minStockQuery = localUow.Session.QueryOver(() => nomAlias)
 				.Where(() => !nomAlias.IsArchive)
-				.SelectList(list => list
-					.SelectGroup(() => nomAlias.Id).WithAlias(() => nomenclatureMinimumBalanceByWarehouseNode.NomenclatureId)
-					.Select(Projections.Conditional(
-						Restrictions.IsNull(Projections.SubQuery(minWarehouseBalanceSubquery)),
-						Projections.Cast(NHibernateUtil.Int32, Projections.Property(() => nomAlias.MinStockCount)),
-						Projections.SubQuery(minWarehouseBalanceSubquery)
-						)).WithAlias(() => nomenclatureMinimumBalanceByWarehouseNode.MinimumBalance))
-				.TransformUsing(Transformers.AliasToBean<NomenclatureMinimumBalanceByWarehouseNode>())
-				.OrderBy(() => nomAlias.Id).Asc;
-
-			#endregion
-
+				.Select(n => n.MinStockCount)
+				.OrderBy(n => n.Id).Asc;
+			
 			var instanceDataQuery = localUow.Session.QueryOver(() => nomAlias)
 				.JoinEntityAlias(() => instanceAlias, () => nomAlias.Id == instanceAlias.Nomenclature.Id)
 				.Where(() => !instanceAlias.IsArchive)
@@ -562,7 +538,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> instanceCarsResult = null;
 
 			var batch = localUow.Session.CreateQueryBatch()
-				.Add<NomenclatureMinimumBalanceByWarehouseNode>(_minStockKey, minStockQuery)
+				.Add<decimal>(_minStockKey, minStockQuery)
 				.Add<InstanceData>(_instanceDataKey, instanceDataQuery);
 
 			#region fillbatchQuery
@@ -665,7 +641,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				instanceCarsResult = GetStoragesBalanceResult(batch, _instanceBalanceCarsKey);
 			}
 
-			var minStockResult = batch.GetResult<NomenclatureMinimumBalanceByWarehouseNode>(_minStockKey).ToArray();
+			var minStockResult = batch.GetResult<decimal>(_minStockKey).ToArray();
 			var instanceData = batch.GetResult<InstanceData>(_instanceDataKey).ToArray();
 
 			var counter = 0;
@@ -766,7 +742,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IList<PriceNode> prices,
 			IList<PriceNode> alternativePrices,
 			IList<PriceNode> purchasePrices,
-			NomenclatureMinimumBalanceByWarehouseNode[] minStockResult,
+			decimal[] minStockResult,
 			IList<SelectableParameter> warehouseStorages,
 			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> bulkWarehousesResult,
 			IList<SelectableParameter> employeeStorages,
@@ -796,7 +772,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					AlternativePrice =
 						alternativePrices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0,
 					PurchasePrice = purchasePrices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0,
-					Min = minStockResult.FirstOrDefault(x => x.NomenclatureId == nomenclatureId).MinimumBalance
+					Min = minStockResult[nomsCounter]
 				};
 
 				row.FillStoragesBalance(StorageType.Warehouse, warehouseStorages, nomenclatureId, bulkWarehousesResult, cancellationToken);

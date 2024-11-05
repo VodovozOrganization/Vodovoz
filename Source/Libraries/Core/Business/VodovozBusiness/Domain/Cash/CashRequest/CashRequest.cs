@@ -74,8 +74,7 @@ namespace Vodovoz.Domain.Cash
 					break;
 				//На уточнении
 				case PayoutRequestState.OnClarification:
-					if(PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
-					|| PayoutRequestState == PayoutRequestState.Agreed
+					if(PayoutRequestState == PayoutRequestState.Agreed
 					|| PayoutRequestState == PayoutRequestState.GivenForTake
 					|| PayoutRequestState == PayoutRequestState.Canceled
 					|| PayoutRequestState == PayoutRequestState.PartiallyClosed)
@@ -88,22 +87,9 @@ namespace Vodovoz.Domain.Cash
 					}
 
 					break;
-				//Согласована руководителем отдела
-				case PayoutRequestState.AgreedBySubdivisionChief:
-					if(PayoutRequestState == PayoutRequestState.Submited)
-					{
-						PayoutRequestState = newState;
-					}
-					else
-					{
-						throw new InvalidOperationException(exceptionMessage);
-					}
-
-					break;
-				//Согласована исполнительным директором
+				//Согласована
 				case PayoutRequestState.Agreed:
-					if(PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
-						|| PayoutRequestState == PayoutRequestState.Submited)
+					if(PayoutRequestState == PayoutRequestState.Submited)
 					{
 						PayoutRequestState = newState;
 					}
@@ -129,8 +115,7 @@ namespace Vodovoz.Domain.Cash
 					if(PayoutRequestState == PayoutRequestState.Submited
 					|| PayoutRequestState == PayoutRequestState.OnClarification
 					|| PayoutRequestState == PayoutRequestState.GivenForTake
-					|| PayoutRequestState == PayoutRequestState.Agreed
-					|| PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief)
+					|| PayoutRequestState == PayoutRequestState.Agreed)
 					{
 						PayoutRequestState = newState;
 					}
@@ -202,10 +187,6 @@ namespace Vodovoz.Domain.Cash
 			}
 
 			ObservableSums.Remove(sumItem);
-		}
-
-		protected override void UpdateFileInformations()
-		{
 		}
 
 		#endregion

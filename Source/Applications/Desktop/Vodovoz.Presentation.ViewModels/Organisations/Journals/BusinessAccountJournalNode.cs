@@ -13,7 +13,6 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 		public string Bank { get; set; }
 		public string BusinessActivity { get; set; }
 		public string Funds { get; set; }
-		public bool IsArchive { get; set; }
 		public AccountFillType AccountFillType { get; set; }
 	}
 }

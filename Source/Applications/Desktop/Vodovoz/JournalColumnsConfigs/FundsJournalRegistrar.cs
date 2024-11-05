@@ -11,7 +11,6 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
 				.AddColumn("Заполнение р/с по умолчанию")
 					.AddTextRenderer(x => x.DefaultAccountFillType.GetEnumDisplayName(false))
-				.AddColumn("Архив").AddToggleRenderer(x => x.IsArchive).Editing(false)
 				.AddColumn("")
 				.Finish();
 	}

@@ -13,9 +13,7 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
-using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
@@ -183,10 +181,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CarEventJournalNode resultAlias = null;
 			CarVersion carVersionAlias = null;
 			CarModel carModelAlias = null;
-			WriteOffDocument writeOffDocumentAlias = null;
-			WriteOffDocumentItem writeOffDocumentItemAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			NomenclaturePurchasePrice nomenclaturePriceAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -208,19 +202,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				() => geographicGroupAlias.Name,
 				orderByExpression: () => geographicGroupAlias.Name, separator: ", "
 			);
-
-			var repairPartsCostSubquery = QueryOver.Of(() => writeOffDocumentItemAlias)
-				.JoinAlias(() => writeOffDocumentItemAlias.Document, () => writeOffDocumentAlias)
-				.JoinEntityAlias(() =>
-					nomenclaturePriceAlias,
-					() => nomenclaturePriceAlias.Nomenclature.Id == writeOffDocumentItemAlias.Nomenclature.Id,
-					JoinType.InnerJoin)
-				.Where(() => writeOffDocumentItemAlias.Document.Id == carEventAlias.WriteOffDocument.Id)
-				.Where(() =>
-					nomenclaturePriceAlias.StartDate <= writeOffDocumentAlias.TimeStamp
-					&& (nomenclaturePriceAlias.EndDate == null || nomenclaturePriceAlias.EndDate > writeOffDocumentAlias.TimeStamp))
-				.Select(Projections.Sum(() => writeOffDocumentItemAlias.Amount * nomenclaturePriceAlias.PurchasePrice));
-
 
 			var itemsQuery = uow.Session.QueryOver(() => carEventAlias);
 			itemsQuery.Left.JoinAlias(x => x.CarEventType, () => carEventTypeAlias);
@@ -298,7 +279,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => carEventAlias.StartDate).WithAlias(() => resultAlias.StartDate)
 					.Select(() => carEventAlias.EndDate).WithAlias(() => resultAlias.EndDate)
 					.Select(() => carEventAlias.RepairCost).WithAlias(() => resultAlias.RepairCost)
-					.SelectSubQuery(repairPartsCostSubquery).WithAlias(() => resultAlias.RepairPartsCost)
 					.Select(() => carEventAlias.Comment).WithAlias(() => resultAlias.Comment)
 					.Select(() => carEventTypeAlias.Name).WithAlias(() => resultAlias.CarEventTypeName)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegistrationNumber)

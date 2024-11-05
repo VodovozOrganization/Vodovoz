@@ -25,22 +25,20 @@ namespace Vodovoz.Representations.ProductGroups
 		private static Pixbuf _img = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.folder16.png");
 		private static Pixbuf _emptyImg = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.empty16.png");
 
-		public ProductGroupVM()
+		public ProductGroupVM(IUnitOfWork uow)
 		{
+			UoW = uow;
 			CreateRepresentationFilter = () => {
 				var filter = new ProductGroupFilterViewModel();
 				return filter;
 			};
 		}
+
+		public ProductGroupVM() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) { }
 		
 		public ProductGroupVM(IUnitOfWork uow, ProductGroupFilterViewModel filterViewModel) : this(uow)
 		{
 			Filter = filterViewModel;
-		}
-		
-		public ProductGroupVM(IUnitOfWork uow) : this()
-		{
-			UoW = uow;
 		}
 		
 		public override IList ItemsList => _filteredItemsList ?? itemsList as IList;

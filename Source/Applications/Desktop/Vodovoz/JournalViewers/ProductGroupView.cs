@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -32,12 +31,12 @@ namespace Vodovoz.JournalViewers
 			ConfigureWidget();
 		}
 
-		private ProductGroupFilterView _productGroupFilterView;
-		private ProductGroupVM _vm;
+		private ProductGroupFilterView productGroupFilterView;
+		private ProductGroupVM vm;
 
 		private void ConfigureWidget()
 		{
-			_vm = new ProductGroupVM {
+			vm = new ProductGroupVM {
 				Filter = new ProductGroupFilterViewModel
 				{
 					HidenByDefault = false,
@@ -45,15 +44,15 @@ namespace Vodovoz.JournalViewers
 				}
 			};
 
-			_productGroupFilterView = new ProductGroupFilterView(_vm.Filter);
-			hboxFilter.Add(_productGroupFilterView);
+			productGroupFilterView = new ProductGroupFilterView(vm.Filter);
+			hboxFilter.Add(productGroupFilterView);
 			hboxFilter.Show();
 			
-			tableProductGroup.RepresentationModel = _vm;
+			tableProductGroup.RepresentationModel = vm;
 			tableProductGroup.EnableSearch = true;
-			_vm.UpdateNodes();
-			tableProductGroup.ColumnsConfig = _vm.ColumnsConfig;
-			tableProductGroup.YTreeModel = _vm.YTreeModel;
+			vm.UpdateNodes();
+			tableProductGroup.ColumnsConfig = vm.ColumnsConfig;
+			tableProductGroup.YTreeModel = vm.YTreeModel;
 			tableProductGroup.Selection.Mode = SelectionMode.Multiple;
 			buttonDelete.Visible = false;
 			CreateBtnGroupEditing();
@@ -61,13 +60,21 @@ namespace Vodovoz.JournalViewers
 			#region SignalsConnect
 			
 			btnAdd.Clicked += OnButtonAddClicked;
-			buttonRefresh.Clicked += OnRefreshClicked;
+			buttonRefresh.Clicked += (sender, args) =>
+			{
+				vm.UpdateNodes();
+				tableProductGroup.YTreeModel = vm.YTreeModel;
+			};
 			buttonFilter.Clicked += OnButtonFilterClicked;
 			tableProductGroup.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Clicked += OnButtonEditClicked;
 			searchentity.TextChanged += OnSearchEntryTextChanged;
-			tableProductGroup.RowActivated += OnProductGroupRowActivated;
-			_vm.PropertyChanged += OnViewModelPropertyChanged;
+			tableProductGroup.RowActivated += (o, args) => { buttonEdit.Click(); };
+
+			vm.PropertyChanged += (sender, args) => {
+				if(args.PropertyName == nameof(vm.YTreeModel))
+					tableProductGroup.YTreeModel = vm.YTreeModel;
+			};
 
 			#endregion
 			OnSelectionChanged(null, EventArgs.Empty);
@@ -96,7 +103,7 @@ namespace Vodovoz.JournalViewers
 
 			if(firstSelectedItem.GetType() != typeof(NomenclatureGroupNode))
 			{
-				var viewModel = new ProductGroupVM(_vm.UoW, new ProductGroupFilterViewModel
+				var viewModel = new ProductGroupVM(vm.UoW, new ProductGroupFilterViewModel
 				{
 					HideArchive = true,
 					HidenByDefault = false
@@ -124,12 +131,12 @@ namespace Vodovoz.JournalViewers
 				return;
 			}
 
-			var productGroup = _vm.UoW.GetById<ProductGroup>(productGroupNode.Id);
+			var productGroup = vm.UoW.GetById<ProductGroup>(productGroupNode.Id);
 			var firstSelectedItem = _selectedItems.FirstOrDefault();
 			
 			if(firstSelectedItem is ProductGroupVMNode)
 			{
-				var productGroups = _vm.UoW.Session.QueryOver<ProductGroup>()
+				var productGroups = vm.UoW.Session.QueryOver<ProductGroup>()
 					.WhereRestrictionOn(pg => pg.Id)
 					.IsInG(_selectedItems.Select(x => x.GetId()))
 					.List();
@@ -144,13 +151,13 @@ namespace Vodovoz.JournalViewers
 						return;
 					}
 					
-					_vm.UoW.Save(item);
+					vm.UoW.Save(item);
 				}
-				_vm.UoW.Commit();
+				vm.UoW.Commit();
 			}
 			else if(firstSelectedItem is NomenclatureNode)
 			{
-				var nomenclatures = _vm.UoW.Session.QueryOver<Nomenclature>()
+				var nomenclatures = vm.UoW.Session.QueryOver<Nomenclature>()
 					.WhereRestrictionOn(n => n.Id)
 					.IsInG(_selectedItems.Select(x => x.GetId()))
 					.List();
@@ -158,9 +165,9 @@ namespace Vodovoz.JournalViewers
 				foreach(var item in nomenclatures)
 				{
 					item.ProductGroup = productGroup;
-					_vm.UoW.Save(item);
+					vm.UoW.Save(item);
 				}
-				_vm.UoW.Commit();
+				vm.UoW.Commit();
 			}
 			
 			UpdateData();
@@ -169,10 +176,10 @@ namespace Vodovoz.JournalViewers
 		private void UpdateData()
 		{
 			var selected = _selectedItems;
-			_vm.UpdateNodes();
-			tableProductGroup.YTreeModel = _vm.YTreeModel;
+			vm.UpdateNodes();
+			tableProductGroup.YTreeModel = vm.YTreeModel;
 
-			if(!(_vm.ItemsList is IList<ProductGroupVMNode> productGroups))
+			if(!(vm.ItemsList is IList<ProductGroupVMNode> productGroups))
 			{
 				return;
 			}
@@ -191,25 +198,6 @@ namespace Vodovoz.JournalViewers
 					
 					ExpandAndSelectTreeNode(node);
 				}
-			}
-		}
-		
-		private void OnRefreshClicked(object sender, EventArgs e)
-		{
-			_vm.UpdateNodes();
-			tableProductGroup.YTreeModel = _vm.YTreeModel;
-		}
-
-		private void OnProductGroupRowActivated(object o, RowActivatedArgs args)
-		{
-			OnButtonEditClicked(o, args);
-		}
-		
-		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs args)
-		{
-			if(args.PropertyName == nameof(_vm.YTreeModel))
-			{
-				tableProductGroup.YTreeModel = _vm.YTreeModel;
 			}
 		}
 
@@ -241,7 +229,7 @@ namespace Vodovoz.JournalViewers
 
 		private void OnButtonFilterClicked(object sender, EventArgs e)
 		{
-			_productGroupFilterView.Visible = !_productGroupFilterView.Visible;
+			productGroupFilterView.Visible = !productGroupFilterView.Visible;
 		}
 
 		private void OnButtonEditClicked(object sender, EventArgs e)
@@ -275,8 +263,8 @@ namespace Vodovoz.JournalViewers
 			tableProductGroup.RepresentationModel.SearchString = searchentity.Text;
 			if (string.IsNullOrWhiteSpace(searchentity.Text))
 			{
-				_vm.UpdateNodes();
-				tableProductGroup.YTreeModel = _vm.YTreeModel;		
+				vm.UpdateNodes();
+				tableProductGroup.YTreeModel = vm.YTreeModel;		
 			}
 		}
 
@@ -298,18 +286,6 @@ namespace Vodovoz.JournalViewers
 				return _selectedItems.All(x => x.GetType() == typeof(ProductGroupVMNode));
 			}
 			return firstItemType == typeof(NomenclatureNode) && _selectedItems.All(x => x.GetType() == typeof(NomenclatureNode));
-		}
-
-		public override void Destroy()
-		{
-			_productGroupFilterView?.Destroy();
-			
-			if(_vm != null)
-			{
-				_vm.PropertyChanged -= OnViewModelPropertyChanged;
-			}
-
-			base.Destroy();
 		}
 	}
 }

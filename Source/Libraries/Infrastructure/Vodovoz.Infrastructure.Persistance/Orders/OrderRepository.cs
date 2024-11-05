@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -1154,7 +1154,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.And(orderStatusRestriction)
 				.And(prohibitedOrderStatusRestriction)
 				.And(() => counterpartyAlias.NeedSendBillByEdo && counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(GetUndeliveryAndNewStatuses())
 				.TransformUsing(Transformers.DistinctRootEntity)
 				.List();
 

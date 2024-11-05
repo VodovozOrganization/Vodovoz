@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Services;
@@ -32,9 +32,9 @@ namespace CustomerOrdersApi.Controllers
 			try
 			{
 				Logger.LogInformation(
-					"Поступил запрос от {Source} на регистрацию заказа {ExternalOrderId} c подписью {Signature}, проверяем...",
+					"Поступил запрос от {Source} на регистрацию заказа для {CounterpartyId} c подписью {Signature}, проверяем...",
 					sourceName,
-					onlineOrderInfoDto.ExternalOrderId,
+					onlineOrderInfoDto.CounterpartyErpId,
 					onlineOrderInfoDto.Signature);
 				
 				if(!_customerOrdersService.ValidateOrderSignature(onlineOrderInfoDto, out var generatedSignature))
@@ -50,8 +50,8 @@ namespace CustomerOrdersApi.Controllers
 			catch(Exception e)
 			{
 				Logger.LogError(e,
-					"Ошибка при регистрации заказа {ExternalOrderId} от {Source}",
-					onlineOrderInfoDto.ExternalOrderId,
+					"Ошибка при регистрации заказа для клиента № {CounterpartyId} от {Source}",
+					onlineOrderInfoDto.CounterpartyErpId,
 					sourceName);
 
 				return Problem();

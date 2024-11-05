@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Vodovoz.Permissions
+﻿namespace Vodovoz.Permissions
 {
 	public static class User
 	{
@@ -8,11 +6,5 @@ namespace Vodovoz.Permissions
 		/// Пользователь - торговый представитель
 		/// </summary>
 		public static string IsSalesRepresentative => "user_is_sales_representative";
-
-		/// <summary>
-		/// Пользователь может пользоваться только складом и рекламациями
-		/// </summary>
-		[Display(Name = "Пользователь может пользоваться только складом и рекламациями")]
-		public static string UserHaveAccessOnlyToWarehouseAndComplaints => "user_have_access_only_to_warehouse_and_complaints";
 	}
 }

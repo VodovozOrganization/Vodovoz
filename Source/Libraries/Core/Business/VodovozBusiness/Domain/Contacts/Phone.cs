@@ -1,10 +1,10 @@
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Utilities.Numeric;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Settings.Contacts;
 
 namespace Vodovoz.Domain.Contacts
@@ -24,8 +24,36 @@ namespace Vodovoz.Domain.Contacts
 		private Counterparty _counterparty;
 		private RoboAtsCounterpartyName _roboAtsCounterpartyName;
 		private RoboAtsCounterpartyPatronymic _roboAtsCounterpartyPatronymic;
-		private PhoneType _phoneType;
-		private Employee _employee;
+
+		#region Свойства
+		
+		public virtual int Id { get; set; }
+
+		public virtual string Number
+		{
+			get => _number;
+			set
+			{
+				var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
+				var phone = formatter.FormatString(value);
+				SetField(ref _number, phone);
+				DigitsNumber = value;
+			}
+		}
+
+		[Display(Name = "Только цифры")]
+		public virtual string DigitsNumber
+		{
+			get => _digitsNumber;
+			protected set
+			{
+				var formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
+				var phone = formatter.FormatString(value);
+				SetField(ref _digitsNumber, phone);
+			}
+		}
+
+		public virtual string Additional { get; set; }
 
 		public virtual PhoneType PhoneType
 		{
@@ -61,13 +89,6 @@ namespace Vodovoz.Domain.Contacts
 			set => SetField(ref _counterparty, value);
 		}
 
-		[Display(Name = "Сотрудник")]
-		public virtual Employee Employee
-		{
-			get => _employee;
-			set => SetField(ref _employee, value);
-		}
-
 		[Display(Name = "Имя контрагента")]
 		public virtual RoboAtsCounterpartyName RoboAtsCounterpartyName
 		{
@@ -91,9 +112,9 @@ namespace Vodovoz.Domain.Contacts
 			get
 			{
 				return PhoneType?.Name
-					 + (string.IsNullOrWhiteSpace(Number) ? "" : " +7 " + Number)
-					 + (string.IsNullOrWhiteSpace(Additional) ? "" : " доп." + Additional)
-					 + (string.IsNullOrWhiteSpace(Comment) ? "" : $"\n[{Comment}]");
+					 + (String.IsNullOrWhiteSpace(Number) ? "" : " +7 " + Number)
+					 + (String.IsNullOrWhiteSpace(Additional) ? "" : " доп." + Additional)
+					 + (String.IsNullOrWhiteSpace(Comment) ? "" : $"\n[{Comment}]");
 			}
 		}
 

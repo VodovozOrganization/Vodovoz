@@ -1,9 +1,13 @@
 ﻿using System;
 using Gamma.ColumnConfig;
 using Gtk;
+using QS.Project.Journal.EntitySelector;
 using QS.Views.GtkUI;
 using QSProjectsLib;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.IncomingInvoices;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.Views.Warehouse
@@ -42,9 +46,11 @@ namespace Vodovoz.Views.Warehouse
 			labelTimeStamp.Binding.AddBinding(ViewModel.Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 			entryInvoiceNumber.Binding.AddBinding(ViewModel.Entity, e => e.InvoiceNumber, w => w.Text).InitializeFromSource();
 			entryWaybillNumber.Binding.AddBinding(ViewModel.Entity, e => e.WaybillNumber, w => w.Text).InitializeFromSource();
-
-			entryWarehouse.ViewModel = ViewModel.WarehouseViewModel;
-
+			
+			lstWarehouse.SetRenderTextFunc<Domain.Store.Warehouse>(w => w.Name);
+			lstWarehouse.Binding.AddBinding(ViewModel, vm => vm.Warehouses, w => w.ItemsList).InitializeFromSource();
+			lstWarehouse.Binding.AddBinding(ViewModel.Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
+			
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			entityVMEntryClient.Binding.AddBinding(ViewModel.Entity, s => s.Contractor, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = !ViewModel.UserHasOnlyAccessToWarehouseAndComplaints;

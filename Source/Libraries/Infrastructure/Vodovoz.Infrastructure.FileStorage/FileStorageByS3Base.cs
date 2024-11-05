@@ -18,15 +18,23 @@ namespace Vodovoz.Infrastructure.FileStorage
 		protected abstract string BucketName { get; }
 
 		public async Task<Result> CreateFileAsync(string fileName, Stream inputStream, CancellationToken cancellationToken)
-			=> await _s3FileStorageService.CreateFileAsync(BucketName, fileName, inputStream, cancellationToken);
+		{
+			return await _s3FileStorageService.CreateFileAsync(BucketName, fileName, inputStream, cancellationToken);
+		}
 
 		public async Task<Result<Stream>> GetFileAsync(string fileName, CancellationToken cancellationToken)
-			=> await _s3FileStorageService.GetFileAsync(BucketName, fileName, cancellationToken);
+		{
+			return await _s3FileStorageService.GetFileAsync(BucketName, fileName, cancellationToken);
+		}
 
 		public async Task<Result> UpdateFileAsync(string fileName, Stream inputStream, CancellationToken cancellationToken)
-			=> await _s3FileStorageService.UpdateFileAsync(BucketName, fileName, inputStream, cancellationToken);
+		{
+			return await _s3FileStorageService.UpdateFileAsync(BucketName, fileName, inputStream, cancellationToken);
+		}
 
-		public async Task<Result> DeleteFileAsync(string fileName, CancellationToken cancellationToken)
-			=> await _s3FileStorageService.DeleteFileAsync(BucketName, fileName, cancellationToken);
+		public async Task<Result> DeleteFileAsync(string name, CancellationToken cancellationToken)
+		{
+			return await _s3FileStorageService.DeleteFileAsync(BucketName, name, cancellationToken);
+		}
 	}
 }

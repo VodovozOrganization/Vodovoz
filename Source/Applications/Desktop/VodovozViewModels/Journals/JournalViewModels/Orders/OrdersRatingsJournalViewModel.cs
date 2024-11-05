@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Timers;
-using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -139,7 +138,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			
 			if(endDate.HasValue)
 			{
-				query.Where(r => r.Created <= endDate.Value.LatestDayTime());
+				query.Where(r => r.Created <= endDate.Value);
 			}
 
 			if(!string.IsNullOrWhiteSpace(_filterViewModel.OrderRatingReason))

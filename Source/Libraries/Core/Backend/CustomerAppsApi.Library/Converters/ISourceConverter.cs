@@ -8,6 +8,5 @@ namespace CustomerAppsApi.Library.Converters
 	public interface ISourceConverter
 	{
 		GoodsOnlineParameterType ConvertToNomenclatureOnlineParameterType(Source source);
-		CounterpartyFrom ConvertToCounterpartyFrom(Source source);
 	}
 }

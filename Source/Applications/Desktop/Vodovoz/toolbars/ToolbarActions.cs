@@ -825,9 +825,12 @@ public partial class MainWindow : Window
 			null, filterParams);
 	}
 
-	void ActionWarehouseDocumentsActivated(object sender, EventArgs e)
+	void ActionWarehouseDocumentsActivated(object sender, System.EventArgs e)
 	{
-		NavigationManager.OpenViewModel<WarehouseDocumentsJournalViewModel>(null);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<WarehouseDocumentsView>(),
+			() => new WarehouseDocumentsView()
+		);
 	}
 
 	void ActionServiceClaimsActivated(object sender, System.EventArgs e)

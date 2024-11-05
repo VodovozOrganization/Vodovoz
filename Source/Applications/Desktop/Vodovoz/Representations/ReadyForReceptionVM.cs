@@ -66,21 +66,8 @@ namespace Vodovoz.ViewModel
 				.Where(r => routeListAlias.Status == RouteListStatus.OnClosing 
 						 || routeListAlias.Status == RouteListStatus.MileageCheck
 						 || routeListAlias.Status == RouteListStatus.Delivered);
-			
-			var startDate = Filter.StartDate;
-			var endDate = Filter.EndDate;
 
-			if(startDate.HasValue)
-			{
-				queryRoutes.Where(() => routeListAlias.Date >= startDate);
-			}
-
-			if(endDate.HasValue)
-			{
-				queryRoutes.Where(() => routeListAlias.Date <= endDate);
-			}
-
-			if(Filter.Warehouse != null) {
+			if(Filter.RestrictWarehouse != null) {
 				queryRoutes.JoinAlias(rl => rl.Addresses, () => routeListAddressAlias)
 					.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
 					.Where(new Disjunction()

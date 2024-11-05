@@ -20,7 +20,7 @@ namespace TrueMark.Contracts.Documents
 		public string GtinQuantity { get; set; }
 
 		/// <summary>
-		/// Стоимость в копейках
+		/// Цена за единицу
 		/// </summary>
 		[JsonPropertyName("product_cost")]
 		public string ProductCost { get; set; }

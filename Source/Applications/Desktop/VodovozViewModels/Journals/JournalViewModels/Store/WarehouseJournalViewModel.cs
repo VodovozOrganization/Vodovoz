@@ -32,7 +32,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ISubdivisionRepository subdivisionRepository,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			WarehouseJournalFilterViewModel warehouseJournalFilterViewModel,
 			Action<WarehouseJournalFilterViewModel> filterParams = null)
 				: base(unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
@@ -40,25 +39,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_filterViewModel = warehouseJournalFilterViewModel ?? throw new ArgumentNullException(nameof(warehouseJournalFilterViewModel));
 			_warehousePermissions = new[] { WarehousePermissionsType.WarehouseView };
 
-			if(filterParams != null)
-			{
-				_filterViewModel.ConfigureWithoutFiltering(filterParams);
-			}
-
-			JournalFilter = _filterViewModel;
-			_filterViewModel.OnFiltered += OnFilterFiltered;
-
+			CreateFilter(filterParams);
+			
 			UpdateOnChanges(
 				typeof(Warehouse)
 			);
 		}
 
-		private void OnFilterFiltered(object sender, EventArgs e)
+		private void CreateFilter(Action<WarehouseJournalFilterViewModel> filterParams)
 		{
-			Refresh();
+			var filter = new WarehouseJournalFilterViewModel();
+			filterParams?.Invoke(filter);
+			JournalFilter = filter;
+			_filterViewModel = filter;
 		}
 
 		protected override void CreateNodeActions()
@@ -69,8 +64,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			CreateDefaultAddActions();
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<Warehouse>> ItemsSourceQueryFunction => (uow) =>
-		{
+		protected override Func<IUnitOfWork, IQueryOver<Warehouse>> ItemsSourceQueryFunction => (uow) => {
 			Warehouse warehouseAlias = null;
 			WarehouseJournalNode warehouseNodeAlias = null;
 
@@ -81,24 +75,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				query.WhereRestrictionOn(x => x.Id).Not.IsIn(_filterViewModel.ExcludeWarehousesIds);
 			}
-
+			
 			if(_filterViewModel?.IncludeWarehouseIds != null)
 			{
 				query.WhereRestrictionOn(x => x.Id).IsInG(_filterViewModel.IncludeWarehouseIds);
 			}
 
-			if(_filterViewModel is null || !_filterViewModel.IgnorePermissions)
+			var permission = new CurrentWarehousePermissions();
+			foreach (var p in _warehousePermissions)
 			{
-				var permission = new CurrentWarehousePermissions();
-				foreach(var p in _warehousePermissions)
-				{
-					disjunction.Add<Warehouse>(
-						w =>
-							w.Id.IsIn(permission.WarehousePermissions.Where(x => x.WarehousePermissionType == p && x.PermissionValue == true)
-							.Select(x => x.Warehouse.Id).ToArray()));
-				}
-				query.Where(disjunction);
+				disjunction.Add<Warehouse>(
+					w =>
+						w.Id.IsIn(permission.WarehousePermissions.Where(x => x.WarehousePermissionType == p && x.PermissionValue == true)
+						.Select(x => x.Warehouse.Id).ToArray()));
 			}
+			query.Where(disjunction);
 
 			query.Where(GetSearchCriterion(
 				() => warehouseAlias.Id,
@@ -132,7 +123,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 		public override void Dispose()
 		{
-			_filterViewModel.OnFiltered -= OnFilterFiltered;
 			_lifetimeScope = null;
 			base.Dispose();
 		}

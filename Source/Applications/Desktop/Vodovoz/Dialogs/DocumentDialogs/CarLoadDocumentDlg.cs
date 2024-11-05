@@ -10,6 +10,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
@@ -23,13 +24,11 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Print;
-using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz
 {
@@ -55,7 +54,6 @@ namespace Vodovoz
 
 			ConfigureNewDoc();
 			ConfigureDlg();
-			OnWarehouseChangedByUser(null, EventArgs.Empty);
 		}
 
 		public CarLoadDocumentDlg(int routeListId, int? warehouseId)
@@ -111,12 +109,6 @@ namespace Vodovoz
 			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarLoadEdit);
 		}
 
-		private void OnWarehouseChangedByUser(object sender, EventArgs e)
-		{
-			Entity.UpdateStockAmount(UoW, _stockRepository);
-			Entity.UpdateAmounts();
-		}
-
 		private void ConfigureDlg()
 		{
 			NavigationManager = Startup.MainWin.NavigationManager;
@@ -148,26 +140,12 @@ namespace Vodovoz
 
 			entryRouteList.ViewModel.IsEditable = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			entryRouteList.Sensitive = editing;
-			ytextviewCommnet.Editable = editing;
+			entryRouteList.Sensitive = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			carloaddocumentview1.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-
-			var warehouseViewModel = new LegacyEEVMBuilderFactory< CarLoadDocument >(this, Entity, UoW, NavigationManager, _lifetimeScope)
-				.ForProperty(x=>x.Warehouse)
-				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
-				{
-					filter.IncludeWarehouseIds = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit).Select(x => x.Id).ToList();
-				})
-				.UseViewModelDialog<WarehouseViewModel>()
-				.Finish();
-
-			warehouseViewModel.IsEditable = editing;
-
-			entryWarehouse.ViewModel = warehouseViewModel;
-			entryWarehouse.ViewModel.ChangedByUser += OnWarehouseChangedByUser;
-
+			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit);
+			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
 			enumPrint.ItemsEnum = typeof(CarLoadPrintableDocuments);
@@ -184,10 +162,12 @@ namespace Vodovoz
 				HasChanges = false;
 			}
 
-			if(Entity.Id == 0 && Entity.Warehouse != null)
+			if(UoW.IsNew && Entity.Warehouse != null)
 			{
 				carloaddocumentview1.FillItemsByWarehouse();
 			}
+
+			ySpecCmbWarehouses.ItemSelected += OnYSpecCmbWarehousesItemSelected;
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
@@ -199,7 +179,7 @@ namespace Vodovoz
 			{
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				entryRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				entryWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				carloaddocumentview1.Sensitive = false;
 
@@ -340,6 +320,12 @@ namespace Vodovoz
 			{
 				carloaddocumentview1.FillItemsByWarehouse();
 			}
+		}
+
+		protected void OnYSpecCmbWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			Entity.UpdateStockAmount(UoW, _stockRepository);
+			Entity.UpdateAmounts();
 		}
 
 		protected void OnEnumPrintEnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)

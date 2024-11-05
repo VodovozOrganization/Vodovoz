@@ -26,23 +26,10 @@ namespace Vodovoz.Domain.Cash
 		private string _reasonForSendToReappropriate;
 		private string _cancelReason;
 		private Organization _organization;
-		private int _id;
 
 		#region Свойства
 
-		public virtual int Id
-		{
-			get => _id;
-			protected set
-			{
-				if(_id != value)
-				{
-					_id = value;
-
-					UpdateFileInformations();
-				}
-			}
-		}
+		public virtual int Id { get; }
 
 		public abstract string Title { get; }
 
@@ -171,8 +158,6 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
-		protected abstract void UpdateFileInformations();
-
 		public abstract void ChangeState(PayoutRequestState newState);
 	}
 
@@ -196,11 +181,8 @@ namespace Vodovoz.Domain.Cash
 		[Display(Name = "Подана")]
 		Submited, // после подтверждения
 
-		[Display(Name = "Согласована руководителем отдела")]
-		AgreedBySubdivisionChief, // после согласования руководителем
-
-		[Display(Name = "Согласована исполнительным директором")]
-		Agreed, // после согласования исполнительным директором
+		[Display(Name = "Согласована")]
+		Agreed, // после согласования
 
 		[Display(Name = "Передана на выдачу")]
 		GivenForTake,
@@ -219,9 +201,6 @@ namespace Vodovoz.Domain.Cash
 	{
 		[Display(Name = "Заявитель")]
 		RequestCreator,
-
-		[Display(Name = "Руководитель отдела")]
-		SubdivisionChief,
 
 		[Display(Name = "Согласователь")]
 		Coordinator,

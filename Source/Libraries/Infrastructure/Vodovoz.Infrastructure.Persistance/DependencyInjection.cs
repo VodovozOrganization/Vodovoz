@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
-using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.Infrastructure.Persistance
 {

@@ -5,6 +5,7 @@ namespace Vodovoz.Zabbix.Sender
 {
 	public interface IZabbixSender
 	{
-		Task<bool> SendIsHealthyAsync(CancellationToken cancellationToken);
+		Task<bool> SendIsHealthyAsync(CancellationToken cancellationToken, bool isHealthy = true);
+		void SetWorkerName(string workerName);
 	}
 }

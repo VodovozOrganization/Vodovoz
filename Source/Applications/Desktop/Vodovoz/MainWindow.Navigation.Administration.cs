@@ -2,6 +2,7 @@
 using QSOrmProject;
 using QSProjectsLib;
 using System;
+using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.JournalViewModels;
@@ -111,6 +112,16 @@ public partial class MainWindow
 	protected void OnActionOrdersWithoutBottlesOperationActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenTdiTab<OrdersWithoutBottlesOperationDlg>(null);
+	}
+
+	/// <summary>
+	/// Выгрузка в интернет-магазин
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionToOnlineStoreActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenTdiTab<ExportToSiteDlg>(null);
 	}
 
 	/// <summary>

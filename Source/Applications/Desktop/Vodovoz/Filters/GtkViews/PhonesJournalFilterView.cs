@@ -14,7 +14,6 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			entityentryEmployee.ViewModel = ViewModel.EmployeeViewModel;
 			HideAll();
 		}
 	}

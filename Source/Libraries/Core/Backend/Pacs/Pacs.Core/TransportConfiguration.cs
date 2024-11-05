@@ -12,7 +12,6 @@ using QS.DomainModel.Entity;
 using RabbitMQ.Client;
 using System;
 using System.Linq;
-using System.Net.Security;
 using System.Security.Authentication;
 using Vodovoz.Settings.Pacs;
 
@@ -80,23 +79,15 @@ namespace Pacs.Core
 
 				busCfg.UsingRabbitMq((context, rabbitCfg) =>
 				{
-					var messageSettings = context.GetRequiredService<IMessageTransportSettings>();
-					rabbitCfg.Host(messageSettings.Host, (ushort)messageSettings.Port, messageSettings.VirtualHost,
+					var ts = context.GetRequiredService<IMessageTransportSettings>();
+					rabbitCfg.Host(ts.Host, (ushort)ts.Port, ts.VirtualHost,
 						rabbitHostCfg =>
 						{
-							rabbitHostCfg.Username(messageSettings.Username);
-							rabbitHostCfg.Password(messageSettings.Password);
-							if(messageSettings.UseSSL)
+							rabbitHostCfg.Username(ts.Username);
+							rabbitHostCfg.Password(ts.Password);
+							if(ts.UseSSL)
 							{
-								rabbitHostCfg.UseSsl(ssl =>
-								{
-									if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
-									{
-										ssl.AllowPolicyErrors(allowedPolicyErrors);
-									}
-
-									ssl.Protocol = SslProtocols.Tls12;
-								});
+								rabbitHostCfg.UseSsl(ssl => ssl.Protocol = SslProtocols.Tls12);
 							}
 						}
 					);
@@ -129,23 +120,15 @@ namespace Pacs.Core
 
 				busCfg.UsingRabbitMq((context, rabbitCfg) =>
 				{
-					var messageSettings = context.GetRequiredService<IMessageTransportSettings>();
-					rabbitCfg.Host(messageSettings.Host, (ushort)messageSettings.Port, messageSettings.VirtualHost,
+					var ts = context.GetRequiredService<IMessageTransportSettings>();
+					rabbitCfg.Host(ts.Host, (ushort)ts.Port, ts.VirtualHost,
 						rabbitHostCfg =>
 						{
-							rabbitHostCfg.Username(messageSettings.Username);
-							rabbitHostCfg.Password(messageSettings.Password);
-							if(messageSettings.UseSSL)
+							rabbitHostCfg.Username(ts.Username);
+							rabbitHostCfg.Password(ts.Password);
+							if(ts.UseSSL)
 							{
-								rabbitHostCfg.UseSsl(ssl =>
-								{
-									if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
-									{
-										ssl.AllowPolicyErrors(allowedPolicyErrors);
-									}
-
-									ssl.Protocol = SslProtocols.Tls12;
-								});
+								rabbitHostCfg.UseSsl(ssl => ssl.Protocol = SslProtocols.Tls12);
 							}
 						}
 					);
