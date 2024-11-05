@@ -70,13 +70,13 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton ybuttonTrackPoints;
 
-		private global::Gtk.Button buttonRefresh;
+		private global::Gamma.GtkWidgets.yButton buttonRefresh;
 
-		private global::Gtk.Button buttonCleanTrack;
+		private global::Gamma.GtkWidgets.yButton buttonCleanTrack;
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboMapType;
 
-		private global::Gtk.Button buttonMapInWindow;
+		private global::Gamma.GtkWidgets.yButton buttonMapInWindow;
 
 		private global::GMap.NET.GtkSharp.GMapControl gmapWidget;
 
@@ -397,7 +397,7 @@ namespace Vodovoz.Views.Logistic
 			w32.Expand = false;
 			w32.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonRefresh = new global::Gtk.Button();
+			this.buttonRefresh = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;
@@ -411,7 +411,7 @@ namespace Vodovoz.Views.Logistic
 			w34.Expand = false;
 			w34.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonCleanTrack = new global::Gtk.Button();
+			this.buttonCleanTrack = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCleanTrack.Sensitive = false;
 			this.buttonCleanTrack.CanFocus = true;
 			this.buttonCleanTrack.Name = "buttonCleanTrack";
@@ -438,7 +438,7 @@ namespace Vodovoz.Views.Logistic
 			w37.Expand = false;
 			w37.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonMapInWindow = new global::Gtk.Button();
+			this.buttonMapInWindow = new global::Gamma.GtkWidgets.yButton();
 			this.buttonMapInWindow.CanFocus = true;
 			this.buttonMapInWindow.Name = "buttonMapInWindow";
 			this.buttonMapInWindow.UseUnderline = true;

@@ -34,6 +34,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
         {
             _entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
             _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+            filterViewModel.HidenByDefault = true;
 
             TabName = "Журнал перемещения д/с для юр.лиц";
             UpdateOnChanges(typeof(OrganizationCashTransferDocument));

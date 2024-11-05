@@ -3,6 +3,7 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Report;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace Vodovoz.ViewModels.Print
 	public partial class PrintDocumentsSelectablePrinterViewModel : DialogTabViewModelBase
 	{
 		private readonly IEventsQrPlacer _eventsQrPlacer;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly UserSettings _userSettings;
 
 		private CarLoadDocument _carLoadDocument;
@@ -35,7 +37,9 @@ namespace Vodovoz.ViewModels.Print
 			INavigationManager navigation,
 			ICustomPrintRdlDocumentsPrinter documentsPrinter,
 			IUserRepository userRepository,
-			IEventsQrPlacer eventsQrPlacer)
+			IEventsQrPlacer eventsQrPlacer,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(userRepository is null)
@@ -45,6 +49,7 @@ namespace Vodovoz.ViewModels.Print
 
 			Printer = documentsPrinter ?? throw new ArgumentNullException(nameof(documentsPrinter));
 			_eventsQrPlacer = eventsQrPlacer ?? throw new ArgumentNullException(nameof(eventsQrPlacer));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 
 			TabName = "Печать документов";
 
@@ -92,9 +97,9 @@ namespace Vodovoz.ViewModels.Print
 
 			_carLoadDocument = carLoadDocument;
 
-			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings, carLoadDocument, CarLoadDocumentPlaseEventsQr);
-			var controlCarLoadDocument = ControlCarLoadDocumentRdl.Create(_userSettings, carLoadDocument);
-			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings, carLoadDocument);
+			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings, carLoadDocument, CarLoadDocumentPlaseEventsQr, _reportInfoFactory);
+			var controlCarLoadDocument = ControlCarLoadDocumentRdl.Create(_userSettings, carLoadDocument, _reportInfoFactory);
+			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings, carLoadDocument, _reportInfoFactory);
 
 			DocumentsToPrint.Add(waterCarLoadDocument);
 			DocumentsToPrint.Add(controlCarLoadDocument);

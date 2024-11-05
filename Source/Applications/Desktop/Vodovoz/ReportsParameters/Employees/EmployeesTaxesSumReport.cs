@@ -24,15 +24,16 @@ namespace Vodovoz.ReportsParameters.Employees
 		private const string _employeesParameterSet = "employees";
 		private const string _subdivisionsParameterSet = "subdivisions";
 		private readonly SelectableParametersReportFilter _filter;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private GenericObservableList<SelectableRegistrationTypeNode> _selectableRegistrationTypes;
 		private GenericObservableList<SelectablePaymentFormNode> _selectablePaymentForms;
 
 		public string Title => "Отчет по сумме налогов";
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public EmployeesTaxesSumReport(
-			IUnitOfWorkFactory unitOfWorkFactory)
+		public EmployeesTaxesSumReport(IReportInfoFactory reportInfoFactory, IUnitOfWorkFactory unitOfWorkFactory)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			UoW = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot();
 
 			Build();
@@ -229,12 +230,9 @@ namespace Vodovoz.ReportsParameters.Employees
 				parameters.Add(item.Key, item.Value);
 			}
 
-			return new ReportInfo
-			{
-				Identifier = "Employees.EmployeesTaxesSumReport",
-				Parameters = parameters,
-				Title = $"{Title} с {dateperiodpicker.StartDate:dd-MM-yyyy} по {dateperiodpicker.EndDate:dd-MM-yyyy}"
-			};
+			var title = $"{Title} с {dateperiodpicker.StartDate:dd-MM-yyyy} по {dateperiodpicker.EndDate:dd-MM-yyyy}";
+			var reportInfo = _reportInfoFactory.Create("Employees.EmployeesTaxesSumReport", title, parameters);
+			return reportInfo;
 		}
 
 		private void GetSelectedRegistrationTypes(out IList<string> selectedNodes, out string selectedNodesString, StringBuilder sb)

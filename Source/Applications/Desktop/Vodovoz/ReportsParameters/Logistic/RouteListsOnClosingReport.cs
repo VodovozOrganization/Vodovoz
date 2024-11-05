@@ -1,71 +1,53 @@
-﻿using DateTimeHelpers;
-using QS.Dialog.GtkUI;
-using QS.Project.Services;
-using QS.Report;
+﻿using Gamma.Widgets.Additions;
+using QS.Views;
 using QS.Widgets;
-using QSReport;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
-	public partial class RouteListsOnClosingReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class RouteListsOnClosingReport : ViewBase<RouteListsOnClosingReportViewModel>
 	{
-		public RouteListsOnClosingReport()
+		public RouteListsOnClosingReport(RouteListsOnClosingReportViewModel viewModel) : base(viewModel)
 		{
 			Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-
 			Configure();
 		}
 
 		private void Configure()
 		{
-			ycheckTodayRouteLists.Active = true;
-			nullCheckVisitingMasters.RenderMode = RenderMode.Icon;
-			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeoGroup>();
+			dateEnd.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.EndDate, w => w.DateOrNull)
+				.InitializeFromSource();
 
-			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
-			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
+			ycheckTodayRouteLists.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowTodayRouteLists, w => w.Active)
+				.InitializeFromSource();
+
+			nullCheckVisitingMasters.RenderMode = RenderMode.Icon;
+			nullCheckVisitingMasters.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IncludeVisitingMasters, w => w.Active)
+				.InitializeFromSource();
+
+			ySpecCmbGeographicGroup.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.GeoGroups, w => w.ItemsList)
+				.AddBinding(vm => vm.GeoGroup, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			enumcheckCarTypeOfUse.EnumType = ViewModel.CarTypeOfUseType;
+			enumcheckCarTypeOfUse.AddEnumToHideList(ViewModel.HiddenCarTypeOfUse);
+			enumcheckCarTypeOfUse.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CarTypeOfUseList, w => w.SelectedValuesList)
+				.InitializeFromSource();
 			enumcheckCarTypeOfUse.SelectAll();
 
-			enumcheckCarOwnType.EnumType = typeof(CarOwnType);
+			enumcheckCarOwnType.EnumType = ViewModel.CarOwnTypeType;
+			enumcheckCarOwnType.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CarOwnTypeList, w => w.SelectedValuesList)
+				.InitializeFromSource();
 			enumcheckCarOwnType.SelectAll();
 
-			var now = DateTime.Now;
-			dateEnd.Date = now.FirstDayOfMonth();
-		}
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		public string Title => "Отчет по незакрытым МЛ";
-
-		private ReportInfo GetReportInfo()
-		{
-			var carTypesOfUse = enumcheckCarTypeOfUse.SelectedValues.ToArray();
-			var carOwnTypes = enumcheckCarOwnType.SelectedValues.ToArray();
-
-			return new ReportInfo
-			{
-				Identifier = "Logistic.RouteListOnClosing",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Id ?? 0 },
-					{ "car_types_of_use", carTypesOfUse.Any() ? carTypesOfUse : new[] { (object)0 } },
-					{ "car_own_types", carOwnTypes.Any() ? carOwnTypes : new[] { (object)0 } },
-					{ "show_today_route_lists", ycheckTodayRouteLists.Active },
-					{ "include_visiting_masters", nullCheckVisitingMasters.Active },
-					{ "end_date", dateEnd.DateOrNull.Value }
-				}
-			};
-		}
-
-		private void OnButtonCreateReportClicked(object sender, EventArgs e)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
+			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }
