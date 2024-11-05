@@ -283,7 +283,7 @@ public class TrueMarkApiController : ControllerBase
 					ProductCode = code
 				},
 				cancellationToken,
-				RequestTimeout.After(s: 120)));
+				RequestTimeout.After(s: 4)));
 		}
 
 		return requestsTasks;
