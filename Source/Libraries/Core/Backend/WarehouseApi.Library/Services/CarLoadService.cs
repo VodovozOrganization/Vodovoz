@@ -131,7 +131,8 @@ namespace WarehouseApi.Library.Services
 				Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems)
 			};
 
-			if(!_documentErrorsChecker.IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, documentOrderItems, out Error error))
+			if(!_documentErrorsChecker.IsOrderNeedIndividualSetOnLoad(orderId, out Error error)
+				|| !_documentErrorsChecker.IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, documentOrderItems, out error))
 			{
 				response.Result = OperationResultEnumDto.Error;
 				response.Error = error.Message;
@@ -228,16 +229,6 @@ namespace WarehouseApi.Library.Services
 				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
 				Result = OperationResultEnumDto.Error,
 			};
-
-			if(documentItemToEdit is null)
-			{
-				var notFoundError = CarLoadDocumentErrors.DocumentNotFound;
-				failureResponse.Error = notFoundError.Message;
-
-				var result = Result.Failure<ChangeOrderCodeResponse>(notFoundError);
-
-				return RequestProcessingResult.CreateFailure(result, failureResponse);
-			}
 
 			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee, out Error error))
 			{

@@ -257,6 +257,7 @@ namespace WarehouseApi.Controllers
 			if(firstError != null
 				&& (firstError.Code == CarLoadDocumentErrors.DocumentNotFound
 					|| firstError.Code == CarLoadDocumentErrors.OrderNotFound
+					|| firstError.Code == CarLoadDocumentErrors.CarLoadDocumentItemNotFound
 					|| firstError.Code == TrueMarkCodeErrors.TrueMarkCodeForCarLoadDocumentItemNotFound))
 			{
 				return StatusCodes.Status404NotFound;
