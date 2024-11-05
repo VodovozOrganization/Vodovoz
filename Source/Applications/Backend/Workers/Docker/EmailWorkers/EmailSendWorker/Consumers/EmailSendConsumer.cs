@@ -60,8 +60,7 @@ namespace EmailSendWorker.Consumers
 
             try
             {
-            	var response = await _sendEndpoint.Send(payload);
-            	_logger.LogInformation("Response:\n" + JsonSerializer.Serialize(response));
+            	await _sendEndpoint.Send(payload);
             }
             catch(Exception e)
             {
