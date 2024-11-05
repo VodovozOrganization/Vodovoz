@@ -134,6 +134,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual string SentDocuments => Type.GetEnumTitle();
 	}
 
+	[Appellative(
+		Nominative = "Стататус документооборота",
+		NominativePlural = "Статусы документооборота")]
 	public enum EdoDocFlowStatus
 	{
 		[Display(Name = "Неизвестно")]
