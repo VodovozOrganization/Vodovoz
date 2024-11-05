@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
+using QS.Services;
 using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
@@ -30,6 +31,7 @@ namespace EdoContactsUpdater
 
 		public TaxcomEdoContactsUpdaterService(
 			ILogger<TaxcomEdoContactsUpdaterService> logger,
+			IUserService userService,
 			IOptions<TaxcomContactsUpdaterOptions> contactsUpdaterOptions,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISettingsController settingsController,

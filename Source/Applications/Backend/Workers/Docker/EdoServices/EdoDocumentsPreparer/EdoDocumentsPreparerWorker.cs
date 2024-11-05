@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using QS.Report;
+using QS.Services;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.OrdersWithoutShipment;
 using TaxcomEdo.Library.Options;
@@ -50,6 +51,7 @@ namespace EdoDocumentsPreparer
 		
 		public EdoDocumentsPreparerWorker(
 			ILogger<EdoDocumentsPreparerWorker> logger,
+			IUserService userService,
 			IOptions<TaxcomEdoOptions> edoOptions,
 			IOptions<DocumentFlowOptions> documentFlowOptions,
 			IUnitOfWorkFactory unitOfWorkFactory,

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
+using QS.Services;
 using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Application.FileStorage;
@@ -38,6 +39,7 @@ namespace EdoDocumentFlowUpdater
 
 		public TaxcomEdoDocumentFlowUpdater(
 			ILogger<TaxcomEdoDocumentFlowUpdater> logger,
+			IUserService userService,
 			IOptions<TaxcomEdoDocumentFlowUpdaterOptions> documentFlowUpdaterOptions,
 			IServiceScopeFactory serviceScopeFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
