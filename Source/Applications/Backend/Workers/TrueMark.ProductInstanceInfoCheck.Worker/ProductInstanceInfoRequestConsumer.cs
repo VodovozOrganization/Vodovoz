@@ -71,7 +71,7 @@ public class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstanc
 
 			try
 			{
-				response = await _httpClient.PostAsJsonAsync<IEnumerable<string>>(_uri, codesPortion, apiRequestCancellationTokenSource.Token); // try catch, настроить клиент, таймаут 60 сек
+				response = await _httpClient.PostAsJsonAsync<IEnumerable<string>>(_uri, codesPortion, apiRequestCancellationTokenSource.Token);
 			}
 			catch(Exception ex)
 			{
@@ -107,7 +107,32 @@ public class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstanc
 			}
 
 			string responseBody = await response.Content.ReadAsStringAsync();
-			var cisesInformations = JsonSerializer.Deserialize<IEnumerable<CisInfoRoot>>(responseBody); // try catch
+
+			IEnumerable<CisInfoRoot> cisesInformations = Enumerable.Empty<CisInfoRoot>();
+
+			try
+			{
+				cisesInformations = JsonSerializer.Deserialize<IEnumerable<CisInfoRoot>>(responseBody) ?? Enumerable.Empty<CisInfoRoot>();
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Message: {ExceptionMessage}", ex.Message);
+
+				errorMessage.AppendLine(baseErrorMessage);
+				errorMessage.AppendLine("Не удалось получить ожидаемый ответ от сервера");
+
+				RespondError(errorMessage, currentPortionContexts);
+
+				if(codes.Count > 0)
+				{
+					codes.RemoveRange(0, Math.Min(codes.Count, currentCodesPreRequestLimit));
+				}
+
+				await Task.Delay(currentRequestDelay);
+
+				continue;
+			}
+
 			_logger.LogInformation("responseBody: {ResponseBody}", responseBody);
 
 			if(cisesInformations is null)
