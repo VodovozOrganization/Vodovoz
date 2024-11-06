@@ -22,5 +22,18 @@ namespace CustomerAppsApi.Library.Converters
 					throw new InvalidOperationException("Неизвестный источник запроса");
 			}
 		}
+		
+		public CounterpartyFrom ConvertToCounterpartyFrom(Source source)
+		{
+			switch(source)
+			{
+				case Source.MobileApp:
+					return CounterpartyFrom.MobileApp;
+				case Source.VodovozWebSite:
+					return CounterpartyFrom.WebSite;
+				default:
+					throw new InvalidOperationException("Неизвестный источник запроса");
+			}
+		}
 	}
 }

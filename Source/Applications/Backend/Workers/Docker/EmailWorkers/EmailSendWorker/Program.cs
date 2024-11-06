@@ -1,6 +1,11 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
+using System.Net.Security;
 using ApiClientProvider;
+using EmailSendWorker.Consumers;
+using Mailjet.Api.Abstractions.Configs;
 using Mailjet.Api.Abstractions.Endpoints;
+using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +13,8 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
+using RabbitMQ.MailSending;
+using Vodovoz.Settings.Pacs;
 
 namespace EmailSendWorker
 {
@@ -27,33 +34,50 @@ namespace EmailSendWorker
 						logging.ClearProviders();
 						logging.AddNLog();
 						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
-					});
+					})
 
-					services.AddTransient<RabbitMQConnectionFactory>();
+					.AddConfig(hostContext.Configuration)
+					.AddTransient<RabbitMQConnectionFactory>()
 
-					services.AddTransient((sp) =>
-						sp.GetRequiredService<RabbitMQConnectionFactory>()
-							.CreateConnection(sp.GetRequiredService<IConfiguration>()));
+					.AddTransient(sp =>
+					{
+						var messageTransportSettings = sp.GetRequiredService<IMessageTransportSettings>();
+						Enum.TryParse<SslPolicyErrors>(messageTransportSettings.AllowSslPolicyErrors, out var sslPolicyErrors);
+						return sp.GetRequiredService<RabbitMQConnectionFactory>()
+							.CreateConnection(
+								messageTransportSettings.Host,
+								messageTransportSettings.Username,
+								messageTransportSettings.Password,
+								messageTransportSettings.VirtualHost,
+								messageTransportSettings.Port,
+								sslPolicyErrors
+							);
+					})
 
-					services.AddTransient((sp) =>
+					.AddTransient(sp =>
 					{
 						var channel = sp.GetRequiredService<IConnection>().CreateModel();
 						channel.BasicQos(0, 1, false);
 						return channel;
-					});
+					})
 
-					services.AddHttpClient();
-
-					services.AddTransient((sp) =>
+					.AddHttpClient()
+					.AddTransient((sp) =>
 					{
 						var configuration = sp.GetRequiredService<IConfiguration>();
 						var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
-						var apiHelper = new ApiBasicAuthClientProvider(configuration.GetSection("Mailjet"), httpClient);
+						var apiHelper = new ApiBasicAuthClientProvider(configuration.GetSection(MailjetOptions.Path), httpClient);
 						return new SendEndpoint(apiHelper);
-					});
-
-					services.AddHostedService<EmailSendWorker>();
-
+					})
+					
+					.Configure<MailjetOptions>(hostContext.Configuration.GetSection(MailjetOptions.Path))
+					.AddMassTransit(busConf =>
+					{
+						busConf.AddConsumer<EmailSendConsumer, EmailSendConsumerDefinition>();
+						busConf.ConfigureRabbitMq();
+					})
+					
+					.AddHostedService<EmailSendWorker>();
 				});
 	}
 }

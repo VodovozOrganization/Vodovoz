@@ -1,51 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Report;
-using QSReport;
-using Vodovoz.Domain.Orders;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Bottles;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ExtraBottleReport : Gtk.Bin, IParametersWidget
+	public partial class ExtraBottleReport : ViewBase<ExtraBottleReportViewModel>
 	{
-		public ExtraBottleReport()
+		public ExtraBottleReport(ExtraBottleReportViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			datePeriodPicker.StartDate = DateTime.Now.AddMonths(-2);
-			datePeriodPicker.EndDate = DateTime.Now;
-		}
 
-		#region IParametersWidget implementation
+			datePeriodPicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 
-		public string Title => "Отчет по пересданной таре водителями";
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		#endregion
-
-		void OnUpdate(bool hide = false)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
-		protected void OnButtonRunClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
-		}
-
-		private ReportInfo GetReportInfo()
-		{
-			var reportInfo = new ReportInfo {
-				Identifier = "Bottles.ExtraBottlesReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", datePeriodPicker.StartDateOrNull},
-					{ "end_date", datePeriodPicker.EndDateOrNull},
-				}
-			};
-			return reportInfo;
+			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }

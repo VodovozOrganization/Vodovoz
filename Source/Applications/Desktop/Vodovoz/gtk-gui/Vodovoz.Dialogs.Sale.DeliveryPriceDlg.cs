@@ -22,7 +22,7 @@ namespace Vodovoz.Dialogs.Sale
 
 		private global::Gamma.GtkWidgets.yLabel ylabelFoundOnOsm;
 
-		private global::Gtk.Button buttonInsertFromBuffer;
+		private global::Gamma.GtkWidgets.yButton buttonInsertFromBuffer;
 
 		private global::Gtk.Label label1;
 
@@ -135,7 +135,7 @@ namespace Vodovoz.Dialogs.Sale
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonInsertFromBuffer = new global::Gtk.Button();
+			this.buttonInsertFromBuffer = new global::Gamma.GtkWidgets.yButton();
 			this.buttonInsertFromBuffer.CanFocus = true;
 			this.buttonInsertFromBuffer.Name = "buttonInsertFromBuffer";
 			this.buttonInsertFromBuffer.UseUnderline = true;

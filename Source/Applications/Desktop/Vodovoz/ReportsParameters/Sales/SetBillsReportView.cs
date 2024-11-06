@@ -22,7 +22,7 @@ namespace Vodovoz.ReportsParameters
 
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
-			ybuttonCreateReport.BindCommand(ViewModel.LoadReportCommand);
+			ybuttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 			ybuttonCreateReport.TooltipText = $"Формирует отчет по заказам в статусе '{OrderStatus.WaitForPayment.GetEnumTitle()}'";
 		}
 

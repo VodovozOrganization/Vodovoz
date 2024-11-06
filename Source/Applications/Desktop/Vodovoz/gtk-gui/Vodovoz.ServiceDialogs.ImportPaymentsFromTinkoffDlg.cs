@@ -26,9 +26,9 @@ namespace Vodovoz.ServiceDialogs
 
 		private global::Gtk.Label lblDescription;
 
-		private global::Gtk.Button btnCancel;
+		private global::Gamma.GtkWidgets.yButton btnCancel;
 
-		private global::Gtk.Button btnUpload;
+		private global::Gamma.GtkWidgets.yButton btnUpload;
 
 		protected virtual void Build()
 		{
@@ -118,7 +118,7 @@ namespace Vodovoz.ServiceDialogs
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.btnCancel = new global::Gtk.Button();
+			this.btnCancel = new global::Gamma.GtkWidgets.yButton();
 			this.btnCancel.CanFocus = true;
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.UseUnderline = true;
@@ -133,7 +133,7 @@ namespace Vodovoz.ServiceDialogs
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.btnUpload = new global::Gtk.Button();
+			this.btnUpload = new global::Gamma.GtkWidgets.yButton();
 			this.btnUpload.CanFocus = true;
 			this.btnUpload.Name = "btnUpload";
 			this.btnUpload.UseUnderline = true;

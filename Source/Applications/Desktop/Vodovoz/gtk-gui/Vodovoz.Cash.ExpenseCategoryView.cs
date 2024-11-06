@@ -20,7 +20,7 @@ namespace Vodovoz.Cash
 
 		private global::Gamma.GtkWidgets.yLabel labelIdValue;
 
-		private global::Gtk.Button btnCopyEntityId1;
+		private global::Gamma.GtkWidgets.yButton btnCopyEntityId1;
 
 		private global::Gtk.Label labelId;
 
@@ -134,7 +134,7 @@ namespace Vodovoz.Cash
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hboxExpander.Gtk.Box+BoxChild
-			this.btnCopyEntityId1 = new global::Gtk.Button();
+			this.btnCopyEntityId1 = new global::Gamma.GtkWidgets.yButton();
 			this.btnCopyEntityId1.CanFocus = true;
 			this.btnCopyEntityId1.Name = "btnCopyEntityId1";
 			this.btnCopyEntityId1.UseUnderline = true;

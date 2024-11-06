@@ -25,16 +25,18 @@ namespace Vodovoz.ViewModels.Print.Store
 		private const int _vol1500mlBottlesOnTrayCount = 30;
 		private const int _vol500mlBottlesOnTrayCount = 60;
 		private const int _traysOnPallet = 3;
-
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly CarLoadDocument _carLoadDocument;
 		private readonly Func<int, string, string> _qRPlacerFunc;
 		private int _copiesToPrint;
 		private string _printerName;
 
 		private WaterCarLoadDocumentRdl(
+			IReportInfoFactory reportInfoFactory,
 			CarLoadDocument carLoadDocument,
 			Func<int, string, string> qRPlacerFunc)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_carLoadDocument = carLoadDocument ?? throw new ArgumentNullException(nameof(carLoadDocument));
 			_qRPlacerFunc = qRPlacerFunc ?? throw new ArgumentNullException(nameof(qRPlacerFunc));
 		}
@@ -63,14 +65,11 @@ namespace Vodovoz.ViewModels.Print.Store
 		{
 			var source = _qRPlacerFunc.Invoke(_carLoadDocument.Id, GetReportSource());
 
-			var reportInfo = new ReportInfo
-			{
-				Source = source,
-				Title = Name,
-				Parameters = new Dictionary<string, object> { { "id", _carLoadDocument.Id } },
-				PrintType = ReportInfo.PrintingType.MultiplePrinters
-			};
-
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Source = source;
+			reportInfo.Title = Name;
+			reportInfo.Parameters = new Dictionary<string, object> { { "id", _carLoadDocument.Id } };
+			reportInfo.PrintType = ReportInfo.PrintingType.MultiplePrinters;
 			return reportInfo;
 		}
 
@@ -180,9 +179,11 @@ namespace Vodovoz.ViewModels.Print.Store
 		public static WaterCarLoadDocumentRdl Create(
 			UserSettings userSettings,
 			CarLoadDocument carLoadDocument,
-			Func<int, string, string> qRPlacerFunc)
+			Func<int, string, string> qRPlacerFunc,
+			IReportInfoFactory reportInfoFactory
+			)
 		{
-			var document = new WaterCarLoadDocumentRdl(carLoadDocument, qRPlacerFunc);
+			var document = new WaterCarLoadDocumentRdl(reportInfoFactory, carLoadDocument, qRPlacerFunc);
 
 			var savedPrinterSettings = userSettings.GetPrinterSettingByDocumentType(document.DocumentType);
 
