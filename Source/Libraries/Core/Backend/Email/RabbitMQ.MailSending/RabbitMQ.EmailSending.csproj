@@ -5,7 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Infrastructure\MessageTransport\MessageTransport.csproj" />
     <ProjectReference Include="..\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit" Version="8.0.12" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
   </ItemGroup>
 
 </Project>
