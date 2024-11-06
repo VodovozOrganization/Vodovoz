@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using CashReceiptApi.Authentication;
-using CashReceiptApi.HealthChecks;
 using CashReceiptApi.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -60,7 +59,6 @@ namespace CashReceiptApi
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
-			services.ConfigureHealthCheckService<CashReceiptApiHealthChecks>();
 			services.Configure<ServiceOptions>(Configuration.GetSection(nameof(ServiceOptions)));
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
