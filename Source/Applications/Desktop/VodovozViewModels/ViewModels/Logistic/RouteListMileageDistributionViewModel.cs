@@ -190,7 +190,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return false;
 			}
 
-			routeList.AcceptMileage(_callTaskWorker);
+			if(!routeList.AcceptMileage(_callTaskWorker, CommonServices.ValidationService))
+			{
+				return false;
+			}
 
 			if(routeList.Status > RouteListStatus.OnClosing)
 			{
@@ -206,20 +209,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				routeList.UpdateFuelOperation();
 			}
 
-			if(Entity.FuelOutlayedOperation != null)
+			if(!Entity.TryValidateFuelOperation(CommonServices.ValidationService))
 			{
-				var fuelValidationContext =
-					_validationContextFactory.CreateNewValidationContext(
-						Entity.FuelOutlayedOperation,
-						new Dictionary<object, object>
-						{
-							{ FuelOperation.DialogMessage, $"Неверный разнос километража в МЛ {Entity.Id}"},
-						});
-				
-				if(!CommonServices.ValidationService.Validate(Entity.FuelOutlayedOperation, fuelValidationContext))
-				{
-					return false;
-				}
+				return false;
 			}
 
 			if(routeList.Status == RouteListStatus.Delivered)

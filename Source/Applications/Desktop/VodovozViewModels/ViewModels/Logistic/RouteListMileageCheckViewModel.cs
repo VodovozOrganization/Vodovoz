@@ -150,7 +150,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool IsAcceptAvailable => Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck;
 
-		public bool AskSaveOnClose => CanEdit;
+		public bool AskSaveOnClose { get; private set; }
 
 		public virtual CallTaskWorker CallTaskWorker =>
 			_callTaskWorker ?? (_callTaskWorker = new CallTaskWorker(
@@ -177,7 +177,11 @@ namespace Vodovoz.ViewModels.Logistic
 					OnPropertyChanged(nameof(CanEdit));
 				}
 
-				Entity.AcceptMileage(CallTaskWorker);
+				if(!Entity.AcceptMileage(CallTaskWorker, CommonServices.ValidationService))
+				{
+					AskSaveOnClose = false;
+					return;
+				}
 
 				SaveWithClose();
 			}
@@ -267,6 +271,8 @@ namespace Vodovoz.ViewModels.Logistic
 			CanEdit = (canUpdate && canConfirmMileage)
 					  || !(Entity.GetCarVersion.IsCompanyCar &&
 						   new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus }.Contains(Entity.Car.CarModel.CarTypeOfUse));
+
+			AskSaveOnClose = CanEdit;
 
 			if(!CanEdit)
 			{

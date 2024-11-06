@@ -1,6 +1,7 @@
 ﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Views.GtkUI;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -10,7 +11,7 @@ namespace Vodovoz.Views.Logistic
 	{
 		public RouteListMileageDistributionView(RouteListMileageDistributionViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -56,7 +57,7 @@ namespace Vodovoz.Views.Logistic
 					.HeaderAlignment(0.5f)
 					.MinWidth(100)
 					.AddNumericRenderer(node => node.ConfirmedDistance)
-					.Adjustment(new Adjustment(1, 0, 1000000, 0.1, 1, 1))
+					.Adjustment(new Adjustment(1, 0, (double)RouteList.ConfirmedDistanceLimit, 0.1, 1, 1))
 					.Digits(2)
 					.AddSetter((c, n) =>
 					{
