@@ -1,18 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace TrueMark.Contracts
+namespace TrueMark.Contracts.Responses
 {
 	/// <summary>
 	/// Информация о статусе регистрации участника
 	/// </summary>
-	public class ProductInstancesInfo
+	public class ProductInstanceInfoResponse
 	{
 		/// <summary>
-		/// Статус экземпляров товаров
+		/// Статус экземпляра товара
 		/// </summary>
 		[JsonPropertyName("instanceStatuses")]
-		public IEnumerable<ProductInstanceStatus> InstanceStatuses { get; set; }
+		public ProductInstanceStatus InstanceStatus { get; set; }
 
 		/// <summary>
 		/// Ошибки
@@ -20,6 +19,4 @@ namespace TrueMark.Contracts
 		[JsonPropertyName("errorMessage")]
 		public string ErrorMessage { get; set; }
 	}
-
-
 }
