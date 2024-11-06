@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
 		<UserSecretsId>67a87442-6496-400c-aa69-585eec38c194</UserSecretsId>
 	</PropertyGroup>
