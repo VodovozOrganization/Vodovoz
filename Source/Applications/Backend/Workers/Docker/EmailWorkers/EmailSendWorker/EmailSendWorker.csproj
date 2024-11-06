@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
+<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-EmailSendingWorkerService-D47D98F9-5F1A-43FE-A38E-EE38C8049D46</UserSecretsId>
@@ -13,6 +13,7 @@
 
 	<ItemGroup>
 	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-prod.pubxml" />
+	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-dev.pubxml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -25,7 +26,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
+    <PackageReference Include="MassTransit" Version="8.0.12" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />

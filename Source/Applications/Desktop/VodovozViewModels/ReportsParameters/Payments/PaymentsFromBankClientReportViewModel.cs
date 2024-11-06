@@ -36,8 +36,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IUserRepository userRepository,
 			ICommonServices commonServices,
-			ILifetimeScope lifetimeScope)
-			: base(rdlViewerViewModel)
+			ILifetimeScope lifetimeScope,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			_interactiveService = commonServices.InteractiveService;
 			_rdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
@@ -85,12 +86,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
-		public override ReportInfo ReportInfo => new ReportInfo
-		{
-			Identifier = _allSubdivisions ? "Payments.PaymentsFromBankClientAllSubdivisionsReport" : "Payments.PaymentsFromBankClientBySubdivisionReport",
-			Title = Title,
-			Parameters = Parameters
-		};
+		public override string Identifier => _allSubdivisions 
+			? "Payments.PaymentsFromBankClientAllSubdivisionsReport" 
+			: "Payments.PaymentsFromBankClientBySubdivisionReport";
 
 		protected override Dictionary<string, object> Parameters => new Dictionary<string, object>
 		{

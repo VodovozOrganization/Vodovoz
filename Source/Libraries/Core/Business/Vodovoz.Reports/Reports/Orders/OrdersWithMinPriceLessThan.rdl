@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -320,6 +320,7 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>300</Timeout>
         <CommandText>SELECT DISTINCT
     counterparty_mq.id AS cl_id,
     counterparty_mq.name AS client_name,
@@ -373,7 +374,7 @@ WHERE
 GROUP BY
     cl_id,
     dpoint_id,
-    min_price,
+    order_items_mq.price,
     (
         SELECT
             MAX(orders.delivery_date)

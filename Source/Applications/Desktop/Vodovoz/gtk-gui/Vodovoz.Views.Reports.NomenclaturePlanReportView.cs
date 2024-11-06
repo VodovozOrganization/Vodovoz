@@ -52,9 +52,9 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gtk.Label label14;
 
-		private global::Gtk.Button btnNomenclatureAdd;
+		private global::Gamma.GtkWidgets.yButton btnNomenclatureAdd;
 
-		private global::Gtk.Button btnNomenclatureDelete;
+		private global::Gamma.GtkWidgets.yButton btnNomenclatureDelete;
 
 		private global::Gtk.Label label15;
 
@@ -64,9 +64,9 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gtk.Label label16;
 
-		private global::Gtk.Button btnEmployeeAdd;
+		private global::Gamma.GtkWidgets.yButton btnEmployeeAdd;
 
-		private global::Gtk.Button btnEmployeeDelete;
+		private global::Gamma.GtkWidgets.yButton btnEmployeeDelete;
 
 		private global::Gtk.Label label17;
 
@@ -144,9 +144,9 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gtk.HBox hbox12;
 
-		private global::Gtk.Button buttonHelp;
+		private global::Gamma.GtkWidgets.yButton buttonHelp;
 
-		private global::Gtk.Button buttonNomenclaturePlan;
+		private global::Gamma.GtkWidgets.yButton buttonNomenclaturePlan;
 
 		private global::Gtk.HSeparator hseparator2;
 
@@ -176,9 +176,9 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gtk.Label label20;
 
-		private global::Gtk.Button btnEquipmentTypeAdd;
+		private global::Gamma.GtkWidgets.yButton btnEquipmentTypeAdd;
 
-		private global::Gtk.Button btnEquipmentTypeDelete;
+		private global::Gamma.GtkWidgets.yButton btnEquipmentTypeDelete;
 
 		private global::Gtk.Label label21;
 
@@ -188,9 +188,9 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gtk.Label label22;
 
-		private global::Gtk.Button btnEquipmentKindAdd;
+		private global::Gamma.GtkWidgets.yButton btnEquipmentKindAdd;
 
-		private global::Gtk.Button btnEquipmentKindDelete;
+		private global::Gamma.GtkWidgets.yButton btnEquipmentKindDelete;
 
 		private global::Gtk.Label label23;
 
@@ -242,11 +242,11 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gtk.HBox hbox6;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		private global::Gtk.VSeparator vseparator12;
 
-		private global::Gtk.Button buttonSaveReport;
+		private global::Gamma.GtkWidgets.yButton buttonSaveReport;
 
 		protected virtual void Build()
 		{
@@ -442,7 +442,7 @@ namespace Vodovoz.Views.Reports
 			w16.Position = 0;
 			w16.Fill = false;
 			// Container child vbox12.Gtk.Box+BoxChild
-			this.btnNomenclatureAdd = new global::Gtk.Button();
+			this.btnNomenclatureAdd = new global::Gamma.GtkWidgets.yButton();
 			this.btnNomenclatureAdd.CanFocus = true;
 			this.btnNomenclatureAdd.Name = "btnNomenclatureAdd";
 			this.btnNomenclatureAdd.UseUnderline = true;
@@ -455,7 +455,7 @@ namespace Vodovoz.Views.Reports
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child vbox12.Gtk.Box+BoxChild
-			this.btnNomenclatureDelete = new global::Gtk.Button();
+			this.btnNomenclatureDelete = new global::Gamma.GtkWidgets.yButton();
 			this.btnNomenclatureDelete.CanFocus = true;
 			this.btnNomenclatureDelete.Name = "btnNomenclatureDelete";
 			this.btnNomenclatureDelete.UseUnderline = true;
@@ -501,7 +501,7 @@ namespace Vodovoz.Views.Reports
 			w24.Position = 0;
 			w24.Fill = false;
 			// Container child vbox14.Gtk.Box+BoxChild
-			this.btnEmployeeAdd = new global::Gtk.Button();
+			this.btnEmployeeAdd = new global::Gamma.GtkWidgets.yButton();
 			this.btnEmployeeAdd.CanFocus = true;
 			this.btnEmployeeAdd.Name = "btnEmployeeAdd";
 			this.btnEmployeeAdd.UseUnderline = true;
@@ -514,7 +514,7 @@ namespace Vodovoz.Views.Reports
 			w26.Expand = false;
 			w26.Fill = false;
 			// Container child vbox14.Gtk.Box+BoxChild
-			this.btnEmployeeDelete = new global::Gtk.Button();
+			this.btnEmployeeDelete = new global::Gamma.GtkWidgets.yButton();
 			this.btnEmployeeDelete.CanFocus = true;
 			this.btnEmployeeDelete.Name = "btnEmployeeDelete";
 			this.btnEmployeeDelete.UseUnderline = true;
@@ -889,7 +889,7 @@ namespace Vodovoz.Views.Reports
 			this.hbox12.Name = "hbox12";
 			this.hbox12.Spacing = 6;
 			// Container child hbox12.Gtk.Box+BoxChild
-			this.buttonHelp = new global::Gtk.Button();
+			this.buttonHelp = new global::Gamma.GtkWidgets.yButton();
 			this.buttonHelp.CanFocus = true;
 			this.buttonHelp.Name = "buttonHelp";
 			this.buttonHelp.UseUnderline = true;
@@ -904,7 +904,7 @@ namespace Vodovoz.Views.Reports
 			w70.Expand = false;
 			w70.Fill = false;
 			// Container child hbox12.Gtk.Box+BoxChild
-			this.buttonNomenclaturePlan = new global::Gtk.Button();
+			this.buttonNomenclaturePlan = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNomenclaturePlan.CanFocus = true;
 			this.buttonNomenclaturePlan.Name = "buttonNomenclaturePlan";
 			this.buttonNomenclaturePlan.UseUnderline = true;
@@ -1032,7 +1032,7 @@ namespace Vodovoz.Views.Reports
 			w84.Position = 0;
 			w84.Fill = false;
 			// Container child vbox19.Gtk.Box+BoxChild
-			this.btnEquipmentTypeAdd = new global::Gtk.Button();
+			this.btnEquipmentTypeAdd = new global::Gamma.GtkWidgets.yButton();
 			this.btnEquipmentTypeAdd.CanFocus = true;
 			this.btnEquipmentTypeAdd.Name = "btnEquipmentTypeAdd";
 			this.btnEquipmentTypeAdd.UseUnderline = true;
@@ -1045,7 +1045,7 @@ namespace Vodovoz.Views.Reports
 			w86.Expand = false;
 			w86.Fill = false;
 			// Container child vbox19.Gtk.Box+BoxChild
-			this.btnEquipmentTypeDelete = new global::Gtk.Button();
+			this.btnEquipmentTypeDelete = new global::Gamma.GtkWidgets.yButton();
 			this.btnEquipmentTypeDelete.CanFocus = true;
 			this.btnEquipmentTypeDelete.Name = "btnEquipmentTypeDelete";
 			this.btnEquipmentTypeDelete.UseUnderline = true;
@@ -1093,7 +1093,7 @@ namespace Vodovoz.Views.Reports
 			w92.Position = 0;
 			w92.Fill = false;
 			// Container child vbox21.Gtk.Box+BoxChild
-			this.btnEquipmentKindAdd = new global::Gtk.Button();
+			this.btnEquipmentKindAdd = new global::Gamma.GtkWidgets.yButton();
 			this.btnEquipmentKindAdd.CanFocus = true;
 			this.btnEquipmentKindAdd.Name = "btnEquipmentKindAdd";
 			this.btnEquipmentKindAdd.UseUnderline = true;
@@ -1106,7 +1106,7 @@ namespace Vodovoz.Views.Reports
 			w94.Expand = false;
 			w94.Fill = false;
 			// Container child vbox21.Gtk.Box+BoxChild
-			this.btnEquipmentKindDelete = new global::Gtk.Button();
+			this.btnEquipmentKindDelete = new global::Gamma.GtkWidgets.yButton();
 			this.btnEquipmentKindDelete.CanFocus = true;
 			this.btnEquipmentKindDelete.Name = "btnEquipmentKindDelete";
 			this.btnEquipmentKindDelete.UseUnderline = true;
@@ -1347,7 +1347,7 @@ namespace Vodovoz.Views.Reports
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
@@ -1367,7 +1367,7 @@ namespace Vodovoz.Views.Reports
 			w129.Expand = false;
 			w129.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.buttonSaveReport = new global::Gtk.Button();
+			this.buttonSaveReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSaveReport.CanFocus = true;
 			this.buttonSaveReport.Name = "buttonSaveReport";
 			this.buttonSaveReport.UseUnderline = true;

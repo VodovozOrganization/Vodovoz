@@ -10,7 +10,7 @@ namespace Vodovoz.Views.Mango
 
 		private global::Gamma.GtkWidgets.yLabel CounterpartyButton;
 
-		private global::Gtk.Button CounterpartyYButton;
+		private global::Gamma.GtkWidgets.yButton CounterpartyYButton;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -61,7 +61,7 @@ namespace Vodovoz.Views.Mango
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.CounterpartyYButton = new global::Gtk.Button();
+			this.CounterpartyYButton = new global::Gamma.GtkWidgets.yButton();
 			this.CounterpartyYButton.CanFocus = true;
 			this.CounterpartyYButton.Name = "CounterpartyYButton";
 			this.CounterpartyYButton.UseUnderline = true;

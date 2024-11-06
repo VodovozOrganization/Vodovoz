@@ -22,7 +22,7 @@ namespace Vodovoz.Views.ReportsParameters.Production
 
 		private global::Gtk.VBox vboxParameters;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -117,7 +117,7 @@ namespace Vodovoz.Views.ReportsParameters.Production
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxParameters]));
 			w8.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.Sensitive = true;
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";

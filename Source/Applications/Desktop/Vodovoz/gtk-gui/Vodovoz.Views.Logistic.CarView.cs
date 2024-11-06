@@ -8,9 +8,9 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.RadioButton radiobuttonFiles;
 
@@ -222,9 +222,9 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.HButtonBox hbuttonbox2;
 
-		private global::Gtk.Button btnAddGeographicGroup;
+		private global::Gamma.GtkWidgets.yButton btnAddGeographicGroup;
 
-		private global::Gtk.Button btnRemoveGeographicGroup;
+		private global::Gamma.GtkWidgets.yButton btnRemoveGeographicGroup;
 
 		private global::Gtk.Label label23;
 
@@ -247,7 +247,7 @@ namespace Vodovoz.Views.Logistic
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -261,7 +261,7 @@ namespace Vodovoz.Views.Logistic
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -1505,7 +1505,7 @@ namespace Vodovoz.Views.Logistic
 			this.hbuttonbox2 = new global::Gtk.HButtonBox();
 			this.hbuttonbox2.Name = "hbuttonbox2";
 			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
-			this.btnAddGeographicGroup = new global::Gtk.Button();
+			this.btnAddGeographicGroup = new global::Gamma.GtkWidgets.yButton();
 			this.btnAddGeographicGroup.CanFocus = true;
 			this.btnAddGeographicGroup.Name = "btnAddGeographicGroup";
 			this.btnAddGeographicGroup.UseUnderline = true;
@@ -1515,7 +1515,7 @@ namespace Vodovoz.Views.Logistic
 			w109.Expand = false;
 			w109.Fill = false;
 			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
-			this.btnRemoveGeographicGroup = new global::Gtk.Button();
+			this.btnRemoveGeographicGroup = new global::Gamma.GtkWidgets.yButton();
 			this.btnRemoveGeographicGroup.CanFocus = true;
 			this.btnRemoveGeographicGroup.Name = "btnRemoveGeographicGroup";
 			this.btnRemoveGeographicGroup.UseUnderline = true;

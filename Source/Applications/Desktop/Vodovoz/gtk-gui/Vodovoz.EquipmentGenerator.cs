@@ -32,7 +32,7 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.DatePicker ydatepickerWarrantyEnd;
 
-		private global::Gtk.Button buttonCreate;
+		private global::Gamma.GtkWidgets.yButton buttonCreate;
 
 		private global::Gtk.Label label6;
 
@@ -40,7 +40,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox4;
 
-		private global::Gtk.Button buttonAddAndClose;
+		private global::Gamma.GtkWidgets.yButton buttonAddAndClose;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -188,7 +188,7 @@ namespace Vodovoz
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child datavbox1.Gtk.Box+BoxChild
-			this.buttonCreate = new global::Gtk.Button();
+			this.buttonCreate = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreate.Sensitive = false;
 			this.buttonCreate.CanFocus = true;
 			this.buttonCreate.Name = "buttonCreate";
@@ -230,7 +230,7 @@ namespace Vodovoz
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonAddAndClose = new global::Gtk.Button();
+			this.buttonAddAndClose = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddAndClose.Sensitive = false;
 			this.buttonAddAndClose.CanFocus = true;
 			this.buttonAddAndClose.Name = "buttonAddAndClose";

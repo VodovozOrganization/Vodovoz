@@ -7,5 +7,6 @@ namespace CustomerAppsApi.Library.Validators
 	{
 		string CounterpartyContactInfoDtoValidate(CounterpartyContactInfoDto counterpartyContactInfoDto);
 		string CounterpartyDtoValidate(CounterpartyDto counterpartyDto);
+		string SendingCodeToEmailDtoValidate(SendingCodeToEmailDto codeToEmailDto);
 	}
 }
