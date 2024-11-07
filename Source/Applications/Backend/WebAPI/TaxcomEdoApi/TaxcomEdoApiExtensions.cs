@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using QS.Report;
 using Taxcom.Client.Api;
 using TaxcomEdoApi.Config;
 using TaxcomEdoApi.Converters;
@@ -60,6 +61,7 @@ namespace TaxcomEdoApi
 				})
 				.AddSingleton<IEdoUpdFactory, EdoUpdFactory>()
 				.AddSingleton<IEdoBillFactory, EdoBillFactory>()
+				.AddSingleton<IReportInfoFactory, DefaultReportInfoFactory>()
 				.AddSingleton<PrintableDocumentSaver>()
 				.AddSingleton<IParticipantDocFlowConverter, ParticipantDocFlowConverter>()
 				.AddSingleton<IEdoContainerMainDocumentIdParser, EdoContainerMainDocumentIdParser>()
