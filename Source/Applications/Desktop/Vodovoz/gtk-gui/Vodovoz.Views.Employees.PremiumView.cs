@@ -8,9 +8,9 @@ namespace Vodovoz.Views.Employees
 
 		private global::Gtk.HBox hbox5;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.Table tablePremium;
 
@@ -22,13 +22,13 @@ namespace Vodovoz.Views.Employees
 
 		private global::QSProjectsLib.CurrencyLabel currencylabel1;
 
-		private global::Gtk.Button buttonDivideAtAll;
+		private global::Gamma.GtkWidgets.yButton buttonDivideAtAll;
 
 		private global::Gtk.HBox hbox4;
 
 		private global::Gamma.GtkWidgets.yEntry yentryPremiumReasonString;
 
-		private global::Gtk.Button buttonGetReasonFromTemplate;
+		private global::Gamma.GtkWidgets.yButton buttonGetReasonFromTemplate;
 
 		private global::Gtk.Label label1;
 
@@ -48,9 +48,9 @@ namespace Vodovoz.Views.Employees
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gtk.Button buttonAdd;
+		private global::Gamma.GtkWidgets.yButton buttonAdd;
 
-		private global::Gtk.Button buttonRemove;
+		private global::Gamma.GtkWidgets.yButton buttonRemove;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelTotal;
 
@@ -69,7 +69,7 @@ namespace Vodovoz.Views.Employees
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -83,7 +83,7 @@ namespace Vodovoz.Views.Employees
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -146,7 +146,7 @@ namespace Vodovoz.Views.Employees
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonDivideAtAll = new global::Gtk.Button();
+			this.buttonDivideAtAll = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDivideAtAll.CanFocus = true;
 			this.buttonDivideAtAll.Name = "buttonDivideAtAll";
 			this.buttonDivideAtAll.UseUnderline = true;
@@ -178,7 +178,7 @@ namespace Vodovoz.Views.Employees
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yentryPremiumReasonString]));
 			w11.Position = 0;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonGetReasonFromTemplate = new global::Gtk.Button();
+			this.buttonGetReasonFromTemplate = new global::Gamma.GtkWidgets.yButton();
 			this.buttonGetReasonFromTemplate.CanFocus = true;
 			this.buttonGetReasonFromTemplate.Name = "buttonGetReasonFromTemplate";
 			this.buttonGetReasonFromTemplate.UseUnderline = true;
@@ -284,7 +284,7 @@ namespace Vodovoz.Views.Employees
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonAdd = new global::Gtk.Button();
+			this.buttonAdd = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
@@ -298,7 +298,7 @@ namespace Vodovoz.Views.Employees
 			w24.Expand = false;
 			w24.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonRemove = new global::Gtk.Button();
+			this.buttonRemove = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRemove.CanFocus = true;
 			this.buttonRemove.Name = "buttonRemove";
 			this.buttonRemove.UseUnderline = true;

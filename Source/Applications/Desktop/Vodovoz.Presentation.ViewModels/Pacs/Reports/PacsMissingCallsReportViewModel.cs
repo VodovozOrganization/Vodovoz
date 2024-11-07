@@ -1,4 +1,5 @@
 ﻿using QS.Commands;
+using QS.Report;
 using QS.Report.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,10 @@ namespace Vodovoz.Presentation.ViewModels.Pacs.Reports
 		private DateTime _dateFrom;
 		private DateTime _dateTo;
 
-		public PacsMissingCallsReportViewModel(RdlViewerViewModel rdlViewerViewModel) : base(rdlViewerViewModel)
+		public PacsMissingCallsReportViewModel(
+			RdlViewerViewModel rdlViewerViewModel,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			Title = "Отчет по пропущенным звонкам";
 			Identifier = "Pacs.PacsMissedCalls";

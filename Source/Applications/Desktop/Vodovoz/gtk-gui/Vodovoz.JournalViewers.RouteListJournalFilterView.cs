@@ -8,9 +8,9 @@ namespace Vodovoz.JournalViewers
 
 		private global::Gtk.Table table1;
 
-		private global::Gtk.Button buttonStatusAll;
+		private global::Gamma.GtkWidgets.yButton buttonStatusAll;
 
-		private global::Gtk.Button buttonStatusNone;
+		private global::Gamma.GtkWidgets.yButton buttonStatusNone;
 
 		private global::Gamma.GtkWidgets.yCheckButton checkDriversWithAttachedTerminals;
 
@@ -67,7 +67,7 @@ namespace Vodovoz.JournalViewers
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonStatusAll = new global::Gtk.Button();
+			this.buttonStatusAll = new global::Gamma.GtkWidgets.yButton();
 			this.buttonStatusAll.CanFocus = true;
 			this.buttonStatusAll.Name = "buttonStatusAll";
 			this.buttonStatusAll.UseUnderline = true;
@@ -79,7 +79,7 @@ namespace Vodovoz.JournalViewers
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonStatusNone = new global::Gtk.Button();
+			this.buttonStatusNone = new global::Gamma.GtkWidgets.yButton();
 			this.buttonStatusNone.CanFocus = true;
 			this.buttonStatusNone.Name = "buttonStatusNone";
 			this.buttonStatusNone.UseUnderline = true;

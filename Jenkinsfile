@@ -162,7 +162,6 @@ stage('Web'){
 				PublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
 				PublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
 				PublishBuild("${APP_PATH}/Backend/WebAPI/TaxcomEdoApi/TaxcomEdoApi.csproj")
-				PublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
 				PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
 				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
 				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
@@ -171,6 +170,7 @@ stage('Web'){
 
 				// Docker
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj")
@@ -214,7 +214,6 @@ stage('Compress'){
 		"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
 		"RoboatsService" : { CompressWebArtifact("Backend/WebAPI/RoboatsService") },
 		"TaxcomEdoApi" : { CompressWebArtifact("Backend/WebAPI/TaxcomEdoApi") },
-		"CashReceiptApi" : { CompressWebArtifact("Backend/WebAPI/CashReceiptApi") },
 		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
@@ -242,7 +241,6 @@ stage('Delivery'){
 		"DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
 		"RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
 		"TaxcomEdoApi" : { DeliveryWebArtifact("TaxcomEdoApi") },
-		"CashReceiptApi" : { DeliveryWebArtifact("CashReceiptApi") },
 		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
@@ -272,7 +270,6 @@ stage('Publish'){
 		"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
 		"RoboatsService" : { PublishWeb("RoboatsService") },
 		"TaxcomEdoApi" : { PublishWeb("TaxcomEdoApi") },
-		"CashReceiptApi" : { PublishWeb("CashReceiptApi") },
 		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },

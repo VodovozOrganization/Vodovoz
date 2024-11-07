@@ -10,7 +10,7 @@ namespace Vodovoz.Dialogs.Email
 
 		private global::Gtk.Label label3;
 
-		private global::Gtk.Button buttonRefreshEmailList;
+		private global::Gamma.GtkWidgets.yButton buttonRefreshEmailList;
 
 		private global::Gtk.HBox hbox2;
 
@@ -53,7 +53,7 @@ namespace Vodovoz.Dialogs.Email
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label3]));
 			w1.Position = 0;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonRefreshEmailList = new global::Gtk.Button();
+			this.buttonRefreshEmailList = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRefreshEmailList.CanFocus = true;
 			this.buttonRefreshEmailList.Name = "buttonRefreshEmailList";
 			this.buttonRefreshEmailList.UseUnderline = true;

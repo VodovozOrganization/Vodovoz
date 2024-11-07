@@ -12,7 +12,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.DateRangePicker ydateperiodpicker;
 
-		private global::Gtk.Button button1;
+		private global::Gamma.GtkWidgets.yButton button1;
 
 		protected virtual void Build()
 		{
@@ -52,7 +52,7 @@ namespace Vodovoz.ReportsParameters
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.button1 = new global::Gtk.Button();
+			this.button1 = new global::Gamma.GtkWidgets.yButton();
 			this.button1.CanFocus = true;
 			this.button1.Name = "button1";
 			this.button1.UseUnderline = true;
@@ -68,7 +68,6 @@ namespace Vodovoz.ReportsParameters
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.button1.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

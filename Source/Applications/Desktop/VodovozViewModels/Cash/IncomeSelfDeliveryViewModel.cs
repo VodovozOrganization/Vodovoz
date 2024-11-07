@@ -6,6 +6,7 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -42,7 +43,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly ICashRepository _cashRepository;
 		private readonly ISelfDeliveryCashOrganisationDistributor _selfDeliveryCashOrganisationDistributor;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
-
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IPermissionResult _entityPermissionResult;
 		private FinancialIncomeCategory _financialIncomeCategory;
 		private IEntityEntryViewModel _orderViewModel;
@@ -62,7 +63,9 @@ namespace Vodovoz.ViewModels.Cash
 			ISelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor,
 			IReportViewOpener reportViewOpener,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			IFinancialIncomeCategoriesRepository financialIncomeCategoriesRepository)
+			IFinancialIncomeCategoriesRepository financialIncomeCategoriesRepository,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(financialIncomeCategoriesRepository is null)
@@ -100,7 +103,7 @@ namespace Vodovoz.ViewModels.Cash
 				?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings
 				?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_entityPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Income));
 			CanEditRectroactively =
 				_entityExtendedPermissionValidator.Validate(
@@ -313,14 +316,12 @@ namespace Vodovoz.ViewModels.Cash
 				return;
 			}
 
-			var reportInfo = new QS.Report.ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}";
+			reportInfo.Identifier = "Cash.ReturnTicket";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}",
-				Identifier = "Cash.ReturnTicket",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "id",  Entity.Id }
-				}
+				{ "id", Entity.Id }
 			};
 
 			_reportViewOpener.OpenReport(this, reportInfo);

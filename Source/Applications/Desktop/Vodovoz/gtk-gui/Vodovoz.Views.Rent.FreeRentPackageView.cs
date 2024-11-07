@@ -8,9 +8,9 @@ namespace Vodovoz.Views.Rent
 
 		private global::Gtk.HBox hboxBtns;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -95,7 +95,7 @@ namespace Vodovoz.Views.Rent
 			this.hboxBtns.Name = "hboxBtns";
 			this.hboxBtns.Spacing = 6;
 			// Container child hboxBtns.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -109,7 +109,7 @@ namespace Vodovoz.Views.Rent
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hboxBtns.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;

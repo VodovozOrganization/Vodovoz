@@ -1,6 +1,7 @@
 ﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Report;
 using QS.Report.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -19,8 +20,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 		public DeliveryTimeReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
 			IUnitOfWorkFactory uowFactory,
-			IInteractiveService interactiveService
-		) : base(rdlViewerViewModel)
+			IInteractiveService interactiveService,
+			IReportInfoFactory reportInfoFactory
+		) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			Title = "Отчет 'Время доставки";
 

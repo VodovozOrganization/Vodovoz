@@ -1,106 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gamma.Utilities;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Project.Services;
-using QS.Report;
-using QSReport;
+﻿using Gamma.Widgets.Additions;
+using QS.Views;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
-    [System.ComponentModel.ToolboxItem(true)]
-    public partial class EShopSalesReport : SingleUoWWidgetBase, IParametersWidget
+	[System.ComponentModel.ToolboxItem(true)]
+    public partial class EShopSalesReport : ViewBase<EShopSalesReportViewModel>
     {
-        public EShopSalesReport()
+		public EShopSalesReport(EShopSalesReportViewModel viewModel) : base(viewModel)
         {
             this.Build();
-            UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
             Configure();
-        }
+		}
 
         private void Configure()
         {
-            buttonRun.Clicked += (sender, args) => OnUpdate();
+			datePeriodPicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 
-            datePeriodPicker.StartDate = DateTime.Today;
-            datePeriodPicker.EndDate = DateTime.Today;
+			ycomboboxEShopId.SetRenderTextFunc<OnlineStore>(x => x.Name);
+			ycomboboxEShopId.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.OnlineStores, w => w.ItemsList)
+				.AddBinding(vm => vm.OnlineStore, w => w.SelectedItem)
+				.InitializeFromSource();
 
-            datePeriodPicker.PeriodChangedByUser += OnDatePeriodPickerPeriodChanged;
+			enumchecklistOrderStatus.EnumType = ViewModel.OrderStatusType;
+			enumchecklistOrderStatus.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.OrderStatuses, w => w.SelectedValuesList, new EnumsListConverter<OrderStatus>())
+				.InitializeFromSource();
+			enumchecklistOrderStatus.SelectAll();
 
-            EShopsLoad();
-
-            enumchecklistOrderStatus.EnumType = typeof(OrderStatus);
-
-            enumchecklistOrderStatus.SelectAll();
-
-            buttonRun.Sensitive = true;
-        }
-
-        private void EShopsLoad()
-        {
-            List<OnlineStore> eShops = new List<OnlineStore>();
-
-            var onlineStores = UoW.Session.QueryOver<OnlineStore>().List();
-
-            eShops.Add(new OnlineStore() { Id = -1, Name = "Все" });
-
-            eShops.AddRange(onlineStores);
-
-            ycomboboxEShopId.SetRenderTextFunc<OnlineStore>(x => x.Name);
-            ycomboboxEShopId.ItemsList = eShops;
-        }
-
-        #region IParametersWidget implementation
-
-        public string Title => "Отчет по продажам ИМ";
-
-        public event EventHandler<LoadReportEventArgs> LoadReport;
-
-        #endregion
-
-        private ReportInfo GetReportInfo()
-        {
-            var parameters = new Dictionary<string, object>
-            {
-                {"start_date", datePeriodPicker.StartDateOrNull.Value.Date},
-                {"end_date", datePeriodPicker.EndDateOrNull.Value.Date.AddDays(1).AddMilliseconds(-1)},
-                {"e_shop_id", (ycomboboxEShopId.SelectedItem as OnlineStore).Id},
-                {"creation_timestamp", DateTime.Now},
-                {"order_statuses", enumchecklistOrderStatus.SelectedValues},
-                {"order_statuses_rus", string.Join(", ", enumchecklistOrderStatus.SelectedValuesList.Select(x => x.GetEnumTitle()))}
-            };
-
-            return new ReportInfo
-            {
-                Identifier = "Orders.EShopSalesReport",
-                Parameters = parameters
-            };
-        }
-
-        void OnUpdate(bool hide = false) {
-
-            if (enumchecklistOrderStatus.SelectedValuesList.Count > 0)
-            {
-                LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-            }
-            else
-            {
-                MessageDialogHelper.RunInfoDialog("Список статусов не может быть пустым");
-            }
-        }
-
-        protected void OnDatePeriodPickerPeriodChanged(object sender, EventArgs e)
-        {
-            SetSensitivity();
-        }
-
-        private void SetSensitivity()
-        {
-            var datePeriodSelected = datePeriodPicker.EndDateOrNull.HasValue && datePeriodPicker.StartDateOrNull.HasValue;
-            buttonRun.Sensitive = datePeriodSelected;
-        }
+			buttonRun.BindCommand(ViewModel.GenerateReportCommand);
+		}
     }
 }

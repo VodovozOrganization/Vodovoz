@@ -59,6 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private readonly INomenclatureInstanceRepository _nomenclatureInstanceRepository;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly ILifetimeScope _scope;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IEntityExtendedPermissionValidator _extendedPermissionValidator;
 		private bool _isInstanceAccountingActive;
 		private bool _isBulkAccountingActive;
@@ -88,7 +89,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			INomenclatureInstanceRepository nomenclatureInstanceRepository,
 			IReportViewOpener reportViewOpener,
 			IEntityExtendedPermissionValidator extendedPermissionValidator,
-			ILifetimeScope scope)
+			ILifetimeScope scope,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
@@ -98,6 +101,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				nomenclatureInstanceRepository ?? throw new ArgumentNullException(nameof(nomenclatureInstanceRepository));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_extendedPermissionValidator =
 				extendedPermissionValidator ?? throw new ArgumentNullException(nameof(extendedPermissionValidator));
 
@@ -172,37 +176,31 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					}
 				}
 
-				ReportInfo reportInfo;
+				var reportInfo = _reportInfoFactory.Create();
 
 				if(Entity.Car != null && (Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus || Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle))
 				{
-					reportInfo = new QS.Report.ReportInfo
+					reportInfo.Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}";
+					reportInfo.Identifier = "Store.ShiftChangeWarehouseWithCarDefectionAct";
+					reportInfo.Parameters = new Dictionary<string, object>
 					{
-						Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}",
-						Identifier = "Store.ShiftChangeWarehouseWithCarDefectionAct",
-						Parameters = new Dictionary<string, object>
-						{
-							{ "document_id", Entity.Id },
-							{ "car_id", Entity.Car?.Id },
-							{ "include_largus_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus },
-							{ "include_GAZelle_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
-							{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName },
-							{ "sender_fio", Entity.Sender.FullName },
-							{ "receiver_fio", Entity.Receiver.FullName },
-						}
+						{ "document_id", Entity.Id },
+						{ "car_id", Entity.Car?.Id },
+						{ "include_largus_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus },
+						{ "include_GAZelle_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
+						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName },
+						{ "sender_fio", Entity.Sender.FullName },
+						{ "receiver_fio", Entity.Receiver.FullName },
 					};
 				}
 				else
 				{
-					reportInfo = new QS.Report.ReportInfo
+					reportInfo.Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}";
+					reportInfo.Identifier = "Store.ShiftChangeWarehouse";
+					reportInfo.Parameters = new Dictionary<string, object>
 					{
-						Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}",
-						Identifier = "Store.ShiftChangeWarehouse",
-						Parameters = new Dictionary<string, object>
-						{
-							{ "document_id", Entity.Id },
-							{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
-						}
+						{ "document_id", Entity.Id },
+						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
 					};
 				}
 
