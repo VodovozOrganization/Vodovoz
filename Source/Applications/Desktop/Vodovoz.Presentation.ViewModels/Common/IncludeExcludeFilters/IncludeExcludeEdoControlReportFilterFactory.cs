@@ -14,7 +14,7 @@ using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 {
-	public class IncludeExcludeBookkeeppingReportsFilterFactory : IIncludeExcludeBookkeeppingReportsFilterFactory
+	public class IncludeExcludeBookkeepingReportsFilterFactory : IIncludeExcludeBookkeepingReportsFilterFactory
 	{
 		private const string _includeString = "_include";
 		private const string _excludeString = "_exclude";
@@ -24,7 +24,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
 		private readonly IGenericRepository<PaymentFrom> _paymentFromRepository;
 
-		public IncludeExcludeBookkeeppingReportsFilterFactory(
+		public IncludeExcludeBookkeepingReportsFilterFactory(
 			IInteractiveService interactiveService,
 			IGenericRepository<CounterpartySubtype> counterpartySubtypeRepository,
 			IGenericRepository<Counterparty> counterpartyRepository,

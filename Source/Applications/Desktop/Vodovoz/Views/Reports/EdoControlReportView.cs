@@ -16,8 +16,18 @@ namespace Vodovoz.Views.Reports
 
 		private void Configure()
 		{
-			hpanedMain.Position = 500;
+			hpanedMain.Position = 600;
 			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
+
+			datePeriodPicker.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			ybuttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
+			ybuttonAbortCreateReport.BindCommand(ViewModel.AbortReportGenerationCommand);
+			ybuttonSave.BindCommand(ViewModel.SaveReportCommand);
 
 			ShowIncludeExludeFilter();
 			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
