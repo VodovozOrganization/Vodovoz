@@ -139,6 +139,8 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				}
 			}
 
+			TruncateFastDeliveryReportTables(connectionTarget, startDate);
+
 			var fastDeliveryTransaction = connectionTarget.BeginTransaction();
 
 			for(DateTime curDate = startDate; curDate < endDate; curDate = curDate.AddDays(1))
@@ -230,6 +232,14 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 			connectionTarget.Execute("delete from general_info where date >= @date;", new { date = truncateFromDate }, truncateTransaction);
 			connectionTarget.Execute("delete from undeliveries_info where date >= @date;", new { date = truncateFromDate }, truncateTransaction);
+
+			truncateTransaction.Commit();
+		}
+
+		private void TruncateFastDeliveryReportTables(MySqlConnection connectionTarget, DateTime truncateFromDate)
+		{
+			var truncateTransaction = connectionTarget.BeginTransaction();
+
 			connectionTarget.Execute("delete from fast_delivery_info where date >= @date;", new { date = truncateFromDate }, truncateTransaction);
 
 			truncateTransaction.Commit();
