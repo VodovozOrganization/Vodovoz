@@ -12,7 +12,7 @@ using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 
-namespace Vodovoz.ViewModels.Reports.Bookkeepping.EdoControl
+namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 {
 	public class EdoControlReportViewModel : DialogTabViewModelBase
 	{

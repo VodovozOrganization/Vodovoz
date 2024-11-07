@@ -1,5 +1,5 @@
 ﻿using QS.Views.GtkUI;
-using Vodovoz.ViewModels.Reports.Bookkeepping.EdoControl;
+using Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl;
 using Vodovoz.ViewWidgets.Reports;
 
 namespace Vodovoz.Views.Reports
