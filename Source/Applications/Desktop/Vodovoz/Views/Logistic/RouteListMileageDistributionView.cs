@@ -1,13 +1,13 @@
 ﻿using Gamma.GtkWidgets;
 using Gtk;
-using QS.Views.GtkUI;
+using QS.Views;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
-	public partial class RouteListMileageDistributionView : TabViewBase<RouteListMileageDistributionViewModel>
+	public partial class RouteListMileageDistributionView : ViewBase<RouteListMileageDistributionViewModel>
 	{
 		public RouteListMileageDistributionView(RouteListMileageDistributionViewModel viewModel) : base(viewModel)
 		{
@@ -20,14 +20,19 @@ namespace Vodovoz.Views.Logistic
 			var colorBlue = GdkColors.InfoBase;
 			var colorYellow = GdkColors.WarningBase;
 
-			ylabelDate.Binding.AddFuncBinding(ViewModel.Entity, e => e.Date.ToShortDateString(), w => w.Text).InitializeFromSource();
-			ylabelCar.Binding.AddFuncBinding(ViewModel.Entity.Car, c => $"{c.CarModel.Title} ({c.RegistrationNumber})", w => w.Text)
+			ylabelDate.Text = ViewModel.Date.ToShortDateString();
+			ylabelCar.Text = ViewModel.Car;
+			
+			yspinbuttonConfirmedMileageAtDay.Binding
+				.AddBinding(ViewModel, vm => vm.TotalConfirmedDistanceAtDay, w => w.ValueAsDecimal)
 				.InitializeFromSource();
-			yspinbuttonConfirmedMileageAtDay.Binding.AddBinding(ViewModel, vm => vm.TotalConfirmedDistanceAtDay, w => w.ValueAsDecimal)
+			
+			ybuttonAcceptFine.Binding
+				.AddBinding(ViewModel, vm => vm.CanAcceptFine, w => w.Sensitive)
 				.InitializeFromSource();
-			ybuttonAcceptFine.Binding.AddBinding(ViewModel, vm => vm.CanAcceptFine, w => w.Sensitive).InitializeFromSource();
+			
 			ybuttonDistribute.Clicked += (s, a) => ViewModel.DistributeCommand.Execute();
-			ybuttonAcceptFine.Clicked += (s, a) => ViewModel.AcceptFineCommand.Execute(ytreeviewMiliageDistribution.GetSelectedObject<RouteListMileageDistributionNode>());
+			ybuttonAcceptFine.Clicked += (s, a) => ViewModel.AcceptFineCommand.Execute();
 			ybuttonSave.Clicked += (s, a) => ViewModel.SaveDistributionCommand.Execute();
 
 			ytreeviewMiliageDistribution.ColumnsConfig = ColumnsConfigFactory.Create<RouteListMileageDistributionNode>()

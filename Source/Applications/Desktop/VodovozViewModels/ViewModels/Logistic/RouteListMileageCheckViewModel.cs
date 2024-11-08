@@ -226,8 +226,17 @@ namespace Vodovoz.ViewModels.Logistic
 					return;
 				}
 
-				NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder, ITdiTabParent, ITdiTab>(
-					this, EntityUoWBuilder.ForOpen(Entity.Id), TabParent, this, OpenPageOptions.AsSlave);
+				var page = NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, ITdiTabParent, ITdiTab>(
+					this,
+					TabParent,
+					this,
+					OpenPageOptions.AsSlave,
+					conf =>
+					{
+						conf.Configure(Entity.Driver.Id, Entity.Date, Entity.Car.FullTitle);
+					});
+
+				page.ViewModel.Distributed += Close;
 			}
 			));
 
@@ -382,6 +391,13 @@ namespace Vodovoz.ViewModels.Logistic
 			UoW.Save(Entity.RouteListProfitability);
 			UoW.Commit();
 			base.AfterSave();
+		}
+		
+		private void Close(object o, EventArgs args)
+		{
+			(o as RouteListMileageDistributionViewModel).Distributed -= Close;
+			
+			Close(false, CloseSource.Self);
 		}
 	}
 }
