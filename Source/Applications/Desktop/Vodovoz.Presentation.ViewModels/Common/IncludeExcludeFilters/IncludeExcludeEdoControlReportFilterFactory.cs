@@ -407,7 +407,9 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			[Display(Name = "Закр. док")]
 			CloseDocument,
 			[Display(Name = "Обычная доставка")]
-			CommonDelivery
+			CommonDelivery,
+			[Display(Name = "Самовывоз")]
+			SelfDelivery,
 		}
 
 		[Appellative(

@@ -1,4 +1,5 @@
-﻿using NHibernate.Linq;
+﻿using ClosedXML.Report.Utils;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -36,25 +37,28 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 				from routeListItem in routeListItems.DefaultIfEmpty()
 				join ec in uow.Session.Query<EdoContainer>() on order.Id equals ec.Order.Id into edoContainers
 				from edoContainer in edoContainers.DefaultIfEmpty()
-				where order.DeliveryDate >= StartDate && order.DeliveryDate < EndDate.Date.AddDays(1)
+				where
+					order.DeliveryDate >= StartDate && order.DeliveryDate < EndDate.Date.AddDays(1)
 				select new EdoControlReportRow
 				{
 					EdoContainerId = edoContainer.Id,
 					ClientName = client.Name,
 					OrderId = order.Id,
 					RouteListId = routeListItem.RouteList.Id,
-					DeliveryDate = order.DeliveryDate,
+					DeliveryDate = order.DeliveryDate.Value,
 					EdoStatus = edoContainer.EdoDocFlowStatus,
-					//OrderDeliveryType =
-					//	order.IsFastDelivery
-					//	? EdoControlReportOrderDeliveryType.FastDelivery
-					//	: order.DeliverySchedule.Id == 462
-					//		? EdoControlReportOrderDeliveryType.CloseDocument
-					//		: EdoControlReportOrderDeliveryType.CommonDelivery,
-					//AddressTransferType = 
-					//	routeListItem.AddressTransferType == null
-					//	? EdoControlReportAddressTransferType.NoTransfer
-					//	: (EdoControlReportAddressTransferType)(int)routeListItem.AddressTransferType.Value
+					OrderDeliveryType =
+						order.IsFastDelivery
+						? EdoControlReportOrderDeliveryType.FastDelivery
+						: order.SelfDelivery
+							? EdoControlReportOrderDeliveryType.SelfDelivery
+							: order.DeliverySchedule.Id == ClosingDocumentDeliveryScheduleId
+								? EdoControlReportOrderDeliveryType.CloseDocument
+								: EdoControlReportOrderDeliveryType.CommonDelivery,
+					AddressTransferType =
+						routeListItem == null || routeListItem.AddressTransferType == null
+						? EdoControlReportAddressTransferType.NoTransfer
+						: routeListItem.AddressTransferType.Value.ToString().ToEnum<EdoControlReportAddressTransferType>()
 				};
 
 			return await rows.ToListAsync();

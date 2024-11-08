@@ -17,6 +17,7 @@ using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Reports.Editing.Modifiers;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
@@ -35,6 +36,7 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
+		private int _closingDocumentDeliveryScheduleId;
 		private EdoControlReport _report;
 		private bool _isReportGenerationInProgress;
 		private CancellationTokenSource _cancellationTokenSource;
@@ -46,11 +48,17 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 			INavigationManager navigation,
 			IIncludeExcludeBookkeepingReportsFilterFactory includeExcludeBookkeeppingReportsFilterFactory,
 			ILeftRightListViewModelFactory leftRightListViewModelFactory,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IGuiDispatcher guiDispatcher,
 			IDialogSettingsFactory dialogSettingsFactory,
 			IFileDialogService fileDialogService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			if(deliveryScheduleSettings is null)
+			{
+				throw new ArgumentNullException(nameof(deliveryScheduleSettings));
+			}
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeBookkeeppingReportsFilterFactory = includeExcludeBookkeeppingReportsFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeBookkeeppingReportsFilterFactory));
@@ -58,15 +66,22 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_dialogSettingsFactory = dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+
 			Title = "Контроль за ЭДО";
+
+			_closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
 			FilterViewModel = _includeExcludeBookkeeppingReportsFilterFactory.CreateEdoControlReportIncludeExcludeFilter(UoW);
 
 			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateEdoControlReportGroupingsConstructor();
 			GroupingSelectViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
 
-			GenerateReportCommand = new DelegateCommand(async () => await GenerateReport());
-			AbortReportGenerationCommand = new DelegateCommand(AbortReportGeneration);
+			GenerateReportCommand = new DelegateCommand(async () => await GenerateReport(), () => CanGenerateReport);
+			GenerateReportCommand.CanExecuteChangedWith(this, vm => vm.CanGenerateReport);
+
+			AbortReportGenerationCommand = new DelegateCommand(AbortReportGeneration, () => CanAbortReport);
+			AbortReportGenerationCommand.CanExecuteChangedWith(this, vm => vm.CanAbortReport);
+
 			SaveReportCommand = new DelegateCommand(SaveReport, () => CanSaveReport);
 			SaveReportCommand.CanExecuteChangedWith(this, vm => vm.CanSaveReport);
 		}
@@ -101,12 +116,21 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 			set => SetField(ref _report, value);
 		}
 
-		[PropertyChangedAlso(nameof(CanSaveReport))]
+		[PropertyChangedAlso(
+			nameof(CanGenerateReport),
+			nameof(CanAbortReport),
+			nameof(CanSaveReport))]
 		public bool IsReportGenerationInProgress
 		{
 			get => _isReportGenerationInProgress;
 			set => SetField(ref _isReportGenerationInProgress, value);
 		}
+
+		public bool CanGenerateReport =>
+			!IsReportGenerationInProgress;
+
+		public bool CanAbortReport =>
+			IsReportGenerationInProgress;
 
 		public bool CanSaveReport =>
 			Report != null
@@ -152,11 +176,14 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 
 			_cancellationTokenSource = new CancellationTokenSource();
 
-			_cancellationTokenSource = new CancellationTokenSource();
-
 			try
 			{
-				report = await EdoControlReport.Create(UoW, StartDate.Value, EndDate.Value, _cancellationTokenSource.Token);
+				report = await EdoControlReport.Create(
+					UoW,
+					StartDate.Value,
+					EndDate.Value,
+					_closingDocumentDeliveryScheduleId,
+					_cancellationTokenSource.Token);
 			}
 			catch(OperationCanceledException ex)
 			{
@@ -213,7 +240,7 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 
 			if(saveDialogResult.Successful)
 			{
-				//_report.ExportToExcel(saveDialogResult.Path);
+				//Report.ExportToExcel(saveDialogResult.Path);
 			}
 		}
 

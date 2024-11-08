@@ -12,18 +12,21 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 
 		public DateTime StartDate { get; private set; }
 		public DateTime EndDate { get; private set; }
+		public int ClosingDocumentDeliveryScheduleId { get; private set; }
 		public IList<EdoControlReportRow> Rows { get; private set; } = new List<EdoControlReportRow>();
 
 		public static async Task<EdoControlReport> Create(
 			IUnitOfWork unitOfWork,
 			DateTime startDate,
 			DateTime endDate,
+			int closingDocumentDeliveryScheduleId,
 			CancellationToken cancellationToken)
 		{
 			var report = new EdoControlReport
 			{
 				StartDate = startDate,
-				EndDate = endDate
+				EndDate = endDate,
+				ClosingDocumentDeliveryScheduleId = closingDocumentDeliveryScheduleId
 			};
 
 			await report.SetReportRows(unitOfWork, cancellationToken);

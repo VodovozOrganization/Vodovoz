@@ -10,7 +10,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 		public string ClientName { get; set; }
 		public int OrderId { get; set; }
 		public int? RouteListId { get; set; }
-		public DateTime? DeliveryDate { get; set; }
+		public DateTime DeliveryDate { get; set; }
 		public EdoDocFlowStatus? EdoStatus { get; set; }
 		public EdoControlReportOrderDeliveryType OrderDeliveryType { get; set; }
 		public EdoControlReportAddressTransferType AddressTransferType { get; set; }
