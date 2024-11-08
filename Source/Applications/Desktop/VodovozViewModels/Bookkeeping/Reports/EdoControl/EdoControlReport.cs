@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Presentation.ViewModels.Common;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 {
@@ -12,7 +13,6 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 
 		public DateTime StartDate { get; private set; }
 		public DateTime EndDate { get; private set; }
-		public int ClosingDocumentDeliveryScheduleId { get; private set; }
 		public IList<EdoControlReportRow> Rows { get; private set; } = new List<EdoControlReportRow>();
 
 		public static async Task<EdoControlReport> Create(
@@ -20,14 +20,16 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			DateTime startDate,
 			DateTime endDate,
 			int closingDocumentDeliveryScheduleId,
+			IncludeExludeFiltersViewModel filterViewModel,
 			CancellationToken cancellationToken)
 		{
 			var report = new EdoControlReport
 			{
 				StartDate = startDate,
-				EndDate = endDate,
-				ClosingDocumentDeliveryScheduleId = closingDocumentDeliveryScheduleId
+				EndDate = endDate
 			};
+
+			report.SetRequestRestrictions(filterViewModel, closingDocumentDeliveryScheduleId);
 
 			await report.SetReportRows(unitOfWork, cancellationToken);
 
