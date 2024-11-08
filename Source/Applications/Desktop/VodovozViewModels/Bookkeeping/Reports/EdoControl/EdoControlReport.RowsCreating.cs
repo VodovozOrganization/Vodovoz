@@ -16,6 +16,13 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 {
 	public partial class EdoControlReport
 	{
+		private readonly IList<OrderStatus> _orderStatuses = new List<OrderStatus>
+		{
+			OrderStatus.Shipped,
+			OrderStatus.UnloadingOnStock,
+			OrderStatus.Closed
+		};
+
 		private async Task SetReportRows(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			try
@@ -39,6 +46,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 				from edoContainer in edoContainers.DefaultIfEmpty()
 				where
 					order.DeliveryDate >= StartDate && order.DeliveryDate < EndDate.Date.AddDays(1)
+					&& _orderStatuses.Contains(order.OrderStatus)
 				select new EdoControlReportRow
 				{
 					EdoContainerId = edoContainer.Id,
@@ -61,7 +69,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 						: routeListItem.AddressTransferType.Value.ToString().ToEnum<EdoControlReportAddressTransferType>()
 				};
 
-			return await rows.ToListAsync();
+			return await rows.ToListAsync(cancellationToken);
 		}
 	}
 }
