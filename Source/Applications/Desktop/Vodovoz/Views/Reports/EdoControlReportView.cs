@@ -12,7 +12,7 @@ namespace Vodovoz.Views.Reports
 {
 	public partial class EdoControlReportView : TabViewBase<EdoControlReportViewModel>
 	{
-		private const int _hpanedDefaultPosition = 428;
+		private const int _hpanedDefaultPosition = 530;
 		private const int _hpanedMinimalPosition = 16;
 
 		private IncludeExludeFiltersView _filterView;
@@ -25,12 +25,18 @@ namespace Vodovoz.Views.Reports
 
 		private void Configure()
 		{
+			hpanedMain.Position = _hpanedDefaultPosition;
+
 			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
 
 			datePeriodPicker.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			ybuttonCreateReport.Binding
+				.AddBinding(ViewModel, vm => vm.CanGenerateReport, w => w.Visible)
 				.InitializeFromSource();
 
 			ybuttonAbortCreateReport.Binding
@@ -66,7 +72,7 @@ namespace Vodovoz.Views.Reports
 				.AddColumn("Номер заказа").AddNumericRenderer(x => x.OrderId)
 				.AddColumn("Номер МЛ").AddNumericRenderer(x => x.RouteListId)
 				.AddColumn("Дата").AddTextRenderer(x => x.DeliveryDate.ToString("dd.MM.yyyy"))
-				.AddColumn("Статус документооборота").AddTextRenderer(x => x.EdoStatus.Value.GetEnumTitle())
+				.AddColumn("Статус документооборота").AddTextRenderer(x => x.EdoStatus == null ? "" : x.EdoStatus.Value.GetEnumTitle())
 				.AddColumn("Тип доставки").AddTextRenderer(x => x.OrderDeliveryType.GetEnumTitle())
 				.AddColumn("Тип переноса").AddTextRenderer(x => x.AddressTransferType.GetEnumTitle())
 				.Finish();
