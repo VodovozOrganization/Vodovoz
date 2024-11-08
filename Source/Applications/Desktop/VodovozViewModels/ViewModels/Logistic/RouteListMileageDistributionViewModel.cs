@@ -209,7 +209,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				routeList.UpdateFuelOperation();
 			}
 
-			if(!Entity.TryValidateFuelOperation(CommonServices.ValidationService))
+			if(!routeList.TryValidateFuelOperation(CommonServices.ValidationService))
 			{
 				return false;
 			}
