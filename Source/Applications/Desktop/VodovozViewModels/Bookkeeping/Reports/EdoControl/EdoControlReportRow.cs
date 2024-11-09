@@ -7,6 +7,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 	public class EdoControlReportRow
 	{
 		public int? EdoContainerId { get; set; }
+		public int ClientId { get; set; }
 		public string ClientName { get; set; }
 		public int OrderId { get; set; }
 		public int? RouteListId { get; set; }

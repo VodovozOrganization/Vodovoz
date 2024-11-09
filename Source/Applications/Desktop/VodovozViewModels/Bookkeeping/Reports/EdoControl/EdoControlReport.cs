@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Reports.Editing.Modifiers;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 {
@@ -21,6 +22,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			DateTime endDate,
 			int closingDocumentDeliveryScheduleId,
 			IncludeExludeFiltersViewModel filterViewModel,
+			IEnumerable<GroupingType> selectedGroupingTypes,
 			CancellationToken cancellationToken)
 		{
 			var report = new EdoControlReport
@@ -30,6 +32,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			};
 
 			report.SetRequestRestrictions(filterViewModel, closingDocumentDeliveryScheduleId);
+			report.SetGroupingSelectors(selectedGroupingTypes);
 
 			await report.SetReportRows(unitOfWork, cancellationToken);
 

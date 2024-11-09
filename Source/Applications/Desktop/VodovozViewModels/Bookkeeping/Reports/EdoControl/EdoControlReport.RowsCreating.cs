@@ -11,13 +11,16 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Reports.Editing.Modifiers;
 using static Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters.IncludeExcludeBookkeepingReportsFilterFactory;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 {
 	public partial class EdoControlReport
 	{
-		private readonly IList<OrderStatus> _orderStatuses = new List<OrderStatus>
+		private IEnumerable<Func<EdoControlReportRow, object>> _groupingsSelectors = new List<Func<EdoControlReportRow, object>>();
+
+		private readonly IEnumerable<OrderStatus> _orderStatuses = new List<OrderStatus>
 		{
 			OrderStatus.Shipped,
 			OrderStatus.UnloadingOnStock,
@@ -164,6 +167,18 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			#endregion EdoControlReportAddressTransferType
 		}
 
+		private void SetGroupingSelectors(IEnumerable<GroupingType> groupingTypes)
+		{
+			var groupingsSelectors = new List<Func<EdoControlReportRow, object>>();
+
+			foreach(var groupingType in groupingTypes)
+			{
+				groupingsSelectors.Add(GetSelector(groupingType));
+			}
+
+			_groupingsSelectors = groupingsSelectors;
+		}
+
 		private async Task SetReportRows(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			try
@@ -210,13 +225,13 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 						|| (order.PaymentType == PaymentType.PaidOnline && order.PaymentByCardFrom.Id != null && _includedPaymentFroms.Contains(order.PaymentByCardFrom.Id)))
 
 					&& (_excludedPaymentFroms.Count() == 0
-						|| !(order.PaymentType == PaymentType.PaidOnline && (order.PaymentByCardFrom.Id != null || _excludedPaymentFroms.Contains(order.PaymentByCardFrom.Id))))
+						|| !(order.PaymentType == PaymentType.PaidOnline && (order.PaymentByCardFrom.Id == null || _excludedPaymentFroms.Contains(order.PaymentByCardFrom.Id))))
 
 					&& (_includedPaymentByTerminalSources.Count() == 0
 						|| (order.PaymentType == PaymentType.Terminal && order.PaymentByTerminalSource != null && _includedPaymentByTerminalSources.Contains(order.PaymentByTerminalSource.Value)))
 
 					&& (_excludedPaymentByTerminalSources.Count() == 0
-						|| !(order.PaymentType == PaymentType.Terminal && order.PaymentByTerminalSource != null && _excludedPaymentByTerminalSources.Contains(order.PaymentByTerminalSource.Value)))
+						|| !(order.PaymentType == PaymentType.Terminal && order.PaymentByTerminalSource == null && _excludedPaymentByTerminalSources.Contains(order.PaymentByTerminalSource.Value)))
 
 					&& (_includedEdoDocFlowStatuses.Count() == 0 || _includedEdoDocFlowStatuses.Contains(edoContainer.EdoDocFlowStatus))
 					&& (edoContainer.EdoDocFlowStatus == null || _excludedEdoDocFlowStatuses.Count() == 0 || !_excludedEdoDocFlowStatuses.Contains(edoContainer.EdoDocFlowStatus))
@@ -246,6 +261,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 				select new EdoControlReportRow
 				{
 					EdoContainerId = edoContainer.Id,
+					ClientId = client.Id,
 					ClientName = client.Name,
 					OrderId = order.Id,
 					RouteListId = routeListItem.RouteList.Id,
@@ -266,6 +282,25 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 				};
 
 			return await rows.ToListAsync(cancellationToken);
+		}
+
+		private Func<EdoControlReportRow, object> GetSelector(GroupingType groupingType)
+		{
+			switch(groupingType)
+			{
+				case GroupingType.DeliveryDate:
+					return x => x.DeliveryDate;
+				case GroupingType.Counterparty:
+					return x => x.ClientId;
+				case GroupingType.EdoDocFlowStatus:
+					return x => x.EdoStatus;
+				case GroupingType.OrderDeliveryType:
+					return x => x.OrderDeliveryType;
+				case GroupingType.OrderTransferType:
+					return x => x.AddressTransferType;
+				default:
+					throw new InvalidOperationException("Неизвестный тип группировки");
+			}
 		}
 	}
 }

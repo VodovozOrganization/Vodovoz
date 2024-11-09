@@ -184,6 +184,7 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 					EndDate.Value,
 					_closingDocumentDeliveryScheduleId,
 					FilterViewModel,
+					SelectedGroupings,
 					_cancellationTokenSource.Token);
 			}
 			catch(OperationCanceledException ex)
