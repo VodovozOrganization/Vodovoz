@@ -66,7 +66,7 @@ namespace Vodovoz.Views.Reports
 		private void ConfigureDataTreeView()
 		{
 			ytreeReportRows.ColumnsConfig = FluentColumnsConfig<EdoControlReportRow>.Create()
-				.AddColumn("Номер\nдокументооборота").AddTextRenderer(x => x.EdoContainerId)
+				.AddColumn("Номер\nв ЭДО").AddTextRenderer(x => x.EdoContainerId)
 				.AddColumn("Клиент").AddTextRenderer(x => x.IsRootRow ? x.GroupTitle : x.ClientName).WrapWidth(400).WrapMode(WrapMode.WordChar)
 				.AddSetter((cell, node) =>
 				{
@@ -88,6 +88,8 @@ namespace Vodovoz.Views.Reports
 				.AddFuncBinding(vm => vm.Report != null, w => w.Visible)
 				.AddFuncBinding(vm => vm.Report != null ? vm.Report.Rows : Enumerable.Empty<EdoControlReportRow>(), w => w.ItemsDataSource)
 				.InitializeFromSource();
+
+			ytreeReportRows.EnableGridLines = TreeViewGridLines.Both;
 		}
 
 		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
