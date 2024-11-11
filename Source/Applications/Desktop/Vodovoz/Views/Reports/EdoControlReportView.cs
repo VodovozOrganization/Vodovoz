@@ -1,5 +1,4 @@
 ﻿using Gamma.ColumnConfig;
-using Gamma.Utilities;
 using Gtk;
 using QS.Views.GtkUI;
 using System.Linq;
@@ -67,14 +66,21 @@ namespace Vodovoz.Views.Reports
 		private void ConfigureDataTreeView()
 		{
 			ytreeReportRows.ColumnsConfig = FluentColumnsConfig<EdoControlReportRow>.Create()
-				.AddColumn("Номер документооборота").AddTextRenderer(x => x.EdoContainerId == null ? "" : x.EdoContainerId.Value.ToString())
-				.AddColumn("Клиент").AddTextRenderer(x => x.ClientName).WrapWidth(350).WrapMode(WrapMode.WordChar)
-				.AddColumn("Номер заказа").AddNumericRenderer(x => x.OrderId)
-				.AddColumn("Номер МЛ").AddNumericRenderer(x => x.RouteListId)
-				.AddColumn("Дата").AddTextRenderer(x => x.DeliveryDate.ToString("dd.MM.yyyy"))
-				.AddColumn("Статус документооборота").AddTextRenderer(x => x.EdoStatus == null ? "" : x.EdoStatus.Value.GetEnumTitle())
-				.AddColumn("Тип доставки").AddTextRenderer(x => x.OrderDeliveryType.GetEnumTitle())
-				.AddColumn("Тип переноса").AddTextRenderer(x => x.AddressTransferType.GetEnumTitle())
+				.AddColumn("Номер\nдокументооборота").AddTextRenderer(x => x.EdoContainerId)
+				.AddColumn("Клиент").AddTextRenderer(x => x.IsRootRow ? x.GroupTitle : x.ClientName).WrapWidth(400).WrapMode(WrapMode.WordChar)
+				.AddSetter((cell, node) =>
+				{
+					if(node.IsRootRow)
+					{
+						cell.Markup = $"<b>{node.GroupTitle}</b>";
+					}
+				})
+				.AddColumn("Номер заказа").AddTextRenderer(x => x.OrderId)
+				.AddColumn("Номер МЛ").AddTextRenderer(x => x.RouteListId)
+				.AddColumn("Дата").AddTextRenderer(x => x.DeliveryDate)
+				.AddColumn("Статус документооборота").AddTextRenderer(x => x.EdoStatus)
+				.AddColumn("Тип доставки").AddTextRenderer(x => x.OrderDeliveryType)
+				.AddColumn("Тип переноса").AddTextRenderer(x => x.AddressTransferType)
 				.Finish();
 
 			ytreeReportRows.Binding

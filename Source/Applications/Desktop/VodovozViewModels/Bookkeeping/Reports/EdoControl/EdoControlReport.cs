@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			};
 
 			report.SetRequestRestrictions(filterViewModel, closingDocumentDeliveryScheduleId);
-			report.SetGroupingSelectors(selectedGroupingTypes);
+			report.SetGroupingTypes(selectedGroupingTypes);
 
 			await report.SetReportRows(unitOfWork, cancellationToken);
 
