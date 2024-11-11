@@ -478,59 +478,49 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 					order.DeliveryDate >= StartDate && order.DeliveryDate < EndDate.Date.AddDays(1)
 					&& _orderStatuses.Contains(order.OrderStatus)
 
-					&& (_includedCounterpartyTypes.Count() == 0 || _includedCounterpartyTypes.Contains(client.CounterpartyType))
-					&& (_excludedCounterpartyTypes.Count() == 0 || !_excludedCounterpartyTypes.Contains(client.CounterpartyType))
-
-					&& (_includedCounterpartySubtypes.Count() == 0
+					&& ((_includedCounterpartyTypes.Count() == 0 && _includedCounterpartySubtypes.Count() == 0)
+						|| _includedCounterpartyTypes.Contains(client.CounterpartyType)
 						|| _includedCounterpartySubtypes.Contains(client.CounterpartySubtype.Id))
-					&& (client.CounterpartySubtype.Id == null
-						|| _excludedCounterpartySubtypes.Count() == 0 || !_excludedCounterpartySubtypes.Contains(client.CounterpartySubtype.Id))
+					&& !_excludedCounterpartyTypes.Contains(client.CounterpartyType)
+					&& (client.CounterpartySubtype.Id == null || !_excludedCounterpartySubtypes.Contains(client.CounterpartySubtype.Id))
 
 					&& (_includedCounterparties.Count() == 0 || _includedCounterparties.Contains(client.Id))
-					&& (_excludedCounterparties.Count() == 0 || !_excludedCounterparties.Contains(client.Id))
+					&& !_excludedCounterparties.Contains(client.Id)
 
 					&& (_includedPersonTypes.Count() == 0 || _includedPersonTypes.Contains(client.PersonType))
-					&& (_excludedPersonTypes.Count() == 0 || !_excludedPersonTypes.Contains(client.PersonType))
+					&& !_excludedPersonTypes.Contains(client.PersonType)
 
-					&& (_includedPaymentTypes.Count() == 0 || _includedPaymentTypes.Contains(order.PaymentType))
-					&& (_excludedPaymentTypes.Count() == 0 || !_excludedPaymentTypes.Contains(order.PaymentType))
-
-					&& (_includedPaymentFroms.Count() == 0
-						|| (order.PaymentType == PaymentType.PaidOnline && order.PaymentByCardFrom.Id != null && _includedPaymentFroms.Contains(order.PaymentByCardFrom.Id)))
-
-					&& (_excludedPaymentFroms.Count() == 0
-						|| !(order.PaymentType == PaymentType.PaidOnline && (order.PaymentByCardFrom.Id == null || _excludedPaymentFroms.Contains(order.PaymentByCardFrom.Id))))
-
-					&& (_includedPaymentByTerminalSources.Count() == 0
+					&& ((_includedPaymentTypes.Count() == 0 && _includedPaymentFroms.Count() == 0 && _includedPaymentByTerminalSources.Count() == 0)
+						|| _includedPaymentTypes.Contains(order.PaymentType)
+						|| (order.PaymentType == PaymentType.PaidOnline && order.PaymentByCardFrom.Id != null && _includedPaymentFroms.Contains(order.PaymentByCardFrom.Id))
 						|| (order.PaymentType == PaymentType.Terminal && order.PaymentByTerminalSource != null && _includedPaymentByTerminalSources.Contains(order.PaymentByTerminalSource.Value)))
 
-					&& (_excludedPaymentByTerminalSources.Count() == 0
-						|| !(order.PaymentType == PaymentType.Terminal && order.PaymentByTerminalSource == null && _excludedPaymentByTerminalSources.Contains(order.PaymentByTerminalSource.Value)))
+					&& !_excludedPaymentTypes.Contains(order.PaymentType)
+					&& !(order.PaymentType == PaymentType.PaidOnline && order.PaymentByCardFrom.Id != null && _excludedPaymentFroms.Contains(order.PaymentByCardFrom.Id))
+					&& !(order.PaymentType == PaymentType.Terminal && order.PaymentByTerminalSource != null && _excludedPaymentByTerminalSources.Contains(order.PaymentByTerminalSource.Value))
 
 					&& (_includedEdoDocFlowStatuses.Count() == 0 || _includedEdoDocFlowStatuses.Contains(edoContainer.EdoDocFlowStatus))
-					&& (edoContainer.EdoDocFlowStatus == null || _excludedEdoDocFlowStatuses.Count() == 0 || !_excludedEdoDocFlowStatuses.Contains(edoContainer.EdoDocFlowStatus))
+					&& (edoContainer.EdoDocFlowStatus == null || !_excludedEdoDocFlowStatuses.Contains(edoContainer.EdoDocFlowStatus))
 
 					&& (_includedOrderDeliveryTypes.Count() == 0
 						|| (_includedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.FastDelivery) && order.IsFastDelivery)
 						|| (_includedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.SelfDelivery) && order.SelfDelivery)
 						|| (_includedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.CloseDocument) && order.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId)
 						|| (_includedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.CommonDelivery) && order.DeliverySchedule != null && order.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId))
-					&& (_excludedOrderDeliveryTypes.Count() == 0
-						|| !((_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.FastDelivery) && order.IsFastDelivery)
-							|| (_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.SelfDelivery) && order.SelfDelivery)
-							|| (_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.CloseDocument) && order.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId)
-							|| (_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.CommonDelivery) && order.DeliverySchedule != null && order.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)))
+					&& !(_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.FastDelivery) && order.IsFastDelivery)
+					&& !(_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.SelfDelivery) && order.SelfDelivery)
+					&& !(_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.CloseDocument) && order.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId)
+					&& !(_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.CommonDelivery) && order.DeliverySchedule != null && order.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
 
 					&& (_includedAddressTransferTypes.Count() == 0
 						|| (_includedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.NeedToReload) && routeListItem.AddressTransferType == AddressTransferType.NeedToReload)
 						|| (_includedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.FromHandToHand) && routeListItem.AddressTransferType == AddressTransferType.FromHandToHand)
 						|| (_includedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.FromFreeBalance) && routeListItem.AddressTransferType == AddressTransferType.FromFreeBalance)
 						|| (_includedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.NoTransfer) && routeListItem.AddressTransferType == null))
-					&& (_excludedAddressTransferTypes.Count() == 0
-						|| !((_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.NeedToReload) && routeListItem.AddressTransferType == AddressTransferType.NeedToReload)
-							|| (_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.FromHandToHand) && routeListItem.AddressTransferType == AddressTransferType.FromHandToHand)
-							|| (_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.FromFreeBalance) && routeListItem.AddressTransferType == AddressTransferType.FromFreeBalance)
-							|| (_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.NoTransfer) && routeListItem.AddressTransferType == null)))
+					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.NeedToReload) && routeListItem.AddressTransferType != null && routeListItem.AddressTransferType == AddressTransferType.NeedToReload)
+					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.FromHandToHand) && routeListItem.AddressTransferType != null && routeListItem.AddressTransferType == AddressTransferType.FromHandToHand)
+					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.FromFreeBalance) && routeListItem.AddressTransferType != null && routeListItem.AddressTransferType == AddressTransferType.FromFreeBalance)
+					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.NoTransfer) && routeListItem.AddressTransferType == null)
 
 				select new EdoControlReportData
 				{
