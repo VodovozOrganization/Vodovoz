@@ -74,7 +74,6 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 			FilterViewModel = _includeExcludeBookkeeppingReportsFilterFactory.CreateEdoControlReportIncludeExcludeFilter(UoW);
 
 			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateEdoControlReportGroupingsConstructor();
-			GroupingSelectViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
 
 			GenerateReportCommand = new DelegateCommand(async () => await GenerateReport(), () => CanGenerateReport);
 			GenerateReportCommand.CanExecuteChangedWith(this, vm => vm.CanGenerateReport);
@@ -84,11 +83,13 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 
 			SaveReportCommand = new DelegateCommand(SaveReport, () => CanSaveReport);
 			SaveReportCommand.CanExecuteChangedWith(this, vm => vm.CanSaveReport);
+			ShowInfoCommand = new DelegateCommand(ShowInfo);
 		}
 
 		public DelegateCommand GenerateReportCommand { get; }
 		public DelegateCommand AbortReportGenerationCommand { get; }
 		public DelegateCommand SaveReportCommand { get; }
+		public DelegateCommand ShowInfoCommand { get; }
 
 		public IncludeExludeFiltersViewModel FilterViewModel { get; }
 
@@ -140,11 +141,6 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 			GroupingSelectViewModel
 			.GetRightItems()
 			.Select(x => x.GroupType);
-
-		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)
-		{
-			OnPropertyChanged(nameof(SelectedGroupings));
-		}
 
 		private async Task GenerateReport()
 		{
@@ -272,6 +268,18 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error, message);
 			});
+		}
+
+		private void ShowInfo()
+		{
+			var info =
+				"1. В отчёте учитываются заказы со статусами:\r\n" +
+				"   - 'Доставлен'\r\n" +
+				"   - 'Выгрузка на складе'\r\n" +
+				"   - 'Закрыт'\r\n" +
+				"2. Допускается выбор не более 3-х группировок одновременно\r\n";
+
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
 		}
 
 		public override void Dispose()

@@ -45,6 +45,7 @@ namespace Vodovoz.Views.Reports
 			ybuttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 			ybuttonAbortCreateReport.BindCommand(ViewModel.AbortReportGenerationCommand);
 			ybuttonSave.BindCommand(ViewModel.SaveReportCommand);
+			ybuttonHelp.BindCommand(ViewModel.ShowInfoCommand);
 
 			ShowIncludeExludeFilter();
 			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
