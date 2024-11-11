@@ -242,7 +242,7 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 
 			if(saveDialogResult.Successful)
 			{
-				//Report.ExportToExcel(saveDialogResult.Path);
+				Report.ExportToExcel(saveDialogResult.Path);
 			}
 		}
 

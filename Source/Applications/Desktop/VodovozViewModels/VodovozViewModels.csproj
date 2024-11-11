@@ -49,6 +49,7 @@
     <Compile Include="BaseParameters\BaseParametersViewModel.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.RowsCreating.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.ExportToExcel.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportRow.cs" />
     <Compile Include="Cash\AdvanceReportViewModel.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentNode.cs" />
