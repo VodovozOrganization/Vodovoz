@@ -439,7 +439,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 		{
 			try
 			{
-				var dataNodes = await CreateReportRows(uow, cancellationToken);
+				var dataNodes = await GetOrdersData(uow, cancellationToken);
 
 				switch(_groupingTypes.Count())
 				{
@@ -465,7 +465,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			}
 		}
 
-		private async Task<IList<EdoControlReportData>> CreateReportRows(IUnitOfWork uow, CancellationToken cancellationToken)
+		private async Task<IList<EdoControlReportData>> GetOrdersData(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			var rows =
 				from order in uow.Session.Query<Order>()
@@ -577,7 +577,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			}
 		}
 
-		public Func<EdoControlReportData, string> GetGroupTitle(GroupingType groupingType)
+		private Func<EdoControlReportData, string> GetGroupTitle(GroupingType groupingType)
 		{
 			switch(groupingType)
 			{
