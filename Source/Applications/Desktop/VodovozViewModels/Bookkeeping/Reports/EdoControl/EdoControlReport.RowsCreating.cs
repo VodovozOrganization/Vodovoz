@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Report.Utils;
+using DynamicData;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
@@ -175,7 +176,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 		#region Grouping
 
 		private IList<EdoControlReportRow> Process1stLevelGroups(
-		IEnumerable<EdoControlReportData> dataNodes,
+			IEnumerable<EdoControlReportData> dataNodes,
 			CancellationToken cancellationToken)
 		{
 			if(_groupingTypes.Count() != 1)
@@ -185,8 +186,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 
 			var result = new List<EdoControlReportData>();
 
-			var lastGroupingType = _groupingTypes.Last();
-			var firstSelector = GetSelector(lastGroupingType);
+			var firstGroupingType = _groupingTypes.ElementAt(0);
+			var firstSelector = GetSelector(firstGroupingType);
 
 			var groupedRows =
 				(from node in dataNodes
@@ -197,28 +198,99 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 
 			var rows = new List<EdoControlReportRow>();
 
+			var groupsSummaryInfo = $"Группировка по: {firstGroupingType.GetEnumDisplayName()}";
+			rows.Add(new EdoControlReportRow(groupsSummaryInfo));
+
 			foreach(var group in groupedRows)
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
-				var groupTitle = GetGroupTitle(lastGroupingType).Invoke(group.Items.FirstOrDefault());
+				var groupTitle = GetGroupTitle(firstGroupingType).Invoke(group.Items.FirstOrDefault());
 
-				rows.AddRange(ConvertToReportRows(groupTitle, group.Items, cancellationToken));
+				var rootRow = new EdoControlReportRow(groupTitle);
+
+				rows.Add(rootRow);
+				rows.AddRange(ConvertDataNodesToToReportRows(group.Items, cancellationToken));
 			}
 
 			return rows;
 		}
 
-		private IList<EdoControlReportRow> ConvertToReportRows(
-			string groupTitle,
+		private IList<EdoControlReportRow> Process2ndLevelGroups(
+			IEnumerable<EdoControlReportData> dataNodes,
+			CancellationToken cancellationToken)
+		{
+			if(_groupingTypes.Count() != 2)
+			{
+				throw new InvalidOperationException("Количество выбранных группировок должно быть 2");
+			}
+
+			var result = new List<EdoControlReportRow>();
+
+			var firstGroupingType = _groupingTypes.ElementAt(0);
+			var secondGroupingType = _groupingTypes.ElementAt(1);
+
+			var firstSelector = GetSelector(firstGroupingType);
+			var secondSelector = GetSelector(secondGroupingType);
+
+			var groupedNodes =
+				(from node in dataNodes
+				 group node by new { Key1 = firstSelector.Invoke(node), Key2 = secondSelector.Invoke(node) } into g
+				 select new { Key = g.Key, Items = g.ToList() })
+				 .OrderBy(g => g.Key.Key1)
+				 .ThenBy(g => g.Key.Key2)
+				 .ToList();
+
+			var groupsCount = groupedNodes.Count;
+
+			var groupsSummaryInfo =
+				$"Группировка по: {firstGroupingType.GetEnumDisplayName()} | {secondGroupingType.GetEnumDisplayName()}";
+
+			result.Add(new EdoControlReportRow(groupsSummaryInfo));
+
+			for(var i = 0; i < groupsCount;)
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+
+				var firstLevelGroupTitle = GetGroupTitle(firstGroupingType).Invoke(groupedNodes[i].Items.First());
+				result.Add(new EdoControlReportRow(firstLevelGroupTitle));
+
+				var lastSecondLevelGroupTitle = string.Empty;
+
+				var currentFirstKeyValue = groupedNodes[i].Key?.Key1;
+
+				while(true)
+				{
+					if(i >= groupsCount || !groupedNodes[i].Key.Key1.Equals(currentFirstKeyValue))
+					{
+						break;
+					}
+
+					var secondLevelGroupTitle = GetGroupTitle(secondGroupingType).Invoke(groupedNodes[i].Items.First());
+
+					if(secondLevelGroupTitle != lastSecondLevelGroupTitle)
+					{
+						result.Add(new EdoControlReportRow(secondLevelGroupTitle));
+					}
+
+					var dataRows = ConvertDataNodesToToReportRows(groupedNodes[i].Items, cancellationToken);
+
+					result.Add(dataRows);
+
+					i++;
+
+					lastSecondLevelGroupTitle = secondLevelGroupTitle;
+				}
+			}
+
+			return result;
+		}
+
+		private IList<EdoControlReportRow> ConvertDataNodesToToReportRows(
 			IEnumerable<EdoControlReportData> nodes,
 			CancellationToken cancellationToken)
 		{
 			var rows = new List<EdoControlReportRow>();
-
-			var rootRow = new EdoControlReportRow(groupTitle);
-
-			rows.Add(rootRow);
 
 			foreach(var node in nodes)
 			{
@@ -229,66 +301,6 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 
 			return rows;
 		}
-
-		//private (IList<TurnoverWithDynamicsReportRow> Rows, IList<TurnoverWithDynamicsReportRow> Totals) Process2ndLevelGroups(
-		//	IEnumerable<OrderItemNode> secondLevelGroup,
-		//	CancellationToken cancellationToken)
-		//{
-		//	var result = new List<TurnoverWithDynamicsReportRow>();
-
-		//	IList<TurnoverWithDynamicsReportRow> totalsRows = new List<TurnoverWithDynamicsReportRow>();
-
-		//	var firstGroupSelector = GroupingBy.Count() - 2;
-		//	var secondGroupSelector = GroupingBy.Count() - 1;
-
-		//	var firstSelector = GetSelector(GroupingBy.ElementAt(firstGroupSelector));
-		//	var secondSelector = GetSelector(GroupingBy.ElementAt(secondGroupSelector));
-
-		//	var groupedNodes = (from oi in secondLevelGroup
-		//						group oi by new { Key1 = firstSelector.Invoke(oi), Key2 = secondSelector.Invoke(oi) } into g
-		//						select new { Key = g.Key, Items = g.ToList() })
-		//						.OrderBy(g => g.Key.Key1)
-		//						.ThenBy(g => g.Key.Key2)
-		//						.ToList();
-		//	var groupsCount = groupedNodes.Count;
-
-		//	for(var i = 0; i < groupsCount;)
-		//	{
-		//		cancellationToken.ThrowIfCancellationRequested();
-
-		//		var groupTitle = GetGroupTitle(GroupingBy.ElementAt(firstGroupSelector)).Invoke(groupedNodes[i].Items.First());
-
-		//		var currentFirstKeyValue = groupedNodes[i].Key.Key1;
-
-		//		var groupRows = new List<TurnoverWithDynamicsReportRow>();
-
-		//		while(true)
-		//		{
-		//			if(i == groupsCount || !groupedNodes[i].Key.Key1.Equals(currentFirstKeyValue))
-		//			{
-		//				break;
-		//			}
-
-		//			var row = CreateTurnoverWithDynamicsReportRow(
-		//				groupedNodes[i].Items,
-		//				GetGroupTitle(GroupingBy.Last()).Invoke(groupedNodes[i].Items.First()),
-		//				ShowContacts);
-
-		//			groupRows.Add(row);
-
-		//			i++;
-		//		}
-
-		//		var groupTotal = AddGroupTotals("", groupRows);
-		//		groupTotal.Title = groupTitle;
-		//		totalsRows.Add(groupTotal);
-
-		//		result.Add(groupTotal);
-		//		result.AddRange(groupRows);
-		//	}
-
-		//	return (result, totalsRows);
-		//}
 
 		//private (IList<TurnoverWithDynamicsReportRow> Rows, IList<TurnoverWithDynamicsReportRow> Totals) Process3rdLevelGroups(
 		//	IEnumerable<OrderItemNode> secondLevelGroup,
@@ -394,7 +406,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			try
 			{
 				var dataNodes = await CreateReportRows(uow, cancellationToken);
-				Rows = Process1stLevelGroups(dataNodes, cancellationToken);
+				//Rows = Process1stLevelGroups(dataNodes, cancellationToken);
+				Rows = Process2ndLevelGroups(dataNodes, cancellationToken);
 			}
 			catch(Exception ex)
 			{
