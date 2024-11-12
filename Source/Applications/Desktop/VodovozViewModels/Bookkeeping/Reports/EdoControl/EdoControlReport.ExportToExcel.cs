@@ -204,7 +204,6 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			sheetData.Append(GetReportTitleRow());
 			sheetData.Append(GetBlankRow());
 			sheetData.Append(GetTableHeadersRow());
-			sheetData.Append(GetBlankRow());
 
 			foreach(var row in Rows)
 			{
