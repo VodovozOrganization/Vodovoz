@@ -1,12 +1,16 @@
-﻿using DatabaseServiceWorker.PowerBiWorker.Dto;
+﻿using Dapper;
+using DatabaseServiceWorker.Helpers;
+using DatabaseServiceWorker.PowerBiWorker.Dto;
 using DatabaseServiceWorker.PowerWorker.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.Delivery;
@@ -90,6 +94,17 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 				_logger.LogInformation("Начало экспорта в бд PowerBi {PowerBiExportDate}", DateTime.Now);
 
+				var lastWorkerStartDate = await GetLastWorkerStartDateAsync(targetConnection);
+
+				if(lastWorkerStartDate.HasValue && lastWorkerStartDate >= DateTime.Today)
+				{
+					return;
+				}
+				else
+				{
+					await SetLastWorkerStartDate(targetConnection, DateTime.Now);
+				}
+
 				// Скорее всего не понадобится, пока низвестно
 				await ExportReportsAsync(
 					sourceConnection,
@@ -133,6 +148,19 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				"Воркер {WorkerName} ожидает '{DelayInMinutes}' перед следующим запуском", nameof(PowerBiExportWorker), Interval);
 
 			await Task.CompletedTask;
+		}
+
+		private async Task SetLastWorkerStartDate(MySqlConnection targetConnection, DateTime date)
+		{
+			var updateSettingsScript = $"update settings set value = '{date}' where name = 'last_worker_start_date';";
+			await targetConnection.ExecuteAsync(updateSettingsScript);
+		}
+
+		private async Task<DateTime?> GetLastWorkerStartDateAsync(MySqlConnection targetConnection)
+		{
+			var sql = @$"select value from settings where name = 'last_worker_start_date';";
+
+			return (await targetConnection.GetDataAsync<DateTime>(sql)).SingleOrDefault();
 		}
 	}
 }
