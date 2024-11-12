@@ -1,23 +1,7 @@
-﻿using System;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Extensions;
-using static Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters.IncludeExcludeBookkeepingReportsFilterFactory;
+﻿using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 {
-	public class EdoControlReportData
-	{
-		public int OrderId { get; set; }
-		public DateTime DeliveryDate { get; set; }
-		public int ClientId { get; set; }
-		public string ClientName { get; set; }
-		public int? RouteListId { get; set; }
-		public int? EdoContainerId { get; set; }
-		public EdoDocFlowStatus? EdoStatus { get; set; }
-		public EdoControlReportOrderDeliveryType OrderDeliveryType { get; set; }
-		public EdoControlReportAddressTransferType AddressTransferType { get; set; }
-	}
-
 	public class EdoControlReportRow
 	{
 		public EdoControlReportRow(string groupTitle)
@@ -26,7 +10,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			IsRootRow = true;
 		}
 
-		public EdoControlReportRow(EdoControlReportData data)
+		public EdoControlReportRow(EdoControlReportOrderData data)
 		{
 			OrderId = data.OrderId.ToString();
 			DeliveryDate = data.DeliveryDate.ToString("dd.MM.yyyy");

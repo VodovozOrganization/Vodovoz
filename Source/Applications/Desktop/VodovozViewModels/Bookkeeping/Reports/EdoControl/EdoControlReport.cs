@@ -11,6 +11,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 	public partial class EdoControlReport
 	{
 		private const string _dateFormatString = "dd.MM.yyyy";
+
 		private EdoControlReport() { }
 
 		public DateTime StartDate { get; private set; }

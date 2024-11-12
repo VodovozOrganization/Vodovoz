@@ -176,7 +176,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 		#region Grouping
 
 		private IList<EdoControlReportRow> ProcessNoGroups(
-			IEnumerable<EdoControlReportData> dataNodes,
+			IEnumerable<EdoControlReportOrderData> dataNodes,
 			CancellationToken cancellationToken)
 		{
 			if(_groupingTypes.Count() != 0)
@@ -192,7 +192,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 		}
 
 		private IList<EdoControlReportRow> Process1stLevelGroups(
-			IEnumerable<EdoControlReportData> dataNodes,
+			IEnumerable<EdoControlReportOrderData> dataNodes,
 			CancellationToken cancellationToken)
 		{
 			if(_groupingTypes.Count() != 1)
@@ -200,7 +200,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 				throw new InvalidOperationException("Количество выбранных группировок должно быть 1");
 			}
 
-			var result = new List<EdoControlReportData>();
+			var result = new List<EdoControlReportOrderData>();
 
 			var firstGroupingType = _groupingTypes.ElementAt(0);
 			var firstSelector = GetSelector(firstGroupingType);
@@ -233,7 +233,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 		}
 
 		private IList<EdoControlReportRow> Process2ndLevelGroups(
-			IEnumerable<EdoControlReportData> dataNodes,
+			IEnumerable<EdoControlReportOrderData> dataNodes,
 			CancellationToken cancellationToken)
 		{
 			if(_groupingTypes.Count() != 2)
@@ -303,7 +303,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 		}
 
 		private IList<EdoControlReportRow> Process3rdLevelGroups(
-			IEnumerable<EdoControlReportData> dataNodes,
+			IEnumerable<EdoControlReportOrderData> dataNodes,
 			CancellationToken cancellationToken)
 		{
 			if(_groupingTypes.Count() != 3)
@@ -402,7 +402,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 		}
 
 		private IList<EdoControlReportRow> ConvertDataNodesToToReportRows(
-			IEnumerable<EdoControlReportData> nodes,
+			IEnumerable<EdoControlReportOrderData> nodes,
 			CancellationToken cancellationToken)
 		{
 			var rows = new List<EdoControlReportRow>();
@@ -465,7 +465,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			}
 		}
 
-		private async Task<IList<EdoControlReportData>> GetOrdersData(IUnitOfWork uow, CancellationToken cancellationToken)
+		private async Task<IList<EdoControlReportOrderData>> GetOrdersData(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			var rows =
 				from order in uow.Session.Query<Order>()
@@ -522,7 +522,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.FromFreeBalance) && routeListItem.AddressTransferType != null && routeListItem.AddressTransferType == AddressTransferType.FromFreeBalance)
 					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.NoTransfer) && routeListItem.AddressTransferType == null)
 
-				select new EdoControlReportData
+				select new EdoControlReportOrderData
 				{
 					EdoContainerId = edoContainer.Id,
 					ClientId = client.Id,
@@ -548,7 +548,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			return await rows.ToListAsync(cancellationToken);
 		}
 
-		private Func<EdoControlReportData, object> GetSelector(GroupingType groupingType)
+		private Func<EdoControlReportOrderData, object> GetSelector(GroupingType groupingType)
 		{
 			switch(groupingType)
 			{
@@ -567,7 +567,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			}
 		}
 
-		private Func<EdoControlReportData, string> GetGroupTitle(GroupingType groupingType)
+		private Func<EdoControlReportOrderData, string> GetGroupTitle(GroupingType groupingType)
 		{
 			switch(groupingType)
 			{

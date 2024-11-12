@@ -1,11 +1,9 @@
 ﻿using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Dialog;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
@@ -14,7 +12,7 @@ using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 {
-	public class IncludeExcludeBookkeepingReportsFilterFactory : IIncludeExcludeBookkeepingReportsFilterFactory
+	public partial class IncludeExcludeBookkeepingReportsFilterFactory : IIncludeExcludeBookkeepingReportsFilterFactory
 	{
 		private const string _includeString = "_include";
 		private const string _excludeString = "_exclude";
@@ -66,11 +64,12 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 
 					filter.FilteredElements.Clear();
 
-					var counterpartySubtypeValues = _counterpartySubtypeRepository.Get(unitOfWork, counterpartySubtype => string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString)
+					var counterpartySubtypeValues =
+					_counterpartySubtypeRepository
+					.Get(unitOfWork, counterpartySubtype => string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString)
 							|| counterpartySubtype.Name.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%"));
 
 					// Заполнение начального списка
-
 					foreach(var value in values)
 					{
 						if(value is CounterpartyType enumElement
@@ -88,7 +87,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					}
 
 					// Заполнение подтипов контрагента - клиентов рекламного отдела
-
 					var advertisingDepartmentClientNode = filter.FilteredElements
 						.FirstOrDefault(x => x.Number == nameof(CounterpartyType.AdvertisingDepartmentClient));
 
@@ -114,7 +112,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					var result = new Dictionary<string, object>();
 
 					// Тип контрагента
-
 					var includeCounterpartyTypeValues = filter.IncludedElements
 						.Where(x => x.GetType() == typeof(IncludeExcludeElement<CounterpartyType, CounterpartyType>))
 						.Select(x => x.Number)
@@ -144,7 +141,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					}
 
 					// Клиент Рекламного Отдела
-
 					var includeCounterpartySubtypeValues = filter.IncludedElements
 						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, CounterpartySubtype>))
 						.Select(x => x.Number)
@@ -212,7 +208,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 							|| paymentFrom.Name.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%"));
 
 					// Заполнение начального списка
-
 					foreach(var value in values)
 					{
 						if(value is PaymentType enumElement
@@ -231,7 +226,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					}
 
 					// Заполнение группы Терминал
-
 					var terminalNode = filter.FilteredElements
 						.Where(x => x.Number == nameof(PaymentType.Terminal))
 						.FirstOrDefault();
@@ -253,7 +247,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					}
 
 					// Заполнение подгруппы Оплачено онлайн
-
 					var paidOnlineNode = filter.FilteredElements
 						.FirstOrDefault(x => x.Number == nameof(PaymentType.PaidOnline));
 
@@ -279,7 +272,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					var result = new Dictionary<string, object>();
 
 					// Тип оплаты
-
 					var includePaymentTypeValues = filter.IncludedElements
 						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
 						.Select(x => x.Number)
@@ -309,7 +301,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					}
 
 					// Оплата по термииналу
-
 					var includePaymentByTerminalSourceValues = filter.IncludedElements
 						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
 						.Select(x => x.Number)
@@ -339,7 +330,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					}
 
 					// Оплачено онлайн
-
 					var includePaymentFromValues = filter.IncludedElements
 						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
 						.Select(x => x.Number)
@@ -395,36 +385,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			{
 				config.RefreshFilteredElements();
 			});
-		}
-
-		[Appellative(
-			Nominative = "Тип доставки",
-			NominativePlural = "Типы доставки")]
-		public enum EdoControlReportOrderDeliveryType
-		{
-			[Display(Name = "Доставка за час")]
-			FastDelivery,
-			[Display(Name = "Закр. док")]
-			CloseDocument,
-			[Display(Name = "Обычная доставка")]
-			CommonDelivery,
-			[Display(Name = "Самовывоз")]
-			SelfDelivery,
-		}
-
-		[Appellative(
-			Nominative = "Тип переноса заказа",
-			NominativePlural = "Типы переносов заказов")]
-		public enum EdoControlReportAddressTransferType
-		{
-			[Display(Name = "С допогрузкой на складе")]
-			NeedToReload,
-			[Display(Name = "С передачей товара от водителя")]
-			FromHandToHand,
-			[Display(Name = "Из свободных остатков получателя")]
-			FromFreeBalance,
-			[Display(Name = "Без переноса")]
-			NoTransfer
 		}
 	}
 }
