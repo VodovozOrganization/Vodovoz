@@ -509,8 +509,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 						|| (_includedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.CommonDelivery) && order.DeliverySchedule != null && order.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId))
 					&& !(_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.FastDelivery) && order.IsFastDelivery)
 					&& !(_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.SelfDelivery) && order.SelfDelivery)
-					&& !(_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.CloseDocument) && order.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId)
-					&& !(_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.CommonDelivery) && order.DeliverySchedule != null && order.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
+					&& !(_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.CloseDocument) && !order.SelfDelivery && order.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId)
+					&& !(_excludedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.CommonDelivery) && !order.SelfDelivery && order.DeliverySchedule != null && order.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
 
 					&& (_includedAddressTransferTypes.Count() == 0
 						|| (_includedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.NeedToReload) && routeListItem.AddressTransferType == AddressTransferType.NeedToReload)
