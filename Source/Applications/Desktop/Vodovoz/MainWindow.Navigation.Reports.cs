@@ -1113,7 +1113,6 @@ public partial class MainWindow
 	protected void OnActionEdoUpdReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<EdoUpdReportViewModel>(null, OpenPageOptions.IgnoreHash);
-		OnActionEdoControlReportActivated(sender, e);
 	}
 
 	/// <summary>
