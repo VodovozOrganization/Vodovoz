@@ -12,6 +12,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Zabbix.Sender;
 
 namespace EdoContactsUpdater
 {
@@ -51,8 +52,8 @@ namespace EdoContactsUpdater
 
 						.AddSingleton<IEdoContactStateCodeConverter, EdoContactStateCodeConverter>()
 						.AddHttpClient()
-						.AddTaxcomClient();
-						//.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
+						.AddTaxcomClient()
+						.ConfigureZabbixSender(nameof(TaxcomEdoContactsUpdaterService));
 					
 					services.AddHostedService<TaxcomEdoContactsUpdaterService>();
 				});

@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
 using System.Text;
+using CustomerAppsApi.HealthChecks;
+using VodovozHealthCheck;
 
 namespace TaxcomEdoApi
 {
@@ -53,8 +55,8 @@ namespace TaxcomEdoApi
 
 			services
 				.AddConfig(Configuration)
-				.AddDependencyGroup();
-				//.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
+				.AddDependencyGroup()
+				.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,7 +75,8 @@ namespace TaxcomEdoApi
 			{
 				endpoints.MapControllers();
 			});
-			//app.ConfigureHealthCheckApplicationBuilder();
+			
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 	}
 }

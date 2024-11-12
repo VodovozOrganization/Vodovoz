@@ -24,6 +24,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Converters;
 
 namespace EdoDocumentsPreparer
@@ -34,6 +35,7 @@ namespace EdoDocumentsPreparer
 			= new[] { OrderDocumentType.Bill, OrderDocumentType.SpecialBill };
 		
 		private readonly ILogger<EdoDocumentsPreparerWorker> _logger;
+		private readonly IZabbixSender _zabbixSender;
 		private readonly TaxcomEdoOptions _edoOptions;
 		private readonly DocumentFlowOptions _documentFlowOptions;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -52,6 +54,7 @@ namespace EdoDocumentsPreparer
 		public EdoDocumentsPreparerWorker(
 			ILogger<EdoDocumentsPreparerWorker> logger,
 			IUserService userService,
+			IZabbixSender zabbixSender,
 			IOptions<TaxcomEdoOptions> edoOptions,
 			IOptions<DocumentFlowOptions> documentFlowOptions,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -68,6 +71,7 @@ namespace EdoDocumentsPreparer
 			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger;
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_documentFlowOptions = (documentFlowOptions ?? throw new ArgumentNullException(nameof(documentFlowOptions))).Value;
 			_edoOptions = (edoOptions ?? throw new ArgumentNullException(nameof(edoOptions))).Value;
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -91,19 +95,29 @@ namespace EdoDocumentsPreparer
 			while(!stoppingToken.IsCancellationRequested)
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-				await Task.Delay(1000 * _documentFlowOptions.DelayBetweenPreparingInSeconds, stoppingToken);
 
-				using var uow = _unitOfWorkFactory.CreateWithoutRoot();
-				var organization = GetOrganization(uow);
-
-				if(organization is null)
+				try
 				{
-					continue;
-				}
+					await Task.Delay(1000 * _documentFlowOptions.DelayBetweenPreparingInSeconds, stoppingToken);
+
+					using var uow = _unitOfWorkFactory.CreateWithoutRoot();
+					var organization = GetOrganization(uow);
+
+					if(organization is null)
+					{
+						continue;
+					}
 					
-				await PrepareUpdDocumentsForSend(uow, organization.Id);
-				await PrepareBillsForSend(uow, organization.Id);
-				await PrepareBillsWithoutShipmentForSend(uow, organization);
+					await PrepareUpdDocumentsForSend(uow, organization.Id);
+					await PrepareBillsForSend(uow, organization.Id);
+					await PrepareBillsWithoutShipmentForSend(uow, organization);
+
+					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Ошибка при запуске подготовки документов для отправки");
+				}
 			}
 		}
 
@@ -182,10 +196,8 @@ namespace EdoDocumentsPreparer
 			}
 			catch(Exception e)
 			{
-				const string message = "Ошибка в процессе получения заказов для формирования УПД";
-				//_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
-				//_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"{message}: {e.Message}");
-				_logger.LogError(e, message);
+				const string errorMessage = "Ошибка в процессе получения заказов для формирования УПД";
+				_logger.LogError(e, errorMessage);
 			}
 		}
 
@@ -209,10 +221,8 @@ namespace EdoDocumentsPreparer
 			}
 			catch(Exception e)
 			{
-				const string message = "Ошибка в процессе получения заказов для формирования счетов";
-				//_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
-				//_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"{message}: {e.Message}");
-				_logger.LogError(e, message);
+				const string errorMessage = "Ошибка в процессе получения заказов для формирования счетов";
+				_logger.LogError(e, errorMessage);
 			}
 		}
 
@@ -356,10 +366,8 @@ namespace EdoDocumentsPreparer
 			}
 			catch(Exception e)
 			{
-				const string message = "Ошибка в процессе получения счетов без отгрузки";
-				//_taxcomEdoApiHealthCheck.HealthResult.IsHealthy = false;
-				//_taxcomEdoApiHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"{message}: {e.Message}");
-				_logger.LogError(e, message);
+				const string errorMessage = "Ошибка в процессе получения счетов без отгрузки";
+				_logger.LogError(e, errorMessage);
 			}
 		}
 

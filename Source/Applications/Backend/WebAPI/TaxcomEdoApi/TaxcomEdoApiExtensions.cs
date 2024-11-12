@@ -40,7 +40,7 @@ namespace TaxcomEdoApi
 
 					return certificate;
 				})
-				.AddSingleton(provider =>
+				.AddScoped(provider =>
 				{
 					var apiOptions = provider.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;
 					var certificate = provider.GetRequiredService<X509Certificate2>();

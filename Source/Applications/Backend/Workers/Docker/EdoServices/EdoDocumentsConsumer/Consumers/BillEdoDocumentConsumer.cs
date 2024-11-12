@@ -34,8 +34,10 @@ namespace EdoDocumentsConsumer.Consumers
 			}
 			catch(Exception e)
 			{
+				const string errorMessage = "Ошибка при отправке информации по счету";
+				
 				_logger.LogError(e,
-					"Ошибка при отправке информации по счету {OrderId} в TaxcomApi",
+					errorMessage + " {OrderId} в TaxcomApi",
 					message.OrderInfoForEdo.Id);
 			}
 		}

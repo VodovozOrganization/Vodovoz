@@ -34,8 +34,9 @@ namespace EdoDocumentsConsumer.Consumers
 			}
 			catch(Exception e)
 			{
+				const string errorMessage = "Ошибка при отправке информации по УПД";
 				_logger.LogError(e,
-					"Ошибка при отправке информации по УПД {OrderId} в TaxcomApi",
+					errorMessage + " {OrderId} в TaxcomApi",
 					message.OrderInfoForEdo.Id);
 			}
 		}

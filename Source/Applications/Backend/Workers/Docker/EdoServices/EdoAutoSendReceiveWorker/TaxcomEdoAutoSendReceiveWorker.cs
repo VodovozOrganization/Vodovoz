@@ -7,21 +7,25 @@ using EdoAutoSendReceiveWorker.Configs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using TaxcomEdo.Client;
+using Vodovoz.Zabbix.Sender;
 
 namespace EdoAutoSendReceiveWorker
 {
 	public class TaxcomEdoAutoSendReceiveWorker : BackgroundService
 	{
 		private readonly ILogger<TaxcomEdoAutoSendReceiveWorker> _logger;
+		private readonly IZabbixSender _zabbixSender;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly TaxcomEdoAutoSendReceiveWorkerOptions _workerOptions;
 
 		public TaxcomEdoAutoSendReceiveWorker(
 			ILogger<TaxcomEdoAutoSendReceiveWorker> logger,
 			IOptions<TaxcomEdoAutoSendReceiveWorkerOptions> workerOptions,
+			IZabbixSender zabbixSender,
 			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_workerOptions = (workerOptions ?? throw new ArgumentNullException(nameof(workerOptions))).Value;
 		}
@@ -47,6 +51,7 @@ namespace EdoAutoSendReceiveWorker
 					using var scope = _serviceScopeFactory.CreateScope();
 					var taxcomClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
 					await taxcomClient.StartProcessAutoSendReceive(stoppingToken);
+					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 				}
 				catch(Exception e)
 				{

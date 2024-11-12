@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EdoDocumentFlowUpdater.Configs;
-using EdoDocumentFlowUpdater.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -19,7 +18,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings;
-using VodovozHealthCheck.Dto;
+using Vodovoz.Zabbix.Sender;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace EdoDocumentFlowUpdater
@@ -30,7 +29,7 @@ namespace EdoDocumentFlowUpdater
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly TaxcomEdoDocumentFlowUpdaterOptions _documentFlowUpdaterOptions;
 		private readonly ISettingsController _settingController;
-		private readonly TaxcomEdoDocFlowUpdaterHealthCheck _taxcomEdoDocFlowUpdaterHealthCheck;
+		private readonly IZabbixSender _zabbixSender;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEdoContainerFileStorageService _edoContainerFileStorageService;
@@ -45,7 +44,7 @@ namespace EdoDocumentFlowUpdater
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOrderRepository orderRepository,
 			ISettingsController settingController,
-			TaxcomEdoDocFlowUpdaterHealthCheck taxcomEdoDocFlowUpdaterHealthCheck,
+			IZabbixSender zabbixSender,
 			IEdoContainerFileStorageService edoContainerFileStorageService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -53,8 +52,7 @@ namespace EdoDocumentFlowUpdater
 			_documentFlowUpdaterOptions =
 				(documentFlowUpdaterOptions ?? throw new ArgumentNullException(nameof(documentFlowUpdaterOptions))).Value;
 			_settingController = settingController ?? throw new ArgumentNullException(nameof(settingController));
-			_taxcomEdoDocFlowUpdaterHealthCheck =
-				taxcomEdoDocFlowUpdaterHealthCheck ?? throw new ArgumentNullException(nameof(taxcomEdoDocFlowUpdaterHealthCheck));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_edoContainerFileStorageService =
 				edoContainerFileStorageService ?? throw new ArgumentNullException(nameof(edoContainerFileStorageService));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -70,13 +68,20 @@ namespace EdoDocumentFlowUpdater
 
 		private async Task StartWorkingAsync(CancellationToken cancellationToken)
 		{
-			_taxcomEdoDocFlowUpdaterHealthCheck.HealthResult = new VodovozHealthResultDto { IsHealthy = true };
-
 			while(!cancellationToken.IsCancellationRequested)
 			{
-				await DelayAsync(cancellationToken);
-				await ProcessOutgoingDocuments(cancellationToken);
-				await CancellationDocFlows(cancellationToken);
+				try
+				{
+					await DelayAsync(cancellationToken);
+					await ProcessOutgoingDocuments(cancellationToken);
+					await CancellationDocFlows(cancellationToken);
+
+					await _zabbixSender.SendIsHealthyAsync(cancellationToken);
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Ошибка при запуске обновления статусов документооборотов");
+				}
 			}
 		}
 
@@ -166,10 +171,8 @@ namespace EdoDocumentFlowUpdater
 			}
 			catch(Exception e)
 			{
-				_taxcomEdoDocFlowUpdaterHealthCheck.HealthResult.IsHealthy = false;
-				_taxcomEdoDocFlowUpdaterHealthCheck.HealthResult.AdditionalUnhealthyResults.Add($"Ошибка в процессе обработки исходящих документов: {e.Message}");
-
-				_logger.LogError(e, "Ошибка в процессе обработки исходящих документов");
+				const string errorMessage = "Ошибка в процессе обработки исходящих документов";
+				_logger.LogError(e, errorMessage);
 			}
 			finally
 			{
@@ -182,45 +185,52 @@ namespace EdoDocumentFlowUpdater
 		{
 			_logger.LogInformation("Получаем заказы по которым нужно отменить счёт");
 
-			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис аннулирования документов");
-			var offerCancellationFromActions = uow
-				.GetAll<OrderEdoTrueMarkDocumentsActions>()
-				.Where(x => x.IsNeedOfferCancellation)
-				.ToList();
-			
-			_logger.LogInformation("Всего нужно аннулировать {Count}", offerCancellationFromActions.Count);
-
-			foreach(var offerCancellation in offerCancellationFromActions)
+			try
 			{
-				using var scope = _serviceScopeFactory.CreateScope();
-				var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
-				
-				var containersToOfferCancellation = uow.Session.Query<EdoContainer>()
-					.Where(ec => ec.Order.Id == offerCancellation.Order.Id
-						&& ec.Type == Type.Bill
-						&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
-						&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error)
+				using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис аннулирования документов");
+				var offerCancellationFromActions = uow
+					.GetAll<OrderEdoTrueMarkDocumentsActions>()
+					.Where(x => x.IsNeedOfferCancellation)
 					.ToList();
+			
+				_logger.LogInformation("Всего нужно аннулировать {Count}", offerCancellationFromActions.Count);
 
-				foreach(var container in containersToOfferCancellation)
+				foreach(var offerCancellation in offerCancellationFromActions)
 				{
-					//Не отменяем контейнеры, которые были созданы после запроса на аннулирование
-					if(offerCancellation.Created.HasValue && offerCancellation.Created < container.Created)
-					{
-						continue;
-					}
-					
-					_logger.LogInformation("Отменяется оффер из контейнера №{EdoContainerId}, Заказа №{OrderId}, документооборота {DocFlow}",
-						container.Id,
-						container.Order?.Id,
-						container.DocFlowId);
-					
-					await SendOfferCancellationContainer(taxcomApiClient, container, cancellationToken);
-				}
+					using var scope = _serviceScopeFactory.CreateScope();
+					var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+				
+					var containersToOfferCancellation = uow.Session.Query<EdoContainer>()
+						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
+							&& ec.Type == Type.Bill
+							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
+							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error)
+						.ToList();
 
-				offerCancellation.IsNeedOfferCancellation = false;
-				await uow.SaveAsync(offerCancellation);
-				await uow.CommitAsync();
+					foreach(var container in containersToOfferCancellation)
+					{
+						//Не отменяем контейнеры, которые были созданы после запроса на аннулирование
+						if(offerCancellation.Created.HasValue && offerCancellation.Created < container.Created)
+						{
+							continue;
+						}
+					
+						_logger.LogInformation("Отменяется оффер из контейнера №{EdoContainerId}, Заказа №{OrderId}, документооборота {DocFlow}",
+							container.Id,
+							container.Order?.Id,
+							container.DocFlowId);
+					
+						await SendOfferCancellationContainer(taxcomApiClient, container, cancellationToken);
+					}
+
+					offerCancellation.IsNeedOfferCancellation = false;
+					await uow.SaveAsync(offerCancellation);
+					await uow.CommitAsync();
+				}
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка в процессе аннулирования документов");
 			}
 		}
 		

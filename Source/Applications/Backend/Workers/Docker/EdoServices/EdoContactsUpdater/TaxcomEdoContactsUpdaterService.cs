@@ -16,12 +16,14 @@ using TaxcomEdo.Contracts.Counterparties;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Settings;
+using Vodovoz.Zabbix.Sender;
 
 namespace EdoContactsUpdater
 {
 	public class TaxcomEdoContactsUpdaterService : BackgroundService
 	{
 		private readonly ILogger<TaxcomEdoContactsUpdaterService> _logger;
+		private readonly IZabbixSender _zabbixSender;
 		private readonly TaxcomContactsUpdaterOptions _contactsUpdaterOptions;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISettingsController _settingsController;
@@ -32,6 +34,7 @@ namespace EdoContactsUpdater
 		public TaxcomEdoContactsUpdaterService(
 			ILogger<TaxcomEdoContactsUpdaterService> logger,
 			IUserService userService,
+			IZabbixSender zabbixSender,
 			IOptions<TaxcomContactsUpdaterOptions> contactsUpdaterOptions,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISettingsController settingsController,
@@ -40,6 +43,7 @@ namespace EdoContactsUpdater
 			ICounterpartyRepository counterpartyRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_contactsUpdaterOptions = (contactsUpdaterOptions ?? throw new ArgumentNullException(nameof(contactsUpdaterOptions))).Value;
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
@@ -84,13 +88,16 @@ namespace EdoContactsUpdater
 							}
 							catch(Exception e)
 							{
-								_logger.LogError(e, "Ошибка при запросе списка контактов");
+								const string errorMessage = "Ошибка при запросе списка контактов";
+								_logger.LogError(e, errorMessage);
 							}
 
 							if(contactUpdates.Contacts is null)
 							{
 								break;
 							}
+
+							await _zabbixSender.SendIsHealthyAsync(cancellationToken);
 
 							foreach(var contact in contactUpdates.Contacts)
 							{
@@ -162,7 +169,8 @@ namespace EdoContactsUpdater
 				}
 				catch(Exception e)
 				{
-					_logger.LogError(e, "Ошибка при обновлении списка контактов");
+					const string errorMessage = "Ошибка при обновлении списка контактов";
+					_logger.LogError(e, errorMessage);
 				}
 				finally
 				{

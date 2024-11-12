@@ -1,6 +1,5 @@
 using Autofac.Extensions.DependencyInjection;
 using EdoDocumentFlowUpdater.Configs;
-using EdoDocumentFlowUpdater.HealthChecks;
 using EdoDocumentFlowUpdater.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,7 +13,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.FileStorage;
 using Vodovoz.Infrastructure.Persistance;
-using VodovozHealthCheck;
+using Vodovoz.Zabbix.Sender;
 
 namespace EdoDocumentFlowUpdater
 {
@@ -57,7 +56,7 @@ namespace EdoDocumentFlowUpdater
 						.AddHttpClient()
 						.AddTaxcomClient()
 						
-						.ConfigureHealthCheckService<TaxcomEdoDocFlowUpdaterHealthCheck>(true)
+						.ConfigureZabbixSender(nameof(TaxcomEdoDocumentFlowUpdater))
 						.AddHostedService<TaxcomEdoDocumentFlowUpdater>();
 				});
 	}

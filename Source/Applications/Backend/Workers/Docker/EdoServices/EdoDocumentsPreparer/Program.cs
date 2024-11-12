@@ -13,6 +13,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Zabbix.Sender;
+using VodovozHealthCheck;
 
 namespace EdoDocumentsPreparer
 {
@@ -56,6 +58,7 @@ namespace EdoDocumentsPreparer
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
 						.AddStaticScopeForEntity()
+						.ConfigureZabbixSender(nameof(EdoDocumentsPreparerWorker));
 						;
 				});
 	}
