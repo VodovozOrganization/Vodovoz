@@ -9,20 +9,23 @@ using QS.Services;
 using QSReport;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Employees
 {
     [System.ComponentModel.ToolboxItem(true)]
     public partial class EmployeesReport : SingleUoWWidgetBase, IParametersWidget
     {
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IInteractiveService _interactiveService;
 
-		public EmployeesReport(IInteractiveService interactiveService)
+		public EmployeesReport(IReportInfoFactory reportInfoFactory, IInteractiveService interactiveService)
         {
-            this.Build();
-            UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-            Configure();
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            this.Build();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+            Configure();
 		}
 
         public string Title => "Отчет по сотрудникам";
@@ -46,37 +49,37 @@ namespace Vodovoz.ReportsParameters.Employees
 
         ReportInfo GetReportInfo()
         {
-            return new ReportInfo
-            {
-                Identifier = "Employees.EmployeesReport",
-                Parameters = new Dictionary<string, object>
-                {
-                    {"report_date", DateTime.Now},
-                    {"selected_filters", GetSelectedFilters()},
-                    {"empl_category", enumCategory.SelectedItem},
-                    {"empl_status", GetStatuses()},
-                    {"creation_date", creationPicker.StartDateOrNull},
-                    {"creation_date_end", creationPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
+			var parameters = new Dictionary<string, object>
+			{
+				{"report_date", DateTime.Now},
+				{"selected_filters", GetSelectedFilters()},
+				{"empl_category", enumCategory.SelectedItem},
+				{"empl_status", GetStatuses()},
+				{"creation_date", creationPicker.StartDateOrNull},
+				{"creation_date_end", creationPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
 
-                    {"first_work_day", firstWorkingDayPicker.StartDateOrNull},
-                    {"first_work_day_end", firstWorkingDayPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
+				{"first_work_day", firstWorkingDayPicker.StartDateOrNull},
+				{"first_work_day_end", firstWorkingDayPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
 
-                    {"date_hired", hiredPicker.StartDateOrNull},
-                    {"date_hired_end", hiredPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
+				{"date_hired", hiredPicker.StartDateOrNull},
+				{"date_hired_end", hiredPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
 
-                    {"date_fired", firedPicker.StartDateOrNull},
-                    {"date_fired_end", firedPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
+				{"date_fired", firedPicker.StartDateOrNull},
+				{"date_fired_end", firedPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
 
-                    {"date_calculation", calculationPicker.StartDateOrNull},
-                    {"date_calculation_end", calculationPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
+				{"date_calculation", calculationPicker.StartDateOrNull},
+				{"date_calculation_end", calculationPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
 
-                    {"first_rl", firstRLPicker.StartDateOrNull},
-                    {"first_rl_end", firstRLPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
+				{"first_rl", firstRLPicker.StartDateOrNull},
+				{"first_rl_end", firstRLPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
 
-                    {"last_rl", lastRLPicker.StartDateOrNull},
-                    {"last_rl_end", lastRLPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
-                }
-            };
+				{"last_rl", lastRLPicker.StartDateOrNull},
+				{"last_rl_end", lastRLPicker.EndDateOrNull?.AddHours(23).AddMinutes(59)},
+			};
+
+			var reportInfo = _reportInfoFactory.Create("Employees.EmployeesReport", Title, parameters);
+
+			return reportInfo;
         }
 
         string GetSelectedFilters()

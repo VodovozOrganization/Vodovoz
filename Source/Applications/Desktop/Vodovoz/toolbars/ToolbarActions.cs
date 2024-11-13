@@ -62,6 +62,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ReportsParameters;
+using Vodovoz.ViewModels.ReportsParameters.Bottles;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
@@ -79,6 +80,7 @@ public partial class MainWindow : Window
 	Action OnlineOrdersJournalAction;
 
 	Action ActionServiceClaims;
+	Action ActionServiceDeliveryRules;
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
@@ -171,7 +173,7 @@ public partial class MainWindow : Window
 		ActionCashReceiptsJournal = new Action(nameof(ActionCashReceiptsJournal), "Журнал чеков", null, "table");
 		ActionOrdersWithReceiptJournal = new Action(nameof(ActionOrdersWithReceiptJournal), "Журнал заказов с чеками", null, "table");
 		OnlineOrdersJournalAction = new Action(nameof(OnlineOrdersJournalAction), "Журнал онлайн заказов", null, null);
-		
+
 		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
@@ -181,6 +183,7 @@ public partial class MainWindow : Window
 		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
+		ActionServiceDeliveryRules = new Action(nameof(ActionServiceDeliveryRules), "Условия доставки", null, null);
 
 		//Склад
 		ActionWarehouseDocuments = new Action("ActionWarehouseDocuments", "Журнал документов", null, "table");
@@ -272,6 +275,7 @@ public partial class MainWindow : Window
 		
 		//
 		w1.Add(ActionServiceClaims, null);
+		w1.Add(ActionServiceDeliveryRules, null);
 		w1.Add(ActionWarehouseDocuments, null);
 		w1.Add(ActionReadyForShipment, null);
 		w1.Add(ActionReadyForReception, null);
@@ -372,6 +376,7 @@ public partial class MainWindow : Window
 		OnlineOrdersJournalAction.Activated += OnOnlineOrdersJournalActionActivated;
 
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
+		ActionServiceDeliveryRules.Activated += OnActionServiceDeliveryRulesActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionReadyForShipment.Activated += ActionReadyForShipmentActivated;
 		ActionReadyForReception.Activated += ActionReadyForReceptionActivated;
@@ -542,10 +547,7 @@ public partial class MainWindow : Window
 
 	void ActionEmployeeWorkChart_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<EmployeeWorkChartDlg>(),
-			() => new EmployeeWorkChartDlg()
-		);
+		NavigationManager.OpenTdiTab<EmployeeWorkChartDlg>(null);
 	}
 
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
@@ -563,10 +565,7 @@ public partial class MainWindow : Window
 
 	void ActionReportDebtorsBottles_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.ReportDebtorsBottles>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.ReportDebtorsBottles())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ReportDebtorsBottlesViewModel));
 	}
 
 	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
@@ -629,16 +628,17 @@ public partial class MainWindow : Window
 		tdiMain.AddTab(paymentsJournalViewModel);
 	}
 
-
+	/// <summary>
+	/// Доходы и расходы
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-
-		var report = scope.Resolve<Vodovoz.Reports.CashFlow>();
-
-		var page = NavigationManager.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, report);
-
-		report.ParentTab = page.TdiTab;
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			configureTab: vm => (vm.ParametersWidget as CashFlow).ParentTab = vm,
+			addingRegistrations: builder => builder.RegisterType<CashFlow>().As<IParametersWidget>());
 	}
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
@@ -663,29 +663,19 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<FuelDocumentsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
+	/// <summary>
+	/// Журнал перемещения д/с для юр.лиц
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	void ActionOrganizationCashTransferDocuments_Activated(object sender, EventArgs e)
 	{
-		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
-		var employeeService = _autofacScope.Resolve<IEmployeeService>();
-		var entityExtendedPermissionValidator = _autofacScope.Resolve<IEntityExtendedPermissionValidator>();
-
-		var employeeFilter = new EmployeeFilterViewModel
-		{
-			Status = EmployeeStatus.IsWorking,
-		};
-
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
-
-		tdiMain.OpenTab(() => new OrganizationCashTransferDocumentJournalViewModel(
-			new OrganizationCashTransferDocumentFilterViewModel(employeeJournalFactory)
+		NavigationManager.OpenViewModel<OrganizationCashTransferDocumentJournalViewModel>(
+			null,
+			addingRegistrations: builder => builder.Register(c => new EmployeeFilterViewModel
 			{
-				HidenByDefault = true
-			},
-			uowFactory,
-			ServicesConfig.CommonServices,
-			entityExtendedPermissionValidator,
-			employeeService)
-		);
+				Status = EmployeeStatus.IsWorking
+			}));
 	}
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
@@ -938,5 +928,10 @@ public partial class MainWindow : Window
 	private void OnOnlineOrdersJournalActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<OnlineOrdersJournalViewModel>(null);
+	}
+
+	private void OnActionServiceDeliveryRulesActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ServiceDistrictsSetJournalViewModel>(null);
 	}
 }

@@ -1,17 +1,17 @@
-﻿using System;
+﻿using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
+using Gamma.Utilities;
+using NHibernate.Transform;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
+using QS.Project.Services;
+using QS.Report;
+using QSReport;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.ColumnConfig;
-using Gamma.GtkWidgets;
-using Gamma.Utilities;
-using NHibernate.Transform;
-using QS.Dialog;
-using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
-using QS.Report;
-using QSReport;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -134,8 +134,9 @@ namespace Vodovoz.ReportsParameters.Store
 
 		Dictionary<FilterTypes, Criterion> criterions = new Dictionary<FilterTypes, Criterion>();
 
-		public StockMovementsAdvancedReport()
+		public StockMovementsAdvancedReport(IReportInfoFactory reportInfoFactory)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
@@ -310,9 +311,7 @@ namespace Vodovoz.ReportsParameters.Store
 			string[] includeDocTypes = GetDocumetTypes(criterions[FilterTypes.DocumentTypeInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
 			string[] excludeDocTypes = GetDocumetTypes(criterions[FilterTypes.DocumentTypeExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
 
-			return new ReportInfo {
-				Identifier = "Store.StockMovementsAdvancedReport",
-				Parameters = new Dictionary<string, object>
+			var parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
 					{ "end_date", dateperiodpicker.EndDateOrNull.Value.AddDays(1).AddTicks(-1) },
@@ -328,8 +327,10 @@ namespace Vodovoz.ReportsParameters.Store
 					//типы документов
 					{ "doctype_include", includeDocTypes},
 					{ "doctype_exclude", excludeDocTypes}
-				}
-			};
+				};
+
+			var reportInfo = _reportInfoFactory.Create("Store.StockMovementsAdvancedReport", Title, parameters);
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
@@ -343,6 +344,7 @@ namespace Vodovoz.ReportsParameters.Store
 		}
 
 		GenericObservableList<StockMovementsAdvancedReportNode> treeNodes;
+		private readonly IReportInfoFactory _reportInfoFactory;
 
 		protected void OnBtnWarehousesSelectClicked(object sender, EventArgs e)
 		{

@@ -29,6 +29,7 @@ using Vodovoz.Tools.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Core.Domain.Goods;
+using VodovozBusiness.Domain.Service;
 
 namespace Vodovoz.Infrastructure.Persistance.Delivery
 {
@@ -741,6 +742,26 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 			return fastDeliveryOrdersLateQuery
 				.TransformUsing(Transformers.RootEntity)
 				.List<Order>();
+		}
+
+		public ServiceDistrict GetServiceDistrictByCoordinates(IUnitOfWork unitOfWork, decimal latitude, decimal longitude)
+		{
+			var point = new Point((double)latitude, (double)longitude);
+
+			var serviceDistricts =
+				(
+					from serviceDistrict in unitOfWork.Session.Query<ServiceDistrict>()
+					join serviceDistrictSet in unitOfWork.Session.Query<ServiceDistrictsSet>()
+					on serviceDistrict.ServiceDistrictsSet.Id equals serviceDistrictSet.Id
+					where serviceDistrictSet.Status == ServiceDistrictsSetStatus.Active
+						&& serviceDistrict.ServiceDistrictBorder != null
+					select serviceDistrict
+				)
+				.ToList();
+			
+			var result = serviceDistricts.FirstOrDefault(x => x.ServiceDistrictBorder.Contains(point));
+
+			return result;
 		}
 	}
 }

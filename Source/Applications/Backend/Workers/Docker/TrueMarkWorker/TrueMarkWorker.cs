@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -373,7 +373,7 @@ namespace TrueMarkWorker
 		private async Task<TrueMarkDocument> CreateAndSendDocument(IHttpClientFactory httpClientFactory, HttpClient httpClient, TrueMarkDocumentType trueMarkDocumentType, IDocumentFactory productDocumentFactory,
 			OrganizationCertificate certificate, CancellationToken cancellationToken)
 		{
-			var documentCreateUrl = "lk/documents/create?pg=water";
+			var documentCreateUrl = "v3/true-api/lk/documents/create?pg=water";
 
 			var document = productDocumentFactory.CreateDocument();
 
@@ -419,7 +419,7 @@ namespace TrueMarkWorker
 
 		private async Task<TrueMarkDocument> RecieveDocument(HttpClient httpClient, string documentId, CancellationToken cancellationToken)
 		{
-			var resultInfoUrl = $"doc/{documentId}/info";
+			var resultInfoUrl = $"v4/true-api/doc/{documentId}/info";
 
 			// Делаем паузу перед получением информации по созданному документу
 			await Task.Delay(_createDocumentDelaySec * 1000, cancellationToken);
@@ -455,7 +455,8 @@ namespace TrueMarkWorker
 			}
 
 			var resultInfoResponseBody = await resultInfoResponse.Content.ReadAsStreamAsync(cancellationToken);
-			createdDocumentInfo = await JsonSerializer.DeserializeAsync<CreatedDocumentInfoDto>(resultInfoResponseBody, cancellationToken: cancellationToken);
+			createdDocumentInfo = (await JsonSerializer.DeserializeAsync<IEnumerable<CreatedDocumentInfoDto>>(resultInfoResponseBody))
+				.FirstOrDefault();
 
 			if(createdDocumentInfo == null)
 			{
@@ -497,24 +498,34 @@ namespace TrueMarkWorker
 				return;
 			}
 
-			var registrations = await GetParticipantsRegistrations(httpClientFactory, notRegisteredInns, cancellationToken);
+			// Ограничение в 100 инн
+			var splitedNotRegisteredInns = notRegisteredInns
+				.Select((x, i) => new { Index = i, Value = x })
+				.GroupBy(x => x.Index / 100)
+				.Select(x => x.Select(v => v.Value).ToList())
+				.ToList();
 
-			foreach(var registration in registrations)
+			foreach(var inns in splitedNotRegisteredInns)
 			{
-				var orderForUpdate = orders.FirstOrDefault(o =>
-						o.Client.INN == registration.Inn
-						&& (o.Client.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered
-							&& registration.IsRegisteredForWater));
+				var registrations = await GetParticipantsRegistrations(httpClientFactory, inns, cancellationToken);
 
-				if(orderForUpdate?.Client is Counterparty counterparty)
+				foreach(var registration in registrations)
 				{
-					_logger.LogInformation("Найдено изменение статуса регистрации клиента {CounterpartyId} в Честном Знаке, сохраняем изменение в базу.", counterparty.Id);
+					var orderForUpdate = orders.FirstOrDefault(o =>
+							o.Client.INN == registration.Inn
+							&& (o.Client.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered
+								&& registration.IsRegisteredForWater));
 
-					counterparty.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
+					if(orderForUpdate?.Client is Counterparty counterparty)
+					{
+						_logger.LogInformation("Найдено изменение статуса регистрации клиента {CounterpartyId} в Честном Знаке, сохраняем изменение в базу.", counterparty.Id);
 
-					uow.Save(counterparty);
+						counterparty.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
 
-					CheckAndRemoveOrderFromProcessingList(orders, orderForUpdate);
+						uow.Save(counterparty);
+
+						CheckAndRemoveOrderFromProcessingList(orders, orderForUpdate);
+					}
 				}
 			}
 

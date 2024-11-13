@@ -12,7 +12,7 @@ namespace Vodovoz.Cash.Transfer
 
 		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
-		private global::Gtk.Button buttonPrint;
+		private global::Gamma.GtkWidgets.yButton buttonPrint;
 
 		private global::Gtk.Table tableState;
 
@@ -139,7 +139,7 @@ namespace Vodovoz.Cash.Transfer
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hboxDialogButtons.Gtk.Box+BoxChild
-			this.buttonPrint = new global::Gtk.Button();
+			this.buttonPrint = new global::Gamma.GtkWidgets.yButton();
 			this.buttonPrint.CanFocus = true;
 			this.buttonPrint.Name = "buttonPrint";
 			this.buttonPrint.UseUnderline = true;

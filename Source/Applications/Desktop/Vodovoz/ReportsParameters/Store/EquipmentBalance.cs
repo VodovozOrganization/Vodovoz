@@ -1,28 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Core.Domain.Goods;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ReportsParameters.Store
 {
 	public partial class EquipmentBalance : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly IReportInfoFactory _reportInfoFactory;
+
 		GenericObservableList<SelectableNomenclatureTypeNode> observableItems { get; set; }
 
-		public EquipmentBalance()
+		public EquipmentBalance(IReportInfoFactory reportInfoFactory)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -150,15 +152,15 @@ namespace Vodovoz.ReportsParameters.Store
 				additional = new string[] { "0" };
 			}
 
-			return new ReportInfo {
-				Identifier = "Store.EquipmentBalance",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "categories", categories }, //все выбранные категории номенклатур без подтипов
-					{ "equipments", equipments }, //все выбранные подтипы категории оборудования
-					{ "additional", additional } //все выбранные подтипы категории товаров
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "categories", categories }, //все выбранные категории номенклатур без подтипов
+				{ "equipments", equipments }, //все выбранные подтипы категории оборудования
+				{ "additional", additional } //все выбранные подтипы категории товаров
 			};
+
+			var reportInfo = _reportInfoFactory.Create("Store.EquipmentBalance", Title, parameters);
+			return reportInfo;
 		}
 	}
 

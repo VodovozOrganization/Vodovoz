@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Fias.Client.Loaders;
 using QS.Commands;
 using QS.Dialog;
@@ -22,6 +22,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -601,6 +602,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			get => _showDistrictBorders; 
 			set => SetField(ref _showDistrictBorders, value);
 		}
+
+		public OrderAddressType? TypeOfAddress => null;
 
 		public override void Dispose()
 		{

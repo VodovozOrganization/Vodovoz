@@ -8,11 +8,11 @@ namespace Vodovoz.JournalViewers
 
 		private global::Gtk.Entry entryObject;
 
-		private global::Gtk.Button buttonClear;
+		private global::Gamma.GtkWidgets.yButton buttonClear;
 
-		private global::Gtk.Button buttonSelectEntity;
+		private global::Gamma.GtkWidgets.yButton buttonSelectEntity;
 
-		private global::Gtk.Button buttonViewEntity;
+		private global::Gamma.GtkWidgets.yButton buttonViewEntity;
 
 		protected virtual void Build()
 		{
@@ -34,7 +34,7 @@ namespace Vodovoz.JournalViewers
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entryObject]));
 			w1.Position = 0;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonClear = new global::Gtk.Button();
+			this.buttonClear = new global::Gamma.GtkWidgets.yButton();
 			this.buttonClear.CanFocus = true;
 			this.buttonClear.Name = "buttonClear";
 			this.buttonClear.UseUnderline = true;
@@ -47,7 +47,7 @@ namespace Vodovoz.JournalViewers
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSelectEntity = new global::Gtk.Button();
+			this.buttonSelectEntity = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSelectEntity.TooltipMarkup = "Выбрать из справочника";
 			this.buttonSelectEntity.CanFocus = true;
 			this.buttonSelectEntity.Name = "buttonSelectEntity";
@@ -61,7 +61,7 @@ namespace Vodovoz.JournalViewers
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonViewEntity = new global::Gtk.Button();
+			this.buttonViewEntity = new global::Gamma.GtkWidgets.yButton();
 			this.buttonViewEntity.TooltipMarkup = "Открыть";
 			this.buttonViewEntity.Sensitive = false;
 			this.buttonViewEntity.CanFocus = true;

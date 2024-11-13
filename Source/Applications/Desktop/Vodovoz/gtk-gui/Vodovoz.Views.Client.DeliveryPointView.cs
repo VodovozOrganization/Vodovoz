@@ -108,7 +108,7 @@ namespace Vodovoz.Views.Client
 
 		private global::Gamma.GtkWidgets.yLabel ylabelChangedUser;
 
-		private global::Gtk.Button buttonInsertFromBuffer;
+		private global::Gamma.GtkWidgets.yButton buttonInsertFromBuffer;
 
 		private global::Gtk.HBox hbox8;
 
@@ -142,7 +142,7 @@ namespace Vodovoz.Views.Client
 
 		private global::Gamma.GtkWidgets.ySpinButton ySpinLimitMax;
 
-		private global::Gtk.Button buttonApplyLimitsToAllDeliveryPointsOfCounterparty;
+		private global::Gamma.GtkWidgets.yButton buttonApplyLimitsToAllDeliveryPointsOfCounterparty;
 
 		private global::Gtk.HBox hboxLunchTime;
 
@@ -783,7 +783,7 @@ namespace Vodovoz.Views.Client
 			w51.Expand = false;
 			w51.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonInsertFromBuffer = new global::Gtk.Button();
+			this.buttonInsertFromBuffer = new global::Gamma.GtkWidgets.yButton();
 			this.buttonInsertFromBuffer.CanFocus = true;
 			this.buttonInsertFromBuffer.Name = "buttonInsertFromBuffer";
 			this.buttonInsertFromBuffer.UseUnderline = true;
@@ -983,7 +983,7 @@ namespace Vodovoz.Views.Client
 			w68.Expand = false;
 			w68.Fill = false;
 			// Container child hboxLimits.Gtk.Box+BoxChild
-			this.buttonApplyLimitsToAllDeliveryPointsOfCounterparty = new global::Gtk.Button();
+			this.buttonApplyLimitsToAllDeliveryPointsOfCounterparty = new global::Gamma.GtkWidgets.yButton();
 			this.buttonApplyLimitsToAllDeliveryPointsOfCounterparty.CanFocus = true;
 			this.buttonApplyLimitsToAllDeliveryPointsOfCounterparty.Name = "buttonApplyLimitsToAllDeliveryPointsOfCounterparty";
 			this.buttonApplyLimitsToAllDeliveryPointsOfCounterparty.UseUnderline = true;

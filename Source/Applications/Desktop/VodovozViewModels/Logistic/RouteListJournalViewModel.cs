@@ -60,6 +60,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IRouteListService _routeListService;
 		private readonly IEventsQrPlacer _eventsQrPlacer;
 		private readonly ICustomPrintRdlDocumentsPrinter _carLoadDocumentsPrinter;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
@@ -99,6 +100,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListService routeListService,
 			IEventsQrPlacer eventsQrPlacer,
 			ICustomPrintRdlDocumentsPrinter carLoadDocumentsPrinter,
+			IReportInfoFactory reportInfoFactory,
 			Action<RouteListJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -116,6 +118,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_eventsQrPlacer = eventsQrPlacer ?? throw new ArgumentNullException(nameof(eventsQrPlacer));
 			_carLoadDocumentsPrinter = carLoadDocumentsPrinter ?? throw new ArgumentNullException(nameof(carLoadDocumentsPrinter));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_userSettings = userSettings;
 			_storeDocumentHelper = storeDocumentHelper;
@@ -822,9 +825,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void PrintCarLoadDocuments(CarLoadDocument carLoadDocument)
 		{
-			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, CarLoadDocumentPlaceEventsQr);
-			var controlCarLoadDocument = ControlCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument);
-			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument);
+			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, CarLoadDocumentPlaceEventsQr, _reportInfoFactory);
+			var controlCarLoadDocument = ControlCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, _reportInfoFactory);
+			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, _reportInfoFactory);
 
 			_carLoadDocumentsPrinter.Print(waterCarLoadDocument);
 			_carLoadDocumentsPrinter.Print(controlCarLoadDocument);

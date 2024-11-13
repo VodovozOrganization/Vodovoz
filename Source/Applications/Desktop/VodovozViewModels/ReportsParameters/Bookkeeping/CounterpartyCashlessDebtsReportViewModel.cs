@@ -4,6 +4,7 @@ using NHibernate.Linq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Report;
 using QS.Report.ViewModels;
 using QS.Services;
 using System;
@@ -42,7 +43,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			IGenericRepository<CounterpartySubtype> counterpartySubtypeRepository,
 			IGenericRepository<Counterparty> counterpartyRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
-			RdlViewerViewModel rdlViewerViewModel) : base(rdlViewerViewModel)
+			RdlViewerViewModel rdlViewerViewModel,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));

@@ -21,7 +21,7 @@ namespace Vodovoz.Models.Orders
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
 		private readonly int _fastDeliveryNomenclatureId;
-
+		private readonly int _masterCallNomenclatureId;
 		private bool _needCopyStockBottleDiscount;
 
 		internal CopyingOrder(IUnitOfWork uow, Order copiedOrder, Order resultOrder,
@@ -42,6 +42,7 @@ namespace Vodovoz.Models.Orders
 
 			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
 			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
+			_masterCallNomenclatureId = _nomenclatureSettings.MasterCallNomenclatureId;
 			_flyersNomenclaturesIds = _flyerRepository.GetAllFlyersNomenclaturesIds(_uow);
 		}
 
@@ -154,7 +155,8 @@ namespace Vodovoz.Models.Orders
 			var orderItems = _copiedOrder.OrderItems
 				.Where(x => x.PromoSet == null)
 				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId)
-				.Where(x => x.Nomenclature.Id != _fastDeliveryNomenclatureId);
+				.Where(x => x.Nomenclature.Id != _fastDeliveryNomenclatureId)
+				.Where(x => x.Nomenclature.Id != _masterCallNomenclatureId);
 
 			foreach(var orderItem in orderItems)
 			{
@@ -183,6 +185,7 @@ namespace Vodovoz.Models.Orders
 				.Where(x => x.PromoSet == null)
 				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId)
 				.Where(x => x.Nomenclature.Id != _fastDeliveryNomenclatureId)
+				.Where(x => x.Nomenclature.Id != _masterCallNomenclatureId)
 				.Where(x => !equipmentReferencedOrderItems.Contains(x));
 
 			foreach(var orderItem in orderItems)

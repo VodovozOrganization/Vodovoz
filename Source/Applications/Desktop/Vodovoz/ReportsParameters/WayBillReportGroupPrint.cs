@@ -7,7 +7,6 @@ using NHibernate.Transform;
 using NHibernate.Util;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
 using QS.Report;
@@ -35,6 +34,7 @@ namespace Vodovoz.ReportsParameters
 {
 	public partial class WayBillReportGroupPrint : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IOrganizationJournalFactory _organizationJournalFactory;
@@ -48,12 +48,14 @@ namespace Vodovoz.ReportsParameters
 		private Car _car;
 
 		public WayBillReportGroupPrint(
+			IReportInfoFactory reportInfoFactory,
 			ILifetimeScope lifetimeScope,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IOrganizationJournalFactory organizationJournalFactory, 
 			IInteractiveService interactiveService,
 			ISubdivisionRepository subdivisionRepository)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_organizationJournalFactory = organizationJournalFactory ?? throw new ArgumentNullException(nameof(organizationJournalFactory));
@@ -198,36 +200,34 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetSingleReportInfo()
 		{
-			return new ReportInfo
-			{
-				Identifier = "Logistic.WayBillReport",
-				Parameters = new Dictionary<string, object>
+			var parameters = new Dictionary<string, object>
 				{
 					{ "date", datepickerSingleReport.Date },
 					{ "driver_id", (entityDriverSingleReport?.Subject as Employee)?.Id ?? -1 },
 					{ "car_id", Car?.Id ?? -1 },
 					{ "time", timeHourEntrySingleReport.Text + ":" + timeMinuteEntrySingleReport.Text },
 					{ "need_date", !datepickerSingleReport.IsEmpty }
-				}
-			};
+				};
+
+			var reportInfo = _reportInfoFactory.Create("Logistic.WayBillReport", Title, parameters);
+			return reportInfo;
 		}
 
 		private ReportInfo GetGroupReportInfoForOneDay()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Logistic.WayBillReportOneDayGroupPrint",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "date", _date },
-					{ "auto_types", _carTypesOfUse.Any() ? _carTypesOfUse : new[] { (object)0 } },
-					{ "owner_types", _carOwnTypes.Any() ? _carOwnTypes : new[] { (object)0 } },
-					{ "subdivisions", _subdivisionIds.Any() ? _subdivisionIds : new[] { -1 } },
-					{ "exclude_drivers", _selectedDriversIds.Any() ? _selectedDriversIds : new[] { -1 } },
-					{ "time", timeHourEntryOneDayGroupReport.Text + ":" + timeMinuteEntryOneDayGroupReport.Text },
-					{ "need_date", !datepickerOneDayGroupReport.IsEmpty }
-				}
+				{ "date", _date },
+				{ "auto_types", _carTypesOfUse.Any() ? _carTypesOfUse : new[] { (object)0 } },
+				{ "owner_types", _carOwnTypes.Any() ? _carOwnTypes : new[] { (object)0 } },
+				{ "subdivisions", _subdivisionIds.Any() ? _subdivisionIds : new[] { -1 } },
+				{ "exclude_drivers", _selectedDriversIds.Any() ? _selectedDriversIds : new[] { -1 } },
+				{ "time", timeHourEntryOneDayGroupReport.Text + ":" + timeMinuteEntryOneDayGroupReport.Text },
+				{ "need_date", !datepickerOneDayGroupReport.IsEmpty }
 			};
+
+			var reportInfo = _reportInfoFactory.Create("Logistic.WayBillReportOneDayGroupPrint", Title, parameters);
+			return reportInfo;
 		}
 
 		private IList<NamedDomainObjectNode> GetAvailableSubdivisionsListInAccordingWithCarParameters()

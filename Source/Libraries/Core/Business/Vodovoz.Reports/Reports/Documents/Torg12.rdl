@@ -1,7 +1,9 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>202.615mm</PageHeight>
   <PageWidth>286.405mm</PageWidth>
   <Width>286.405mm</Width>
@@ -93,16 +95,16 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
     orders.delivery_date AS order_date,
     IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_name) AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) AND counterparty.special_contract_date is not null,
-        CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
-        IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_name),
-            counterparty.special_contract_name,
-            CONCAT(counterparty_contract.id, ' от ', DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y')))) AS contract_number,
+       CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
+       IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_name),
+          counterparty.special_contract_name,
+          CONCAT(counterparty_contract.id, ' от ', DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y')))) AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
     counterparty.full_name AS client_name,
     counterparty.jur_address AS client_address,
@@ -125,8 +127,8 @@ WHERE
                          ''),
 
                  CONCAT('р/с ', client_account.number, ' в ', client_bank.name, ', БИК ', client_bank.bik, ', к/с ', client_bank_cor_accounts.cor_account_number)
-           )
-        ) AS cargo_receiver,
+       )
+    ) AS cargo_receiver,
     NULLIF(
             (SELECT REPLACE(phones.number, ' ', '')
              FROM phones
@@ -154,7 +156,23 @@ WHERE
     leader.last_name AS leader_last_name,
     LEFT(leader.name, 1) AS leader_name,
     LEFT(leader.patronymic, 1) AS leader_patronymic,
-    IF(counterparty.use_special_doc_fields, IF(!IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp), counterparty.kpp) AS KPP
+    IF(counterparty.use_special_doc_fields, IF(!IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp), counterparty.kpp) AS KPP,
+    (
+        select NUMBER_TO_STRING_DESCRIPTION(
+                       ifnull(
+                               sum(
+                                       Round(ifnull(oi.actual_count, oi.count) * oi.price - oi.discount_money, 2)
+                               ),
+                               0)
+               )
+        from order_items oi
+        where oi.order_id = orders.id
+    ) AS order_sum_string,
+    (
+        select INT_NUMBER_TO_STRING_DESCRIPTION(IFNULL(count(id), 0))
+        from order_items oi
+        where oi.order_id = orders.id
+    ) AS order_items_count_string
 FROM
     orders
         LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id AND client_phones.is_archive = 0
@@ -165,11 +183,11 @@ FROM
         LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
         LEFT JOIN organization_versions ov
                   ON
-                              organizations.id = ov.organization_id
+                      organizations.id = ov.organization_id
                           AND
-                              ov.start_date &lt;= orders.bill_date
+                      ov.start_date &lt;= orders.bill_date
                           AND
-                              (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+                      (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
         LEFT JOIN employees leader ON leader.id = ov.leader_id
         LEFT JOIN employees buhgalter ON buhgalter.id = ov.accountant_id
         LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id
@@ -178,16 +196,17 @@ FROM
         LEFT JOIN banks client_bank ON client_bank.id = client_account.bank_id
         LEFT JOIN banks_cor_accounts client_bank_cor_accounts ON client_account.bank_cor_account_id = client_bank_cor_accounts.id
 WHERE
-        counterparty_contract.id=orders.counterparty_contract_id
+    counterparty_contract.id=orders.counterparty_contract_id
   AND orders.id = @order_id
-GROUP BY orders.id</CommandText>
+GROUP BY orders.id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -298,6 +317,14 @@ GROUP BY orders.id</CommandText>
         </Field>
         <Field Name="cargo_receiver">
           <DataField>cargo_receiver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_sum_string">
+          <DataField>order_sum_string</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_items_count_string">
+          <DataField>order_items_count_string</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -450,7 +477,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -489,7 +517,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -527,7 +556,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -546,7 +576,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1261,7 +1292,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1279,7 +1311,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1297,7 +1330,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1315,7 +1349,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1475,7 +1510,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox72">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1492,7 +1528,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox114">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1629,8 +1666,8 @@ GROUP BY orders.id</CommandText>
             <Width>173.43pt</Width>
             <Value>Товарная накладная имеет приложение на</Value>
             <ZIndex>0</ZIndex>
-            <Left>129.2pt</Left>
-            <Top>12.8pt</Top>
+            <Left>129.20pt</Left>
+            <Top>12.80pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2073,7 +2110,8 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox150" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.28pt</Height>
             <Width>100.57pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>0</ZIndex>
             <Left>545.0pt</Left>
             <Top>71.5pt</Top>
@@ -2089,7 +2127,8 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox151" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.03pt</Height>
             <Width>106.07pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>0</ZIndex>
             <Left>667.0pt</Left>
             <Top>70.4pt</Top>
@@ -2151,7 +2190,8 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox156" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
             <Width>279.65pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>0</ZIndex>
             <Left>505.6pt</Left>
             <Top>104.9pt</Top>
@@ -2167,7 +2207,8 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox157" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
             <Width>279.65pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>0</ZIndex>
             <Left>505.5pt</Left>
             <Top>117.3pt</Top>
@@ -2406,7 +2447,8 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox188">
             <Height>12.00pt</Height>
             <Width>94.77pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>0</ZIndex>
             <Left>540.7pt</Left>
             <Top>180.5pt</Top>
@@ -2450,7 +2492,7 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox116" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
             <Width>389.15pt</Width>
-            <Value>=SummaString_Val(Convert.ToString(Sum(Round(Fields!item_price.Value * Fields!count.Value - {item_discount_money}, 2), "Goods")))</Value>
+            <Value>=First({order_sum_string}, "Order")</Value>
             <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>85.1pt</Top>
@@ -2514,7 +2556,8 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox129" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>10.00pt</Height>
             <Width>26.52pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>0</ZIndex>
             <Left>392.60pt</Left>
             <Top>0.00pt</Top>
@@ -2533,7 +2576,8 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox186" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>10.00pt</Height>
             <Width>47.52pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>0</ZIndex>
             <Left>419.60pt</Left>
             <Top>0.00pt</Top>
@@ -2721,7 +2765,7 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox65" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
             <Width>350.15pt</Width>
-            <Value>=String_Val(Convert.ToString(Count({id}, "Goods")))</Value>
+            <Value>=First({order_items_count_string}, "Order")</Value>
             <ZIndex>0</ZIndex>
             <Left>179.5pt</Left>
             <Top>23.5pt</Top>
@@ -2739,7 +2783,8 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox105">
             <Height>14.25pt</Height>
             <Width>142.77pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>0</ZIndex>
             <Left>632.8pt</Left>
             <Top>34.2pt</Top>
@@ -2764,7 +2809,8 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox109">
             <Height>13.50pt</Height>
             <Width>142.77pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>0</ZIndex>
             <Left>632.8pt</Left>
             <Top>48.0pt</Top>
@@ -2892,15 +2938,15 @@ GROUP BY orders.id</CommandText>
           </Textbox>
         </ReportItems>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
         <ZIndex>0</ZIndex>
@@ -3110,7 +3156,8 @@ GROUP BY orders.id</CommandText>
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>11pt</Height>
         <Width>650pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>10.6pt</Left>
         <Top>59.9pt</Top>
@@ -3329,7 +3376,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>2pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -3354,13 +3402,15 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <FontSize>6pt</FontSize>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
         </Style>
       </Textbox>
       <Textbox Name="Textbox159" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>23.00pt</Height>
         <Width>42.90pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>62.00pt</Top>
@@ -3381,7 +3431,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -3389,7 +3440,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
       <Textbox Name="Textbox161" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>85.00pt</Top>
@@ -3410,7 +3462,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -3418,7 +3471,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
       <Textbox Name="Textbox163" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>97.50pt</Top>
@@ -3439,7 +3493,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -3447,7 +3502,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
       <Textbox Name="Textbox166" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>110.00pt</Top>
@@ -3468,7 +3524,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -3497,7 +3554,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
@@ -3527,7 +3585,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
@@ -3556,7 +3615,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
@@ -3585,7 +3645,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
@@ -3614,7 +3675,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
@@ -3622,7 +3684,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
       <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>122.50pt</Top>
@@ -3643,7 +3706,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -3672,7 +3736,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
@@ -3680,7 +3745,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
       <Textbox Name="Textbox154" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>135.00pt</Top>
@@ -3701,7 +3767,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -3709,7 +3776,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
       <Textbox Name="Textbox170" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>160.00pt</Top>
@@ -3730,7 +3798,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -3759,7 +3828,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
@@ -3788,7 +3858,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
@@ -3796,7 +3867,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
       <Textbox Name="Textbox183" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>147.50pt</Top>
@@ -3817,7 +3889,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -3825,7 +3898,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
       <Textbox Name="Textbox184" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>172.50pt</Top>
@@ -3846,7 +3920,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -3875,7 +3950,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
@@ -3904,7 +3980,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>1pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
@@ -3912,7 +3989,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
       <Textbox Name="Textbox202" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>8.75pt</Height>
         <Width>42.90pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>185.00pt</Top>
@@ -3933,7 +4011,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
             <Top>1pt</Top>
             <Bottom>2pt</Bottom>
           </BorderWidth>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -3947,720 +4026,6 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <Code>Public Function String_Val(ByVal Summa As String) As String
-        Dim T1Str As String
-        Dim T2Str As String
-        Dim T3Str As String
-        Dim T4Str As String
-        Dim KStr As String
-        Dim Cel As String
- 
-        Summa = Trim$(Summa) 'Удалить пробелы
-        Summa = Replace(Summa, ",", ".", , , vbBinaryCompare) 'Заменить запятые на точки
-        If InStr(1, Summa, ".", vbBinaryCompare) = 0 Then Summa = Summa &amp; ".00" 'Дописать копейки
-        If Mid$(Summa, Len(Summa) - 1, 1) = "." Then Summa = Summa &amp; "0" '
-        'Проверка длины числа
-        If Len(Summa) &gt; 15 Then
-            MsgBox("Слишком длинное число.", vbInformation, "Мультивалютная сумма прописью")
-            Return "Invalid value!"
-            Exit Function
-        End If
- 
-        If Len(Summa) &lt; 15 Then Summa = New String("0", 15 - Len(Summa)) &amp; Summa
- 
-        'Анализ первой триады
-        T1Str = TrStr(Left(Summa, 3), 0)
-        If T1Str &lt;&gt; "" Then
-            Select Case Right$(Left(Summa, 3), 1)
-                Case Is = "0"
-                    T1Str = T1Str &amp; "миллиардов "
-                Case Is = "1"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиард "
-                    End If
-                Case Is = "2"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Is = "3"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Is = "4"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Else
-                    T1Str = T1Str &amp; "миллиардов "
-            End Select
-        End If
- 
-        'Анализ второй триады
-        T2Str = TrStr(Mid$(Summa, 4, 3), 0)
-        If T2Str &lt;&gt; "" Then
-            Select Case Right$(Mid$(Summa, 4, 3), 1)
-                Case Is = "0"
-                    T2Str = T2Str &amp; "миллионов "
-                Case Is = "1"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллион "
-                    End If
-                Case Is = "2"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Is = "3"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Is = "4"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Else
-                    T2Str = T2Str &amp; "миллионов "
-            End Select
-        End If
- 
-        'Анализ третьей триады
-        T3Str = TrStr(Mid$(Summa, 7, 3), 1)
-        If T3Str &lt;&gt; "" Then
-            Select Case Right$(Mid$(Summa, 7, 3), 1)
-                Case Is = "0"
-                    T3Str = T3Str &amp; "тысяч "
-                Case Is = "1"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысяча "
-                    End If
-                Case Is = "2"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Is = "3"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Is = "4"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Else
-                    T3Str = T3Str &amp; "тысяч "
-            End Select
-        End If
- 
-        'Анализ четвертой триады
-        T4Str = TrStr(Mid$(Summa, 10, 3), 0)
- 
-        If Len(T1Str &amp; T2Str &amp; T3Str &amp; T4Str) = 0 Then
-            Cel = "ноль "
-        Else
-            Cel = T1Str &amp; T2Str &amp; T3Str &amp; T4Str
-        End If
- 
-        Return Strings.Left(Cel &amp; KStr, 1).ToUpper &amp; Strings.Right(Cel &amp; KStr, Len(Cel &amp; KStr) - 1)
-End Function
-
-Public Function SummaString_Val(ByVal Summa As String) As String
-        Dim T1Str As String
-        Dim T2Str As String
-        Dim T3Str As String
-        Dim T4Str As String
-        Dim KStr As String
-        Dim Cel As String
- 
-        Summa = Trim$(Summa) 'Удалить пробелы
-        Summa = Replace(Summa, ",", ".", , , vbBinaryCompare) 'Заменить запятые на точки
-        If InStr(1, Summa, ".", vbBinaryCompare) = 0 Then Summa = Summa &amp; ".00" 'Дописать копейки
-        If Mid$(Summa, Len(Summa) - 1, 1) = "." Then Summa = Summa &amp; "0" '
-        'Проверка длины числа
-        If Len(Summa) &gt; 15 Then
-            MsgBox("Слишком длинное число.", vbInformation, "Мультивалютная сумма прописью")
-            Return "Invalid value!"
-            Exit Function
-        End If
- 
-        If Len(Summa) &lt; 15 Then Summa = New String("0", 15 - Len(Summa)) &amp; Summa
- 
-        'Анализ первой триады
-        T1Str = TrStr(Left(Summa, 3), 0)
-        If T1Str &lt;&gt; "" Then
-            Select Case Right$(Left(Summa, 3), 1)
-                Case Is = "0"
-                    T1Str = T1Str &amp; "миллиардов "
-                Case Is = "1"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиард "
-                    End If
-                Case Is = "2"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Is = "3"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Is = "4"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Else
-                    T1Str = T1Str &amp; "миллиардов "
-            End Select
-        End If
- 
-        'Анализ второй триады
-        T2Str = TrStr(Mid$(Summa, 4, 3), 0)
-        If T2Str &lt;&gt; "" Then
-            Select Case Right$(Mid$(Summa, 4, 3), 1)
-                Case Is = "0"
-                    T2Str = T2Str &amp; "миллионов "
-                Case Is = "1"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллион "
-                    End If
-                Case Is = "2"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Is = "3"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Is = "4"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Else
-                    T2Str = T2Str &amp; "миллионов "
-            End Select
-        End If
- 
-        'Анализ третьей триады
-        T3Str = TrStr(Mid$(Summa, 7, 3), 1)
-        If T3Str &lt;&gt; "" Then
-            Select Case Right$(Mid$(Summa, 7, 3), 1)
-                Case Is = "0"
-                    T3Str = T3Str &amp; "тысяч "
-                Case Is = "1"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысяча "
-                    End If
-                Case Is = "2"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Is = "3"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Is = "4"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Else
-                    T3Str = T3Str &amp; "тысяч "
-            End Select
-        End If
- 
-        'Анализ четвертой триады
-        T4Str = TrStr(Mid$(Summa, 10, 3), 0)
- 
-        'Анализ копеек
-        KStr = KdStr(Right$(Summa, 2), 1)
- 
-        If Len(T1Str &amp; T2Str &amp; T3Str &amp; T4Str) = 0 Then
-            Cel = "ноль "
-        Else
-            Cel = T1Str &amp; T2Str &amp; T3Str &amp; T4Str
-        End If
- 
-        '========= Приписать валюту =========
-        'Рубли
-        If Val(Mid$(Summa, 11, 1)) &lt;&gt; 1 Then
-            Select Case Mid$(Summa, 12, 1)
-                Case Is = "0"
-                    Cel = Cel &amp; "рублей "
-                Case Is = "1"
-                    Cel = Cel &amp; "рубль "
-                Case Is = "2"
-                    Cel = Cel &amp; "рубля "
-                Case Is = "3"
-                    Cel = Cel &amp; "рубля "
-                Case Is = "4"
-                    Cel = Cel &amp; "рубля "
-                Case Else
-                    Cel = Cel &amp; "рублей "
-            End Select
-        End If
- 
-        Select Case Mid$(Summa, 11, 2)
-            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
-                Cel = Cel &amp; "рублей "
-        End Select
- 
-        'Копейки
-        If Val(Mid$(Summa, 14, 1)) &lt;&gt; 1 Then
-            Select Case Right$(Summa, 1)
-                Case Is = "0"
-                    KStr = KStr &amp; "копеек"
-                Case Is = "1"
-                    KStr = KStr &amp; "копейка"
-                Case Is = "2"
-                    KStr = KStr &amp; "копейки"
-                Case Is = "3"
-                    KStr = KStr &amp; "копейки"
-                Case Is = "4"
-                    KStr = KStr &amp; "копейки"
-                Case Else
-                    KStr = KStr &amp; "копеек"
-            End Select
-        End If
- 
-        Select Case Right$(Summa, 2)
-            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
-                KStr = KStr &amp; "копеек"
-        End Select
- 
-        Return Strings.Left(Cel &amp; KStr, 1).ToUpper &amp; Strings.Right(Cel &amp; KStr, Len(Cel &amp; KStr) - 1)
- 
-    End Function
-    Private Function TrStr(ByVal Triada As String, ByVal Rod As Integer) As String
-        TrStr = ""
-        If Rod = 0 Then
-            Select Case Left$(Triada, 1)
-                Case Is = "1"
-                    TrStr = TrStr &amp; "сто "
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двести "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "триста "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "четыреста "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьсот "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьсот "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьсот "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьсот "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девятьсот "
-            End Select
- 
-            Select Case Mid$(Triada, 2, 1)
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двадцать "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "тридцать "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "сорок "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьдесят "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьдесят "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьдесят "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьдесят "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девяносто "
-            End Select
- 
-            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
-                Select Case Right$(Triada, 1)
-                    Case Is = "1"
-                        TrStr = TrStr &amp; "один "
-                    Case Is = "2"
-                        TrStr = TrStr &amp; "два "
-                    Case Is = "3"
-                        TrStr = TrStr &amp; "три "
-                    Case Is = "4"
-                        TrStr = TrStr &amp; "четыре "
-                    Case Is = "5"
-                        TrStr = TrStr &amp; "пять "
-                    Case Is = "6"
-                        TrStr = TrStr &amp; "шесть "
-                    Case Is = "7"
-                        TrStr = TrStr &amp; "семь "
-                    Case Is = "8"
-                        TrStr = TrStr &amp; "восемь "
-                    Case Is = "9"
-                        TrStr = TrStr &amp; "девять "
-                End Select
-            End If
- 
-            Select Case Right$(Triada, 2)
-                Case Is = "01"
-                    TrStr = TrStr &amp; "один "
-                Case Is = "02"
-                    TrStr = TrStr &amp; "два "
-                Case Is = "03"
-                    TrStr = TrStr &amp; "три "
-                Case Is = "04"
-                    TrStr = TrStr &amp; "четыре "
-                Case Is = "05"
-                    TrStr = TrStr &amp; "пять "
-                Case Is = "06"
-                    TrStr = TrStr &amp; "шесть "
-                Case Is = "07"
-                    TrStr = TrStr &amp; "семь "
-                Case Is = "08"
-                    TrStr = TrStr &amp; "восемь "
-                Case Is = "09"
-                    TrStr = TrStr &amp; "девять "
-                Case Is = "10"
-                    TrStr = TrStr &amp; "десять "
-                Case Is = "11"
-                    TrStr = TrStr &amp; "одиннадцать "
-                Case Is = "12"
-                    TrStr = TrStr &amp; "двенадцать "
-                Case Is = "13"
-                    TrStr = TrStr &amp; "тринадцать "
-                Case Is = "14"
-                    TrStr = TrStr &amp; "четырнадцать "
-                Case Is = "15"
-                    TrStr = TrStr &amp; "пятнадцать "
-                Case Is = "16"
-                    TrStr = TrStr &amp; "шестнадцать "
-                Case Is = "17"
-                    TrStr = TrStr &amp; "семьнадцать "
-                Case Is = "18"
-                    TrStr = TrStr &amp; "восемнадцать "
-                Case Is = "19"
-                    TrStr = TrStr &amp; "девятнадцать "
-            End Select
-        Else
-            Select Case Left$(Triada, 1)
-                Case Is = "1"
-                    TrStr = TrStr &amp; "сто "
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двести "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "триста "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "четыреста "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьсот "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьсот "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьсот "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьсот "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девятьсот "
-            End Select
- 
-            Select Case Mid$(Triada, 2, 1)
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двадцать "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "тридцать "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "сорок "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьдесят "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьдесят "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьдесят "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьдесят "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девяносто "
-            End Select
- 
-            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
-                Select Case Right$(Triada, 1)
-                    Case Is = "1"
-                        TrStr = TrStr &amp; "одна "
-                    Case Is = "2"
-                        TrStr = TrStr &amp; "две "
-                    Case Is = "3"
-                        TrStr = TrStr &amp; "три "
-                    Case Is = "4"
-                        TrStr = TrStr &amp; "четыре "
-                    Case Is = "5"
-                        TrStr = TrStr &amp; "пять "
-                    Case Is = "6"
-                        TrStr = TrStr &amp; "шесть "
-                    Case Is = "7"
-                        TrStr = TrStr &amp; "семь "
-                    Case Is = "8"
-                        TrStr = TrStr &amp; "восемь "
-                    Case Is = "9"
-                        TrStr = TrStr &amp; "девять "
-                End Select
-            End If
- 
-            Select Case Right$(Triada, 2)
-                Case Is = "01"
-                    TrStr = TrStr &amp; "одна "
-                Case Is = "02"
-                    TrStr = TrStr &amp; "две "
-                Case Is = "03"
-                    TrStr = TrStr &amp; "три "
-                Case Is = "04"
-                    TrStr = TrStr &amp; "четыре "
-                Case Is = "05"
-                    TrStr = TrStr &amp; "пять "
-                Case Is = "06"
-                    TrStr = TrStr &amp; "шесть "
-                Case Is = "07"
-                    TrStr = TrStr &amp; "семь "
-                Case Is = "08"
-                    TrStr = TrStr &amp; "восемь "
-                Case Is = "09"
-                    TrStr = TrStr &amp; "девять "
-                Case Is = "10"
-                    TrStr = TrStr &amp; "десять "
-                Case Is = "11"
-                    TrStr = TrStr &amp; "одиннадцать "
-                Case Is = "12"
-                    TrStr = TrStr &amp; "двенадцать "
-                Case Is = "13"
-                    TrStr = TrStr &amp; "тринадцать "
-                Case Is = "14"
-                    TrStr = TrStr &amp; "четырнадцать "
-                Case Is = "15"
-                    TrStr = TrStr &amp; "пятнадцать "
-                Case Is = "16"
-                    TrStr = TrStr &amp; "шестнадцать "
-                Case Is = "17"
-                    TrStr = TrStr &amp; "семнадцать "
-                Case Is = "18"
-                    TrStr = TrStr &amp; "восемнадцать "
-                Case Is = "19"
-                    TrStr = TrStr &amp; "девятнадцать "
-            End Select
-        End If
-    End Function
- 
-    Private Function KdStr(ByVal Kopeiki As String, ByVal Rod As Integer) As String
-        KdStr = ""
- 
-        If Rod = 0 Then
-            Select Case Left(Kopeiki, 1)
-                Case Is = "2"
-                    KdStr = KdStr &amp; "Двадцать "
-                Case Is = "3"
-                    KdStr = KdStr &amp; "Тридцать "
-                Case Is = "4"
-                    KdStr = KdStr &amp; "Сорок "
-                Case Is = "5"
-                    KdStr = KdStr &amp; "Пятьдесят "
-                Case Is = "6"
-                    KdStr = KdStr &amp; "Шестьдесят "
-                Case Is = "7"
-                    KdStr = KdStr &amp; "Семьдесят "
-                Case Is = "8"
-                    KdStr = KdStr &amp; "Восемьдесят "
-                Case Is = "9"
-                    KdStr = KdStr &amp; "Девяносто "
-            End Select
- 
-            If Val(Left(Kopeiki, 1)) &gt; 1 Then
-                Select Case Right(Kopeiki, 1)
-                    Case Is = "1"
-                        KdStr = KdStr &amp; "один "
-                    Case Is = "2"
-                        KdStr = KdStr &amp; "два "
-                    Case Is = "3"
-                        KdStr = KdStr &amp; "три "
-                    Case Is = "4"
-                        KdStr = KdStr &amp; "четыре "
-                    Case Is = "5"
-                        KdStr = KdStr &amp; "пять "
-                    Case Is = "6"
-                        KdStr = KdStr &amp; "шесть "
-                    Case Is = "7"
-                        KdStr = KdStr &amp; "семь "
-                    Case Is = "8"
-                        KdStr = KdStr &amp; "восемь "
-                    Case Is = "9"
-                        KdStr = KdStr &amp; "девять "
-                End Select
-            Else
-                Select Case Kopeiki
-                    Case Is = "00"
-                        KdStr = KdStr &amp; "ноль "
-                    Case Is = "01"
-                        KdStr = KdStr &amp; "один "
-                    Case Is = "02"
-                        KdStr = KdStr &amp; "два "
-                    Case Is = "03"
-                        KdStr = KdStr &amp; "три "
-                    Case Is = "04"
-                        KdStr = KdStr &amp; "четыре "
-                    Case Is = "05"
-                        KdStr = KdStr &amp; "пять "
-                    Case Is = "06"
-                        KdStr = KdStr &amp; "шесть "
-                    Case Is = "07"
-                        KdStr = KdStr &amp; "семь "
-                    Case Is = "08"
-                        KdStr = KdStr &amp; "восемь "
-                    Case Is = "09"
-                        KdStr = KdStr &amp; "девять "
-                    Case Is = "10"
-                        KdStr = KdStr &amp; "десять "
-                    Case Is = "11"
-                        KdStr = KdStr &amp; "одиннадцать "
-                    Case Is = "12"
-                        KdStr = KdStr &amp; "двенадцать "
-                    Case Is = "13"
-                        KdStr = KdStr &amp; "тринадцать "
-                    Case Is = "14"
-                        KdStr = KdStr &amp; "четырнадцать "
-                    Case Is = "15"
-                        KdStr = KdStr &amp; "пятнадцать "
-                    Case Is = "16"
-                        KdStr = KdStr &amp; "шестнадцать "
-                    Case Is = "17"
-                        KdStr = KdStr &amp; "семнадцать "
-                    Case Is = "18"
-                        KdStr = KdStr &amp; "восемьнадцать "
-                    Case Is = "19"
-                        KdStr = KdStr &amp; "девятнадцать "
-                End Select
-            End If
-        Else
-            Select Case Left(Kopeiki, 1)
-                Case Is = "2"
-                    KdStr = KdStr &amp; "Двадцать "
-                Case Is = "3"
-                    KdStr = KdStr &amp; "Тридцать "
-                Case Is = "4"
-                    KdStr = KdStr &amp; "Сорок "
-                Case Is = "5"
-                    KdStr = KdStr &amp; "Пятьдесят "
-                Case Is = "6"
-                    KdStr = KdStr &amp; "Шестьдесят "
-                Case Is = "7"
-                    KdStr = KdStr &amp; "Семьдесят "
-                Case Is = "8"
-                    KdStr = KdStr &amp; "Восемьдесят "
-                Case Is = "9"
-                    KdStr = KdStr &amp; "Девяносто "
-            End Select
- 
-            If Val(Left(Kopeiki, 1)) &gt; 1 Then
-                Select Case Right(Kopeiki, 1)
-                    Case Is = "1"
-                        KdStr = KdStr &amp; "одна "
-                    Case Is = "2"
-                        KdStr = KdStr &amp; "две "
-                    Case Is = "3"
-                        KdStr = KdStr &amp; "три "
-                    Case Is = "4"
-                        KdStr = KdStr &amp; "четыре "
-                    Case Is = "5"
-                        KdStr = KdStr &amp; "пять "
-                    Case Is = "6"
-                        KdStr = KdStr &amp; "шесть "
-                    Case Is = "7"
-                        KdStr = KdStr &amp; "семь "
-                    Case Is = "8"
-                        KdStr = KdStr &amp; "восемь "
-                    Case Is = "9"
-                        KdStr = KdStr &amp; "девять "
-                End Select
-            Else
-                Select Case Kopeiki
-                    Case Is = "00"
-                        KdStr = KdStr &amp; "ноль "
-                    Case Is = "01"
-                        KdStr = KdStr &amp; "одна "
-                    Case Is = "02"
-                        KdStr = KdStr &amp; "две "
-                    Case Is = "03"
-                        KdStr = KdStr &amp; "три "
-                    Case Is = "04"
-                        KdStr = KdStr &amp; "четыре "
-                    Case Is = "05"
-                        KdStr = KdStr &amp; "пять "
-                    Case Is = "06"
-                        KdStr = KdStr &amp; "шесть "
-                    Case Is = "07"
-                        KdStr = KdStr &amp; "семь "
-                    Case Is = "08"
-                        KdStr = KdStr &amp; "восемь "
-                    Case Is = "09"
-                        KdStr = KdStr &amp; "девять "
-                    Case Is = "10"
-                        KdStr = KdStr &amp; "десять "
-                    Case Is = "11"
-                        KdStr = KdStr &amp; "одиннадцать "
-                    Case Is = "12"
-                        KdStr = KdStr &amp; "двенадцать "
-                    Case Is = "13"
-                        KdStr = KdStr &amp; "тринадцать "
-                    Case Is = "14"
-                        KdStr = KdStr &amp; "четырнадцать "
-                    Case Is = "15"
-                        KdStr = KdStr &amp; "пятнадцать "
-                    Case Is = "16"
-                        KdStr = KdStr &amp; "шестнадцать "
-                    Case Is = "17"
-                        KdStr = KdStr &amp; "семнадцать "
-                    Case Is = "18"
-                        KdStr = KdStr &amp; "восемьнадцать "
-                    Case Is = "19"
-                        KdStr = KdStr &amp; "девятнадцать "
-                End Select
-            End If
-        End If
-    End Function</Code>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -4681,7 +4046,8 @@ Public Function SummaString_Val(ByVal Summa As String) As String
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="without_vat">
       <DataType>Boolean</DataType>

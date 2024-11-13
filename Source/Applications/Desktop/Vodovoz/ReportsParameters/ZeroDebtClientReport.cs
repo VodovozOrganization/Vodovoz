@@ -1,56 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Dialog;
-using QS.Report;
-using QSReport;
-using QSWidgetLib;
-using QS.Dialog.GtkUI;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Client;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ZeroDebtClientReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class ZeroDebtClientReport : ViewBase<ZeroDebtClientReportViewModel>
 	{
-		public ZeroDebtClientReport()
+		public ZeroDebtClientReport(ZeroDebtClientReportViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			ydateperiodpicker.StartDate = DateTime.Now.Date;
-			ydateperiodpicker.EndDate = DateTime.Now.Date;
-		}
 
-		#region IParametersWidget implementation
+			ydateperiodpicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDate)
+				.AddBinding(vm => vm.EndDate, w => w.EndDate)
+				.InitializeFromSource();
 
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		public string Title {
-			get {
-				return "Отчет по нулевому долгу клиента";
-			}
-		}
-
-		#endregion
-
-		private ReportInfo GetReportInfo()
-		{
-			return new ReportInfo {
-				Identifier = "Client.ZeroDebtClient",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", ydateperiodpicker.StartDate },
-					{ "endDate", ydateperiodpicker.EndDate }
-				}
-			};
-		}
-
-		void OnUpdate(bool hide = false)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
-		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
+			button1.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }

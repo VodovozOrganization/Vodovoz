@@ -111,14 +111,14 @@ namespace Vodovoz.Counterparties
 			{
 				(ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenTdiTab<ReportViewDlg>(ViewModel, OpenPageOptions.AsSlave,
 					vm => { },
-					dependencies => dependencies.RegisterInstance(ViewModel.Entity.CreateReportInfoByClient()));
+					dependencies => dependencies.RegisterInstance(ViewModel.Entity.CreateReportInfoByClient(ViewModel.ReportInfoFactory)));
 			});
 
 			ViewModel.SetCreateReportByDeliveryPointLegacyCallback(() =>
 			{
 				(ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenTdiTab<ReportViewDlg>(ViewModel, OpenPageOptions.AsSlave,
 					vm => { },
-					dependencies => dependencies.RegisterInstance(ViewModel.Entity.CreateReportInfoByDeliveryPoint()));
+					dependencies => dependencies.RegisterInstance(ViewModel.Entity.CreateReportInfoByDeliveryPoint(ViewModel.ReportInfoFactory)));
 			});
 
 			buttonAddComment.BindCommand(ViewModel.AddCommentCommand);

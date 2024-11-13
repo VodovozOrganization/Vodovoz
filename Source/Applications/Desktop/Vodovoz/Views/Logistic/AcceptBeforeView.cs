@@ -1,10 +1,10 @@
-﻿using QS.Views.GtkUI;
-using Vodovoz.ViewModels.Logistic;
+﻿using QS.Views.Dialog;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Presentation.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
-	public partial class AcceptBeforeView : TabViewBase<AcceptBeforeViewModel>
+	public partial class AcceptBeforeView : DialogViewBase<AcceptBeforeViewModel>
 	{
 		public AcceptBeforeView(AcceptBeforeViewModel viewModel) : base(viewModel)
 		{
@@ -27,7 +27,7 @@ namespace Vodovoz.Views.Logistic
 			cmbHours.SelectedItem = "12";
 			cmbMinutes.SelectedItem = "00";
 
-			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
+			buttonSave.Clicked += (sender, e) => ViewModel.Save();
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}
 	}

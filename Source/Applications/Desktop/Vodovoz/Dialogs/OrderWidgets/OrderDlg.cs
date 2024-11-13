@@ -127,6 +127,7 @@ using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services;
 using VodovozInfrastructure.Utils;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
@@ -159,6 +160,7 @@ namespace Vodovoz
 
 		private readonly INomenclatureSettings _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
+		private readonly INomenclatureService _nomenclatureService = ScopeProvider.Scope.Resolve<INomenclatureService>();
 
 		private IFastDeliveryValidator _fastDeliveryValidator;
 
@@ -328,6 +330,7 @@ namespace Vodovoz
 		public Counterparty Counterparty => Entity.Client;
 
 		public DeliveryPoint DeliveryPoint => Entity.DeliveryPoint;
+		public OrderAddressType? TypeOfAddress => Entity.OrderAddressType;
 
 		public CounterpartyContract Contract => Entity.Contract;
 
@@ -1085,8 +1088,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 			var canChangeOrderAddressType =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
-			ybuttonToStorageLogicAddressType.Sensitive = canChangeOrderAddressType;
-			ybuttonToDeliveryAddressType.Sensitive = canChangeOrderAddressType;
+			ybuttonToStorageLogicAddressType.Sensitive = canChangeOrderAddressType;			
 
 			UpdateAvailableEnumSignatureTypes();
 
@@ -1255,24 +1257,34 @@ namespace Vodovoz
 					break;
 				case nameof(Entity.OrderAddressType):
 					UpdateOrderAddressTypeUI();
+					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderAddressType));
+					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW);
 					break;
 				case nameof(Entity.Client.IsChainStore):
 					UpdateOrderAddressTypeWithUI();
 					break;
 				case nameof(Entity.SelfDelivery):
+					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW);
+					UpdateCallBeforeArrival();					
+					break;
 				case nameof(Entity.IsFastDelivery):
-					var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
-
-					UpdateCallBeforeArrivalVisibility();
-
-					if(isNotFastDeliveryOrSelfDelivery)
-					{
-						Entity.CallBeforeArrivalMinutes = _defaultCallBeforeArrival;
-					}
+					UpdateCallBeforeArrival();
 					break;
 				case nameof(Entity.PaymentType):
 					OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 					break;
+			}
+		}
+
+		private void UpdateCallBeforeArrival()
+		{
+			var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
+
+			UpdateCallBeforeArrivalVisibility();
+
+			if(isNotFastDeliveryOrSelfDelivery)
+			{
+				Entity.CallBeforeArrivalMinutes = _defaultCallBeforeArrival;
 			}
 		}
 
@@ -4234,6 +4246,7 @@ namespace Vodovoz
 			}
 
 			Entity.AddFastDeliveryNomenclatureIfNeeded();
+			Entity.UpdateMasterCallNomenclatureIfNeeded(UoW);
 
 			UpdateClientSecondOrderDiscount();
 		}
@@ -4554,7 +4567,7 @@ namespace Vodovoz
 				btnForm.Visible = true;
 				buttonEditOrder.Visible = false;
 			}
-			else if(Entity.CanSetOrderAsEditable)
+			else if(Entity.CanSetOrderAsEditable && !Entity.IsOldServiceOrder)
 			{
 				buttonEditOrder.Visible = true;
 				btnForm.Visible = false;
@@ -5203,22 +5216,35 @@ namespace Vodovoz
 
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderAddressType == OrderAddressType.Delivery
+			if((Entity.OrderAddressType == OrderAddressType.Delivery
+				|| Entity.OrderAddressType == OrderAddressType.Service)
 			   && !Entity.Client.IsChainStore
-			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
+			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
+				Entity.DeliveryDate = null;
+				Entity.DeliverySchedule = null;
 			}
 		}
 
 		protected void OnYbuttonToDeliveryAddressTypeClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderAddressType == OrderAddressType.StorageLogistics
+			if((Entity.OrderAddressType == OrderAddressType.StorageLogistics
+				|| Entity.OrderAddressType == OrderAddressType.Service)
 			   && !Entity.Client.IsChainStore
-			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
+			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				Entity.OrderAddressType = OrderAddressType.Delivery;
+				Entity.DeliveryDate = null;
+				Entity.DeliverySchedule = null;
 			}
+		}
+
+		protected void OnYbuttonToServiceTypeClicked(object sender, EventArgs e)
+		{
+			Entity.OrderAddressType = OrderAddressType.Service;
+			Entity.DeliveryDate = null;
+			Entity.DeliverySchedule = null;
 		}
 
 		private void UpdateOrderAddressTypeWithUI()
@@ -5234,6 +5260,7 @@ namespace Vodovoz
 				ylabelOrderAddressType.Visible = false;
 				ybuttonToDeliveryAddressType.Visible = false;
 				ybuttonToStorageLogicAddressType.Visible = false;
+				ybuttonToServiceType.Visible = false;
 				return;
 			}
 
@@ -5242,15 +5269,22 @@ namespace Vodovoz
 				case OrderAddressType.Delivery:
 					ybuttonToDeliveryAddressType.Visible = false;
 					ybuttonToStorageLogicAddressType.Visible = true;
+					ybuttonToServiceType.Visible = true;
 					break;
 				case OrderAddressType.StorageLogistics:
 					ybuttonToDeliveryAddressType.Visible = true;
 					ybuttonToStorageLogicAddressType.Visible = false;
+					ybuttonToServiceType.Visible = true;
 					break;
 				case OrderAddressType.ChainStore:
-				case OrderAddressType.Service:
 					ybuttonToDeliveryAddressType.Visible = false;
 					ybuttonToStorageLogicAddressType.Visible = false;
+					ybuttonToServiceType.Visible = false;
+					break;
+				case OrderAddressType.Service:
+					ybuttonToDeliveryAddressType.Visible = true;
+					ybuttonToStorageLogicAddressType.Visible = true;
+					ybuttonToServiceType.Visible = false;
 					break;
 			}
 			ylabelOrderAddressType.Visible = true;
@@ -5268,7 +5302,11 @@ namespace Vodovoz
 				.ForProperty(Entity, e => e.DeliverySchedule)
 				.UseViewModelJournalSelector<DeliveryScheduleJournalViewModel, DeliveryScheduleFilterViewModel>(filter => filter.RestrictIsNotArchive = true)
 				.UseSelectionDialogAndAutocompleteSelector(
-					() => Entity.GetAvailableDeliveryScheduleIds(),
+					() => 
+					{
+						var isForMasterCall = Entity.OrderAddressType == OrderAddressType.Service;
+						return Entity.GetAvailableDeliveryScheduleIds(isForMasterCall);
+					},
 					(searchText) => DeliverySchedule.GetNameCompareExpression(searchText),
 					(entity) => entity.OrderBy(e => e.Name.Length).ThenBy(e => e.Name),
 					() => GetSelectionDialogSettings())
@@ -5327,9 +5365,27 @@ namespace Vodovoz
 		private void SetNearestDeliveryDateLoaderFunc()
 		{
 			pickerDeliveryDate.ButtonsDatesLoaderFunc =
-				() => Entity.SelfDelivery
-				? new List<DateTime> { DateTime.Today, DateTime.Today.AddDays(1) }
-				: Entity.DeliveryPoint?.District?.GetNearestDatesWhenDeliveryIsPossible();
+				() =>
+				{
+					if(Entity.SelfDelivery)
+					{
+						return new List<DateTime> { DateTime.Today, DateTime.Today.AddDays(1) };
+					}
+
+					if(Entity.OrderAddressType == OrderAddressType.Service)
+					{
+						if(DeliveryPoint?.Latitude is null || DeliveryPoint?.Longitude is null)
+						{
+							return null;
+						}
+
+						var serviceDistrict = _deliveryRepository.GetServiceDistrictByCoordinates(UoW, DeliveryPoint.Latitude.Value, DeliveryPoint.Longitude.Value);
+						
+						return serviceDistrict?.GetNearestDatesWhenDeliveryIsPossible();
+					}
+
+					return Entity.DeliveryPoint?.District?.GetNearestDatesWhenDeliveryIsPossible();
+				};
 		}
 
 		private Nomenclature TryGetSelectedNomenclature(JournalSelectedEventArgs e)

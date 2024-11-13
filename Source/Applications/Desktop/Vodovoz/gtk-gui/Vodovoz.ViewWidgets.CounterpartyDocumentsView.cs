@@ -14,7 +14,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonViewDocument;
+		private global::Gamma.GtkWidgets.yButton buttonViewDocument;
 
 		protected virtual void Build()
 		{
@@ -54,7 +54,7 @@ namespace Vodovoz.ViewWidgets
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonViewDocument = new global::Gtk.Button();
+			this.buttonViewDocument = new global::Gamma.GtkWidgets.yButton();
 			this.buttonViewDocument.CanFocus = true;
 			this.buttonViewDocument.Name = "buttonViewDocument";
 			this.buttonViewDocument.UseUnderline = true;

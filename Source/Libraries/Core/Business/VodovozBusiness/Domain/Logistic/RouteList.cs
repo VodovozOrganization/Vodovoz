@@ -2459,14 +2459,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual ReportInfo OrderOfAddressesRep(int id)
 		{
-			var reportInfo = new ReportInfo {
-				Title = String.Format("Отчёт по порядку адресов в МЛ №{0}", id),
-				Identifier = "Logistic.OrderOfAddresses",
-				Parameters = new Dictionary<string, object> {
-						{ "RouteListId",  id }
-				}
+			var reportInfofactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfofactory.Create();
+			reportInfo.Title = String.Format("Отчёт по порядку адресов в МЛ №{0}", id);
+			reportInfo.Identifier = "Logistic.OrderOfAddresses";
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "RouteListId",  id }
 			};
-
 			return reportInfo;
 		}
 

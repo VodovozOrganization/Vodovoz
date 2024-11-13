@@ -14,7 +14,7 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gtk.Button buttonAddSelectedDocuments;
+		private global::Gamma.GtkWidgets.yButton buttonAddSelectedDocuments;
 
 		protected virtual void Build()
 		{
@@ -52,7 +52,7 @@ namespace Vodovoz.Dialogs
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonAddSelectedDocuments = new global::Gtk.Button();
+			this.buttonAddSelectedDocuments = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddSelectedDocuments.CanFocus = true;
 			this.buttonAddSelectedDocuments.Name = "buttonAddSelectedDocuments";
 			this.buttonAddSelectedDocuments.UseUnderline = true;

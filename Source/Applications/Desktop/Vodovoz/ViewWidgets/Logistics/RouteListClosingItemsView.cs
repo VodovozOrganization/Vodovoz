@@ -514,9 +514,9 @@ namespace Vodovoz
 			};
 			copy.Visible = false;
 
-			var openReturns = new MenuItem(PopupMenuAction.OpenUndeliveries.GetEnumTitle());
+			var openReturns = new MenuItem(PopupMenuAction.OpenClosingOrder.GetEnumTitle());
 			openReturns.Activated += (s, args) => OnClosingItemActivated(this,null);
-			menuItems.Add(PopupMenuAction.OpenUndeliveries, openReturns);
+			menuItems.Add(PopupMenuAction.OpenClosingOrder, openReturns);
 
 			var openOrder = new MenuItem(PopupMenuAction.OpenOrder.GetEnumTitle());
 			openOrder.Activated += (s, args) => {
@@ -597,8 +597,8 @@ namespace Vodovoz
 		{
 			[Display(Name = "Копировать ячейку")]
 			CopyCell,
-			[Display(Name = "Открыть недовозы")]
-			OpenUndeliveries,
+			[Display(Name = "Открыть закрытие заказа")]
+			OpenClosingOrder,
 			[Display(Name = "Открыть заказ")]
 			OpenOrder,
 			[Display(Name = "Копировать номер заказа")]

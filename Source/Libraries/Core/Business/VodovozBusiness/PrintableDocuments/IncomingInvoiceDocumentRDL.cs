@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Autofac;
 using FluentNHibernate.Data;
 using QS.Print;
 using QS.Report;
@@ -28,14 +29,15 @@ namespace Vodovoz.PrintableDocuments
 
         public ReportInfo GetReportInfo(string connectionString = null)
         {
-            return new ReportInfo {
-                Title = Title,
-                Identifier = "Store.IncomingInvoice",
-                Parameters = new Dictionary<string, object> {
-                    { "document_id",  Document.Id },
-                    { "printed_by_id",  CurrentEmployeeId ?? 0 }
-                }
-            };
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Identifier = "Store.IncomingInvoice";
+			reportInfo.Title = Title;
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "document_id",  Document.Id },
+				{ "printed_by_id",  CurrentEmployeeId ?? 0 }
+			};
+			return reportInfo;
         }
 
         public Dictionary<object, object> Parameters { get; set; }

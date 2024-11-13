@@ -1,4 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -13,24 +14,36 @@ public class Program
 
 	public static void Main(string[] args)
 	{
-		CreateHostBuilder(args).Build().Run();
-	}
+		var builder = WebApplication.CreateBuilder(args);
 
-	public static IHostBuilder CreateHostBuilder(string[] args) =>
-		Host.CreateDefaultBuilder(args)
-			.ConfigureLogging((context, logging) =>
-			{
-				logging.ClearProviders();
-				logging.AddNLogWeb();
-				logging.AddConfiguration(context.Configuration.GetSection(_nlogSectionName));
-			})
-			.UseServiceProviderFactory(new AutofacServiceProviderFactory())
-			.ConfigureWebHostDefaults(webBuilder =>
-			{
-				webBuilder.UseStartup<Startup>();
-			})
-		.ConfigureServices((hostContext, services) =>
+		builder.Host.ConfigureLogging((context, logging) =>
 		{
-			services.ConfigureTrueMarkApi(hostContext);
+			logging.ClearProviders();
+			logging.AddNLogWeb();
+			logging.AddConfiguration(context.Configuration.GetSection(_nlogSectionName));
 		});
+
+		builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+			.ConfigureServices((context, services) => services.AddTrueMarkApi(context.Configuration));
+
+		var app = builder.Build();
+
+		if(app.Environment.IsDevelopment())
+		{
+			app.UseDeveloperExceptionPage();
+			app.UseSwagger();
+			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrueMarkApi v1"));
+		}
+
+		app.UseRouting();
+
+		app.UseAuthorization();
+
+		app.UseEndpoints(endpoints =>
+		{
+			endpoints.MapControllers();
+		});
+
+		app.Run();
+	}
 }

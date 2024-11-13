@@ -99,22 +99,15 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
-
-			var reportInfo = new ReportInfo(connectionString)
-			{
-				Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}",
-				Identifier = identifier,
-				Parameters = new Dictionary<string, object>
-				{
-					{ "order_id", Order.Id },
-					{ "special", false },
-					{ "hide_signature", HideSignature}
-				},
-
-				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
+			reportInfo.Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}";
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "order_id", Order.Id },
+				{ "special", false },
+				{ "hide_signature", HideSignature}
 			};
-
 			return reportInfo;
 		}
 

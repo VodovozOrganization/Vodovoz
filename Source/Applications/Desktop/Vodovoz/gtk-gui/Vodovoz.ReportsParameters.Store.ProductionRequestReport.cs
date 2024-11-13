@@ -26,7 +26,7 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinStockRate;
 
-		private global::Gtk.Button buttonRun;
+		private global::Gamma.GtkWidgets.yButton buttonRun;
 
 		protected virtual void Build()
 		{
@@ -146,7 +146,7 @@ namespace Vodovoz.ReportsParameters.Store
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonRun = new global::Gtk.Button();
+			this.buttonRun = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRun.Sensitive = false;
 			this.buttonRun.CanFocus = true;
 			this.buttonRun.Name = "buttonRun";
