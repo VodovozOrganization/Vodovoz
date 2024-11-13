@@ -1,7 +1,9 @@
-using EdoAutoSendReceiveWorker.Configs;
+﻿using EdoAutoSendReceiveWorker.Configs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using TaxcomEdo.Client;
+using Vodovoz.Settings.Metrics;
 using Vodovoz.Zabbix.Sender;
 
 namespace EdoAutoSendReceiveWorker
@@ -22,6 +24,12 @@ namespace EdoAutoSendReceiveWorker
 						.AddTaxcomClient()
 						.Configure<TaxcomEdoAutoSendReceiveWorkerOptions>(
 							hostContext.Configuration.GetSection(TaxcomEdoAutoSendReceiveWorkerOptions.Path))
+						.Configure<MetricOptions>(hostContext.Configuration.GetSection(MetricOptions.Path))
+						.AddSingleton<IMetricSettings>(sp =>
+						{
+							var settings = sp.GetRequiredService<IOptions<MetricOptions>>().Value;
+							return settings;
+						})
 						.ConfigureZabbixSender(nameof(TaxcomEdoAutoSendReceiveWorker))
 						.AddHostedService<TaxcomEdoAutoSendReceiveWorker>();
 				});
