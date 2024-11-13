@@ -69,7 +69,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					.Get(unitOfWork, counterpartySubtype => string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString)
 							|| counterpartySubtype.Name.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%"));
 
-					// Заполнение начального списка
 					foreach(var value in values)
 					{
 						if(value is CounterpartyType enumElement
@@ -86,7 +85,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 						}
 					}
 
-					// Заполнение подтипов контрагента - клиентов рекламного отдела
 					var advertisingDepartmentClientNode = filter.FilteredElements
 						.FirstOrDefault(x => x.Number == nameof(CounterpartyType.AdvertisingDepartmentClient));
 
