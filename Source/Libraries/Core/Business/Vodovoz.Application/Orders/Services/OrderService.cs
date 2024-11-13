@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -336,7 +336,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(hasPromoSetForNewClients && order.HasUsedPromoForNewClients(_promotionalSetRepository))
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
+				return Vodovoz.Errors.Orders.Order.UnableToShipPromoSet;
 			}
 
 			if(!order.SelfDelivery)

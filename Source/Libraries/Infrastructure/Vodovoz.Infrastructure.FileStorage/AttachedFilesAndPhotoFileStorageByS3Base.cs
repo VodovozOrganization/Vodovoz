@@ -18,65 +18,65 @@ namespace Vodovoz.Infrastructure.FileStorage
 		{
 		}
 
-		public Task<Result> CreatePhotoAsync(TEntity entity, string filename, Stream inputStream, CancellationToken cancellationToken)
+		public async Task<Result> CreatePhotoAsync(TEntity entity, string filename, Stream inputStream, CancellationToken cancellationToken)
 		{
 			if(entity.AttachedFileInformations.Any(ati => ati.FileName == filename))
 			{
-				return Task.FromResult(Result.Failure(Application.Errors.FileStorage.PhotoMatchesAttachedFileFileName));
+				return await Task.FromResult(Application.Errors.FileStorage.PhotoMatchesAttachedFileFileName);
 			}
 
-			return CreateFileAsync($"{entity.Id}/{filename}", inputStream, cancellationToken);
+			return await CreateFileAsync($"{entity.Id}/{filename}", inputStream, cancellationToken);
 		}
 
 		public Task<Result<Stream>> GetPhotoAsync(TEntity entity, CancellationToken cancellationToken)
 			=> GetFileAsync($"{entity.Id}/{entity.PhotoFileName}", cancellationToken);
 
-		public Task<Result> UpdatePhotoAsync(TEntity entity, string filename, Stream inputStream, CancellationToken cancellationToken)
+		public async Task<Result> UpdatePhotoAsync(TEntity entity, string filename, Stream inputStream, CancellationToken cancellationToken)
 		{
 			if(entity.AttachedFileInformations.Any(ati => ati.FileName == filename))
 			{
-				return Task.FromResult(Result.Failure(Application.Errors.FileStorage.PhotoMatchesAttachedFileFileName));
+				return await Task.FromResult(Application.Errors.FileStorage.PhotoMatchesAttachedFileFileName);
 			}
 
 			if(string.IsNullOrWhiteSpace(entity.PhotoFileName))
 			{
-				return CreatePhotoAsync(entity, filename, inputStream, cancellationToken);
+				return await CreatePhotoAsync(entity, filename, inputStream, cancellationToken);
 			}
 
 			if(entity.PhotoFileName == filename)
 			{
-				return UpdateFileAsync($"{entity.Id}/{filename}", inputStream, cancellationToken);
+				return await UpdateFileAsync($"{entity.Id}/{filename}", inputStream, cancellationToken);
 			}
 
-			DeletePhotoAsync(entity, cancellationToken);
+			await DeletePhotoAsync(entity, cancellationToken);
 
-			return CreatePhotoAsync(entity, filename, inputStream, cancellationToken);
+			return await CreatePhotoAsync(entity, filename, inputStream, cancellationToken);
 		}
 
 		public Task<Result> DeletePhotoAsync(TEntity entity, CancellationToken cancellationToken)
 			=> DeleteFileAsync($"{entity.Id}/{entity.PhotoFileName}", cancellationToken);
 
-		public Task<Result> CreateFileAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken)
+		public async Task<Result> CreateFileAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken)
 		{
 			if(entity.PhotoFileName == fileName)
 			{
-				return Task.FromResult(Result.Failure(Application.Errors.FileStorage.AttachedFileMatchesPhotoFileName));
+				return await Task.FromResult(Application.Errors.FileStorage.AttachedFileMatchesPhotoFileName);
 			}
 
-			return CreateFileAsync($"{entity.Id}/{fileName}", inputStream, cancellationToken);
+			return await CreateFileAsync($"{entity.Id}/{fileName}", inputStream, cancellationToken);
 		}
 
 		public Task<Result<Stream>> GetFileAsync(TEntity entity, string fileName, CancellationToken cancellationToken)
 			=> GetFileAsync($"{entity.Id}/{fileName}", cancellationToken);
 
-		public Task<Result> UpdateFileAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken)
+		public async Task<Result> UpdateFileAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken)
 		{
 			if(entity.PhotoFileName == fileName)
 			{
-				return Task.FromResult(Result.Failure(Application.Errors.FileStorage.AttachedFileMatchesPhotoFileName));
+				return await Task.FromResult(Application.Errors.FileStorage.AttachedFileMatchesPhotoFileName);
 			}
 
-			return UpdateFileAsync($"{entity.Id}/{fileName}", inputStream, cancellationToken);
+			return await UpdateFileAsync($"{entity.Id}/{fileName}", inputStream, cancellationToken);
 		}
 
 		public Task<Result> DeleteFileAsync(TEntity entity, string fileName, CancellationToken cancellationToken)
