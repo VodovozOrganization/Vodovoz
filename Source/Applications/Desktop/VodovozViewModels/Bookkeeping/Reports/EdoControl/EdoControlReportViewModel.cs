@@ -59,13 +59,20 @@ namespace Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl
 				throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			}
 
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_includeExcludeBookkeeppingReportsFilterFactory = includeExcludeBookkeeppingReportsFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeBookkeeppingReportsFilterFactory));
-			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
-			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			_dialogSettingsFactory = dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_logger =
+				logger ?? throw new ArgumentNullException(nameof(logger));
+			_interactiveService =
+				interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_includeExcludeBookkeeppingReportsFilterFactory =
+				includeExcludeBookkeeppingReportsFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeBookkeeppingReportsFilterFactory));
+			_leftRightListViewModelFactory =
+				leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
+			_guiDispatcher =
+				guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_dialogSettingsFactory =
+				dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
+			_fileDialogService =
+				fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
 			Title = "Контроль за ЭДО";
 
