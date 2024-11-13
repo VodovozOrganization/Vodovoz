@@ -1378,7 +1378,7 @@
     <Compile Include="Views\Payments\PaymentLoaderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.PaymentLoaderView.cs" />
     <Compile Include="Views\Payments\ManualPaymentMatchingView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.ManualPaymentMatchingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ManualCashlessIncomeMatchingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.PaymentsJournalFilterView.cs" />
     <Compile Include="ViewModels\Comments\DocumentCommentViewModel.cs" />
     <Compile Include="Views\Comments\DocumentCommentView.cs" />

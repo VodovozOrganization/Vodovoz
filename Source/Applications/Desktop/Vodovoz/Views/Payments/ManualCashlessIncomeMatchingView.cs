@@ -14,10 +14,9 @@ using Vodovoz.ViewModels.ViewModels.Payments;
 namespace Vodovoz.Views
 {
 	[ToolboxItem(true)]
-	public partial class ManualPaymentMatchingView : TabViewBase<ManualPaymentMatchingViewModel>
+	public partial class ManualCashlessIncomeMatchingView : TabViewBase<ManualCashlessIncomeMatchingViewModel>
 	{
-		public ManualPaymentMatchingView(ManualPaymentMatchingViewModel manualPaymentLoaderViewModel)
-			: base(manualPaymentLoaderViewModel)
+		public ManualCashlessIncomeMatchingView(ManualCashlessIncomeMatchingViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			Configure();
