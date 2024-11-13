@@ -1,5 +1,6 @@
 ﻿using EdoDocumentsPreparer.Factories;
 using Microsoft.Extensions.DependencyInjection;
+using QS.Report;
 
 namespace EdoDocumentsPreparer
 {
@@ -11,7 +12,8 @@ namespace EdoDocumentsPreparer
 				.AddScoped<PrintableDocumentSaver>()
 				.AddScoped<IFileDataFactory, FileDataFactory>()
 				.AddScoped<IInfoForCreatingBillWithoutShipmentEdoFactory, InfoForCreatingBillWithoutShipmentEdoFactory>()
-				.AddScoped<IInfoForCreatingEdoBillFactory, InfoForCreatingEdoBillFactory>();
+				.AddScoped<IInfoForCreatingEdoBillFactory, InfoForCreatingEdoBillFactory>()
+				.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>();
 				
 			return services;
 		}
