@@ -25,7 +25,7 @@ namespace Vodovoz.Views
 
 		void Configure()
 		{
-			notebook1.ShowTabs = false;
+			notebookPayment.ShowTabs = false;
 
 			#region Radio buttons
 
@@ -38,7 +38,7 @@ namespace Vodovoz.Views
 
 			btnSave.Clicked += (sender, args) => ViewModel.SaveViewModelCommand.Execute();
 			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			buttonComplete.Clicked += (sender, args) => ViewModel.CompleteAllocationCommand.Execute();
+			btnCompleteAllocation.Clicked += (sender, args) => ViewModel.CompleteAllocationCommand.Execute();
 			btnAddCounterparty.Clicked += (sender, args) => ViewModel.AddCounterpatyCommand.Execute();
 			btnAddCounterparty.Binding
 				.AddBinding(ViewModel, vm => vm.CounterpartyIsNull, w => w.Sensitive)
@@ -46,26 +46,37 @@ namespace Vodovoz.Views
 			ybtnRevertPayment.Clicked += (sender, args) => ViewModel.RevertAllocatedSum.Execute();
 			ybtnRevertPayment.Binding.AddBinding(ViewModel, vm => vm.CanRevertPay, w => w.Sensitive).InitializeFromSource();
 
-			daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
-			daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
-			daterangepicker1.PeriodChangedByUser += (sender, e) => ViewModel.UpdateNodes();
+			dateRangeFilter.Binding
+				.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+			dateRangeFilter.PeriodChangedByUser += (sender, e) => ViewModel.UpdateNodes();
 
 			enumchecklistOrdersStatuses.EnumType = typeof(OrderStatus);
 			enumchecklistOrdersStatuses.Binding
 				.AddBinding(ViewModel, vm => vm.OrderStatuses, w => w.SelectedValuesList, new EnumsListConverter<OrderStatus>())
 				.InitializeFromSource();
 
-			enumchecklistPaymentsStatuses.EnumType = typeof(OrderPaymentStatus);
-			enumchecklistPaymentsStatuses.Binding
+			enumchecklistOrderPaymentStatuses.EnumType = typeof(OrderPaymentStatus);
+			enumchecklistOrderPaymentStatuses.Binding
 				.AddBinding(ViewModel, vm => vm.OrderPaymentStatuses, w => w.SelectedValuesList, new EnumsListConverter<OrderPaymentStatus>())
 				.InitializeFromSource();
 
-			labelTotalSum.Text = ViewModel.Entity.Total.ToString();
-			labelLastBalance.Binding.AddBinding(ViewModel, vm => vm.LastBalance, w => w.Text, new DecimalToStringConverter()).InitializeFromSource();
-			labelToAllocate.Binding.AddBinding(ViewModel, vm => vm.SumToAllocate, w => w.Text, new DecimalToStringConverter()).InitializeFromSource();
+			lblIncomeSum.Text = ViewModel.Entity.Total.ToString();
+			lblLastBalance.Binding
+				.AddBinding(ViewModel, vm => vm.LastBalance, w => w.Text, new DecimalToStringConverter())
+				.InitializeFromSource();
+			lblToAllocate.Binding
+				.AddBinding(ViewModel, vm => vm.SumToAllocate, w => w.Text, new DecimalToStringConverter())
+				.InitializeFromSource();
 
-			ylabelCurBalance.Binding.AddBinding(ViewModel, vm => vm.CurrentBalance, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
-			ylabelAllocated.Binding.AddBinding(ViewModel, vm => vm.AllocatedSum, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
+			lblBalance.Binding
+				.AddBinding(ViewModel, vm => vm.CurrentBalance, v => v.Text, new DecimalToStringConverter())
+				.InitializeFromSource();
+
+			lblAllocated.Binding
+				.AddBinding(ViewModel, vm => vm.AllocatedSum, v => v.Text, new DecimalToStringConverter())
+				.InitializeFromSource();
 
 			ylabelWaitForPaymentValue.Binding
 				.AddFuncBinding(ViewModel, vm => vm.CounterpartyWaitingForPaymentOrdersDebt > 0 ? vm.CounterpartyWaitingForPaymentOrdersDebt.ToString("N2") : "0.00", w => w.Text)
@@ -79,21 +90,25 @@ namespace Vodovoz.Views
 				.AddFuncBinding(ViewModel, vm => vm.CounterpartyOtherOrdersDebt > 0 ? vm.CounterpartyOtherOrdersDebt.ToString("N2") : "0.00", w => w.Text)
 				.InitializeFromSource();
 
-			labelPayer.Text = ViewModel.Entity.CounterpartyName;
-			labelPaymentNum.Text = ViewModel.Entity.PaymentNum.ToString();
-			labelDate.Text = ViewModel.Entity.Date.ToShortDateString();
+			lblPayer.Text = ViewModel.Entity.CounterpartyName;
+			lblIncomeNumber.Text = ViewModel.Entity.PaymentNum.ToString();
+			lblDate.Text = ViewModel.Entity.Date.ToShortDateString();
 
-			ytextviewPaymentPurpose.Binding
+			textViewPurpose.Binding
 				.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.PaymentPurpose, w => w.Buffer.Text)
 				.AddBinding(e => e.IsManuallyCreated, w => w.Editable)
 				.InitializeFromSource();
 
-			ytextviewComments.Binding.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text).InitializeFromSource();
+			textViewComment.Binding
+				.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text)
+				.InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
+			//entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 
-			entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
+			/*entryCounterparty.Binding
+				.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
+
 			entryCounterparty.ChangedByUser += (sender, e) =>
 			{
 				ViewModel.UpdateCMOCounterparty();
@@ -102,7 +117,7 @@ namespace Vodovoz.Views
 				ViewModel.UpdateSumToAllocate();
 				ViewModel.UpdateCurrentBalance();
 				ViewModel.GetCounterpartyDebt();
-			};
+			};*/
 
 			var searchView = new SearchView((SearchViewModel)ViewModel.Search);
 			hboxSearch.Add(searchView);
@@ -199,13 +214,13 @@ namespace Vodovoz.Views
 		private void RadioBtnAllocateOrdersOnToggled(object sender, EventArgs e)
 		{
 			if(radioBtnAllocateOrders.Active)
-				notebook1.CurrentPage = 0;
+				notebookPayment.CurrentPage = 0;
 		}
 
 		private void RadioBtnAllocatedOrdersOnToggled(object sender, EventArgs e)
 		{
 			if(radioBtnAllocatedOrders.Active)
-				notebook1.CurrentPage = 1;
+				notebookPayment.CurrentPage = 1;
 		}
 
 		#endregion
