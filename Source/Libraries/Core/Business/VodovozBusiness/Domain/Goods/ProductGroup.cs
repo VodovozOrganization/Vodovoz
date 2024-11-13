@@ -21,6 +21,7 @@ namespace Vodovoz.Domain.Goods
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		private bool _isHighlightInCarLoadDocument;
+		private bool _isNeedAdditionalControl;
 
 		#region Свойства
 
@@ -90,6 +91,13 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _isHighlightInCarLoadDocument, value);
 		}
 
+		[Display(Name = "Требует доп. контроля водителя")]
+		public virtual bool IsNeedAdditionalControl
+		{
+			get => _isNeedAdditionalControl;
+			set => SetField(ref _isNeedAdditionalControl, value);
+		}
+
 		[Display(Name = "Характеристики товаров")]
 		public virtual string CharacteristicsText {
 			get => String.Join(",", characteristics);
@@ -134,6 +142,15 @@ namespace Vodovoz.Domain.Goods
 			foreach(var child in Childs)
 			{
 				child.SetIsHighlightInCarLoadDocumenToAllChildGroups(value);
+			}
+		}
+
+		public virtual void SetIsNeedAdditionalControlToAllChildGroups(bool value)
+		{
+			IsNeedAdditionalControl = value;
+			foreach(var child in Childs)
+			{
+				child.SetIsNeedAdditionalControlToAllChildGroups(value);
 			}
 		}
 

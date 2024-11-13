@@ -18,7 +18,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox2;
 
-		private global::Gtk.Button buttonAddNomenclature;
+		private global::Gamma.GtkWidgets.yButton buttonAddNomenclature;
 
 		protected virtual void Build()
 		{
@@ -62,7 +62,7 @@ namespace Vodovoz
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonAddNomenclature = new global::Gtk.Button();
+			this.buttonAddNomenclature = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddNomenclature.CanFocus = true;
 			this.buttonAddNomenclature.Name = "buttonAddNomenclature";
 			this.buttonAddNomenclature.UseUnderline = true;

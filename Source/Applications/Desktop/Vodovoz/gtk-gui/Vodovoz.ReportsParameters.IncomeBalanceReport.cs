@@ -18,7 +18,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxReportType;
 
-		private global::Gtk.Button buttonCreateRepot;
+		private global::Gamma.GtkWidgets.yButton buttonCreateRepot;
 
 		protected virtual void Build()
 		{
@@ -90,7 +90,7 @@ namespace Vodovoz.ReportsParameters
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateRepot = new global::Gtk.Button();
+			this.buttonCreateRepot = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateRepot.CanFocus = true;
 			this.buttonCreateRepot.Name = "buttonCreateRepot";
 			this.buttonCreateRepot.UseUnderline = true;
@@ -107,7 +107,6 @@ namespace Vodovoz.ReportsParameters
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonCreateRepot.Clicked += new global::System.EventHandler(this.OnButtonCreateRepotClicked);
 		}
 	}
 }

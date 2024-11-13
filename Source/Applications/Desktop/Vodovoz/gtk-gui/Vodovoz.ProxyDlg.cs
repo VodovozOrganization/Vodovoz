@@ -8,9 +8,9 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.Table datatable1;
 
@@ -32,9 +32,9 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox7;
 
-		private global::Gtk.Button buttonAddDeliveryPoints;
+		private global::Gamma.GtkWidgets.yButton buttonAddDeliveryPoints;
 
-		private global::Gtk.Button buttonDeleteDeliveryPoint;
+		private global::Gamma.GtkWidgets.yButton buttonDeleteDeliveryPoint;
 
 		private global::Gtk.Label label1;
 
@@ -63,7 +63,7 @@ namespace Vodovoz
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -77,7 +77,7 @@ namespace Vodovoz
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -196,7 +196,7 @@ namespace Vodovoz
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonAddDeliveryPoints = new global::Gtk.Button();
+			this.buttonAddDeliveryPoints = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddDeliveryPoints.CanFocus = true;
 			this.buttonAddDeliveryPoints.Name = "buttonAddDeliveryPoints";
 			this.buttonAddDeliveryPoints.UseUnderline = true;
@@ -207,7 +207,7 @@ namespace Vodovoz
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonDeleteDeliveryPoint = new global::Gtk.Button();
+			this.buttonDeleteDeliveryPoint = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDeleteDeliveryPoint.CanFocus = true;
 			this.buttonDeleteDeliveryPoint.Name = "buttonDeleteDeliveryPoint";
 			this.buttonDeleteDeliveryPoint.UseUnderline = true;

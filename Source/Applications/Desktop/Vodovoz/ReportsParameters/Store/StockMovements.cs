@@ -30,6 +30,7 @@ namespace Vodovoz.Reports
 {
 	public partial class StockMovements : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly INavigationManager _navigationManager;
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly GenericObservableList<SelectableSortTypeNode> _selectableSortTypeNodes =
@@ -39,9 +40,11 @@ namespace Vodovoz.Reports
 		private ILifetimeScope _scope;
 
 		public StockMovements(
+			IReportInfoFactory reportInfoFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_scope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
@@ -269,11 +272,8 @@ namespace Vodovoz.Reports
 				parameters.Add(item.Key, item.Value);
 			}
 
-			return new ReportInfo
-			{
-				Identifier = reportId,
-				Parameters = parameters
-			};
+			var reportInfo = _reportInfoFactory.Create(reportId, Title, parameters);
+			return reportInfo;
 		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)

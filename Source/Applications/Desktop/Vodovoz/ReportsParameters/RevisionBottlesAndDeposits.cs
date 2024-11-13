@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
@@ -15,6 +15,7 @@ namespace Vodovoz.Reports
 {
 	public partial class RevisionBottlesAndDeposits : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter = new DeliveryPointJournalFilterViewModel();
 		//Т.к. отчет открывается из диалога звонка, то мы не можем контролировать время жизни скоупа
@@ -23,10 +24,12 @@ namespace Vodovoz.Reports
 		private bool _showStockBottle;
 
 		public RevisionBottlesAndDeposits(
+			IReportInfoFactory reportInfoFactory,
 			IOrderRepository orderRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			
 			Build();
@@ -71,20 +74,19 @@ namespace Vodovoz.Reports
 		}
 
 		private ReportInfo GetReportInfo()
-		{			
-			return new ReportInfo
+		{
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Client.SummaryBottlesAndDeposits",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", new DateTime(2000,1,1) },
-					{ "endDate", DateTime.Today.AddYears(1) },
-					{ "client_id", entityViewModelEntryCounterparty.GetSubject<Counterparty>().Id},
-					{ "delivery_point_id", evmeDeliveryPoint.Subject == null ? -1 : evmeDeliveryPoint.SubjectId},
-					{ "show_stock_bottle", _showStockBottle }
-				}
+				{ "startDate", new DateTime(2000,1,1) },
+				{ "endDate", DateTime.Today.AddYears(1) },
+				{ "client_id", entityViewModelEntryCounterparty.GetSubject<Counterparty>().Id},
+				{ "delivery_point_id", evmeDeliveryPoint.Subject == null ? -1 : evmeDeliveryPoint.SubjectId},
+				{ "show_stock_bottle", _showStockBottle }
 			};
-		}			
+
+			var reportInfo = _reportInfoFactory.Create("Client.SummaryBottlesAndDeposits", Title, parameters);
+			return reportInfo;
+		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)
 		{

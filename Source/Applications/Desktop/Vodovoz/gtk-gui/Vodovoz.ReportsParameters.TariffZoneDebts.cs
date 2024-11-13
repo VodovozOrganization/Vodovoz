@@ -24,7 +24,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonTo;
 
-		private global::Gtk.Button buttonRun;
+		private global::Gamma.GtkWidgets.yButton buttonRun;
 
 		protected virtual void Build()
 		{
@@ -152,7 +152,7 @@ namespace Vodovoz.ReportsParameters
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonRun = new global::Gtk.Button();
+			this.buttonRun = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRun.CanFocus = true;
 			this.buttonRun.Name = "buttonRun";
 			this.buttonRun.UseUnderline = true;
@@ -169,7 +169,6 @@ namespace Vodovoz.ReportsParameters
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonRun.Clicked += new global::System.EventHandler(this.OnButtonRunClicked);
 		}
 	}
 }

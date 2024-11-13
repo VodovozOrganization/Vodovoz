@@ -1,9 +1,7 @@
 ﻿using Autofac;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
-using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
@@ -13,9 +11,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.Core.Domain.Employees;
-using Autofac;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -69,12 +64,8 @@ namespace Vodovoz.Dialogs.Employees
 			evmeOrganisation.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
 			evmeOrganisation.Changed += (sender, e) => UpdateStates();
 
-			var driverFilter = new EmployeeFilterViewModel();
-			driverFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.driver);
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, driverFilter);
-			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
+			var employeeFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
+			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true));
 			evmeDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
 			evmeDriver.Changed += (sender, e) => UpdateStates();
 

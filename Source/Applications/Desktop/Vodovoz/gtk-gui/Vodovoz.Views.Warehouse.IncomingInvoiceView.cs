@@ -10,7 +10,7 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gamma.GtkWidgets.yButton btnPrint;
 
@@ -62,7 +62,7 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gamma.GtkWidgets.yButton btnCopyInventoryInstance;
 
-		private global::Gtk.Button buttonDelete;
+		private global::Gamma.GtkWidgets.yButton buttonDelete;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelSum;
 
@@ -95,7 +95,7 @@ namespace Vodovoz.Views.Warehouse
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -376,7 +376,7 @@ namespace Vodovoz.Views.Warehouse
 			w31.Expand = false;
 			w31.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonDelete = new global::Gtk.Button();
+			this.buttonDelete = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.UseUnderline = true;

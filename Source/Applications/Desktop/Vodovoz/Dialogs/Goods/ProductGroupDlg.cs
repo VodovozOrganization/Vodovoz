@@ -51,6 +51,14 @@ namespace Vodovoz.Dialogs.Goods
 				.InitializeFromSource();
 
 			ycheckbuttonIsHighlightInCarLoadDocument.Toggled += OnIsHighlightInCarLoadDocumentToggled;
+
+			ycheckbuttonIsNeedAdditionalControl.Binding
+				.AddBinding(Entity, e => e.IsNeedAdditionalControl, w => w.Active)
+				.InitializeFromSource();
+			ycheckbuttonIsNeedAdditionalControl.Sensitive =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.ProductGroup.CanEditAdditionalControlSettingsInProductGroups);
+
+			ycheckbuttonIsNeedAdditionalControl.Toggled += OnIsNeedAdditionalControlToggled;
 			
 			entryParent.JournalButtons = Buttons.None;
 			entryParent.RepresentationModel = new ProductGroupVM(UoW, new ProductGroupFilterViewModel
@@ -123,10 +131,23 @@ namespace Vodovoz.Dialogs.Goods
 			Entity.SetIsHighlightInCarLoadDocumenToAllChildGroups(Entity.IsHighlightInCarLoadDocument);
 		}
 
+		private void OnIsNeedAdditionalControlToggled(object sender, EventArgs e)
+		{
+			var infoMessage = $"Атрибут \"Требует доп. контроля водителя\" будет " +
+				$"{(Entity.IsNeedAdditionalControl ? "проставлен" : "снят")} " +
+				$"также для всех дочерних групп";
+
+			MessageDialogHelper.RunInfoDialog(infoMessage);
+
+			Entity.FetchChilds(UoW);
+			Entity.SetIsNeedAdditionalControlToAllChildGroups(Entity.IsNeedAdditionalControl);
+		}
+
 		public override void Destroy()
 		{
 			ycheckArchived.Toggled -= OnArchiveToggled;
 			ycheckbuttonIsHighlightInCarLoadDocument.Toggled -= OnIsHighlightInCarLoadDocumentToggled;
+			ycheckbuttonIsNeedAdditionalControl.Toggled -= OnIsNeedAdditionalControlToggled;
 			base.Destroy();
 		}
 	}

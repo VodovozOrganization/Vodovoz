@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -71,6 +71,8 @@ namespace Vodovoz
 		#endregion
 
 		public DeliveryPoint DeliveryPoint => evmeDeliveryPoint.Subject as DeliveryPoint;
+
+		public OrderAddressType? TypeOfAddress => null;
 
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -153,7 +155,7 @@ namespace Vodovoz
 			evmeClient.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			evmeClient.Changed += OnReferenceCounterpartyChanged;
 
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
+			var employeeFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			evmeEngineer.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEngineer.Binding.AddBinding(Entity, e => e.Engineer, w => w.Subject).InitializeFromSource();
 

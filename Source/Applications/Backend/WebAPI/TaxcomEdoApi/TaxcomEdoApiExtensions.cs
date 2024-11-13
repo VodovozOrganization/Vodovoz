@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using QS.Report;
 using Taxcom.Client.Api;
 using TaxcomEdoApi.Library;
 using TaxcomEdoApi.Library.Config;

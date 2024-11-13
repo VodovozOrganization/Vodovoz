@@ -8,12 +8,12 @@ namespace Vodovoz.TempAdapters
 	{
 		void SetEmployeeFilterViewModel(EmployeeFilterViewModel filter);
 		IEntityAutocompleteSelectorFactory CreateEmployeeAutocompleteSelectorFactory();
-		IEntityAutocompleteSelectorFactory CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-		EmployeesJournalViewModel CreateWorkingDriverEmployeeJournal();
-		IEntityAutocompleteSelectorFactory CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
-		EmployeesJournalViewModel CreateWorkingForwarderEmployeeJournal();
+		IEntityAutocompleteSelectorFactory CreateWorkingDriverEmployeeAutocompleteSelectorFactory(bool restrictedCategory = false);
+		EmployeesJournalViewModel CreateWorkingDriverEmployeeJournal(bool restrictedCategory = false);
+		IEntityAutocompleteSelectorFactory CreateWorkingForwarderEmployeeAutocompleteSelectorFactory(bool restrictedCategory = false);
+		EmployeesJournalViewModel CreateWorkingForwarderEmployeeJournal(bool restrictedCategory = false);
 		EmployeesJournalViewModel CreateEmployeesJournal(EmployeeFilterViewModel filterViewModel = null);
-		IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+		IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory(bool restrictedCategory = false);
 		/// <summary>
 		/// Журнал с фильтром по работающим сотрудникам любой категории
 		/// </summary>

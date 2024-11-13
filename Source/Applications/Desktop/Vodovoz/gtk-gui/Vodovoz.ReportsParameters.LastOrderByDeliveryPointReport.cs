@@ -12,7 +12,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.DatePicker ydatepicker;
 
-		private global::Gtk.CheckButton buttonSanitary;
+		private global::Gamma.GtkWidgets.yCheckButton buttonSanitary;
 
 		private global::Gtk.HBox hbox2;
 
@@ -20,9 +20,9 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QSWidgetLib.ValidatedEntry BottleDeptEntry;
 
-		private global::Gtk.Button button36;
+		private global::Gamma.GtkWidgets.yButton button36;
 
-		private global::Gtk.Button buttonCreateRepot;
+		private global::Gamma.GtkWidgets.yButton buttonCreateRepot;
 
 		protected virtual void Build()
 		{
@@ -64,7 +64,7 @@ namespace Vodovoz.ReportsParameters
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonSanitary = new global::Gtk.CheckButton();
+			this.buttonSanitary = new global::Gamma.GtkWidgets.yCheckButton();
 			this.buttonSanitary.CanFocus = true;
 			this.buttonSanitary.Name = "buttonSanitary";
 			this.buttonSanitary.Label = global::Mono.Unix.Catalog.GetString("Отчёт по санитарной обработке");
@@ -105,7 +105,7 @@ namespace Vodovoz.ReportsParameters
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.button36 = new global::Gtk.Button();
+			this.button36 = new global::Gamma.GtkWidgets.yButton();
 			this.button36.Sensitive = false;
 			this.button36.CanFocus = true;
 			this.button36.Name = "button36";
@@ -121,7 +121,7 @@ namespace Vodovoz.ReportsParameters
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateRepot = new global::Gtk.Button();
+			this.buttonCreateRepot = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateRepot.CanFocus = true;
 			this.buttonCreateRepot.Name = "buttonCreateRepot";
 			this.buttonCreateRepot.UseUnderline = true;
@@ -141,7 +141,6 @@ namespace Vodovoz.ReportsParameters
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonCreateRepot.Clicked += new global::System.EventHandler(this.OnButtonCreateRepotClicked);
 		}
 	}
 }

@@ -8,9 +8,9 @@ namespace Vodovoz.Views.Employees
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -332,7 +332,7 @@ namespace Vodovoz.Views.Employees
 
 		private global::Gtk.HBox hbox25;
 
-		private global::Gtk.Button btnAddContract;
+		private global::Gamma.GtkWidgets.yButton btnAddContract;
 
 		private global::Gamma.GtkWidgets.yButton btnEditContract;
 
@@ -348,7 +348,7 @@ namespace Vodovoz.Views.Employees
 
 		private global::Gtk.HBox hbox26;
 
-		private global::Gtk.Button btnAddDocument;
+		private global::Gamma.GtkWidgets.yButton btnAddDocument;
 
 		private global::Gamma.GtkWidgets.yButton btnEditDocument;
 
@@ -388,7 +388,7 @@ namespace Vodovoz.Views.Employees
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -402,7 +402,7 @@ namespace Vodovoz.Views.Employees
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -2193,7 +2193,7 @@ namespace Vodovoz.Views.Employees
 			this.hbox25.Name = "hbox25";
 			this.hbox25.Spacing = 6;
 			// Container child hbox25.Gtk.Box+BoxChild
-			this.btnAddContract = new global::Gtk.Button();
+			this.btnAddContract = new global::Gamma.GtkWidgets.yButton();
 			this.btnAddContract.CanFocus = true;
 			this.btnAddContract.Name = "btnAddContract";
 			this.btnAddContract.UseUnderline = true;
@@ -2263,7 +2263,7 @@ namespace Vodovoz.Views.Employees
 			this.hbox26.Name = "hbox26";
 			this.hbox26.Spacing = 6;
 			// Container child hbox26.Gtk.Box+BoxChild
-			this.btnAddDocument = new global::Gtk.Button();
+			this.btnAddDocument = new global::Gamma.GtkWidgets.yButton();
 			this.btnAddDocument.CanFocus = true;
 			this.btnAddDocument.Name = "btnAddDocument";
 			this.btnAddDocument.UseUnderline = true;

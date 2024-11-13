@@ -1,4 +1,8 @@
-﻿using CustomerAppsApi.Factories;
+﻿using System;
+using System.Net.Security;
+using System.Security.Authentication;
+using CustomerAppsApi.Factories;
+using CustomerAppsApi.Library.Configs;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Models;
@@ -6,22 +10,21 @@ using CustomerAppsApi.Library.Repositories;
 using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
 using CustomerAppsApi.Models;
+using Mailjet.Api.Abstractions;
+using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using QS.Utilities.Numeric;
+using RabbitMQ.Client;
+using RabbitMQ.MailSending;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Factories;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Validation;
-using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Database.Common;
-using Vodovoz.Settings.Database.Delivery;
-using Vodovoz.Settings.Database.Logistics;
-using Vodovoz.Settings.Database.Roboats;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Logistics;
-using Vodovoz.Settings.Roboats;
+using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerAppsApi.Library
@@ -39,9 +42,8 @@ namespace CustomerAppsApi.Library
 		public static IServiceCollection AddCustomerApiLibrary(this IServiceCollection services)
 		{
 			services
+				.AddScoped<ISendingService, SendingService>()
 				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
-				.AddScoped<IRoboatsSettings, RoboatsSettings>()
-				.AddScoped<IGlobalSettings, GlobalSettings>()
 				.AddScoped<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
 				.AddScoped<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()
 				.AddScoped<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>()
@@ -67,8 +69,6 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<FastDeliveryHandler>()
-				.AddScoped<IDriverApiSettings, DriverApiSettings>()
-				.AddScoped<IDeliveryRulesSettings, DeliveryRulesSettings>()
 				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
 				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)

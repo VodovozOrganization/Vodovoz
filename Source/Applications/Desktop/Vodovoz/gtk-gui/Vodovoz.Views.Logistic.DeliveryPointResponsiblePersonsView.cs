@@ -8,7 +8,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.Table datatableResponsiblePersons;
 
-		private global::Gtk.Button buttonAdd;
+		private global::Gamma.GtkWidgets.yButton buttonAdd;
 
 		protected virtual void Build()
 		{
@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Logistic
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.datatableResponsiblePersons]));
 			w1.Position = 0;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonAdd = new global::Gtk.Button();
+			this.buttonAdd = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;

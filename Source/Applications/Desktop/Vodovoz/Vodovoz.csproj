@@ -433,6 +433,7 @@
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\ServiceDistrictsSetJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelCardJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FundsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\InnerPhonesJournalRegistrar.cs" />
@@ -443,6 +444,7 @@
     <Compile Include="JournalColumnsConfigs\OrdersRatingsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RequestsForCallClosedReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WarehouseDocumentsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\AcceptBeforeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WorkShiftJournalRegistrar.cs" />
     <Compile Include="MessagesHostedService.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisView.ReportLine.cs" />
@@ -1381,25 +1383,10 @@
     <Compile Include="ViewModels\Comments\DocumentCommentViewModel.cs" />
     <Compile Include="Views\Comments\DocumentCommentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Comments.DocumentCommentView.cs" />
-    <Compile Include="ReportsParameters\PotentialFreePromosetsReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PotentialFreePromosetsReport.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportOperation.cs" />
     <Compile Include="Cores\PromosetDuplicateFinder.cs" />
     <Compile Include="ReportsParameters\WayBillReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReport.cs" />
-    <Compile Include="ViewModels\BusinessTasks\ClientTaskViewModel.cs" />
-    <Compile Include="Views\BusinessTasks\ClientTaskView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.ClientTaskView.cs" />
-    <Compile Include="JournalNodes\BusinessTaskJournalNode.cs" />
-    <Compile Include="Footers\ViewModels\BusinessTasksJournalFooterViewModel.cs" />
-    <Compile Include="Footers\Views\BusinessTasksJournalFooterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Footers.Views.BusinessTasksJournalFooterView.cs" />
-    <Compile Include="ViewModels\BusinessTasksJournalActionsViewModel.cs" />
-    <Compile Include="ViewModels\BusinessTasks\PaymentTaskViewModel.cs" />
-    <Compile Include="Views\BusinessTasks\PaymentTaskView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.PaymentTaskView.cs" />
-    <Compile Include="Views\BusinessTasksJournalActionsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasksJournalActionsView.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReportView.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientFinDepartmentReport.cs" />
@@ -2063,6 +2050,14 @@
     <Compile Include="gtk-gui\Vodovoz.Accounting.Payments.PaymentWriteOffView.cs" />
     <Compile Include="Views\Reports\OksDailyReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.OksDailyReportView.cs" />
+    <Compile Include="Orders\Reports\PotentialFreePromosetsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Orders.Reports.PotentialFreePromosetsReportView.cs" />
+    <Compile Include="Views\Orders\ServiceDistrictsSetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.ServiceDistrictsSetView.cs" />
+    <Compile Include="Filters\GtkViews\ServiceDistrictsSetJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ServiceDistrictsSetJournalFilterView.cs" />
+    <Compile Include="Views\Orders\ServiceDistrictsSetActivationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.ServiceDistrictsSetActivationView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2162,7 +2157,7 @@
     <PackageReference Include="SSH.NET" Version="2020.0.2" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource">
-      <Version>7.0.1</Version>
+      <Version>8.0.0</Version>
     </PackageReference>
     <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />

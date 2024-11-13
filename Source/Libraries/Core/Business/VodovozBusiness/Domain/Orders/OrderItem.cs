@@ -1,3 +1,4 @@
+﻿using Autofac;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -11,6 +12,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -30,6 +32,7 @@ namespace Vodovoz.Domain.Orders
 		private DiscountReason _discountReason;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
+		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 
 		protected OrderItem()
 		{
@@ -332,6 +335,11 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				if(RentType != OrderRentType.None)
+				{
+					return false;
+				}
+
+				if(Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId)
 				{
 					return false;
 				}

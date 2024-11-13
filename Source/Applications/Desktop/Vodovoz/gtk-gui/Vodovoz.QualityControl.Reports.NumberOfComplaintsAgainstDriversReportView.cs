@@ -52,9 +52,17 @@ namespace Vodovoz.QualityControl.Reports
 
 		private global::Gtk.VSeparator vseparator2;
 
+		private global::Gamma.GtkWidgets.yVBox yvboxTrees;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeReportIndicatorsRows;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelTotal;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeSubdivisionRows;
 
 		protected virtual void Build()
 		{
@@ -297,6 +305,10 @@ namespace Vodovoz.QualityControl.Reports
 			w24.Expand = false;
 			w24.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
+			this.yvboxTrees = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxTrees.Name = "yvboxTrees";
+			this.yvboxTrees.Spacing = 6;
+			// Container child yvboxTrees.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -305,9 +317,37 @@ namespace Vodovoz.QualityControl.Reports
 			this.ytreeReportIndicatorsRows.CanFocus = true;
 			this.ytreeReportIndicatorsRows.Name = "ytreeReportIndicatorsRows";
 			this.GtkScrolledWindow2.Add(this.ytreeReportIndicatorsRows);
-			this.hbox1.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow2]));
-			w26.Position = 1;
+			this.yvboxTrees.Add(this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.yvboxTrees[this.GtkScrolledWindow2]));
+			w26.Position = 0;
+			// Container child yvboxTrees.Gtk.Box+BoxChild
+			this.ylabelTotal = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelTotal.Name = "ylabelTotal";
+			this.ylabelTotal.Xalign = 0F;
+			this.ylabelTotal.LabelProp = global::Mono.Unix.Catalog.GetString("ИТОГ:");
+			this.yvboxTrees.Add(this.ylabelTotal);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yvboxTrees[this.ylabelTotal]));
+			w27.Position = 1;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child yvboxTrees.Gtk.Box+BoxChild
+			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow3.HeightRequest = 120;
+			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
+			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
+			this.ytreeSubdivisionRows = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeSubdivisionRows.CanFocus = true;
+			this.ytreeSubdivisionRows.Name = "ytreeSubdivisionRows";
+			this.GtkScrolledWindow3.Add(this.ytreeSubdivisionRows);
+			this.yvboxTrees.Add(this.GtkScrolledWindow3);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.yvboxTrees[this.GtkScrolledWindow3]));
+			w29.Position = 2;
+			w29.Expand = false;
+			w29.Fill = false;
+			this.hbox1.Add(this.yvboxTrees);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yvboxTrees]));
+			w30.Position = 1;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{

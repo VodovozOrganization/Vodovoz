@@ -30,7 +30,7 @@ namespace Vodovoz.ViewWidgets
 			set => ylabelShifts.LabelProp = value;
 		}
 
-		public void ConfigureDeliveryRulesTreeView(IList<DeliveryRuleRow> deliveryRules)
+		public void ConfigureDeliveryRulesTreeView(IList<DeliveryRuleRow> deliveryRules, bool isForService)
 		{
 			ytreeviewTodayDeliveryRules.Visible = deliveryRules.Any();
 
@@ -41,24 +41,38 @@ namespace Vodovoz.ViewWidgets
 
 			var deliveryRulesConfig = new FluentColumnsConfig<DeliveryRuleRow>();
 
-			deliveryRulesConfig
-				.AddColumn("Цена\nдоставки")
-				.AddTextRenderer(n => n.Volune);
-
 			var dynamicColumnsCount = deliveryRules.First().DynamicColumns.Count;
 
-			for(int i = 0; i < dynamicColumnsCount; i++)
+			if(isForService)
 			{
-				var currentIndex = i;
+				for(int i = 0; i < dynamicColumnsCount; i++)
+				{
+					var currentIndex = i;
+
+					deliveryRulesConfig
+						.AddColumn(deliveryRules.First().DynamicColumns[currentIndex])
+						.AddTextRenderer(n => n.DynamicColumns[currentIndex]);
+				}
+			}
+			else
+			{
+				deliveryRulesConfig
+					.AddColumn("Цена\nдоставки")
+					.AddTextRenderer(n => n.Volune);
+
+				for(int i = 0; i < dynamicColumnsCount; i++)
+				{
+					var currentIndex = i;
+
+					deliveryRulesConfig
+						.AddColumn(deliveryRules.First().DynamicColumns[currentIndex])
+						.AddTextRenderer(n => $"до {n.DynamicColumns[currentIndex]}");
+				}
 
 				deliveryRulesConfig
-					.AddColumn(deliveryRules.First().DynamicColumns[currentIndex])
-					.AddTextRenderer(n => $"до {n.DynamicColumns[currentIndex]}");
+					.AddColumn("Бесплатно")
+					.AddTextRenderer(n => $"от {n.FreeDeliveryBottlesCount}");
 			}
-
-			deliveryRulesConfig
-				.AddColumn("Бесплатно")
-				.AddTextRenderer(n => $"от {n.FreeDeliveryBottlesCount}");
 
 			ytreeviewTodayDeliveryRules.EnableGridLines = Gtk.TreeViewGridLines.Both;
 			ytreeviewTodayDeliveryRules.ColumnsConfig = deliveryRulesConfig.Finish();

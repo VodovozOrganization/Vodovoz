@@ -1,4 +1,5 @@
-﻿using QS.Views.GtkUI;
+﻿using System;
+using QS.Views.GtkUI;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
@@ -53,7 +54,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CanSortByPriority, w => w.Visible)
 				.AddBinding(ViewModel, vm => vm.SortByPriority, w => w.Active)
 				.InitializeFromSource();
-			checkSortByPriority.Toggled += (sender, args) => ViewModel.UpdateRestrictions.Execute();
+			checkSortByPriority.Toggled += UpdateViewModelRestrictions;
 
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
@@ -107,6 +108,17 @@ namespace Vodovoz.Filters.GtkViews
 			ychkRFcitizenship.Binding
 				.AddBinding(ViewModel, vm => vm.IsRFCitizen, w => w.Active)
 				.InitializeFromSource();
+		}
+
+		private void UpdateViewModelRestrictions(object sender, EventArgs e)
+		{
+			ViewModel.UpdateRestrictions.Execute();
+		}
+
+		public override void Destroy()
+		{
+			checkSortByPriority.Toggled -= UpdateViewModelRestrictions;
+			base.Destroy();
 		}
 	}
 }

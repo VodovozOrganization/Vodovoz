@@ -1,5 +1,7 @@
 ﻿using Autofac;
 using CashReceiptApi.Authentication;
+using CashReceiptApi.HealthChecks;
+using CashReceiptApi.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,15 +13,19 @@ using QS.Project.Core;
 using System.Configuration;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
+using VodovozHealthCheck;
 
 namespace CashReceiptApi
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = nameof(NLog);
+
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -35,7 +41,7 @@ namespace CashReceiptApi
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection("NLog"));
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				})
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -49,10 +55,13 @@ namespace CashReceiptApi
 				.AddCore()
 				.AddTrackedUoW()
 				.AddDatabaseSettings()
+				.AddInfrastructure()
 				;
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
+			services.ConfigureHealthCheckService<CashReceiptApiHealthChecks>();
+			services.Configure<ServiceOptions>(Configuration.GetSection(nameof(ServiceOptions)));
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
@@ -78,6 +87,10 @@ namespace CashReceiptApi
 				.InstancePerLifetimeScope();
 
 			builder.RegisterType<FiscalDocumentRefresher>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<FiscalDocumentRequeueService>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
@@ -119,6 +132,8 @@ namespace CashReceiptApi
 			{
 				endpoints.MapGrpcService<CashReceiptService>().EnableGrpcWeb();
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 
 		private IConfigurationSection GetCashboxesConfiguration()

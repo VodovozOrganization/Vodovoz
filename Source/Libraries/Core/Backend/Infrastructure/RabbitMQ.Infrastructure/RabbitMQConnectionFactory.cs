@@ -76,7 +76,13 @@ namespace RabbitMQ.Infrastructure
 			return connection;
 		}
 
-		public IConnection CreateConnection(string hostname, string username, string password, string virtualhost, int port)
+		public IConnection CreateConnection(
+			string hostname,
+			string username,
+			string password,
+			string virtualhost,
+			int port,
+			SslPolicyErrors sslPolicyErrors = SslPolicyErrors.None)
 		{
 			var connectionFactory = new ConnectionFactory
 			{
@@ -89,6 +95,7 @@ namespace RabbitMQ.Infrastructure
 				Ssl =
 				{
 					ServerName = hostname,
+					AcceptablePolicyErrors = sslPolicyErrors,
 					Enabled = true
 				}
 			};

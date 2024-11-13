@@ -8,9 +8,9 @@ namespace Vodovoz.Dialogs.Goods
 
 		private global::Gtk.HBox hbox4;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.HBox hbox1;
 
@@ -32,6 +32,8 @@ namespace Vodovoz.Dialogs.Goods
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonIsHighlightInCarLoadDocument;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonIsNeedAdditionalControl;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckExportToOnlineStore;
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
@@ -39,6 +41,8 @@ namespace Vodovoz.Dialogs.Goods
 		private global::Gamma.GtkWidgets.yEntry yentryOnlineStoreGuid;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelIsHighlightInCarLoadDocument;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelIsNeedAdditionalControl;
 
 		private global::Gamma.GtkWidgets.yLabel ylblOnlineStore;
 
@@ -65,7 +69,7 @@ namespace Vodovoz.Dialogs.Goods
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -79,7 +83,7 @@ namespace Vodovoz.Dialogs.Goods
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -102,7 +106,7 @@ namespace Vodovoz.Dialogs.Goods
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(8)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(9)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -201,6 +205,22 @@ namespace Vodovoz.Dialogs.Goods
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.ycheckbuttonIsNeedAdditionalControl = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonIsNeedAdditionalControl.CanFocus = true;
+			this.ycheckbuttonIsNeedAdditionalControl.Name = "ycheckbuttonIsNeedAdditionalControl";
+			this.ycheckbuttonIsNeedAdditionalControl.Label = "";
+			this.ycheckbuttonIsNeedAdditionalControl.DrawIndicator = true;
+			this.ycheckbuttonIsNeedAdditionalControl.UseUnderline = true;
+			this.ycheckbuttonIsNeedAdditionalControl.Xalign = 0F;
+			this.table1.Add(this.ycheckbuttonIsNeedAdditionalControl);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonIsNeedAdditionalControl]));
+			w14.TopAttach = ((uint)(8));
+			w14.BottomAttach = ((uint)(9));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ycheckExportToOnlineStore = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckExportToOnlineStore.CanFocus = true;
 			this.ycheckExportToOnlineStore.Name = "ycheckExportToOnlineStore";
@@ -208,13 +228,13 @@ namespace Vodovoz.Dialogs.Goods
 			this.ycheckExportToOnlineStore.DrawIndicator = true;
 			this.ycheckExportToOnlineStore.UseUnderline = true;
 			this.table1.Add(this.ycheckExportToOnlineStore);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckExportToOnlineStore]));
-			w14.TopAttach = ((uint)(2));
-			w14.BottomAttach = ((uint)(3));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckExportToOnlineStore]));
+			w15.TopAttach = ((uint)(2));
+			w15.BottomAttach = ((uint)(3));
+			w15.LeftAttach = ((uint)(1));
+			w15.RightAttach = ((uint)(2));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
@@ -223,13 +243,13 @@ namespace Vodovoz.Dialogs.Goods
 			this.yentryName.MaxLength = 100;
 			this.yentryName.InvisibleChar = '•';
 			this.table1.Add(this.yentryName);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
-			w15.TopAttach = ((uint)(1));
-			w15.BottomAttach = ((uint)(2));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
+			w16.TopAttach = ((uint)(1));
+			w16.BottomAttach = ((uint)(2));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryOnlineStoreGuid = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryOnlineStoreGuid.CanFocus = true;
@@ -239,52 +259,63 @@ namespace Vodovoz.Dialogs.Goods
 			this.yentryOnlineStoreGuid.MaxLength = 36;
 			this.yentryOnlineStoreGuid.InvisibleChar = '●';
 			this.table1.Add(this.yentryOnlineStoreGuid);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryOnlineStoreGuid]));
-			w16.TopAttach = ((uint)(6));
-			w16.BottomAttach = ((uint)(7));
-			w16.LeftAttach = ((uint)(1));
-			w16.RightAttach = ((uint)(2));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryOnlineStoreGuid]));
+			w17.TopAttach = ((uint)(6));
+			w17.BottomAttach = ((uint)(7));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelIsHighlightInCarLoadDocument = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelIsHighlightInCarLoadDocument.Name = "ylabelIsHighlightInCarLoadDocument";
 			this.ylabelIsHighlightInCarLoadDocument.Xalign = 1F;
 			this.ylabelIsHighlightInCarLoadDocument.LabelProp = global::Mono.Unix.Catalog.GetString("Выделять в талонах погрузки:");
 			this.table1.Add(this.ylabelIsHighlightInCarLoadDocument);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelIsHighlightInCarLoadDocument]));
-			w17.TopAttach = ((uint)(7));
-			w17.BottomAttach = ((uint)(8));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelIsHighlightInCarLoadDocument]));
+			w18.TopAttach = ((uint)(7));
+			w18.BottomAttach = ((uint)(8));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabelIsNeedAdditionalControl = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelIsNeedAdditionalControl.Name = "ylabelIsNeedAdditionalControl";
+			this.ylabelIsNeedAdditionalControl.Xalign = 1F;
+			this.ylabelIsNeedAdditionalControl.LabelProp = global::Mono.Unix.Catalog.GetString("Требует доп. контроля водителя:");
+			this.table1.Add(this.ylabelIsNeedAdditionalControl);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelIsNeedAdditionalControl]));
+			w19.TopAttach = ((uint)(8));
+			w19.BottomAttach = ((uint)(9));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylblOnlineStore = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblOnlineStore.Name = "ylblOnlineStore";
 			this.ylblOnlineStore.Xalign = 0F;
 			this.table1.Add(this.ylblOnlineStore);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.ylblOnlineStore]));
-			w18.TopAttach = ((uint)(5));
-			w18.BottomAttach = ((uint)(6));
-			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.ylblOnlineStore]));
+			w20.TopAttach = ((uint)(5));
+			w20.BottomAttach = ((uint)(6));
+			w20.LeftAttach = ((uint)(1));
+			w20.RightAttach = ((uint)(2));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylblOnlineStoreStr = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblOnlineStoreStr.Name = "ylblOnlineStoreStr";
 			this.ylblOnlineStoreStr.Xalign = 1F;
 			this.ylblOnlineStoreStr.LabelProp = global::Mono.Unix.Catalog.GetString("Интернет-магазин:");
 			this.table1.Add(this.ylblOnlineStoreStr);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.ylblOnlineStoreStr]));
-			w19.TopAttach = ((uint)(5));
-			w19.BottomAttach = ((uint)(6));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.ylblOnlineStoreStr]));
+			w21.TopAttach = ((uint)(5));
+			w21.BottomAttach = ((uint)(6));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.table1]));
-			w20.Position = 0;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.table1]));
+			w22.Position = 0;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
@@ -294,25 +325,25 @@ namespace Vodovoz.Dialogs.Goods
 			this.ylabel1.Name = "ylabel1";
 			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Доступные характеристики:");
 			this.vbox1.Add(this.ylabel1);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabel1]));
-			w21.Position = 0;
-			w21.Expand = false;
-			w21.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabel1]));
+			w23.Position = 0;
+			w23.Expand = false;
+			w23.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.checklistCharacteristics = new global::Gamma.Widgets.EnumCheckList();
 			this.checklistCharacteristics.Name = "checklistCharacteristics";
 			this.vbox1.Add(this.checklistCharacteristics);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.checklistCharacteristics]));
-			w22.Position = 1;
-			this.hbox1.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox1]));
-			w23.Position = 1;
-			w23.Expand = false;
-			w23.Fill = false;
-			this.vbox2.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
-			w24.PackType = ((global::Gtk.PackType)(1));
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.checklistCharacteristics]));
 			w24.Position = 1;
+			this.hbox1.Add(this.vbox1);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox1]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
+			this.vbox2.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
+			w26.PackType = ((global::Gtk.PackType)(1));
+			w26.Position = 1;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

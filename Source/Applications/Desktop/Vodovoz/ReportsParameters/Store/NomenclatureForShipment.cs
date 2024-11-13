@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
@@ -22,11 +20,13 @@ namespace Vodovoz.ReportsParameters.Store
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NomenclatureForShipment : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
 		private SelectableParametersReportFilter _filter;
 
-		public NomenclatureForShipment(IGeographicGroupRepository geographicGroupRepository)
+		public NomenclatureForShipment(IReportInfoFactory reportInfoFactory, IGeographicGroupRepository geographicGroupRepository)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
@@ -142,11 +142,8 @@ namespace Vodovoz.ReportsParameters.Store
 
 			}
 
-			var repInfo = new ReportInfo {
-				Identifier = "Store.GoodsToShipOnDate",
-				Parameters = parameters
-			};
-			return repInfo;
+			var reportInfo = _reportInfoFactory.Create("Store.GoodsToShipOnDate", Title, parameters);
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

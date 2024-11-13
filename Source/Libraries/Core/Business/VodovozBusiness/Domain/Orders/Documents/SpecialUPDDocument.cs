@@ -99,19 +99,16 @@ namespace Vodovoz.Domain.Orders.Documents
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
-
-			return new ReportInfo(connectionString)
-			{
-				Title = $"Особый УПД {Order.Id} от {Order.DeliveryDate:d}",
-				Identifier = identifier,
-				Parameters = new Dictionary<string, object> {
-					{ "order_id", Order.Id },
-					{ "special", true },
-					{ "hide_signature", HideSignature }
-				},
-				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
+			reportInfo.Title = $"Особый УПД {Order.Id} от {Order.DeliveryDate:d}";
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "order_id", Order.Id },
+				{ "special", true },
+				{ "hide_signature", HideSignature }
 			};
+			return reportInfo;
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
