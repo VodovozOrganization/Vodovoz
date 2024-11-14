@@ -213,7 +213,7 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 					   {
 						   OrderId = order.Id,
 						   ClientId = order.Client.Id,
-						   DeliveryPointId = order.DeliveryPoint.Id,
+						   DeliveryPointId = order.DeliveryPoint == null ? default : order.DeliveryPoint.Id,
 						   OrderCreateDate = order.CreateDate,
 						   OrderDeliveryDate = order.DeliveryDate,
 						   AuthorId = order.Author.Id,
@@ -221,8 +221,8 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 						   PhoneNumber = phone.Number,
 						   PhoneDigitNumber = phone.DigitsNumber,
 						   ClientName = client.FullName,
-						   DeliveryPointAddress = deliveryPoint.ShortAddress,
-						   DeliveryPointCategory = deliveryPointCategory.Name,
+						   DeliveryPointAddress = deliveryPoint == null ? string.Empty : deliveryPoint.ShortAddress,
+						   DeliveryPointCategory = deliveryPointCategory == null ? string.Empty : deliveryPointCategory.Name,
 						   PromosetId = promoset.Id,
 						   PromosetName = promoset.Name,
 						   IsRoot = true
