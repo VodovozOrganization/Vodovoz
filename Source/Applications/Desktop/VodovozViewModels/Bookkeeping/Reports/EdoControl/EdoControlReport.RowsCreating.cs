@@ -477,6 +477,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 				where
 					order.DeliveryDate >= StartDate && order.DeliveryDate < EndDate.Date.AddDays(1)
 					&& _orderStatuses.Contains(order.OrderStatus)
+					&& (routeListItem == null || routeListItem.Status != RouteListItemStatus.Transfered)
 
 					&& ((_includedCounterpartyTypes.Count() == 0 && _includedCounterpartySubtypes.Count() == 0)
 						|| _includedCounterpartyTypes.Contains(client.CounterpartyType)
