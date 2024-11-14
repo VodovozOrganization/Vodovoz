@@ -441,6 +441,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			{
 				var dataNodes = await GetOrdersData(uow, cancellationToken);
 
+				dataNodes = GetOrdersDataWithoutNotLastEdoContainers(dataNodes);
+
 				switch(_groupingTypes.Count())
 				{
 					case 0:
@@ -547,6 +549,17 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 				};
 
 			return await rows.ToListAsync(cancellationToken);
+		}
+
+		private IList<EdoControlReportOrderData> GetOrdersDataWithoutNotLastEdoContainers(IList<EdoControlReportOrderData> ordersData)
+		{
+			var data =
+				ordersData
+				.GroupBy(od => od.OrderId)
+				.Select(g => g.OrderByDescending(od => od.EdoContainerId).FirstOrDefault())
+				.ToList();
+
+			return data;
 		}
 
 		private Func<EdoControlReportOrderData, object> GetSelector(GroupingType groupingType)
