@@ -716,7 +716,7 @@
     <Compile Include="ViewModels\Permissions\UsersPresetPermissionValuesGetter.cs" />
     <Compile Include="ViewModels\Permissions\WarehousePermissionsViewModel.cs" />
     <Compile Include="ViewModels\Payments\AutoPaymentMatching.cs" />
-    <Compile Include="ViewModels\Payments\ManualPaymentMatchingViewModel.cs" />
+    <Compile Include="ViewModels\Payments\ManualCashlessIncomeMatchingViewModel.cs" />
     <Compile Include="ViewModels\Payments\PaymentLoaderViewModel.cs" />
     <Compile Include="ViewModels\Payments\TransferDocumentsFromBankParser.cs" />
     <Compile Include="ViewModels\Profitability\ProfitabilityConstantsDataViewModel.cs" />
