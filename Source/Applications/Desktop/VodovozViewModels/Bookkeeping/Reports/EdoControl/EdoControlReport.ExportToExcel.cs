@@ -61,6 +61,10 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 
 			stylesheet.Fonts.Count = 3;
 
+			stylesheet.Fills = new Fills();
+			stylesheet.Fills.AppendChild(new Fill { PatternFill = new PatternFill { PatternType = PatternValues.None } });
+			stylesheet.Fills.AppendChild(new Fill { PatternFill = new PatternFill { PatternType = PatternValues.Gray125 } });
+
 			stylesheet.Borders = new Borders();
 			stylesheet.Borders.AppendChild(new Border());
 			stylesheet.Borders.Count = 1;
