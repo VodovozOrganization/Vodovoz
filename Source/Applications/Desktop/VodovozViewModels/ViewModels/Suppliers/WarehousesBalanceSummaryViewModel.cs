@@ -293,7 +293,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IQueryOver<WarehouseInstanceGoodsAccountingOperation, WarehouseInstanceGoodsAccountingOperation>
 				instanceBalanceByWarehousesQuery = null;
 
-			if(parameters.WarehousesIds != null)
+			if(parameters.WarehousesIds.Any())
 			{
 				bulkBalanceByWarehousesQuery = localUow.Session.QueryOver(() => warehouseBulkOperationAlias)
 					.Where(() => warehouseBulkOperationAlias.OperationTime <= endDate)
@@ -330,7 +330,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IQueryOver<EmployeeInstanceGoodsAccountingOperation, EmployeeInstanceGoodsAccountingOperation> instanceBalanceByEmployeesQuery =
 				null;
 
-			if(parameters.EmployeesIds != null)
+			if(parameters.EmployeesIds.Any())
 			{
 				bulkBalanceByEmployeesQuery = localUow.Session.QueryOver(() => employeeBulkOperationAlias)
 					.Where(() => employeeBulkOperationAlias.OperationTime <= endDate)
@@ -366,7 +366,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IQueryOver<CarBulkGoodsAccountingOperation, CarBulkGoodsAccountingOperation> bulkBalanceByCarsQuery = null;
 			IQueryOver<CarInstanceGoodsAccountingOperation, CarInstanceGoodsAccountingOperation> instanceBalanceByCarsQuery = null;
 
-			if(parameters.CarsIds != null)
+			if(parameters.CarsIds.Any())
 			{
 				bulkBalanceByCarsQuery = localUow.Session.QueryOver(() => carBulkOperationAlias)
 					.Where(() => carBulkOperationAlias.OperationTime <= endDate)
