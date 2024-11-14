@@ -2071,6 +2071,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ServiceDistrictsSetJournalFilterView.cs" />
     <Compile Include="Views\Orders\ServiceDistrictsSetActivationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ServiceDistrictsSetActivationView.cs" />
+    <Compile Include="Views\Payments\ManualPaymentMatchingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Payments.ManualPaymentMatchingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
