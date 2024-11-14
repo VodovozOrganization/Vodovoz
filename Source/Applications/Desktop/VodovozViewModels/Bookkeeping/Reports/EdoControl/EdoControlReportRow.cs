@@ -18,7 +18,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			ClientName = data.ClientName;
 			RouteListId = data.RouteListId is null ? "" : data.RouteListId.Value.ToString();
 			EdoContainerId = data.EdoContainerId is null ? "" : data.EdoContainerId.Value.ToString();
-			EdoStatus = data.EdoStatus is null ? "" : data.EdoStatus.Value.GetEnumDisplayName();
+			EdoStatus = data.EdoStatus.GetEnumDisplayName();
 			OrderDeliveryType = data.OrderDeliveryType.GetEnumDisplayName();
 			AddressTransferType = data.AddressTransferType.GetEnumDisplayName();
 		}

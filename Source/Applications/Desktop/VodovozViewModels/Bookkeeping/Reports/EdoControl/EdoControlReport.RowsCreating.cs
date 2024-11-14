@@ -49,8 +49,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 		private IEnumerable<PaymentByTerminalSource> _includedPaymentByTerminalSources = new List<PaymentByTerminalSource>();
 		private IEnumerable<PaymentByTerminalSource> _excludedPaymentByTerminalSources = new List<PaymentByTerminalSource>();
 
-		private IEnumerable<EdoDocFlowStatus> _includedEdoDocFlowStatuses = new List<EdoDocFlowStatus>();
-		private IEnumerable<EdoDocFlowStatus> _excludedEdoDocFlowStatuses = new List<EdoDocFlowStatus>();
+		private IEnumerable<EdoControlReportDocFlowStatus> _includedEdoDocFlowStatuses = new List<EdoControlReportDocFlowStatus>();
+		private IEnumerable<EdoControlReportDocFlowStatus> _excludedEdoDocFlowStatuses = new List<EdoControlReportDocFlowStatus>();
 
 		private IEnumerable<EdoControlReportOrderDeliveryType> _includedOrderDeliveryTypes = new List<EdoControlReportOrderDeliveryType>();
 		private IEnumerable<EdoControlReportOrderDeliveryType> _excludedOrderDeliveryTypes = new List<EdoControlReportOrderDeliveryType>();
@@ -148,7 +148,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 
 			#region EdoDocFlowStatus
 
-			var edoDocFlowStatusFilter = filterViewModel.GetFilter<IncludeExcludeEnumFilter<EdoDocFlowStatus>>();
+			var edoDocFlowStatusFilter = filterViewModel.GetFilter<IncludeExcludeEnumFilter<EdoControlReportDocFlowStatus>>();
 			_includedEdoDocFlowStatuses = edoDocFlowStatusFilter.GetIncluded().ToArray();
 			_excludedEdoDocFlowStatuses = edoDocFlowStatusFilter.GetExcluded().ToArray();
 
@@ -441,8 +441,6 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 			{
 				var dataNodes = await GetOrdersData(uow, cancellationToken);
 
-				dataNodes = GetOrdersDataWithoutNotLastEdoContainers(dataNodes);
-
 				switch(_groupingTypes.Count())
 				{
 					case 0:
@@ -476,10 +474,19 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 				from routeListItem in routeListItems.DefaultIfEmpty()
 				join ec in uow.Session.Query<EdoContainer>() on order.Id equals ec.Order.Id into edoContainers
 				from edoContainer in edoContainers.DefaultIfEmpty()
+
+				let lastEdoByOrder =
+					(int?)(from container in uow.Session.Query<EdoContainer>()
+						   where container.Order.Id == order.Id
+						   orderby container.Id descending
+						   select container.Id)
+						   .FirstOrDefault()
+
 				where
 					order.DeliveryDate >= StartDate && order.DeliveryDate < EndDate.Date.AddDays(1)
 					&& _orderStatuses.Contains(order.OrderStatus)
 					&& (routeListItem == null || routeListItem.Status != RouteListItemStatus.Transfered)
+					&& (edoContainer == null || edoContainer.Id == lastEdoByOrder.Value)
 
 					&& ((_includedCounterpartyTypes.Count() == 0 && _includedCounterpartySubtypes.Count() == 0)
 						|| _includedCounterpartyTypes.Contains(client.CounterpartyType)
@@ -502,8 +509,27 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 					&& !(order.PaymentType == PaymentType.PaidOnline && order.PaymentByCardFrom.Id != null && _excludedPaymentFroms.Contains(order.PaymentByCardFrom.Id))
 					&& !(order.PaymentType == PaymentType.Terminal && order.PaymentByTerminalSource != null && _excludedPaymentByTerminalSources.Contains(order.PaymentByTerminalSource.Value))
 
-					&& (_includedEdoDocFlowStatuses.Count() == 0 || _includedEdoDocFlowStatuses.Contains(edoContainer.EdoDocFlowStatus))
-					&& (edoContainer.EdoDocFlowStatus == null || !_excludedEdoDocFlowStatuses.Contains(edoContainer.EdoDocFlowStatus))
+					&& (_includedEdoDocFlowStatuses.Count() == 0
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unsended) && edoContainer == null)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unknown) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Unknown)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.InProgress) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.InProgress)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Succeed) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Warning) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Warning)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Error) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Error)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotStarted) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotStarted)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.CompletedWithDivergences) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.CompletedWithDivergences)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotAccepted) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotAccepted)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.PreparingToSend) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.PreparingToSend))
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unsended) && edoContainer.EdoDocFlowStatus == null)
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unknown) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Unknown)
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.InProgress) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.InProgress)
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Succeed) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Warning) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Warning)
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Error) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Error)
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotStarted) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotStarted)
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.CompletedWithDivergences) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.CompletedWithDivergences)
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotAccepted) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotAccepted)
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.PreparingToSend) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.PreparingToSend)
 
 					&& (_includedOrderDeliveryTypes.Count() == 0
 						|| (_includedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.FastDelivery) && order.IsFastDelivery)
@@ -524,7 +550,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.FromHandToHand) && routeListItem.AddressTransferType != null && routeListItem.AddressTransferType == AddressTransferType.FromHandToHand)
 					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.FromFreeBalance) && routeListItem.AddressTransferType != null && routeListItem.AddressTransferType == AddressTransferType.FromFreeBalance)
 					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.NoTransfer) && routeListItem.AddressTransferType == null)
-
+									
 				select new EdoControlReportOrderData
 				{
 					EdoContainerId = edoContainer.Id,
@@ -533,7 +559,10 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 					OrderId = order.Id,
 					RouteListId = routeListItem.RouteList.Id,
 					DeliveryDate = order.DeliveryDate.Value,
-					EdoStatus = edoContainer.EdoDocFlowStatus,
+					EdoStatus =
+						edoContainer == null
+						? EdoControlReportDocFlowStatus.Unsended
+						: edoContainer.EdoDocFlowStatus.ToString().ToEnum<EdoControlReportDocFlowStatus>(),
 					OrderDeliveryType =
 						order.IsFastDelivery
 						? EdoControlReportOrderDeliveryType.FastDelivery
@@ -549,17 +578,6 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 				};
 
 			return await rows.ToListAsync(cancellationToken);
-		}
-
-		private IList<EdoControlReportOrderData> GetOrdersDataWithoutNotLastEdoContainers(IList<EdoControlReportOrderData> ordersData)
-		{
-			var data =
-				ordersData
-				.GroupBy(od => od.OrderId)
-				.Select(g => g.OrderByDescending(od => od.EdoContainerId).FirstOrDefault())
-				.ToList();
-
-			return data;
 		}
 
 		private Func<EdoControlReportOrderData, object> GetSelector(GroupingType groupingType)
@@ -590,7 +608,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 				case GroupingType.Counterparty:
 					return x => x.ClientName;
 				case GroupingType.EdoDocFlowStatus:
-					return x => x.EdoStatus is null ? "" : x.EdoStatus.Value.GetEnumDisplayName();
+					return x => x.EdoStatus.GetEnumDisplayName();
 				case GroupingType.OrderDeliveryType:
 					return x => x.OrderDeliveryType.GetEnumDisplayName();
 				case GroupingType.OrderTransferType:

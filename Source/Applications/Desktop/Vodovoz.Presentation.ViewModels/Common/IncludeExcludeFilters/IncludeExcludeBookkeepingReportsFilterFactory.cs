@@ -8,7 +8,6 @@ using System.Linq;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 {
@@ -363,7 +362,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 
 		private void AddEdoDocFlowStatusFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{
-			includeExludeFiltersViewModel.AddFilter<EdoDocFlowStatus>(config =>
+			includeExludeFiltersViewModel.AddFilter<EdoControlReportDocFlowStatus>(config =>
 			{
 				config.RefreshFilteredElements();
 			});
