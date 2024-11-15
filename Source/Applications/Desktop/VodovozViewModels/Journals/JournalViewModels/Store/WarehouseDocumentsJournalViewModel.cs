@@ -2,6 +2,8 @@
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using QS.Deletion;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
@@ -12,6 +14,7 @@ using QS.Services;
 using QS.Tdi;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -44,6 +47,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		};
 
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IGenericRepository<CarEvent> _carEventRepository;
+		private readonly IInteractiveService _interactiveService;
 
 		public WarehouseDocumentsJournalViewModel(
 			WarehouseDocumentsJournalFilterViewModel filterViewModel,
@@ -51,11 +56,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IGtkTabsOpener gtkTabsOpener,
+			IGenericRepository<CarEvent> carEventRepository,
+			IInteractiveService interactiveService,
 			Action<WarehouseDocumentsJournalFilterViewModel> filterConfiguration = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
-
+			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			UseSlider = false;
 			SearchEnabled = true;
 			TabName = "Журнал складских документов";
@@ -1137,7 +1145,75 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			CreateDefaultSelectAction();
 			CreateCustomAddActions();
 			CreateCustomEditAction();
-			CreateDefaultDeleteAction();
+			CreateCustomDeleteAction();
+		}
+
+		private void CreateCustomDeleteAction()
+		{
+
+			var deleteAction = new JournalAction("Удалить",
+				(selected) => 
+				{
+					var selectedNodes = selected.OfType<WarehouseDocumentsJournalNode>();
+
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					var selectedNode = selectedNodes.First();
+
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}					
+
+					var config = EntityConfigs[selectedNode.EntityType];
+
+					return config.PermissionResult.CanDelete;
+				},
+				(selected) => true,
+				(selected) => 
+				{
+					var selectedNodes = selected.OfType<WarehouseDocumentsJournalNode>();
+
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+
+					var selectedNode = selectedNodes.First();
+
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+
+					if(selectedNode.DocTypeEnum == DocumentType.WriteoffDocument)
+					{
+						var carEvent = _carEventRepository.Get(UoW, x => x.WriteOffDocument.Id == selectedNode.Id, 1).FirstOrDefault();
+
+						if(carEvent != null)
+						{
+							_interactiveService.ShowMessage(
+								ImportanceLevel.Warning,
+								$"Данный акт списания привязан к событию ТС {carEvent.Id} {carEvent.CarEventType.Name}",
+								"Невозможно удалить документ");
+
+							return;
+						}
+					}
+
+					var config = EntityConfigs[selectedNode.EntityType];
+
+					if(config.PermissionResult.CanDelete)
+					{
+						DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
+					}
+				},
+				"Delete"
+			);
+
+			NodeActionsList.Add(deleteAction);
 		}
 
 		protected void CreateCustomAddActions()

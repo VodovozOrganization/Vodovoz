@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using MySqlX.XDevAPI.Common;
