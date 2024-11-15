@@ -113,62 +113,104 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			}
 		}
 
-		private IQueryable<ProductGroupsJournalNode> GetChunk(IUnitOfWork unitOfWork, int? parentId) =>
-			GetSubGroup(unitOfWork, parentId);
+		private string _searchString => string.IsNullOrWhiteSpace(_filter.SearchString) ? string.Empty : $"%{_filter.SearchString.ToLower()}%";
+		private IEnumerable<ProductGroupsJournalNode> _groupNodes = new List<ProductGroupsJournalNode>();
+		private IEnumerable<ProductGroupsJournalNode> _nomenclatureNodes = new List<ProductGroupsJournalNode>();
 
-		private IQueryable<ProductGroupsJournalNode> GetSubGroup(IUnitOfWork unitOfWork, int? parentId)
+		private void UpdateGroupAndNomenclatureNodes(IUnitOfWork unitOfWork)
 		{
-			var searchString = string.IsNullOrWhiteSpace(_filter.SearchString) ? string.Empty : $"%{_filter.SearchString.ToLower()}%";
-
-			if(string.IsNullOrWhiteSpace(searchString) || parentId == null)
-			{
-				return Enumerable.Empty<ProductGroupsJournalNode>().AsQueryable();
-			}
-
-			var groupNodes =
+			_groupNodes =
 				(from productGroup in unitOfWork.GetAll<ProductGroup>()
 				 where
-				 (string.IsNullOrWhiteSpace(searchString) && productGroup.Parent.Id == parentId)
-					 || productGroup.Name.ToLower().Like(searchString)
-					 || productGroup.Id.ToString().Like(searchString)
+				 (string.IsNullOrWhiteSpace(_searchString)
+					 || productGroup.Name.ToLower().Like(_searchString)
+					 || productGroup.Id.ToString().Like(_searchString))
 				 && (!_filter.IsHideArchived || !productGroup.IsArchive)
-
-				 let children = GetSubGroup(unitOfWork, productGroup.Id)
-
-				 orderby productGroup.Name, productGroup.Id
+				 orderby productGroup.Id
 				 select new ProductGroupsJournalNode
 				 {
 					 Id = productGroup.Id,
 					 Name = productGroup.Name,
 					 ParentId = productGroup.Parent.Id,
 					 IsArchive = productGroup.IsArchive,
+					 JournalNodeType = _productGroupType
+				 })
+				 .ToList();
+
+			_nomenclatureNodes =
+				(from nomenclature in unitOfWork.GetAll<Nomenclature>()
+				 where
+				 (string.IsNullOrWhiteSpace(_searchString)
+					 || nomenclature.Name.ToLower().Like(_searchString)
+					 || nomenclature.Id.ToString().Like(_searchString))
+				 && (!_filter.IsHideArchived || !nomenclature.IsArchive)
+				 orderby nomenclature.Id
+				 select new ProductGroupsJournalNode
+				 {
+					 Id = nomenclature.Id,
+					 Name = nomenclature.Name,
+					 ParentId = nomenclature.ProductGroup.Id,
+					 IsArchive = nomenclature.IsArchive,
+					 JournalNodeType = _nomenclatureType
+				 })
+				.ToList();
+		}
+
+		private IQueryable<ProductGroupsJournalNode> GetChunk(IUnitOfWork unitOfWork, int? parentId)
+		{
+			UpdateGroupAndNomenclatureNodes(unitOfWork);
+
+			return GetSubGroup(parentId);
+		}
+
+		private IQueryable<ProductGroupsJournalNode> GetSubGroup(int? parentId)
+		{
+			if(!(string.IsNullOrWhiteSpace(_searchString) || parentId == null))
+			{
+				return Enumerable.Empty<ProductGroupsJournalNode>().AsQueryable();
+			}
+
+			var groupNodes =
+				(from productGroup in _groupNodes
+				 where
+				 (string.IsNullOrWhiteSpace(_searchString) && productGroup.ParentId == parentId)
+				 || !string.IsNullOrWhiteSpace(_searchString)
+
+				 let children = GetSubGroup(productGroup.Id)
+
+				 orderby productGroup.Id
+				 select new ProductGroupsJournalNode
+				 {
+					 Id = productGroup.Id,
+					 Name = productGroup.Name,
+					 ParentId = productGroup.ParentId,
+					 IsArchive = productGroup.IsArchive,
 					 JournalNodeType = _productGroupType,
 					 Children = children.ToList()
 				 })
 				 .ToList()
 				 .Concat(
-					(string.IsNullOrWhiteSpace(searchString) || parentId == null)
-					? GetNomenclatures(unitOfWork, parentId, searchString).ToList()
+					(string.IsNullOrWhiteSpace(_searchString) || parentId == null)
+					? GetNomenclatures(parentId).ToList()
 					: Enumerable.Empty<ProductGroupsJournalNode>());
 
 			return groupNodes.AsQueryable();
 		}
 
-		private IQueryable<ProductGroupsJournalNode> GetNomenclatures(IUnitOfWork unitOfWork, int? parentId, string searchString) =>
-			from nomenclature in unitOfWork.GetAll<Nomenclature>()
-			where
-				((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || nomenclature.ProductGroup.Id == parentId)
-				&& (!_filter.IsHideArchived || !nomenclature.IsArchive)
-				&& (string.IsNullOrWhiteSpace(searchString) || nomenclature.Name.ToLower().Like(searchString)
-					|| nomenclature.Id.ToString().Like(searchString))
-			orderby nomenclature.Name, nomenclature.Id
-			select new ProductGroupsJournalNode
-			{
-				Id = nomenclature.Id,
-				Name = nomenclature.Name,
-				ParentId = nomenclature.ProductGroup.Id,
-				IsArchive = nomenclature.IsArchive,
-				JournalNodeType = _nomenclatureType
-			};
+		private IQueryable<ProductGroupsJournalNode> GetNomenclatures(int? parentId) =>
+			(from nomenclature in _nomenclatureNodes
+			 where
+			 ((!string.IsNullOrWhiteSpace(_searchString) && parentId == null) || nomenclature.ParentId == parentId)
+			 && (string.IsNullOrWhiteSpace(_searchString))
+			 orderby nomenclature.Id
+			 select new ProductGroupsJournalNode
+			 {
+				 Id = nomenclature.Id,
+				 Name = nomenclature.Name,
+				 ParentId = nomenclature.ParentId,
+				 IsArchive = nomenclature.IsArchive,
+				 JournalNodeType = _nomenclatureType
+			 })
+			.AsQueryable();
 	}
 }
