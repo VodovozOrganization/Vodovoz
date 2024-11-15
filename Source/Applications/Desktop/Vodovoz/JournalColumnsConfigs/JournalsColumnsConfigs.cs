@@ -54,7 +54,6 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код")
 						.AddNumericRenderer(node => node.Id)
 						.AddPixbufRenderer(node => node.JournalNodeType == typeof(ProductGroup) ? _folderImg : _emptyImg)
-					.AddColumn("Нумерация").AddTextRenderer(node => node.Id.ToString())
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.Finish()
 				);
