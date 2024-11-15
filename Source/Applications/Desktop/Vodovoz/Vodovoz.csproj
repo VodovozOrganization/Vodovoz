@@ -2060,6 +2060,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ServiceDistrictsSetActivationView.cs" />
     <Compile Include="Views\Reports\EdoControlReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.EdoControlReportView.cs" />
+    <Compile Include="Filters\GtkViews\ProductGroupsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ProductGroupsJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
