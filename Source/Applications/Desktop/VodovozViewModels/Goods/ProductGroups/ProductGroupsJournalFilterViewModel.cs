@@ -4,11 +4,11 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 {
 	public class ProductGroupsJournalFilterViewModel : FilterViewModelBase<ProductGroupsJournalFilterViewModel>
 	{
-		private bool _isShowArchived;
-		public bool IsShowArchived
+		private bool _isHideArchived;
+		public bool IsHideArchived
 		{
-			get => _isShowArchived;
-			set => UpdateFilterField(ref _isShowArchived, value);
+			get => _isHideArchived;
+			set => UpdateFilterField(ref _isHideArchived, value);
 		}
 
 		public override bool IsShow { get; set; } = true;

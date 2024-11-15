@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 
 			JournalFilter = _filter;
 
-			Title = "Журнал групп продуктов";
+			Title = "Журнал групп товаров";
 
 			_domainObjectsTypes = new Type[]
 			{
@@ -129,8 +129,9 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 				(from productGroup in unitOfWork.GetAll<ProductGroup>()
 				 where
 				 (string.IsNullOrWhiteSpace(searchString) && productGroup.Parent.Id == parentId)
-				 || productGroup.Name.ToLower().Like(searchString)
-				 || productGroup.Id.ToString().Like(searchString)
+					 || productGroup.Name.ToLower().Like(searchString)
+					 || productGroup.Id.ToString().Like(searchString)
+				 && (!_filter.IsHideArchived || !productGroup.IsArchive)
 
 				 let children = GetSubGroup(unitOfWork, productGroup.Id)
 
@@ -157,7 +158,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			from nomenclature in unitOfWork.GetAll<Nomenclature>()
 			where
 				((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || nomenclature.ProductGroup.Id == parentId)
-				&& (_filter.IsShowArchived || !nomenclature.IsArchive)
+				&& (!_filter.IsHideArchived || !nomenclature.IsArchive)
 				&& (string.IsNullOrWhiteSpace(searchString) || nomenclature.Name.ToLower().Like(searchString)
 					|| nomenclature.Id.ToString().Like(searchString))
 			orderby nomenclature.Name, nomenclature.Id
