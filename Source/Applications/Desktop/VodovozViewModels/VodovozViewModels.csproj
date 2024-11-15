@@ -47,6 +47,11 @@
     <Compile Include="Accounting\Payments\PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel.cs" />
     <Compile Include="Accounting\Payments\PaymentWriteOffViewModel.cs" />
     <Compile Include="BaseParameters\BaseParametersViewModel.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.RowsCreating.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.ExportToExcel.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportOrderData.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportRow.cs" />
     <Compile Include="Cash\AdvanceReportViewModel.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentNode.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentsFilterViewModel.cs" />
@@ -93,6 +98,7 @@
     <Compile Include="ReportsParameters\Bottles\Drivers.cs" />
     <Compile Include="ReportsParameters\Bottles\PercentNode.cs" />
     <Compile Include="ReportsParameters\Sales\IncomeReportType.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportViewModel.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsList.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsSummary.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.Discounts.cs" />

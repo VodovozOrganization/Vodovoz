@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -32,6 +32,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Reports;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl;
 using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -1112,6 +1113,16 @@ public partial class MainWindow
 	protected void OnActionEdoUpdReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<EdoUpdReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Контроль за ЭДО
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEdoControlReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoControlReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Бухгалтерия
