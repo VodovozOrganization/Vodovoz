@@ -4,7 +4,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 {
 	public class ProductGroupsJournalFilterViewModel : FilterViewModelBase<ProductGroupsJournalFilterViewModel>
 	{
-		private bool _isHideArchived;
+		private bool _isHideArchived = true;
 		public bool IsHideArchived
 		{
 			get => _isHideArchived;
