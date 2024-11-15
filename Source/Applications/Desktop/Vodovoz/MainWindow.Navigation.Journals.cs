@@ -38,6 +38,7 @@ using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using Vodovoz.ViewModels.Fuel.FuelCards;
 using Vodovoz.ViewModels.Goods;
+using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -406,6 +407,7 @@ public partial class MainWindow
 	protected void OnActionProductGroupsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenTdiTab<ProductGroupView>(null);
+		NavigationManager.OpenViewModel<ProductGroupsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
