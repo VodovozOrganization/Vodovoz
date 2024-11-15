@@ -1,12 +1,37 @@
-﻿using System;
+﻿using Gtk;
+using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Goods.ProductGroups;
+using Key = Gdk.Key;
+
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ProductGroupsJournalFilterView : Gtk.Bin
+	public partial class ProductGroupsJournalFilterView : FilterViewBase<ProductGroupsJournalFilterViewModel>
 	{
-		public ProductGroupsJournalFilterView()
+		public ProductGroupsJournalFilterView(ProductGroupsJournalFilterViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
+			Initialize();
+		}
+
+		private void Initialize()
+		{
+			yentrySearch.Binding
+				.AddBinding(ViewModel, vm => vm.SearchString, w => w.Text)
+				.InitializeFromSource();
+
+			yentrySearch.KeyReleaseEvent += OnSearchKeyReleased;
+
+			ycheckIsHideArchieved.Binding
+				.AddBinding(ViewModel, vm => vm.IsHideArchived, w => w.Active)
+				.InitializeFromSource();
+		}
+
+		private void OnSearchKeyReleased(object o, KeyReleaseEventArgs args)
+		{
+			if(args.Event.Key == Key.Return)
+			{
+				ViewModel.Update();
+			}
 		}
 	}
 }
