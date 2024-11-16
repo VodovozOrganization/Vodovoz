@@ -1,18 +1,21 @@
 ﻿using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate.Linq;
+using QS.Deletion;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.DataLoader.Hierarchy;
-using QS.Project.Search;
 using QS.Services;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
 using Vodovoz.Domain.Goods;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Goods.ProductGroups
 {
@@ -94,8 +97,6 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			CreateNodeActions();
 			CreatePopupActions();
 			UpdateOnChanges(_domainObjectsTypes);
-
-			(Search as SearchViewModel).PropertyChanged += OnSearchPropertyChanged;
 		}
 
 		public IRecursiveConfig RecuresiveConfig { get; }
@@ -105,14 +106,6 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			foreach(var domainObject in _domainObjectsTypes)
 			{
 				_domainObjectsPermissions.Add(domainObject, _currentPermissionService.ValidateEntityPermission(domainObject));
-			}
-		}
-
-		private void OnSearchPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(Search.SearchValues))
-			{
-				_filter.SearchString = string.Join(" ", Search.SearchValues);
 			}
 		}
 
@@ -230,6 +223,82 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 		void OnFilterViewModelFiltered(object sender, EventArgs e)
 		{
 			Refresh();
+		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+
+			CreateSelectAction();
+			CreateAddActions();
+			CreateEditAction();
+		}
+
+		private void CreateSelectAction()
+		{
+			var selectAction = new JournalAction("Выбрать",
+				(selected) => selected.Any()
+					&& selected.Cast<ProductGroupsJournalNode>().All(x => x.JournalNodeType == _productGroupType),
+				(selected) => SelectionMode != JournalSelectionMode.None,
+				(selected) => OnItemsSelected(selected)
+			);
+
+			if(SelectionMode == JournalSelectionMode.Single
+				|| SelectionMode == JournalSelectionMode.Multiple)
+			{
+				RowActivatedAction = selectAction;
+			}
+
+			NodeActionsList.Add(selectAction);
+		}
+
+		protected void CreateAddActions()
+		{
+			var createAction = new JournalAction("Добавить",
+				(selected) => _domainObjectsPermissions[_productGroupType].CanCreate,
+				(selected) => true,
+				(selected) =>
+				{
+					var page = NavigationManager.OpenViewModel<ProductGroupViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+				});
+
+			NodeActionsList.Add(createAction);
+		}
+
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => selected.Length == 1
+					&& selected.FirstOrDefault() is ProductGroupsJournalNode node
+					&& _domainObjectsPermissions[node.JournalNodeType].CanUpdate
+					&& selected.Any(),
+				(selected) => true,
+				EditNodeAction);
+
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+		}
+
+		private void EditNodeAction(object[] selected)
+		{
+			if(selected.FirstOrDefault() is ProductGroupsJournalNode node)
+			{
+				if(node.JournalNodeType == _productGroupType)
+				{
+					NavigationManager.OpenViewModel<ProductGroupViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
+					return;
+				}
+
+				if(node.JournalNodeType == _nomenclatureType)
+				{
+					NavigationManager.OpenViewModel<NomenclatureViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
+					return;
+				}
+			}
 		}
 
 		public override void Dispose()
