@@ -198,7 +198,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 
 		private IEnumerable<ProductGroupsJournalNode> GetNomenclatures(int? parentId)
 		{
-			if(!_filter.IsSearchStringEmpty && parentId != null)
+			if((!_filter.IsSearchStringEmpty && parentId != null) || IsGroupSelectionMode)
 			{
 				return Enumerable.Empty<ProductGroupsJournalNode>();
 			}
