@@ -1,6 +1,5 @@
 ﻿using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate.Linq;
-using QS.Deletion;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -8,11 +7,12 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.DataLoader.Hierarchy;
+using QS.Project.Search;
 using QS.Services;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Windows.Input;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -25,36 +25,29 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 		private readonly Type _nomenclatureType = typeof(Nomenclature);
 		private IEnumerable<ProductGroupsJournalNode> _groupNodes = new List<ProductGroupsJournalNode>();
 		private IEnumerable<ProductGroupsJournalNode> _nomenclatureNodes = new List<ProductGroupsJournalNode>();
+		private IEnumerable<ProductGroupsJournalNode> _editableNodes;
 
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly HierarchicalChunkLinqLoader<ProductGroup, ProductGroupsJournalNode> _hierarchicalChunkLinqLoader;
 		private readonly Type[] _domainObjectsTypes;
 		private readonly Dictionary<Type, IPermissionResult> _domainObjectsPermissions;
 		private readonly ProductGroupsJournalFilterViewModel _filter;
+		private readonly IInteractiveService _interactiveService;
+		private readonly INavigationManager _navigationManager;
 		private readonly ICommonServices _commonServices;
 
 		public ProductGroupsJournalViewModel(
 			ProductGroupsJournalFilterViewModel filter,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
-			INavigationManager navigation,
+			INavigationManager navigationManager,
 			ICommonServices commonServices,
 			Action<ProductGroupsJournalFilterViewModel> filterAction = null)
-			: base(unitOfWorkFactory, interactiveService, navigation)
+			: base(unitOfWorkFactory, interactiveService, navigationManager)
 		{
 			if(unitOfWorkFactory is null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			}
-
-			if(interactiveService is null)
-			{
-				throw new ArgumentNullException(nameof(interactiveService));
-			}
-
-			if(navigation is null)
-			{
-				throw new ArgumentNullException(nameof(navigation));
 			}
 
 			if(filterAction != null)
@@ -63,6 +56,8 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			}
 
 			_filter = filter ?? throw new ArgumentNullException(nameof(filter));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_currentPermissionService = _commonServices.CurrentPermissionService;
 
@@ -95,11 +90,17 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			InitializePermissionsMatrix();
 
 			CreateNodeActions();
-			CreatePopupActions();
+
+			SelectionMode = JournalSelectionMode.Multiple;
+
 			UpdateOnChanges(_domainObjectsTypes);
+
+			(Search as SearchViewModel).PropertyChanged += OnSearchPropertyChanged;
 		}
 
 		public IRecursiveConfig RecuresiveConfig { get; }
+
+		public bool IsGroupSelectionMode { get; set; }
 
 		private void InitializePermissionsMatrix()
 		{
@@ -232,19 +233,20 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			CreateSelectAction();
 			CreateAddActions();
 			CreateEditAction();
+			CreateChangeParentGroupAction();
 		}
 
 		private void CreateSelectAction()
 		{
 			var selectAction = new JournalAction("Выбрать",
-				(selected) => selected.Any()
+				(selected) =>
+					selected.Any()
 					&& selected.Cast<ProductGroupsJournalNode>().All(x => x.JournalNodeType == _productGroupType),
-				(selected) => SelectionMode != JournalSelectionMode.None,
+				(selected) => IsGroupSelectionMode,
 				(selected) => OnItemsSelected(selected)
 			);
 
-			if(SelectionMode == JournalSelectionMode.Single
-				|| SelectionMode == JournalSelectionMode.Multiple)
+			if(IsGroupSelectionMode)
 			{
 				RowActivatedAction = selectAction;
 			}
@@ -256,7 +258,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 		{
 			var createAction = new JournalAction("Добавить",
 				(selected) => _domainObjectsPermissions[_productGroupType].CanCreate,
-				(selected) => true,
+				(selected) => !IsGroupSelectionMode,
 				(selected) =>
 				{
 					var page = NavigationManager.OpenViewModel<ProductGroupViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
@@ -272,8 +274,24 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 					&& selected.FirstOrDefault() is ProductGroupsJournalNode node
 					&& _domainObjectsPermissions[node.JournalNodeType].CanUpdate
 					&& selected.Any(),
-				(selected) => true,
-				EditNodeAction);
+				(selected) => !IsGroupSelectionMode,
+				(selected) =>
+				{
+					if(selected.FirstOrDefault() is ProductGroupsJournalNode node)
+					{
+						if(node.JournalNodeType == _productGroupType)
+						{
+							NavigationManager.OpenViewModel<ProductGroupViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
+							return;
+						}
+
+						if(node.JournalNodeType == _nomenclatureType)
+						{
+							NavigationManager.OpenViewModel<NomenclatureViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
+							return;
+						}
+					}
+				});
 
 			NodeActionsList.Add(editAction);
 
@@ -283,21 +301,133 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			}
 		}
 
-		private void EditNodeAction(object[] selected)
+		private void CreateChangeParentGroupAction()
 		{
-			if(selected.FirstOrDefault() is ProductGroupsJournalNode node)
-			{
-				if(node.JournalNodeType == _productGroupType)
+			var editAction = new JournalAction("Перенос в другую группу",
+				(selected) =>
 				{
-					NavigationManager.OpenViewModel<ProductGroupViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
-					return;
+					if(!selected.Any() || !selected.All(n => n is ProductGroupsJournalNode))
+					{
+						return false;
+					}
+
+					var selectedNodes = selected.Cast<ProductGroupsJournalNode>();
+
+					return
+					(selectedNodes.All(n => n.JournalNodeType == _productGroupType)
+						&& _domainObjectsPermissions[_productGroupType].CanUpdate)
+					|| (selected.Cast<ProductGroupsJournalNode>().All(n => n.JournalNodeType == _nomenclatureType)
+						&& _domainObjectsPermissions[_nomenclatureType].CanUpdate);
+				},
+				(selected) => !IsGroupSelectionMode,
+				(selected) =>
+				{
+					_editableNodes = selected.Cast<ProductGroupsJournalNode>();
+
+					var selectGroupPage = _navigationManager.OpenViewModel<ProductGroupsJournalViewModel>(
+						this,
+						OpenPageOptions.AsSlave,
+						viewModel =>
+						{
+							viewModel.IsGroupSelectionMode = true;
+							viewModel.SelectionMode = JournalSelectionMode.Single;
+							viewModel.OnSelectResult += OnParentGroupSelected;
+						});
+				});
+
+			NodeActionsList.Add(editAction);
+		}
+
+		private void OnParentGroupSelected(object sender, JournalSelectedEventArgs e)
+		{
+			var selectedParentProductGroup = e.SelectedObjects.FirstOrDefault();
+
+			if(selectedParentProductGroup == null)
+			{
+				return;
+			}
+
+			if(!(selectedParentProductGroup is ProductGroupsJournalNode newParentGroupNode)
+				|| newParentGroupNode.JournalNodeType != _productGroupType)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Выбрана не товарная группа!");
+				return;
+			}
+
+			var newParentGroup = UoW.GetById<ProductGroup>(newParentGroupNode.Id);
+
+			if(_editableNodes is null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Не выбраны строки, которым нужно установить новую родительскую группу");
+				return;
+			}
+
+			if(!_editableNodes.All(n => n.JournalNodeType == _productGroupType)
+				&& !_editableNodes.All(n => n.JournalNodeType == _nomenclatureType))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "При редактировании родительской группы должны быть выбраны строки одного типа");
+				return;
+			}
+
+			var editableNodesIds = _editableNodes.Select(n => n.Id);
+			var editableNodesType = _editableNodes.FirstOrDefault().JournalNodeType;
+
+			if(editableNodesType == _productGroupType)
+			{
+				var productGroups =
+					(from productGroup in UoW.Session.Query<ProductGroup>()
+					 where
+					 editableNodesIds.Contains(productGroup.Id)
+					 select productGroup)
+					.ToList();
+
+				foreach(var group in productGroups)
+				{
+					group.Parent = newParentGroup;
+
+					if(ProductGroup.CheckCircle(group, newParentGroup))
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Error, "Обнаружена циклическая ссылка. Операция не возможна");
+						return;
+					}
+
+					UoW.Save(group);
 				}
 
-				if(node.JournalNodeType == _nomenclatureType)
+				UoW.Commit();
+			}
+			else if(editableNodesType == _nomenclatureType)
+			{
+				var nomenclatures =
+					(from nomenclature in UoW.Session.Query<Nomenclature>()
+					 where
+					 editableNodesIds.Contains(nomenclature.Id)
+					 select nomenclature)
+					.ToList();
+
+				foreach(var nomenclature in nomenclatures)
 				{
-					NavigationManager.OpenViewModel<NomenclatureViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id));
-					return;
+					nomenclature.ProductGroup = newParentGroup;
+					UoW.Save(nomenclature);
 				}
+
+				UoW.Commit();
+			}
+			else
+			{
+				throw new InvalidOperationException("Выбран неизвестный тип строки журнала");
+			}
+
+			_editableNodes = null;
+
+			Refresh();
+		}
+
+		private void OnSearchPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Search.SearchValues))
+			{
+				_filter.SearchString = string.Join(" ", Search.SearchValues);
 			}
 		}
 
