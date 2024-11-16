@@ -14,5 +14,10 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 		public override bool IsShow { get; set; } = true;
 
 		public string SearchString { get; internal set; }
+
+		public string SqlSearchString =>
+			string.IsNullOrWhiteSpace(SearchString) ? string.Empty : $"%{SearchString.ToLower()}%";
+
+		public bool IsSearchStringEmpty => string.IsNullOrWhiteSpace(SearchString);
 	}
 }
