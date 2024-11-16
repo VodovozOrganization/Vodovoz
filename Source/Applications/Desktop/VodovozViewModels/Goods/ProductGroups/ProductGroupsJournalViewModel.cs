@@ -64,6 +64,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			_currentPermissionService = _commonServices.CurrentPermissionService;
 
 			JournalFilter = _filter;
+			_filter.OnFiltered += OnFilterViewModelFiltered;
 
 			Title = "Журнал групп товаров";
 
@@ -224,6 +225,17 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 				};
 
 			return nomenclatures;
+		}
+
+		void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
+		}
+
+		public override void Dispose()
+		{
+			_filter.OnFiltered -= OnFilterViewModelFiltered;
+			base.Dispose();
 		}
 	}
 }
