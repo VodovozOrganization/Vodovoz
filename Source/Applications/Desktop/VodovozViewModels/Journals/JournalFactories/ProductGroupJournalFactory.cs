@@ -2,6 +2,7 @@
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -11,10 +12,12 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 	public class ProductGroupJournalFactory : IProductGroupJournalFactory
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly ViewModelEEVMBuilder<ProductGroup> _productGroupEEVMBuilder;
 
-		public ProductGroupJournalFactory(IUnitOfWorkFactory uowFactory)
+		public ProductGroupJournalFactory(IUnitOfWorkFactory uowFactory, ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder)
 		{
 			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
+			_productGroupEEVMBuilder = productGroupEEVMBuilder ?? throw new System.ArgumentNullException(nameof(productGroupEEVMBuilder));
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateProductGroupAutocompleteSelectorFactory()
@@ -36,6 +39,6 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 				new ProductGroupJournalFilterViewModel(),
 				_uowFactory,
 				ServicesConfig.CommonServices,
-				this);
+				_productGroupEEVMBuilder);
 	}
 }

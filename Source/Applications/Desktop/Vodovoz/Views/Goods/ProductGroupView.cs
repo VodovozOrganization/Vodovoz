@@ -46,9 +46,6 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			ycheckbuttonIsNeedAdditionalControl.Toggled += OnCheckbuttonIsNeedAdditionalControlToggled;
 
-			//entityParent.SetEntityAutocompleteSelectorFactory(ViewModel.ProductGroupSelectorFactory);
-			//entityParent.Binding.AddBinding(ViewModel.Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
-
 			checklistCharacteristics.EnumType = typeof(NomenclatureProperties);
 			checklistCharacteristics.Binding.AddBinding(
 				ViewModel.Entity, e => e.Characteristics, w => w.SelectedValuesList, new EnumsListConverter<NomenclatureProperties>()).InitializeFromSource();
@@ -59,6 +56,8 @@ namespace Vodovoz.Views.Goods
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
+
+			entityentryParentGroup.ViewModel = ViewModel.ProductGroupEntityEntryViewModel;
 		}
 
 		private void OnCheckArchivedToggled(object sender, EventArgs e)

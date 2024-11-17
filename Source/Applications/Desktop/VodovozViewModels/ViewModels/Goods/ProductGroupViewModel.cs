@@ -1,26 +1,29 @@
 ﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using Vodovoz.Domain.Goods;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Goods.ProductGroups;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
 	public class ProductGroupViewModel : EntityTabViewModelBase<ProductGroup>
 	{
+		private readonly ViewModelEEVMBuilder<ProductGroup> _productGroupEEVMBuilder;
+
 		public ProductGroupViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IProductGroupJournalFactory productGroupJournalFactory)
+			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			ProductGroupSelectorFactory = (productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory)))
-				.CreateProductGroupAutocompleteSelectorFactory();
+			_productGroupEEVMBuilder = productGroupEEVMBuilder ?? throw new ArgumentNullException(nameof(productGroupEEVMBuilder));
+
+			ProductGroupEntityEntryViewModel = CreateProductGroupEEVM();
 
 			SetArchiveCommand = new DelegateCommand(SetArchive);
 			SetIsHighlightInCarLoadDocumentCommand = new DelegateCommand(SetIsHighlightInCarLoadDocument);
@@ -31,14 +34,14 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		public DelegateCommand SetIsHighlightInCarLoadDocumentCommand { get; }
 		public DelegateCommand SetIsNeedAdditionalControlCommand { get; }
 
+		public IEntityEntryViewModel ProductGroupEntityEntryViewModel { get; }
+
 		public bool CanEditOnlineStoreParametersInProductGroup =>
 			Entity.Id == 0
 			|| CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.ProductGroup.CanEditOnlineStoreParametersInProductGroups);
 
 		public bool CanEditAdditionalControlSettingsInProductGroup =>
 			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.ProductGroup.CanEditAdditionalControlSettingsInProductGroups);
-
-		public IEntityAutocompleteSelectorFactory ProductGroupSelectorFactory { get; }
 
 		private void SetArchive()
 		{
@@ -85,6 +88,24 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 			Entity.FetchChilds(UoW);
 			Entity.SetIsNeedAdditionalControlToAllChildGroups(Entity.IsNeedAdditionalControl);
+		}
+
+		private IEntityEntryViewModel CreateProductGroupEEVM()
+		{
+			var viewModel = _productGroupEEVMBuilder
+					.SetViewModel(this)
+					.SetUnitOfWork(UoW)
+					.ForProperty(Entity, x => x.Parent)
+					.UseViewModelJournalAndAutocompleter<ProductGroupsJournalViewModel, ProductGroupsJournalFilterViewModel>(filter =>
+					{
+					})
+					.UseViewModelDialog<ProductGroupViewModel>()
+					.Finish();
+
+			viewModel.CanViewEntity =
+				CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(ProductGroup)).CanUpdate;
+
+			return viewModel;
 		}
 	}
 }
