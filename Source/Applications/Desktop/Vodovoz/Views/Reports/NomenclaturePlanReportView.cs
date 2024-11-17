@@ -269,9 +269,9 @@ namespace Vodovoz.Views.Reports
 			ytreeviewSelectedNomenclatures.RowActivated += NomenclatureDeleted;
 			ytreeviewSelectedNomenclatures.Selection.Mode = SelectionMode.Multiple;
 
-			yentryProductGroup.SetEntityAutocompleteSelectorFactory(ViewModel.ProductGroupSelectorFactory);
-			yentryProductGroup.Binding.AddBinding(ViewModel, vm => vm.ProductGroup, w => w.Subject).InitializeFromSource();
-			yentryProductGroup.Changed += (sender, args) => ViewModel.NomenclatureSearchCommand.Execute();
+			//yentryProductGroup.SetEntityAutocompleteSelectorFactory(ViewModel.ProductGroupSelectorFactory);
+			//yentryProductGroup.Binding.AddBinding(ViewModel, vm => vm.ProductGroup, w => w.Subject).InitializeFromSource();
+			//yentryProductGroup.Changed += (sender, args) => ViewModel.NomenclatureSearchCommand.Execute();
 
 			ytreeviewNomenclatures.Binding.AddFuncBinding(ViewModel, vm => vm.NomenclatureDataLoader.Items, w => w.ItemsDataSource).InitializeFromSource();
 
