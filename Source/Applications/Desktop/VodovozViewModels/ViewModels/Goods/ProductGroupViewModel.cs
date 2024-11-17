@@ -92,15 +92,18 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		private IEntityEntryViewModel CreateProductGroupEEVM()
 		{
-			var viewModel = _productGroupEEVMBuilder
-					.SetViewModel(this)
-					.SetUnitOfWork(UoW)
-					.ForProperty(Entity, x => x.Parent)
-					.UseViewModelJournalAndAutocompleter<ProductGroupsJournalViewModel, ProductGroupsJournalFilterViewModel>(filter =>
+			var viewModel =
+				_productGroupEEVMBuilder
+				.SetViewModel(this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, x => x.Parent)
+				.UseViewModelJournalAndAutocompleter<ProductGroupsJournalViewModel, ProductGroupsJournalFilterViewModel>(
+					filter =>
 					{
+						filter.IsGroupSelectionMode = true;
 					})
-					.UseViewModelDialog<ProductGroupViewModel>()
-					.Finish();
+				.UseViewModelDialog<ProductGroupViewModel>()
+				.Finish();
 
 			viewModel.CanViewEntity =
 				CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(ProductGroup)).CanUpdate;

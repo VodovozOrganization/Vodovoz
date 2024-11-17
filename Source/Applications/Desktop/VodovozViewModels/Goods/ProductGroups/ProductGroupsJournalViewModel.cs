@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 
 		public IRecursiveConfig RecuresiveConfig { get; }
 
-		public bool IsGroupSelectionMode { get; set; }
+		public bool IsGroupSelectionMode => _filter.IsGroupSelectionMode;
 
 		private void InitializePermissionsMatrix()
 		{
@@ -324,14 +324,17 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 				{
 					_editableNodes = selected.Cast<ProductGroupsJournalNode>();
 
-					var selectGroupPage = _navigationManager.OpenViewModel<ProductGroupsJournalViewModel>(
+					var selectGroupPage = _navigationManager.OpenViewModel<ProductGroupsJournalViewModel, Action<ProductGroupsJournalFilterViewModel>>(
 						this,
-						OpenPageOptions.AsSlave,
-						viewModel =>
+						filter =>
 						{
-							viewModel.IsGroupSelectionMode = true;
-							viewModel.SelectionMode = JournalSelectionMode.Single;
-							viewModel.OnSelectResult += OnParentGroupSelected;
+							filter.IsGroupSelectionMode = true;
+						},
+						OpenPageOptions.AsSlave,
+						vm =>
+						{
+							vm.SelectionMode = JournalSelectionMode.Single;
+							vm.OnSelectResult += OnParentGroupSelected;
 						});
 				});
 

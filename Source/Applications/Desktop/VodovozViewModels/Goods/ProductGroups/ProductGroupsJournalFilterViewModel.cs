@@ -5,10 +5,18 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 	public class ProductGroupsJournalFilterViewModel : FilterViewModelBase<ProductGroupsJournalFilterViewModel>
 	{
 		private bool _isHideArchived = true;
+		private bool _isGroupSelectionMode;
+
 		public bool IsHideArchived
 		{
 			get => _isHideArchived;
 			set => UpdateFilterField(ref _isHideArchived, value);
+		}
+
+		public bool IsGroupSelectionMode
+		{
+			get => _isGroupSelectionMode;
+			set => UpdateFilterField(ref _isGroupSelectionMode, value);
 		}
 
 		public override bool IsShow { get; set; } = true;
