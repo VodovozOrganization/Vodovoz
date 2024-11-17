@@ -36,9 +36,15 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		public IEntityEntryViewModel ProductGroupEntityEntryViewModel { get; }
 
+		private bool IsNewEntity =>
+			Entity.Id == 0;
+
+		public bool CanEdit =>
+			(IsNewEntity && CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(ProductGroup)).CanCreate)
+			|| (!IsNewEntity && CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(ProductGroup)).CanUpdate);
+
 		public bool CanEditOnlineStoreParametersInProductGroup =>
-			Entity.Id == 0
-			|| CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.ProductGroup.CanEditOnlineStoreParametersInProductGroups);
+			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.ProductGroup.CanEditOnlineStoreParametersInProductGroups);
 
 		public bool CanEditAdditionalControlSettingsInProductGroup =>
 			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.ProductGroup.CanEditAdditionalControlSettingsInProductGroups);

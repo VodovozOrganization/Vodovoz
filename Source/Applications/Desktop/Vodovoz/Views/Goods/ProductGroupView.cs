@@ -18,6 +18,8 @@ namespace Vodovoz.Views.Goods
 
 		private void Configure()
 		{
+			hbox1.Sensitive = ViewModel.CanEdit;
+			buttonSave.Sensitive = ViewModel.CanEdit;
 			vbox1.Sensitive = ViewModel.CanEditOnlineStoreParametersInProductGroup;
 
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();

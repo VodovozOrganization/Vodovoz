@@ -272,7 +272,6 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			var editAction = new JournalAction("Изменить",
 				(selected) => selected.Length == 1
 					&& selected.FirstOrDefault() is ProductGroupsJournalNode node
-					&& _domainObjectsPermissions[node.JournalNodeType].CanUpdate
 					&& selected.Any(),
 				(selected) => !IsGroupSelectionMode,
 				(selected) =>
