@@ -18,15 +18,33 @@ namespace Vodovoz.Views.Goods
 
 		private void Configure()
 		{
+			vbox1.Sensitive = ViewModel.CanEditOnlineStoreParametersInProductGroup;
+
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
-			yentryOnlineStoreGuid.Binding.AddBinding(
-				ViewModel.Entity, e => e.OnlineStoreGuid, w => w.Text, new GuidToStringConverter()).InitializeFromSource();
+			yentryOnlineStoreGuid.Binding
+				.AddBinding(ViewModel.Entity, e => e.OnlineStoreGuid, w => w.Text, new GuidToStringConverter())
+				.AddBinding(ViewModel, vm => vm.CanEditOnlineStoreParametersInProductGroup, w => w.Sensitive)
+				.InitializeFromSource();
 
-			ycheckExportToOnlineStore.Binding.AddBinding(ViewModel.Entity, e => e.ExportToOnlineStore, w => w.Active).InitializeFromSource();
+			ycheckExportToOnlineStore.Binding
+				.AddBinding(ViewModel.Entity, e => e.ExportToOnlineStore, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditOnlineStoreParametersInProductGroup, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ycheckArchived.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			ycheckArchived.Toggled += (sender, args) => ViewModel.SetArchiveCommand.Execute();
+			ycheckArchived.Toggled += OnCheckArchivedToggled;
+
+			ycheckbuttonIsHighlightInCarLoadDocument.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsHighlightInCarLoadDocument, w => w.Active)
+				.InitializeFromSource();
+			ycheckbuttonIsHighlightInCarLoadDocument.Toggled += OnCheckbuttonIsHighlightInCarLoadDocumentToggled;
+
+			ycheckbuttonIsNeedAdditionalControl.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsNeedAdditionalControl, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditAdditionalControlSettingsInProductGroup, w => w.Sensitive)
+				.InitializeFromSource();
+			ycheckbuttonIsNeedAdditionalControl.Toggled += OnCheckbuttonIsNeedAdditionalControlToggled;
 
 			entityParent.SetEntityAutocompleteSelectorFactory(ViewModel.ProductGroupSelectorFactory);
 			entityParent.Binding.AddBinding(ViewModel.Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
@@ -36,13 +54,35 @@ namespace Vodovoz.Views.Goods
 				ViewModel.Entity, e => e.Characteristics, w => w.SelectedValuesList, new EnumsListConverter<NomenclatureProperties>()).InitializeFromSource();
 
 			ylblOnlineStore.Text = ViewModel.Entity.OnlineStore?.Name;
-			ylblOnlineStore.Visible = !String.IsNullOrWhiteSpace(ViewModel.Entity.OnlineStore?.Name);
-			ylblOnlineStoreStr.Visible = !String.IsNullOrWhiteSpace(ViewModel.Entity.OnlineStore?.Name);
-
-			vbox2.Sensitive = ViewModel.CanEditOnlineStore;
+			ylblOnlineStore.Visible = !string.IsNullOrWhiteSpace(ViewModel.Entity.OnlineStore?.Name);
+			ylblOnlineStoreStr.Visible = !string.IsNullOrWhiteSpace(ViewModel.Entity.OnlineStore?.Name);
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
+		}
+
+		private void OnCheckArchivedToggled(object sender, EventArgs e)
+		{
+			ViewModel.SetArchiveCommand.Execute();
+		}
+
+		private void OnCheckbuttonIsHighlightInCarLoadDocumentToggled(object sender, EventArgs e)
+		{
+			ViewModel.SetIsHighlightInCarLoadDocumentCommand.Execute();
+		}
+
+		private void OnCheckbuttonIsNeedAdditionalControlToggled(object sender, EventArgs e)
+		{
+			ViewModel.SetIsNeedAdditionalControlCommand.Execute();
+		}
+
+		public override void Destroy()
+		{
+			ycheckArchived.Toggled -= OnCheckArchivedToggled;
+			ycheckbuttonIsHighlightInCarLoadDocument.Toggled -= OnCheckbuttonIsHighlightInCarLoadDocumentToggled;
+			ycheckbuttonIsNeedAdditionalControl.Toggled -= OnCheckbuttonIsNeedAdditionalControlToggled;
+
+			base.Destroy();
 		}
 	}
 }
