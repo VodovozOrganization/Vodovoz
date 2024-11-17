@@ -46,8 +46,8 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			ycheckbuttonIsNeedAdditionalControl.Toggled += OnCheckbuttonIsNeedAdditionalControlToggled;
 
-			entityParent.SetEntityAutocompleteSelectorFactory(ViewModel.ProductGroupSelectorFactory);
-			entityParent.Binding.AddBinding(ViewModel.Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
+			//entityParent.SetEntityAutocompleteSelectorFactory(ViewModel.ProductGroupSelectorFactory);
+			//entityParent.Binding.AddBinding(ViewModel.Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
 
 			checklistCharacteristics.EnumType = typeof(NomenclatureProperties);
 			checklistCharacteristics.Binding.AddBinding(

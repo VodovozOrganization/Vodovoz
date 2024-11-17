@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gtk.Table table1;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityParent;
+		private global::QS.Views.Control.EntityEntry entityentryParentGroup;
 
 		private global::Gtk.Label label1;
 
@@ -111,18 +111,15 @@ namespace Vodovoz.Views.Goods
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.entityParent = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityParent.Events = ((global::Gdk.EventMask)(256));
-			this.entityParent.Name = "entityParent";
-			this.entityParent.CanEditReference = false;
-			this.entityParent.CanDisposeEntitySelectorFactory = false;
-			this.entityParent.CanOpenWithoutTabParent = false;
-			this.table1.Add(this.entityParent);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.entityParent]));
+			this.entityentryParentGroup = new global::QS.Views.Control.EntityEntry();
+			this.entityentryParentGroup.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryParentGroup.Name = "entityentryParentGroup";
+			this.table1.Add(this.entityentryParentGroup);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.entityentryParentGroup]));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
