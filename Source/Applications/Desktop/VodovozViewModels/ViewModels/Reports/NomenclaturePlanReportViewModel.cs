@@ -1113,5 +1113,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		public int CallCenterSubdivisionId { get; }
 		public DateTime? EndDate { get; set; }
 		public DateTime? StartDate { get; set; }
+
+		public override void Dispose()
+		{
+			ProductGroupEntityEntryViewModel.ChangedByUser -= OnProductGroupChangedByUser;
+
+			base.Dispose();
+		}
 	}
 }

@@ -33,5 +33,12 @@ namespace Vodovoz.Filters.GtkViews
 				ViewModel.Update();
 			}
 		}
+
+		public override void Destroy()
+		{
+			yentrySearch.KeyReleaseEvent -= OnSearchKeyReleased;
+
+			base.Destroy();
+		}
 	}
 }
