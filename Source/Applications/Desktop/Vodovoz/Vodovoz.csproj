@@ -473,7 +473,6 @@
     <Compile Include="Filters\GtkViews\PremiumJournalFilterView.cs" />
     <Compile Include="Filters\ViewModels\DebtorsTaskStatus.cs" />
     <Compile Include="Filters\ViewModels\RouteListTrackFilterViewModel.cs" />
-    <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
     <Compile Include="Filters\Views\PaymentsJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CastomMessageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PremiumJournalFilterView.cs" />
@@ -661,11 +660,6 @@
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRateFilterNode.cs" />
     <Compile Include="Representations\ContractsVMNode.cs" />
-    <Compile Include="Representations\ProductGroups\INameNode.cs" />
-    <Compile Include="Representations\ProductGroups\NomenclatureGroupNode.cs" />
-    <Compile Include="Representations\ProductGroups\NomenclatureNode.cs" />
-    <Compile Include="Representations\ProductGroups\ProductGroupVM.cs" />
-    <Compile Include="Representations\ProductGroups\ProductGroupVMNode.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
