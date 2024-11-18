@@ -1601,8 +1601,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Suppliers.WarehousesBalanceSummaryView.cs" />
     <Compile Include="Views\Goods\ProductGroupView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.ProductGroupView.cs" />
-    <Compile Include="Filters\GtkViews\ProductGroupJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ProductGroupJournalFilterView.cs" />
     <Compile Include="Views\Reports\NomenclaturePlanReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.NomenclaturePlanReportView.cs" />
     <Compile Include="Views\Orders\UndeliveryTransferAbsenceReasonView.cs" />
