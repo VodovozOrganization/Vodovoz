@@ -756,6 +756,9 @@
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliverySalesReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FilterTypeChangedArgs.cs" />
     <Compile Include="ReportsParameters\Logistics\CarOwnershipReport\CarOwnershipReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReport.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Logistics\CompletedDriversWarehousesEventsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportNode.cs" />

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -238,7 +238,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			Entity.CurrentFuelBalance = _fuelRepository.GetFuelBalance(UoW, null, Entity.Car);
+			Entity.CurrentFuelBalance = _fuelRepository.GetFuelBalance(UoW, null, Entity.Car, Entity.CreateDate);
 		}
 
 		private void UpdateSubstractionFuelBalance()
@@ -278,11 +278,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public new void SaveAndClose()
 		{
-			if(Entity.CarEventType?.Id == _carEventSettings?.FuelBalanceCalibrationCarEventTypeId)
-			{
-				Entity.UpdateCalibrationFuelOeration(UoW);
-			}
-
 			if(Entity.StartDate == default)
 			{
 				ShowWarningMessage("Дата начала события должна быть указана.");
@@ -299,8 +294,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				if(InCorrectPeriod(Entity.EndDate) || AskQuestion("Вы уверенны что хотите сохранить изменения в закрытом периоде?"))
 				{
+
+					if(Entity.CarEventType?.Id == _carEventSettings?.FuelBalanceCalibrationCarEventTypeId)
+					{
+						Entity.UpdateCalibrationFuelOeration();
+					}
+
 					base.SaveAndClose();
 				}
+
 				return;
 			}
 
@@ -317,6 +319,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				ShowWarningMessage($"С {_startNewPeriodDay + 1} числа текущего месяца можно создать/изменить событие ТС с датой завершения равной или более 1 числа текущего месяца");
 				return;
+			}
+
+			if(Entity.CarEventType?.Id == _carEventSettings?.FuelBalanceCalibrationCarEventTypeId)
+			{
+				Entity.UpdateCalibrationFuelOeration();
 			}
 
 			base.SaveAndClose();
@@ -399,7 +406,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var viewModel = _carEventTypeViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
-				.ForProperty(Entity, x => x.CarEventType)
+				.ForProperty(this, x => x.CarEventType)
 				.UseViewModelJournalAndAutocompleter<CarEventTypeJournalViewModel, CarEventTypeFilterViewModel>(
 				filter =>
 				{

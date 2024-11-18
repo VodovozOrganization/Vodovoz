@@ -1,7 +1,6 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
@@ -183,7 +182,7 @@ namespace Vodovoz.Domain.Logistic
 		#region Калибровка баланса топлива
 
 		[Display(Name = "Актуальный баланс топлива")]
-		public virtual decimal? ActualFuelBalance 
+		public virtual decimal? ActualFuelBalance
 		{
 			get => _actualFuelBalance;
 			set => SetField(ref _actualFuelBalance, value);
@@ -258,10 +257,8 @@ namespace Vodovoz.Domain.Logistic
 			return $"Событие ТС №{Id} {CarEventType.Name}";
 		}
 
-		public virtual void UpdateCalibrationFuelOeration(IUnitOfWork unitOfWork)
+		public virtual void UpdateCalibrationFuelOeration()
 		{
-			var litersOutlayed = (SubstractionFuelBalance ??0) * (-1);
-
 			if(CalibrationFuelOperation is null)
 			{
 				CalibrationFuelOperation = new FuelOperation
@@ -269,7 +266,6 @@ namespace Vodovoz.Domain.Logistic
 					Car = Car,
 					Fuel = Car.FuelType,
 					Driver = Driver,
-					LitersOutlayed = litersOutlayed,
 					OperationTime = DateTime.Now
 				};
 			}
@@ -277,11 +273,19 @@ namespace Vodovoz.Domain.Logistic
 			{
 				CalibrationFuelOperation.Car = Car;
 				CalibrationFuelOperation.Fuel = Car.FuelType;
-				CalibrationFuelOperation.LitersOutlayed = litersOutlayed;
 				CalibrationFuelOperation.OperationTime = DateTime.Now;
 			}
 
-			unitOfWork.Save(CalibrationFuelOperation);
+			if(SubstractionFuelBalance > 0)
+			{
+				CalibrationFuelOperation.LitersOutlayed = 0;
+				CalibrationFuelOperation.LitersGived = SubstractionFuelBalance ?? 0;
+			}
+			else
+			{
+				CalibrationFuelOperation.LitersOutlayed = -(SubstractionFuelBalance ?? 0);
+				CalibrationFuelOperation.LitersGived = 0;
+			}
 		}
 
 		#region IValidatableObject implementation
@@ -371,6 +375,16 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult("Не указана информация о складских запчастях. Пожалуйста, прикрепите акт списания или подтвердите, что запчасти не были списаны по ходу работ.",
 					new[] { nameof(WriteOffDocument) });
+			}
+
+			if(CalibrationFuelOperation?.LitersGived > 9999)
+			{
+				yield return new ValidationResult("Слишком большое кол-во в операции выданного топлива", new[] { nameof(CalibrationFuelOperation.LitersGived) });
+			}
+
+			if(CalibrationFuelOperation?.LitersOutlayed > 9999)
+			{
+				yield return new ValidationResult("Слишком большое кол-во в операции полученного топлива", new[] { nameof(CalibrationFuelOperation.LitersOutlayed) });
 			}
 		}
 
