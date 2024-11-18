@@ -503,7 +503,6 @@
     <Compile Include="Infrastructure\Print\IEntityDocumentsPrinterFactory.cs" />
     <Compile Include="Dialogs\Orders\DocumentsPrinterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\Goods\ProductGroupJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DeliveryScheduleFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\FastDeliveryAvailabilityFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\TrackPointJournalFilterViewModel.cs" />
