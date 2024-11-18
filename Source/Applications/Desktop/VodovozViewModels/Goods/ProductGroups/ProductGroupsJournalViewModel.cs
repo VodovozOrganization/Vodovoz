@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 		private IEnumerable<ProductGroupsJournalNode> _groupNodes = new List<ProductGroupsJournalNode>();
 		private IEnumerable<ProductGroupsJournalNode> _nomenclatureNodes = new List<ProductGroupsJournalNode>();
 		private IEnumerable<ProductGroupsJournalNode> _editableNodes;
+		private ProductGroupsJournalViewModel _selectProductGroupJournalViewModel;
 
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly HierarchicalChunkLinqLoader<ProductGroup, ProductGroupsJournalNode> _hierarchicalChunkLinqLoader;
@@ -99,6 +100,22 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 		}
 
 		public IRecursiveConfig RecuresiveConfig { get; }
+
+		public ProductGroupsJournalViewModel SelectProductGroupJournalViewModel
+		{
+			get => _selectProductGroupJournalViewModel;
+			set
+			{
+				if(_selectProductGroupJournalViewModel != null)
+				{
+					_selectProductGroupJournalViewModel.OnSelectResult -= OnParentGroupSelected;
+				}
+
+				SetField(ref _selectProductGroupJournalViewModel, value);
+
+				_selectProductGroupJournalViewModel.OnSelectResult += OnParentGroupSelected;
+			}
+		}
 
 		public bool IsGroupSelectionMode => _filter.IsGroupSelectionMode;
 
@@ -333,8 +350,9 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 						vm =>
 						{
 							vm.SelectionMode = JournalSelectionMode.Single;
-							vm.OnSelectResult += OnParentGroupSelected;
 						});
+
+					SelectProductGroupJournalViewModel = selectGroupPage.ViewModel;
 				});
 
 			NodeActionsList.Add(editAction);
@@ -436,6 +454,12 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 		public override void Dispose()
 		{
 			_filter.OnFiltered -= OnFilterViewModelFiltered;
+
+			if(_selectProductGroupJournalViewModel != null)
+			{
+				_selectProductGroupJournalViewModel.OnSelectResult -= OnParentGroupSelected;
+			}
+
 			base.Dispose();
 		}
 	}
