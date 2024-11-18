@@ -35,10 +35,14 @@ namespace Vodovoz.Views.Logistic
 
 			entityEntryCarEventType.ViewModel = ViewModel.CarEventTypeEntryViewModel;
 
+			entityEntryCarEventType.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangeCarEventType, w => w.Sensitive)
+				.InitializeFromSource();
+
 			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
 			entityentryCar.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.InitializeFromSource();
 
 			entryOriginalCarEvent.ViewModel = ViewModel.OriginalCarEventViewModel;
@@ -49,17 +53,17 @@ namespace Vodovoz.Views.Logistic
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			evmeDriver.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject)
 				.InitializeFromSource();
 
 			ydatepickerStartEventDate.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date)
 				.InitializeFromSource();
 
 			ydatepickerEndEventDate.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date)
 				.InitializeFromSource();
 
@@ -75,16 +79,19 @@ namespace Vodovoz.Views.Logistic
 
 			yspinRepairCost.Binding
 				.AddBinding(ViewModel, vm => vm.RepairCost, w => w.ValueAsDecimal)
+				.AddBinding(vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspinRepairPartsCost.Sensitive = false;
 			yspinRepairPartsCost.Binding
 				.AddBinding(ViewModel.Entity, e => e.RepairPartsCost, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel, vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspinRepairSummaryCost.Sensitive = false;
 			yspinRepairSummaryCost.Binding
 				.AddBinding(ViewModel.Entity, e => e.RepairAndPartsSummaryCost, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel, vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.InitializeFromSource();
 
 			entityentryWriteOffDocument.ViewModel = ViewModel.WriteOffDocumentEntryViewModel;
@@ -123,24 +130,22 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)
 				.InitializeFromSource();
 
-			yhboxFuel.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
-				.InitializeFromSource();
-
 			ylabelActualFuelBalance.Binding
-				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibrationCarEventType, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibration, w => w.Visible)
 				.InitializeFromSource();
 
-			yhboxFuel.Binding
-				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibrationCarEventType, w => w.Visible)
+			yhboxFuel.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsFuelBalanceCalibration, w => w.Visible)
+				.AddBinding(vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ylabelFuelCost.Binding
-				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibrationCarEventType, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibration, w => w.Visible)
 				.InitializeFromSource();
 
-			yentryFuelCost.Binding
-				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibrationCarEventType, w => w.Visible)
+			yentryFuelCost.Binding.AddSource (ViewModel)
+				.AddBinding(vm => vm.IsFuelBalanceCalibration, w => w.Visible)
+				.AddBinding(vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			yspinActualFuelBalance.Binding
@@ -165,6 +170,8 @@ namespace Vodovoz.Views.Logistic
 
 			buttonAttachFine.Clicked += (sender, e) => { ViewModel.AttachFineCommand.Execute(); };
 			buttonAttachFine.Binding.AddBinding(ViewModel, vm => vm.CanAttachFine, w => w.Sensitive).InitializeFromSource();
+
+			buttonInfo.BindCommand(ViewModel.InfoCommand);
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);

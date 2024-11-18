@@ -13,10 +13,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
@@ -48,6 +50,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private EntityEntryViewModel<Car> _carEntryViewModel;
 		private readonly int _startNewPeriodDay;
 		private bool _canCreateFuelBalanceCalibrationCarEvent;
+		private IInteractiveService _interactiveService;
 
 		public CarEventViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -69,6 +72,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
+
+			if(commonServices is null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+
+			_interactiveService = commonServices.InteractiveService;
 
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -125,6 +135,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Entity.PropertyChanged += EntityPropertyChanged;
 
 			WriteOffDocumentNotRequiredChangedCommand = new DelegateCommand(WriteOffDocumentNotRequiredChanged);
+
+			CanChangeCarEventType = !(IsTechInspectCarEventType && Entity.Id > 0) && CanEditFuelBalanceCalibration;
 		}
 
 		public DelegateCommand WriteOffDocumentNotRequiredChangedCommand { get; }
@@ -154,8 +166,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate && CheckDatePeriod();
-		public bool CanChangeWithClosedPeriod { get; }		
-		public bool CanChangeCarEventType => !(IsTechInspectCarEventType && Entity.Id > 0) && !IsFuelBalanceCalibrationCarEventType;
+		public bool CanChangeWithClosedPeriod { get; }
+		public bool CanChangeCarEventType { get; }
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 		public bool CanChangeCarTechnicalCheckupEndDate => CanEdit && IsCarTechnicalCheckupEventType;
@@ -174,7 +186,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool IsCarTechnicalCheckupEventType =>
 			Entity.CarEventType?.Id == _carEventSettings.CarTechnicalCheckupEventTypeId;
 
-		public bool IsFuelBalanceCalibrationCarEventType =>
+		public bool CanEditFuelBalanceCalibration =>
+			(IsFuelBalanceCalibration && Entity.Id == 0)
+			|| !IsFuelBalanceCalibration;
+
+		public bool IsFuelBalanceCalibration =>
 			Entity.CarEventType?.Id == _carEventSettings.FuelBalanceCalibrationCarEventTypeId;
 
 		public IEmployeeService EmployeeService { get; }
@@ -216,7 +232,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void SetFuelBalanceCorrectionIfNeeded()
 		{
-			if(Entity.CarEventType.Id == _carEventSettings.FuelBalanceCalibrationCarEventTypeId)
+			if(Entity.CarEventType?.Id == _carEventSettings.FuelBalanceCalibrationCarEventTypeId)
 			{
 				UpdateCurrentFuelBalance();
 				UpdateSubstractionFuelBalance();
@@ -500,7 +516,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OnPropertyChanged(nameof(CanChangeCarTechnicalCheckupEndDate));
 			OnPropertyChanged(nameof(CanAttachWriteOffDocument));
 			OnPropertyChanged(nameof(CanChangeWriteOffDocumentNotRequired));
-			OnPropertyChanged(nameof(IsFuelBalanceCalibrationCarEventType));
+			OnPropertyChanged(nameof(CanEditFuelBalanceCalibration));
+			OnPropertyChanged(nameof(IsFuelBalanceCalibration));
 			OnPropertyChanged(nameof(CanChangeCarEventType));
 
 			if(CarEventType?.IsAttachWriteOffDocument == false)
@@ -561,6 +578,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			CreateAttachFineCommand();
 			CreateAddFineCommand();
+			InfoCommand = new DelegateCommand(ShowHelpInfo);
+		}
+
+		private void ShowHelpInfo()
+		{
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Info,
+				"Калибровку можно делать только утром до первого рейса на дату"
+			);
 		}
 
 		private bool IsCompensationFromInsuranceByCourt()
@@ -580,6 +606,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		public DelegateCommand AttachFineCommand { get; private set; }
+		public DelegateCommand InfoCommand { get; private set; }
 
 		private void CreateAttachFineCommand()
 		{

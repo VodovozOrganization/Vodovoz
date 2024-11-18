@@ -1,7 +1,9 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using QS.Commands;
 using QS.Views.GtkUI;
 using System;
+using System.Windows.Input;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanciesReport;
 using Vodovoz.ViewWidgets.Reports;
@@ -14,7 +16,7 @@ namespace Vodovoz.Views.Reports
 		{
 			Build();
 			Configure();
-		}
+		}		
 
 		private void Configure()
 		{
@@ -71,6 +73,8 @@ namespace Vodovoz.Views.Reports
 			var carModelSelectionFilterView = new CarModelSelectionFilterView(ViewModel.CarModelSelectionFilterViewModel);
 			yhboxCarModelContainer.Add(carModelSelectionFilterView);
 			carModelSelectionFilterView.Show();
+
+			buttonInfo.BindCommand(ViewModel.ShowHelpInfoCommand);
 		}
 	}
 }

@@ -13,14 +13,17 @@ using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Settings.Car;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Widgets.Cars.CarModelSelection;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanciesReport
 {
 	public class AverageFlowDiscrepanciesReportViewModel : DialogTabViewModelBase
 	{
+		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICarSettings _carSettings;
+		private readonly ICarEventSettings _carEventSettings;
 		private const string _templatePath = @".\Reports\Cars\AverageFlowDiscrepanciesReport.xlsx";
 		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
 
@@ -30,21 +33,33 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 			INavigationManager navigation,
 			ICommonServices commonServices,
 			IFileDialogService fileDialogService,
-			ICarSettings carSettings) : base(unitOfWorkFactory, interactiveService, navigation)
+			ICarSettings carSettings,
+			ICarEventSettings carEventSettings)
+			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			Title = "Отчет по расходу топлива";
 
 			var now = DateTime.Now;
 			StartDate = new DateTime(now.Year, now.Month, 1).AddMonths(-1);
 			EndDate = StartDate.AddMonths(1).AddDays(-1);
-
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_carSettings = carSettings ?? throw new ArgumentNullException(nameof(carSettings));
-
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			ConfigureCarModelSelectionFilter();
 
 			CreateReportCommand = new DelegateCommand(CreateReport);
 			SaveReportCommand = new DelegateCommand(SaveReport);
+			ShowHelpInfoCommand = new DelegateCommand(ShowHelpInfo);
+		}
+
+		private void ShowHelpInfo()
+		{
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Info,
+				"Авто без калибровок за выбранный период не отображаются в отчёте \n",
+				"Для авто с единственной калибровкой за период невозможно рассчитать достоверные данные."
+			);
 		}
 
 		private void ConfigureCarModelSelectionFilter()
@@ -71,11 +86,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				EndDate = EndDate,
 				Rows = GenerateReportRows(),
 			};
-
-			if(_carModelSelectionFilterViewModel.IncludedCarModelIds.Any())
-			{
-				Report.SelectedCars = string.Join(", ", Report.Rows.Select(x => x.Car));
-			}
+			
+			Report.SelectedCars = _carModelSelectionFilterViewModel.IncludedCarModelIds.Any()
+				? string.Join(", ", Report.Rows.Select(x => x.Car).Distinct())
+				: "Все";
 
 			OnPropertyChanged(() => ReportRows);
 		}
@@ -149,6 +163,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					&& (!excludedCarModelIds.Any() || !excludedCarModelIds.Contains(carEvent.Car.CarModel.Id))
 					&& carEvent.CreateDate >= StartDate
 					&& carEvent.CreateDate <= EndDate
+					&& carEvent.CarEventType.Id == _carEventSettings.FuelBalanceCalibrationCarEventTypeId
 
 				orderby carEvent.Car ascending, carEvent.CreateDate ascending
 
@@ -179,6 +194,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					singleRow = new AverageFlowDiscrepanciesReportRow
 					{
 						Car = singleRow.Car,
+						CalibrationDate= singleRow.CalibrationDate,
 						IsSingleCalibrationForPeriod = true
 					};
 
@@ -210,7 +226,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		public int DiscrepancyPercentFilter { get; set; }
 		public DelegateCommand CreateReportCommand { get; set; }
 		public DelegateCommand SaveReportCommand { get; set; }
-		public object ReportRows => Report.Rows;
+		public DelegateCommand ShowHelpInfoCommand { get; private set; }
+		public List<AverageFlowDiscrepanciesReportRow> ReportRows => Report.Rows;
 
 		public void SaveReport()
 		{
