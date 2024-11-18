@@ -967,7 +967,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
 						.SelectSum(() => warehouseBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
-					.Where(Restrictions.Gt(Projections.Sum(() => employeeBulkOperationAlias.Amount), 0))
+					.Where(Restrictions.Gt(Projections.Sum(() => warehouseBulkOperationAlias.Amount), 0))
 					.OrderBy(() => nomAlias.Id).Asc
 					.ThenBy(() => warehouseBulkOperationAlias.Warehouse.Id).Asc
 					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
