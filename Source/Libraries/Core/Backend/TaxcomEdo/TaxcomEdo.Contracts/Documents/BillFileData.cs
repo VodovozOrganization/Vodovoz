@@ -16,6 +16,9 @@ namespace TaxcomEdo.Contracts.Documents
 		/// </summary>
 		public DateTime BillDate { get; set; }
 
+		/// <summary>
+		/// Имя файла <see cref="FileData.Name"/>
+		/// </summary>
 		public override string Name => $"Счёт №{BillNumber} от {BillDate:d}.pdf";
 	}
 }

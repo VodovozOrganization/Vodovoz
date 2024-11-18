@@ -19,6 +19,9 @@ namespace TaxcomEdo.Contracts.Documents
 		/// </summary>
 		public OrderInfoForEdo OrderInfoForEdo { get; set; }
 		
+		/// <summary>
+		/// Информация о прикрепленном файле <see cref="BillFileData"/>
+		/// </summary>
 		public BillFileData BillFileData
 		{
 			get => FileData as BillFileData;

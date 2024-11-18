@@ -25,6 +25,7 @@ namespace EdoDocumentsPreparer
 				_connectionString,
 				OutputPresentationType.PDF,
 				true);
+			
 			return stream.GetBuffer();
 		}
 	}

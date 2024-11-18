@@ -2,6 +2,9 @@
 
 namespace TaxcomEdo.Contracts.Documents
 {
+	/// <summary>
+	/// Необходимая информация для отправки счета без погрузки на предоплату по ЭДО
+	/// </summary>
 	public class InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo : InfoForCreatingBillWithoutShipmentEdo
 	{
 		public static readonly string ExchangeAndQueueName = "info-for-create-bills-without-shipment-for-advance-payment";
@@ -20,6 +23,9 @@ namespace TaxcomEdo.Contracts.Documents
 			set => OrderWithoutShipmentInfo = value;
 		}
 
+		/// <summary>
+		/// Информация о прикрепленном файле <see cref="BillFileData"/>
+		/// </summary>
 		public BillFileData BillFileData
 		{
 			get => FileData as BillFileData;

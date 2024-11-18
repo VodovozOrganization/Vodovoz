@@ -1,5 +1,8 @@
 ﻿namespace TaxcomEdo.Contracts.Counterparties
 {
+	/// <summary>
+	/// Причины приобретения воды клиентом(вывод из оборота)
+	/// </summary>
 	public enum ReasonForLeavingType
 	{
 		/// <summary>

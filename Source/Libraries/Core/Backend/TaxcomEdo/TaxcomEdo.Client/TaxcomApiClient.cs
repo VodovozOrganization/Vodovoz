@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ using TaxcomEdo.Contracts.Documents;
 
 namespace TaxcomEdo.Client
 {
-	public class TaxcomApiClient : ITaxcomApiClient
+	public partial class TaxcomApiClient : ITaxcomApiClient
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly TaxcomApiOptions _taxcomApiOptions;
@@ -89,11 +88,6 @@ namespace TaxcomEdo.Client
 				.GetByteArrayAsync(_taxcomApiOptions.GetDocFlowRawDataEndPoint + query);
 
 			return response;
-			/*if(!response.IsSuccessStatusCode)
-			{
-				return Enumerable.Empty<byte>();
-			}
-			*/
 		}
 
 		public async Task<EdoDocFlowUpdates> GetDocFlowsUpdates(
@@ -142,78 +136,5 @@ namespace TaxcomEdo.Client
 			
 			return client;
 		}
-
-		public class HttpQueryBuilder : IHttpQueryBuilder
-		{
-			private const string _parameterIdentifier = "?";
-			private const string _parameterEquals = "=";
-			private const string _parameterSeparator = "&";
-			private readonly StringBuilder _queryBuilder;
-			private bool _hasFirstParameter;
-
-			private HttpQueryBuilder()
-			{
-				_queryBuilder = new StringBuilder();
-			}
-
-			public IHttpQueryBuilder AddParameter<T>(T parameter, string parameterName)
-			{
-				if(parameter == null)
-				{
-					return this;
-				}
-				
-				if(_queryBuilder.Length > 0)
-				{
-					_queryBuilder.Append(_parameterSeparator);
-				}
-				
-				_queryBuilder
-					.Append(_parameterIdentifier)
-					.Append(parameterName)
-					.Append(_parameterEquals);
-
-				if(parameter is DateTime dateTime)
-				{
-					_queryBuilder.AppendFormat("{0:o}", dateTime);
-				}
-				else
-				{
-					_queryBuilder.Append(parameter);
-				}
-
-				return this;
-			}
-
-			public override string ToString()
-			{
-				return _queryBuilder.ToString();
-			}
-
-			public static IHttpQueryBuilder Create() => new HttpQueryBuilder();
-		}
-	}
-
-	/// <summary>
-	/// Формирование строки запроса с параметрами
-	/// </summary>
-	public interface IHttpQueryBuilder
-	{
-		/// <summary>
-		/// Добавление параметра.
-		/// Работает только с простыми типами и строками,
-		/// чтобы использовать сложные объекты, такие как классы,
-		/// нужно передавать их строковое представление, например, JSON
-		/// </summary>
-		/// <param name="parameter">Значение параметра</param>
-		/// <param name="parameterName">Имя параметра</param>
-		/// <typeparam name="T">Тип параметра</typeparam>
-		/// <returns></returns>
-		IHttpQueryBuilder AddParameter<T>(T parameter, string parameterName);
-		/// <summary>
-		/// Выдача строки запроса
-		/// </summary>
-		/// <returns>Строка запроса с параметрами</returns>
-		string ToString();
 	}
 }

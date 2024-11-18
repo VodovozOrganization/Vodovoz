@@ -193,7 +193,7 @@ namespace EdoDocumentFlowUpdater
 					.Where(x => x.IsNeedOfferCancellation)
 					.ToList();
 			
-				_logger.LogInformation("Всего нужно аннулировать {Count}", offerCancellationFromActions.Count);
+				_logger.LogInformation("Всего нужно аннулировать {OfferCancellationCount}", offerCancellationFromActions.Count);
 
 				foreach(var offerCancellation in offerCancellationFromActions)
 				{
@@ -215,7 +215,7 @@ namespace EdoDocumentFlowUpdater
 							continue;
 						}
 					
-						_logger.LogInformation("Отменяется оффер из контейнера №{EdoContainerId}, Заказа №{OrderId}, документооборота {DocFlow}",
+						_logger.LogInformation("Отменяется оффер из контейнера №{EdoContainerId}, Заказа №{OrderId}, документооборота {DocFlowId}",
 							container.Id,
 							container.Order?.Id,
 							container.DocFlowId);
@@ -244,7 +244,7 @@ namespace EdoDocumentFlowUpdater
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка в процессе аннулирования документооборота {DocFlow} из контейнера №{EdoContainerId}, Заказа №{OrderId}",
+				_logger.LogError(e, "Ошибка в процессе аннулирования документооборота {DocFlowId} из контейнера №{EdoContainerId}, Заказа №{OrderId}",
 					edoContainer.DocFlowId,
 					edoContainer.Id,
 					edoContainer.Order.Id);
@@ -255,7 +255,7 @@ namespace EdoDocumentFlowUpdater
 		{
 			var delay = _documentFlowUpdaterOptions.DelayBetweenDocumentFlowProcessingInSeconds;
 			
-			_logger.LogInformation("Ждем {DelaySec}сек", delay);
+			_logger.LogInformation("Ждем {Delay}сек", delay);
 			await Task.Delay(delay * 1000, cancellationToken);
 		}
 	}

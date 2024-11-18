@@ -44,7 +44,7 @@ namespace EdoAutoSendReceiveWorker
 				{
 					var delay = _workerOptions.DelayBetweenAutoSendReceiveProcessingInSeconds;
 					
-					_logger.LogInformation("Пауза перед запуском транзакций {DelaySec}сек", delay);
+					_logger.LogInformation("Пауза перед запуском транзакций {Delay}сек", delay);
 					await Task.Delay(delay * 1000, stoppingToken);
 					
 					_logger.LogInformation("Отправляем запрос на запуск необходимых транзакций");
@@ -55,10 +55,7 @@ namespace EdoAutoSendReceiveWorker
 				}
 				catch(Exception e)
 				{
-					_logger.LogError(
-						e,
-						"Ошибка при отправке запроса на запуск {AutoSendReceive}",
-						"StartProcessAutoSendReceive");
+					_logger.LogError(e, "Ошибка при отправке запроса на запуск необходимых транзакций");
 				}
 			}
 		}

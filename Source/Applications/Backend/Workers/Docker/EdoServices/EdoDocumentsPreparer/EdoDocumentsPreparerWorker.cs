@@ -138,7 +138,7 @@ namespace EdoDocumentsPreparer
 				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен
 				var filteredOrders =
 					orders.Where(o => o.Client.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
-									|| o.OrderStatus != OrderStatus.OnTheWay)
+							|| o.OrderStatus != OrderStatus.OnTheWay)
 						.Where(o => o.OrderDocuments.Any(
 							x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD)).ToList();
 			

@@ -115,7 +115,7 @@ namespace EdoContactsUpdater
 										_logger.LogInformation("Обрабатываем контакт в статусе {StateCode}", contact.State.Code);
 										counterparties = _counterpartyRepository.GetCounterpartiesByINN(uow, contact.Inn);
 
-										if(counterparties == null)
+										if(counterparties is null)
 										{
 											break;
 										}
@@ -133,7 +133,9 @@ namespace EdoContactsUpdater
 											_logger.LogInformation(
 												"Обновляем согласие на ЭДО у клиента Id {CounterpartyId}" +
 												" с {CounterpartyConsentForEdoStatus} на {ConsentForEdoStatus}",
-												counterparty.Id, counterparty.ConsentForEdoStatus, consentForEdoStatus);
+												counterparty.Id,
+												counterparty.ConsentForEdoStatus,
+												consentForEdoStatus);
 											
 											if(consentForEdoStatus == ConsentForEdoStatus.Rejected)
 											{
@@ -141,9 +143,11 @@ namespace EdoContactsUpdater
 												{
 													_logger.LogInformation(
 														"Пришел отказ на ЭДО у клиента Id {CounterpartyId}" +
-														" по кабинету {EdxClientId}," +
+														" по кабинету {EdoAccountId}," +
 														" хотя у клиента {CounterpartyPersonalAccountIdInEdo} пропускаем...",
-														counterparty.Id, contact.EdxClientId, counterparty.PersonalAccountIdInEdo);
+														counterparty.Id,
+														contact.EdxClientId,
+														counterparty.PersonalAccountIdInEdo);
 													continue;
 												}
 											}
@@ -226,7 +230,7 @@ namespace EdoContactsUpdater
 		{
 			var delay = _contactsUpdaterOptions.DelayBetweenContactsProcessingInSeconds;
 			
-			_logger.LogInformation("Ждем {DelaySec}сек", delay);
+			_logger.LogInformation("Ждем {Delay}сек", delay);
 			await Task.Delay(delay * 1000, cancellationToken);
 		}
 	}

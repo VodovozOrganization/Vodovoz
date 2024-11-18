@@ -27,10 +27,8 @@ namespace Vodovoz.Infrastructure.FileStorage
 		public Task<Result<Stream>> GetContainerAsync(EdoContainer entity, CancellationToken cancellationToken)
 			=> GetFileAsync($"{entity.Id}.zip", cancellationToken);
 
-		public Task<Result> UpdateContainerAsync(EdoContainer entity, Stream inputStream, CancellationToken cancellationToken)
-		{
-			return UpdateFileAsync($"{entity.Id}.zip", inputStream, cancellationToken);
-		}
+		public Task<Result> UpdateContainerAsync(EdoContainer entity, Stream inputStream, CancellationToken cancellationToken) =>
+			UpdateFileAsync($"{entity.Id}.zip", inputStream, cancellationToken);
 
 		public Task<Result> DeleteContainerAsync(EdoContainer entity, CancellationToken cancellationToken)
 			=> DeleteFileAsync($"{entity.Id}.zip", cancellationToken);

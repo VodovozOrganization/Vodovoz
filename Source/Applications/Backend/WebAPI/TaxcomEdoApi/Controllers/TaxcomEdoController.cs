@@ -201,7 +201,7 @@ namespace TaxcomEdoApi.Controllers
 		public IActionResult OfferCancellation(string docFlowId, string reason)
 		{
 			_logger.LogInformation(
-				"Пришел запрос на аннулирование документооборота {DocFlow} по причине {Reason}",
+				"Пришел запрос на аннулирование документооборота {DocFlowId} по причине {Reason}",
 				docFlowId,
 				reason);
 			
@@ -212,7 +212,7 @@ namespace TaxcomEdoApi.Controllers
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при аннулировании документооборота {DocFlow} с причиной {Reason}",
+				_logger.LogError(e, "Ошибка при аннулировании документооборота {DocFlowId} с причиной {Reason}",
 					docFlowId,
 					reason);
 				return Problem();
@@ -248,7 +248,8 @@ namespace TaxcomEdoApi.Controllers
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e,
+				_logger.LogError(
+					e,
 					"Ошибка в процессе формирования контейнера по {OrderWithoutShipmentType} №{OrderWithoutShipmentId} и его отправки",
 					documentType,
 					orderWithoutShipmentId);

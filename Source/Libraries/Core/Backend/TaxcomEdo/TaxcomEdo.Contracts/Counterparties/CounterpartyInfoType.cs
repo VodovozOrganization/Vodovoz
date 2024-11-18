@@ -1,5 +1,8 @@
 ﻿namespace TaxcomEdo.Contracts.Counterparties
 {
+	/// <summary>
+	/// Тип контрагента: физ лицо, юр лицо
+	/// </summary>
 	public enum CounterpartyInfoType
 	{
 		/// <summary>

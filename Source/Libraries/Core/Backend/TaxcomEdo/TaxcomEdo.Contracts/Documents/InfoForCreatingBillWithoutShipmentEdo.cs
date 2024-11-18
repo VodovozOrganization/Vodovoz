@@ -15,6 +15,11 @@ namespace TaxcomEdo.Contracts.Documents
 		[JsonIgnore]
 		public OrderWithoutShipmentInfo OrderWithoutShipmentInfo { get; set; }
 
+		/// <summary>
+		/// Инициализация класса, заполенние нужных свойств
+		/// </summary>
+		/// <param name="orderWithoutShipmentInfo">Информация о счете без отгрузки</param>
+		/// <param name="fileData">Данные файла</param>
 		public void Initialize(OrderWithoutShipmentInfo orderWithoutShipmentInfo, FileData fileData)
 		{
 			OrderWithoutShipmentInfo = orderWithoutShipmentInfo;
@@ -22,6 +27,10 @@ namespace TaxcomEdo.Contracts.Documents
 			MainDocumentId = Guid.NewGuid();
 		}
 
+		/// <summary>
+		/// Наименование документа об отгрузке
+		/// </summary>
+		/// <returns>Наименование документа об отгрузке или сообщение о некорректности данных</returns>
 		public string GetBillWithoutShipmentInfoTitle()
 		{
 			if(OrderWithoutShipmentInfo is null)
