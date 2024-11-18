@@ -101,22 +101,6 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 
 		public IRecursiveConfig RecuresiveConfig { get; }
 
-		public ProductGroupsJournalViewModel SelectProductGroupJournalViewModel
-		{
-			get => _selectProductGroupJournalViewModel;
-			set
-			{
-				if(_selectProductGroupJournalViewModel != null)
-				{
-					_selectProductGroupJournalViewModel.OnSelectResult -= OnParentGroupSelected;
-				}
-
-				SetField(ref _selectProductGroupJournalViewModel, value);
-
-				_selectProductGroupJournalViewModel.OnSelectResult += OnParentGroupSelected;
-			}
-		}
-
 		public bool IsGroupSelectionMode => _filter.IsGroupSelectionMode;
 
 		private void InitializePermissionsMatrix()
@@ -352,7 +336,13 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 							vm.SelectionMode = JournalSelectionMode.Single;
 						});
 
-					SelectProductGroupJournalViewModel = selectGroupPage.ViewModel;
+					if(_selectProductGroupJournalViewModel != null)
+					{
+						_selectProductGroupJournalViewModel.OnSelectResult -= OnParentGroupSelected;
+					}
+
+					_selectProductGroupJournalViewModel = selectGroupPage.ViewModel;
+					_selectProductGroupJournalViewModel.OnSelectResult += OnParentGroupSelected;
 				});
 
 			NodeActionsList.Add(editAction);

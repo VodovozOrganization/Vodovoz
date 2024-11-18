@@ -80,23 +80,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			} 
 		}
 
-		public ProductGroupsJournalViewModel SelectProductGroupJournalViewModel
-		{
-			get => _selectProductGroupJournalViewModel;
-			set
-			{
-				if(_selectProductGroupJournalViewModel != null)
-				{
-					_selectProductGroupJournalViewModel.OnSelectResult -= OnProductGroupSelected;
-				}
-
-				SetField(ref _selectProductGroupJournalViewModel, value);
-
-				_selectProductGroupJournalViewModel.OnSelectResult += OnProductGroupSelected;
-			}
-		}
-
-
 		public IList<SelectableNomenclatureCategoryNode> SelectableNomenclatureCategoryNodes { get; private set; }
 
 		public DelegateCommand AddNomenclatureCommand => _addNomenclatureCommand ?? (_addNomenclatureCommand = new DelegateCommand(
@@ -144,8 +127,14 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 						{
 							vm.SelectionMode = JournalSelectionMode.Single;
 						});
+					
+					if(_selectProductGroupJournalViewModel != null)
+					{
+						_selectProductGroupJournalViewModel.OnSelectResult -= OnProductGroupSelected;
+					}
 
-					SelectProductGroupJournalViewModel = selectGroupPage.ViewModel;
+					_selectProductGroupJournalViewModel = selectGroupPage.ViewModel;
+					_selectProductGroupJournalViewModel.OnSelectResult += OnProductGroupSelected;
 				}
 			)
 		);
