@@ -406,7 +406,6 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionProductGroupsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ProductGroupView>(null);
 		NavigationManager.OpenViewModel<ProductGroupsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
