@@ -284,16 +284,16 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			yentryProductGroup.JournalButtons = Buttons.Add | Buttons.Edit;
-			yentryProductGroup.RepresentationModel = new ProductGroupVM(ViewModel.UoW, new ProductGroupFilterViewModel
-			{
-				HidenByDefault = false,
-				HideArchive = true
-			});
-			yentryProductGroup.Binding
-				.AddBinding(ViewModel.Entity, e => e.ProductGroup, w => w.Subject)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
+			//yentryProductGroup.JournalButtons = Buttons.Add | Buttons.Edit;
+			//yentryProductGroup.RepresentationModel = new ProductGroupVM(ViewModel.UoW, new ProductGroupFilterViewModel
+			//{
+			//	HidenByDefault = false,
+			//	HideArchive = true
+			//});
+			//yentryProductGroup.Binding
+			//	.AddBinding(ViewModel.Entity, e => e.ProductGroup, w => w.Subject)
+			//	.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+			//	.InitializeFromSource();
 
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
 			referenceUnit.Binding
