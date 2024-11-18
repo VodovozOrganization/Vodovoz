@@ -523,8 +523,6 @@
     <Compile Include="Journals\FilterViewModels\Roboats\RoboatsCallsFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Security\RegisteredRMJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\MovementWagonJournalFilterViewModel.cs" />
-    <Compile Include="Journals\JournalFactories\IProductGroupJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\ProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\RoboatsJournalsFactory.cs" />
     <Compile Include="Journals\JournalFactories\BulkEmailEventReasonJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\DistrictJournalFactory.cs" />
@@ -562,7 +560,6 @@
     <Compile Include="Journals\JournalNodes\ExpenseCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\FinancialDistrictsSetsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\EquipmentKindJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\Goods\ProductGroupJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Flyers\FlyersJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonJournalNode.cs" />
@@ -612,7 +609,6 @@
     <Compile Include="Journals\JournalViewModels\Flyers\FlyersJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\EquipmentKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\NomenclaturesJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Goods\ProductGroupJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\RoboatsWaterTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\RoboatsWaterNomenclatureJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DeliveryScheduleJournalViewModel.cs" />
