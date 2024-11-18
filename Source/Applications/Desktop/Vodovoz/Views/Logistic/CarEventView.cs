@@ -197,6 +197,9 @@ namespace Vodovoz.Views.Logistic
 				ytreeviewFines.Sensitive =
 				buttonAddFine.Sensitive =
 				buttonAttachFine.Sensitive =
+				yspinBtnOdometerReading.Sensitive =
+				yspinRepairSummaryCost.Sensitive =
+				yspinRepairPartsCost.Sensitive =
 				buttonSave.Sensitive = false;
 			}
 		}
