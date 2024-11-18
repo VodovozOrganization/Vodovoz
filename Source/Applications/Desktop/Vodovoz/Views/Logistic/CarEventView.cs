@@ -33,19 +33,13 @@ namespace Vodovoz.Views.Logistic
 				.AddFuncBinding(ViewModel.Entity, e => e.Author != null ? e.Author.GetPersonNameWithInitials() : "", w => w.LabelProp)
 				.InitializeFromSource();
 
-			/*entityviewmodelentryCarEventType.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventTypeSelectorFactory);
-			entityviewmodelentryCarEventType.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CarEventType, e => e.Subject)
-				.AddBinding(vm => vm.CanChangeCarEventType, w => w.Sensitive)
-				.InitializeFromSource();*/
-
 			entityEntryCarEventType.ViewModel = ViewModel.CarEventTypeEntryViewModel;
 
 			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
-			//entityentryCar.Binding
-			//	.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
-			//	.InitializeFromSource();
+			entityentryCar.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.InitializeFromSource();
 
 			entryOriginalCarEvent.ViewModel = ViewModel.OriginalCarEventViewModel;
 
@@ -55,17 +49,17 @@ namespace Vodovoz.Views.Logistic
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			evmeDriver.Binding
-				//.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject)
 				.InitializeFromSource();
 
 			ydatepickerStartEventDate.Binding
-				//.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date)
 				.InitializeFromSource();
 
 			ydatepickerEndEventDate.Binding
-				//.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date)
 				.InitializeFromSource();
 
@@ -129,9 +123,9 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)
 				.InitializeFromSource();
 
-			//yhboxFuel.Binding
-			//	.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
-			//	.InitializeFromSource();
+			yhboxFuel.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibrationCarEventType, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ylabelActualFuelBalance.Binding
 				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibrationCarEventType, w => w.Visible)

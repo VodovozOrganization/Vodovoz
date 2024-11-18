@@ -283,5 +283,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 				}, () => true
 			);
 		}
+
+		public override void Dispose()
+		{
+			_journalViewModel = null;
+			base.Dispose();
+		}
 	}
 }

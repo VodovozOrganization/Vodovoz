@@ -1,5 +1,6 @@
 ﻿using DateTimeHelpers;
 using QS.Commands;
+using QS.Report;
 using QS.Report.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,9 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		private DelegateCommand _createReportCommand;
 
 		public MovementsPaymentControlViewModel(
-			RdlViewerViewModel rdlViewerViewModel
-			) : base(rdlViewerViewModel)
+			RdlViewerViewModel rdlViewerViewModel,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			var now = DateTime.Now;
 			StartDate = now.Date.AddMonths(-1);

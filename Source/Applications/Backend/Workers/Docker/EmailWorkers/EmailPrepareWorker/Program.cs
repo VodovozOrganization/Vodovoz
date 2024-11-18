@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Report;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
 using Vodovoz.Core.Data.NHibernate;
@@ -73,6 +74,7 @@ namespace EmailPrepareWorker
 						.AddScoped<IEmailSettings, EmailSettings>()
 						.AddScoped<ISettingsController, SettingsController>()
 						.AddScoped<IEmailDocumentPreparer, EmailDocumentPreparer>()
+						.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>()
 						.AddScoped<IEmailSendMessagePreparer, EmailSendMessagePreparer>();
 
 					services.AddHostedService<EmailPrepareWorker>();

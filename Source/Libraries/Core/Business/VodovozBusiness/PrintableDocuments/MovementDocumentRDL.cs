@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Autofac;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.Documents;
@@ -24,15 +25,15 @@ namespace Vodovoz.PrintableDocuments
 
 		public ReportInfo GetReportInfo(string connectionString = null)
 		{
-			return new ReportInfo {
-				Title = Document.Title,
-				Identifier = "Documents.MovementOperationDocucment",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "documentId" , Document.Id} ,
-					{ "date" , Document.TimeStamp.ToString("dd/MM/yyyy")}
-				}
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Identifier = "Documents.MovementOperationDocucment";
+			reportInfo.Title = Title;
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "documentId", Document.Id },
+				{ "date", Document.TimeStamp.ToString("dd/MM/yyyy") }
 			};
+			return reportInfo;
 		}
 		public MovementDocumentRdl(MovementDocument document) => Document = document;
 	}

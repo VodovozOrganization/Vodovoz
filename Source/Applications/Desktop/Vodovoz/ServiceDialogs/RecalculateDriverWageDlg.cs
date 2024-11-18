@@ -1,5 +1,4 @@
-﻿using Autofac;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using NHibernate.Util;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -9,8 +8,6 @@ using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ServiceDialogs
@@ -18,24 +15,35 @@ namespace Vodovoz.ServiceDialogs
 	[System.ComponentModel.ToolboxItem(true)]
     public partial class RecalculateDriverWageDlg : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
     {
-	    private readonly IWageCalculationRepository _wageCalculationRepository = ScopeProvider.Scope.Resolve<IWageCalculationRepository>();
-		private readonly IWageSettings _wageSettings = ScopeProvider.Scope.Resolve<IWageSettings>();
-		private readonly WageParameterService _wageParameterService;
+		private readonly IWageParameterService _wageParameterService;
 	    public IUnitOfWork UoW { get; }
 
-	    public RecalculateDriverWageDlg()
+	    public RecalculateDriverWageDlg(
+		    IUnitOfWorkFactory unitOfWorkFactory,
+		    IWageParameterService wageParameterService,
+		    IEmployeeJournalFactory employeeJournalFactory)
         {
-            this.Build();
-            TabName = "Пересчет ЗП водителей";
-            UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-            _wageParameterService = new WageParameterService(_wageCalculationRepository, _wageSettings);
-            ConfigureDlg();
+	        if(unitOfWorkFactory == null)
+	        {
+		        throw new ArgumentNullException(nameof(unitOfWorkFactory));
+	        }
+
+	        if(employeeJournalFactory == null)
+	        {
+		        throw new ArgumentNullException(nameof(employeeJournalFactory));
+	        }
+
+	        _wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
+	        
+	        Build();
+	        TabName = "Пересчет ЗП водителей";
+            UoW = unitOfWorkFactory.CreateWithoutRoot();
+            ConfigureDlg(employeeJournalFactory);
 		}
 
-        private void ConfigureDlg()
+        private void ConfigureDlg(IEmployeeJournalFactory employeeJournalFactory)
         {
-            var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
-            evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+            evmeDriver.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
             datePickerFrom.IsEditable = true;
             datePickerTo.IsEditable = true;
 

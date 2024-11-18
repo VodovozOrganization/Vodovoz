@@ -8,7 +8,7 @@ namespace Vodovoz.ServiceDialogs
 
 		private global::QS.Widgets.GtkUI.DatePicker datepicker1;
 
-		private global::Gtk.Button buttonSendErrorSendedEmails;
+		private global::Gamma.GtkWidgets.yButton buttonSendErrorSendedEmails;
 
 		protected virtual void Build()
 		{
@@ -34,7 +34,7 @@ namespace Vodovoz.ServiceDialogs
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonSendErrorSendedEmails = new global::Gtk.Button();
+			this.buttonSendErrorSendedEmails = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSendErrorSendedEmails.CanFocus = true;
 			this.buttonSendErrorSendedEmails.Name = "buttonSendErrorSendedEmails";
 			this.buttonSendErrorSendedEmails.UseUnderline = true;

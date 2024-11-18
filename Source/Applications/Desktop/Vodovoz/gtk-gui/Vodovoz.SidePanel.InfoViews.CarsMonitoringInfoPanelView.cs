@@ -8,7 +8,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.HBox hboxControlsContainer;
 
-		private global::Gtk.Button buttonRefresh;
+		private global::Gamma.GtkWidgets.yButton buttonRefresh;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonIsFastDeliveryOnly;
 
@@ -49,7 +49,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.hboxControlsContainer.Name = "hboxControlsContainer";
 			this.hboxControlsContainer.Spacing = 6;
 			// Container child hboxControlsContainer.Gtk.Box+BoxChild
-			this.buttonRefresh = new global::Gtk.Button();
+			this.buttonRefresh = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;

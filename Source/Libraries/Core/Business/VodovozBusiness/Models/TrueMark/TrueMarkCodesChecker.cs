@@ -83,7 +83,7 @@ namespace Vodovoz.Models.TrueMark
 
 			var productInstancesInfo = await _trueMarkClient.GetProductInstanceInfoAsync(productCodes.Keys, cancellationToken);
 
-			if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage))
+			if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage) && !productInstancesInfo.InstanceStatuses.Any())
 			{
 				throw new TrueMarkException($"Не удалось получить информацию о состоянии товаров в системе Честный знак. Подробности: {productInstancesInfo.ErrorMessage}");
 			}
@@ -91,20 +91,19 @@ namespace Vodovoz.Models.TrueMark
 			foreach(var instanceStatus in productInstancesInfo.InstanceStatuses)
 			{
 				var codeFound = productCodes.TryGetValue(instanceStatus.IdentificationCode, out TrueMarkWaterIdentificationCode code);
+
 				if(!codeFound)
 				{
 					continue;
 				}
 
-				var resultItem = new TrueMarkCheckResult
+				result.Add(new TrueMarkCheckResult
 				{
 					Code = code,
 					Introduced = instanceStatus.Status == ProductInstanceStatusEnum.Introduced,
 					OwnerInn = instanceStatus.OwnerInn,
 					OwnerName = instanceStatus.OwnerName
-
-				};
-				result.Add(resultItem);
+				});
 			}
 
 			return result;

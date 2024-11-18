@@ -155,7 +155,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool CanEdit => PermissionResult.CanUpdate && CheckDatePeriod();
 		public bool CanChangeWithClosedPeriod { get; }		
-		public bool CanChangeCarEventType => !(IsTechInspectCarEventType && Entity.Id > 0) /*&& !IsFuelBalanceCalibrationCarEventType*/;
+		public bool CanChangeCarEventType => !(IsTechInspectCarEventType && Entity.Id > 0) && !IsFuelBalanceCalibrationCarEventType;
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 		public bool CanChangeCarTechnicalCheckupEndDate => CanEdit && IsCarTechnicalCheckupEventType;

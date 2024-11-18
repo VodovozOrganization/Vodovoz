@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Autofac;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Client;
-using QS.Dialog.GtkUI;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
-using Autofac;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -17,13 +17,15 @@ namespace Vodovoz.ReportsParameters
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
+		private readonly IReportInfoFactory _reportInfoFactory;
 
-		public ReportForBigClient(ILifetimeScope lifetimeScope)
+		public ReportForBigClient(ILifetimeScope lifetimeScope, IReportInfoFactory reportInfoFactory)
 		{
 			if(lifetimeScope == null)
 			{
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 
 			Build();
 			var uowFactory = lifetimeScope.Resolve<IUnitOfWorkFactory>();
@@ -61,17 +63,16 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Client.SummaryBottlesAndDepositsKungolovo",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", dateperiodpicker1.StartDateOrNull },
-					{ "endDate", dateperiodpicker1.EndDateOrNull },
-					{ "client_id", evmeCounterparty.SubjectId },
-					{ "delivery_point_id", evmeDeliveryPoint.Subject == null ? -1 : evmeDeliveryPoint.SubjectId }
-				}
+				{ "startDate", dateperiodpicker1.StartDateOrNull },
+				{ "endDate", dateperiodpicker1.EndDateOrNull },
+				{ "client_id", evmeCounterparty.SubjectId },
+				{ "delivery_point_id", evmeDeliveryPoint.Subject == null ? -1 : evmeDeliveryPoint.SubjectId }
 			};
+
+			var reportInfo = _reportInfoFactory.Create("Client.SummaryBottlesAndDepositsKungolovo", Title, parameters);
+			return reportInfo;
 		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)

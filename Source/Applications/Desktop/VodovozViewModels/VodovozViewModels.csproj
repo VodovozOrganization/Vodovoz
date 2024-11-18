@@ -47,6 +47,11 @@
     <Compile Include="Accounting\Payments\PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel.cs" />
     <Compile Include="Accounting\Payments\PaymentWriteOffViewModel.cs" />
     <Compile Include="BaseParameters\BaseParametersViewModel.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.RowsCreating.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.ExportToExcel.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportOrderData.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportRow.cs" />
     <Compile Include="Cash\AdvanceReportViewModel.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentNode.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentsFilterViewModel.cs" />
@@ -88,6 +93,10 @@
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.PromosetNode.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.SubdivisionRow.cs" />
+    <Compile Include="ReportsParameters\Bottles\Drivers.cs" />
+    <Compile Include="ReportsParameters\Bottles\PercentNode.cs" />
+    <Compile Include="ReportsParameters\Sales\IncomeReportType.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportViewModel.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsList.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsSummary.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.Discounts.cs" />
@@ -317,7 +326,30 @@
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.Row.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.ReportSortOrder.cs" />
+    <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCloseDeliveryReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Bottles\BottlesMovementReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Bottles\BottlesMovementSummaryReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Bottles\ClientsByDeliveryPointCategoryAndActivityKindsReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Bottles\ExtraBottleReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Bottles\ProfitabilityBottlesByStockReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Bottles\ReportDebtorsBottlesViewModel.cs" />
+    <Compile Include="ReportsParameters\Bottles\ShortfallBattlesReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Client\ZeroDebtClientReportViewModel.cs" />
     <Compile Include="ReportsParameters\Fuel\FuelApiRequestReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\AnalyticsForUndeliveryReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\CashierCommentsReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\CompanyTrucksReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\DriverRoutesListRegisterReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\DriversToDistrictsAssignmentReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\DrivingCallReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\FuelConsumptionReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\NonClosedRLByPeriodReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\OnLoadTimeAtDayReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\OrdersByDistrictsAndDeliverySchedulesReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\RouteListsOnClosingReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\RoutesListRegisterReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\ScheduleOnLinePerShiftReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Logistics\ShipmentReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveriesLateReportViewModel.OrderSelectMode.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.cs" />
@@ -325,15 +357,42 @@
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.cs" />
     <Compile Include="ReportsParameters\Logistic\RouteListOwnType.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReportViewModel.SelectableParameter.cs" />
+    <Compile Include="ReportsParameters\Orders\CardPaymentsOrdersReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\EShopSalesReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\FirstClientsReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\FirstSecondClientReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\LastOrderByDeliveryPointReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\NotDeliveredOrdersReportViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\OrderCreationDateReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\OrderIncorrectPricesViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\OrderRegistryReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\OrdersByCreationDateReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\OrdersByDistrictReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\OrdersWithMinPriceLessThanViewModel.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Payments\ChainStoreDelayReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromAvangardReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientFinDepartmentReportViewModel.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReportViewModel.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.ProducedProductionReportMode.cs" />
     <Compile Include="ReportsParameters\Profitability\GroupingNode.cs" />
+    <Compile Include="ReportsParameters\QualityControl\TariffZoneDebtsViewModel.cs" />
     <Compile Include="ReportsParameters\RevisionReportViewModel.cs" />
     <Compile Include="ReportsParameters\SalesReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Sales\IncomeBalanceReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Sales\SuburbWaterPriceReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Selfdelivery\SelfDeliveryReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Service\MastersReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Service\MastersVisitReportViewModel.cs" />
     <Compile Include="ReportsParameters\SetBillsReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Store\DefectiveItemsReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Store\NotFullyLoadedRouteListsReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Wages\EmployeesFinesViewModel.cs" />
+    <Compile Include="ReportsParameters\Wages\EmployeesPremiumsViewModel.cs" />
+    <Compile Include="ReportsParameters\Wages\DriverWagesReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Wages\ForwarderWageReportViewModel.cs" />
+    <Compile Include="ReportsParameters\Wages\WagesOperationsReportViewModel.cs" />
     <Compile Include="TempAdapters\IReportExporter.cs" />
     <Compile Include="TempAdapters\PacsViewModelOpener.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
@@ -1164,6 +1223,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Utilities\QS.Utilities.csproj">
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Presentation.Reports\Vodovoz.Presentation.Reports.csproj">
+      <Project>{79eb219a-5dda-4153-be77-1770663dd0c3}</Project>
+      <Name>Vodovoz.Presentation.Reports</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
       <Project>{396cc0bb-294b-44e0-8428-31677419b8be}</Project>

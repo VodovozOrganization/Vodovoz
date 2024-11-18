@@ -14,7 +14,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget geograficGroup;
 
-		private global::Gtk.Button buttonPrint;
+		private global::Gamma.GtkWidgets.yButton buttonPrint;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckOnlyNonPrinted;
 
@@ -95,7 +95,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w3.Position = 2;
 			w3.Expand = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonPrint = new global::Gtk.Button();
+			this.buttonPrint = new global::Gamma.GtkWidgets.yButton();
 			this.buttonPrint.CanFocus = true;
 			this.buttonPrint.Name = "buttonPrint";
 			this.buttonPrint.UseUnderline = true;

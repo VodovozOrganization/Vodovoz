@@ -1082,11 +1082,7 @@ FROM
     #Конец выбора баланса
 )
 SELECT * FROM route_lists_transactions_balance
-;
-
-
-
-select IFNULL('route_lists.id','Калибровка баланса')</CommandText>
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>

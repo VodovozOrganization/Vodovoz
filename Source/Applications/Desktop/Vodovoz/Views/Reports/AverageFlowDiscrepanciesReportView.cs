@@ -43,7 +43,7 @@ namespace Vodovoz.Views.Reports
 				.AddColumn("Разница, руб").AddNumericRenderer(ev => ev.DiscrepancyMoney).Digits(2)
 				.AddColumn("Факт расход на 100км").AddNumericRenderer(ev => ev.Consumption100KmFact).Digits(2)
 				.AddColumn("План расход на 100км").AddNumericRenderer(ev => ev.Consumption100KmPlan).Digits(2)
-				.AddColumn("Разница в %").AddNumericRenderer(ev => ev.DiscrepancyPercent)
+				.AddColumn("Разница в %").AddNumericRenderer(ev => ev.DiscrepancyPercent).Digits(2)
 				.AddSetter((cell, node) =>
 				{
 					var discrepancyValue = node.DiscrepancyPercent;
@@ -56,8 +56,7 @@ namespace Vodovoz.Views.Reports
 							: discrepancyValue < 0 && Math.Abs(discrepancyValue) > discrepancyPercentFilter
 								? GdkColors.YellowMustard
 								: GdkColors.DangerBase;
-				})
-				.Digits(2)
+				})				
 				.AddColumn("")
 				.RowCells()
 				.AddSetter<CellRenderer>(

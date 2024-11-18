@@ -2,6 +2,7 @@
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Report;
 using QS.Report.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -30,8 +31,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<Nomenclature> nomenclatureRepository,
 			IGenericRepository<Warehouse> warehouseRepository,
-			IInteractiveService interactiveService
-		) : base(rdlViewerViewModel)
+			IInteractiveService interactiveService,
+			IReportInfoFactory reportInfoFactory
+		) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			Title = "Отчет по произведенной продукции";
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));

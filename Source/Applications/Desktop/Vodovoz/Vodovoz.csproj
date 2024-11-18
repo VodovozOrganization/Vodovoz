@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1387,19 +1387,6 @@
     <Compile Include="Cores\PromosetDuplicateFinder.cs" />
     <Compile Include="ReportsParameters\WayBillReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReport.cs" />
-    <Compile Include="ViewModels\BusinessTasks\ClientTaskViewModel.cs" />
-    <Compile Include="Views\BusinessTasks\ClientTaskView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.ClientTaskView.cs" />
-    <Compile Include="JournalNodes\BusinessTaskJournalNode.cs" />
-    <Compile Include="Footers\ViewModels\BusinessTasksJournalFooterViewModel.cs" />
-    <Compile Include="Footers\Views\BusinessTasksJournalFooterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Footers.Views.BusinessTasksJournalFooterView.cs" />
-    <Compile Include="ViewModels\BusinessTasksJournalActionsViewModel.cs" />
-    <Compile Include="ViewModels\BusinessTasks\PaymentTaskViewModel.cs" />
-    <Compile Include="Views\BusinessTasks\PaymentTaskView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.PaymentTaskView.cs" />
-    <Compile Include="Views\BusinessTasksJournalActionsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasksJournalActionsView.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReportView.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientFinDepartmentReport.cs" />
@@ -2071,6 +2058,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ServiceDistrictsSetJournalFilterView.cs" />
     <Compile Include="Views\Orders\ServiceDistrictsSetActivationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ServiceDistrictsSetActivationView.cs" />
+    <Compile Include="Views\Reports\EdoControlReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.EdoControlReportView.cs" />
     <Compile Include="Views\Reports\AverageFlowDiscrepanciesReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.AverageFlowDiscrepanciesReportView.cs" />
     <Compile Include="Filters\GtkViews\CarEventTypeFilterView.cs" />

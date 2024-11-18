@@ -1,22 +1,23 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
-using TrueMark.Api.Extensions;
 using TrueMark.Api.Options;
 using TrueMark.Api.Responses;
 using TrueMark.Contracts;
+using TrueMark.Contracts.Requests;
+using TrueMark.Contracts.Responses;
 using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorizationService;
 
 namespace TrueMark.Api.Controllers;
@@ -27,28 +28,32 @@ namespace TrueMark.Api.Controllers;
 
 public class TrueMarkApiController : ControllerBase
 {
+	private readonly ILogger<TrueMarkApiController> _logger;
+	private readonly HttpClient _httpClient;
 	private readonly IAuthorizationService _authorizationService;
 	private readonly IOptions<TrueMarkApiOptions> _options;
-	private static HttpClient _httpClient;
-	private readonly ILogger<TrueMarkApiController> _logger;
 	private readonly OrganizationCertificate _organizationCertificate;
 
 	public TrueMarkApiController(
-		IConfiguration configuration,
 		IHttpClientFactory httpClientFactory,
 		IAuthorizationService authorizationService,
 		IOptions<TrueMarkApiOptions> options,
 		ILogger<TrueMarkApiController> logger)
 	{
-		_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-		_options = options ?? throw new ArgumentNullException(nameof(options));
-		_httpClient = httpClientFactory.CreateClient();
-		_httpClient.BaseAddress = new Uri(options.Value.ExternalTrueMarkBaseUrl);
-		_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+		if(httpClientFactory is null)
+		{
+			throw new ArgumentNullException(nameof(httpClientFactory));
+		}
+
+		_logger = logger
+			?? throw new ArgumentNullException(nameof(logger));
+		_authorizationService = authorizationService
+			?? throw new ArgumentNullException(nameof(authorizationService));
+		_options = options
+			?? throw new ArgumentNullException(nameof(options));
+		_httpClient = httpClientFactory.CreateClient("truemark-external");
 
 		_organizationCertificate = options.Value.OrganizationCertificates.FirstOrDefault();
-
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
 	[HttpGet]
@@ -123,7 +128,9 @@ public class TrueMarkApiController : ControllerBase
 		if(!response.IsSuccessStatusCode)
 		{
 			_logger.LogError(
-				$"Ошибка при получении статуса регистрации в ЧЗ: Http code {response.StatusCode}, причина {response.ReasonPhrase}");
+				"Ошибка при получении статуса регистрации в ЧЗ: Http code {ResponseStatusCode}, причина {ResponseReasonPhrase}",
+				response.StatusCode,
+				response.ReasonPhrase);
 
 			return null;
 		}
@@ -135,58 +142,89 @@ public class TrueMarkApiController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<ProductInstancesInfo> RequestProductInstanceInfo([FromBody] IEnumerable<string> identificationCodes)
+	public async Task<ProductInstancesInfoResponse> RequestProductInstanceInfo(
+		[FromServices] IRequestClient<ProductInstanceInfoRequest> requestClient,
+		IEnumerable<string> identificationCodes,
+		CancellationToken cancellationToken)
 	{
-		var uri = $"cises/info";
+		var identificationCodesArray = identificationCodes.ToArray();
 
-		StringBuilder errorMessage = new StringBuilder();
-		errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
+		var errorMessage = new StringBuilder();
+
+		string bearerToken;
 
 		try
 		{
-			string content = JsonSerializer.Serialize(identificationCodes.ToArray());
-			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-
-			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
-			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-			var response = await _httpClient.PostAsync(uri, httpContent);
-
-			if(!response.IsSuccessStatusCode)
-			{
-				return new ProductInstancesInfo
-				{
-					ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
-				};
-			}
-
-			string responseBody = await response.Content.ReadAsStringAsync();
-			var cisesInformation = JsonSerializer.Deserialize<IList<CisInfoRoot>>(responseBody);
-			_logger.LogInformation($"responseBody: {responseBody}");
-
-			var productInstancesInfo = cisesInformation.Select(x =>
-				new ProductInstanceStatus
-				{
-					IdentificationCode = x.CisInfo.RequestedCis,
-					Status = x.CisInfo.Status.ToProductInstanceStatusEnum(),
-					OwnerInn = x.CisInfo.OwnerInn,
-					OwnerName = x.CisInfo.OwnerName
-				}
-			);
-
-			return new ProductInstancesInfo
-			{
-				InstanceStatuses = new List<ProductInstanceStatus>(productInstancesInfo)
-			};
+			bearerToken = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
 		}
 		catch(Exception e)
 		{
-			_logger.LogError(e, errorMessage.ToString());
+			const string tokenRequestFailedMessage = "Ошибка получения токена авторизации в Честном знаке";
 
-			return new ProductInstancesInfo
+			_logger.LogError(e, tokenRequestFailedMessage);
+
+			return new ProductInstancesInfoResponse
 			{
-				ErrorMessage = errorMessage.AppendLine(e.Message).ToString()
+				ErrorMessage = tokenRequestFailedMessage
 			};
+		}
+
+		List<Task<Response<ProductInstanceInfoResponse>>> requestsTasks = CreateRequestsTasks(requestClient, identificationCodesArray, bearerToken, cancellationToken);
+
+		var productInstancesInfoResponses = new List<ProductInstanceStatus>();
+
+		try
+		{
+			var results = await Task.WhenAll(requestsTasks);
+
+			return ProcessResponses(errorMessage, productInstancesInfoResponses, results.Select(r => r.Message));
+		}
+		catch
+		{
+			var partiallyProcessedResults = new List<ProductInstanceInfoResponse>();
+
+			foreach(var requestTask in requestsTasks)
+			{
+				if(requestTask.Status != TaskStatus.Canceled)
+				{
+					if(requestTask.Exception != null)
+					{
+						var indexOfFaultedTask = requestsTasks.IndexOf(requestTask);
+
+						if(indexOfFaultedTask != -1 && identificationCodesArray.Length < indexOfFaultedTask)
+						{
+							_logger.LogError(
+							requestTask.Exception,
+							"Request of code #{Code} was faulted with exception",
+							identificationCodesArray[indexOfFaultedTask]);
+						}
+
+						errorMessage.AppendLine(requestTask.Exception.Message);
+					}
+					else
+					{
+						partiallyProcessedResults.Add(requestTask.Result.Message);
+					}
+				}
+				else
+				{
+					var indexOfCancelledTask = requestsTasks.IndexOf(requestTask);
+
+					if(indexOfCancelledTask != -1 && identificationCodesArray.Length < indexOfCancelledTask)
+					{
+						_logger.LogWarning(
+							"Request of code #{Code} was cancelled",
+							identificationCodesArray[indexOfCancelledTask]);
+					}
+				}
+			}
+
+			if(requestsTasks.Any(rt => rt.Status == TaskStatus.Canceled))
+			{
+				errorMessage.AppendLine("Часть запросов была отменена");
+			}
+
+			return ProcessResponses(errorMessage, productInstancesInfoResponses, partiallyProcessedResults);
 		}
 	}
 
@@ -225,5 +263,54 @@ public class TrueMarkApiController : ControllerBase
 				ErrorMessage = e.Message
 			};
 		}
+	}
+
+	private static List<Task<Response<ProductInstanceInfoResponse>>> CreateRequestsTasks(
+		IRequestClient<ProductInstanceInfoRequest> requestClient,
+		IEnumerable<string> identificationCodes,
+		string token,
+		CancellationToken cancellationToken)
+	{
+		var requestsTasks = new List<Task<Response<ProductInstanceInfoResponse>>>();
+
+		foreach(var code in identificationCodes)
+		{
+			requestsTasks.Add(requestClient.GetResponse<ProductInstanceInfoResponse>(
+				new ProductInstanceInfoRequest
+				{
+					Bearer = token,
+					ProductCode = code
+				},
+				cancellationToken,
+				RequestTimeout.After(s: 10)));
+		}
+
+		return requestsTasks;
+	}
+
+	private static ProductInstancesInfoResponse ProcessResponses(
+		StringBuilder errorMessage,
+		List<ProductInstanceStatus> productInstancesInfoResponses,
+		IEnumerable<ProductInstanceInfoResponse> results)
+	{
+		const string baseErrorMessage = "Не удалось получить данные о статусах экземпляров товаров.";
+
+		foreach(var result in results)
+		{
+			if(string.IsNullOrWhiteSpace(result.ErrorMessage))
+			{
+				productInstancesInfoResponses.Add(result.InstanceStatus);
+			}
+			else
+			{
+				errorMessage.AppendLine(result.ErrorMessage);
+			}
+		}
+
+		return new ProductInstancesInfoResponse
+		{
+			InstanceStatuses = productInstancesInfoResponses,
+			ErrorMessage = errorMessage.Length > 0 ? baseErrorMessage + errorMessage.ToString() : ""
+		};
 	}
 }

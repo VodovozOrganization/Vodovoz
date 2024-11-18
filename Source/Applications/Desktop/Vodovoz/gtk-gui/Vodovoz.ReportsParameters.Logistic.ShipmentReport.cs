@@ -12,15 +12,15 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::QS.Widgets.GtkUI.DatePicker ydatepicker;
 
-		private global::Gtk.RadioButton radioAll;
+		private global::Gamma.GtkWidgets.yRadioButton radioAll;
 
-		private global::Gtk.RadioButton radioCash;
+		private global::Gamma.GtkWidgets.yRadioButton radioCash;
 
-		private global::Gtk.RadioButton radioWarehouse;
+		private global::Gamma.GtkWidgets.yRadioButton radioWarehouse;
 
 		private global::Gamma.Widgets.yEntryReference referenceWarehouse;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -62,7 +62,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.radioAll = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Все"));
+			this.radioAll = new global::Gamma.GtkWidgets.yRadioButton(global::Mono.Unix.Catalog.GetString("Все"));
 			this.radioAll.CanFocus = true;
 			this.radioAll.Name = "radioAll";
 			this.radioAll.DrawIndicator = true;
@@ -74,7 +74,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.radioCash = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Отсортировать по кассе"));
+			this.radioCash = new global::Gamma.GtkWidgets.yRadioButton(global::Mono.Unix.Catalog.GetString("Отсортировать по кассе"));
 			this.radioCash.CanFocus = true;
 			this.radioCash.Name = "radioCash";
 			this.radioCash.DrawIndicator = true;
@@ -86,7 +86,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.radioWarehouse = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Отсортировать по складу"));
+			this.radioWarehouse = new global::Gamma.GtkWidgets.yRadioButton(global::Mono.Unix.Catalog.GetString("Отсортировать по складу"));
 			this.radioWarehouse.CanFocus = true;
 			this.radioWarehouse.Name = "radioWarehouse";
 			this.radioWarehouse.DrawIndicator = true;
@@ -107,7 +107,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
@@ -122,11 +122,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.radioAll.Toggled += new global::System.EventHandler(this.OnRadioAllToggled);
-			this.radioCash.Toggled += new global::System.EventHandler(this.OnRadioCashToggled);
-			this.radioWarehouse.Toggled += new global::System.EventHandler(this.OnRadioWarehouseToggled);
-			this.referenceWarehouse.Changed += new global::System.EventHandler(this.OnReferenceWarehouseChanged);
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }
