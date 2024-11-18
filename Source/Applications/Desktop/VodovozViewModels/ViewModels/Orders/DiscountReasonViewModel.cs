@@ -26,12 +26,14 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private ILifetimeScope _lifetimeScope;
 		private Nomenclature _selectedNomenclature;
 		private ProductGroup _selectedProductGroup;
-		
+		private ProductGroupsJournalViewModel _selectProductGroupJournalViewModel;
+
 		private DelegateCommand _addNomenclatureCommand;
 		private DelegateCommand _addProductGroupCommand;
 		private DelegateCommand _removeNomenclatureCommand;
 		private DelegateCommand _removeProductGroupCommand;
 		private DelegateCommand<bool> _updateSelectedCategoriesCommand;
+
 		
 		public DiscountReasonViewModel(
 			ILifetimeScope lifetimeScope,
@@ -77,7 +79,24 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				}
 			} 
 		}
-		
+
+		public ProductGroupsJournalViewModel SelectProductGroupJournalViewModel
+		{
+			get => _selectProductGroupJournalViewModel;
+			set
+			{
+				if(_selectProductGroupJournalViewModel != null)
+				{
+					_selectProductGroupJournalViewModel.OnSelectResult -= OnProductGroupSelected;
+				}
+
+				SetField(ref _selectProductGroupJournalViewModel, value);
+
+				_selectProductGroupJournalViewModel.OnSelectResult += OnProductGroupSelected;
+			}
+		}
+
+
 		public IList<SelectableNomenclatureCategoryNode> SelectableNomenclatureCategoryNodes { get; private set; }
 
 		public DelegateCommand AddNomenclatureCommand => _addNomenclatureCommand ?? (_addNomenclatureCommand = new DelegateCommand(
@@ -124,8 +143,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 						vm =>
 						{
 							vm.SelectionMode = JournalSelectionMode.Single;
-							vm.OnSelectResult += OnProductGroupSelected;
 						});
+
+					SelectProductGroupJournalViewModel = selectGroupPage.ViewModel;
 				}
 			)
 		);
@@ -215,6 +235,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public override void Dispose()
 		{
 			_lifetimeScope = null;
+
+			if(_selectProductGroupJournalViewModel != null)
+			{
+				_selectProductGroupJournalViewModel.OnSelectResult -= OnProductGroupSelected;
+			}
+
 			base.Dispose();
 		}
 	}
