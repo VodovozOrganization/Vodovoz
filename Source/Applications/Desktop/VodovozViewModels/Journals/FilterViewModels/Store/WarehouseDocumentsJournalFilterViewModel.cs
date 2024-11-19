@@ -9,6 +9,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Store;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -36,6 +37,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private Employee _driver;
+		private Employee _employee;
+		private Car _car;
 		private bool _canChangeRestrictedDocumentType = true;
 
 		public WarehouseDocumentsJournalFilterViewModel(
@@ -154,6 +157,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		{
 			get => _driver;
 			set => UpdateFilterField(ref _driver, value);
+		}
+
+		public Employee Employee
+		{
+			get => _employee;
+			set => UpdateFilterField(ref _employee, value);
+		}
+
+		public Car Car
+		{
+			get => _car;
+			set => UpdateFilterField(ref _car, value);
 		}
 
 		public bool CanChangeRestrictedDocumentType
