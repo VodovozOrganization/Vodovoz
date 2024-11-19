@@ -49,15 +49,6 @@ namespace Vodovoz.ViewModel
 			var queryRoutes = UoW.Session.QueryOver(() => routeListAlias)
 				.JoinAlias(rl => rl.Driver, () => employeeAlias)
 				.JoinAlias(rl => rl.Car, () => carAlias)
-				.Left.JoinAlias(rl => rl.Addresses, () => routeListAddressAlias)
-				.JoinEntityAlias(
-					() => orderItemsAlias,
-					() => orderItemsAlias.Order.Id == routeListAddressAlias.Order.Id,
-					JoinType.LeftOuterJoin)
-				.JoinEntityAlias(
-					() => orderEquipmentAlias,
-					() => orderEquipmentAlias.Order.Id == routeListAddressAlias.Order.Id,
-					JoinType.LeftOuterJoin)
 				.Where(r => routeListAlias.Status == RouteListStatus.OnClosing 
 						 || routeListAlias.Status == RouteListStatus.MileageCheck
 						 || routeListAlias.Status == RouteListStatus.Delivered);
@@ -77,7 +68,17 @@ namespace Vodovoz.ViewModel
 
 			if(Filter.Warehouse != null)
 			{
-				queryRoutes.Where(() => orderItemsAlias.Id != null || orderEquipmentAlias.Id != null);
+				queryRoutes
+					.Left.JoinAlias(rl => rl.Addresses, () => routeListAddressAlias)
+					.JoinEntityAlias(
+						() => orderItemsAlias,
+						() => orderItemsAlias.Order.Id == routeListAddressAlias.Order.Id,
+						JoinType.LeftOuterJoin)
+					.JoinEntityAlias(
+						() => orderEquipmentAlias,
+						() => orderEquipmentAlias.Order.Id == routeListAddressAlias.Order.Id,
+						JoinType.LeftOuterJoin)
+					.Where(() => orderItemsAlias.Id != null || orderEquipmentAlias.Id != null);
 			}
 
 			if(Filter.RestrictWithoutUnload == true) {
