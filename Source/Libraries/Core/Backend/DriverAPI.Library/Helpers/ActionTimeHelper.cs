@@ -67,7 +67,7 @@ namespace DriverAPI.Library.Helpers
 					actionTime,
 					recievedTime);
 
-				return Result.Failure(Errors.DateTimeCheckErrors.TooEarly);
+				return Errors.DateTimeCheckErrors.TooEarly;
 			}
 
 			if(recievedTime > actionTime.AddMinutes(_timeout))
@@ -76,7 +76,7 @@ namespace DriverAPI.Library.Helpers
 					actionTime,
 					recievedTime);
 
-				return Result.Failure(Errors.DateTimeCheckErrors.TooLate);
+				return Errors.DateTimeCheckErrors.TooLate;
 			}
 
 			return Result.Success();
