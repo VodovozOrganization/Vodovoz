@@ -257,7 +257,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.IncomingInvoice)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null || FilterViewModel.Car != null)
 			{
 				query.Where(() => invoiceAlias.Id == -1);
 			}
@@ -329,7 +329,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => waterAlias.Product, () => productAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.IncomingWater)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null || FilterViewModel.Car != null)
 			{
 				query.Where(() => waterAlias.Id == -1);
 			}
@@ -413,7 +413,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => movementAlias.LastEditor, () => lastEditorAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.MovementDocument)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null || FilterViewModel.Car != null)
 			{
 				query.Where(() => movementAlias.Id == -1);
 			}
@@ -526,7 +526,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => writeOffAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.WriteoffDocument)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null || FilterViewModel.Car != null)
 			{
 				query.Where(() => writeOffAlias.Id == -1);
 			}
@@ -592,7 +592,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => inventoryAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.InventoryDocument)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null || FilterViewModel.Car != null)
 			{
 				query.Where(() => inventoryAlias.Id == -1);
 			}
@@ -654,7 +654,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => shiftchangeAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.ShiftChangeDocument)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null || FilterViewModel.Car != null)
 			{
 				query.Where(() => shiftchangeAlias.Id == -1);
 			}
@@ -717,7 +717,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => regradingOfGoodsAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.RegradingOfGoodsDocument)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null || FilterViewModel.Car != null)
 			{
 				query.Where(() => regradingOfGoodsAlias.Id == -1);
 			}
@@ -781,7 +781,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => selfDeliveryAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.SelfDeliveryDocument)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null || FilterViewModel.Car != null)
 			{
 				query.Where(() => selfDeliveryAlias.Id == -1);
 			}
@@ -879,6 +879,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
 			}
 
+			if(FilterViewModel.Car != null)
+			{
+				query.Where(() => routeListAlias.Car.Id == FilterViewModel.Car.Id);
+			}
+
 			query.Where(GetSearchCriterion(
 				() => loadCarAlias.Id,
 				() => carModelAlias.Name,
@@ -962,6 +967,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
 			}
 
+			if(FilterViewModel.Car != null)
+			{
+				query.Where(() => routeListAlias.Car.Id == FilterViewModel.Car.Id);
+			}
+
 			query.Where(GetSearchCriterion(
 				() => unloadCarAlias.Id,
 				() => carModelAlias.Name,
@@ -1017,7 +1027,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			if(FilterViewModel.DocumentType != null
 				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalMovement
-				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalGiveout)
+				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalGiveout
+				|| FilterViewModel.Car != null)
 			{
 				query.Where(() => terminalGiveoutAlias.Id == -1);
 			}
@@ -1087,7 +1098,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			if(FilterViewModel.DocumentType != null
 				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalMovement
-				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalReturn)
+				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalReturn
+				|| FilterViewModel.Car != null)
 			{
 				query.Where(() => terminalReturnAlias.Id == -1);
 			}
