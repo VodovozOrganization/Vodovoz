@@ -3,6 +3,7 @@ using CustomerAppsApi.Library.Dto.Counterparties;
 using QS.Utilities.Numeric;
 using System;
 using System.Text;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Counterparty;
 

@@ -15,6 +15,7 @@ using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ReportsParameters.Store
 {

@@ -2435,6 +2435,10 @@
       <Project>{2c01f582-c2ac-4785-9934-e32ae57645d2}</Project>
       <Name>Vodovoz.Core.Data.NHibernate</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">
+      <Project>{ec987b0b-d857-4ec5-85a8-f8821363698f}</Project>
+      <Name>Vodovoz.Core.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
       <Project>{67F08744-55FB-4169-809E-82F7424775F4}</Project>
       <Name>Vodovoz.Core.Domain</Name>

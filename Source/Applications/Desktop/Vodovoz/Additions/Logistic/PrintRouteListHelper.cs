@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
@@ -10,6 +10,8 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
+using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;

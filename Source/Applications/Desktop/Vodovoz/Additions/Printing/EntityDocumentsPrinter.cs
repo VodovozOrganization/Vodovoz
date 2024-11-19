@@ -10,6 +10,7 @@ using QS.Extensions.Observable.Collections.List;
 using QS.Print;
 using QSReport;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;

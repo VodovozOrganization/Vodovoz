@@ -1096,6 +1096,10 @@
       <Project>{5D521F22-C232-438D-B547-5D6486754737}</Project>
       <Name>Vodovoz.Core.Application</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">
+      <Project>{ec987b0b-d857-4ec5-85a8-f8821363698f}</Project>
+      <Name>Vodovoz.Core.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
       <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
       <Name>Vodovoz.Core.Domain</Name>

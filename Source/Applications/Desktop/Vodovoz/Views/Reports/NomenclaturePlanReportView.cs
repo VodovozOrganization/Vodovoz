@@ -6,6 +6,7 @@ using QS.Utilities;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Reports;

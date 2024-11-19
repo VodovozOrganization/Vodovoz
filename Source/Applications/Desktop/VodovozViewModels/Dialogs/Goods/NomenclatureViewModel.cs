@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
