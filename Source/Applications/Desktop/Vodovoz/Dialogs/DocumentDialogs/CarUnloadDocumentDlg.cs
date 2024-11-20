@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Navigation;
@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Additions;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;

@@ -5,6 +5,7 @@ using System.IO;
 using Autofac;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;

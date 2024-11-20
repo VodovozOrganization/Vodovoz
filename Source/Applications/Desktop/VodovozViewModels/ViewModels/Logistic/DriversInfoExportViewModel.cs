@@ -21,6 +21,7 @@ using QS.Utilities.Enums;
 using QS.Utilities.Text;
 using QS.ViewModels;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;

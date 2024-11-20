@@ -1,4 +1,3 @@
-﻿using MassTransit;
 using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
@@ -12,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
