@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				let nextCalibrationDate = (
 					from nextCarEvent in UoW.Session.Query<CarEvent>()
 					where
-						nextCarEvent.Car.CarModel.Id == carEvent.Car.CarModel.Id
+						nextCarEvent.Car.Id == carEvent.Car.Id
 						&& nextCarEvent.CreateDate >= StartDate
 						&& nextCarEvent.CreateDate <= EndDate
 						&& nextCarEvent.CreateDate > carEvent.CreateDate
@@ -170,8 +170,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				select new AverageFlowDiscrepanciesReportRow
 				{
 					CalibrationDate = carEvent.CreateDate,
-					ActualBalance = carEvent.ActualFuelBalance,
-					CurrentBalance = carEvent.CurrentFuelBalance,
+					ActualBalance = carEvent.ActualFuelBalance ?? 0,
+					CurrentBalance = carEvent.ActualFuelBalance ?? 0,
 					Car = carEvent.Car.RegistrationNumber,
 					ConfirmedDistance = confirmedDistance,
 					Consumption100KmPlan = carFuelConsumption,
@@ -205,12 +205,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 
 				for(int i = 0; i < row.Value.Count - 1; i++)
 				{
-					row.Value[i].ActualBalance = row.Value[i + 1].ActualBalance;
 					row.Value[i].ConsumptionFact =
-						(row.Value[i].CurrentBalance ?? 0)
-						- (row.Value[i + 1].ActualBalance ?? 0)
-						+ (row.Value[i].LitersOperations ?? 0)
-						+ (row.Value[i].NextCalibrationFuelOperation ?? 0);
+						(row.Value[i].ConsumptionPlan??0)
+						- (row.Value[i].NextCalibrationFuelOperation ?? 0);
+
+					row.Value[i].ActualBalance = row.Value[i + 1].ActualBalance;
 				}
 
 				row.Value.Remove(row.Value.Last());

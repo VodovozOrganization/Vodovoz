@@ -195,7 +195,7 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _currentFuelBalance, value);
 		}
 
-		[Display(Name = "Разность километража")]
+		[Display(Name = "Разность литража")]
 		public virtual decimal? SubstractionFuelBalance
 		{
 			get => _substractionFuelBalance;

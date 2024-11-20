@@ -34,8 +34,8 @@ namespace Vodovoz.Views.Reports
 
 			ytreeviewReport.ColumnsConfig = FluentColumnsConfig<AverageFlowDiscrepanciesReportRow>.Create()
 				.AddColumn("Авто").AddTextRenderer(ev => ev.Car)
-				.AddColumn("Дата калибровки").AddDateRenderer(ev => ev.CalibrationDate)
-				.AddColumn("Дата след.\nкалибровки").AddDateRenderer(ev => ev.NextCalibrationDate)
+				.AddColumn("Начальная калибровка").AddDateRenderer(ev => ev.CalibrationDate)
+				.AddColumn("Конечная калибровка").AddDateRenderer(ev => ev.NextCalibrationDate)
 				.AddColumn("Начальный баланс").AddNumericRenderer(ev => ev.CurrentBalance).Digits(2)
 				.AddColumn("Актуальный баланс").AddNumericRenderer(ev => ev.ActualBalance).Digits(2)
 				.AddColumn("Сумма км").AddNumericRenderer(ev => ev.ConfirmedDistance).Digits(2)
