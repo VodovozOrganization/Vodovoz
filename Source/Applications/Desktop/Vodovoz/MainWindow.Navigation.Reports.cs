@@ -68,6 +68,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.Cars.ExploitationReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanciesReport;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
@@ -1370,6 +1371,16 @@ public partial class MainWindow
 	protected void OnAction89Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CarIsNotAtLineReportParametersViewModel>(null);
+	}
+
+	/// <summary>
+	/// Отчет по расходу топлива
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionAverageFlowDiscrepancyReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<AverageFlowDiscrepanciesReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Транспорт

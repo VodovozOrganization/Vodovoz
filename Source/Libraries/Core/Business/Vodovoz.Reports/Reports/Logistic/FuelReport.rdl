@@ -812,7 +812,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Fuel">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>300</Timeout>
         <CommandText>#Получаем данные по операциям с топливом в ДВ
@@ -835,7 +835,7 @@ WITH all_fuel_operations as
             #Выбираем полученное топливо
             (SELECT
                 DATE(fuel_operations.date) AS date,
-                IFNULL(route_lists.id, 'Коррек-ка') AS route_list_id,
+                IFNULL(route_lists.id, IF(car_events.id IS NULL,'Коррек-ка','Калибровка баланса')) AS route_list_id,
                 route_lists.date AS route_list_date,
                 CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
                 0 as distance, # Расстояние берется из таблицы с потраченным топливом
@@ -851,7 +851,8 @@ WITH all_fuel_operations as
                 LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
                 LEFT JOIN route_lists ON fuel_documents.route_list_id = route_lists.id
                 LEFT JOIN employees ON IFNULL(fuel_operations.driver_id, route_lists.driver_id) = employees.id
-                LEFT JOIN cars ON IFNULL(fuel_operations.car_id, route_lists.car_id) = cars.id 
+                LEFT JOIN cars ON IFNULL(fuel_operations.car_id, route_lists.car_id) = cars.id
+                LEFT JOIN car_events ON car_events.calibration_fuel_operation_id = fuel_operations.id
             WHERE
                 DATE(fuel_operations.date) &gt;= @start_date
                 AND DATE(fuel_operations.date) &lt;= @end_date
@@ -864,7 +865,7 @@ WITH all_fuel_operations as
             #Выбираем потраченное топливо
             (SELECT
                 DATE(fuel_operations.date) AS date,
-                IFNULL(route_lists.id, IF(fuel_operations.is_fine,'Штраф','Коррек-ка')) AS route_list_id,
+                IFNULL(route_lists.id, IF(fuel_operations.is_fine,'Штраф', IF(car_events.id IS NULL,'Коррек-ка','Калибровка баланса'))) AS route_list_id,
                 route_lists.date AS route_list_date,
                 CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
                 IF(route_lists.confirmed_distance = 0 OR route_lists.confirmed_distance is null, route_lists.actual_distance , route_lists.confirmed_distance) AS distance,
@@ -881,6 +882,7 @@ WITH all_fuel_operations as
                 LEFT JOIN route_lists ON fuel_operations.id = route_lists.fuel_outlayed_operation_id
                 LEFT JOIN employees ON IFNULL(fuel_operations.driver_id, route_lists.driver_id) = employees.id
                 LEFT JOIN cars ON IFNULL(fuel_operations.car_id, route_lists.car_id) = cars.id 
+                LEFT JOIN car_events ON car_events.calibration_fuel_operation_id = fuel_operations.id
             WHERE
                 DATE(fuel_operations.date) &gt;= @start_date
                 AND DATE(fuel_operations.date) &lt;= @end_date
@@ -1096,7 +1098,7 @@ SELECT * FROM route_lists_transactions_balance
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
