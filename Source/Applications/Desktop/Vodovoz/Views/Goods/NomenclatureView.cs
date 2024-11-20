@@ -4,7 +4,6 @@ using Gtk;
 using NLog;
 using QS.BusinessCommon.Domain;
 using QS.Navigation;
-using QS.Project.Dialogs.GtkUI;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using QSOrmProject;
@@ -18,9 +17,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Representations.ProductGroups;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Nodes;
@@ -285,16 +282,8 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			yentryProductGroup.JournalButtons = Buttons.Add | Buttons.Edit;
-			yentryProductGroup.RepresentationModel = new ProductGroupVM(ViewModel.UoW, new ProductGroupFilterViewModel
-			{
-				HidenByDefault = false,
-				HideArchive = true
-			});
-			yentryProductGroup.Binding
-				.AddBinding(ViewModel.Entity, e => e.ProductGroup, w => w.Subject)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
+			entityentryProductGroup.ViewModel = ViewModel.ProductGroupEntityEntryViewModel;
+			entityentryProductGroup.Sensitive = ViewModel.CanEdit;
 
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
 			referenceUnit.Binding
