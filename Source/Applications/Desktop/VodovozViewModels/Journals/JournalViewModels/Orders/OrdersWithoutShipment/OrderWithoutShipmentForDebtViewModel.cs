@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using QS.Commands;
@@ -13,6 +13,7 @@ using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;

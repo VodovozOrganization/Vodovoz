@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;

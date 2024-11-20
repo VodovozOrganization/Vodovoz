@@ -21,6 +21,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;

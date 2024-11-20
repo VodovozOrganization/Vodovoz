@@ -2,6 +2,7 @@
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Goods;
 

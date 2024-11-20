@@ -15,6 +15,7 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.Utilities.Numeric;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;

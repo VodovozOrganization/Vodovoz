@@ -8,6 +8,15 @@ namespace Vodovoz.Permissions
 	public static partial class ProductGroup
 	{
 		/// <summary>
+		/// Изменение настроек групп для онлайн магазина
+		/// </summary>
+		[Display(
+			Name = "Изменение настроек групп для онлайн магазина",
+			Description = "Пользователь может изменять группы товаров влияющие на выгрузку в интернет магазин.")]
+		public static string CanEditOnlineStoreParametersInProductGroups =>
+			"can_edit_online_store";
+
+		/// <summary>
 		/// Доступ к настройке "Требует доп. контроля водителя" в группе товаров
 		/// </summary>
 		[Display(

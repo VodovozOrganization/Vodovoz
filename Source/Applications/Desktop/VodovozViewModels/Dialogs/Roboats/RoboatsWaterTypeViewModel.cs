@@ -6,6 +6,7 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.ViewModels.Dialogs.Goods;
@@ -44,7 +45,7 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 				.ForProperty(rwt => rwt.Nomenclature)
 				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
 				{
-					filter.RestrictCategory = Domain.Goods.NomenclatureCategory.water;
+					filter.RestrictCategory = NomenclatureCategory.water;
 				})
 				.UseViewModelDialog<NomenclatureViewModel>()
 				.Finish();

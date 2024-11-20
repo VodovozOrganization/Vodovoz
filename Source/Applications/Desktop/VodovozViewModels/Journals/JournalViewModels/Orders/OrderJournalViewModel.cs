@@ -43,6 +43,8 @@ using Vodovoz.ViewModels.ViewModels.Reports.Orders;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using QS.Deletion;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.JournalViewModels
