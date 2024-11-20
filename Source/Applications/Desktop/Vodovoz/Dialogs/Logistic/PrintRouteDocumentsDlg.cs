@@ -17,6 +17,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Printing;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Sale;

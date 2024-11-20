@@ -2,6 +2,7 @@
 using QS.Widgets;
 using System;
 using System.ComponentModel;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -967,7 +968,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
 						.SelectSum(() => warehouseBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
-					.Where(Restrictions.Gt(Projections.Sum(() => employeeBulkOperationAlias.Amount), 0))
+					.Where(Restrictions.Gt(Projections.Sum(() => warehouseBulkOperationAlias.Amount), 0))
 					.OrderBy(() => nomAlias.Id).Asc
 					.ThenBy(() => warehouseBulkOperationAlias.Warehouse.Id).Asc
 					.TransformUsing(Transformers.AliasToBean<BalanceBean>());

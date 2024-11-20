@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.ViewModels.Counterparty

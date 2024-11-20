@@ -1,4 +1,4 @@
-using QS.ViewModels.Widgets;
+﻿using QS.ViewModels.Widgets;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -55,6 +55,16 @@ namespace Vodovoz.ViewModels.Factories
 				new GroupingNode { Name = "Событие", GroupType = GroupingType.DriverWarehouseEvent },
 			};
 
+		private static readonly IEnumerable<GroupingNode> _defaultEdoControlReportGroupingNodes =
+			new[]
+			{
+				new GroupingNode { Name = "Дата доставки", GroupType = GroupingType.DeliveryDate },
+				new GroupingNode { Name = "Контрагент", GroupType = GroupingType.Counterparty },
+				new GroupingNode { Name = "Статус документооборота", GroupType = GroupingType.EdoDocFlowStatus },
+				new GroupingNode { Name = "Тип доставки", GroupType = GroupingType.OrderDeliveryType },
+				new GroupingNode { Name = "Тип переноса заказа", GroupType = GroupingType.OrderTransferType },
+			};
+
 		public LeftRightListViewModel<GroupingNode> CreateSalesReportGroupingsConstructor()
 		{
 			LeftRightListViewModel<GroupingNode> leftRightListViewModel = new LeftRightListViewModel<GroupingNode>
@@ -100,6 +110,20 @@ namespace Vodovoz.ViewModels.Factories
 				leftRightListViewModel.LeftItems.Where(x => x.Name != "Событие").ToList();
 			
 			leftRightListViewModel.MoveRightCommand.Execute();
+
+			return leftRightListViewModel;
+		}
+
+		public LeftRightListViewModel<GroupingNode> CreateEdoControlReportGroupingsConstructor()
+		{
+			LeftRightListViewModel<GroupingNode> leftRightListViewModel = new LeftRightListViewModel<GroupingNode>
+			{
+				LeftLabel = "Доступные группировки",
+				RightLabel = "Выбранные группировки (макс. 3)",
+				RightItemsMaximum = 3
+			};
+
+			leftRightListViewModel.SetLeftItems(_defaultEdoControlReportGroupingNodes, x => x.Name);
 
 			return leftRightListViewModel;
 		}

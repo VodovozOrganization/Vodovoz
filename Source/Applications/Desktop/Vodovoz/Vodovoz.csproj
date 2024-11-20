@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -473,7 +473,6 @@
     <Compile Include="Filters\GtkViews\PremiumJournalFilterView.cs" />
     <Compile Include="Filters\ViewModels\DebtorsTaskStatus.cs" />
     <Compile Include="Filters\ViewModels\RouteListTrackFilterViewModel.cs" />
-    <Compile Include="Filters\ViewModels\ProductGroupFilterViewModel.cs" />
     <Compile Include="Filters\Views\PaymentsJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CastomMessageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PremiumJournalFilterView.cs" />
@@ -581,7 +580,6 @@
     <Compile Include="JournalColumnsConfigs\PhoneTypeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\PremiumJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\PremiumTemplateJournalRegistrar.cs" />
-    <Compile Include="JournalColumnsConfigs\ProductGroupJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\PromotionalSetsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegisteredRMJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RequestsToSuppliersJournalRegistrar.cs" />
@@ -662,11 +660,6 @@
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRateFilterNode.cs" />
     <Compile Include="Representations\ContractsVMNode.cs" />
-    <Compile Include="Representations\ProductGroups\INameNode.cs" />
-    <Compile Include="Representations\ProductGroups\NomenclatureGroupNode.cs" />
-    <Compile Include="Representations\ProductGroups\NomenclatureNode.cs" />
-    <Compile Include="Representations\ProductGroups\ProductGroupVM.cs" />
-    <Compile Include="Representations\ProductGroups\ProductGroupVMNode.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
@@ -1058,8 +1051,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.EquipmentBalance.cs" />
     <Compile Include="ReportsParameters\CardPaymentsOrdersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CardPaymentsOrdersReport.cs" />
-    <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.ProductGroupDlg.cs" />
     <Compile Include="ViewWidgets\UndeliveredOrderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.UndeliveredOrderView.cs" />
     <Compile Include="SidePanel\InfoViews\UndeliveredOrdersPanelView.cs" />
@@ -1456,10 +1447,6 @@
     <Compile Include="ViewWidgets\Mango\EmployeePhone.cs" />
     <Compile Include="SidePanel\InfoViews\SmsSendPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.SmsSendPanelView.cs" />
-    <Compile Include="Filters\GtkViews\ProductGroupFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ProductGroupFilterView.cs" />
-    <Compile Include="JournalViewers\ProductGroupView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.ProductGroupView.cs" />
     <Compile Include="Views\Warehouse\IncomingInvoiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.IncomingInvoiceView.cs" />
     <Compile Include="Views\Goods\NomenclatureView.cs" />
@@ -1602,8 +1589,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Suppliers.WarehousesBalanceSummaryView.cs" />
     <Compile Include="Views\Goods\ProductGroupView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.ProductGroupView.cs" />
-    <Compile Include="Filters\GtkViews\ProductGroupJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ProductGroupJournalFilterView.cs" />
     <Compile Include="Views\Reports\NomenclaturePlanReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.NomenclaturePlanReportView.cs" />
     <Compile Include="Views\Orders\UndeliveryTransferAbsenceReasonView.cs" />
@@ -2058,6 +2043,10 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ServiceDistrictsSetJournalFilterView.cs" />
     <Compile Include="Views\Orders\ServiceDistrictsSetActivationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ServiceDistrictsSetActivationView.cs" />
+    <Compile Include="Views\Reports\EdoControlReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.EdoControlReportView.cs" />
+    <Compile Include="Filters\GtkViews\ProductGroupsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ProductGroupsJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2432,6 +2421,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj">
       <Project>{2c01f582-c2ac-4785-9934-e32ae57645d2}</Project>
       <Name>Vodovoz.Core.Data.NHibernate</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">
+      <Project>{ec987b0b-d857-4ec5-85a8-f8821363698f}</Project>
+      <Name>Vodovoz.Core.Data</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
       <Project>{67F08744-55FB-4169-809E-82F7424775F4}</Project>
