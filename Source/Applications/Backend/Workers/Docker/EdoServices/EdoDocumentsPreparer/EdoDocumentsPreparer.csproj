@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <UserSecretsId>dotnet-EdoDocumentsPreparer-E1E9725A-C330-4303-B96B-2586C4FD2743</UserSecretsId>
+		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
