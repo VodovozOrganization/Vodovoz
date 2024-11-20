@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -47,6 +47,11 @@
     <Compile Include="Accounting\Payments\PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel.cs" />
     <Compile Include="Accounting\Payments\PaymentWriteOffViewModel.cs" />
     <Compile Include="BaseParameters\BaseParametersViewModel.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.RowsCreating.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.ExportToExcel.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportOrderData.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportRow.cs" />
     <Compile Include="Cash\AdvanceReportViewModel.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentNode.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentsFilterViewModel.cs" />
@@ -77,6 +82,10 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Goods\ProductGroups\ProductGroupsJournalFilterViewModel.cs" />
+    <Compile Include="Goods\ProductGroups\ProductGroupsJournalNode.cs" />
+    <Compile Include="Goods\ProductGroups\ProductGroupsJournalViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\CarEventTypeFilterViewModel.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.AddressDataNode.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.ExportToExcel.cs" />
@@ -90,6 +99,7 @@
     <Compile Include="ReportsParameters\Bottles\Drivers.cs" />
     <Compile Include="ReportsParameters\Bottles\PercentNode.cs" />
     <Compile Include="ReportsParameters\Sales\IncomeReportType.cs" />
+    <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportViewModel.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsList.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.ComplaintsSummary.cs" />
     <Compile Include="Reports\OKS\DailyReport\OksDailyReport.Discounts.cs" />
@@ -494,7 +504,6 @@
     <Compile Include="Infrastructure\Print\IEntityDocumentsPrinterFactory.cs" />
     <Compile Include="Dialogs\Orders\DocumentsPrinterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\Goods\ProductGroupJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DeliveryScheduleFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\FastDeliveryAvailabilityFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\TrackPointJournalFilterViewModel.cs" />
@@ -514,8 +523,6 @@
     <Compile Include="Journals\FilterViewModels\Roboats\RoboatsCallsFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Security\RegisteredRMJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\MovementWagonJournalFilterViewModel.cs" />
-    <Compile Include="Journals\JournalFactories\IProductGroupJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\ProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\RoboatsJournalsFactory.cs" />
     <Compile Include="Journals\JournalFactories\BulkEmailEventReasonJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\DistrictJournalFactory.cs" />
@@ -553,7 +560,6 @@
     <Compile Include="Journals\JournalNodes\ExpenseCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\FinancialDistrictsSetsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\EquipmentKindJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\Goods\ProductGroupJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Flyers\FlyersJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonJournalNode.cs" />
@@ -603,7 +609,6 @@
     <Compile Include="Journals\JournalViewModels\Flyers\FlyersJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\EquipmentKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\NomenclaturesJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Goods\ProductGroupJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\RoboatsWaterTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\RoboatsWaterNomenclatureJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DeliveryScheduleJournalViewModel.cs" />
@@ -808,6 +813,9 @@
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliverySalesReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FilterTypeChangedArgs.cs" />
     <Compile Include="ReportsParameters\Logistics\CarOwnershipReport\CarOwnershipReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReport.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Logistics\CompletedDriversWarehousesEventsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportNode.cs" />
@@ -1089,6 +1097,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj">
       <Project>{5D521F22-C232-438D-B547-5D6486754737}</Project>
       <Name>Vodovoz.Core.Application</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">
+      <Project>{ec987b0b-d857-4ec5-85a8-f8821363698f}</Project>
+      <Name>Vodovoz.Core.Data</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
       <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>

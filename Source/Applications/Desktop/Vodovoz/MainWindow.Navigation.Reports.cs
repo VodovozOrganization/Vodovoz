@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -32,6 +32,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Reports;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl;
 using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -67,6 +68,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.Cars.ExploitationReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanciesReport;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
@@ -1114,6 +1116,16 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<EdoUpdReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
+	/// <summary>
+	/// Контроль за ЭДО
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEdoControlReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoControlReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
 	#endregion Бухгалтерия
 
 	#region Касса
@@ -1359,6 +1371,16 @@ public partial class MainWindow
 	protected void OnAction89Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CarIsNotAtLineReportParametersViewModel>(null);
+	}
+
+	/// <summary>
+	/// Отчет по расходу топлива
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionAverageFlowDiscrepancyReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<AverageFlowDiscrepanciesReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Транспорт
