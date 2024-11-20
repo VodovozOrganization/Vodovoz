@@ -2267,7 +2267,10 @@ namespace Vodovoz.Domain.Orders
 		/// <returns><c>true</c>, если можно добавить промонабор,
 		/// <c>false</c> если нельзя.</returns>
 		/// <param name="proSet">Промонабор (промонабор)</param>
-		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
+		public virtual bool CanAddPromotionalSet(
+			PromotionalSet proSet,
+			IFreeLoaderChecker freeLoaderChecker,
+			IPromotionalSetRepository promotionalSetRepository)
 		{
 			if(PromotionalSets.Any(x => x.PromotionalSetForNewClients && proSet.PromotionalSetForNewClients))
 			{
@@ -2282,7 +2285,8 @@ namespace Vodovoz.Domain.Orders
 				return true;
 			}
 
-			if(proSet.PromotionalSetForNewClients && HasUsedPromoForNewClients(promotionalSetRepository))
+			if(proSet.PromotionalSetForNewClients
+				&& freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(UoW, SelfDelivery, Client, DeliveryPoint))
 			{
 				var message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
@@ -2309,19 +2313,6 @@ namespace Vodovoz.Domain.Orders
 			}
 			sb.AppendLine($"Вы уверены, что хотите добавить \"{proSet.Title}\"");
 			return InteractiveService.Question(sb.ToString());
-		}
-
-		/// <summary>
-		/// Проверка на использование промонабора в заказе на адрес
-		/// </summary>
-		/// <returns><c>true</c>, если на адрес доставляли промонабор для новых клиентов,
-		/// <c>false</c> если нет</returns>
-		public virtual bool HasUsedPromoForNewClients(IPromotionalSetRepository promotionalSetRepository)
-		{
-			return !SelfDelivery
-				&& Client.PersonType == PersonType.natural
-				&& ((DeliveryPoint.RoomType == RoomType.Office) || (DeliveryPoint.RoomType == RoomType.Store))
-				&& promotionalSetRepository.AddressHasAlreadyBeenUsedForPromoForNewClients(UoW, deliveryPoint);
 		}
 
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)

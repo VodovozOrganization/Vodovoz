@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Errors;
@@ -18,6 +20,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IClientDeliveryPointsChecker _clientDeliveryPointsChecker;
 		private readonly IDiscountController _discountController;
+		private readonly IFreeLoaderChecker _freeLoaderChecker;
 		private OnlineOrder _onlineOrder;
 
 		public OrderFromOnlineOrderValidator(
@@ -25,16 +28,18 @@ namespace Vodovoz.Application.Orders.Services
 			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings,
 			IClientDeliveryPointsChecker clientDeliveryPointsChecker,
-			IDiscountController discountController)
+			IDiscountController discountController,
+			IFreeLoaderChecker freeLoaderChecker)
 		{
 			_priceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 			_deliveryPriceGetter = deliveryPriceGetter ?? throw new ArgumentNullException(nameof(deliveryPriceGetter));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_clientDeliveryPointsChecker = clientDeliveryPointsChecker ?? throw new ArgumentNullException(nameof(clientDeliveryPointsChecker));
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
+			_freeLoaderChecker = freeLoaderChecker ?? throw new ArgumentNullException(nameof(freeLoaderChecker));
 		}
 
-		public Result ValidateOnlineOrder(OnlineOrder onlineOrder)
+		public Result ValidateOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder)
 		{
 			_onlineOrder = onlineOrder;
 			var validationResults = new List<Error>();
@@ -92,26 +97,28 @@ namespace Vodovoz.Application.Orders.Services
 				validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDeliveryDate);
 			}
 
-			ValidateOnlineOrderItems(validationResults);
+			ValidateOnlineOrderItems(uow, validationResults);
 			
 			return !validationResults.Any() ? Result.Success() : Result.Failure(validationResults);
 		}
 
-		private void ValidateOnlineOrderItems(ICollection<Error> errors)
+		private void ValidateOnlineOrderItems(IUnitOfWork uow, ICollection<Error> errors)
 		{
 			var archivedNomenclatures = new Dictionary<int, bool>();
-			ValidatePromoSet(archivedNomenclatures, errors);
+			ValidatePromoSet(uow, archivedNomenclatures, errors);
 			ValidateOtherItemsWithoutDeliveries(archivedNomenclatures, errors);
 			ValidatePaidDelivery(errors);
 			ValidateFastDelivery(errors);
 			ValidateOnlineRentPackages(errors);
 		}
 
-		private void ValidatePromoSet(IDictionary<int, bool> archivedNomenclatures, ICollection<Error> errors)
+		private void ValidatePromoSet(IUnitOfWork uow, IDictionary<int, bool> archivedNomenclatures, ICollection<Error> errors)
 		{
 			var onlineOrderPromoSets = _onlineOrder.OnlineOrderItems
 				.Where(x => x.PromoSet != null)
 				.ToLookup(x => x.PromoSetId);
+
+			CheckFreeLoader(uow, errors);
 			
 			foreach(var onlineOrderItemGroup in onlineOrderPromoSets)
 			{
@@ -142,6 +149,44 @@ namespace Vodovoz.Application.Orders.Services
 						i = 0;
 					}
 				}
+			}
+		}
+
+		private void CheckFreeLoader(IUnitOfWork uow, ICollection<Error> errors)
+		{
+			var hasPromoSetForNewClients =
+				_onlineOrder.OnlineOrderItems
+					.Where(x => x.PromoSet != null)
+					.Select(x => x.PromoSet)
+					.Any(x => x.PromotionalSetForNewClients);
+
+			if(!hasPromoSetForNewClients)
+			{
+				return;
+			}
+
+			if(_freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(
+				uow, _onlineOrder.IsSelfDelivery, _onlineOrder.Counterparty, _onlineOrder.DeliveryPoint))
+			{
+				errors.Add(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
+				return;
+			}
+
+			var phones = new List<Phone>();
+
+			if(_onlineOrder.Counterparty != null)
+			{
+				phones.AddRange(_onlineOrder.Counterparty.Phones);
+			}
+
+			if(_onlineOrder.DeliveryPoint != null)
+			{
+				phones.AddRange(_onlineOrder.DeliveryPoint.Phones);
+			}
+
+			if(_freeLoaderChecker.CheckFreeLoaders(uow, 0, _onlineOrder.DeliveryPoint, phones))
+			{
+				errors.Add(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
 			}
 		}
 
