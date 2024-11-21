@@ -1,4 +1,4 @@
-﻿using NHibernate.Linq;
+using NHibernate.Linq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.CommonEnums;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
