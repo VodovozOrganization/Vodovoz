@@ -13,9 +13,12 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Store;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
 using DocumentTypeEnum = Vodovoz.Domain.Documents.DocumentType;
 
@@ -28,7 +31,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private readonly IGenericRepository<Warehouse> _warehouseRepository;
 		private readonly ViewModelEEVMBuilder<Warehouse> _warehouseEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _driverEEVMBuilder;
-
+		private readonly ViewModelEEVMBuilder<Employee> _employeeEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Car> _carEEVMBuilder;
 		private WarehouseDocumentsJournalViewModel _journal;
 
 		private DocumentType? _documentType;
@@ -46,19 +50,23 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			IUserSettingsService userSettingsService,
 			IGenericRepository<Warehouse> warehouseRepository,
 			ViewModelEEVMBuilder<Warehouse> warehouseEEVMBuilder,
-			ViewModelEEVMBuilder<Employee> driverEEVMBuilder)
+			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
+			ViewModelEEVMBuilder<Employee> employeeEEVMBuilder,
+			ViewModelEEVMBuilder<Car> carEEVMBuilder)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_warehouseEEVMBuilder = warehouseEEVMBuilder ?? throw new ArgumentNullException(nameof(warehouseEEVMBuilder));
 			_driverEEVMBuilder = driverEEVMBuilder ?? throw new ArgumentNullException(nameof(driverEEVMBuilder));
+			_employeeEEVMBuilder = employeeEEVMBuilder ?? throw new ArgumentNullException(nameof(employeeEEVMBuilder));
+			_carEEVMBuilder = carEEVMBuilder ?? throw new ArgumentNullException(nameof(carEEVMBuilder));
 
 			StartDate = DateTime.Today.AddDays(-7);
 			EndDate = DateTime.Today.AddDays(1);
 		}
 
-		public bool CanSelectWarehouse =>
+		public bool IsUserHasAccessNotOnlyToWarehouseAndComplaints =>
 			!_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 			|| _commonServices.UserService.GetCurrentUser().IsAdmin;
 
@@ -66,6 +74,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public IEntityEntryViewModel WarehouseEntityEntryViewModel { get; private set; }
 		public IEntityEntryViewModel DriverEntityEntryViewModel { get; private set; }
+		public IEntityEntryViewModel EmployeeEntityEntryViewModel { get; private set; }
+		public IEntityEntryViewModel CarEntityEntryViewModel { get; private set; }
 		public object[] DocumentTypesNotAllowedToSelect => new object[] { DocumentTypeEnum.DeliveryDocument };
 
 		public WarehouseDocumentsJournalViewModel Journal
@@ -73,46 +83,22 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			get => _journal;
 			set
 			{
+				if(value is null)
+				{
+					throw new InvalidOperationException($"Устанавливаемое значение свойства {nameof(Journal)} не должно быть null");
+				}
+
 				if(_journal != null)
 				{
-					return;
+					throw new InvalidOperationException($"Свойство {nameof(Journal)} уже установлено!");
 				}
 
 				SetField(ref _journal, value);
 
-				var driverEntityEntryViewModel = _driverEEVMBuilder
-					.SetViewModel(value)
-					.SetUnitOfWork(value.UoW)
-					.ForProperty(this, x => x.Driver)
-					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
-					{
-						filter.RestrictCategory = Core.Domain.Employees.EmployeeCategory.driver;
-						filter.Status = Core.Domain.Employees.EmployeeStatus.IsWorking;
-					})
-					.UseViewModelDialog<EmployeeViewModel>()
-					.Finish();
-
-				driverEntityEntryViewModel.CanViewEntity =
-					CanSelectWarehouse
-					&& _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Warehouse)).CanUpdate;
-
-				DriverEntityEntryViewModel = driverEntityEntryViewModel;
-
-				var warehouseEntityEntryViewModel = _warehouseEEVMBuilder
-					.SetViewModel(value)
-					.SetUnitOfWork(value.UoW)
-					.ForProperty(this, x => x.Warehouse)
-					.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
-					{
-					})
-					.UseViewModelDialog<WarehouseViewModel>()
-					.Finish();
-
-				warehouseEntityEntryViewModel.CanViewEntity =
-					_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Employee)).CanUpdate;
-
-				WarehouseEntityEntryViewModel = warehouseEntityEntryViewModel;
-				SetDefaultWarehouse(value.UoW);
+				SetDriverEntityEntryViewModel();
+				SetWarehouseEntityEntryViewModel();
+				SetEmployeeEntityEntryViewModel();
+				SetCarEntityEntryViewModel();
 			}
 		}
 
@@ -177,6 +163,66 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => SetField(ref _canChangeRestrictedDocumentType, value);
 		}
 
+		private void SetDriverEntityEntryViewModel()
+		{
+			if(DriverEntityEntryViewModel != null)
+			{
+				throw new InvalidOperationException($"Свойство {nameof(DriverEntityEntryViewModel)} уже установлено!");
+			}
+
+			if(Journal is null)
+			{
+				throw new InvalidOperationException($"Свойство фильтра {nameof(Journal)} не установлено!");
+			}
+
+			var driverEntityEntryViewModel = _driverEEVMBuilder
+					.SetViewModel(Journal)
+					.SetUnitOfWork(Journal.UoW)
+					.ForProperty(this, x => x.Driver)
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
+					{
+						filter.RestrictCategory = Core.Domain.Employees.EmployeeCategory.driver;
+						filter.Status = Core.Domain.Employees.EmployeeStatus.IsWorking;
+					})
+					.UseViewModelDialog<EmployeeViewModel>()
+					.Finish();
+
+			driverEntityEntryViewModel.CanViewEntity =
+				IsUserHasAccessNotOnlyToWarehouseAndComplaints
+				&& _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Warehouse)).CanUpdate;
+
+			DriverEntityEntryViewModel = driverEntityEntryViewModel;
+		}
+
+		private void SetWarehouseEntityEntryViewModel()
+		{
+			if(WarehouseEntityEntryViewModel != null)
+			{
+				throw new InvalidOperationException($"Свойство {nameof(WarehouseEntityEntryViewModel)} уже установлено!");
+			}
+
+			if(Journal is null)
+			{
+				throw new InvalidOperationException($"Свойство фильтра {nameof(Journal)} не установлено!");
+			}
+
+			var warehouseEntityEntryViewModel = _warehouseEEVMBuilder
+					.SetViewModel(Journal)
+					.SetUnitOfWork(Journal.UoW)
+					.ForProperty(this, x => x.Warehouse)
+					.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
+					{
+					})
+					.UseViewModelDialog<WarehouseViewModel>()
+					.Finish();
+
+			warehouseEntityEntryViewModel.CanViewEntity =
+				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Employee)).CanUpdate;
+
+			WarehouseEntityEntryViewModel = warehouseEntityEntryViewModel;
+			SetDefaultWarehouse(Journal.UoW);
+		}
+
 		private void SetDefaultWarehouse(IUnitOfWork uow)
 		{
 			var defaultWarehouse = _userSettingsService.Settings.DefaultWarehouse;
@@ -187,6 +233,65 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			}
 
 			Warehouse = _warehouseRepository.Get(uow, w => w.Id == defaultWarehouse.Id).FirstOrDefault();
+		}
+
+		private void SetEmployeeEntityEntryViewModel()
+		{
+			if(EmployeeEntityEntryViewModel != null)
+			{
+				throw new InvalidOperationException($"Свойство {nameof(EmployeeEntityEntryViewModel)} уже установлено!");
+			}
+
+			if(Journal is null)
+			{
+				throw new InvalidOperationException($"Свойство фильтра {nameof(Journal)} не установлено!");
+			}
+
+			var viewModel = _employeeEEVMBuilder
+					.SetViewModel(Journal)
+					.SetUnitOfWork(Journal.UoW)
+					.ForProperty(this, x => x.Employee)
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(filter =>
+					{
+						filter.Status = Core.Domain.Employees.EmployeeStatus.IsWorking;
+					})
+					.UseViewModelDialog<EmployeeViewModel>()
+					.Finish();
+
+			viewModel.CanViewEntity =
+				IsUserHasAccessNotOnlyToWarehouseAndComplaints
+				&& _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Warehouse)).CanUpdate;
+
+			EmployeeEntityEntryViewModel = viewModel;
+		}
+
+		private void SetCarEntityEntryViewModel()
+		{
+			if(CarEntityEntryViewModel != null)
+			{
+				throw new InvalidOperationException($"Свойство {nameof(CarEntityEntryViewModel)} уже установлено!");
+			}
+
+			if(Journal is null)
+			{
+				throw new InvalidOperationException($"Свойство фильтра {nameof(Journal)} не установлено!");
+			}
+
+			var viewModel = _carEEVMBuilder
+					.SetViewModel(Journal)
+					.SetUnitOfWork(Journal.UoW)
+					.ForProperty(this, x => x.Car)
+					.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
+					{
+					})
+					.UseViewModelDialog<CarViewModel>()
+					.Finish();
+
+			viewModel.CanViewEntity =
+				IsUserHasAccessNotOnlyToWarehouseAndComplaints
+				&& _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			CarEntityEntryViewModel = viewModel;
 		}
 	}
 }
