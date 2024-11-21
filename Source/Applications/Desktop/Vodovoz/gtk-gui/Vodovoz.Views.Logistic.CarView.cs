@@ -330,7 +330,6 @@ namespace Vodovoz.Views.Logistic
 			this.scrolledwindow1 = new global::Gtk.ScrolledWindow();
 			this.scrolledwindow1.CanFocus = true;
 			this.scrolledwindow1.Name = "scrolledwindow1";
-			this.scrolledwindow1.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.scrolledwindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child scrolledwindow1.Gtk.Container+ContainerChild
 			global::Gtk.Viewport w10 = new global::Gtk.Viewport();
