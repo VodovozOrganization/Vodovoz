@@ -8,18 +8,19 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal.DataLoader;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Journal.Search;
 using QS.Project.Search;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -27,9 +28,10 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Reports.NomenclaturePlanReport;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -38,6 +40,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 	public class NomenclaturePlanReportViewModel : DialogTabViewModelBase
 	{
 		private readonly ICommonServices _commonServices;
+		private readonly ViewModelEEVMBuilder<ProductGroup> _productGroupEEVMBuilder;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly INomenclaturePlanSettings _nomenclaturePlanSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -85,7 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			ICommonServices commonServices,
-			IProductGroupJournalFactory productGroupJournalFactory,
+			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder,
 			INomenclaturePlanSettings nomenclaturePlanSettings,
 			INomenclatureRepository nomenclatureRepository,
 			IFileDialogService fileDialogService) : base(unitOfWorkFactory, interactiveService,
@@ -93,6 +96,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		{
 			Title = "Отчёт по мотивации КЦ";
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_productGroupEEVMBuilder = productGroupEEVMBuilder ?? throw new ArgumentNullException(nameof(productGroupEEVMBuilder));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_nomenclaturePlanSettings = nomenclaturePlanSettings ??
 												  throw new ArgumentNullException(nameof(nomenclaturePlanSettings));
@@ -100,9 +104,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
-			ProductGroupSelectorFactory =
-				(productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory)))
-				.CreateProductGroupAutocompleteSelectorFactory();
+			ProductGroupEntityEntryViewModel = CreateProductGroupEEVM();
+			ProductGroupEntityEntryViewModel.ChangedByUser += OnProductGroupChangedByUser;
 
 			CallCenterSubdivisionId = _nomenclaturePlanSettings.CallCenterSubdivisionId;
 
@@ -234,6 +237,32 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					EquipmentType = x.EquipmentType
 				})
 				.ToList());
+		}
+
+		private IEntityEntryViewModel CreateProductGroupEEVM()
+		{
+			var viewModel =
+				_productGroupEEVMBuilder
+				.SetViewModel(this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(this, x => x.ProductGroup)
+				.UseViewModelJournalAndAutocompleter<ProductGroupsJournalViewModel, ProductGroupsJournalFilterViewModel>(
+					filter =>
+					{
+						filter.IsGroupSelectionMode = true;
+					})
+				.UseViewModelDialog<ProductGroupViewModel>()
+				.Finish();
+
+			viewModel.CanViewEntity =
+				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(ProductGroup)).CanUpdate;
+
+			return viewModel;
+		}
+
+		private void OnProductGroupChangedByUser(object sender, EventArgs e)
+		{
+			NomenclatureSearchCommand.Execute();
 		}
 
 		#endregion
@@ -1074,7 +1103,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		public double NomenclatureLastScrollPosition { get; set; }
 		public double EmployeeLastScrollPosition { get; set; }
 		public double EquipmentKindLastScrollPosition { get; set; }
-		public IEntityAutocompleteSelectorFactory ProductGroupSelectorFactory { get; }
+		public IEntityEntryViewModel ProductGroupEntityEntryViewModel { get; }
 		public ProductGroup ProductGroup { get; set; }
 		public NomenclatureCategory? NomenclatureCategory { get; set; }
 		public EmployeeStatus? EmployeeStatus { get; set; } = Vodovoz.Core.Domain.Employees.EmployeeStatus.IsWorking;
@@ -1085,5 +1114,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		public int CallCenterSubdivisionId { get; }
 		public DateTime? EndDate { get; set; }
 		public DateTime? StartDate { get; set; }
+
+		public override void Dispose()
+		{
+			ProductGroupEntityEntryViewModel.ChangedByUser -= OnProductGroupChangedByUser;
+
+			base.Dispose();
+		}
 	}
 }

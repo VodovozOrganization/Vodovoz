@@ -47,6 +47,7 @@ namespace Vodovoz.Application
 			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
+			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

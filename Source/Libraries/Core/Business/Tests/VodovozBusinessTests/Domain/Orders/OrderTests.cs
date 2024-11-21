@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
@@ -20,6 +21,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Services.Orders;
 
 namespace VodovozBusinessTests.Domain.Orders
 {
@@ -367,7 +369,10 @@ namespace VodovozBusinessTests.Domain.Orders
 			promotionalSetRepositoryMock.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(null, orderUnderTest).Returns(dict);
 
 			// act
-			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>(), promotionalSetRepositoryMock);
+			var res = orderUnderTest.CanAddPromotionalSet(
+				Substitute.For<PromotionalSet>(),
+				Substitute.For<IFreeLoaderChecker>(),
+				promotionalSetRepositoryMock);
 
 			// assert
 			Assert.That(res, Is.True);
@@ -395,7 +400,10 @@ namespace VodovozBusinessTests.Domain.Orders
 				orderUnderTest.UoW, orderUnderTest).Returns(dict);
 
 			// act
-			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>(), promotionalSetRepositoryMock);
+			var res = orderUnderTest.CanAddPromotionalSet(
+				Substitute.For<PromotionalSet>(),
+				Substitute.For<IFreeLoaderChecker>(),
+				promotionalSetRepositoryMock);
 
 			// assert
 			Assert.That(res, Is.False);
@@ -414,7 +422,10 @@ namespace VodovozBusinessTests.Domain.Orders
 			orderUnderTest.InteractiveService = intercativeServiceMock;
 
 			// act
-			var result = orderUnderTest.CanAddPromotionalSet(promotionalSetMock, promotionalSetRepositoryMock);
+			var result = orderUnderTest.CanAddPromotionalSet(
+				promotionalSetMock,
+				Substitute.For<IFreeLoaderChecker>(),
+				promotionalSetRepositoryMock);
 
 			// assert
 			Assert.That(result, Is.False);

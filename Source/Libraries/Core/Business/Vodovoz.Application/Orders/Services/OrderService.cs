@@ -9,6 +9,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -287,7 +288,7 @@ namespace Vodovoz.Application.Orders.Services
 				return 0;
 			}
 
-			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(onlineOrder);
+			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);
 
 			if(validationResult.IsFailure)
 			{
@@ -332,13 +333,6 @@ namespace Vodovoz.Application.Orders.Services
 
 		private Result TryAcceptOrderCreatedByOnlineOrder(IUnitOfWork uow, Employee employee, Order order)
 		{
-			var hasPromoSetForNewClients = order.PromotionalSets.Any(x => x.PromotionalSetForNewClients);
-
-			if(hasPromoSetForNewClients && order.HasUsedPromoForNewClients(_promotionalSetRepository))
-			{
-				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
-			}
-
 			if(!order.SelfDelivery)
 			{
 				var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(uow, order);

@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
@@ -15,6 +15,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Contacts;

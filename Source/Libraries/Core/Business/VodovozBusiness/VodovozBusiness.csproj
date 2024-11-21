@@ -141,6 +141,7 @@
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\TaxcomEdo\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
     <ProjectReference Include="..\..\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj">
       <Project>{988F9F39-781B-4C5C-8409-0C2F3E38A3D6}</Project>
       <Name>TrueMark.Contracts</Name>
@@ -149,6 +150,7 @@
       <Project>{C2085920-3B31-4406-8074-470A26BA26AA}</Project>
       <Name>TrueMarkApi.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj">
       <Project>{056ba782-edef-4e8e-abb1-01fd3502a8f0}</Project>
       <Name>Vodovoz.RDL</Name>
