@@ -54,6 +54,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private SelectableParameterReportFilterViewModel _filterViewModel;
 		private List<int> _counterpartyIds = new List<int>();
 		private List<int> _warhouseIds = new List<int>();
+		private List<int> _employeeIds = new List<int>();
+		private List<int> _carIds = new List<int>();
 		private DialogViewModelBase _journalViewModel;
 		private Employee _author;
 		private Employee _lastEditor;
@@ -173,6 +175,22 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		}
 
 		public string WarehousesNames => GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Warehouse)));
+
+		public List<int> EmployeeIds
+		{
+			get => _employeeIds;
+			private set => UpdateFilterField(ref _employeeIds, value);
+		}
+
+		public string EmployeeNames => GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Employee)));
+
+		public List<int> CarIds
+		{
+			get => _carIds;
+			private set => UpdateFilterField(ref _carIds, value);
+		}
+
+		public string CarNames => GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Car)));
 
 		public SelectableParameterReportFilterViewModel FilterViewModel
 		{
@@ -429,6 +447,34 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 						else
 						{
 							_warhouseIds.Remove((int)parameter.Id);
+						}
+					}
+					SetAndRefilterAtOnce();
+					break;
+				case nameof(Employee):
+					foreach(var parameter in e.ParametersChanged)
+					{
+						if(parameter.Value)
+						{
+							_employeeIds.Add((int)parameter.Id);
+						}
+						else
+						{
+							_employeeIds.Remove((int)parameter.Id);
+						}
+					}
+					SetAndRefilterAtOnce();
+					break;
+				case nameof(Car):
+					foreach(var parameter in e.ParametersChanged)
+					{
+						if(parameter.Value)
+						{
+							_carIds.Add((int)parameter.Id);
+						}
+						else
+						{
+							_carIds.Remove((int)parameter.Id);
 						}
 					}
 					SetAndRefilterAtOnce();
