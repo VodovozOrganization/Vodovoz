@@ -17,6 +17,7 @@ using QS.Tdi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain;
@@ -333,7 +334,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.IncomingInvoice)
 				&& FilterViewModel.Driver is null
 				&& (!FilterViewModel.CounterpartyIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
-				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source))
+				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -453,7 +456,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.IncomingWater)
 				&& FilterViewModel.Driver == null
 				&& !FilterViewModel.CounterpartyIds.Any()
-				&& FilterViewModel.TargetSource != TargetSource.Target)
+				&& FilterViewModel.TargetSource != TargetSource.Target
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -566,7 +571,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.IncomingWater)
 				&& FilterViewModel.Driver == null
 				&& !FilterViewModel.CounterpartyIds.Any()
-				&& FilterViewModel.TargetSource != TargetSource.Source)
+				&& FilterViewModel.TargetSource != TargetSource.Source
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -727,6 +734,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					movementQuery.Where(() => movementDocumentAlias.SendTime <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
+				var isIncludeFilterType =
+					FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include;
+
 				if(FilterViewModel.WarehouseIds.Any())
 				{
 					ICriterion warehouseCriterion = null;
@@ -736,7 +746,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						warehouseCriterion = Restrictions.In(Projections.Property(() => fromWarehouseAlias.Id), FilterViewModel.WarehouseIds);
 					}
 
-					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					if(isIncludeFilterType)
 					{
 						movementQuery.Where(warehouseCriterion);
 					}
@@ -744,6 +754,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					{
 						movementQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
+				}
+
+				if(FilterViewModel.EmployeeIds.Any())
+				{
+					var employeeCriterion = GetEmployeeCriterion(
+						isIncludeFilterType,
+						() => movementDocumentAlias.FromEmployee.Id,
+						() => movementDocumentAlias.StorageFrom == StorageType.Employee);
+
+					movementQuery.Where(employeeCriterion);
+				}
+
+				if(FilterViewModel.CarIds.Any())
+				{
+					var carCriterion = GetCarCriterion(
+						isIncludeFilterType,
+						() => movementDocumentAlias.FromCar.Id,
+						() => movementDocumentAlias.StorageFrom == StorageType.Car);
+
+					movementQuery.Where(carCriterion);
 				}
 
 				if(FilterViewModel.Author != null)
@@ -868,6 +898,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					movementQuery.Where(() => movementDocumentAlias.ReceiveTime <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
+				var isIncludeFilterType =
+					FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include;
+
 				if(FilterViewModel.WarehouseIds.Any())
 				{
 					ICriterion warehouseCriterion = null;
@@ -877,7 +910,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						warehouseCriterion = Restrictions.In(Projections.Property(() => toWarehouseAlias.Id), FilterViewModel.WarehouseIds);
 					}
 
-					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					if(isIncludeFilterType)
 					{
 						movementQuery.Where(warehouseCriterion);
 					}
@@ -885,6 +918,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					{
 						movementQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
+				}
+
+				if(FilterViewModel.EmployeeIds.Any())
+				{
+					var employeeCriterion = GetEmployeeCriterion(
+						isIncludeFilterType,
+						() => movementDocumentAlias.ToEmployee.Id,
+						() => movementDocumentAlias.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToEmployee);
+
+					movementQuery.Where(employeeCriterion);
+				}
+
+				if(FilterViewModel.CarIds.Any())
+				{
+					var carCriterion = GetCarCriterion(
+						isIncludeFilterType,
+						() => movementDocumentAlias.ToCar.Id,
+						() => movementDocumentAlias.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToCar);
+
+					movementQuery.Where(carCriterion);
 				}
 
 				if(FilterViewModel.Author != null)
@@ -2309,6 +2362,95 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			return restriction;
 		}
+
+		private ICriterion GetEmployeeCriterion(
+			bool isIncludeFilterType,
+			Expression<Func<object>> employeeIdProjectionPropertyExpression,
+			params Expression<Func<bool>>[] includeFilterAdditionalRestrictionExpressions)
+		{
+			if(isIncludeFilterType)
+			{
+				return GetIncludeFilterEmployeeCriterion(
+					employeeIdProjectionPropertyExpression,
+					includeFilterAdditionalRestrictionExpressions);
+			}
+
+			return GetExcludeFilterEmployeeCriterion(employeeIdProjectionPropertyExpression);
+		}
+
+		private ICriterion GetCarCriterion(
+			bool isIncludeFilterType,
+			Expression<Func<object>> carIdProjectionPropertyExpression,
+			params Expression<Func<bool>>[] includeFilterAdditionalRestrictionExpressions)
+		{
+			if(isIncludeFilterType)
+			{
+				return GetIncludeFilterCarCriterion(
+					carIdProjectionPropertyExpression,
+					includeFilterAdditionalRestrictionExpressions);
+			}
+
+			return GetExcludeFilterCarCriterion(carIdProjectionPropertyExpression);
+		}
+
+		private ICriterion GetIncludeFilterEmployeeCriterion(
+			Expression<Func<object>> employeeIdProjectionPropertyExpression, params Expression<Func<bool>>[] additionAndRestrictionExpressions) =>
+			GetIncludeFilterConjunctionCriterion(
+				EmployeeIdSelectedInFilterCriterion(employeeIdProjectionPropertyExpression),
+				additionAndRestrictionExpressions);
+
+		private ICriterion GetExcludeFilterEmployeeCriterion(Expression<Func<object>> employeeIdProjectionPropertyExpression) =>
+			GetExcludeFilterDisjunctionCriterion(
+				EmployeeIdSelectedInFilterCriterion(employeeIdProjectionPropertyExpression),
+				PropertyIsNullCriterion(employeeIdProjectionPropertyExpression));
+
+		private ICriterion GetIncludeFilterCarCriterion(
+			Expression<Func<object>> carIdProjectionPropertyExpression, params Expression<Func<bool>>[] additionAndRestrictionExpressions) =>
+			GetIncludeFilterConjunctionCriterion(
+				CarIdSelectedInFilterCriterion(carIdProjectionPropertyExpression),
+				additionAndRestrictionExpressions);
+
+		private ICriterion GetExcludeFilterCarCriterion(Expression<Func<object>> carIdProjectionPropertyExpression) =>
+			GetExcludeFilterDisjunctionCriterion(
+				CarIdSelectedInFilterCriterion(carIdProjectionPropertyExpression),
+				PropertyIsNullCriterion(carIdProjectionPropertyExpression));
+
+		private ICriterion GetIncludeFilterConjunctionCriterion(
+			ICriterion propertySelectedInFilterCriterion,
+			params Expression<Func<bool>>[] additionConjunctions)
+		{
+			var conjunction = Restrictions.Conjunction().Add(propertySelectedInFilterCriterion);
+
+			foreach(var restriction in additionConjunctions)
+			{
+				conjunction.Add(restriction);
+			}
+
+			return conjunction;
+		}
+
+		private ICriterion GetExcludeFilterDisjunctionCriterion(
+			ICriterion propertySelectedInFilterCriterion,
+			params ICriterion[] additionalDisjunctions)
+		{
+			var disjunction = Restrictions.Disjunction().Add(Restrictions.Not(propertySelectedInFilterCriterion));
+
+			foreach(var additionalDisjunction in additionalDisjunctions)
+			{
+				disjunction.Add(additionalDisjunction);
+			}
+
+			return disjunction;
+		}
+
+		private ICriterion PropertyIsNullCriterion(Expression<Func<object>> propertyExpression) =>
+			Restrictions.IsNull(Projections.Property(propertyExpression));
+
+		private ICriterion EmployeeIdSelectedInFilterCriterion(Expression<Func<object>> employeeIdExpression) =>
+			Restrictions.In(Projections.Property(employeeIdExpression), FilterViewModel.EmployeeIds);
+
+		private ICriterion CarIdSelectedInFilterCriterion(Expression<Func<object>> carIdExpression) =>
+			Restrictions.In(Projections.Property(carIdExpression), FilterViewModel.CarIds);
 
 		#endregion
 
