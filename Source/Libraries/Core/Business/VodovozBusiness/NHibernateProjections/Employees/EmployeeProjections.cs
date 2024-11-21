@@ -1,4 +1,6 @@
-﻿using NHibernate.Criterion;
+﻿using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using QS.Project.DB;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
@@ -46,6 +48,24 @@ namespace Vodovoz.NHibernateProjections.Employees
 					() => finedEmployeeAlias.LastName,
 					() => finedEmployeeAlias.Name,
 					() => finedEmployeeAlias.Patronymic);
+			}
+		}
+
+		/// <summary>
+		/// Фамилия и инициалы сотрудника
+		/// </summary>
+		public static IProjection EmployeeLastNameWithInitials
+		{
+			get
+			{
+				Employee employeeAlias = null;
+
+				return Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT( ?1, ' ', SUBSTRING(?2, 1, 1), '. ', SUBSTRING(?3, 1, 1), '.')"),
+					NHibernateUtil.String,
+					Projections.Property(() => employeeAlias.LastName),
+					Projections.Property(() => employeeAlias.Name),
+					Projections.Property(() => employeeAlias.Patronymic));
 			}
 		}
 	}

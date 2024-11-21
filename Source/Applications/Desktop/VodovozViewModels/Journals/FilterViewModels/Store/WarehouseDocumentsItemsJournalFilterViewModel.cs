@@ -1,4 +1,7 @@
 ﻿using Autofac;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -19,6 +22,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -27,6 +31,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.NHibernateProjections.Employees;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
@@ -308,6 +313,69 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
 					);
 					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Warehouse>>());
+					return query.List<SelectableParameter>();
+				}));
+
+			_filter.CreateParameterSet(
+				"Сотрудник",
+				nameof(Employee),
+				new ParametersFactory(UoW, (filters) =>
+				{
+					Employee employeeAlias = null;
+					SelectableEntityParameter<Employee> resultAlias = null;
+
+					var query = UoW.Session.QueryOver(() => employeeAlias
+					);
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query
+						.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(EmployeeProjections.EmployeeLastNameWithInitials).WithAlias(() => resultAlias.EntityTitle))
+						.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+
+					return query.List<SelectableParameter>();
+				}));
+
+			_filter.CreateParameterSet(
+				"Автомобиль",
+				nameof(Car),
+				new ParametersFactory(UoW, (filters) =>
+				{
+					Car carAlias = null;
+					CarModel carModelAlias = null;
+					SelectableEntityParameter<Car> resultAlias = null;
+
+					var query = UoW.Session.QueryOver(() => carAlias)
+						.JoinAlias(() => carAlias.CarModel, () => carModelAlias);
+
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					var carInfoProjection =
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1, ' (', ?2, ')')"),
+							NHibernateUtil.String,
+							Projections.Property(() => carModelAlias.Name),
+							Projections.Property(() => carAlias.RegistrationNumber));
+
+					query
+						.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(carInfoProjection).WithAlias(() => resultAlias.EntityTitle))
+						.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Car>>());
+
 					return query.List<SelectableParameter>();
 				}));
 
