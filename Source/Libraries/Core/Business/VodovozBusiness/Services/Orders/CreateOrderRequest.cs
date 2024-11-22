@@ -4,7 +4,7 @@ using Vodovoz.Models.Orders;
 
 namespace VodovozBusiness.Services.Orders
 {
-	public class CreateOrderRequest
+	public partial class CreateOrderRequest
 	{
 		public int CounterpartyId { get; set; }
 		public int DeliveryPointId { get; set; }

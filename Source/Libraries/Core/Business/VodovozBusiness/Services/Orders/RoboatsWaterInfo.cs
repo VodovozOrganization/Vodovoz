@@ -1,14 +1,17 @@
-﻿namespace Vodovoz.Models.Orders
+﻿namespace VodovozBusiness.Services.Orders
 {
-	public class RoboatsWaterInfo
+	public partial class CreateOrderRequest
 	{
-		public int NomenclatureId { get; }
-		public int BottlesCount { get; }
-
-		public RoboatsWaterInfo(int nomenclatureId, int bottlesCount)
+		public class RoboatsWaterInfo
 		{
-			NomenclatureId = nomenclatureId;
-			BottlesCount = bottlesCount;
+			public int NomenclatureId { get; }
+			public int BottlesCount { get; }
+
+			public RoboatsWaterInfo(int nomenclatureId, int bottlesCount)
+			{
+				NomenclatureId = nomenclatureId;
+				BottlesCount = bottlesCount;
+			}
 		}
 	}
 }

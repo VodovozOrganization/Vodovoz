@@ -14,6 +14,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Settings.Roboats;
 using VodovozBusiness.Services.Orders;
+using static VodovozBusiness.Services.Orders.CreateOrderRequest;
 
 namespace RoboatsService.Requests
 {
