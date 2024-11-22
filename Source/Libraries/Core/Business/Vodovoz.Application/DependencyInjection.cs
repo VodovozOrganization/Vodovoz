@@ -17,6 +17,7 @@ using Vodovoz.Services.Orders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
+using RevenueService.Client;
 
 namespace Vodovoz.Application
 {
@@ -25,7 +26,8 @@ namespace Vodovoz.Application
 		public static IServiceCollection AddApplication(this IServiceCollection services) => services
 			.AddScoped<IRouteOptimizer, RouteOptimizer>()
 			.AddApplicationServices()
-			.ConfigureFileOptions();
+			.ConfigureFileOptions()
+			.AddRevenueServiceClient();
 
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
 			.AddSingleton<OperatorService>()
