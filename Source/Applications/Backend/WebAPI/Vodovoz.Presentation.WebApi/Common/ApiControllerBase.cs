@@ -16,7 +16,7 @@ namespace Vodovoz.Presentation.WebApi.Common
 	[ErrorHandlingFilter]
 	public class ApiControllerBase : ControllerBase
 	{
-		private readonly ILogger<ApiControllerBase> _logger;
+		protected readonly ILogger<ApiControllerBase> _logger;
 
 		public ApiControllerBase(ILogger<ApiControllerBase> logger)
 		{
