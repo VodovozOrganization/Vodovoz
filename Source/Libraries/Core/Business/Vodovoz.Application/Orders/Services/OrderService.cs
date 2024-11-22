@@ -123,11 +123,11 @@ namespace Vodovoz.Application.Orders.Services
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа по имеющимся данным о заказе
 		/// </summary>
-		public decimal GetOrderPrice(CreateOrderRequest roboatsOrderArgs)
+		public decimal GetOrderPrice(CreateOrderRequest createOrderRequest)
 		{
-			if(roboatsOrderArgs is null)
+			if(createOrderRequest is null)
 			{
-				throw new ArgumentNullException(nameof(roboatsOrderArgs));
+				throw new ArgumentNullException(nameof(createOrderRequest));
 			}
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Сервис заказов: подсчет стоимости заказа"))
@@ -135,8 +135,8 @@ namespace Vodovoz.Application.Orders.Services
 				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
 					?? throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
 
-				var counterparty = unitOfWork.GetById<Counterparty>(roboatsOrderArgs.CounterpartyId);
-				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(roboatsOrderArgs.DeliveryPointId);
+				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
+				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
 
 				var order = new Order();
 				order.Author = roboatsEmployee;
@@ -144,7 +144,7 @@ namespace Vodovoz.Application.Orders.Services
 				order.DeliveryPoint = deliveryPoint;
 				order.PaymentType = PaymentType.Cash;
 
-				foreach(var waterInfo in roboatsOrderArgs.SaleItems)
+				foreach(var waterInfo in createOrderRequest.SaleItems)
 				{
 					var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
 					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
@@ -160,12 +160,12 @@ namespace Vodovoz.Application.Orders.Services
 		/// Создает и подтверждает заказ
 		/// Возвращает номер сохраненного заказа
 		/// </summary>
-		/// <param name="roboatsOrderArgs"></param>
-		public int CreateAndAcceptOrder(CreateOrderRequest roboatsOrderArgs)
+		/// <param name="createOrderRequest"></param>
+		public int CreateAndAcceptOrder(CreateOrderRequest createOrderRequest)
 		{
-			if(roboatsOrderArgs is null)
+			if(createOrderRequest is null)
 			{
-				throw new ArgumentNullException(nameof(roboatsOrderArgs));
+				throw new ArgumentNullException(nameof(createOrderRequest));
 			}
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
@@ -176,7 +176,7 @@ namespace Vodovoz.Application.Orders.Services
 					throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
 				}
 
-				var order = CreateOrder(unitOfWork, roboatsEmployee, roboatsOrderArgs);
+				var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
 				order.AcceptOrder(roboatsEmployee, _callTaskWorker);
 				order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
 				return order.Id;
@@ -187,21 +187,21 @@ namespace Vodovoz.Application.Orders.Services
 		/// Создает заказ с имеющимися данными в статусе Новый, для обработки его оператором вручную.
 		/// Возвращает данные по заказу
 		/// </summary>
-		public (int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(CreateOrderRequest roboatsOrderArgs)
+		public (int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(CreateOrderRequest createOrderRequest)
 		{
-			if(roboatsOrderArgs is null)
+			if(createOrderRequest is null)
 			{
-				throw new ArgumentNullException(nameof(roboatsOrderArgs));
+				throw new ArgumentNullException(nameof(createOrderRequest));
 			}
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
 			{
-				return CreateIncompleteOrder(unitOfWork, roboatsOrderArgs);
+				return CreateIncompleteOrder(unitOfWork, createOrderRequest);
 			}
 		}
 
 		private (int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(
-			IUnitOfWorkGeneric<Order> unitOfWork, CreateOrderRequest roboatsOrderArgs)
+			IUnitOfWorkGeneric<Order> unitOfWork, CreateOrderRequest createOrderRequest)
 		{
 			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 			if(roboatsEmployee == null)
@@ -209,7 +209,7 @@ namespace Vodovoz.Application.Orders.Services
 				throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
 			}
 
-			var order = CreateOrder(unitOfWork, roboatsEmployee, roboatsOrderArgs);
+			var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
 			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
 			return (order.Id, order.Author.Id, order.OrderStatus);
 		}
@@ -232,22 +232,22 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private Order CreateOrder(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, CreateOrderRequest roboatsOrderArgs)
+		private Order CreateOrder(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, CreateOrderRequest createOrderRequest)
 		{
-			var counterparty = unitOfWork.GetById<Counterparty>(roboatsOrderArgs.CounterpartyId);
-			var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(roboatsOrderArgs.DeliveryPointId);
-			var deliverySchedule = unitOfWork.GetById<DeliverySchedule>(roboatsOrderArgs.DeliveryScheduleId);
+			var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
+			var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
+			var deliverySchedule = unitOfWork.GetById<DeliverySchedule>(createOrderRequest.DeliveryScheduleId);
 			Order order = unitOfWork.Root;
 			order.Author = author;
 			order.Client = counterparty;
 			order.DeliveryPoint = deliveryPoint;
 
-			order.PaymentType = roboatsOrderArgs.PaymentType;
+			order.PaymentType = createOrderRequest.PaymentType;
 
-			switch(roboatsOrderArgs.PaymentType)
+			switch(createOrderRequest.PaymentType)
 			{
 				case PaymentType.Cash:
-					order.Trifle = roboatsOrderArgs.BanknoteForReturn;
+					order.Trifle = createOrderRequest.BanknoteForReturn;
 					break;
 				case PaymentType.DriverApplicationQR:
 					order.Trifle = 0;
@@ -255,16 +255,16 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			order.DeliverySchedule = deliverySchedule;
-			order.DeliveryDate = roboatsOrderArgs.Date;
+			order.DeliveryDate = createOrderRequest.Date;
 
 			order.UpdateOrCreateContract(unitOfWork, _counterpartyContractRepository, _counterpartyContractFactory);
 
-			foreach(var waterInfo in roboatsOrderArgs.SaleItems)
+			foreach(var waterInfo in createOrderRequest.SaleItems)
 			{
 				var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
 				order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
 			}
-			order.BottlesReturn = roboatsOrderArgs.BottlesReturn;
+			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
 			UpdateDeliveryCost(unitOfWork, order);
 			order.AddDeliveryPointCommentToOrder();
