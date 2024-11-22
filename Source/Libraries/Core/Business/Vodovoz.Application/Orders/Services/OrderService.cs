@@ -129,7 +129,7 @@ namespace Vodovoz.Application.Orders.Services
 				throw new ArgumentNullException(nameof(createOrderRequest));
 			}
 
-			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Сервис заказов: подсчет стоимости заказа"))
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>("Сервис заказов: подсчет стоимости заказа"))
 			{
 				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
 					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
@@ -137,7 +137,7 @@ namespace Vodovoz.Application.Orders.Services
 				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
 				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
 
-				var order = new Order();
+				Order order = unitOfWork.Root;
 				order.Author = roboatsEmployee;
 				order.Client = counterparty;
 				order.DeliveryPoint = deliveryPoint;
@@ -165,7 +165,7 @@ namespace Vodovoz.Application.Orders.Services
 				throw new ArgumentNullException(nameof(createOrderRequest));
 			}
 
-			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Сервис заказов: подсчет стоимости заказа"))
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>("Сервис заказов: подсчет стоимости заказа"))
 			{
 				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
 					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
@@ -173,7 +173,7 @@ namespace Vodovoz.Application.Orders.Services
 				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
 				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
 
-				var order = new Order();
+				Order order = unitOfWork.Root;
 				order.Author = roboatsEmployee;
 				order.Client = counterparty;
 				order.DeliveryPoint = deliveryPoint;
