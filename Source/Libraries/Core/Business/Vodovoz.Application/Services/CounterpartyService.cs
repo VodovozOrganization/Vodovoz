@@ -1,4 +1,4 @@
-﻿using Dadata.Model;
+using Dadata.Model;
 using QS.DomainModel.UoW;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
@@ -10,6 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Application.Extensions;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Extensions;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
@@ -20,11 +22,19 @@ namespace Vodovoz.Application.Services
 	{
 		private readonly IRevenueServiceClient _revenueServiceClient;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
 
-		public CounterpartyService(IRevenueServiceClient revenueServiceClient, IUnitOfWorkFactory unitOfWorkFactory)
+		public CounterpartyService(
+			IRevenueServiceClient revenueServiceClient,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IGenericRepository<Counterparty> counterpartyRepository)
 		{
-			_revenueServiceClient = revenueServiceClient ?? throw new ArgumentNullException(nameof(revenueServiceClient));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_revenueServiceClient = revenueServiceClient
+				?? throw new ArgumentNullException(nameof(revenueServiceClient));
+			_unitOfWorkFactory = unitOfWorkFactory
+				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_counterpartyRepository = counterpartyRepository
+				?? throw new ArgumentNullException(nameof(counterpartyRepository));
 		}
 
 		public async Task<IEnumerable<CounterpartyRevenueServiceInfo>> GetRevenueServiceInformation(
@@ -186,6 +196,17 @@ namespace Vodovoz.Application.Services
 			}
 
 			unitOfWork.Commit();
+		}
+
+		public IEnumerable<Counterparty> GetByNormalizedPhoneNumber(IUnitOfWork unitOfWork, string normalizedPhone)
+		{
+			if(normalizedPhone != normalizedPhone.NormalizePhone())
+			{
+				throw new ArgumentException("В аргумент передан не нормализованный телефон", nameof(normalizedPhone));
+			}
+
+			return _counterpartyRepository
+				.Get(unitOfWork, c => c.Phones.Any(p => p.Number == normalizedPhone));
 		}
 	}
 }
