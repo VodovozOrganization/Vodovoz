@@ -138,6 +138,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		public DelegateCommand CreateWarehouseAccountingCardCommand { get; }
 		public DelegateCommand ExportWarehouseAccountingCardCommand { get; }
 
+		private bool _isIncludeFilterType =>
+					FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include;
+
+		private bool _isFilteringBySourceSelected =>
+			FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both;
+
+		private bool _isFilteringByTargetSelected =>
+			FilterViewModel.TargetSource == TargetSource.Target || FilterViewModel.TargetSource == TargetSource.Both;
 
 		protected override void CreatePopupActions()
 		{
@@ -734,9 +742,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					movementQuery.Where(() => movementDocumentAlias.SendTime <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
-				var isIncludeFilterType =
-					FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include;
-
 				if(FilterViewModel.WarehouseIds.Any())
 				{
 					ICriterion warehouseCriterion = null;
@@ -746,7 +751,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						warehouseCriterion = Restrictions.In(Projections.Property(() => fromWarehouseAlias.Id), FilterViewModel.WarehouseIds);
 					}
 
-					if(isIncludeFilterType)
+					if(_isIncludeFilterType)
 					{
 						movementQuery.Where(warehouseCriterion);
 					}
@@ -759,7 +764,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				if(FilterViewModel.EmployeeIds.Any())
 				{
 					var employeeCriterion = GetEmployeeCriterion(
-						isIncludeFilterType,
+						_isIncludeFilterType,
 						() => movementDocumentAlias.FromEmployee.Id,
 						() => movementDocumentAlias.StorageFrom == StorageType.Employee);
 
@@ -769,7 +774,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				if(FilterViewModel.CarIds.Any())
 				{
 					var carCriterion = GetCarCriterion(
-						isIncludeFilterType,
+						_isIncludeFilterType,
 						() => movementDocumentAlias.FromCar.Id,
 						() => movementDocumentAlias.StorageFrom == StorageType.Car);
 
@@ -898,9 +903,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					movementQuery.Where(() => movementDocumentAlias.ReceiveTime <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
-				var isIncludeFilterType =
-					FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include;
-
 				if(FilterViewModel.WarehouseIds.Any())
 				{
 					ICriterion warehouseCriterion = null;
@@ -910,7 +912,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						warehouseCriterion = Restrictions.In(Projections.Property(() => toWarehouseAlias.Id), FilterViewModel.WarehouseIds);
 					}
 
-					if(isIncludeFilterType)
+					if(_isIncludeFilterType)
 					{
 						movementQuery.Where(warehouseCriterion);
 					}
@@ -923,7 +925,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				if(FilterViewModel.EmployeeIds.Any())
 				{
 					var employeeCriterion = GetEmployeeCriterion(
-						isIncludeFilterType,
+						_isIncludeFilterType,
 						() => movementDocumentAlias.ToEmployee.Id,
 						() => movementDocumentAlias.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToEmployee);
 
@@ -933,7 +935,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				if(FilterViewModel.CarIds.Any())
 				{
 					var carCriterion = GetCarCriterion(
-						isIncludeFilterType,
+						_isIncludeFilterType,
 						() => movementDocumentAlias.ToCar.Id,
 						() => movementDocumentAlias.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToCar);
 
@@ -1009,7 +1011,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.WriteoffDocument)
 				&& FilterViewModel.Driver == null
 				&& (!FilterViewModel.CounterpartyIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
-				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
+				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
+				&& (!FilterViewModel.EmployeeIds.Any() || _isFilteringBySourceSelected)
+				&& (!FilterViewModel.CarIds.Any() || _isFilteringBySourceSelected))
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -1026,12 +1030,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					writeoffQuery.Where(() => writeOffDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
+				var isIncludeFilterType =
+					FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include;
+
+				var isSourceFilterTarget =
+					FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both;
+
 				if(FilterViewModel.WarehouseIds.Any()
 					&& (FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both))
 				{
 					var  warehouseCriterion = Restrictions.In(Projections.Property(() => fromWarehouseAlias.Id), FilterViewModel.WarehouseIds);
 
-					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					if(isIncludeFilterType)
 					{
 						writeoffQuery.Where(warehouseCriterion);
 					}
@@ -1039,6 +1049,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					{
 						writeoffQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
+				}
+
+				if(FilterViewModel.EmployeeIds.Any() && _isFilteringBySourceSelected)
+				{
+					var employeeCriterion = GetEmployeeCriterion(
+						isIncludeFilterType,
+						() => writeOffDocumentAlias.WriteOffFromEmployee.Id,
+						() => writeOffDocumentAlias.WriteOffType == WriteOffType.Employee);
+
+					writeoffQuery.Where(employeeCriterion);
+				}
+
+				if(FilterViewModel.CarIds.Any() && _isFilteringBySourceSelected)
+				{
+					var carCriterion = GetCarCriterion(
+						isIncludeFilterType,
+						() => writeOffDocumentAlias.WriteOffFromCar.Id,
+						() => writeOffDocumentAlias.WriteOffType == WriteOffType.Car);
+
+					writeoffQuery.Where(carCriterion);
 				}
 
 				if(FilterViewModel.Author != null)
@@ -1113,7 +1143,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.SelfDeliveryDocument)
 				&& FilterViewModel.Driver == null
 				&& (!FilterViewModel.CounterpartyIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
-				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
+				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -1232,7 +1264,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.SelfDeliveryDocument)
 				&& FilterViewModel.Driver == null
 				&& (!FilterViewModel.CounterpartyIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
-				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source))
+				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -1350,7 +1384,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarLoadDocument)
 				&& !FilterViewModel.CounterpartyIds.Any()
-				&& FilterViewModel.TargetSource != TargetSource.Target)
+				&& FilterViewModel.TargetSource != TargetSource.Target
+				&& !FilterViewModel.EmployeeIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -1384,6 +1419,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					{
 						carLoadQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
+				}
+
+				if(FilterViewModel.CarIds.Any() && _isFilteringBySourceSelected)
+				{
+					var carCriterion = GetCarCriterion(
+						_isIncludeFilterType,
+						() => carAlias.Id);
+
+					carLoadQuery.Where(carCriterion);
 				}
 
 				if(FilterViewModel.Author != null)
@@ -1466,7 +1510,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarUnloadDocument)
 				&& !FilterViewModel.CounterpartyIds.Any()
-				&& FilterViewModel.TargetSource != TargetSource.Source)
+				&& FilterViewModel.TargetSource != TargetSource.Source
+				&& !FilterViewModel.EmployeeIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -1500,6 +1545,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					{
 						carUnloadQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
+				}
+
+				if(FilterViewModel.CarIds.Any() && _isFilteringByTargetSelected)
+				{
+					var carCriterion = GetCarCriterion(
+						_isIncludeFilterType,
+						() => carAlias.Id);
+
+					carUnloadQuery.Where(carCriterion);
 				}
 
 				if(FilterViewModel.Author != null)
@@ -1631,6 +1685,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					}
 				}
 
+				if(FilterViewModel.EmployeeIds.Any())
+				{
+					var employeeCriterion = GetEmployeeCriterion(
+						_isIncludeFilterType,
+						() => inventoryDocumentAlias.Employee.Id,
+						() => inventoryDocumentAlias.InventoryDocumentType == InventoryDocumentType.EmployeeInventory);
+
+					inventoryQuery.Where(employeeCriterion);
+				}
+
+				if(FilterViewModel.CarIds.Any())
+				{
+					var carCriterion = GetCarCriterion(
+						_isIncludeFilterType,
+						() => inventoryDocumentAlias.Car.Id,
+						() => inventoryDocumentAlias.InventoryDocumentType == InventoryDocumentType.CarInventory);
+
+					inventoryQuery.Where(carCriterion);
+				}
+
 				if(FilterViewModel.TargetSource != TargetSource.Both)
 				{
 					if(FilterViewModel.TargetSource == TargetSource.Target)
@@ -1745,7 +1819,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& FilterViewModel.Driver == null
 				&& !FilterViewModel.CounterpartyIds.Any()
 				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource == TargetSource.Both)
-				&& FilterViewModel.ShowNotAffectedBalance)
+				&& FilterViewModel.ShowNotAffectedBalance
+				&& !FilterViewModel.EmployeeIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -1774,6 +1849,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					{
 						shiftchangeQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
+				}
+
+				if(FilterViewModel.CarIds.Any())
+				{
+					var carCriterion = GetCarCriterion(
+						_isIncludeFilterType,
+						() => shiftChangeWarehouseDocumentAlias.Car.Id,
+						() => shiftChangeWarehouseDocumentAlias.ShiftChangeResidueDocumentType == ShiftChangeResidueDocumentType.Car);
+
+					shiftchangeQuery.Where(carCriterion);
 				}
 
 				if(FilterViewModel.TargetSource != TargetSource.Both)
@@ -1915,7 +2000,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument)
 				&& FilterViewModel.Driver == null
 				&& !FilterViewModel.CounterpartyIds.Any()
-				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
+				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -2040,7 +2127,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument)
 				&& FilterViewModel.Driver == null
 				&& !FilterViewModel.CounterpartyIds.Any()
-				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source))
+				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -2144,7 +2233,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null
 					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalGiveout
 					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalMovement)
-				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
+				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
@@ -2239,7 +2330,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null
 					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalReturn
 					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalMovement)
-				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source))
+				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any())
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
