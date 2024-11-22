@@ -143,7 +143,7 @@ namespace Vodovoz.Application.Orders.Services
 				order.DeliveryPoint = deliveryPoint;
 				order.PaymentType = PaymentType.Cash;
 
-				foreach(var waterInfo in roboatsOrderArgs.WatersInfo)
+				foreach(var waterInfo in roboatsOrderArgs.SaleItems)
 				{
 					var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
 					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
@@ -261,7 +261,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			order.UpdateOrCreateContract(unitOfWork, _counterpartyContractRepository, _counterpartyContractFactory);
 
-			foreach(var waterInfo in roboatsOrderArgs.WatersInfo)
+			foreach(var waterInfo in roboatsOrderArgs.SaleItems)
 			{
 				var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
 				order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);

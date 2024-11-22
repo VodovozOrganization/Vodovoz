@@ -8,7 +8,7 @@ namespace VodovozBusiness.Services.Orders
 	{
 		public int CounterpartyId { get; set; }
 		public int DeliveryPointId { get; set; }
-		public IEnumerable<SaleItem> WatersInfo { get; set; }
+		public IEnumerable<SaleItem> SaleItems { get; set; }
 		public int BottlesReturn { get; set; }
 		public DateTime Date { get; set; }
 		public int DeliveryScheduleId { get; set; }

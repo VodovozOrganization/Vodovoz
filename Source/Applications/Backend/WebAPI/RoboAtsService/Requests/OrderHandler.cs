@@ -243,7 +243,7 @@ namespace RoboatsService.Requests
 			var orderArgs = new CreateOrderRequest();
 			orderArgs.CounterpartyId = counterpartyId;
 			orderArgs.DeliveryPointId = deliveryPointId;
-			orderArgs.WatersInfo = watersInfo;
+			orderArgs.SaleItems = watersInfo;
 			orderArgs.BottlesReturn = bottlesReturn;
 
 			var price = _orderService.GetOrderPrice(orderArgs);
@@ -326,7 +326,7 @@ namespace RoboatsService.Requests
 			var orderArgs = new CreateOrderRequest();
 			orderArgs.CounterpartyId = counterpartyId;
 			orderArgs.DeliveryPointId = deliveryPointId;
-			orderArgs.WatersInfo = watersInfo;
+			orderArgs.SaleItems = watersInfo;
 			orderArgs.BottlesReturn = bottlesReturn;
 			orderArgs.Date = date;
 			orderArgs.DeliveryScheduleId = deliverySchedule.Id;
