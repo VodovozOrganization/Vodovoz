@@ -9,7 +9,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -22,7 +21,6 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Errors;
 using Vodovoz.Factories;
-using Vodovoz.Models.Orders;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
@@ -30,12 +28,13 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
-using VodovozBusiness.Extensions.Mapping;
 
 namespace Vodovoz.Application.Orders.Services
 {
 	internal sealed class OrderService : IOrderService
 	{
+		private const string _employeeRequiredForServiceError = "Требуется сотрудник. Еслм сообщение получено в сервисе - убедитесь, что настроили сервис корректно и в ДВ есть соответствующий сотрудник";
+
 		private readonly ILogger<OrderService> _logger;
 
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -133,7 +132,7 @@ namespace Vodovoz.Application.Orders.Services
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Сервис заказов: подсчет стоимости заказа"))
 			{
 				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
-					?? throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
+					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
 
 				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
 				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
@@ -157,6 +156,46 @@ namespace Vodovoz.Application.Orders.Services
 		}
 
 		/// <summary>
+		/// Рассчитывает и возвращает цену заказа и цену доставки по имеющимся данным о заказе
+		/// </summary>
+		public (decimal OrderPrice, decimal DeliveryPrice) GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest)
+		{
+			if(createOrderRequest is null)
+			{
+				throw new ArgumentNullException(nameof(createOrderRequest));
+			}
+
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Сервис заказов: подсчет стоимости заказа"))
+			{
+				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
+					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
+
+				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
+				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
+
+				var order = new Order();
+				order.Author = roboatsEmployee;
+				order.Client = counterparty;
+				order.DeliveryPoint = deliveryPoint;
+				order.PaymentType = PaymentType.Cash;
+
+				foreach(var waterInfo in createOrderRequest.SaleItems)
+				{
+					var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
+					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+				}
+
+				order.RecalculateItemsPrice();
+				UpdateDeliveryCost(unitOfWork, order);
+				return
+				(
+					order.OrderSum,
+					order.OrderItems.Where(oi => oi.Nomenclature.Id == PaidDeliveryNomenclatureId).FirstOrDefault()?.ActualSum ?? 0m
+				);
+			}
+		}
+
+		/// <summary>
 		/// Создает и подтверждает заказ
 		/// Возвращает номер сохраненного заказа
 		/// </summary>
@@ -173,7 +212,7 @@ namespace Vodovoz.Application.Orders.Services
 				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 				if(roboatsEmployee == null)
 				{
-					throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
+					throw new InvalidOperationException(_employeeRequiredForServiceError);
 				}
 
 				var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
@@ -206,7 +245,7 @@ namespace Vodovoz.Application.Orders.Services
 			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 			if(roboatsEmployee == null)
 			{
-				throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
+				throw new InvalidOperationException(_employeeRequiredForServiceError);
 			}
 
 			var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
@@ -480,4 +519,3 @@ namespace Vodovoz.Application.Orders.Services
 		}
 	}
 }
-
