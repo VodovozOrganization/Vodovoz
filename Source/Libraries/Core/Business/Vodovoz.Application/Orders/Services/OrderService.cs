@@ -167,26 +167,30 @@ namespace Vodovoz.Application.Orders.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>("Сервис заказов: подсчет стоимости заказа"))
 			{
-				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
+				var robotMiaEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
 					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
 
-				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
-				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
+				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId)
+					?? throw new InvalidOperationException($"Не найден контрагент #{createOrderRequest.CounterpartyId}");
+				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId)
+					?? throw new InvalidOperationException($"Не найдена точка доставки #{createOrderRequest.DeliveryPointId}");
 
 				Order order = unitOfWork.Root;
-				order.Author = roboatsEmployee;
+				order.Author = robotMiaEmployee;
 				order.Client = counterparty;
 				order.DeliveryPoint = deliveryPoint;
 				order.PaymentType = PaymentType.Cash;
 
-				foreach(var waterInfo in createOrderRequest.SaleItems)
+				foreach(var saleItem in createOrderRequest.SaleItems)
 				{
-					var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
-					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+					var nomenclature = unitOfWork.GetById<Nomenclature>(saleItem.NomenclatureId)
+						?? throw new InvalidOperationException($"Не найдена номенклатура #{saleItem.NomenclatureId}");
+					order.AddWaterForSale(nomenclature, saleItem.BottlesCount);
 				}
 
 				order.RecalculateItemsPrice();
 				UpdateDeliveryCost(unitOfWork, order);
+
 				return
 				(
 					order.OrderSum,
