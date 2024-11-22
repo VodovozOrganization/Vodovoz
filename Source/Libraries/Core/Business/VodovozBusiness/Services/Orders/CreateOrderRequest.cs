@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using Vodovoz.Models.Orders;
+using Vodovoz.Domain.Client;
 
 namespace VodovozBusiness.Services.Orders
 {
-	public class RoboatsOrderArgs
+	public partial class CreateOrderRequest
 	{
 		public int CounterpartyId { get; set; }
 		public int DeliveryPointId { get; set; }
-		public IEnumerable<RoboatsWaterInfo> WatersInfo { get; set; }
+		public IEnumerable<SaleItem> SaleItems { get; set; }
 		public int BottlesReturn { get; set; }
 		public DateTime Date { get; set; }
 		public int DeliveryScheduleId { get; set; }
-		public RoboAtsOrderPayment PaymentType { get; set; }
+		public PaymentType PaymentType { get; set; }
 		public int? BanknoteForReturn { get; set; }
 	}
 }
