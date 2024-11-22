@@ -590,13 +590,6 @@ namespace Vodovoz
 
 					builder.RegisterType<CashFlowDdsReportRenderer>().AsSelf();
 
-					builder.Register((context) =>
-					{
-						var counterpartySettings = context.Resolve<ICounterpartySettings>();
-
-						return new RevenueServiceClient(counterpartySettings.RevenueServiceClientAccessToken);
-					}).As<IRevenueServiceClient>().InstancePerLifetimeScope();
-
 					#endregion
 
 					#region InfoPanelViews
