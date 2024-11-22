@@ -8,9 +8,9 @@ namespace VodovozBusiness.Services.Orders
 		int PaidDeliveryNomenclatureId { get; }
 
 		void CheckAndAddBottlesToReferrerByReferFriendPromo(IUnitOfWork uow, Order order, bool canChangeDiscountValue);
-		int CreateAndAcceptOrder(RoboatsOrderArgs roboatsOrderArgs);
-		(int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs);
-		decimal GetOrderPrice(RoboatsOrderArgs roboatsOrderArgs);
+		int CreateAndAcceptOrder(CreateOrderRequest roboatsOrderArgs);
+		(int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(CreateOrderRequest roboatsOrderArgs);
+		decimal GetOrderPrice(CreateOrderRequest roboatsOrderArgs);
 		void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order);
 		int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder);
 		(int OrderId, int AuthorId, OrderStatus OrderStatus) AcceptOrder(int orderId, int roboatsEmployeeId);

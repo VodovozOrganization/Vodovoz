@@ -239,7 +239,7 @@ namespace RoboatsService.Requests
 
 		private string CalculatePrice(int counterpartyId, int deliveryPointId, IEnumerable<RoboatsWaterInfo> watersInfo, int bottlesReturn)
 		{
-			var orderArgs = new RoboatsOrderArgs();
+			var orderArgs = new CreateOrderRequest();
 			orderArgs.CounterpartyId = counterpartyId;
 			orderArgs.DeliveryPointId = deliveryPointId;
 			orderArgs.WatersInfo = watersInfo;
@@ -322,7 +322,7 @@ namespace RoboatsService.Requests
 			}
 
 			//Вызов модели создания заказа для создания заказа
-			var orderArgs = new RoboatsOrderArgs();
+			var orderArgs = new CreateOrderRequest();
 			orderArgs.CounterpartyId = counterpartyId;
 			orderArgs.DeliveryPointId = deliveryPointId;
 			orderArgs.WatersInfo = watersInfo;
@@ -367,13 +367,13 @@ namespace RoboatsService.Requests
 			}
 		}
 
-		private void CreateAndAcceptOrder(RoboatsOrderArgs orderArgs)
+		private void CreateAndAcceptOrder(CreateOrderRequest orderArgs)
 		{
 			var orderId = _orderService.CreateAndAcceptOrder(orderArgs);
 			_callRegistrator.RegisterSuccess(ClientPhone, RequestDto.CallGuid, $"Звонок был успешно завершен. Cоздан и подтвержден заказ {orderId}");
 		}
 
-		private void CreateIncompleteOrder(RoboatsOrderArgs orderArgs)
+		private void CreateIncompleteOrder(CreateOrderRequest orderArgs)
 		{
 			var orderData = _orderService.CreateIncompleteOrder(orderArgs);
 			_callRegistrator.RegisterAborted(
@@ -389,7 +389,7 @@ namespace RoboatsService.Requests
 		/// Если после 3-х попыток не получилось сформировать оплату, то заказ остается в статусе новый.
 		/// Если оплата сформирована то заказ переходит в статус Принят
 		/// </summary>
-		private async Task CreateOrderWithPaymentByQrCode(RoboatsOrderArgs orderArgs, bool needAcceptOrder)
+		private async Task CreateOrderWithPaymentByQrCode(CreateOrderRequest orderArgs, bool needAcceptOrder)
 		{
 			var orderData = _orderService.CreateIncompleteOrder(orderArgs);
 			
