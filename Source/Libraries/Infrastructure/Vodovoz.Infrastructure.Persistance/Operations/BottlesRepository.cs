@@ -15,13 +15,17 @@ namespace Vodovoz.Infrastructure.Persistance.Operations
 {
 	internal sealed class BottlesRepository : IBottlesRepository
 	{
-		public int GetBottlesDebtAtCounterparty(IUnitOfWork uow, int counterpartyId, DateTime? before = null)
+		public int GetBottlesDebtAtCounterparty(IUnitOfWork uow, int? counterpartyId, DateTime? before = null)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
 
-			var queryResult = uow.Session.QueryOver(() => operationAlias)
-				.Where(() => operationAlias.Counterparty.Id == counterpartyId);
+			var queryResult = uow.Session.QueryOver(() => operationAlias);
+
+			if(counterpartyId.HasValue)
+			{
+				queryResult.Where(() => operationAlias.Counterparty.Id == counterpartyId);
+			}
 
 			if(before.HasValue)
 			{
@@ -42,15 +46,19 @@ namespace Vodovoz.Infrastructure.Persistance.Operations
 
 		[Obsolete("Используйте получение по Id")]
 		public int GetBottlesDebtAtCounterparty(IUnitOfWork uow, Counterparty counterparty, DateTime? before = null)
-			=> GetBottlesDebtAtCounterparty(uow, counterparty.Id, before);
+			=> GetBottlesDebtAtCounterparty(uow, counterparty?.Id, before);
 
-		public int GetBottlesDebtAtDeliveryPoint(IUnitOfWork uow, int deliveryPointId, DateTime? before = null)
+		public int GetBottlesDebtAtDeliveryPoint(IUnitOfWork uow, int? deliveryPointId, DateTime? before = null)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
 
-			var queryResult = uow.Session.QueryOver(() => operationAlias)
-				.Where(() => operationAlias.DeliveryPoint.Id == deliveryPointId);
+			var queryResult = uow.Session.QueryOver(() => operationAlias);
+
+			if(deliveryPointId.HasValue)
+			{
+				queryResult.Where(() => operationAlias.DeliveryPoint.Id == deliveryPointId);
+			}
 
 			if(before.HasValue)
 			{
@@ -71,7 +79,7 @@ namespace Vodovoz.Infrastructure.Persistance.Operations
 
 		[Obsolete("Используйте получение по Id")]
 		public int GetBottlesDebtAtDeliveryPoint(IUnitOfWork uow, DeliveryPoint deliveryPoint, DateTime? before = null)
-			=> GetBottlesDebtAtDeliveryPoint(uow, deliveryPoint.Id, before);
+			=> GetBottlesDebtAtDeliveryPoint(uow, deliveryPoint?.Id, before);
 
 		public int GetBottlesDebtAtCounterpartyAndDeliveryPoint(
 			IUnitOfWork uow,
