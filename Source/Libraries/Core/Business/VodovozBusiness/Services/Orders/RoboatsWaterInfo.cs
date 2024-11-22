@@ -2,12 +2,12 @@
 {
 	public partial class CreateOrderRequest
 	{
-		public class RoboatsWaterInfo
+		public class SaleItem
 		{
 			public int NomenclatureId { get; }
 			public int BottlesCount { get; }
 
-			public RoboatsWaterInfo(int nomenclatureId, int bottlesCount)
+			public SaleItem(int nomenclatureId, int bottlesCount)
 			{
 				NomenclatureId = nomenclatureId;
 				BottlesCount = bottlesCount;

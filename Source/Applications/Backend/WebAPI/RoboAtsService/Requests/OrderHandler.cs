@@ -238,7 +238,7 @@ namespace RoboatsService.Requests
 			return CreateOrderAndGetResult(counterpartyId, AddressId.Value, waters, bottlesReturn);
 		}
 
-		private string CalculatePrice(int counterpartyId, int deliveryPointId, IEnumerable<RoboatsWaterInfo> watersInfo, int bottlesReturn)
+		private string CalculatePrice(int counterpartyId, int deliveryPointId, IEnumerable<SaleItem> watersInfo, int bottlesReturn)
 		{
 			var orderArgs = new CreateOrderRequest();
 			orderArgs.CounterpartyId = counterpartyId;
@@ -259,7 +259,7 @@ namespace RoboatsService.Requests
 			return $"{result}";
 		}
 
-		private string CreateOrderAndGetResult(int counterpartyId, int deliveryPointId, IEnumerable<RoboatsWaterInfo> watersInfo, int bottlesReturn)
+		private string CreateOrderAndGetResult(int counterpartyId, int deliveryPointId, IEnumerable<SaleItem> watersInfo, int bottlesReturn)
 		{
 
 			if(!DateTime.TryParseExact(RequestDto.Date, "yyyy-MM-dd", new DateTimeFormatInfo(), DateTimeStyles.None, out DateTime date))
@@ -449,20 +449,20 @@ namespace RoboatsService.Requests
 			return result.Status == ResultStatus.Ok;
 		}
 
-		private IEnumerable<RoboatsWaterInfo> GetWaters()
+		private IEnumerable<SaleItem> GetWaters()
 		{
 			if(string.IsNullOrWhiteSpace(RequestDto.WaterQuantity))
 			{
-				return Enumerable.Empty<RoboatsWaterInfo>();
+				return Enumerable.Empty<SaleItem>();
 			}
 
 			var waterNodes = RequestDto.WaterQuantity.Split('|').Where(x => !string.IsNullOrWhiteSpace(x));
 			if(!waterNodes.Any())
 			{
-				return Enumerable.Empty<RoboatsWaterInfo>();
+				return Enumerable.Empty<SaleItem>();
 			}
 
-			var result = new List<RoboatsWaterInfo>();
+			var result = new List<SaleItem>();
 			var waters = _roboatsRepository.GetWaterTypes();
 
 			foreach(var waterNode in waterNodes)
@@ -470,7 +470,7 @@ namespace RoboatsService.Requests
 				var waterParts = waterNode.Split('-');
 				if(waterParts.Length != 2)
 				{
-					Enumerable.Empty<RoboatsWaterInfo>();
+					Enumerable.Empty<SaleItem>();
 				}
 
 
@@ -480,16 +480,16 @@ namespace RoboatsService.Requests
 
 				if(!waterTypeParsed || !bottlesCountParsed)
 				{
-					return Enumerable.Empty<RoboatsWaterInfo>();
+					return Enumerable.Empty<SaleItem>();
 				}
 
 				var roboatsWater =  waters.FirstOrDefault(x => x.Id == waterTypeId);
 				if(roboatsWater == null)
 				{
-					return Enumerable.Empty<RoboatsWaterInfo>();
+					return Enumerable.Empty<SaleItem>();
 				}
 
-				var waterInfo = new RoboatsWaterInfo(roboatsWater.Nomenclature.Id, bottlesCount);
+				var waterInfo = new SaleItem(roboatsWater.Nomenclature.Id, bottlesCount);
 				result.Add(waterInfo);
 			}
 
