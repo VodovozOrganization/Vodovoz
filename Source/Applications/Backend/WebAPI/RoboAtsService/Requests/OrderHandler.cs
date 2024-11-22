@@ -15,6 +15,7 @@ using Vodovoz.Models.Orders;
 using Vodovoz.Settings.Roboats;
 using VodovozBusiness.Services.Orders;
 using static VodovozBusiness.Services.Orders.CreateOrderRequest;
+using VodovozBusiness.Extensions.Mapping;
 
 namespace RoboatsService.Requests
 {
@@ -330,7 +331,7 @@ namespace RoboatsService.Requests
 			orderArgs.BottlesReturn = bottlesReturn;
 			orderArgs.Date = date;
 			orderArgs.DeliveryScheduleId = deliverySchedule.Id;
-			orderArgs.PaymentType = payment;
+			orderArgs.PaymentType = payment.MapToPaymentType();
 			orderArgs.BanknoteForReturn = banknoteForReturn;
 
 			try

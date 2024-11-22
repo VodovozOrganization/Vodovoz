@@ -30,6 +30,7 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
+using VodovozBusiness.Extensions.Mapping;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -240,22 +241,19 @@ namespace Vodovoz.Application.Orders.Services
 			order.Author = author;
 			order.Client = counterparty;
 			order.DeliveryPoint = deliveryPoint;
+
+			order.PaymentType = roboatsOrderArgs.PaymentType;
+
 			switch(roboatsOrderArgs.PaymentType)
 			{
-				case RoboAtsOrderPayment.Cash:
-					order.PaymentType = PaymentType.Cash;
+				case PaymentType.Cash:
 					order.Trifle = roboatsOrderArgs.BanknoteForReturn;
 					break;
-				case RoboAtsOrderPayment.Terminal:
-					order.PaymentType = PaymentType.Terminal;
-					break;
-				case RoboAtsOrderPayment.QrCode:
-					order.PaymentType = PaymentType.DriverApplicationQR;
+				case PaymentType.DriverApplicationQR:
 					order.Trifle = 0;
 					break;
-				default:
-					throw new NotSupportedException("Неподдерживаемый тип оплаты через Roboats");
 			}
+
 			order.DeliverySchedule = deliverySchedule;
 			order.DeliveryDate = roboatsOrderArgs.Date;
 

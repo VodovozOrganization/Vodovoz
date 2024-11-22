@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Vodovoz.Models.Orders;
+using Vodovoz.Domain.Client;
 
 namespace VodovozBusiness.Services.Orders
 {
@@ -12,7 +12,7 @@ namespace VodovozBusiness.Services.Orders
 		public int BottlesReturn { get; set; }
 		public DateTime Date { get; set; }
 		public int DeliveryScheduleId { get; set; }
-		public RoboAtsOrderPayment PaymentType { get; set; }
+		public PaymentType PaymentType { get; set; }
 		public int? BanknoteForReturn { get; set; }
 	}
 }
