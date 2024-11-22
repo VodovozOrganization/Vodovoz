@@ -91,13 +91,13 @@ namespace EdoContactsUpdater
 								const string errorMessage = "Ошибка при запросе списка контактов";
 								_logger.LogError(e, errorMessage);
 							}
+							
+							await _zabbixSender.SendIsHealthyAsync(cancellationToken);
 
 							if(contactUpdates.Contacts is null)
 							{
 								break;
 							}
-
-							await _zabbixSender.SendIsHealthyAsync(cancellationToken);
 
 							foreach(var contact in contactUpdates.Contacts)
 							{
