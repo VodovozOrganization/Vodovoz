@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.FeatureManagement;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Presentation.WebApi.Common;
@@ -98,6 +101,24 @@ namespace Vodovoz.Presentation.WebApi
 			services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 			return services;
+		}
+
+		public static IServiceCollection AddFeatureFlags(this IServiceCollection services)
+		{
+			services.AddFeatureManagement();
+			return services;
+		}
+
+		public static void ConfigureJsonSourcesAutoReload(this IConfigurationBuilder configurationBuilder)
+		{
+			var jsonSources = configurationBuilder.Sources
+				.Where(cs => cs is JsonConfigurationSource)
+				.Select(cs => cs as JsonConfigurationSource);
+
+			foreach(var jsonSource in jsonSources)
+			{
+				jsonSource.ReloadOnChange = true;
+			}
 		}
 	}
 }
