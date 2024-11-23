@@ -36,6 +36,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NHibernateProjections.Documents;
+using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
@@ -301,7 +302,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					(node) => node.EntityType == typeof(RegradingOfGoodsDocumentItem))
 					.FinishConfiguration();
 
-			RegisterEntity(GetQueryDriverAttachedTerminalGiveoutDocument)
+			RegisterEntity<DriverAttachedTerminalGiveoutDocument>(
+				new Func<IUnitOfWork, IQueryOver<DriverAttachedTerminalGiveoutDocument>>[]
+				{
+					GetQueryDriverAttachedTerminalGiveoutFromDocument,
+					GetQueryDriverAttachedTerminalGiveoutToDocument
+				}.AsEnumerable())
 				.AddDocumentConfiguration(
 					() => null,
 					(node) => NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(
@@ -2216,7 +2222,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
-		private IQueryOver<DriverAttachedTerminalGiveoutDocument> GetQueryDriverAttachedTerminalGiveoutDocument(IUnitOfWork unitOfWork)
+		private IQueryOver<DriverAttachedTerminalGiveoutDocument> GetQueryDriverAttachedTerminalGiveoutFromDocument(IUnitOfWork unitOfWork)
 		{
 			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
@@ -2302,6 +2308,103 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => warehouseBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.CreationDate).WithAlias(() => resultAlias.LastEditedTime))
+				.OrderBy(x => x.CreationDate).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
+		}
+
+		private IQueryOver<DriverAttachedTerminalGiveoutDocument> GetQueryDriverAttachedTerminalGiveoutToDocument(IUnitOfWork unitOfWork)
+		{
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
+
+			DriverAttachedTerminalGiveoutDocument driverAttachedTerminalGiveoutDocumentAlias = null;
+			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
+			EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperationAlias = null;
+			Warehouse warehouseAlias = null;
+			Employee driverAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+
+			var queryDriverAttachedTerminalGiveout =
+				unitOfWork.Session.QueryOver(() => driverAttachedTerminalGiveoutDocumentAlias);
+
+			if((FilterViewModel.DocumentType == null
+					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalGiveout
+					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalMovement)
+				&& _isFilteringByTargetSelected
+				&& !FilterViewModel.WarehouseIds.Any()
+				&& !FilterViewModel.CarIds.Any())
+			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					queryDriverAttachedTerminalGiveout.Where(() => driverAttachedTerminalGiveoutDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
+				if(FilterViewModel.StartDate != null)
+				{
+					queryDriverAttachedTerminalGiveout.Where(() => driverAttachedTerminalGiveoutDocumentAlias.CreationDate >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					queryDriverAttachedTerminalGiveout.Where(() => driverAttachedTerminalGiveoutDocumentAlias.CreationDate <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
+
+				if(FilterViewModel.Author != null)
+				{
+					queryDriverAttachedTerminalGiveout.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					queryDriverAttachedTerminalGiveout.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.EmployeeIds.Any())
+				{
+					var employeeCriterion = GetEmployeeCriterion(
+						_isIncludeFilterType,
+						() => driverAlias.Id);
+
+					queryDriverAttachedTerminalGiveout.Where(employeeCriterion);
+				}
+
+				queryDriverAttachedTerminalGiveout.Where(GetIncludeExcludeNomenclatureRestriction(nomenclatureAlias));
+				queryDriverAttachedTerminalGiveout.Where(GetIncludeExcludeProductGroupRestriction(productGroupAlias));
+			}
+			else
+			{
+				queryDriverAttachedTerminalGiveout.Where(() => driverAttachedTerminalGiveoutDocumentAlias.Id == -1);
+			}
+
+			return queryDriverAttachedTerminalGiveout
+				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.EmployeeNomenclatureMovementOperation, () => employeeNomenclatureMovementOperationAlias)
+				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.GoodsAccountingOperation, () => warehouseBulkOperationAlias)
+				.Left.JoinAlias(() => employeeNomenclatureMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
+				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.Author, () => lastEditorAlias)
+				.Left.JoinAlias(() => warehouseBulkOperationAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => employeeNomenclatureMovementOperationAlias.Employee, () => driverAlias)
+				.SelectList(list => list
+					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => employeeNomenclatureMovementOperationAlias.OperationTime).WithAlias(() => resultAlias.Date)
+					.Select(EmployeeProjections.DriverLastNameWithInitials).WithAlias(() => resultAlias.Target)
+					.Select(() => DocumentType.DriverTerminalGiveout).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(DriverAttachedTerminalGiveoutDocument)).WithAlias(() => resultAlias.EntityType)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromStorage)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
+					.Select(() => employeeNomenclatureMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -2588,7 +2691,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			lines.AddRange(GetQueryShiftChangeWarehouseDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryRegradingOfGoodsWriteoffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryRegradingOfGoodsIncomeDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
-			lines.AddRange(GetQueryDriverAttachedTerminalGiveoutDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryDriverAttachedTerminalGiveoutFromDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryDriverAttachedTerminalGiveoutToDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryDriverAttachedTerminalReturnDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
 
 			_warehouseDocumentsItemsJournalReport = WarehouseDocumentsItemsJournalReport.Create(
@@ -2678,7 +2782,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			lines.AddRange(GetQueryInventoryDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryRegradingOfGoodsWriteoffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryRegradingOfGoodsIncomeDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
-			lines.AddRange(GetQueryDriverAttachedTerminalGiveoutDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryDriverAttachedTerminalGiveoutFromDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryDriverAttachedTerminalGiveoutToDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryDriverAttachedTerminalReturnDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
 
 			lines.OrderByDescending(x => x.Date);
