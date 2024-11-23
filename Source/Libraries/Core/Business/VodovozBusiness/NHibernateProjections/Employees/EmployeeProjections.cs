@@ -68,5 +68,23 @@ namespace Vodovoz.NHibernateProjections.Employees
 					Projections.Property(() => employeeAlias.Patronymic));
 			}
 		}
+
+		/// <summary>
+		/// Фамилия и инициалы водителя
+		/// </summary>
+		public static IProjection DriverLastNameWithInitials
+		{
+			get
+			{
+				Employee driverAlias = null;
+
+				return Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT( ?1, ' ', SUBSTRING(?2, 1, 1), '. ', SUBSTRING(?3, 1, 1), '.')"),
+					NHibernateUtil.String,
+					Projections.Property(() => driverAlias.LastName),
+					Projections.Property(() => driverAlias.Name),
+					Projections.Property(() => driverAlias.Patronymic));
+			}
+		}
 	}
 }
