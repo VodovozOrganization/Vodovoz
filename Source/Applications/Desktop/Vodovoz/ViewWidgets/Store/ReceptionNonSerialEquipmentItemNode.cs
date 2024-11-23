@@ -1,5 +1,6 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewWidgets.Store
 {

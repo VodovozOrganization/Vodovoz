@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate.Criterion;

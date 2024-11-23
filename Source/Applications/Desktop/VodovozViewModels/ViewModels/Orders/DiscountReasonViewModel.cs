@@ -8,14 +8,13 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
@@ -24,16 +23,17 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 	public class DiscountReasonViewModel : EntityTabViewModelBase<DiscountReason>
 	{
 		private readonly IDiscountReasonRepository _discountReasonRepository;
-		private readonly IProductGroupJournalFactory _productGroupJournalFactory;
 		private ILifetimeScope _lifetimeScope;
 		private Nomenclature _selectedNomenclature;
 		private ProductGroup _selectedProductGroup;
-		
+		private ProductGroupsJournalViewModel _selectProductGroupJournalViewModel;
+
 		private DelegateCommand _addNomenclatureCommand;
 		private DelegateCommand _addProductGroupCommand;
 		private DelegateCommand _removeNomenclatureCommand;
 		private DelegateCommand _removeProductGroupCommand;
 		private DelegateCommand<bool> _updateSelectedCategoriesCommand;
+
 		
 		public DiscountReasonViewModel(
 			ILifetimeScope lifetimeScope,
@@ -41,13 +41,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IDiscountReasonRepository discountReasonRepository,
-			IProductGroupJournalFactory productGroupJournalFactory,
 			INavigationManager navigationManager)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
-			_productGroupJournalFactory = productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory));
 			
 			TabName = UoWGeneric.IsNew ? "Новое основание для скидки" : $"Основание для скидки \"{Entity.Name}\"";
 
@@ -81,7 +79,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				}
 			} 
 		}
-		
+
 		public IList<SelectableNomenclatureCategoryNode> SelectableNomenclatureCategoryNodes { get; private set; }
 
 		public DelegateCommand AddNomenclatureCommand => _addNomenclatureCommand ?? (_addNomenclatureCommand = new DelegateCommand(
@@ -118,22 +116,30 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public DelegateCommand AddProductGroupCommand => _addProductGroupCommand ?? (_addProductGroupCommand = new DelegateCommand(
 				() =>
 				{
-					var journalViewModel = _productGroupJournalFactory.CreateProductGroupAutocompleteSelector();
-					journalViewModel.OnEntitySelectedResult += (s, ea) =>
-					{
-						var selectedNode = ea.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null)
+					var selectGroupPage = NavigationManager.OpenViewModel<ProductGroupsJournalViewModel, Action<ProductGroupsJournalFilterViewModel>>(
+						this,
+						filter =>
 						{
-							return;
-						}
+							filter.IsGroupSelectionMode = true;
+						},
+						OpenPageOptions.AsSlave,
+						vm =>
+						{
+							vm.SelectionMode = JournalSelectionMode.Single;
+						});
+					
+					if(_selectProductGroupJournalViewModel != null)
+					{
+						_selectProductGroupJournalViewModel.OnSelectResult -= OnProductGroupSelected;
+					}
 
-						Entity.AddProductGroup(UoW.GetById<ProductGroup>(selectedNode.Id));
-					};
-					TabParent.AddSlaveTab(this, journalViewModel);
+					_selectProductGroupJournalViewModel = selectGroupPage.ViewModel;
+					_selectProductGroupJournalViewModel.OnSelectResult += OnProductGroupSelected;
 				}
 			)
 		);
-		
+
+
 		public DelegateCommand RemoveProductGroupCommand => _removeProductGroupCommand ?? (_removeProductGroupCommand = new DelegateCommand(
 				() =>
 				{
@@ -175,6 +181,23 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			return base.Save(close);
 		}
 
+		private void OnProductGroupSelected(object sender, JournalSelectedEventArgs e)
+		{
+			var selectedNode = e.SelectedObjects.FirstOrDefault();
+
+			if(selectedNode == null)
+			{
+				return;
+			}
+
+			if(!(selectedNode is ProductGroupsJournalNode selectedProductNode))
+			{
+				return;
+			}
+
+			Entity.AddProductGroup(UoW.GetById<ProductGroup>(selectedProductNode.Id));
+		}
+
 		public void UpdateNomenclatureCategories(SelectableNomenclatureCategoryNode selectedCategory) =>
 			Entity.UpdateNomenclatureCategories(selectedCategory);
 		
@@ -201,6 +224,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public override void Dispose()
 		{
 			_lifetimeScope = null;
+
+			if(_selectProductGroupJournalViewModel != null)
+			{
+				_selectProductGroupJournalViewModel.OnSelectResult -= OnProductGroupSelected;
+			}
+
 			base.Dispose();
 		}
 	}

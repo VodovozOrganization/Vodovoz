@@ -26,6 +26,7 @@ using Vodovoz.Tools.Store;
 using Vodovoz.Infrastructure;
 using QS.Navigation;
 using QS.Project.Journal;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Autofac;

@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Settings.Nomenclature;

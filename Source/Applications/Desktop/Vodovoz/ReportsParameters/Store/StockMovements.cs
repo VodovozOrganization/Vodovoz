@@ -22,6 +22,7 @@ using System.ComponentModel;
 using QS.Tdi;
 using QS.Navigation;
 using Autofac;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.Core.Domain.Goods;

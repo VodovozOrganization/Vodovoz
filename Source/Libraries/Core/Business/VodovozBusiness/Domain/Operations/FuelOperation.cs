@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -17,7 +17,8 @@ namespace Vodovoz
 		private FuelType fuel;
 
 		[Display(Name = "Тип топлива")]
-		public virtual FuelType Fuel {
+		public virtual FuelType Fuel
+		{
 			get { return fuel; }
 			set { SetField(ref fuel, value, () => Fuel); }
 		}
@@ -25,7 +26,8 @@ namespace Vodovoz
 		private Employee driver;
 
 		[Display(Name = "Водитель")]
-		public virtual Employee Driver {
+		public virtual Employee Driver
+		{
 			get { return driver; }
 			set { SetField(ref driver, value, () => Driver); }
 		}
@@ -33,7 +35,8 @@ namespace Vodovoz
 		private Car _car;
 
 		[Display(Name = "Транспортное средство")]
-		public virtual Car Car {
+		public virtual Car Car
+		{
 			get { return _car; }
 			set { SetField(ref _car, value, () => Car); }
 		}
@@ -41,14 +44,16 @@ namespace Vodovoz
 		private decimal litersGived;
 
 		[Display(Name = "Выдано литров топлива")]
-		public virtual decimal LitersGived {
+		public virtual decimal LitersGived
+		{
 			get { return litersGived; }
 			set { SetField(ref litersGived, value, () => LitersGived); }
 		}
 
 		private decimal payedLiters;
 		[Display(Name = "Выдано литров топлива деньгами")]
-		public virtual decimal PayedLiters {
+		public virtual decimal PayedLiters
+		{
 			get => payedLiters;
 			set => SetField(ref payedLiters, value, () => PayedLiters);
 		}
@@ -56,7 +61,8 @@ namespace Vodovoz
 		private decimal litersOutlayed;
 
 		[Display(Name = "Потрачено литров топлива")]
-		public virtual decimal LitersOutlayed {
+		public virtual decimal LitersOutlayed
+		{
 			get { return litersOutlayed; }
 			set { SetField(ref litersOutlayed, value, () => LitersOutlayed); }
 		}
@@ -64,7 +70,8 @@ namespace Vodovoz
 		private bool isFine;
 
 		[Display(Name = "Операция со штрафом")]
-		public virtual bool IsFine {
+		public virtual bool IsFine
+		{
 			get { return isFine; }
 			set { SetField(ref isFine, value, () => IsFine); }
 		}

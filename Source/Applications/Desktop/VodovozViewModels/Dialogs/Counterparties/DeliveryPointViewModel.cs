@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Fias.Client.Loaders;
 using QS.Commands;
 using QS.Dialog;
@@ -17,6 +17,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;

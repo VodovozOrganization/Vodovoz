@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Core.Lifetime;
 using EdoService.Library;
 using EdoService.Library.Converters;
@@ -49,6 +49,8 @@ using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Employees;

@@ -78,7 +78,6 @@ namespace Vodovoz.Configuration
                 //Остальные справочники
                 OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDlg>(),
 				OrmObjectMapping<M2ProxyDocument>.Create().Dialog<M2ProxyDlg>(),
-				OrmObjectMapping<ProductGroup>.Create().Dialog<ProductGroupDlg>(),
 				OrmObjectMapping<CommentTemplate>.Create().Dialog<CommentTemplateDlg>().DefaultTableView()
 					.SearchColumn("Шаблон комментария", x => x.Comment).End(),
 				OrmObjectMapping<FineTemplate>.Create().Dialog<FineTemplateDlg>().DefaultTableView()

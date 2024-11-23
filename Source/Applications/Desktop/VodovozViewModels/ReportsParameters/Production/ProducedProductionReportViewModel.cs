@@ -1,4 +1,4 @@
-﻿using NHibernate.Linq;
+using NHibernate.Linq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
