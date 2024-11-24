@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
@@ -9,10 +9,6 @@ using TaxcomEdo.Contracts.Orders;
 using TaxcomEdoApi.Library.Config;
 using TaxcomEdoApi.Library.Converters;
 using TISystems.TTC.Common;
-using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Payments;
 
 namespace TaxcomEdoApi.Library.Factories
 {
