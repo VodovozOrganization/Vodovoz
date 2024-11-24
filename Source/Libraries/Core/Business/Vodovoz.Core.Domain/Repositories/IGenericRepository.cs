@@ -1,9 +1,9 @@
-﻿using Core.Infrastructure.Specifications;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Vodovoz.Core.Domain.Specifications;
 
 namespace Vodovoz.Core.Domain.Repositories
 {
