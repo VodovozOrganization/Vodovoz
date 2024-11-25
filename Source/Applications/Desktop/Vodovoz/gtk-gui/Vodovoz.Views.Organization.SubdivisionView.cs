@@ -80,6 +80,10 @@ namespace Vodovoz.Views.Organization
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox speciallistcomboboxGeoGrpoup;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonAddSubdiviionPermissions;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonReplaceSubdivisionPermissions;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckArchieve;
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
@@ -158,7 +162,7 @@ namespace Vodovoz.Views.Organization
 			this.table1.Add(this.frmWarehoses);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.frmWarehoses]));
 			w6.TopAttach = ((uint)(2));
-			w6.BottomAttach = ((uint)(6));
+			w6.BottomAttach = ((uint)(5));
 			w6.LeftAttach = ((uint)(4));
 			w6.RightAttach = ((uint)(5));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -446,6 +450,34 @@ namespace Vodovoz.Views.Organization
 			w33.XOptions = ((global::Gtk.AttachOptions)(4));
 			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.ybuttonAddSubdiviionPermissions = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonAddSubdiviionPermissions.CanFocus = true;
+			this.ybuttonAddSubdiviionPermissions.Name = "ybuttonAddSubdiviionPermissions";
+			this.ybuttonAddSubdiviionPermissions.UseUnderline = true;
+			this.ybuttonAddSubdiviionPermissions.Label = global::Mono.Unix.Catalog.GetString("Добавить права подразделению");
+			this.table1.Add(this.ybuttonAddSubdiviionPermissions);
+			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.ybuttonAddSubdiviionPermissions]));
+			w34.TopAttach = ((uint)(5));
+			w34.BottomAttach = ((uint)(6));
+			w34.LeftAttach = ((uint)(4));
+			w34.RightAttach = ((uint)(5));
+			w34.XOptions = ((global::Gtk.AttachOptions)(0));
+			w34.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child table1.Gtk.Table+TableChild
+			this.ybuttonReplaceSubdivisionPermissions = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonReplaceSubdivisionPermissions.CanFocus = true;
+			this.ybuttonReplaceSubdivisionPermissions.Name = "ybuttonReplaceSubdivisionPermissions";
+			this.ybuttonReplaceSubdivisionPermissions.UseUnderline = true;
+			this.ybuttonReplaceSubdivisionPermissions.Label = global::Mono.Unix.Catalog.GetString("Заменить права у подразделения");
+			this.table1.Add(this.ybuttonReplaceSubdivisionPermissions);
+			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.table1[this.ybuttonReplaceSubdivisionPermissions]));
+			w35.TopAttach = ((uint)(6));
+			w35.BottomAttach = ((uint)(7));
+			w35.LeftAttach = ((uint)(4));
+			w35.RightAttach = ((uint)(5));
+			w35.XOptions = ((global::Gtk.AttachOptions)(0));
+			w35.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child table1.Gtk.Table+TableChild
 			this.ycheckArchieve = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckArchieve.CanFocus = true;
 			this.ycheckArchieve.Name = "ycheckArchieve";
@@ -453,12 +485,12 @@ namespace Vodovoz.Views.Organization
 			this.ycheckArchieve.DrawIndicator = true;
 			this.ycheckArchieve.UseUnderline = true;
 			this.table1.Add(this.ycheckArchieve);
-			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckArchieve]));
-			w34.TopAttach = ((uint)(1));
-			w34.BottomAttach = ((uint)(2));
-			w34.RightAttach = ((uint)(2));
-			w34.XOptions = ((global::Gtk.AttachOptions)(0));
-			w34.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckArchieve]));
+			w36.TopAttach = ((uint)(1));
+			w36.BottomAttach = ((uint)(2));
+			w36.RightAttach = ((uint)(2));
+			w36.XOptions = ((global::Gtk.AttachOptions)(0));
+			w36.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
@@ -466,12 +498,12 @@ namespace Vodovoz.Views.Organization
 			this.yentryName.IsEditable = true;
 			this.yentryName.InvisibleChar = '●';
 			this.table1.Add(this.yentryName);
-			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
-			w35.TopAttach = ((uint)(1));
-			w35.BottomAttach = ((uint)(2));
-			w35.LeftAttach = ((uint)(3));
-			w35.RightAttach = ((uint)(4));
-			w35.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
+			w37.TopAttach = ((uint)(1));
+			w37.BottomAttach = ((uint)(2));
+			w37.LeftAttach = ((uint)(3));
+			w37.RightAttach = ((uint)(4));
+			w37.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryShortName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryShortName.CanFocus = true;
@@ -480,13 +512,13 @@ namespace Vodovoz.Views.Organization
 			this.yentryShortName.MaxLength = 20;
 			this.yentryShortName.InvisibleChar = '●';
 			this.table1.Add(this.yentryShortName);
-			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryShortName]));
-			w36.TopAttach = ((uint)(2));
-			w36.BottomAttach = ((uint)(3));
-			w36.LeftAttach = ((uint)(3));
-			w36.RightAttach = ((uint)(4));
-			w36.XOptions = ((global::Gtk.AttachOptions)(4));
-			w36.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryShortName]));
+			w38.TopAttach = ((uint)(2));
+			w38.BottomAttach = ((uint)(3));
+			w38.LeftAttach = ((uint)(3));
+			w38.RightAttach = ((uint)(4));
+			w38.XOptions = ((global::Gtk.AttachOptions)(4));
+			w38.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
