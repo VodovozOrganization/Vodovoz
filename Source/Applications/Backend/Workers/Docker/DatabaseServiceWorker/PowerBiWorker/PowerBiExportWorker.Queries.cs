@@ -1,10 +1,11 @@
-using DatabaseServiceWorker.PowerBiWorker.Dto;
+﻿using DatabaseServiceWorker.PowerBiWorker.Dto;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -121,12 +122,14 @@ namespace DatabaseServiceWorker.PowerBiWorker
 			var sqlBuilder = new StringBuilder();
 
 			var sql = @$"SELECT /*DATE*/ as date, SUM(TRUNCATE(IFNULL(order_items.actual_count, order_items.count) * order_items.price - order_items.discount_money, 2)) AS revenueDay FROM order_items
-				 LEFT JOIN orders ON order_items.order_id = orders.id
-				 LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-				 WHERE orders.delivery_date = /*DATE*/ AND(order_status = '{nameof(OrderStatus.Accepted)}'OR order_status = '{nameof(OrderStatus.InTravelList)}' OR order_status = '{nameof(OrderStatus.OnLoading)}'
-				 OR order_status = '{nameof(OrderStatus.OnTheWay)}' OR order_status = '{nameof(OrderStatus.Shipped)}'
-				 OR order_status = '{nameof(OrderStatus.UnloadingOnStock)}' OR order_status = '{nameof(OrderStatus.Closed)}' OR (order_status = '{nameof(OrderStatus.WaitForPayment)}' AND self_delivery AND pay_after_shipment))
-				 AND!orders.is_contract_closer;";
+				LEFT JOIN orders ON order_items.order_id = orders.id
+				LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
+				WHERE orders.delivery_date = /*DATE*/ AND(order_status = '{nameof(OrderStatus.Accepted)}'OR order_status = '{nameof(OrderStatus.InTravelList)}' OR order_status = '{nameof(OrderStatus.OnLoading)}'
+				OR order_status = '{nameof(OrderStatus.OnTheWay)}' OR order_status = '{nameof(OrderStatus.Shipped)}'
+				OR order_status = '{nameof(OrderStatus.UnloadingOnStock)}' OR order_status = '{nameof(OrderStatus.Closed)}' OR (order_status = '{nameof(OrderStatus.WaitForPayment)}' AND self_delivery AND pay_after_shipment))
+				AND nomenclature.category = 'water'				 
+				AND !nomenclature.is_disposable_tare
+				AND !orders.is_contract_closer;";
 
 			for(DateTime date = startDate; date < endDate; date = date.AddDays(1))
 			{
@@ -325,28 +328,28 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 		private string GetInsertOrderSql()
 		{
-			var sql = @"INSERT INTO orders (id, version, create_date, client_id, delivery_point_id, delivery_schedule_id, is_first_order, previous_order_id,
-				bottles_return, delivery_date, extra_money, sum_to_receive, order_status, signature_type, payment_type, payment_from_id, terminal_subtype, self_delivery, shipped,
-				collect_bottles, comment, comment_logist, sum_difference_reason, author_employee_id, bottles_movement_operation_id, money_movement_operation_id, counterparty_contract_id,
-				document_type, code1c, daily_number_1c, address_1c, address_1c_code, from_client_text, to_client_text, delivery_schedule_1c, time_delivered, client_phone, last_edited_time,
-				editor_employee_id, comment_manager, returned_tare, information_on_tara, driver_call_id, driver_call_type, service, trifle, online_order, bill_date, on_route_edit_reason,
-				is_contract_closer, `1c_contract_title`, `1c_contract_code`, is_reason_type_changed_by_user, has_comment_for_driver, pay_after_shipment, load_allowed_employee_id, order_source,
-				need_cheque, add_certificates, tare_non_return_reason_id, is_bottle_stock, is_bottle_stock_discrepancy, bottles_by_stock_count, bottles_by_stock_actual_count, e_shop_order,
-				accepted_order_employee, payment_by_sms, contactless_delivery, order_payment_status, return_tare_reason_id, return_tare_reason_category_id, need_terminal, odz_comment,
-				op_comment, is_for_retail, is_self_delivery_paid, order_address_type, our_organization_id, is_fast_delivery, is_copied_from_undelivery, payment_by_qr, driver_app_comment,
-				driver_app_comment_time, contact_phone_id, comment_opmanager_updated_at, comment_opmanager_changed_by, logistics_requirements_id, is_second_order, counterparty_external_order_id,
-				call_before_arrival_minutes, self_delivery_geo_group_id, wait_until_time, first_delivery_date, is_do_not_make_call_before_arrival, dont_arrive_before_interval)
-				VALUES (@id, @version, @create_date, @client_id, @delivery_point_id, @delivery_schedule_id, @is_first_order, @previous_order_id,
-				bottles_return, @delivery_date, @extra_money, @sum_to_receive, @order_status, @signature_type, @payment_type, @payment_from_id, @terminal_subtype, @self_delivery, @shipped,
-				collect_bottles, @comment, @comment_logist, @sum_difference_reason, @author_employee_id, @bottles_movement_operation_id, @money_movement_operation_id, @counterparty_contract_id,
-				document_type, @code1c, @daily_number_1c, @address_1c, @address_1c_code, @from_client_text, @to_client_text, @delivery_schedule_1c, @time_delivered, @client_phone, @last_edited_time,
-				editor_employee_id, @comment_manager, @returned_tare, @information_on_tara, @driver_call_id, @driver_call_type, @service, @trifle, @online_order, @bill_date, @on_route_edit_reason,
-				is_contract_closer, @`1c_contract_title`, @`1c_contract_code`, @is_reason_type_changed_by_user, @has_comment_for_driver, @pay_after_shipment, @load_allowed_employee_id, @order_source,
-				need_cheque, @add_certificates, @tare_non_return_reason_id, @is_bottle_stock, @is_bottle_stock_discrepancy, @bottles_by_stock_count, @bottles_by_stock_actual_count, @e_shop_order,
-				accepted_order_employee, @payment_by_sms, @contactless_delivery, @order_payment_status, @return_tare_reason_id, @return_tare_reason_category_id, @need_terminal, @odz_comment,
-				op_comment, @is_for_retail, @is_self_delivery_paid, @order_address_type, @our_organization_id, @is_fast_delivery, @is_copied_from_undelivery, @payment_by_qr, @driver_app_comment,
-				driver_app_comment_time, @contact_phone_id, @comment_opmanager_updated_at, @comment_opmanager_changed_by, @logistics_requirements_id, @is_second_order, @counterparty_external_order_id,
-				call_before_arrival_minutes, @self_delivery_geo_group_id, @wait_until_time, @first_delivery_date, @is_do_not_make_call_before_arrival, @dont_arrive_before_interval)";
+			var sql = @"INSERT INTO orders (id, version, create_date, client_id, delivery_point_id, delivery_schedule_id, is_first_order, 
+				bottles_return, delivery_date, extra_money, sum_to_receive, order_status, payment_type, self_delivery, shipped,
+				collect_bottles, bottles_movement_operation_id, money_movement_operation_id, counterparty_contract_id,
+				document_type, code1c, daily_number_1c, address_1c, delivery_schedule_1c, time_delivered, last_edited_time,
+				driver_call_type, service, trifle, bill_date, 
+				is_contract_closer, is_reason_type_changed_by_user, has_comment_for_driver, pay_after_shipment, order_source,
+				add_certificates, tare_non_return_reason_id, is_bottle_stock, is_bottle_stock_discrepancy, bottles_by_stock_count, bottles_by_stock_actual_count, 
+				payment_by_sms, contactless_delivery, order_payment_status, need_terminal, 
+				is_for_retail, is_self_delivery_paid, order_address_type, is_fast_delivery, is_copied_from_undelivery, payment_by_qr, 
+				is_second_order, 
+				first_delivery_date, is_do_not_make_call_before_arrival, dont_arrive_before_interval)
+				VALUES (@id, @version, @create_date, IFNULL(@client_id, 0), IFNULL(@delivery_point_id, 0), IFNULL(@delivery_schedule_id, 0), IFNULL(@is_first_order, 0), 
+				IFNULL(@bottles_return, 0), @delivery_date, IFNULL(@extra_money, 0), IFNULL(@sum_to_receive, 0), @order_status, @payment_type, IFNULL(@self_delivery, 0), IFNULL(@shipped, 0),
+				IFNULL(@collect_bottles, 0), IFNULL(@bottles_movement_operation_id, 0), IFNULL(@money_movement_operation_id, 0), IFNULL(@counterparty_contract_id, 0),
+				@document_type, IFNULL(@code1c, 0), IFNULL(@daily_number_1c, 0), IFNULL(@address_1c, 0), IFNULL(@delivery_schedule_1c, 0), @time_delivered, @last_edited_time,
+				@driver_call_type, IFNULL(@service, 0), IFNULL(@trifle, 0), @bill_date, 
+				IFNULL(@is_contract_closer, 0), @is_reason_type_changed_by_user, IFNULL(@has_comment_for_driver, 0), IFNULL(@pay_after_shipment, 0), @order_source,
+				IFNULL(@add_certificates, 0), IFNULL(@tare_non_return_reason_id, 0), IFNULL(@is_bottle_stock, 0), IFNULL(@is_bottle_stock_discrepancy, 0), IFNULL(@bottles_by_stock_count, 0), IFNULL(@bottles_by_stock_actual_count, 0), 
+				IFNULL(@payment_by_sms, 0), IFNULL(@contactless_delivery, 0), @order_payment_status, IFNULL(@need_terminal, 0), 
+				IFNULL(@is_for_retail, 0), IFNULL(@is_self_delivery_paid, 0), @order_address_type, IFNULL(@is_fast_delivery, 0), IFNULL(@is_copied_from_undelivery, 0), IFNULL(@payment_by_qr, 0), 
+				IFNULL(@is_second_order, 0), 
+				@first_delivery_date, IFNULL(@is_do_not_make_call_before_arrival, 0), IFNULL(@dont_arrive_before_interval, 0))";
 
 			return sql;
 		}
@@ -360,14 +363,14 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 		private string GetInsertOrderItemsSql()
 		{
-			var sql = @"INSERT INTO order_items (id, additional_agreement_id, nomenclature_id, equipment_id, order_id, price, count, actual_count,
-				include_nds, counterparty_movement_operation_id, is_discount_in_money, discount, discount_money, discount_by_stock, free_rent_equipment_id, paid_rent_equipment_id,
-				discount_reason_id, is_user_price, value_added_tax, promotional_set_id, original_discount_money, original_discount_reason_id, original_discount, rent_type,
-				rent_sub_type, rent_count, rent_equipment_count, paid_rent_package_id, free_rent_package_id, copied_from_undelivery_id, is_alternative_price)
-				VALUES(@id, @additional_agreement_id, @nomenclature_id, @equipment_id, @order_id, @price, @count, @actual_count, @include_nds, @counterparty_movement_operation_id,
-				@is_discount_in_money, @discount, @discount_money, @discount_by_stock, @free_rent_equipment_id, @paid_rent_equipment_id, @discount_reason_id, @is_user_price, @value_added_tax,
-				@promotional_set_id, @original_discount_money, @original_discount_reason_id, @original_discount, @rent_type, @rent_sub_type, @rent_count, @rent_equipment_count,
-				@paid_rent_package_id, @free_rent_package_id, @copied_from_undelivery_id, @is_alternative_price);";
+			var sql = @"INSERT INTO order_items (id, nomenclature_id, order_id, price, count, actual_count,
+				include_nds, counterparty_movement_operation_id, is_discount_in_money, discount, discount_money, discount_by_stock,
+				is_user_price, value_added_tax, rent_type,
+				rent_sub_type, rent_count, rent_equipment_count, is_alternative_price)
+				VALUES(IFNULL(@id, 0), IFNULL(@nomenclature_id, 0), IFNULL(@order_id, 0), IFNULL(@price, 0), IFNULL(@count, 0), IFNULL(@actual_count, 0), IFNULL(@include_nds, 0), IFNULL(@counterparty_movement_operation_id, 0),
+				IFNULL(@is_discount_in_money, 0), IFNULL(@discount, 0), IFNULL(@discount_money, 0), IFNULL(@discount_by_stock, 0), IFNULL(@is_user_price, 0), IFNULL(@value_added_tax, 0),
+				@rent_type, @rent_sub_type, IFNULL(@rent_count, 0), IFNULL(@rent_equipment_count, 0),
+				IFNULL(@is_alternative_price, 0));";
 
 			return sql;
 		}

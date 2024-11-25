@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
@@ -38,6 +39,7 @@ using VodovozBusiness.Domain.Goods;
 using Vodovoz.ViewModels.Widgets.Goods;
 using VodovozBusiness.Services;
 using VodovozInfrastructure.StringHandlers;
+using Vodovoz.ViewModels.Goods.ProductGroups;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -52,6 +54,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private readonly INomenclatureService _nomenclatureService;
 		private readonly INomenclatureFileStorageService _nomenclatureFileStorageService;
+		private readonly ViewModelEEVMBuilder<ProductGroup> _productGroupEEVMBuilder;
 		private ILifetimeScope _lifetimeScope;
 		private readonly IInteractiveService _interactiveService;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
@@ -83,7 +86,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureService nomenclatureService,
 			NomenclatureMinimumBalanceByWarehouseViewModel nomenclatureMinimumBalanceByWarehouseViewModel,
 			INomenclatureFileStorageService nomenclatureFileStorageService,
-			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(nomenclatureSettings is null)
@@ -110,8 +114,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 			_nomenclatureFileStorageService = nomenclatureFileStorageService ?? throw new ArgumentNullException(nameof(nomenclatureFileStorageService));
+			_productGroupEEVMBuilder = productGroupEEVMBuilder ?? throw new ArgumentNullException(nameof(productGroupEEVMBuilder));
 
 			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
+			ProductGroupEntityEntryViewModel = CreateProductGroupEEVM();
 
 			ConfigureEntryViewModels();
 			ConfigureOnlineParameters();
@@ -151,6 +157,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public IStringHandler StringHandler { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityEntryViewModel RouteColumnViewModel { get; }
+		public IEntityEntryViewModel ProductGroupEntityEntryViewModel { get; }
 
 		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; private set; }
 			= new GenericObservableList<NomenclatureOnlinePricesNode>();
@@ -599,6 +606,30 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				.UseViewModelJournalAndAutocompleter<RouteColumnJournalViewModel>()
 				.UseViewModelDialog<RouteColumnViewModel>()
 				.Finish();
+		}
+
+		private IEntityEntryViewModel CreateProductGroupEEVM()
+		{
+			var viewModel =
+				_productGroupEEVMBuilder
+				.SetViewModel(this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, x => x.ProductGroup)
+				.UseViewModelJournalAndAutocompleter<ProductGroupsJournalViewModel, ProductGroupsJournalFilterViewModel>(
+					filter =>
+					{
+						filter.IsGroupSelectionMode = true;
+					})
+				.UseViewModelDialog<ProductGroupViewModel>()
+				.Finish();
+
+
+			viewModel.IsEditable = CanEdit;
+
+			viewModel.CanViewEntity =
+				CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(ProductGroup)).CanUpdate;
+
+			return viewModel;
 		}
 
 		private void ConfigureEntityPropertyChanges() {

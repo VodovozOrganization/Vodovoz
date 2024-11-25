@@ -41,12 +41,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using Vodovoz.Additions.Printing;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
-using Vodovoz.Core;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Cores;
 using Vodovoz.Dialogs;
@@ -90,6 +90,7 @@ using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Infrastructure.Persistance.Orders;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.JournalViewModels;
@@ -115,7 +116,6 @@ using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
@@ -260,6 +260,7 @@ namespace Vodovoz
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 		private EdoContainer _selectedEdoContainer;
 		private FastDeliveryHandler _fastDeliveryHandler;
+		private IFreeLoaderChecker _freeLoaderChecker;
 		private IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
 		private IBottlesRepository _bottlesRepository;
 		private IDeliveryPointRepository _deliveryPointRepository;
@@ -591,6 +592,7 @@ namespace Vodovoz
 			_deliveryPointRepository = _lifetimeScope.Resolve<IDeliveryPointRepository>();
 
 			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
+			_freeLoaderChecker = _lifetimeScope.Resolve<IFreeLoaderChecker>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -2556,7 +2558,8 @@ namespace Vodovoz
 				return Result.Failure(Errors.Orders.Order.HasNoValidCertificates);
 			}
 
-			var promosetDuplicateFinder = new PromosetDuplicateFinder(new CastomInteractiveService());
+			var promosetDuplicateFinder = new PromosetDuplicateFinder(_freeLoaderChecker, new CastomInteractiveService());
+			
 			var phones = new List<Phone>();
 
 			phones.AddRange(Entity.Client.Phones);
@@ -2586,7 +2589,8 @@ namespace Vodovoz
 					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
 			}
-			if(hasPromoSetForNewClients && Entity.HasUsedPromoForNewClients(_promotionalSetRepository))
+			if(hasPromoSetForNewClients && _freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(
+				UoW, Entity.SelfDelivery, Entity.Client, Entity.DeliveryPoint))
 			{
 				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
 			}
@@ -3131,7 +3135,7 @@ namespace Vodovoz
 				return;
 			}
 
-			if(CanAddNomenclaturesToOrder() && Entity.CanAddPromotionalSet(proSet, _promotionalSetRepository))
+			if(CanAddNomenclaturesToOrder() && Entity.CanAddPromotionalSet(proSet, _freeLoaderChecker, _promotionalSetRepository))
 			{
 				ActivatePromotionalSet(proSet);
 			}

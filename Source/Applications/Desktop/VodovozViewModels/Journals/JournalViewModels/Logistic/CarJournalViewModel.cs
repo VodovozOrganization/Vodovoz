@@ -340,50 +340,66 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			base.CreateNodeActions();
 
-			CreateCarInsurancesReportAction();
-			CreateCarTechInspectReportAction();
-			CreateCarsTechnicalCheckupReportAction();
-			ExportJournalItemsToExcelAction();
+			var reportActions = new JournalAction("Отчёты",
+				(selected) => true,
+				(selected) => true				
+			);
+
+			reportActions.ChildActionsList.AddRange(
+				new[]
+				{
+					CreateCarInsurancesReportAction(),
+					CreateCarTechInspectReportAction(),
+					CreateCarsTechnicalCheckupReportAction(),
+					CreateExportJournalItemsToExcelAction()
+				}
+			);
+
+			NodeActionsList.Add(reportActions);			
 		}
 
-		private void CreateCarInsurancesReportAction()
+		private JournalAction CreateCarInsurancesReportAction()
 		{
 			var selectAction = new JournalAction("Отчёт по страховкам",
 				(selected) => true,
 				(selected) => true,
 				(selected) => CreateCarInsurancesReport()
 			);
-			NodeActionsList.Add(selectAction);
+
+			return selectAction;			
 		}
 
-		private void CreateCarTechInspectReportAction()
+		private JournalAction CreateCarTechInspectReportAction()
 		{
 			var selectAction = new JournalAction("Отчёт по ТО",
 				(selected) => true,
 				(selected) => true,
 				(selected) => CreateCarTechInspectReport()
 			);
-			NodeActionsList.Add(selectAction);
+
+			return selectAction;
 		}
 
-		private void CreateCarsTechnicalCheckupReportAction()
+		private JournalAction CreateCarsTechnicalCheckupReportAction()
 		{
 			var selectAction = new JournalAction("Отчёт по ГТО",
 				(selected) => true,
 				(selected) => true,
 				(selected) => CreateCarTechnicalCheckupReport()
 			);
-			NodeActionsList.Add(selectAction);
+
+			return selectAction;
 		}
 
-		private void ExportJournalItemsToExcelAction()
+		private JournalAction CreateExportJournalItemsToExcelAction()
 		{
 			var selectAction = new JournalAction("Экспорт в Excel",
 				(selected) => true,
 				(selected) => true,
 				(selected) => ExportJournalItemsToExcel()
 			);
-			NodeActionsList.Add(selectAction);
+
+			return selectAction;
 		}
 
 		private void CreateCarInsurancesReport()

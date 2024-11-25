@@ -1,6 +1,6 @@
 ﻿using Gamma.Utilities;
 using System;
-using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 {
@@ -19,7 +19,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 		public EdoDocFlowStatus? EdoDocFlowStatus { get; set; }
 		public string EdoDocError { get; set; }
 
-		public string EdoDocFlowStatusString => EdoDocFlowStatus.HasValue && EdoDocFlowStatus == Domain.Orders.Documents.EdoDocFlowStatus.Error 
+		public string EdoDocFlowStatusString => EdoDocFlowStatus == Core.Domain.Documents.EdoDocFlowStatus.Error 
 			? EdoDocError 
 			: EdoDocFlowStatus?.GetEnumTitle() ?? "Не отправлялось";
 

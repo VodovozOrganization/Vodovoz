@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;

@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -9,7 +9,10 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -1123,26 +1126,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			CounterpartyContract counterpartyContractAlias = null;
 			VodovozOrder orderAlias = null;
 			EdoContainer edoContainerAlias = null;
-			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
 
 			var orderStatusesForOrderDocumentCloser = new[] { OrderStatus.Closed };
-
-			var manualResendBillStartDate = DateTime.Parse("2022-11-15");
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
-					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Bill, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
-					() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
+					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Bill, JoinType.LeftOuterJoin);
 
-			query.Where(() => orderAlias.DeliveryDate >= startDate
-					&& (edoContainerAlias.Id == null
-						|| (orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoBill
-								&& orderAlias.DeliveryDate >= manualResendBillStartDate
-						   )
-						));
+			query.Where(() => orderAlias.DeliveryDate >= startDate && edoContainerAlias.Id == null);
 
 			var orderStatusRestriction = Restrictions.Or(
 					Restrictions.NotEqProperty(Projections.Property(() => orderAlias.DeliverySchedule.Id), Projections.Constant(closingDocumentDeliveryScheduleId)),
@@ -1150,17 +1143,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var prohibitedOrderStatusRestriction = Restrictions.Where(() => orderAlias.OrderStatus != OrderStatus.NewOrder);
 
-			var result = query
+			query
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(orderStatusRestriction)
 				.And(prohibitedOrderStatusRestriction)
 				.And(() => counterpartyAlias.NeedSendBillByEdo && counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(GetUndeliveryAndNewStatuses())
-				.TransformUsing(Transformers.DistinctRootEntity)
-				.List();
-
-			return result;
+				.TransformUsing(Transformers.DistinctRootEntity);
+			
+			return query.List();
 		}
 
 		public IList<EdoContainer> GetPreparingToSendEdoContainers(IUnitOfWork uow, DateTime startDate, int organizationId)
@@ -1913,6 +1905,19 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List();
 
 			return result;
+		}
+		
+		public IEnumerable<VodovozOrder> GetOrdersForResendBills(IUnitOfWork uow)
+		{
+			var result = from orders in uow.Session.Query<Order>()
+				join actions in uow.Session.Query<OrderEdoTrueMarkDocumentsActions>()
+					on orders.Id equals actions.Order.Id
+				where actions.IsNeedToResendEdoBill
+				select orders;
+
+			return result
+				.Distinct()
+				.ToList();
 		}
 
 		public IQueryable<OksDailyReportOrderDiscountDataNode> GetOrdersDiscountsDataForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate)

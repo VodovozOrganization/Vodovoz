@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -293,7 +294,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IQueryOver<WarehouseInstanceGoodsAccountingOperation, WarehouseInstanceGoodsAccountingOperation>
 				instanceBalanceByWarehousesQuery = null;
 
-			if(parameters.WarehousesIds != null)
+			if(parameters.WarehousesIds.Any())
 			{
 				bulkBalanceByWarehousesQuery = localUow.Session.QueryOver(() => warehouseBulkOperationAlias)
 					.Where(() => warehouseBulkOperationAlias.OperationTime <= endDate)
@@ -330,7 +331,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IQueryOver<EmployeeInstanceGoodsAccountingOperation, EmployeeInstanceGoodsAccountingOperation> instanceBalanceByEmployeesQuery =
 				null;
 
-			if(parameters.EmployeesIds != null)
+			if(parameters.EmployeesIds.Any())
 			{
 				bulkBalanceByEmployeesQuery = localUow.Session.QueryOver(() => employeeBulkOperationAlias)
 					.Where(() => employeeBulkOperationAlias.OperationTime <= endDate)
@@ -366,7 +367,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IQueryOver<CarBulkGoodsAccountingOperation, CarBulkGoodsAccountingOperation> bulkBalanceByCarsQuery = null;
 			IQueryOver<CarInstanceGoodsAccountingOperation, CarInstanceGoodsAccountingOperation> instanceBalanceByCarsQuery = null;
 
-			if(parameters.CarsIds != null)
+			if(parameters.CarsIds.Any())
 			{
 				bulkBalanceByCarsQuery = localUow.Session.QueryOver(() => carBulkOperationAlias)
 					.Where(() => carBulkOperationAlias.OperationTime <= endDate)
@@ -967,7 +968,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						.Select(() => nomAlias.Name).WithAlias(() => resultAlias.EntityName)
 						.SelectSum(() => warehouseBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
-					.Where(Restrictions.Gt(Projections.Sum(() => employeeBulkOperationAlias.Amount), 0))
+					.Where(Restrictions.Gt(Projections.Sum(() => warehouseBulkOperationAlias.Amount), 0))
 					.OrderBy(() => nomAlias.Id).Asc
 					.ThenBy(() => warehouseBulkOperationAlias.Warehouse.Id).Asc
 					.TransformUsing(Transformers.AliasToBean<BalanceBean>());

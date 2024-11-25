@@ -38,6 +38,11 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime? _carTechnicalCheckupEndingDate;
 		private WriteOffDocument _writeOffDocument;
 		private bool _isWriteOffDocumentNotRequired;
+		private decimal? _actualFuelBalance;
+		private decimal? _currentFuelBalance;
+		private decimal? _substractionFuelBalance;
+		private decimal? _fuelCost;
+		private FuelOperation _calibrationFuelOperation;
 
 		#region Свойства
 
@@ -174,6 +179,44 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _isWriteOffDocumentNotRequired, value);
 		}
 
+		#region Калибровка баланса топлива
+
+		[Display(Name = "Актуальный баланс топлива")]
+		public virtual decimal? ActualFuelBalance
+		{
+			get => _actualFuelBalance;
+			set => SetField(ref _actualFuelBalance, value);
+		}
+
+		[Display(Name = "Текущий баланс топлива")]
+		public virtual decimal? CurrentFuelBalance
+		{
+			get => _currentFuelBalance;
+			set => SetField(ref _currentFuelBalance, value);
+		}
+
+		[Display(Name = "Разность литража")]
+		public virtual decimal? SubstractionFuelBalance
+		{
+			get => _substractionFuelBalance;
+			set => SetField(ref _substractionFuelBalance, value);
+		}
+
+		[Display(Name = "Стоимость топлива")]
+		public virtual decimal? FuelCost
+		{
+			get => _fuelCost;
+			set => SetField(ref _fuelCost, value);
+		}
+
+		public virtual FuelOperation CalibrationFuelOperation
+		{
+			get => _calibrationFuelOperation;
+			set => SetField(ref _calibrationFuelOperation, value);
+		}
+
+		#endregion Калибровка баланса топлива
+
 		GenericObservableList<Fine> observableFines;
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
@@ -212,6 +255,37 @@ namespace Vodovoz.Domain.Logistic
 		public override string ToString()
 		{
 			return $"Событие ТС №{Id} {CarEventType.Name}";
+		}
+
+		public virtual void UpdateCalibrationFuelOeration()
+		{
+			if(CalibrationFuelOperation is null)
+			{
+				CalibrationFuelOperation = new FuelOperation
+				{
+					Car = Car,
+					Fuel = Car.FuelType,
+					Driver = Driver,
+					OperationTime = DateTime.Now
+				};
+			}
+			else
+			{
+				CalibrationFuelOperation.Car = Car;
+				CalibrationFuelOperation.Fuel = Car.FuelType;
+				CalibrationFuelOperation.OperationTime = DateTime.Now;
+			}
+
+			if(SubstractionFuelBalance > 0)
+			{
+				CalibrationFuelOperation.LitersOutlayed = 0;
+				CalibrationFuelOperation.LitersGived = SubstractionFuelBalance ?? 0;
+			}
+			else
+			{
+				CalibrationFuelOperation.LitersOutlayed = -(SubstractionFuelBalance ?? 0);
+				CalibrationFuelOperation.LitersGived = 0;
+			}
 		}
 
 		#region IValidatableObject implementation
@@ -301,6 +375,16 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult("Не указана информация о складских запчастях. Пожалуйста, прикрепите акт списания или подтвердите, что запчасти не были списаны по ходу работ.",
 					new[] { nameof(WriteOffDocument) });
+			}
+
+			if(CalibrationFuelOperation?.LitersGived > 9999)
+			{
+				yield return new ValidationResult("Слишком большое кол-во в операции выданного топлива", new[] { nameof(CalibrationFuelOperation.LitersGived) });
+			}
+
+			if(CalibrationFuelOperation?.LitersOutlayed > 9999)
+			{
+				yield return new ValidationResult("Слишком большое кол-во в операции полученного топлива", new[] { nameof(CalibrationFuelOperation.LitersOutlayed) });
 			}
 		}
 
