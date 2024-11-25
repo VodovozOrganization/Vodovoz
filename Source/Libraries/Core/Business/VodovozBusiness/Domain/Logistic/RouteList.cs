@@ -2591,7 +2591,9 @@ namespace Vodovoz.Domain.Logistic
 			var wageSettings = ScopeProvider.Scope.Resolve<IWageSettings>();
 			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, wageSettings,
 				premiumRaskatSettings, this);
-			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
+
+			// Пока отключено по просьбе Маслякова А.Д., https://vod.myalm.ru/pm/Vodovoz/I-5083
+			// premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}
 
 		#region Для логистических расчетов
