@@ -139,6 +139,17 @@ namespace Vodovoz.Views.Organization
 			ycheckArchieve.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.InitializeFromSource();
+
+			ybuttonAddSubdiviionPermissions.BindCommand(ViewModel.AddSubdivisionPermissionsCommand);
+			ybuttonReplaceSubdivisionPermissions.BindCommand(ViewModel.ReplaceSubdivisionPermissionsCommand);
+
+			ybuttonAddSubdiviionPermissions.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddOrReplacePermissions, w => w.Visible)
+				.InitializeFromSource();
+
+			ybuttonReplaceSubdivisionPermissions.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddOrReplacePermissions, w => w.Visible)
+				.InitializeFromSource();
 		}
 
 		private void ChildSubdivisionsReloaded(object sender, EventArgs e)

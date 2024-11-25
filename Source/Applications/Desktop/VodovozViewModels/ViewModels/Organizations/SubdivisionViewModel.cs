@@ -83,6 +83,9 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 			SubscribeUpdateOnChanges();
 
+			AddSubdivisionPermissionsCommand = new DelegateCommand(AddSubdivisionPermissions);
+			ReplaceSubdivisionPermissionsCommand = new DelegateCommand(ReplaceSubdivisionPermissions);
+
 			_canEnablePacs = CommonServices.PermissionService.ValidateUserPresetPermission(
 				Vodovoz.Permissions.Pacs.CanEnablePacs, 
 				CommonServices.UserService.CurrentUserId);
@@ -93,6 +96,9 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		public IEntityEntryViewModel ChiefViewModel { get; private set; }
 		public IEntityEntryViewModel ParentSubdivisionViewModel { get; private set; }
 		public IEntityEntryViewModel DefaultSalesPlanViewModel { get; private set; }
+
+		public DelegateCommand AddSubdivisionPermissionsCommand { get; }
+		public DelegateCommand ReplaceSubdivisionPermissionsCommand { get; }
 
 		public EntitySubdivisionPermissionViewModel EntitySubdivisionPermissionViewModel { get; }
 
@@ -124,6 +130,10 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 		public bool CanEdit => PermissionResult.CanUpdate;
 		public bool CanEnablePacs => _canEnablePacs;
+
+		public bool CanAddOrReplacePermissions =>
+			CommonServices.UserService.GetCurrentUser().IsAdmin
+			&& !Entity.ChildSubdivisions.Any();
 
 		public bool GeographicGroupVisible => Entity.ParentSubdivision != null && Entity.ChildSubdivisions.Any();
 
@@ -217,5 +227,15 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		}
 
 		private void UpdateChanges(object sender, EventArgs e) => HasChanges = true;
+
+		private void AddSubdivisionPermissions()
+		{
+
+		}
+
+		private void ReplaceSubdivisionPermissions()
+		{
+
+		}
 	}
 }
