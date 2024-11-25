@@ -4,13 +4,13 @@ using Gtk;
 using QS.Navigation;
 using QS.Print;
 using QS.Report;
-using QS.Views.Dialog;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Dialogs.Orders;
 
 namespace Vodovoz.Views.Print
 {
-    public partial class DocumentsPrinterView : DialogViewBase<DocumentsPrinterViewModel>
-    {
+    public partial class DocumentsPrinterView : TabViewBase<DocumentsPrinterViewModel>
+	{
         public DocumentsPrinterView(DocumentsPrinterViewModel viewModel) : base(viewModel)
         {
             Build();
