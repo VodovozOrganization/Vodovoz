@@ -52,7 +52,8 @@ namespace Vodovoz.NHibernateProjections.Employees
 		}
 
 		/// <summary>
-		/// Фамилия и инициалы сотрудника
+		/// Фамилия и инициалы сотрудника<br />
+		/// Наименование алиаса в запросе для которого применяется проекция должно быть "employeeAlias"
 		/// </summary>
 		public static IProjection EmployeeLastNameWithInitials
 		{
@@ -70,7 +71,8 @@ namespace Vodovoz.NHibernateProjections.Employees
 		}
 
 		/// <summary>
-		/// Фамилия и инициалы водителя
+		/// Фамилия и инициалы водителя<br />
+		/// Наименование алиаса в запросе для которого применяется проекция должно быть "driverAlias"
 		/// </summary>
 		public static IProjection DriverLastNameWithInitials
 		{
