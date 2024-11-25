@@ -1,7 +1,9 @@
 ﻿using EdoAutoSendReceiveWorker.Configs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NLog.Extensions.Logging;
 using TaxcomEdo.Client;
 using Vodovoz.Settings.Metrics;
 using Vodovoz.Zabbix.Sender;
@@ -17,6 +19,10 @@ namespace EdoAutoSendReceiveWorker
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.ConfigureLogging((context, builder) => {
+					builder.AddNLog();
+					builder.AddConfiguration(context.Configuration.GetSection(nameof(NLog)));
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
 					services
