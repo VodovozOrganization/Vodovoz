@@ -135,6 +135,20 @@ namespace Vodovoz.Infrastructure.Persistance.Permissions
 						.List();
 		}
 
+		public IList<HierarchicalPresetSubdivisionPermission> GetAllPresetPermissionsBySubdivision(IUnitOfWork uow, int subdivisionId)
+		{
+			return uow.Session.QueryOver<HierarchicalPresetSubdivisionPermission>()
+				.Where(x => x.Subdivision.Id == subdivisionId)
+				.List();
+		}
+
+		public IList<SubdivisionWarehousePermission> GetAllWarehousePermissionsBySubdivision(IUnitOfWork uow, int subdivisionId)
+		{
+			return uow.Session
+				.QueryOver<SubdivisionWarehousePermission>().Where(x => x.Subdivision.Id == subdivisionId)
+				.List();
+		}
+
 		public HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, User user, string permission)
 		{
 			return uow.Session.QueryOver<HierarchicalPresetUserPermission>()

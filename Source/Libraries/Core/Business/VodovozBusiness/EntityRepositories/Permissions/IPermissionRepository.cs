@@ -26,6 +26,8 @@ namespace Vodovoz.EntityRepositories.Permissions
 		IList<HierarchicalPresetPermissionBase> GetAllPresetUserPermissionBase(IUnitOfWork uow, int userId);
 		HierarchicalPresetSubdivisionPermission GetPresetSubdivisionPermission(IUnitOfWork uow, Subdivision subdivision, string permission);
 		IList<HierarchicalPresetSubdivisionPermission> GetAllPresetSubdivisionPermission(IUnitOfWork uow, Subdivision subdivision);
+		IList<HierarchicalPresetSubdivisionPermission> GetAllPresetPermissionsBySubdivision(IUnitOfWork uow, int subdivisionId);
+		IList<SubdivisionWarehousePermission> GetAllWarehousePermissionsBySubdivision(IUnitOfWork uow, int subdivisionId);
 		IList<WarehousePermissionBase> GetAllUserWarehousesPermissions(IUnitOfWork uow, int userId);
 		IEnumerable<EntityUserPermission> GetAllEntityUserPermissions(IUnitOfWork uow, int userId);
 		IEnumerable<EntityUserPermissionExtended> GetAllEntityUserPermissionsExtended(IUnitOfWork uow, int userId);

@@ -20,12 +20,14 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.WageCalculation;
+using VodovozBusiness.Services.Subdivisions;
 
 namespace Vodovoz.ViewModels.ViewModels.Organizations
 {
 	public class SubdivisionViewModel : EntityTabViewModelBase<Subdivision>
 	{
 		private readonly ILifetimeScope _scope;
+		private readonly ISubdivisionPermissionsService _subdivisionPermissionsService;
 		private PresetSubdivisionPermissionsViewModel _presetSubdivisionPermissionVm;
 		private WarehousePermissionsViewModel _warehousePermissionsVm;
 		private bool _canEnablePacs;
@@ -38,11 +40,14 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			ISubdivisionRepository subdivisionRepository,
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
+			ISubdivisionPermissionsService subdivisionPermissionsService,
 			SubdivisionsJournalViewModel subdivisionsJournalViewModel) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_subdivisionPermissionsService = subdivisionPermissionsService ?? throw new ArgumentNullException(nameof(subdivisionPermissionsService));
+
 			SubdivisionsJournalViewModel = subdivisionsJournalViewModel ?? throw new ArgumentNullException(nameof(subdivisionsJournalViewModel));
 			SubdivisionsJournalViewModel.JournalFilter.SetAndRefilterAtOnce<SubdivisionFilterViewModel>(filter => filter.RestrictParentId = Entity.Id);
 			SubdivisionsJournalViewModel.Refresh();
@@ -230,7 +235,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 		private void AddSubdivisionPermissions()
 		{
-
+			_subdivisionPermissionsService.AddSubdiviionPermissions(Entity, Entity);
 		}
 
 		private void ReplaceSubdivisionPermissions()
