@@ -1,6 +1,7 @@
 ﻿using DatabaseServiceWorker.PowerBiWorker.Dto;
 using QS.DomainModel.UoW;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -448,7 +449,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 		{
 			var sql = @"INSERT INTO guilty_in_undelivered_orders
 				(id, undelivery_id, guilty_side, guilty_department_id, guilty_employee_id)
-				VALUES(@id, @undelivery_id, @guilty_side, @guilty_department_id, @guilty_employee_id);"
+				VALUES(@id, @undelivery_id, @guilty_side, IFNULL(@guilty_department_id, 0), IFNULL(@guilty_employee_id, 0));"
 			;
 			return sql;
 		}
@@ -471,7 +472,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 		{
 			var sql = @"INSERT INTO subdivisions
 				(id, name, short_name, chief_id, parent_subdivision_id, geo_group_id, default_wage_calculation_id, `type`, default_sales_plan_id, address, is_archive, pacs_time_management_enabled)
-				VALUES(@id, @name, @short_name, @chief_id, @parent_subdivision_id, @geo_group_id, @default_wage_calculation_id, @`type`, @default_sales_plan_id, @address, @is_archive, @pacs_time_management_enabled);";
+				VALUES(@id, @name, @short_name, @chief_id, @parent_subdivision_id, @geo_group_id, IFNULL(@default_wage_calculation_id, 0), @`type`, IFNULL(@default_sales_plan_id, 0), @address, @is_archive, @pacs_time_management_enabled);";
 
 			return sql;
 		}
@@ -544,6 +545,28 @@ namespace DatabaseServiceWorker.PowerBiWorker
 			return sql;
 		}
 
-		#endregion
+		private string GetCalendarInsertSql()
+		{
+			var ruCulture = CultureInfo.CreateSpecificCulture("ru-RU");
+			var date = DateTime.Today.AddDays(-1);
+
+			var montNum = date.Month;
+			var monthName = ruCulture.TextInfo.ToTitleCase(date.ToString("MMMM", ruCulture));
+			var monthShortName = ruCulture.TextInfo.ToTitleCase(date.ToString("MMM", ruCulture));
+
+			var weekDayNum = (int)date.DayOfWeek;
+			var weekDayName = ruCulture.TextInfo.ToTitleCase(date.ToString("dddd", ruCulture));
+			var weekDayShortName = ruCulture.TextInfo.ToTitleCase(date.ToString("ddd", ruCulture));
+
+			var dayNum = date.Day;
+			var isWorkDay = weekDayNum < 6;
+
+			var sql = $@"INSERT INTO calendar (`date`, month_num, month_name, month_shortName, weekday_num, weekday_name, weekday_shortName, day_num, workday)
+						VALUES(""{date.ToString("yyyy-MM-dd")}"", {montNum}, ""{monthName}"", ""{monthShortName}"", {weekDayNum}, ""{weekDayName}"", ""{weekDayShortName}"", {dayNum}, {isWorkDay})";
+
+			return sql;
+		}
+
+		#endregion tables
 	}
 }
