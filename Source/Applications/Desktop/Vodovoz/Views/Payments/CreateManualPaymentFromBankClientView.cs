@@ -33,7 +33,7 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 
 			yspinPaymentNum.Binding
-				.AddBinding(ViewModel.Entity, e => e.PaymentNum, w => w.ValueAsInt)
+				.AddBinding(ViewModel.Entity, e => e.Number, w => w.ValueAsInt)
 				.InitializeFromSource();
 			yspinPaymentNum.Adjustment.Lower = 1;
 			yspinPaymentTotal.Binding
@@ -46,21 +46,21 @@ namespace Vodovoz.Views.Payments
 				.AddBinding(ViewModel.Entity, e => e.PaymentPurpose, w => w.Buffer.Text)
 				.InitializeFromSource();
 			textViewComment.Binding
-				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.Comment, w => w.Buffer.Text)
 				.InitializeFromSource();
 
 			specListCmbCategoryProfit.ItemsList = ViewModel.ProfitCategories;
 			specListCmbCategoryProfit.SetRenderTextFunc<ProfitCategory>(pc => pc.Name);
 			specListCmbCategoryProfit.Binding
-				.AddBinding(ViewModel.Entity, e => e.ProfitCategory, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.ProfitCategory, w => w.SelectedItem)
 				.InitializeFromSource();
 		}
 
 		private void ConfigureCounterpartyEntry()
 		{
-			var builder = new LegacyEEVMBuilderFactory<Payment>(
-				ViewModel, ViewModel.Entity, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope);
-			counterpartyEntry.ViewModel = builder.ForProperty(x => x.Counterparty)
+			var builder = new LegacyEEVMBuilderFactory<CreateManualPaymentFromBankClientViewModel>(
+				ViewModel, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope);
+			counterpartyEntry.ViewModel = builder.ForProperty(x => x.SelectedCounterparty)
 					.UseTdiEntityDialog()
 					.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 					.Finish();

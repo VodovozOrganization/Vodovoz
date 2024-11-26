@@ -13,9 +13,9 @@ namespace Vodovoz.Domain.Operations
 	{
 		private decimal _income;
 		private decimal _expense;
+		private int _organizationId;
 		private AllocationStatus _cashlessMovementOperationStatus;
 		private Counterparty _counterparty;
-		private Organization _organization;
 
 		[Display(Name = "Приход")]
 		public virtual decimal Income
@@ -38,11 +38,11 @@ namespace Vodovoz.Domain.Operations
 			set => SetField(ref _counterparty, value);
 		}
 		
-		[Display(Name = "Организация")]
-		public virtual Organization Organization
+		[Display(Name = "Id организации")]
+		public virtual int OrganizationId
 		{
-			get => _organization;
-			set => SetField(ref _organization, value);
+			get => _organizationId;
+			set => SetField(ref _organizationId, value);
 		}
 		
 		public virtual AllocationStatus CashlessMovementOperationStatus

@@ -15,9 +15,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
 			Map(x => x.Expense).Column("expense");
 			Map(x => x.CashlessMovementOperationStatus)
 				.Column("cashless_movement_operation_status");
+			Map(x => x.OrganizationId).Column("organization_id");
 
 			References(x => x.Counterparty).Column("counterparty_id");
-			References(x => x.Organization).Column("organization_id");
 		}
 	}
 }

@@ -154,9 +154,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			paymentsConfiguration.FinishConfiguration();
 		}
 
+		//4914 Feature
 		protected IQueryOver<Payment> PaymentsQuery(IUnitOfWork uow)
 		{
 			PaymentJournalNode resultAlias = null;
+			CashlessIncome cashlessIncomeAlias = null;
 			Payment paymentAlias = null;
 			BaseOrg organizationAlias = null;
 			PaymentItem paymentItemAlias = null;
@@ -168,7 +170,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			var paymentQuery = uow.Session.QueryOver(() => paymentAlias)
 				.Left.JoinAlias(p => p.CashlessMovementOperation, () => incomeOperationAlias,
 					cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
-				.Left.JoinAlias(p => p.Organization, () => organizationAlias)
+				.Left.JoinAlias(p => p.CashlessIncome, () => cashlessIncomeAlias)
+				.Left.JoinAlias(() => cashlessIncomeAlias.Organization, () => organizationAlias)
 				.Left.JoinAlias(p => p.ProfitCategory, () => profitCategoryAlias)
 				.Left.JoinAlias(p => p.PaymentItems, () => paymentItemAlias)
 				.Left.JoinAlias(p => p.Counterparty, () => counterpartyAlias);
@@ -265,7 +268,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				{
 					case PaymentJournalSortType.Status:
 						paymentQuery.OrderBy(() => paymentAlias.Status).Asc();
-						paymentQuery.OrderBy(() => paymentAlias.CounterpartyName).Asc();
+						paymentQuery.OrderBy(() => cashlessIncomeAlias.PayerName).Asc();
 						paymentQuery.OrderBy(() => paymentAlias.Total).Asc();
 						break;
 					case PaymentJournalSortType.Date:
@@ -288,7 +291,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			paymentQuery.Where(GetSearchCriterion(
 				() => paymentAlias.PaymentNum,
 				() => paymentAlias.Total,
-				() => paymentAlias.CounterpartyName,
+				() => cashlessIncomeAlias.PayerName,
 				() => paymentItemAlias.Order.Id));
 
 			var resultQuery = paymentQuery
@@ -298,7 +301,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					.Select(() => paymentAlias.Date).WithAlias(() => resultAlias.Date)
 					.Select(() => paymentAlias.Total).WithAlias(() => resultAlias.Total)
 					.Select(numOrdersProjection).WithAlias(() => resultAlias.Orders)
-					.Select(() => paymentAlias.CounterpartyName).WithAlias(() => resultAlias.PayerName)
+					.Select(() => cashlessIncomeAlias.PayerName).WithAlias(() => resultAlias.PayerName)
+					.Select(() => cashlessIncomeAlias.Id).WithAlias(() => resultAlias.CashlessIncome)
 					.Select(counterpartyNameProjection).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(() => organizationAlias.FullName).WithAlias(() => resultAlias.Organization)
 					.Select(() => paymentAlias.PaymentPurpose).WithAlias(() => resultAlias.PaymentPurpose)
@@ -458,9 +462,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			NavigationManager.OpenViewModel<PaymentLoaderViewModel>(this).ViewModel;
 
 		protected ITdiTab EditPaymentDialog(PaymentJournalNode node) =>
-			NavigationManager.OpenViewModel<ManualPaymentMatchingViewModel, IEntityUoWBuilder>(
+			NavigationManager.OpenViewModel<ManualCashlessIncomeMatchingViewModel, IEntityUoWBuilder>(
 				this,
-				EntityUoWBuilder.ForOpen(DomainHelper.GetId(node)))?.ViewModel;
+				EntityUoWBuilder.ForOpen(node.CashlessIncome.Value))?.ViewModel;
 
 		protected ITdiTab CreatePaymentWriteOffDialog() =>
 			NavigationManager.OpenViewModel<PaymentWriteOffViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;

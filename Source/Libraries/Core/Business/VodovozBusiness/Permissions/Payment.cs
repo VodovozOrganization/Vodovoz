@@ -21,5 +21,13 @@ namespace Vodovoz.Permissions
 			Name = "Отмена вручную созданных платежей из банк-клиента",
 			Description = "Доступ к кнопке Отмена платежа в журнале платежей из банк-клиента")]
 		public static string CanCancelManualPaymentFromBankClient => "can_cancel_manual_payment_from_bank_client";
+		/// <summary>
+		/// Возможность разнесения остатка на другого КА
+		/// </summary>
+		[Display(
+			Name = "Разнос остатка на другого клиента",
+			Description = "Возможность разнести остаток средств в ручном распределении на другого клиента")]
+		public static string CanAllocatePaymentToSeveralClients =>
+			$"{nameof(Payment)}.can_allocate_payment_to_several_clients";
 	}
 }

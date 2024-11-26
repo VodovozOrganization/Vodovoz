@@ -16,6 +16,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
+using VodovozBusiness.Domain.Payments;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Payments
@@ -56,18 +57,40 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 		{
 			Organization organizationAlias = null;
 
-			var payment = uow.Session.QueryOver<Payment>()
-				.JoinAlias(x => x.Organization, () => organizationAlias)
-				.Where(p => p.Date == date)
-				.And(p => p.PaymentNum == number)
-				.And(p => p.CounterpartyInn == counterpartyInn)
-				.And(p => p.CounterpartyCurrentAcc == accountNumber)
-				.And(p => p.Total == sum)
+			var payment = uow.Session.QueryOver<CashlessIncome>()
+				.JoinAlias(i => i.Organization, () => organizationAlias)
+				.Where(i => i.Date == date)
+				.And(i => i.Number == number)
+				.And(i => i.PayerInn == counterpartyInn)
+				.And(i => i.PayerCurrentAcc == accountNumber)
+				.And(i => i.Total == sum)
 				.And(() => organizationAlias.INN == organisationInn)
-				.And(p => !p.IsManuallyCreated)
-				.SingleOrDefault<Payment>();
+				.And(i => !i.IsManuallyCreated)
+				.SingleOrDefault<CashlessIncome>();
 
 			return payment != null;
+		}
+
+		public IEnumerable<CashlessIncome> NotManuallyIncomes(
+			IUnitOfWork uow, string organisationInn, DateTime? startDate = null, DateTime? endDate = null)
+		{
+			Organization organizationAlias = null;
+
+			var incomes = uow.Session.QueryOver<CashlessIncome>()
+				.JoinAlias(i => i.Organization, () => organizationAlias)
+				.Where(() => organizationAlias.INN == organisationInn);
+
+			if(startDate.HasValue)
+			{
+				incomes.And(i => i.Date >= startDate);
+			}
+
+			if(endDate.HasValue)
+			{
+				incomes.And(i => i.Date <= endDate);
+			}
+			
+			return incomes.List<CashlessIncome>();
 		}
 
 		public decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId, int organizationId)
@@ -77,14 +100,14 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 
 			var income = uow.Session.QueryOver(() => cashlessIncomeOperationAlias)
 				.Where(() => cashlessIncomeOperationAlias.Counterparty.Id == counterpartyId)
-				.And(() => cashlessIncomeOperationAlias.Organization.Id == organizationId)
+				.And(() => cashlessIncomeOperationAlias.OrganizationId == organizationId)
 				.Where(() => cashlessIncomeOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum(() => cashlessIncomeOperationAlias.Income))
 				.SingleOrDefault<decimal>();
 
 			var expense = uow.Session.QueryOver(() => cashlessExpenseOperationAlias)
 				.Where(() => cashlessExpenseOperationAlias.Counterparty.Id == counterpartyId)
-				.And(() => cashlessExpenseOperationAlias.Organization.Id == organizationId)
+				.And(() => cashlessExpenseOperationAlias.OrganizationId == organizationId)
 				.Where(() => cashlessExpenseOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum(() => cashlessExpenseOperationAlias.Expense))
 				.SingleOrDefault<decimal>();
@@ -94,10 +117,13 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 
 		public int GetMaxPaymentNumFromManualPayments(IUnitOfWork uow, int counterpartyId, int organizationId)
 		{
+			CashlessIncome cashlessIncomeAlias = null;
+			
 			return uow.Session.QueryOver<Payment>()
+				.JoinAlias(p => p.CashlessIncome, () => cashlessIncomeAlias)
 				.Where(p => p.IsManuallyCreated)
 				.And(p => p.Counterparty.Id == counterpartyId)
-				.And(p => p.Organization.Id == organizationId)
+				.And(() => cashlessIncomeAlias.Organization.Id == organizationId)
 				.And(p => p.Date.Year == DateTime.Today.Year)
 				.Select(Projections.Max<Payment>(p => p.PaymentNum))
 				.SingleOrDefault<int>();
@@ -134,12 +160,14 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments)
 		{
 			Payment paymentAlias = null;
+			CashlessIncome cashlessIncomeAlias = null;
 			PaymentItem paymentItemAlias = null;
 			NotFullyAllocatedPaymentNode resultAlias = null;
 
 			var query = uow.Session.QueryOver(() => paymentAlias)
+				.Inner.JoinAlias(p => p.CashlessIncome, () => cashlessIncomeAlias)
 				.Where(p => p.Counterparty.Id == counterpartyId)
-				.And(p => p.Organization.Id == organizationId);
+				.And(() => cashlessIncomeAlias.Organization.Id == organizationId);
 
 			if(allocateCompletedPayments)
 			{
@@ -178,6 +206,7 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 		public IQueryOver<Payment, Payment> GetAllUnallocatedBalances(IUnitOfWork uow, int closingDocumentDeliveryScheduleId)
 		{
 			UnallocatedBalancesJournalNode resultAlias = null;
+			CashlessIncome cashlessIncomeAlias = null;
 			Order orderAlias = null;
 			Order orderAlias2 = null;
 			OrderItem orderItemAlias = null;
@@ -191,18 +220,19 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 			CashlessMovementOperation cashlessMovementOperationAlias = null;
 
 			var query = uow.Session.QueryOver<Payment>()
-				.Inner.JoinAlias(cmo => cmo.Counterparty, () => counterpartyAlias)
-				.Inner.JoinAlias(cmo => cmo.Organization, () => organizationAlias);
+				.Inner.JoinAlias(p => p.Counterparty, () => counterpartyAlias)
+				.Inner.JoinAlias(p => p.CashlessIncome, () => cashlessIncomeAlias)
+				.Inner.JoinAlias(() => cashlessIncomeAlias.Organization, () => organizationAlias);
 
 			var income = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
-				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
+				.And(cmo => cmo.OrganizationId == organizationAlias.Id)
 				.And(cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Income));
 
 			var expense = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
-				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
+				.And(cmo => cmo.OrganizationId == organizationAlias.Id)
 				.And(cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Expense));
 
@@ -278,38 +308,42 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 			return payment != null;
 		}
 
+		//4914 Feature
 		public IQueryable<PaymentNode> GetCounterpartyPaymentNodes(IUnitOfWork unitOfWork, int counterpartyId, string counterpartyInn)
 		{
-			var query = from payment in unitOfWork.Session.Query<Payment>()
-						join c in unitOfWork.Session.Query<Counterparty>() on payment.Counterparty.Id equals c.Id into counterparties
-						from counterparty in counterparties.DefaultIfEmpty()
-						where
-						(counterparty.INN == counterpartyInn || counterparty.Id == counterpartyId)
-						&& payment.Status != PaymentState.Cancelled
-						select new PaymentNode
-						{
-							PaymentNum = payment.PaymentNum,
-							PaymentDate = payment.Date,
-							CounterpartyId = counterparty.Id,
-							CounterpartyInn = counterparty.INN,
-							CounterpartyName = counterparty.Name,
-							CounterpartyFullName = counterparty.FullName,
-							PayerName = payment.CounterpartyName,
-							IsManuallyCreated = payment.IsManuallyCreated,
-							PaymentPurpose = payment.PaymentPurpose,
-							PaymentSum = payment.Total
-						};
+			var query =
+				from payment in unitOfWork.Session.Query<Payment>()
+				join c in unitOfWork.Session.Query<Counterparty>()
+					on payment.Counterparty.Id equals c.Id into counterparties
+				from counterparty in counterparties.DefaultIfEmpty()
+				where (counterparty.INN == counterpartyInn || counterparty.Id == counterpartyId)
+					&& payment.Status != PaymentState.Cancelled
+				select new PaymentNode
+				{
+					PaymentNum = payment.PaymentNum,
+					PaymentDate = payment.Date,
+					CounterpartyId = counterparty.Id,
+					CounterpartyInn = counterparty.INN,
+					CounterpartyName = counterparty.Name,
+					CounterpartyFullName = counterparty.FullName,
+					//PayerName = payment.CounterpartyName,
+					IsManuallyCreated = payment.IsManuallyCreated,
+					PaymentPurpose = payment.PaymentPurpose,
+					PaymentSum = payment.Total
+				};
 
 			return query;
 		}
 
 		public IQueryable<decimal> GetCounterpartyPaymentsSums(IUnitOfWork uow, int counterpartyId, string counterpartyInn)
 		{
-			var query = from payment in uow.Session.Query<Payment>()
-						where
-						payment.Status != PaymentState.Cancelled
-						&& (payment.Counterparty.Id == counterpartyId || payment.CounterpartyInn == counterpartyInn)
-						select payment.Total;
+			var query =
+				from payment in uow.Session.Query<Payment>()
+				join counterparty in uow.Session.Query<Counterparty>()
+					on payment.Counterparty.Id equals counterparty.Id
+				where payment.Status != PaymentState.Cancelled
+					&& (counterparty.Id == counterpartyId || counterparty.INN == counterpartyInn)
+				select payment.Total;
 
 			return query;
 		}

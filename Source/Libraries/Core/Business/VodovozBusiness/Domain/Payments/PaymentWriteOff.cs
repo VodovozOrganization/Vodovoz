@@ -120,14 +120,7 @@ namespace VodovozBusiness.Domain.Payments
 			{
 				if(SetField(ref _organizationId, value))
 				{
-					if(value.HasValue)
-					{
-						CashlessMovementOperation.Organization = new Organization { Id = value.Value };
-					}
-					else
-					{
-						CashlessMovementOperation.Organization = null;
-					}
+					CashlessMovementOperation.OrganizationId = value ?? 0;
 				}
 			}
 		}

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
@@ -10,7 +9,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -18,6 +16,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -82,7 +81,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public IUnitOfWorkFactory UnitOfWorkFactory { get; }
 		public TransferDocumentsFromBankParser Parser { get; private set; }
-		public GenericObservableList<Payment> ObservablePayments { get; } =	new GenericObservableList<Payment>();
+		public GenericObservableList<AutoMatchingNode> ObservableIncomes { get; }
+			= new GenericObservableList<AutoMatchingNode>();
 		public IList<ProfitCategory> ProfitCategories { get; private set; }
 		public event Action<string, double> UpdateProgress;
 		public IInteractiveService InteractiveService { get; }
@@ -168,15 +168,28 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IList<TransferDocument> parsedPayments,
 			Organization org)
 		{
+			//собрать все нужные параметры для сравнения
+			
+			//провести проверку по ним
+			
+			//получить все приходы за эту дату, на которую выписка
 			foreach(var doc in parsedPayments)
 			{
-				var curDoc = ObservablePayments.SingleOrDefault(
+				var curDoc = ObservableIncomes.SingleOrDefault(
 					x => x.Date == doc.Date
-					&& x.PaymentNum == int.Parse(doc.DocNum)
-					&& x.Organization.INN == doc.RecipientInn
+					&& x.Number == doc.DocNum
+					&& x.OrganizationInn == doc.RecipientInn
 					&& x.CounterpartyInn == doc.PayerInn
 					&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount
-					&& x.Total == doc.Total);
+					&& x.IncomeSum == doc.Total);
+
+				if(curDoc != null)
+				{
+					count++;
+					countDuplicates++;
+					UpdateProgress?.Invoke($"Обработан платеж {count} из {totalCount}", _progress);
+					continue;
+				}
 
 				if(_paymentsRepository.NotManuallyPaymentFromBankClientExists(
 					UoW,
@@ -185,7 +198,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					doc.RecipientInn,
 					doc.PayerInn,
 					doc.PayerCurrentAccount,
-					doc.Total) || curDoc != null)
+					doc.Total))
 				{
 					count++;
 					countDuplicates++;
@@ -194,20 +207,29 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 
 				var counterparty = _counterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
-				var curPayment = new Payment(doc, org, counterparty);
+				var curIncome = CashlessIncome.Create(doc, org, counterparty);
 
-				curPayment.Status =
-					!autoPaymentMatching.IncomePaymentMatch(curPayment)
+				var payment = curIncome.Payments.First();
+				payment.Status =
+					!autoPaymentMatching.IncomePaymentMatch(payment)
 						? PaymentState.undistributed
 						: PaymentState.distributed;
 
 				count++;
-				curPayment.ProfitCategory = defaultProfitCategory;
+				payment.ProfitCategory = defaultProfitCategory;
 
-				ObservablePayments.Add(curPayment);
+				AddNewNode(curIncome);
 
 				UpdateProgress?.Invoke($"Обработан платеж {count} из {totalCount}", _progress);
 			}
+		}
+
+		private void AddNewNode(CashlessIncome curIncome)
+		{
+			var node = new AutoMatchingNode();
+			node.SetCashlessIncome(curIncome);
+			
+			ObservableIncomes.Add(node);
 		}
 
 		private void Init(string docPath)
@@ -260,7 +282,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			Match(ref count, ref countDuplicates, totalCount, autoPaymentMatching, defaultProfitCategory, paymentsToVodovoz, _organisations[0]);
 			Match(ref count, ref countDuplicates, totalCount, autoPaymentMatching, defaultProfitCategory, paymentsToVodovozSouth, _organisations[1]);
 
-			var paymentsSum = ObservablePayments.Sum(x => x.Total);
+			var paymentsSum = ObservableIncomes.Sum(x => x.IncomeSum);
 			UpdateProgress?.Invoke($"Загрузка завершена. Обработано платежей {count} на сумму: {paymentsSum}р. из них не загружено дублей: {countDuplicates}", _progress = 1);
 
 			IsNotAutoMatchingMode = true;
@@ -276,6 +298,44 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				item.CreateOrUpdateExpenseOperation();
 				uow.Save(item.CashlessMovementOperation);
 			}
+		}
+	}
+
+	public class AutoMatchingNode
+	{
+		public string Number { get; private set; }
+		public DateTime Date { get; private set; }
+		public decimal IncomeSum { get; private set; }
+		public string Orders { get; private set; }
+		public string Payer { get; private set; }
+		public string Organization { get; private set; }
+		public string PaymentPurpose { get; private set; }
+		public ProfitCategory ProfitCategory { get; private set; }
+		public PaymentState Status { get; private set; }
+		public string OrganizationInn { get; private set; }
+		public string CounterpartyInn { get; private set; }
+		public string CounterpartyCurrentAcc { get; private set; }
+		
+		public CashlessIncome CashlessIncome { get; private set; }
+		
+		public void SetCashlessIncome(CashlessIncome cashlessIncome)
+		{
+			CashlessIncome = cashlessIncome;
+			
+			var payment = CashlessIncome.Payments.First();
+			
+			Number = CashlessIncome.Number.ToString();
+			Date = CashlessIncome.Date;
+			IncomeSum = CashlessIncome.Total;
+			Orders = payment.NumOrders;
+			Payer = CashlessIncome.PayerName;
+			Organization = CashlessIncome.Organization.Name;
+			OrganizationInn = CashlessIncome.Organization.INN;
+			CounterpartyInn = CashlessIncome.PayerInn;
+			PaymentPurpose = CashlessIncome.PaymentPurpose;
+			ProfitCategory = payment.ProfitCategory;
+			Status = payment.Status;
+			CounterpartyCurrentAcc = CashlessIncome.PayerCurrentAcc;
 		}
 	}
 }

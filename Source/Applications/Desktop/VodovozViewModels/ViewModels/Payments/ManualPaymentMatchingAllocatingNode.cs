@@ -8,7 +8,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 	/// <summary>
 	/// Информация для распределения платежа
 	/// </summary>
-	public class ManualPaymentMatchingViewModelNode : JournalEntityNodeBase<Order>
+	public class ManualPaymentMatchingAllocatingNode : JournalEntityNodeBase<Order>
 	{
 		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		/// <summary>

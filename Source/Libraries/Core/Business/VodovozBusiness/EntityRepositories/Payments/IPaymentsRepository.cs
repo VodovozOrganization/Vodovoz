@@ -5,6 +5,7 @@ using NHibernate;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Services;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.EntityRepositories.Payments
 {
@@ -20,6 +21,8 @@ namespace Vodovoz.EntityRepositories.Payments
 			string counterpartyInn,
 			string accountNumber,
 			decimal sum);
+		IEnumerable<CashlessIncome> NotManuallyIncomes(
+			IUnitOfWork uow, string organisationInn, DateTime? startDate = null, DateTime? endDate = null);
 		decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId, int organizationId);
 		int GetMaxPaymentNumFromManualPayments(IUnitOfWork uow, int counterpartyId, int organizationId);
 		IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IPaymentSettings profitCategoryProvider);

@@ -691,8 +691,10 @@
     <Compile Include="ViewModels\Organizations\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
+    <Compile Include="ViewModels\Payments\AllocationFundBalanceToClientViewModel.cs" />
+    <Compile Include="ViewModels\Payments\ManualPaymentMatchingViewModel.cs" />
     <Compile Include="ViewModels\Payments\ManualPaymentMatchingViewModelAllocatedNode.cs" />
-    <Compile Include="ViewModels\Payments\ManualPaymentMatchingViewModelNode.cs" />
+    <Compile Include="ViewModels\Payments\ManualPaymentMatchingAllocatingNode.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.OrderDiscrepanciesNode.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.PaymentDiscrepanciesNode.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.CounterpartyBalance1C.cs" />

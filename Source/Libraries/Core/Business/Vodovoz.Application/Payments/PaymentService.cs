@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Errors;
 using Vodovoz.Settings.Delivery;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.Application.Payments
 {
@@ -190,58 +191,66 @@ namespace Vodovoz.Application.Payments
 				 select
 					order.Client.Id).Distinct().ToList();
 
-			var unallocatedNodes =
-				(from payment in unitOfWork.Session.Query<Payment>()
-				 join organization in unitOfWork.Session.Query<Organization>()
-				 on payment.Organization.Id equals organization.Id
-				 join counterparty in unitOfWork.Session.Query<Counterparty>()
-				 on payment.Counterparty.Id equals counterparty.Id
-				 let counterpartyBalance =
-					 (decimal?)(from cashlessMovementOperation in unitOfWork.Session.Query<CashlessMovementOperation>()
-								where cashlessMovementOperation.Counterparty.Id == counterparty.Id
-									&& cashlessMovementOperation.Organization.Id == organization.Id
-									&& cashlessMovementOperation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-								select cashlessMovementOperation.Income - cashlessMovementOperation.Expense).Sum() ?? 0m
-				 let notPaidOrdersSum =
-					 (decimal?)(from order in unitOfWork.Session.Query<Order>()
-								join counterpartyContract in unitOfWork.Session.Query<CounterpartyContract>()
-								on order.Contract.Id equals counterpartyContract.Id
-								where order.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId
-									&& statuses.Contains(order.OrderStatus)
-									&& order.OrderPaymentStatus != OrderPaymentStatus.Paid
-									&& order.PaymentType == PaymentType.Cashless
-									&& order.Client.Id == counterparty.Id
-									&& counterpartyContract.Organization.Id == organization.Id
-								select order.OrderItems.Sum(oi => oi.ActualSum)).Sum() ?? 0m
-				 let notFullyPaidOrdersPaidSum =
-					(decimal?)(from cashlessMovementOperationExpense in unitOfWork.Session.Query<CashlessMovementOperation>()
-							   join paymentItem in unitOfWork.Session.Query<PaymentItem>()
-							   on cashlessMovementOperationExpense.Id equals paymentItem.CashlessMovementOperation.Id
-							   join notFullyPaidOrder in unitOfWork.Session.Query<Order>()
-							   on paymentItem.Order.Id equals notFullyPaidOrder.Id
-							   where statuses.Contains(notFullyPaidOrder.OrderStatus)
-								&& notFullyPaidOrder.PaymentType == PaymentType.Cashless
-								&& notFullyPaidOrder.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId
-								&& notFullyPaidOrder.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid
-								&& cashlessMovementOperationExpense.Counterparty.Id == counterparty.Id
-								&& cashlessMovementOperationExpense.Organization.Id == organization.Id
-								&& cashlessMovementOperationExpense.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-							   select cashlessMovementOperationExpense.Expense).Sum() ?? 0m
-				 let counterpartyDebt = notPaidOrdersSum - notFullyPaidOrdersPaidSum
-				 where counterpartiesWithDebts.Contains(payment.Counterparty.Id)
-					 && counterpartyDebt > 0
-					 && counterpartyBalance > 0
-				 orderby counterpartyBalance descending
-				 select new UnallocatedBalancesJournalNode
-				 {
-					 OrganizationId = organization.Id,
-					 OrganizationName = organization.Name,
-					 CounterpartyId = counterparty.Id,
-					 CounterpartyINN = counterparty.INN,
-					 CounterpartyName = counterparty.Name,
-					 CounterpartyBalance = counterpartyBalance,
-					 CounterpartyDebt = counterpartyDebt
-				 }).Distinct();
+			var unallocatedNodes = (
+				from payment in unitOfWork.Session.Query<Payment>()
+				join cashlessIncome in unitOfWork.Session.Query<CashlessIncome>()
+					on payment.CashlessIncome.Id equals cashlessIncome.Id
+				join organization in unitOfWork.Session.Query<Organization>()
+					on cashlessIncome.Organization.Id equals organization.Id
+				join counterparty in unitOfWork.Session.Query<Counterparty>()
+					on payment.Counterparty.Id equals counterparty.Id
+				let counterpartyBalance =
+				 (decimal?)(
+					from cashlessMovementOperation in unitOfWork.Session.Query<CashlessMovementOperation>()
+					where cashlessMovementOperation.Counterparty.Id == counterparty.Id
+						&& cashlessMovementOperation.OrganizationId == organization.Id
+						&& cashlessMovementOperation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+					select cashlessMovementOperation.Income - cashlessMovementOperation.Expense
+					).Sum() ?? 0m
+				let notPaidOrdersSum =
+				 (decimal?)(
+					from order in unitOfWork.Session.Query<Order>()
+					join counterpartyContract in unitOfWork.Session.Query<CounterpartyContract>()
+						on order.Contract.Id equals counterpartyContract.Id
+					where order.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId
+						&& statuses.Contains(order.OrderStatus)
+						&& order.OrderPaymentStatus != OrderPaymentStatus.Paid
+						&& order.PaymentType == PaymentType.Cashless
+						&& order.Client.Id == counterparty.Id
+						&& counterpartyContract.Organization.Id == organization.Id
+					select order.OrderItems.Sum(oi => oi.ActualSum)
+					).Sum() ?? 0m
+				let notFullyPaidOrdersPaidSum =
+				(decimal?)(
+					from cashlessMovementOperationExpense in unitOfWork.Session.Query<CashlessMovementOperation>()
+					join paymentItem in unitOfWork.Session.Query<PaymentItem>()
+						on cashlessMovementOperationExpense.Id equals paymentItem.CashlessMovementOperation.Id
+					join notFullyPaidOrder in unitOfWork.Session.Query<Order>()
+						on paymentItem.Order.Id equals notFullyPaidOrder.Id
+					where statuses.Contains(notFullyPaidOrder.OrderStatus)
+						&& notFullyPaidOrder.PaymentType == PaymentType.Cashless
+						&& notFullyPaidOrder.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId
+						&& notFullyPaidOrder.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid
+						&& cashlessMovementOperationExpense.Counterparty.Id == counterparty.Id
+						&& cashlessMovementOperationExpense.OrganizationId == organization.Id
+						&& cashlessMovementOperationExpense.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+					select cashlessMovementOperationExpense.Expense
+					).Sum() ?? 0m
+				let counterpartyDebt = notPaidOrdersSum - notFullyPaidOrdersPaidSum
+				where counterpartiesWithDebts.Contains(payment.Counterparty.Id)
+					&& counterpartyDebt > 0
+					&& counterpartyBalance > 0
+				orderby counterpartyBalance descending
+				select new UnallocatedBalancesJournalNode
+				{
+				 OrganizationId = organization.Id,
+				 OrganizationName = organization.Name,
+				 CounterpartyId = counterparty.Id,
+				 CounterpartyINN = counterparty.INN,
+				 CounterpartyName = counterparty.Name,
+				 CounterpartyBalance = counterpartyBalance,
+				 CounterpartyDebt = counterpartyDebt
+				}).Distinct();
 
 			var result = unallocatedNodes.ToList();
 
@@ -253,9 +262,12 @@ namespace Vodovoz.Application.Payments
 			int counterpartyId,
 			int organizationId,
 			bool allocateCompletedPayments)
-			=> (from payment in unitOfWork.Session.Query<Payment>()
+			=> (
+				from payment in unitOfWork.Session.Query<Payment>()
+				join cashlessIncome in unitOfWork.Session.Query<CashlessIncome>()
+					on payment.CashlessIncome.Id equals cashlessIncome.Id
 				where payment.Counterparty.Id == counterpartyId
-					&& payment.Organization.Id == organizationId
+					&& cashlessIncome.Organization.Id == organizationId
 					&& (allocateCompletedPayments
 						? payment.Status == PaymentState.completed
 						: payment.Status != PaymentState.Cancelled)
@@ -322,7 +334,7 @@ namespace Vodovoz.Application.Payments
 			int organizationId)
 			=> (decimal?)(from cashlessMovementOperation in unitOfWork.Session.Query<CashlessMovementOperation>()
 						  where cashlessMovementOperation.Counterparty.Id == counterpartyId
-							  && cashlessMovementOperation.Organization.Id == organizationId
+							  && cashlessMovementOperation.OrganizationId == organizationId
 							  && cashlessMovementOperation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
 						  select cashlessMovementOperation.Income - cashlessMovementOperation.Expense)
 					.Sum() ?? 0m;

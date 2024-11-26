@@ -26,7 +26,6 @@ namespace Vodovoz.Views
 			Build();
 			Configure();
 		}
-		
 
 		private void Configure()
 		{
@@ -58,23 +57,24 @@ namespace Vodovoz.Views
 			ConfigureTree();
 		}
 
+		//4914 Feature
 		private void ConfigureTree()
 		{
-			treeDocuments.ColumnsConfig = FluentColumnsConfig<Payment>.Create()
+			treeDocuments.ColumnsConfig = FluentColumnsConfig<AutoMatchingNode>.Create()
 				.AddColumn("№")
-					.AddTextRenderer(x => x.PaymentNum.ToString())
+					.AddTextRenderer(x => x.Number)
 				.AddColumn("Дата")
 					.AddTextRenderer(x => x.Date.ToShortDateString())
 				.AddColumn("Cумма")
-					.AddTextRenderer(x => x.Total.ToString())
+					.AddTextRenderer(x => x.IncomeSum.ToString())
 				.AddColumn("Заказы")
-					.AddTextRenderer(x => x.NumOrders)
+					.AddTextRenderer(x => x.Orders)
 				.AddColumn("Плательщик")
-					.AddTextRenderer(x => x.CounterpartyName)
+					.AddTextRenderer(x => x.Payer)
 					.WrapWidth(450)
 					.WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Получатель")
-					.AddTextRenderer(x => x.Organization.FullName)
+					.AddTextRenderer(x => x.Organization)
 				.AddColumn("Назначение платежа")
 					.AddTextRenderer(x => x.PaymentPurpose)
 					.WrapWidth(600)
@@ -99,7 +99,9 @@ namespace Vodovoz.Views
 					})
 				.Finish();
 
-			treeDocuments.Binding.AddBinding(ViewModel, vm => vm.ObservablePayments, w => w.ItemsDataSource).InitializeFromSource();
+			treeDocuments.Binding
+				.AddBinding(ViewModel, vm => vm.ObservableIncomes, w => w.ItemsDataSource)
+				.InitializeFromSource();
 		}
 
 		private void UpdateProgress(string msg, double progress)
@@ -121,9 +123,10 @@ namespace Vodovoz.Views
 			GtkHelper.WaitRedraw();
 		}
 
+		//4914 Feature
 		private void Save()
 		{
-			if(!ViewModel.ObservablePayments.Any())
+			if(!ViewModel.ObservableIncomes.Any())
 			{
 				return;
 			}
@@ -133,38 +136,44 @@ namespace Vodovoz.Views
 
 			var countAll = 0;
 			var countErrors = 0;
-			
-			var totalPayments = ViewModel.ObservablePayments.Count;
-			var progress = 1d / totalPayments;
 
-			foreach(var payment in ViewModel.ObservablePayments)
+			var totalIncomes = ViewModel.ObservableIncomes.Count;
+			var progress = 1d / totalIncomes;
+
+			using(var uow = ViewModel.UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				try
+				foreach(var autoMatchingNode in ViewModel.ObservableIncomes)
 				{
-					using(var uow = ViewModel.UnitOfWorkFactory.CreateWithoutRoot())
+					try
 					{
-						if(payment.Status == PaymentState.distributed)
+						foreach(var payment in autoMatchingNode.CashlessIncome.Payments)
 						{
-							foreach(var paymentItem in payment.PaymentItems)
+							if(payment.Status == PaymentState.distributed)
 							{
-								var order = uow.GetById<Order>(paymentItem.Order.Id);
-								order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+								foreach(var paymentItem in payment.PaymentItems)
+								{
+									var order = uow.GetById<Order>(paymentItem.Order.Id);
+									order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+								}
+
+								ViewModel.CreateOperations(uow, payment);
 							}
-							ViewModel.CreateOperations(uow, payment);
+
+							//uow.Save(payment);
+							
 						}
 						
-						uow.Save(payment);
-						uow.Commit();
+						uow.Save(autoMatchingNode.CashlessIncome);
 						countAll++;
-						UpdateProgress($"Сохранен {countAll} платеж из {totalPayments}", progress);
+						UpdateProgress($"Сохранен {countAll} платеж из {totalIncomes}", progress);
 					}
-				}
-				catch(Exception ex)
-				{
-					_logger.Error(ex);
-					countAll++;
-					countErrors++;
-					UpdateProgress($"Ошибка при сохранении {countAll} платежа из {totalPayments}", progress);
+					catch(Exception ex)
+					{
+						_logger.Error(ex);
+						countAll++;
+						countErrors++;
+						UpdateProgress($"Ошибка при сохранении {countAll} платежа из {totalIncomes}", progress);
+					}
 				}
 			}
 

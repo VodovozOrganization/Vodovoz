@@ -5,16 +5,24 @@ using Gamma.Widgets.Additions;
 using Gtk;
 using QS.Project.Search;
 using QS.Project.Search.GtkUI;
+using QS.ViewModels.Control.EEVM;
+using QS.Views.GtkUI;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Payments;
 
 namespace Vodovoz.Views.Payments
 {
 	[ToolboxItem(true)]
-	public partial class ManualPaymentMatchingView : Gtk.Bin
+	public partial class ManualPaymentMatchingView : WidgetViewBase<ManualPaymentMatchingViewModel>
 	{
-		public ManualPaymentMatchingView()
+		private Menu _menuAllocatingOrders;
+		private MenuItem _selectedAllocatingOrderMenuItem;
+		private Label _selectedAllocatingOrderMenuItemTitle;
+		
+		public ManualPaymentMatchingView(ManualPaymentMatchingViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			Configure();
@@ -33,12 +41,15 @@ namespace Vodovoz.Views.Payments
 
 			#endregion
 
-			btnAddCounterparty.Clicked += (sender, args) => ViewModel.AddCounterpatyCommand.Execute();
+			btnAddCounterparty.BindCommand(ViewModel.AddCounterpartyCommand);
 			btnAddCounterparty.Binding
 				.AddBinding(ViewModel, vm => vm.CounterpartyIsNull, w => w.Sensitive)
 				.InitializeFromSource();
-			ybtnRevertPayment.Clicked += (sender, args) => ViewModel.RevertAllocatedSum.Execute();
-			ybtnRevertPayment.Binding.AddBinding(ViewModel, vm => vm.CanRevertPay, w => w.Sensitive).InitializeFromSource();
+			
+			ybtnRevertPayment.BindCommand(ViewModel.RevertAllocatedSumCommand);
+			ybtnRevertPayment.Binding
+				.AddBinding(ViewModel, vm => vm.CanRevertPay, w => w.Sensitive)
+				.InitializeFromSource();
 
 			dateRangeFilter.Binding
 				.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull)
@@ -80,20 +91,7 @@ namespace Vodovoz.Views.Payments
 				.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text)
 				.InitializeFromSource();
 
-			//entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
-
-			/*entryCounterparty.Binding
-				.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
-
-			entryCounterparty.ChangedByUser += (sender, e) =>
-			{
-				ViewModel.UpdateCMOCounterparty();
-				ViewModel.UpdateNodes();
-				ViewModel.GetLastBalance();
-				ViewModel.UpdateSumToAllocate();
-				ViewModel.UpdateCurrentBalance();
-				ViewModel.GetCounterpartyDebt();
-			};*/
+			ConfigureCounterpartyEntry();
 
 			var searchView = new SearchView((SearchViewModel)ViewModel.Search);
 			hboxSearch.Add(searchView);
@@ -106,9 +104,23 @@ namespace Vodovoz.Views.Payments
 			ConfigureTrees();
 		}
 
+		private void ConfigureCounterpartyEntry()
+		{
+			var builder = new LegacyEEVMBuilderFactory<ManualPaymentMatchingViewModel>(
+				ViewModel.ParentTab, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.LifetimeScope);
+
+			var viewModel =
+				builder.ForProperty(x => x.Counterparty)
+					.UseTdiEntityDialog()
+					.UseViewModelJournal<CounterpartyJournalViewModel>()
+					.Finish();
+
+			entryCounterparty.ViewModel = viewModel;
+		}
+
 		private void ConfigureTrees()
 		{
-			ytreeviewOrdersAllocate.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingViewModelNode>.Create()
+			ytreeviewOrdersAllocate.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingAllocatingNode>.Create()
 				.AddColumn("№ заказа")
 					.AddTextRenderer(node => node.Id.ToString())
 					.XAlign(0.5f)
@@ -131,12 +143,17 @@ namespace Vodovoz.Views.Payments
 					.AddEnumRenderer(node => node.OrderPaymentStatus)
 				.AddColumn("Рассчитать остаток?")
 					.AddToggleRenderer(node => node.Calculate)
-					.ToggledEvent(UseFine_Toggled)
+					.ToggledEvent(OnCalculateToggled)
 				.AddColumn("")
 				.Finish();
 
 			ytreeviewOrdersAllocate.ItemsDataSource = ViewModel.ListNodes;
+			ytreeviewOrdersAllocate.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedAllocatingNode, w => w.SelectedRow)
+				.InitializeFromSource();
 			ytreeviewOrdersAllocate.ButtonReleaseEvent += YtreeviewOrdersAllocate_ButtonReleaseEvent;
+
+			ConfigureMenuAllocatingOrders();
 
 			yTreeViewAllocatedOrders.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingViewModelAllocatedNode>.Create()
 				.AddColumn("№ заказа")
@@ -176,12 +193,30 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 		}
 
+		//4914 Feature
+		private void ConfigureMenuAllocatingOrders()
+		{
+			_menuAllocatingOrders = new Menu();
+			_selectedAllocatingOrderMenuItemTitle = new Label("Не выбран заказ");
+
+			_selectedAllocatingOrderMenuItem = new MenuItem();
+			_selectedAllocatingOrderMenuItem.AddMnemonicLabel(_selectedAllocatingOrderMenuItemTitle);
+			_selectedAllocatingOrderMenuItem.Activated += OnOpenOrderActivated;
+			_selectedAllocatingOrderMenuItem.Visible = true;
+			_menuAllocatingOrders.Add(_selectedAllocatingOrderMenuItem);
+			_menuAllocatingOrders.ShowAll();
+		}
+
+		private void OnOpenOrderActivated(object sender, EventArgs e)
+		{
+			ViewModel.OpenOrderCommand.Execute(null);
+		}
+
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(ViewModel.CanChangeCounterparty))
 			{
 				hbox6.Sensitive = ViewModel.CanChangeCounterparty;
-				return;
 			}
 		}
 
@@ -205,59 +240,27 @@ namespace Vodovoz.Views.Payments
 
 		#endregion
 
-		private void UseFine_Toggled(object o, ToggledArgs args) =>
+		private void OnCalculateToggled(object o, ToggledArgs args) =>
 			//Вызываем через Gtk.Application.Invoke чтобы событие вызывалось уже после того как поле обновилось.
 			Gtk.Application.Invoke((sender, eventArgs) => OnToggleClicked(this, EventArgs.Empty));
 
 		private void OnToggleClicked(object sender, EventArgs e)
 		{
-			var selectedObj = ytreeviewOrdersAllocate.GetSelectedObject();
-
-			if(selectedObj == null)
-			{
-				return;
-			}
-
-			var node = selectedObj as ManualPaymentMatchingViewModelNode;
-
-			if(node.Calculate)
-			{
-				ViewModel.Calculate(node);
-			}
-			else
-			{
-				ViewModel.ReCalculate(node);
-			}
+			ViewModel.TryCalculate();
 		}
 
 		private void YtreeviewOrdersAllocate_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
 		{
 			if(args.Event.Button == 3)
 			{
-				ConfigureMenu();
+				if(ViewModel.SelectedAllocatingNode is null)
+				{
+					return;
+				}
+
+				_selectedAllocatingOrderMenuItemTitle.TextWithMnemonic = $"Открыть заказ {ViewModel.SelectedAllocatingNode.Id}";
+				_menuAllocatingOrders.Popup();
 			}
-		}
-
-		private void ConfigureMenu()
-		{
-			var selectedObj = ytreeviewOrdersAllocate.GetSelectedObject();
-
-			if(selectedObj == null)
-			{
-				return;
-			}
-
-			var order = ViewModel.UoW.GetById<Order>((selectedObj as ManualPaymentMatchingViewModelNode).Id);
-
-			var menu = new Menu();
-
-			var openOrder = new MenuItem($"Открыть заказ №{order.Id}");
-			openOrder.Activated += (s, args) => ViewModel.OpenOrderCommand.Execute(order);
-			openOrder.Visible = true;
-			menu.Add(openOrder);
-
-			menu.ShowAll();
-			menu.Popup();
 		}
 	}
 }

@@ -20,5 +20,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 		public PaymentState? Status { get; set; }
 		public string ProfitCategory { get; set; }
 		public bool IsManualCreated { get; set; }
+		public int? CashlessIncome { get; set; }
 	}
 }

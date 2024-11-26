@@ -24,6 +24,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Payments;
+using VodovozBusiness.Domain.Payments;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
@@ -126,6 +127,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		protected override IQueryOver<Payment> ItemsQuery(IUnitOfWork uow)
 		{
 			UnallocatedBalancesJournalNode resultAlias = null;
+			CashlessIncome cashlessIncomeAlias = null;
 			VodOrder orderAlias = null;
 			VodOrder orderAlias2 = null;
 			OrderItem orderItemAlias = null;
@@ -137,18 +139,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			CashlessMovementOperation cashlessMovementOperationAlias = null;
 
 			var query = uow.Session.QueryOver<Payment>()
-				.Inner.JoinAlias(cmo => cmo.Counterparty, () => counterpartyAlias)
-				.Inner.JoinAlias(cmo => cmo.Organization, () => organizationAlias);
+				.Inner.JoinAlias(p => p.Counterparty, () => counterpartyAlias)
+				.Inner.JoinAlias(p => p.CashlessIncome, () => cashlessIncomeAlias)
+				.Inner.JoinAlias(() => cashlessIncomeAlias.Organization, () => organizationAlias);
 
 			var income = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
-				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
+				.And(cmo => cmo.OrganizationId == organizationAlias.Id)
 				.And(cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Income));
 
 			var expense = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
-				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
+				.And(cmo => cmo.OrganizationId == organizationAlias.Id)
 				.And(cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Expense));
 

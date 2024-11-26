@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Autofac;
 using QS.Commands;
 using QS.ViewModels;
@@ -9,24 +8,26 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
 using System.Linq;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
-	public class CreateManualPaymentFromBankClientViewModel : EntityTabViewModelBase<Payment>
+	public class CreateManualPaymentFromBankClientViewModel : EntityTabViewModelBase<CashlessIncome>
 	{
 		private readonly IPaymentsRepository _paymentsRepository;
-		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationSettings _organizationSettings;
 		private const int _paymentNumForUpdateBalance = 120820;
 		private const string _updateBalanceTag = "Ввод остатков";
 		private int _defaultPaymentNum = 1;
 
 		private bool _isPaymentForUpdateBalance;
+		private string _comment;
+		private ProfitCategory _profitCategory;
+		private Domain.Client.Counterparty _selectedCounterparty;
 		private DelegateCommand _saveAndOpenManualPaymentMatchingCommand;
 		private DelegateCommand _changePaymentNumAndPaymentPurposeCommand;
 
@@ -38,7 +39,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IPaymentsRepository paymentsRepository,
 			IProfitCategoryRepository profitCategoryRepository,
 			IPaymentSettings profitCategoryProvider,
-			IOrganizationRepository organizationRepository,
 			IOrganizationSettings organizationSettings,
 			ILifetimeScope scope) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -52,19 +52,57 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
-			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_organizationSettings =
 				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			Scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			Configure(profitCategoryRepository, profitCategoryProvider);
-			Entity.PropertyChanged += OnEntityPropertyChanged;
+		}
+
+		public int Number
+		{
+			get => Entity.Number;
+			set
+			{
+				if(Entity.Number != value)
+				{
+					return;
+				}
+
+				Entity.Number = value;
+				OnPropertyChanged();
+			}
+		}
+
+		public Domain.Client.Counterparty SelectedCounterparty
+		{
+			get => _selectedCounterparty;
+			set
+			{
+				if(SetField(ref _selectedCounterparty, value))
+				{
+					UpdatePaymentNum();
+					UpdatePayerDetails();
+				}
+			}
 		}
 
 		public bool IsPaymentForUpdateBalance
 		{
 			get => _isPaymentForUpdateBalance;
 			set => SetField(ref _isPaymentForUpdateBalance, value);
+		}
+
+		public string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
+		}
+
+		public ProfitCategory ProfitCategory
+		{
+			get => _profitCategory;
+			set => SetField(ref _profitCategory, value);
 		}
 
 		public IEnumerable<ProfitCategory> ProfitCategories { get; private set; }
@@ -76,7 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					{
 						if(Save(true))
 						{
-							NavigationManager.OpenViewModel<ManualPaymentMatchingViewModel, IEntityUoWBuilder>(
+							NavigationManager.OpenViewModel<ManualCashlessIncomeMatchingViewModel, IEntityUoWBuilder>(
 								this, EntityUoWBuilder.ForOpen(Entity.Id));
 						}
 					}
@@ -90,68 +128,62 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						if(IsPaymentForUpdateBalance)
 						{
 							Entity.PaymentPurpose = _updateBalanceTag;
-							Entity.PaymentNum = _paymentNumForUpdateBalance;
+							Number = _paymentNumForUpdateBalance;
 						}
 						else
 						{
 							Entity.PaymentPurpose = string.Empty;
-							Entity.PaymentNum = _defaultPaymentNum;
+							Number = _defaultPaymentNum;
 						}
 					}
 				)
 			);
 
-		protected override bool BeforeSave()
+
+		public override bool Save(bool close)
 		{
-			Entity.FillPropertiesFromCounterparty();
-			return base.BeforeSave();
+			Entity.UpdateFirstPayment(SelectedCounterparty, ProfitCategory, Comment);
+			return base.Save(close);
 		}
 
 		private void Configure(IProfitCategoryRepository profitCategoryRepository, IPaymentSettings paymentSettings)
 		{
-			Entity.PaymentNum = _defaultPaymentNum;
+			Entity.DefaultManuallyIncome(
+				_defaultPaymentNum,
+				_organizationSettings.VodovozOrganizationId,
+				PaymentState.undistributed,
+				paymentSettings);
+			
 			ProfitCategories = profitCategoryRepository.GetAllProfitCategories(UoW);
-			Entity.Date = DateTime.Today;
-			Entity.Organization = _organizationRepository.GetOrganizationById(UoW, _organizationSettings.VodovozOrganizationId);
-			Entity.ProfitCategory = profitCategoryRepository.GetProfitCategoryById(UoW, paymentSettings.DefaultProfitCategory);
-			Entity.Status = PaymentState.undistributed;
-			Entity.IsManuallyCreated = true;
-		}
-		
-		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(Counterparty))
-			{
-				UpdatePaymentNum();
-				UpdateParameters();
-			}
 		}
 
-		private void UpdateParameters()
+		private void UpdatePayerDetails()
 		{
-			var defaultAccount = Entity.Counterparty?.Accounts.SingleOrDefault(x => x.IsDefault);
+			Entity.UpdatePayerDetails(SelectedCounterparty);
+			UpdatePayerAccountDetails();
+		}
+
+		private void UpdatePayerAccountDetails()
+		{
+			var defaultAccount = SelectedCounterparty?.Accounts.SingleOrDefault(x => x.IsDefault);
 
 			if(defaultAccount is null)
 			{
 				return;
 			}
 
-			Entity.CounterpartyBank = defaultAccount.InBank?.Name;
-			Entity.CounterpartyBik = defaultAccount.InBank?.Bik;
-			Entity.CounterpartyCurrentAcc = defaultAccount.Number;
-			Entity.CounterpartyAcc = defaultAccount.Number;
-			Entity.CounterpartyCorrespondentAcc = defaultAccount.BankCorAccount?.CorAccountNumber;
+			Entity.UpdatePayerAccountDetails(defaultAccount);
 		}
 
 		private void UpdatePaymentNum()
 		{
-			if(Entity.Counterparty != null)
+			if(SelectedCounterparty != null)
 			{
-				Entity.PaymentNum =
-					_paymentsRepository.GetMaxPaymentNumFromManualPayments(
-						UoW, Entity.Counterparty.Id, _organizationSettings.VodovozOrganizationId)
-					+ 1;
-				_defaultPaymentNum = Entity.PaymentNum;
+				Number = _paymentsRepository.GetMaxPaymentNumFromManualPayments(
+					UoW, SelectedCounterparty.Id, _organizationSettings.VodovozOrganizationId)
+				         + 1;
+				
+				_defaultPaymentNum = Number;
 			}
 		}
 	}

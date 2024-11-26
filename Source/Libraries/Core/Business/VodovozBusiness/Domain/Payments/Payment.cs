@@ -14,6 +14,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Services;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.Domain.Payments
 {
@@ -35,56 +37,19 @@ namespace Vodovoz.Domain.Payments
 		private decimal _total;
 		private string _paymentPurpose;
 		private string _comment;
-		private string _counterpartyAcc;
-		private string _counterpartyCurrentAcc;
-		private string _counterpartyInn;
-		private string _counterpartyKpp;
-		private string _counterpartyName;
-		private string _counterpartyBank;
-		private string _counterpartyBik;
-		private string _counterpartyCorrespondentAcc;
 		private bool _isManuallyCreated;
 		private PaymentState _status;
 		private CashlessMovementOperation _cashlessMovementOperation;
 		private Counterparty _counterparty;
 		private Account _counterpartyAccount;
-		private Organization _organization;
-		private Account _organizationAccount;
 		private ProfitCategory _profitCategory;
 		private Payment _refundedPayment;
 		private UserBase _currentEditorUser;
+		private CashlessIncome _cashlessIncome;
 		private IList<PaymentItem> _paymentItems = new List<PaymentItem>();
 		GenericObservableList<PaymentItem> _observableItems;
 
-		public Payment() { }
-
-		public Payment(TransferDocument doc, Organization org, Counterparty counterparty)
-		{
-			PaymentNum = int.Parse(doc.DocNum);
-			Date = doc.Date;
-			Total = doc.Total;
-			CounterpartyInn = doc.PayerInn;
-			CounterpartyKpp = doc.PayerKpp;
-			CounterpartyName = doc.PayerName;
-			PaymentPurpose = doc.PaymentPurpose;
-			CounterpartyBank = doc.PayerBank;
-			CounterpartyAcc = doc.PayerAccount;
-			CounterpartyCurrentAcc = doc.PayerCurrentAccount;
-			CounterpartyCorrespondentAcc = doc.PayerCorrespondentAccount;
-			CounterpartyBik = doc.PayerBik;
-
-			if(org != null)
-			{
-				Organization = org;
-				OrganizationAccount = org.Accounts.FirstOrDefault(acc => acc.Number == doc.RecipientCurrentAccount);
-			}
-
-			if(counterparty != null)
-			{
-				Counterparty = counterparty;
-				CounterpartyAccount = counterparty.Accounts.FirstOrDefault(acc => acc.Number == doc.PayerCurrentAccount);
-			}
-		}
+		protected Payment() { }
 
 		public virtual int Id { get; set; }
 
@@ -161,22 +126,6 @@ namespace Vodovoz.Domain.Payments
 		}
 
 		/// <summary>
-		/// Организация
-		/// </summary>
-		[Display(Name = "Организация")]
-		public virtual Organization Organization
-		{
-			get => _organization;
-			set => SetField(ref _organization, value);
-		}
-
-		public virtual Account OrganizationAccount
-		{
-			get => _organizationAccount;
-			set => SetField(ref _organizationAccount, value);
-		}
-
-		/// <summary>
 		/// Назначение платежа
 		/// </summary>
 		[Display(Name = "Назначение платежа")]
@@ -214,60 +163,6 @@ namespace Vodovoz.Domain.Payments
 		{
 			get => _comment;
 			set => SetField(ref _comment, value);
-		}
-
-		/// <summary>
-		/// р/сч плательщика
-		/// </summary>
-		public virtual string CounterpartyAcc
-		{
-			get => _counterpartyAcc;
-			set => SetField(ref _counterpartyAcc, value);
-		}
-
-		/// <summary>
-		/// р/сч плательщика
-		/// </summary>
-		public virtual string CounterpartyCurrentAcc
-		{
-			get => _counterpartyCurrentAcc;
-			set => SetField(ref _counterpartyCurrentAcc, value);
-		}
-
-		public virtual string CounterpartyInn
-		{
-			get => _counterpartyInn;
-			set => SetField(ref _counterpartyInn, value);
-		}
-
-		public virtual string CounterpartyKpp
-		{
-			get => _counterpartyKpp;
-			set => SetField(ref _counterpartyKpp, value);
-		}
-
-		public virtual string CounterpartyName
-		{
-			get => _counterpartyName;
-			set => SetField(ref _counterpartyName, value);
-		}
-
-		public virtual string CounterpartyBank
-		{
-			get => _counterpartyBank;
-			set => SetField(ref _counterpartyBank, value);
-		}
-
-		public virtual string CounterpartyBik
-		{
-			get => _counterpartyBik;
-			set => SetField(ref _counterpartyBik, value);
-		}
-
-		public virtual string CounterpartyCorrespondentAcc
-		{
-			get => _counterpartyCorrespondentAcc;
-			set => SetField(ref _counterpartyCorrespondentAcc, value);
 		}
 
 		/// <summary>
@@ -310,10 +205,32 @@ namespace Vodovoz.Domain.Payments
 			get => _currentEditorUser;
 			set => SetField(ref _currentEditorUser, value);
 		}
+		
+		/// <summary>
+		/// Приход по безналу
+		/// </summary>
+		[Display(Name = "Приход по безналу")]
+		[IgnoreHistoryTrace]
+		public virtual CashlessIncome CashlessIncome
+		{
+			get => _cashlessIncome;
+			set => SetField(ref _cashlessIncome, value);
+		}
 
 		public virtual string NumOrders { get; set; }
 
 		public virtual bool IsRefundPayment => RefundedPayment != null;
+		public virtual int OrganizationId => CashlessIncome.Organization.Id;
+		public virtual string CounterpartyName { get;  }
+		public virtual string CounterpartyInn { get; }
+		public virtual string CounterpartyKpp { get; }
+		public virtual string CounterpartyBank { get; }
+		public virtual string CounterpartyAcc { get; }
+		public virtual string CounterpartyCurrentAcc { get; }
+		public virtual string CounterpartyCorrespondentAcc { get; }
+		public virtual string CounterpartyBik { get; }
+		public virtual Organization Organization { get; }
+		public virtual Account OrganizationAccount { get; }
 
 		public virtual void AddPaymentItem(Order order)
 		{
@@ -372,7 +289,7 @@ namespace Vodovoz.Domain.Payments
 			{
 				Income = Total,
 				Counterparty = Counterparty,
-				Organization = Organization,
+				OrganizationId = OrganizationId,
 				OperationTime = DateTime.Now,
 				CashlessMovementOperationStatus = AllocationStatus.Accepted
 			};
@@ -392,20 +309,11 @@ namespace Vodovoz.Domain.Payments
 				Total = paymentSum,
 				ProfitCategory = ProfitCategory,
 				PaymentPurpose = $"Возврат суммы оплаты заказа №{orderId} на баланс клиента. Причина: {refundPaymentReason.GetEnumTitle()}",
-				Organization = Organization,
 				Counterparty = Counterparty,
-				CounterpartyName = CounterpartyName,
 				Status = PaymentState.undistributed,
 				RefundedPayment = this,
 				RefundPaymentFromOrderId = orderId
 			};
-		}
-
-		public virtual void FillPropertiesFromCounterparty()
-		{
-			CounterpartyInn = Counterparty.INN;
-			CounterpartyKpp = Counterparty.KPP;
-			CounterpartyName = Counterparty.Name;
 		}
 
 		public virtual void CancelAllocation(string cancellationReason, bool needUpdateOrderPaymentStatus = false, bool isByUserRequest = false)
@@ -456,6 +364,58 @@ namespace Vodovoz.Domain.Payments
 					$"Сумма платежа не может быть равной 0",
 					new[] { nameof(Total) });
 			}
+		}
+
+		private void DefaultManuallyIncome(
+			int paymentNum,
+			PaymentState paymentState,
+			IPaymentSettings paymentSettings,
+			int? counterpartyId = null,
+			DateTime? date = null)
+		{
+			PaymentNum = paymentNum;
+
+			if(counterpartyId.HasValue)
+			{
+				Counterparty = new Counterparty
+				{
+					Id = counterpartyId.Value
+				};
+			}
+			
+			Date = date ?? DateTime.Today;
+			
+			ProfitCategory = new ProfitCategory
+			{
+				Id = paymentSettings.DefaultProfitCategory
+			};
+
+			IsManuallyCreated = true;
+			
+			Status = paymentState;
+		}
+
+		internal static Payment Create()
+		{
+			return new Payment();
+		}
+
+		internal static Payment CreateDefaultManuallyIncome(
+			int paymentNum,
+			PaymentState paymentState,
+			IPaymentSettings paymentSettings,
+			int? counterpartyId = null,
+			DateTime? date = null)
+		{
+			var payment = Create();
+			payment.DefaultManuallyIncome(
+				paymentNum,
+				paymentState,
+				paymentSettings,
+				counterpartyId,
+				date);
+			
+			return payment;
 		}
 	}
 }

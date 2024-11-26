@@ -64,7 +64,7 @@ namespace Vodovoz.Domain.Payments
 				{
 					Expense = _sum,
 					Counterparty = Payment.Counterparty,
-					Organization = Payment.Organization,
+					OrganizationId = Payment.OrganizationId,
 					OperationTime = DateTime.Now,
 					CashlessMovementOperationStatus = AllocationStatus.Accepted
 				};
@@ -81,7 +81,7 @@ namespace Vodovoz.Domain.Payments
 			{
 				CashlessMovementOperation.Expense = _sum;
 				CashlessMovementOperation.Counterparty = Payment.Counterparty;
-				CashlessMovementOperation.Organization = Payment.Organization;
+				CashlessMovementOperation.OrganizationId = Payment.OrganizationId;
 				CashlessMovementOperation.OperationTime = DateTime.Now;
 			}
 		}
