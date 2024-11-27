@@ -7,6 +7,11 @@ namespace Vodovoz.Converters
 	{
 		public DeliveryPointInfoForEdo ConvertDeliveryPointToDeliveryPointInfoForEdo(DeliveryPoint deliveryPoint)
 		{
+			if(deliveryPoint is null)
+			{
+				return null;
+			}
+			
 			var deliveryPointInfo = new DeliveryPointInfoForEdo
 			{
 				Id = deliveryPoint.Id,
