@@ -278,13 +278,9 @@ namespace Vodovoz.Views
 			this.vboxPayments.Add(this.notebookPayments);
 			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vboxPayments[this.notebookPayments]));
 			w25.Position = 0;
-			w25.Expand = false;
-			w25.Fill = false;
 			this.vboxMain.Add(this.vboxPayments);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.vboxPayments]));
 			w26.Position = 6;
-			w26.Expand = false;
-			w26.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hseparator2 = new global::Gtk.HSeparator();
 			this.hseparator2.Name = "hseparator2";
