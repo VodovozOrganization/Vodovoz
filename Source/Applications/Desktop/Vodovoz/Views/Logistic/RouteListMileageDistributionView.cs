@@ -1,13 +1,14 @@
 ﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Views;
+using QS.Views.Dialog;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
-	public partial class RouteListMileageDistributionView : ViewBase<RouteListMileageDistributionViewModel>
+	public partial class RouteListMileageDistributionView : DialogViewBase<RouteListMileageDistributionViewModel>
 	{
 		public RouteListMileageDistributionView(RouteListMileageDistributionViewModel viewModel) : base(viewModel)
 		{
