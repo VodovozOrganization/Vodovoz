@@ -18,8 +18,6 @@ namespace Vodovoz.Views
 
 		private global::Gamma.GtkWidgets.yButton btnAddPayment;
 
-		private global::Gtk.Button btnCompleteAllocation;
-
 		private global::Gtk.HSeparator hseparator1;
 
 		private global::Gtk.HBox hbox2;
@@ -50,23 +48,17 @@ namespace Vodovoz.Views
 
 		private global::Gtk.Label lblIncomeSum;
 
-		private global::Gtk.Label lblLastBalanceTitle;
-
-		private global::Gamma.GtkWidgets.yLabel lblLastBalance;
-
-		private global::Gtk.Label lblToAllocateTitle;
-
-		private global::Gamma.GtkWidgets.yLabel lblToAllocate;
-
 		private global::Gtk.HSeparator hseparator3;
 
 		private global::Gamma.GtkWidgets.yVBox vboxPayments;
 
 		private global::Gamma.GtkWidgets.yNotebook notebookPayments;
 
-		private global::Gtk.Label lblPaymentTab;
-
 		private global::Gtk.HSeparator hseparator2;
+
+		private global::Gamma.GtkWidgets.yHBox hboxCompleteAllocation;
+
+		private global::Gtk.Button btnCompleteAllocation;
 
 		protected virtual void Build()
 		{
@@ -133,33 +125,22 @@ namespace Vodovoz.Views
 			w6.Position = 0;
 			w6.Expand = false;
 			w6.Fill = false;
-			// Container child hboxPaymentsHandleBtns.Gtk.Box+BoxChild
-			this.btnCompleteAllocation = new global::Gtk.Button();
-			this.btnCompleteAllocation.CanFocus = true;
-			this.btnCompleteAllocation.Name = "btnCompleteAllocation";
-			this.btnCompleteAllocation.UseUnderline = true;
-			this.btnCompleteAllocation.Label = global::Mono.Unix.Catalog.GetString("Завершить распределение");
-			this.hboxPaymentsHandleBtns.Add(this.btnCompleteAllocation);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxPaymentsHandleBtns[this.btnCompleteAllocation]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
 			this.hbox1.Add(this.hboxPaymentsHandleBtns);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hboxPaymentsHandleBtns]));
-			w8.Position = 3;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hboxPaymentsHandleBtns]));
+			w7.Position = 3;
 			this.vboxMain.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox1]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox1]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
 			this.vboxMain.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hseparator1]));
-			w10.Position = 1;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hseparator1]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox();
 			this.hbox2.Name = "hbox2";
@@ -169,54 +150,54 @@ namespace Vodovoz.Views
 			this.lblIncomeNumberTitle.Name = "lblIncomeNumberTitle";
 			this.lblIncomeNumberTitle.LabelProp = global::Mono.Unix.Catalog.GetString("№ прихода:");
 			this.hbox2.Add(this.lblIncomeNumberTitle);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblIncomeNumberTitle]));
-			w11.Position = 0;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblIncomeNumberTitle]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.lblIncomeNumber = new global::Gtk.Label();
 			this.lblIncomeNumber.Name = "lblIncomeNumber";
 			this.lblIncomeNumber.LabelProp = global::Mono.Unix.Catalog.GetString("incomeNum");
 			this.hbox2.Add(this.lblIncomeNumber);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblIncomeNumber]));
-			w12.Position = 1;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblIncomeNumber]));
+			w11.Position = 1;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.lblPayerTitle = new global::Gtk.Label();
 			this.lblPayerTitle.Name = "lblPayerTitle";
 			this.lblPayerTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Плательщик:");
 			this.hbox2.Add(this.lblPayerTitle);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblPayerTitle]));
-			w13.Position = 2;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblPayerTitle]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.lblPayer = new global::Gtk.Label();
 			this.lblPayer.Name = "lblPayer";
 			this.lblPayer.LabelProp = global::Mono.Unix.Catalog.GetString("Payer");
 			this.hbox2.Add(this.lblPayer);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblPayer]));
-			w14.Position = 3;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblPayer]));
+			w13.Position = 3;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.lblDateTitle = new global::Gtk.Label();
 			this.lblDateTitle.Name = "lblDateTitle";
 			this.lblDateTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
 			this.hbox2.Add(this.lblDateTitle);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblDateTitle]));
-			w15.Position = 4;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblDateTitle]));
+			w14.Position = 4;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.lblDate = new global::Gtk.Label();
 			this.lblDate.Name = "lblDate";
 			this.lblDate.LabelProp = global::Mono.Unix.Catalog.GetString("Date");
 			this.hbox2.Add(this.lblDate);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblDate]));
-			w16.Position = 5;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblDate]));
+			w15.Position = 5;
 			this.vboxMain.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox2]));
-			w17.Position = 2;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox2]));
+			w16.Position = 2;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
@@ -226,10 +207,10 @@ namespace Vodovoz.Views
 			this.lblPurposeTitle.Name = "lblPurposeTitle";
 			this.lblPurposeTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Основание:");
 			this.hbox3.Add(this.lblPurposeTitle);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.lblPurposeTitle]));
-			w18.Position = 0;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.lblPurposeTitle]));
+			w17.Position = 0;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.GtkScrolledWindowPurpose = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowPurpose.HeightRequest = 45;
@@ -243,13 +224,13 @@ namespace Vodovoz.Views
 			this.textViewPurpose.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindowPurpose.Add(this.textViewPurpose);
 			this.hbox3.Add(this.GtkScrolledWindowPurpose);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.GtkScrolledWindowPurpose]));
-			w20.Position = 1;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.GtkScrolledWindowPurpose]));
+			w19.Position = 1;
 			this.vboxMain.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox3]));
-			w21.Position = 3;
-			w21.Expand = false;
-			w21.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox3]));
+			w20.Position = 3;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
@@ -259,62 +240,32 @@ namespace Vodovoz.Views
 			this.lblIncomeSumTitle.Name = "lblIncomeSumTitle";
 			this.lblIncomeSumTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Сумма прихода:");
 			this.hbox4.Add(this.lblIncomeSumTitle);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblIncomeSumTitle]));
-			w22.Position = 0;
-			w22.Expand = false;
-			w22.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblIncomeSumTitle]));
+			w21.Position = 0;
+			w21.Expand = false;
+			w21.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.lblIncomeSum = new global::Gtk.Label();
 			this.lblIncomeSum.Name = "lblIncomeSum";
 			this.lblIncomeSum.LabelProp = global::Mono.Unix.Catalog.GetString("TotalSum");
 			this.hbox4.Add(this.lblIncomeSum);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblIncomeSum]));
-			w23.Position = 1;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.lblLastBalanceTitle = new global::Gtk.Label();
-			this.lblLastBalanceTitle.Name = "lblLastBalanceTitle";
-			this.lblLastBalanceTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Прошлый остаток:");
-			this.hbox4.Add(this.lblLastBalanceTitle);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblLastBalanceTitle]));
-			w24.Position = 2;
-			w24.Expand = false;
-			w24.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.lblLastBalance = new global::Gamma.GtkWidgets.yLabel();
-			this.lblLastBalance.Name = "lblLastBalance";
-			this.lblLastBalance.LabelProp = global::Mono.Unix.Catalog.GetString("LastBalance");
-			this.hbox4.Add(this.lblLastBalance);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblLastBalance]));
-			w25.Position = 3;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.lblToAllocateTitle = new global::Gtk.Label();
-			this.lblToAllocateTitle.Name = "lblToAllocateTitle";
-			this.lblToAllocateTitle.LabelProp = global::Mono.Unix.Catalog.GetString("К распределению:");
-			this.hbox4.Add(this.lblToAllocateTitle);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblToAllocateTitle]));
-			w26.Position = 4;
-			w26.Expand = false;
-			w26.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.lblToAllocate = new global::Gamma.GtkWidgets.yLabel();
-			this.lblToAllocate.Name = "lblToAllocate";
-			this.lblToAllocate.LabelProp = global::Mono.Unix.Catalog.GetString("ToAllocate");
-			this.hbox4.Add(this.lblToAllocate);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblToAllocate]));
-			w27.Position = 5;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblIncomeSum]));
+			w22.Position = 1;
+			w22.Expand = false;
+			w22.Fill = false;
 			this.vboxMain.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox4]));
-			w28.Position = 4;
-			w28.Expand = false;
-			w28.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox4]));
+			w23.Position = 4;
+			w23.Expand = false;
+			w23.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hseparator3 = new global::Gtk.HSeparator();
 			this.hseparator3.Name = "hseparator3";
 			this.vboxMain.Add(this.hseparator3);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hseparator3]));
-			w29.Position = 5;
-			w29.Expand = false;
-			w29.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hseparator3]));
+			w24.Position = 5;
+			w24.Expand = false;
+			w24.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.vboxPayments = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxPayments.Name = "vboxPayments";
@@ -323,30 +274,46 @@ namespace Vodovoz.Views
 			this.notebookPayments = new global::Gamma.GtkWidgets.yNotebook();
 			this.notebookPayments.CanFocus = true;
 			this.notebookPayments.Name = "notebookPayments";
-			this.notebookPayments.CurrentPage = 0;
-			// Notebook tab
-			global::Gtk.Label w30 = new global::Gtk.Label();
-			w30.Visible = true;
-			this.notebookPayments.Add(w30);
-			this.lblPaymentTab = new global::Gtk.Label();
-			this.lblPaymentTab.Name = "lblPaymentTab";
-			this.lblPaymentTab.LabelProp = global::Mono.Unix.Catalog.GetString("Платеж");
-			this.notebookPayments.SetTabLabel(w30, this.lblPaymentTab);
-			this.lblPaymentTab.ShowAll();
+			this.notebookPayments.CurrentPage = -1;
 			this.vboxPayments.Add(this.notebookPayments);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxPayments[this.notebookPayments]));
-			w31.Position = 0;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vboxPayments[this.notebookPayments]));
+			w25.Position = 0;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.vboxMain.Add(this.vboxPayments);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.vboxPayments]));
-			w32.Position = 6;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.vboxPayments]));
+			w26.Position = 6;
+			w26.Expand = false;
+			w26.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hseparator2 = new global::Gtk.HSeparator();
 			this.hseparator2.Name = "hseparator2";
 			this.vboxMain.Add(this.hseparator2);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hseparator2]));
-			w33.Position = 7;
-			w33.Expand = false;
-			w33.Fill = false;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hseparator2]));
+			w27.Position = 7;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.hboxCompleteAllocation = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxCompleteAllocation.Name = "hboxCompleteAllocation";
+			this.hboxCompleteAllocation.Spacing = 6;
+			// Container child hboxCompleteAllocation.Gtk.Box+BoxChild
+			this.btnCompleteAllocation = new global::Gtk.Button();
+			this.btnCompleteAllocation.CanFocus = true;
+			this.btnCompleteAllocation.Name = "btnCompleteAllocation";
+			this.btnCompleteAllocation.UseUnderline = true;
+			this.btnCompleteAllocation.Label = global::Mono.Unix.Catalog.GetString("Завершить распределение");
+			this.hboxCompleteAllocation.Add(this.btnCompleteAllocation);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hboxCompleteAllocation[this.btnCompleteAllocation]));
+			w28.PackType = ((global::Gtk.PackType)(1));
+			w28.Position = 2;
+			w28.Expand = false;
+			w28.Fill = false;
+			this.vboxMain.Add(this.hboxCompleteAllocation);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxCompleteAllocation]));
+			w29.Position = 8;
+			w29.Expand = false;
+			w29.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

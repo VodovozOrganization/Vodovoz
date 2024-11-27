@@ -28,12 +28,6 @@ namespace Vodovoz.Views
 			btnAddPayment.Clicked += OnAddPaymentClicked;
 			
 			lblIncomeSum.Text = ViewModel.Entity.Total.ToString();
-			lblLastBalance.Binding
-				.AddBinding(ViewModel, vm => vm.LastBalance, w => w.Text, new DecimalToStringConverter())
-				.InitializeFromSource();
-			lblToAllocate.Binding
-				.AddBinding(ViewModel, vm => vm.SumToAllocate, w => w.Text, new DecimalToStringConverter())
-				.InitializeFromSource();
 
 			lblPayer.Text = ViewModel.Entity.PayerName;
 			lblIncomeNumber.Text = ViewModel.Entity.Number.ToString();

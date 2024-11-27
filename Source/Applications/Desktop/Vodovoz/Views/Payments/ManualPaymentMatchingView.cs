@@ -41,6 +41,13 @@ namespace Vodovoz.Views.Payments
 
 			#endregion
 
+			lblLastBalance.Binding
+				.AddBinding(ViewModel, vm => vm.LastBalance, w => w.Text, new DecimalToStringConverter())
+				.InitializeFromSource();
+			lblToAllocate.Binding
+				.AddBinding(ViewModel, vm => vm.SumToAllocate, w => w.Text, new DecimalToStringConverter())
+				.InitializeFromSource();
+
 			btnAddCounterparty.BindCommand(ViewModel.AddCounterpartyCommand);
 			btnAddCounterparty.Binding
 				.AddBinding(ViewModel, vm => vm.CounterpartyIsNull, w => w.Sensitive)
