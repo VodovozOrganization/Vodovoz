@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using FluentNHibernate.Conventions.Inspections;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -40,18 +40,5 @@ namespace Vodovoz.EntityRepositories.Permissions
 		IList<UserEntityExtendedPermissionWithSubdivisionNode> GetUsersWithSubdivisionsEntityPermission(IUnitOfWork uow);
 		IList<UserEntityExtendedPermissionNode> GetUsersEntityPermission(IUnitOfWork uow, string permissionName);
 		EntityExtendedPermission GetSubdivisionEntityExtendedPermission(IUnitOfWork uow, int subdivisionId, string permissionName);
-	}
-
-	public class SubdivisionPermissionNode : IPermissionNode
-	{
-		public TypeOfEntity TypeOfEntity { get; set; }
-		public EntitySubdivisionOnlyPermission EntitySubdivisionOnlyPermission { get; set; }
-		public IList<EntitySubdivisionPermissionExtended> EntityPermissionExtended { get; set; }
-
-		public EntityPermissionBase EntityPermission => EntitySubdivisionOnlyPermission;
-		IList<EntityPermissionExtendedBase> IPermissionNode.EntityPermissionExtended {
-			get => EntityPermissionExtended.OfType<EntityPermissionExtendedBase>().ToList();
-			set => EntityPermissionExtended = value.OfType<EntitySubdivisionPermissionExtended>().ToList();
-		}
 	}
 }

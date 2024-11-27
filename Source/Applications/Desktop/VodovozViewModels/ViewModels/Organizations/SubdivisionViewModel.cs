@@ -235,12 +235,16 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 		private void AddSubdivisionPermissions()
 		{
-			_subdivisionPermissionsService.AddSubdiviionPermissions(Entity, Entity);
+			var sourceSubdivision = UoW.Session.Query<Subdivision>().Where(x => x.Id == 65).FirstOrDefault();
+
+			EntitySubdivisionPermissionViewModel.AddPermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 		}
 
 		private void ReplaceSubdivisionPermissions()
 		{
+			var sourceSubdivision = UoW.Session.Query<Subdivision>().Where(x => x.Id == 65).FirstOrDefault();
 
+			EntitySubdivisionPermissionViewModel.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 		}
 	}
 }
