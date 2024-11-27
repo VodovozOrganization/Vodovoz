@@ -1,13 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Dadata.Model;
 using QS.DomainModel.UoW;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
 using RevenueService.Client.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Vodovoz.Application.Extensions;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Extensions;
@@ -16,7 +16,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
 
-namespace Vodovoz.Application.Services
+namespace Vodovoz.Application.Clients.Services
 {
 	public class CounterpartyService : ICounterpartyService
 	{
