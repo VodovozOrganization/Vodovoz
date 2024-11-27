@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace CustomerAppsApi.Library.Dto
 {
@@ -84,14 +85,14 @@ namespace CustomerAppsApi.Library.Dto
 		/// <summary>
 		/// Код города из ФИАСа
 		/// </summary>
-		public string CityFiasGuid { get; set; }
+		public Guid? CityFiasGuid { get; set; }
 		/// <summary>
 		/// Код улицы из ФИАСа
 		/// </summary>
-		public string StreetFiasGuid { get; set; }
+		public Guid? StreetFiasGuid { get; set; }
 		/// <summary>
 		/// Код дома из ФИАСа
 		/// </summary>
-		public string BuildingFiasGuid { get; set; }
+		public Guid? BuildingFiasGuid { get; set; }
 	}
 }

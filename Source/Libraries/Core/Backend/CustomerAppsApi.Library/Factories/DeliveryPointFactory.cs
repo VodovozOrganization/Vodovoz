@@ -43,7 +43,10 @@ namespace CustomerAppsApi.Library.Factories
 				Entrance = newDeliveryPointInfoDto.Entrance,
 				Room = newDeliveryPointInfoDto.Room,
 				OnlineComment = newDeliveryPointInfoDto.OnlineComment,
-				Intercom = newDeliveryPointInfoDto.Intercom
+				Intercom = newDeliveryPointInfoDto.Intercom,
+				CityFiasGuid = newDeliveryPointInfoDto.CityFiasGuid,
+				StreetFiasGuid = newDeliveryPointInfoDto.StreetFiasGuid,
+				BuildingFiasGuid = newDeliveryPointInfoDto.BuildingFiasGuid
 			};
 		}
 		
@@ -63,9 +66,9 @@ namespace CustomerAppsApi.Library.Factories
 			};
 		}
 
-		public DeliveryPointDto CreateDeliveryPointDto(NewDeliveryPointInfoDto newDeliveryPointInfoDto, int deliveryPointId)
+		public CreatedDeliveryPointDto CreateDeliveryPointDto(NewDeliveryPointInfoDto newDeliveryPointInfoDto, int deliveryPointId)
 		{
-			return new DeliveryPointDto
+			return new CreatedDeliveryPointDto
 			{
 				DeliveryPointErpId = deliveryPointId,
 				CounterpartyErpId = newDeliveryPointInfoDto.CounterpartyErpId,
@@ -83,13 +86,16 @@ namespace CustomerAppsApi.Library.Factories
 				Latitude = newDeliveryPointInfoDto.Latitude,
 				Longitude = newDeliveryPointInfoDto.Longitude,
 				OnlineComment = newDeliveryPointInfoDto.OnlineComment,
-				Intercom = newDeliveryPointInfoDto.Intercom
+				Intercom = newDeliveryPointInfoDto.Intercom,
+				CityFiasGuid = newDeliveryPointInfoDto.CityFiasGuid,
+				StreetFiasGuid = newDeliveryPointInfoDto.StreetFiasGuid,
+				BuildingFiasGuid = newDeliveryPointInfoDto.BuildingFiasGuid
 			};
 		}
 
-		private DeliveryPointDto CreateDeliveryPointDto(DeliveryPointForSendNode deliveryPointForSend)
+		private CreatedDeliveryPointDto CreateDeliveryPointDto(DeliveryPointForSendNode deliveryPointForSend)
 		{
-			return new DeliveryPointDto
+			return new CreatedDeliveryPointDto
 			{
 				DeliveryPointErpId = deliveryPointForSend.Id,
 				CounterpartyErpId = deliveryPointForSend.CounterpartyId,
