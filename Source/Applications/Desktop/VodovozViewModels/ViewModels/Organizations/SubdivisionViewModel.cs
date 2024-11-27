@@ -92,7 +92,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			ReplaceSubdivisionPermissionsCommand = new DelegateCommand(ReplaceSubdivisionPermissions);
 
 			_canEnablePacs = CommonServices.PermissionService.ValidateUserPresetPermission(
-				Vodovoz.Permissions.Pacs.CanEnablePacs, 
+				Vodovoz.Permissions.Pacs.CanEnablePacs,
 				CommonServices.UserService.CurrentUserId);
 		}
 
@@ -142,10 +142,13 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 		public bool GeographicGroupVisible => Entity.ParentSubdivision != null && Entity.ChildSubdivisions.Any();
 
-		public virtual GeoGroup GeographicGroup {
+		public virtual GeoGroup GeographicGroup
+		{
 			get => Entity.GeographicGroup;
-			set {
-				if(Entity.GeographicGroup == value) {
+			set
+			{
+				if(Entity.GeographicGroup == value)
+				{
 					return;
 				}
 				Entity.GeographicGroup = value;
@@ -211,20 +214,20 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			Entity.ObservableDocumentTypes.ListContentChanged += UpdateChanges;
 			EntitySubdivisionPermissionViewModel.ObservableTypeOfEntitiesList.ListContentChanged += UpdateChanges;
 			PresetSubdivisionPermissionVM.ObservablePermissionsList.ListContentChanged += UpdateChanges;
-			
+
 			foreach(var warehousePermissionNode in WarehousePermissionsVM.AllWarehouses)
 			{
 				warehousePermissionNode.SubNodeViewModel.ListContentChanged += UpdateChanges;
 			}
 		}
-		
+
 		private void UnsubscribeUpdateOnChanges()
 		{
 			Entity.PropertyChanged -= UpdateChanges;
 			Entity.ObservableDocumentTypes.ListContentChanged -= UpdateChanges;
 			EntitySubdivisionPermissionViewModel.ObservableTypeOfEntitiesList.ListContentChanged -= UpdateChanges;
 			PresetSubdivisionPermissionVM.ObservablePermissionsList.ListContentChanged -= UpdateChanges;
-			
+
 			foreach(var warehousePermissionNode in WarehousePermissionsVM.AllWarehouses)
 			{
 				warehousePermissionNode.SubNodeViewModel.ListContentChanged -= UpdateChanges;
@@ -239,6 +242,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 			EntitySubdivisionPermissionViewModel.AddPermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 			WarehousePermissionsVM.AddPermissionsFromSubdivision(_subdivisionPermissionsService, Entity, sourceSubdivision);
+			PresetSubdivisionPermissionVM.AddPermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 		}
 
 		private void ReplaceSubdivisionPermissions()
@@ -247,6 +251,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 			EntitySubdivisionPermissionViewModel.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 			WarehousePermissionsVM.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, Entity, sourceSubdivision);
+			PresetSubdivisionPermissionVM.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 		}
 	}
 }

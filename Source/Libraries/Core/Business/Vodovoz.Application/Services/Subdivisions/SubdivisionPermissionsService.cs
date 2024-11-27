@@ -107,26 +107,63 @@ namespace Vodovoz.Application.Services.Subdivisions
 			return resultPermissions;
 		}
 
-		public void AddPresetPermissions(IUnitOfWork uow, Subdivision targetSubdivision, Subdivision sourceSubdivision)
+		public IList<HierarchicalPresetSubdivisionPermission> AddPresetPermissions(IUnitOfWork uow, Subdivision targetSubdivision, Subdivision sourceSubdivision)
 		{
 			if(!IsCanChangeSubdivisionPermissions(targetSubdivision, out Error error))
 			{
 				throw new InvalidOperationException(error.Message);
 			}
 
-			var targetPresetPermissions = GetAllPresetPermissionsBySubdivision(uow, targetSubdivision.Id);
-			var sourcePresetPermissions = GetAllPresetPermissionsBySubdivision(uow, sourceSubdivision.Id);
+			var resultPermissions = new List<HierarchicalPresetSubdivisionPermission>();
+
+			var targetPermissions = GetAllPresetPermissionsBySubdivision(uow, targetSubdivision.Id);
+			var sourcePermissions = GetAllPresetPermissionsBySubdivision(uow, sourceSubdivision.Id);
+
+			foreach(var targetPermission in targetPermissions)
+			{
+				resultPermissions.Add(CreateCopyOfSubdivisionPresetPermission(targetPermission, targetSubdivision));
+			}
+
+			foreach(var sourcePermission in sourcePermissions)
+			{
+				var resultPermissionHavingSameType =
+					resultPermissions
+					.Select(x => x)
+					.FirstOrDefault(x => x.PermissionName == sourcePermission.PermissionName);
+
+				if(resultPermissionHavingSameType is null)
+				{
+					resultPermissions.Add(CreateCopyOfSubdivisionPresetPermission(sourcePermission, targetSubdivision));
+
+					continue;
+				}
+
+				resultPermissionHavingSameType.Value =
+					resultPermissionHavingSameType.Value || sourcePermission.Value;
+
+				resultPermissions.Add(resultPermissionHavingSameType);
+			}
+
+			return resultPermissions;
 		}
 
-		public void ReplacePresetPermissions(IUnitOfWork uow, Subdivision targetSubdivision, Subdivision sourceSubdivision)
+		public IList<HierarchicalPresetSubdivisionPermission> ReplacePresetPermissions(IUnitOfWork uow, Subdivision targetSubdivision, Subdivision sourceSubdivision)
 		{
 			if(!IsCanChangeSubdivisionPermissions(targetSubdivision, out Error error))
 			{
 				throw new InvalidOperationException(error.Message);
 			}
 
-			var targetPresetPermissions = GetAllPresetPermissionsBySubdivision(uow, targetSubdivision.Id);
-			var sourcePresetPermissions = GetAllPresetPermissionsBySubdivision(uow, sourceSubdivision.Id);
+			var resultPermissions = new List<HierarchicalPresetSubdivisionPermission>();
+
+			var sourcePermissions = GetAllPresetPermissionsBySubdivision(uow, sourceSubdivision.Id);
+
+			foreach(var sourcePermission in sourcePermissions)
+			{
+				resultPermissions.Add(CreateCopyOfSubdivisionPresetPermission(sourcePermission, targetSubdivision));
+			}
+
+			return resultPermissions;
 		}
 
 		public IList<SubdivisionWarehousePermission> AddWarehousePermissions(IUnitOfWork uow, Subdivision targetSubdivision, Subdivision sourceSubdivision)
@@ -192,6 +229,20 @@ namespace Vodovoz.Application.Services.Subdivisions
 			}
 
 			return resultPermissions;
+		}
+
+		private HierarchicalPresetSubdivisionPermission CreateCopyOfSubdivisionPresetPermission(
+			HierarchicalPresetSubdivisionPermission sourcePermission,
+			Subdivision targetSubdivision)
+		{
+			var newPermission = new HierarchicalPresetSubdivisionPermission
+			{
+				Subdivision = targetSubdivision,
+				PermissionName = sourcePermission.PermissionName,
+				Value = sourcePermission.Value
+			};
+
+			return newPermission;
 		}
 
 		private SubdivisionWarehousePermission CreateCopyOfSubdivisionWarehousePermission(SubdivisionWarehousePermission sourcePermission, Subdivision targetSubdivision)
