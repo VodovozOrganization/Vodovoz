@@ -189,6 +189,7 @@ FROM
 			JOIN nomenclature n ON
 				n.id = oi.nomenclature_id
 				and n.category = 'water'
+				and n.tare_volume = 'Vol19L'
 			WHERE
 				oi.order_id = o.id) AS orderBottles
 		FROM
@@ -355,6 +356,7 @@ FROM
 						nomenclature n
 						ON n.id = oi.nomenclature_id
 						AND n.category = 'water'
+						AND n.tare_volume = 'Vol19L'
 					WHERE
 						oi.order_id = o.id
 	            ) AS orderBottles
