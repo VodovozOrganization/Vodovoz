@@ -1,8 +1,8 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using QS.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using QS.DomainModel.UoW;
-using QS.ViewModels;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.ViewModels.PermissionNode;
@@ -19,7 +19,7 @@ namespace Vodovoz.ViewModels.Permissions
 		private List<PermissionTypeAllNodeViewModel> _allPermissionTypes;
 		private List<WarehouseAllNodeViewModel> _warehousesAllNodesViewModels;
 		private WarehousePermissionModelBase _warehousePermissionModelBase;
-		
+
 		private IEnumerable<WarehousePermissionsType> AllPermissionsTypes() =>
 			Enum.GetValues(typeof(WarehousePermissionsType)).Cast<WarehousePermissionsType>();
 
@@ -87,12 +87,12 @@ namespace Vodovoz.ViewModels.Permissions
 				}
 			}
 		}
-		
+
 		private void CreateNodesViewModels()
 		{
 			AllPermissionTypes.Clear();
 			AllWarehouses.Clear();
-			
+
 			foreach(var permissionsType in AllPermissionsTypes())
 			{
 				var permissionAllNode =
@@ -114,12 +114,43 @@ namespace Vodovoz.ViewModels.Permissions
 			Subdivision targetSubdivision,
 			Subdivision sourceSubdivision)
 		{
-			var newPermissions = subdivisionPermissionsService.AddSubdivisionEntityPermissions(
+			var newPermissions = subdivisionPermissionsService.AddWarehousePermissions(
 				_uow,
 				targetSubdivision,
 				sourceSubdivision);
 
-			//RepalcePermissions(newPermissions);
+			var permissionsToDelete = WarehousePermissionModelBase.AllPermission
+				.Select(x => new { x.WarehousePermissionType, x.Warehouse })
+				.ToList();
+
+			foreach(var permissionData in permissionsToDelete)
+			{
+				WarehousePermissionModelBase.DeletePermission(permissionData.WarehousePermissionType, permissionData.Warehouse);
+			}
+
+			UpdateData(newPermissions.Cast<WarehousePermissionBase>().ToList());
+		}
+
+		public void ReplacePermissionsFromSubdivision(
+			ISubdivisionPermissionsService subdivisionPermissionsService,
+			Subdivision targetSubdivision,
+			Subdivision sourceSubdivision)
+		{
+			var newPermissions = subdivisionPermissionsService.ReplaceWarehousePermissions(
+				_uow,
+				targetSubdivision,
+				sourceSubdivision);
+
+			var permissionsToDelete = WarehousePermissionModelBase.AllPermission
+				.Select(x => new { x.WarehousePermissionType, x.Warehouse })
+				.ToList();
+
+			foreach(var permissionData in permissionsToDelete)
+			{
+				WarehousePermissionModelBase.DeletePermission(permissionData.WarehousePermissionType, permissionData.Warehouse);
+			}
+
+			UpdateData(newPermissions.Cast<WarehousePermissionBase>().ToList());
 		}
 	}
 }

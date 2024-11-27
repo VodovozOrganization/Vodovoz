@@ -238,6 +238,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			var sourceSubdivision = UoW.Session.Query<Subdivision>().Where(x => x.Id == 65).FirstOrDefault();
 
 			EntitySubdivisionPermissionViewModel.AddPermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
+			WarehousePermissionsVM.AddPermissionsFromSubdivision(_subdivisionPermissionsService, Entity, sourceSubdivision);
 		}
 
 		private void ReplaceSubdivisionPermissions()
@@ -245,6 +246,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			var sourceSubdivision = UoW.Session.Query<Subdivision>().Where(x => x.Id == 65).FirstOrDefault();
 
 			EntitySubdivisionPermissionViewModel.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
+			WarehousePermissionsVM.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, Entity, sourceSubdivision);
 		}
 	}
 }
