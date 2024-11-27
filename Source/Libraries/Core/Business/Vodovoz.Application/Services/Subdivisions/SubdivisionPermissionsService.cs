@@ -25,26 +25,6 @@ namespace Vodovoz.Application.Services.Subdivisions
 			_permissionExtensionSingletonStore = PermissionExtensionSingletonStore.GetInstance();
 		}
 
-		//public void AddSubdiviionPermissions(IUnitOfWork uow, Subdivision target, Subdivision source)
-		//{
-		//	if(!IsCanChangeSubdivisionPermissions(target, out Error error))
-		//	{
-		//		throw new InvalidOperationException(error.Message);
-		//	}
-
-		//	//return AddEntityPermissions(uow, target, source);
-		//	//AddPresetPermissions(target, source);
-		//	//AddWarehousePermissions(target, source);
-		//}
-
-		//public void ReplaceSubdivisionPermissions(IUnitOfWork uow, Subdivision target, Subdivision source)
-		//{
-		//	if(!IsCanChangeSubdivisionPermissions(target, out Error error))
-		//	{
-		//		throw new InvalidOperationException(error.Message);
-		//	}
-		//}
-
 		public IList<SubdivisionPermissionNode> AddSubdivisionEntityPermissions(IUnitOfWork uow, Subdivision targetSubdivision, Subdivision sourceSubdivision)
 		{
 			if(!IsCanChangeSubdivisionPermissions(targetSubdivision, out Error error))
@@ -59,7 +39,7 @@ namespace Vodovoz.Application.Services.Subdivisions
 
 			foreach(var targetPermission in targetPermissions)
 			{
-				resultPermissions.Add(CreateCopyFromSubdivisionPermissionNode(targetPermission, targetSubdivision));
+				resultPermissions.Add(CreateCopyOfSubdivisionEntityPermissionNode(targetPermission, targetSubdivision));
 			}
 
 			foreach(var sourcePermission in sourcePermissions)
@@ -71,7 +51,7 @@ namespace Vodovoz.Application.Services.Subdivisions
 
 				if(resultPermissionHavingSameType is null)
 				{
-					resultPermissions.Add(CreateCopyFromSubdivisionPermissionNode(sourcePermission, targetSubdivision));
+					resultPermissions.Add(CreateCopyOfSubdivisionEntityPermissionNode(sourcePermission, targetSubdivision));
 
 					continue;
 				}
@@ -121,13 +101,114 @@ namespace Vodovoz.Application.Services.Subdivisions
 
 			foreach(var sourcePermission in sourcePermissions)
 			{
-				resultPermissions.Add(CreateCopyFromSubdivisionPermissionNode(sourcePermission, targetSubdivision));
+				resultPermissions.Add(CreateCopyOfSubdivisionEntityPermissionNode(sourcePermission, targetSubdivision));
 			}
 
 			return resultPermissions;
 		}
 
-		private SubdivisionPermissionNode CreateCopyFromSubdivisionPermissionNode(SubdivisionPermissionNode sourceNode, Subdivision targetSubdivision)
+		public void AddPresetPermissions(IUnitOfWork uow, Subdivision targetSubdivision, Subdivision sourceSubdivision)
+		{
+			if(!IsCanChangeSubdivisionPermissions(targetSubdivision, out Error error))
+			{
+				throw new InvalidOperationException(error.Message);
+			}
+
+			var targetPresetPermissions = GetAllPresetPermissionsBySubdivision(uow, targetSubdivision.Id);
+			var sourcePresetPermissions = GetAllPresetPermissionsBySubdivision(uow, sourceSubdivision.Id);
+		}
+
+		public void ReplacePresetPermissions(IUnitOfWork uow, Subdivision targetSubdivision, Subdivision sourceSubdivision)
+		{
+			if(!IsCanChangeSubdivisionPermissions(targetSubdivision, out Error error))
+			{
+				throw new InvalidOperationException(error.Message);
+			}
+
+			var targetPresetPermissions = GetAllPresetPermissionsBySubdivision(uow, targetSubdivision.Id);
+			var sourcePresetPermissions = GetAllPresetPermissionsBySubdivision(uow, sourceSubdivision.Id);
+		}
+
+		public IList<SubdivisionWarehousePermission> AddWarehousePermissions(IUnitOfWork uow, Subdivision targetSubdivision, Subdivision sourceSubdivision)
+		{
+			if(!IsCanChangeSubdivisionPermissions(targetSubdivision, out Error error))
+			{
+				throw new InvalidOperationException(error.Message);
+			}
+
+			var targetPermissions = GetAllWarehousePermissionsBySubdivision(uow, targetSubdivision.Id);
+			var sourcPermissions = GetAllWarehousePermissionsBySubdivision(uow, sourceSubdivision.Id);
+
+			var resultPermissions = new List<SubdivisionWarehousePermission>();
+
+			foreach(var permission in targetPermissions)
+			{
+				resultPermissions.Add(CreateCopyOfSubdivisionWarehousePermission(permission, targetSubdivision));
+			}
+
+			foreach(var permission in sourcPermissions)
+			{
+				var existingResultPermission =
+					resultPermissions
+					.Where(x => x.WarehousePermissionType == permission.WarehousePermissionType
+						&& x.Warehouse.Id == permission.Warehouse.Id)
+					.FirstOrDefault();
+
+				if(existingResultPermission is null)
+				{
+					resultPermissions.Add(CreateCopyOfSubdivisionWarehousePermission(permission, targetSubdivision));
+
+					continue;
+				}
+
+				if(existingResultPermission.PermissionValue is null && permission.PermissionValue != null)
+				{
+					continue;
+				}
+
+				existingResultPermission.PermissionValue =
+					existingResultPermission.PermissionValue == true || permission.PermissionValue == true;
+
+				resultPermissions.Add(existingResultPermission);
+			}
+
+			return resultPermissions;
+		}
+
+		public IList<SubdivisionWarehousePermission> ReplaceWarehousePermissions(IUnitOfWork uow, Subdivision targetSubdivision, Subdivision sourceSubdivision)
+		{
+			if(!IsCanChangeSubdivisionPermissions(targetSubdivision, out Error error))
+			{
+				throw new InvalidOperationException(error.Message);
+			}
+
+			var sourcePermissions = GetAllWarehousePermissionsBySubdivision(uow, sourceSubdivision.Id);
+
+			var resultPermissions = new List<SubdivisionWarehousePermission>();
+
+			foreach(var permission in sourcePermissions)
+			{
+				resultPermissions.Add(CreateCopyOfSubdivisionWarehousePermission(permission, targetSubdivision));
+			}
+
+			return resultPermissions;
+		}
+
+		private SubdivisionWarehousePermission CreateCopyOfSubdivisionWarehousePermission(SubdivisionWarehousePermission sourcePermission, Subdivision targetSubdivision)
+		{
+			var newPermission = new SubdivisionWarehousePermission
+			{
+				Subdivision = targetSubdivision,
+				PermissionType = PermissionType.Subdivision,
+				WarehousePermissionType = sourcePermission.WarehousePermissionType,
+				Warehouse = sourcePermission.Warehouse,
+				PermissionValue = sourcePermission.PermissionValue
+			};
+
+			return newPermission;
+		}
+
+		private SubdivisionPermissionNode CreateCopyOfSubdivisionEntityPermissionNode(SubdivisionPermissionNode sourceNode, Subdivision targetSubdivision)
 		{
 			var sourceEntityPermissions = sourceNode.EntityPermission;
 			var typeOfEntity = sourceNode.EntitySubdivisionOnlyPermission.TypeOfEntity;
@@ -143,18 +224,6 @@ namespace Vodovoz.Application.Services.Subdivisions
 			copyNode.CopySettingsFromNodeExceptSubdivision(sourceNode);
 
 			return copyNode;
-		}
-
-		private void AddPresetPermissions(IUnitOfWork uow, Subdivision target, Subdivision source)
-		{
-			var targetPresetPermissions = GetAllPresetPermissionsBySubdivision(uow, target.Id);
-			var sourcePresetPermissions = GetAllPresetPermissionsBySubdivision(uow, source.Id);
-		}
-
-		private void AddWarehousePermissions(IUnitOfWork uow, Subdivision target, Subdivision source)
-		{
-			var targetWarehousePermissions = GetAllWarehousePermissionsBySubdivision(uow, target.Id);
-			var sourceWarehousePermissions = GetAllWarehousePermissionsBySubdivision(uow, source.Id);
 		}
 
 		private IEnumerable<SubdivisionPermissionNode> GetAllEntityPermissionsBySubdivision(IUnitOfWork uow, int subdivisionId)

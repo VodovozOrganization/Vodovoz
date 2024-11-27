@@ -6,13 +6,14 @@ using QS.ViewModels;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.ViewModels.PermissionNode;
+using VodovozBusiness.Services.Subdivisions;
 
 namespace Vodovoz.ViewModels.Permissions
 {
 	public class WarehousePermissionsViewModel : UoWWidgetViewModelBase
 	{
 		private readonly IList<Warehouse> _allWarehouses;
-
+		private readonly IUnitOfWork _uow;
 		private bool _canEdit;
 		private SelectAllNodePermissionViewModel _allPermissions;
 		private List<PermissionTypeAllNodeViewModel> _allPermissionTypes;
@@ -24,13 +25,11 @@ namespace Vodovoz.ViewModels.Permissions
 
 		public WarehousePermissionsViewModel(IUnitOfWork uow, WarehousePermissionModelBase warehousePermissionModelBase)
 		{
-			if(uow == null)
-			{
-				throw new ArgumentNullException(nameof(uow));
-			}
-			
-			_allWarehouses = uow.Session.QueryOver<Warehouse>().List();
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			WarehousePermissionModelBase = warehousePermissionModelBase ?? throw new ArgumentNullException(nameof(warehousePermissionModelBase));
+
+			_allWarehouses = uow.Session.QueryOver<Warehouse>().List();
+
 			AllPermissionTypes = new List<PermissionTypeAllNodeViewModel>();
 			AllWarehouses = new List<WarehouseAllNodeViewModel>();
 
@@ -108,6 +107,19 @@ namespace Vodovoz.ViewModels.Permissions
 			}
 
 			AllPermissions = new SelectAllNodePermissionViewModel(AllWarehouses, AllPermissionTypes) { Title = "Все" };
+		}
+
+		public void AddPermissionsFromSubdivision(
+			ISubdivisionPermissionsService subdivisionPermissionsService,
+			Subdivision targetSubdivision,
+			Subdivision sourceSubdivision)
+		{
+			var newPermissions = subdivisionPermissionsService.AddSubdivisionEntityPermissions(
+				_uow,
+				targetSubdivision,
+				sourceSubdivision);
+
+			//RepalcePermissions(newPermissions);
 		}
 	}
 }
