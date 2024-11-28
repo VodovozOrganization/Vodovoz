@@ -76,8 +76,6 @@ namespace Vodovoz.Views.Organization
 
 		private global::Gamma.GtkWidgets.yVBox yvboxWarehousesPermissionContainer;
 
-		private global::Vodovoz.Core.WidgetContainerView warehousesPermissionsContainerView;
-
 		private global::Gtk.Label lblWarehousesPermissions;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox speciallistcomboboxGeoGrpoup;
@@ -423,16 +421,9 @@ namespace Vodovoz.Views.Organization
 			this.yvboxWarehousesPermissionContainer = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxWarehousesPermissionContainer.Name = "yvboxWarehousesPermissionContainer";
 			this.yvboxWarehousesPermissionContainer.Spacing = 6;
-			// Container child yvboxWarehousesPermissionContainer.Gtk.Box+BoxChild
-			this.warehousesPermissionsContainerView = new global::Vodovoz.Core.WidgetContainerView();
-			this.warehousesPermissionsContainerView.Events = ((global::Gdk.EventMask)(256));
-			this.warehousesPermissionsContainerView.Name = "warehousesPermissionsContainerView";
-			this.yvboxWarehousesPermissionContainer.Add(this.warehousesPermissionsContainerView);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.yvboxWarehousesPermissionContainer[this.warehousesPermissionsContainerView]));
-			w31.Position = 0;
 			this.notebook1.Add(this.yvboxWarehousesPermissionContainer);
-			global::Gtk.Notebook.NotebookChild w32 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.yvboxWarehousesPermissionContainer]));
-			w32.Position = 4;
+			global::Gtk.Notebook.NotebookChild w31 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.yvboxWarehousesPermissionContainer]));
+			w31.Position = 4;
 			// Notebook tab
 			this.lblWarehousesPermissions = new global::Gtk.Label();
 			this.lblWarehousesPermissions.Name = "lblWarehousesPermissions";
@@ -440,11 +431,11 @@ namespace Vodovoz.Views.Organization
 			this.notebook1.SetTabLabel(this.yvboxWarehousesPermissionContainer, this.lblWarehousesPermissions);
 			this.lblWarehousesPermissions.ShowAll();
 			this.table1.Add(this.notebook1);
-			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.notebook1]));
-			w33.TopAttach = ((uint)(7));
-			w33.BottomAttach = ((uint)(8));
-			w33.RightAttach = ((uint)(5));
-			w33.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table1[this.notebook1]));
+			w32.TopAttach = ((uint)(7));
+			w32.BottomAttach = ((uint)(8));
+			w32.RightAttach = ((uint)(5));
+			w32.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.speciallistcomboboxGeoGrpoup = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.speciallistcomboboxGeoGrpoup.Name = "speciallistcomboboxGeoGrpoup";
@@ -453,13 +444,13 @@ namespace Vodovoz.Views.Organization
 			this.speciallistcomboboxGeoGrpoup.ShowSpecialStateAll = false;
 			this.speciallistcomboboxGeoGrpoup.ShowSpecialStateNot = false;
 			this.table1.Add(this.speciallistcomboboxGeoGrpoup);
-			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.speciallistcomboboxGeoGrpoup]));
-			w34.TopAttach = ((uint)(5));
-			w34.BottomAttach = ((uint)(6));
-			w34.LeftAttach = ((uint)(3));
-			w34.RightAttach = ((uint)(4));
-			w34.XOptions = ((global::Gtk.AttachOptions)(4));
-			w34.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.speciallistcomboboxGeoGrpoup]));
+			w33.TopAttach = ((uint)(5));
+			w33.BottomAttach = ((uint)(6));
+			w33.LeftAttach = ((uint)(3));
+			w33.RightAttach = ((uint)(4));
+			w33.XOptions = ((global::Gtk.AttachOptions)(4));
+			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ycheckArchieve = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckArchieve.CanFocus = true;
@@ -468,12 +459,12 @@ namespace Vodovoz.Views.Organization
 			this.ycheckArchieve.DrawIndicator = true;
 			this.ycheckArchieve.UseUnderline = true;
 			this.table1.Add(this.ycheckArchieve);
-			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckArchieve]));
-			w35.TopAttach = ((uint)(1));
-			w35.BottomAttach = ((uint)(2));
-			w35.RightAttach = ((uint)(2));
-			w35.XOptions = ((global::Gtk.AttachOptions)(0));
-			w35.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckArchieve]));
+			w34.TopAttach = ((uint)(1));
+			w34.BottomAttach = ((uint)(2));
+			w34.RightAttach = ((uint)(2));
+			w34.XOptions = ((global::Gtk.AttachOptions)(0));
+			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
@@ -481,12 +472,12 @@ namespace Vodovoz.Views.Organization
 			this.yentryName.IsEditable = true;
 			this.yentryName.InvisibleChar = '●';
 			this.table1.Add(this.yentryName);
-			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
-			w36.TopAttach = ((uint)(1));
-			w36.BottomAttach = ((uint)(2));
-			w36.LeftAttach = ((uint)(3));
-			w36.RightAttach = ((uint)(4));
-			w36.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
+			w35.TopAttach = ((uint)(1));
+			w35.BottomAttach = ((uint)(2));
+			w35.LeftAttach = ((uint)(3));
+			w35.RightAttach = ((uint)(4));
+			w35.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryShortName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryShortName.CanFocus = true;
@@ -495,13 +486,13 @@ namespace Vodovoz.Views.Organization
 			this.yentryShortName.MaxLength = 20;
 			this.yentryShortName.InvisibleChar = '●';
 			this.table1.Add(this.yentryShortName);
-			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryShortName]));
-			w37.TopAttach = ((uint)(2));
-			w37.BottomAttach = ((uint)(3));
-			w37.LeftAttach = ((uint)(3));
-			w37.RightAttach = ((uint)(4));
-			w37.XOptions = ((global::Gtk.AttachOptions)(4));
-			w37.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryShortName]));
+			w36.TopAttach = ((uint)(2));
+			w36.BottomAttach = ((uint)(3));
+			w36.LeftAttach = ((uint)(3));
+			w36.RightAttach = ((uint)(4));
+			w36.XOptions = ((global::Gtk.AttachOptions)(4));
+			w36.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yvboxPermissionsButtons = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxPermissionsButtons.Name = "yvboxPermissionsButtons";
@@ -513,10 +504,10 @@ namespace Vodovoz.Views.Organization
 			this.ybuttonAddSubdiviionPermissions.UseUnderline = true;
 			this.ybuttonAddSubdiviionPermissions.Label = global::Mono.Unix.Catalog.GetString("Добавить права подразделению");
 			this.yvboxPermissionsButtons.Add(this.ybuttonAddSubdiviionPermissions);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.yvboxPermissionsButtons[this.ybuttonAddSubdiviionPermissions]));
-			w38.Position = 1;
-			w38.Expand = false;
-			w38.Fill = false;
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.yvboxPermissionsButtons[this.ybuttonAddSubdiviionPermissions]));
+			w37.Position = 1;
+			w37.Expand = false;
+			w37.Fill = false;
 			// Container child yvboxPermissionsButtons.Gtk.Box+BoxChild
 			this.ybuttonReplaceSubdivisionPermissions = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonReplaceSubdivisionPermissions.CanFocus = true;
@@ -524,18 +515,18 @@ namespace Vodovoz.Views.Organization
 			this.ybuttonReplaceSubdivisionPermissions.UseUnderline = true;
 			this.ybuttonReplaceSubdivisionPermissions.Label = global::Mono.Unix.Catalog.GetString("Заменить права у подразделения");
 			this.yvboxPermissionsButtons.Add(this.ybuttonReplaceSubdivisionPermissions);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.yvboxPermissionsButtons[this.ybuttonReplaceSubdivisionPermissions]));
-			w39.Position = 2;
-			w39.Expand = false;
-			w39.Fill = false;
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.yvboxPermissionsButtons[this.ybuttonReplaceSubdivisionPermissions]));
+			w38.Position = 2;
+			w38.Expand = false;
+			w38.Fill = false;
 			this.table1.Add(this.yvboxPermissionsButtons);
-			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.table1[this.yvboxPermissionsButtons]));
-			w40.TopAttach = ((uint)(4));
-			w40.BottomAttach = ((uint)(7));
-			w40.LeftAttach = ((uint)(4));
-			w40.RightAttach = ((uint)(5));
-			w40.XOptions = ((global::Gtk.AttachOptions)(4));
-			w40.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.table1[this.yvboxPermissionsButtons]));
+			w39.TopAttach = ((uint)(4));
+			w39.BottomAttach = ((uint)(7));
+			w39.LeftAttach = ((uint)(4));
+			w39.RightAttach = ((uint)(5));
+			w39.XOptions = ((global::Gtk.AttachOptions)(4));
+			w39.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
