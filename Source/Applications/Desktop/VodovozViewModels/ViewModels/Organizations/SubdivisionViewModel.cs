@@ -213,12 +213,6 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			return base.BeforeSave();
 		}
 
-		public override void Dispose()
-		{
-			UnsubscribeUpdateOnChanges();
-			base.Dispose();
-		}
-
 		private void SubscribeUpdateOnChanges()
 		{
 			Entity.PropertyChanged += UpdateChanges;
@@ -334,6 +328,17 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			PresetSubdivisionPermissionVM.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 
 			UpdateWarehousePermissionsAction?.Invoke();
+		}
+
+		public override void Dispose()
+		{
+			if(_subdivisionsJournalViewModel != null)
+			{
+				_subdivisionsJournalViewModel.OnSelectResult -= OnSourceSubdivisionToCopyPermissionsSelected;
+			}
+
+			UnsubscribeUpdateOnChanges();
+			base.Dispose();
 		}
 	}
 }
