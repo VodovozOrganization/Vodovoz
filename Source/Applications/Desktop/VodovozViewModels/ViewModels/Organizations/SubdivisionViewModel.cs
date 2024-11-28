@@ -105,6 +105,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 				CommonServices.UserService.CurrentUserId);
 		}
 
+		public event Action UpdateWarehousePermissionsAction;
+
 		public ISubdivisionRepository SubdivisionRepository { get; }
 		public SubdivisionsJournalViewModel SubdivisionsJournalViewModel { get; }
 		public IEntityEntryViewModel ChiefViewModel { get; private set; }
@@ -321,6 +323,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			EntitySubdivisionPermissionViewModel.AddPermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 			WarehousePermissionsVM.AddPermissionsFromSubdivision(_subdivisionPermissionsService, Entity, sourceSubdivision);
 			PresetSubdivisionPermissionVM.AddPermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
+
+			UpdateWarehousePermissionsAction?.Invoke();
 		}
 
 		private void ReplaceSubdivisionPermissions(Subdivision sourceSubdivision)
@@ -328,6 +332,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			EntitySubdivisionPermissionViewModel.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 			WarehousePermissionsVM.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, Entity, sourceSubdivision);
 			PresetSubdivisionPermissionVM.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
+
+			UpdateWarehousePermissionsAction?.Invoke();
 		}
 	}
 }

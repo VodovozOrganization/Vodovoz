@@ -1,11 +1,13 @@
 ﻿using Gamma.Binding;
 using Gamma.GtkWidgets;
+using Gtk;
 using QS.Project.Domain;
 using QS.Views.GtkUI;
 using QSOrmProject;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Core;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
@@ -16,6 +18,9 @@ namespace Vodovoz.Views.Organization
 	[ToolboxItem(true)]
 	public partial class SubdivisionView : TabViewBase<SubdivisionViewModel>
 	{
+		private ViewModelWidgetResolver _widgetResolver = ViewModelWidgetResolver.Instance;
+		private Widget _warehousePermissionsView;
+
 		public SubdivisionView(
 			SubdivisionViewModel viewModel)
 			: base(viewModel)
@@ -150,6 +155,10 @@ namespace Vodovoz.Views.Organization
 			ybuttonReplaceSubdivisionPermissions.Binding
 				.AddBinding(ViewModel, vm => vm.CanAddOrReplacePermissions, w => w.Visible)
 				.InitializeFromSource();
+			
+			yvboxWarehousesPermissionContainer.Remove(warehousesPermissionsContainerView);
+			CreateWarehousePermissionsView();
+			ViewModel.UpdateWarehousePermissionsAction += OnUpdateWarehousePermissionsViewAction;
 		}
 
 		private void ChildSubdivisionsReloaded(object sender, EventArgs e)
@@ -170,6 +179,27 @@ namespace Vodovoz.Views.Organization
 		private void DocTypesJournal_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			ViewModel.AddDocumentTypeCommand.Execute(e.Subject as TypeOfEntity);
+		}
+
+		private void OnUpdateWarehousePermissionsViewAction()
+		{
+			yvboxWarehousesPermissionContainer.Remove(_warehousePermissionsView);
+			_warehousePermissionsView.Destroy();
+			CreateWarehousePermissionsView();
+		}
+
+		private void CreateWarehousePermissionsView()
+		{
+			_warehousePermissionsView = _widgetResolver.Resolve(ViewModel.WarehousePermissionsVM);
+			yvboxWarehousesPermissionContainer.Add(_warehousePermissionsView);
+			_warehousePermissionsView.ShowAll();
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.UpdateWarehousePermissionsAction -= OnUpdateWarehousePermissionsViewAction;
+
+			base.Destroy();
 		}
 	}
 }
