@@ -9,7 +9,7 @@ using ZabbixAsyncSender = ZabbixSender.Async.Sender;
 
 namespace Vodovoz.Zabbix.Sender
 {
-	public class VodovozZabbixSender : IZabbixSender
+	public partial class VodovozZabbixSender : IZabbixSender
 	{
 		private string _workerName;
 		private readonly IMetricSettings _metricSettings;
@@ -24,7 +24,7 @@ namespace Vodovoz.Zabbix.Sender
 
 		public async Task<bool> SendIsHealthyAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Отправляем информацию в zabbix по {WorkerName}.", _workerName);
+			_logger.LogInformation("Отправляем информацию \"Работает\" в zabbix по {WorkerName}.", _workerName);
 
 			if(!_metricSettings.ZabbixNeedSendMetrics)
 			{
@@ -48,6 +48,42 @@ namespace Vodovoz.Zabbix.Sender
 				return false;
 			}
 
+			return GetResponseResult(response);
+		}
+
+		public async Task<bool> SendIsUnhealthyAsync(ZabixSenderMessageType zabixSenderMessageType, string message, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("Отправляем информацию о проблеме в zabbix по {WorkerName}.", _workerName);
+
+			if(!_metricSettings.ZabbixNeedSendMetrics)
+			{
+				_logger.LogInformation("Для текущей БД отключена отправка метрики в zabbix.");
+
+				return false;
+			}
+
+			var sender = new ZabbixAsyncSender(_metricSettings.ZabbixUrl, timeout: 5000);
+
+			SenderResponse response = null;
+
+			var senderValue = $"{zabixSenderMessageType}:{message}";
+
+			try
+			{
+				response = await sender.Send(_metricSettings.ZabbixHost, _workerName, senderValue, cancellationToken);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка отправки данных в zabbix.");
+
+				return false;
+			}
+
+			return GetResponseResult(response);
+		}
+
+		private bool GetResponseResult(SenderResponse response)
+		{
 			var responseInfo = response.Info
 				.Replace("; ", ";")
 				.Split(';')
@@ -78,7 +114,7 @@ namespace Vodovoz.Zabbix.Sender
 				_logger.LogInformation("Метрика успешно отправлена в zabbix.");
 
 				return true;
-			}		
+			}
 		}
 	}
 }
