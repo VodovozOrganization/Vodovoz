@@ -150,7 +150,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool IsAcceptAvailable => Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck;
 
-		public bool AskSaveOnClose => CanEdit;
+		public bool AskSaveOnClose { get; private set; }
 
 		public virtual CallTaskWorker CallTaskWorker =>
 			_callTaskWorker ?? (_callTaskWorker = new CallTaskWorker(
@@ -177,7 +177,11 @@ namespace Vodovoz.ViewModels.Logistic
 					OnPropertyChanged(nameof(CanEdit));
 				}
 
-				Entity.AcceptMileage(CallTaskWorker);
+				if(!Entity.AcceptMileage(CallTaskWorker, CommonServices.ValidationService))
+				{
+					AskSaveOnClose = false;
+					return;
+				}
 
 				SaveWithClose();
 			}
@@ -222,8 +226,17 @@ namespace Vodovoz.ViewModels.Logistic
 					return;
 				}
 
-				NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder, ITdiTabParent, ITdiTab>(
-					this, EntityUoWBuilder.ForOpen(Entity.Id), TabParent, this, OpenPageOptions.AsSlave);
+				var page = NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, ITdiTabParent, ITdiTab>(
+					this,
+					TabParent,
+					this,
+					OpenPageOptions.AsSlave,
+					conf =>
+					{
+						conf.Configure(Entity.Driver.Id, Entity.Date, Entity.Car.FullTitle);
+					});
+
+				page.ViewModel.Distributed += Close;
 			}
 			));
 
@@ -267,6 +280,8 @@ namespace Vodovoz.ViewModels.Logistic
 			CanEdit = (canUpdate && canConfirmMileage)
 					  || !(Entity.GetCarVersion.IsCompanyCar &&
 						   new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus }.Contains(Entity.Car.CarModel.CarTypeOfUse));
+
+			AskSaveOnClose = CanEdit;
 
 			if(!CanEdit)
 			{
@@ -376,6 +391,13 @@ namespace Vodovoz.ViewModels.Logistic
 			UoW.Save(Entity.RouteListProfitability);
 			UoW.Commit();
 			base.AfterSave();
+		}
+		
+		private void Close(object o, EventArgs args)
+		{
+			(o as RouteListMileageDistributionViewModel).Distributed -= Close;
+			
+			Close(false, CloseSource.Self);
 		}
 	}
 }

@@ -56,6 +56,7 @@ namespace TaxcomEdoApi
 			services
 				.AddConfig(Configuration)
 				.AddDependencyGroup()
+				.AddHttpClient()
 				.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
 		}
 

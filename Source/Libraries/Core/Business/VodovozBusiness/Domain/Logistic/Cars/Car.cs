@@ -370,6 +370,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups));
 
 		public virtual string Title => $"{CarModel?.Name} ({RegistrationNumber})";
+		public virtual string FullTitle => $"{CarModel?.Title} ({RegistrationNumber})";
 
 		/// <param name="dateTime">Если равно null, возвращает активную версию на текущее время</param>
 		public virtual CarVersion GetActiveCarVersionOnDate(DateTime? dateTime = null)

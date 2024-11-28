@@ -22,7 +22,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public interface IRouteListRepository
 	{
-		IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, DateTime? date = null, RouteListStatus? status = null);
+		IEnumerable<RouteList> GetDriverRouteLists(IUnitOfWork uow, int driverId, DateTime? date = null, RouteListStatus? status = null);
 		IList<RouteList> GetRoutesAtDay(IUnitOfWork uow, DateTime dateForRouting, bool showCompleted, int[] onlyInGeographicGroup, int[] onlyWithDeliveryShifts);
 		QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds, bool onlyNonPrinted);
 		IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(IUnitOfWork uow, RouteList routeList, ISubdivisionRepository subdivisionRepository = null, Warehouse warehouse = null);
