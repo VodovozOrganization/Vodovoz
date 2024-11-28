@@ -38,9 +38,9 @@ namespace Vodovoz.Core.Domain.Documents
 		[Display(Name = "Не начат")]
 		NotStarted,
 		/// <summary>
-		/// Завершен с различиями
+		/// Завершен с уточнениями
 		/// </summary>
-		[Display(Name = "Завершен с различиями")]
+		[Display(Name = "Завершен с уточнениями")]
 		CompletedWithDivergences,
 		/// <summary>
 		/// Не принят
