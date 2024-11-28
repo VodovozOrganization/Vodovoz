@@ -4,17 +4,21 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Permissions;
@@ -28,9 +32,13 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 	{
 		private readonly ILifetimeScope _scope;
 		private readonly ISubdivisionPermissionsService _subdivisionPermissionsService;
+		private readonly IGenericRepository<Subdivision> _subdivisionGenericRepository;
 		private PresetSubdivisionPermissionsViewModel _presetSubdivisionPermissionVm;
 		private WarehousePermissionsViewModel _warehousePermissionsVm;
 		private bool _canEnablePacs;
+		private SubdivisionsJournalViewModel _subdivisionsJournalViewModel;
+		private bool _isAddSubdivisionPermissionsSelected;
+		private bool _isReplaceSubdivisionPermissionsSelected;
 
 		public SubdivisionViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -41,12 +49,14 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
 			ISubdivisionPermissionsService subdivisionPermissionsService,
+			IGenericRepository<Subdivision> _subdivisionGenericRepository,
 			SubdivisionsJournalViewModel subdivisionsJournalViewModel) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_subdivisionPermissionsService = subdivisionPermissionsService ?? throw new ArgumentNullException(nameof(subdivisionPermissionsService));
+			this._subdivisionGenericRepository = _subdivisionGenericRepository ?? throw new ArgumentNullException(nameof(_subdivisionGenericRepository));
 
 			SubdivisionsJournalViewModel = subdivisionsJournalViewModel ?? throw new ArgumentNullException(nameof(subdivisionsJournalViewModel));
 			SubdivisionsJournalViewModel.JournalFilter.SetAndRefilterAtOnce<SubdivisionFilterViewModel>(filter => filter.RestrictParentId = Entity.Id);
@@ -236,19 +246,86 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 		private void UpdateChanges(object sender, EventArgs e) => HasChanges = true;
 
+		private void SelectSourceSubdivisionToCopyPermissions()
+		{
+			var selectSubdivisionPage = NavigationManager.OpenViewModel<SubdivisionsJournalViewModel, Action<SubdivisionFilterViewModel>>(
+				this,
+				filter =>
+				{
+
+				},
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.SelectionMode = JournalSelectionMode.Single;
+				});
+
+			if(_subdivisionsJournalViewModel != null)
+			{
+				_subdivisionsJournalViewModel.OnSelectResult -= OnSourceSubdivisionToCopyPermissionsSelected;
+			}
+
+			_subdivisionsJournalViewModel = selectSubdivisionPage.ViewModel;
+			_subdivisionsJournalViewModel.OnSelectResult += OnSourceSubdivisionToCopyPermissionsSelected;
+		}
+
+		private void OnSourceSubdivisionToCopyPermissionsSelected(object sender, JournalSelectedEventArgs e)
+		{
+			var selectedNode = e.SelectedObjects.FirstOrDefault();
+
+			if(selectedNode == null
+				|| !(selectedNode is SubdivisionJournalNode subdivisionNode)
+				|| subdivisionNode.Id == Entity.Id)
+			{
+				return;
+			}
+
+			var subdivision =
+				_subdivisionGenericRepository
+				.Get(UoW, x => x.Id == subdivisionNode.Id)
+				.FirstOrDefault();
+
+			if(subdivision is null)
+			{
+				return;
+			}
+
+			if(_isAddSubdivisionPermissionsSelected)
+			{
+				AddSubdivisionPermissions(subdivision);
+			}
+
+			if(_isReplaceSubdivisionPermissionsSelected)
+			{
+				ReplaceSubdivisionPermissions(subdivision);
+			}
+		}
+
 		private void AddSubdivisionPermissions()
 		{
-			var sourceSubdivision = UoW.Session.Query<Subdivision>().Where(x => x.Id == 65).FirstOrDefault();
+			_isAddSubdivisionPermissionsSelected = true;
+			_isReplaceSubdivisionPermissionsSelected = false;
 
+			SelectSourceSubdivisionToCopyPermissions();
+		}
+
+		private void ReplaceSubdivisionPermissions()
+		{
+			_isAddSubdivisionPermissionsSelected = false;
+			_isReplaceSubdivisionPermissionsSelected = true;
+
+			SelectSourceSubdivisionToCopyPermissions();
+		}
+
+		private void AddSubdivisionPermissions(Subdivision sourceSubdivision)
+		{
 			EntitySubdivisionPermissionViewModel.AddPermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 			WarehousePermissionsVM.AddPermissionsFromSubdivision(_subdivisionPermissionsService, Entity, sourceSubdivision);
 			PresetSubdivisionPermissionVM.AddPermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 		}
 
-		private void ReplaceSubdivisionPermissions()
+		private void ReplaceSubdivisionPermissions(Subdivision sourceSubdivision)
 		{
-			var sourceSubdivision = UoW.Session.Query<Subdivision>().Where(x => x.Id == 65).FirstOrDefault();
-
 			EntitySubdivisionPermissionViewModel.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
 			WarehousePermissionsVM.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, Entity, sourceSubdivision);
 			PresetSubdivisionPermissionVM.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
