@@ -129,11 +129,6 @@ namespace Vodovoz.Views.Organization
 				.InitializeFromSource();
 			permissionsPresetContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
 
-			//warehousesPermissionsContainerView.Binding
-			//	.AddBinding(ViewModel, vm => vm.WarehousePermissionsVM, w => w.WidgetViewModel)
-			//	.InitializeFromSource();
-			//warehousesPermissionsContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
-
 			entryDefaultSalesPlan.ViewModel = ViewModel.DefaultSalesPlanViewModel;
 			entryDefaultSalesPlan.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
@@ -192,6 +187,8 @@ namespace Vodovoz.Views.Organization
 			_warehousePermissionsView = _widgetResolver.Resolve(ViewModel.WarehousePermissionsVM);
 			yvboxWarehousesPermissionContainer.Add(_warehousePermissionsView);
 			_warehousePermissionsView.ShowAll();
+
+			_warehousePermissionsView.Visible = ViewModel.CurrentUser.IsAdmin;
 		}
 
 		public override void Destroy()
