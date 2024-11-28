@@ -39,7 +39,7 @@ namespace Vodovoz.Zabbix.Sender
 
 			try
 			{
-				response = await sender.Send(_metricSettings.ZabbixHost, _workerName, "Up", cancellationToken);
+				response = await sender.Send(_metricSettings.ZabbixHost, _workerName, ZabixSenderMessageType.Up.ToString(), cancellationToken);
 			}
 			catch(Exception e)
 			{
