@@ -152,7 +152,6 @@ namespace Vodovoz.ViewModels.Permissions
 			{
 				AddPermission(permission);
 			}
-
 		}
 
 		private void AddPermission(SubdivisionPermissionNode permission)
