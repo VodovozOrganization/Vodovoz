@@ -119,16 +119,7 @@ namespace Vodovoz.ViewModels.Permissions
 				targetSubdivision,
 				sourceSubdivision);
 
-			var permissionsToDelete = WarehousePermissionModelBase.AllPermission
-				.Select(x => new { x.WarehousePermissionType, x.Warehouse })
-				.ToList();
-
-			foreach(var permissionData in permissionsToDelete)
-			{
-				WarehousePermissionModelBase.DeletePermission(permissionData.WarehousePermissionType, permissionData.Warehouse);
-			}
-
-			UpdateData(newPermissions.Cast<WarehousePermissionBase>().ToList());
+			UpdateWarehousePermissionNodes(newPermissions);
 		}
 
 		public void ReplacePermissionsFromSubdivision(
@@ -141,16 +132,26 @@ namespace Vodovoz.ViewModels.Permissions
 				targetSubdivision,
 				sourceSubdivision);
 
-			var permissionsToDelete = WarehousePermissionModelBase.AllPermission
-				.Select(x => new { x.WarehousePermissionType, x.Warehouse })
+			UpdateWarehousePermissionNodes(newPermissions);
+		}
+
+		private void UpdateWarehousePermissionNodes(IList<SubdivisionWarehousePermission> newPermissions)
+		{
+			var allPermissionNodes =
+				AllPermissions.AllPermissionTypes
+				.SelectMany(x => x.SubNodeViewModel)
 				.ToList();
 
-			foreach(var permissionData in permissionsToDelete)
+			foreach(var node in allPermissionNodes)
 			{
-				WarehousePermissionModelBase.DeletePermission(permissionData.WarehousePermissionType, permissionData.Warehouse);
+				node.PermissionValue =
+					newPermissions
+					.Where(x =>
+						x.Warehouse.Id == node.Warehouse.Id
+						&& x.WarehousePermissionType == node.WarehousePermissionsType)
+					.Select(x => x.PermissionValue)
+					.FirstOrDefault();
 			}
-
-			UpdateData(newPermissions.Cast<WarehousePermissionBase>().ToList());
 		}
 	}
 }
