@@ -140,8 +140,6 @@ namespace Vodovoz.Application.Services.Subdivisions
 
 				resultPermissionHavingSameType.Value =
 					resultPermissionHavingSameType.Value || sourcePermission.Value;
-
-				resultPermissions.Add(resultPermissionHavingSameType);
 			}
 
 			return resultPermissions;
@@ -174,7 +172,7 @@ namespace Vodovoz.Application.Services.Subdivisions
 			}
 
 			var targetPermissions = GetAllWarehousePermissionsBySubdivision(uow, targetSubdivision.Id);
-			var sourcPermissions = GetAllWarehousePermissionsBySubdivision(uow, sourceSubdivision.Id);
+			var sourcePermissions = GetAllWarehousePermissionsBySubdivision(uow, sourceSubdivision.Id);
 
 			var resultPermissions = new List<SubdivisionWarehousePermission>();
 
@@ -183,7 +181,7 @@ namespace Vodovoz.Application.Services.Subdivisions
 				resultPermissions.Add(CreateCopyOfSubdivisionWarehousePermission(permission, targetSubdivision));
 			}
 
-			foreach(var permission in sourcPermissions)
+			foreach(var permission in sourcePermissions)
 			{
 				var existingResultPermission =
 					resultPermissions
@@ -205,8 +203,6 @@ namespace Vodovoz.Application.Services.Subdivisions
 
 				existingResultPermission.PermissionValue =
 					existingResultPermission.PermissionValue == true || permission.PermissionValue == true;
-
-				resultPermissions.Add(existingResultPermission);
 			}
 
 			return resultPermissions;
