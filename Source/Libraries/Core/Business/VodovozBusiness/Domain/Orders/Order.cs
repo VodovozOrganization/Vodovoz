@@ -2853,15 +2853,40 @@ namespace Vodovoz.Domain.Orders
 				$"{string.Join("\n", errorStrings)}");
 		}
 
-		public virtual void UpdateOrderPaymentStatus(decimal canceledSum)
+		public virtual void UpdatePaymentStatus(IUnitOfWork uow = null)
+		{
+			if(PaymentType != PaymentType.Cashless)
+			{
+				OrderPaymentStatus = OrderPaymentStatus.None;
+				return;
+			}
+
+			if(Id == 0)
+			{
+				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				return;
+			}
+			
+			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(uow ?? UoW, Id);
+			UpdatePaymentStatus(() => allocatedSum == default, () => allocatedSum >= OrderSum);
+		}
+
+		public virtual void UpdateCashlessOrderPaymentStatus(decimal canceledSum)
 		{
 			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, Id);
 
-			if(allocatedSum == 0 || allocatedSum - canceledSum == 0)
+			UpdatePaymentStatus(
+				() => allocatedSum == 0 || allocatedSum - canceledSum == 0,
+				() => allocatedSum - canceledSum > OrderSum);
+		}
+		
+		private void UpdatePaymentStatus(Func<bool> unPaidPredicate, Func<bool> paidPredicate)
+		{
+			if(unPaidPredicate.Invoke())
 			{
 				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
 			}
-			else if(allocatedSum - canceledSum > OrderSum)
+			else if(paidPredicate.Invoke())
 			{
 				OrderPaymentStatus = OrderPaymentStatus.Paid;
 			}

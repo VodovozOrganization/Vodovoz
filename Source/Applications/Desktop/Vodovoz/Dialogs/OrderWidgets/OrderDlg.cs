@@ -2361,10 +2361,9 @@ namespace Vodovoz
 					return false;
 				}
 
-				if(Entity.Id == 0
-					&& Entity.PaymentType == PaymentType.Cashless)
+				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Обновление статуса оплаты из карточки заказа"))
 				{
-					Entity.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+					Entity.UpdatePaymentStatus(uow);
 				}
 
 				if(OrderItemEquipmentCountHasChanges)
@@ -2900,6 +2899,8 @@ namespace Vodovoz
 		/// </summary>
 		void OrderDocumentsOpener()
 		{
+			logger.Info("Открытие документа заказа");
+			
 			if(!treeDocuments.GetSelectedObjects().Any())
 				return;
 
@@ -3747,6 +3748,7 @@ namespace Vodovoz
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
 		{
+			logger.Info("Открываем печать документов заказа");
 			try
 			{
 				SetSensitivity(false);
