@@ -204,7 +204,9 @@ namespace EdoDocumentFlowUpdater
 						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
 							&& ec.Type == Type.Bill
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
-							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error)
+							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error
+							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.WaitingForCancellation
+							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Cancelled)
 						.ToList();
 
 					foreach(var container in containersToOfferCancellation)
