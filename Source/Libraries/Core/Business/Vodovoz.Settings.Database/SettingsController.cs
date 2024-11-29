@@ -266,6 +266,7 @@ namespace Vodovoz.Settings.Database
 						if(currentSetting.IsExpired)
 						{
 							currentSetting.CachedTime = DateTime.Now;
+							currentSetting.StrValue = newSetting.StrValue;
 						}
 						else
 						{
