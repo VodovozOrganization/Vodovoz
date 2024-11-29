@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V5.Requests;
+using DriverApi.Contracts.V5.Requests;
 using DriverAPI.Library.V5.Services;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -326,7 +326,7 @@ namespace DriverAPI.Controllers.V5
 		[AllowAnonymous]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered([FromServices] IUnitOfWork unitOfWork, [FromBody]int orderId)
+		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered([FromServices] IUnitOfWork unitOfWork, [FromBody] int orderId)
 		{
 			var targetAddress = _routeListItemRepository
 				.Get(
@@ -437,5 +437,47 @@ namespace DriverAPI.Controllers.V5
 				return Problem(message.Trim('\n'), statusCode: StatusCodes.Status202Accepted);
 			}
 		}
+
+		/// <summary>
+		/// Уведомления о новом поступившем заказе с доставкой за час
+		/// </summary>
+		/// <param name="orderId">Номер заказа</param>
+		[HttpPost]
+		[AllowAnonymous]
+		[ApiExplorerSettings(IgnoreApi = true)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public async Task<IActionResult> NotifyOfRouteListContentChangedAsync([FromServices] IUnitOfWork unitOfWork, [FromBody] int orderId)
+		{
+			var token = _apiRouteListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+
+			if(string.IsNullOrWhiteSpace(token))
+			{
+				_logger.LogInformation("Отправка PUSH-сообщения прервана, водитель заказа {OrderId} не подписан на PUSH-сообщения.", orderId);
+
+				return NoContent();
+			}
+
+			var routeListId = _routeListItemRepository
+				.Get(
+					unitOfWork,
+					rli => rli.Order.Id == orderId && rli.Status != RouteListItemStatus.Transfered)
+				.Select(rli => rli.RouteList.Id)
+				.SingleOrDefault();
+
+			if(routeListId == 0)
+			{
+				_logger.LogInformation("Отправка PUSH-сообщения прервана, МЛ для заказа {OrderId} не найден", orderId);
+
+				return NoContent();
+			}
+
+			_logger.LogInformation("Отправка PUSH-сообщения об изменении состава вашего маршрутного листа ({OrderId}) для доставки за час", orderId);
+			
+			await _firebaseCloudMessagingService.SendMessage(token, $"Уведомление об изменении состава вашего МЛ {routeListId}", "Состав вашего маршрутного листа был изменен");
+
+			return NoContent();
+		}
+
 	}
 }
