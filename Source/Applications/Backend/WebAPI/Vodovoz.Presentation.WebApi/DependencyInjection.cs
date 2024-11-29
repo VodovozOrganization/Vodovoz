@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.FeatureManagement;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Presentation.WebApi.Common;
@@ -100,12 +98,6 @@ namespace Vodovoz.Presentation.WebApi
 
 			services.ConfigureOptions<ConfigureSwaggerOptions>();
 
-			return services;
-		}
-
-		public static IServiceCollection AddFeatureFlags(this IServiceCollection services)
-		{
-			services.AddFeatureManagement();
 			return services;
 		}
 
