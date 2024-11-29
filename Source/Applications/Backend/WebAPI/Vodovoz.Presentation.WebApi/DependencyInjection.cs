@@ -103,12 +103,6 @@ namespace Vodovoz.Presentation.WebApi
 			return services;
 		}
 
-		public static IServiceCollection AddFeatureFlags(this IServiceCollection services)
-		{
-			services.AddFeatureManagement();
-			return services;
-		}
-
 		public static void ConfigureJsonSourcesAutoReload(this IConfigurationBuilder configurationBuilder)
 		{
 			var jsonSources = configurationBuilder.Sources
