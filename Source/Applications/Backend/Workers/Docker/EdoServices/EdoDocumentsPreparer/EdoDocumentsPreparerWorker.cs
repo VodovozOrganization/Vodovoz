@@ -16,6 +16,7 @@ using TaxcomEdo.Contracts.OrdersWithoutShipment;
 using TaxcomEdo.Library.Options;
 using Vodovoz.Application.Documents;
 using Vodovoz.Converters;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -186,6 +187,22 @@ namespace EdoDocumentsPreparer
 						catch(Exception e)
 						{
 							_logger.LogError(e, "Не удалось отправить данные по УПД {OrderId} в очередь", order.Id);
+
+							try
+							{
+								edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.Error;
+								edoContainer.ErrorDescription = "Возникла ошибка при попытке отправки документа в очередь";
+								
+								await uow.SaveAsync(edoContainer);
+								await uow.CommitAsync();
+							}
+							catch(Exception exc)
+							{
+								_logger.LogError(
+									exc,
+									"Не удалось сохранить контейнер по УПД {OrderId} в состоянии ошибки",
+									order.Id);
+							}
 						}
 					}
 					catch(Exception e)

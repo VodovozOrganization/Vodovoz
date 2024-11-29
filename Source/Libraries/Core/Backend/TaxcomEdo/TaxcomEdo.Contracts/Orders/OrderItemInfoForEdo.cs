@@ -49,6 +49,9 @@ namespace TaxcomEdo.Contracts.Orders
 		public decimal CurrentCount => ActualCount ?? Count;
 		public decimal ActualSum => Math.Round(Price * CurrentCount - DiscountMoney, 2);
 		public decimal SumWithoutVat => Math.Round(Price * CurrentCount - CurrentNDS - DiscountMoney, 2);
-		public decimal PriceWithoutVat => Math.Round((Price * CurrentCount - CurrentNDS - DiscountMoney) / CurrentCount, 2);
+		public decimal PriceWithoutVat =>
+			CurrentCount == default
+				? 0
+				: Math.Round((Price * CurrentCount - CurrentNDS - DiscountMoney) / CurrentCount, 2);
 	}
 }
