@@ -582,6 +582,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
+			Car carStorageFromAlias = null;
+			CarModel carStorageModelFromAlias = null;
+			Employee employeeStorageFromAlias = null;
 
 			var startDate = FilterViewModel.StartDate;
 			var endDate = FilterViewModel.EndDate;
@@ -589,7 +592,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var query = uow.Session.QueryOver(() => inventoryAlias)
 				.JoinQueryOver(() => inventoryAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
 				.JoinAlias(() => inventoryAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => inventoryAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
+				.JoinAlias(() => inventoryAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => inventoryAlias.Employee, () => employeeStorageFromAlias)
+				.Left.JoinAlias(() => inventoryAlias.Car, () => carStorageFromAlias)
+				.Left.JoinAlias(() => carStorageFromAlias.CarModel, () => carStorageModelFromAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.InventoryDocument)
 				|| FilterViewModel.Driver != null)
@@ -622,7 +628,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => inventoryAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => inventoryAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.InventoryDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => inventoryAlias.InventoryDocumentType).WithAlias(() => resultAlias.InventoryDocumentType)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
+					.Select(Projections.Conditional(
+						Restrictions.Where(() => employeeStorageFromAlias.Name == null),
+						Projections.Constant("Не указан", NHibernateUtil.String),
+						CustomProjections.Concat_WS(" ",
+							() => employeeStorageFromAlias.LastName,
+							() => employeeStorageFromAlias.Name,
+							() => employeeStorageFromAlias.Patronymic))).WithAlias(() => resultAlias.FromEmployee)
+					.Select(Projections.Conditional(
+						Restrictions.Where(() => carStorageModelFromAlias.Name == null),
+						Projections.Constant("Не указан", NHibernateUtil.String),
+						CustomProjections.Concat_WS(" ",
+							() => carStorageModelFromAlias.Name,
+							() => carStorageFromAlias.RegistrationNumber))).WithAlias(() => resultAlias.FromCar)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -644,6 +664,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			WarehouseDocumentsJournalNode resultAlias = null;
+			Car carStorageFromAlias = null;
+			CarModel carStorageModelFromAlias = null;
 
 			var startDate = FilterViewModel.StartDate;
 			var endDate = FilterViewModel.EndDate;
@@ -651,7 +673,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var query = uow.Session.QueryOver(() => shiftchangeAlias)
 				.JoinQueryOver(() => shiftchangeAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
 				.JoinAlias(() => shiftchangeAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
-				.JoinAlias(() => shiftchangeAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
+				.JoinAlias(() => shiftchangeAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => shiftchangeAlias.Car, () => carStorageFromAlias)
+				.Left.JoinAlias(() => carStorageFromAlias.CarModel, () => carStorageModelFromAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.ShiftChangeDocument)
 				|| FilterViewModel.Driver != null)
@@ -684,7 +708,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => shiftchangeAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => shiftchangeAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.ShiftChangeDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => shiftchangeAlias.ShiftChangeResidueDocumentType)
+						.WithAlias(() => resultAlias.ShiftChangeResidueDocumentType)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
+					.Select(Projections.Conditional(
+						Restrictions.Where(() => carStorageModelFromAlias.Name == null),
+						Projections.Constant("Не указан", NHibernateUtil.String),
+						CustomProjections.Concat_WS(" ",
+							() => carStorageModelFromAlias.Name,
+							() => carStorageFromAlias.RegistrationNumber))).WithAlias(() => resultAlias.FromCar)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
