@@ -15,6 +15,10 @@ namespace Vodovoz.ReportsParameters.Bottles
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
+			ychkbtnShowDisposableTare.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowDisposableTare, w => w.Active)
+				.InitializeFromSource();
+
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}

@@ -64,6 +64,7 @@ namespace Vodovoz.Domain.Logistic
 {
 	public class RouteList : RouteListEntity, IValidatableObject
 	{
+		public const decimal ConfirmedDistanceLimit = 99_999.99m;
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private static IGeneralSettings _generalSettingsSettingsGap;
 
@@ -1989,6 +1990,12 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult($"В МЛ дублируются номера оплат: {string.Join(", ", onlineOrders)}", new[] { nameof(Addresses) });
 			}
+
+			if(ConfirmedDistance > ConfirmedDistanceLimit)
+			{
+				yield return new ValidationResult($"Подтверждённое расстояние не может быть больше {ConfirmedDistanceLimit}", 
+					new[] { nameof(ConfirmedDistance) });
+			}
 		}
 
 		public static string ValidationKeyIgnoreReceiptsForOrders => nameof(ValidationKeyIgnoreReceiptsForOrders);
@@ -2298,14 +2305,42 @@ namespace Vodovoz.Domain.Logistic
 			ConfirmAndClose(callTaskWorker);
 		}
 
-		public virtual void AcceptMileage(ICallTaskWorker callTaskWorker)
+		public virtual bool AcceptMileage(ICallTaskWorker callTaskWorker, IValidator validator)
 		{
 			if(Status != RouteListStatus.MileageCheck) {
-				return;
+				return true;
 			}
 
 			RecalculateFuelOutlay();
+
+			if(!TryValidateFuelOperation(validator))
+			{
+				return false;
+			}
+			
 			ConfirmAndClose(callTaskWorker);
+			return true;
+		}
+
+		public virtual bool TryValidateFuelOperation(IValidator validator)
+		{
+			if(FuelOutlayedOperation != null)
+			{
+				var fuelValidationContext =
+					new ValidationContext(
+						FuelOutlayedOperation,
+						new Dictionary<object, object>
+						{
+							{ FuelOperation.DialogMessage, $"Неверный разнос километража в МЛ {Id}"},
+						});
+				
+				if(!validator.Validate(FuelOutlayedOperation, fuelValidationContext))
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		public virtual void UpdateFuelOperation()
@@ -2562,7 +2597,9 @@ namespace Vodovoz.Domain.Logistic
 			var wageSettings = ScopeProvider.Scope.Resolve<IWageSettings>();
 			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, wageSettings,
 				premiumRaskatSettings, this);
-			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
+
+			// Пока отключено по просьбе Маслякова А.Д., https://vod.myalm.ru/pm/Vodovoz/I-5083
+			// premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}
 
 		#region Для логистических расчетов

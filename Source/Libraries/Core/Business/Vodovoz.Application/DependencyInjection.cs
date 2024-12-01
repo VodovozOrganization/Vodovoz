@@ -8,12 +8,14 @@ using Vodovoz.Application.Orders.Services;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Payments;
 using Vodovoz.Application.Services;
+using Vodovoz.Application.Services.Subdivisions;
 using Vodovoz.Domain.Service;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Subdivisions;
 
 namespace Vodovoz.Application
 {
@@ -32,6 +34,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderService, OrderService>()
 			.AddScoped<INomenclatureService, NomenclatureService>()
 			.AddScoped<IComplaintService, ComplaintService>()
+			.AddScoped<ISubdivisionPermissionsService, SubdivisionPermissionsService>()
 			.AddOrderServicesDependencies()
 		;
 		
