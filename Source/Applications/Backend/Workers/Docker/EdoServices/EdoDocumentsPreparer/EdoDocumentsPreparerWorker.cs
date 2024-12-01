@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -136,9 +136,11 @@ namespace EdoDocumentsPreparer
 						organizationId,
 						_deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
 
-				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен
+				var notLoadedOrders = _orderRepository.GetOrdersThatMustBeLoadedBeforeUpdSending(uow, orders.Select(o => o.Id));
+
+				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен, либо заказы с завершенной погрузкой
 				var filteredOrders =
-					orders.Where(o => o.Client.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
+					orders.Where(o => (o.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute && !notLoadedOrders.Contains(o.Id))
 							|| o.OrderStatus != OrderStatus.OnTheWay)
 						.Where(o => o.OrderDocuments.Any(
 							x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD)).ToList();

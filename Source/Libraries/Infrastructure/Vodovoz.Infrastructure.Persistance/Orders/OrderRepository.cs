@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -1131,11 +1131,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				join nomenclature in uow.Session.Query<Nomenclature>()
 				on carLoadDocumentItem.Nomenclature.Id equals nomenclature.Id
 				where
-				orderIds.Contains((int)carLoadDocumentItem.OrderId)
-				&& carLoadDocumentItem.IsIndividualSetForOrder
-				&& nomenclature.IsAccountableInTrueMark
-				&& nomenclature.Gtin != null
-				&& carLoadDocument.LoadOperationState != Core.Domain.Documents.CarLoadDocumentLoadOperationState.Done
+					orderIds.Contains((int)carLoadDocumentItem.OrderId)
+					&& carLoadDocumentItem.IsIndividualSetForOrder
+					&& nomenclature.IsAccountableInTrueMark
+					&& nomenclature.Gtin != null
+					&& carLoadDocument.LoadOperationState != CarLoadDocumentLoadOperationState.Done
 				select (int)carLoadDocumentItem.OrderId;
 
 			return query.Distinct().ToList();
