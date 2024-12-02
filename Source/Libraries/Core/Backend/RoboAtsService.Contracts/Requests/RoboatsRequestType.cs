@@ -1,4 +1,4 @@
-﻿namespace RoboatsService.Requests
+﻿namespace RoboAtsService.Contracts.Requests
 {
 	public class RoboatsRequestType
 	{
