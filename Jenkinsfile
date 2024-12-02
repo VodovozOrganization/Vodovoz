@@ -134,8 +134,8 @@ stage('Desktop'){
 			}
 
 			stage('Desktop.Build'){
-				bat "copy \"D:\\CD\\WaterDelivery\\appsettings.Production.json\" \".\""
 				Build("WinDesktop")
+				bat "copy \"D:\\CD\\WaterDelivery\\appsettings.Production.json\" \".\\Vodovoz\\Source\\Applications\\Desktop\\Vodovoz\\bin\\DebugWin\\\""
 			}
 		}
 		else
