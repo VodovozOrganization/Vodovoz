@@ -156,7 +156,6 @@ stage('Web'){
 			stage('Web.Build'){
 				// IIS
 				PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
-				PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 				PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
 				PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
 				PublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
@@ -185,6 +184,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
+				DockerPublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 			}
 		}
 		else if(CAN_BUILD_WEB)
