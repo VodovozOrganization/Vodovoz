@@ -134,7 +134,7 @@ stage('Desktop'){
 			}
 
 			stage('Desktop.Build'){
-				bat "copy D:/CD/WaterDelivery/appsettings.Production.json ./"
+				bat "copy \"D:\\CD\\WaterDelivery\\appsettings.Production.json\" \".\""
 				Build("WinDesktop")
 			}
 		}
