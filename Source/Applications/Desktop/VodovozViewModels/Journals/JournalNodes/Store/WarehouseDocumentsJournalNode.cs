@@ -184,9 +184,25 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 							RouteListId
 						);
 					case DocumentType.InventoryDocument:
-						return $"По складу: {FromWarehouse}";
+						switch(InventoryDocumentType)
+						{
+							case Domain.Documents.InventoryDocuments.InventoryDocumentType.WarehouseInventory:
+								return $"По складу: {FromWarehouse}";
+							case Domain.Documents.InventoryDocuments.InventoryDocumentType.EmployeeInventory:
+								return $"По сотруднику: {FromEmployee}";
+							case Domain.Documents.InventoryDocuments.InventoryDocumentType.CarInventory:
+								return $"По автомобилю: {FromCar}";
+						}
+						return string.Empty;
 					case DocumentType.ShiftChangeDocument:
-						return $"По складу: {FromWarehouse}";
+						switch(ShiftChangeResidueDocumentType)
+						{
+							case Domain.Documents.ShiftChangeResidueDocumentType.Warehouse:
+								return $"По складу: {FromWarehouse}";
+							case Domain.Documents.ShiftChangeResidueDocumentType.Car:
+								return $"По автомобилю: {FromCar}";
+						}
+						return string.Empty;
 					case DocumentType.RegradingOfGoodsDocument:
 						return $"По складу: {FromWarehouse}";
 					case DocumentType.SelfDeliveryDocument:
@@ -220,6 +236,14 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 		public string ToCar { get; set; }
 		public StorageType MovementDocumentStorageFrom { get; set; }
 		public MovementDocumentTypeByStorage MovementDocumentTypeByStorage { get; set; }
+		/// <summary>
+		/// Тип передачи остатков (для документа <see cref="DocumentType.ShiftChangeDocument"/>)
+		/// </summary>
+		public ShiftChangeResidueDocumentType? ShiftChangeResidueDocumentType { get; set; }
+		/// <summary>
+		/// Тип инвентаризации (для документа <see cref="DocumentType.InventoryDocument"/>)
+		/// </summary>
+		public InventoryDocumentType? InventoryDocumentType { get; set; }
 		public int Amount { get; set; }
 
 		public string CarModelName { get; set; }
