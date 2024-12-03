@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EdoContactsUpdater.Configs;
@@ -196,7 +197,7 @@ namespace EdoContactsUpdater
 
 			counterparties = _counterpartyRepository.GetCounterpartiesByINN(uow, contact.Inn);
 
-			if(counterparties == null || string.IsNullOrWhiteSpace(contact.EdxClientId))
+			if(counterparties == null || !counterparties.Any() || string.IsNullOrWhiteSpace(contact.EdxClientId))
 			{
 				_logger.LogError(
 					"Получено входящее приглашение от несуществующего клиента, ИНН {Inn} аккаунт {EdxClientId} пропускаем...",
