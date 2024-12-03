@@ -1,5 +1,4 @@
-﻿using Pacs.Server;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using System;
 
 namespace Vodovoz.Core.Domain.Pacs
