@@ -1,13 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
 using RoboatsService.Monitoring;
 using RoboatsService.OrderValidation;
+using RoboAtsService.Contracts.Requests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 
-namespace RoboatsService.Requests
+namespace RoboatsService.Handlers
 {
 	/// <summary>
 	/// Обработчик запросов данных о заказе
