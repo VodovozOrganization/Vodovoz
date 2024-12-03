@@ -2,7 +2,6 @@
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using AddressTransferTypeEnum = Vodovoz.Domain.Logistic.AddressTransferType;

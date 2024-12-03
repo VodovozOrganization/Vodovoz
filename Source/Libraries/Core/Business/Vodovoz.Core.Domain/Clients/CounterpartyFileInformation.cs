@@ -2,9 +2,8 @@
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Common;
-using Vodovoz.Domain.Client;
 
-namespace VodovozBusiness.Domain.Client
+namespace Vodovoz.Core.Domain.Clients
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "информация о прикрепляемых файлах контрагентов",
@@ -15,7 +14,7 @@ namespace VodovozBusiness.Domain.Client
 		private int _counterpartyId;
 
 		[Display(Name = "Идентификатор контрагента")]
-		[HistoryIdentifier(TargetType = typeof(Counterparty))]
+		[HistoryIdentifier(TargetType = typeof(CounterpartyEntity))]
 		public virtual int CounterpartyId
 		{
 			get => _counterpartyId;

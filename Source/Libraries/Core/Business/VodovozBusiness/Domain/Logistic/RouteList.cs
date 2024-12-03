@@ -1,17 +1,15 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate.Criterion;
 using QS.Dialog;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Osrm;
 using QS.Project.Services;
 using QS.Report;
 using QS.Utilities.Debug;
-using QS.Utilities.Extensions;
 using QS.Validation;
 using System;
 using System.Collections.Generic;
@@ -21,6 +19,7 @@ using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -63,12 +62,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Журнал МЛ",
-		Nominative = "маршрутный лист")]
-	[HistoryTrace]
-	[EntityPermission]
-	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
+	public class RouteList : RouteListEntity, IValidatableObject
 	{
 		public const decimal ConfirmedDistanceLimit = 99_999.99m;
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -115,24 +109,14 @@ namespace Vodovoz.Domain.Logistic
 		private CarVersion _carVersion;
 		private Car _car;
 		private RouteListProfitability _routeListProfitability;
-		private DateTime _date;
 		private GenericObservableList<DeliveryFreeBalanceOperation> _observableDeliveryFreeBalanceOperations;
 
 		#region Свойства
 
-		public virtual int Id { get; set; }
-
-		DateTime version;
-		[Display(Name = "Версия")]
-		public virtual DateTime Version {
-			get => version;
-			set => SetField(ref version, value);
-		}
-
 		Employee _driver;
 
 		[Display(Name = "Водитель")]
-		public virtual Employee Driver {
+		public virtual new Employee Driver {
 			get => _driver;
 			set {
 				Employee oldDriver = _driver;
@@ -206,14 +190,6 @@ namespace Vodovoz.Domain.Logistic
 		public virtual DeliveryShift Shift {
 			get => shift;
 			set => SetField(ref shift, value);
-		}
-
-		[Display(Name = "Дата")]
-		[HistoryDateOnly]
-		public virtual DateTime Date
-		{
-			get => _date;
-			set => SetField(ref _date, value);
 		}
 
 		Decimal confirmedDistance;
@@ -2261,12 +2237,12 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if(Driver != null && Driver.FirstWorkDay == null) {
-				Driver.FirstWorkDay = _date;
+				Driver.FirstWorkDay = Date;
 				UoW.Save(Driver);
 			}
 
 			if(Forwarder != null && Forwarder.FirstWorkDay == null) {
-				Forwarder.FirstWorkDay = _date;
+				Forwarder.FirstWorkDay = Date;
 				UoW.Save(Forwarder);
 			}
 
@@ -2515,11 +2491,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion
-
-		public RouteList()
-		{
-			_date = DateTime.Today;
-		}
 
 		public virtual ReportInfo OrderOfAddressesRep(int id)
 		{

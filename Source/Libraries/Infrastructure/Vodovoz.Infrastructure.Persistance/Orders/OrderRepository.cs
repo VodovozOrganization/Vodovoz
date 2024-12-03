@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -12,6 +12,8 @@ using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain;
@@ -1118,6 +1120,25 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			var result = ordersForNewUpd.Union(ordersForResendUpd);
 			
 			return result;
+		}
+
+		public IEnumerable<int> GetOrdersThatMustBeLoadedBeforeUpdSending(IUnitOfWork uow, IEnumerable<int> orderIds)
+		{
+			var query =
+				from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItem>()
+				join carLoadDocument in uow.Session.Query<CarLoadDocument>()
+				on carLoadDocumentItem.Document.Id equals carLoadDocument.Id
+				join nomenclature in uow.Session.Query<Nomenclature>()
+				on carLoadDocumentItem.Nomenclature.Id equals nomenclature.Id
+				where
+					orderIds.Contains((int)carLoadDocumentItem.OrderId)
+					&& carLoadDocumentItem.IsIndividualSetForOrder
+					&& nomenclature.IsAccountableInTrueMark
+					&& nomenclature.Gtin != null
+					&& carLoadDocument.LoadOperationState != CarLoadDocumentLoadOperationState.Done
+				select (int)carLoadDocumentItem.OrderId;
+
+			return query.Distinct().ToList();
 		}
 
 		public IList<VodovozOrder> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)

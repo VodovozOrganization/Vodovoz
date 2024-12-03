@@ -25,6 +25,7 @@ using Autofac;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Reports
 {

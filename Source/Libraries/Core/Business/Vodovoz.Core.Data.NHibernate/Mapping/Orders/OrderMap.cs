@@ -205,8 +205,14 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			Map(x => x.DontArriveBeforeInterval)
 				.Column("dont_arrive_before_interval");
 
+			Map(x => x.PaymentType).Column("payment_type")
+				.Access.CamelCaseField(Prefix.Underscore);
+
 			References(x => x.PaymentByCardFrom)
 				.Column("payment_from_id");
+
+			References(x => x.Client)
+				.Column("client_id");
 
 			HasMany(x => x.OrderItems)
 				.KeyColumn("order_id")

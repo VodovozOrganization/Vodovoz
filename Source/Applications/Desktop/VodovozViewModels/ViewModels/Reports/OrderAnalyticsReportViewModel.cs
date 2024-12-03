@@ -29,10 +29,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Reports
 {
-    public class OrderAnalyticsReportViewModel : UowDialogViewModelBase
+	public class OrderAnalyticsReportViewModel : UowDialogViewModelBase
     {
         private readonly IInteractiveService interactiveService;
         private readonly Encoding encoding = Encoding.GetEncoding(1251);

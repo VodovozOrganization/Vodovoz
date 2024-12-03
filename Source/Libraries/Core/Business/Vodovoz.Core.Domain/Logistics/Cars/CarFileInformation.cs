@@ -2,9 +2,8 @@
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Common;
-using Vodovoz.Domain.Logistic.Cars;
 
-namespace VodovozBusiness.Domain.Logistic.Cars
+namespace Vodovoz.Core.Domain.Logistics.Cars
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "информация о прикрепляемых файлах автомобилей",
@@ -15,7 +14,7 @@ namespace VodovozBusiness.Domain.Logistic.Cars
 		private int _carId;
 
 		[Display(Name = "Идентификатор автомобиля")]
-		[HistoryIdentifier(TargetType = typeof(Car))]
+		[HistoryIdentifier(TargetType = typeof(CarEntity))]
 		public virtual int CarId
 		{
 			get => _carId;

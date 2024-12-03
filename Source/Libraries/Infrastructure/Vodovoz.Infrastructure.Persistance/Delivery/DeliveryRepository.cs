@@ -29,6 +29,7 @@ using Vodovoz.Tools.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.EntityRepositories.Delivery;
 using VodovozBusiness.Domain.Service;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Infrastructure.Persistance.Delivery
 {
