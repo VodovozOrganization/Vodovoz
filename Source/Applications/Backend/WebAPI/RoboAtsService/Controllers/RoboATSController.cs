@@ -118,6 +118,12 @@ namespace RoboatsService.Controllers
 			return result;
 		}
 
+		/// <summary>
+		/// Получение точек доставки по номеру входящего звонка
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="counterpartyPhone">Номер входящего звонка</param>
+		/// <returns></returns>
 		[HttpGet(nameof(GetContactPhoneHasOrdersForDeliveryToday))]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetContactPhoneHasOrdersForDeliveryTodayResponse))]
 		public IActionResult GetContactPhoneHasOrdersForDeliveryToday([FromServices]IUnitOfWork unitOfWork, string counterpartyPhone)
@@ -146,6 +152,12 @@ namespace RoboatsService.Controllers
 			}
 		}
 
+		/// <summary>
+		/// Получение информации о точке доставки
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="deliveryPointId">Идентификатор точки доставки</param>
+		/// <returns></returns>
 		[HttpGet(nameof(GetDeliveryPointInfo))]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DeliveryPointInfoResponse))]
 		public IActionResult GetDeliveryPointInfo([FromServices] IUnitOfWork unitOfWork, int deliveryPointId)
@@ -172,6 +184,11 @@ namespace RoboatsService.Controllers
 			return Ok(result);
 		}
 
+		/// <summary>
+		/// Получение телефонов для уточнения времени доставки по контактному телефону сегодняшних заказов
+		/// </summary>
+		/// <param name="counterpartyPhone">Номер входящего звонка</param>
+		/// <returns></returns>
 		[HttpGet(nameof(GetCourierPhonesByTodayOrderContactPhone))]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetCourierPhonesResponse))]
 		public IActionResult GetCourierPhonesByTodayOrderContactPhone(string counterpartyPhone)
