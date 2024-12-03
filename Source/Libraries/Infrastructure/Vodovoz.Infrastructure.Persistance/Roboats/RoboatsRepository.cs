@@ -1,7 +1,8 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
-using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
+using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Infrastructure.Persistance.Roboats
