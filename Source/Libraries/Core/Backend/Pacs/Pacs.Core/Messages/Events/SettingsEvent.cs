@@ -5,7 +5,7 @@ namespace Pacs.Core.Messages.Events
 	/// <summary>
 	/// Событие изменения настроек
 	/// </summary>
-	public class SettingsEvent
+	public class SettingsEvent : EventBase
 	{
 		/// <summary>
 		/// Настройки

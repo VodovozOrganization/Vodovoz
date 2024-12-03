@@ -1,4 +1,6 @@
-﻿namespace Pacs.Core.Messages.Commands
+﻿using Vodovoz.Core.Domain.Pacs;
+
+namespace Pacs.Core.Messages.Commands
 {
 	/// <summary>
 	/// Команда начала перерыва

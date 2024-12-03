@@ -5,7 +5,7 @@ namespace Pacs.Core.Messages.Events
 	/// <summary>
 	/// Событие смены состояния оператора
 	/// </summary>
-	public class OperatorStateEvent
+	public class OperatorStateEvent : EventBase
 	{
 		/// <summary>
 		/// Состояние оператора

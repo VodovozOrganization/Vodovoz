@@ -7,7 +7,7 @@ namespace Pacs.Core.Messages.Events
 	/// <summary>
 	/// Событие ухода на перерыв оператора
 	/// </summary>
-	public class OperatorsOnBreakEvent
+	public class OperatorsOnBreakEvent : EventBase
 	{
 		/// <summary>
 		/// Состояния оператора

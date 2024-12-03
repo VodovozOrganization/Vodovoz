@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Команда оператора
 	/// </summary>
-	public abstract class OperatorCommand
+	public class OperatorCommand : CommandBase
 	{
 		/// <summary>
 		/// Идентификатор оператора

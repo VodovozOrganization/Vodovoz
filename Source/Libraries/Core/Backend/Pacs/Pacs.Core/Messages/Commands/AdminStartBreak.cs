@@ -1,4 +1,7 @@
-﻿namespace Pacs.Core.Messages.Commands
+﻿using System;
+using Vodovoz.Core.Domain.Pacs;
+
+namespace Pacs.Core.Messages.Commands
 {
 	/// <summary>
 	/// Начало перерыва администратором

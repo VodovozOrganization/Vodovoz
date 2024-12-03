@@ -5,7 +5,7 @@ namespace Pacs.Core.Messages.Events
 	/// <summary>
 	/// Событие глобальной смены доступности перерыва
 	/// </summary>
-	public class GlobalBreakAvailabilityEvent
+	public class GlobalBreakAvailabilityEvent : EventBase
 	{
 		/// <summary>
 		/// Доступность большого перерыва
