@@ -5,13 +5,6 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MassTransit" Version="8.0.12" />
-		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
-		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
-		<PackageReference Include="Stateless" Version="5.13.0" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
 	  <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
 	  <ProjectReference Include="..\..\..\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
