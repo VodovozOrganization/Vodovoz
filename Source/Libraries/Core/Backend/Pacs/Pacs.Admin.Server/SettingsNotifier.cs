@@ -17,8 +17,11 @@ namespace Pacs.Admin.Server
 
 		public async Task SettingsChanged(DomainSettings settings)
 		{
-			var settingsEvent = new SettingsEvent();
-			settingsEvent.Settings = settings;
+			var settingsEvent = new SettingsEvent
+			{
+				Settings = settings
+			};
+
 			await _messageBus.Publish(settingsEvent);
 		}
 	}

@@ -1,10 +1,12 @@
 using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using Core.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Taxcom.Client.Api;
+using Taxcom.Client.Api.Entity;
 using TaxcomEdoApi.Library;
 using TaxcomEdoApi.Library.Config;
 
@@ -41,13 +43,28 @@ namespace TaxcomEdoApi
 				{
 					var apiOptions = provider.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;
 					var certificate = provider.GetRequiredService<X509Certificate2>();
+					var apiCryptographicMode = apiOptions.CryptographicMode.TryParseAsEnum<CryptographicMode>();
 
+					if(apiCryptographicMode is null)
+					{
+						return new Factory().CreateApi(
+							apiOptions.BaseUrl,
+							true,
+							apiOptions.IntegratorId,
+							certificate.RawData,
+							apiOptions.EdxClientId);
+					}
+					
 					return new Factory().CreateApi(
 						apiOptions.BaseUrl,
 						true,
 						apiOptions.IntegratorId,
 						certificate.RawData,
-						apiOptions.EdxClientId);
+						apiOptions.EdxClientId,
+						new TaxcomApiUserSettings
+						{
+							CryptographicMode = apiCryptographicMode.Value
+						});
 				})
 				.AddTaxcomEdoApiLibrary();
 
