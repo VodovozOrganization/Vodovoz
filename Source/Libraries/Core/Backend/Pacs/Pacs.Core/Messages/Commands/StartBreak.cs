@@ -1,9 +1,13 @@
-﻿using Pacs.Server;
-
-namespace Pacs.Core.Messages.Commands
+﻿namespace Pacs.Core.Messages.Commands
 {
+	/// <summary>
+	/// Команда начала перерыва
+	/// </summary>
 	public class StartBreak : OperatorCommand
 	{
+		/// <summary>
+		/// Тип перерыва
+		/// </summary>
 		public OperatorBreakType BreakType { get; set; }
 	}
 }

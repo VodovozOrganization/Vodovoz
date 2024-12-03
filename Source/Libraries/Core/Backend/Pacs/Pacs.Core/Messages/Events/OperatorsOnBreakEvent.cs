@@ -4,8 +4,14 @@ using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Core.Messages.Events
 {
+	/// <summary>
+	/// Событие ухода на перерыв оператора
+	/// </summary>
 	public class OperatorsOnBreakEvent
 	{
+		/// <summary>
+		/// Состояния оператора
+		/// </summary>
 		public IEnumerable<OperatorState> OnBreak { get; set; } = Enumerable.Empty<OperatorState>();
 	}
 }
