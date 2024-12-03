@@ -47,6 +47,7 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Test;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -156,6 +157,9 @@ namespace Vodovoz.JournalViewModels
 			CreateCustomDeleteAction();
 			CreatePrintOrdersDocumentsAction();
 			CreateExportToExcelAction();
+			CreateTableTestAction();
+			CreateGetPeterAction();
+			CreateGetMikeAction();
 		}
 
 		private void CreateCustomDeleteAction()
@@ -319,6 +323,74 @@ namespace Vodovoz.JournalViewModels
 				async (selected) => await ExportToExcel()
 			);
 			NodeActionsList.Add(createExportToExcelAction);
+		}
+
+		private void CreateTableTestAction()
+		{
+			var createTableTestAction = new JournalAction(
+				"Запись в таблицу",
+				(selected) => true,
+				(selected) => true,
+				(selected) =>
+				{
+					//var mappingTest1 = new MappingTest
+					//{
+					//	Name = "Peter",
+					//	Message = "PeterMessage",
+					//	Description = "PeterDescription"
+					//};
+
+					//var mappingTest2 = new MappingTest
+					//{
+					//	Name = "Mike",
+					//	Message = "MikeMessage",
+					//	Description = "MikeDescription"
+					//};
+
+					//UoW.Save(mappingTest1);
+					//UoW.Save(mappingTest2);
+					//UoW.Commit();
+
+				}
+			);
+			NodeActionsList.Add(createTableTestAction);
+		}
+
+		private void CreateGetPeterAction()
+		{
+			var createTableTestAction = new JournalAction(
+				"Получить Peter",
+				(selected) => true,
+				(selected) => true,
+				(selected) =>
+				{
+					//var peter = new PeterMappingTest();
+					//UoW.Save(peter);
+
+					var mike = new MikeMappingTest();
+					UoW.Save(mike);
+
+					UoW.Commit();
+
+				}
+			);
+			NodeActionsList.Add(createTableTestAction);
+		}
+
+		private void CreateGetMikeAction()
+		{
+			var createTableTestAction = new JournalAction(
+				"Получить Mike",
+				(selected) => true,
+				(selected) => true,
+				(selected) =>
+				{
+					var mike = new MikeMappingTest();
+					var mikeDb = UoW.Session.QueryOver<MappingTest>().Where(x => x.Name == mike.Name).SingleOrDefault();
+
+				}
+			);
+			NodeActionsList.Add(createTableTestAction);
 		}
 
 		private async Task ExportToExcel()
