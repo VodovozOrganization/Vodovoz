@@ -10,6 +10,8 @@ namespace Vodovoz.EntityRepositories.TrueMark
 
 		ISet<string> GetAllowedCodeOwnersInn();
 
+		ISet<string> GetAllowedCodeOwnersGtins();
+
 		IEnumerable<TrueMarkWaterIdentificationCode> GetTrueMarkCodeDuplicates(IUnitOfWork uow, string gtin, string serialNumber, string checkCode);
 	}
 }

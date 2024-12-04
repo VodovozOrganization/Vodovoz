@@ -6,6 +6,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Persistance;
+using VodovozBusiness.Models.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
 {
@@ -17,6 +18,7 @@ namespace Vodovoz.Models.TrueMark
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly ICashReceiptFactory _cashReceiptFactory;
+		private readonly OurCodesChecker _ourCodesChecker;
 
 		public ReceiptPreparerFactory(
 			ILogger<ReceiptPreparer> logger,
@@ -24,7 +26,8 @@ namespace Vodovoz.Models.TrueMark
 			TrueMarkCodesChecker codeChecker,
 			ICashReceiptRepository cashReceiptRepository,
 			ITrueMarkRepository trueMarkRepository,
-			ICashReceiptFactory cashReceiptFactory
+			ICashReceiptFactory cashReceiptFactory,
+			OurCodesChecker ourCodesChecker
 		)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -33,6 +36,7 @@ namespace Vodovoz.Models.TrueMark
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_cashReceiptFactory = cashReceiptFactory ?? throw new ArgumentNullException(nameof(cashReceiptFactory));
+			_ourCodesChecker = ourCodesChecker ?? throw new ArgumentNullException(nameof(ourCodesChecker));
 		}
 
 		public ReceiptPreparer Create(int receiptId)
@@ -40,7 +44,7 @@ namespace Vodovoz.Models.TrueMark
 			var codePool = new TrueMarkTransactionalCodesPool(_uowFactory);
 			var preparer = new ReceiptPreparer(
 				_logger, _uowFactory, codePool, _codeChecker, _cashReceiptRepository, _trueMarkRepository, _cashReceiptFactory,
-				new GenericRepository<Nomenclature>(), receiptId);
+				new GenericRepository<Nomenclature>(), _ourCodesChecker, receiptId);
 			return preparer;
 		}
 	}

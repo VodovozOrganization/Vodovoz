@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +13,7 @@ using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
+using VodovozBusiness.Models.TrueMark;
 
 namespace CashReceiptPrepareWorker
 {
@@ -102,6 +103,10 @@ namespace CashReceiptPrepareWorker
 				.InstancePerLifetimeScope();
 
 			builder.RegisterType<TrueMarkWaterCodeParser>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<OurCodesChecker>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
