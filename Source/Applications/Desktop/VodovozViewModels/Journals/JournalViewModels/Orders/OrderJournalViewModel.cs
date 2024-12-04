@@ -46,6 +46,7 @@ using QS.Deletion;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.JournalViewModels
 {

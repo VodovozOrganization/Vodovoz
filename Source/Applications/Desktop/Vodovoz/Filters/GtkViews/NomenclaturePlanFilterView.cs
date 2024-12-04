@@ -6,7 +6,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
 namespace Vodovoz.Filters.GtkViews
 {
-    public partial class NomenclaturePlanFilterView : FilterViewBase<NomenclaturePlanFilterViewModel>
+	public partial class NomenclaturePlanFilterView : FilterViewBase<NomenclaturePlanFilterViewModel>
     {
         public NomenclaturePlanFilterView(NomenclaturePlanFilterViewModel filterViewModel) : base(filterViewModel)
         {

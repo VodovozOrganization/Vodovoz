@@ -27,6 +27,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 		}
 
 		public DelegateCommand GenerateReportCommand;
+		private bool _showDisposableTare;
 
 		public virtual DateTime? StartDate
 		{
@@ -40,6 +41,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 			set => SetField(ref _endDate, value);
 		}
 
+		public bool ShowDisposableTare
+		{
+			get => _showDisposableTare;
+			set => SetField(ref _showDisposableTare, value);
+		}
+
 		protected override Dictionary<string, object> Parameters
 		{
 			get
@@ -47,7 +54,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bottles
 				var parameters = new Dictionary<string, object>
 				{
 					{ "start_date", StartDate },
-					{ "end_date", EndDate }
+					{ "end_date", EndDate },
+					{ "show_disposable_tare", ShowDisposableTare }
 				};
 
 				return parameters;

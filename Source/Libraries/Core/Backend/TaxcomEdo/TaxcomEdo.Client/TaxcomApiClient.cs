@@ -72,9 +72,12 @@ namespace TaxcomEdo.Client
 				_taxcomApiOptions.GetContactListUpdatesEndPoint + query, cancellationToken);
 		}
 
-		public async Task AcceptContact(string edxClientId, CancellationToken cancellationToken = default)
+		public async Task<bool> AcceptContact(string edxClientId, CancellationToken cancellationToken = default)
 		{
-			await CreateClient().PostAsJsonAsync(_taxcomApiOptions.AcceptContactEndPoint, edxClientId, cancellationToken);
+			var result =
+				await CreateClient().PostAsJsonAsync(_taxcomApiOptions.AcceptContactEndPoint, edxClientId, cancellationToken);
+
+			return result.IsSuccessStatusCode;
 		}
 
 		public async Task<IEnumerable<byte>> GetDocFlowRawData(string docFlowId, CancellationToken cancellationToken = default)

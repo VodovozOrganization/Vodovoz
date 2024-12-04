@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Reflection;
@@ -16,7 +17,7 @@ namespace Vodovoz.Presentation.WebApi
 {
 	public static class DependencyInjection
 	{
-		private static readonly string _securityOptionsConfigurationKey = typeof(SecurityOptions).Name.Replace("Options", "");
+		private static readonly string _securityOptionsConfigurationKey = "Security";
 
 		private static bool _authorizationAdded = false;
 
@@ -98,6 +99,18 @@ namespace Vodovoz.Presentation.WebApi
 			services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 			return services;
+		}
+
+		public static void ConfigureJsonSourcesAutoReload(this IConfigurationBuilder configurationBuilder)
+		{
+			var jsonSources = configurationBuilder.Sources
+				.Where(cs => cs is JsonConfigurationSource)
+				.Select(cs => cs as JsonConfigurationSource);
+
+			foreach(var jsonSource in jsonSources)
+			{
+				jsonSource.ReloadOnChange = true;
+			}
 		}
 	}
 }

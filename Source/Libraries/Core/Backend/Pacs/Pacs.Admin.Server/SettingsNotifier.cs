@@ -19,6 +19,7 @@ namespace Pacs.Admin.Server
 		{
 			var settingsEvent = new SettingsEvent
 			{
+				EventId = Guid.NewGuid(),
 				Settings = settings
 			};
 

@@ -19,9 +19,11 @@ namespace Pacs.Server.Operators
 		{
 			var result = new OperatorStateEvent
 			{
+				EventId = Guid.NewGuid(),
 				State = operatorState,
 				BreakAvailability = breakAvailability
 			};
+
 			await _messageBus.Publish(result);
 		}
 	}

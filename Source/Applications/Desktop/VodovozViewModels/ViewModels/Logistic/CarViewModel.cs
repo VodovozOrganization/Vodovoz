@@ -51,9 +51,9 @@ using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Widgets.Cars;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 using Vodovoz.ViewModels.Widgets.Cars.Insurance;
-using VodovozBusiness.Domain.Logistic.Cars;
 using VodovozInfrastructure.StringHandlers;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Logistics.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {

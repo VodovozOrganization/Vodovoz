@@ -1,5 +1,4 @@
 ﻿using Pacs.Core.Messages.Events;
-using Pacs.Server;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
