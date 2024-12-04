@@ -310,10 +310,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				if(InCorrectPeriod(Entity.EndDate) || AskQuestion("Вы уверенны что хотите сохранить изменения в закрытом периоде?"))
 				{
-
 					if(Entity.CarEventType?.Id == _carEventSettings?.FuelBalanceCalibrationCarEventTypeId)
 					{
-						Entity.UpdateCalibrationFuelOeration();
+						Entity.UpdateCalibrationFuelOperation();
 					}
 
 					base.SaveAndClose();
@@ -339,7 +338,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(Entity.CarEventType?.Id == _carEventSettings?.FuelBalanceCalibrationCarEventTypeId)
 			{
-				Entity.UpdateCalibrationFuelOeration();
+				Entity.UpdateCalibrationFuelOperation();
 			}
 
 			base.SaveAndClose();
