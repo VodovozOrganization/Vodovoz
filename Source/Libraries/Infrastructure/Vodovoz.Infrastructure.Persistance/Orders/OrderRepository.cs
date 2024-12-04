@@ -291,10 +291,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return query.List().FirstOrDefault();
 		}
 
-		public bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, int counterpartyId)
+		public bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty)
 		{
-			var counterparty = uow.GetById<Counterparty>(counterpartyId);
-
 			if(counterparty is null)
 			{
 				return false;
