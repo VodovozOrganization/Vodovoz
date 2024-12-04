@@ -19,7 +19,10 @@ namespace Vodovoz.Models.TrueMark
 		private readonly TrueMarkWaterCodeParser _codeParser;
 		private readonly TrueMarkApiClient _trueMarkClient;
 
-		public TrueMarkCodesChecker(ILogger<TrueMarkCodesChecker> logger, TrueMarkWaterCodeParser codeParser, TrueMarkApiClient trueMarkClient)
+		public TrueMarkCodesChecker(
+			ILogger<TrueMarkCodesChecker> logger,
+			TrueMarkWaterCodeParser codeParser,
+			TrueMarkApiClient trueMarkClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_codeParser = codeParser ?? throw new ArgumentNullException(nameof(codeParser));
@@ -31,17 +34,19 @@ namespace Vodovoz.Models.TrueMark
 			var result = new List<TrueMarkProductCheckResult>();
 
 			var validCodes = codes.Where(x => x.IsValid);
-			var codesDic = validCodes.ToDictionary(x => x.SourceCode);
+			var sourceCodesDic = validCodes.ToDictionary(x => x.SourceCode);
 
-			var checkResults = await CheckCodesAsync(codesDic.Keys, cancellationToken);
+			var checkResults = await CheckCodesAsync(sourceCodesDic.Keys, cancellationToken);
+
 			foreach(var checkResult in checkResults)
 			{
-				if(!codesDic.TryGetValue(checkResult.Code, out CashReceiptProductCode productCode))
+				if(!sourceCodesDic.TryGetValue(checkResult.Code, out CashReceiptProductCode productCode))
 				{
 					throw new TrueMarkException($"Невозможно найти код {checkResult.Code.RawCode} в списке отправленных на проверку.");
 				}
 
-				var productCheckResult = new TrueMarkProductCheckResult {
+				var productCheckResult = new TrueMarkProductCheckResult
+				{
 					Code = productCode,
 					Introduced = checkResult.Introduced,
 					OwnerInn = checkResult.OwnerInn,

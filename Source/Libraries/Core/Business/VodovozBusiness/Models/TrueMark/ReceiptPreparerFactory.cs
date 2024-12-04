@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace Vodovoz.Models.TrueMark
 {
@@ -15,12 +16,11 @@ namespace Vodovoz.Models.TrueMark
 		private readonly TrueMarkCodesChecker _codeChecker;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly ITrueMarkRepository _trueMarkRepository;
-		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ICashReceiptFactory _cashReceiptFactory;
 
 		public ReceiptPreparerFactory(
-			ILogger<ReceiptPreparer> logger, 
-			IUnitOfWorkFactory uowFactory, 
+			ILogger<ReceiptPreparer> logger,
+			IUnitOfWorkFactory uowFactory,
 			TrueMarkCodesChecker codeChecker,
 			ICashReceiptRepository cashReceiptRepository,
 			ITrueMarkRepository trueMarkRepository,
@@ -40,7 +40,7 @@ namespace Vodovoz.Models.TrueMark
 			var codePool = new TrueMarkTransactionalCodesPool(_uowFactory);
 			var preparer = new ReceiptPreparer(
 				_logger, _uowFactory, codePool, _codeChecker, _cashReceiptRepository, _trueMarkRepository, _cashReceiptFactory,
-				receiptId);
+				new GenericRepository<Nomenclature>(), receiptId);
 			return preparer;
 		}
 	}
