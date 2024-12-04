@@ -52,6 +52,8 @@
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.ExportToExcel.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportOrderData.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportRow.cs" />
+    <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReportViewModel.cs" />
+    <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReportViewModel.SelectableKeyValueNode.cs" />
     <Compile Include="Cash\AdvanceReportViewModel.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentNode.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentsFilterViewModel.cs" />
