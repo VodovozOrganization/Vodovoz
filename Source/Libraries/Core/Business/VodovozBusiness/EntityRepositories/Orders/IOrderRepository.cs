@@ -60,7 +60,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="client">Контрагент</param>
 		Order GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Order order, Counterparty client);
 
-		bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, int counterpartyId);
+		bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty);
 		bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId);
 
 		OrderStatus[] GetGrantedStatusesToCreateSeveralOrders();
