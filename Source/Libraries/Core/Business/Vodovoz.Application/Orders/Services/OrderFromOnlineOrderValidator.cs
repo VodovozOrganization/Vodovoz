@@ -165,28 +165,20 @@ namespace Vodovoz.Application.Orders.Services
 				return;
 			}
 
-			if(_freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(
-				uow, _onlineOrder.IsSelfDelivery, _onlineOrder.Counterparty, _onlineOrder.DeliveryPoint))
+			var result = _freeLoaderChecker.CanOrderPromoSetForNewClientsFromOnline(
+				uow,
+				_onlineOrder.IsSelfDelivery,
+				_onlineOrder.CounterpartyId,
+				_onlineOrder.DeliveryPointId);
+
+			if(result.IsSuccess)
 			{
-				errors.Add(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
 				return;
 			}
 
-			var phones = new List<Phone>();
-
-			if(_onlineOrder.Counterparty != null)
+			foreach(var error in result.Errors)
 			{
-				phones.AddRange(_onlineOrder.Counterparty.Phones);
-			}
-
-			if(_onlineOrder.DeliveryPoint != null)
-			{
-				phones.AddRange(_onlineOrder.DeliveryPoint.Phones);
-			}
-
-			if(_freeLoaderChecker.CheckFreeLoaders(uow, 0, _onlineOrder.DeliveryPoint, phones))
-			{
-				errors.Add(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
+				errors.Add(error);
 			}
 		}
 

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -49,12 +50,12 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
-		public IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, DateTime? date = null, RouteListStatus? status = null)
+		public IEnumerable<RouteList> GetDriverRouteLists(IUnitOfWork uow, int driverId, DateTime? date = null, RouteListStatus? status = null)
 		{
 			RouteList routeListAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
-				.Where(() => routeListAlias.Driver == driver);
+				.Where(() => routeListAlias.Driver.Id == driverId);
 
 			if(date != null)
 			{

@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Orders;
 
 namespace CustomerAppsApi.Library.Models
@@ -23,7 +24,9 @@ namespace CustomerAppsApi.Library.Models
 
 		public bool CanCounterpartyOrderPromoSetForNewClients(int counterpartyId)
 		{
-			return !_orderRepository.HasCounterpartyFirstRealOrder(_unitOfWork, counterpartyId);
+			var counterparty = _unitOfWork.GetById<Counterparty>(counterpartyId);
+			
+			return !_orderRepository.HasCounterpartyFirstRealOrder(_unitOfWork, counterparty);
 		}
 	}
 }

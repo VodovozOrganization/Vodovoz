@@ -257,7 +257,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.IncomingInvoice)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null
+				|| FilterViewModel.Employee != null
+				|| FilterViewModel.Car != null)
 			{
 				query.Where(() => invoiceAlias.Id == -1);
 			}
@@ -329,7 +331,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => waterAlias.Product, () => productAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.IncomingWater)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null
+				|| FilterViewModel.Employee != null
+				|| FilterViewModel.Car != null)
 			{
 				query.Where(() => waterAlias.Id == -1);
 			}
@@ -412,8 +416,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => movementAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => movementAlias.LastEditor, () => lastEditorAlias);
 
-			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.MovementDocument)
-				|| FilterViewModel.Driver != null)
+			if(FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.MovementDocument)
 			{
 				query.Where(() => movementAlias.Id == -1);
 			}
@@ -437,6 +440,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if(FilterViewModel.MovementDocumentStatus.HasValue && FilterViewModel.DocumentType == DocumentType.MovementDocument)
 			{
 				query.Where(() => movementAlias.Status == FilterViewModel.MovementDocumentStatus.Value);
+			}
+
+			if(FilterViewModel.Employee != null)
+			{
+				query.Where(() =>
+					(movementAlias.FromEmployee.Id == FilterViewModel.Employee.Id && movementAlias.StorageFrom == StorageType.Employee)
+					|| (movementAlias.ToEmployee.Id == FilterViewModel.Employee.Id && movementAlias.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToEmployee));
+			}
+
+			if(FilterViewModel.Car != null)
+			{
+				query.Where(() =>
+					(movementAlias.FromCar.Id == FilterViewModel.Car.Id && movementAlias.StorageFrom == StorageType.Car)
+					|| (movementAlias.ToCar.Id == FilterViewModel.Car.Id && movementAlias.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToCar));
 			}
 
 			query.Where(GetSearchCriterion(
@@ -525,8 +542,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => writeOffAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
 				.JoinAlias(() => writeOffAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
-			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.WriteoffDocument)
-				|| FilterViewModel.Driver != null)
+			if(FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.WriteoffDocument)
 			{
 				query.Where(() => writeOffAlias.Id == -1);
 			}
@@ -544,6 +560,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if(endDate.HasValue)
 			{
 				query.Where(() => writeOffAlias.TimeStamp < endDate.Value.AddDays(1));
+			}
+
+			if(FilterViewModel.Employee != null)
+			{
+				query.Where(() =>
+					writeOffAlias.WriteOffFromEmployee.Id == FilterViewModel.Employee.Id && writeOffAlias.WriteOffType == WriteOffType.Employee);
+			}
+
+			if(FilterViewModel.Car != null)
+			{
+				query.Where(() =>
+					writeOffAlias.WriteOffFromCar.Id == FilterViewModel.Car.Id && writeOffAlias.WriteOffType == WriteOffType.Car);
 			}
 
 			query.Where(GetSearchCriterion(
@@ -597,8 +625,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => inventoryAlias.Car, () => carStorageFromAlias)
 				.Left.JoinAlias(() => carStorageFromAlias.CarModel, () => carStorageModelFromAlias);
 
-			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.InventoryDocument)
-				|| FilterViewModel.Driver != null)
+			if(FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.InventoryDocument)
 			{
 				query.Where(() => inventoryAlias.Id == -1);
 			}
@@ -616,6 +643,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if(endDate.HasValue)
 			{
 				query.Where(() => inventoryAlias.TimeStamp < endDate.Value.AddDays(1));
+			}
+
+			if(FilterViewModel.Employee != null)
+			{
+				query.Where(() =>
+					inventoryAlias.Employee.Id == FilterViewModel.Employee.Id && inventoryAlias.InventoryDocumentType == InventoryDocumentType.EmployeeInventory);
+			}
+
+			if(FilterViewModel.Car != null)
+			{
+				query.Where(() =>
+					inventoryAlias.Car.Id == FilterViewModel.Car.Id && inventoryAlias.InventoryDocumentType == InventoryDocumentType.CarInventory);
 			}
 
 			query.Where(GetSearchCriterion(
@@ -678,7 +717,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => carStorageFromAlias.CarModel, () => carStorageModelFromAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.ShiftChangeDocument)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null
+				|| FilterViewModel.Employee != null)
 			{
 				query.Where(() => shiftchangeAlias.Id == -1);
 			}
@@ -696,6 +736,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if(endDate.HasValue)
 			{
 				query.Where(() => shiftchangeAlias.TimeStamp < endDate.Value.AddDays(1));
+			}
+
+			if(FilterViewModel.Car != null)
+			{
+				query.Where(() =>
+					shiftchangeAlias.Car.Id == FilterViewModel.Car.Id && shiftchangeAlias.ShiftChangeResidueDocumentType == ShiftChangeResidueDocumentType.Car);
 			}
 
 			query.Where(GetSearchCriterion(
@@ -749,7 +795,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => regradingOfGoodsAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.RegradingOfGoodsDocument)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null
+				|| FilterViewModel.Employee != null
+				|| FilterViewModel.Car != null)
 			{
 				query.Where(() => regradingOfGoodsAlias.Id == -1);
 			}
@@ -813,7 +861,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => selfDeliveryAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.SelfDeliveryDocument)
-				|| FilterViewModel.Driver != null)
+				|| FilterViewModel.Driver != null
+				|| FilterViewModel.Employee != null
+				|| FilterViewModel.Car != null)
 			{
 				query.Where(() => selfDeliveryAlias.Id == -1);
 			}
@@ -886,7 +936,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => loadCarAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
 				.JoinAlias(() => loadCarAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
-			if(FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.CarLoadDocument)
+			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.CarLoadDocument)
+				|| FilterViewModel.Employee != null)
 			{
 				query.Where(() => loadCarAlias.Id == -1);
 			}
@@ -909,6 +960,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if(FilterViewModel.Driver != null)
 			{
 				query.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
+			}
+
+			if(FilterViewModel.Car != null)
+			{
+				query.Where(() => routeListAlias.Car.Id == FilterViewModel.Car.Id);
 			}
 
 			query.Where(GetSearchCriterion(
@@ -969,7 +1025,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinAlias(() => unloadCarAlias.Author, () => authorAlias, JoinType.LeftOuterJoin)
 				.JoinAlias(() => unloadCarAlias.LastEditor, () => lastEditorAlias, JoinType.LeftOuterJoin);
 
-			if(FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.CarUnloadDocument)
+			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.CarUnloadDocument)
+				|| FilterViewModel.Employee != null)
 			{
 				query.Where(() => unloadCarAlias.Id == -1);
 			}
@@ -992,6 +1049,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if(FilterViewModel.Driver != null)
 			{
 				query.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
+			}
+
+			if(FilterViewModel.Car != null)
+			{
+				query.Where(() => routeListAlias.Car.Id == FilterViewModel.Car.Id);
 			}
 
 			query.Where(GetSearchCriterion(
@@ -1047,9 +1109,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinQueryOver(() => terminalGiveoutAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin)
 				.JoinAlias(() => terminalGiveoutAlias.Author, () => authorAlias, JoinType.LeftOuterJoin);
 
-			if(FilterViewModel.DocumentType != null
-				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalMovement
-				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalGiveout)
+			if((FilterViewModel.DocumentType != null
+					&& FilterViewModel.DocumentType != DocumentType.DriverTerminalMovement
+					&& FilterViewModel.DocumentType != DocumentType.DriverTerminalGiveout)
+				|| FilterViewModel.Employee != null
+				|| FilterViewModel.Car != null)
 			{
 				query.Where(() => terminalGiveoutAlias.Id == -1);
 			}
@@ -1117,9 +1181,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinQueryOver(() => terminalReturnAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin)
 				.JoinAlias(() => terminalReturnAlias.Author, () => authorAlias, JoinType.LeftOuterJoin);
 
-			if(FilterViewModel.DocumentType != null
+			if((FilterViewModel.DocumentType != null
 				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalMovement
 				&& FilterViewModel.DocumentType != DocumentType.DriverTerminalReturn)
+				|| FilterViewModel.Employee != null
+				|| FilterViewModel.Car != null)
 			{
 				query.Where(() => terminalReturnAlias.Id == -1);
 			}
@@ -1184,7 +1250,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		{
 
 			var deleteAction = new JournalAction("Удалить",
-				(selected) => 
+				(selected) =>
 				{
 					var selectedNodes = selected.OfType<WarehouseDocumentsJournalNode>();
 
@@ -1197,14 +1263,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
 					{
 						return false;
-					}					
+					}
 
 					var config = EntityConfigs[selectedNode.EntityType];
 
 					return config.PermissionResult.CanDelete;
 				},
 				(selected) => true,
-				(selected) => 
+				(selected) =>
 				{
 					var selectedNodes = selected.OfType<WarehouseDocumentsJournalNode>();
 

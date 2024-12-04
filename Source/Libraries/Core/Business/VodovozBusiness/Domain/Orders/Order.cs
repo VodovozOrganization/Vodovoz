@@ -21,6 +21,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
@@ -170,7 +172,7 @@ namespace Vodovoz.Domain.Orders
 
 		private Counterparty _client;
 		[Display(Name = "Клиент")]
-		public virtual Counterparty Client {
+		public virtual new Counterparty Client {
 			get => _client;
 			set
 			{
@@ -1498,10 +1500,6 @@ namespace Vodovoz.Domain.Orders
 			.Concat(OrderEquipments.Where(x => x.Nomenclature.Kind != null).Select(x => x.Nomenclature))
 			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Kind.Id))
 			.Count() > 0;
-
-		public virtual bool IsNeedIndividualSetOnLoad =>
-			PaymentType == PaymentType.Cashless
-			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
 
 		#endregion
 
@@ -3499,13 +3497,19 @@ namespace Vodovoz.Domain.Orders
 					&& item.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(item => item.ActualCount ?? 0);
 
+			int amountDeliveredInDisposableTare = (int)OrderItems
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water
+					&& item.Nomenclature.IsDisposableTare
+					&& item.Nomenclature.TareVolume == TareVolume.Vol19L)
+				.Sum(item => item.ActualCount ?? 0);
+
 			if(forfeitQuantity == null) {
 				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == nomenclatureSettings.ForfeitId)
 							.Select(i => i?.ActualCount ?? 0)
 							.Sum();
 			}
 
-			bool isValidCondition = amountDelivered != 0;
+			bool isValidCondition = amountDelivered != 0 || amountDeliveredInDisposableTare != 0;
 			isValidCondition |= returnByStock > 0;
 			isValidCondition |= forfeitQuantity > 0;
 			isValidCondition &= !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
@@ -3520,6 +3524,7 @@ namespace Vodovoz.Domain.Orders
 				BottlesMovementOperation.DeliveryPoint = DeliveryPoint;
 				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 				BottlesMovementOperation.Delivered = amountDelivered;
+				BottlesMovementOperation.DeliveredInDisposableTare = amountDeliveredInDisposableTare;
 				BottlesMovementOperation.Returned = returnByStock + forfeitQuantity.Value;
 				uow.Save(BottlesMovementOperation);
 			} else {

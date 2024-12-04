@@ -13,7 +13,7 @@ namespace Vodovoz.Infrastructure.S3
 				.AddScoped<IS3FileStorageService, S3FileStorageService>()
 				.AddScoped<AmazonS3Client>(sp =>
 				{
-					var options = sp.GetRequiredService<IOptions<S3Options>>();
+					var options = sp.GetRequiredService<IOptionsSnapshot<S3Options>>();
 
 					var config = new AmazonS3Config
 					{

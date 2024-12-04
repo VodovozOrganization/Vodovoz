@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;

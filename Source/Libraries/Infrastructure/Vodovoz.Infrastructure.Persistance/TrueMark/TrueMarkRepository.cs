@@ -3,9 +3,10 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.TrueMark;
 
 namespace Vodovoz.Infrastructure.Persistance.TrueMark
@@ -40,6 +41,23 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			}
 		}
 
+		public ISet<string> GetAllowedCodeOwnersGtins()
+		{
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Get our Gtins"))
+			{
+				var result =
+				(
+					from nomenclatures in unitOfWork.Session.Query<Nomenclature>()
+					where nomenclatures.Gtin != null
+					select nomenclatures.Gtin
+				)
+				.Distinct()
+				.ToHashSet();
+
+				return result;
+			}
+		}
+
 		public IEnumerable<TrueMarkWaterIdentificationCode> LoadWaterCodes(List<int> codeIds)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
@@ -49,6 +67,18 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 					.List();
 				return result;
 			}
+		}
+
+		public IEnumerable<TrueMarkWaterIdentificationCode> GetTrueMarkCodeDuplicates(
+			IUnitOfWork uow,
+			string gtin,
+			string serialNumber,
+			string checkCode)
+		{
+			var query = uow.Session.Query<TrueMarkWaterIdentificationCode>()
+				.Where(x => x.GTIN == gtin && x.SerialNumber == serialNumber && x.CheckCode == checkCode);
+
+			return query.ToList();
 		}
 	}
 }

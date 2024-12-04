@@ -402,7 +402,8 @@ namespace Vodovoz.Application.Logistics
 				throw new ArgumentException(string.Format(driverNotFoundErrorTemplate, driverId), nameof(driverId));
 			}
 
-			var routeList = _routeListRepository.GetDriverRouteLists(unitOfWork, driver).Where(x => x.Id == firstRouteListId).FirstOrDefault();
+			var routeList = _routeListRepository.GetDriverRouteLists(unitOfWork, driver.Id)
+				.FirstOrDefault(x => x.Id == firstRouteListId);
 
 			if(routeList is null)
 			{

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Settings.Edo;
+using VodovozBusiness.Models.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
 {
@@ -16,13 +18,15 @@ namespace Vodovoz.Models.TrueMark
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IEdoSettings _edoSettings;
+		private readonly OurCodesChecker _ourCodesChecker;
 
 		public TrueMarkCodePoolChecker(
 			ILogger<TrueMarkCodePoolChecker> logger,
 			TrueMarkCodesPool trueMarkCodesPool,
 			TrueMarkCodesChecker trueMarkCodesChecker,
 			ITrueMarkRepository trueMarkRepository,
-			IEdoSettings edoSettings
+			IEdoSettings edoSettings,
+			OurCodesChecker ourCodesChecker
 		)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -30,6 +34,7 @@ namespace Vodovoz.Models.TrueMark
 			_trueMarkCodesChecker = trueMarkCodesChecker ?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_edoSettings = edoSettings;
+			_ourCodesChecker = ourCodesChecker ?? throw new ArgumentNullException(nameof(ourCodesChecker));
 		}
 
 		public async Task StartCheck(CancellationToken cancellationToken)
@@ -83,7 +88,10 @@ namespace Vodovoz.Models.TrueMark
 
 				foreach(var checkResult in checkResults)
 				{
-					if(checkResult.Introduced)
+					var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(checkResult.OwnerInn);
+					var isOurGtin = _ourCodesChecker.IsOurGtinOwner(checkResult.Code.GTIN);
+
+					if(checkResult.Introduced && isOurOrganizationOwner && isOurGtin)
 					{
 						codeIdsToPromote.Add(checkResult.Code.Id);
 					}

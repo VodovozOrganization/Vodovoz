@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EdoContactsUpdater.Configs;
@@ -13,6 +14,7 @@ using QS.Services;
 using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Settings;
@@ -193,23 +195,32 @@ namespace EdoContactsUpdater
 			_logger.LogInformation(
 				"Входящее приглашение от клиента с аккаунтом {EdxClientId}...", contact.EdxClientId);
 
-			try
-			{
-				await taxcomApiClient.AcceptContact(contact.EdxClientId, cancellationToken);
-			}
-			catch(Exception e)
+			counterparties = _counterpartyRepository.GetCounterpartiesByINN(uow, contact.Inn);
+
+			if(counterparties == null || !counterparties.Any() || string.IsNullOrWhiteSpace(contact.EdxClientId))
 			{
 				_logger.LogError(
-					e,
-					"Не удалось принять входящее приглашение от клиента с аккаунтом {EdxClientId}...",
+					"Получено входящее приглашение от несуществующего клиента, ИНН {Inn} аккаунт {EdxClientId} пропускаем...",
+					contact.Inn,
 					contact.EdxClientId);
 				return;
 			}
 
-			counterparties = _counterpartyRepository.GetCounterpartiesByINN(uow, contact.Inn);
-
-			if(counterparties == null)
+			const string dontAcceptMessage = "Не удалось принять входящее приглашение от клиента, ИНН {Inn} аккаунт {EdxClientId}...";
+			
+			try
 			{
+				var result = await taxcomApiClient.AcceptContact(contact.EdxClientId, cancellationToken);
+
+				if(!result)
+				{
+					_logger.LogError(dontAcceptMessage, contact.Inn, contact.EdxClientId);
+					return;
+				}
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, dontAcceptMessage, contact.Inn, contact.EdxClientId);
 				return;
 			}
 

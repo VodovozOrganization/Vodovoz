@@ -571,6 +571,7 @@ namespace Pacs.Server.Operators
 
 			var content = new OperatorStateEvent
 			{
+				EventId = Guid.NewGuid(),
 				State = operatorServerStateMachine.OperatorState,
 				BreakAvailability = currentBreakAviability,
 			};

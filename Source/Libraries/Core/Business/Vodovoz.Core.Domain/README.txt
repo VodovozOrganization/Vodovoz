@@ -8,3 +8,12 @@
 Чтобы не было конфликта имен, новый класс называем <КЛАСС>Entity
 
 Маппинг так же наследуется.
+
+Microsoft.CodeAnalysis.Common 4.5.0 - добавлен из-за пакета FeatureManagement, нужно обновлять по необходммости и удалить при смене с netstandard на net8+
+
+System.Diagnostics.Debug 4.3.0 - добавлен из-за пакета FeatureManagement, нужно обновлять по необходммости и удалить при смене с netstandard на net8+
+System.IO.FileSystem.Primitives 4.3.0 - добавлен из-за пакета FeatureManagement, нужно обновлять по необходммости и удалить при смене с netstandard на net8+
+System.Runtime.Extensions 4.3.0 - добавлен из-за пакета FeatureManagement, нужно обновлять по необходммости и удалить при смене с netstandard на net8+
+System.Runtime.Handles 4.3.0 - добавлен из-за пакета FeatureManagement, нужно обновлять по необходммости и удалить при смене с netstandard на net8+
+System.Runtime.InteropServices 4.3.0 - добавлен из-за пакета FeatureManagement, нужно обновлять по необходммости и удалить при смене с netstandard на net8+
+System.Collections 4.3.0 - добавлен из-за пакета FeatureManagement, нужно обновлять по необходммости и удалить при смене с netstandard на net8+

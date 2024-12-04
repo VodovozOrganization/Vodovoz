@@ -4,7 +4,6 @@ using Pacs.Core;
 using Pacs.Core.Messages.Events;
 using Pacs.Operators.Client;
 using Pacs.Operators.Client.Consumers;
-using Pacs.Server;
 using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
@@ -91,7 +90,7 @@ namespace Vodovoz.Application.Pacs
 			_operatorKeepAliveController = operatorKeepAliveController ?? throw new ArgumentNullException(nameof(operatorKeepAliveController));
 
 			_breakAvailability = new OperatorBreakAvailability();
-			_globalBreakAvailability = new GlobalBreakAvailabilityEvent();
+			_globalBreakAvailability = new GlobalBreakAvailabilityEvent { EventId = Guid.NewGuid() };
 			AvailablePhones = new List<string>();
 			_delayedBreakUpdateTimer = new Timer();
 			_delayedBreakUpdateTimer.Elapsed += async (s, e) => await OnBreakAvailabilityTimerElapsedAsync(s, e);

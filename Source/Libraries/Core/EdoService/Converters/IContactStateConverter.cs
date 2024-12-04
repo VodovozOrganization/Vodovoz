@@ -1,6 +1,6 @@
-﻿using TaxcomEdo.Contracts.Counterparties;
+using TaxcomEdo.Contracts.Counterparties;
 using TISystems.TTC.CRM.BE.Serialization;
-using Vodovoz.Domain.Client;
+using Vodovoz.Core.Domain.Clients;
 
 namespace EdoService.Library.Converters
 {

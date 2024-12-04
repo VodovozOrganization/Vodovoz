@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using VodovozBusiness.Domain.Logistic.Cars;
+using Vodovoz.Core.Domain.Logistics.Cars;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 {
