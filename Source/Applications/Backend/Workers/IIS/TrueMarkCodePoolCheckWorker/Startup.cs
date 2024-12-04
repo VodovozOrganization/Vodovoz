@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
+using VodovozBusiness.Models.TrueMark;
 
 namespace TrueMarkCodePoolCheckWorker
 {
@@ -66,6 +67,10 @@ namespace TrueMarkCodePoolCheckWorker
 				.InstancePerLifetimeScope();
 
 			builder.RegisterType<TrueMarkCodePoolChecker>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<OurCodesChecker>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
