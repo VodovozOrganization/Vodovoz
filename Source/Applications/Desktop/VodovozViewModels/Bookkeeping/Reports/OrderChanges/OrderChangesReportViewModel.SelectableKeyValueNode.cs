@@ -8,7 +8,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		{
 			private bool _isSelected;
 
-			public SelectableKeyValueNode(string key, string value, bool isSelected = false)
+			public SelectableKeyValueNode(string key, string value, bool isSelected = true)
 			{
 				Key = key;
 				Value = value;
