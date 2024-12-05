@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
+using VodovozBusiness.Models.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
 {
@@ -32,8 +33,8 @@ namespace Vodovoz.Models.TrueMark
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ICashReceiptFactory _cashReceiptFactory;
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
+		private readonly OurCodesChecker _ourCodesChecker;
 		private readonly int _receiptId;
-		private ISet<string> _ownersInn;
 		private IList<CashReceipt> _cashReceiptsToSave = new List<CashReceipt>();
 		private bool _disposed;
 
@@ -46,6 +47,7 @@ namespace Vodovoz.Models.TrueMark
 			ITrueMarkRepository trueMarkRepository,
 			ICashReceiptFactory cashReceiptFactory,
 			IGenericRepository<Nomenclature> nomenclatureRepository,
+			OurCodesChecker ourCodesChecker,
 			int receiptId)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -56,14 +58,13 @@ namespace Vodovoz.Models.TrueMark
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_cashReceiptFactory = cashReceiptFactory ?? throw new ArgumentNullException(nameof(cashReceiptFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_ourCodesChecker = ourCodesChecker ?? throw new ArgumentNullException(nameof(ourCodesChecker));
 			if(receiptId <= 0)
 			{
 				throw new ArgumentException("Должен быть указан существующий Id чека.", nameof(receiptId));
 			}
 			_receiptId = receiptId;
-			_uow = _uowFactory.CreateWithoutRoot();
-
-			_ownersInn = _trueMarkRepository.GetAllowedCodeOwnersInn();
+			_uow = _uowFactory.CreateWithoutRoot();			
 		}
 
 		public async Task PrepareAsync(CancellationToken cancellationToken)
@@ -177,16 +178,6 @@ namespace Vodovoz.Models.TrueMark
 			await ProcessingReceiptBeforeSending(receipt, cancellationToken);
 		}
 
-		private ISet<string> GetOurGtins(IEnumerable<string> gtins)
-		{
-			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Get our Gtins"))
-			{
-				return _nomenclatureRepository.Get(unitOfWork, n => gtins.Contains(n.Gtin))
-					.Select(x => x.Gtin)
-					.ToHashSet();
-			}
-		}
-
 		private async Task PrepareForReadyToSend(CashReceipt receipt, CancellationToken cancellationToken)
 		{
 			var order = receipt.Order;
@@ -201,12 +192,11 @@ namespace Vodovoz.Models.TrueMark
 			var validCodes = codes.Where(x => x.IsValid).ToList();
 			var checkResults = await _codeChecker.CheckCodesAsync(validCodes, cancellationToken);
 
-			var ourGtins = GetOurGtins(validCodes.Select(x => x.SourceCode?.GTIN));
-
 			foreach(var checkResult in checkResults)
 			{
 				var code = checkResult.Code;
-				var isOurOrganizationOwner = _ownersInn.Contains(checkResult.OwnerInn);
+
+				var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(checkResult.OwnerInn);
 
 				if(!isOurOrganizationOwner)
 				{
@@ -215,7 +205,14 @@ namespace Vodovoz.Models.TrueMark
 						checkResult.OwnerInn);
 				}
 
-				var isOurGtin = ourGtins.Contains(checkResult.Code?.SourceCode?.GTIN);
+				var isOurGtin = _ourCodesChecker.IsOurGtinOwner(checkResult.Code?.SourceCode?.GTIN);
+
+				if(!isOurGtin)
+				{
+					_logger.LogInformation("У проверенного кода {serialNumber} владелец не наш GTIN {GTIN}. Код исключается из обработки.",
+						code?.SourceCode?.SerialNumber,
+						checkResult.Code?.SourceCode?.GTIN);
+				}
 
 				if(checkResult.Introduced && isOurOrganizationOwner && isOurGtin)
 				{
