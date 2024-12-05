@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -26,7 +27,10 @@ namespace WarehouseApi.Filters
 				Error = "При обработке запроса произошла непредвиденная ошибка. Обратитесь в техподдержку.",
 			};
 
-			context.Result = new ObjectResult(errorResponse);
+			context.Result = new ObjectResult(errorResponse)
+			{
+				StatusCode = StatusCodes.Status500InternalServerError
+			};
 
 			context.ExceptionHandled = true;
 		}
