@@ -26,6 +26,10 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			CompletedWithDivergences,
 			[Display(Name = "Не принят")]
 			NotAccepted,
+			[Display(Name = "Ожидает аннулирования")]
+			WaitingForCancellation,
+			[Display(Name = "Аннулирован")]
+			Cancelled,
 			[Display(Name = "Подготовка к отправке")]
 			PreparingToSend,
 			[Display(Name = "Не отправлялся в ЭДО")]

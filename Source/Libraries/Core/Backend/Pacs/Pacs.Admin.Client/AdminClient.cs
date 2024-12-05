@@ -2,7 +2,6 @@
 using Pacs.Core;
 using Pacs.Core.Messages.Commands;
 using Pacs.Core.Messages.Events;
-using Pacs.Server;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -108,6 +107,7 @@ namespace Pacs.Admin.Client
 		{
 			var payload = new AdminStartBreak
 			{
+				EventId = Guid.NewGuid(),
 				OperatorId = operatorId,
 				BreakType = breakType,
 				AdminId = _adminProvider.AdministratorId.Value,
@@ -148,6 +148,7 @@ namespace Pacs.Admin.Client
 		{
 			var payload = new AdminEndBreak
 			{
+				EventId = Guid.NewGuid(),
 				OperatorId = operatorId,
 				AdminId = _adminProvider.AdministratorId.Value,
 				Reason = reason
@@ -185,6 +186,7 @@ namespace Pacs.Admin.Client
 		{
 			var payload = new AdminEndWorkShift
 			{
+				EventId = Guid.NewGuid(),
 				OperatorId = operatorId,
 				AdminId = _adminProvider.AdministratorId.Value,
 				Reason = reason

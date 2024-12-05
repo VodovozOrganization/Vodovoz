@@ -2,7 +2,6 @@ using Autofac;
 using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
@@ -13,6 +12,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -20,18 +20,11 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Services;
-using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Goods
 {
-	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "номенклатуры",
-		Nominative = "номенклатура")]
-	[EntityPermission]
-	[HistoryTrace]
-	public class Nomenclature : BusinessObjectBase<Nomenclature>, INamedDomainObject, INamed, IArchivable, IValidatableObject, IHasAttachedFilesInformations<NomenclatureFileInformation>
+	public class Nomenclature : NomenclatureEntity, IArchivable, IValidatableObject
 	{
 		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
 		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
@@ -69,18 +62,13 @@ namespace Vodovoz.Domain.Goods
 		private TapType? _tapType;
 		private bool _isSparklingWater;
 
-		private int _id;
-
 		private decimal _length;
 		private decimal _width;
 		private decimal _height;
 		private IList<NomenclatureOnlineParameters> _nomenclatureOnlineParameters = new List<NomenclatureOnlineParameters>();
 
-		private bool _isAccountableInTrueMark;
-		private string _gtin;
 		private DateTime? _createDate;
 		private User _createdBy;
-		private string _name;
 		private string _officialName;
 		private bool _isArchive;
 		private bool _isDiler;
@@ -146,27 +134,9 @@ namespace Vodovoz.Domain.Goods
 		private int? _planMonth;
 		private string _amountInAPackage;
 		private int? _planDay;
-		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
 		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse = new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
 
-		public Nomenclature()
-		{
-			Category = NomenclatureCategory.water;
-		}
-
 		#region Свойства
-
-		public virtual int Id
-		{
-			get => _id;
-			set
-			{
-				if(SetField(ref _id, value))
-				{
-					UpdateFileInformations();
-				}
-			}
-		}
 
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate
@@ -180,13 +150,6 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _createdBy;
 			set => SetField(ref _createdBy, value);
-		}
-
-		[Display(Name = "Название")]
-		public virtual string Name
-		{
-			get => _name;
-			set => SetField(ref _name, value);
 		}
 
 		[Display(Name = "Официальное название")]
@@ -367,7 +330,7 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		[Display(Name = "Категория")]
-		public virtual NomenclatureCategory Category
+		public virtual new NomenclatureCategory Category
 		{
 			get => _category;
 			set
@@ -658,20 +621,6 @@ namespace Vodovoz.Domain.Goods
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
 
-		[Display(Name = "Подлежит учету в Честном Знаке")]
-		public virtual bool IsAccountableInTrueMark
-		{
-			get => _isAccountableInTrueMark;
-			set => SetField(ref _isAccountableInTrueMark, value);
-		}
-
-		[Display(Name = "Номер товарной продукции GTIN")]
-		public virtual string Gtin
-		{
-			get => _gtin;
-			set => SetField(ref _gtin, value);
-		}
-
 		[Display(Name = "Инвентарный учет")]
 		public virtual bool HasInventoryAccounting
 		{
@@ -691,13 +640,6 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _glassHolderType;
 			set => SetField(ref _glassHolderType, value);
-		}
-
-		[Display(Name = "Информация о прикрепленных файлах")]
-		public virtual IObservableList<NomenclatureFileInformation> AttachedFileInformations
-		{
-			get => _attachedFileInformations;
-			set => SetField(ref _attachedFileInformations, value);
 		}
 
 		#endregion Свойства
@@ -1100,30 +1042,6 @@ namespace Vodovoz.Domain.Goods
 				parent = parent.Parent;
 			}
 			return false;
-		}
-
-		public virtual void AddFileInformation(string fileName)
-		{
-			if(AttachedFileInformations.Any(a => a.FileName == fileName))
-			{
-				return;
-			}
-
-			AttachedFileInformations.Add(new NomenclatureFileInformation
-			{
-				NomenclatureId = Id,
-				FileName = fileName
-			});
-		}
-
-		public virtual void RemoveFileInformation(string filename)
-		{
-			if(!AttachedFileInformations.Any(fi => fi.FileName == filename))
-			{
-				return;
-			}
-
-			AttachedFileInformations.Remove(AttachedFileInformations.First(x => x.FileName == filename));
 		}
 
 		public virtual decimal GetPurchasePriceOnDate(DateTime date)
@@ -1613,14 +1531,6 @@ namespace Vodovoz.Domain.Goods
 		public virtual void ResetLockerRefrigeratorVolume()
 		{
 			LockerRefrigeratorVolume = null;
-		}
-
-		private void UpdateFileInformations()
-		{
-			foreach(var fileInformation in AttachedFileInformations)
-			{
-				fileInformation.NomenclatureId = Id;
-			}
 		}
 	}
 }

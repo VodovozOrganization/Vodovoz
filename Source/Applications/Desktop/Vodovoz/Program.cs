@@ -195,7 +195,9 @@ namespace Vodovoz
 			new HostBuilder()
 				.ConfigureAppConfiguration((hostingContext, config) =>
 				{
-					config.AddJsonFile("appsettings.json");
+					config
+						.AddJsonFile("appsettings.json", false, true)
+						.AddJsonFile("appsettings.Production.json", true, true);
 				})
 				.ConfigureLogging((hostContext, logging) =>
 				{

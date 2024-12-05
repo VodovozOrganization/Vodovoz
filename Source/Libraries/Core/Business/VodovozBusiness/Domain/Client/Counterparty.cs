@@ -1,10 +1,7 @@
-using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using QS.Services;
 using QS.Utilities;
@@ -29,29 +26,16 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Counterparty;
-using VodovozBusiness.Domain.Client;
 using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Client
 {
-	[
-		Appellative(
-			Gender = GrammaticalGender.Masculine,
-			NominativePlural = "контрагенты",
-			Nominative = "контрагент",
-			Accusative = "контрагента",
-			Genitive = "контрагента"
-		)
-	]
-	[HistoryTrace]
-	[EntityPermission]
-	public class Counterparty : AccountOwnerBase, IDomainObject, IValidatableObject, INamed, IArchivable, IHasAttachedFilesInformations<CounterpartyFileInformation>
+	public class Counterparty : CounterpartyEntity, IValidatableObject, INamed, IArchivable
 	{
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
 		private const int _specialContractNameLimit = 800;
 		private const int _cargoReceiverLimitSymbols = 500;
 
-		private int _id;
 		private bool _roboatsExclude;
 		private bool _isForSalesDepartment;
 		private ReasonForLeaving _reasonForLeaving;
@@ -59,8 +43,6 @@ namespace Vodovoz.Domain.Client
 		private bool _isNotSendDocumentsByEdo;
 		private bool _canSendUpdInAdvance;
 		private RegistrationInChestnyZnakStatus _registrationInChestnyZnakStatus;
-		private OrderStatusForSendingUpd _orderStatusForSendingUpd;
-		private ConsentForEdoStatus _consentForEdoStatus;
 		private string _personalAccountIdInEdo;
 		private EdoOperator _edoOperator;
 		private string _specialContractName;
@@ -168,22 +150,8 @@ namespace Vodovoz.Domain.Client
 		private bool _excludeFromAutoCalls;
 		private Counterparty _refferer;
 		private bool _hideDeliveryPointForBill;
-		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
 
 		#region Свойства
-
-		[Display(Name = "Код")]
-		public virtual int Id
-		{
-			get => _id;
-			set
-			{
-				if(SetField(ref _id, value))
-				{
-					UpdateFileInformations();
-				}
-			}
-		}
 
 		[Display(Name = "Договоры")]
 		public virtual IList<CounterpartyContract> CounterpartyContracts
@@ -791,20 +759,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _registrationInChestnyZnakStatus, value);
 		}
 
-		[Display(Name = "Согласие клиента на ЭДО")]
-		public virtual ConsentForEdoStatus ConsentForEdoStatus
-		{
-			get => _consentForEdoStatus;
-			set => SetField(ref _consentForEdoStatus, value);
-		}
-
-		[Display(Name = "Статус заказа для отправки УПД")]
-		public virtual OrderStatusForSendingUpd OrderStatusForSendingUpd
-		{
-			get => _orderStatusForSendingUpd;
-			set => SetField(ref _orderStatusForSendingUpd, value);
-		}
-
 		[Display(Name = "Отказ от печатных документов")]
 		public virtual bool IsPaperlessWorkflow
 		{
@@ -1104,13 +1058,6 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		[Display(Name = "Информация о прикрепленных файлах")]
-		public virtual IObservableList<CounterpartyFileInformation> AttachedFileInformations
-		{
-			get => _attachedFileInformations;
-			set => SetField(ref _attachedFileInformations, value);
-		}
-
 		#endregion
 
 		#region CloseDelivery
@@ -1232,25 +1179,6 @@ namespace Vodovoz.Domain.Client
 					}
 				);
 			}
-		}
-
-		public virtual void AddFileInformation(string fileName)
-		{
-			if(AttachedFileInformations.Any(afi => afi.FileName == fileName))
-			{
-				return;
-			}
-
-			AttachedFileInformations.Add(new CounterpartyFileInformation
-			{
-				FileName = fileName,
-				CounterpartyId = Id
-			});
-		}
-
-		public virtual void RemoveFileInformation(string fileName)
-		{
-			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
 
 		public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
@@ -1636,13 +1564,5 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
-
-		private void UpdateFileInformations()
-		{
-			foreach(var fileInformation in AttachedFileInformations)
-			{
-				fileInformation.CounterpartyId = Id;
-			}
-		}
 	}
 }

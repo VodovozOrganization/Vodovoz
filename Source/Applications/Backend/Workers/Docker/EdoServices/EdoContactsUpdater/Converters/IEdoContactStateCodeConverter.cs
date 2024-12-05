@@ -1,5 +1,5 @@
 ﻿using TaxcomEdo.Contracts.Counterparties;
-using Vodovoz.Domain.Client;
+using Vodovoz.Core.Domain.Clients;
 
 namespace EdoContactsUpdater.Converters
 {

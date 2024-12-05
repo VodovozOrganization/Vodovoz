@@ -11,6 +11,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Nodes;
 using VodovozBusiness.EntityRepositories.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -202,6 +203,47 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				).TransformUsing(Transformers.AliasToBean<FreeLoaderInfoNode>())
 			.List<FreeLoaderInfoNode>();
 			return phoneResult;
+		}
+
+		public IEnumerable<FreeLoaderInfoNode> GetPossibleFreeLoadersInfoByBuildingFiasGuid(
+			IUnitOfWork uow,
+			Guid buildingFiasGuid,
+			string room,
+			int orderId,
+			bool promoSetForNewClients = true)
+		{
+			DeliveryPoint deliveryPointAlias = null;
+			Order orderAlias = null;
+			OrderItem orderItemAlias = null;
+			PromotionalSet promoSetAlias = null;
+			Counterparty counterpartyAlias = null;
+			FreeLoaderInfoNode resultAlias = null;
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Left.JoinAlias(() => orderAlias.PromotionalSets, () => promoSetAlias)
+				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Where(
+					Restrictions.And(
+						Restrictions.Where(() =>
+							deliveryPointAlias.BuildingFiasGuid == buildingFiasGuid
+							&& deliveryPointAlias.Room == room
+						),
+						Restrictions.Ge(Projections.Property(() => deliveryPointAlias.Room), 1)
+					)
+				)
+				.And(() => promoSetAlias.PromotionalSetForNewClients == promoSetForNewClients)
+				.And(() => orderAlias.Id != orderId);
+					
+			var deliveryPointsResult = query.SelectList(list => list
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
+					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
+				).TransformUsing(Transformers.AliasToBean<FreeLoaderInfoNode>())
+				.List<FreeLoaderInfoNode>();
+			return deliveryPointsResult;
 		}
 	}
 }

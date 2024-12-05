@@ -68,7 +68,11 @@ namespace Pacs.MangoCalls.Services
 
 							if(call.CallDirection == CallDirection.Incoming)
 							{
-								pacsCallEvents.Add(new PacsCallEvent { Call = call });
+								pacsCallEvents.Add(new PacsCallEvent
+								{
+									EventId = Guid.NewGuid(),
+									Call = call
+								});
 							}
 						}
 
@@ -132,7 +136,11 @@ namespace Pacs.MangoCalls.Services
 
 						if(call.CallDirection == CallDirection.Incoming)
 						{
-							await _messageBus.Publish(new PacsCallEvent { Call = call });
+							await _messageBus.Publish(new PacsCallEvent
+							{
+								EventId = Guid.NewGuid(),
+								Call = call
+							});
 						}
 					}
 					needRetry = false;

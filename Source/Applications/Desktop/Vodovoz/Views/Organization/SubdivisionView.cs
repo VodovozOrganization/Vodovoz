@@ -1,11 +1,13 @@
 ﻿using Gamma.Binding;
 using Gamma.GtkWidgets;
+using Gtk;
 using QS.Project.Domain;
 using QS.Views.GtkUI;
 using QSOrmProject;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Core;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
@@ -16,6 +18,9 @@ namespace Vodovoz.Views.Organization
 	[ToolboxItem(true)]
 	public partial class SubdivisionView : TabViewBase<SubdivisionViewModel>
 	{
+		private ViewModelWidgetResolver _widgetResolver = ViewModelWidgetResolver.Instance;
+		private Widget _warehousePermissionsView;
+
 		public SubdivisionView(
 			SubdivisionViewModel viewModel)
 			: base(viewModel)
@@ -124,11 +129,6 @@ namespace Vodovoz.Views.Organization
 				.InitializeFromSource();
 			permissionsPresetContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
 
-			warehousesPermissionsContainerView.Binding
-				.AddBinding(ViewModel, vm => vm.WarehousePermissionsVM, w => w.WidgetViewModel)
-				.InitializeFromSource();
-			warehousesPermissionsContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
-
 			entryDefaultSalesPlan.ViewModel = ViewModel.DefaultSalesPlanViewModel;
 			entryDefaultSalesPlan.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
@@ -139,6 +139,20 @@ namespace Vodovoz.Views.Organization
 			ycheckArchieve.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.InitializeFromSource();
+
+			ybuttonAddSubdiviionPermissions.BindCommand(ViewModel.AddSubdivisionPermissionsCommand);
+			ybuttonReplaceSubdivisionPermissions.BindCommand(ViewModel.ReplaceSubdivisionPermissionsCommand);
+
+			ybuttonAddSubdiviionPermissions.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddOrReplacePermissions, w => w.Visible)
+				.InitializeFromSource();
+
+			ybuttonReplaceSubdivisionPermissions.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddOrReplacePermissions, w => w.Visible)
+				.InitializeFromSource();
+
+			CreateWarehousePermissionsView();
+			ViewModel.UpdateWarehousePermissionsAction += OnUpdateWarehousePermissionsViewAction;
 		}
 
 		private void ChildSubdivisionsReloaded(object sender, EventArgs e)
@@ -159,6 +173,29 @@ namespace Vodovoz.Views.Organization
 		private void DocTypesJournal_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			ViewModel.AddDocumentTypeCommand.Execute(e.Subject as TypeOfEntity);
+		}
+
+		private void OnUpdateWarehousePermissionsViewAction()
+		{
+			yvboxWarehousesPermissionContainer.Remove(_warehousePermissionsView);
+			_warehousePermissionsView.Destroy();
+			CreateWarehousePermissionsView();
+		}
+
+		private void CreateWarehousePermissionsView()
+		{
+			_warehousePermissionsView = _widgetResolver.Resolve(ViewModel.WarehousePermissionsVM);
+			yvboxWarehousesPermissionContainer.Add(_warehousePermissionsView);
+			_warehousePermissionsView.ShowAll();
+
+			_warehousePermissionsView.Visible = ViewModel.CurrentUser.IsAdmin;
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.UpdateWarehousePermissionsAction -= OnUpdateWarehousePermissionsViewAction;
+
+			base.Destroy();
 		}
 	}
 }

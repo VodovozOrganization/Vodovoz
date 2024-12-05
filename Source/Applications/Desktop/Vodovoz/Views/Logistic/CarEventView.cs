@@ -77,29 +77,50 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel.Entity, e => e.CarTechnicalCheckupEndingDate, w => w.DateOrNull)
 				.InitializeFromSource();
 
-			yspinRepairCost.Binding
-				.AddBinding(ViewModel, vm => vm.RepairCost, w => w.ValueAsDecimal)
+			ylabelRepairCost.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => !vm.IsFuelBalanceCalibration, w => w.Visible)
+				.InitializeFromSource();
+
+			yspinRepairCost.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.RepairCost, w => w.ValueAsDecimal)
+				.AddFuncBinding(vm => !vm.IsFuelBalanceCalibration, w => w.Visible)
 				.AddBinding(vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ylabelRepairPartsCost.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => !vm.IsFuelBalanceCalibration, w => w.Visible)
 				.InitializeFromSource();
 
 			yspinRepairPartsCost.Sensitive = false;
 			yspinRepairPartsCost.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibration, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.RepairPartsCost, w => w.ValueAsDecimal)
 				.AddBinding(ViewModel, vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ylabelRepairSummaryCost.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => !vm.IsFuelBalanceCalibration, w => w.Visible)
+				.InitializeFromSource();
+
 			yspinRepairSummaryCost.Sensitive = false;
 			yspinRepairSummaryCost.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibration, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.RepairAndPartsSummaryCost, w => w.ValueAsDecimal)
 				.AddBinding(ViewModel, vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ylabelWriteOffDocument.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => !vm.IsFuelBalanceCalibration, w => w.Visible)
+				.InitializeFromSource();
+
 			entityentryWriteOffDocument.ViewModel = ViewModel.WriteOffDocumentEntryViewModel;
-			entityentryWriteOffDocument.Binding
-				.AddBinding(ViewModel, vm => vm.CanAttachWriteOffDocument, w => w.ViewModel.IsEditable)
+			entityentryWriteOffDocument.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => !vm.IsFuelBalanceCalibration, w => w.Visible)
+				.AddBinding(vm => vm.CanAttachWriteOffDocument, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			ycheckbuttonIsWriteOffDocumentNotRequired.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFuelBalanceCalibration, w => w.Visible)
 				.AddBinding(ViewModel, vm => vm.CanChangeWriteOffDocumentNotRequired, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.IsWriteOffDocumentNotRequired, w => w.Active)
 				.InitializeFromSource();
@@ -143,11 +164,11 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibration, w => w.Visible)
 				.InitializeFromSource();
 
-			yentryFuelCost.Binding.AddSource (ViewModel)
+			yentryFuelCost.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.IsFuelBalanceCalibration, w => w.Visible)
 				.AddBinding(vm => vm.CanEditFuelBalanceCalibration, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
 			yspinActualFuelBalance.Binding
 				.AddBinding(ViewModel.Entity, e => e.ActualFuelBalance, w => w.ValueAsDecimal)
 				.InitializeFromSource();

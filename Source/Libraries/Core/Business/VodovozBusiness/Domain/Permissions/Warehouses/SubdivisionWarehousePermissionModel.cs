@@ -9,6 +9,7 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 	{
 		private IUnitOfWork _uow;
 		private Subdivision _subdivision;
+
 		public SubdivisionWarehousePermissionModel(IUnitOfWork unitOfWork, Subdivision subdivision)
 		{
 			_uow = unitOfWork;

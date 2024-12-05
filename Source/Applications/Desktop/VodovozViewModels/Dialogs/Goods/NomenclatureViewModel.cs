@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -35,11 +35,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using VodovozBusiness.Domain.Goods;
 using Vodovoz.ViewModels.Widgets.Goods;
 using VodovozBusiness.Services;
 using VodovozInfrastructure.StringHandlers;
 using Vodovoz.ViewModels.Goods.ProductGroups;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
