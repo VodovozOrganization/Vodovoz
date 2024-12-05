@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Errors;
 using Vodovoz.Nodes;
 
 namespace VodovozBusiness.Services.Orders
@@ -49,5 +50,20 @@ namespace VodovozBusiness.Services.Orders
 			bool isSelfDelivery,
 			Counterparty client,
 			DeliveryPoint deliveryPoint);
+		/// <summary>
+		/// Проверка на возможного халявщика для ИПЗ(можно ли заказывать промик для нового клиента).
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="isSelfDelivery">Самовывоз или нет</param>
+		/// <param name="counterpartyId">Id клиента</param>
+		/// <param name="deliveryPointId">Id точки доставки</param>
+		/// <returns>
+		/// <see cref="Result.IsSuccess"/> - может заказывать промик для новых клиентов,
+		/// <see cref="Result.Failure(Vodovoz.Errors.Error)"/> - нет</returns>
+		Result CanOrderPromoSetForNewClientsFromOnline(
+			IUnitOfWork uow,
+			bool isSelfDelivery,
+			int? counterpartyId,
+			int? deliveryPointId);
 	}
 }

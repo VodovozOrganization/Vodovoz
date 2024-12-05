@@ -147,7 +147,7 @@ namespace TaxcomEdoApi.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult AcceptContact(string edxClientId)
+		public IActionResult AcceptContact([FromBody] string edxClientId)
 		{
 			_logger.LogInformation("Принимаем приглашение другой стороны {EdxClientId}", edxClientId);
 			

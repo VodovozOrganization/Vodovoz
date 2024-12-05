@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;

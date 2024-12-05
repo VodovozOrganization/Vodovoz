@@ -23,5 +23,9 @@
 		/// Id кабинета отправителя
 		/// </summary>
 		public string EdxClientId { get; set; }
+		/// <summary>
+		/// Настройки действия ключа(по подразделению, по сотруднику)
+		/// </summary>
+		public string CryptographicMode { get; set; }
 	}
 }

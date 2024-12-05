@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -31,6 +31,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Autofac;
 using QS.Report;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {

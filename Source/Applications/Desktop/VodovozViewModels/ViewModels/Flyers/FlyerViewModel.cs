@@ -11,7 +11,6 @@ using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;

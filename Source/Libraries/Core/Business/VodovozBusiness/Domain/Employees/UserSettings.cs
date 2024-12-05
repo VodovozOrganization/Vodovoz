@@ -10,7 +10,6 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.PrintableDocuments;
 

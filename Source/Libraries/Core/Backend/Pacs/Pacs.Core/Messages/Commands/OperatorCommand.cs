@@ -1,7 +1,13 @@
 ﻿namespace Pacs.Core.Messages.Commands
 {
-	public abstract class OperatorCommand
+	/// <summary>
+	/// Команда оператора
+	/// </summary>
+	public class OperatorCommand : CommandBase
 	{
+		/// <summary>
+		/// Идентификатор оператора
+		/// </summary>
 		public int OperatorId { get; set; }
 	}
 }

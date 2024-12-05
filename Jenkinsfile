@@ -135,6 +135,7 @@ stage('Desktop'){
 
 			stage('Desktop.Build'){
 				Build("WinDesktop")
+				bat "copy \"D:\\CD\\WaterDelivery\\appsettings.Production.json\" \".\\Vodovoz\\Source\\Applications\\Desktop\\Vodovoz\\bin\\DebugWin\\\""
 			}
 		}
 		else
@@ -184,6 +185,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/WarehouseApi/WarehouseApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 			}
 		}

@@ -21,6 +21,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
@@ -170,7 +172,7 @@ namespace Vodovoz.Domain.Orders
 
 		private Counterparty _client;
 		[Display(Name = "Клиент")]
-		public virtual Counterparty Client {
+		public virtual new Counterparty Client {
 			get => _client;
 			set
 			{
@@ -1498,10 +1500,6 @@ namespace Vodovoz.Domain.Orders
 			.Concat(OrderEquipments.Where(x => x.Nomenclature.Kind != null).Select(x => x.Nomenclature))
 			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Kind.Id))
 			.Count() > 0;
-
-		public virtual bool IsNeedIndividualSetOnLoad =>
-			PaymentType == PaymentType.Cashless
-			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
 
 		#endregion
 

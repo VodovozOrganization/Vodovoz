@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -51,6 +51,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using QS.Report;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {

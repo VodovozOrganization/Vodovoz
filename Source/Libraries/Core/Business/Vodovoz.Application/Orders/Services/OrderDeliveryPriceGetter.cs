@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Goods;
