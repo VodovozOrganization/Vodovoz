@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using QS.Banks.Domain;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
@@ -15,7 +16,7 @@ namespace Vodovoz.Core.Domain.Employees
 		Nominative = "сотрудник")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class EmployeeEntity : PropertyChangedBase, IDomainObject, IHasAttachedFilesInformations<EmployeeFileInformation>, IHasPhoto
+	public class EmployeeEntity : AccountOwnerBase, IDomainObject, IHasAttachedFilesInformations<EmployeeFileInformation>, IHasPhoto
 	{
 		private int _id;
 		private DateTime _creationDate;
