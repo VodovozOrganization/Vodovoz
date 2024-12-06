@@ -24,6 +24,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			Map(x => x.TaxcomEdoAccountId).Column("taxcom_edo_account_id");
 
 			References(x => x.Stamp).Column("stamp_id");
+			References(x => x.DefaultAccount).Column("default_account_id");
 
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("org_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("org_id");
