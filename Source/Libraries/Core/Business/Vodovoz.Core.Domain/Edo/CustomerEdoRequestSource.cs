@@ -1,11 +1,11 @@
 ﻿namespace Vodovoz.Core.Domain.Edo
 {
-	public enum OrderPermitSource
+	public enum CustomerEdoRequestSource
 	{
 		None,
 		Warehouse,
 		Driver,
 		Selfdelivery,
-		Manual
+		OrderWithoutShipment,
 	}
 }
