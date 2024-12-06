@@ -57,7 +57,7 @@ namespace RobotMiaApi.Controllers.V1
 		public IActionResult Get(
 			[FromQuery(Name = "call_id"), Required] Guid callId,
 			[FromQuery(Name = "delivery_point_id"), Required] int deliveryPointId,
-			[FromQuery(Name = "delivery_date"), Required] DateTime deliveryDate,
+			[FromQuery(Name = "delivery_date")] DateTime? deliveryDate,
 			[FromQuery(Name = "nomenclature_ids"), Required] IEnumerable<int> nomenclatureIds,
 			[FromServices] IUnitOfWork unitOfWork)
 		{
@@ -75,12 +75,32 @@ namespace RobotMiaApi.Controllers.V1
 				return Problem("Не удается определить принадлежность точки доставки району доставки", statusCode: StatusCodes.Status404NotFound);
 			}
 
-			var schedules = district.GetAvailableDeliveryScheduleRestrictionsByDeliveryDate(deliveryDate)
-				.OrderBy(s => s.DeliverySchedule.DeliveryTime)
-				.Select(r => r.DeliverySchedule)
-				.ToList();
+			var schedules = new List<DeliveryIntervalDto>();
 
-			return Ok(schedules.MapToDeliveryIntervalDtoV1(deliveryDate));
+			if(deliveryDate is null)
+			{
+				var startDate = DateTime.Today;
+
+				var endDate = DateTime.Today.AddDays(6);
+
+				for(var currentDate = startDate; currentDate <= endDate; currentDate = currentDate.AddDays(1))
+				{
+					schedules.AddRange(district
+						.GetAvailableDeliveryScheduleRestrictionsByDeliveryDate(currentDate)
+						.OrderBy(s => s.DeliverySchedule.DeliveryTime)
+						.Select(r => r.DeliverySchedule.MapToDeliveryIntervalDtoV1(currentDate)));
+				}
+			}
+			else
+			{
+				schedules.AddRange(district
+					.GetAvailableDeliveryScheduleRestrictionsByDeliveryDate(deliveryDate.Value)
+					.OrderBy(s => s.DeliverySchedule.DeliveryTime)
+					.Select(r => r.DeliverySchedule.MapToDeliveryIntervalDtoV1(deliveryDate.Value)));
+
+			}
+
+			return Ok(schedules);
 		}
 	}
 }
