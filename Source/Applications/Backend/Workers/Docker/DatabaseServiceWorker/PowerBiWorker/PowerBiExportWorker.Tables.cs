@@ -11,12 +11,19 @@ namespace DatabaseServiceWorker.PowerBiWorker
 	internal partial class PowerBiExportWorker
 	{
 		private const int _timeOut = 120;
+
 		private async Task ExportTablesAsync(
 			MySqlConnection connectionSource,
 			MySqlConnection connectionTarget,
 			DateTime startDate,
 			CancellationToken stoppingToken)
 		{
+			#region Calendar
+
+			var calendarInsertSql = GetCalendarInsertSql();
+			connectionTarget.Execute(calendarInsertSql, commandTimeout: _timeOut);
+
+			#endregion Calendar
 
 			#region planPerDay
 
