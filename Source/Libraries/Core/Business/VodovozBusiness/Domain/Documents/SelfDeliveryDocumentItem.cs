@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -9,14 +8,8 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки документа самовывоза",
-		Nominative = "строка документа самовывоза")]
-	[HistoryTrace]
-	public class SelfDeliveryDocumentItem: PropertyChangedBase, IDomainObject
+	public class SelfDeliveryDocumentItem: SelfDeliveryDocumentItemEntity
 	{
-		public virtual int Id { get; set; }
-
 		SelfDeliveryDocument document;
 
 		public virtual SelfDeliveryDocument Document {

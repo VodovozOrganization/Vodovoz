@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TISystems.TTC.CRM.BE.Serialization;
-using Vodovoz.Domain.Client;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Settings.Edo;
 
 namespace EdoService.Library.Services

@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Pacs.Admin.Server;
 using QS.DomainModel.UoW;
 using System;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
 
-namespace Mango.Api.Controllers
+namespace Pacs.Admin.Server
 {
 	[ApiController]
 	[Route("pacs/settings")]

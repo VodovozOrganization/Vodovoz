@@ -1,9 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
-using MySqlX.XDevAPI.Common;
-using NLog.LayoutRenderers;
-using NPOI.SS.Formula.PTG;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Documents;

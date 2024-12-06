@@ -7,7 +7,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 {
-    public class NomenclaturePlanFilterViewModel : FilterViewModelBase<NomenclaturePlanFilterViewModel>
+	public class NomenclaturePlanFilterViewModel : FilterViewModelBase<NomenclaturePlanFilterViewModel>
     {
         NomenclatureCategory[] availableCategories;
         public virtual NomenclatureCategory[] AvailableCategories

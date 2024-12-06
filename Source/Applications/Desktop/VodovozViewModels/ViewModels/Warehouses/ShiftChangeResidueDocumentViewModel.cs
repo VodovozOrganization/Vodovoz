@@ -888,7 +888,15 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var instanceData = groupInstanceData.First();
 					var storages = string.Join(",", groupInstanceData.Select(x => x.StorageName));
 
-					_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.GetInventoryNumber} числится на: {storages}");
+					if(!_instancesDiscrepancies.ContainsKey(key))
+					{
+						_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.GetInventoryNumber} числится на: {storages}");
+					}
+					else
+					{
+						_instancesDiscrepancies[key] =
+							$"{instanceData.Name} {instanceData.GetInventoryNumber} числится на: {storages} помимо выбранного склада";
+					}
 				}
 			}
 

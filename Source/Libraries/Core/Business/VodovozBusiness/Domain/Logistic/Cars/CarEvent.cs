@@ -257,14 +257,14 @@ namespace Vodovoz.Domain.Logistic
 			return $"Событие ТС №{Id} {CarEventType.Name}";
 		}
 
-		public virtual void UpdateCalibrationFuelOeration()
+		public virtual void UpdateCalibrationFuelOperation()
 		{
 			if(CalibrationFuelOperation is null)
 			{
 				CalibrationFuelOperation = new FuelOperation
 				{
 					Car = Car,
-					Fuel = Car.FuelType,
+					Fuel = Car?.FuelType,
 					Driver = Driver,
 					OperationTime = DateTime.Now
 				};
@@ -272,7 +272,8 @@ namespace Vodovoz.Domain.Logistic
 			else
 			{
 				CalibrationFuelOperation.Car = Car;
-				CalibrationFuelOperation.Fuel = Car.FuelType;
+				CalibrationFuelOperation.Fuel = Car?.FuelType;
+				CalibrationFuelOperation.Driver = Driver;
 				CalibrationFuelOperation.OperationTime = DateTime.Now;
 			}
 

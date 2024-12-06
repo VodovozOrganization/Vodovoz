@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -16,9 +16,11 @@ using TaxcomEdo.Contracts.OrdersWithoutShipment;
 using TaxcomEdo.Library.Options;
 using Vodovoz.Application.Documents;
 using Vodovoz.Converters;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
@@ -123,7 +125,8 @@ namespace EdoDocumentsPreparer
 
 		private async Task PrepareUpdDocumentsForSend(IUnitOfWork uow, int organizationId)
 		{
-			_logger.LogInformation("Получаем заказы по которым надо создать и отправить УПД");
+			const string document = "УПД";
+			_logger.LogInformation("Получаем заказы по которым надо создать и отправить {Document}", document);
 
 			try
 			{
@@ -135,14 +138,19 @@ namespace EdoDocumentsPreparer
 						organizationId,
 						_deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
 
-				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен
+				var notLoadedOrders = _orderRepository.GetOrdersThatMustBeLoadedBeforeUpdSending(uow, orders.Select(o => o.Id));
+
+				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен, либо заказы с завершенной погрузкой
 				var filteredOrders =
-					orders.Where(o => o.Client.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
+					orders.Where(o => (o.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute && !notLoadedOrders.Contains(o.Id))
 							|| o.OrderStatus != OrderStatus.OnTheWay)
 						.Where(o => o.OrderDocuments.Any(
 							x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD)).ToList();
 			
-				_logger.LogInformation("Всего заказов для формирования УПД и отправки: {FilteredOrdersCount}", filteredOrders.Count);
+				_logger.LogInformation(
+					"Всего заказов для формирования {Document} и отправки: {FilteredOrdersCount}",
+					document,
+					filteredOrders.Count);
 
 				foreach(var order in filteredOrders)
 				{
@@ -174,30 +182,49 @@ namespace EdoDocumentsPreparer
 							await uow.SaveAsync(action);
 						}
 
-						_logger.LogInformation("Сохраняем контейнер с УПД {OrderId}", order.Id);
+						_logger.LogInformation("Сохраняем контейнер с {Document} {OrderId}", document, order.Id);
 						await uow.SaveAsync(edoContainer);
 						await uow.CommitAsync();
-						
+
+						if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, document))
+						{
+							continue;
+						}
+
 						try
 						{
-							_logger.LogInformation("Отправляем данные по УПД {OrderId} в очередь", order.Id);
+							_logger.LogInformation("Отправляем данные по {Document} {OrderId} в очередь", document, order.Id);
 							await _publishEndpoint.Publish(updInfo);
 						}
 						catch(Exception e)
 						{
-							_logger.LogError(e, "Не удалось отправить данные по УПД {OrderId} в очередь", order.Id);
+							_logger.LogError(
+								e,
+								"Не удалось отправить данные по {Document} {OrderId} в очередь",
+								document,
+								order.Id);
+							
+							await TrySaveContainerByErrorState(
+								uow,
+								edoContainer,
+								order.Id,
+								document,
+								"Возникла ошибка при попытке отправки документа в очередь");
 						}
 					}
 					catch(Exception e)
 					{
-						_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", order.Id);
+						_logger.LogError(
+							e,
+							"Ошибка в процессе формирования {Document} №{OrderId} и ее отправки",
+							document,
+							order.Id);
 					}
 				}
 			}
 			catch(Exception e)
 			{
-				const string errorMessage = "Ошибка в процессе получения заказов для формирования УПД";
-				_logger.LogError(e, errorMessage);
+				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования {Document}", document);
 			}
 		}
 
@@ -265,9 +292,14 @@ namespace EdoDocumentsPreparer
 						await uow.SaveAsync(action);
 					}
 
-					_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
+					_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId} для отправки счета", order.Id);
 					await uow.SaveAsync(edoContainer);
 					await uow.CommitAsync();
+					
+					if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, "Счет"))
+					{
+						continue;
+					}
 						
 					await SendBillData(order, infoForCreatingEdoBill);
 				}
@@ -333,6 +365,15 @@ namespace EdoDocumentsPreparer
 					
 					await uow.SaveAsync(edoContainer);
 					await uow.CommitAsync();
+					
+					if(!await CheckCounterpartyConsentForEdo(
+						uow,
+						edoContainer,
+						infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id,
+						infoForCreatingBillWithoutShipmentEdo.GetBillWithoutShipmentInfoTitle()))
+					{
+						continue;
+					}
 
 					try
 					{
@@ -424,6 +465,46 @@ namespace EdoDocumentsPreparer
 			edoContainerBuilder.MainDocumentId(infoForCreatingBillWithoutShipmentEdo.MainDocumentId.ToString());
 			
 			return infoForCreatingBillWithoutShipmentEdo;
+		}
+
+		private async Task<bool> CheckCounterpartyConsentForEdo(IUnitOfWork uow, EdoContainer edoContainer, int documentId, string document)
+		{
+			if(edoContainer.Counterparty != null
+			   && (string.IsNullOrWhiteSpace(edoContainer.Counterparty.PersonalAccountIdInEdo)
+			       || edoContainer.Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree))
+			{
+				await TrySaveContainerByErrorState(
+					uow, edoContainer, documentId, document, "У клиента не заполнен номер кабинета или нет согласия на ЭДО");
+				return false;
+			}
+
+			return true;
+		}
+		
+		private async Task TrySaveContainerByErrorState(
+			IUnitOfWork uow,
+			EdoContainer edoContainer,
+			int documentId,
+			string document,
+			string errorMessage)
+		{
+			try
+			{
+				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.Error;
+				edoContainer.ErrorDescription = errorMessage;
+								
+				await uow.SaveAsync(edoContainer);
+				await uow.CommitAsync();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Не удалось сохранить контейнер по {Document} {DocumentId} в состоянии ошибки {ErrorMessage}",
+					document,
+					documentId,
+					errorMessage);
+			}
 		}
 
 		private Organization GetOrganization(IUnitOfWork uow)

@@ -1,11 +1,13 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
@@ -475,6 +477,8 @@ namespace Vodovoz.Domain.Orders
 
 			return CounterpartyMovementOperation;
 		}
+		
+		public virtual bool HasZeroCountOrSum() => Count <= 0 || Sum == default;
 
 		#endregion
 

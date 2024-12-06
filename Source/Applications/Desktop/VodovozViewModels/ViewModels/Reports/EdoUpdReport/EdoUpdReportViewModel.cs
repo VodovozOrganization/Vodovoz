@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;

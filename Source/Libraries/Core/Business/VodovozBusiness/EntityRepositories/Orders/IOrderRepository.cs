@@ -60,7 +60,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="client">Контрагент</param>
 		Order GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Order order, Counterparty client);
 
-		bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, int counterpartyId);
+		bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty);
 		bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId);
 
 		OrderStatus[] GetGrantedStatusesToCreateSeveralOrders();
@@ -152,6 +152,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		PaymentType GetCurrentOrderPaymentTypeInDB(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetCashlessOrdersForEdoSendUpd(
 			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
+		IEnumerable<int> GetOrdersThatMustBeLoadedBeforeUpdSending(IUnitOfWork uow, IEnumerable<int> orderIds);
 		IList<EdoContainer> GetPreparingToSendEdoContainers(IUnitOfWork uow, DateTime startDate, int organizationId);
 		EdoContainer GetEdoContainerByMainDocumentId(IUnitOfWork uow, string mainDocId);
 		EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId);
