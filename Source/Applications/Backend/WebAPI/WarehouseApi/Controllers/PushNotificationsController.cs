@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using QS.DomainModel.UoW;
+using System;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
@@ -32,10 +33,10 @@ namespace WarehouseApi.Controllers
 			UserManager<IdentityUser> userManager)
 			: base(logger)
 		{
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_securityOptions = securityOptions;
-			_externalApplicationUserRepository = externalApplicationUserRepository;
-			_userManager = userManager ?? throw new System.ArgumentNullException(nameof(userManager));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_securityOptions = securityOptions ?? throw new ArgumentNullException(nameof(securityOptions));
+			_externalApplicationUserRepository = externalApplicationUserRepository ?? throw new ArgumentNullException(nameof(externalApplicationUserRepository));
+			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 		}
 
 		[HttpPost]

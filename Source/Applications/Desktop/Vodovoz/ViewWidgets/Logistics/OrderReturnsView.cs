@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -23,6 +23,7 @@ using System.Linq;
 using System.Threading;
 using Vodovoz.Application.Orders;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;

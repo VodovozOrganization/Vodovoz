@@ -9,29 +9,26 @@ using QS.Project.Core;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
+using VodovozBusiness.Models.TrueMark;
 
 namespace CashReceiptPrepareWorker
 {
 	public class Startup
-    {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+	{
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        public IConfiguration Configuration { get; }
+		public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
+		// This method gets called by the runtime. Use this method to add services to the container.
+		public void ConfigureServices(IServiceCollection services)
+		{
 			services.AddLogging(
 				logging =>
 				{
@@ -88,7 +85,7 @@ namespace CashReceiptPrepareWorker
 			builder.RegisterType<SelfdeliveryReceiptCreator>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
-			
+
 			builder.RegisterType<DeliveryOrderReceiptCreator>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
@@ -109,6 +106,10 @@ namespace CashReceiptPrepareWorker
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
+			builder.RegisterType<OurCodesChecker>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
 			builder.RegisterInstance(ErrorReporter.Instance)
 				.As<IErrorReporter>()
 				.SingleInstance();
@@ -116,7 +117,7 @@ namespace CashReceiptPrepareWorker
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-        }
+		{
+		}
 	}
 }

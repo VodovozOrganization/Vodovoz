@@ -7,25 +7,33 @@ using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Presentation.WebApi.Common;
+using Vodovoz.Errors;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
+using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Requests;
 using WarehouseApi.Contracts.Responses;
+using WarehouseApi.Filters;
+using WarehouseApi.Library.Common;
 using WarehouseApi.Library.Services;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace WarehouseApi.Controllers
 {
 	[Authorize(Roles = _rolesToAccess)]
 	[ApiController]
+	[WarehouseErrorHandlingFilter]
 	[OnlyOneSession]
-	[Route("/api/")]
-	public class CarLoadController : ApiControllerBase
+	[Route("/api/[action]")]
+	public class CarLoadController : ControllerBase
 	{
 		private const string _rolesToAccess =
 			nameof(ApplicationUserRole.WarehousePicker) + "," + nameof(ApplicationUserRole.WarehouseDriver);
+		private const string _exceptionMessage =
+			"Внутренняя ошибка сервера. Обратитесь в техподдержку";
 
 		private readonly ILogger<CarLoadController> _logger;
 		private readonly UserManager<IdentityUser> _userManager;
@@ -34,7 +42,7 @@ namespace WarehouseApi.Controllers
 		public CarLoadController(
 			ILogger<CarLoadController> logger,
 			UserManager<IdentityUser> userManager,
-			ICarLoadService carLoadService) : base(logger)
+			ICarLoadService carLoadService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -45,8 +53,10 @@ namespace WarehouseApi.Controllers
 		/// Начало погрузки по талону погрузки погрузки
 		/// </summary>
 		/// <param name="documentId"></param>
-		/// <returns></returns>
-		[HttpPost("StartLoad")]
+		/// <returns><see cref="StartLoadResponse"/></returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StartLoadResponse))]
 		public async Task<IActionResult> StartLoad([FromQuery] int documentId)
 		{
 			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
@@ -59,31 +69,16 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result = await _carLoadService.StartLoad(documentId, user.UserName, accessToken);
+				var requestProcessingResult = await _carLoadService.StartLoad(documentId, user.UserName, accessToken);
 
-				if(result.IsSuccess)
-				{
-					return MapResult(result);
-				}
-
-				return MapFailureValueResult(
-					result,
-					result =>
-					{
-						var firstError = result.Errors.FirstOrDefault();
-
-						if(firstError != null && firstError.Code == CarLoadDocumentErrors.DocumentNotFound)
-						{
-							return HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-						}
-
-						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-					});
+				return MapRequestProcessingResult(
+					requestProcessingResult,
+					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
+				return GetProblemResult();
 			}
 		}
 
@@ -91,8 +86,10 @@ namespace WarehouseApi.Controllers
 		/// Получение информации о заказе
 		/// </summary>
 		/// <param name="orderId"></param>
-		/// <returns></returns>
-		[HttpGet("GetOrder")]
+		/// <returns><see cref="GetOrderResponse"/></returns>
+		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetOrderResponse))]
 		public async Task<IActionResult> GetOrder([FromQuery] int orderId)
 		{
 			_logger.LogInformation("Запрос получения информации о заказе. OrderId: {OrderId}. User token: {AccessToken}",
@@ -101,31 +98,16 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result = await _carLoadService.GetOrder(orderId);
+				var requestProcessingResult = await _carLoadService.GetOrder(orderId);
 
-				if(result.IsSuccess)
-				{
-					return MapResult(result);
-				}
-
-				return MapFailureValueResult(
-					result,
-					result =>
-					{
-						var firstError = result.Errors.FirstOrDefault();
-
-						if(firstError != null && firstError.Code == CarLoadDocumentErrors.OrderNotFound)
-						{
-							return HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-						}
-
-						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-					});
+				return MapRequestProcessingResult(
+					requestProcessingResult,
+					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
+				return GetProblemResult();
 			}
 		}
 
@@ -133,8 +115,10 @@ namespace WarehouseApi.Controllers
 		/// Добавление отсканированного кода маркировки ЧЗ в заказ
 		/// </summary>
 		/// <param name="requestData"></param>
-		/// <returns></returns>
-		[HttpPost("AddOrderCode")]
+		/// <returns><see cref="AddOrderCodeResponse"/></returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AddOrderCodeResponse))]
 		public async Task<IActionResult> AddOrderCode(AddOrderCodeRequest requestData)
 		{
 			_logger.LogInformation("Запрос добавления кода ЧЗ в заказ. OrderId: {OrderId}, NomenclatureId: {NomenclatureId}, Code: {Code}. User token: {AccessToken}",
@@ -147,32 +131,27 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result = await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName);
+				var requestProcessingResult =
+					await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName);
 
-				if(result.IsSuccess)
-				{
-					return MapResult(result);
-				}
-
-				return MapFailureValueResult(
-					result,
-					result =>
-					{
-						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-					});
+				return MapRequestProcessingResult(
+					requestProcessingResult,
+					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
+				return GetProblemResult();
 			}
 		}
 
 		/// <summary>
 		/// Замена отсканированного кода ЧЗ номенклатуры в заказе
 		/// </summary>
-		/// <returns></returns>
-		[HttpPost("ChangeOrderCode")]
+		/// <returns><see cref="ChangeOrderCodeResponse"/></returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ChangeOrderCodeResponse))]
 		public async Task<IActionResult> ChangeOrderCode(ChangeOrderCodeRequest requestData)
 		{
 			_logger.LogInformation("Запрос замены кода ЧЗ в заказе." +
@@ -187,7 +166,7 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result =
+				var requestProcessingResult =
 					await _carLoadService.ChangeOrderCode(
 						requestData.OrderId,
 						requestData.NomenclatureId,
@@ -195,30 +174,24 @@ namespace WarehouseApi.Controllers
 						requestData.NewCode,
 						user.UserName);
 
-				if(result.IsSuccess)
-				{
-					return MapResult(result);
-				}
-
-				return MapFailureValueResult(
-					result,
-					result =>
-					{
-						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-					});
+				return MapRequestProcessingResult(
+					requestProcessingResult,
+					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
+				return GetProblemResult();
 			}
 		}
 
 		/// <summary>
 		/// Завершение погрузки по талону погрузки
 		/// </summary>
-		/// <returns></returns>
-		[HttpPost("EndLoad")]
+		/// <returns><see cref="EndLoadResponse"/></returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EndLoadResponse))]
 		public async Task<IActionResult> EndLoad([FromQuery] int documentId)
 		{
 			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
@@ -231,46 +204,66 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var result = await _carLoadService.EndLoad(documentId, user.UserName, accessToken);
+				var requestProcessingResult = await _carLoadService.EndLoad(documentId, user.UserName, accessToken);
 
-				if(result.IsSuccess)
-				{
-					return MapResult(result);
-				}
-
-				return MapFailureValueResult(
-					result,
-					result =>
-					{
-						var firstError = result.Errors.FirstOrDefault();
-
-						if(firstError != null && firstError.Code == CarLoadDocumentErrors.DocumentNotFound)
-						{
-							return HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-						}
-
-						return HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-					});
+				return MapRequestProcessingResult(
+					requestProcessingResult,
+					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex.Message, ex);
-				return GetProblemResult("Внутренняя ошибка сервера. Обратитесь в техподдержку");
+				return GetProblemResult();
 			}
 		}
 
-		private IActionResult GetProblemResult(string message)
+		private IActionResult MapRequestProcessingResult<TValue>(
+			RequestProcessingResult<TValue> processingResult,
+			Func<Result, int?> statusCodeSelectorFunc)
+		{
+			if(processingResult.Result.IsSuccess)
+			{
+				HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status200OK;
+				return new ObjectResult(processingResult.Result.Value);
+			}
+
+			HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status400BadRequest;
+			return new ObjectResult(processingResult.FailureData);
+		}
+
+		private IActionResult GetProblemResult(string exceptionMessage = null)
 		{
 			var response = new WarehouseApiResponseBase
 			{
-				Result = Contracts.Dto.OperationResultEnumDto.Error,
-				Error = message,
+				Result = OperationResultEnumDto.Error,
+				Error = string.IsNullOrWhiteSpace(exceptionMessage) ? _exceptionMessage : exceptionMessage,
 			};
 
 			return new ObjectResult(response)
 			{
 				StatusCode = StatusCodes.Status500InternalServerError
 			};
+		}
+
+		private int GetStatusCode(Result result)
+		{
+			if(result.IsSuccess)
+			{
+				return StatusCodes.Status200OK;
+			}
+
+			var firstError = result.Errors.FirstOrDefault();
+
+			if(firstError != null
+				&& (firstError.Code == CarLoadDocumentErrors.DocumentNotFound
+					|| firstError.Code == CarLoadDocumentErrors.OrderNotFound
+					|| firstError.Code == CarLoadDocumentErrors.CarLoadDocumentItemNotFound
+					|| firstError.Code == TrueMarkCodeErrors.TrueMarkCodeForCarLoadDocumentItemNotFound))
+			{
+				return StatusCodes.Status404NotFound;
+			}
+
+			return StatusCodes.Status400BadRequest;
 		}
 	}
 }

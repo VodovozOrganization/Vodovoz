@@ -13,7 +13,9 @@ using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Presentation.WebApi;
+using VodovozHealthCheck;
 using WarehouseApi.Data;
+using WarehouseApi.HealthChecks;
 using WarehouseApi.Library;
 
 namespace WarehouseApi
@@ -30,8 +32,9 @@ namespace WarehouseApi
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-
 			services.AddControllers();
+			services.ConfigureHealthCheckService<WarehouseApiHealthCheck>();
+			services.AddHttpClient();
 
 			services.AddSwaggerGen(c =>
 			{
@@ -94,7 +97,7 @@ namespace WarehouseApi
 				endpoints.MapControllers();
 			});
 
-			//app.ConfigureHealthCheckApplicationBuilder();
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
@@ -22,13 +23,14 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Employees
 
 			return query.FirstOrDefault();
 		}
-		public IQueryable<EmployeeWithLogin> GetEmployeeWithLoginById(IUnitOfWork uow, int id)
+
+		public EmployeeWithLogin GetEmployeeWithLoginById(IUnitOfWork uow, int id)
 		{
 			var query = from employee in uow.Session.Query<EmployeeWithLogin>()
 						where employee.Id == id
 						select employee;
 
-			return query;
+			return query.FirstOrDefault();
 		}
 	}
 }

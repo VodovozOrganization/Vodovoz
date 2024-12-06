@@ -1,6 +1,7 @@
 ﻿using Pacs.Core.Messages.Commands;
 using Pacs.Core.Messages.Events;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server.Operators
 {

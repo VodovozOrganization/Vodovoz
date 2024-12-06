@@ -1,5 +1,8 @@
-﻿using Autofac;
+using Autofac;
 using Fias.Client.Loaders;
+using GeoCoderApi.Client;
+using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -17,6 +20,8 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -62,6 +67,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		private FixedPricesViewModel _fixedPricesViewModel;
 		private List<DeliveryPointResponsiblePerson> _responsiblePersons;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly ILogger<DeliveryPointViewModel> _logger;
+		private readonly IFeatureManager _featureManager;
 		private readonly IUserRepository _userRepository;
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
@@ -72,6 +79,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		private readonly IGlobalSettings _globalSettings;
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private readonly INomenclatureFixedPriceRepository _fixedPriceRepository;
+		private readonly IGeoCoderApiClient _geoCoderApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private bool _isInformationActive;
 		private bool _isFixedPricesActive;
@@ -80,6 +88,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		private bool _showDistrictBorders;
 
 		public DeliveryPointViewModel(
+			ILogger<DeliveryPointViewModel> logger,
+			IFeatureManager featureManager,
 			IUserRepository userRepository,
 			INavigationManager navigationManager,
 			IGtkTabsOpener gtkTabsOpener,
@@ -102,9 +112,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			IGlobalSettings globalSettings,
 			IPhoneTypeSettings phoneTypeSettings,
 			INomenclatureFixedPriceRepository fixedPriceRepository,
+			IGeoCoderApiClient geoCoderApiClient,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
 			if(client != null && uowBuilder.IsNewEntity)
 			{
 				Entity.Counterparty = client;
@@ -140,10 +153,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
 			_phoneTypeSettings = phoneTypeSettings ?? throw new ArgumentNullException(nameof(phoneTypeSettings));
-			_fixedPriceRepository = fixedPriceRepository ?? throw new ArgumentNullException(nameof(fixedPriceRepository));;
+			_fixedPriceRepository = fixedPriceRepository ?? throw new ArgumentNullException(nameof(fixedPriceRepository));
+			_geoCoderApiClient = geoCoderApiClient ?? throw new ArgumentNullException(nameof(geoCoderApiClient));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_featureManager = featureManager ?? throw new ArgumentNullException(nameof(featureManager));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
@@ -568,14 +583,34 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 					: $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}" +
 						$", {(Entity.EntranceType == EntranceType.Entrance ? "парадная" : "вход")} {Entity.Entrance}";
 
-				var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
-
-				if(findedByGeoCoder != null)
+				if(await _featureManager.IsEnabledAsync(FeatureFlags.GeoCoderGateway))
 				{
-					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
-					culture.NumberFormat.NumberDecimalSeparator = ".";
-					latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
-					longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
+					try
+					{
+						var findedByGeoCoder = await _geoCoderApiClient.GetCoordinateAtAddressAsync(address, _cancellationTokenSource.Token);
+
+						if(findedByGeoCoder != null)
+						{
+							latitude = findedByGeoCoder.Latitude;
+							longitude = findedByGeoCoder.Longitude;
+						}
+					}
+					catch(Exception ex)
+					{
+						_logger.LogError(ex, "Произошла ошибка при запросе координат");
+					}
+				}
+				else
+				{
+					var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
+
+					if(findedByGeoCoder != null)
+					{
+						var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+						culture.NumberFormat.NumberDecimalSeparator = ".";
+						latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
+						longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
+					}
 				}
 			}
 			finally
@@ -589,7 +624,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 				Longitude = longitude
 			};
 		}
-
 
 		public bool IsDisposed { get; private set; }
 		public string DistrictOnMapText 

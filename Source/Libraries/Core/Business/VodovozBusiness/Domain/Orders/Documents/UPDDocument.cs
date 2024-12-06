@@ -1,9 +1,11 @@
-﻿using Autofac;
+using Autofac;
 using QS.Print;
 using QS.Report;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;

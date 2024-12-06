@@ -1,6 +1,10 @@
-﻿using NHibernate.Criterion;
+﻿using Core.Infrastructure;
+using NHibernate.Criterion;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
@@ -25,41 +29,53 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 
 			var query = uow.Session.QueryOver(() => carLoadDocumentAlias)
-									.JoinAlias(c => c.Items, () => carLoadDocumentItemAlias)
-									.Where(() => carLoadDocumentAlias.RouteList.Id == routelistId)
-									.And(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
-									.Select(Projections.Sum(() => carLoadDocumentItemAlias.Amount))
-									.SingleOrDefault<decimal>()
-						+ _routeListRepository.TerminalTransferedCountToRouteList(uow, uow.GetById<RouteList>(routelistId));
+				.JoinAlias(c => c.Items, () => carLoadDocumentItemAlias)
+				.Where(() => carLoadDocumentAlias.RouteList.Id == routelistId)
+				.And(() => carLoadDocumentItemAlias.Nomenclature.Id == terminalId)
+				.Select(Projections.Sum(() => carLoadDocumentItemAlias.Amount))
+				.SingleOrDefault<decimal>()
+				+ _routeListRepository.TerminalTransferedCountToRouteList(uow, uow.GetById<RouteList>(routelistId));
 
 			return query;
 		}
 
-		public IQueryable<CarLoadDocumentEntity> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId)
+		public async Task<IEnumerable<CarLoadDocumentEntity>> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId)
 		{
 			var documents = uow.Session.Query<CarLoadDocumentEntity>()
 				.Where(d => d.Id == carLoadDocumentId);
 
-			return documents;
+			return await documents.ToListAsync();
 		}
 
-		public IQueryable<CarLoadDocumentItemEntity> GetWaterItemsInCarLoadDocumentById(IUnitOfWork uow, int orderId)
+		public async Task<IEnumerable<CarLoadDocumentItemEntity>> GeAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(
+			IUnitOfWork uow,
+			int orderId)
 		{
-			var documentItems = from documentItem in uow.Session.Query<CarLoadDocumentItemEntity>()
-								join nomenclature in uow.Session.Query<NomenclatureEntity>() on documentItem.Nomenclature.Id equals nomenclature.Id
-								where documentItem.OrderId == orderId && nomenclature.Category == NomenclatureCategory.water
-								select documentItem;
+			var documentItems =
+				from documentItem in uow.Session.Query<CarLoadDocumentItemEntity>()
+				join nomenclature in uow.Session.Query<NomenclatureEntity>() on documentItem.Nomenclature.Id equals nomenclature.Id
+				where
+					documentItem.OrderId == orderId
+					&& nomenclature.IsAccountableInTrueMark
+					&& nomenclature.Gtin != null
+				select documentItem;
 
-			return documentItems;
+			return await documentItems.ToListAsync();
 		}
 
-		public IQueryable<CarLoadDocumentLoadingProcessAction> GetLoadingProcessActionsByDocumentId(IUnitOfWork uow, int documentId)
+		public CarLoadDocumentLoadingProcessAction GetLastLoadingProcessActionByDocumentId(IUnitOfWork uow, int documentId)
 		{
-			var documentActions = from action in uow.Session.Query<CarLoadDocumentLoadingProcessAction>()
-								  where action.CarLoadDocumentId == documentId
-								  select action;
+			var documentActions =
+				from action in uow.Session.Query<CarLoadDocumentLoadingProcessAction>()
+				where action.CarLoadDocumentId == documentId
+				select action;
 
-			return documentActions;
+			var lastAction =
+				documentActions
+				.OrderByDescending(x => x.Id)
+				.FirstOrDefault();
+
+			return lastAction;
 		}
 	}
 }

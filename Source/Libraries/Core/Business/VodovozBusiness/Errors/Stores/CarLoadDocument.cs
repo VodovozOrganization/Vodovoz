@@ -17,6 +17,19 @@ namespace Vodovoz.Errors.Stores
 				typeof(CarLoadDocument),
 				nameof(DocumentNotFound),
 				$"Талон погрузки #{id} не найден");
+
+		public static Error CarLoadDocumentItemNotFound =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(CarLoadDocumentItemNotFound),
+				"Стока талона погрузки не найдена");
+
+		public static Error CreateCarLoadDocumentItemNotFound(int? id) =>
+			id is null ? DocumentNotFound : new Error(
+				typeof(CarLoadDocument),
+				nameof(CarLoadDocumentItemNotFound),
+				$"Строки талона погрузки для заказа #{id} не найдены");
+
 		public static Error OrderNotFound =>
 			new Error(
 				typeof(CarLoadDocument),
@@ -28,6 +41,18 @@ namespace Vodovoz.Errors.Stores
 				typeof(CarLoadDocument),
 				nameof(OrderNotFound),
 				$"Заказ #{id} не найден");
+
+		public static Error OrderNoNeedIndividualSetOnLoad =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(OrderNoNeedIndividualSetOnLoad),
+				"Заказ не является сетевым");
+
+		public static Error CreateOrderNoNeedIndividualSetOnLoad(int? id) =>
+			id is null ? DocumentNotFound : new Error(
+				typeof(CarLoadDocument),
+				nameof(OrderNoNeedIndividualSetOnLoad),
+				$"Заказ #{id} не является сетевым");
 
 		public static Error LoadingProcessStateMustBeNotStarted =>
 			new Error(

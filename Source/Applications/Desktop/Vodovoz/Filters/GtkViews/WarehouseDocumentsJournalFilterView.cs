@@ -43,8 +43,9 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 
 			entityentryWarehouse.ViewModel = ViewModel.WarehouseEntityEntryViewModel;
-
 			entityentryDriver.ViewModel = ViewModel.DriverEntityEntryViewModel;
+			entityentryEmployee.ViewModel = ViewModel.EmployeeEntityEntryViewModel;
+			entityentryCar.ViewModel = ViewModel.CarEntityEntryViewModel;
 		}
 	}
 }

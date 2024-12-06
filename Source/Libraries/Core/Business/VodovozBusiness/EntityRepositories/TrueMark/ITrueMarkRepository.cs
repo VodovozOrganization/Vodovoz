@@ -1,6 +1,5 @@
 ﻿using QS.DomainModel.UoW;
 using System.Collections.Generic;
-using System.Linq;
 using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.EntityRepositories.TrueMark
@@ -11,6 +10,8 @@ namespace Vodovoz.EntityRepositories.TrueMark
 
 		ISet<string> GetAllowedCodeOwnersInn();
 
-		IQueryable<TrueMarkWaterIdentificationCode> GetTrueMarkCodeDuplicates(IUnitOfWork uow, string gtin, string serialNumber, string checkCode);
+		ISet<string> GetAllowedCodeOwnersGtins();
+
+		IEnumerable<TrueMarkWaterIdentificationCode> GetTrueMarkCodeDuplicates(IUnitOfWork uow, string gtin, string serialNumber, string checkCode);
 	}
 }

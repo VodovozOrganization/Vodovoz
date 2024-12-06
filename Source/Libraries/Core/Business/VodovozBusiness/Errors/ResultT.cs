@@ -19,10 +19,6 @@ namespace Vodovoz.Errors
 			? _value
 			: throw new InvalidOperationException("The value of a failure result can't be accessed");
 
-		public TValue FailureValue => IsFailure
-			? _value
-			: throw new InvalidOperationException("The value of a success result can't be accessed");
-
 		public static implicit operator Result<TValue>(TValue value) => Create(value);
 
 		private static Result<TValue> Create(TValue value) =>

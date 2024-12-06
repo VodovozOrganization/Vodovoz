@@ -4,8 +4,8 @@ using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -86,6 +86,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private DateTime? _deliveryDate;
 		private PaymentFromEntity _paymentByCardFrom;
 		private PaymentType _paymentType;
+		private CounterpartyEntity _client;
 
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
@@ -595,6 +596,14 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _orderDepositItems, value);
 		}
 
+		[Display(Name = "Клиент")]
+		public virtual CounterpartyEntity Client
+		{
+			get => _client;
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _client, value);
+		}
+
 		#region Вычисляемые свойства
 
 		public virtual bool IsUndeliveredStatus =>
@@ -656,6 +665,11 @@ namespace Vodovoz.Core.Domain.Orders
 				return sum;
 			}
 		}
+		
+		public virtual bool IsNeedIndividualSetOnLoad =>
+			PaymentType == PaymentType.Cashless
+			&& Client?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
 
 		#endregion Вычисляемые свойства
 

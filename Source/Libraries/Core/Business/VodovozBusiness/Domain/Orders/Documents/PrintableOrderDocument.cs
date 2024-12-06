@@ -2,6 +2,7 @@ using System;
 using QS.Print;
 using System.Linq;
 using fyiReporting.RDL;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents

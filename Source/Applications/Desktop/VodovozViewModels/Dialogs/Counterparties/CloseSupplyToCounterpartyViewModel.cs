@@ -18,8 +18,8 @@ using Vodovoz.Domain.Retail;
 using QS.DomainModel.Entity;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Application.FileStorage;
-using VodovozBusiness.Domain.Client;
 using System.Threading;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparties
 {

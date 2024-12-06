@@ -16,7 +16,7 @@ namespace Vodovoz.Presentation.WebApi.Common
 	[ErrorHandlingFilter]
 	public class ApiControllerBase : ControllerBase
 	{
-		private readonly ILogger<ApiControllerBase> _logger;
+		protected readonly ILogger<ApiControllerBase> _logger;
 
 		public ApiControllerBase(ILogger<ApiControllerBase> logger)
 		{
@@ -121,27 +121,6 @@ namespace Vodovoz.Presentation.WebApi.Common
 				Status = statusCode ?? StatusCodes.Status500InternalServerError,
 				Detail = errorsList.First().Message
 			});
-		}
-
-		/// <summary>
-		/// Маппинг результата к ответу сервера.
-		/// Предполагается, что все данные об ошибке будут содержаться в свойстве FailureValue объекта результата
-		/// Метод MapErrors не вызывается
-		/// </summary>
-		/// <typeparam name="TValue">Тип ответа c ошибкой (тип содержащий тело ответа)</typeparam>
-		/// <param name="result">Результат, который требуется привести к ответу сервера</param>
-		/// <param name="statusCodeSelectorFunc">Селектор Http-кода ответа сервера</param>
-		/// <returns></returns>
-		protected IActionResult MapFailureValueResult<TValue>(Result<TValue> result, Func<Result, int?> statusCodeSelectorFunc)
-		{
-			if(result.IsSuccess)
-			{
-				HttpContext.Response.StatusCode = statusCodeSelectorFunc(result) ?? StatusCodes.Status204NoContent;
-				return new NoContentResult();
-			}
-
-			HttpContext.Response.StatusCode = statusCodeSelectorFunc(result) ?? StatusCodes.Status400BadRequest;
-			return new ObjectResult(result.FailureValue);
 		}
 
 		/// <summary>

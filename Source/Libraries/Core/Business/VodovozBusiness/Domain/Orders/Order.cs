@@ -21,6 +21,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
@@ -168,7 +172,7 @@ namespace Vodovoz.Domain.Orders
 
 		private Counterparty _client;
 		[Display(Name = "Клиент")]
-		public virtual Counterparty Client {
+		public virtual new Counterparty Client {
 			get => _client;
 			set
 			{
@@ -1449,10 +1453,6 @@ namespace Vodovoz.Domain.Orders
 			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Kind.Id))
 			.Count() > 0;
 
-		public virtual bool IsNeedIndividualSetOnLoad =>
-			PaymentType == PaymentType.Cashless
-			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
-
 		#endregion
 
 		#region Автосоздание договоров, при изменении подтвержденного заказа
@@ -2217,7 +2217,10 @@ namespace Vodovoz.Domain.Orders
 		/// <returns><c>true</c>, если можно добавить промонабор,
 		/// <c>false</c> если нельзя.</returns>
 		/// <param name="proSet">Промонабор (промонабор)</param>
-		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, IPromotionalSetRepository promotionalSetRepository)
+		public virtual bool CanAddPromotionalSet(
+			PromotionalSet proSet,
+			IFreeLoaderChecker freeLoaderChecker,
+			IPromotionalSetRepository promotionalSetRepository)
 		{
 			if(PromotionalSets.Any(x => x.PromotionalSetForNewClients && proSet.PromotionalSetForNewClients))
 			{
@@ -2232,7 +2235,8 @@ namespace Vodovoz.Domain.Orders
 				return true;
 			}
 
-			if(proSet.PromotionalSetForNewClients && HasUsedPromoForNewClients(promotionalSetRepository))
+			if(proSet.PromotionalSetForNewClients
+				&& freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(UoW, SelfDelivery, Client, DeliveryPoint))
 			{
 				var message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
@@ -2259,19 +2263,6 @@ namespace Vodovoz.Domain.Orders
 			}
 			sb.AppendLine($"Вы уверены, что хотите добавить \"{proSet.Title}\"");
 			return InteractiveService.Question(sb.ToString());
-		}
-
-		/// <summary>
-		/// Проверка на использование промонабора в заказе на адрес
-		/// </summary>
-		/// <returns><c>true</c>, если на адрес доставляли промонабор для новых клиентов,
-		/// <c>false</c> если нет</returns>
-		public virtual bool HasUsedPromoForNewClients(IPromotionalSetRepository promotionalSetRepository)
-		{
-			return !SelfDelivery
-				&& Client.PersonType == PersonType.natural
-				&& ((DeliveryPoint.RoomType == RoomType.Office) || (DeliveryPoint.RoomType == RoomType.Store))
-				&& promotionalSetRepository.AddressHasAlreadyBeenUsedForPromoForNewClients(UoW, deliveryPoint);
 		}
 
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
@@ -3458,13 +3449,19 @@ namespace Vodovoz.Domain.Orders
 					&& item.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(item => item.ActualCount ?? 0);
 
+			int amountDeliveredInDisposableTare = (int)OrderItems
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water
+					&& item.Nomenclature.IsDisposableTare
+					&& item.Nomenclature.TareVolume == TareVolume.Vol19L)
+				.Sum(item => item.ActualCount ?? 0);
+
 			if(forfeitQuantity == null) {
 				forfeitQuantity = (int)OrderItems.Where(i => i.Nomenclature.Id == nomenclatureSettings.ForfeitId)
 							.Select(i => i?.ActualCount ?? 0)
 							.Sum();
 			}
 
-			bool isValidCondition = amountDelivered != 0;
+			bool isValidCondition = amountDelivered != 0 || amountDeliveredInDisposableTare != 0;
 			isValidCondition |= returnByStock > 0;
 			isValidCondition |= forfeitQuantity > 0;
 			isValidCondition &= !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
@@ -3479,6 +3476,7 @@ namespace Vodovoz.Domain.Orders
 				BottlesMovementOperation.DeliveryPoint = DeliveryPoint;
 				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 				BottlesMovementOperation.Delivered = amountDelivered;
+				BottlesMovementOperation.DeliveredInDisposableTare = amountDeliveredInDisposableTare;
 				BottlesMovementOperation.Returned = returnByStock + forfeitQuantity.Value;
 				uow.Save(BottlesMovementOperation);
 			} else {

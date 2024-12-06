@@ -12,6 +12,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Vodovoz.Core.Domain;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;

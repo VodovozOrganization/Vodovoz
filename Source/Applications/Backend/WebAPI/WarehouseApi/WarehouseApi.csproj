@@ -4,6 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dedf4830-786c-4526-b1ad-bef9a997fcc9</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
     <DockerfileContext>..\..\..\..</DockerfileContext>
   </PropertyGroup>
 
@@ -17,9 +18,11 @@
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+	<PackageReference Include="Google.OrTools" Version="6.4.4495" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Vodovoz.Presentation.WebApi.Authentication.Contracts\Vodovoz.Presentation.WebApi.Authentication.Contracts.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\WarehouseApi.Contracts\WarehouseApi.Contracts.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\WarehouseApi.Library\WarehouseApi.Library.csproj" />

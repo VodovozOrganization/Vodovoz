@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;

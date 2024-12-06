@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;

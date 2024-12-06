@@ -6,10 +6,12 @@ using QS.Journal.GtkUI;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
+using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 
@@ -42,6 +44,16 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddNumericRenderer(node => node.Id)
 						.AddPixbufRenderer(node => node.JournalNodeType == typeof(FinancialCategoriesGroup) ? _folderImg : _emptyImg)
 					.AddColumn("Нумерация").AddTextRenderer(node => node.Numbering)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.Finish()
+				);
+
+			TreeViewColumnsConfigFactory.Register<ProductGroupsJournalViewModel>(
+				(vm) => FluentColumnsConfig<ProductGroupsJournalNode>.Create()
+					.SetTreeModel(() => new RecursiveTreeModel<ProductGroupsJournalNode>(vm.Items.Cast<ProductGroupsJournalNode>(), vm.RecuresiveConfig))
+					.AddColumn("Код")
+						.AddNumericRenderer(node => node.Id)
+						.AddPixbufRenderer(node => node.JournalNodeType == typeof(ProductGroup) ? _folderImg : _emptyImg)
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.Finish()
 				);

@@ -7,10 +7,10 @@ using System.Threading;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
@@ -29,6 +29,7 @@ namespace WarehouseApi.Library.Errors
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly ICarLoadDocumentLoadingProcessSettings _carLoadDocumentLoadingProcessSettings;
+		private readonly IGenericRepository<OrderEntity> _orderRepository;
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 
 		public CarLoadDocumentProcessingErrorsChecker(
@@ -38,6 +39,7 @@ namespace WarehouseApi.Library.Errors
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,
+			IGenericRepository<OrderEntity> orderRepository,
 			TrueMarkCodesChecker trueMarkCodesChecker)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -46,6 +48,7 @@ namespace WarehouseApi.Library.Errors
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_employeeWithLoginRepository = employeeWithLoginRepository ?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
 			_carLoadDocumentLoadingProcessSettings = carLoadDocumentLoadingProcessSettings;
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_trueMarkCodesChecker = trueMarkCodesChecker ?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
 		}
 
@@ -101,9 +104,7 @@ namespace WarehouseApi.Library.Errors
 			error = null;
 
 			var lastDocumentLoadingProcessAction =
-				_carLoadDocumentRepository.GetLoadingProcessActionsByDocumentId(_uow, documentId)
-				.OrderByDescending(action => action.Id)
-				.FirstOrDefault();
+				_carLoadDocumentRepository.GetLastLoadingProcessActionByDocumentId(_uow, documentId);
 
 			var noLoadingActionsTimeout = _carLoadDocumentLoadingProcessSettings.NoLoadingActionsTimeout;
 
@@ -116,8 +117,8 @@ namespace WarehouseApi.Library.Errors
 			{
 				var leftToEndNoLoadingActionsTimeout = lastDocumentLoadingProcessAction.ActionTime.Add(noLoadingActionsTimeout) - DateTime.Now;
 				var pickerEmployee =
-					_employeeWithLoginRepository.GetEmployeeWithLoginById(_uow, lastDocumentLoadingProcessAction.PickerEmployeeId)
-					.FirstOrDefault();
+					_employeeWithLoginRepository
+					.GetEmployeeWithLoginById(_uow, lastDocumentLoadingProcessAction.PickerEmployeeId);
 
 				error = CarLoadDocumentErrors.CreateCarLoadDocumentAlreadyHasPickerError(
 					documentId,
@@ -136,7 +137,10 @@ namespace WarehouseApi.Library.Errors
 			error = null;
 
 			var isNotAllCodesAdded = carLoadDocument.Items
-				.Where(x => x.OrderId != null && x.Nomenclature.Category == NomenclatureCategory.water)
+				.Where(x =>
+					x.OrderId != null
+					&& x.Nomenclature.IsAccountableInTrueMark
+					&& x.Nomenclature.Gtin != null)
 				.Any(x => x.TrueMarkCodes.Count < x.Amount);
 
 			if(isNotAllCodesAdded)
@@ -178,13 +182,13 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		public bool IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(int orderId, IList<CarLoadDocumentItemEntity> documentOrderItems, out Error error)
+		public bool IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(int orderId, IEnumerable<CarLoadDocumentItemEntity> documentOrderItems, out Error error)
 		{
 			error = null;
 
-			if(documentOrderItems is null || documentOrderItems.Count == 0)
+			if(documentOrderItems is null || documentOrderItems.Count() == 0)
 			{
-				error = CarLoadDocumentErrors.CreateOrderNotFound(orderId);
+				error = CarLoadDocumentErrors.CreateCarLoadDocumentItemNotFound(orderId);
 				LogError(error);
 				return false;
 			}
@@ -205,12 +209,14 @@ namespace WarehouseApi.Library.Errors
 			string scannedCode,
 			bool isScannedCodeValid,
 			TrueMarkWaterCode trueMarkCode,
-			IList<CarLoadDocumentItemEntity> allWaterOrderItems,
+			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
 			out Error error)
 		{
-			return IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
+			return IsOrderNeedIndividualSetOnLoad(orderId, out error)
+				&& IsDocumentItemToEditNotNull(documentItemToEdit, orderId, out error)
+				&& IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
 				&& IsScannedCodeValid(scannedCode, isScannedCodeValid, out error)
 				&& IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems, out error)
 				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
@@ -228,12 +234,14 @@ namespace WarehouseApi.Library.Errors
 			string newScannedCode,
 			bool isNewScannedCodeValid,
 			TrueMarkWaterCode newTrueMarkCode,
-			IList<CarLoadDocumentItemEntity> allWaterOrderItems,
+			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
 			out Error error)
 		{
-			return IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
+			return IsOrderNeedIndividualSetOnLoad(orderId, out error)
+				&& IsDocumentItemToEditNotNull(documentItemToEdit, orderId, out error)
+				&& IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
 				&& IsScannedCodeValid(oldScannedCode, isOldScannedCodeValid, out error)
 				&& IsScannedCodeValid(newScannedCode, isNewScannedCodeValid, out error)
 				&& IsTrueMarkCodesHasEqualGtins(oldTrueMarkCode, newTrueMarkCode, out error)
@@ -242,6 +250,43 @@ namespace WarehouseApi.Library.Errors
 				&& IsProductsHavingRequiredTrueMarkCodeExists(documentItemToEdit, oldTrueMarkCode, out error)
 				&& IsTrueMarkCodeNotExists(newTrueMarkCode, newScannedCode, out error)
 				&& IsTrueMarkCodeIntroduced(newTrueMarkCode, out error);
+		}
+
+		public bool IsOrderNeedIndividualSetOnLoad(int orderId, out Error error)
+		{
+			error = null;
+
+			var order = _orderRepository.Get(_uow, o => o.Id == orderId).FirstOrDefault();
+
+			if(order is null)
+			{
+				error = CarLoadDocumentErrors.CreateOrderNotFound(orderId);
+				LogError(error);
+				return false;
+			}
+
+			if(!order.IsNeedIndividualSetOnLoad)
+			{
+				error = CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoad(orderId);
+				LogError(error);
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool IsDocumentItemToEditNotNull(CarLoadDocumentItemEntity documentItemToEdit, int orderId, out Error error)
+		{
+			error = null;
+
+			if(documentItemToEdit is null)
+			{
+				error = CarLoadDocumentErrors.CreateCarLoadDocumentItemNotFound(orderId);
+				LogError(error);
+				return false;
+			}
+
+			return true;
 		}
 
 		private bool IsSingleItemHavingRequiredOrderAndNomenclatureExists(
@@ -371,9 +416,10 @@ namespace WarehouseApi.Library.Errors
 			//Логика проверки доступности кода будет исправлена в дальнейшем, по мере внедрения нового функционала привязки кодов к чекам товаров
 			// из МЛ и документов самовывоза
 			var existingDuplicatedCodes =
-				_trueMarkRepository.GetTrueMarkCodeDuplicates(_uow, trueMarkCode.GTIN, trueMarkCode.SerialNumber, trueMarkCode.CheckCode).ToList();
+				_trueMarkRepository
+				.GetTrueMarkCodeDuplicates(_uow, trueMarkCode.GTIN, trueMarkCode.SerialNumber, trueMarkCode.CheckCode);
 
-			if(existingDuplicatedCodes.Count > 0)
+			if(existingDuplicatedCodes.Count() > 0)
 			{
 				error = TrueMarkCodeErrors.CreateTrueMarkCodeIsAlreadyExists(scannedCode);
 				LogError(error);
@@ -417,7 +463,7 @@ namespace WarehouseApi.Library.Errors
 				error = TrueMarkCodeErrors.CreateTrueMarkApiRequestError(
 					"При выполнении запроса к API ЧЗ для проверки кода возникла непредвиденная ошибка. " +
 					"Обратитесь в техподдержку");
-				_logger.LogError(error.Message, ex);
+				_logger.LogError(ex, error.Message);
 				return false;
 			}
 		}

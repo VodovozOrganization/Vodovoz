@@ -9,6 +9,7 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Orders.Documents;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 

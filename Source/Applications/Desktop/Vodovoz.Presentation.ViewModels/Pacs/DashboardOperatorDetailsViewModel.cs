@@ -2,7 +2,6 @@
 using Pacs.Admin.Client;
 using Pacs.Core;
 using Pacs.Core.Messages.Commands;
-using Pacs.Server;
 using QS.Commands;
 using QS.Dialog;
 using QS.ViewModels;

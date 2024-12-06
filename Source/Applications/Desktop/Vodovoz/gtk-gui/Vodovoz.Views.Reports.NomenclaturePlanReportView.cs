@@ -88,11 +88,11 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gtk.Table table4;
 
+		private global::QS.Views.Control.EntityEntry entityentryProductGroup;
+
 		private global::Gtk.Label label6;
 
 		private global::Gtk.Label label7;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry yentryProductGroup;
 
 		private global::Gamma.Widgets.yEnumComboBox yenumKind;
 
@@ -608,37 +608,35 @@ namespace Vodovoz.Views.Reports
 			this.table4.RowSpacing = ((uint)(6));
 			this.table4.ColumnSpacing = ((uint)(6));
 			// Container child table4.Gtk.Table+TableChild
+			this.entityentryProductGroup = new global::QS.Views.Control.EntityEntry();
+			this.entityentryProductGroup.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryProductGroup.Name = "entityentryProductGroup";
+			this.table4.Add(this.entityentryProductGroup);
+			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.table4[this.entityentryProductGroup]));
+			w37.TopAttach = ((uint)(1));
+			w37.BottomAttach = ((uint)(2));
+			w37.LeftAttach = ((uint)(1));
+			w37.RightAttach = ((uint)(2));
+			w37.XOptions = ((global::Gtk.AttachOptions)(4));
+			w37.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table4.Gtk.Table+TableChild
 			this.label6 = new global::Gtk.Label();
 			this.label6.Name = "label6";
 			this.label6.Xalign = 1F;
 			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Вид:");
 			this.table4.Add(this.label6);
-			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.table4[this.label6]));
-			w37.XOptions = ((global::Gtk.AttachOptions)(4));
-			w37.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.table4[this.label6]));
+			w38.XOptions = ((global::Gtk.AttachOptions)(4));
+			w38.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
 			this.label7 = new global::Gtk.Label();
 			this.label7.Name = "label7";
 			this.label7.Xalign = 1F;
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("Группа:");
 			this.table4.Add(this.label7);
-			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.table4[this.label7]));
-			w38.TopAttach = ((uint)(1));
-			w38.BottomAttach = ((uint)(2));
-			w38.XOptions = ((global::Gtk.AttachOptions)(4));
-			w38.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table4.Gtk.Table+TableChild
-			this.yentryProductGroup = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.yentryProductGroup.WidthRequest = 270;
-			this.yentryProductGroup.Events = ((global::Gdk.EventMask)(256));
-			this.yentryProductGroup.Name = "yentryProductGroup";
-			this.yentryProductGroup.CanEditReference = false;
-			this.table4.Add(this.yentryProductGroup);
-			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.table4[this.yentryProductGroup]));
+			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.table4[this.label7]));
 			w39.TopAttach = ((uint)(1));
 			w39.BottomAttach = ((uint)(2));
-			w39.LeftAttach = ((uint)(1));
-			w39.RightAttach = ((uint)(2));
 			w39.XOptions = ((global::Gtk.AttachOptions)(4));
 			w39.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
