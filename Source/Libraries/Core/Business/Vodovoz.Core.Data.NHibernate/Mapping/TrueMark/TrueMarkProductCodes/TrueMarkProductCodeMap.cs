@@ -30,6 +30,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark.TrueMarkProductCodes
 
 			Map(x => x.DuplicatesCount)
 				.Column("duplicates_count");
+
+			References(x => x.CustomerEdoRequest)
+				.Column("customer_request_id")
+				.Cascade.AllDeleteOrphan();
 		}
 	}
 }
