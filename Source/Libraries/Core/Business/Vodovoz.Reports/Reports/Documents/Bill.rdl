@@ -176,7 +176,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -692,11 +692,11 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             </Style>
           </Textbox>
           <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>30pt</Height>
-            <Width>40pt</Width>
+            <Height>30.00pt</Height>
+            <Width>40.00pt</Width>
             <Value>Сч. №</Value>
             <ZIndex>0</ZIndex>
-            <Left>260pt</Left>
+            <Left>260.0pt</Left>
             <Top>15.1pt</Top>
             <Style>
               <BorderStyle>
@@ -714,11 +714,11 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
           </Textbox>
           <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>30.00pt</Height>
-            <Width>115.00pt</Width>
+            <Width>130.00pt</Width>
             <Value>={cor_account}</Value>
             <ZIndex>0</ZIndex>
-            <Left>300.00pt</Left>
-            <Top>15.10pt</Top>
+            <Left>300.0pt</Left>
+            <Top>15.1pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -755,12 +755,12 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             </Style>
           </Textbox>
           <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>30pt</Height>
-            <Width>220pt</Width>
+            <Height>30.00pt</Height>
+            <Width>220.00pt</Width>
             <Value>={full_name}</Value>
             <ZIndex>0</ZIndex>
-            <Left>40pt</Left>
-            <Top>60.1pt</Top>
+            <Left>40.00pt</Left>
+            <Top>60.10pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -780,7 +780,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
           </Textbox>
           <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.00pt</Height>
-            <Width>115.00pt</Width>
+            <Width>130.00pt</Width>
             <Value>={bik}</Value>
             <ZIndex>0</ZIndex>
             <Left>300.00pt</Left>
@@ -824,7 +824,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
           </Textbox>
           <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>60pt</Height>
-            <Width>115.00pt</Width>
+            <Width>130.00pt</Width>
             <Value>={number}</Value>
             <ZIndex>0</ZIndex>
             <Left>300.00pt</Left>
@@ -2106,7 +2106,7 @@ Iif(
             <Value>= "ST00012|Name=" + First({org_name},'Organization') + "|PersonalAcc=" + First({account},'Organization') + "|BankName=" + First({name},'Organization') + "|BIC=" + First({bik},'Organization') + "|CorrespAcc="+First({cor_account},'Organization') + "|Sum=" + Format(Sum({total}, 'Goods'), "N0") * 100 + "|Purpose=Оплата заказа " + First({order_id},'Order') + "|PayeeINN=" + First({INN},'Organization') + "|KPP=" + First({KPP},'Organization')</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>415.5pt</Left>
+        <Left>431.5pt</Left>
         <Top>63.0pt</Top>
         <ZIndex>10</ZIndex>
       </CustomReportItem>
