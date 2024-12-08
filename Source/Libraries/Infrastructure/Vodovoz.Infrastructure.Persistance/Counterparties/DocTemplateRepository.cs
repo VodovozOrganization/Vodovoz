@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;

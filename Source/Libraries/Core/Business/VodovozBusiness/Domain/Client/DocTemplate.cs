@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Organizations;
 
