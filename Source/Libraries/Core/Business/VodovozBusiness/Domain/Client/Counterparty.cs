@@ -985,7 +985,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Работает через организацию")]
-		public virtual Organization WorksThroughOrganization
+		public virtual new Organization WorksThroughOrganization
 		{
 			get => _worksThroughOrganization;
 			set => SetField(ref _worksThroughOrganization, value);
