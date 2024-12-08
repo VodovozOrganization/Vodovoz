@@ -4,6 +4,7 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Validation;
+using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Domain.StoredResources;
 
 namespace Vodovoz.Dialogs
@@ -15,7 +16,7 @@ namespace Vodovoz.Dialogs
 		{
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<StoredResource>();
-			UoWGeneric.Root.Type = ResoureceType.Image;
+			UoWGeneric.Root.Type = ResourceType.Image;
 			TabName = "Новое изображение";
 			ConfigureDlg();
 		}
@@ -24,7 +25,7 @@ namespace Vodovoz.Dialogs
 		{
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<StoredResource>(id);
-			UoWGeneric.Root.Type = ResoureceType.Image;
+			UoWGeneric.Root.Type = ResourceType.Image;
 			ConfigureDlg();
 		}
 

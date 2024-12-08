@@ -177,4 +177,7 @@
       <Name>Vodovoz.Settings</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Domain\StoredResources\" />
+  </ItemGroup>
 </Project>
