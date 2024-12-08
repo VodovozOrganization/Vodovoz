@@ -370,7 +370,7 @@ namespace Vodovoz.Domain.Orders
 		private CounterpartyContract contract;
 
 		[Display(Name = "Договор")]
-		public virtual CounterpartyContract Contract {
+		public virtual new CounterpartyContract Contract {
 			get => contract;
 			set => SetField(ref contract, value, () => Contract);
 		}

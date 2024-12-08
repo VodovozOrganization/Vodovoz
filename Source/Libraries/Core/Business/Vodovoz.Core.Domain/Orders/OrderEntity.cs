@@ -87,6 +87,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private PaymentFromEntity _paymentByCardFrom;
 		private PaymentType _paymentType;
 		private CounterpartyEntity _client;
+		private CounterpartyContractEntity _contract;
 
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
@@ -602,6 +603,14 @@ namespace Vodovoz.Core.Domain.Orders
 			get => _client;
 			//Нельзя устанавливать, см. логику в Order.cs
 			protected set => SetField(ref _client, value);
+		}
+
+
+		[Display(Name = "Договор")]
+		public virtual CounterpartyContractEntity Contract
+		{
+			get => _contract;
+			set => SetField(ref _contract, value);
 		}
 
 		#region Вычисляемые свойства
