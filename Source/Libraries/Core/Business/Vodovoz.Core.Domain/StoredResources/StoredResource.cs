@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.StoredResources;
 
 namespace Vodovoz.Core.Domain.StoredResources
 {
