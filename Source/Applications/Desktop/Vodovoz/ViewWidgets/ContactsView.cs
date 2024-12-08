@@ -39,19 +39,21 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = DialogHelper.FindParentTab (this);
-			if (mytab == null)
+			var mytab = DialogHelper.FindParentTab(this);
+			if(mytab is null)
+			{
 				return;
+			}
 
-			var parentDlg = DialogHelper.FindParentEntityDialog (this);
-			if (parentDlg == null)
+			var parentDlg = DialogHelper.FindParentEntityDialog(this);
+			if(parentDlg is null)
+			{
 				return;
+			}
 
-			if (parentDlg.UoW.IsNew) {
-				if (CommonDialogs.SaveBeforeCreateSlaveEntity (parentDlg.EntityObject.GetType (), typeof(Contact))) {
-					parentDlg.UoW.Save ();
-				} else
-					return;
+			if(parentDlg.UoW.IsNew)
+			{
+				return;
 			}
 
 			ITdiDialog dlg = new ContactDlg (CounterpartyUoW.Root);
