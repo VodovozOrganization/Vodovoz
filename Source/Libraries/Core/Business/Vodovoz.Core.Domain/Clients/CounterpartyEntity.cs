@@ -6,6 +6,7 @@ using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Core.Domain.Clients
 {
@@ -25,6 +26,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private int _id;
 		private OrderStatusForSendingUpd _orderStatusForSendingUpd;
 		private ConsentForEdoStatus _consentForEdoStatus;
+		private OrganizationEntity _worksThroughOrganization;
 		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
 
 		[Display(Name = "Код")]
@@ -52,6 +54,13 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _orderStatusForSendingUpd;
 			set => SetField(ref _orderStatusForSendingUpd, value);
+		}
+
+		[Display(Name = "Работает через организацию")]
+		public virtual OrganizationEntity WorksThroughOrganization
+		{
+			get => _worksThroughOrganization;
+			set => SetField(ref _worksThroughOrganization, value);
 		}
 
 		[Display(Name = "Информация о прикрепленных файлах")]
