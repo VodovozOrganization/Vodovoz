@@ -35,6 +35,8 @@ namespace Vodovoz.Domain.Organizations
 			KPP = string.Empty;
 			OGRN = string.Empty;
 			Email = string.Empty;
+			OKPO = string.Empty;
+			OKVED = string.Empty;
 		}
 
 		#region Свойства
