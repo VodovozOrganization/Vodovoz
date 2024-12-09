@@ -340,7 +340,7 @@ namespace WarehouseApi.Library.Errors
 			error = null;
 
 			if(!carLoadDocumentItem
-				.TrueMarkCodes.Select(x => x.TrueMarkCode)
+				.TrueMarkCodes.Select(x => x.SourceCode)
 				.Any(x => x.GTIN == trueMarkCode.GTIN && x.SerialNumber == trueMarkCode.SerialNumber && x.CheckCode == trueMarkCode.CheckCode))
 			{
 				error = TrueMarkCodeErrors.CreateTrueMarkCodeForCarLoadDocumentItemNotFound(trueMarkCode.SourceCode);

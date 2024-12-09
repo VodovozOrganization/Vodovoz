@@ -402,7 +402,10 @@ namespace WarehouseApi.Library.Services
 
 			carLoadDocumentItem.TrueMarkCodes.Add(new CarLoadDocumentItemTrueMarkProductCode
 			{
-				TrueMarkCode = codeEntity,
+				SourceCode = codeEntity,
+				ResultCode = codeEntity,
+				Problem = ProductCodeProblem.None,
+				SourceCodeStatus = SourceProductCodeStatus.Accepted,
 				CarLoadDocumentItem = carLoadDocumentItem
 			});
 
@@ -414,14 +417,19 @@ namespace WarehouseApi.Library.Services
 		{
 			var codeToRemove = carLoadDocumentItem.TrueMarkCodes
 				.Where(x =>
-					x.TrueMarkCode.GTIN == oldTrueMarkCode.GTIN
-					&& x.TrueMarkCode.SerialNumber == oldTrueMarkCode.SerialNumber
-					&& x.TrueMarkCode.CheckCode == oldTrueMarkCode.CheckCode)
+					x.SourceCode.GTIN == oldTrueMarkCode.GTIN
+					&& x.SourceCode.SerialNumber == oldTrueMarkCode.SerialNumber
+					&& x.SourceCode.CheckCode == oldTrueMarkCode.CheckCode)
 				.First();
+
+			var codeEntity = CreateTrueMarkCodeEntity(newTrueMarkCode);
 
 			var codeToAdd = new CarLoadDocumentItemTrueMarkProductCode
 			{
-				TrueMarkCode = CreateTrueMarkCodeEntity(newTrueMarkCode),
+				SourceCode = codeEntity,
+				ResultCode = codeEntity,
+				Problem = ProductCodeProblem.None,
+				SourceCodeStatus = SourceProductCodeStatus.Accepted,
 				CarLoadDocumentItem = carLoadDocumentItem
 			};
 
