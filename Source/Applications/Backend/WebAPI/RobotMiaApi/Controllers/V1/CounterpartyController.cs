@@ -22,23 +22,23 @@ namespace RobotMiaApi.Controllers.V1
 	/// </summary>
 	public class CounterpartyController : VersionedController
 	{
-		private readonly IncomingCallCallService _incomingCallCallService;
+		private readonly IncomingCallCallService _incomingCallService;
 		private readonly ICounterpartyService _counterpartyService;
 
 		/// <summary>
 		/// Констркутор
 		/// </summary>
 		/// <param name="logger"></param>
-		/// <param name="incomingCallCallService"></param>
+		/// <param name="incomingCallService"></param>
 		/// <param name="counterpartyService"></param>
 		public CounterpartyController(
 			ILogger<ApiControllerBase> logger,
-			IncomingCallCallService incomingCallCallService,
+			IncomingCallCallService incomingCallService,
 			ICounterpartyService counterpartyService)
 			: base(logger)
 		{
-			_incomingCallCallService = incomingCallCallService
-				?? throw new ArgumentNullException(nameof(incomingCallCallService));
+			_incomingCallService = incomingCallService
+				?? throw new ArgumentNullException(nameof(incomingCallService));
 			_counterpartyService = counterpartyService
 				?? throw new ArgumentNullException(nameof(counterpartyService));
 		}
@@ -67,14 +67,14 @@ namespace RobotMiaApi.Controllers.V1
 
 			if(possibleCounterparties.Count != 1)
 			{
-				await _incomingCallCallService.RegisterCallAsync(callId, phoneNumber, null, unitOfWork);
+				await _incomingCallService.RegisterCallAsync(callId, phoneNumber, null, unitOfWork);
 				await unitOfWork.CommitAsync();
 
 				return Problem("Клиент с данным телефоном не найден", statusCode: StatusCodes.Status404NotFound);
 			}
 			else
 			{
-				await _incomingCallCallService.RegisterCallAsync(callId, phoneNumber, possibleCounterparties.First().Id, unitOfWork);
+				await _incomingCallService.RegisterCallAsync(callId, phoneNumber, possibleCounterparties.First().Id, unitOfWork);
 				await unitOfWork.CommitAsync();
 			}
 

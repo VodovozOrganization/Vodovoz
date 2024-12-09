@@ -4,10 +4,12 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using RobotMiaApi.Contracts.Responses.V1;
 using RobotMiaApi.Extensions.Mapping;
+using RobotMiaApi.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Presentation.WebApi.Common;
@@ -20,19 +22,24 @@ namespace RobotMiaApi.Controllers.V1
 	public class TareNonReturnReasonsController : VersionedController
 	{
 		private readonly IGenericRepository<NonReturnReason> _nonReturnReasonRepository;
+		private readonly IncomingCallCallService _incomingCallService;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
 		/// <param name="logger"></param>
 		/// <param name="nonReturnReasonRepository"></param>
+		/// <param name="incomingCallService"></param>
 		public TareNonReturnReasonsController(
 			ILogger<ApiControllerBase> logger,
-			IGenericRepository<NonReturnReason> nonReturnReasonRepository)
+			IGenericRepository<NonReturnReason> nonReturnReasonRepository,
+			IncomingCallCallService incomingCallService)
 			: base(logger)
 		{
 			_nonReturnReasonRepository = nonReturnReasonRepository
 				?? throw new ArgumentNullException(nameof(nonReturnReasonRepository));
+			_incomingCallService = incomingCallService
+				?? throw new ArgumentNullException(nameof(incomingCallService));
 		}
 
 		/// <summary>
@@ -44,14 +51,21 @@ namespace RobotMiaApi.Controllers.V1
 		[HttpGet]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		public IEnumerable<TareNonReturnReasonDto> Get(
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TareNonReturnReasonDto>))]
+		public async Task<IActionResult> GetAsync(
 			[FromQuery(Name = "call_id"), Required] Guid callId,
 			[FromServices] IUnitOfWork unitOfWork)
 		{
+			var call = await _incomingCallService.GetCallByIdAsync(callId, unitOfWork);
+
+			if(call is null)
+			{
+				return Problem($"Не найдена запись о звонке {callId}", statusCode: StatusCodes.Status400BadRequest);
+			}
+
 			var nonReturnReasons = _nonReturnReasonRepository.Get(unitOfWork);
 
-			return nonReturnReasons.MapToTareNonReturnReasonDtoV1();
+			return Ok(nonReturnReasons.MapToTareNonReturnReasonDtoV1());
 		}
 	}
 }

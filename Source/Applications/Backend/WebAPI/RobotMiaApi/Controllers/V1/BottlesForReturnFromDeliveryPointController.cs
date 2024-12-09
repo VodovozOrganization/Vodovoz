@@ -19,20 +19,20 @@ namespace RobotMiaApi.Controllers.V1
 	public class BottlesForReturnFromDeliveryPointController : VersionedController
 	{
 		private readonly IBottlesRepository _bottlesRepository;
-		private readonly IncomingCallCallService _incomingCallCallService;
+		private readonly IncomingCallCallService _incomingCallService;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
 		/// <param name="logger"></param>
-		/// <param name="incomingCallCallService"></param>
+		/// <param name="incomingCallService"></param>
 		public BottlesForReturnFromDeliveryPointController(
 			ILogger<ApiControllerBase> logger,
-			IncomingCallCallService incomingCallCallService)
+			IncomingCallCallService incomingCallService)
 			: base(logger)
 		{
-			_incomingCallCallService = incomingCallCallService
-				?? throw new ArgumentNullException(nameof(incomingCallCallService));
+			_incomingCallService = incomingCallService
+				?? throw new ArgumentNullException(nameof(incomingCallService));
 		}
 
 		/// <summary>
@@ -51,11 +51,11 @@ namespace RobotMiaApi.Controllers.V1
 			[FromQuery(Name = "delivery_point_id"), Required] int deliveryPointId,
 			[FromServices] IUnitOfWork unitOfWork)
 		{
-			var call = await _incomingCallCallService.GetCallByIdAsync(callId, unitOfWork);
+			var call = await _incomingCallService.GetCallByIdAsync(callId, unitOfWork);
 
 			if(call is null)
 			{
-				return Problem("Не найдено записи о звонке", statusCode: StatusCodes.Status400BadRequest);
+				return Problem($"Не найдена запись о звонке {callId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
 			if(call.CounterpartyId is null)
