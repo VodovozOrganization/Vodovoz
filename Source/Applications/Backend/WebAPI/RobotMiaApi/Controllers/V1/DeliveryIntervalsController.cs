@@ -1,15 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NetTopologySuite.Geometries;
 using QS.DomainModel.UoW;
 using RobotMiaApi.Contracts.Responses.V1;
 using RobotMiaApi.Extensions.Mapping;
+using RobotMiaApi.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Mime;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
@@ -24,6 +25,7 @@ namespace RobotMiaApi.Controllers.V1
 	public class DeliveryIntervalsController : VersionedController
 	{
 		private readonly IGenericRepository<DeliveryPoint> _deliveryPointRepository;
+		private readonly IncomingCallCallService _incomingCallService;
 
 		/// <summary>
 		/// Конструктор
@@ -31,14 +33,18 @@ namespace RobotMiaApi.Controllers.V1
 		/// <param name="logger"></param>
 		/// <param name="deliveryPointRepository"></param>
 		/// <param name="districtRepository"></param>
+		/// <param name="incomingCallService"></param>
 		public DeliveryIntervalsController(
 			ILogger<ApiControllerBase> logger,
 			IGenericRepository<DeliveryPoint> deliveryPointRepository,
-			IGenericRepository<District> districtRepository)
+			IGenericRepository<District> districtRepository,
+			IncomingCallCallService incomingCallService)
 			: base(logger)
 		{
 			_deliveryPointRepository = deliveryPointRepository
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+			_incomingCallService = incomingCallService
+				?? throw new ArgumentNullException(nameof(incomingCallService));
 		}
 
 		/// <summary>
@@ -54,13 +60,20 @@ namespace RobotMiaApi.Controllers.V1
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<DeliveryIntervalDto>))]
-		public IActionResult Get(
+		public async Task<IActionResult> GetAsync(
 			[FromQuery(Name = "call_id"), Required] Guid callId,
 			[FromQuery(Name = "delivery_point_id"), Required] int deliveryPointId,
 			[FromQuery(Name = "delivery_date")] DateTime? deliveryDate,
 			[FromQuery(Name = "nomenclature_ids"), Required] IEnumerable<int> nomenclatureIds,
 			[FromServices] IUnitOfWork unitOfWork)
 		{
+			var call = await _incomingCallService.GetCallByIdAsync(callId, unitOfWork);
+
+			if(call is null)
+			{
+				return Problem($"Не найдена запись о звонке {callId}", statusCode: StatusCodes.Status400BadRequest);
+			}
+
 			District district = null;
 
 			var availableDeliverySchedules = new List<DeliverySchedule>();

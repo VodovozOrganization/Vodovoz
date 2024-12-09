@@ -1,13 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
 using RobotMiaApi.Extensions.Mapping;
+using RobotMiaApi.Services;
 using System;
 using System.Net.Mime;
+using System.Threading.Tasks;
 using Vodovoz.Presentation.WebApi.Common;
 using VodovozBusiness.Services.Orders;
+using CreateOrderRequest = RobotMiaApi.Contracts.Requests.V1.CreateOrderRequest;
 
 namespace RobotMiaApi.Controllers.V1
 {
@@ -17,31 +21,46 @@ namespace RobotMiaApi.Controllers.V1
 	public class OrderController : VersionedController
 	{
 		private readonly IOrderService _orderService;
+		private readonly IncomingCallCallService _incomingCallService;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
 		/// <param name="logger"></param>
 		/// <param name="orderService"></param>
+		/// <param name="incomingCallService"></param>
 		public OrderController(
 			ILogger<ApiControllerBase> logger,
-			IOrderService orderService)
+			IOrderService orderService,
+			IncomingCallCallService incomingCallService)
 			: base(logger)
 		{
 			_orderService = orderService
 				?? throw new ArgumentNullException(nameof(orderService));
+			_incomingCallService = incomingCallService
+				?? throw new ArgumentNullException(nameof(incomingCallService));
 		}
 
 		/// <summary>
 		/// Создание заказа
 		/// </summary>
 		/// <param name="postOrderRequest"></param>
+		/// <param name="unitOfWork"></param>
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public IActionResult Post(Contracts.Requests.V1.CreateOrderRequest postOrderRequest)
+		public async Task<IActionResult> PostAsync(
+			CreateOrderRequest postOrderRequest,
+			[FromServices] IUnitOfWork unitOfWork)
 		{
+			var call = await _incomingCallService.GetCallByIdAsync(postOrderRequest.CallId, unitOfWork);
+
+			if(call is null)
+			{
+				return Problem($"Не найдена запись о звонке {postOrderRequest.CallId}", statusCode: StatusCodes.Status400BadRequest);
+			}
+
 			var createdOrderId = _orderService.CreateAndAcceptOrder(postOrderRequest.MapToCreateOrderRequest());
 
 			_logger.LogInformation("Создан заказ #{OrderId}", createdOrderId);
@@ -53,20 +72,30 @@ namespace RobotMiaApi.Controllers.V1
 		/// Вычисление цены заказа
 		/// </summary>
 		/// <param name="calculatePriceRequest"></param>
+		/// <param name="unitOfWork"></param>
 		/// <returns></returns>
 		[HttpPost("CalculatePrice")]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		public CalculatePriceResponse CalculatePrice(CalculatePriceRequest calculatePriceRequest)
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CalculatePriceResponse))]
+		public async Task<IActionResult> CalculatePriceAsync(
+			CalculatePriceRequest calculatePriceRequest,
+			[FromServices] IUnitOfWork unitOfWork)
 		{
+			var call = await _incomingCallService.GetCallByIdAsync(calculatePriceRequest.CallId, unitOfWork);
+
+			if(call is null)
+			{
+				return Problem($"Не найдена запись о звонке {calculatePriceRequest.CallId}", statusCode: StatusCodes.Status400BadRequest);
+			}
+
 			(var orderPrice, var deliveryPrice) = _orderService.GetOrderAndDeliveryPrices(calculatePriceRequest.MapToCreateOrderRequest());
 
-			return new CalculatePriceResponse
+			return Ok(new CalculatePriceResponse
 			{
 				OrderPrice = orderPrice,
 				DeliveryPrice = deliveryPrice
-			};
+			});
 		}
 	}
 }
