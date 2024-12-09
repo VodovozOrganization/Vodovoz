@@ -9,11 +9,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.TrueMark;
@@ -46,6 +49,7 @@ namespace DriverAPI.Library.V5.Services
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 		private readonly IOrderSettings _orderSettings;
+		private readonly IGenericRepository<TrueMarkWaterIdentificationCode> _trueMarkIdentificationCodeRepository;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -61,7 +65,8 @@ namespace DriverAPI.Library.V5.Services
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			QrPaymentConverter qrPaymentConverter,
 			IFastPaymentService fastPaymentModel,
-			IOrderSettings orderSettings)
+			IOrderSettings orderSettings,
+			IGenericRepository<TrueMarkWaterIdentificationCode> trueMarkIdentificationCodeRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -77,6 +82,7 @@ namespace DriverAPI.Library.V5.Services
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_trueMarkIdentificationCodeRepository = trueMarkIdentificationCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkIdentificationCodeRepository));
 		}
 
 		/// <summary>
@@ -331,7 +337,7 @@ namespace DriverAPI.Library.V5.Services
 				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
 			}
 
-			SaveScannedCodes(actionTime, completeOrderInfo);
+			SaveScannedCodes(actionTime, completeOrderInfo, routeListAddress);
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
 
@@ -407,7 +413,7 @@ namespace DriverAPI.Library.V5.Services
 				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
 			}
 
-			SaveScannedCodes(actionTime, completeOrderInfo);
+			SaveScannedCodes(actionTime, completeOrderInfo, routeListAddress);
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
 
@@ -563,32 +569,134 @@ namespace DriverAPI.Library.V5.Services
 			}
 		}
 
-		private void SaveScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo)
+		private void SaveScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListItem)
 		{
 			if(completeOrderInfo.ScannedItems == null)
 			{
 				return;
 			}
 
-			var cashReceiptExists = _uow.Session.QueryOver<CashReceipt>()
-				.Where(x => x.Order.Id == completeOrderInfo.OrderId).List().Any();
-
-			if(cashReceiptExists)
+			foreach(var orderSaleItem in completeOrderInfo.ScannedItems)
 			{
-				_logger.LogInformation("Получен повторный запрос на сохранение кодов для заказа {0}", completeOrderInfo.OrderId);
-				return;
+				var orderItem = _uow.GetById<OrderItem>(orderSaleItem.OrderSaleItemId);
+
+				if(orderItem is null)
+				{
+					var exceptionMessage = $"Строка заказа с номером {orderSaleItem.OrderSaleItemId} не найдена";
+
+					throw new InvalidOperationException(exceptionMessage);
+				}
+
+				foreach(var code in orderSaleItem.BottleCodes)
+				{
+					CreateTrueMarkProductCode(actionTime, code, routeListItem);
+				}
 			}
 
-			var orderId = completeOrderInfo.OrderId;
-			var unprocessedCodes = _orderRepository.GetIsAccountableInTrueMarkOrderItemsCount(_uow, orderId);
-			if(unprocessedCodes > CashReceipt.MaxMarkCodesInReceipt)
+			////foreach(var code in completeOrderInfo.ScannedItems.SelectMany(x => x.BottleCodes))
+			////{
+			////	CreateTrueMarkProductCode(actionTime, code, routeListItem);
+			////}
+
+			//var cashReceiptExists = _uow.Session.QueryOver<CashReceipt>()
+			//	.Where(x => x.Order.Id == completeOrderInfo.OrderId).List().Any();
+
+			//if(cashReceiptExists)
+			//{
+			//	_logger.LogInformation("Получен повторный запрос на сохранение кодов для заказа {0}", completeOrderInfo.OrderId);
+			//	return;
+			//}
+
+			//var orderId = completeOrderInfo.OrderId;
+			//var unprocessedCodes = _orderRepository.GetIsAccountableInTrueMarkOrderItemsCount(_uow, orderId);
+			//if(unprocessedCodes > CashReceipt.MaxMarkCodesInReceipt)
+			//{
+			//	CreateCashReceipts(completeOrderInfo, orderId, actionTime, unprocessedCodes);
+			//}
+			//else
+			//{
+			//	CreateCashReceipt(completeOrderInfo, orderId, actionTime);
+			//}
+		}
+
+		private void CreateTrueMarkProductCode(DateTime actionTime, string code, RouteListItem routeListAddress)
+		{
+			var productCode = new RouteListItemTrueMarkProductCode
 			{
-				CreateCashReceipts(completeOrderInfo, orderId, actionTime, unprocessedCodes);
+				RouteListItem = routeListAddress,
+				CreationTime = actionTime
+			};
+
+			TrueMarkWaterIdentificationCode codeEntity;
+
+			var isValidTrueMarkCode = _trueMarkWaterCodeParser.TryParse(code, out TrueMarkWaterCode parsedCode);
+
+			if(isValidTrueMarkCode)
+			{
+				var isCodeExistsInDatabase = TryLoadTrueMarkIdentificationCode(parsedCode.SourceCode, out codeEntity);
+
+				if(!isCodeExistsInDatabase)
+				{
+					codeEntity = new TrueMarkWaterIdentificationCode
+					{
+						IsInvalid = false,
+						RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length)),
+						GTIN = parsedCode.GTIN,
+						SerialNumber = parsedCode.SerialNumber,
+						CheckCode = parsedCode.CheckCode
+					};
+
+					productCode.SourceCode = codeEntity;
+					productCode.ResultCode = codeEntity;
+					productCode.Problem = ProductCodeProblem.None;
+					productCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;
+
+					_uow.Save(codeEntity);
+				}
+				else
+				{
+					productCode.SourceCode = codeEntity;
+					productCode.ResultCode = null;
+					productCode.Problem = ProductCodeProblem.Duplicate;
+					productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
+				}
 			}
 			else
 			{
-				CreateCashReceipt(completeOrderInfo, orderId, actionTime);
+				var isCodeExistsInDatabase = TryLoadTrueMarkIdentificationCode(code, out codeEntity);
+
+				if(!isCodeExistsInDatabase)
+				{
+					codeEntity = new TrueMarkWaterIdentificationCode
+					{
+						IsInvalid = true,
+						RawCode = code.Substring(0, Math.Min(255, code.Length)),
+					};
+
+					productCode.SourceCode = codeEntity;
+					productCode.ResultCode = null;
+					productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
+
+					_uow.Save(codeEntity);
+				}
+				else
+				{
+					productCode.SourceCode = codeEntity;
+					productCode.ResultCode = null;
+					productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
+				}
 			}
+
+			_uow.Save(productCode);
+		}
+
+		private bool TryLoadTrueMarkIdentificationCode(string code, out TrueMarkWaterIdentificationCode codeEntity)
+		{
+			codeEntity = _trueMarkIdentificationCodeRepository
+				.GetValue(_uow, x => x, x => x.RawCode == code)
+				.SingleOrDefault();
+
+			return codeEntity != null;
 		}
 
 		private void CreateCashReceipts(
