@@ -1,7 +1,9 @@
+using CustomerAppsApi.Library.Dto.Counterparties;
+
 namespace CustomerAppsApi.Library.Models
 {
 	public interface IOrderModel
 	{
-		bool CanCounterpartyOrderPromoSetForNewClients(int counterpartyId);
+		bool CanCounterpartyOrderPromoSetForNewClients(FreeLoaderCheckingDto freeLoaderCheckingDto);
 	}
 }

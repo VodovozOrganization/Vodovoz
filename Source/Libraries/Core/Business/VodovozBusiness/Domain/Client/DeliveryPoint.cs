@@ -100,6 +100,7 @@ namespace Vodovoz.Domain.Client
 		private DeliveryPointCategory _category;
 		private string _onlineComment;
 		private string _intercom;
+		private string _buildingFromOnline;
 		public const int IntercomMaxLength = 100;
 
 		public DeliveryPoint()
@@ -778,6 +779,17 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _intercom;
 			set => SetField(ref _intercom, value);
+		}
+		
+		/// <summary>
+		/// Номер дома из ИПЗ, как есть(без форматирования)
+		/// </summary>
+		[Display(Name = "Номер дома из ИПЗ, как есть(без форматирования)")]
+		[IgnoreHistoryTrace]
+		public virtual string BuildingFromOnline
+		{
+			get => _buildingFromOnline;
+			set => SetField(ref _buildingFromOnline, value);
 		}
 
 		#endregion

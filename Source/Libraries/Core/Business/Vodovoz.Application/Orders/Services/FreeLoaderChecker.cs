@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -104,7 +104,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			if(!CanOrderPromoSetForNewClientsByBuildingFiasGuid(
-				   uow, isSelfDelivery, deliveryPoint.BuildingFiasGuid, deliveryPoint.Room))
+				uow, isSelfDelivery, deliveryPoint.BuildingFiasGuid, deliveryPoint.Room))
 			{
 				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
 			}

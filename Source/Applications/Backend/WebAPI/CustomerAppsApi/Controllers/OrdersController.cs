@@ -1,15 +1,14 @@
 ﻿using System;
+using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Models;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Controllers
 {
 	[ApiController]
-	[Route("/api/")]
+	[Route("/api/[action]")]
 	public class OrdersController : ControllerBase
 	{
 		private readonly ILogger<CounterpartyController> _logger;
@@ -23,24 +22,24 @@ namespace CustomerAppsApi.Controllers
 			_orderModel = orderModel ?? throw new ArgumentNullException(nameof(orderModel));
 		}
 		
-		[HttpGet("CanCounterpartyOrderPromoSetForNewClients")]
-		public bool CanCounterpartyOrderPromoSetForNewClients([FromQuery] Source source, int erpCounterpartyId)
+		[HttpGet]
+		public bool CanCounterpartyOrderPromoSetForNewClients([FromBody] FreeLoaderCheckingDto freeLoaderCheckingDto)
 		{
-			var sourceName = source.GetEnumTitle();
+			var sourceName = freeLoaderCheckingDto.Source.GetEnumTitle();
 			var canOrder = false;
 			try
 			{
 				_logger.LogInformation(
 					"Поступил запрос от {Source} по проверке доступности промонаборов для новых клиентов для клиента с Id {CounterpartyId}",
 					sourceName,
-					erpCounterpartyId);
-				canOrder = _orderModel.CanCounterpartyOrderPromoSetForNewClients(erpCounterpartyId);
+					freeLoaderCheckingDto.ErpCounterpartyId);
+				canOrder = _orderModel.CanCounterpartyOrderPromoSetForNewClients(freeLoaderCheckingDto);
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e,
 					"Ошибка при проверке доступности промонаборов для новых клиентов для клиента с Id {CounterpartyId} от {Source}",
-					erpCounterpartyId,
+					freeLoaderCheckingDto.ErpCounterpartyId,
 					sourceName);
 			}
 			
