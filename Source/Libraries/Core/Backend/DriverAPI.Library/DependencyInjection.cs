@@ -5,6 +5,7 @@ using EventsApi.Library.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using TrueMarkApi.Client;
 using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Controllers;
@@ -17,6 +18,7 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.NotificationRecievers;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
@@ -81,7 +83,12 @@ namespace DriverAPI.Library
 				.AddScoped<ISmsPaymentService, SmsPaymentService>()
 				.AddScoped<IDriverComplaintService, DriverComplaintService>()
 				.AddScoped<IFastPaymentService, FastPaymentService>()
-				.AddScoped<ITrueMarkCodesSerivce, TrueMarkCodesSerivce>();
+				.AddScoped<ITrueMarkCodesSerivce, TrueMarkCodesSerivce>()
+				.AddScoped<TrueMarkWaterCodeParser>()
+				.AddScoped<TrueMarkCodesChecker>()
+				.AddScoped<TrueMarkApiClientFactory>()
+				.AddScoped(sp => sp.GetRequiredService<TrueMarkApiClientFactory>().GetClient())
+				.AddScoped<TrueMarkTransactionalCodesPool>();
 		}
 	}
 }

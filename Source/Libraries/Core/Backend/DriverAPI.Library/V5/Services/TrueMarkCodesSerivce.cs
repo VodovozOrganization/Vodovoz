@@ -34,7 +34,7 @@ namespace DriverAPI.Library.V5.Services
 		private readonly IGenericRepository<TrueMarkWaterIdentificationCode> _trueMarkIdentificationCodeRepository;
 		private readonly IGenericRepository<RouteListItemTrueMarkProductCode> _routeListItemTrueMarkProductCodeRepository;
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
-
+		private readonly TrueMarkTransactionalCodesPool _codesPool;
 		private readonly IList<string> _organizationsInns;
 
 		public TrueMarkCodesSerivce(
@@ -45,7 +45,8 @@ namespace DriverAPI.Library.V5.Services
 			IGenericRepository<Organization> organizationRepository,
 			IGenericRepository<RouteListItemTrueMarkProductCode> routeListItemTrueMarkProductCodeRepository,
 			TrueMarkCodesChecker trueMarkCodesChecker,
-			IEdoSettings edoSettings)
+			IEdoSettings edoSettings,
+			TrueMarkTransactionalCodesPool codesPool)
 		{
 			if(uow is null)
 			{
@@ -67,7 +68,7 @@ namespace DriverAPI.Library.V5.Services
 			_trueMarkIdentificationCodeRepository = trueMarkIdentificationCodeRepository ?? throw new System.ArgumentNullException(nameof(trueMarkIdentificationCodeRepository));
 			_routeListItemTrueMarkProductCodeRepository = routeListItemTrueMarkProductCodeRepository ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodeRepository));
 			_trueMarkCodesChecker = trueMarkCodesChecker ?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
-
+			_codesPool = codesPool ?? throw new ArgumentNullException(nameof(codesPool));
 			_organizationsInns =
 				organizationRepository
 				.Get(uow, x => edoSettings.OrganizationsHavingAccountsInTrueMark.Contains(x.Id)).Select(x => x.INN)
@@ -404,6 +405,12 @@ namespace DriverAPI.Library.V5.Services
 				.FirstOrDefault();
 
 			return productCode != null;
+		}
+
+		private TrueMarkWaterIdentificationCode GetCodeFromPool(IUnitOfWork uow, string gtin)
+		{
+			var codeId = _codesPool.TakeCode(gtin);
+			return _trueMarkIdentificationCodeRepository.Get(uow, x => x.Id == codeId).FirstOrDefault();
 		}
 
 		private void LogError(Error error)
