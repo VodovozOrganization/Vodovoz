@@ -1,11 +1,10 @@
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.Application.Logistics.RouteOptimization
+namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
 	/// <summary>
 	/// Класс используется для указания адресов маршрута и хранения рассчитанных

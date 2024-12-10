@@ -28,6 +28,9 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Google.OrTools">
+      <HintPath>..\Vodovoz\libs\Google.OrTools\Win\Google.OrTools.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="Microsoft.CSharp" />
@@ -397,6 +400,23 @@
     <Compile Include="ReportsParameters\Wages\DriverWagesReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\ForwarderWageReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\WagesOperationsReportViewModel.cs" />
+    <Compile Include="Services\RouteOptimization\CalculatedOrder.cs" />
+    <Compile Include="Services\RouteOptimization\CallbackAddressCount.cs" />
+    <Compile Include="Services\RouteOptimization\CallbackBottles.cs" />
+    <Compile Include="Services\RouteOptimization\CallbackDistance.cs" />
+    <Compile Include="Services\RouteOptimization\CallbackDistanceDistrict.cs" />
+    <Compile Include="Services\RouteOptimization\CallbackMonitor.cs" />
+    <Compile Include="Services\RouteOptimization\CallbackTime.cs" />
+    <Compile Include="Services\RouteOptimization\CallbackVolume.cs" />
+    <Compile Include="Services\RouteOptimization\CallbackWeight.cs" />
+    <Compile Include="Services\RouteOptimization\ExtDistanceCalculator.cs" />
+    <Compile Include="Services\RouteOptimization\ExtDistanceCalculator.NextPos.cs" />
+    <Compile Include="Services\RouteOptimization\IExtDistanceCalculator.cs" />
+    <Compile Include="Services\RouteOptimization\IRouteOptimizer.cs" />
+    <Compile Include="Services\RouteOptimization\PossibleTrip.cs" />
+    <Compile Include="Services\RouteOptimization\ProposedRoute.cs" />
+    <Compile Include="Services\RouteOptimization\ProposedRoutePoint.cs" />
+    <Compile Include="Services\RouteOptimization\RouteOptimizer.cs" />
     <Compile Include="TempAdapters\IReportExporter.cs" />
     <Compile Include="TempAdapters\PacsViewModelOpener.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
@@ -1280,6 +1300,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Services\RouteOptimization\README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

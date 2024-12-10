@@ -57,17 +57,6 @@ namespace Vodovoz.Services.Logistics
 			IUnitOfWork unitOfWork,
 			RouteList routeList);
 
-		Result<IEnumerable<string>> TryChangeStatusToAccepted(
-			IUnitOfWork unitOfWork,
-			RouteList routeList,
-			Action<bool> disableItemsUpdate,
-			IValidator validationService,
-			IOrderRepository orderRepository,
-			bool skipOverfillValidation = false,
-			bool confirmRecalculateRoute = false,
-			bool confirmSendOnClosing = false,
-			bool confirmSenEnRoute = false);
-
 		Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
 
 		Result<RouteListItem> FindTransferTarget(IUnitOfWork unitOfWork, RouteListItem routeListAddress);

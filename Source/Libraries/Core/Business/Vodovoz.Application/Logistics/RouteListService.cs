@@ -1,14 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using MoreLinq;
 using NHibernate;
-using NHibernate.Util;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
@@ -42,7 +39,6 @@ namespace Vodovoz.Application.Logistics
 		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly IGenericRepository<ProductGroup> _productGroupRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
-		private readonly IRouteOptimizer _routeOptimizer;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IAddressTransferController _addressTransferController;
@@ -50,10 +46,8 @@ namespace Vodovoz.Application.Logistics
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IDeliveryRepository _deliveryRepository;
-		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
-		private readonly RouteGeometryCalculator _routeGeometryCalculator;
 		private readonly IGenericRepository<AddressTransferDocumentItem> _routeListAddressTransferItemRepository;
 		private readonly IGenericRepository<RouteListItem> _routeListAddressesRepository;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -67,7 +61,6 @@ namespace Vodovoz.Application.Logistics
 			IGenericRepository<Employee> employeeRepository,
 			IGenericRepository<ProductGroup> productGroupRepository,
 			ICallTaskWorker callTaskWorker,
-			IRouteOptimizer routeOptimizer,
 			IWageParameterService wageParameterService,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IAddressTransferController addressTransferController,
@@ -75,10 +68,8 @@ namespace Vodovoz.Application.Logistics
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDeliveryRepository deliveryRepository,
-			ITrackRepository trackRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			INomenclatureSettings nomenclatureSettings,
-			RouteGeometryCalculator routeGeometryCalculator,
 			IGenericRepository<AddressTransferDocumentItem> routeListAddressTransferItemRepository,
 			IGenericRepository<RouteListItem> routeListAddressesRepository,
 			IUnitOfWorkFactory unitOfWorkFactory)
@@ -97,8 +88,6 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(employeeRepository));
 			_callTaskWorker = callTaskWorker
 				?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_routeOptimizer = routeOptimizer
-				?? throw new ArgumentNullException(nameof(routeOptimizer));
 			_wageParameterService = wageParameterService
 				?? throw new ArgumentNullException(nameof(wageParameterService));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings
@@ -113,14 +102,10 @@ namespace Vodovoz.Application.Logistics
 				?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_deliveryRepository = deliveryRepository
 				?? throw new ArgumentNullException(nameof(deliveryRepository));
-			_trackRepository = trackRepository
-				?? throw new ArgumentNullException(nameof(trackRepository));
 			_routeListProfitabilityController = routeListProfitabilityController
 				?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_nomenclatureSettings = nomenclatureSettings
 				?? throw new ArgumentNullException(nameof(nomenclatureSettings));
-			_routeGeometryCalculator = routeGeometryCalculator
-				?? throw new ArgumentNullException(nameof(routeGeometryCalculator));
 			_productGroupRepository = productGroupRepository
 				?? throw new ArgumentNullException(nameof(productGroupRepository));
 			_routeListAddressTransferItemRepository = routeListAddressTransferItemRepository
@@ -927,134 +912,6 @@ namespace Vodovoz.Application.Logistics
 
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, routeList);
 			unitOfWork.Save(routeList.RouteListProfitability);
-		}
-
-		public Result<IEnumerable<string>> TryChangeStatusToAccepted(
-			IUnitOfWork unitOfWork,
-			RouteList routeList,
-			Action<bool> disableItemsUpdate,
-			IValidator validationService,
-			IOrderRepository orderRepository,
-			bool skipOverfillValidation = false,
-			bool confirmRecalculateRoute = false,
-			bool confirmSendOnClosing = false,
-			bool confirmSenEnRoute = false)
-		{
-			var validationResult = ValidateForAccept(routeList, orderRepository, skipOverfillValidation);
-
-			var messages = new List<string>();
-
-			if(validationResult.IsFailure)
-			{
-				return Result.Failure<IEnumerable<string>>(validationResult.Errors);
-			}
-
-			if(routeList.Status != RouteListStatus.New)
-			{
-				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.IncorrectStatusForAccept);
-			}
-
-			var contextItems = new Dictionary<object, object>
-			{
-				{ "NewStatus", RouteListStatus.Confirmed },
-				{ nameof(IRouteListItemRepository), _routeListItemRepository }
-			};
-
-			var context = new ValidationContext(routeList, null, contextItems);
-
-			if(!validationService.Validate(routeList, context))
-			{
-				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.ValidationFailure);
-			}
-
-			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
-
-			//Строим маршрут для МЛ.
-			if((!routeList.PrintsHistory?.Any() ?? true) || confirmRecalculateRoute)
-			{
-				var newRoute = _routeOptimizer.RebuidOneRoute(routeList);
-
-				if(newRoute != null)
-				{
-					disableItemsUpdate(true);
-					newRoute.UpdateAddressOrderInRealRoute(routeList);
-
-					//Рассчитываем расстояние
-					routeList.RecalculatePlanedDistance(_routeGeometryCalculator);
-					disableItemsUpdate(false);
-
-					var noPlan = routeList.Addresses.Count(x => !x.PlanTimeStart.HasValue);
-
-					if(noPlan > 0)
-					{
-						messages.Add($"Для маршрута незапланировано {noPlan} адресов.");
-					}
-				}
-				else
-				{
-					messages.Add("Маршрут не был перестроен.");
-				}
-			}
-
-			_logger.LogInformation("Создаём операции по свободным остаткам МЛ {RouteListId}...", routeList.Id);
-
-			foreach(var address in routeList.Addresses)
-			{
-				if(address.TransferedTo == null &&
-				   (!address.WasTransfered || address.AddressTransferType != AddressTransferType.FromHandToHand))
-				{
-					_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
-						unitOfWork, address, DeliveryFreeBalanceType.Decrease, isFullRecreation: true, needRouteListUpdate: true);
-				}
-				else
-				{
-					_routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(unitOfWork, address, true);
-				}
-			}
-
-			_logger.LogInformation("Операции по свободным остаткакам МЛ {RouteListId} созданы.", routeList.Id);
-
-			if(routeList.GetCarVersion.IsCompanyCar && routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !routeList.NeedToLoad)
-			{
-				if(confirmSendOnClosing)
-				{
-					routeList.CompleteRouteAndCreateTask(_wageParameterService, _callTaskWorker, _trackRepository);
-				}
-			}
-			else
-			{
-				//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
-				var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
-
-				if(!routeList.NeedToLoad && !needTerminal)
-				{
-					if(confirmSenEnRoute)
-					{
-						var contextItemsEnroute = new Dictionary<object, object>
-						{
-							{ "NewStatus", RouteListStatus.EnRoute },
-							{ nameof(IRouteListItemRepository), _routeListItemRepository }
-						};
-
-						var contextEnroute = new ValidationContext(routeList, null, contextItemsEnroute);
-
-						if(!validationService.Validate(routeList, contextEnroute))
-						{
-							return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.ValidationFailure);
-						}
-
-						SendEnRoute(unitOfWork, routeList);
-					}
-					else
-					{
-						routeList.ChangeStatusAndCreateTask(RouteListStatus.New, _callTaskWorker);
-					}
-				}
-			}
-
-			RecalculateRouteList(unitOfWork, routeList);
-
-			return Result.Success(messages.AsEnumerable());
 		}
 
 		public Result TryChangeStatusToNew(IUnitOfWork unitOfWork, RouteList routeList)

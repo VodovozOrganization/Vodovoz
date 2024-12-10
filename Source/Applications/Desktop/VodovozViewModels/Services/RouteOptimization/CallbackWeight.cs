@@ -1,7 +1,7 @@
 ﻿using Google.OrTools.ConstraintSolver;
 using Microsoft.Extensions.Logging;
 
-namespace Vodovoz.Application.Logistics.RouteOptimization
+namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
 	/// <summary>
 	/// Класс обратного вызова, возвращает вес груза в заказе в килограммах
