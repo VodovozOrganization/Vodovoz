@@ -219,6 +219,20 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 						residuesInSlice += residuesAtDate / (decimal)residueMedianDays;
 						slicesValue += residuesInSlice * (decimal)residueMedianDays;
 
+						var lastResidue = residuesAtDates
+							.Where(pair => pair.Key >= slice.StartDate
+								&& pair.Key <= slice.EndDate)
+							.LastOrDefault();
+
+						var residueOfCurrentMomenclatureAndWarehouse = lastResidue
+							.Value
+							.Where(x => x.NomenclatureId == nsn.Id
+								&& x.WarehouseId == wsn.Id)
+							.LastOrDefault();
+
+						var residueAtEndOfSlice =
+							residueOfCurrentMomenclatureAndWarehouse?.StockAmount;
+
 						if(warehouseToNomenclatureSalesGroup != null)
 						{
 							var sliceItems = warehouseToNomenclatureSalesGroup
@@ -233,16 +247,6 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 							if(sliceSalesSum is null
 								|| sliceSalesSum == 0m)
 							{
-								var residueAtEndOfSlice = residuesAtDates
-									.Where(pair => pair.Key >= slice.StartDate
-										&& pair.Key <= slice.EndDate)
-									.LastOrDefault()
-									.Value
-									.Where(x => x.NomenclatureId == nsn.Id
-										&& x.WarehouseId == wsn.Id)
-									.LastOrDefault()
-									.StockAmount;
-
 								sliceValue = $"{_noSalesPrefix}{residueAtEndOfSlice:##0.000}";
 							}
 							else
@@ -256,13 +260,19 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 						}
 						else
 						{
-							sliceValues.Add($"{_noSalesPrefix} {residuesInSlice:0.000}");
+							sliceValues.Add($"{_noSalesPrefix} {residueAtEndOfSlice:0.000}");
 						}
 					}
 
+					string total;
+
 					if(slicesSales == 0)
 					{
-						slicesSales = 1;
+						total = "Продаж не было";
+					}
+					else
+					{
+						total = $"{slicesValue / slicesSales:0.000}";
 					}
 
 					reportRows.Add(new TurnoverOfWarehouseBalancesReportRow
@@ -270,7 +280,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 						WarehouseName = wsn.Name,
 						NomanclatureName = nsn.Name,
 						SliceValues = sliceValues,
-						Total = slicesValue / slicesSales
+						Total = total
 					});
 				}
 			}
