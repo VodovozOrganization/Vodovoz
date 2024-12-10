@@ -80,7 +80,8 @@ namespace DriverAPI.Library
 				.AddScoped<IEmployeeService, EmployeeService>()
 				.AddScoped<ISmsPaymentService, SmsPaymentService>()
 				.AddScoped<IDriverComplaintService, DriverComplaintService>()
-				.AddScoped<IFastPaymentService, FastPaymentService>();
+				.AddScoped<IFastPaymentService, FastPaymentService>()
+				.AddScoped<ITrueMarkCodesSerivce, TrueMarkCodesSerivce>();
 		}
 	}
 }

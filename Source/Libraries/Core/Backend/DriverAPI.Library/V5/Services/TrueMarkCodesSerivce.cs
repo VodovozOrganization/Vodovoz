@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Errors;
@@ -21,11 +21,18 @@ namespace DriverAPI.Library.V5.Services
 	/// <summary>
 	/// Сервис проверки кодов ЧЗ для водительского приложения
 	/// </summary>
-	public class TrueMarkCodesSerivce
+	public class TrueMarkCodesSerivce : ITrueMarkCodesSerivce
 	{
+		private readonly IList<SourceProductCodeStatus> _productCodesStatusesToCheckDuplicates = new List<SourceProductCodeStatus>
+		{
+			SourceProductCodeStatus.Accepted,
+			SourceProductCodeStatus.Accepted
+		};
+
 		private readonly ILogger<TrueMarkCodesSerivce> _logger;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly IGenericRepository<TrueMarkWaterIdentificationCode> _trueMarkIdentificationCodeRepository;
+		private readonly IGenericRepository<RouteListItemTrueMarkProductCode> _routeListItemTrueMarkProductCodeRepository;
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 
 		private readonly IList<string> _organizationsInns;
@@ -36,6 +43,7 @@ namespace DriverAPI.Library.V5.Services
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			IGenericRepository<TrueMarkWaterIdentificationCode> trueMarkIdentificationCodeRepository,
 			IGenericRepository<Organization> organizationRepository,
+			IGenericRepository<RouteListItemTrueMarkProductCode> routeListItemTrueMarkProductCodeRepository,
 			TrueMarkCodesChecker trueMarkCodesChecker,
 			IEdoSettings edoSettings)
 		{
@@ -57,6 +65,7 @@ namespace DriverAPI.Library.V5.Services
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new System.ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_trueMarkIdentificationCodeRepository = trueMarkIdentificationCodeRepository ?? throw new System.ArgumentNullException(nameof(trueMarkIdentificationCodeRepository));
+			_routeListItemTrueMarkProductCodeRepository = routeListItemTrueMarkProductCodeRepository ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodeRepository));
 			_trueMarkCodesChecker = trueMarkCodesChecker ?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
 
 			_organizationsInns =
@@ -137,34 +146,22 @@ namespace DriverAPI.Library.V5.Services
 		}
 
 		/// <summary>
-		/// Допустима замена кода из пула кодов
-		/// </summary>
-		/// <param name="order">Заказ</param>
-		/// <returns></returns>
-		public bool IsCanGetTrueMarkCodesForOrderFromPool(Order order)
-		{
-			return order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds;
-		}
-
-		/// <summary>
 		/// Проверяется, что кол-во кодов соответствует кол-ву бутылей в строке заказа
 		/// </summary>
 		/// <param name="codes">Список сущностей кодов ЧЗ</param>
 		/// <param name="orderItem">Строка заказа</param>
-		/// <param name="errors">Список ошибок. Заполняется по результату проверки.</param>
 		/// <returns>Результат проверки</returns>
-		public bool IsAllTrueMarkCodesAddedToOrderItem(
+		public Result IsAllTrueMarkCodesAddedToOrderItem(
 			IEnumerable<TrueMarkWaterIdentificationCode> codes,
-			OrderItem orderItem,
-			out IList<Error> errors)
+			OrderItem orderItem)
 		{
-			errors = new List<Error>();
+			var errors = new List<Error>();
 
 			var nomenclature = orderItem.Nomenclature;
 
 			if(!nomenclature.IsAccountableInTrueMark)
 			{
-				return true;
+				return Result.Success();
 			}
 
 			if(codes.Count() != orderItem.Count)
@@ -174,7 +171,9 @@ namespace DriverAPI.Library.V5.Services
 				LogError(error);
 			}
 
-			return !errors.Any();
+			return errors.Any()
+					? Result.Failure(errors)
+					: Result.Success();
 		}
 
 		/// <summary>
@@ -182,20 +181,18 @@ namespace DriverAPI.Library.V5.Services
 		/// </summary>
 		/// <param name="codes">Список сущностей кодов ЧЗ</param>
 		/// <param name="orderItem">Строка заказа</param>
-		/// <param name="errors">Список ошибок. Заполняется по результату проверки.</param>
 		/// <returns>Результат проверки</returns>
-		public bool IsAllTrueMarkCodeGtinsMatchesToNomenclatureGtin(
+		public Result IsAllTrueMarkCodeGtinsMatchesToNomenclatureGtin(
 			IEnumerable<TrueMarkWaterIdentificationCode> codes,
-			OrderItem orderItem,
-			out IList<Error> errors)
+			OrderItem orderItem)
 		{
-			errors = new List<Error>();
+			var errors = new List<Error>();
 
 			var nomenclature = orderItem.Nomenclature;
 
 			if(!nomenclature.IsAccountableInTrueMark)
 			{
-				return true;
+				return Result.Success();
 			}
 
 			var counter = 1;
@@ -212,9 +209,55 @@ namespace DriverAPI.Library.V5.Services
 				}
 			}
 
-			return !errors.Any();
+			return errors.Any()
+					? Result.Failure(errors)
+					: Result.Success();
 		}
 
+		/// <summary>
+		/// У всех кодов отсутсвуют дубликаты
+		/// </summary>
+		/// <param name="uow">UOW</param>
+		/// <param name="codes">Список сущностей кодов ЧЗ</param>
+		/// <returns>Результат проверки</returns>
+		public Result IsAllTrueMarkCodesHasNoDuplicates(
+			IUnitOfWork uow,
+			IEnumerable<TrueMarkWaterIdentificationCode> codes)
+		{
+			var errors = new List<Error>();
+
+			var codeIds = codes.Where(x => x.Id != 0).Select(x => x.Id).Distinct().ToList();
+
+			var duplicateIds =
+				_routeListItemTrueMarkProductCodeRepository
+				.Get(uow, x => codeIds.Contains(x.ResultCode.Id) && _productCodesStatusesToCheckDuplicates.Contains(x.SourceCodeStatus))
+				.Select(x => x.Id);
+
+			var counter = 1;
+
+			foreach(var code in codes)
+			{
+				if(duplicateIds.Contains(code.Id))
+				{
+					var error = TrueMarkCodeErrors.CreateTrueMarkCodeIsAlreadyExists($"Порядковый номер {counter}");
+					LogError(error);
+					errors.Add(error);
+				}
+
+				counter++;
+			}
+
+			return errors.Any()
+					? Result.Failure(errors)
+					: Result.Success();
+		}
+
+		/// <summary>
+		/// Проверяется, что все коды ЧЗ в статусе Introduced и владелец кода одна из наших организаций
+		/// </summary>
+		/// <param name="codes">Коллекция кодов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат проверки</returns>
 		public async Task<Result> IsAllTrueMarkCodesIntroducedAndHasCorrectInn(
 			IEnumerable<TrueMarkWaterIdentificationCode> codes,
 			CancellationToken cancellationToken)
@@ -245,6 +288,10 @@ namespace DriverAPI.Library.V5.Services
 
 					counter++;
 				}
+
+				return errors.Any()
+					? Result.Failure(errors)
+					: Result.Success();
 			}
 			catch(Exception ex)
 			{
@@ -254,8 +301,109 @@ namespace DriverAPI.Library.V5.Services
 
 				_logger.LogError(ex, error.Message);
 
-				return errors;
+				return Result.Failure(error);
 			}
+		}
+
+		public IList<RouteListItemTrueMarkProductCode> CreateAcceptedNoProblemTrueMarkProductCodesFromIdentificationCodes(
+			IEnumerable<TrueMarkWaterIdentificationCode> codes,
+			RouteListItem routeListItem)
+		{
+			var productCodes = new List<RouteListItemTrueMarkProductCode>();
+
+			foreach(var code in codes)
+			{
+				var productCode = new RouteListItemTrueMarkProductCode
+				{
+					CreationTime = DateTime.Now,
+					RouteListItem = routeListItem,
+					SourceCode = code,
+					ResultCode = code,
+					SourceCodeStatus = SourceProductCodeStatus.Accepted,
+					Problem = ProductCodeProblem.None
+				};
+			}
+
+			return productCodes;
+		}
+
+		//public IList<RouteListItemTrueMarkProductCode> GetRouteListItemTrueMarkProductCodesFromIdentificationCodes(
+		//	IUnitOfWork uow,
+		//	IEnumerable<TrueMarkWaterIdentificationCode> codes,
+		//	RouteListItem routeListItem,
+		//	bool isDefectBottle = false)
+		//{
+		//	var productCodes = new List<RouteListItemTrueMarkProductCode>();
+
+		//	foreach(var code in codes)
+		//	{
+		//		RouteListItemTrueMarkProductCode existingProductCode = null;
+
+		//		TryGetCodeDuplicate(uow, code.Id, out existingProductCode);
+
+		//		var productCode = new RouteListItemTrueMarkProductCode
+		//		{
+		//			CreationTime = DateTime.Now,
+		//			RouteListItem = routeListItem,
+		//			SourceCode = code
+		//		};
+
+		//		if(existingProductCode != null)
+		//		{
+		//			productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
+		//			productCode.Problem = ProductCodeProblem.Duplicate;
+
+		//			productCodes.Add(productCode);
+		//			continue;
+		//		}
+
+		//		if(!code.IsInvalid)
+		//		{
+		//			if(isDefectBottle)
+		//			{
+		//				productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
+		//				productCode.Problem = ProductCodeProblem.Defect;
+		//			}
+		//			else
+		//			{
+		//				productCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;
+		//				productCode.Problem = ProductCodeProblem.None;
+		//			}
+
+		//			productCode.ResultCode = code;
+
+		//			productCodes.Add(productCode);
+		//			continue;
+		//		}
+		//		else
+		//		{
+		//			productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
+		//			productCode.Problem = isDefectBottle ? ProductCodeProblem.Defect : ProductCodeProblem.None;
+
+		//			productCodes.Add(productCode);
+		//			continue;
+		//		}
+
+		//		productCodes.Add(productCode);
+		//	}
+		//}
+
+		private bool TryGetCodeDuplicate(
+			IUnitOfWork uow,
+			int identificationTrueMarkCodeId,
+			out RouteListItemTrueMarkProductCode productCode)
+		{
+			productCode =
+				_routeListItemTrueMarkProductCodeRepository
+				.Get(
+					uow,
+					x =>
+						x.ResultCode.Id == identificationTrueMarkCodeId
+						&& (x.SourceCodeStatus == SourceProductCodeStatus.Accepted
+							|| x.SourceCodeStatus == SourceProductCodeStatus.Changed))
+				.FirstOrDefault();
+
+			return productCode != null;
 		}
 
 		private void LogError(Error error)
