@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using Pacs.Core.Messages.Events;
@@ -403,34 +403,39 @@ namespace Vodovoz.Application.Pacs
 
 		public string GetBreakInfo()
 		{
-			string result = "";
+			var stringBuilder = new StringBuilder();
+
 			if(GlobalBreakAvailability == null || BreakAvailability == null)
 			{
-				return result;
+				return stringBuilder.ToString();
 			}
+
 			if(!GlobalBreakAvailability.LongBreakAvailable)
 			{
-				result += $"\n{GlobalBreakAvailability.LongBreakDescription}";
+				stringBuilder.Append(GlobalBreakAvailability.LongBreakDescription);
 			}
+
 			if(!BreakAvailability.LongBreakAvailable)
 			{
-				result += $"\n{BreakAvailability.LongBreakDescription}";
+				stringBuilder.AppendLine(BreakAvailability.LongBreakDescription);
 			}
 
 			if(!GlobalBreakAvailability.ShortBreakAvailable)
 			{
-				result += $"\n{GlobalBreakAvailability.ShortBreakDescription}";
+				stringBuilder.AppendLine(GlobalBreakAvailability.ShortBreakDescription);
 			}
+
 			if(!BreakAvailability.ShortBreakAvailable)
 			{
-				result += $"\n{BreakAvailability.ShortBreakDescription}";
+				stringBuilder.AppendLine(BreakAvailability.ShortBreakDescription);
+
 				if(BreakAvailability.ShortBreakSupposedlyAvailableAfter.HasValue)
 				{
-					result += $"\nМалый перерыв будет доступен после: {BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value:dd.MM HH:mm}";
+					stringBuilder.AppendLine($"Малый перерыв будет доступен после: {BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value:dd.MM HH:mm}");
 				}
 			}
 
-			return result.Trim('\n');
+			return stringBuilder.ToString();
 		}
 
 		#region Long break
