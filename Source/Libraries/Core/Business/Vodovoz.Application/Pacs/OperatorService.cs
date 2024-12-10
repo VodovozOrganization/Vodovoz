@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using Pacs.Core.Messages.Events;
@@ -112,12 +112,6 @@ namespace Vodovoz.Application.Pacs
 			}
 		}
 
-		private async Task OnBreakAvailabilityTimerElapsedAsync(object sender,  ElapsedEventArgs e)
-		{
-			await RefreshBreakAvailability();
-			UpdateBreakInfo();
-		}
-
 		public bool IsInitialized { get; }
 		public bool IsAdministrator { get; }
 		public bool IsOperator { get; }
@@ -126,6 +120,12 @@ namespace Vodovoz.Application.Pacs
 		{
 			get => _isConnected;
 			private set => SetField(ref _isConnected, value);
+		}
+
+		private async Task OnBreakAvailabilityTimerElapsedAsync(object sender,  ElapsedEventArgs e)
+		{
+			await RefreshBreakAvailability();
+			UpdateBreakInfo();
 		}
 
 		private void StartConnecting()
