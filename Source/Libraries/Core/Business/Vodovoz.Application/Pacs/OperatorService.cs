@@ -409,22 +409,22 @@ namespace Vodovoz.Application.Pacs
 				return stringBuilder.ToString();
 			}
 
-			if(!GlobalBreakAvailability.LongBreakAvailable)
+			if(!GlobalBreakAvailability.LongBreakAvailable && !string.IsNullOrWhiteSpace(GlobalBreakAvailability.LongBreakDescription))
 			{
 				stringBuilder.Append(GlobalBreakAvailability.LongBreakDescription);
 			}
 
-			if(!BreakAvailability.LongBreakAvailable)
+			if(!BreakAvailability.LongBreakAvailable && !string.IsNullOrWhiteSpace(BreakAvailability.LongBreakDescription))
 			{
 				stringBuilder.AppendLine(BreakAvailability.LongBreakDescription);
 			}
 
-			if(!GlobalBreakAvailability.ShortBreakAvailable)
+			if(!GlobalBreakAvailability.ShortBreakAvailable && !string.IsNullOrWhiteSpace(GlobalBreakAvailability.ShortBreakDescription))
 			{
 				stringBuilder.AppendLine(GlobalBreakAvailability.ShortBreakDescription);
 			}
 
-			if(!BreakAvailability.ShortBreakAvailable)
+			if(!BreakAvailability.ShortBreakAvailable && !string.IsNullOrWhiteSpace(BreakAvailability.ShortBreakDescription))
 			{
 				stringBuilder.AppendLine(BreakAvailability.ShortBreakDescription);
 
