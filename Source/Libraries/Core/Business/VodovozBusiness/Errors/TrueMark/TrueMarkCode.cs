@@ -69,6 +69,12 @@
 				nameof(TrueMarkCodeIsNotIntroduced),
 				"Код ЧЗ не в обороте");
 
+		public static Error CreateTrueMarkCodeIsNotIntroduced(string codeString) =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeIsNotIntroduced),
+				$"Код ЧЗ ({codeString}) не в обороте");
+
 		public static Error TrueMarkApiRequestError =>
 			new Error(
 				typeof(TrueMarkCode),
@@ -80,5 +86,11 @@
 				typeof(TrueMarkCode),
 				nameof(TrueMarkApiRequestError),
 				$"{message}");
+
+		public static Error ScannedTrueMarkCodesCountNotEqualOrderItemCountError =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(ScannedTrueMarkCodesCountNotEqualOrderItemCountError),
+				"Кол-во отсканированных кодов не соответствует кол-ву бутылей в строке заказа");
 	}
 }
