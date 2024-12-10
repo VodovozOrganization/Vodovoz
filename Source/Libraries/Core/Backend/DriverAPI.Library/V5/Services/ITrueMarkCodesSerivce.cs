@@ -20,6 +20,7 @@ namespace DriverAPI.Library.V5.Services
 		IList<RouteListItemTrueMarkProductCode> CreateAcceptedNoProblemRouteListItemTrueMarkProductCodesFromIdentificationCodes(
 			IEnumerable<TrueMarkWaterIdentificationCode> codes, RouteListItem routeListItem);
 		IList<RouteListItemTrueMarkProductCode> GetRouteListItemTrueMarkProductCodesFromIdentificationCodes(IUnitOfWork uow,
-			IEnumerable<TrueMarkWaterIdentificationCode> codes, OrderItem orderItem, RouteListItem routeListItem, bool isDefectBottle = false);
+			IEnumerable<TrueMarkWaterIdentificationCode> codes, OrderItem orderItem, RouteListItem routeListItem,
+			CancellationToken cancellationToken, bool isDefectBottle = false);
 	}
 }

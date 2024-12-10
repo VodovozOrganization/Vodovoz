@@ -623,7 +623,7 @@ namespace DriverAPI.Library.V5.Services
 				{
 					productCodes.AddRange(
 						_trueMarkCodesSerivce
-						.GetRouteListItemTrueMarkProductCodesFromIdentificationCodes(_uow, trueMarkIdentificationCodes, orderItem, routeListItem));
+						.GetRouteListItemTrueMarkProductCodesFromIdentificationCodes(_uow, trueMarkIdentificationCodes, orderItem, routeListItem, CancellationToken.None));
 				}
 			}
 

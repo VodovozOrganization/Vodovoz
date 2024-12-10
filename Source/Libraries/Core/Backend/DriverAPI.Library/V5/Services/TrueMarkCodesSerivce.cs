@@ -328,6 +328,7 @@ namespace DriverAPI.Library.V5.Services
 			IEnumerable<TrueMarkWaterIdentificationCode> codes,
 			OrderItem orderItem,
 			RouteListItem routeListItem,
+			CancellationToken cancellationToken,
 			bool isDefectBottle = false)
 		{
 			var duplicateIds = GetAlreadyUsedTrueMarkIdentificationCodeIds(uow, codes);
@@ -380,8 +381,6 @@ namespace DriverAPI.Library.V5.Services
 						productCode.Problem = ProductCodeProblem.None;
 					}
 
-					productCode.ResultCode = code;
-
 					productCodes.Add(productCode);
 					continue;
 				}
@@ -392,6 +391,27 @@ namespace DriverAPI.Library.V5.Services
 
 					productCodes.Add(productCode);
 					continue;
+				}
+			}
+
+			var acceptedProductCodes =
+				productCodes.Where(x => x.SourceCodeStatus == SourceProductCodeStatus.Accepted);
+
+			var checkResults = _trueMarkCodesChecker.CheckCodesAsync(acceptedProductCodes.Select(x => x.SourceCode), cancellationToken).Result;
+
+			foreach(var code in acceptedProductCodes)
+			{
+				var checkedCode = checkResults.Where(x => x.Code.Id == code.SourceCode.Id).FirstOrDefault();
+
+				if(checkedCode != null
+					&& checkedCode.Introduced
+					&& _organizationsInns.Contains(checkedCode.OwnerInn))
+				{
+					code.ResultCode = code.SourceCode;
+				}
+				else
+				{
+					code.SourceCodeStatus = SourceProductCodeStatus.Problem;
 				}
 			}
 
