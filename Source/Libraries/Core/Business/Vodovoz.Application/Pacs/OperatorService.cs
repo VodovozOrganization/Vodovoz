@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -62,7 +62,6 @@ namespace Vodovoz.Application.Pacs
 		private IDisposable _breakAvailabilitySubscription;
 		private IDisposable _settingsSubscription;
 		private IDisposable _operatorsOnBreakSubscription;
-
 
 		public OperatorService(
 			ILogger<OperatorService> logger,
