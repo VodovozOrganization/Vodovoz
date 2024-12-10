@@ -130,7 +130,7 @@ namespace Vodovoz.Application.Pacs
 
 		private void StartConnecting()
 		{
-			if(!(IsInitialized && IsOperator))
+			if(!IsInitialized || !IsOperator)
 			{
 				_logger.LogWarning("Подключение невозможно, так как не инициализирован сервис оператора");
 				return;
