@@ -47,10 +47,12 @@ namespace Vodovoz.Models.CashReceipts
 				fiscalDocument.ClientINN = order.Client.INN;
 			}
 
-			var countMarkedNomenclatures =
-				cashReceipt.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count);
+			var countMarkedNomenclaturesWithPositiveSum =
+				cashReceipt.Order.OrderItems
+					.Where(x => x.Nomenclature.IsAccountableInTrueMark && x.Sum > 0)
+					.Sum(x => x.Count);
 
-			if(countMarkedNomenclatures > CashReceipt.MaxMarkCodesInReceipt)
+			if(countMarkedNomenclaturesWithPositiveSum > CashReceipt.MaxMarkCodesInReceipt)
 			{
 				FillInventPositions(fiscalDocument, cashReceipt, out var cashReceiptSum);
 				FillMoneyPositions(fiscalDocument, cashReceipt.Order.PaymentType, cashReceiptSum);
@@ -70,7 +72,7 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			foreach(var orderItem in cashReceipt.Order.OrderItems)
 			{
-				if(orderItem.Count <= 0)
+				if(orderItem.HasZeroCountOrSum())
 				{
 					continue;
 				}
@@ -163,7 +165,7 @@ namespace Vodovoz.Models.CashReceipts
 			
 			foreach(var orderItem in cashReceipt.Order.OrderItems)
 			{
-				if(orderItem.Count <= 0)
+				if(orderItem.HasZeroCountOrSum())
 				{
 					continue;
 				}
@@ -271,7 +273,7 @@ namespace Vodovoz.Models.CashReceipts
 		private void FillMoneyPositions(FiscalDocument fiscalDocument, CashReceipt cashReceipt)
 		{
 			var order = cashReceipt.Order;
-			var soldItems = order.OrderItems.Where(x => x.Count > 0);
+			var soldItems = order.OrderItems.Where(x => x.Count > 0 && x.Sum > 0);
 			var sum = soldItems.Sum(x => x.Sum);
 
 			AddMoneyPosition(fiscalDocument, order.PaymentType, sum);

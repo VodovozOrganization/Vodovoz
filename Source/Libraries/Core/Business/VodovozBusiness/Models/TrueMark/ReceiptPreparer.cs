@@ -163,7 +163,7 @@ namespace Vodovoz.Models.TrueMark
 			if(receipt.Order.PaymentType == PaymentType.Cash && !receipt.Order.Client.AlwaysSendReceipts)
 			{
 				var orderSum = receipt.Order.OrderPositiveOriginalSum;
-				//не проверяем дубли по сумме у чеков под заказы  с 128+ позиций
+				//не проверяем дубли по сумме у чеков под заказы с 128+ позиций
 				var hasReceiptBySum = !receipt.InnerNumber.HasValue && _cashReceiptRepository.HasReceiptBySum(DateTime.Today, orderSum);
 				if(hasReceiptBySum)
 				{
@@ -328,8 +328,12 @@ namespace Vodovoz.Models.TrueMark
 
 		private void PrepareUnscannedAndExtraScannedCodes(CashReceipt receipt)
 		{
-			var markedOrderItems = receipt.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).ToList();
-			var markedOrderItemsCount = markedOrderItems.Sum(x => x.Count);
+			var markedOrderItemsWithPositiveSum =
+				receipt.Order.OrderItems
+					.Where(x => x.Nomenclature.IsAccountableInTrueMark && x.Sum > 0)
+					.ToList();
+			
+			var markedOrderItemsCount = markedOrderItemsWithPositiveSum.Sum(x => x.Count);
 			var codesToSkip = (CashReceipt.MaxMarkCodesInReceipt * receipt.InnerNumber ?? 0) - CashReceipt.MaxMarkCodesInReceipt;
 
 			if(markedOrderItemsCount > CashReceipt.MaxMarkCodesInReceipt && !receipt.InnerNumber.HasValue)
@@ -339,11 +343,11 @@ namespace Vodovoz.Models.TrueMark
 
 			if(markedOrderItemsCount <= CashReceipt.MaxMarkCodesInReceipt)
 			{
-				PrepareUnscannedAndExtraScannedCodes(receipt, markedOrderItems);
+				PrepareUnscannedAndExtraScannedCodes(receipt, markedOrderItemsWithPositiveSum);
 			}
 			else
 			{
-				PrepareUnscannedAndExtraScannedCodes(receipt, markedOrderItems, codesToSkip);
+				PrepareUnscannedAndExtraScannedCodes(receipt, markedOrderItemsWithPositiveSum, codesToSkip);
 			}
 		}
 
@@ -456,8 +460,12 @@ namespace Vodovoz.Models.TrueMark
 
 		private bool CheckNeedCreateMoreReceiptsForOrder(Order order, out decimal countReceiptsNeeded)
 		{
-			var countMarkedNomenclatures = order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count);
-			countReceiptsNeeded = Math.Ceiling(countMarkedNomenclatures / CashReceipt.MaxMarkCodesInReceipt);
+			var countMarkedNomenclaturesWithPositiveSum =
+				order.OrderItems
+					.Where(x => x.Nomenclature.IsAccountableInTrueMark && x.Sum > 0)
+					.Sum(x => x.Count);
+			
+			countReceiptsNeeded = Math.Ceiling(countMarkedNomenclaturesWithPositiveSum / CashReceipt.MaxMarkCodesInReceipt);
 			var countReceiptsForOrder = _cashReceiptRepository.GetCashReceiptsCountForOrder(_uow, order.Id);
 
 			return countReceiptsNeeded > countReceiptsForOrder;
@@ -482,7 +490,7 @@ namespace Vodovoz.Models.TrueMark
 
 			foreach(var orderItem in receipt.Order.OrderItems)
 			{
-				if(orderItem.Count <= 0)
+				if(orderItem.HasZeroCountOrSum())
 				{
 					continue;
 				}
