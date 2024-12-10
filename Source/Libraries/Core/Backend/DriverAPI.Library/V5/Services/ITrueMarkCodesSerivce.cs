@@ -17,7 +17,9 @@ namespace DriverAPI.Library.V5.Services
 		Result IsAllTrueMarkCodesAddedToOrderItem(IEnumerable<TrueMarkWaterIdentificationCode> codes, OrderItem orderItem);
 		Task<Result> IsAllTrueMarkCodesIntroducedAndHasCorrectInn(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken);
 		Result IsAllTrueMarkCodesHasNoDuplicates(IUnitOfWork uow, IEnumerable<TrueMarkWaterIdentificationCode> codes);
-		IList<RouteListItemTrueMarkProductCode> CreateAcceptedNoProblemTrueMarkProductCodesFromIdentificationCodes(
+		IList<RouteListItemTrueMarkProductCode> CreateAcceptedNoProblemRouteListItemTrueMarkProductCodesFromIdentificationCodes(
 			IEnumerable<TrueMarkWaterIdentificationCode> codes, RouteListItem routeListItem);
+		IList<RouteListItemTrueMarkProductCode> GetRouteListItemTrueMarkProductCodesFromIdentificationCodes(IUnitOfWork uow,
+			IEnumerable<TrueMarkWaterIdentificationCode> codes, OrderItem orderItem, RouteListItem routeListItem, bool isDefectBottle = false);
 	}
 }

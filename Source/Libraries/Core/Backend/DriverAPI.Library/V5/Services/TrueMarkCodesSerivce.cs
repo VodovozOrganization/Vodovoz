@@ -227,12 +227,7 @@ namespace DriverAPI.Library.V5.Services
 		{
 			var errors = new List<Error>();
 
-			var codeIds = codes.Where(x => x.Id != 0).Select(x => x.Id).Distinct().ToList();
-
-			var duplicateIds =
-				_routeListItemTrueMarkProductCodeRepository
-				.Get(uow, x => codeIds.Contains(x.ResultCode.Id) && _productCodesStatusesToCheckDuplicates.Contains(x.SourceCodeStatus))
-				.Select(x => x.Id);
+			var duplicateIds = GetAlreadyUsedTrueMarkIdentificationCodeIds(uow, codes);
 
 			var counter = 1;
 
@@ -306,7 +301,7 @@ namespace DriverAPI.Library.V5.Services
 			}
 		}
 
-		public IList<RouteListItemTrueMarkProductCode> CreateAcceptedNoProblemTrueMarkProductCodesFromIdentificationCodes(
+		public IList<RouteListItemTrueMarkProductCode> CreateAcceptedNoProblemRouteListItemTrueMarkProductCodesFromIdentificationCodes(
 			IEnumerable<TrueMarkWaterIdentificationCode> codes,
 			RouteListItem routeListItem)
 		{
@@ -328,89 +323,88 @@ namespace DriverAPI.Library.V5.Services
 			return productCodes;
 		}
 
-		//public IList<RouteListItemTrueMarkProductCode> GetRouteListItemTrueMarkProductCodesFromIdentificationCodes(
-		//	IUnitOfWork uow,
-		//	IEnumerable<TrueMarkWaterIdentificationCode> codes,
-		//	RouteListItem routeListItem,
-		//	bool isDefectBottle = false)
-		//{
-		//	var productCodes = new List<RouteListItemTrueMarkProductCode>();
-
-		//	foreach(var code in codes)
-		//	{
-		//		RouteListItemTrueMarkProductCode existingProductCode = null;
-
-		//		TryGetCodeDuplicate(uow, code.Id, out existingProductCode);
-
-		//		var productCode = new RouteListItemTrueMarkProductCode
-		//		{
-		//			CreationTime = DateTime.Now,
-		//			RouteListItem = routeListItem,
-		//			SourceCode = code
-		//		};
-
-		//		if(existingProductCode != null)
-		//		{
-		//			productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
-		//			productCode.Problem = ProductCodeProblem.Duplicate;
-
-		//			productCodes.Add(productCode);
-		//			continue;
-		//		}
-
-		//		if(!code.IsInvalid)
-		//		{
-		//			if(isDefectBottle)
-		//			{
-		//				productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
-		//				productCode.Problem = ProductCodeProblem.Defect;
-		//			}
-		//			else
-		//			{
-		//				productCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;
-		//				productCode.Problem = ProductCodeProblem.None;
-		//			}
-
-		//			productCode.ResultCode = code;
-
-		//			productCodes.Add(productCode);
-		//			continue;
-		//		}
-		//		else
-		//		{
-		//			productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
-		//			productCode.Problem = isDefectBottle ? ProductCodeProblem.Defect : ProductCodeProblem.None;
-
-		//			productCodes.Add(productCode);
-		//			continue;
-		//		}
-
-		//		productCodes.Add(productCode);
-		//	}
-		//}
-
-		private bool TryGetCodeDuplicate(
+		public IList<RouteListItemTrueMarkProductCode> GetRouteListItemTrueMarkProductCodesFromIdentificationCodes(
 			IUnitOfWork uow,
-			int identificationTrueMarkCodeId,
-			out RouteListItemTrueMarkProductCode productCode)
+			IEnumerable<TrueMarkWaterIdentificationCode> codes,
+			OrderItem orderItem,
+			RouteListItem routeListItem,
+			bool isDefectBottle = false)
 		{
-			productCode =
-				_routeListItemTrueMarkProductCodeRepository
-				.Get(
-					uow,
-					x =>
-						x.ResultCode.Id == identificationTrueMarkCodeId
-						&& (x.SourceCodeStatus == SourceProductCodeStatus.Accepted
-							|| x.SourceCodeStatus == SourceProductCodeStatus.Changed))
-				.FirstOrDefault();
+			var duplicateIds = GetAlreadyUsedTrueMarkIdentificationCodeIds(uow, codes);
 
-			return productCode != null;
+			var productCodes = new List<RouteListItemTrueMarkProductCode>();
+
+			for(var i = 0; i < orderItem.Count - codes.Count(); i++)
+			{
+				var productCode = new RouteListItemTrueMarkProductCode
+				{
+					CreationTime = DateTime.Now,
+					RouteListItem = routeListItem,
+					SourceCode = null,
+					ResultCode = null,
+					SourceCodeStatus = SourceProductCodeStatus.Problem,
+					Problem = ProductCodeProblem.Unscanned
+				};
+
+				productCodes.Add(productCode);
+			}
+
+			foreach(var code in codes)
+			{
+				var productCode = new RouteListItemTrueMarkProductCode
+				{
+					CreationTime = DateTime.Now,
+					RouteListItem = routeListItem,
+					SourceCode = code
+				};
+
+				if(duplicateIds.Contains(code.Id))
+				{
+					productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
+					productCode.Problem = ProductCodeProblem.Duplicate;
+
+					productCodes.Add(productCode);
+					continue;
+				}
+
+				if(!code.IsInvalid)
+				{
+					if(isDefectBottle)
+					{
+						productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
+						productCode.Problem = ProductCodeProblem.Defect;
+					}
+					else
+					{
+						productCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;
+						productCode.Problem = ProductCodeProblem.None;
+					}
+
+					productCode.ResultCode = code;
+
+					productCodes.Add(productCode);
+					continue;
+				}
+				else
+				{
+					productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
+					productCode.Problem = isDefectBottle ? ProductCodeProblem.Defect : ProductCodeProblem.None;
+
+					productCodes.Add(productCode);
+					continue;
+				}
+			}
+
+			return productCodes;
 		}
 
-		private TrueMarkWaterIdentificationCode GetCodeFromPool(IUnitOfWork uow, string gtin)
+		private IEnumerable<int> GetAlreadyUsedTrueMarkIdentificationCodeIds(IUnitOfWork uow, IEnumerable<TrueMarkWaterIdentificationCode> codes)
 		{
-			var codeId = _codesPool.TakeCode(gtin);
-			return _trueMarkIdentificationCodeRepository.Get(uow, x => x.Id == codeId).FirstOrDefault();
+			var codeIds = codes.Where(x => x.Id != 0).Select(x => x.Id).Distinct().ToList();
+
+			return _routeListItemTrueMarkProductCodeRepository
+				.Get(uow, x => codeIds.Contains(x.ResultCode.Id) && _productCodesStatusesToCheckDuplicates.Contains(x.SourceCodeStatus))
+				.Select(x => x.Id);
 		}
 
 		private void LogError(Error error)

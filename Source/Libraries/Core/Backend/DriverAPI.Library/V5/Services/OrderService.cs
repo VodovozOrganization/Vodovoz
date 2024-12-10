@@ -28,7 +28,6 @@ using Vodovoz.Extensions;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
-using OrderItemErrors = Vodovoz.Errors.Orders.OrderItem;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace DriverAPI.Library.V5.Services
@@ -552,9 +551,17 @@ namespace DriverAPI.Library.V5.Services
 
 		private Result SaveScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListItem, Order vodovozOrder)
 		{
+			var orderItemsWhereCodeMustBeAdded = GetOrderItemsHavingAccountableInTrueMarkNomenclatures(vodovozOrder);
+
 			if(completeOrderInfo.ScannedItems == null
 				&& IsCanGetTrueMarkCodesForOrderFromPool(vodovozOrder)
-				&& IsOrderHasAccountableInTrueMarkNomenclatures(vodovozOrder))
+				&& orderItemsWhereCodeMustBeAdded.Any())
+			{
+				return Result.Failure(TrueMarkCodeErrors.ScannedTrueMarkCodesCountNotEqualOrderItemCountError);
+			}
+
+			if(!IsCanGetTrueMarkCodesForOrderFromPool(vodovozOrder)
+				&& orderItemsWhereCodeMustBeAdded.Select(x => x.Id).Except(completeOrderInfo.ScannedItems.Select(x => x.OrderSaleItemId)).Any())
 			{
 				return Result.Failure(TrueMarkCodeErrors.ScannedTrueMarkCodesCountNotEqualOrderItemCountError);
 			}
@@ -563,20 +570,17 @@ namespace DriverAPI.Library.V5.Services
 
 			var productCodes = new List<RouteListItemTrueMarkProductCode>();
 
-			foreach(var orderSaleItem in completeOrderInfo.ScannedItems)
+			foreach(var orderItem in orderItemsWhereCodeMustBeAdded)
 			{
-				var orderItem = _orderItemRepository.Get(_uow, x => x.Id == orderSaleItem.OrderSaleItemId).FirstOrDefault();
-
-				if(orderItem is null)
-				{
-					var error = OrderItemErrors.CreateNotFoundError(orderSaleItem.OrderSaleItemId);
-
-					return Result.Failure(error);
-				}
+				var bottlesCodes =
+					completeOrderInfo.ScannedItems
+					.Where(x => x.OrderSaleItemId == orderItem.Id)
+					.FirstOrDefault()?
+					.BottleCodes ?? new List<string>();
 
 				var trueMarkIdentificationCodes =
 					_trueMarkCodesSerivce
-					.CreateTrueMarkWaterIdentificationCodesFromScannedCodes(_uow, orderSaleItem.BottleCodes);
+					.CreateTrueMarkWaterIdentificationCodesFromScannedCodes(_uow, bottlesCodes);
 
 				if(!IsCanGetTrueMarkCodesForOrderFromPool(vodovozOrder))
 				{
@@ -613,17 +617,19 @@ namespace DriverAPI.Library.V5.Services
 					}
 
 					productCodes.AddRange(
-						_trueMarkCodesSerivce.CreateAcceptedNoProblemTrueMarkProductCodesFromIdentificationCodes(trueMarkIdentificationCodes, routeListItem));
+						_trueMarkCodesSerivce.CreateAcceptedNoProblemRouteListItemTrueMarkProductCodesFromIdentificationCodes(trueMarkIdentificationCodes, routeListItem));
 				}
 				else
 				{
-
+					productCodes.AddRange(
+						_trueMarkCodesSerivce
+						.GetRouteListItemTrueMarkProductCodesFromIdentificationCodes(_uow, trueMarkIdentificationCodes, orderItem, routeListItem));
 				}
+			}
 
-				foreach(var productCode in productCodes)
-				{
-					_uow.Save(productCode);
-				}
+			foreach(var productCode in productCodes)
+			{
+				_uow.Save(productCode);
 			}
 
 			return result;
@@ -690,11 +696,14 @@ namespace DriverAPI.Library.V5.Services
 			return order?.Client?.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds;
 		}
 
-		private bool IsOrderHasAccountableInTrueMarkNomenclatures(Order order)
+		private IEnumerable<OrderItem> GetOrderItemsHavingAccountableInTrueMarkNomenclatures(Order order)
 		{
-			var isNeedToAddCodes = order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
+			var orderItems = order.OrderItems
+				.Where(x =>
+					x.Nomenclature.IsAccountableInTrueMark
+					&& x.Count > 0);
 
-			return isNeedToAddCodes;
+			return orderItems;
 		}
 	}
 }
