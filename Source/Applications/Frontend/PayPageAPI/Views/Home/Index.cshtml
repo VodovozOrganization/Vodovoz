@@ -5,7 +5,7 @@
 
 <div class="text-left mt-4">
 	<h4 class="mb-3">@Model.PayOrderTitle</h4>
-	<p>Дата заказа: @Model.OrderDate?.ToShortDateString()</p>
+	<p>Дата заказа: @Model.OrderDate?.ToString("dd.MM.yyyy")</p>
 	<p>Сумма заказа: @Model.SumString</p>
 	<div class="container mb-3">
 		<div class="row align-items-center">
