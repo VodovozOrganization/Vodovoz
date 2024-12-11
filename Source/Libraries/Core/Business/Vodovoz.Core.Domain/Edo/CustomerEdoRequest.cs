@@ -17,7 +17,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private DateTime _time;
 		private CustomerEdoRequestType _type;
 		private CustomerEdoRequestSource _source;
-		private ObservableList<TrueMarkProductCode> _productCodes;
+		private ObservableList<TrueMarkProductCode> _productCodes = new ObservableList<TrueMarkProductCode>();
 		private EdoDocumentType _documentType;
 
 		[Display(Name = "Код")]

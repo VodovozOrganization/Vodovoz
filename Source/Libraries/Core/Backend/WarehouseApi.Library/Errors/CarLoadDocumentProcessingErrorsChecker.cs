@@ -11,8 +11,8 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
@@ -26,6 +26,12 @@ namespace WarehouseApi.Library.Errors
 {
 	public class CarLoadDocumentProcessingErrorsChecker
 	{
+		public static IList<SourceProductCodeStatus> ProductCodesStatusesToCheckDuplicates = new List<SourceProductCodeStatus>
+		{
+			SourceProductCodeStatus.Accepted,
+			SourceProductCodeStatus.Changed
+		};
+
 		private readonly IList<string> _organizationsInns;
 
 		private readonly ILogger<CarLoadDocumentProcessingErrorsChecker> _logger;

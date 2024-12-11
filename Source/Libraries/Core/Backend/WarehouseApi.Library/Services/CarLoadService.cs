@@ -12,7 +12,9 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Store;
@@ -344,7 +346,7 @@ namespace WarehouseApi.Library.Services
 				Error = null
 			};
 
-			await PublishRequestCreatedEvent(11);
+			await CreateEdoRequestsAndSendEvents(carLoadDocument);
 
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
@@ -549,15 +551,57 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		private async Task PublishRequestCreatedEvent(int taskId)
+		private async Task CreateEdoRequestsAndSendEvents(CarLoadDocumentEntity carLoadDocument)
+		{
+			var carLoadDocumentsItemsNeedsRequest =
+				carLoadDocument.Items.Where(x => x.IsIndividualSetForOrder && x.OrderId != null)
+				.ToList();
+
+			var edoRequests = new List<OrderEdoRequest>();
+
+			foreach(var item in carLoadDocumentsItemsNeedsRequest)
+			{
+				var edoRequest = new OrderEdoRequest
+				{
+					Time = DateTime.Now,
+					Type = CustomerEdoRequestType.Order,
+					Source = CustomerEdoRequestSource.Warehouse,
+					DocumentType = EdoDocumentType.UPD,
+					Order = new OrderEntity { Id = item.OrderId.Value },
+				};
+
+				var productCodes = item.TrueMarkCodes
+					.Where(x => CarLoadDocumentProcessingErrorsChecker.ProductCodesStatusesToCheckDuplicates.Contains(x.SourceCodeStatus));
+
+				edoRequest.ProductCodes.AddRange(productCodes);
+
+				_uow.Save(edoRequest);
+
+				edoRequests.Add(edoRequest);
+			}
+
+			_uow.Commit();
+
+			await PublishEdoRequestCreatedEvents(edoRequests);
+		}
+
+		private async Task PublishEdoRequestCreatedEvents(IEnumerable<OrderEdoRequest> edoRequests)
+		{
+			foreach(var edoRequest in edoRequests)
+			{
+				await PublishEdoRequestCreatedEvent(edoRequest.Id);
+			}
+		}
+
+		private async Task PublishEdoRequestCreatedEvent(int requestId)
 		{
 			_logger.LogInformation(
 				"Отправляем событие создания новой заявки на отправку документов ЭДО.  Id заявки: {TaskId}.",
-				taskId);
+				requestId);
 
 			try
 			{
-				await _messageBus.Publish(new EdoRequestCreatedEvent { Id = taskId });
+				await _messageBus.Publish(new EdoRequestCreatedEvent { Id = requestId });
 
 				_logger.LogInformation("Событие создания новой заявки на отправку документов ЭДО отправлено успешно");
 			}
@@ -566,7 +610,7 @@ namespace WarehouseApi.Library.Services
 				_logger.LogError(
 					ex,
 					"Ошибка при отправке события создания новой заявки на отправку документов ЭДО. Id задачи: {TaskId}. Exception: {ExceptionMessage}",
-					taskId,
+					requestId,
 					ex.Message);
 			}
 		}
