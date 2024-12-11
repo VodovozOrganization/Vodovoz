@@ -69,7 +69,7 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var requestProcessingResult = await _carLoadService.StartLoad(documentId, user.UserName, accessToken);
+				var requestProcessingResult = await _carLoadService.StartLoad(documentId, user.UserName, accessToken, HttpContext.RequestAborted);
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
@@ -132,7 +132,7 @@ namespace WarehouseApi.Controllers
 			try
 			{
 				var requestProcessingResult =
-					await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName);
+					await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName, HttpContext.RequestAborted);
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
@@ -172,7 +172,8 @@ namespace WarehouseApi.Controllers
 						requestData.NomenclatureId,
 						requestData.OldCode,
 						requestData.NewCode,
-						user.UserName);
+						user.UserName,
+						HttpContext.RequestAborted);
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
@@ -204,7 +205,7 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var requestProcessingResult = await _carLoadService.EndLoad(documentId, user.UserName, accessToken);
+				var requestProcessingResult = await _carLoadService.EndLoad(documentId, user.UserName, accessToken, HttpContext.RequestAborted);
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,

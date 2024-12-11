@@ -69,7 +69,7 @@ namespace WarehouseApi.Library.Services
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
-		public async Task<RequestProcessingResult<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken)
+		public async Task<RequestProcessingResult<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
 			var carLoadDocument =
@@ -105,7 +105,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			var isDocumentSavedAndEventsCreated =
-				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.InProgress, accessToken);
+				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.InProgress, accessToken, cancellationToken);
 
 			if(!isDocumentSavedAndEventsCreated)
 			{
@@ -153,7 +153,12 @@ namespace WarehouseApi.Library.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(response));
 		}
 
-		public async Task<RequestProcessingResult<AddOrderCodeResponse>> AddOrderCode(int orderId, int nomenclatureId, string scannedCode, string userLogin)
+		public async Task<RequestProcessingResult<AddOrderCodeResponse>> AddOrderCode(
+			int orderId,
+			int nomenclatureId,
+			string scannedCode,
+			string userLogin,
+			CancellationToken cancellationToken)
 		{
 			var isScannedCodeValid = _trueMarkWaterCodeParser.TryParse(scannedCode, out TrueMarkWaterCode trueMarkCode);
 
@@ -192,6 +197,7 @@ namespace WarehouseApi.Library.Services
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
 				documentItemToEdit,
+				cancellationToken,
 				out error))
 			{
 				failureResponse.Error = error.Message;
@@ -218,7 +224,8 @@ namespace WarehouseApi.Library.Services
 			int nomenclatureId,
 			string oldScannedCode,
 			string newScannedCode,
-			string userLogin)
+			string userLogin,
+			CancellationToken cancellationToken)
 		{
 			var isOldScannedCodeValid = _trueMarkWaterCodeParser.TryParse(oldScannedCode, out TrueMarkWaterCode oldTrueMarkCode);
 			var isNewScannedCodeValid = _trueMarkWaterCodeParser.TryParse(newScannedCode, out TrueMarkWaterCode newTrueMarkCode);
@@ -261,6 +268,7 @@ namespace WarehouseApi.Library.Services
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
 				documentItemToEdit,
+				cancellationToken,
 				out error))
 			{
 				failureResponse.Error = error.Message;
@@ -282,7 +290,7 @@ namespace WarehouseApi.Library.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		public async Task<RequestProcessingResult<EndLoadResponse>> EndLoad(int documentId, string userLogin, string accessToken)
+		public async Task<RequestProcessingResult<EndLoadResponse>> EndLoad(int documentId, string userLogin, string accessToken, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
 			var carLoadDocument =
@@ -317,7 +325,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			var isDocumentSavedAndEventsCreated =
-				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.Done, accessToken);
+				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.Done, accessToken, cancellationToken);
 
 			if(!isDocumentSavedAndEventsCreated)
 			{
@@ -364,7 +372,8 @@ namespace WarehouseApi.Library.Services
 		private async Task<bool> SetLoadOperationStateAndSaveDocument(
 			CarLoadDocumentEntity document,
 			CarLoadDocumentLoadOperationState newLoadOperationState,
-			string logisticsEventApiAccessToken)
+			string logisticsEventApiAccessToken,
+			CancellationToken cancellationToken)
 		{
 			if(newLoadOperationState != CarLoadDocumentLoadOperationState.InProgress
 				&& newLoadOperationState != CarLoadDocumentLoadOperationState.Done)
@@ -384,8 +393,8 @@ namespace WarehouseApi.Library.Services
 
 			var isLogisticsEventCreated =
 				newLoadOperationState == CarLoadDocumentLoadOperationState.InProgress
-				? await CreateStartLoadLogisticEvent(document.Id, logisticsEventApiAccessToken)
-				: await CreateEndLoadLogisticEvent(document.Id, logisticsEventApiAccessToken);
+				? await CreateStartLoadLogisticEvent(document.Id, logisticsEventApiAccessToken, cancellationToken)
+				: await CreateEndLoadLogisticEvent(document.Id, logisticsEventApiAccessToken, cancellationToken);
 
 			if(!isLogisticsEventCreated)
 			{
@@ -490,7 +499,7 @@ namespace WarehouseApi.Library.Services
 			_uow.Commit();
 		}
 
-		private async Task<bool> CreateStartLoadLogisticEvent(int documentId, string accessToken)
+		private async Task<bool> CreateStartLoadLogisticEvent(int documentId, string accessToken, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -502,7 +511,7 @@ namespace WarehouseApi.Library.Services
 					accessToken);
 
 				var isEventCreated =
-					await _logisticsEventsCreationService.CreateStartLoadingWarehouseEvent(documentId, accessToken, CancellationToken.None);
+					await _logisticsEventsCreationService.CreateStartLoadingWarehouseEvent(documentId, accessToken, cancellationToken);
 
 				_logger.LogInformation("Запрос к службе логистических событий для создания события начала сборки выполнен успешно");
 
@@ -515,7 +524,7 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		private async Task<bool> CreateEndLoadLogisticEvent(int documentId, string accessToken)
+		private async Task<bool> CreateEndLoadLogisticEvent(int documentId, string accessToken, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -527,7 +536,7 @@ namespace WarehouseApi.Library.Services
 					accessToken);
 
 				var isEventCreated =
-					await _logisticsEventsCreationService.CreateEndLoadingWarehouseEvent(documentId, accessToken, CancellationToken.None);
+					await _logisticsEventsCreationService.CreateEndLoadingWarehouseEvent(documentId, accessToken, cancellationToken);
 
 				_logger.LogInformation("Запрос к службе логистических событий для создания события завершения сборки выполнен успешно");
 

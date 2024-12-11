@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
@@ -212,6 +213,7 @@ namespace WarehouseApi.Library.Errors
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
+			CancellationToken cancellationToken,
 			out Error error)
 		{
 			return IsOrderNeedIndividualSetOnLoad(orderId, out error)
@@ -222,7 +224,7 @@ namespace WarehouseApi.Library.Errors
 				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
 				&& IsNotAllProductsHasTrueMarkCode(orderId, nomenclatureId, documentItemToEdit, out error)
 				&& IsTrueMarkCodeNotExistAndHasRequiredGtin(trueMarkCode, documentItemToEdit.Nomenclature.Gtin, scannedCode, out error)
-				&& IsTrueMarkCodeIntroduced(trueMarkCode, out error);
+				&& IsTrueMarkCodeIntroduced(trueMarkCode, cancellationToken, out error);
 		}
 
 		public bool IsTrueMarkCodeCanBeChanged(
@@ -237,6 +239,7 @@ namespace WarehouseApi.Library.Errors
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
+			CancellationToken cancellationToken,
 			out Error error)
 		{
 			return IsOrderNeedIndividualSetOnLoad(orderId, out error)
@@ -249,7 +252,7 @@ namespace WarehouseApi.Library.Errors
 				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
 				&& IsProductsHavingRequiredTrueMarkCodeExists(documentItemToEdit, oldTrueMarkCode, out error)
 				&& IsTrueMarkCodeNotExists(newTrueMarkCode, newScannedCode, out error)
-				&& IsTrueMarkCodeIntroduced(newTrueMarkCode, out error);
+				&& IsTrueMarkCodeIntroduced(newTrueMarkCode, cancellationToken, out error);
 		}
 
 		public bool IsOrderNeedIndividualSetOnLoad(int orderId, out Error error)
@@ -429,7 +432,7 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		private bool IsTrueMarkCodeIntroduced(TrueMarkWaterCode trueMarkCode, out Error error)
+		private bool IsTrueMarkCodeIntroduced(TrueMarkWaterCode trueMarkCode, CancellationToken cancellationToken, out Error error)
 		{
 			error = null;
 
@@ -445,7 +448,7 @@ namespace WarehouseApi.Library.Errors
 			try
 			{
 				var checkResults =
-					_trueMarkCodesChecker.CheckCodesAsync(new List<TrueMarkWaterIdentificationCode> { waterCode }, CancellationToken.None)
+					_trueMarkCodesChecker.CheckCodesAsync(new List<TrueMarkWaterIdentificationCode> { waterCode }, cancellationToken)
 					.Result
 					.FirstOrDefault();
 
