@@ -26,13 +26,17 @@ namespace RobotMiaApi.Controllers.V1
 		/// </summary>
 		/// <param name="logger"></param>
 		/// <param name="incomingCallService"></param>
+		/// <param name="bottlesRepository"></param>
 		public BottlesForReturnFromDeliveryPointController(
 			ILogger<ApiControllerBase> logger,
-			IncomingCallCallService incomingCallService)
+			IncomingCallCallService incomingCallService,
+			IBottlesRepository bottlesRepository)
 			: base(logger)
 		{
 			_incomingCallService = incomingCallService
 				?? throw new ArgumentNullException(nameof(incomingCallService));
+			_bottlesRepository = bottlesRepository
+				?? throw new ArgumentNullException(nameof(bottlesRepository));
 		}
 
 		/// <summary>
