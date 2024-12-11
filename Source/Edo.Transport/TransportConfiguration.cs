@@ -11,10 +11,10 @@ namespace Edo.Transport
 {
 	public static class TransportConfiguration
 	{
-		public static void AddEdoTaskBaseTopology(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
+		public static void AddEdoRequestBaseTopology(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
 		{
-			cfg.Message<EdoTaskCreatedEvent>(x => x.SetEntityName("edo.event.task_created"));
-			cfg.Publish<EdoTaskCreatedEvent>(x =>
+			cfg.Message<EdoRequestCreatedEvent>(x => x.SetEntityName("edo.event.request_created"));
+			cfg.Publish<EdoRequestCreatedEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
@@ -22,7 +22,7 @@ namespace Edo.Transport
 			});
 		}
 
-		public static IServiceCollection AddEdoTaskMassTransit(
+		public static IServiceCollection AddEdoRequestMassTransit(
 			this IServiceCollection services,
 			Action<IBusRegistrationContext, IRabbitMqBusFactoryConfigurator> configureRabbit,
 			Action<IBusRegistrationConfigurator> configureBus = null)

@@ -50,9 +50,9 @@ namespace WarehouseApi.Library
 
 			services
 				.AddMessageTransportSettings()
-				.AddEdoTaskMassTransit((context, cfg) =>
+				.AddEdoRequestMassTransit((context, cfg) =>
 				{
-					cfg.AddEdoTaskBaseTopology(context);
+					cfg.AddEdoRequestBaseTopology(context);
 				});
 
 			services.AddStaticHistoryTracker();

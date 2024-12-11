@@ -344,7 +344,7 @@ namespace WarehouseApi.Library.Services
 				Error = null
 			};
 
-			await PublishTaskCreatedEvent(11);
+			await PublishRequestCreatedEvent(11);
 
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
@@ -549,23 +549,23 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		private async Task PublishTaskCreatedEvent(int taskId)
+		private async Task PublishRequestCreatedEvent(int taskId)
 		{
 			_logger.LogInformation(
-				"Отправляем событие создания новой задачи.  Id задачи: {TaskId}.",
+				"Отправляем событие создания новой заявки на отправку документов ЭДО.  Id заявки: {TaskId}.",
 				taskId);
 
 			try
 			{
-				await _messageBus.Publish(new EdoTaskCreatedEvent { Id = taskId });
+				await _messageBus.Publish(new EdoRequestCreatedEvent { Id = taskId });
 
-				_logger.LogInformation("Событие создания новой задачи отправлено успешно");
+				_logger.LogInformation("Событие создания новой заявки на отправку документов ЭДО отправлено успешно");
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(
 					ex,
-					"Ошибка при отправке события создания новой задачи. Id задачи: {TaskId}. Exception: {ExceptionMessage}",
+					"Ошибка при отправке события создания новой заявки на отправку документов ЭДО. Id задачи: {TaskId}. Exception: {ExceptionMessage}",
 					taskId,
 					ex.Message);
 			}

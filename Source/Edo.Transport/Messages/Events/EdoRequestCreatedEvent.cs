@@ -1,6 +1,6 @@
 ﻿namespace Edo.Transport.Messages.Events
 {
-	public class EdoTaskCreatedEvent
+	public class EdoRequestCreatedEvent
 	{
 		public int Id { get; set; }
 	}
