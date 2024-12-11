@@ -88,6 +88,7 @@ namespace Vodovoz.ViewWidgets.Reports
 						{
 							c.Text = n.IncludedCount.ToString();
 						}
+
 					});
 
 			if(ViewModel.WithExcludes)
@@ -155,9 +156,18 @@ namespace Vodovoz.ViewWidgets.Reports
 
 				var columnConfig = ytreeviewElements.CreateFluentColumnsConfig<IncludeExcludeElement>();
 
-				columnConfig
-					.AddColumn("\t✔️")
-						.AddToggleRenderer(x => x.Include).ToggledEvent(OnElementCheckboxToggled);
+				if(ViewModel.ActiveFilter.IsRadio)
+				{
+					columnConfig
+						.AddColumn("\t✔️")
+							.AddToggleRenderer(x => x.Include).Radio().ToggledEvent(OnElementCheckboxToggled);
+				}
+				else
+				{
+					columnConfig
+						.AddColumn("\t✔️")
+							.AddToggleRenderer(x => x.Include).ToggledEvent(OnElementCheckboxToggled);
+				}
 
 				if(ViewModel.WithExcludes)
 				{
