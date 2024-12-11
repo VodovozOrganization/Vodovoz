@@ -542,13 +542,23 @@ namespace WarehouseApi.Library.Services
 
 		private async Task PublishTaskCreatedEvent(int taskId)
 		{
+			_logger.LogInformation(
+				"Отправляем событие создания новой задачи.  Id задачи: {TaskId}.",
+				taskId);
+
 			try
 			{
 				await _messageBus.Publish(new EdoTaskCreatedEvent { Id = taskId });
+
+				_logger.LogInformation("Событие создания новой задачи отправлено успешно");
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Ошибка при отправке события о создании новой задачи. Exception: {ExceptionMessage}", ex.Message);
+				_logger.LogError(
+					ex,
+					"Ошибка при отправке события создания новой задачи. Id задачи: {TaskId}. Exception: {ExceptionMessage}",
+					taskId,
+					ex.Message);
 			}
 		}
 
