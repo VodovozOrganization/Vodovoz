@@ -94,11 +94,19 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yTable tablePromoCodeInfo;
 
-		private global::Gamma.GtkWidgets.yCheckButton chkOneTimePromoCode;
+		private global::QS.Widgets.GtkUI.DateRangePicker datePromoCodeDuration;
 
 		private global::Gamma.GtkWidgets.yEntry entryPromoCodeName;
 
+		private global::Gamma.GtkWidgets.yLabel lblPromoCodeDuration;
+
 		private global::Gamma.GtkWidgets.yLabel lblPromoCodeNameTitle;
+
+		private global::Gamma.GtkWidgets.yHBox hboxPromoCodeTimeDuration;
+
+		private global::Gamma.GtkWidgets.yCheckButton chkPromoCodeTimeDuration;
+
+		private global::QS.Widgets.GtkUI.TimeRangePicker timePromoCodeDuration;
 
 		private global::Gamma.GtkWidgets.yHBox hboxOrderMinSumSettings;
 
@@ -107,6 +115,8 @@ namespace Vodovoz.Views.Orders
 		private global::Gamma.GtkWidgets.ySpinButton spinMinOrderSum;
 
 		private global::Gamma.GtkWidgets.yLabel lblRubles;
+
+		private global::Gamma.GtkWidgets.yCheckButton chkOneTimePromoCode;
 
 		private global::Gtk.Label lblPromoCode;
 
@@ -544,16 +554,16 @@ namespace Vodovoz.Views.Orders
 			this.tablePromoCodeInfo.RowSpacing = ((uint)(6));
 			this.tablePromoCodeInfo.ColumnSpacing = ((uint)(6));
 			// Container child tablePromoCodeInfo.Gtk.Table+TableChild
-			this.chkOneTimePromoCode = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkOneTimePromoCode.CanFocus = true;
-			this.chkOneTimePromoCode.Name = "chkOneTimePromoCode";
-			this.chkOneTimePromoCode.Label = global::Mono.Unix.Catalog.GetString("Одноразовый промокод");
-			this.chkOneTimePromoCode.DrawIndicator = true;
-			this.chkOneTimePromoCode.UseUnderline = true;
-			this.tablePromoCodeInfo.Add(this.chkOneTimePromoCode);
-			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.tablePromoCodeInfo[this.chkOneTimePromoCode]));
+			this.datePromoCodeDuration = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.datePromoCodeDuration.Events = ((global::Gdk.EventMask)(256));
+			this.datePromoCodeDuration.Name = "datePromoCodeDuration";
+			this.datePromoCodeDuration.StartDate = new global::System.DateTime(0);
+			this.datePromoCodeDuration.EndDate = new global::System.DateTime(0);
+			this.tablePromoCodeInfo.Add(this.datePromoCodeDuration);
+			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.tablePromoCodeInfo[this.datePromoCodeDuration]));
 			w45.TopAttach = ((uint)(1));
 			w45.BottomAttach = ((uint)(2));
+			w45.LeftAttach = ((uint)(1));
 			w45.RightAttach = ((uint)(2));
 			w45.XOptions = ((global::Gtk.AttachOptions)(4));
 			w45.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -570,18 +580,59 @@ namespace Vodovoz.Views.Orders
 			w46.XOptions = ((global::Gtk.AttachOptions)(4));
 			w46.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePromoCodeInfo.Gtk.Table+TableChild
-			this.lblPromoCodeNameTitle = new global::Gamma.GtkWidgets.yLabel();
-			this.lblPromoCodeNameTitle.Name = "lblPromoCodeNameTitle";
-			this.lblPromoCodeNameTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Промокод:");
-			this.tablePromoCodeInfo.Add(this.lblPromoCodeNameTitle);
-			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.tablePromoCodeInfo[this.lblPromoCodeNameTitle]));
+			this.lblPromoCodeDuration = new global::Gamma.GtkWidgets.yLabel();
+			this.lblPromoCodeDuration.Name = "lblPromoCodeDuration";
+			this.lblPromoCodeDuration.Xalign = 1F;
+			this.lblPromoCodeDuration.LabelProp = global::Mono.Unix.Catalog.GetString("Срок действия:");
+			this.tablePromoCodeInfo.Add(this.lblPromoCodeDuration);
+			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.tablePromoCodeInfo[this.lblPromoCodeDuration]));
+			w47.TopAttach = ((uint)(1));
+			w47.BottomAttach = ((uint)(2));
 			w47.XOptions = ((global::Gtk.AttachOptions)(4));
 			w47.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tablePromoCodeInfo.Gtk.Table+TableChild
+			this.lblPromoCodeNameTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblPromoCodeNameTitle.Name = "lblPromoCodeNameTitle";
+			this.lblPromoCodeNameTitle.Xalign = 1F;
+			this.lblPromoCodeNameTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Промокод:");
+			this.tablePromoCodeInfo.Add(this.lblPromoCodeNameTitle);
+			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.tablePromoCodeInfo[this.lblPromoCodeNameTitle]));
+			w48.XOptions = ((global::Gtk.AttachOptions)(4));
+			w48.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxPromoCode.Add(this.tablePromoCodeInfo);
-			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.vboxPromoCode[this.tablePromoCodeInfo]));
-			w48.Position = 0;
-			w48.Expand = false;
-			w48.Fill = false;
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vboxPromoCode[this.tablePromoCodeInfo]));
+			w49.Position = 0;
+			w49.Expand = false;
+			w49.Fill = false;
+			// Container child vboxPromoCode.Gtk.Box+BoxChild
+			this.hboxPromoCodeTimeDuration = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxPromoCodeTimeDuration.Name = "hboxPromoCodeTimeDuration";
+			this.hboxPromoCodeTimeDuration.Spacing = 6;
+			// Container child hboxPromoCodeTimeDuration.Gtk.Box+BoxChild
+			this.chkPromoCodeTimeDuration = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkPromoCodeTimeDuration.CanFocus = true;
+			this.chkPromoCodeTimeDuration.Name = "chkPromoCodeTimeDuration";
+			this.chkPromoCodeTimeDuration.Label = global::Mono.Unix.Catalog.GetString("Промокод с суточным временным интервалом");
+			this.chkPromoCodeTimeDuration.DrawIndicator = true;
+			this.chkPromoCodeTimeDuration.UseUnderline = true;
+			this.hboxPromoCodeTimeDuration.Add(this.chkPromoCodeTimeDuration);
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hboxPromoCodeTimeDuration[this.chkPromoCodeTimeDuration]));
+			w50.Position = 0;
+			w50.Expand = false;
+			w50.Fill = false;
+			// Container child hboxPromoCodeTimeDuration.Gtk.Box+BoxChild
+			this.timePromoCodeDuration = new global::QS.Widgets.GtkUI.TimeRangePicker();
+			this.timePromoCodeDuration.Events = ((global::Gdk.EventMask)(256));
+			this.timePromoCodeDuration.Name = "timePromoCodeDuration";
+			this.timePromoCodeDuration.TimeStart = new global::System.TimeSpan(0);
+			this.hboxPromoCodeTimeDuration.Add(this.timePromoCodeDuration);
+			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.hboxPromoCodeTimeDuration[this.timePromoCodeDuration]));
+			w51.Position = 1;
+			this.vboxPromoCode.Add(this.hboxPromoCodeTimeDuration);
+			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.vboxPromoCode[this.hboxPromoCodeTimeDuration]));
+			w52.Position = 1;
+			w52.Expand = false;
+			w52.Fill = false;
 			// Container child vboxPromoCode.Gtk.Box+BoxChild
 			this.hboxOrderMinSumSettings = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxOrderMinSumSettings.Name = "hboxOrderMinSumSettings";
@@ -594,10 +645,10 @@ namespace Vodovoz.Views.Orders
 			this.chkOrderMinSum.DrawIndicator = true;
 			this.chkOrderMinSum.UseUnderline = true;
 			this.hboxOrderMinSumSettings.Add(this.chkOrderMinSum);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hboxOrderMinSumSettings[this.chkOrderMinSum]));
-			w49.Position = 0;
-			w49.Expand = false;
-			w49.Fill = false;
+			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.hboxOrderMinSumSettings[this.chkOrderMinSum]));
+			w53.Position = 0;
+			w53.Expand = false;
+			w53.Fill = false;
 			// Container child hboxOrderMinSumSettings.Gtk.Box+BoxChild
 			this.spinMinOrderSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.spinMinOrderSum.CanFocus = true;
@@ -608,29 +659,41 @@ namespace Vodovoz.Views.Orders
 			this.spinMinOrderSum.ValueAsDecimal = 0m;
 			this.spinMinOrderSum.ValueAsInt = 0;
 			this.hboxOrderMinSumSettings.Add(this.spinMinOrderSum);
-			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hboxOrderMinSumSettings[this.spinMinOrderSum]));
-			w50.Position = 1;
-			w50.Expand = false;
-			w50.Fill = false;
+			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.hboxOrderMinSumSettings[this.spinMinOrderSum]));
+			w54.Position = 1;
+			w54.Expand = false;
+			w54.Fill = false;
 			// Container child hboxOrderMinSumSettings.Gtk.Box+BoxChild
 			this.lblRubles = new global::Gamma.GtkWidgets.yLabel();
 			this.lblRubles.Name = "lblRubles";
 			this.lblRubles.LabelProp = global::Mono.Unix.Catalog.GetString("рублей");
 			this.hboxOrderMinSumSettings.Add(this.lblRubles);
-			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.hboxOrderMinSumSettings[this.lblRubles]));
-			w51.Position = 2;
-			w51.Expand = false;
-			w51.Fill = false;
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.hboxOrderMinSumSettings[this.lblRubles]));
+			w55.Position = 2;
+			w55.Expand = false;
+			w55.Fill = false;
 			this.vboxPromoCode.Add(this.hboxOrderMinSumSettings);
-			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.vboxPromoCode[this.hboxOrderMinSumSettings]));
-			w52.Position = 1;
-			w52.Expand = false;
-			w52.Fill = false;
+			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.vboxPromoCode[this.hboxOrderMinSumSettings]));
+			w56.Position = 2;
+			w56.Expand = false;
+			w56.Fill = false;
+			// Container child vboxPromoCode.Gtk.Box+BoxChild
+			this.chkOneTimePromoCode = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkOneTimePromoCode.CanFocus = true;
+			this.chkOneTimePromoCode.Name = "chkOneTimePromoCode";
+			this.chkOneTimePromoCode.Label = global::Mono.Unix.Catalog.GetString("Одноразовый промокод");
+			this.chkOneTimePromoCode.DrawIndicator = true;
+			this.chkOneTimePromoCode.UseUnderline = true;
+			this.vboxPromoCode.Add(this.chkOneTimePromoCode);
+			global::Gtk.Box.BoxChild w57 = ((global::Gtk.Box.BoxChild)(this.vboxPromoCode[this.chkOneTimePromoCode]));
+			w57.Position = 3;
+			w57.Expand = false;
+			w57.Fill = false;
 			w44.Add(this.vboxPromoCode);
 			this.scrolledWindowPromoCode.Add(w44);
 			this.notebook.Add(this.scrolledWindowPromoCode);
-			global::Gtk.Notebook.NotebookChild w55 = ((global::Gtk.Notebook.NotebookChild)(this.notebook[this.scrolledWindowPromoCode]));
-			w55.Position = 1;
+			global::Gtk.Notebook.NotebookChild w60 = ((global::Gtk.Notebook.NotebookChild)(this.notebook[this.scrolledWindowPromoCode]));
+			w60.Position = 1;
 			// Notebook tab
 			this.lblPromoCode = new global::Gtk.Label();
 			this.lblPromoCode.Name = "lblPromoCode";
@@ -638,8 +701,8 @@ namespace Vodovoz.Views.Orders
 			this.notebook.SetTabLabel(this.scrolledWindowPromoCode, this.lblPromoCode);
 			this.lblPromoCode.ShowAll();
 			this.vboxMain.Add(this.notebook);
-			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.notebook]));
-			w56.Position = 2;
+			global::Gtk.Box.BoxChild w61 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.notebook]));
+			w61.Position = 2;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
