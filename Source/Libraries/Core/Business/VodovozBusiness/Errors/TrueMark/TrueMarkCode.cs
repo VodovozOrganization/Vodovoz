@@ -69,6 +69,18 @@
 				nameof(TrueMarkCodeIsNotIntroduced),
 				"Код ЧЗ не в обороте");
 
+		public static Error TrueMarkCodeOwnerInnIsNotCorrect =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeOwnerInnIsNotCorrect),
+				"По данным ЧЗ владельцем кода является сторонняя организация");
+
+		public static Error CreateTrueMarkCodeOwnerInnIsNotCorrect(string inn) =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeOwnerInnIsNotCorrect),
+				$"По данным ЧЗ владельцем кода является сторонняя организация с ИНН {inn}");
+
 		public static Error TrueMarkApiRequestError =>
 			new Error(
 				typeof(TrueMarkCode),

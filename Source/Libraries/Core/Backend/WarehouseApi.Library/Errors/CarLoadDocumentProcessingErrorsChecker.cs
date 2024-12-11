@@ -4,18 +4,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Settings.Edo;
 using Vodovoz.Settings.Warehouse;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
@@ -24,6 +26,8 @@ namespace WarehouseApi.Library.Errors
 {
 	public class CarLoadDocumentProcessingErrorsChecker
 	{
+		private readonly IList<string> _organizationsInns;
+
 		private readonly ILogger<CarLoadDocumentProcessingErrorsChecker> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkRepository _trueMarkRepository;
@@ -41,8 +45,20 @@ namespace WarehouseApi.Library.Errors
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,
 			IGenericRepository<OrderEntity> orderRepository,
-			TrueMarkCodesChecker trueMarkCodesChecker)
+			IGenericRepository<OrganizationEntity> organizationRepository,
+			TrueMarkCodesChecker trueMarkCodesChecker,
+			IEdoSettings edoSettings)
 		{
+			if(organizationRepository is null)
+			{
+				throw new ArgumentNullException(nameof(organizationRepository));
+			}
+
+			if(edoSettings is null)
+			{
+				throw new ArgumentNullException(nameof(edoSettings));
+			}
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
@@ -51,6 +67,11 @@ namespace WarehouseApi.Library.Errors
 			_carLoadDocumentLoadingProcessSettings = carLoadDocumentLoadingProcessSettings;
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_trueMarkCodesChecker = trueMarkCodesChecker ?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
+
+			_organizationsInns =
+				organizationRepository
+				.Get(uow, x => edoSettings.OrganizationsHavingAccountsInTrueMark.Contains(x.Id)).Select(x => x.INN)
+				.ToList();
 		}
 
 		public bool IsCarLoadDocumentLoadingCanBeStarted(
@@ -224,7 +245,7 @@ namespace WarehouseApi.Library.Errors
 				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
 				&& IsNotAllProductsHasTrueMarkCode(orderId, nomenclatureId, documentItemToEdit, out error)
 				&& IsTrueMarkCodeNotExistAndHasRequiredGtin(trueMarkCode, documentItemToEdit.Nomenclature.Gtin, scannedCode, out error)
-				&& IsTrueMarkCodeIntroduced(trueMarkCode, cancellationToken, out error);
+				&& IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkCode, cancellationToken, out error);
 		}
 
 		public bool IsTrueMarkCodeCanBeChanged(
@@ -252,7 +273,7 @@ namespace WarehouseApi.Library.Errors
 				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
 				&& IsProductsHavingRequiredTrueMarkCodeExists(documentItemToEdit, oldTrueMarkCode, out error)
 				&& IsTrueMarkCodeNotExists(newTrueMarkCode, newScannedCode, out error)
-				&& IsTrueMarkCodeIntroduced(newTrueMarkCode, cancellationToken, out error);
+				&& IsTrueMarkCodeIntroducedAndHasCorrectInn(newTrueMarkCode, cancellationToken, out error);
 		}
 
 		public bool IsOrderNeedIndividualSetOnLoad(int orderId, out Error error)
@@ -432,7 +453,7 @@ namespace WarehouseApi.Library.Errors
 			return true;
 		}
 
-		private bool IsTrueMarkCodeIntroduced(TrueMarkWaterCode trueMarkCode, CancellationToken cancellationToken, out Error error)
+		private bool IsTrueMarkCodeIntroducedAndHasCorrectInn(TrueMarkWaterCode trueMarkCode, CancellationToken cancellationToken, out Error error)
 		{
 			error = null;
 
@@ -455,6 +476,13 @@ namespace WarehouseApi.Library.Errors
 				if(checkResults is null || !checkResults.Introduced)
 				{
 					error = TrueMarkCodeErrors.TrueMarkCodeIsNotIntroduced;
+					LogError(error);
+					return false;
+				}
+
+				if(!_organizationsInns.Contains(checkResults.OwnerInn))
+				{
+					error = TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(checkResults.OwnerInn);
 					LogError(error);
 					return false;
 				}
