@@ -35,6 +35,8 @@ namespace Vodovoz.Domain.Organizations
 			KPP = string.Empty;
 			OGRN = string.Empty;
 			Email = string.Empty;
+			OKPO = string.Empty;
+			OKVED = string.Empty;
 		}
 
 		#region Свойства
@@ -236,7 +238,7 @@ namespace Vodovoz.Domain.Organizations
 			if(OKPO.Length < 8)
 			{
 				yield return new ValidationResult(
-					"Номер ОКПО не должен содержать минимум 8 цифр.",
+					"Номер ОКПО должен содержать минимум 8 цифр.",
 					new[] { nameof(OKPO) });
 			}
 

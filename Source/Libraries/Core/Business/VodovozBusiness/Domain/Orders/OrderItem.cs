@@ -477,6 +477,8 @@ namespace Vodovoz.Domain.Orders
 
 			return CounterpartyMovementOperation;
 		}
+		
+		public virtual bool HasZeroCountOrSum() => Count <= 0 || Sum == default;
 
 		#endregion
 

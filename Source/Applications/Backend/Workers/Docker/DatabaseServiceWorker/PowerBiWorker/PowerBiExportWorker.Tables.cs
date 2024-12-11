@@ -10,13 +10,20 @@ namespace DatabaseServiceWorker.PowerBiWorker
 {
 	internal partial class PowerBiExportWorker
 	{
-		private const int _timeOut = 120;
+		private const int _timeOut = 600;
+
 		private async Task ExportTablesAsync(
 			MySqlConnection connectionSource,
 			MySqlConnection connectionTarget,
 			DateTime startDate,
 			CancellationToken stoppingToken)
 		{
+			#region Calendar
+
+			var calendarInsertSql = GetCalendarInsertSql();
+			connectionTarget.Execute(calendarInsertSql, commandTimeout: _timeOut);
+
+			#endregion Calendar
 
 			#region planPerDay
 
@@ -116,13 +123,15 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 			var undeliveredOrderTransaction = connectionTarget.BeginTransaction();
 			connectionTarget.Execute(undeliveredOrderInsertSql, undeliveredOrderList, undeliveredOrderTransaction, _timeOut);
-
-			var guiltyInGuiltyInUndeliveredOrdersSql = GetGuiltyInUndeliveredOrdersSelectSql();
-			var guiltyInGuiltyInUndeliveredOrderList = await connectionSource.GetDataAsync<dynamic>(guiltyInGuiltyInUndeliveredOrdersSql, new { date = startDate });
+			undeliveredOrderTransaction.Commit();
+			
+			var guiltyInUndeliveredOrdersSql = GetGuiltyInUndeliveredOrdersSelectSql();
+			var guiltyInGuiltyInUndeliveredOrderList = await connectionSource.GetDataAsync<dynamic>(guiltyInUndeliveredOrdersSql, new { date = startDate });
 			var guiltyInGuiltyInUndeliveredOrderInsertSql = GetGuiltyInUndeliveredOrdersInsertSql();
 
-			connectionTarget.Execute(guiltyInGuiltyInUndeliveredOrderInsertSql, guiltyInGuiltyInUndeliveredOrderList, undeliveredOrderTransaction, _timeOut);
-			undeliveredOrderTransaction.Commit();
+			var guiltyInUndeliveredOrdersTransaction = connectionTarget.BeginTransaction();
+			connectionTarget.Execute(guiltyInGuiltyInUndeliveredOrderInsertSql, guiltyInGuiltyInUndeliveredOrderList, guiltyInUndeliveredOrdersTransaction, _timeOut);
+			guiltyInUndeliveredOrdersTransaction.Commit();
 
 			#endregion
 		}

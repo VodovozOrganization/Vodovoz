@@ -66,7 +66,7 @@ namespace TaxcomEdo.Client
 		/// <param name="edxClientId">Номер кабинета ЭДО провайдера клиента</param>
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
-		Task AcceptContact(string edxClientId, CancellationToken cancellationToken = default);
+		Task<bool> AcceptContact(string edxClientId, CancellationToken cancellationToken = default);
 		/// <summary>
 		/// Получение архива со всеми документами из документооборота
 		/// </summary>

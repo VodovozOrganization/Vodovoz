@@ -17,7 +17,7 @@ namespace Vodovoz.Presentation.WebApi
 {
 	public static class DependencyInjection
 	{
-		private static readonly string _securityOptionsConfigurationKey = typeof(SecurityOptions).Name.Replace("Options", "");
+		private static readonly string _securityOptionsConfigurationKey = "Security";
 
 		private static bool _authorizationAdded = false;
 

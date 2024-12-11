@@ -18,12 +18,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 {
 	public class LastRouteListReport
 	{
-		public string SelectedEmployeeStatus => string.Join(", ", _includedEmployeeStatus.Select(x => x.GetEnumTitle()));
-		public string SelectedCarsOwn => string.Join(", ", _includedCarOwn.Select(x => x.GetEnumTitle()));
-		public string SelectedCarTypeOfUse => string.Join(", ", _includedCarTypeOfUse.Select(x => x.GetEnumTitle()));
-		public string SelectedVisitingMaster => _includedVisitingMaster.GetEnumTitle();
-
-		public List<LastRouteListReportRow> Rows = new List<LastRouteListReportRow>();
 		private IEnumerable<EmployeeStatus> _includedEmployeeStatus;
 		private IEnumerable<CarTypeOfUse> _includedCarTypeOfUse;
 		private IEnumerable<CarOwnType> _includedCarOwn;
@@ -130,5 +124,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 
 			Rows = result;
 		}
+
+		public string SelectedEmployeeStatus => string.Join(", ", _includedEmployeeStatus.Select(x => x.GetEnumTitle()));
+
+		public string SelectedCarsOwn => string.Join(", ", _includedCarOwn.Select(x => x.GetEnumTitle()));
+
+		public string SelectedCarTypeOfUse => string.Join(", ", _includedCarTypeOfUse.Select(x => x.GetEnumTitle()));
+
+		public string SelectedVisitingMaster => _includedVisitingMaster.GetEnumTitle();
+
+		public List<LastRouteListReportRow> Rows = new List<LastRouteListReportRow>();
 	}
 }

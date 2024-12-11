@@ -32,6 +32,5 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 				? "да"
 				: "нет"
 			: "";
-
 	}
 }

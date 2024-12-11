@@ -32,7 +32,6 @@ namespace Vodovoz.Core.Domain.Pacs
 				Trigger = operatorState.Trigger,
 				State = operatorState.State,
 				PhoneNumber = operatorState.PhoneNumber,
-				CallId = operatorState.CallId,
 				DisconnectionType = operatorState.DisconnectionType,
 				WorkShift = operatorState.WorkShift
 			};

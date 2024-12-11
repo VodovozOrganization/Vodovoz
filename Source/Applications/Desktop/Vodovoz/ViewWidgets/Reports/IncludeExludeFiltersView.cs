@@ -88,7 +88,6 @@ namespace Vodovoz.ViewWidgets.Reports
 						{
 							c.Text = n.IncludedCount.ToString();
 						}
-
 					});
 
 			if(ViewModel.WithExcludes)

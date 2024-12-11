@@ -17,7 +17,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			ExcludeVisitingMaster,
 			[Display(Name = "Только")]
 			OnlyVisitingMaster
-
 		}
 	}
 }

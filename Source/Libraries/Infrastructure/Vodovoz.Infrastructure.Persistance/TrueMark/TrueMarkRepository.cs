@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 
@@ -36,6 +37,23 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 				var innList = organizations.Union(counterparties);
 				var result = innList.Distinct().ToHashSet();
+				return result;
+			}
+		}
+
+		public ISet<string> GetAllowedCodeOwnersGtins()
+		{
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Get our Gtins"))
+			{
+				var result =
+				(
+					from nomenclatures in unitOfWork.Session.Query<Nomenclature>()
+					where nomenclatures.Gtin != null
+					select nomenclatures.Gtin
+				)
+				.Distinct()
+				.ToHashSet();
+
 				return result;
 			}
 		}

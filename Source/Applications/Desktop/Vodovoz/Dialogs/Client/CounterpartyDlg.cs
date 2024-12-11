@@ -1620,8 +1620,7 @@ namespace Vodovoz
 					Entity.PayerSpecialKPP = null;
 				}
 
-				_phonesViewModel.RemoveEmpty();
-				emailsView.ViewModel.RemoveEmpty();
+				RemoveEmptyEmailsAndPhones();
 
 				if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 				{
@@ -1652,6 +1651,12 @@ namespace Vodovoz
 			{
 				SetSensetivity(true);
 			}
+		}
+
+		private void RemoveEmptyEmailsAndPhones()
+		{
+			_phonesViewModel.RemoveEmpty();
+			emailsView.ViewModel.RemoveEmpty();
 		}
 
 		private void AddAttachedFilesIfNeeded()
@@ -2376,6 +2381,8 @@ namespace Vodovoz
 			{
 				return;
 			}
+			
+			RemoveEmptyEmailsAndPhones();
 
 			if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 			{
