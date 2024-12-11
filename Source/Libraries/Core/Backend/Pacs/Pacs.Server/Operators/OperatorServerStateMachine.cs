@@ -188,6 +188,11 @@ namespace Pacs.Server.Operators
 
 			OperatorState = OperatorState.Copy(_previuosState);
 
+			if(newState == OperatorStateType.WaitingForCall)
+			{
+				OperatorState.CallId = _previuosState.CallId;
+			}
+
 			if(OperatorState.State == OperatorStateType.WaitingForCall
 				&& newState == OperatorStateType.Connected
 				&& OperatorState.WorkShift?.Ended != null)
