@@ -1,0 +1,254 @@
+﻿using ClosedXML.Report;
+using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic.FileIO;
+using QS.Commands;
+using QS.Dialog;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Services.FileDialog;
+using QS.ViewModels;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
+using static Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters.IncludeExcludeLastRouteListFilterFactory;
+
+namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
+{
+	public class LastRouteListReportViewModel : DialogTabViewModelBase
+	{
+		private readonly ILogger<LastRouteListReportViewModel> _logger;
+		private readonly IInteractiveService _interactiveService;
+		private readonly IIncludeExcludeLastRouteListFilterFactory _includeExcludeLastRoureListReportsFilterFactory;
+		private readonly IGuiDispatcher _guiDispatcher;
+		private readonly IFileDialogService _fileDialogService;
+		private bool _isReportGenerationInProgress;
+		private CancellationTokenSource _cancellationTokenSource;
+		private const string _templatePath = @".\Reports\Logistic\LastRouteListReport.xlsx";
+
+		public LastRouteListReportViewModel(
+			ILogger<LastRouteListReportViewModel> logger,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IInteractiveService interactiveService,
+			INavigationManager navigation,
+			IIncludeExcludeLastRouteListFilterFactory includeExcludeLastRouteListFilterFactory,
+			IGuiDispatcher guiDispatcher,
+			IFileDialogService fileDialogService)
+			: base(unitOfWorkFactory, interactiveService, navigation)
+		{
+			_logger =
+				logger ?? throw new ArgumentNullException(nameof(logger));
+			_interactiveService =
+				interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_includeExcludeLastRoureListReportsFilterFactory =
+				includeExcludeLastRouteListFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeLastRouteListFilterFactory));
+			_guiDispatcher =
+				guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_fileDialogService =
+				fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+
+			Title = "Отчет по последнему МЛ по водителям";
+
+			CreateFilter();
+
+			GenerateReportCommand = new AsyncCommand(guiDispatcher, GenerateReport, () => CanGenerateReport);
+			GenerateReportCommand.CanExecuteChangedWith(this, vm => vm.CanGenerateReport);
+
+			AbortReportGenerationCommand = new DelegateCommand(AbortReportGeneration, () => CanAbortReport);
+			AbortReportGenerationCommand.CanExecuteChangedWith(this, vm => vm.CanAbortReport);
+
+			SaveReportCommand = new DelegateCommand(SaveReport, () => CanSaveReport);
+			SaveReportCommand.CanExecuteChangedWith(this, vm => vm.CanSaveReport);
+		}
+
+		private void CreateFilter()
+		{
+			var initIncludeFilter = new LastRouteListInitIncludeFilter
+			{
+				EmployeeStatusesForInclude = new[]
+				{
+					EmployeeStatus.IsWorking,
+					EmployeeStatus.OnMaternityLeave,
+					EmployeeStatus.OnCalculation
+				},
+				CarTypesOfUseForInclude = new[]
+				{
+					CarTypeOfUse.Largus,
+					CarTypeOfUse.GAZelle,
+					CarTypeOfUse.Truck
+
+				},
+				CarOwnTypesForInclude = new[]
+				{
+					CarOwnType.Driver,
+					CarOwnType.Company,
+					CarOwnType.Raskat
+				},
+				VisitingMaster = new[]
+				{
+					VisitingMasterFilterType.ExcludeVisitingMaster
+				}
+			};
+
+			FilterViewModel = _includeExcludeLastRoureListReportsFilterFactory.CreateLastReportIncludeExcludeFilter
+			(
+				UoW,
+				initIncludeFilter
+			);
+		}
+
+		private async Task GenerateReport(CancellationToken token)
+		{
+			if(IsReportGenerationInProgress)
+			{
+				return;
+			}
+
+			_logger.LogInformation("Формируем отчет");
+
+			IsReportGenerationInProgress = true;
+
+			_cancellationTokenSource = new CancellationTokenSource();
+
+			try
+			{
+				await Report.GenerateRows(
+					UoW,
+					FilterViewModel,
+					_cancellationTokenSource.Token);
+			}
+			catch(OperationCanceledException ex)
+			{
+				var message = "Формирование отчета было прервано вручную";
+
+				LogErrorAndShowMessageInGuiThread(ex, message);
+			}
+			catch(Exception ex)
+			{
+				var message = $"При формировании отчета возникла ошибка:\n{ex.Message}";
+
+				LogErrorAndShowMessageInGuiThread(ex, message);
+
+			}
+			finally
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					OnPropertyChanged(() => Report);
+
+					IsReportGenerationInProgress = false;
+				});
+
+				IsReportGenerationInProgress = false;
+
+				_cancellationTokenSource?.Dispose();
+				_cancellationTokenSource = null;
+			}
+		}
+
+		private void AbortReportGeneration()
+		{
+			if(!IsReportGenerationInProgress
+				|| _cancellationTokenSource is null
+				|| _cancellationTokenSource.IsCancellationRequested)
+			{
+				return;
+			}
+
+			_cancellationTokenSource.Cancel();
+		}
+
+		private void SaveReport()
+		{
+			if(IsReportGenerationInProgress)
+			{
+				return;
+			}
+
+			var dialogSettings = CreateDialogSettings();
+
+			var saveDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(saveDialogResult.Successful)
+			{
+				ExportReport(saveDialogResult.Path);
+
+				_interactiveService.ShowMessage(ImportanceLevel.Info, "Сохранение отчёта завершено.");
+			}
+		}
+		private void ExportReport(string path)
+		{
+			var template = new XLTemplate(_templatePath);
+			template.AddVariable(Report);
+			template.Generate();
+			template.SaveAs(path);
+		}
+
+		private DialogSettings CreateDialogSettings()
+		{
+			var reportFileExtension = ".xlsx";
+
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить",
+				DefaultFileExtention = reportFileExtension,
+				InitialDirectory = SpecialDirectories.Desktop,
+				FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			dialogSettings.FileFilters.Clear();
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Отчет Excel", "*" + reportFileExtension));
+
+			return dialogSettings;
+		}
+
+		private void LogErrorAndShowMessageInGuiThread(Exception ex, string message)
+		{
+			_logger.LogError(ex, message);
+
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, message);
+			});
+		}
+
+		public AsyncCommand GenerateReportCommand { get; }
+		public DelegateCommand AbortReportGenerationCommand { get; }
+		public DelegateCommand SaveReportCommand { get; }
+
+		public IncludeExludeFiltersViewModel FilterViewModel { get; private set; }
+
+		public LastRouteListReport Report { get; private set; } = new LastRouteListReport();
+
+		[PropertyChangedAlso(
+			nameof(CanGenerateReport),
+			nameof(CanAbortReport),
+			nameof(CanSaveReport))]
+		public bool IsReportGenerationInProgress
+		{
+			get => _isReportGenerationInProgress;
+			set => SetField(ref _isReportGenerationInProgress, value);
+		}
+
+		public bool CanGenerateReport =>
+			!IsReportGenerationInProgress;
+
+		public bool CanAbortReport =>
+			IsReportGenerationInProgress;
+
+		public bool CanSaveReport =>
+			!IsReportGenerationInProgress;
+
+		public override void Dispose()
+		{
+			_cancellationTokenSource?.Dispose();
+			_cancellationTokenSource = null;
+
+			base.Dispose();
+		}
+	}
+}

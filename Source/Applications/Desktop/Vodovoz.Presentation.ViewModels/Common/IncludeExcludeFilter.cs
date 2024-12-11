@@ -179,7 +179,13 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		private void OnElementUnIncluded(IncludeExcludeElement sender, EventArgs eventArgs)
 		{
+			if(IsRadio)
+			{
+				return;
+			}
+
 			IncludedElements.Remove(sender);
+
 			OnPropertyChanged(nameof(IncludedCount));
 		}
 
@@ -196,7 +202,18 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		{
 			if(!IncludedElements.Any(x => x.Number == sender.Number))
 			{
+				if(IsRadio)
+				{
+					foreach(var item in IncludedElements.Where(x => x != sender).ToArray())
+					{
+						item.UnIncludeForRadio();
+					}
+
+					IncludedElements.Clear();
+				}
+
 				IncludedElements.Add(sender);
+
 				OnPropertyChanged(nameof(IncludedCount));
 			}
 		}
@@ -281,5 +298,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 			return result;
 		}
+
+		public bool IsRadio { get; internal set; }
 	}
 }

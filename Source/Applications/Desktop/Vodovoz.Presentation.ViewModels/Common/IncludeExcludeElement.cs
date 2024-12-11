@@ -23,12 +23,14 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public string Title { get; set; }
 
+		private bool CanChangeInclude(bool isEnabling) => isEnabling || !IsRadio;
+
 		public bool Include
 		{
 			get => _include;
 			set
 			{
-				if(SetField(ref _include, value))
+				if(CanChangeInclude(value) && SetField(ref _include, value))
 				{
 					if(value)
 					{
@@ -48,6 +50,10 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				}
 			}
 		}
+
+		public bool IsRadio { get; internal set; }
+
+		public void UnIncludeForRadio() => SetField(ref _include, false);
 
 		public bool Exclude
 		{

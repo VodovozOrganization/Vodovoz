@@ -1,7 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QS.DomainModel.Entity;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Employees
 {
+	[Appellative(
+		Nominative = "Статус сотрудника",
+		NominativePlural = "Статусы сотрудников")]
 	public enum EmployeeStatus
 	{
 		[Display(Name = "Работает")]
