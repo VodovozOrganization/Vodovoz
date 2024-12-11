@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Edo.Transport;
+using MessageTransport;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -11,8 +13,6 @@ using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Settings.Database.Warehouse;
-using Vodovoz.Settings.Warehouse;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using WarehouseApi.Library.Services;
@@ -47,6 +47,13 @@ namespace WarehouseApi.Library
 				.AddScoped<TrueMarkCodesChecker>()
 				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
 				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>();
+
+			services
+				.AddMessageTransportSettings()
+				.AddEdoTaskMassTransit((context, cfg) =>
+				{
+					cfg.AddEdoTaskBaseTopology(context);
+				});
 
 			services.AddStaticHistoryTracker();
 

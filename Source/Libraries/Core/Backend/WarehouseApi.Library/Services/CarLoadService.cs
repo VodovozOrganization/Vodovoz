@@ -1,4 +1,6 @@
-﻿using Gamma.Utilities;
+﻿using Edo.Transport.Messages.Events;
+using Gamma.Utilities;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.DomainModel.UoW;
@@ -39,6 +41,7 @@ namespace WarehouseApi.Library.Services
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
+		private readonly IBus _messageBus;
 
 		public CarLoadService(
 			ILogger<CarLoadService> logger,
@@ -50,7 +53,8 @@ namespace WarehouseApi.Library.Services
 			ILogisticsEventsCreationService logisticsEventsCreationService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
-			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker)
+			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
+			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -62,6 +66,7 @@ namespace WarehouseApi.Library.Services
 			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
+			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		public async Task<RequestProcessingResult<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken)
@@ -331,6 +336,8 @@ namespace WarehouseApi.Library.Services
 				Error = null
 			};
 
+			await PublishTaskCreatedEvent(11);
+
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
@@ -530,6 +537,18 @@ namespace WarehouseApi.Library.Services
 			{
 				_logger.LogError(ex.Message, ex);
 				return false;
+			}
+		}
+
+		private async Task PublishTaskCreatedEvent(int taskId)
+		{
+			try
+			{
+				await _messageBus.Publish(new EdoTaskCreatedEvent { Id = taskId });
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при отправке события о создании новой задачи. Exception: {ExceptionMessage}", ex.Message);
 			}
 		}
 
