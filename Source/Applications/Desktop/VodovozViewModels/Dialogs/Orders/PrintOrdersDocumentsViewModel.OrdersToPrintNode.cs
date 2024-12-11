@@ -10,7 +10,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			private bool _selected;
 
 			public int Id { get; set; }
-			public DateTime DeliveryDate { get; set; }
+			public DateTime? DeliveryDate { get; set; }
 			
 			public bool Selected
 			{
