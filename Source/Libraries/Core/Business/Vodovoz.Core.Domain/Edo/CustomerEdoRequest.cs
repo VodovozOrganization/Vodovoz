@@ -17,7 +17,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private DateTime _time;
 		private CustomerEdoRequestType _type;
 		private CustomerEdoRequestSource _source;
-		private ObservableList<TrueMarkProductCode> _productCodes = new ObservableList<TrueMarkProductCode>();
+		private IObservableList<TrueMarkProductCode> _productCodes = new ObservableList<TrueMarkProductCode>();
 		private EdoDocumentType _documentType;
 
 		[Display(Name = "Код")]
@@ -49,7 +49,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Коды маркировки")]
-		public virtual ObservableList<TrueMarkProductCode> ProductCodes
+		public virtual IObservableList<TrueMarkProductCode> ProductCodes
 		{
 			get => _productCodes;
 			set => SetField(ref _productCodes, value);

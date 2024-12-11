@@ -2,7 +2,6 @@
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using NHibernate;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -106,10 +105,10 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			var isDocumentSavedAndEventsCreated =
-				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.InProgress, accessToken, cancellationToken);
+			var isDocumentLoadOperationStateUpdated =
+				SetDocumentLoadOperationState(carLoadDocument, CarLoadDocumentLoadOperationState.InProgress);
 
-			if(!isDocumentSavedAndEventsCreated)
+			if(!isDocumentLoadOperationStateUpdated)
 			{
 				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
 				failureResponse.Error = error.Message;
@@ -118,6 +117,21 @@ namespace WarehouseApi.Library.Services
 
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
+
+			var isLogisticEventCreated =
+				await CreateStartLoadLogisticEvent(carLoadDocument.Id, accessToken, cancellationToken);
+
+			if(!isLogisticEventCreated)
+			{
+				error = CarLoadDocumentErrors.CarLoadDocumentLogisticEventCreationError;
+				failureResponse.Error = error.Message;
+
+				var result = Result.Failure<StartLoadResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
+
+			_uow.Commit();
 
 			var successResponse = new StartLoadResponse
 			{
@@ -326,13 +340,26 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			var isDocumentSavedAndEventsCreated =
-				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.Done, accessToken, cancellationToken);
+			var isDocumentLoadOperationStateUpdated =
+				SetDocumentLoadOperationState(carLoadDocument, CarLoadDocumentLoadOperationState.Done);
 
-			if(!isDocumentSavedAndEventsCreated)
+			if(!isDocumentLoadOperationStateUpdated)
 			{
 				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
 
+				failureResponse.Error = error.Message;
+
+				var result = Result.Failure<EndLoadResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
+
+			var isLogisticEventCreated =
+				await CreateEndLoadLogisticEvent(carLoadDocument.Id, accessToken, cancellationToken);
+
+			if(!isLogisticEventCreated)
+			{
+				error = CarLoadDocumentErrors.CarLoadDocumentLogisticEventCreationError;
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<EndLoadResponse>(error);
@@ -346,7 +373,11 @@ namespace WarehouseApi.Library.Services
 				Error = null
 			};
 
-			await CreateEdoRequestsAndSendEvents(carLoadDocument);
+			var edoRequests = CreateEdoRequests(carLoadDocument);
+
+			await PublishEdoRequestCreatedEvents(edoRequests);
+
+			_uow.Commit();
 
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
@@ -371,11 +402,9 @@ namespace WarehouseApi.Library.Services
 			return carLoadDocumentDto;
 		}
 
-		private async Task<bool> SetLoadOperationStateAndSaveDocument(
+		private bool SetDocumentLoadOperationState(
 			CarLoadDocumentEntity document,
-			CarLoadDocumentLoadOperationState newLoadOperationState,
-			string logisticsEventApiAccessToken,
-			CancellationToken cancellationToken)
+			CarLoadDocumentLoadOperationState newLoadOperationState)
 		{
 			if(newLoadOperationState != CarLoadDocumentLoadOperationState.InProgress
 				&& newLoadOperationState != CarLoadDocumentLoadOperationState.Done)
@@ -391,21 +420,8 @@ namespace WarehouseApi.Library.Services
 				newLoadOperationState);
 
 			document.LoadOperationState = newLoadOperationState;
+
 			_uow.Save(document);
-
-			var isLogisticsEventCreated =
-				newLoadOperationState == CarLoadDocumentLoadOperationState.InProgress
-				? await CreateStartLoadLogisticEvent(document.Id, logisticsEventApiAccessToken, cancellationToken)
-				: await CreateEndLoadLogisticEvent(document.Id, logisticsEventApiAccessToken, cancellationToken);
-
-			if(!isLogisticsEventCreated)
-			{
-				_logger.LogInformation("Логистическое событие для талона погрузки не было создано. Отменяем изменение статуса талона погрузки.");
-				_uow.Session.GetCurrentTransaction().Rollback();
-				return false;
-			}
-
-			_uow.Commit();
 
 			_logger.LogInformation("Статус талона погрузки #{DocumentId} успешно изменен на \"{NewStatus}\"",
 				document.Id,
@@ -551,7 +567,7 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		private async Task CreateEdoRequestsAndSendEvents(CarLoadDocumentEntity carLoadDocument)
+		private IEnumerable<OrderEdoRequest> CreateEdoRequests(CarLoadDocumentEntity carLoadDocument)
 		{
 			var carLoadDocumentsItemsNeedsRequest =
 				carLoadDocument.Items.Where(x => x.IsIndividualSetForOrder && x.OrderId != null)
@@ -564,7 +580,6 @@ namespace WarehouseApi.Library.Services
 				var edoRequest = new OrderEdoRequest
 				{
 					Time = DateTime.Now,
-					Type = CustomerEdoRequestType.Order,
 					Source = CustomerEdoRequestSource.Warehouse,
 					DocumentType = EdoDocumentType.UPD,
 					Order = new OrderEntity { Id = item.OrderId.Value },
@@ -573,7 +588,10 @@ namespace WarehouseApi.Library.Services
 				var productCodes = item.TrueMarkCodes
 					.Where(x => CarLoadDocumentProcessingErrorsChecker.ProductCodesStatusesToCheckDuplicates.Contains(x.SourceCodeStatus));
 
-				edoRequest.ProductCodes.AddRange(productCodes);
+				foreach(var code in productCodes)
+				{
+					edoRequest.ProductCodes.Add(code);
+				}
 
 				_uow.Save(edoRequest);
 
@@ -582,7 +600,7 @@ namespace WarehouseApi.Library.Services
 
 			_uow.Commit();
 
-			await PublishEdoRequestCreatedEvents(edoRequests);
+			return edoRequests;
 		}
 
 		private async Task PublishEdoRequestCreatedEvents(IEnumerable<OrderEdoRequest> edoRequests)
