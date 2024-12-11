@@ -628,6 +628,8 @@ namespace Vodovoz.Views.Orders
 			this.hboxPromoCodeTimeDuration.Add(this.timePromoCodeDuration);
 			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.hboxPromoCodeTimeDuration[this.timePromoCodeDuration]));
 			w51.Position = 1;
+			w51.Expand = false;
+			w51.Fill = false;
 			this.vboxPromoCode.Add(this.hboxPromoCodeTimeDuration);
 			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.vboxPromoCode[this.hboxPromoCodeTimeDuration]));
 			w52.Position = 1;
