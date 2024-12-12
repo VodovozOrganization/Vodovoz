@@ -20,7 +20,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
 using Vodovoz.Models;
-using Vodovoz.Models.TrueMark;
+using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Common;
@@ -39,8 +39,8 @@ namespace WarehouseApi.Library.Services
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
-		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
 		private readonly IBus _messageBus;
 
@@ -52,8 +52,8 @@ namespace WarehouseApi.Library.Services
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ITrueMarkRepository trueMarkRepository,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
-			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
 			IBus messageBus)
 		{
@@ -64,8 +64,8 @@ namespace WarehouseApi.Library.Services
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
-			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
@@ -85,8 +85,12 @@ namespace WarehouseApi.Library.Services
 				Result = OperationResultEnumDto.Error
 			};
 
-			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee, out Error error))
+			var checkResult = _documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<StartLoadResponse>(error);
@@ -96,8 +100,12 @@ namespace WarehouseApi.Library.Services
 
 			CreateAndSaveCarLoadDocumentLoadingProcessAction(carLoadDocument?.Id ?? 0, pickerEmployee, CarLoadDocumentLoadingProcessActionType.StartLoad);
 
-			if(!_documentErrorsChecker.IsCarLoadDocumentLoadingCanBeStarted(carLoadDocument, documentId, out error))
+			checkResult = _documentErrorsChecker.IsCarLoadDocumentLoadingCanBeStarted(carLoadDocument, documentId);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<StartLoadResponse>(error);
@@ -110,7 +118,7 @@ namespace WarehouseApi.Library.Services
 
 			if(!isDocumentLoadOperationStateUpdated)
 			{
-				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
+				var error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<StartLoadResponse>(error);
@@ -123,7 +131,7 @@ namespace WarehouseApi.Library.Services
 
 			if(!isLogisticEventCreated)
 			{
-				error = CarLoadDocumentErrors.CarLoadDocumentLogisticEventCreationError;
+				var error = CarLoadDocumentErrors.CarLoadDocumentLogisticEventCreationError;
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<StartLoadResponse>(error);
@@ -152,9 +160,26 @@ namespace WarehouseApi.Library.Services
 				Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems)
 			};
 
-			if(!_documentErrorsChecker.IsOrderNeedIndividualSetOnLoad(orderId, out Error error)
-				|| !_documentErrorsChecker.IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, documentOrderItems, out error))
+			var checkResult = _documentErrorsChecker.IsOrderNeedIndividualSetOnLoad(orderId);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
+				response.Result = OperationResultEnumDto.Error;
+				response.Error = error.Message;
+
+				var result = Result.Failure<GetOrderResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, response);
+			}
+
+			checkResult = _documentErrorsChecker.IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, documentOrderItems);
+
+			if(checkResult.IsFailure)
+			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				response.Result = OperationResultEnumDto.Error;
 				response.Error = error.Message;
 
@@ -176,7 +201,7 @@ namespace WarehouseApi.Library.Services
 			string userLogin,
 			CancellationToken cancellationToken)
 		{
-			var isScannedCodeValid = _trueMarkWaterCodeParser.TryParse(scannedCode, out TrueMarkWaterCode trueMarkCode);
+			var trueMarkWaterCode = _trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
 
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
@@ -190,8 +215,12 @@ namespace WarehouseApi.Library.Services
 				Result = OperationResultEnumDto.Error,
 			};
 
-			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee, out Error error))
+			var checkResult = _documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<AddOrderCodeResponse>(error);
@@ -204,18 +233,19 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.AddTrueMarkCode);
 
-			if(!_documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
+			checkResult = await _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
 				orderId,
 				nomenclatureId,
-				scannedCode,
-				isScannedCodeValid,
-				trueMarkCode,
+				trueMarkWaterCode,
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
 				documentItemToEdit,
-				cancellationToken,
-				out error))
+				cancellationToken);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<AddOrderCodeResponse>(error);
@@ -223,11 +253,14 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			AddTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, trueMarkCode);
+			AddTrueMarkCodeToDocumentItem(documentItemToEdit, trueMarkWaterCode);
+
+			_uow.Save(documentItemToEdit);
+			_uow.Commit();
 
 			var successResponse = new AddOrderCodeResponse
 			{
-				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
+				Nomenclature = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
 				Result = OperationResultEnumDto.Success,
 				Error = null
 			};
@@ -243,8 +276,8 @@ namespace WarehouseApi.Library.Services
 			string userLogin,
 			CancellationToken cancellationToken)
 		{
-			var isOldScannedCodeValid = _trueMarkWaterCodeParser.TryParse(oldScannedCode, out TrueMarkWaterCode oldTrueMarkCode);
-			var isNewScannedCodeValid = _trueMarkWaterCodeParser.TryParse(newScannedCode, out TrueMarkWaterCode newTrueMarkCode);
+			var oldTrueMarkWaterCode = _trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, oldScannedCode);
+			var newTrueMarkWaterCode = _trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, newScannedCode);
 
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
@@ -258,8 +291,12 @@ namespace WarehouseApi.Library.Services
 				Result = OperationResultEnumDto.Error,
 			};
 
-			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee, out Error error))
+			var checkResult = _documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<ChangeOrderCodeResponse>(error);
@@ -272,21 +309,20 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.ChangeTrueMarkCode);
 
-			if(!_documentErrorsChecker.IsTrueMarkCodeCanBeChanged(
+			checkResult = await _documentErrorsChecker.IsTrueMarkCodeCanBeChanged(
 				orderId,
 				nomenclatureId,
-				oldScannedCode,
-				isOldScannedCodeValid,
-				oldTrueMarkCode,
-				newScannedCode,
-				isNewScannedCodeValid,
-				newTrueMarkCode,
+				oldTrueMarkWaterCode,
+				newTrueMarkWaterCode,
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
 				documentItemToEdit,
-				cancellationToken,
-				out error))
+				cancellationToken);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<ChangeOrderCodeResponse>(error);
@@ -294,7 +330,7 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, oldTrueMarkCode, newTrueMarkCode);
+			ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, oldTrueMarkWaterCode, newTrueMarkWaterCode);
 
 			var successResponse = new ChangeOrderCodeResponse
 			{
@@ -320,8 +356,12 @@ namespace WarehouseApi.Library.Services
 				Result = OperationResultEnumDto.Error
 			};
 
-			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee, out Error error))
+			var checkResult = _documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<EndLoadResponse>(error);
@@ -331,8 +371,12 @@ namespace WarehouseApi.Library.Services
 
 			CreateAndSaveCarLoadDocumentLoadingProcessAction(carLoadDocument?.Id ?? 0, pickerEmployee, CarLoadDocumentLoadingProcessActionType.EndLoad);
 
-			if(!_documentErrorsChecker.IsCarLoadDocumentLoadingCanBeDone(carLoadDocument, documentId, out error))
+			checkResult = _documentErrorsChecker.IsCarLoadDocumentLoadingCanBeDone(carLoadDocument, documentId);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<EndLoadResponse>(error);
@@ -345,7 +389,7 @@ namespace WarehouseApi.Library.Services
 
 			if(!isDocumentLoadOperationStateUpdated)
 			{
-				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
+				var error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
 
 				failureResponse.Error = error.Message;
 
@@ -359,7 +403,7 @@ namespace WarehouseApi.Library.Services
 
 			if(!isLogisticEventCreated)
 			{
-				error = CarLoadDocumentErrors.CarLoadDocumentLogisticEventCreationError;
+				var error = CarLoadDocumentErrors.CarLoadDocumentLogisticEventCreationError;
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<EndLoadResponse>(error);
@@ -430,38 +474,35 @@ namespace WarehouseApi.Library.Services
 			return true;
 		}
 
-		private void AddTrueMarkCodeAndSaveCarLoadDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterCode trueMarkCode)
+		private void AddTrueMarkCodeToDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterIdentificationCode trueMarkWaterCode)
 		{
-			var codeEntity = CreateTrueMarkCodeEntity(trueMarkCode);
-
 			carLoadDocumentItem.TrueMarkCodes.Add(new CarLoadDocumentItemTrueMarkProductCode
 			{
-				SourceCode = codeEntity,
-				ResultCode = codeEntity,
+				CreationTime = DateTime.Now,
+				SourceCode = trueMarkWaterCode,
+				ResultCode = trueMarkWaterCode,
 				Problem = ProductCodeProblem.None,
 				SourceCodeStatus = SourceProductCodeStatus.Accepted,
 				CarLoadDocumentItem = carLoadDocumentItem
 			});
-
-			_uow.Save(carLoadDocumentItem);
-			_uow.Commit();
 		}
 
-		private void ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterCode oldTrueMarkCode, TrueMarkWaterCode newTrueMarkCode)
+		private void ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(
+			CarLoadDocumentItemEntity carLoadDocumentItem,
+			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode,
+			TrueMarkWaterIdentificationCode newTrueMarkWaterCode)
 		{
 			var codeToRemove = carLoadDocumentItem.TrueMarkCodes
 				.Where(x =>
-					x.SourceCode.GTIN == oldTrueMarkCode.GTIN
-					&& x.SourceCode.SerialNumber == oldTrueMarkCode.SerialNumber
-					&& x.SourceCode.CheckCode == oldTrueMarkCode.CheckCode)
+					x.SourceCode.GTIN == oldTrueMarkWaterCode.GTIN
+					&& x.SourceCode.SerialNumber == oldTrueMarkWaterCode.SerialNumber
+					&& x.SourceCode.CheckCode == oldTrueMarkWaterCode.CheckCode)
 				.First();
-
-			var codeEntity = CreateTrueMarkCodeEntity(newTrueMarkCode);
 
 			var codeToAdd = new CarLoadDocumentItemTrueMarkProductCode
 			{
-				SourceCode = codeEntity,
-				ResultCode = codeEntity,
+				SourceCode = newTrueMarkWaterCode,
+				ResultCode = newTrueMarkWaterCode,
 				Problem = ProductCodeProblem.None,
 				SourceCodeStatus = SourceProductCodeStatus.Accepted,
 				CarLoadDocumentItem = carLoadDocumentItem
@@ -472,20 +513,6 @@ namespace WarehouseApi.Library.Services
 
 			_uow.Save(carLoadDocumentItem);
 			_uow.Commit();
-		}
-
-		private TrueMarkWaterIdentificationCode CreateTrueMarkCodeEntity(TrueMarkWaterCode trueMarkCode)
-		{
-			var codeEntity = new TrueMarkWaterIdentificationCode
-			{
-				IsInvalid = false,
-				RawCode = trueMarkCode.SourceCode?.Substring(0, Math.Min(255, trueMarkCode.SourceCode.Length)),
-				GTIN = trueMarkCode.GTIN,
-				SerialNumber = trueMarkCode.SerialNumber,
-				CheckCode = trueMarkCode.CheckCode
-			};
-
-			return codeEntity;
 		}
 
 		private void CreateAndSaveCarLoadDocumentLoadingProcessAction(
@@ -586,7 +613,7 @@ namespace WarehouseApi.Library.Services
 				};
 
 				var productCodes = item.TrueMarkCodes
-					.Where(x => CarLoadDocumentProcessingErrorsChecker.ProductCodesStatusesToCheckDuplicates.Contains(x.SourceCodeStatus));
+					.Where(x => _trueMarkWaterCodeService.ProductCodesStatusesToCheckDuplicates.Contains(x.SourceCodeStatus));
 
 				foreach(var code in productCodes)
 				{

@@ -15,17 +15,17 @@
 				nameof(TrueMarkCodeStringIsNotValid),
 				$"Полученная строка кода ЧЗ ({codeString}) невалидна");
 
-		public static Error TrueMarkCodeIsAlreadyExists =>
+		public static Error TrueMarkCodeIsAlreadyUsed =>
 			new Error(
 				typeof(TrueMarkCode),
-				nameof(TrueMarkCodeIsAlreadyExists),
+				nameof(TrueMarkCodeIsAlreadyUsed),
 				"Код ЧЗ уже имеется в базе. Добавляемый код является дублем");
 
-		public static Error CreateTrueMarkCodeIsAlreadyExists(string codeString) =>
-			string.IsNullOrEmpty(codeString) ? TrueMarkCodeIsAlreadyExists : new Error(
+		public static Error CreateTrueMarkCodeIsAlreadyUsed(int waterCodeId) =>
+			new Error(
 				typeof(TrueMarkCode),
-				nameof(TrueMarkCodeIsAlreadyExists),
-				$"Код ЧЗ ({codeString}) уже имеется в базе. Добавляемый код является дублем");
+				nameof(TrueMarkCodeIsAlreadyUsed),
+				$"Код ЧЗ (Id = {waterCodeId}) уже был использован. Добавляемый код является дублем");
 
 		public static Error TrueMarkCodeGtinIsNotEqualsNomenclatureGtin =>
 			new Error(

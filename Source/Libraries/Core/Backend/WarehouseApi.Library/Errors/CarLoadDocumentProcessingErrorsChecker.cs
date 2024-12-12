@@ -4,21 +4,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Settings.Edo;
 using Vodovoz.Settings.Warehouse;
+using VodovozBusiness.Services.TrueMark;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
@@ -26,16 +25,9 @@ namespace WarehouseApi.Library.Errors
 {
 	public class CarLoadDocumentProcessingErrorsChecker
 	{
-		public static IList<SourceProductCodeStatus> ProductCodesStatusesToCheckDuplicates = new List<SourceProductCodeStatus>
-		{
-			SourceProductCodeStatus.Accepted,
-			SourceProductCodeStatus.Changed
-		};
-
-		private readonly IList<string> _organizationsInns;
-
 		private readonly ILogger<CarLoadDocumentProcessingErrorsChecker> _logger;
 		private readonly IUnitOfWork _uow;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
@@ -46,27 +38,17 @@ namespace WarehouseApi.Library.Errors
 		public CarLoadDocumentProcessingErrorsChecker(
 			ILogger<CarLoadDocumentProcessingErrorsChecker> logger,
 			IUnitOfWork uow,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ITrueMarkRepository trueMarkRepository,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,
 			IGenericRepository<OrderEntity> orderRepository,
-			IGenericRepository<OrganizationEntity> organizationRepository,
-			TrueMarkCodesChecker trueMarkCodesChecker,
-			IEdoSettings edoSettings)
+			TrueMarkCodesChecker trueMarkCodesChecker)
 		{
-			if(organizationRepository is null)
-			{
-				throw new ArgumentNullException(nameof(organizationRepository));
-			}
-
-			if(edoSettings is null)
-			{
-				throw new ArgumentNullException(nameof(edoSettings));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_employeeWithLoginRepository = employeeWithLoginRepository ?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
@@ -74,63 +56,69 @@ namespace WarehouseApi.Library.Errors
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_trueMarkCodesChecker = trueMarkCodesChecker ?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
 
-			_organizationsInns =
-				organizationRepository
-				.Get(uow, x => edoSettings.OrganizationsHavingAccountsInTrueMark.Contains(x.Id)).Select(x => x.INN)
-				.ToList();
 		}
 
-		public bool IsCarLoadDocumentLoadingCanBeStarted(
+		public Result IsCarLoadDocumentLoadingCanBeStarted(
 			CarLoadDocumentEntity carLoadDocument,
-			int documentId,
-			out Error error)
+			int documentId)
 		{
-			return IsCarLoadDocumentNotNull(carLoadDocument, documentId, out error)
-				&& IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(carLoadDocument, documentId, out error);
+			var result = IsCarLoadDocumentNotNull(carLoadDocument, documentId);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			return IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(carLoadDocument, documentId);
 		}
 
-		public bool IsCarLoadDocumentLoadingCanBeDone(
+		public Result IsCarLoadDocumentLoadingCanBeDone(
 			CarLoadDocumentEntity carLoadDocument,
-			int documentId,
-			out Error error)
+			int documentId)
 		{
-			return IsCarLoadDocumentNotNull(carLoadDocument, documentId, out error)
-				&& IsCarLoadDocumentLoadOperationStateInProgress(carLoadDocument, documentId, out error)
-				&& IsAllTrueMarkCodesInCarLoadDocumentAdded(carLoadDocument, documentId, out error);
+			var result = IsCarLoadDocumentNotNull(carLoadDocument, documentId);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsCarLoadDocumentLoadOperationStateInProgress(carLoadDocument, documentId);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			return IsAllTrueMarkCodesInCarLoadDocumentAdded(carLoadDocument, documentId);
 		}
 
-		private bool IsCarLoadDocumentNotNull(CarLoadDocumentEntity carLoadDocument, int documentId, out Error error)
+		private Result IsCarLoadDocumentNotNull(CarLoadDocumentEntity carLoadDocument, int documentId)
 		{
-			error = null;
-
 			if(carLoadDocument is null)
 			{
-				error = CarLoadDocumentErrors.CreateDocumentNotFound(documentId);
+				var error = CarLoadDocumentErrors.CreateDocumentNotFound(documentId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsCarLoadDocumentLoadOperationStateNotStarted(CarLoadDocument carLoadDocument, int documentId, out Error error)
+		private Result IsCarLoadDocumentLoadOperationStateNotStarted(CarLoadDocument carLoadDocument, int documentId)
 		{
-			error = null;
-
 			if(carLoadDocument.LoadOperationState != CarLoadDocumentLoadOperationState.NotStarted)
 			{
-				error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeNotStarted(documentId);
+				var error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeNotStarted(documentId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		public bool IsEmployeeCanPickUpCarLoadDocument(int documentId, EmployeeWithLogin employee, out Error error)
+		public Result IsEmployeeCanPickUpCarLoadDocument(int documentId, EmployeeWithLogin employee)
 		{
-			error = null;
-
 			var lastDocumentLoadingProcessAction =
 				_carLoadDocumentRepository.GetLastLoadingProcessActionByDocumentId(_uow, documentId);
 
@@ -148,22 +136,20 @@ namespace WarehouseApi.Library.Errors
 					_employeeWithLoginRepository
 					.GetEmployeeWithLoginById(_uow, lastDocumentLoadingProcessAction.PickerEmployeeId);
 
-				error = CarLoadDocumentErrors.CreateCarLoadDocumentAlreadyHasPickerError(
+				var error = CarLoadDocumentErrors.CreateCarLoadDocumentAlreadyHasPickerError(
 					documentId,
 					pickerEmployee?.ShortName ?? "Сотрудник не найден",
 					leftToEndNoLoadingActionsTimeout);
 
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsAllTrueMarkCodesInCarLoadDocumentAdded(CarLoadDocumentEntity carLoadDocument, int documentId, out Error error)
+		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(CarLoadDocumentEntity carLoadDocument, int documentId)
 		{
-			error = null;
-
 			var isNotAllCodesAdded = carLoadDocument.Items
 				.Where(x =>
 					x.OrderId != null
@@ -173,336 +159,355 @@ namespace WarehouseApi.Library.Errors
 
 			if(isNotAllCodesAdded)
 			{
-				error = CarLoadDocumentErrors.CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(documentId);
+				var error = CarLoadDocumentErrors.CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(documentId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocumentEntity carLoadDocument, int documentId, out Error error)
+		private Result IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocumentEntity carLoadDocument, int documentId)
 		{
-			error = null;
-
 			if(!(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.NotStarted
 				|| carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.InProgress))
 			{
-				error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeNotStartedOrInProgress(documentId);
+				var error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeNotStartedOrInProgress(documentId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsCarLoadDocumentLoadOperationStateInProgress(CarLoadDocumentEntity carLoadDocument, int documentId, out Error error)
+		private Result IsCarLoadDocumentLoadOperationStateInProgress(CarLoadDocumentEntity carLoadDocument, int documentId)
 		{
-			error = null;
-
 			if(carLoadDocument.LoadOperationState != CarLoadDocumentLoadOperationState.InProgress)
 			{
-				error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeInProgress(documentId);
+				var error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeInProgress(documentId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		public bool IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(int orderId, IEnumerable<CarLoadDocumentItemEntity> documentOrderItems, out Error error)
+		public Result IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(int orderId, IEnumerable<CarLoadDocumentItemEntity> documentOrderItems)
 		{
-			error = null;
-
 			if(documentOrderItems is null || documentOrderItems.Count() == 0)
 			{
-				error = CarLoadDocumentErrors.CreateCarLoadDocumentItemNotFound(orderId);
+				var error = CarLoadDocumentErrors.CreateCarLoadDocumentItemNotFound(orderId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
 			if(documentOrderItems.Select(oi => oi.Document.Id).Distinct().Count() > 1)
 			{
-				error = CarLoadDocumentErrors.CreateOrderItemsExistInMultipleDocuments(orderId);
+				var error = CarLoadDocumentErrors.CreateOrderItemsExistInMultipleDocuments(orderId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		public bool IsTrueMarkCodeCanBeAdded(
+		public async Task<Result> IsTrueMarkCodeCanBeAdded(
 			int orderId,
 			int nomenclatureId,
-			string scannedCode,
-			bool isScannedCodeValid,
-			TrueMarkWaterCode trueMarkCode,
+			TrueMarkWaterIdentificationCode trueMarkWaterCode,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
-			CancellationToken cancellationToken,
-			out Error error)
+			CancellationToken cancellationToken)
 		{
-			return IsOrderNeedIndividualSetOnLoad(orderId, out error)
-				&& IsDocumentItemToEditNotNull(documentItemToEdit, orderId, out error)
-				&& IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
-				&& IsScannedCodeValid(scannedCode, isScannedCodeValid, out error)
-				&& IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems, out error)
-				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
-				&& IsNotAllProductsHasTrueMarkCode(orderId, nomenclatureId, documentItemToEdit, out error)
-				&& IsTrueMarkCodeNotExistAndHasRequiredGtin(trueMarkCode, documentItemToEdit.Nomenclature.Gtin, scannedCode, out error)
-				&& IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkCode, cancellationToken, out error);
+			var result = IsOrderNeedIndividualSetOnLoad(orderId);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsDocumentItemToEditNotNull(documentItemToEdit, orderId);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsScannedCodeValid(trueMarkWaterCode);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsNotAllProductsHasTrueMarkCode(orderId, nomenclatureId, documentItemToEdit);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtin);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			return await IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
 		}
 
-		public bool IsTrueMarkCodeCanBeChanged(
+		public async Task<Result> IsTrueMarkCodeCanBeChanged(
 			int orderId,
 			int nomenclatureId,
-			string oldScannedCode,
-			bool isOldScannedCodeValid,
-			TrueMarkWaterCode oldTrueMarkCode,
-			string newScannedCode,
-			bool isNewScannedCodeValid,
-			TrueMarkWaterCode newTrueMarkCode,
+			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode,
+			TrueMarkWaterIdentificationCode newTrueMarkWaterCode,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
-			CancellationToken cancellationToken,
-			out Error error)
+			CancellationToken cancellationToken)
 		{
-			return IsOrderNeedIndividualSetOnLoad(orderId, out error)
-				&& IsDocumentItemToEditNotNull(documentItemToEdit, orderId, out error)
-				&& IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id, out error)
-				&& IsScannedCodeValid(oldScannedCode, isOldScannedCodeValid, out error)
-				&& IsScannedCodeValid(newScannedCode, isNewScannedCodeValid, out error)
-				&& IsTrueMarkCodesHasEqualGtins(oldTrueMarkCode, newTrueMarkCode, out error)
-				&& IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems, out error)
-				&& IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature, out error)
-				&& IsProductsHavingRequiredTrueMarkCodeExists(documentItemToEdit, oldTrueMarkCode, out error)
-				&& IsTrueMarkCodeNotExists(newTrueMarkCode, newScannedCode, out error)
-				&& IsTrueMarkCodeIntroducedAndHasCorrectInn(newTrueMarkCode, cancellationToken, out error);
+			var result = IsOrderNeedIndividualSetOnLoad(orderId);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsDocumentItemToEditNotNull(documentItemToEdit, orderId);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsScannedCodeValid(oldTrueMarkWaterCode);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsScannedCodeValid(newTrueMarkWaterCode);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsTrueMarkCodesHasEqualGtins(oldTrueMarkWaterCode, newTrueMarkWaterCode);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsProductsHavingRequiredTrueMarkCodeExists(documentItemToEdit, oldTrueMarkWaterCode);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsTrueMarkCodeNotUsed(newTrueMarkWaterCode);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			return await IsTrueMarkCodeIntroducedAndHasCorrectInn(newTrueMarkWaterCode, cancellationToken);
 		}
 
-		public bool IsOrderNeedIndividualSetOnLoad(int orderId, out Error error)
+		public Result IsOrderNeedIndividualSetOnLoad(int orderId)
 		{
-			error = null;
-
 			var order = _orderRepository.Get(_uow, o => o.Id == orderId).FirstOrDefault();
 
 			if(order is null)
 			{
-				error = CarLoadDocumentErrors.CreateOrderNotFound(orderId);
+				var error = CarLoadDocumentErrors.CreateOrderNotFound(orderId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
 			if(!order.IsNeedIndividualSetOnLoad)
 			{
-				error = CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoad(orderId);
+				var error = CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoad(orderId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsDocumentItemToEditNotNull(CarLoadDocumentItemEntity documentItemToEdit, int orderId, out Error error)
+		private Result IsDocumentItemToEditNotNull(CarLoadDocumentItemEntity documentItemToEdit, int orderId)
 		{
-			error = null;
-
 			if(documentItemToEdit is null)
 			{
-				error = CarLoadDocumentErrors.CreateCarLoadDocumentItemNotFound(orderId);
+				var error = CarLoadDocumentErrors.CreateCarLoadDocumentItemNotFound(orderId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsSingleItemHavingRequiredOrderAndNomenclatureExists(
+		private Result IsSingleItemHavingRequiredOrderAndNomenclatureExists(
 			int orderId,
 			int nomenclatureId,
-			IEnumerable<CarLoadDocumentItemEntity> documentNomenclatureOrderItems,
-			out Error error)
+			IEnumerable<CarLoadDocumentItemEntity> documentNomenclatureOrderItems)
 		{
-			error = null;
-
 			if(documentNomenclatureOrderItems.Count() == 0)
 			{
-				error = CarLoadDocumentErrors.CreateOrderDoesNotContainNomenclature(orderId, nomenclatureId);
+				var error = CarLoadDocumentErrors.CreateOrderDoesNotContainNomenclature(orderId, nomenclatureId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
 			if(documentNomenclatureOrderItems.Count() > 1)
 			{
-				error = CarLoadDocumentErrors.CreateOrderNomenclatureExistInMultipleDocumentItems(orderId, nomenclatureId);
+				var error = CarLoadDocumentErrors.CreateOrderNomenclatureExistInMultipleDocumentItems(orderId, nomenclatureId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsNotAllProductsHasTrueMarkCode(
+		private Result IsNotAllProductsHasTrueMarkCode(
 			int orderId,
 			int nomenclatureId,
-			CarLoadDocumentItemEntity carLoadDocumentItem,
-			out Error error)
+			CarLoadDocumentItemEntity carLoadDocumentItem)
 		{
-			error = null;
-
 			if(carLoadDocumentItem.TrueMarkCodes.Count() >= carLoadDocumentItem.Amount)
 			{
-				error = CarLoadDocumentErrors.CreateAllOrderNomenclatureCodesAlreadyAdded(orderId, nomenclatureId);
+				var error = CarLoadDocumentErrors.CreateAllOrderNomenclatureCodesAlreadyAdded(orderId, nomenclatureId);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsProductsHavingRequiredTrueMarkCodeExists(
+		private Result IsProductsHavingRequiredTrueMarkCodeExists(
 			CarLoadDocumentItemEntity carLoadDocumentItem,
-			TrueMarkWaterCode trueMarkCode,
-			out Error error)
+			TrueMarkWaterIdentificationCode trueMarkWaterCode)
 		{
-			error = null;
-
 			if(!carLoadDocumentItem
 				.TrueMarkCodes.Select(x => x.SourceCode)
-				.Any(x => x.GTIN == trueMarkCode.GTIN && x.SerialNumber == trueMarkCode.SerialNumber && x.CheckCode == trueMarkCode.CheckCode))
+				.Any(x => x.GTIN == trueMarkWaterCode.GTIN && x.SerialNumber == trueMarkWaterCode.SerialNumber && x.CheckCode == trueMarkWaterCode.CheckCode))
 			{
-				error = TrueMarkCodeErrors.CreateTrueMarkCodeForCarLoadDocumentItemNotFound(trueMarkCode.SourceCode);
+				var error = TrueMarkCodeErrors.CreateTrueMarkCodeForCarLoadDocumentItemNotFound(trueMarkWaterCode.RawCode);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsScannedCodeValid(string scannedCode, bool isScannedCodeValid, out Error error)
+		private Result IsScannedCodeValid(TrueMarkWaterIdentificationCode trueMarkWaterCode)
 		{
-			error = null;
-
-			if(!isScannedCodeValid)
+			if(trueMarkWaterCode.IsInvalid)
 			{
-				error = TrueMarkCodeErrors.CreateTrueMarkCodeStringIsNotValid(scannedCode);
+				var error = TrueMarkCodeErrors.CreateTrueMarkCodeStringIsNotValid(trueMarkWaterCode.RawCode);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsTrueMarkCodeNotExistAndHasRequiredGtin(
-			TrueMarkWaterCode trueMarkCode,
-			string nomenclatureGtin,
-			string scannedCode,
-			out Error error)
+		private Result IsTrueMarkCodeNotUsedAndHasRequiredGtin(
+			TrueMarkWaterIdentificationCode trueMarkWaterCode,
+			string nomenclatureGtin)
 		{
-			return IsTrueMarkCodeNotExists(trueMarkCode, scannedCode, out error)
-				&& IsTrueMarkCodeGtinsEqualsNomenclatureGtin(trueMarkCode, nomenclatureGtin, scannedCode, out error);
-		}
+			var result = IsTrueMarkCodeNotUsed(trueMarkWaterCode);
 
-		private bool IsTrueMarkCodeGtinsEqualsNomenclatureGtin(TrueMarkWaterCode trueMarkCode, string nomenclatureGtin, string scannedCode, out Error error)
-		{
-			error = null;
-
-			if(trueMarkCode.GTIN != nomenclatureGtin)
+			if(result.IsFailure)
 			{
-				error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(scannedCode);
+				return result;
+			}
+
+			return IsTrueMarkCodeGtinsEqualsNomenclatureGtin(trueMarkWaterCode, nomenclatureGtin);
+		}
+
+		private Result IsTrueMarkCodeGtinsEqualsNomenclatureGtin(TrueMarkWaterIdentificationCode trueMarkWaterCode, string nomenclatureGtin)
+		{
+			if(trueMarkWaterCode.GTIN != nomenclatureGtin)
+			{
+				var error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(trueMarkWaterCode.RawCode);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsTrueMarkCodesHasEqualGtins(TrueMarkWaterCode trueMarkCode1, TrueMarkWaterCode trueMarkCode2, out Error error)
+		private Result IsTrueMarkCodesHasEqualGtins(TrueMarkWaterIdentificationCode trueMarkWaterCode1, TrueMarkWaterIdentificationCode trueMarkWaterCode2)
 		{
-			error = null;
-
-			if(trueMarkCode1.GTIN != trueMarkCode2.GTIN)
+			if(trueMarkWaterCode1.GTIN != trueMarkWaterCode2.GTIN)
 			{
-				error = TrueMarkCodeErrors.CreateTrueMarkCodesGtinsNotEqual(trueMarkCode1.SourceCode, trueMarkCode2.SourceCode);
+				var error = TrueMarkCodeErrors.CreateTrueMarkCodesGtinsNotEqual(trueMarkWaterCode1.RawCode, trueMarkWaterCode2.RawCode);
 				LogError(error);
-				return false;
+				return Result.Failure(error);
 			}
 
-			return true;
+			return Result.Success();
 		}
 
-		private bool IsTrueMarkCodeNotExists(TrueMarkWaterCode trueMarkCode, string scannedCode, out Error error)
+		private Result IsTrueMarkCodeNotUsed(TrueMarkWaterIdentificationCode trueMarkWaterCode)
 		{
-			error = null;
-
-			//TODO
-			//Пока проверка отсутствия кода осуществляется только проверкой наличия кода в таблице true_mark_identification_code
-			//Если код отсутствует в таблице, то его можно добавить.
-			//Но эта логика не совсем верна. Код может быть добавлен в таблицу, но в чеках не задействован. То есть мы откидываем код, который можно добавить
-			//Но при этом, т.к. код уже есть в таблице, то он может быть доступен в пуле кодов, т.е. в любой момент прикрепиться к чеку.
-			//И тогда получится, что код и к чеку прикрепился и к документу погрузки
-			//Логика проверки доступности кода будет исправлена в дальнейшем, по мере внедрения нового функционала привязки кодов к чекам товаров
-			// из МЛ и документов самовывоза
-			var existingDuplicatedCodes =
-				_trueMarkRepository
-				.GetTrueMarkCodeDuplicates(_uow, trueMarkCode.GTIN, trueMarkCode.SerialNumber, trueMarkCode.CheckCode);
-
-			if(existingDuplicatedCodes.Count() > 0)
-			{
-				error = TrueMarkCodeErrors.CreateTrueMarkCodeIsAlreadyExists(scannedCode);
-				LogError(error);
-				return false;
-			}
-
-			return true;
+			return _trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(trueMarkWaterCode);
 		}
 
-		private bool IsTrueMarkCodeIntroducedAndHasCorrectInn(TrueMarkWaterCode trueMarkCode, CancellationToken cancellationToken, out Error error)
+		private async Task<Result> IsTrueMarkCodeIntroducedAndHasCorrectInn(
+			TrueMarkWaterIdentificationCode trueMarkWaterCode,
+			CancellationToken cancellationToken)
 		{
-			error = null;
-
-			var waterCode = new TrueMarkWaterIdentificationCode
-			{
-				IsInvalid = false,
-				RawCode = trueMarkCode.SourceCode.Substring(0, Math.Min(255, trueMarkCode.SourceCode.Length)),
-				GTIN = trueMarkCode.GTIN,
-				SerialNumber = trueMarkCode.SerialNumber,
-				CheckCode = trueMarkCode.CheckCode
-			};
-
-			try
-			{
-				var checkResults =
-					_trueMarkCodesChecker.CheckCodesAsync(new List<TrueMarkWaterIdentificationCode> { waterCode }, cancellationToken)
-					.Result
-					.FirstOrDefault();
-
-				if(checkResults is null || !checkResults.Introduced)
-				{
-					error = TrueMarkCodeErrors.TrueMarkCodeIsNotIntroduced;
-					LogError(error);
-					return false;
-				}
-
-				if(!_organizationsInns.Contains(checkResults.OwnerInn))
-				{
-					error = TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(checkResults.OwnerInn);
-					LogError(error);
-					return false;
-				}
-
-				return true;
-			}
-			catch(Exception ex)
-			{
-				error = TrueMarkCodeErrors.CreateTrueMarkApiRequestError(
-					"При выполнении запроса к API ЧЗ для проверки кода возникла непредвиденная ошибка. " +
-					"Обратитесь в техподдержку");
-				_logger.LogError(ex, error.Message);
-				return false;
-			}
+			return await _trueMarkWaterCodeService.IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
 		}
 
 		private void LogError(Error error)
