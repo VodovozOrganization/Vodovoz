@@ -44,6 +44,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private Employee _employee;
 		private Car _car;
 		private bool _canChangeRestrictedDocumentType = true;
+		private bool _onlyQRScanRequiredCarLoadDocuments;
 
 		public WarehouseDocumentsJournalFilterViewModel(
 			ICommonServices commonServices,
@@ -66,11 +67,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			EndDate = DateTime.Today.AddDays(1);
 		}
 
+		public bool OnlyQRScanRequiredCarLoadDocuments
+		{
+			get => _onlyQRScanRequiredCarLoadDocuments;
+			set => SetField(ref _onlyQRScanRequiredCarLoadDocuments, value);
+		}
+
 		public bool IsUserHasAccessNotOnlyToWarehouseAndComplaints =>
 			!_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 			|| _commonServices.UserService.GetCurrentUser().IsAdmin;
 
 		public bool CanSelectMovementStatus => DocumentType == DocumentTypeEnum.MovementDocument;
+		public bool ShowOnlyQRScanRequiredCarLoadDocuments => DocumentType == DocumentTypeEnum.CarLoadDocument;
 
 		public IEntityEntryViewModel WarehouseEntityEntryViewModel { get; private set; }
 		public IEntityEntryViewModel DriverEntityEntryViewModel { get; private set; }
@@ -103,6 +111,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		}
 
 		[PropertyChangedAlso(nameof(CanSelectMovementStatus))]
+		[PropertyChangedAlso(nameof(ShowOnlyQRScanRequiredCarLoadDocuments))]
 		public DocumentType? DocumentType
 		{
 			get => _documentType;
