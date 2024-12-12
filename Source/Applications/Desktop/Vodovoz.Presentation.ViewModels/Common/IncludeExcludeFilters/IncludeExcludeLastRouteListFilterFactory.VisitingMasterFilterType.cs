@@ -5,6 +5,10 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 {
 	public partial class IncludeExcludeLastRouteListFilterFactory
 	{
+		/// <summary>
+		/// Фильтры по выездному мастеру
+		/// </summary>
+
 		[Appellative(Gender = GrammaticalGender.Masculine,
 			Nominative = "выездной мастер",
 			NominativePlural = "выездной мастер"

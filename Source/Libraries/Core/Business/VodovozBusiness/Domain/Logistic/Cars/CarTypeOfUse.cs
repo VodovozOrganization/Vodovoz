@@ -3,6 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
+	/// <summary>
+	/// Тип модели авто
+	/// </summary>
+
 	[Appellative(
 		Nominative = "Тип модели авто",
 		NominativePlural = "Типы моделей авто")]
