@@ -10,7 +10,7 @@ namespace VodovozBusiness.Services.TrueMark
 {
 	public interface ITrueMarkWaterCodeService
 	{
-		IList<SourceProductCodeStatus> ProductCodesStatusesToCheckDuplicates { get; }
+		IList<SourceProductCodeStatus> SuccessfullyUsedProductCodesStatuses { get; }
 		Task<Result> IsAllTrueMarkCodesIntroducedAndHasCorrectInns(IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodes, CancellationToken cancellationToken);
 		Task<Result> IsTrueMarkCodeIntroducedAndHasCorrectInn(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, CancellationToken cancellationToken);
 		Result IsTrueMarkWaterIdentificationCodeNotUsed(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode);

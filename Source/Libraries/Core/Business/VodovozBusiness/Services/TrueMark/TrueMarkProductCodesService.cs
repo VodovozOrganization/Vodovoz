@@ -18,7 +18,7 @@ namespace VodovozBusiness.Services.TrueMark
 {
 	public class TrueMarkWaterCodeService : ITrueMarkWaterCodeService
 	{
-		private static IList<SourceProductCodeStatus> _productCodesStatusesToCheckDuplicates = new List<SourceProductCodeStatus>
+		private static IList<SourceProductCodeStatus> _successfullyUsedProductCodesStatuses = new List<SourceProductCodeStatus>
 		{
 			SourceProductCodeStatus.Accepted,
 			SourceProductCodeStatus.Changed
@@ -55,8 +55,8 @@ namespace VodovozBusiness.Services.TrueMark
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 		}
 
-		public IList<SourceProductCodeStatus> ProductCodesStatusesToCheckDuplicates =>
-			_productCodesStatusesToCheckDuplicates;
+		public IList<SourceProductCodeStatus> SuccessfullyUsedProductCodesStatuses =>
+			_successfullyUsedProductCodesStatuses;
 
 		public TrueMarkWaterIdentificationCode LoadOrCreateTrueMarkWaterIdentificationCode(IUnitOfWork uow, string scannedCode)
 		{
@@ -215,7 +215,7 @@ namespace VodovozBusiness.Services.TrueMark
 			var isCodeAlreadyUsed = _trueMarkProductCodeRepository.Get(
 				_uow,
 				x => x.ResultCode.Id == trueMarkWaterIdentificationCode.Id
-					&& _productCodesStatusesToCheckDuplicates.Contains(x.SourceCodeStatus))
+					&& _successfullyUsedProductCodesStatuses.Contains(x.SourceCodeStatus))
 				.Any();
 
 			if(isCodeAlreadyUsed)

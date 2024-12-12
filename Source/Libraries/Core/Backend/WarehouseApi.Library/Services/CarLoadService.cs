@@ -16,6 +16,7 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
 using Vodovoz.Models;
@@ -249,7 +250,7 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			AddTrueMarkCodeToDocumentItem(documentItemToEdit, trueMarkWaterCode);
+			AddTrueMarkCodeToCarLoadDocumentItem(documentItemToEdit, trueMarkWaterCode);
 
 			_uow.Save(documentItemToEdit);
 			_uow.Commit();
@@ -326,7 +327,10 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, oldTrueMarkWaterCode, newTrueMarkWaterCode);
+			ChangeTrueMarkCodeInCarLoadDocumentItem(documentItemToEdit, oldTrueMarkWaterCode, newTrueMarkWaterCode);
+
+			_uow.Save(documentItemToEdit);
+			_uow.Commit();
 
 			var successResponse = new ChangeOrderCodeResponse
 			{
@@ -407,17 +411,17 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			var successResponse = new EndLoadResponse
-			{
-				Result = OperationResultEnumDto.Success,
-				Error = null
-			};
-
 			var edoRequests = CreateEdoRequests(carLoadDocument);
 
 			await PublishEdoRequestCreatedEvents(edoRequests);
 
 			_uow.Commit();
+
+			var successResponse = new EndLoadResponse
+			{
+				Result = OperationResultEnumDto.Success,
+				Error = null
+			};
 
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
@@ -470,7 +474,7 @@ namespace WarehouseApi.Library.Services
 			return true;
 		}
 
-		private void AddTrueMarkCodeToDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterIdentificationCode trueMarkWaterCode)
+		private void AddTrueMarkCodeToCarLoadDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterIdentificationCode trueMarkWaterCode)
 		{
 			carLoadDocumentItem.TrueMarkCodes.Add(new CarLoadDocumentItemTrueMarkProductCode
 			{
@@ -483,7 +487,7 @@ namespace WarehouseApi.Library.Services
 			});
 		}
 
-		private void ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(
+		private void ChangeTrueMarkCodeInCarLoadDocumentItem(
 			CarLoadDocumentItemEntity carLoadDocumentItem,
 			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode,
 			TrueMarkWaterIdentificationCode newTrueMarkWaterCode)
@@ -506,9 +510,6 @@ namespace WarehouseApi.Library.Services
 
 			carLoadDocumentItem.TrueMarkCodes.Remove(codeToRemove);
 			carLoadDocumentItem.TrueMarkCodes.Add(codeToAdd);
-
-			_uow.Save(carLoadDocumentItem);
-			_uow.Commit();
 		}
 
 		private void CreateAndSaveCarLoadDocumentLoadingProcessAction(
@@ -609,7 +610,7 @@ namespace WarehouseApi.Library.Services
 				};
 
 				var productCodes = item.TrueMarkCodes
-					.Where(x => _trueMarkWaterCodeService.ProductCodesStatusesToCheckDuplicates.Contains(x.SourceCodeStatus));
+					.Where(x => _trueMarkWaterCodeService.SuccessfullyUsedProductCodesStatuses.Contains(x.SourceCodeStatus));
 
 				foreach(var code in productCodes)
 				{
