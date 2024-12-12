@@ -60,10 +60,4 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public override string ToString() => $"[ТС: {Car.Id}] Версия авто №{Id}";
 	}
-
-	public class CarOwnTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public CarOwnTypeStringType() : base(typeof(CarOwnType))
-		{ }
-	}
 }

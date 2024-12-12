@@ -8,12 +8,27 @@ namespace Vodovoz.Core.Domain.Employees
 		NominativePlural = "Статусы сотрудников")]
 	public enum EmployeeStatus
 	{
+		/// <summary>
+		/// Работает
+		/// </summary>
 		[Display(Name = "Работает")]
 		IsWorking,
+
+		/// <summary>
+		/// На расчете
+		/// </summary>
 		[Display(Name = "На расчете")]
 		OnCalculation,
+
+		/// <summary>
+		/// В декрете
+		/// </summary>
 		[Display(Name = "В декрете")]
 		OnMaternityLeave,
+
+		/// <summary>
+		/// Уволен
+		/// </summary>
 		[Display(Name = "Уволен")]
 		IsFired
 	}

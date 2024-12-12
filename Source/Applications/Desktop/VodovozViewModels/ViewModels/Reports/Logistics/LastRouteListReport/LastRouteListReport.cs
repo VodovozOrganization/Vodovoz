@@ -1,5 +1,6 @@
 ﻿using Gamma.Utilities;
 using NHibernate.Linq;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -12,12 +13,16 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Reports;
 using static Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters.IncludeExcludeLastRouteListFilterFactory;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 {
-	public class LastRouteListReport
+	[Appellative(Nominative = "Отчет по последнему МЛ по водителям")]
+	public class LastRouteListReport : IClosedXmlReport
 	{
+		public string TemplatePath => @".\Reports\Logistic\LastRouteListReport.xlsx";
+
 		private IEnumerable<EmployeeStatus> _includedEmployeeStatus;
 		private IEnumerable<CarTypeOfUse> _includedCarTypeOfUse;
 		private IEnumerable<CarOwnType> _includedCarOwn;
@@ -132,6 +137,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 		public string SelectedCarTypeOfUse => string.Join(", ", _includedCarTypeOfUse.Select(x => x.GetEnumTitle()));
 
 		public string SelectedVisitingMaster => _includedVisitingMaster.GetEnumTitle();
+
 
 		public List<LastRouteListReportRow> Rows = new List<LastRouteListReportRow>();
 	}

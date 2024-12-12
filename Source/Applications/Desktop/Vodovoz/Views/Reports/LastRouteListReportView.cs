@@ -40,6 +40,8 @@ namespace Vodovoz.Views.Reports
 			ConfigureDataTreeView();
 
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
+
+			UpdateSliderArrow();
 		}
 
 		private void ShowIncludeExludeFilter()

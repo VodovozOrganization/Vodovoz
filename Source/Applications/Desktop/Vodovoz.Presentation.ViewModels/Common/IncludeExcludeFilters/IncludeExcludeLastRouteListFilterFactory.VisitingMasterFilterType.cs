@@ -11,10 +11,21 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 		)]
 		public enum VisitingMasterFilterType
 		{
+			/// <summary>
+			/// В отчёт попадает выездные мастера
+			/// </summary>
 			[Display(Name = "Включая")]
 			IncludeVisitingMaster,
+
+			/// <summary>
+			/// Исключение из отчёта выездных мастеров
+			/// </summary>
 			[Display(Name = "Исключая")]
 			ExcludeVisitingMaster,
+
+			/// <summary>
+			/// В отчёте только выездные мастера
+			/// </summary>
 			[Display(Name = "Только")]
 			OnlyVisitingMaster
 		}

@@ -1,6 +1,5 @@
 ﻿using ClosedXML.Report;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic.FileIO;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -9,12 +8,14 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
+using Vodovoz.Presentation.ViewModels.Factories;
 using static Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters.IncludeExcludeLastRouteListFilterFactory;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
@@ -26,9 +27,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 		private readonly IIncludeExcludeLastRouteListFilterFactory _includeExcludeLastRoureListReportsFilterFactory;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly IDialogSettingsFactory _dialogSettingsFactory;
 		private bool _isReportGenerationInProgress;
 		private CancellationTokenSource _cancellationTokenSource;
-		private const string _templatePath = @".\Reports\Logistic\LastRouteListReport.xlsx";
 
 		public LastRouteListReportViewModel(
 			ILogger<LastRouteListReportViewModel> logger,
@@ -37,7 +38,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 			INavigationManager navigation,
 			IIncludeExcludeLastRouteListFilterFactory includeExcludeLastRouteListFilterFactory,
 			IGuiDispatcher guiDispatcher,
-			IFileDialogService fileDialogService)
+			IFileDialogService fileDialogService,
+			IDialogSettingsFactory dialogSettingsFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_logger =
@@ -48,8 +50,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 				includeExcludeLastRouteListFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeLastRouteListFilterFactory));
 			_guiDispatcher =
 				guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			_fileDialogService =
-				fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_dialogSettingsFactory =
+				dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
 
 			Title = "Отчет по последнему МЛ по водителям";
 
@@ -182,7 +185,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 		}
 		private void ExportReport(string path)
 		{
-			var template = new XLTemplate(_templatePath);
+			var template = new XLTemplate(Report.TemplatePath);
 			template.AddVariable(Report);
 			template.Generate();
 			template.SaveAs(path);
@@ -190,18 +193,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 
 		private DialogSettings CreateDialogSettings()
 		{
-			var reportFileExtension = ".xlsx";
-
-			var dialogSettings = new DialogSettings
-			{
-				Title = "Сохранить",
-				DefaultFileExtention = reportFileExtension,
-				InitialDirectory = SpecialDirectories.Desktop,
-				FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
-			};
-
-			dialogSettings.FileFilters.Clear();
-			dialogSettings.FileFilters.Add(new DialogFileFilter("Отчет Excel", "*" + reportFileExtension));
+			var dialogSettings = _dialogSettingsFactory.CreateForClosedXmlReport(Report);
 
 			return dialogSettings;
 		}
@@ -241,7 +233,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 			IsReportGenerationInProgress;
 
 		public bool CanSaveReport =>
-			!IsReportGenerationInProgress;
+			!IsReportGenerationInProgress
+			&& Enumerable.Any(Report.Rows);
 
 		public override void Dispose()
 		{
