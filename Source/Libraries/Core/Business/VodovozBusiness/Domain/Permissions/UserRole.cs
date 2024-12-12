@@ -92,6 +92,6 @@ namespace Vodovoz.Domain.Permissions
 			}
 		}
 
-		public virtual string SearchingPatternFromUserGrants(string login) => $"GRANT {Name} TO '{login}'@'%'";
+		public static string SearchingPatternFromUserGrants(string login) => $"GRANT [`|']?(\\w+)[`|']? TO [`|']?{login}[`|']?@[`|']?%[`|']?";
 	}
 }

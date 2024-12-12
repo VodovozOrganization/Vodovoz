@@ -1,13 +1,14 @@
-﻿using QS.DomainModel.Entity;
+﻿using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using System.Data.Bindings.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz.Domain.Logistic
@@ -34,6 +35,14 @@ namespace Vodovoz.Domain.Logistic
 		private decimal _repairCost;
 		private CarEvent _originalCarEvent;
 		private int _odometer;
+		private DateTime? _carTechnicalCheckupEndingDate;
+		private WriteOffDocument _writeOffDocument;
+		private bool _isWriteOffDocumentNotRequired;
+		private decimal? _actualFuelBalance;
+		private decimal? _currentFuelBalance;
+		private decimal? _substractionFuelBalance;
+		private decimal? _fuelCost;
+		private FuelOperation _calibrationFuelOperation;
 
 		#region Свойства
 
@@ -100,13 +109,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _foundation;
 			set => SetField(ref _foundation, value);
-		}		
+		}
 
-		[Display( Name = "Не отражать в эксплуатации ТС" )]
+		[Display(Name = "Не отражать в эксплуатации ТС")]
 		public virtual bool DoNotShowInOperation
 		{
 			get => _doNotShowInOperation;
-			set => SetField( ref _doNotShowInOperation, value );
+			set => SetField(ref _doNotShowInOperation, value);
 		}
 
 		[Display(Name = "Компенсация от страховой, по суду")]
@@ -116,7 +125,8 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _compensationFromInsuranceByCourt, value);
 		}
 
-		[Display( Name = "Стоимость ремонта" )]
+		[Display(Name = "Стоимость работ")]
+		[PropertyChangedAlso(nameof(RepairAndPartsSummaryCost))]
 		public virtual decimal RepairCost
 		{
 			get => _repairCost;
@@ -145,7 +155,69 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _odometer, value);
 		}
 
-		GenericObservableList<Fine> observableFines;		
+		[Display(Name = "Дата окончания действия техосмотра")]
+		public virtual DateTime? CarTechnicalCheckupEndingDate
+		{
+			get => _carTechnicalCheckupEndingDate;
+			set => SetField(ref _carTechnicalCheckupEndingDate, value);
+		}
+
+		[Display(Name = "Акт списания ТМЦ")]
+		[PropertyChangedAlso(
+			nameof(RepairPartsCost),
+			nameof(RepairAndPartsSummaryCost))]
+		public virtual WriteOffDocument WriteOffDocument
+		{
+			get => _writeOffDocument;
+			set => SetField(ref _writeOffDocument, value);
+		}
+
+		[Display(Name = "Акт списания не нужен")]
+		public virtual bool IsWriteOffDocumentNotRequired
+		{
+			get => _isWriteOffDocumentNotRequired;
+			set => SetField(ref _isWriteOffDocumentNotRequired, value);
+		}
+
+		#region Калибровка баланса топлива
+
+		[Display(Name = "Актуальный баланс топлива")]
+		public virtual decimal? ActualFuelBalance
+		{
+			get => _actualFuelBalance;
+			set => SetField(ref _actualFuelBalance, value);
+		}
+
+		[Display(Name = "Текущий баланс топлива")]
+		public virtual decimal? CurrentFuelBalance
+		{
+			get => _currentFuelBalance;
+			set => SetField(ref _currentFuelBalance, value);
+		}
+
+		[Display(Name = "Разность литража")]
+		public virtual decimal? SubstractionFuelBalance
+		{
+			get => _substractionFuelBalance;
+			set => SetField(ref _substractionFuelBalance, value);
+		}
+
+		[Display(Name = "Стоимость топлива")]
+		public virtual decimal? FuelCost
+		{
+			get => _fuelCost;
+			set => SetField(ref _fuelCost, value);
+		}
+
+		public virtual FuelOperation CalibrationFuelOperation
+		{
+			get => _calibrationFuelOperation;
+			set => SetField(ref _calibrationFuelOperation, value);
+		}
+
+		#endregion Калибровка баланса топлива
+
+		GenericObservableList<Fine> observableFines;
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Fine> ObservableFines
@@ -172,11 +244,49 @@ namespace Vodovoz.Domain.Logistic
 			return $"Событие №{Id} от {CreateDate.ToShortDateString()}";
 		}
 
+		public virtual decimal RepairPartsCost =>
+			WriteOffDocument?.TotalSumOfDamage ?? 0;
+
+		public virtual decimal RepairAndPartsSummaryCost =>
+			RepairCost + RepairPartsCost;
+
 		#endregion
 
 		public override string ToString()
 		{
 			return $"Событие ТС №{Id} {CarEventType.Name}";
+		}
+
+		public virtual void UpdateCalibrationFuelOperation()
+		{
+			if(CalibrationFuelOperation is null)
+			{
+				CalibrationFuelOperation = new FuelOperation
+				{
+					Car = Car,
+					Fuel = Car?.FuelType,
+					Driver = Driver,
+					OperationTime = DateTime.Now
+				};
+			}
+			else
+			{
+				CalibrationFuelOperation.Car = Car;
+				CalibrationFuelOperation.Fuel = Car?.FuelType;
+				CalibrationFuelOperation.Driver = Driver;
+				CalibrationFuelOperation.OperationTime = DateTime.Now;
+			}
+
+			if(SubstractionFuelBalance > 0)
+			{
+				CalibrationFuelOperation.LitersOutlayed = 0;
+				CalibrationFuelOperation.LitersGived = SubstractionFuelBalance ?? 0;
+			}
+			else
+			{
+				CalibrationFuelOperation.LitersOutlayed = -(SubstractionFuelBalance ?? 0);
+				CalibrationFuelOperation.LitersGived = 0;
+			}
 		}
 
 		#region IValidatableObject implementation
@@ -239,10 +349,43 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(Comment) });
 			}
 
-			if(CarEventType?.Id == carEventSettings.TechInspectCarEventTypeId && Odometer == 0 )
+			if(CarEventType?.Id == carEventSettings.TechInspectCarEventTypeId && Odometer == 0)
 			{
 				yield return new ValidationResult($"Заполните показания одометра.",
 					new[] { nameof(Odometer) });
+			}
+
+			if(CarEventType?.Id == carEventSettings.CarTechnicalCheckupEventTypeId)
+			{
+				if(!CarTechnicalCheckupEndingDate.HasValue)
+				{
+					yield return new ValidationResult($"Заполните дату окончания действия техосмотра.",
+						new[] { nameof(CarTechnicalCheckupEndingDate) });
+				}
+
+				if(CarTechnicalCheckupEndingDate.HasValue && CarTechnicalCheckupEndingDate.Value < StartDate)
+				{
+					yield return new ValidationResult($"Дата окончания действия техосмотра не должна быть меньше даты начала события.",
+						new[] { nameof(CarTechnicalCheckupEndingDate) });
+				}
+			}
+
+			if(CarEventType?.IsAttachWriteOffDocument == true
+				&& WriteOffDocument is null
+				&& !IsWriteOffDocumentNotRequired)
+			{
+				yield return new ValidationResult("Не указана информация о складских запчастях. Пожалуйста, прикрепите акт списания или подтвердите, что запчасти не были списаны по ходу работ.",
+					new[] { nameof(WriteOffDocument) });
+			}
+
+			if(CalibrationFuelOperation?.LitersGived > 9999)
+			{
+				yield return new ValidationResult("Слишком большое кол-во в операции выданного топлива", new[] { nameof(CalibrationFuelOperation.LitersGived) });
+			}
+
+			if(CalibrationFuelOperation?.LitersOutlayed > 9999)
+			{
+				yield return new ValidationResult("Слишком большое кол-во в операции полученного топлива", new[] { nameof(CalibrationFuelOperation.LitersOutlayed) });
 			}
 		}
 

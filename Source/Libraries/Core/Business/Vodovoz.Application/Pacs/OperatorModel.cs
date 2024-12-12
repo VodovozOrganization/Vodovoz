@@ -29,10 +29,10 @@ namespace Vodovoz.Application.Pacs
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_stateIds = new HashSet<int>();
 			States = new GenericObservableList<OperatorState>();
-			Agent = new OperatorStateAgent();
+			Agent = new OperatorStateMachine();
 		}
 
-		public IOperatorStateAgent Agent { get; }
+		public IOperatorStateMachine Agent { get; }
 
 		public IPacsDomainSettings Settings
 		{

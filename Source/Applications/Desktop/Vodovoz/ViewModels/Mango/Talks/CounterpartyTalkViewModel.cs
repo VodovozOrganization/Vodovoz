@@ -3,6 +3,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Report;
 using QSReport;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,8 @@ using System.Linq;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -32,18 +35,19 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListRepository _routedListRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IOrderSettings _orderSettings;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private readonly ICallTaskWorker _callTaskWorker;
-		private ILifetimeScope _lifetimeScope;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly ICallTaskRepository _callTaskRepository;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
@@ -52,32 +56,32 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		public event Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
 		public CounterpartyTalkViewModel(
-			ILifetimeScope lifetimeScope,
 			ITdiCompatibilityNavigation tdinavigation,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IRouteListRepository routedListRepository,
+			IRouteListItemRepository routeListItemRepository,
 			IInteractiveService interactiveService,
 			IOrderSettings orderSettings, 
 			MangoManager manager,
-			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			INomenclatureRepository nomenclatureRepository,
 			INomenclatureSettings nomenclatureSettings,
 			IOrderRepository orderRepository,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ICallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker,
+			IEmployeeRepository employeeRepository,
+			ICallTaskRepository callTaskRepository,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(tdinavigation, manager)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_routedListRepository = routedListRepository;
+			_routedListRepository = routedListRepository ?? throw new ArgumentNullException(nameof(routedListRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
@@ -85,15 +89,30 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_deliveryPointJournalFactory =
 				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			if(ActiveCall.CounterpartyIds.Any())
 			{
 				var clients = _uow.GetById<Counterparty>(ActiveCall.CounterpartyIds);
 
 				foreach(Counterparty client in clients)
 				{
-					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(
-						client, _lifetimeScope, _unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderSettings,
-						_employeeJournalFactory, _counterpartyJournalFactory, _deliveryRulesSettings, _nomenclatureSettings, _callTaskWorker);
+					var model = new CounterpartyOrderViewModel(
+						client,
+						_unitOfWorkFactory,
+						tdinavigation,
+						routedListRepository,
+						MangoManager,
+						_orderSettings,
+						_deliveryRulesSettings,
+						_nomenclatureSettings,
+						_callTaskWorker,
+						_employeeRepository,
+						_orderRepository,
+						_routeListItemRepository,
+						_callTaskRepository);
+
 					CounterpartyOrdersViewModels.Add(model);
 				}
 				
@@ -137,20 +156,21 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			{
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
 				
-				CounterpartyOrderViewModel model = 
+				var model = 
 					new CounterpartyOrderViewModel(
 						client,
-						_lifetimeScope,
 						_unitOfWorkFactory,
 						_tdiNavigation,
 						_routedListRepository,
 						MangoManager,
 						_orderSettings,
-						_employeeJournalFactory,
-						_counterpartyJournalFactory,
 						_deliveryRulesSettings,
 						_nomenclatureSettings,
-						_callTaskWorker);
+						_callTaskWorker,
+						_employeeRepository,
+						_orderRepository,
+						_routeListItemRepository,
+						_callTaskRepository);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -173,11 +193,21 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 					_uow.Commit();
 				}
 
-				CounterpartyOrderViewModel model =
+				var model =
 					new CounterpartyOrderViewModel(
-						client, _lifetimeScope, _unitOfWorkFactory, _tdiNavigation, _routedListRepository, MangoManager,
-						_orderSettings, _employeeJournalFactory, _counterpartyJournalFactory,
-						_deliveryRulesSettings, _nomenclatureSettings, _callTaskWorker);
+						client,
+						_unitOfWorkFactory,
+						_tdiNavigation,
+						_routedListRepository,
+						MangoManager,
+						_orderSettings,
+						_deliveryRulesSettings,
+						_nomenclatureSettings,
+						_callTaskWorker,
+						_employeeRepository,
+						_orderRepository,
+						_routeListItemRepository,
+						_callTaskRepository);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -216,27 +246,15 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 
 		public void AddComplainCommand()
 		{
-			var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
-
-			var parameters = new Dictionary<string, object> {
-				{"client", currentCounterparty},
-				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				{ "unitOfWorkFactory", _unitOfWorkFactory },
-				//Autofac: IEmployeeService 
-				{"employeeSelectorFactory", employeeSelectorFactory},
-				{"counterpartySelectorFactory", counterpartySelectorFactory},
-				//Autofac: ICommonServices
-				//Autofac: IUserRepository
-				{"phone", "+7" + ActiveCall.Phone.Number }
-			};
-			
-			_tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null,parameters);
+			var viewModel = _tdiNavigation.OpenViewModel<CreateComplaintViewModel, IEntityUoWBuilder, string>(
+				null, EntityUoWBuilder.ForCreate(), "+7" + ActiveCall.Phone.Number).ViewModel;
+			viewModel.SetCounterparty(currentCounterparty.Id);
 		}
 
 		public void BottleActCommand()
 		{
 			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits(
+				_reportInfoFactory,
 				_orderRepository,
 				_counterpartyJournalFactory,
 				_deliveryPointJournalFactory);
@@ -270,7 +288,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				model.Dispose();
 			}
 
-			_lifetimeScope = null;
 			_uow?.Dispose();
 		}
 	}

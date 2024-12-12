@@ -6,10 +6,11 @@
 
   <ItemGroup>
     <PackageReference Include="NLog" Version="5.1.2" />
-    <PackageReference Include="System.Text.Json" Version="8.0.2" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup>
+	  <ProjectReference Include="..\Backend\TaxcomEdo\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
 	  <ProjectReference Include="..\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
 	  <ProjectReference Include="..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
 	  <ProjectReference Include="..\Business\VodovozBusiness\VodovozBusiness.csproj" />

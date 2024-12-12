@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog.Web;
 using Pacs.Operators.Server;
 using QS.HistoryLog;
 using QS.Project.Core;
@@ -15,7 +13,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Pacs;
 
-namespace Pacs.Operators.Service
+namespace Pacs.Operator.Service
 {
 	public class Startup
 	{

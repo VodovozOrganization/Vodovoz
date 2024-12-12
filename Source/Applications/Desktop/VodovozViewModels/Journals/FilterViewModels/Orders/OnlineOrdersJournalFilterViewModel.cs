@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
@@ -13,6 +13,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
@@ -52,7 +53,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private string _counterpartyNameLike;
 		private DialogViewModelBase _journal;
 		private bool _sortDeliveryDateVisibility;
-
+		private bool? _sortDeliveryDate;
+		private OnlineRequestsType? _onlineRequestsType;
+		
 		public OnlineOrdersJournalFilterViewModel(
 			ILifetimeScope lifetimeScope)
 		{
@@ -123,6 +126,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		}
 
 		public bool CanChangeSource { get; private set; } = true;
+
+		public OnlineRequestsType? OnlineRequestsType
+		{
+			get => _onlineRequestsType;
+			set => UpdateFilterField(ref _onlineRequestsType, value);
+		}
 
 		public virtual OnlineOrderPaymentType? RestrictPaymentType
 		{
@@ -237,7 +246,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 
 		#region Sorting
 
-		private bool? _sortDeliveryDate;
 		public virtual bool? SortDeliveryDate
 		{
 			get => _sortDeliveryDate;

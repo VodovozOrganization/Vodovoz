@@ -78,7 +78,7 @@ namespace Vodovoz.Dialogs
 
 		protected void DefaultPreviewDocument()
 		{
-			var printDocuments = _entityDocumentsPrinter.DocumentsToPrint;
+			var printDocuments = _entityDocumentsPrinter.MultiDocPrinterPrintableDocuments;
 			
 			if(_currentOrder != null)
 			{ //если этот диалог вызван из заказа

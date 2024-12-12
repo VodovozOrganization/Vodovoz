@@ -11,6 +11,7 @@ using System.Linq;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.ViewModels.Accounting.Payments;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
@@ -66,6 +67,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private int _osagoEndingNotifyDaysBefore;
 		private int _kaskoEndingNotifyDaysBefore;
+		private int _carTechnicalCheckupEndingNotifyDaysBefore;
 
 		public GeneralSettingsViewModel(
 			IGeneralSettings generalSettings,
@@ -136,6 +138,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanEditInsuranceNotificationsSettings);
 			SaveInsuranceNotificationsSettingsCommand = new DelegateCommand(SaveInsuranceNotificationsSettings, () => CanEditInsuranceNotificationsSettings);
 
+			_carTechnicalCheckupEndingNotifyDaysBefore = _generalSettings.CarTechnicalCheckupEndingNotificationDaysBefore;
+			CanEditCarTechnicalCheckupNotificationsSettings =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanEditCarTechnicalCheckupNotificationsSettings);
+			SaveCarTechnicalCheckupSettingsCommand = new DelegateCommand(SaveCarTechnicalCheckupSettings, () => CanEditCarTechnicalCheckupNotificationsSettings);
+
 			SetFastDeliveryIntervalFrom(_generalSettings.FastDeliveryIntervalFrom);
 			CanEditFastDeliveryIntervalFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.CanEditFastDeliveryIntervalFromSetting);
 			SaveFastDeliveryIntervalFromCommand = new DelegateCommand(SaveFastDeliveryIntervalFrom, () => CanEditFastDeliveryIntervalFromSetting);
@@ -150,6 +157,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			CanEditDailyFuelLimitsSetting =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Fuel.CanEditMaxDailyFuelLimit);
 			SaveDailyFuelLimitsCommand = new DelegateCommand(SaveDailyFuelLimits, () => CanEditDailyFuelLimitsSetting);
+
+			InitializeAccountingSettingsViewModels();
 		}
 
 		#region RouteListPrintedFormPhones
@@ -422,6 +431,26 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#endregion
 
+		#region Настройка уведомлений о приближающемся ГТО
+
+		public int CarTechnicalCheckupEndingNotifyDaysBefore
+		{
+			get => _carTechnicalCheckupEndingNotifyDaysBefore;
+			set => SetField(ref _carTechnicalCheckupEndingNotifyDaysBefore, value);
+		}
+
+		public DelegateCommand SaveCarTechnicalCheckupSettingsCommand { get; }
+		public bool CanEditCarTechnicalCheckupNotificationsSettings { get; }
+
+		private void SaveCarTechnicalCheckupSettings()
+		{
+			_generalSettings.UpdateCarTechnicalCheckupEndingNotificationDaysBefore(CarTechnicalCheckupEndingNotifyDaysBefore);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+
+		}
+
+		#endregion
+
 		#region BillAdditionalInfo
 
 		public string BillAdditionalInfo
@@ -579,6 +608,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		public DelegateCommand SaveDailyFuelLimitsCommand { get; }
 		public bool CanEditDailyFuelLimitsSetting { get; }
+		public PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel PaymentWriteOffAllowedFinancialExpenseCategoriesViewModel { get; private set; }
 
 		private void SaveDailyFuelLimits()
 		{
@@ -590,6 +620,26 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 		#endregion
+
+		#region Бухгалтерия
+
+		private void InitializeAccountingSettingsViewModels()
+		{
+			PaymentWriteOffAllowedFinancialExpenseCategoriesViewModel
+				= new PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel(
+					_commonServices,
+					_unitOfWorkFactory,
+					NavigationManager,
+					_generalSettings,
+					_commonServices.CurrentPermissionService,
+					this)
+				{
+					MainTitle = "<b>Настройки списаний с баланса клиента</b>",
+					DetailTitle = "Статьи расхода доступные для выбора в карточке списаний с баланса клиента:"
+				};
+		}
+
+		#endregion Бухгалтерия
 
 		private void InitializeSettingsViewModels()
 		{

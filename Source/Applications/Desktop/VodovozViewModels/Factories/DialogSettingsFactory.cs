@@ -3,7 +3,8 @@ using QS.DomainModel.Entity;
 using QS.Project.Services.FileDialog;
 using RestSharp.Extensions;
 using System;
-using Vodovoz.ViewModels.Reports;
+using Vodovoz.Presentation.ViewModels.Factories;
+using Vodovoz.Presentation.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.Factories
 {

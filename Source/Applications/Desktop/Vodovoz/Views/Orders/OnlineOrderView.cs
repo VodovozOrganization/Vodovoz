@@ -1,7 +1,8 @@
 using System;
 using System.Linq;
 using Gamma.ColumnConfig;
-using Gamma.GtkWidgets;
+using Microsoft.Extensions.Logging;
+using NHibernate.Engine;
 using Gtk;
 using QS.Views.GtkUI;
 using QS.Navigation;
@@ -22,32 +23,12 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
-			var btnCreateOrder = new yButton();
-			btnCreateOrder.Label = "Создать заказ";
-			btnCreateOrder.Show();
-			
-			var btnAssignCounterparty = new yButton();
-			btnAssignCounterparty.Label = "Привязать КА";
-			btnAssignCounterparty.Show();
-			hboxHandleButtons.Add(btnCreateOrder);
-			hboxHandleButtons.Add(btnAssignCounterparty);
-			
 			btnGetToWork.Clicked += (sender, args) => ViewModel.GetToWorkCommand.Execute();
 			btnCreateOrder.Clicked += OnCreateOrderClicked;
 			btnAssignCounterparty.Clicked += (sender, args) => ViewModel.OpenExternalCounterpartyMatchingCommand.Execute();
 			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			btnCancelOnlineOrder.Clicked += (sender, args) => ViewModel.CancelOnlineOrderCommand.Execute();
 
-			var boxBtnCreateOrder = (Box.BoxChild)hboxHandleButtons[btnCreateOrder];
-			boxBtnCreateOrder.Position = 1;
-			boxBtnCreateOrder.Expand = false;
-			boxBtnCreateOrder.Fill = false;
-			
-			var boxBtnAssignCounterparty = (Box.BoxChild)hboxHandleButtons[btnAssignCounterparty];
-			boxBtnAssignCounterparty.Position = 2;
-			boxBtnAssignCounterparty.Expand = false;
-			boxBtnAssignCounterparty.Fill = false;
-			
 			btnGetToWork.Binding
 				.AddBinding(ViewModel, vm => vm.CanGetToWork, w => w.Sensitive)
 				.InitializeFromSource();
@@ -121,9 +102,9 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.Counterparty, w => w.LabelProp)
 				.InitializeFromSource();
 
-			lblDeliveryPoint.Selectable = true;
-			lblDeliveryPoint.Binding
-				.AddBinding(ViewModel, vm => vm.DeliveryPoint, w => w.LabelProp)
+			entryDeliveryPoint.ViewModel = ViewModel.DeliveryPointViewModel;
+			entryDeliveryPoint.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeDeliveryPoint, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			chkIsSelfDelivery.Sensitive = false;
@@ -231,40 +212,49 @@ namespace Vodovoz.Views.Orders
 				.AddNumericRenderer(node => ViewModel.OnlineOrderPromoItems.IndexOf(node) + 1)
 				.AddColumn("Номенклатура")
 				.AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : "Не указано")
-				.AddColumn("Кол-во(онлайн заказ)")
+				.AddColumn("Кол-во\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Count)
 				.AddSetter((cell, node) =>
 					cell.CellBackgroundGdk = node.Count != node.CountFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase)
-				.AddColumn("Кол-во(в промонаборе)")
+				.XAlign(0.5f)
+				.AddColumn("Кол-во\n(в промонаборе)")
 				.AddNumericRenderer(node => node.CountFromPromoSet)
-				.AddColumn("Цена(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Цена\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Price)
 				.AddSetter((cell, node) =>
 					cell.CellBackgroundGdk = node.Price != node.NomenclaturePrice ? GdkColors.DangerBase : GdkColors.PrimaryBase)
+				.XAlign(0.5f)
 				.AddColumn("Цена(ДВ)")
 				.AddNumericRenderer(node => node.NomenclaturePrice)
-				.AddColumn("Сумма(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Сумма\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Sum)
-				.AddColumn("Скидка(онлайн заказ)")
-				.AddNumericRenderer(node => node.IsDiscountInMoney ? node.MoneyDiscount : node.PercentDiscount)
+				.XAlign(0.5f)
+				.AddColumn("Скидка\n(онлайн заказ)")
+				.AddNumericRenderer(node => node.GetDiscount)
 				.AddSetter((cell, node) =>
 					{
-						var onlineDiscount = node.IsDiscountInMoney ? node.MoneyDiscount : node.PercentDiscount;
-						cell.CellBackgroundGdk = onlineDiscount != node.DiscountFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase;
+						cell.CellBackgroundGdk = node.GetDiscount != node.DiscountFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase;
 					})
-				.AddColumn("Скидка(в промонаборе)")
+				.XAlign(0.5f)
+				.AddColumn("Скидка\n(в промонаборе)")
 				.AddNumericRenderer(node => node.DiscountFromPromoSet)
-				.AddColumn("Скидка в рублях?(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Скидка в рублях?\n(онлайн заказ)")
 				.AddToggleRenderer(node => node.IsDiscountInMoney)
+				.Editing(false)
 				.AddSetter((cell, node) =>
 					cell.CellBackgroundGdk = node.IsDiscountInMoney != node.IsDiscountInMoneyFromPromoSet ? GdkColors.DangerBase : GdkColors.PrimaryBase)
-				.AddColumn("Скидка в рублях?(в промонаборе)")
+				.AddColumn("Скидка в рублях?\n(в промонаборе)")
 				.AddToggleRenderer(node => node.IsDiscountInMoneyFromPromoSet)
+				.Editing(false)
 				.AddColumn("Промонабор")
 				.AddTextRenderer(node => node.PromoSet != null ? node.PromoSet.Name : string.Empty)
 				.Finish();
 
 			treeViewPromoItems.Visible = ViewModel.CanShowPromoItems;
+			treeViewPromoItems.EnableGridLines = TreeViewGridLines.Both;
 			treeViewPromoItems.ItemsDataSource = ViewModel.OnlineOrderPromoItems;
 		}
 		
@@ -275,20 +265,137 @@ namespace Vodovoz.Views.Orders
 				.AddNumericRenderer(node => ViewModel.OnlineOrderNotPromoItems.IndexOf(node) + 1)
 				.AddColumn("Номенклатура")
 				.AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : "Не указано")
-				.AddColumn("Кол-во(онлайн заказ)")
+				.AddColumn("Кол-во\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Count)
-				.AddColumn("Цена(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Цена\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Price)
 				.AddSetter((cell, node) =>
 					cell.CellBackgroundGdk = node.Price != node.NomenclaturePrice ? GdkColors.DangerBase : GdkColors.PrimaryBase)
+				.XAlign(0.5f)
 				.AddColumn("Цена(ДВ)")
 				.AddNumericRenderer(node => node.NomenclaturePrice)
-				.AddColumn("Сумма(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Скидка\n(онлайн заказ)")
+				.AddNumericRenderer(node => node.GetDiscount)
+				.AddSetter((cell, node) =>
+				{
+					if(!node.OnlineOrder.IsSelfDelivery && node.GetDiscount > 0)
+					{
+						cell.CellBackgroundGdk = GdkColors.DangerBase;
+						return;
+					}
+
+					if(node.OnlineOrder.IsSelfDelivery)
+					{
+						if(node.DiscountReason != null)
+						{
+							if(node.Nomenclature != null
+							   && !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
+							{
+								cell.CellBackgroundGdk = GdkColors.DangerBase;
+								return;
+							}
+							
+							if(node.GetDiscount != node.DiscountReason.Value)
+							{
+								cell.CellBackgroundGdk = GdkColors.DangerBase;
+								return;
+							}
+						}
+						else
+						{
+							if(node.GetDiscount > 0)
+							{
+								cell.CellBackgroundGdk = GdkColors.DangerBase;
+								return;
+							}
+						}
+					}
+					
+					cell.CellBackgroundGdk = GdkColors.PrimaryBase;
+				})
+				.XAlign(0.5f)
+				.AddColumn("Скидка\n(основание скидки)")
+				.AddNumericRenderer(node => node.DiscountReason != null ? node.DiscountReason.Value : 0)
+				.XAlign(0.5f)
+				.AddColumn("Скидка в рублях?\n(онлайн заказ)")
+				.AddToggleRenderer(node => node.IsDiscountInMoney)
+				.Editing(false)
+				.AddSetter((cell, node) =>
+				{
+					if(!node.OnlineOrder.IsSelfDelivery && node.IsDiscountInMoney)
+					{
+						cell.CellBackgroundGdk = GdkColors.DangerBase;
+						return;
+					}
+
+					if(node.OnlineOrder.IsSelfDelivery)
+					{
+						if(node.DiscountReason != null)
+						{
+							switch(node.DiscountReason.ValueType)
+							{
+								case DiscountUnits.money:
+									if(!node.IsDiscountInMoney)
+									{
+										cell.CellBackgroundGdk = GdkColors.DangerBase;
+										return;
+									}
+									break;
+								case DiscountUnits.percent:
+									if(node.IsDiscountInMoney)
+									{
+										cell.CellBackgroundGdk = GdkColors.DangerBase;
+										return;
+									}
+									break;
+							}
+						}
+						else
+						{
+							if(node.IsDiscountInMoney)
+							{
+								cell.CellBackgroundGdk = GdkColors.DangerBase;
+								return;
+							}
+						}
+					}
+					
+					cell.CellBackgroundGdk = GdkColors.PrimaryBase;
+				})
+				.AddColumn("Скидка в рублях?\n(основание скидки)")
+				.AddToggleRenderer(node => node.DiscountReason != null && node.DiscountReason.ValueType == DiscountUnits.money)
+				.Editing(false)
+				.AddColumn("Основание скидки")
+				.AddTextRenderer(node => node.DiscountReason != null ? node.DiscountReason.Name : string.Empty)
+				.AddSetter((cell, node) =>
+				{
+					if(!node.OnlineOrder.IsSelfDelivery && node.DiscountReason != null)
+					{
+						cell.CellBackgroundGdk = GdkColors.DangerBase;
+						return;
+					}
+
+					if(node.OnlineOrder.IsSelfDelivery
+						&& node.Nomenclature != null
+						&& node.DiscountReason != null
+						&& !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
+					{
+						cell.CellBackgroundGdk = GdkColors.DangerBase;
+						return;
+					}
+					
+					cell.CellBackgroundGdk = GdkColors.PrimaryBase;
+				})
+				.AddColumn("Сумма\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Sum)
+				.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 
 			treeViewNotPromoItems.Visible = ViewModel.CanShowNotPromoItems;
+			treeViewNotPromoItems.EnableGridLines = TreeViewGridLines.Both;
 			treeViewNotPromoItems.ItemsDataSource = ViewModel.OnlineOrderNotPromoItems;
 		}
 
@@ -309,18 +416,22 @@ namespace Vodovoz.Views.Orders
 					node.FreeRentPackage != null && node.FreeRentPackage.DepositService != null
 						? node.FreeRentPackage.DepositService.Name
 						: "Не указано")
-				.AddColumn("Кол-во(онлайн заказ)")
+				.AddColumn("Кол-во\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Count)
-				.AddColumn("Цена(онлайн заказ)")
+				.XAlign(0.5f)
+				.AddColumn("Цена\n(онлайн заказ)")
 				.AddNumericRenderer(node => node.Price)
 				.AddSetter((cell, node) =>
 					cell.CellBackgroundGdk = node.Price != node.FreeRentPackagePriceFromProgram ? GdkColors.DangerBase : GdkColors.PrimaryBase)
+				.XAlign(0.5f)
 				.AddColumn("Цена(ДВ)")
 				.AddNumericRenderer(node => node.FreeRentPackagePriceFromProgram)
+				.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 
 			treeViewOnlineRentPackages.Visible = ViewModel.CanShowRentPackages;
+			treeViewOnlineRentPackages.EnableGridLines = TreeViewGridLines.Both;
 			treeViewOnlineRentPackages.ItemsDataSource = ViewModel.OnlineRentPackages;
 		}
 
@@ -359,17 +470,36 @@ namespace Vodovoz.Views.Orders
 		private void OpenOrderDlgAndFillOnlineOrderData()
 		{
 			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation)
-				.OpenTdiTabOnTdi<OrderDlg, OnlineOrder>(Tab, ViewModel.Entity);
+				.OpenTdiTabOnTdi<OrderDlg, OnlineOrder>(Tab, ViewModel.Entity, OpenPageOptions.AsSlave);
 			page.PageClosed += OnOrderTabClosed;
 		}
 		
 		private void OnOrderTabClosed(object sender, EventArgs e)
 		{
-			var dlg = (sender as ITdiPage).TdiTab as OrderDlg;
+			var page = sender as ITdiPage;
+			page.PageClosed -= OnOrderTabClosed;
+			var dlg = page.TdiTab as OrderDlg;
+			var orderId = dlg.Entity.Id;
 
-			if(dlg.Entity.Id > 0)
+			if(!ViewModel.UoW.Session.IsOpen)
 			{
-				var order = ViewModel.UoW.GetById<Order>(dlg.Entity.Id);
+				ViewModel.Logger.LogError(
+					"Закрытая сессия {SessionId} при попытке обновить данные онлайн заказа {OnlineOrderId} после выставления заказа {OrderId}",
+					(ViewModel.UoW.Session as ISessionImplementor).SessionId,
+					ViewModel.Entity.Id,
+					orderId);
+				
+				return;
+			}
+
+			if(orderId > 0)
+			{
+				ViewModel.Logger.LogInformation(
+					"Обновляем данные онлайн заказа {OnlineOrderId} после выставления заказа {OrderId}",
+					ViewModel.Entity.Id,
+					orderId);
+				
+				var order = ViewModel.UoW.GetById<Order>(orderId);
 				ViewModel.Entity.SetOrderPerformed(order);
 				var notification = ViewModel.CreateNewNotification();
 				ViewModel.UoW.Save(notification);

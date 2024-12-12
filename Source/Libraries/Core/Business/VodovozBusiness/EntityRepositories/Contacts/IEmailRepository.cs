@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
@@ -34,6 +35,14 @@ namespace Vodovoz.EntityRepositories
 		EmailType GetEmailTypeForReceipts(IUnitOfWork uow);
 		EmailType EmailTypeWithPurposeExists(IUnitOfWork uow, EmailPurpose emailPurpose);
 		StoredEmail GetById(IUnitOfWork unitOfWork, int id);
+
+		/// <summary>
+		/// Проверка уже отправленных писем, за исключением определенного письма
+		/// </summary>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="emailId">Идентификатор письма</param>
+		/// <returns></returns>
+		bool HasSendedEmailsForBillExceptOf(int orderId, int emailId);
 
 		#endregion
 	}

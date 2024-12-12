@@ -7,7 +7,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -247,9 +248,10 @@ namespace DriverAPI.Library.V5.Services
 
 		public Result<RouteListAddressIncomingTransferDto> GetIncomingTransferInfo(int routeListAddressId)
 		{
-			var address = _routeListAddressesRepository.Get(
-				_unitOfWork,
-				address => address.Id == routeListAddressId)
+			var address = _routeListAddressesRepository
+				.Get(
+					_unitOfWork,
+					address => address.Id == routeListAddressId)
 				.FirstOrDefault();
 
 			var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address);
@@ -267,7 +269,7 @@ namespace DriverAPI.Library.V5.Services
 			}
 
 			var paid = _fastPaymentService
-				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed;
+				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == FastPaymentStatus.Performed;
 
 			return new RouteListAddressIncomingTransferDto
 			{
@@ -291,10 +293,17 @@ namespace DriverAPI.Library.V5.Services
 		{
 			var address = _routeListAddressesRepository.Get(
 				_unitOfWork,
-				address => address.Id == routeListAddressId)
+				address => address.Id == routeListAddressId
+				&& (address.Order.OrderStatus == OrderStatus.OnTheWay
+					|| address.Order.OrderStatus == OrderStatus.Shipped))
 				.FirstOrDefault();
 
-			var targetAddress = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
+			var targetAddressResult = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
+
+			if(targetAddressResult.IsFailure)
+			{
+				return Result.Failure<RouteListAddressOutgoingTransferDto>(targetAddressResult.Errors);
+			}
 
 			var transferItemsResult = GetTransferItems(address.Order.Id);
 
@@ -304,7 +313,7 @@ namespace DriverAPI.Library.V5.Services
 			}
 
 			var paid = _fastPaymentService
-				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed;
+				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == FastPaymentStatus.Performed;
 
 			return new RouteListAddressOutgoingTransferDto
 			{
@@ -314,10 +323,10 @@ namespace DriverAPI.Library.V5.Services
 					OrderId = address.Order.Id,
 					TransferringDriverId = address.RouteList.Driver.Id,
 					TransferringDriverTitle = address.RouteList.Driver.ShortName,
-					RecievingDriverId = targetAddress.RouteList.Driver.Id,
-					RecievingDriverTitle = targetAddress.RouteList.Driver.ShortName,
-					AcceptanceStatus = targetAddress.RecievedTransferAt == null ? AcceptanceStatus.NotAccepted : AcceptanceStatus.Accepted,
-					TransferStatus = targetAddress.RecievedTransferAt == null ? TransferStatus.NotTransfered : TransferStatus.Transfered
+					RecievingDriverId = targetAddressResult.Value.RouteList.Driver.Id,
+					RecievingDriverTitle = targetAddressResult.Value.RouteList.Driver.ShortName,
+					AcceptanceStatus = targetAddressResult.Value.RecievedTransferAt == null ? AcceptanceStatus.NotAccepted : AcceptanceStatus.Accepted,
+					TransferStatus = targetAddressResult.Value.RecievedTransferAt == null ? TransferStatus.NotTransfered : TransferStatus.Transfered
 				},
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(address.Order.PaymentType, paid, address.Order.PaymentByTerminalSource),
 				TransferItems = transferItemsResult.Value
@@ -349,16 +358,13 @@ namespace DriverAPI.Library.V5.Services
 			var outgoingAddresses = _routeListAddressesRepository.Get(
 				_unitOfWork,
 				address => address.RouteList.Driver.Id == driver.Id
-					&& address.Status == RouteListItemStatus.Transfered
-					&& address.Order.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.OnTheWay
-					&& (!address.WasTransfered || address.RecievedTransferAt != null));
+					&& address.Order.OrderStatus == OrderStatus.OnTheWay);
 
 			foreach (var address in outgoingAddresses)
 			{
-				var targetAddress = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
+				var targetAddressResult = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
 
-				if(targetAddress.Id == address.Id
-					|| targetAddress.AddressTransferType != AddressTransferType.FromHandToHand)
+				if(targetAddressResult.IsFailure)
 				{
 					continue;
 				}
@@ -369,10 +375,10 @@ namespace DriverAPI.Library.V5.Services
 					OrderId = address.Order.Id,
 					TransferringDriverId = driver.Id,
 					TransferringDriverTitle = driver.ShortName,
-					RecievingDriverId = targetAddress.RouteList.Driver.Id,
-					RecievingDriverTitle = targetAddress.RouteList.Driver.ShortName,
-					AcceptanceStatus = targetAddress.RecievedTransferAt == null ? AcceptanceStatus.NotAccepted : AcceptanceStatus.Accepted,
-					TransferStatus = targetAddress.RecievedTransferAt == null ? TransferStatus.NotTransfered : TransferStatus.Transfered
+					RecievingDriverId = targetAddressResult.Value.RouteList.Driver.Id,
+					RecievingDriverTitle = targetAddressResult.Value.RouteList.Driver.ShortName,
+					AcceptanceStatus = targetAddressResult.Value.RecievedTransferAt is null ? AcceptanceStatus.NotAccepted : AcceptanceStatus.Accepted,
+					TransferStatus = targetAddressResult.Value.RecievedTransferAt is null ? TransferStatus.NotTransfered : TransferStatus.Transfered
 				});
 			}
 
@@ -390,8 +396,7 @@ namespace DriverAPI.Library.V5.Services
 				address => address.RouteList.Driver.Id == driver.Id
 					&& statusesTransferInWork.Contains(address.Status)
 					&& address.AddressTransferType == AddressTransferType.FromHandToHand
-					&& address.WasTransfered
-					&& (address.Status != RouteListItemStatus.Transfered || address.RecievedTransferAt != null));
+					&& address.Order.OrderStatus == OrderStatus.OnTheWay);
 
 			foreach(var address in incomingAddresses)
 			{

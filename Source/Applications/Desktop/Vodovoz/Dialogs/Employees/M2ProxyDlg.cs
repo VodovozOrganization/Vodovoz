@@ -27,13 +27,14 @@ namespace Vodovoz.Dialogs.Employees
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private IDocTemplateRepository _docTemplateRepository;
 
 		private List<OrderEquipment> equipmentList;
 		public bool IsEditable { get; set; } = true;
 
 		public M2ProxyDlg()
 		{
+			ResolveDependancies();
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
 			TabName = "Новая доверенность М-2";
@@ -44,6 +45,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public M2ProxyDlg(int id)
 		{
+			ResolveDependancies();
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(id);
 			TabName = "Изменение доверенности М-2";
@@ -52,12 +54,18 @@ namespace Vodovoz.Dialogs.Employees
 
 		public M2ProxyDlg(Order order)
 		{
+			ResolveDependancies();
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
 			TabName = "Новая доверенность М-2";
 			Entity.Order = order;
 
 			ConfigureDlg();
+		}
+
+		private void ResolveDependancies()
+		{
+			_docTemplateRepository = _lifetimeScope.Resolve<IDocTemplateRepository>();
 		}
 
 		void ConfigureDlg()
@@ -227,6 +235,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public override void Destroy()
 		{
+			_docTemplateRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 			base.Destroy();

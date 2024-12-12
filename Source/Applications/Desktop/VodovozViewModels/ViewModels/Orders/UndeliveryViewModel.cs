@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
@@ -6,8 +7,12 @@ using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
+using System.Threading;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Orders;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -27,6 +32,7 @@ namespace Vodovoz.ViewModels.Orders
 	public class UndeliveryViewModel : DialogTabViewModelBase, IAskSaveOnCloseViewModel, ITdiTabAddedNotifier
 	{
 		private readonly ICommonServices _commonServices;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -39,12 +45,15 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IUndeliveryDiscussionsViewModelFactory _undeliveryDiscussionsViewModelFactory;
 		private readonly IValidationContextFactory _validationContextFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IUndeliveryDiscussionCommentFileStorageService _undeliveryDiscussionCommentFileStorageService;
 		private ValidationContext _validationContext;
 		private bool _addedCommentToOldUndelivery;
 		private bool _forceSave;
 		private bool _isExternalUoW;
 		private bool _isNewUndelivery;
 		private bool _isFromRouteListClosing;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public UndeliveryViewModel(
 
@@ -61,11 +70,12 @@ namespace Vodovoz.ViewModels.Orders
 			IUndeliveredOrderViewModelFactory undeliveredOrderViewModelFactory,
 			IUndeliveryDiscussionsViewModelFactory undeliveryDiscussionsViewModelFactory,
 			IValidationContextFactory validationContextFactory,
-			IUnitOfWorkFactory unitOfWorkFactory
-			)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_undeliveredOrdersRepository = undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -78,6 +88,7 @@ namespace Vodovoz.ViewModels.Orders
 			_undeliveryDiscussionsViewModelFactory = undeliveryDiscussionsViewModelFactory ?? throw new ArgumentNullException(nameof(undeliveryDiscussionsViewModelFactory));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_undeliveryDiscussionCommentFileStorageService = undeliveryDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(undeliveryDiscussionCommentFileStorageService));
 		}
 
 		public void Initialize(IUnitOfWork extrenalUoW = null, int oldOrderId = 0, bool isForSalesDepartment = false, bool isFromRouteListClosing = false)
@@ -209,7 +220,14 @@ namespace Vodovoz.ViewModels.Orders
 
 		private void ProcessSmsNotification()
 		{
-			_smsNotifier.NotifyUndeliveryAutoTransferNotApproved(Entity);
+			if(_isExternalUoW)
+			{
+				_smsNotifier.NotifyUndeliveryAutoTransferNotApproved(Entity, UoW);
+			}
+			else
+			{
+				_smsNotifier.NotifyUndeliveryAutoTransferNotApproved(Entity);
+			}
 		}
 
 		public override bool Save(bool needClose)
@@ -260,6 +278,8 @@ namespace Vodovoz.ViewModels.Orders
 				UoW.Commit();
 			}
 
+			AddDiscussionsCommentFilesIfNeeded();
+
 			if(Entity.NewOrder != null
 			   && Entity.OrderTransferType == TransferType.AutoTransferNotApproved
 			   && Entity.NewOrder.OrderStatus != OrderStatus.Canceled)
@@ -277,6 +297,65 @@ namespace Vodovoz.ViewModels.Orders
 			}
 
 			return true;
+		}
+
+		private void AddDiscussionsCommentFilesIfNeeded()
+		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
+			do
+			{
+				foreach(var complaintDiscussionViewModel in UndeliveryDiscussionsViewModel.ObservableUndeliveryDiscussionViewModels)
+				{
+					foreach(var keyValuePair in complaintDiscussionViewModel.FilesToUploadOnSave)
+					{
+						var commentId = keyValuePair.Key.Invoke();
+
+						var comment = Entity
+							.ObservableUndeliveryDiscussions
+							.FirstOrDefault(cd => cd.Comments.Any(c => c.Id == commentId))
+							?.Comments
+							?.FirstOrDefault(c => c.Id == commentId);
+
+						foreach(var fileToUploadPair in keyValuePair.Value)
+						{
+							using(var ms = new MemoryStream(fileToUploadPair.Value))
+							{
+								var result = _undeliveryDiscussionCommentFileStorageService.CreateFileAsync(
+								comment,
+									fileToUploadPair.Key,
+									ms,
+									_cancellationTokenSource.Token)
+									.GetAwaiter()
+									.GetResult();
+
+								if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
+								{
+									errors.Add(fileToUploadPair.Key, string.Join(", ", result.Errors.Select(e => e.Message)));
+								}
+							}
+						}
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
+				else
+				{
+					repeat = false;
+				}
+			}
+			while(repeat);
 		}
 
 		public void OnTabAdded()

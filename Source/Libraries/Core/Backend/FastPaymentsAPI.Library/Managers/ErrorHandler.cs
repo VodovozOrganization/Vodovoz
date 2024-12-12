@@ -11,14 +11,19 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			var message = GetRegistrationOrderErrorMessage(orderId, isOnlineOrder);
 			errorResponse.ErrorMessage = message;
-			logger.LogError(message + $" Код ответа {bankResponseDetails.ResponseCode}\n{bankResponseDetails.ResponseMessage}");
+			logger.LogError(message + " Код ответа {ResponseCode}\n{ResponseMessage}",
+				bankResponseDetails.ResponseCode,
+				bankResponseDetails.ResponseMessage);
+			
 			return errorResponse;
 		}
 		
 		public void LogErrorMessageFromUpdateOrderInfo(IAvangardResponseDetails bankResponseDetails, string ticket, ILogger logger)
 		{
 			var message = GetUpdateOrderInfoErrorMessage(ticket);
-			logger.LogError(message + $" Код ответа {bankResponseDetails.ResponseCode}\n{bankResponseDetails.ResponseMessage}");
+			logger.LogError(message + " Код ответа {ResponseCode}\n{ResponseMessage}",
+				bankResponseDetails.ResponseCode,
+				bankResponseDetails.ResponseMessage);
 		}
 		
 		public TResponse LogAndReturnErrorMessageFromUpdateOrderInfo<TResponse>(
@@ -27,7 +32,10 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			var message = GetUpdateOrderInfoErrorMessage(ticket);
 			errorResponse.ErrorMessage = message;
-			logger.LogError(message + $" Код ответа {bankResponseDetails.ResponseCode}\n{bankResponseDetails.ResponseMessage}");
+			logger.LogError(message + " Код ответа {ResponseCode}\n{ResponseMessage}",
+				bankResponseDetails.ResponseCode,
+				bankResponseDetails.ResponseMessage);
+			
 			return errorResponse;
 		}
 		

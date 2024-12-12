@@ -41,8 +41,22 @@
 			new Error(
 				typeof(Order),
 				nameof(UnableToShipPromoSet),
-				"По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.\n" +
-				"Пожалуйста удалите промо набор или поменяйте адрес доставки.");
+				"По этому адресу/телефону уже была ранее отгрузка промо набора\n" +
+				"Пожалуйста, удалите промо набор или поменяйте адрес доставки.");
+		
+		public static Error UnableToShipPromoSetForNewClientsFromSelfDelivery =>
+			new Error(
+				typeof(Order),
+				nameof(UnableToShipPromoSetForNewClientsFromSelfDelivery),
+				"В самовывозе нельзя заказывать промо набор для новых клиентов\n" +
+				"Пожалуйста, удалите промо набор.");
+		
+		public static Error UnableToShipPromoSetForNewClientsToUnknownClientOrDeliveryPoint =>
+			new Error(
+				typeof(Order),
+				nameof(UnableToShipPromoSetForNewClientsToUnknownClientOrDeliveryPoint),
+				"Нельзя заказывать промо набор для новых клиентов для неизвестного клиента или адреса\n" +
+				"Пожалуйста, удалите промо набор или выберите нужного клиента с адресом, по которым не было таких отгрузок.");
 
 		public static Error Save =>
 			new Error(
@@ -61,5 +75,11 @@
 				typeof(Order),
 				nameof(FastDelivery19LBottlesLimitError),
 				$"Максимально допустимое кол-во 19л воды для доставки за час - {fastDelivery19LBottlesLimit}, в заказе указано {water19lInOrder}");
+
+		public static Error PaidCashlessOrderClientReplacementError =>
+			new Error(
+				typeof(Order),
+				nameof(PaidCashlessOrderClientReplacementError),
+				"Контрагента изменить невозможно пока на заказе распределен платеж, обратитесь к сотрудникам ОДЗ для снятия распределения.");
 	}
 }

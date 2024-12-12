@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -159,6 +160,8 @@ namespace Vodovoz.Views.Users
 			var warehousesUserSelectionView = new WarehousesUserSelectionView(ViewModel.WarehousesUserSelectionViewModel);
 			yhboxWarehousesForNotifications.Add(warehousesUserSelectionView);
 			warehousesUserSelectionView.Show();
+
+			documentsprintersettingsview.ViewModel = ViewModel.DocumentsPrinterSettingsViewModel;
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)

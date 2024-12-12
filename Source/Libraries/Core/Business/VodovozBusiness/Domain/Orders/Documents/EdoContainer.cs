@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
@@ -27,7 +28,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		private OrderWithoutShipmentForDebt _orderWithoutShipmentForDebt;
 		private OrderWithoutShipmentForPayment _orderWithoutShipmentForPayment;
 		private Counterparty _counterparty;
-		private byte[] _container;
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
 		private Type _type;
@@ -104,13 +104,6 @@ namespace Vodovoz.Domain.Orders.Documents
 			set => SetField(ref _counterparty, value);
 		}
 		
-		[Display(Name = "Контейнер с документами для ЭДО")]
-		public virtual byte[] Container
-		{
-			get => _container;
-			set => SetField(ref _container, value);
-		}
-		
 		[Display(Name = "Статус")]
 		public virtual EdoDocFlowStatus EdoDocFlowStatus
 		{
@@ -140,28 +133,6 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		[Display(Name = "Отправленные документы")]
 		public virtual string SentDocuments => Type.GetEnumTitle();
-	}
-
-	public enum EdoDocFlowStatus
-	{
-		[Display(Name = "Неизвестно")]
-		Unknown,
-		[Display(Name = "В процессе")]
-		InProgress,
-		[Display(Name = "Документооборот завершен успешно")]
-		Succeed,
-		[Display(Name = "Предупреждение")]
-		Warning,
-		[Display(Name = "Ошибка")]
-		Error,
-		[Display(Name = "Не начат")]
-		NotStarted,
-		[Display(Name = "Завершен с различиями")]
-		CompletedWithDivergences,
-		[Display(Name = "Не принят")]
-		NotAccepted,
-		[Display(Name = "Подготовка к отправке")]
-		PreparingToSend
 	}
 
 	/// <summary>

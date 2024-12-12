@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Orders
 		PrepositionalPlural = "Строках онлайн заказа"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderItem : Product, IDomainObject
+	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct
 	{
 		private int? _nomenclatureId;
 		private decimal _price;
@@ -22,6 +22,10 @@ namespace Vodovoz.Domain.Orders
 		private decimal _moneyDiscount;
 		private int? _promoSetId;
 		private OnlineOrder _onlineOrder;
+		private decimal _count = -1;
+		private DiscountReason _discountReason;
+		private Nomenclature _nomenclature;
+		private PromotionalSet _promoSet;
 
 		protected OnlineOrderItem() { } 
 
@@ -75,7 +79,35 @@ namespace Vodovoz.Domain.Orders
 			get => _promoSetId;
 			set => SetField(ref _promoSetId, value);
 		}
-		
+
+		[Display(Name = "Номенклатура")]
+		public virtual Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			protected set => SetField(ref _nomenclature, value);
+		}
+
+		[Display(Name = "Добавлено из промонабора")]
+		public virtual PromotionalSet PromoSet
+		{
+			get => _promoSet;
+			set => SetField(ref _promoSet, value);
+		}
+
+		[Display(Name = "Количество")]
+		public virtual decimal Count
+		{
+			get => _count;
+			protected set => SetField(ref _count, value);
+		}
+
+		[Display(Name = "Основание скидки на товар")]
+		public virtual DiscountReason DiscountReason
+		{
+			get => _discountReason;
+			set => SetField(ref _discountReason, value);
+		}
+
 		[Display(Name = "Количество из промонабора")]
 		public virtual decimal CountFromPromoSet { get; set; }
 		
@@ -87,9 +119,15 @@ namespace Vodovoz.Domain.Orders
 		
 		[Display(Name = "Тип скидки из промонабора")]
 		public virtual bool IsDiscountInMoneyFromPromoSet { get; set; }
+		
+		[Display(Name = "Тип ошибки валидации онлайн товара")]
+		public virtual OnlineOrderErrorState? OnlineOrderErrorState { get; set; }
 
+		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 		public virtual decimal Sum => Math.Round(Price * Count - MoneyDiscount, 2);
-
+		public virtual decimal ActualSum => Sum;
+		public virtual decimal CurrentCount => Count;
+		
 		public static OnlineOrderItem Create(
 			int? nomenclatureId,
 			decimal count,
@@ -97,6 +135,7 @@ namespace Vodovoz.Domain.Orders
 			decimal discount,
 			decimal price,
 			int? promoSetId,
+			DiscountReason discountReason,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
 			OnlineOrder onlineOrder
@@ -109,6 +148,7 @@ namespace Vodovoz.Domain.Orders
 				IsDiscountInMoney = isDiscountInMoney,
 				Price = price,
 				PromoSetId = promoSetId,
+				DiscountReason = discountReason,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
 				OnlineOrder = onlineOrder

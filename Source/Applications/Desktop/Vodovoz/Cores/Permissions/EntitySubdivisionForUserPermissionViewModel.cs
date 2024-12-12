@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Repositories;
@@ -12,7 +13,7 @@ namespace Vodovoz.Core.Permissions
 {
 	public class EntitySubdivisionForUserPermissionViewModel
 	{
-		private readonly IPermissionRepository _permissionRepository = new PermissionRepository();
+		private readonly IPermissionRepository _permissionRepository = ScopeProvider.Scope.Resolve<IPermissionRepository>();
 		private readonly IList<EntitySubdivisionForUserPermission> _deletionPermissionList = new List<EntitySubdivisionForUserPermission>();
 		private IList<EntitySubdivisionForUserPermission> _originalPermissionList;
 		private IList<TypeOfEntity> _originalTypeOfEntityList;
@@ -28,7 +29,7 @@ namespace Vodovoz.Core.Permissions
 			_originalPermissionList = _permissionRepository.GetAllSubdivisionForUserEntityPermissions(uow, user.Id);
 			ObservablePermissionsList = new GenericObservableList<EntitySubdivisionForUserPermission>(_originalPermissionList.ToList());
 
-			_originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
+			_originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntityOrderedByName(uow);
 			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(_originalTypeOfEntityList);
 		}
 		
@@ -98,7 +99,7 @@ namespace Vodovoz.Core.Permissions
 		public void SearchPermissions(string searchString)
 		{
 			//Каждый раз перезаписываем список
-			_originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(Uow);
+			_originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntityOrderedByName(Uow);
 			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(_originalTypeOfEntityList);
 			
 			if(searchString != "")

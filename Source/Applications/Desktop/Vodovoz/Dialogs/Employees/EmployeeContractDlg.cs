@@ -17,7 +17,7 @@ namespace Vodovoz.Dialogs.Employees
 	public partial class EmployeeContractDlg : SingleUowTabBase
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private IDocTemplateRepository _docTemplateRepository;
 
 		public event EventHandler Save;
 
@@ -25,6 +25,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public EmployeeContractDlg(EmployeeDocument document,Employee employee,IUnitOfWork uow)
 		{
+			ResolveDependancies();
 			this.Build();
 			TabName = "Новый договор";
 			UoW = uow;
@@ -40,12 +41,18 @@ namespace Vodovoz.Dialogs.Employees
 
 		public EmployeeContractDlg(int id, IUnitOfWork uow)
 		{
+			ResolveDependancies();
 			this.Build();
 			UoW = uow;
 			Entity = (EmployeeContract)UoW.GetById(typeof(EmployeeContract), id);
 			TabName = Entity.Name+ "договор";
 			ConfigureDlg();
 			this.ShowAll();
+		}
+
+		private void ResolveDependancies()
+		{
+			_docTemplateRepository = _lifetimeScope.Resolve<IDocTemplateRepository>();
 		}
 
 		void ConfigureDlg()
@@ -145,6 +152,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public override void Destroy()
 		{
+			_docTemplateRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 			base.Destroy();

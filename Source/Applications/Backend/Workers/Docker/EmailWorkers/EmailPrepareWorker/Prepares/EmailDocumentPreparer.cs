@@ -1,7 +1,7 @@
 ﻿using fyiReporting.RDL;
+using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using QS.Report;
-using QSDocTemplates;
 using RdlEngine;
 using System;
 using System.IO;

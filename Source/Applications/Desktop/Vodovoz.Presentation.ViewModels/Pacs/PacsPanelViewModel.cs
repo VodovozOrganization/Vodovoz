@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using Pacs.Core.Messages.Events;
-using Pacs.Server;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;

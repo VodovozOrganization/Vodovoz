@@ -130,6 +130,11 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 			UpdateWriteOffOperation();
 		}
 
+		public virtual bool TrySetIsUsed()
+		{
+			return false;
+		}
+
 		protected abstract void CreateOrUpdateIncomeOperation();
 		protected abstract void CreateOrUpdateWriteOffOperation();
 

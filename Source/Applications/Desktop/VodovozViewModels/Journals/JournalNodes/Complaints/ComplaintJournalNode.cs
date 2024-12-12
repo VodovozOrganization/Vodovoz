@@ -60,6 +60,7 @@ namespace Vodovoz.Journals.JournalNodes
 		public string Fines { get; set; }
 
 		public string ResultText { get; set; }
+		public string ResultCommentsAuthors { get; set; }
 
 		public DateTime? ActualCompletionDate { get; set; }
 		public string ActualCompletionDateString => ActualCompletionDate.HasValue ? ActualCompletionDate.Value.ToString("dd.MM.yy") : "-";

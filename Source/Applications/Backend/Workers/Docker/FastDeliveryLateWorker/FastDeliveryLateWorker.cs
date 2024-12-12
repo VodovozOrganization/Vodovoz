@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NHibernate.Util;
 using QS.DomainModel.UoW;
@@ -7,17 +8,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Zabbix.Sender;
 
 namespace FastDeliveryLateWorker
 {
@@ -25,38 +26,17 @@ namespace FastDeliveryLateWorker
 	{
 		private readonly ILogger<FastDeliveryLateWorker> _logger;
 		private readonly IOptions<FastDeliveryLateOptions> _options;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IGeneralSettings _generalSettings;
-		private readonly IOrderSettings _orderSettings;
-		private readonly INomenclatureSettings _nomenclatureSettings;
-		private readonly IDeliveryRepository _deliveryRepository;
-		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IGenericRepository<ComplaintDetalization> _complaintDetalizationRepository;		
-		private readonly IOrderRepository _orderRepository;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private bool _workInProgress;
 
 		public FastDeliveryLateWorker(
 			ILogger<FastDeliveryLateWorker> logger,
 			IOptions<FastDeliveryLateOptions> options,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IGeneralSettings generalSettings,
-			IDeliveryRepository deliveryRepository,
-			IEmployeeRepository employeeRepository,
-			IGenericRepository<ComplaintDetalization> complaintDetalizationRepository,
-			INomenclatureSettings nomenclatureSettings,
-			IOrderRepository orderRepository,
-			IOrderSettings orderSettings)
+			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_complaintDetalizationRepository = complaintDetalizationRepository ?? throw new ArgumentNullException(nameof(complaintDetalizationRepository));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_serviceScopeFactory = serviceScopeFactory;
 		}
 
 		protected override void OnStartService()
@@ -92,7 +72,12 @@ namespace FastDeliveryLateWorker
 
 			try
 			{
-				CreateComplaintsForFasteDeliveryLateOrders();
+				using var scope = _serviceScopeFactory.CreateScope();
+
+				CreateComplaintsForFasteDeliveryLateOrders(scope.ServiceProvider);
+
+				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
+				await zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception e)
 			{
@@ -113,65 +98,77 @@ namespace FastDeliveryLateWorker
 			await Task.CompletedTask;
 		}
 
-		private void CreateComplaintsForFasteDeliveryLateOrders()
+		private void CreateComplaintsForFasteDeliveryLateOrders(IServiceProvider serviceProvider)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot((nameof(FastDeliveryLateWorker))))
+			var unitOfWorkFactory = serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
+
+			using var uow = unitOfWorkFactory.CreateWithoutRoot(nameof(FastDeliveryLateWorker));
+			
+			var deliveryRepository = serviceProvider.GetRequiredService<IDeliveryRepository>();
+			var generalSettings = serviceProvider.GetRequiredService<IGeneralSettings>();
+
+			var fastDeliveryLateOrders = deliveryRepository.GetFastDeliveryLateOrders(uow, DateTime.Today, generalSettings, _options.Value.ComplaintDetalizationId);
+
+			if(!fastDeliveryLateOrders.Any())
 			{
-				var fastDeliveryLateOrders = _deliveryRepository.GetFastDeliveryLateOrders(uow, DateTime.Today, _generalSettings, _options.Value.ComplaintDetalizationId);
+				return;
+			}
 
-				if(!fastDeliveryLateOrders.Any())
+			var complaintDetalizationRepository = serviceProvider.GetRequiredService<IGenericRepository<ComplaintDetalization>>();
+
+			var complaintDetalization = complaintDetalizationRepository.Get(uow, cd => cd.Id == _options.Value.ComplaintDetalizationId).FirstOrDefault();
+
+			var employeeRepository = serviceProvider.GetRequiredService<IEmployeeRepository>();
+
+			var currentEmployee = employeeRepository.GetEmployeeForCurrentUser(uow);
+
+			foreach(var lateOrder in fastDeliveryLateOrders)
+			{
+				var isPrepayment = lateOrder.PaymentType == PaymentType.PaidOnline || lateOrder.PaymentType == PaymentType.SmsQR;
+
+				var isSouthDistrict = lateOrder.DeliveryPoint.District.GeographicGroup.Id == _options.Value.SouthGeoGroupId;
+
+				var complaintText = "Не исполнены условия Экспресс доставки.\n"
+						+ (isPrepayment
+						? "Осуществить возврат средств за экспресс- доставку."
+						: "");
+
+				var complaint = new Complaint
 				{
-					return;
-				}
+					Order = lateOrder,
+					Counterparty = lateOrder.Client,
+					DeliveryPoint = lateOrder.DeliveryPoint,
+					ComplaintKind = complaintDetalization.ComplaintKind,
+					ComplaintDetalization = complaintDetalization,
+					ComplaintSource = new ComplaintSource { Id = _options.Value.ComplaintSourceId },
+					ComplaintText = complaintText,
+					ComplaintType = ComplaintType.Client,
+					CreationDate = DateTime.Now,
+					ChangedDate = DateTime.Now,
+					CreatedBy = currentEmployee,
+					ChangedBy = currentEmployee
+				};
 
-				var complaintDetalization = _complaintDetalizationRepository.Get(uow, cd => cd.Id == _options.Value.ComplaintDetalizationId).FirstOrDefault();				
-				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+				var nomenclatureSettings = serviceProvider.GetRequiredService<INomenclatureSettings>();
+				var orderSettings = serviceProvider.GetRequiredService<IOrderSettings>();
 
-				foreach(var lateOrder in fastDeliveryLateOrders)
+				var fastDeliveryOrderItem = lateOrder.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == nomenclatureSettings.FastDeliveryNomenclatureId);
+				fastDeliveryOrderItem.SetDiscount(100);
+				fastDeliveryOrderItem.DiscountReason = new DiscountReason { Id = orderSettings.FastDeliveryLateDiscountReasonId };
+				uow.Save(fastDeliveryOrderItem);
+
+				uow.Save(complaint);
+
+				var guilty = new ComplaintGuiltyItem
 				{
-					var isPrepayment = lateOrder.PaymentType == PaymentType.PaidOnline || lateOrder.PaymentType == PaymentType.SmsQR;
+					Complaint = complaint,
+					Subdivision = new Subdivision { Id = isSouthDistrict ? _options.Value.LoSofiyskayaSubdivisionId : _options.Value.LoBugrySubdivisionId },
+					Responsible = new Responsible { Id = _options.Value.ResponsibleId }
+				};
 
-					var isSouthDistrict = lateOrder.DeliveryPoint.District.GeographicGroup.Id == _options.Value.SouthGeoGroupId;
+				uow.Save(guilty);
 
-					var complaintText = "Не исполнены условия Экспресс доставки.\n"
-							+ (isPrepayment
-							? "Осуществить возврат средств за экспресс- доставку."
-							: "");				
-
-					var complaint = new Complaint
-					{
-						Order = lateOrder,
-						Counterparty = lateOrder.Client,
-						DeliveryPoint = lateOrder.DeliveryPoint,
-						ComplaintKind = complaintDetalization.ComplaintKind,
-						ComplaintDetalization = complaintDetalization,
-						ComplaintSource = new ComplaintSource { Id = _options.Value.ComplaintSourceId },
-						ComplaintText = complaintText,
-						ComplaintType = ComplaintType.Client,
-						CreationDate = DateTime.Now,
-						ChangedDate = DateTime.Now,
-						CreatedBy = currentEmployee,
-						ChangedBy = currentEmployee						
-					};					
-
-					var fastDeliveryOrderItem = lateOrder.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _nomenclatureSettings.FastDeliveryNomenclatureId);
-					fastDeliveryOrderItem.SetDiscount(100);
-					fastDeliveryOrderItem.DiscountReason =  new DiscountReason { Id = _orderSettings.FastDeliveryLateDiscountReasonId };
-					uow.Save(fastDeliveryOrderItem);
-
-					uow.Save(complaint);
-
-					var guilty = new ComplaintGuiltyItem
-					{
-						Complaint = complaint,
-						Subdivision = new Subdivision { Id = isSouthDistrict ? _options.Value.LoSofiyskayaSubdivisionId : _options.Value.LoBugrySubdivisionId },
-						Responsible = new Responsible { Id = _options.Value.ResponsibleId }
-					};
-
-					uow.Save(guilty);
-
-					uow.Commit();
-				}
+				uow.Commit();
 			}
 		}
 	}

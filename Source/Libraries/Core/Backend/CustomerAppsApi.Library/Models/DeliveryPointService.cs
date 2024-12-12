@@ -53,14 +53,14 @@ namespace CustomerAppsApi.Library.Models
 		
 		public DeliveryPointsDto GetDeliveryPoints(Source source, int counterpartyErpId)
 		{
-			_logger.LogInformation("Поступил запрос выборки всех ТД клиента {CounterpartyId} от {Source}",
+			_logger.LogInformation("Поступил запрос выборки всех активных ТД клиента {CounterpartyId} от {Source}",
 				counterpartyErpId,
 				SourceTitle(source));
 			
 			try
 			{
 				var deliveryPoints =
-					_deliveryPointRepository.GetDeliveryPointsForSendByCounterpartyId(_uow, counterpartyErpId);
+					_deliveryPointRepository.GetActiveDeliveryPointsForSendByCounterpartyId(_uow, counterpartyErpId);
 				return _deliveryPointFactory.CreateDeliveryPointsDto(deliveryPoints);
 			}
 			catch(Exception e)

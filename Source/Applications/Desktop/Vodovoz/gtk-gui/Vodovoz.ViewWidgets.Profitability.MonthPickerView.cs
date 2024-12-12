@@ -4,13 +4,15 @@ namespace Vodovoz.ViewWidgets.Profitability
 {
 	public partial class MonthPickerView
 	{
-		private global::Gamma.GtkWidgets.yHBox yhbox1;
+		private global::Gamma.GtkWidgets.yHBox hboxMain;
 
-		private global::Gamma.GtkWidgets.yButton btnPreviousMonth;
+		private global::Gamma.GtkWidgets.yButton btnPreviousDate;
 
-		private global::Gamma.GtkWidgets.yEntry entryMonth;
+		private global::Gamma.GtkWidgets.yEntry entryDate;
 
-		private global::Gamma.GtkWidgets.yButton btnNextMonth;
+		private global::Gamma.GtkWidgets.yButton btnCalendar;
+
+		private global::Gamma.GtkWidgets.yButton btnNextDate;
 
 		protected virtual void Build()
 		{
@@ -19,47 +21,59 @@ namespace Vodovoz.ViewWidgets.Profitability
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ViewWidgets.Profitability.MonthPickerView";
 			// Container child Vodovoz.ViewWidgets.Profitability.MonthPickerView.Gtk.Container+ContainerChild
-			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
-			this.yhbox1.Name = "yhbox1";
-			this.yhbox1.Spacing = 6;
-			// Container child yhbox1.Gtk.Box+BoxChild
-			this.btnPreviousMonth = new global::Gamma.GtkWidgets.yButton();
-			this.btnPreviousMonth.CanFocus = true;
-			this.btnPreviousMonth.Name = "btnPreviousMonth";
-			this.btnPreviousMonth.UseUnderline = true;
+			this.hboxMain = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxMain.Name = "hboxMain";
+			this.hboxMain.Spacing = 6;
+			// Container child hboxMain.Gtk.Box+BoxChild
+			this.btnPreviousDate = new global::Gamma.GtkWidgets.yButton();
+			this.btnPreviousDate.CanFocus = true;
+			this.btnPreviousDate.Name = "btnPreviousDate";
+			this.btnPreviousDate.UseUnderline = true;
 			global::Gtk.Image w1 = new global::Gtk.Image();
 			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-go-back", global::Gtk.IconSize.Button);
-			this.btnPreviousMonth.Image = w1;
-			this.yhbox1.Add(this.btnPreviousMonth);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.btnPreviousMonth]));
+			this.btnPreviousDate.Image = w1;
+			this.hboxMain.Add(this.btnPreviousDate);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.btnPreviousDate]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
-			// Container child yhbox1.Gtk.Box+BoxChild
-			this.entryMonth = new global::Gamma.GtkWidgets.yEntry();
-			this.entryMonth.CanFocus = true;
-			this.entryMonth.Name = "entryMonth";
-			this.entryMonth.IsEditable = false;
-			this.entryMonth.InvisibleChar = '•';
-			this.yhbox1.Add(this.entryMonth);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.entryMonth]));
+			// Container child hboxMain.Gtk.Box+BoxChild
+			this.entryDate = new global::Gamma.GtkWidgets.yEntry();
+			this.entryDate.CanFocus = true;
+			this.entryDate.Name = "entryDate";
+			this.entryDate.IsEditable = false;
+			this.entryDate.InvisibleChar = '•';
+			this.hboxMain.Add(this.entryDate);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.entryDate]));
 			w3.Position = 1;
 			w3.Expand = false;
 			w3.Fill = false;
-			// Container child yhbox1.Gtk.Box+BoxChild
-			this.btnNextMonth = new global::Gamma.GtkWidgets.yButton();
-			this.btnNextMonth.CanFocus = true;
-			this.btnNextMonth.Name = "btnNextMonth";
-			this.btnNextMonth.UseUnderline = true;
+			// Container child hboxMain.Gtk.Box+BoxChild
+			this.btnCalendar = new global::Gamma.GtkWidgets.yButton();
+			this.btnCalendar.CanFocus = true;
+			this.btnCalendar.Name = "btnCalendar";
+			this.btnCalendar.UseUnderline = true;
 			global::Gtk.Image w4 = new global::Gtk.Image();
-			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-go-forward", global::Gtk.IconSize.Button);
-			this.btnNextMonth.Image = w4;
-			this.yhbox1.Add(this.btnNextMonth);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.btnNextMonth]));
+			this.btnCalendar.Image = w4;
+			this.hboxMain.Add(this.btnCalendar);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.btnCalendar]));
 			w5.Position = 2;
 			w5.Expand = false;
 			w5.Fill = false;
-			this.Add(this.yhbox1);
+			// Container child hboxMain.Gtk.Box+BoxChild
+			this.btnNextDate = new global::Gamma.GtkWidgets.yButton();
+			this.btnNextDate.CanFocus = true;
+			this.btnNextDate.Name = "btnNextDate";
+			this.btnNextDate.UseUnderline = true;
+			global::Gtk.Image w6 = new global::Gtk.Image();
+			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-go-forward", global::Gtk.IconSize.Button);
+			this.btnNextDate.Image = w6;
+			this.hboxMain.Add(this.btnNextDate);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.btnNextDate]));
+			w7.Position = 3;
+			w7.Expand = false;
+			w7.Fill = false;
+			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

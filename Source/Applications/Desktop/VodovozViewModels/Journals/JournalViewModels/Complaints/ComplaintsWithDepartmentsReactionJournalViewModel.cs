@@ -186,6 +186,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			ComplaintArrangementComment resultOfComplaintArrangemenCommentAlias = null;
 			ComplaintResultComment resultOfComplaintResultCommentAlias = null;
 			ComplaintDiscussionComment complaintDiscussionCommentAlias = null;
+			Employee resultCommentAuthorAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -296,6 +297,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						Projections.Constant(" || ")
 						);
 
+			var authorsOfResultCommentsProjection = Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"),
+						NHibernateUtil.String,
+						EmployeeProjections.GetEmployeeFullNameProjection(),
+						Projections.Constant(", ")
+						);
+
 			var resultOfCounterpartySubquery = QueryOver.Of(() => resultOfCounterpartyAlias)
 				.Where(() => resultOfCounterpartyAlias.Id == complaintAlias.ComplaintResultOfCounterparty.Id)
 				.Select(Projections.Property(() => resultOfCounterpartyAlias.Name));
@@ -311,6 +319,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			var resultOfResultCommentsSubquery = QueryOver.Of(() => resultOfComplaintResultCommentAlias)
 				.Where(() => resultOfComplaintResultCommentAlias.Complaint.Id == complaintAlias.Id)
 				.Select(resultCommentProjection);
+
+			var authorsOfResultCommentsSubquery = QueryOver.Of(() => resultCommentAuthorAlias)
+				.JoinEntityAlias(() => resultOfComplaintResultCommentAlias,
+					() => resultOfComplaintResultCommentAlias.Author.Id == resultCommentAuthorAlias.Id)
+				.Where(() => resultOfComplaintResultCommentAlias.Complaint.Id == complaintAlias.Id)
+				.Select(authorsOfResultCommentsProjection)
+				.TransformUsing(Transformers.DistinctRootEntity);
 
 			var query = uow.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
@@ -507,6 +522,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.Select(() => complaintDelatizationAlias.Name).WithAlias(() => resultAlias.ComplaintDetalizationString)
 				.Select(() => complaintDelatizationAlias.IsArchive).WithAlias(() => resultAlias.ComplaintDetalizationIsArchive)
 				.SelectSubQuery(resultOfResultCommentsSubquery).WithAlias(() => resultAlias.ResultText)
+				.SelectSubQuery(authorsOfResultCommentsSubquery).WithAlias(() => resultAlias.ResultCommentsAuthors)
 				.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
 				.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObjectString)
 				.SelectSubQuery(resultOfArrangementCommentsSubquery).WithAlias(() => resultAlias.ArrangementText)

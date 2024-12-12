@@ -49,7 +49,9 @@ NODE_VOD3 = "Vod3"
 NODE_VOD5 = "Vod5"
 NODE_VOD6 = "Vod6"
 NODE_VOD7 = "Vod7"
+NODE_VOD13 = "Vod13"
 NODE_WIN_BUILD = "WIN_BUILD"
+NODE_DOCKER_BUILD = "DOCKER_BUILD"
 
 // 102	Настройки. Глобальные
 ARCHIVE_EXTENTION = '.7z'
@@ -71,6 +73,7 @@ IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 // 104	Настройки. Восстановление пакетов
 
 // 105	Настройки. Сборка
+
 CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
 CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
@@ -87,6 +90,7 @@ DESKTOP_VOD1_DELIVERY_PATH = "\\\\${NODE_VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAM
 DESKTOP_VOD3_DELIVERY_PATH = "\\\\${NODE_VOD3}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD5_DELIVERY_PATH = "\\\\${NODE_VOD5}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD7_DELIVERY_PATH = "\\\\${NODE_VOD7}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+DESKTOP_VOD13_DELIVERY_PATH = "\\\\${NODE_VOD13}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 
 // 108	Настройки. Развертывание
@@ -121,62 +125,86 @@ stage('Checkout'){
 	)
 }
 
-// 202	Этапы. Восстановление пакетов
-stage('Restore'){
-	parallel (
-		"Win" : {
-			node(NODE_WIN_BUILD){
+stage('Desktop'){
+	node(NODE_WIN_BUILD){
+		if(CAN_BUILD_DESKTOP)
+		{
+			stage('Desktop.Restore'){
 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
 			}
+
+			stage('Desktop.Build'){
+				Build("WinDesktop")
+				bat "copy \"D:\\CD\\WaterDelivery\\appsettings.Production.json\" \".\\Vodovoz\\Source\\Applications\\Desktop\\Vodovoz\\bin\\DebugWin\\\""
+			}
 		}
-	)
+		else
+		{
+			echo "Build Desktop not needed"
+		}
+	}
 }
 
 // 203	Этапы. Сборка
-stage('Build'){
-	parallel (
-		"Win" : {
-			node(NODE_WIN_BUILD){
-				stage('Build Desktop'){
-					if(CAN_BUILD_DESKTOP)
-					{
-						Build("WinDesktop")
-					}
-					else
-					{
-						echo "Build Desktop not needed"
-					}
-				}
-				stage('Build WEB'){
-					if(CAN_PUBLISH_BUILD_WEB)
-					{
-						PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
-						PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
-						PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
-						PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
-						PublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
-						PublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
-						PublishBuild("${APP_PATH}/Backend/WebAPI/TaxcomEdoApi/TaxcomEdoApi.csproj")
-						PublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
-						PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
-						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
-						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
-						PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
-						PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
-					}
-					else if(CAN_BUILD_WEB)
-					{
-						//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
-						Build("Web")
-					}
-					else
-					{
-						echo "Build Web not needed"
-					}
-				}
+stage('Web'){
+	node(NODE_WIN_BUILD){
+		
+		if(CAN_PUBLISH_BUILD_WEB)
+		{
+			stage('Web.Restore'){
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
 			}
-		},
-	)
+			stage('Web.Build'){
+				// IIS
+				PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
+				PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
+				PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
+				PublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
+				PublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
+				PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
+				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
+				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
+				PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
+				PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
+
+				// Docker
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker/EmailStatusUpdateWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/ExternalCounterpartyAssignNotifier/ExternalCounterpartyAssignNotifier.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/WarehouseApi/WarehouseApi.csproj")
+				DockerPublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
+			}
+		}
+		else if(CAN_BUILD_WEB)
+		{
+			stage('Web.Restore'){
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Web /p:Platform=x86 /maxcpucount:2"
+			}
+			stage('Web.Build'){
+				//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
+				Build("Web")
+			}
+		}
+		else
+		{
+			echo "Build Web not needed"
+		}
+		
+	}
 }
 
 
@@ -191,8 +219,6 @@ stage('Compress'){
 		"UnsubscribePage" : { CompressWebArtifact("Frontend/UnsubscribePage") },
 		"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
 		"RoboatsService" : { CompressWebArtifact("Backend/WebAPI/RoboatsService") },
-		"TaxcomEdoApi" : { CompressWebArtifact("Backend/WebAPI/TaxcomEdoApi") },
-		"CashReceiptApi" : { CompressWebArtifact("Backend/WebAPI/CashReceiptApi") },
 		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
@@ -204,24 +230,26 @@ stage('Compress'){
 // 205	Этапы. Доставка
 stage('Delivery'){
 	parallel(
+
+		// Desktop
 		"Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(NODE_VOD1, DESKTOP_VOD1_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(NODE_VOD3, DESKTOP_VOD3_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD13}" : { DeliveryDesktopArtifact(NODE_VOD13, DESKTOP_VOD13_DELIVERY_PATH) },
 
+		// IIS
 		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
 		"PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
 		"UnsubscribePage" : { DeliveryWebArtifact("UnsubscribePage") },
 		"DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
 		"RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
-		"TaxcomEdoApi" : { DeliveryWebArtifact("TaxcomEdoApi") },
-		"CashReceiptApi" : { DeliveryWebArtifact("CashReceiptApi") },
 		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
-		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") },
+		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") }
 	)
 }
 
@@ -237,6 +265,7 @@ stage('Publish'){
 		"Desktop ${NODE_VOD3}" : { PublishDesktop(NODE_VOD3) },
 		"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
 		"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
+		"Desktop ${NODE_VOD13}" : { PublishDesktop(NODE_VOD13) },
 
 		"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
 		"PayPageAPI" : { PublishWeb("PayPageAPI") },
@@ -244,8 +273,6 @@ stage('Publish'){
 		"UnsubscribePage" : { PublishWeb("UnsubscribePage") },
 		"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
 		"RoboatsService" : { PublishWeb("RoboatsService") },
-		"TaxcomEdoApi" : { PublishWeb("TaxcomEdoApi") },
-		"CashReceiptApi" : { PublishWeb("CashReceiptApi") },
 		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
@@ -261,14 +288,67 @@ stage('Publish'){
 // 301	Фукнции. Подготовка репозитория
 
 def PrepareSources() {
-	def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_NODE}/workspace/Vodovoz_Vodovoz_master"
+	def REFERENCE_REPOSITORY_PATH = "${JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+	echo "Prepare reference repository ${REFERENCE_REPOSITORY_PATH}"
+
+	if(fileExists(REFERENCE_REPOSITORY_PATH)){
+		// fetch all on reference repository
+		if (isUnix()) {
+			sh script: """\
+				cd ${REFERENCE_REPOSITORY_PATH} \
+				git fetch --all \
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET \
+				git fetch --all \
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings \
+				git fetch --all \
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting \
+				git fetch --all \
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects \
+				git fetch --all \
+			""", returnStdout: true
+		}
+		else {
+			RunPowerShell("""
+				cd ${REFERENCE_REPOSITORY_PATH}
+				git fetch --all
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET
+				git fetch --all
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings
+				git fetch --all
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting
+				git fetch --all
+				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects
+				git fetch --all
+			""")
+		}		
+	}else{
+		// clone reference
+		if (isUnix()) {
+			sh script: """\
+				git clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ${REFERENCE_REPOSITORY_PATH} \
+				git clone https://github.com/QualitySolution/GMap.NET.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET \
+				git clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings \
+				git clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting \
+				git clone https://github.com/QualitySolution/QSProjects.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects \
+			""", returnStdout: true
+		}
+		else {
+			RunPowerShell("""
+				git clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ${REFERENCE_REPOSITORY_PATH}
+				git clone https://github.com/QualitySolution/GMap.NET.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET
+				git clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings
+				git clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting
+				git clone https://github.com/QualitySolution/QSProjects.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects
+			""")
+		}
+	}
 
 	checkout changelog: false, poll: false, scm:([
 		$class: 'GitSCM',
 		branches: scm.branches,
 		extensions: scm.extensions
 		+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]]
+		+ [[$class: 'CloneOption', reference: "${REFERENCE_REPOSITORY_PATH}"]]
 		+ [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]],
 		userRemoteConfigs: scm.userRemoteConfigs
 	])
@@ -282,6 +362,11 @@ def PrepareSources() {
 
 def PublishBuild(projectPath){
 	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=FolderProfile /maxcpucount:2"
+}
+
+def DockerPublishBuild(projectPath){
+	def workspacePath = GetWorkspacePath()
+	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
 }
 
 def Build(config){

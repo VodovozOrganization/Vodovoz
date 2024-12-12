@@ -12,9 +12,9 @@ namespace Pacs.Server
 	[Authorize]
 	public class GlobalBreakAvailabilityController
 	{
-		private readonly GlobalBreakController _globalBreakController;
+		private readonly IGlobalBreakController _globalBreakController;
 
-		public GlobalBreakAvailabilityController(GlobalBreakController globalBreakController)
+		public GlobalBreakAvailabilityController(IGlobalBreakController globalBreakController)
 		{
 			_globalBreakController = globalBreakController ?? throw new ArgumentNullException(nameof(globalBreakController));
 		}

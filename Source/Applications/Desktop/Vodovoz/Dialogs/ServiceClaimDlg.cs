@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -9,6 +9,7 @@ using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
 using QSProjectsLib;
 using System;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -38,9 +39,9 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
+		private IEmployeeRepository _employeeRepository;
+		private IEquipmentRepository _equipmentRepository;
+		private INomenclatureRepository _nomenclatureRepository;
 
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel =
 			new DeliveryPointJournalFilterViewModel();
@@ -71,12 +72,15 @@ namespace Vodovoz
 
 		public DeliveryPoint DeliveryPoint => evmeDeliveryPoint.Subject as DeliveryPoint;
 
+		public OrderAddressType? TypeOfAddress => null;
+
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 
 		bool isEditable = true;
 
 		public ServiceClaimDlg(Order order)
 		{
+			ResolveDependencies();
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (order));
 			ConfigureDlg ();
@@ -88,12 +92,14 @@ namespace Vodovoz
 
 		public ServiceClaimDlg(int id)
 		{
+			ResolveDependencies();
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ServiceClaim> (id);
 		}
 
 		public ServiceClaimDlg(ServiceClaimType type)
 		{
+			ResolveDependencies();
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (type));
 			if (type == ServiceClaimType.RegularService)
@@ -101,6 +107,13 @@ namespace Vodovoz
 			Entity.ServiceStartDate = DateTime.Today;
 			Entity.ServiceStartDate = DateTime.Now.AddDays(1);
 			ConfigureDlg();
+		}
+
+		private void ResolveDependencies()
+		{
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_equipmentRepository = _lifetimeScope.Resolve<IEquipmentRepository>();
+			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 		}
 
 		void CreateOrder()
@@ -142,7 +155,7 @@ namespace Vodovoz
 			evmeClient.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			evmeClient.Changed += OnReferenceCounterpartyChanged;
 
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
+			var employeeFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			evmeEngineer.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEngineer.Binding.AddBinding(Entity, e => e.Engineer, w => w.Subject).InitializeFromSource();
 
@@ -466,6 +479,9 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			_employeeRepository = null;
+			_equipmentRepository = null;
+			_nomenclatureRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 			base.Destroy();

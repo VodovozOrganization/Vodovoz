@@ -179,7 +179,7 @@ FROM
 			rl.id AS rl_id,
 			rl.status AS rl_status,
 			rl.date AS rl_date,
-			bmo.delivered AS bmo_delivered,
+			(bmo.delivered + bmo.delivered_in_disposable_tare) AS bmo_delivered,
 			bmo.returned AS bmo_returned,
 			o.bottles_return AS o_bottles_return,
 			(SELECT
@@ -189,7 +189,7 @@ FROM
 			JOIN nomenclature n ON
 				n.id = oi.nomenclature_id
 				and n.category = 'water'
-				and ! n.is_disposable_tare
+				and n.tare_volume = 'Vol19L'
 			WHERE
 				oi.order_id = o.id) AS orderBottles
 		FROM
@@ -345,7 +345,7 @@ FROM
 				rl.id AS rl_id,
 				rl.status AS rl_status,
 				rl.date AS rl_date,
-				bmo.delivered AS bmo_delivered,
+				(bmo.delivered + bmo.delivered_in_disposable_tare) AS bmo_delivered,
 				bmo.returned AS bmo_returned,
 				o.bottles_return AS o_bottles_return,
 				(SELECT
@@ -356,7 +356,7 @@ FROM
 						nomenclature n
 						ON n.id = oi.nomenclature_id
 						AND n.category = 'water'
-						AND ! n.is_disposable_tare
+						AND n.tare_volume = 'Vol19L'
 					WHERE
 						oi.order_id = o.id
 	            ) AS orderBottles

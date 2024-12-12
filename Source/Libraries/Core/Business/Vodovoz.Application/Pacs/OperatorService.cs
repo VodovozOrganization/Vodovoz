@@ -4,14 +4,15 @@ using Pacs.Core;
 using Pacs.Core.Messages.Events;
 using Pacs.Operators.Client;
 using Pacs.Operators.Client.Consumers;
-using Pacs.Server;
 using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using Vodovoz.Application.Mango;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Pacs;
@@ -35,7 +36,7 @@ namespace Vodovoz.Application.Pacs
 		private readonly IOperatorClient _client;
 		private readonly IMangoManager _mangoManager;
 		private readonly OperatorKeepAliveController _operatorKeepAliveController;
-		private readonly IOperatorStateAgent _operatorStateAgent;
+		private readonly IOperatorStateMachine _operatorStateAgent;
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IObservable<GlobalBreakAvailabilityEvent> _globalBreakPublisher;
 		private readonly OperatorSettingsConsumer _operatorSettingsConsumer;
@@ -62,13 +63,12 @@ namespace Vodovoz.Application.Pacs
 		private IDisposable _settingsSubscription;
 		private IDisposable _operatorsOnBreakSubscription;
 
-
 		public OperatorService(
 			ILogger<OperatorService> logger,
 			IEmployeeService employeeService,
 			IOperatorClient operatorClient,
 			IMangoManager mangoManager,
-			IOperatorStateAgent operatorStateAgent,
+			IOperatorStateMachine operatorStateAgent,
 			IPacsRepository pacsRepository,
 			IObservable<GlobalBreakAvailabilityEvent> globalBreakPublisher,
 			OperatorSettingsConsumer operatorSettingsConsumer,
@@ -89,10 +89,10 @@ namespace Vodovoz.Application.Pacs
 			_operatorKeepAliveController = operatorKeepAliveController ?? throw new ArgumentNullException(nameof(operatorKeepAliveController));
 
 			_breakAvailability = new OperatorBreakAvailability();
-			_globalBreakAvailability = new GlobalBreakAvailabilityEvent();
+			_globalBreakAvailability = new GlobalBreakAvailabilityEvent { EventId = Guid.NewGuid() };
 			AvailablePhones = new List<string>();
 			_delayedBreakUpdateTimer = new Timer();
-			_delayedBreakUpdateTimer.Elapsed += (s, e) => UpdateBreakInfo();
+			_delayedBreakUpdateTimer.Elapsed += async (s, e) => await OnBreakAvailabilityTimerElapsedAsync(s, e);
 
 			_employee = _employeeService.GetEmployeeForCurrentUser();
 
@@ -122,9 +122,15 @@ namespace Vodovoz.Application.Pacs
 			private set => SetField(ref _isConnected, value);
 		}
 
+		private async Task OnBreakAvailabilityTimerElapsedAsync(object sender,  ElapsedEventArgs e)
+		{
+			await RefreshBreakAvailability();
+			UpdateBreakInfo();
+		}
+
 		private void StartConnecting()
 		{
-			if(!(IsInitialized && IsOperator))
+			if(!IsInitialized || !IsOperator)
 			{
 				_logger.LogWarning("Подключение невозможно, так как не инициализирован сервис оператора");
 				return;
@@ -136,9 +142,15 @@ namespace Vodovoz.Application.Pacs
 			}
 
 			_connectingTimer = new Timer(5000);
-			_connectingTimer.Elapsed += (s, e) =>
+			_connectingTimer.Elapsed += OnReconnectTimerElapsed;
+			_connectingTimer.Start();
+		}
+
+		private void OnReconnectTimerElapsed(object sender, ElapsedEventArgs e)
+		{
+			if(OperatorState == null || OperatorState.State == OperatorStateType.Disconnected)
 			{
-				if(OperatorState == null || OperatorState.State == OperatorStateType.Disconnected)
+				try
 				{
 					Connect().Wait();
 					_operatorKeepAliveController.Start();
@@ -147,9 +159,29 @@ namespace Vodovoz.Application.Pacs
 					_settings = _pacsRepository.GetPacsDomainSettings();
 					UpdateMango();
 					SubscribeEvents();
+					_connectingTimer.Elapsed -= OnReconnectTimerElapsed;
 				}
-			};
-			_connectingTimer.Start();
+				catch(AggregateException ex)
+				{
+					int counter = 1;
+
+					foreach(var exception in ex.InnerExceptions)
+					{
+						_logger.LogError(
+							ex,
+							"Произошла ошибка при подключении к службам СКУД ({CurrentExceptionNumber}/{ExceptionsCount}): {ExceptionMessage}",
+							exception.Message,
+							counter,
+							ex.InnerExceptions.Count);
+
+						counter++;
+					}
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Произошла ошибка при подключении к службам СКУД: {ExceptionMessage}", ex.Message);
+				}
+			}
 		}
 
 		private async Task Connect()
@@ -177,8 +209,7 @@ namespace Vodovoz.Application.Pacs
 
 		private async Task Disconnect()
 		{
-			_connectingTimer?.Dispose();
-			_connectingTimer = null;
+			_connectingTimer.Stop();
 			_client.StateChanged -= StateChanged;
 			var stateEvent = await _client.Disconnect();
 			SetState(stateEvent);
@@ -192,14 +223,43 @@ namespace Vodovoz.Application.Pacs
 
 		private void SetState(OperatorStateEvent stateEvent)
 		{
+			_logger.LogInformation(
+				"Изменение состояния оператора с {PreviousOperatorState} на {NewOperatorState}",
+				OperatorState?.State,
+				stateEvent?.State?.State);
+
+			var previousShortBreakAvailable = BreakAvailability?.ShortBreakAvailable;
+			var previousLongBreakAvailable = BreakAvailability?.LongBreakAvailable;
+
 			if(OperatorState == null || OperatorState.Id != stateEvent.State.Id)
 			{
 				OperatorState = stateEvent.State;
 			}
+
+			_logger.LogInformation(
+				"Изменение доступности малого перерыва оператора с {PreviousShortBreakAvailability} на {NewShortBreakAvailability}," +
+				" большого перерыва оператора с {PreviousLongBreakAvailability} на {NewLongBreakAvailability}",
+				previousShortBreakAvailable,
+				stateEvent?.BreakAvailability?.ShortBreakAvailable,
+				previousLongBreakAvailable,
+				stateEvent?.BreakAvailability?.LongBreakAvailable);
+
 			if(BreakAvailability == null || !BreakAvailability.Equals(stateEvent.BreakAvailability))
 			{
 				BreakAvailability = stateEvent.BreakAvailability;
 			}
+		}
+
+		public async Task RefreshBreakAvailability()
+		{
+			if(OperatorState is null)
+			{
+				return;
+			}
+
+			var globalBreakAvailability = await _client.GetOperatorBreakAvailability(OperatorState.OperatorId);
+
+			BreakAvailability = globalBreakAvailability;
 		}
 
 		private void SubscribeEvents()
@@ -342,34 +402,39 @@ namespace Vodovoz.Application.Pacs
 
 		public string GetBreakInfo()
 		{
-			string result = "";
+			var stringBuilder = new StringBuilder();
+
 			if(GlobalBreakAvailability == null || BreakAvailability == null)
 			{
-				return result;
-			}
-			if(!GlobalBreakAvailability.LongBreakAvailable)
-			{
-				result += $"\n{GlobalBreakAvailability.LongBreakDescription}";
-			}
-			if(!BreakAvailability.LongBreakAvailable)
-			{
-				result += $"\n{BreakAvailability.LongBreakDescription}";
+				return stringBuilder.ToString();
 			}
 
-			if(!GlobalBreakAvailability.ShortBreakAvailable)
+			if(!GlobalBreakAvailability.LongBreakAvailable && !string.IsNullOrWhiteSpace(GlobalBreakAvailability.LongBreakDescription))
 			{
-				result += $"\n{GlobalBreakAvailability.ShortBreakDescription}";
+				stringBuilder.Append(GlobalBreakAvailability.LongBreakDescription);
 			}
-			if(!BreakAvailability.ShortBreakAvailable)
+
+			if(!BreakAvailability.LongBreakAvailable && !string.IsNullOrWhiteSpace(BreakAvailability.LongBreakDescription))
 			{
-				result += $"\n{BreakAvailability.ShortBreakDescription}";
+				stringBuilder.AppendLine(BreakAvailability.LongBreakDescription);
+			}
+
+			if(!GlobalBreakAvailability.ShortBreakAvailable && !string.IsNullOrWhiteSpace(GlobalBreakAvailability.ShortBreakDescription))
+			{
+				stringBuilder.AppendLine(GlobalBreakAvailability.ShortBreakDescription);
+			}
+
+			if(!BreakAvailability.ShortBreakAvailable && !string.IsNullOrWhiteSpace(BreakAvailability.ShortBreakDescription))
+			{
+				stringBuilder.AppendLine(BreakAvailability.ShortBreakDescription);
+
 				if(BreakAvailability.ShortBreakSupposedlyAvailableAfter.HasValue)
 				{
-					result += $"\nМалый перерыв будет доступен после: {BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value:dd.MM HH:mm}";
+					stringBuilder.AppendLine($"Малый перерыв будет доступен после: {BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value:dd.MM HH:mm}");
 				}
 			}
 
-			return result.Trim('\n');
+			return stringBuilder.ToString();
 		}
 
 		#region Long break
@@ -717,7 +782,7 @@ namespace Vodovoz.Application.Pacs
 				var hasPhone = uint.TryParse(OperatorState?.PhoneNumber, out var phone);
 				if(!hasPhone)
 				{
-					_logger.LogWarning("Внутренний телефон оператора имеет не корректный формат и не может использоваться в Манго. Тел: {Phone}", OperatorState.PhoneNumber);
+					_logger.LogWarning("Внутренний телефон оператора имеет не корректный формат и не может использоваться в Манго. Тел: {Phone}", OperatorState?.PhoneNumber);
 				}
 
 				if(_operatorStateAgent.OnWorkshift)
@@ -837,6 +902,11 @@ namespace Vodovoz.Application.Pacs
 
 		public void Dispose()
 		{
+			if(_connectingTimer != null)
+			{
+				_connectingTimer.Stop();
+				_connectingTimer.Elapsed -= OnReconnectTimerElapsed;
+			}
 			_connectingTimer?.Dispose();
 			_delayedBreakUpdateTimer?.Dispose();
 			UnsubscribeEvents();

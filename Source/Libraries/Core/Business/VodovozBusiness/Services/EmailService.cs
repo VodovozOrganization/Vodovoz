@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
@@ -20,31 +21,103 @@ namespace Vodovoz.Services
 	public class EmailService : IEmailService
 	{
 		private readonly OrderStateKey _orderStateKey;
-
-		public EmailService(OrderStateKey orderStateKey)
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IEmailRepository _emailRepository;
+		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
+		private readonly OrderStatus[] _emailRequiredOrderStatuses = new OrderStatus[]
 		{
-			_orderStateKey = orderStateKey ?? throw new ArgumentNullException(nameof(orderStateKey));
-		}
-		public bool NeedSendBillToEmail(IUnitOfWork uow, Order order, IOrderRepository orderRepository, IEmailRepository emailRepository)
+			OrderStatus.NewOrder,
+			OrderStatus.Accepted,
+			OrderStatus.WaitForPayment
+		};
+
+		private readonly PaymentType[] _emailRequiredOrderPaymentTypes = new PaymentType[]
 		{
-			var notSendedByEdo = orderRepository.GetEdoContainersByOrderId(uow, order.Id).Count(x => x.Type == Type.Bill) == 0;
-			var notSendedByEmail = !emailRepository.HaveSendedEmailForBill(order.Id);
-			var notSended = notSendedByEdo && notSendedByEmail;
-			if((order.OrderStatus == OrderStatus.NewOrder || order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.WaitForPayment)
-			   && order.PaymentType == PaymentType.Cashless
-			   && notSended)
-			{
-				//Проверка должен ли формироваться счет для текущего заказа
-				var requirementDocTypes = GetRequirementDocTypes(order);
-				return requirementDocTypes.Contains(OrderDocumentType.Bill) || requirementDocTypes.Contains(OrderDocumentType.SpecialBill);
-			}
-			return false;
+			PaymentType.Cashless
+		};
+
+		private readonly OrderDocumentType[] _orderDocumentBillTypes = new OrderDocumentType[]
+		{
+			OrderDocumentType.Bill,
+			OrderDocumentType.SpecialBill
+		};
+
+		private readonly OrderDocumentType[] _orderDocumentUpdTypes = new OrderDocumentType[]
+		{
+			OrderDocumentType.UPD,
+			OrderDocumentType.SpecialUPD
+		};
+
+		private bool IsAllowedStatusToSendBill(Order order) =>
+			_emailRequiredOrderStatuses.Contains(order.OrderStatus)
+				|| (order.IsFastDelivery && order.OrderStatus == OrderStatus.OnTheWay);
+
+		public EmailService(OrderStateKey orderStateKey,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IOrderRepository orderRepository,
+			IEmailRepository emailRepository,
+			IDeliveryScheduleSettings deliveryScheduleSettings)
+		{
+			_orderStateKey = orderStateKey
+				?? throw new ArgumentNullException(nameof(orderStateKey));
+			_unitOfWorkFactory = unitOfWorkFactory
+				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_orderRepository = orderRepository
+				?? throw new ArgumentNullException(nameof(orderRepository));
+			_emailRepository = emailRepository
+				?? throw new ArgumentNullException(nameof(emailRepository));
+			_deliveryScheduleSettings = deliveryScheduleSettings
+				?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 		}
 
-		public OrderDocumentType[] GetRequirementDocTypes(Order order)
+		public bool NeedSendBillToEmail(
+			IUnitOfWork unitOfWork,
+			Order order)
+		{
+			var sendedByEdo = _orderRepository
+				.GetEdoContainersByOrderId(unitOfWork, order.Id)
+				.Count(x => x.Type == Type.Bill) > 0;
+
+			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
+			var sended = sendedByEdo || sendedByEmail;
+
+			return IsAllowedStatusToSendBill(order)
+				&& _emailRequiredOrderPaymentTypes.Contains(order.PaymentType)
+				&& !sended
+				&& GetRequiredDocumentTypes(order)
+					.Intersect(_orderDocumentBillTypes)
+					.Any();
+		}
+
+		public bool NeedResendBillToEmail(
+			IUnitOfWork unitOfWork,
+			Order order)
+		{
+			var sendedByEdo = _orderRepository
+				.GetEdoContainersByOrderId(unitOfWork, order.Id)
+				.Count(x => x.Type == Type.Bill) > 0;
+
+			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
+
+			return IsAllowedStatusToSendBill(order)
+				&& _emailRequiredOrderPaymentTypes.Contains(order.PaymentType)
+				&& !sendedByEdo
+				&& sendedByEmail
+				&& GetRequiredDocumentTypes(order)
+					.Intersect(_orderDocumentBillTypes)
+					.Any();
+		}
+
+		/// <summary>
+		/// Получение необходимых документов для заказа
+		/// </summary>
+		/// <param name="order"></param>
+		/// <returns></returns>
+		public OrderDocumentType[] GetRequiredDocumentTypes(Order order)
 		{
 			//создаём объект-ключ на основе текущего заказа. Этот ключ содержит набор свойств,
-			//по которым будет происходить подбор правила для создания набора документов			
+			//по которым будет происходить подбор правила для создания набора документов
 			_orderStateKey.InitializeFields(order);
 
 			//обращение к хранилищу правил для получения массива типов документов по ключу
@@ -52,58 +125,57 @@ namespace Vodovoz.Services
 		}
 
 		public Result SendUpdToEmailOnFinishIfNeeded(
-			IUnitOfWork uow,
-			Order order,
-			IEmailRepository emailRepository,
-			IOrderRepository orderRepository,
-			IDeliveryScheduleSettings deliveryScheduleSettings)
+			IUnitOfWork unitOfWork,
+			Order order)
 		{
-			var threeMonthLeft = DateTime.Today.AddMonths(-3);
+			var threeMonthsBeforeToday = DateTime.Today.AddMonths(-3);
 			
-			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleSettings)
-				&& !emailRepository.HasSendedEmailForUpd(order.Id)
-				&& (order.DeliveryDate is null || order.DeliveryDate >= threeMonthLeft)
-				&& !orderRepository.HasSignedUpdDocumentFromEdo(uow, order.Id))
+			if(_emailRepository.NeedSendDocumentsByEmailOnFinish(unitOfWork, order, _deliveryScheduleSettings)
+				&& !_emailRepository.HasSendedEmailForUpd(order.Id)
+				&& (order.DeliveryDate is null || order.DeliveryDate >= threeMonthsBeforeToday)
+				&& !_orderRepository.HasSignedUpdDocumentFromEdo(unitOfWork, order.Id)
+				&& order.OrderDocuments.Any(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD))
 			{
-				return SendUpdToEmail(uow, order);
+				return SendUpdToEmail(unitOfWork, order);
 			}
 
 			return Result.Success();
 		}
 
-		public Result SendBillForClosingDocumentOrderToEmailOnFinishIfNeeded(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IOrderRepository orderRepository,
-			IDeliveryScheduleSettings deliveryScheduleSettings)
+		public Result SendBillForClosingDocumentOrderToEmailOnFinishIfNeeded(IUnitOfWork unitOfWork, Order order)
 		{
-			if(emailRepository.NeedSendDocumentsByEmailOnFinish(uow, order, deliveryScheduleSettings, true)
-				&& !emailRepository.HaveSendedEmailForBill(order.Id)
-				&& orderRepository.GetEdoContainersByOrderId(uow, order.Id).Count(x => x.Type == Type.Bill) == 0)
+			if(_emailRepository.NeedSendDocumentsByEmailOnFinish(unitOfWork, order, _deliveryScheduleSettings, true)
+				&& !_emailRepository.HaveSendedEmailForBill(order.Id)
+				&& _orderRepository.GetEdoContainersByOrderId(unitOfWork, order.Id).Count(x => x.Type == Type.Bill) == 0)
 			{
-				return SendBillToEmail(uow, order);								
+				return SendBillToEmail(unitOfWork, order);
 			}
 
 			return Result.Success();
 		}
 
-		public Result SendUpdToEmail(IUnitOfWork uow, Order order)
+		public Result SendUpdToEmail(IUnitOfWork unitOfWork, Order order)
 		{
-			var document = order.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD);
+			var document = order.OrderDocuments.FirstOrDefault(x => _orderDocumentUpdTypes.Contains(x.Type));
 
-			if(document == null)
+			if(document is null)
 			{
 				return Result.Failure(Errors.Email.Email.MissingDocumentForSending);
 			}
 
 			var emailAddress = GetEmailAddressForBill(order);
 
-			if(emailAddress == null)
+			if(emailAddress is null)
 			{
 				return Result.Failure(Errors.Email.Email.MissingEmailForRequiredMailType);
 			}
 
+			var dateTimeNow = DateTime.Now;
+
 			var storedEmail = new StoredEmail
 			{
-				SendDate = DateTime.Now,
-				StateChangeDate = DateTime.Now,
+				SendDate = dateTimeNow,
+				StateChangeDate = dateTimeNow,
 				State = StoredEmailStates.PreparingToSend,
 				RecipientAddress = emailAddress.Address,
 				ManualSending = false,
@@ -111,7 +183,7 @@ namespace Vodovoz.Services
 				Author = order.Author
 			};
 
-			uow.Save(storedEmail);
+			unitOfWork.Save(storedEmail);
 
 			var updDocumentEmail = new UpdDocumentEmail
 			{
@@ -120,18 +192,18 @@ namespace Vodovoz.Services
 				OrderDocument = document
 			};
 
-			uow.Save(updDocumentEmail);
+			unitOfWork.Save(updDocumentEmail);
 
 			return Result.Success();
 		}
 
-		public Result SendBillToEmail(IUnitOfWork uow, Order order)
+		public Result SendBillToEmail(IUnitOfWork unitOfWork, Order order)
 		{
-			var document = order.OrderDocuments.FirstOrDefault(x => (x.Type == OrderDocumentType.Bill
-				|| x.Type == OrderDocumentType.SpecialBill)
-			&& x.Order.Id == order.Id);
+			var document = order.OrderDocuments
+				.FirstOrDefault(x => _orderDocumentBillTypes.Contains(x.Type)
+					&& x.Order.Id == order.Id);
 
-			if(document == null)
+			if(document is null)
 			{			
 				return Result.Failure(Errors.Email.Email.MissingDocumentForSending);
 			}
@@ -140,15 +212,17 @@ namespace Vodovoz.Services
 			{
 				var _emailAddressForBill = GetEmailAddressForBill(order);
 
-				if(_emailAddressForBill == null)
+				if(_emailAddressForBill is null)
 				{
 					return Result.Failure(Errors.Email.Email.MissingEmailForRequiredMailType);
 				}
 
+				var dateTimeNow = DateTime.Now;
+
 				var storedEmail = new StoredEmail
 				{
-					SendDate = DateTime.Now,
-					StateChangeDate = DateTime.Now,
+					SendDate = dateTimeNow,
+					StateChangeDate = dateTimeNow,
 					State = StoredEmailStates.PreparingToSend,
 					RecipientAddress = _emailAddressForBill.Address,
 					ManualSending = false,
@@ -156,7 +230,7 @@ namespace Vodovoz.Services
 					Author = order.Author
 				};
 
-				uow.Save(storedEmail);
+				unitOfWork.Save(storedEmail);
 
 				BillDocumentEmail orderDocumentEmail = new BillDocumentEmail
 				{
@@ -165,7 +239,7 @@ namespace Vodovoz.Services
 					OrderDocument = document
 				};
 
-				uow.Save(orderDocumentEmail);
+				unitOfWork.Save(orderDocumentEmail);
 			}
 			catch(Exception ex)
 			{

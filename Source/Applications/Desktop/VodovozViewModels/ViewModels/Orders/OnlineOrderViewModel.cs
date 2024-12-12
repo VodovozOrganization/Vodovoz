@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Autofac;
 using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -15,22 +17,29 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Extensions;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using Vodovoz.Services.Orders;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
 	public class OnlineOrderViewModel : EntityTabViewModelBase<OnlineOrder>
 	{
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
+		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
+		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly Employee _currentEmployee;
 		private bool _orderCreatingState;
 		private bool _canCancelAnyOnlineOrder;
 
 		public OnlineOrderViewModel(
+			ILogger<OnlineOrderViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -38,6 +47,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IEmployeeService employeeService,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
 			IExternalCounterpartyMatchingRepository externalCounterpartyMatchingRepository,
+			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
+			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
+			IDiscountController discountController,
 			ILifetimeScope scope)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -53,6 +65,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			TabName = Entity.ToString();
 
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
+			_deliveryPointViewModelBuilder =
+				deliveryPointViewModelBuilder ?? throw new ArgumentNullException(nameof(deliveryPointViewModelBuilder));
+			_deliveryPointJournalFilterViewModel =
+				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));
+			DiscountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
+			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			ExternalCounterpartyMatchingRepository =
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
@@ -71,15 +89,23 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public IList<OnlineOrderItem> OnlineOrderPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineOrderItem> OnlineOrderNotPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineFreeRentPackage> OnlineRentPackages { get; private set; }
+		public ILogger<OnlineOrderViewModel> Logger { get; }
 		public IExternalCounterpartyMatchingRepository ExternalCounterpartyMatchingRepository { get; }
+		public IDiscountController DiscountController { get; }
 
 		public bool CanShowId => Entity.Id > 0;
 
 		public bool CanShowWarnings => !string.IsNullOrWhiteSpace(ValidationErrors);
 		public bool CanGetToWork => Entity.EmployeeWorkWith is null;
+		public bool CanChangeDeliveryPoint =>
+			Entity.IsDeliveryPointNotBelongCounterparty.HasValue
+			&& Entity.IsDeliveryPointNotBelongCounterparty.Value
+			&& CurrentEmployeeIsEmployeeWorkWith
+			&& OrderIsNullAndOnlineOrderNotCanceledStatus;
 
-		public bool CanCreateOrder =>
-			OrderIsNullAndOnlineOrderNotCanceledStatus && CurrentEmployeeIsEmployeeWorkWith;
+		public bool CanCreateOrder => OrderIsNullAndOnlineOrderNotCanceledStatus
+			&& CurrentEmployeeIsEmployeeWorkWith
+			&& (!Entity.IsDeliveryPointNotBelongCounterparty.HasValue || !Entity.IsDeliveryPointNotBelongCounterparty.Value);
 		public bool CanCancelOnlineOrder =>
 			OrderIsNullAndOnlineOrderNotCanceledStatus
 			&& !_orderCreatingState
@@ -129,12 +155,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string Counterparty =>
 			Entity.Counterparty is null
 				? "Клиент не указан"
-				: $"{ Entity.Counterparty.Name }";
+				: $"({ Entity.Counterparty.Id }) { Entity.Counterparty.Name }";
 
 		public string DeliveryPoint =>
 			Entity.DeliveryPoint is null
 				? "Точка доставки не указана"
-				: $"{ Entity.DeliveryPoint.CompiledAddress }";
+				: $"({ Entity.DeliveryPoint.Id }) { Entity.DeliveryPoint.CompiledAddress }";
 
 		public string DeliverySchedule =>
 			Entity.DeliverySchedule is null
@@ -171,6 +197,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string ValidationErrors { get; private set; }
 		
 		public IEntityEntryViewModel CancellationReasonViewModel { get; private set; }
+		public IEntityEntryViewModel DeliveryPointViewModel { get; private set; }
 		
 		private bool CurrentEmployeeIsEmployeeWorkWith =>
 			Entity.EmployeeWorkWith != null && Entity.EmployeeWorkWith.Id == _currentEmployee.Id;
@@ -298,6 +325,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		private void CreatePropertyChangeRelations()
 		{
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+			
 			SetPropertyChangeRelation(
 				e => e.Id,
 				() => CanShowId,
@@ -331,8 +360,21 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				() => CanCreateOrder,
 				() => CanCancelOnlineOrder,
 				() => CanEditCancellationReason);
+			
+			SetPropertyChangeRelation(
+				e => e.IsDeliveryPointNotBelongCounterparty,
+				() => CanCreateOrder,
+				() => CanChangeDeliveryPoint);
 		}
-		
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.DeliveryPoint))
+			{
+				TryValidateOnlineOrder();
+			}
+		}
+
 		private void GetOnlineOrderItems()
 		{
 			foreach(var item in Entity.OnlineOrderItems)
@@ -358,21 +400,48 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				.UseViewModelJournalAndAutocompleter<OnlineOrderCancellationReasonsJournalViewModel>()
 				.UseViewModelDialog<OnlineOrderCancellationReasonViewModel>()
 				.Finish();
+
+			if(Entity.Counterparty != null)
+			{
+				_deliveryPointJournalFilterViewModel.Counterparty = Entity.Counterparty;
+			}
+
+			var deliveryPointViewModel =  _deliveryPointViewModelBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.DeliveryPoint)
+				.UseViewModelJournalAndAutocompleter<DeliveryPointByClientJournalViewModel, DeliveryPointJournalFilterViewModel>(
+					_deliveryPointJournalFilterViewModel)
+				.UseViewModelDialog<DeliveryPointViewModel>()
+				.Finish();
+
+			deliveryPointViewModel.CanViewEntity = false;
+			DeliveryPointViewModel = deliveryPointViewModel;
 		}
 		
 		private void TryValidateOnlineOrder()
 		{
+			ValidationErrors = null;
+			
 			if(Entity.OnlineOrderStatus != OnlineOrderStatus.New)
 			{
 				return;
 			}
 			
-			var result = _onlineOrderValidator.ValidateOnlineOrder(Entity);
+			var result = _onlineOrderValidator.ValidateOnlineOrder(UoW, Entity);
 
 			if(result.IsFailure)
 			{
 				ValidationErrors = result.GetErrorsString();
 			}
+			
+			OnPropertyChanged(nameof(ValidationErrors));
+		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
 		}
 	}
 }

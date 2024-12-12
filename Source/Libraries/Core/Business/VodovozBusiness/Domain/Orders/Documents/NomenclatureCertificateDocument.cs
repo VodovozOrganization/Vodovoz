@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Autofac;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -37,13 +39,13 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			var reportInfo = new ReportInfo {
-				Title = String.Format("{0} от {1:d}", Name, Certificate.ExpirationDate),
-				Identifier = "Documents.Certificate",
-				Parameters = new Dictionary<string, object> {
-					{ "certificate_id",  Certificate.Id },
-					{ "order_id", Order.Id }
-				}
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Title = String.Format("{0} от {1:d}", Name, Certificate.ExpirationDate);
+			reportInfo.Identifier = "Documents.Certificate";
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "certificate_id",  Certificate.Id },
+				{ "order_id", Order.Id }
 			};
 			return reportInfo;
 		}

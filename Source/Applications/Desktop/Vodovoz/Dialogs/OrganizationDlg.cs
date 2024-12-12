@@ -1,24 +1,21 @@
-﻿using NLog;
-using QS.DomainModel.UoW;
+﻿using Autofac;
+using NLog;
 using QS.Navigation;
 using QS.Project.Services;
-using QS.Validation;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {
 	public partial class OrganizationDlg : QS.Dialog.Gtk.EntityDialogBase<Organization>, IAskSaveOnCloseViewModel
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
-
-		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory 
-			= new OrganizationVersionsViewModelFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, new EmployeeJournalFactory(Startup.MainWin.NavigationManager));
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory;
 
 		public override bool HasChanges {
 			get {
@@ -28,21 +25,23 @@ namespace Vodovoz
 			set => base.HasChanges = value;
 		}
 
-		public OrganizationDlg ()
+		public OrganizationDlg()
 		{
-			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Organization> ();
-			ConfigureDlg ();
+			Build();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Organization>();
+			RegisterDependencies();
+			ConfigureDlg();
 		}
 
-		public OrganizationDlg (int id)
+		public OrganizationDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Organization> (id);
-			ConfigureDlg ();
+			Build();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Organization>(id);
+			RegisterDependencies();
+			ConfigureDlg();
 		}
 
-		public OrganizationDlg (Organization sub) : this (sub.Id)
+		public OrganizationDlg(Organization sub) : this(sub.Id)
 		{
 
 		}
@@ -52,6 +51,11 @@ namespace Vodovoz
 			|| (UoWGeneric.IsNew && permissionResult.CanCreate);
 
 		public bool AskSaveOnClose => IsCanEditEntity;
+		
+		private void RegisterDependencies()
+		{
+			_organizationVersionsViewModelFactory = _lifetimeScope.Resolve<IOrganizationVersionsViewModelFactory>();
+		}
 
 		private void ConfigureDlg ()
 		{
@@ -97,14 +101,14 @@ namespace Vodovoz
 				return false;
 			}
 
-			logger.Info ("Сохраняем организацию...");
+			_logger.Info ("Сохраняем организацию...");
 			try {
 				phonesview1.RemoveEmpty();
 				UoWGeneric.Save ();
 				return true;
 			} catch (Exception ex) {
 				string text = "Организация не сохранилась...";
-				logger.Error (ex, text);
+				_logger.Error (ex, text);
 				QSProjectsLib.QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex, text);
 				return false;
 			}
@@ -120,6 +124,16 @@ namespace Vodovoz
 		{
 			if (radioTabAccounts.Active)
 				notebookMain.CurrentPage = 1;
+		}
+
+		public override void Destroy()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.Destroy();
 		}
 	}
 }

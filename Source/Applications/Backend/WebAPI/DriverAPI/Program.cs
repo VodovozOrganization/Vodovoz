@@ -1,6 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using System;
 
 namespace DriverAPI
 {
@@ -11,6 +12,7 @@ namespace DriverAPI
 			try
 			{
 				CreateHostBuilder(args).Build().Run();
+				Console.WriteLine("Application started successfully.");
 			}
 			finally
 			{

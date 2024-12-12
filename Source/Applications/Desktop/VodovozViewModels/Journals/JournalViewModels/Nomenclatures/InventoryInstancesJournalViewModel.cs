@@ -146,6 +146,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 			return query.SelectList(list => list
 				.SelectGroup(ini => ini.Id).WithAlias(() => resultAlias.Id)
 				.Select(ini => ini.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+				.Select(ini => ini.IsUsed).WithAlias(() => resultAlias.IsUsed)
 				.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 				.Select(balanceProjection))

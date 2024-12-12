@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -23,6 +23,8 @@ using System.Linq;
 using System.Threading;
 using Vodovoz.Application.Orders;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -63,6 +65,7 @@ namespace Vodovoz
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly IFlyerRepository _flyerRepository;
 		private readonly ITdiCompatibilityNavigation _tdiNavigationManager;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
@@ -110,6 +113,7 @@ namespace Vodovoz
 			IOrderSettings orderSettings,
 			INomenclatureOnlineSettings nomenclatureOnlineSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
+			IFlyerRepository flyerRepository,
 			ITdiCompatibilityNavigation tdiNavigationManager,
 			ILifetimeScope lifetimeScope)
 		{
@@ -142,6 +146,7 @@ namespace Vodovoz
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_nomenclatureOnlineSettings = nomenclatureOnlineSettings ?? throw new ArgumentNullException(nameof(nomenclatureOnlineSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
@@ -151,6 +156,8 @@ namespace Vodovoz
 		public bool IgnoreReceipt { get; private set; } = false;
 
 		public int? OrderId => _routeListItem?.Order?.Id;
+		private bool IsClientSelectedAndOrderCashlessAndPaid =>
+			_orderNode.Client != null && _routeListItem?.Order?.IsOrderCashlessAndPaid == true;
 
 		public void ConfigureForRouteListAddress(RouteListItem routeListItem)
 		{
@@ -273,16 +280,9 @@ namespace Vodovoz
 
 			_orderNode = new OrderNode(_routeListItem.Order);
 
-			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, _tdiNavigationManager, _lifetimeScope);
+			clientEntry.ViewModel = GetClientEntityEntryViewModel();
 
-			clientEntry.ViewModel = builder.ForProperty(x => x.Client)
-				.UseTdiEntityDialog()
-				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
-				.Finish();
-			clientEntry.ViewModel.Changed += OnClientEntryViewModelChanged;
-			clientEntry.ViewModel.ChangedByUser += OnClientEntryViewModelChangedByUser;
-
-			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, new FlyerRepository());
+			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, _flyerRepository);
 			ConfigureDeliveryPointRefference(_orderNode.Client);
 
 			var discountReasons = _discountReasonRepository.GetActiveDiscountReasons(UoW);
@@ -298,14 +298,12 @@ namespace Vodovoz
 					.AddToggleRenderer(node => node.IsDelivered, false)
 						.AddSetter((cell, node) => cell.Visible = node.IsSerialEquipment)
 					.AddNumericRenderer(node => node.ActualCount, false)
-						.EditedEvent(OnSpinActualCountEdited)
 						.AddSetter((cell, node) => cell.Editable = node.Nomenclature.Category != NomenclatureCategory.deposit)
 						.Adjustment(new Adjustment(0, 0, 9999, 1, 1, 0))
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
-						.EditedEvent(OnSpinPriceEdited)
 						.Adjustment(new Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice && _canEditPrices)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
@@ -354,6 +352,9 @@ namespace Vodovoz
 				.AddColumn("Стоимость")
 					.AddNumericRenderer(node => node.Sum).Digits(2)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName)
+				.AddColumn("Промонаборы")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.PromoSetName)
 				.AddColumn("")
 				.Finish();
 
@@ -396,7 +397,23 @@ namespace Vodovoz
 			OnlineOrderVisible();
 			OnClientEntryViewModelChanged(null, null);
 		}
-		
+
+		private IEntityEntryViewModel GetClientEntityEntryViewModel()
+		{
+			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, _tdiNavigationManager, _lifetimeScope);
+
+			var viewModel = builder.ForProperty(x => x.Client)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+
+			viewModel.Changed += OnClientEntryViewModelChanged;
+			viewModel.ChangedByUser += OnClientEntryViewModelChangedByUser;
+			viewModel.BeforeChangeByUser += OnClientBeforeChangeByUser;
+
+			return viewModel;
+		}
+
 		private IEnumerable<PaymentFrom> GetActivePaymentFromWithSelected(IDomainObject selectedPaymentFrom)
 		{
 			var selectedPaymentFromId = selectedPaymentFrom?.Id ?? 0; 
@@ -407,30 +424,6 @@ namespace Vodovoz
 					Restrictions.WhereNot(() => paymentFromAlias.IsArchive),
 					Restrictions.IdEq(selectedPaymentFromId)))
 				.List();
-		}
-
-		private void OnSpinActualCountEdited(object o, EditedArgs args)
-		{
-			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newActualCount);
-			var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
-			if(!(node is OrderItem orderItem))
-			{
-				return;
-			}
-
-			orderItem.SetActualCount(newActualCount);
-		}
-
-		private void OnSpinPriceEdited(object o, EditedArgs args)
-		{
-			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
-			var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
-			if(!(node is OrderItem orderItem))
-			{
-				return;
-			}
-
-			orderItem.SetPrice(newPrice);
 		}
 
 		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
@@ -609,6 +602,20 @@ namespace Vodovoz
 			}
 		}
 
+		private void OnClientBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
+		{
+			if(IsClientSelectedAndOrderCashlessAndPaid)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
+
+				e.CanChange = false;
+				return;
+			}
+			e.CanChange = true;
+		}
+
 		protected void OnClientEntryViewModelChangedByUser(object sender, EventArgs e)
 		{
 			if(!(clientEntry.ViewModel.Entity is Counterparty counterparty))
@@ -681,6 +688,8 @@ namespace Vodovoz
 					yenumcomboOrderPayment.SelectedItem = previousPaymentType;
 				}
 			}
+
+			yenumcomboOrderPayment.Sensitive = !IsClientSelectedAndOrderCashlessAndPaid && _routeListItem.Status != RouteListItemStatus.Transfered;
 		}
 
 		protected void OnButtonAddOrderItemClicked(object sender, EventArgs e)

@@ -52,6 +52,11 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// планируемая дата выпуска автомобиля на линию/ основания переноса даты
 			/// </summary>
 			public string PlannedReturnToLineDateAndReschedulingReason { get; set; }
+
+			/// <summary>
+			/// Название события (для группировки)
+			/// </summary>
+			public string CaeEventTypes { get; set; }
 		}
 	}
 }

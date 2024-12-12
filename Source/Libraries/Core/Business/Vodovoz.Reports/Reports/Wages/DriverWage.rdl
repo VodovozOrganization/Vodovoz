@@ -1928,14 +1928,14 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverInfo">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	route_lists.date AS date,
 	route_lists.id AS route_list_number,
 	IFNULL(SUM(bottles_movement_operations.returned),
 			0) AS empty_bottles,
-	IFNULL(SUM(bottles_movement_operations.delivered), 0) AS full_bottles,
+	IFNULL(SUM(bottles_movement_operations.delivered + bottles_movement_operations.delivered_in_disposable_tare), 0) AS full_bottles,
 	IFNULL(wages_movement_operations.money,
 			0) AS wage,
 	IFNULL(COUNT(IF(Adresses.status = 'Overdue'
@@ -1984,7 +1984,7 @@ GROUP BY route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -2342,7 +2342,7 @@ GROUP BY
       </Fields>
     </DataSet>
     <DataSet Name="DriverFinesInFuture">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	fines.date,
@@ -2377,7 +2377,7 @@ GROUP BY fines.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>

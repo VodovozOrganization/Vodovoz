@@ -22,6 +22,7 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 	[EntityPermission]
 	public abstract class CashTransferDocumentBase : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private const int _commentLimit = 255;
 		private int _id;
 		private DateTime _creationDate;
 		private Employee _authtor;
@@ -411,6 +412,11 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 			if(CalculateTransferedSum() <= 0)
 			{
 				yield return new ValidationResult("Сумма денежных средств для перемещения должна быть больше нуля");
+			}
+
+			if(!string.IsNullOrWhiteSpace(Comment) && Comment.Length > _commentLimit)
+			{
+				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}");
 			}
 		}
 	}

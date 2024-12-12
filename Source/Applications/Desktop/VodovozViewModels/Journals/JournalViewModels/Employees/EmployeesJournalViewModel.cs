@@ -462,5 +462,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			(node) => _lifetimeScope.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)) });
 
 		public ILifetimeScope Scope => _lifetimeScope;
+
+		public override void Dispose()
+		{
+			FilterViewModel = null;
+			base.Dispose();
+		}
 	}
 }

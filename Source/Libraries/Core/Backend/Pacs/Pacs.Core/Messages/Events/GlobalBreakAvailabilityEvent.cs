@@ -2,23 +2,47 @@
 
 namespace Pacs.Core.Messages.Events
 {
-	public class GlobalBreakAvailabilityEvent
+	/// <summary>
+	/// Событие глобальной смены доступности перерыва
+	/// </summary>
+	public class GlobalBreakAvailabilityEvent : EventBase
 	{
+		/// <summary>
+		/// Доступность большого перерыва
+		/// </summary>
 		public bool LongBreakAvailable { get; set; } = true;
+
+		/// <summary>
+		/// Причина недоступности большого перерыва
+		/// </summary>
 		public string LongBreakDescription { get; set; } = "";
 
+		/// <summary>
+		/// Доступность малого перерыва
+		/// </summary>
 		public bool ShortBreakAvailable { get; set; } = true;
+
+		/// <summary>
+		/// Причина недоступности малого перерыва
+		/// </summary>
 		public string ShortBreakDescription { get; set; } = "";
 
+		/// <summary>
+		/// Сравнение событий глобавльной доступности перерыва
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns></returns>
 		public override bool Equals(object obj)
-		{
-			return obj is GlobalBreakAvailabilityEvent availability &&
-				   LongBreakAvailable == availability.LongBreakAvailable &&
-				   LongBreakDescription == availability.LongBreakDescription &&
-				   ShortBreakAvailable == availability.ShortBreakAvailable &&
-				   ShortBreakDescription == availability.ShortBreakDescription;
-		}
+			=> obj is GlobalBreakAvailabilityEvent availability
+			&& LongBreakAvailable == availability.LongBreakAvailable
+			&& LongBreakDescription == availability.LongBreakDescription
+			&& ShortBreakAvailable == availability.ShortBreakAvailable
+			&& ShortBreakDescription == availability.ShortBreakDescription;
 
+		/// <summary>
+		/// Получение хэш-кода
+		/// </summary>
+		/// <returns></returns>
 		public override int GetHashCode()
 		{
 			int hashCode = 622147706;

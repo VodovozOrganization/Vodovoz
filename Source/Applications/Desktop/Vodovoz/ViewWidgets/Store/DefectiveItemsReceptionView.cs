@@ -186,7 +186,7 @@ namespace Vodovoz.ViewWidgets.Store
 			{
 				_userHasOnlyAccessToWarehouseAndComplaints =
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						"user_have_access_only_to_warehouse_and_complaints")
+						Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 

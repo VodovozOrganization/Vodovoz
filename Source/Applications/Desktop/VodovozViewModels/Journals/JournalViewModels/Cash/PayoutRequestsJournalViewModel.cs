@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
@@ -26,6 +27,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.NotificationRecievers;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
@@ -42,6 +44,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IUserRepository _userRepository;
 		private readonly ICashRequestForDriverIsGivenForTakeNotificationReciever _cashRequestForDriverIsGivenForTakeNotificationReciever;
+		private readonly ICashlessRequestFileStorageService _cashlessRequestFileStorageService;
+		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICashRepository _cashRepository;
@@ -78,6 +82,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			ICurrentPermissionService currentPermissionService,
 			IUserRepository userRepository,
 			ICashRequestForDriverIsGivenForTakeNotificationReciever cashRequestForDriverIsGivenForTakeNotificationReciever,
+			ICashlessRequestFileStorageService cashlessRequestFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory, 
 			bool createSelectAction = true)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -94,6 +100,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_cashRequestForDriverIsGivenForTakeNotificationReciever = cashRequestForDriverIsGivenForTakeNotificationReciever
 				?? throw new ArgumentNullException(nameof(cashRequestForDriverIsGivenForTakeNotificationReciever));
+			_cashlessRequestFileStorageService = cashlessRequestFileStorageService ?? throw new ArgumentNullException(nameof(cashlessRequestFileStorageService));
+			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
 			_createSelectAction = createSelectAction;
 
 			TabName = "Журнал заявок ДС";
@@ -203,15 +211,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
 		}
 
-		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow)
-		{
-			var controlledSubdivision = uow.GetAll<Subdivision>()
-				.Where(s => s.Chief.Id == _currentEmployee.Id)
-				.Select(s => s.Id)
-				.ToArray();
-
-			return controlledSubdivision;
-		}
+		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow) =>
+			_employeeRepository.GetControlledByEmployeeSubdivisionIds(uow, _currentEmployee.Id);
 
 		#region JournalActions
 
@@ -315,7 +316,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				selected =>
 				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToArray();
-					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.Submited))
+					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief))
 					{
 						return false;
 					}
@@ -328,7 +329,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				selected =>
 				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToArray();
-					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.Submited))
+					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief))
 					{
 						return;
 					}
@@ -679,6 +680,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_unitOfWorkFactory,
 				_commonServices,
 				NavigationManager,
+				_cashlessRequestFileStorageService,
+				_attachedFileInformationsViewModelFactory,
 				_scope
 			);
 		}

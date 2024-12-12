@@ -26,20 +26,7 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 		public override void Modify(XDocument report)
 		{
 			var @namespace = report.Root.Attribute("xmlns").Value;
-			var table = report.GetTable(_tableName, @namespace);
-
-			var leftContainer = table.Descendants(XName.Get("Left", @namespace)).FirstOrDefault();
-			var topContainer = table.Descendants(XName.Get("Top", @namespace)).FirstOrDefault();
-
-			if(leftContainer != null)
-			{
-				leftContainer.Value = $"{_leftValueInPt}pt";
-			}
-
-			if(topContainer != null)
-			{
-				topContainer.Value = $"{_topValueInPt}pt";
-			}
+			report.SetTablePosition(_tableName, @namespace, _leftValueInPt, _topValueInPt);
 		}
 	}
 }

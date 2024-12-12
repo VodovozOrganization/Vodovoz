@@ -50,14 +50,14 @@ namespace Vodovoz.Filters.GtkViews
 			entityentryAccountableSubdivision.ViewModel = ViewModel.AccountableSubdivisionViewModel;
 
 			PayoutRequestUserRole? userRole = ViewModel.GetUserRole();
-			//Для Роли Согласователя по-умолчанию Создана Подана,
+
+			//Для Роли Согласователя по умолчанию - Согласована руководителем отдела,
 			//для Роли Финансиста - Согласована,
 			//для Кассира - Передана на Выдачу,
-
 			//Иные роли - только видят только свои заявки, поэтому нужно скрытиь фильтр по авторам
 			if(userRole == PayoutRequestUserRole.Coordinator)
 			{
-				yenumcomboStatus.SelectedItem = PayoutRequestState.Submited;
+				yenumcomboStatus.SelectedItem = PayoutRequestState.AgreedBySubdivisionChief;
 			}
 			else if(userRole == PayoutRequestUserRole.Financier)
 			{

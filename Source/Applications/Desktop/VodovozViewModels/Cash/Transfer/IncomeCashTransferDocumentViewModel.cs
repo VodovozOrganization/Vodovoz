@@ -6,6 +6,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -38,6 +39,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IReportViewOpener _reportViewOpener;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private FinancialIncomeCategory _financialIncomeCategory;
 
@@ -56,7 +58,9 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			ILifetimeScope lifetimeScope,
 			IGtkTabsOpener gtkTabsOpener,
 			IReportViewOpener reportViewOpener,
-			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(financialCategoriesGroupsSettings is null)
@@ -69,7 +73,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
-
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			EmployeeAutocompleteSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
@@ -443,17 +447,15 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			);
 
 			PrintCommand = new DelegateCommand(
-				() =>
-				{
-					var reportInfo = new QS.Report.ReportInfo
-					{
-						Title = $"Документ перемещения №{Entity.Id} от {Entity.CreationDate:d}",
-						Identifier = "Documents.IncomeCashTransfer",
-						Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } }
-					};
+			() =>
+			{
+				var reportInfo = _reportInfoFactory.Create();
+				reportInfo.Title = $"Документ перемещения №{Entity.Id} от {Entity.CreationDate:d}";
+				reportInfo.Identifier = "Documents.IncomeCashTransfer";
+				reportInfo.Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } };
 
-					_reportViewOpener.OpenReport(TabParent, reportInfo);
-				},
+				_reportViewOpener.OpenReport(TabParent, reportInfo);
+			},
 				() => Entity.Id != 0
 			);
 		}

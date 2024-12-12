@@ -1,10 +1,13 @@
-﻿using System;
+using System;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Application.Orders.Services;
+using Vodovoz.Controllers;
 using Vodovoz.Settings.Delivery;
+using VodovozBusiness.Services.Orders;
+using Vodovoz.Settings.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -14,6 +17,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOnlineOrderFactory _onlineOrderFactory;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly IDiscountReasonSettings _discountReasonSettings;
 		private readonly IOrderService _orderService;
 
 		protected OnlineOrderConsumer(
@@ -21,12 +25,14 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderFactory onlineOrderFactory,
 			IDeliveryRulesSettings deliveryRulesSettings,
+			IDiscountReasonSettings discountReasonSettings,
 			IOrderService orderService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_onlineOrderFactory = onlineOrderFactory ?? throw new ArgumentNullException(nameof(onlineOrderFactory));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_discountReasonSettings = discountReasonSettings ?? throw new ArgumentNullException(nameof(discountReasonSettings));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 		}
 		
@@ -34,7 +40,11 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				var onlineOrder = _onlineOrderFactory.CreateOnlineOrder(uow, message, _deliveryRulesSettings.FastDeliveryScheduleId);
+				var onlineOrder = _onlineOrderFactory.CreateOnlineOrder(
+					uow,
+					message,
+					_deliveryRulesSettings.FastDeliveryScheduleId,
+					_discountReasonSettings.GetSelfDeliveryDiscountReasonId);
 
 				uow.Save(onlineOrder);
 				uow.Commit();

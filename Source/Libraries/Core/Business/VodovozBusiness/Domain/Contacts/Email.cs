@@ -13,8 +13,7 @@ namespace Vodovoz.Domain.Contacts
 	[HistoryTrace]
 	public class Email : PropertyChangedBase, IDomainObject
 	{
-		private const string _emailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Z0-9]+([\.-]?[a-zA-Z0-9]+)*(\.[a-zA-Z]{2,10})+$";
-
+		public const string EmailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Z0-9]+([\.-]?[a-zA-Z0-9]+)*(\.[a-zA-Z]{2,10})+$";
 		private TimeSpan _emailMatchingProcessTimeout = TimeSpan.FromSeconds(1);
 
 		private string _address;
@@ -50,7 +49,7 @@ namespace Vodovoz.Domain.Contacts
 		{
 			try
 			{
-				if(Regex.IsMatch(Address, _emailRegEx, RegexOptions.None, _emailMatchingProcessTimeout))
+				if(Regex.IsMatch(Address, EmailRegEx, RegexOptions.None, _emailMatchingProcessTimeout))
 				{
 					return true;
 				}

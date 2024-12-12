@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 
 namespace Vodovoz.Settings.Database
 {
@@ -249,17 +250,37 @@ namespace Vodovoz.Settings.Database
 			{
 				_logger.LogDebug("Обновляем все настройки");
 				var settings = uow.Session.QueryOver<Setting>().List();
-				_settings.Clear();
+				var oldSettings = _settings.Values.ToList();
 
-				foreach(var setting in settings)
+				foreach(var newSetting in settings)
 				{
-					if(_settings.ContainsKey(setting.Name))
+					if(_settings.TryGetValue(newSetting.Name, out var currentSetting))
 					{
-						continue;
-					}
+						var oldSetting = oldSettings.SingleOrDefault(x => x.Name == newSetting.Name);
 
-					setting.CachedTime = DateTime.Now;
-					_settings.TryAdd(setting.Name, setting);
+						if(oldSetting != null)
+						{
+							oldSettings.Remove(oldSetting);
+						}
+						
+						if(currentSetting.IsExpired)
+						{
+							currentSetting.CachedTime = DateTime.Now;
+							currentSetting.StrValue = newSetting.StrValue;
+						}
+						else
+						{
+							continue;
+						}
+					}
+					
+					newSetting.CachedTime = DateTime.Now;
+					_settings.TryAdd(newSetting.Name, newSetting);
+				}
+
+				foreach(var oldSetting in oldSettings)
+				{
+					_settings.TryRemove(oldSetting.Name, out var deletedSetting);
 				}
 			}
 		}

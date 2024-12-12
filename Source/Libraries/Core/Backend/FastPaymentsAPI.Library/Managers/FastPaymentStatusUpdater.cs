@@ -1,4 +1,4 @@
-﻿using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts;
 using FastPaymentsAPI.Library.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.EntityRepositories.FastPayments;
 

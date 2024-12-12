@@ -1772,7 +1772,7 @@ LightGreen
                    when guilty.guilty_side = 'ServiceMan' then 'Мастер СЦ'
                    when guilty.guilty_side = 'ForceMajor' then 'Форс-мажор'
                    when guilty.guilty_side = 'DirectorLO' then 'Доставка за час'
-                   when guilty.guilty_side = 'DirectorLOCurrentDayDelivery' then 'Доставка в тот же день' 
+                   when guilty.guilty_side = 'DirectorLOCurrentDayDelivery' then 'Довезли в тот же день' 
                    when guilty.guilty_side = 'AutoСancelAutoTransfer' then 'Автоотмена автопереноса'
                    when guilty.guilty_side = 'None' then 'Нет (не недовоз)'
                    else guilty.guilty_side
@@ -2151,7 +2151,7 @@ FROM
                    when guilty.guilty_side = 'ServiceMan' then 'Мастер СЦ'
                    when guilty.guilty_side = 'ForceMajor' then 'Форс-мажор'
                    when guilty.guilty_side = 'DirectorLO' then 'Доставка за час'
-                   when guilty.guilty_side = 'DirectorLOCurrentDayDelivery' then 'Доставка в тот же день' 
+                   when guilty.guilty_side = 'DirectorLOCurrentDayDelivery' then 'Довезли в тот же день' 
                    when guilty.guilty_side = 'AutoСancelAutoTransfer' then 'Автоотмена автопереноса'
                    when guilty.guilty_side = 'None' then 'Нет (не недовоз)'
                    else guilty.guilty_side

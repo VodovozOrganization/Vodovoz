@@ -1,6 +1,5 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Utilities.Debug;
@@ -11,6 +10,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -25,14 +26,11 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "адреса маршрутного листа",
-		Nominative = "адрес маршрутного листа")]
-	[HistoryTrace]
-	public class RouteListItem : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class RouteListItem : RouteListItemEntity, IValidatableObject
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -51,8 +49,9 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<ISubdivisionRepository>();
 		private IRouteListItemRepository _routeListItemRepository => ScopeProvider.Scope
 			.Resolve<IRouteListItemRepository>();
+		private IOrderService _orderService => ScopeProvider.Scope
+			.Resolve<IOrderService>();
 
-		private DateTime _version;
 		private Order _order;
 		private RouteList _routeList;
 		private RouteListItemStatus _status;
@@ -104,14 +103,6 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#region Свойства
-
-		public virtual int Id { get; set; }
-		[Display(Name = "Версия")]
-		public virtual DateTime Version
-		{
-			get => _version;
-			set => SetField(ref _version, value);
-		}
 
 		[Display(Name = "Заказ")]
 		public virtual Order Order
@@ -675,7 +666,7 @@ namespace Vodovoz.Domain.Logistic
 					}
 
 					RestoreOrder(status);
-					AutoCancelAutoTransfer(uow);
+					_orderService.AutoCancelAutoTransfer(uow, Order);
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
@@ -693,91 +684,6 @@ namespace Vodovoz.Domain.Logistic
 			uow.Save(Order);
 
 			UpdateRouteListDebt();			
-		}
-
-		/// <summary>
-		/// Автоотмена автопереноса - недовоз, созданный из возвращенного в путь заказа , получает комментарий, а также ответственного "Нет (не недовоз)"
-		/// Заказ, созданный из недовоза переходит в статус "Отменен".
-		/// Недовоз, созданный из автопереноса получает ответственного "Автоотмена автопереноса", а также аналогичный комментарий.
-		/// </summary>
-		private void AutoCancelAutoTransfer(IUnitOfWork uow)
-		{
-			var oldUndeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, Order);
-
-			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
-
-			var oldUndeliveryCommentText = "Доставлен в тот же день";
-
-			foreach(var oldUndelivery in oldUndeliveries)
-			{
-				oldUndelivery.NewOrder?.ChangeStatus(OrderStatus.Canceled);
-
-				var oldUndeliveredOrderResultComment = new UndeliveredOrderResultComment
-				{
-					Author = currentEmployee,
-					Comment = oldUndeliveryCommentText,
-					CreationTime = DateTime.Now,
-					UndeliveredOrder = oldUndelivery
-				};
-
-				oldUndelivery.ResultComments.Add(oldUndeliveredOrderResultComment);
-
-				var oldOrderGuiltyInUndelivery = new GuiltyInUndelivery
-				{
-					GuiltySide = GuiltyTypes.None,
-					UndeliveredOrder = oldUndelivery
-				};
-
-				oldUndelivery.GuiltyInUndelivery.Clear();
-				oldUndelivery.GuiltyInUndelivery.Add(oldOrderGuiltyInUndelivery);
-
-				oldUndelivery.AddAutoCommentToOkkDiscussion(uow, oldUndeliveryCommentText);
-
-				uow.Save(oldUndelivery);
-
-				if(oldUndelivery.NewOrder == null)
-				{
-					continue;
-				}
-
-				var newUndeliveries = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(uow, oldUndelivery.NewOrder);
-
-				if(newUndeliveries.Any())
-				{
-					return;
-				}
-
-				var newUndeliveredOrder = new UndeliveredOrder
-				{
-					Author = currentEmployee,
-					OldOrder = oldUndelivery.NewOrder,
-					EmployeeRegistrator = currentEmployee,
-					TimeOfCreation = DateTime.Now,
-					InProcessAtDepartment = _subdivisionRepository.GetQCDepartment(uow)
-				};
-
-				var undeliveredOrderResultComment = new UndeliveredOrderResultComment
-				{
-					Author = currentEmployee,
-					Comment = GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle(),
-					CreationTime = DateTime.Now,
-					UndeliveredOrder = newUndeliveredOrder
-				};
-
-				newUndeliveredOrder.ResultComments.Add(undeliveredOrderResultComment);
-
-				var newOrderGuiltyInUndelivery = new GuiltyInUndelivery
-				{
-					GuiltySide = GuiltyTypes.AutoСancelAutoTransfer,
-					UndeliveredOrder = newUndeliveredOrder
-				};
-
-				newUndeliveredOrder.GuiltyInUndelivery = new List<GuiltyInUndelivery> { newOrderGuiltyInUndelivery };
-
-				uow.Save(newUndeliveredOrder);
-
-				newUndeliveredOrder.AddAutoCommentToOkkDiscussion(uow, GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle());
-			}
 		}
 
 		private void UpdateRouteListDebt()
@@ -815,7 +721,7 @@ namespace Vodovoz.Domain.Logistic
 					}
 
 					RestoreOrder();
-					AutoCancelAutoTransfer(uow);
+					_orderService.AutoCancelAutoTransfer(uow, Order);
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(OrderStatus.OnTheWay);
@@ -943,7 +849,7 @@ namespace Vodovoz.Domain.Logistic
 
 			foreach(var item in Order.OrderItems)
 			{
-				item.RestoreOriginalDiscount();
+				item.RestoreOriginalDiscountFromRestoreOrder();
 
 				if(newStatus == RouteListItemStatus.EnRoute)
 				{
@@ -997,7 +903,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void CreateDeliveryFreeBalanceOperation(IUnitOfWork uow, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
 		{
 			RouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController =
-				new RouteListAddressKeepingDocumentController(new EmployeeRepository(), _nomenclatureRepository);
+				new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
 
 			routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, oldStatus, newStatus);
 		}

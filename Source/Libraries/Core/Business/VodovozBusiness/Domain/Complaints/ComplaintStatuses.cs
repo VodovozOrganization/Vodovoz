@@ -15,11 +15,4 @@ namespace Vodovoz.Domain.Complaints
 		[Display(Name = "Закрыт")]
 		Closed
 	}
-
-	public class ComplaintStatusesStringType : NHibernate.Type.EnumStringType
-	{
-		public ComplaintStatusesStringType() : base(typeof(ComplaintStatuses))
-		{
-		}
-	}
 }

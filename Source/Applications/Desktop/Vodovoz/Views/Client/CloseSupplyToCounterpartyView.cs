@@ -6,6 +6,7 @@ using Vodovoz.ViewModels.Dialogs.Counterparties;
 using QS.Project.Services;
 using QS.Navigation;
 using QS.Dialog.GtkUI.FileDialog;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.Views.Client
 {
@@ -101,7 +102,7 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.InitializeFromSource();
 
-			lblVodovozNumber.LabelProp = ViewModel.Entity.VodovozInternalId.ToString();
+			lblVodovozNumber.Visible = false;
 
 			hboxCameFrom.Visible = (ViewModel.Entity.Id != 0 && ViewModel.Entity.CameFrom != null) || ViewModel.Entity.Id == 0;
 
@@ -230,12 +231,8 @@ namespace Vodovoz.Views.Client
 				.InitializeFromSource();
 
 			// Прикрепляемые документы
-			var filesViewModel =
-				new CounterpartyFilesViewModel(ViewModel.Entity, ViewModel.UoW, new FileDialogService(), ServicesConfig.CommonServices, ViewModel.UserRepository)
-				{
-					ReadOnly = true
-				};
-			counterpartyfilesview1.ViewModel = filesViewModel;
+
+			smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 			frame3.Visible = ViewModel.Entity.IsForRetail;
 
 			chkNeedNewBottles.Binding
@@ -281,7 +278,7 @@ namespace Vodovoz.Views.Client
 		public override void Dispose()
 		{
 			ytreeviewSalesChannels?.Destroy();
-			counterpartyfilesview1?.Destroy();
+			smallfileinformationsview?.Destroy();
 			base.Dispose();
 		}
 	}

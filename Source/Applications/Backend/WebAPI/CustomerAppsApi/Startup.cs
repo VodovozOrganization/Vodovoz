@@ -1,5 +1,8 @@
-using CustomerAppsApi.HealthChecks;
+﻿using CustomerAppsApi.HealthChecks;
+using CustomerAppsApi.Library;
 using CustomerAppsApi.Middleware;
+using MassTransit;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -12,10 +15,12 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
+using RabbitMQ.MailSending;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Settings;
 using VodovozHealthCheck;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace CustomerAppsApi
 {
@@ -62,15 +67,18 @@ namespace CustomerAppsApi
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-
+				.AddInfrastructure()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>()
 				.AddHttpClient()
+				.AddCustomerApiLibrary()
+				.AddRabbitConfig(Configuration)
+				.AddMessageTransportSettings()
+				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
 				.AddControllers()
 				;
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
-			Library.DependencyInjection.AddCustomerApiLibrary(services);
 
 			services.AddStaticHistoryTracker();
 		}

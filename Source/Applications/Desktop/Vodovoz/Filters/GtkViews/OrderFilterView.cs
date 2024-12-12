@@ -5,6 +5,7 @@ using NLog;
 using QS.ViewModels.Dialog;
 using QS.Views.GtkUI;
 using QS.Widgets;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -61,12 +62,12 @@ namespace Vodovoz.Filters.GtkViews
 			entryCounterparty.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CounterpartySelectorFactory, w => w.EntitySelectorAutocompleteFactory)
 				.AddBinding(vm => vm.CanChangeCounterparty, w => w.Sensitive)
-				.AddBinding(vm => vm.RestrictCounterparty, w => w.Subject)
+				.AddBinding(vm => vm.Counterparty, w => w.Subject)
 				.InitializeFromSource();
 
 			entryDeliveryPoint.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.DeliveryPoint, w => w.Subject)
-				.AddFuncBinding(vm => vm.CanChangeDeliveryPoint && vm.RestrictCounterparty != null, w => w.Sensitive)
+				.AddFuncBinding(vm => vm.CanChangeDeliveryPoint && vm.Counterparty != null, w => w.Sensitive)
 				.AddBinding(vm => vm.DeliveryPointSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
 				.InitializeFromSource();
 
@@ -108,8 +109,9 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.SortDeliveryDate, w => w.Active, new NullableBooleanToBooleanConverter())
 				.AddBinding(ViewModel, vm => vm.SortDeliveryDateVisibility, w => w.Visible)
 				.InitializeFromSource();
-			ycheckExcludeClosingDocumentDeliverySchedule.Binding
-				.AddBinding(ViewModel, vm => vm.ExcludeClosingDocumentDeliverySchedule, w => w.Active)
+			chkBtnClosingDocumentDeliverySchedule.RenderMode = RenderMode.Symbol;
+			chkBtnClosingDocumentDeliverySchedule.Binding
+				.AddBinding(ViewModel, vm => vm.FilterClosingDocumentDeliverySchedule, w => w.Active)
 				.InitializeFromSource();
 
 			yenumcomboboxPaymentOrder.ItemsEnum = typeof(PaymentOrder);

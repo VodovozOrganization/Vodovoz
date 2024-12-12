@@ -20,7 +20,6 @@ namespace Vodovoz.DocTemplates
 
 			//Сам договор
 			AddField(x => x.Number, PatternFieldType.FString);
-			AddField(x => x.ContractFullNumber, PatternFieldType.FString);
 			AddField(x => x.IssueDate, PatternFieldType.FDate);
 
 			//Организаци

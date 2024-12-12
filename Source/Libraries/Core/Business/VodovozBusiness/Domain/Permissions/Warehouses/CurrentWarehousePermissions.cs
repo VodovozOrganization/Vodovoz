@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using MoreLinq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
@@ -31,7 +32,7 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 			var userId = ServicesConfig.UserService.CurrentUserId;
 			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateForRoot<User>(userId))
 			{
-				var employee = new EmployeeRepository().GetEmployeeForCurrentUser(uow);
+				var employee = ScopeProvider.Scope.Resolve<IEmployeeRepository>().GetEmployeeForCurrentUser(uow);
 				var subdivision = employee.Subdivision;
 				permissions = new List<WarehousePermissionBase>();
 				var userWarehousePermissionsQuery = uow.Session.QueryOver<UserWarehousePermission>()

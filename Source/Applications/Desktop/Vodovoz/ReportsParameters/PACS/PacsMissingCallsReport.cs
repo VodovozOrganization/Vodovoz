@@ -1,5 +1,6 @@
 ﻿using QS.Views;
-using Vodovoz.Presentation.ViewModels.Reports.PACS;
+using Vodovoz.Presentation.ViewModels.Pacs.Reports;
+
 namespace Vodovoz.ReportsParameters.PACS
 {
 	[System.ComponentModel.ToolboxItem(true)]

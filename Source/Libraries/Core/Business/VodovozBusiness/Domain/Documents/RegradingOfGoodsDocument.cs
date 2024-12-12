@@ -7,6 +7,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
@@ -144,6 +145,12 @@ namespace Vodovoz.Domain.Documents
 			{
 				yield return new ValidationResult("Выберите причину пересортицы для всех строк документа",
 					new[] { nameof(CarEventType) });
+			}
+
+			if(!string.IsNullOrEmpty(Comment) && Comment.Length > 250)
+			{
+				yield return new ValidationResult("Длина комментария не должна превышать 250 символов",
+					new[] { nameof(Comment) });
 			}
 		}
 	}

@@ -3,6 +3,7 @@
 @inject NavigationManager navigationManager
 @inject IJSRuntime JSRuntime
 
+@using System.Text.RegularExpressions;
 @using Microsoft.AspNetCore.SignalR.Client;
 @using Mailjet.Api.Abstractions;
 @using Hubs;
@@ -42,9 +43,9 @@
 				<td colspan="6">
 					<div class="container-fluid">
 						<h4>Text part</h4>
-						<p>@email.TextPart</p>
+						<p>@(new MarkupString(ConvertEmailTextToHtml(@email.TextPart)))</p>
 						<h4>Html part</h4>
-						<p>@email.HTMLPart</p>
+						<div>@(new MarkupString(GetEmailHtml(@email)))</div>
 						<h4>Attachments:</h4>
 						@if (email.Attachments != null)
 						{
@@ -70,27 +71,55 @@
 </table>
 
 @code {
-	protected override async Task OnInitializedAsync()
-	{
-		_emails.Clear();
+    protected override async Task OnInitializedAsync()
+    {
+        _emails.Clear();
 
-		string baseUrl = navigationManager.BaseUri;
+        string baseUrl = navigationManager.BaseUri;
 
-		_hubUrl = baseUrl.TrimEnd('/') + EmailsHub.HubUrl;
+        _hubUrl = baseUrl.TrimEnd('/') + EmailsHub.HubUrl;
 
-		_hubConnection = new HubConnectionBuilder()
-			.WithUrl(_hubUrl)
-			.Build();
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(_hubUrl)
+            .Build();
 
-		_hubConnection.On<EmailMessage>("EmailRecieved", EmailRecieved);
+        _hubConnection.On<EmailMessage>("EmailRecieved", EmailRecieved);
 
-		await _hubConnection.StartAsync();
-	}
+        await _hubConnection.StartAsync();
+    }
 
-	private void EmailRecieved(EmailMessage message)
-	{
-		_emails.Add(message);
+    private void EmailRecieved(EmailMessage message)
+    {
+        _emails.Add(message);
 
-		StateHasChanged();
-	}
+        StateHasChanged();
+    }
+
+    private string ConvertEmailTextToHtml(string emailText)
+    {
+        return emailText.Replace("\n", "<br>");
+    }
+
+    private string GetEmailHtml(EmailMessage email)
+    {
+        var regex = new Regex("<img src=\"cid:(.*)\">");
+        return regex.Replace(email.HTMLPart, GetEvaluator(email));
+    }
+
+    private MatchEvaluator GetEvaluator(EmailMessage email)
+    {
+        return x => ImageReplacer(x, email);
+    }
+
+    private string ImageReplacer(Match match, EmailMessage email)
+    {
+        if (match.Groups.Count > 1)
+        {
+            var imageId = match.Groups[1].Value;
+            var image = email.InlinedAttachments.FirstOrDefault(ia => ia.ContentID == imageId);
+            return $"<img src=\"data:{image?.ContentType};base64, {image?.Base64Content}\">";
+        }
+
+        return string.Empty;
+    }
 }

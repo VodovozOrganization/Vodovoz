@@ -25,7 +25,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     `nomenclature`.`name` AS nomenclature,
-    IFNULL(ni.inventory_number, '-') AS inventory_number,
+    IFNULL(GET_INVENTORY_NUMBER(ni.is_used, ni.inventory_number), '-') AS inventory_number,
     `culling_category`.`name` AS culling_category,
     (store_writeoff_document_items.amount) as amount,
     measurement_units.digits,

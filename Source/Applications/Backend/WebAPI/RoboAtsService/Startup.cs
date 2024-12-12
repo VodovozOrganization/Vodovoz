@@ -6,12 +6,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
-using QS.Project.Services;
 using QS.Services;
 using RoboatsService.Authentication;
 using RoboatsService.Monitoring;
+using RoboatsService.Options;
 using RoboatsService.OrderValidation;
 using Sms.External.SmsRu;
 using System.Linq;
@@ -20,9 +21,8 @@ using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
-using Vodovoz.Settings.Database;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings.Database.Roboats;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
@@ -50,10 +50,15 @@ namespace RoboatsService
 					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				}
 			);
+
+			services.Configure<RoboAtsOptions>(Configuration.GetSection(nameof(RoboAtsOptions)));
+
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
 			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
 			services.AddMvc().AddControllersAsServices();
+
+			services.AddSwaggerGen();
 
 			services.AddMappingAssemblies(
 				typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -72,7 +77,9 @@ namespace RoboatsService
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services.AddApplication();
-			services.AddBusiness(Configuration);
+			services.AddBusiness(Configuration)
+				.AddInfrastructure()
+				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(RoboAtsService)));
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -81,7 +88,6 @@ namespace RoboatsService
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
 			builder.RegisterType<RoboatsCallFactory>().AsImplementedInterfaces();
-			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsSettings>().As<IRoboatsSettings>();
 			builder.RegisterType<RoboatsCallBatchRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsCallRegistrator>().AsSelf().AsImplementedInterfaces();
@@ -134,7 +140,12 @@ namespace RoboatsService
 			app.ApplicationServices.GetService<IUserService>();
 			if(env.IsDevelopment()) {
 				app.UseDeveloperExceptionPage();
+
+				app.UseSwagger();
+				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "RoboAtsApi v1"));
 			}
+			app.UseSwagger();
+			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "RoboAtsApi v1"));
 
 			app.UseHttpsRedirection();
 

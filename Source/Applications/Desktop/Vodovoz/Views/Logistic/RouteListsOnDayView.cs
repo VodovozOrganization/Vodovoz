@@ -31,7 +31,6 @@ using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
-using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Views.Logistic

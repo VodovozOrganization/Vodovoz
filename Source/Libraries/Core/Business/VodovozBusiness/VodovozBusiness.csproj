@@ -1,65 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net461</TargetFramework>
+		<TargetFramework>netstandard2.0</TargetFramework>
 	</PropertyGroup>
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CFC0D123-ABB8-41C5-9814-89F627F770B6}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Vodovoz</RootNamespace>
-    <AssemblyName>VodovozBusiness</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>
-    </DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-    <EmbedAllSources>True</EmbedAllSources>
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
     <_Parameter1>VodovozBusinessTests</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Data" />
-    <Reference Include="Mono.Posix" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Drawing.Design" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ComponentModel" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="mscorlib" />
-    <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
@@ -68,12 +15,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
-    <PackageReference Include="BouncyCastle" Version="1.8.9" />
     <PackageReference Include="ClosedXML">
       <Version>0.97.0</Version>
     </PackageReference>
     <PackageReference Include="CommonServiceLocator" Version="2.0.6" />
-    <PackageReference Include="DataAnnotationsExtensions" Version="5.0.1.27" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
@@ -101,6 +46,7 @@
     <PackageReference Include="RestSharp" Version="106.15.0" />
     <PackageReference Include="SSH.NET" Version="2020.0.2" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
@@ -195,6 +141,7 @@
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\TaxcomEdo\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
     <ProjectReference Include="..\..\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj">
       <Project>{988F9F39-781B-4C5C-8409-0C2F3E38A3D6}</Project>
       <Name>TrueMark.Contracts</Name>
@@ -203,6 +150,7 @@
       <Project>{C2085920-3B31-4406-8074-470A26BA26AA}</Project>
       <Name>TrueMarkApi.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj">
       <Project>{056ba782-edef-4e8e-abb1-01fd3502a8f0}</Project>
       <Name>Vodovoz.RDL</Name>
@@ -211,6 +159,7 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
     <ProjectReference Include="..\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">
       <Project>{ec987b0b-d857-4ec5-85a8-f8821363698f}</Project>
       <Name>Vodovoz.Core.Data</Name>

@@ -1,4 +1,5 @@
-﻿using Gamma.GtkWidgets;
+﻿using Autofac;
+using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -11,6 +12,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -24,8 +26,8 @@ namespace Vodovoz
 	[ToolboxItem(true)]
 	public partial class RouteListClosingItemsView : WidgetOnTdiTabBase
 	{
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private IEmployeeRepository _employeeRepository;
+		private IRouteColumnRepository _routeColumnRepository;
 
 		private readonly Gdk.Pixbuf _undoIcon;
 		private readonly Gdk.Pixbuf _jumpToIcon;
@@ -39,11 +41,19 @@ namespace Vodovoz
 
 		public RouteListClosingItemsView()
 		{
-			this.Build();
+			ResolveDependencies();
+			Build();
 			ConfigureMenu();
 			ytreeviewItems.EnableGridLines = TreeViewGridLines.Both;
 			_undoIcon = Stetic.IconLoader.LoadIcon(this, "gtk-undo", IconSize.Menu);
 			_jumpToIcon = Stetic.IconLoader.LoadIcon(this, "gtk-jump-to", IconSize.Menu);
+		}
+
+		[Obsolete("Должен быть удален при разрешении проблем с контейнером")]
+		private void ResolveDependencies()
+		{
+			_employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+			_routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
 		}
 		
 		public GenericObservableList<RouteListItem> Items { get; set; }
@@ -504,9 +514,9 @@ namespace Vodovoz
 			};
 			copy.Visible = false;
 
-			var openReturns = new MenuItem(PopupMenuAction.OpenUndeliveries.GetEnumTitle());
+			var openReturns = new MenuItem(PopupMenuAction.OpenClosingOrder.GetEnumTitle());
 			openReturns.Activated += (s, args) => OnClosingItemActivated(this,null);
-			menuItems.Add(PopupMenuAction.OpenUndeliveries, openReturns);
+			menuItems.Add(PopupMenuAction.OpenClosingOrder, openReturns);
 
 			var openOrder = new MenuItem(PopupMenuAction.OpenOrder.GetEnumTitle());
 			openOrder.Activated += (s, args) => {
@@ -576,12 +586,19 @@ namespace Vodovoz
 			}
 		}
 
+		public override void Destroy()
+		{
+			_employeeRepository = null;
+			_routeColumnRepository = null;
+			base.Destroy();
+		}
+
 		public enum PopupMenuAction
 		{
 			[Display(Name = "Копировать ячейку")]
 			CopyCell,
-			[Display(Name = "Открыть недовозы")]
-			OpenUndeliveries,
+			[Display(Name = "Открыть закрытие заказа")]
+			OpenClosingOrder,
 			[Display(Name = "Открыть заказ")]
 			OpenOrder,
 			[Display(Name = "Копировать номер заказа")]

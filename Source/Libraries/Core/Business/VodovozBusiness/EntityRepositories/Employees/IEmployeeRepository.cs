@@ -32,5 +32,6 @@ namespace Vodovoz.EntityRepositories.Employees
 		int? GetEmployeeCounterpartyFromDatabase(IUnitOfWorkFactory uowFactory, int employeeId);
 		NamedDomainObjectNode GetOtherEmployeeInfoWithSameCounterparty(
 			IUnitOfWorkFactory uowFactory, int employeeId, int counterpartyId);
+		IEnumerable<int> GetControlledByEmployeeSubdivisionIds(IUnitOfWork uow, int employeeId);
 	}
 }

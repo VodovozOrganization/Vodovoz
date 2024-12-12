@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -14,15 +14,19 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using Vodovoz.Application.Goods;
+using System.Threading;
+using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.Models;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
@@ -31,7 +35,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets.Goods;
+using VodovozBusiness.Services;
 using VodovozInfrastructure.StringHandlers;
+using Vodovoz.ViewModels.Goods.ProductGroups;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -45,6 +53,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly int[] _equipmentKindsHavingGlassHolder;
 		private readonly INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private readonly INomenclatureService _nomenclatureService;
+		private readonly INomenclatureFileStorageService _nomenclatureFileStorageService;
+		private readonly ViewModelEEVMBuilder<ProductGroup> _productGroupEEVMBuilder;
 		private ILifetimeScope _lifetimeScope;
 		private readonly IInteractiveService _interactiveService;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
@@ -55,6 +65,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private bool _isScrewGlassHolderSelected;
 		private bool _activeSitesAndAppsTab;
 		private IList<NomenclatureOnlineCategory> _onlineCategories;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public NomenclatureViewModel(
 			ILogger<NomenclatureViewModel> logger,
@@ -71,12 +83,21 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			IStringHandler stringHandler,
 			INomenclatureOnlineSettings nomenclatureOnlineSettings,
 			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
-			INomenclatureService nomenclatureService)
+			INomenclatureService nomenclatureService,
+			NomenclatureMinimumBalanceByWarehouseViewModel nomenclatureMinimumBalanceByWarehouseViewModel,
+			INomenclatureFileStorageService nomenclatureFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(nomenclatureSettings is null)
 			{
 				throw new ArgumentNullException(nameof(nomenclatureSettings));
+			}
+
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
 			}
 
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
@@ -92,14 +113,18 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
+			_nomenclatureFileStorageService = nomenclatureFileStorageService ?? throw new ArgumentNullException(nameof(nomenclatureFileStorageService));
+			_productGroupEEVMBuilder = productGroupEEVMBuilder ?? throw new ArgumentNullException(nameof(productGroupEEVMBuilder));
 
 			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
+			ProductGroupEntityEntryViewModel = CreateProductGroupEEVM();
 
 			ConfigureEntryViewModels();
 			ConfigureOnlineParameters();
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();
 			SetPermissions();
+			SetProperties();
 
 			_equipmentKindsHavingGlassHolder = nomenclatureSettings.EquipmentKindsHavingGlassHolder;
 			SetGlassHolderCheckboxesSelection();
@@ -112,11 +137,27 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 			ArchiveCommand = new DelegateCommand(Archive);
 			UnArchiveCommand = new DelegateCommand(UnArchive);
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory
+				.CreateAndInitialize<Nomenclature, NomenclatureFileInformation>(
+					UoW,
+					Entity,
+					_nomenclatureFileStorageService,
+					_cancellationTokenSource.Token,
+					Entity.AddFileInformation,
+					Entity.RemoveFileInformation);
+
+			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
+
+			NomenclatureMinimumBalanceByWarehouseViewModel = nomenclatureMinimumBalanceByWarehouseViewModel
+				?? throw new ArgumentNullException(nameof(nomenclatureMinimumBalanceByWarehouseViewModel));
+			NomenclatureMinimumBalanceByWarehouseViewModel.Initialize(this, Entity, UoW);
 		}
 
 		public IStringHandler StringHandler { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityEntryViewModel RouteColumnViewModel { get; }
+		public IEntityEntryViewModel ProductGroupEntityEntryViewModel { get; }
 
 		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; private set; }
 			= new GenericObservableList<NomenclatureOnlinePricesNode>();
@@ -142,10 +183,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool CanCreateAndArcNomenclatures { get; private set; }
 		public bool CanEditAlternativeNomenclaturePrices { get; private set; }
 		public bool HasAccessToSitesAndAppsTab { get; private set; }
+		public bool OldHasConditionAccounting { get; private set; }
 		public bool AskSaveOnClose => CanEdit;
 		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
-
+		public bool UserCanEditConditionAccounting =>
+			!OldHasConditionAccounting && CanCreateNomenclaturesWithInventoryAccountingPermission;
 		public bool IsShowGlassHolderSelectionControls => 
 			_equipmentKindsHavingGlassHolder.Any(i => i == Entity.Kind?.Id);
 
@@ -258,7 +301,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			get => _onlineCategories;
 			set => SetField(ref _onlineCategories, value);
 		}
-		
+
 		public NomenclatureOnlineCategory SelectedOnlineCategory
 		{
 			get => Entity.NomenclatureOnlineCategory;
@@ -288,7 +331,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				}
 			}
 		}
-		
+
 		public bool? HasHeating
 		{
 			get => Entity.HasHeating;
@@ -326,12 +369,14 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; private set; }
 		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; private set; }
 		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; private set; }
+		public bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; private set; }
+		public bool CanShowConditionAccounting => Entity.HasInventoryAccounting;
 		private bool IsNewEntity => Entity.Id == 0;
-		private bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; set; }
 
 		#region Commands
 
 		public DelegateCommand SaveCommand { get; }
+
 
 		private DelegateCommand CreateSaveCommand()
 		{
@@ -358,6 +403,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public DelegateCommand CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand { get; }
 
+
 		private DelegateCommand CreateCopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand()
 		{
 			return new DelegateCommand(
@@ -371,7 +417,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public DelegateCommand ArchiveCommand { get; }
 		public DelegateCommand UnArchiveCommand { get; }
-
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
 		#endregion Commands
 
@@ -389,6 +435,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				}
 			}
 		}
+
+		public NomenclatureMinimumBalanceByWarehouseViewModel NomenclatureMinimumBalanceByWarehouseViewModel { get; private set; }
 
 		private void SetGlassHolderCheckboxesSelection()
 		{
@@ -481,7 +529,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			
 			_needCheckOnlinePrices = true;
 		}
-		
+
 		public void AddKulerSaleOnlinePrice(AlternativeNomenclaturePrice price)
 		{
 			KulerSaleWebSiteNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
@@ -509,7 +557,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			
 			UpdateNomenclatureOnlinePricesNodes();
 		}
-		
+
 		public void RemoveKulerSalePrices(AlternativeNomenclaturePrice alternativePrice)
 		{
 			var kulerSaleWebSitePrice = alternativePrice.Id == 0
@@ -532,7 +580,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			ValidationContext.ServiceContainer.AddService(typeof(INomenclatureRepository), _nomenclatureRepository);
 		}
-		
+
 		private void ConfigureEntryViewModels()
 		{
 			DependsOnNomenclatureEntryViewModel = new CommonEEVMBuilderFactory<Nomenclature>(this, Entity, UoW, NavigationManager, _lifetimeScope)
@@ -558,6 +606,30 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				.UseViewModelJournalAndAutocompleter<RouteColumnJournalViewModel>()
 				.UseViewModelDialog<RouteColumnViewModel>()
 				.Finish();
+		}
+
+		private IEntityEntryViewModel CreateProductGroupEEVM()
+		{
+			var viewModel =
+				_productGroupEEVMBuilder
+				.SetViewModel(this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, x => x.ProductGroup)
+				.UseViewModelJournalAndAutocompleter<ProductGroupsJournalViewModel, ProductGroupsJournalFilterViewModel>(
+					filter =>
+					{
+						filter.IsGroupSelectionMode = true;
+					})
+				.UseViewModelDialog<ProductGroupViewModel>()
+				.Finish();
+
+
+			viewModel.IsEditable = CanEdit;
+
+			viewModel.CanViewEntity =
+				CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(ProductGroup)).CanUpdate;
+
+			return viewModel;
 		}
 
 		private void ConfigureEntityPropertyChanges() {
@@ -612,6 +684,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				() => IsPurifierParameters,
 				() => IsCupHolderParameters
 			);
+			
+			SetPropertyChangeRelation(
+				e => e.HasInventoryAccounting,
+				() => CanShowConditionAccounting);
 		}
 
 		public string GetUserEmployeeName() {
@@ -626,11 +702,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 
 			return employee.ShortName;
-		}
-
-		public void DeleteImage() {
-			Entity.Images.Remove(PopupMenuOn);
-			PopupMenuOn = null;
 		}
 
 		public void OnEnumCategoryChanged(object sender, EventArgs e) {
@@ -659,15 +730,24 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private void SetPermissions()
 		{
 			CanCreateAndArcNomenclatures =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanCreateAndArcNomenclatures);
 			CanCreateNomenclaturesWithInventoryAccountingPermission =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_nomenclatures_with_inventory_accounting");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanCreateNomenclaturesWithInventoryAccounting);
 			CanEditAlternativeNomenclaturePrices =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.CanEditAlternativeNomenclaturePrices);
 			HasAccessToSitesAndAppsTab =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("Nomenclature.HasAccessToSitesAndAppsTab");
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
 		}
-		
+
+		private void SetProperties()
+		{
+			OldHasConditionAccounting = Entity.HasConditionAccounting;
+		}
+
 		private void ConfigureOnlineParameters()
 		{
 			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
@@ -899,6 +979,95 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			_lifetimeScope = null;
 			base.Dispose();
+		}
+
+		public override bool Save(bool close)
+		{
+			if(!base.Save(false))
+			{
+				return false;
+			}
+
+			AddAttachedFilesIfNeeded();
+			UpdateAttachedFilesIfNeeded();
+			DeleteAttachedFilesIfNeeded();
+			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+
+			return base.Save(close);
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
+			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			do
+			{
+				foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _nomenclatureFileStorageService.CreateFileAsync(Entity, fileName,
+					new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
+				else
+				{
+					repeat = false;
+				}
+			}
+			while(repeat);
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_nomenclatureFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_nomenclatureFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
 		}
 	}
 }

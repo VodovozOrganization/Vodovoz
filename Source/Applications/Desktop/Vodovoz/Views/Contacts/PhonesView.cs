@@ -26,7 +26,7 @@ namespace Vodovoz.Views.Contacts
 		private GenericObservableList<Phone> phonesList;
 		private IList<PhoneType> phoneTypes;
 		private IUnitOfWork uow;
-		private IPhoneRepository phoneRepository;
+		private IPhoneRepository phoneRepository = ScopeProvider.Scope.Resolve<IPhoneRepository>();
 		private static readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 
 		private bool isReadOnly;
@@ -126,7 +126,6 @@ namespace Vodovoz.Views.Contacts
 		public PhonesView()
 		{
 			this.Build();
-			phoneRepository = new PhoneRepository();
 			datatablePhones.NRows = RowNum = 0;
 		}
 

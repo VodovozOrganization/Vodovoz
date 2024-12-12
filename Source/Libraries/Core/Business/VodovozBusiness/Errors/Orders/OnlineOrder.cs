@@ -22,6 +22,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(IsEmptyDeliveryPoint),
 				"Не указана точка доставки");
 		
+		public static Error DeliveryPointNotBelongCounterparty =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(DeliveryPointNotBelongCounterparty),
+				$"Точка доставки не принадлежит клиенту");
+		
 		public static Error IncorrectDeliveryDate =>
 			new Error(
 				typeof(OnlineOrder),
@@ -109,6 +115,37 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectPriceNomenclatureInOnlineOrder),
 				$"Номенклатура {nomenclature} пришла с неправильно установленной ценой" +
 				$"\nДолжно быть {price}, а передано {onlineOrderItemPrice}");
+		
+		public static Error IncorrectDiscountNomenclatureInDeliveryOnlineOrder(string nomenclature) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IncorrectDiscountNomenclatureInDeliveryOnlineOrder),
+				$"Номенклатура {nomenclature} пришла со скидкой, тогда как в доставляемом заказе" +
+				"\nне должно быть скидок на товар, кроме промо наборов");
+		
+		public static Error NotApplicableDiscountToNomenclatureSelfDeliveryOnlineOrder(string nomenclature) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(NotApplicableDiscountToNomenclatureSelfDeliveryOnlineOrder),
+				$"Номенклатура {nomenclature} пришла со скидкой, хотя у нее" +
+				"\nне должно быть скидки на товар, кроме промо наборов");
+		
+		public static Error IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
+			string nomenclature, decimal discount, decimal onlineOrderItemDiscount) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder),
+				$"Номенклатура {nomenclature} пришла с неправильно установленной скидкой в самовывозе" +
+				$"\nДолжно быть {discount}, а передано {onlineOrderItemDiscount}");
+		
+		public static Error IncorrectDiscountTypeInOnlineOrder(
+			string nomenclature, bool needsValue, bool onlineOrderItemDiscountInMoney) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(IncorrectDiscountTypeInOnlineOrder),
+				$"У номенклатуры {nomenclature} неправильно указан тип скидки," +
+				$"\nдолжно быть скидка в рублях: {needsValue.ConvertToYesOrNo()}," +
+				$" а передано {onlineOrderItemDiscountInMoney.ConvertToYesOrNo()}");
 			
 		public static Error IncorrectDiscountTypeInOnlineOrderPromoSet(
 			string promoSetTitle, int position, string nomenclature, bool discountInMoneyFromPromoSet, bool onlineOrderItemDiscountInMoney) =>

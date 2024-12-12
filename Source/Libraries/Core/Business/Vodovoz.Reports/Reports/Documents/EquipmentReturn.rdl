@@ -43,8 +43,7 @@ WHERE order_equipment.order_id = @order_id AND order_equipment.direction = 'Pick
         <CommandText>SELECT
 	orders.id,
 	orders.delivery_date,
-	CONCAT(counterparty.vod_internal_id,
-	'-',counterparty_contract.subnumber) AS contract_number,
+	counterparty_contract.number AS contract_number,
 	organizations.full_name as organization,
 	counterparty.full_name as client,
     IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,

@@ -94,7 +94,7 @@ namespace Vodovoz.Views.Client
 
 		private global::Gtk.Alignment GtkAlignment52;
 
-		private global::Vodovoz.Views.Client.CounterpartyFilesView counterpartyfilesview1;
+		private global::Vodovoz.Presentation.Views.SmallFileInformationsView smallfileinformationsview;
 
 		private global::Gtk.Label GtkLabel74;
 
@@ -665,10 +665,11 @@ namespace Vodovoz.Views.Client
 			this.GtkAlignment52.Name = "GtkAlignment52";
 			this.GtkAlignment52.LeftPadding = ((uint)(12));
 			// Container child GtkAlignment52.Gtk.Container+ContainerChild
-			this.counterpartyfilesview1 = new global::Vodovoz.Views.Client.CounterpartyFilesView();
-			this.counterpartyfilesview1.Events = ((global::Gdk.EventMask)(256));
-			this.counterpartyfilesview1.Name = "counterpartyfilesview1";
-			this.GtkAlignment52.Add(this.counterpartyfilesview1);
+			this.smallfileinformationsview = new global::Vodovoz.Presentation.Views.SmallFileInformationsView();
+			this.smallfileinformationsview.WidthRequest = 300;
+			this.smallfileinformationsview.Events = ((global::Gdk.EventMask)(256));
+			this.smallfileinformationsview.Name = "smallfileinformationsview";
+			this.GtkAlignment52.Add(this.smallfileinformationsview);
 			this.frame3.Add(this.GtkAlignment52);
 			this.GtkLabel74 = new global::Gtk.Label();
 			this.GtkLabel74.Name = "GtkLabel74";

@@ -1,5 +1,4 @@
-﻿using Pacs.Server;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using System;
 
 namespace Vodovoz.Core.Domain.Pacs
@@ -33,7 +32,6 @@ namespace Vodovoz.Core.Domain.Pacs
 				Trigger = operatorState.Trigger,
 				State = operatorState.State,
 				PhoneNumber = operatorState.PhoneNumber,
-				CallId = operatorState.CallId,
 				DisconnectionType = operatorState.DisconnectionType,
 				WorkShift = operatorState.WorkShift
 			};

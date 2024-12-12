@@ -65,12 +65,17 @@ namespace Vodovoz.Models
 			}
 
 			var activeVersion = geoGroup.Versions.FirstOrDefault(v => v.Status == VersionStatus.Active);
+
 			if(activeVersion != null)
 			{
 				CloseVersion(geoGroup, activeVersion);
+				activatingVersion.ActivationDate = activeVersion.ClosingDate.Value.AddMilliseconds(1);
+			}
+			else
+			{
+				activatingVersion.ActivationDate = DateTime.Now;
 			}
 
-			activatingVersion.ActivationDate = activeVersion.ClosingDate.Value.AddMilliseconds(1);
 			activatingVersion.Status = VersionStatus.Active;
 		}
 

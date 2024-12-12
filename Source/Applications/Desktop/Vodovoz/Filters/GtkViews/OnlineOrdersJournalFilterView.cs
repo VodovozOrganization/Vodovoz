@@ -12,6 +12,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewWidgets.Search;
 using Key = Gdk.Key;
@@ -29,6 +30,12 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
+			enumCmbEntityType.ShowSpecialStateAll = true;
+			enumCmbEntityType.ItemsEnum = typeof(OnlineRequestsType);
+			enumCmbEntityType.Binding
+				.AddBinding(ViewModel, vm => vm.OnlineRequestsType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
 			entryOrderId.ValidationMode = ValidationType.Numeric;
 			entryOrderId.KeyReleaseEvent += OnKeyReleased;
 			entryOrderId.Binding

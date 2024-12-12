@@ -1,10 +1,8 @@
 ﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
-using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
 using System;
@@ -18,8 +16,9 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz
 {
@@ -27,14 +26,17 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsService());
+		private IEmployeeRepository _employeeRepository;
+		private IUserRepository _userRepository;
+		private IStoreDocumentHelper _storeDocumentHelper;
 
 		public INavigationManager NavigationManager { get; private set; }
+		public IEntityEntryViewModel SourceWarehouseViewModel { get; private set; }
+		public IEntityEntryViewModel DestinationWarehouseViewModel { get; private set; }
 
 		public IncomingWaterDlg()
 		{
+			ResolveDependencies();
 			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
@@ -53,14 +55,22 @@ namespace Vodovoz
 
 		public IncomingWaterDlg(int id)
 		{
+			ResolveDependencies();
 			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
-			
+
 			ConfigureDlg();
 		}
 
 		public IncomingWaterDlg(IncomingWater sub) : this(sub.Id)
 		{
+		}
+
+		private void ResolveDependencies()
+		{
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
+			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 		}
 
 		void ConfigureDlg()
@@ -95,33 +105,43 @@ namespace Vodovoz
 			spinAmount.Binding.AddBinding(Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource();
 
 			var userHasOnlyAccessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
-			if(userHasOnlyAccessToWarehouseAndComplaints)
-			{
-				sourceWarehouseEntry.CanEditReference = destinationWarehouseEntry.CanEditReference = false;
-			}
-			else
-			{
-				sourceWarehouseEntry.CanEditReference = destinationWarehouseEntry.CanEditReference = true;
-			}
-
 			var availableWarehousesIds = _storeDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.IncomingWaterEdit);
-			Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = availableWarehousesIds;
-			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var warehouseAutocompleteSelectorFactory = warehouseJournalFactory.CreateSelectorFactory(_lifetimeScope, filterParams);
 
-			sourceWarehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseAutocompleteSelectorFactory);
-			sourceWarehouseEntry.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
-			destinationWarehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseAutocompleteSelectorFactory);
-			destinationWarehouseEntry.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();
+			var sourceWarehouseViewModelBuilderFactory = new LegacyEEVMBuilderFactory<IncomingWater>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+			var targetWarehouseViewModelBuilderFactory = new LegacyEEVMBuilderFactory<IncomingWater>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+
+			SourceWarehouseViewModel = sourceWarehouseViewModelBuilderFactory
+				.ForProperty(x => x.WriteOffWarehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
+				{
+					filter.IncludeWarehouseIds = availableWarehousesIds;
+				})
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
+
+			DestinationWarehouseViewModel = sourceWarehouseViewModelBuilderFactory
+				.ForProperty(x => x.IncomingWarehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
+				{
+					filter.IncludeWarehouseIds = availableWarehousesIds;
+				})
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
+
+			SourceWarehouseViewModel.IsEditable = !userHasOnlyAccessToWarehouseAndComplaints;
+			DestinationWarehouseViewModel.IsEditable = !userHasOnlyAccessToWarehouseAndComplaints;
+
+			entityentrySourceWarehouse.ViewModel = SourceWarehouseViewModel;
+			entityentryDestinationWarehouse.ViewModel = DestinationWarehouseViewModel;
 
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			
+
 			Entity.CanEdit =
 				permmissionValidator.Validate(
 					typeof(IncomingWater), _userRepository.GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
@@ -130,8 +150,8 @@ namespace Vodovoz
 			{
 				spinAmount.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				entryProduct.Sensitive = false;
-				destinationWarehouseEntry.Sensitive = false;
-				sourceWarehouseEntry.Sensitive = false;
+				DestinationWarehouseViewModel.IsEditable = false;
+				SourceWarehouseViewModel.IsEditable = false;
 				buttonFill.Sensitive = false;
 				incomingwatermaterialview1.Sensitive = false;
 				buttonSave.Sensitive = false;
@@ -209,6 +229,9 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			_employeeRepository = null;
+			_userRepository = null;
+			_storeDocumentHelper = null;
 			base.Destroy();
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;

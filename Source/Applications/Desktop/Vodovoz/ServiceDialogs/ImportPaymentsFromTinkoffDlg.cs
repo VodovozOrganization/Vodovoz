@@ -1,4 +1,5 @@
-﻿using Gamma.GtkWidgets;
+﻿using Autofac;
+using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using QS.Dialog;
@@ -23,7 +24,7 @@ namespace Vodovoz.ServiceDialogs
 	//FIXME Переименовать диалог при переписывании на MVVM.
 	public partial class ImportPaymentsFromTinkoffDlg : TdiTabBase
 	{
-		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
+		private readonly IPaymentsRepository _paymentsRepository = ScopeProvider.Scope.Resolve<IPaymentsRepository>();
 		private PaymentsFromTinkoffParser _tinkoffParser;
 		private PaymentsFromYookassaParser _yookassaParser;
 		private PaymentsFromCloudPaymentsParser _cloudPaymentsParser;

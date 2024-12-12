@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
@@ -16,7 +17,7 @@ namespace Dialogs.Employees
 	public partial class EmployeeWorkChartDlg : QS.Dialog.Gtk.TdiTabBase, ITdiDialog
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private readonly IEmployeeRepository _employeeRepository;
 			
 		private IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 		private List<EmployeeWorkChart> loadedCharts = new List<EmployeeWorkChart>();
@@ -46,18 +47,26 @@ namespace Dialogs.Employees
 
 		#endregion
 
-		public EmployeeWorkChartDlg()
+		public EmployeeWorkChartDlg(
+			IEmployeeJournalFactory employeeJournalFactory,
+			IEmployeeRepository employeeRepository)
 		{
-			this.Build();
-			ConfigureDlg();
+			if(employeeJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(employeeJournalFactory));
+			}
+
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+
+			Build();
+			ConfigureDlg(employeeJournalFactory);
 		}
 
-		private void ConfigureDlg()
+		private void ConfigureDlg(IEmployeeJournalFactory employeeJournalFactory)
 		{
 			DateTime now = DateTime.Now;
-
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
-			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Changed += YentryEmployee_Changed;
 
 			yenumcomboMonth.ItemsEnum = typeof(Month);
@@ -255,6 +264,12 @@ namespace Dialogs.Employees
 			previousEmployee = new Employee();
 			workcharttable.Reset();
 		}
-		
+
+		public override void Destroy()
+		{
+			uow?.Dispose();
+			CustomCancellationConfirmationDialogFunc = null;
+			base.Destroy();
+		}
 	}
 }

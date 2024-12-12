@@ -7,6 +7,7 @@ using QS.Widgets;
 using QS.Widgets.GtkUI;
 using System;
 using System.ComponentModel;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Filters.ViewModels;
@@ -79,10 +80,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.CounterpartyId, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
-			entryCounterpartyVodovozInternalId.ValidationMode = ValidationType.Numeric;
+			ylabelCounterpartyVodovozInternalId.LabelProp = "Номер договора";
 			entryCounterpartyVodovozInternalId.KeyReleaseEvent += OnKeyReleased;
 			entryCounterpartyVodovozInternalId.Binding
-				.AddBinding(ViewModel, vm => vm.CounterpartyVodovozInternalId, w => w.Text, new NullableIntToStringConverter())
+				.AddBinding(ViewModel, vm => vm.CounterpartyContractNumber, w => w.Text)
 				.InitializeFromSource();
 
 			entryCounterpartyInn.ValidationMode = ValidationType.Numeric;

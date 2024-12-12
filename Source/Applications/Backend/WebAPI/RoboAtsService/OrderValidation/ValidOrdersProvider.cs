@@ -1,6 +1,6 @@
 ﻿using NHibernate;
 using QS.DomainModel.UoW;
-using QS.Utilities;
+using QS.Utilities.Debug;
 using RoboatsService.Monitoring;
 using System;
 using System.Collections.Generic;
@@ -62,7 +62,7 @@ namespace RoboatsService.OrderValidation
 				var lazyEx = ExceptionHelper.FindExceptionTypeInInner<LazyInitializationException>(ex);
 				var message = $"При обращении к не инициализированным полям в сущностях из переданной коллекции {nameof(orders)} " +
 					$"возникло исключение {nameof(LazyInitializationException)}. В сущностях передаваемых в {nameof(ValidOrdersProvider)} " +
-					$"должны быть уже загружены данные используемые валидаторами, как в примере в {nameof(RoboatsRepository)}.{nameof(RoboatsRepository.GetLastOrders)}.";
+					$"должны быть уже загружены данные используемые валидаторами, как в примере в {nameof(IRoboatsRepository)}.{nameof(IRoboatsRepository.GetLastOrders)}.";
 				throw new LazyInitializationException(message, lazyEx);
 			}
 		}

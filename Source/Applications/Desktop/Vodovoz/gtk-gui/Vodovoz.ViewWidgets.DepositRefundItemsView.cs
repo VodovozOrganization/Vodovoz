@@ -8,11 +8,11 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.HBox hboxDeposit;
 
-		private global::Gtk.Button buttonNewBottleDeposit;
+		private global::Gamma.GtkWidgets.yButton buttonNewBottleDeposit;
 
-		private global::Gtk.Button buttonNewEquipmentDeposit;
+		private global::Gamma.GtkWidgets.yButton buttonNewEquipmentDeposit;
 
-		private global::Gtk.Button buttonDeleteDeposit;
+		private global::Gamma.GtkWidgets.yButton buttonDeleteDeposit;
 
 		private global::Gtk.ScrolledWindow scrolledwindow2;
 
@@ -33,7 +33,7 @@ namespace Vodovoz.ViewWidgets
 			this.hboxDeposit.Name = "hboxDeposit";
 			this.hboxDeposit.Spacing = 6;
 			// Container child hboxDeposit.Gtk.Box+BoxChild
-			this.buttonNewBottleDeposit = new global::Gtk.Button();
+			this.buttonNewBottleDeposit = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNewBottleDeposit.CanFocus = true;
 			this.buttonNewBottleDeposit.Name = "buttonNewBottleDeposit";
 			this.buttonNewBottleDeposit.UseUnderline = true;
@@ -47,7 +47,7 @@ namespace Vodovoz.ViewWidgets
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hboxDeposit.Gtk.Box+BoxChild
-			this.buttonNewEquipmentDeposit = new global::Gtk.Button();
+			this.buttonNewEquipmentDeposit = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNewEquipmentDeposit.CanFocus = true;
 			this.buttonNewEquipmentDeposit.Name = "buttonNewEquipmentDeposit";
 			this.buttonNewEquipmentDeposit.UseUnderline = true;
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewWidgets
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hboxDeposit.Gtk.Box+BoxChild
-			this.buttonDeleteDeposit = new global::Gtk.Button();
+			this.buttonDeleteDeposit = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDeleteDeposit.CanFocus = true;
 			this.buttonDeleteDeposit.Name = "buttonDeleteDeposit";
 			this.buttonDeleteDeposit.UseUnderline = true;

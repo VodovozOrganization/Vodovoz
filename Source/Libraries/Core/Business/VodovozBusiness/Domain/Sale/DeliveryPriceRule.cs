@@ -87,7 +87,7 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!(validationContext.ServiceContainer.GetService(
+			if(!(validationContext.GetService(
 				typeof(IDistrictRuleRepository)) is IDistrictRuleRepository districtRuleRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(districtRuleRepository)}");

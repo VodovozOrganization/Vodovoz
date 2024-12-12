@@ -88,13 +88,14 @@ namespace Vodovoz.Dialogs.Cash
 
 			#region Buttons
 
-			ybtnAccept.Clicked += (sender, args) => ViewModel.AcceptCommand.Execute();
-			ybtnApprove.Clicked += (sender, args) => ViewModel.ApproveCommand.Execute();
-			ybtnCancel.Clicked += (sender, args) => ViewModel.CancelCommand.Execute();
+			ybtnAccept.BindCommand(ViewModel.AcceptCommand);
+			ybtnApprove.BindCommand(ViewModel.ApproveCommand);
+			ybtnSubdivisionChiefApprove.BindCommand(ViewModel.SubdivisionChiefApproveCommand);
+			ybtnCancel.BindCommand(ViewModel.CancelCommand);
 			//Передать на выдачу
-			ybtnConveyForResults.Clicked += (sender, args) => ViewModel.ConveyForResultsCommand.Execute();
+			ybtnConveyForResults.BindCommand(ViewModel.ConveyForResultsCommand);
 			//Отправить на пересогласование
-			ybtnReturnForRenegotiation.Clicked += (sender, args) => ViewModel.ReturnToRenegotiationCommand.Execute();
+			ybtnReturnForRenegotiation.BindCommand(ViewModel.ReturnToRenegotiationCommand);
 
 			ybtnGiveSumm.Clicked += (sender, args) =>
 				ViewModel.GiveSumCommand.Execute(ytreeviewSums.GetSelectedObject<CashRequestSumItem>());
@@ -106,12 +107,18 @@ namespace Vodovoz.Dialogs.Cash
 			ybtnGiveSummPartially.Clicked += (sender, args) => ViewModel.GiveSumPartiallyCommand.Execute(
 				(ytreeviewSums.GetSelectedObject<CashRequestSumItem>(), yspinGivePartially.ValueAsDecimal)
 			);
+
 			ybtnGiveSummPartially.Binding
 				.AddBinding(ViewModel, vm => vm.CanSeeGiveSum, w => w.Visible)
 				.InitializeFromSource();
+
 			yspinGivePartially.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanSeeGiveSum, w => w.Visible)
 				.AddBinding(vm => vm.CanGiveSum, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybtnAddSumm.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddSum, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybtnAddSumm.Clicked += (sender, args) => ViewModel.AddSumCommand.Execute();
@@ -125,21 +132,31 @@ namespace Vodovoz.Dialogs.Cash
 			ybtnAccept.Binding
 				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Visible)
 				.InitializeFromSource();
+
+			ybtnSubdivisionChiefApprove.Binding
+				.AddBinding(ViewModel, vm => vm.CanSubdivisionChiefApprove, w => w.Visible)
+				.InitializeFromSource();
+
 			ybtnApprove.Binding
 				.AddBinding(ViewModel, vm => vm.CanApprove, w => w.Visible)
 				.InitializeFromSource();
+
 			ybtnCancel.Binding
 				.AddBinding(ViewModel, vm => vm.CanCancel, w => w.Visible)
 				.InitializeFromSource();
+
 			ybtnConveyForResults.Binding
 				.AddBinding(ViewModel, vm => vm.CanConveyForResults, w => w.Visible)
 				.InitializeFromSource();
+
 			ybtnReturnForRenegotiation.Binding
 				.AddBinding(ViewModel, vm => vm.CanReturnToRenegotiation, w => w.Visible)
 				.InitializeFromSource();
+
 			ybtnDeleteSumm.Binding
 				.AddBinding(ViewModel, vm => vm.CanDeleteSum, w => w.Visible)
 				.InitializeFromSource();
+
 			ybtnEditSum.Visible = false;
 			buttonSave.Clicked += (sender, args) => ViewModel.AfterSaveCommand.Execute();
 			buttonSave.Sensitive = !ViewModel.IsSecurityServiceRole;
@@ -149,6 +166,7 @@ namespace Vodovoz.Dialogs.Cash
 				.AddBinding(ViewModel.Entity, e => e.PossibilityNotToReconcilePayments, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanConfirmPossibilityNotToReconcilePayments, w => w.Visible)
 				.InitializeFromSource();
+
 			ylabelPossibilityNotToReconcilePayments.Binding
 				.AddBinding(ViewModel, vm => vm.CanConfirmPossibilityNotToReconcilePayments, w => w.Visible)
 				.InitializeFromSource();
@@ -218,12 +236,10 @@ namespace Vodovoz.Dialogs.Cash
 			ylabelStatus.Binding
 				.AddBinding(ViewModel, vm => vm.StateName, w => w.Text)
 				.InitializeFromSource();
-			ylabelStatus.Text = ViewModel.Entity.PayoutRequestState.GetEnumTitle();
 
 			if(ViewModel.Entity.PayoutRequestState == PayoutRequestState.Closed || ViewModel.IsSecurityServiceRole)
 			{
 				ytreeviewSums.Sensitive = false;
-				ybtnAddSumm.Sensitive = false;
 				ybtnAccept.Sensitive = false;
 				ybtnApprove.Sensitive = false;
 				ybtnCancel.Sensitive = false;

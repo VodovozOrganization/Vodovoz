@@ -28,6 +28,7 @@ namespace Vodovoz.Views.Employees
 			ylabelOverspending.Binding
 				.AddBinding(ViewModel, vm => vm.IsFuelOverspendingFine, w => w.Visible)
 				.InitializeFromSource();
+			yspinLiters.Adjustment.Upper = (double)FineItem.LitersOverspendingLimit;
 			yspinLiters.Binding
 				.AddBinding(ViewModel, vm => vm.Liters, w => w.ValueAsDecimal)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)

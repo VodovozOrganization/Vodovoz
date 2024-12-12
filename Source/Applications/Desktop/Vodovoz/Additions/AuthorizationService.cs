@@ -228,7 +228,7 @@ namespace Vodovoz.Additions
 				var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
 
 				var connectionFactory = new RabbitMQConnectionFactory(Logger);
-				var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost);
+				var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost, configuration.Port);
 				var channel = connection.CreateModel();
 
 				var properties = channel.CreateBasicProperties();

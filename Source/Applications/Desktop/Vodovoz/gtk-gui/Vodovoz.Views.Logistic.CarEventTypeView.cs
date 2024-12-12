@@ -8,9 +8,9 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.Table table1;
 
@@ -21,6 +21,8 @@ namespace Vodovoz.Views.Logistic
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonDoNotShowInOperation;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonIsArchive;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonIsAttachWriteOffDocument;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonNeedComment;
 
@@ -44,7 +46,7 @@ namespace Vodovoz.Views.Logistic
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -58,7 +60,7 @@ namespace Vodovoz.Views.Logistic
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -77,7 +79,7 @@ namespace Vodovoz.Views.Logistic
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(5)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -132,6 +134,21 @@ namespace Vodovoz.Views.Logistic
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.ycheckbuttonIsAttachWriteOffDocument = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonIsAttachWriteOffDocument.CanFocus = true;
+			this.ycheckbuttonIsAttachWriteOffDocument.Name = "ycheckbuttonIsAttachWriteOffDocument";
+			this.ycheckbuttonIsAttachWriteOffDocument.Label = global::Mono.Unix.Catalog.GetString("Прикреплять акт списания");
+			this.ycheckbuttonIsAttachWriteOffDocument.DrawIndicator = true;
+			this.ycheckbuttonIsAttachWriteOffDocument.UseUnderline = true;
+			this.table1.Add(this.ycheckbuttonIsAttachWriteOffDocument);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonIsAttachWriteOffDocument]));
+			w10.TopAttach = ((uint)(5));
+			w10.BottomAttach = ((uint)(6));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ycheckbuttonNeedComment = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonNeedComment.CanFocus = true;
 			this.ycheckbuttonNeedComment.Name = "ycheckbuttonNeedComment";
@@ -139,13 +156,13 @@ namespace Vodovoz.Views.Logistic
 			this.ycheckbuttonNeedComment.DrawIndicator = true;
 			this.ycheckbuttonNeedComment.UseUnderline = true;
 			this.table1.Add(this.ycheckbuttonNeedComment);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonNeedComment]));
-			w10.TopAttach = ((uint)(2));
-			w10.BottomAttach = ((uint)(3));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonNeedComment]));
+			w11.TopAttach = ((uint)(2));
+			w11.BottomAttach = ((uint)(3));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
@@ -153,10 +170,10 @@ namespace Vodovoz.Views.Logistic
 			this.yentryName.IsEditable = true;
 			this.yentryName.InvisibleChar = '●';
 			this.table1.Add(this.yentryName);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryShortName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryShortName.CanFocus = true;
@@ -164,17 +181,17 @@ namespace Vodovoz.Views.Logistic
 			this.yentryShortName.IsEditable = true;
 			this.yentryShortName.InvisibleChar = '•';
 			this.table1.Add(this.yentryShortName);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryShortName]));
-			w12.TopAttach = ((uint)(1));
-			w12.BottomAttach = ((uint)(2));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryShortName]));
+			w13.TopAttach = ((uint)(1));
+			w13.BottomAttach = ((uint)(2));
+			w13.LeftAttach = ((uint)(1));
+			w13.RightAttach = ((uint)(2));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

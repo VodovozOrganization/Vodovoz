@@ -75,6 +75,13 @@ namespace Vodovoz
 
 		public string Transferred => RouteListItem.GetTransferText();
 
+		#region Контроль отмены автоотмены автопереноса
+
+		public bool InitialRouteListItemStatusIsInUndeliveryStatuses { get; set; }
+		public bool RouteListItemStatusHasChangedToCompeteStatus { get; set; }
+
+		#endregion Контроль отмены автоотмены автопереноса
+
 		public void UpdateStatus(RouteListItemStatus value, ICallTaskWorker callTaskWorker)
 		{
 			var uow = RouteListItem.RouteList.UoW;

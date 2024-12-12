@@ -3,7 +3,7 @@ using QS.Navigation;
 using QS.Report.ViewModels;
 using QS.ViewModels;
 using System;
-using Vodovoz.Presentation.ViewModels.Reports.PACS;
+using Vodovoz.Presentation.ViewModels.Pacs.Reports;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {

@@ -15,6 +15,9 @@ namespace Vodovoz.Domain.StoredEmails
 
 		public virtual int Id { get; set; }
 
+		/// <summary>
+		/// Данные по отправке
+		/// </summary>
 		[Display(Name = "Электронная почта")]
 		public virtual StoredEmail StoredEmail
 		{
@@ -22,6 +25,9 @@ namespace Vodovoz.Domain.StoredEmails
 			set => SetField(ref _storedEmail, value);
 		}
 
+		/// <summary>
+		/// Контрагент
+		/// </summary>
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty
 		{
@@ -29,9 +35,15 @@ namespace Vodovoz.Domain.StoredEmails
 			set => SetField(ref _counterparty, value);
 		}
 
+		/// <summary>
+		/// Тип почтового отправления
+		/// </summary>
 		[Display(Name = "Тип почтового отправления")]
 		public virtual CounterpartyEmailType Type { get; set; }
 
+		/// <summary>
+		/// Отправляемый документ
+		/// </summary>
 		public abstract IEmailableDocument EmailableDocument { get; }
 	}
 
@@ -47,6 +59,8 @@ namespace Vodovoz.Domain.StoredEmails
 		Bulk,
 		[Display(Name = "Учётные данные")]
 		Credential,
+		[Display(Name = "Код авторизации")]
+		AuthorizationCode,
 		[Display(Name = "Счёт без отгрузки на долг")]
 		OrderWithoutShipmentForDebt,
 		[Display(Name = "Счёт без отгрузки на постоплату")]

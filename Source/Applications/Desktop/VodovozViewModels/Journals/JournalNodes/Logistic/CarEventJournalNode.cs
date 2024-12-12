@@ -20,9 +20,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public DateTime StartDate { get; set; }
 		public DateTime EndDate { get; set; }
 		public decimal RepairCost { get; set; }
+		public decimal RepairPartsCost { get; set; }
 		public string Comment { get; set; }
 		public CarTypeOfUse CarTypeOfUse { get; set; }
 		public CarOwnType CarOwnType { get; set; }
+		public decimal RepairAndPartsSummaryCost => RepairCost + RepairPartsCost;
 
 		public string CarTypeOfUseAndOwnTypeString
 		{

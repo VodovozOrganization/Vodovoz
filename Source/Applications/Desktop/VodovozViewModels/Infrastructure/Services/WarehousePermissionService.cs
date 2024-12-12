@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
@@ -28,7 +29,7 @@ namespace Vodovoz.Services.Permissions
 		public WarehousePermissionService(IUnitOfWorkFactory uowFactory)
 		{
 			WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
-			_permissionRepository = new PermissionRepository();
+			_permissionRepository = ScopeProvider.Scope.Resolve<IPermissionRepository>();
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 

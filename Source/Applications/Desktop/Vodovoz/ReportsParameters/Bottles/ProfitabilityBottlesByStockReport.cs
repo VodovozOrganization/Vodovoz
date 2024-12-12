@@ -1,21 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Report;
-using QSReport;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Bottles;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
-	public partial class ProfitabilityBottlesByStockReport : Gtk.Bin, IParametersWidget
+	public partial class ProfitabilityBottlesByStockReport : ViewBase<ProfitabilityBottlesByStockReportViewModel>
 	{
-		class PercentNode
-		{
-			public PercentNode(int pct) => Pct = pct;
-
-			public int Pct { get; set; }
-			public string Name => string.Format("{0}%", Pct);
-		}
-
-		public ProfitabilityBottlesByStockReport()
+		public ProfitabilityBottlesByStockReport(ProfitabilityBottlesByStockReportViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			ConfigureDlg();
@@ -23,40 +13,18 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		void ConfigureDlg()
 		{
-			dtrngPeriod.StartDate = DateTime.Today;
-			dtrngPeriod.EndDate = DateTime.Today;
-			specCmbDiscountPct.ItemsList = new List<PercentNode> {
-				new PercentNode(0),
-				new PercentNode(10),
-				new PercentNode(20)
-			};
-			specCmbDiscountPct.SetRenderTextFunc<PercentNode>(x => x.Name);
-		}
+			dtrngPeriod.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDate)
+				.AddBinding(vm => vm.EndDate, w => w.EndDate)
+				.InitializeFromSource();
 
-		#region IParametersWidget implementation
+			specCmbDiscountPct.SetRenderTextFunc<ProfitabilityBottlesByStockReportViewModel.PercentNode>(x => x.Name);
+			specCmbDiscountPct.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.PercentNodes, w => w.ItemsList)
+				.AddBinding(vm => vm.SelectedPercentNode, w => w.SelectedItem)
+				.InitializeFromSource();
 
-		public string Title => "Рентабельность акции \"Бутыль\"";
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		#endregion IParametersWidget implementation
-
-		void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-
-		protected void OnButtonRunClicked(object sender, EventArgs e) => OnUpdate(true);
-
-		ReportInfo GetReportInfo()
-		{
-			var repInfo = new ReportInfo {
-				Identifier = "Bottles.ProfitabilityBottlesByStock",
-				Parameters = new Dictionary<string, object> {
-					{ "start_date", dtrngPeriod.StartDate },
-					{ "end_date", dtrngPeriod.EndDate },
-					{ "discount_stock", (specCmbDiscountPct.SelectedItem as PercentNode)?.Pct ?? -1}
-				}
-			};
-
-			return repInfo;
+			buttonRun.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }

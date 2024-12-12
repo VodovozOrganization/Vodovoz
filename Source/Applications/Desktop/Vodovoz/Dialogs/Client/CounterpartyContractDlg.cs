@@ -8,11 +8,8 @@ using System.ComponentModel.DataAnnotations;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Models;
-using Vodovoz.Settings.Orders;
 
 namespace Vodovoz
 {
@@ -20,7 +17,7 @@ namespace Vodovoz
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private IDocTemplateRepository _docTemplateRepository;
 
 		public event EventHandler<ContractSavedEventArgs> ContractSaved;
 
@@ -28,12 +25,13 @@ namespace Vodovoz
 
 		public CounterpartyContractDlg (Counterparty counterparty)
 		{
-			this.Build ();
+			ResolveDependencies();
+			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CounterpartyContract>();
 			UoWGeneric.Root.Counterparty = counterparty;
-			UoWGeneric.Root.GenerateSubNumber(counterparty);
+			UoWGeneric.Root.UpdateNumber();
 			TabName = "Новый договор";
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
 		/// <summary>
@@ -47,12 +45,8 @@ namespace Vodovoz
 		}
 
 		public CounterpartyContractDlg(Counterparty counterparty, PaymentType paymentType, Organization organizetion, DateTime? date):this(counterparty,organizetion){
-			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
-			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
-			var cashReceiptRepository = new CashReceiptRepository(ServicesConfig.UnitOfWorkFactory, orderSettings);
-			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
-			var contractType =  counterpartyContractRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
+			var counterpartyContractRepository = _lifetimeScope.Resolve<ICounterpartyContractRepository>();
+			var contractType = counterpartyContractRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
 			Entity.ContractType = contractType;
 			if(date.HasValue)
 				UoWGeneric.Root.IssueDate = date.Value;
@@ -64,21 +58,39 @@ namespace Vodovoz
 
 		public CounterpartyContractDlg (int id)
 		{
+			ResolveDependencies();
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CounterpartyContract> (id);
 			ConfigureDlg ();
 		}
 
+		private void ResolveDependencies()
+		{
+			_docTemplateRepository = _lifetimeScope.Resolve<IDocTemplateRepository>();
+		}
+
 		private void ConfigureDlg ()
 		{
-			checkOnCancellation.Binding.AddBinding (Entity, e => e.OnCancellation, w => w.Active).InitializeFromSource ();
-			checkArchive.Binding.AddBinding (Entity, e => e.IsArchive, w => w.Active).InitializeFromSource ();
+			checkOnCancellation.Binding
+				.AddBinding(Entity, e => e.OnCancellation, w => w.Active)
+				.InitializeFromSource();
+			checkArchive.Binding
+				.AddBinding(Entity, e => e.IsArchive, w => w.Active)
+				.InitializeFromSource();
 
-			dateIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
-			entryNumber.Binding.AddBinding (Entity, e => e.ContractFullNumber, w => w.Text).InitializeFromSource ();
-			spinDelay.Binding.AddBinding (Entity, e => e.MaxDelay, w => w.ValueAsInt).InitializeFromSource ();
+			dateIssue.Binding
+				.AddBinding(Entity, e => e.IssueDate, w => w.Date)
+				.InitializeFromSource();
+			entryNumber.Binding
+				.AddBinding(Entity, e => e.Number, w => w.Text)
+				.InitializeFromSource();
+			spinDelay.Binding
+				.AddBinding(Entity, e => e.MaxDelay, w => w.ValueAsInt)
+				.InitializeFromSource();
 			ycomboContractType.ItemsEnum = typeof(ContractType);
-			ycomboContractType.Binding.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem).InitializeFromSource();
+			ycomboContractType.Binding
+				.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			var organizationEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CounterpartyContract>(
 				this,
@@ -136,6 +148,7 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			_docTemplateRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 			base.Destroy();

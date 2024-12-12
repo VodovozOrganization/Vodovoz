@@ -6,6 +6,7 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.HistoryLog.Domain;
 using QS.Project.DB;
+using QS.Utilities.Extensions;
 
 namespace Vodovoz.Domain.HistoryChanges
 {
@@ -265,7 +266,7 @@ namespace Vodovoz.Domain.HistoryChanges
 			IType propType = persister.PropertyTypes[i];
 			string propName = persister.PropertyNames[i];
 
-			var propInfo = persister.MappedClass.GetProperty(propName);
+			var propInfo = persister.MappedClass.GetPropertyInfo(propName);
 			if(propInfo.GetCustomAttributes(typeof(IgnoreHistoryTraceAttribute), true).Length > 0)
 			{
 				return null;

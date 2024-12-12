@@ -2,6 +2,7 @@
 using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -75,6 +76,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetWaterStroika(IUnitOfWork uow);
 		Nomenclature GetWaterRuchki(IUnitOfWork uow);
 		Nomenclature GetFastDeliveryNomenclature(IUnitOfWork uow);
+		Nomenclature GetMasterCallNomenclature(IUnitOfWork uow);
 		/// <summary>
 		/// Идентификатор для группы товаров, принадлежащей интернет-магазину
 		/// </summary>

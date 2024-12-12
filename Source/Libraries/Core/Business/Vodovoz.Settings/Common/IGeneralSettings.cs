@@ -17,6 +17,7 @@ namespace Vodovoz.Settings.Common
 		int[] SubdivisionsToInformComplaintHasNoDriver { get; }
 		int[] SubdivisionsForAlternativePrices { get; }
 		int[] WarehousesForPricesAndStocksIntegration { get; }
+		int[] PaymentWriteOffAllowedFinancialExpenseCategories { get; }
 
 		string SubdivisionsToInformComplaintHasNoDriverParameterName { get; }
 		string SubdivisionsAlternativePricesName { get; }
@@ -46,6 +47,9 @@ namespace Vodovoz.Settings.Common
 		void UpdateUpcomingTechInspectForOurCars(int upcomingTechInspectForOurCars);
 		void UpdateUpcomingTechInspectForRaskatCars(int upcomingTechInspectForRaskatCars);
 
+		int CarTechnicalCheckupEndingNotificationDaysBefore { get; }
+		void UpdateCarTechnicalCheckupEndingNotificationDaysBefore(int value);
+
 		string GetBillAdditionalInfo { get; }
 		void UpdateBillAdditionalInfo(string value);
 		string GetCarLoadDocumentInfoString { get; }
@@ -56,5 +60,6 @@ namespace Vodovoz.Settings.Common
 
 		int FastDeliveryMaximumPermissibleLateMinutes { get; }
 		void UpdateFastDeliveryMaximumPermissibleLateMinutes(int value);
+		void UpdatePaymentWriteOffAllowedFinancialExpenseCategoriesParameter(int[] ids, string parameterName);
 	}
 }

@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Errors;
-using Vodovoz.ViewModels.Reports;
 using DateTimeHelpers;
+using Vodovoz.Presentation.ViewModels.Reports;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {
@@ -30,7 +30,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			IEnumerable<Row> rows,
 			IEnumerable<CarTransferRow> carTransferRows,
 			IEnumerable<CarReceptionRow> carReceptionRows,
-			string eventsSummary)
+			string eventsSummary,
+			string eventsSummaryDetails)
 		{
 			Date = date;
 			CountDays = countDays;
@@ -46,7 +47,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				?? throw new ArgumentNullException(nameof(carReceptionRows));
 			EventsSummary = eventsSummary
 				?? throw new ArgumentNullException(nameof(eventsSummary));
-
+			EventsSummaryDetails = eventsSummaryDetails;
 			CreatedAt = DateTime.Now;
 		}
 
@@ -65,6 +66,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		public IEnumerable<(int Id, string Title)> ExcludedEvents { get; }
 
 		public string EventsSummary { get; }
+
+		public string EventsSummaryDetails { get; }
 
 		#endregion Параметры отчета
 
@@ -89,7 +92,6 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			int carTransferEventTypeId,
 			int carReceptionEventTypeId)
 		{
-			date = date.LatestDayTime();
 			var startDate = date.AddDays(-countDays).Date;
 
 			var cars = (from car in unitOfWork.Session.Query<Car>()
@@ -117,7 +119,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				 let lastRouteListDate =
 					(DateTime?)(from routeList in unitOfWork.Session.Query<RouteList>()
 								where routeList.Car.Id == car.Id
-									&& routeList.Date <= date
+									&& routeList.Date <= date.LatestDayTime()
 								orderby routeList.Date descending
 								select routeList.Date)
 					.FirstOrDefault()
@@ -139,8 +141,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			var events = carEventRepository.Get(
 				unitOfWork,
-				ce => ce.StartDate <= date
-					&& ce.EndDate >= date
+				ce => ce.StartDate <= date.Date
+					&& ce.EndDate >= date.Date
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(ce.CarEventType.Id))
 					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(ce.CarEventType.Id)));
 
@@ -159,7 +161,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(carTransferEventTypeId))
 					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(carTransferEventTypeId))
 					&& e.CreateDate >= date.AddDays(-1).Date
-					&& e.CreateDate <= date)
+					&& e.CreateDate <= date.LatestDayTime())
 				.ToArray();
 
 			var filteredRecieveEvents = carEventRepository.Get(
@@ -169,7 +171,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(carReceptionEventTypeId))
 					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(carReceptionEventTypeId))
 					&& e.CreateDate >= date.AddDays(-1).Date
-					&& e.CreateDate <= date)
+					&& e.CreateDate <= date.LatestDayTime())
 				.ToArray();
 
 			var rows = new List<Row>();
@@ -221,6 +223,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					CarType = cars[i].CarModel.Name,
 					CarTypeWithGeographicalGroup =
 						$"{cars[i].CarModel.Name} {GetGeoGroupFromCar(cars[i])}",
+					CaeEventTypes = string.Join("/", carEventGroup.Select(ce => ce.CarEventType.Name)),
 					TimeAndBreakdownReason = string.Join(", ", carEventGroup.Select(ce => $"{ce.StartDate.ToString(_defaultDateTimeFormat)} {ce.CarEventType.Name}")),
 					PlannedReturnToLineDate = carEventGroup.First().EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = string.Join(", ", carEventGroup.Select(ce => ce.Comment)),
@@ -261,7 +264,16 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				$"Всего {rows.Count()} авто.\n" +
 				string.Join("\n", summaryByCarModel);
 
-			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary);
+			var summaryByEventThanCar = rows
+				.GroupBy(row => (row.CaeEventTypes, row.CarType))
+				.GroupBy(g => g.Key.CaeEventTypes)
+				.Select(g => (string.IsNullOrWhiteSpace(g.Key) ? "Простой" : g.Key) + "\n" +
+					$"{string.Join("\n", g.Select(x => $"{x.Key.CarType}: {x.Count()}"))}\n");
+
+			var eventsSummaryDetails =
+				string.Join("\n", summaryByEventThanCar);
+
+			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary, eventsSummaryDetails);
 		}
 
 		private static string GetGeoGroupFromCarEvent(CarEvent carEvent) =>

@@ -1,17 +1,16 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Autofac.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using QS.HistoryLog;
+using QS.Project.Core;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
-using Vodovoz.EntityRepositories;
-using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
-using QS.HistoryLog;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Autofac.Extensions.DependencyInjection;
-using QS.Services;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace EmailStatusUpdateWorker
 {
@@ -44,7 +43,8 @@ namespace EmailStatusUpdateWorker
 						typeof(EmployeeWithLoginMap).Assembly
 					);
 					services.AddDatabaseConnection();
-					services.AddCore();
+					services.AddCore()
+						.AddInfrastructure();
 					services.AddTrackedUoW();
 					services.AddStaticHistoryTracker();
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
@@ -61,8 +61,6 @@ namespace EmailStatusUpdateWorker
 						channel.BasicQos(0, 1, false);
 						return channel;
 					});
-
-					services.AddTransient<IEmailRepository, EmailRepository>();
 
 					services.AddHostedService<EmailStatusUpdateWorker>();
 				});

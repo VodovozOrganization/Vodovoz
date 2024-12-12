@@ -18,13 +18,13 @@ namespace Vodovoz.Views.Organization
 
 		private global::Gtk.Label lblWarehouses;
 
-		private global::Gtk.Label GtkLabel8;
+		private global::Gtk.Label GtkLabel9;
 
 		private global::Gtk.HBox hbox4;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.HBox hboxtype;
 
@@ -74,7 +74,7 @@ namespace Vodovoz.Views.Organization
 
 		private global::Gtk.Label lblPermissionsPreset;
 
-		private global::Vodovoz.Core.WidgetContainerView warehousesPermissionsContainerView;
+		private global::Gamma.GtkWidgets.yVBox yvboxWarehousesPermissionContainer;
 
 		private global::Gtk.Label lblWarehousesPermissions;
 
@@ -85,6 +85,12 @@ namespace Vodovoz.Views.Organization
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
 		private global::Gamma.GtkWidgets.yEntry yentryShortName;
+
+		private global::Gamma.GtkWidgets.yVBox yvboxPermissionsButtons;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonAddSubdiviionPermissions;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonReplaceSubdivisionPermissions;
 
 		protected virtual void Build()
 		{
@@ -150,15 +156,15 @@ namespace Vodovoz.Views.Organization
 			this.lblWarehouses.Selectable = true;
 			this.GtkAlignment4.Add(this.lblWarehouses);
 			this.frmWarehoses.Add(this.GtkAlignment4);
-			this.GtkLabel8 = new global::Gtk.Label();
-			this.GtkLabel8.Name = "GtkLabel8";
-			this.GtkLabel8.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Склады отдела:</b>");
-			this.GtkLabel8.UseMarkup = true;
-			this.frmWarehoses.LabelWidget = this.GtkLabel8;
+			this.GtkLabel9 = new global::Gtk.Label();
+			this.GtkLabel9.Name = "GtkLabel9";
+			this.GtkLabel9.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Склады отдела:</b>");
+			this.GtkLabel9.UseMarkup = true;
+			this.frmWarehoses.LabelWidget = this.GtkLabel9;
 			this.table1.Add(this.frmWarehoses);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.frmWarehoses]));
 			w6.TopAttach = ((uint)(2));
-			w6.BottomAttach = ((uint)(6));
+			w6.BottomAttach = ((uint)(4));
 			w6.LeftAttach = ((uint)(4));
 			w6.RightAttach = ((uint)(5));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -167,7 +173,7 @@ namespace Vodovoz.Views.Organization
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -181,7 +187,7 @@ namespace Vodovoz.Views.Organization
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -312,7 +318,7 @@ namespace Vodovoz.Views.Organization
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 1;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.subdivisionentitypermissionwidget = new global::Vodovoz.Core.Permissions.SubdivisionEntityPermissionWidget();
 			this.subdivisionentitypermissionwidget.Events = ((global::Gdk.EventMask)(256));
@@ -412,17 +418,17 @@ namespace Vodovoz.Views.Organization
 			this.notebook1.SetTabLabel(this.permissionsPresetContainerView, this.lblPermissionsPreset);
 			this.lblPermissionsPreset.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.warehousesPermissionsContainerView = new global::Vodovoz.Core.WidgetContainerView();
-			this.warehousesPermissionsContainerView.Events = ((global::Gdk.EventMask)(256));
-			this.warehousesPermissionsContainerView.Name = "warehousesPermissionsContainerView";
-			this.notebook1.Add(this.warehousesPermissionsContainerView);
-			global::Gtk.Notebook.NotebookChild w31 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.warehousesPermissionsContainerView]));
+			this.yvboxWarehousesPermissionContainer = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxWarehousesPermissionContainer.Name = "yvboxWarehousesPermissionContainer";
+			this.yvboxWarehousesPermissionContainer.Spacing = 6;
+			this.notebook1.Add(this.yvboxWarehousesPermissionContainer);
+			global::Gtk.Notebook.NotebookChild w31 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.yvboxWarehousesPermissionContainer]));
 			w31.Position = 4;
 			// Notebook tab
 			this.lblWarehousesPermissions = new global::Gtk.Label();
 			this.lblWarehousesPermissions.Name = "lblWarehousesPermissions";
 			this.lblWarehousesPermissions.LabelProp = global::Mono.Unix.Catalog.GetString("Права на склады");
-			this.notebook1.SetTabLabel(this.warehousesPermissionsContainerView, this.lblWarehousesPermissions);
+			this.notebook1.SetTabLabel(this.yvboxWarehousesPermissionContainer, this.lblWarehousesPermissions);
 			this.lblWarehousesPermissions.ShowAll();
 			this.table1.Add(this.notebook1);
 			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table1[this.notebook1]));
@@ -487,6 +493,40 @@ namespace Vodovoz.Views.Organization
 			w36.RightAttach = ((uint)(4));
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
 			w36.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yvboxPermissionsButtons = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxPermissionsButtons.Name = "yvboxPermissionsButtons";
+			this.yvboxPermissionsButtons.Spacing = 6;
+			// Container child yvboxPermissionsButtons.Gtk.Box+BoxChild
+			this.ybuttonAddSubdiviionPermissions = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonAddSubdiviionPermissions.CanFocus = true;
+			this.ybuttonAddSubdiviionPermissions.Name = "ybuttonAddSubdiviionPermissions";
+			this.ybuttonAddSubdiviionPermissions.UseUnderline = true;
+			this.ybuttonAddSubdiviionPermissions.Label = global::Mono.Unix.Catalog.GetString("Добавить права подразделению");
+			this.yvboxPermissionsButtons.Add(this.ybuttonAddSubdiviionPermissions);
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.yvboxPermissionsButtons[this.ybuttonAddSubdiviionPermissions]));
+			w37.Position = 1;
+			w37.Expand = false;
+			w37.Fill = false;
+			// Container child yvboxPermissionsButtons.Gtk.Box+BoxChild
+			this.ybuttonReplaceSubdivisionPermissions = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonReplaceSubdivisionPermissions.CanFocus = true;
+			this.ybuttonReplaceSubdivisionPermissions.Name = "ybuttonReplaceSubdivisionPermissions";
+			this.ybuttonReplaceSubdivisionPermissions.UseUnderline = true;
+			this.ybuttonReplaceSubdivisionPermissions.Label = global::Mono.Unix.Catalog.GetString("Заменить права у подразделения");
+			this.yvboxPermissionsButtons.Add(this.ybuttonReplaceSubdivisionPermissions);
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.yvboxPermissionsButtons[this.ybuttonReplaceSubdivisionPermissions]));
+			w38.Position = 2;
+			w38.Expand = false;
+			w38.Fill = false;
+			this.table1.Add(this.yvboxPermissionsButtons);
+			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.table1[this.yvboxPermissionsButtons]));
+			w39.TopAttach = ((uint)(4));
+			w39.BottomAttach = ((uint)(7));
+			w39.LeftAttach = ((uint)(4));
+			w39.RightAttach = ((uint)(5));
+			w39.XOptions = ((global::Gtk.AttachOptions)(4));
+			w39.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{

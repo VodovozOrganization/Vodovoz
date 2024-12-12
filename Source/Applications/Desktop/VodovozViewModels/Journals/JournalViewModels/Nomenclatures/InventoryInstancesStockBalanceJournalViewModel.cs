@@ -138,6 +138,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 			query.SelectList(list => list
 				.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.Id)
 				.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+				.Select(() => instanceAlias.IsUsed).WithAlias(() => resultAlias.IsUsed)
 				.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 				.Select(balanceProjection).WithAlias(() => resultAlias.Balance));

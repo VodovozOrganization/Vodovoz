@@ -1,28 +1,21 @@
 ﻿using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Settings.Delivery;
 using Vodovoz.Errors;
 
 namespace Vodovoz.Services
 {
 	public interface IEmailService
 	{
-		Result SendBillForClosingDocumentOrderToEmailOnFinishIfNeeded(IUnitOfWork uow, Order order, IEmailRepository emailRepository, IOrderRepository orderRepository,
-			IDeliveryScheduleSettings deliveryScheduleSettings);
-		Result SendBillToEmail(IUnitOfWork uow, Order order);
-		Result SendUpdToEmail(IUnitOfWork uow, Order order);
-		Result SendUpdToEmailOnFinishIfNeeded(
-			IUnitOfWork uow,
-			Order order,
-			IEmailRepository emailRepository,
-			IOrderRepository orderRepository,
-			IDeliveryScheduleSettings deliveryScheduleSettings);
+		Result SendBillForClosingDocumentOrderToEmailOnFinishIfNeeded(IUnitOfWork unitOfWork, Order order);
+		Result SendBillToEmail(IUnitOfWork unitOfWork, Order order);
+		Result SendUpdToEmail(IUnitOfWork unitOfWork, Order order);
+		Result SendUpdToEmailOnFinishIfNeeded(IUnitOfWork unitOfWork, Order order);
 		Email GetEmailAddressForBill(Order order);
-		OrderDocumentType[] GetRequirementDocTypes(Order order);
-		bool NeedSendBillToEmail(IUnitOfWork uow, Order order, IOrderRepository orderRepository, IEmailRepository emailRepository);
+		OrderDocumentType[] GetRequiredDocumentTypes(Order order);
+		bool NeedSendBillToEmail(IUnitOfWork unitOfWork, Order order);
+		bool NeedResendBillToEmail(IUnitOfWork unitOfWork, Order order);
 	}
 }

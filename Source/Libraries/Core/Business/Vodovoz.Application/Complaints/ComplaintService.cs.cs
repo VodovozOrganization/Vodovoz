@@ -3,7 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Services;
 using System;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz.Application.Complaints

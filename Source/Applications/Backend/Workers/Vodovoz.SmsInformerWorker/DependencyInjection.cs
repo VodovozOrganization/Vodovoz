@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Hosting;
 using Sms.External.Interface;
 using Sms.External.SmsRu;
-using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.SmsInformerWorker.Options;
 using Vodovoz.SmsInformerWorker.Services;
 
@@ -15,7 +14,6 @@ namespace Vodovoz.SmsInformerWorker
 			.AddSingleton<ILowBalanceNotificationService, LowBalanceNotificationService>()
 			.AddSingleton<ISmsSender, SmsRuSendController>()
 			.AddSingleton<ISmsBalanceNotifier, SmsRuSendController>()
-			.AddSingleton<ISmsNotificationRepository, SmsNotificationRepository>()
 			;
 
 		public static IServiceCollection ConfigureSmsInformerWorker(this IServiceCollection services, HostBuilderContext context) => services

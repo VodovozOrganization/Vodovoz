@@ -4,11 +4,13 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Gamma.Utilities;
 using MoreLinq;
+using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Presentation.ViewModels.Reports;
 using Vodovoz.Reports.Editing.Modifiers;
 
 namespace Vodovoz.ViewModels.Reports.Sales

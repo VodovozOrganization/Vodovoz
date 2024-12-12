@@ -21,117 +21,108 @@ namespace Vodovoz.Domain.Client
 	[EntityPermission]
 	public class CounterpartyContract : BusinessObjectBase<CounterpartyContract>, IDomainObject, IValidatableObject
 	{
+		private bool _onCancellation;
+		private bool _isArchive;
+		private int _maxDelay;
+		private int _contractSubNumber;
+		private DateTime _issueDate;
+		private ContractType _contractType;
+		private Organization _organization;
+		private Counterparty _counterparty;
+		private DocTemplate _contractTemplate;
+		private byte[] _changedTemplateFile;
+		private string _number;
+
 		#region Сохраняемые поля
 
 		public virtual int Id { get; set; }
 
-		int maxDelay;
-
 		[Display(Name = "Максимальный срок отсрочки")]
-		public virtual int MaxDelay {
-			get { return maxDelay; }
-			set { SetField(ref maxDelay, value, () => MaxDelay); }
+		public virtual int MaxDelay
+		{
+			get => _maxDelay;
+			set => SetField(ref _maxDelay, value);
 		}
-
-		bool isArchive;
 
 		[Display(Name = "Архивный")]
-		public virtual bool IsArchive {
-			get { return isArchive; }
-			set { SetField(ref isArchive, value, () => IsArchive); }
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
 
-		bool onCancellation;
-
 		[Display(Name = "На расторжении")]
-		public virtual bool OnCancellation {
-			get { return onCancellation; }
-			set { SetField(ref onCancellation, value, () => OnCancellation); }
+		public virtual bool OnCancellation
+		{
+			get => _onCancellation;
+			set => SetField(ref _onCancellation, value);
 		}
 
 		[Display(Name = "Номер")]
-		public virtual string Number {
-			get => String.Format("{0}-{1}", Counterparty.VodovozInternalId, ContractSubNumber);
-			set { }
+		public virtual string Number
+		{
+			get => _number;
+			set => SetField(ref _number, value);
 		}
-
-		DateTime issueDate;
 
 		[Display(Name = "Дата подписания")]
-		public virtual DateTime IssueDate {
-			get { return issueDate; }
-			set { SetField(ref issueDate, value, () => IssueDate); }
+		public virtual DateTime IssueDate
+		{
+			get => _issueDate;
+			set => SetField(ref _issueDate, value);
 		}
-
-		Organization organization;
 
 		[Required(ErrorMessage = "Организация должна быть заполнена.")]
 		[Display(Name = "Организация")]
-		public virtual Organization Organization {
-			get { return organization; }
-			set { SetField(ref organization, value, () => Organization); }
+		public virtual Organization Organization
+		{
+			get => _organization;
+			set => SetField(ref _organization, value);
 		}
-
-		Counterparty counterparty;
 
 		[Required(ErrorMessage = "Контрагент должен быть указан.")]
 		[Display(Name = "Контрагент")]
-		public virtual Counterparty Counterparty {
-			get { return counterparty; }
-			set { SetField(ref counterparty, value, () => Counterparty); }
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
-
-		int contractSubNumber;
 
 		[Display(Name = "Номер договора внутренний")]
-		public virtual int ContractSubNumber {
-			get { return contractSubNumber; }
-			set { SetField(ref contractSubNumber, value, () => ContractSubNumber); }
+		public virtual int ContractSubNumber
+		{
+			get => _contractSubNumber;
+			set => SetField(ref _contractSubNumber, value);
 		}
-
-		ContractType contractType;
 
 		[Display(Name = "Тип договора")]
-		public virtual ContractType ContractType {
-			get { return contractType; }
-			set { SetField(ref contractType, value, () => ContractType); }
+		public virtual ContractType ContractType
+		{
+			get => _contractType;
+			set => SetField(ref _contractType, value);
 		}
-
-		DocTemplate contractTemplate;
 
 		[Display(Name = "Шаблон договора")]
-		public virtual DocTemplate DocumentTemplate {
-			get { return contractTemplate; }
-			protected set { SetField(ref contractTemplate, value, () => DocumentTemplate); }
+		public virtual DocTemplate DocumentTemplate
+		{
+			get => _contractTemplate;
+			protected set => SetField(ref _contractTemplate, value);
 		}
-
-		byte[] changedTemplateFile;
 
 		[Display(Name = "Измененный договор")]
-		//[PropertyChangedAlso("FileSize")]
-		public virtual byte[] ChangedTemplateFile {
-			get { return changedTemplateFile; }
-			set { SetField(ref changedTemplateFile, value, () => ChangedTemplateFile); }
-		}
-
-		[Display(Name = "Полный номер договора")]
-		//FIXME Удалить дублирование в ContractFullNumber, протому как есть аналогичное посто Number
-		public virtual string ContractFullNumber {
-			get => String.Format("{0}-{1}", Counterparty.VodovozInternalId, ContractSubNumber);
-			set { }
+		public virtual byte[] ChangedTemplateFile
+		{
+			get => _changedTemplateFile;
+			set => SetField(ref _changedTemplateFile, value);
 		}
 
 		#endregion
 
 		#region Вычисляемые
 
-		public virtual string Title {
-			get { return String.Format("Договор №{0}-{1} от {2:d}", Counterparty.VodovozInternalId, ContractSubNumber, IssueDate); }
-		}
+		public virtual string Title => $"Договор №{Number} от {IssueDate:d}";
 
-		public virtual string TitleIn1c {
-			get { return String.Format("{0}-{1} от {2:d}", Counterparty.VodovozInternalId, ContractSubNumber, IssueDate); }
-		}
+		public virtual string TitleIn1c => $"{Number} от {IssueDate:d}";
 
 		#endregion
 
@@ -160,23 +151,33 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
-		/// <summary>
-		/// Вычисляет номер для нового договора.
-		/// </summary>
-		/// <returns>Максимальный внутренний номер договора у передаваемого клиента</returns>
-		/// <param name="counterparty">Клиент</param>
-		public virtual void GenerateSubNumber(Counterparty counterparty)
+		public virtual void UpdateNumber()
 		{
-			if(counterparty.CounterpartyContracts.Any())
+			GenerateSubNumber();
+			Number = $"{Counterparty.Id}-{ContractSubNumber}";
+		}
+
+		/// <summary>
+		/// Вычисляет вторую часть номера для нового договора, клиент должен быть установлен
+		/// </summary>
+		/// <returns>Максимальный внутренний номер договора у клиента</returns>
+		public virtual void GenerateSubNumber()
+		{
+			if(Counterparty is null)
 			{
-				ContractSubNumber = counterparty.CounterpartyContracts.Max(c => c.ContractSubNumber) + 1;
+				return;
+			} 
+			
+			if(Counterparty.CounterpartyContracts.Any())
+			{
+				ContractSubNumber = Counterparty.CounterpartyContracts.Max(c => c.ContractSubNumber) + 1;
 			}
 			else
 			{
 				ContractSubNumber = 1;
 			}
 		}
-		
+
 		#region Функции
 
 		/// <summary>
@@ -186,22 +187,29 @@ namespace Vodovoz.Domain.Client
 		/// <param name="uow">Unit of Work.</param>
 		public virtual bool UpdateContractTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository)
 		{
-			if(Organization == null) {
+			if(Organization == null)
+			{
 				DocumentTemplate = null;
 				ChangedTemplateFile = null;
-			} else {
+			}
+			else
+			{
 				var newTemplate = docTemplateRepository.GetTemplate(uow, TemplateType.Contract, Organization, ContractType);
-				if(newTemplate == null) {
+				if(newTemplate == null)
+				{
 					DocumentTemplate = null;
 					ChangedTemplateFile = null;
 					return false;
 				}
-				if(!DomainHelper.EqualDomainObjects(newTemplate, DocumentTemplate)) {
+
+				if(!DomainHelper.EqualDomainObjects(newTemplate, DocumentTemplate))
+				{
 					DocumentTemplate = newTemplate;
 					ChangedTemplateFile = null;
 					return true;
 				}
 			}
+
 			return false;
 		}
 

@@ -2,16 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Errors;
 using Vodovoz.Settings.Delivery;
-using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 
 namespace Vodovoz.Application.Payments
 {
@@ -64,12 +64,12 @@ namespace Vodovoz.Application.Payments
 
 			if(!orderNodes.Any())
 			{
-				return Result.Failure(Errors.Payments.PaymentsDistribution.NoOrdersToDistribute(counterpartyId));
+				return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistribution.NoOrdersToDistribute(counterpartyId));
 			}
 
 			if(!paymentNodes.Any())
 			{
-				return Result.Failure(Errors.Payments.PaymentsDistribution.NoPaymentsWithPositiveBalance(counterpartyId));
+				return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistribution.NoPaymentsWithPositiveBalance(counterpartyId));
 			}
 
 			foreach(var paymentNode in paymentNodes)
@@ -161,7 +161,7 @@ namespace Vodovoz.Application.Payments
 				}
 				catch(Exception e)
 				{
-					return Result.Failure(Errors.Payments.PaymentsDistribution.AutomaticDistribution(e.Message));
+					return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistribution.AutomaticDistribution(e.Message));
 				}
 			}
 

@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
@@ -99,19 +100,18 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var settings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
-
-			return new ReportInfo(connectionString)
-			{
-				Title = this.Title,
-				Identifier = "Documents.BillWithoutShipmentForPayment",
-				Parameters = new Dictionary<string, object> {
-					{ "bill_ws_for_payment_id", Id },
-					{ "special_contract_number", SpecialContractNumber },
-					{ "organization_id", settings.GetCashlessOrganisationId },
-					{ "hide_signature", HideSignature },
-					{ "special", false }
-				}
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Identifier = "Documents.BillWithoutShipmentForPayment";
+			reportInfo.Title = Title;
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "bill_ws_for_payment_id", Id },
+				{ "special_contract_number", SpecialContractNumber },
+				{ "organization_id", settings.GetCashlessOrganisationId },
+				{ "hide_signature", HideSignature },
+				{ "special", false }
 			};
+			return reportInfo;
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
@@ -153,7 +153,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			var image = new EmailAttachment();
 			image.MIMEType = "image/png";
 			image.FileName = "email_ad.png";
-			using(Stream stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Vodovoz.Resources.email_ad.png")) {
+			using(Stream stream = typeof(OrderWithoutShipmentForPayment).Assembly.GetManifestResourceStream("VodovozBusiness.Resources.email_ad.png")) {
 				byte[] buffer = new byte[stream.Length];
 				stream.Read(buffer, 0, buffer.Length);
 				image.Base64Content = Convert.ToBase64String(buffer);

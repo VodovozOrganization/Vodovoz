@@ -204,7 +204,7 @@ namespace Vodovoz.Domain.Logistic
 			ValidationContext context = new ValidationContext(this, new Dictionary<object, object>() {
 				{"Reason", nameof(CreateOperations)}
 			});
-			context.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+			context.InitializeServiceProvider(type => { if (type == typeof(IFuelRepository)) { return fuelRepository; } return null; });
 			string validationMessage = this.RaiseValidationAndGetResult(context);
 			if(!string.IsNullOrWhiteSpace(validationMessage))
 			{

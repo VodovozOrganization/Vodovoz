@@ -1,11 +1,9 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.BusinessCommon.Domain;
-using QS.Helpers;
 using QS.Navigation;
-using QS.Project.Dialogs.GtkUI;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using QSOrmProject;
@@ -14,16 +12,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Representations.ProductGroups;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Nodes;
+using VodovozBusiness.Domain.Orders;
 using Menu = Gtk.Menu;
 using MenuItem = Gtk.MenuItem;
 using ValidationType = QSWidgetLib.ValidationType;
@@ -143,6 +141,17 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			lblSubType.Binding
 				.AddBinding(ViewModel, vm => vm.IsDepositCategory, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelServiceType.Binding
+				.AddBinding(ViewModel, vm => vm.IsMasterCategory, w => w.Visible)
+				.InitializeFromSource();
+
+			enumServiceType.ItemsEnum = typeof(MasterServiceType);			
+			enumServiceType.Binding
+				.AddBinding(ViewModel.Entity, e => e.MasterServiceType, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.IsMasterCategory, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			comboMobileCatalog.ItemsEnum = typeof(MobileCatalog);
@@ -275,16 +284,8 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			yentryProductGroup.JournalButtons = Buttons.Add | Buttons.Edit;
-			yentryProductGroup.RepresentationModel = new ProductGroupVM(ViewModel.UoW, new ProductGroupFilterViewModel
-			{
-				HidenByDefault = false,
-				HideArchive = true
-			});
-			yentryProductGroup.Binding
-				.AddBinding(ViewModel.Entity, e => e.ProductGroup, w => w.Subject)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
+			entityentryProductGroup.ViewModel = ViewModel.ProductGroupEntityEntryViewModel;
+			entityentryProductGroup.Sensitive = ViewModel.CanEdit;
 
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
 			referenceUnit.Binding
@@ -346,6 +347,15 @@ namespace Vodovoz.Views.Goods
 			chkInventoryAccounting.Binding
 				.AddBinding(ViewModel.Entity, e => e.HasInventoryAccounting, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.UserCanCreateNomenclaturesWithInventoryAccounting, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			lblConditionAccounting.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowConditionAccounting, w => w.Visible)
+				.InitializeFromSource();
+			chkConditionAccounting.Binding
+				.AddBinding(ViewModel.Entity, e => e.HasConditionAccounting, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanShowConditionAccounting, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.UserCanEditConditionAccounting, w => w.Sensitive)
 				.InitializeFromSource();
 
 			#region Вкладка Оборудование
@@ -449,15 +459,11 @@ namespace Vodovoz.Views.Goods
 				&& ViewModel.CanEdit;
 			alternativePricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.Alternative;
 
-			#region Вкладка изображения
+			nomenclatureMinimumBalanceByWarehouseView.ViewModel = ViewModel.NomenclatureMinimumBalanceByWarehouseViewModel;
 
-			Imageslist.Sensitive = ViewModel.CanEdit;
-			buttonAddImage.Sensitive = ViewModel.CanEdit;
+			#region Вкладка изображения			
 
-			if(ViewModel.CanEdit)
-			{
-				Imageslist.ImageButtonPressEvent += Imageslist_ImageButtonPressEvent;
-			}
+			attachedfileinformationsview1.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 
 			#endregion
 
@@ -1135,7 +1141,6 @@ namespace Vodovoz.Views.Goods
 		{
 			if(radioImages.Active) {
 				notebook.CurrentPage = 3;
-				ImageTabOpen();
 			}
 		}
 
@@ -1165,74 +1170,7 @@ namespace Vodovoz.Views.Goods
 
 		#endregion
 
-		#region Вкладка изображений
-
-		private void ImageTabOpen()
-		{
-			if(!ViewModel.ImageLoaded) {
-				ReloadImages();
-				ViewModel.ImageLoaded = true;
-			}
-		}
-
-		private void ReloadImages()
-		{
-			Imageslist.Images.Clear();
-
-			foreach(var imageSource in ViewModel.Entity.Images) {
-				Imageslist.AddImage(new Gdk.Pixbuf(imageSource.Image), imageSource);
-			}
-			Imageslist.UpdateList();
-		}
-
-		protected void OnButtonAddImageClicked(object sender, EventArgs e)
-		{
-			FileChooserDialog Chooser = new FileChooserDialog("Выберите изображение...",
-				(Window)this.Toplevel,
-				FileChooserAction.Open,
-				"Отмена", ResponseType.Cancel,
-				"Загрузить", ResponseType.Accept);
-
-			FileFilter Filter = new FileFilter();
-			Filter.AddPixbufFormats();
-			Filter.Name = "Все изображения";
-			Chooser.AddFilter(Filter);
-
-			if((ResponseType)Chooser.Run() == ResponseType.Accept) {
-				Chooser.Hide();
-				logger.Info("Загрузка изображения...");
-
-				var imageFile = ImageHelper.LoadImageToJpgBytes(Chooser.Filename);
-				ViewModel.Entity.Images.Add(new NomenclatureImage(ViewModel.Entity, imageFile));
-				ReloadImages();
-
-				logger.Info("Ok");
-			}
-			Chooser.Destroy();
-		}
-
-		private void Imageslist_ImageButtonPressEvent(object sender, ImageButtonPressEventArgs e)
-		{
-			if((int)e.eventArgs.Event.Button == 3) {
-				ViewModel.PopupMenuOn = (NomenclatureImage)e.Tag;
-				Menu jBox = new Menu();
-				MenuItem MenuItem1 = new MenuItem("Удалить");
-				MenuItem1.Activated += DeleteImage_Activated; ;
-				jBox.Add(MenuItem1);
-				jBox.ShowAll();
-				jBox.Popup();
-			}
-		}
-
-		private void DeleteImage_Activated(object sender, EventArgs e)
-		{
-			ViewModel.DeleteImage();
-			ReloadImages();
-		}
-
-		#endregion
-		
-		private void UnsubscribePricesViews()
+		public override void Destroy()
 		{
 			if(pricesView != null)
 			{

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -26,8 +26,12 @@ using Vodovoz.Tools.Store;
 using Vodovoz.Infrastructure;
 using QS.Navigation;
 using QS.Project.Journal;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Autofac;
+using QS.Report;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -36,13 +40,14 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IStockRepository _stockRepository = new StockRepository();
+		private IEmployeeRepository _employeeRepository;
+		private IStockRepository _stockRepository;
 
 		private SelectableParametersReportFilter _filter;
 
 		public ShiftChangeWarehouseDocumentDlg()
 		{
+			ResolveDependencies();
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
@@ -63,11 +68,18 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		public ShiftChangeWarehouseDocumentDlg(int id)
 		{
+			ResolveDependencies();
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
 			
 			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			ConfigureDlg(storeDocument);
+		}
+
+		private void ResolveDependencies()
+		{
+			_employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+			_stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
 		}
 
 		public ShiftChangeWarehouseDocumentDlg(ShiftChangeWarehouseDocument sub) : this (sub.Id)
@@ -260,12 +272,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(ShiftChangeWarehouseDocument), "акта передачи склада"))
 				Save();
 
-			var reportInfo = new QS.Report.ReportInfo {
-				Title = String.Format("Акт передачи склада №{0} от {1:d}", Entity.Id, Entity.TimeStamp),
-				Identifier = "Store.ShiftChangeWarehouse",
-				Parameters = new Dictionary<string, object> {
-					{ "document_id",  Entity.Id }
-				}
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Title = String.Format("Акт передачи склада №{0} от {1:d}", Entity.Id, Entity.TimeStamp);
+			reportInfo.Identifier = "Store.ShiftChangeWarehouse";
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "document_id",  Entity.Id }
 			};
 
 			TabParent.OpenTab(

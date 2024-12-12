@@ -14,4 +14,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		EmailTemplate GetEmailTemplate();
 		ReportInfo GetReportInfo(string connectionString = null);
 	}
+
+	public interface ICustomResendTemplateEmailableDocument : IEmailableDocument
+	{
+		EmailTemplate GetResendDocumentEmailTemplate();
+	}
 }

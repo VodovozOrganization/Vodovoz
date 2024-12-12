@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
@@ -347,19 +348,27 @@ namespace Vodovoz.ViewModels
 				return;
 			}
 			
-			var roleName = defaultRole.Split(' ')[3];
+			var roleName = defaultRole.Split(' ')[3].Trim('`');
 			Entity.CurrentUserRole = allAvailableUserRoles.SingleOrDefault(x => x.Name == roleName);
 		}
 
 		private void GetUserRoles(IList<UserRole> allAvailableUserRoles)
 		{
-			foreach(var availableUserRole in allAvailableUserRoles)
+			foreach(var userGrant in _userGrants)
 			{
-				var pattern = availableUserRole.SearchingPatternFromUserGrants(Entity.Login);
+				var matches = Regex.Matches(userGrant, UserRole.SearchingPatternFromUserGrants(Entity.Login));
 
-				if(_userGrants.SingleOrDefault(x => x.Contains(pattern)) != null)
+				if(matches.Count <= 0)
 				{
-					Entity.UserRoles.Add(availableUserRole);
+					continue;
+				}
+
+				var userRoleName = matches[0].Groups[1].Value;
+				var userRole = allAvailableUserRoles.SingleOrDefault(x => x.Name == userRoleName);
+					
+				if(userRole != null)
+				{
+					Entity.UserRoles.Add(userRole);
 				}
 			}
 		}

@@ -59,6 +59,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 		public void Dispose()
 		{
 			DashboardViewModel?.Dispose();
+			OperatorViewModel?.Dispose();
 		}
 	}
 }

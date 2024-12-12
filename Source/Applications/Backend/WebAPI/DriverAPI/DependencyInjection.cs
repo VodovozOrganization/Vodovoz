@@ -48,23 +48,10 @@ namespace DriverAPI
 				.AddScoped<IInteractiveMessage, ConsoleInteractiveMessage>()
 				.AddScoped<IInteractiveService, ConsoleInteractiveService>()
 
-				// Репозитории водовоза
-				.AddScoped<ITrackRepository, TrackRepository>()
-				.AddScoped<IComplaintsRepository, ComplaintsRepository>()
-				.AddScoped<IRouteListRepository, RouteListRepository>()
-				.AddScoped<IStockRepository, StockRepository>()
-				.AddScoped<IRouteListItemRepository, RouteListItemRepository>()
-				.AddScoped<IOrderRepository, OrderRepository>()
-				.AddScoped<IEmployeeRepository, EmployeeRepository>()
-				.AddScoped<IFastPaymentRepository, FastPaymentRepository>()
-				.AddScoped<ICarRepository, CarRepository>()
-				.AddScoped<ISubdivisionRepository, SubdivisionRepository>()
-
 				.AddDriverApiLibrary(configuration)
 
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
-				.AddScoped<ICallTaskRepository, CallTaskRepository>()
 				.AddDriverApiHostedServices();
 
 		/// <summary>

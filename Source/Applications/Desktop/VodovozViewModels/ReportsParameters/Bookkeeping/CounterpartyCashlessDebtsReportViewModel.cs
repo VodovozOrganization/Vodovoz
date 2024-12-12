@@ -1,16 +1,18 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Report;
 using QS.Report.ViewModels;
 using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Presentation.ViewModels.Common;
@@ -42,7 +44,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			IGenericRepository<CounterpartySubtype> counterpartySubtypeRepository,
 			IGenericRepository<Counterparty> counterpartyRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
-			RdlViewerViewModel rdlViewerViewModel) : base(rdlViewerViewModel)
+			RdlViewerViewModel rdlViewerViewModel,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));

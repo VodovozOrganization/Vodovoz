@@ -3,6 +3,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using NHibernate;
+using NHibernate.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -16,6 +17,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Printing;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Sale;
@@ -234,6 +236,10 @@ namespace Vodovoz.Dialogs.Logistic
 
 				var selectedRoutesWithFastDelivery = _uow.GetAll<RouteList>()
 					.Where(r => selectedRoutesIds.Contains(r.Id) && r.AdditionalLoadingDocument != null)
+					.FetchMany(x => x.Addresses)
+					.ThenFetch(x => x.Order)
+					.ThenFetch(x => x.Contract)
+					.ThenFetch(x => x.Organization)
 					.Select(r => r.Id)
 					.ToList();
 

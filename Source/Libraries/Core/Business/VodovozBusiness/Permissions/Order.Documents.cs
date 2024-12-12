@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Vodovoz.Settings.Database;
 
 namespace Vodovoz.Permissions
 {
@@ -14,6 +15,15 @@ namespace Vodovoz.Permissions
 				Name = "Изменение дополнительной информации в счете",
 				Description = "Пользователь имеет доступ для изменения дополнительной информации в счете")]
 			public static string CanEditBillAdditionalInfo => nameof(CanEditBillAdditionalInfo);
+
+			/// <summary>
+			/// Ручная переотправка УПД<br/>
+			/// Пользователь может вручную переотправлять УПД
+			/// </summary>
+			[Display(
+				Name = "Ручная переотправка УПД",
+				Description = "Пользователь может вручную переотправлять УПД")]
+			public static string CanManuallyResendUpd => nameof(CanManuallyResendUpd).FromPascalCaseToSnakeCase();
 		}
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
+	//TODO Если не будет обращений по поводу VodInternalId, удалить его из таблицы
 	public class CounterpartyMap : ClassMap<Domain.Client.Counterparty>
 	{
 		public CounterpartyMap()
@@ -33,7 +34,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.PersonType).Column("person_type");
 			Map(x => x.NewBottlesNeeded).Column("need_new_bottles");
 			Map(x => x.DefaultDocumentType).Column("default_document_type");
-			Map(x => x.VodovozInternalId).Column("vod_internal_id").ReadOnly();
 			Map(x => x.UseSpecialDocFields).Column("use_special_doc_fields");
 			Map(x => x.AlwaysPrintInvoice).Column("always_print_invoice");
 			Map(x => x.CargoReceiver).Column("special_cargo_receiver");
@@ -103,6 +103,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			References(x => x.CounterpartySubtype).Column("counterparty_subtype_id");
 			References(x => x.OurOrganizationAccountForBills).Column("our_organization_account_for_bills");
 			References(x => x.Referrer).Column("referrer_id");
+			References(x => x.DefaultAccount).Column("default_account_id");
 
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
@@ -123,7 +124,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.SuplierPriceItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
 				.KeyColumn("supplier_id");
-			HasMany(x => x.Files).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("counterparty_id");
+			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("counterparty_id");
 			HasMany(x => x.CounterpartyEdoOperators).Cascade.AllDeleteOrphan().Inverse().LazyLoad()
 				.KeyColumn("counterparty_id");
 

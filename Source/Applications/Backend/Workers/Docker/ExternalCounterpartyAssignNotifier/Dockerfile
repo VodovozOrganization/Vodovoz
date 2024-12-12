@@ -3,5 +3,5 @@ WORKDIR /app
 
 FROM base AS final
 WORKDIR /app
-COPY ["./bin/Release/net5.0/publish", "."]
+COPY ["./bin/Release/net5.0/linux-x64/publish", "."]
 ENTRYPOINT ["dotnet", "ExternalCounterpartyAssignNotifier.dll"]

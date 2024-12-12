@@ -17,6 +17,17 @@ namespace Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting
 			set => WriteOffOperation = value;
 		}
 		
+		public override bool TrySetIsUsed()
+		{
+			if(InventoryNomenclatureInstance != null && InventoryNomenclatureInstance.Nomenclature.HasConditionAccounting)
+			{
+				InventoryNomenclatureInstance.IsUsed = true;
+				return true;
+			}
+			
+			return base.TrySetIsUsed();
+		}
+		
 		protected override void CreateOrUpdateWriteOffOperation()
 		{
 			if(WriteOffOperation is null)

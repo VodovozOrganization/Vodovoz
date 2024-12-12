@@ -2,7 +2,6 @@
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionRevision' action='ActionRevision'/>
         <toolitem name='ActionExportTo1c' action='ActionExportTo1c'/>
-        <toolitem name='ActionOldExportTo1c' action='ActionOldExportTo1c'/>
         <toolitem name='ActionExportCounterpartiesTo1c' action='ActionExportCounterpartiesTo1c'/>
         <toolitem name='ActionAnalyseCounterpartyDiscrepancies' action='ActionAnalyseCounterpartyDiscrepancies'/>
 	</toolbar>

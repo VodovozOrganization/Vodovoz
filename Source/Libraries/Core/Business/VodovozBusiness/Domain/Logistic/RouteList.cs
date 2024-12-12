@@ -1,17 +1,15 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate.Criterion;
 using QS.Dialog;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Osrm;
 using QS.Project.Services;
 using QS.Report;
 using QS.Utilities.Debug;
-using QS.Utilities.Extensions;
 using QS.Validation;
 using System;
 using System.Collections.Generic;
@@ -20,6 +18,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -62,13 +62,9 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Журнал МЛ",
-		Nominative = "маршрутный лист")]
-	[HistoryTrace]
-	[EntityPermission]
-	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
+	public class RouteList : RouteListEntity, IValidatableObject
 	{
+		public const decimal ConfirmedDistanceLimit = 99_999.99m;
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private static IGeneralSettings _generalSettingsSettingsGap;
 
@@ -80,6 +76,7 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IOrganizationRepository>();
 		private IRouteListRepository _routeListRepository => ScopeProvider.Scope
 			.Resolve<IRouteListRepository>();
+		private IRouteListItemRepository _routeListItemRepository => ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
 		private IDeliveryRulesSettings _deliveryRulesSettings => ScopeProvider.Scope
 			.Resolve<IDeliveryRulesSettings>();
 		private IDeliveryRepository _deliveryRepository => ScopeProvider.Scope
@@ -107,28 +104,19 @@ namespace Vodovoz.Domain.Logistic
 		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
 			.Resolve<INomenclatureRepository>();
 
+		private IPermissionRepository _permissionRepository => ScopeProvider.Scope.Resolve<IPermissionRepository>();
 
 		private CarVersion _carVersion;
 		private Car _car;
 		private RouteListProfitability _routeListProfitability;
-		private DateTime _date;
 		private GenericObservableList<DeliveryFreeBalanceOperation> _observableDeliveryFreeBalanceOperations;
 
 		#region Свойства
 
-		public virtual int Id { get; set; }
-
-		DateTime version;
-		[Display(Name = "Версия")]
-		public virtual DateTime Version {
-			get => version;
-			set => SetField(ref version, value);
-		}
-
 		Employee _driver;
 
 		[Display(Name = "Водитель")]
-		public virtual Employee Driver {
+		public virtual new Employee Driver {
 			get => _driver;
 			set {
 				Employee oldDriver = _driver;
@@ -202,14 +190,6 @@ namespace Vodovoz.Domain.Logistic
 		public virtual DeliveryShift Shift {
 			get => shift;
 			set => SetField(ref shift, value);
-		}
-
-		[Display(Name = "Дата")]
-		[HistoryDateOnly]
-		public virtual DateTime Date
-		{
-			get => _date;
-			set => SetField(ref _date, value);
 		}
 
 		Decimal confirmedDistance;
@@ -926,7 +906,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RemoveAddress(RouteListItem address)
 		{
-			if(!TryRemoveAddress(address, out string message, new RouteListItemRepository()))
+			if(!TryRemoveAddress(address, out string message, _routeListItemRepository))
 				throw new NotSupportedException(string.Format("\n\n{0}\n", message));
 		}
 
@@ -1873,8 +1853,22 @@ namespace Vodovoz.Domain.Logistic
 									{ Order.ValidationKeyIgnoreReceipts, ignoreReceiptsInOrders.Contains(address.Order.Id) }
 								}
 							);
-							orderValidationContext.ServiceContainer.AddService(orderSettings);
-							orderValidationContext.ServiceContainer.AddService(deliveryRulesSettings);
+
+							orderValidationContext.InitializeServiceProvider(type =>
+							{
+								if(type == typeof(IOrderSettings))
+								{
+									return orderSettings;
+								}
+
+								if(type == typeof(IDeliveryRulesSettings))
+								{
+									return deliveryRulesSettings;
+								}
+
+								return null;
+							});
+								
 							validator.Validate(address.Order, orderValidationContext, false);
 
 							foreach(var result in validator.Results)
@@ -1995,6 +1989,12 @@ namespace Vodovoz.Domain.Logistic
 			if(onlineOrders.Any())
 			{
 				yield return new ValidationResult($"В МЛ дублируются номера оплат: {string.Join(", ", onlineOrders)}", new[] { nameof(Addresses) });
+			}
+
+			if(ConfirmedDistance > ConfirmedDistanceLimit)
+			{
+				yield return new ValidationResult($"Подтверждённое расстояние не может быть больше {ConfirmedDistanceLimit}", 
+					new[] { nameof(ConfirmedDistance) });
 			}
 		}
 
@@ -2237,12 +2237,12 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if(Driver != null && Driver.FirstWorkDay == null) {
-				Driver.FirstWorkDay = _date;
+				Driver.FirstWorkDay = Date;
 				UoW.Save(Driver);
 			}
 
 			if(Forwarder != null && Forwarder.FirstWorkDay == null) {
-				Forwarder.FirstWorkDay = _date;
+				Forwarder.FirstWorkDay = Date;
 				UoW.Save(Forwarder);
 			}
 
@@ -2280,7 +2280,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument()
-				&& new PermissionRepository().HasAccessToClosingRoutelist(
+				&& _permissionRepository.HasAccessToClosingRoutelist(
 					UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService)) {
 				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
 				return;
@@ -2305,14 +2305,42 @@ namespace Vodovoz.Domain.Logistic
 			ConfirmAndClose(callTaskWorker);
 		}
 
-		public virtual void AcceptMileage(ICallTaskWorker callTaskWorker)
+		public virtual bool AcceptMileage(ICallTaskWorker callTaskWorker, IValidator validator)
 		{
 			if(Status != RouteListStatus.MileageCheck) {
-				return;
+				return true;
 			}
 
 			RecalculateFuelOutlay();
+
+			if(!TryValidateFuelOperation(validator))
+			{
+				return false;
+			}
+			
 			ConfirmAndClose(callTaskWorker);
+			return true;
+		}
+
+		public virtual bool TryValidateFuelOperation(IValidator validator)
+		{
+			if(FuelOutlayedOperation != null)
+			{
+				var fuelValidationContext =
+					new ValidationContext(
+						FuelOutlayedOperation,
+						new Dictionary<object, object>
+						{
+							{ FuelOperation.DialogMessage, $"Неверный разнос километража в МЛ {Id}"},
+						});
+				
+				if(!validator.Validate(FuelOutlayedOperation, fuelValidationContext))
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		public virtual void UpdateFuelOperation()
@@ -2464,21 +2492,15 @@ namespace Vodovoz.Domain.Logistic
 
 		#endregion
 
-		public RouteList()
-		{
-			_date = DateTime.Today;
-		}
-
 		public virtual ReportInfo OrderOfAddressesRep(int id)
 		{
-			var reportInfo = new ReportInfo {
-				Title = String.Format("Отчёт по порядку адресов в МЛ №{0}", id),
-				Identifier = "Logistic.OrderOfAddresses",
-				Parameters = new Dictionary<string, object> {
-						{ "RouteListId",  id }
-				}
+			var reportInfofactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfofactory.Create();
+			reportInfo.Title = String.Format("Отчёт по порядку адресов в МЛ №{0}", id);
+			reportInfo.Identifier = "Logistic.OrderOfAddresses";
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "RouteListId",  id }
 			};
-
 			return reportInfo;
 		}
 
@@ -2575,7 +2597,9 @@ namespace Vodovoz.Domain.Logistic
 			var wageSettings = ScopeProvider.Scope.Resolve<IWageSettings>();
 			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, wageSettings,
 				premiumRaskatSettings, this);
-			premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
+
+			// Пока отключено по просьбе Маслякова А.Д., https://vod.myalm.ru/pm/Vodovoz/I-5083
+			// premiumRaskatGAZelleWageModel.UpdatePremiumRaskatGAZelle(UoW);
 		}
 
 		#region Для логистических расчетов

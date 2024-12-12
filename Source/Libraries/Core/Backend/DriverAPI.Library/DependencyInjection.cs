@@ -1,25 +1,26 @@
 ﻿using DriverAPI.Library.Helpers;
-using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
+using DriverAPI.Library.V5.Services;
 using EventsApi.Library;
 using EventsApi.Library.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
 using Vodovoz;
 using Vodovoz.Application;
+using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.FirebaseCloudMessaging;
+using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.NotificationRecievers;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
-using Vodovoz.Settings.Common;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories;
-using Vodovoz.Controllers;
-using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
-using DriverAPI.Library.V5.Services;
-using Vodovoz.FirebaseCloudMessaging;
-using Microsoft.Extensions.Configuration;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.NotificationRecievers;
-using Vodovoz.Core.Domain.Common;
 
 namespace DriverAPI.Library
 {
@@ -57,21 +58,13 @@ namespace DriverAPI.Library
 
 			services.AddBusiness(configuration)
 				.AddApplication()
+				.AddInfrastructure()
 				.AddDatabaseSettings()
 				.AddDriverEventsDependencies()
 				.AddFirebaseCloudMessaging(configuration);
 
 			services
-				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-				.AddScoped<ICashReceiptRepository, CashReceiptRepository>()
-				.AddScoped<IEmailRepository, EmailRepository>()
-				.AddScoped<IEmployeeRepository, EmployeeRepository>()
 				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>()
-				.AddScoped<IPaymentItemsRepository, PaymentItemsRepository>()
-				.AddScoped<IOrderRepository, OrderRepository>()
-				.AddScoped<IPaymentsRepository, PaymentsRepository>()
-				.AddScoped<IUndeliveredOrdersRepository, UndeliveredOrdersRepository>()
-				.AddScoped<ICashRepository, CashRepository>()
 				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
 
 			return services;

@@ -17,9 +17,10 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CarLoadDocumentView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly IStockRepository _stockRepository = new StockRepository();
+		private readonly IStockRepository _stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
 		private readonly IRouteListRepository _routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
 		private readonly ISubdivisionRepository _subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
+		private bool _isCanEditDocument;
 
 		public CarLoadDocumentView()
 		{
@@ -35,7 +36,14 @@ namespace Vodovoz
 				.AddColumn("Отгружаемое кол-во").AddNumericRenderer(x => x.Amount ).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
-				.AddSetter((w, x) => w.ForegroundGdk = CalculateAmountAndColor(x))
+				.AddSetter((w, x) =>
+				{
+					if(_isCanEditDocument)
+					{
+						w.ForegroundGdk = CalculateAmountAndColor(x);
+					}
+				})
+				.AddColumn("Заказ").AddNumericRenderer(x => x.OrderId)
 				.AddColumn("")
 				.Finish();
 
@@ -50,9 +58,10 @@ namespace Vodovoz
 			}
 		}
 
-		public void SetButtonEditing(bool isEditing)
+		public void SetIsCanEditDocument(bool isEditable)
 		{
-			buttonFillAllItems.Sensitive = buttonFillWarehouseItems.Sensitive = isEditing;
+			_isCanEditDocument = isEditable;
+			buttonFillAllItems.Sensitive = buttonFillWarehouseItems.Sensitive = isEditable;
 		}
 
 		void YtreeviewItems_Selection_Changed(object sender, EventArgs e)

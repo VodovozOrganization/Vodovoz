@@ -6,6 +6,8 @@
 		int GetHumanResourcesSubdivisionId { get; }
 		int QualityServiceSubdivisionId { get; }
 		int AuditDepartmentSubdivisionId { get; }
+		int CashSubdivisionBCId { get; }
+		int CashSubdivisionBCSofiyaId { get; }
 
 		int GetOkkId();
 		int GetSubdivisionIdForRouteListAccept();

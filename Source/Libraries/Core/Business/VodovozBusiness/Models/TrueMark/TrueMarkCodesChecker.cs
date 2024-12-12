@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
@@ -18,7 +19,10 @@ namespace Vodovoz.Models.TrueMark
 		private readonly TrueMarkWaterCodeParser _codeParser;
 		private readonly TrueMarkApiClient _trueMarkClient;
 
-		public TrueMarkCodesChecker(ILogger<TrueMarkCodesChecker> logger, TrueMarkWaterCodeParser codeParser, TrueMarkApiClient trueMarkClient)
+		public TrueMarkCodesChecker(
+			ILogger<TrueMarkCodesChecker> logger,
+			TrueMarkWaterCodeParser codeParser,
+			TrueMarkApiClient trueMarkClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_codeParser = codeParser ?? throw new ArgumentNullException(nameof(codeParser));
@@ -30,17 +34,19 @@ namespace Vodovoz.Models.TrueMark
 			var result = new List<TrueMarkProductCheckResult>();
 
 			var validCodes = codes.Where(x => x.IsValid);
-			var codesDic = validCodes.ToDictionary(x => x.SourceCode);
+			var sourceCodesDic = validCodes.ToDictionary(x => x.SourceCode);
 
-			var checkResults = await CheckCodesAsync(codesDic.Keys, cancellationToken);
+			var checkResults = await CheckCodesAsync(sourceCodesDic.Keys, cancellationToken);
+
 			foreach(var checkResult in checkResults)
 			{
-				if(!codesDic.TryGetValue(checkResult.Code, out CashReceiptProductCode productCode))
+				if(!sourceCodesDic.TryGetValue(checkResult.Code, out CashReceiptProductCode productCode))
 				{
 					throw new TrueMarkException($"Невозможно найти код {checkResult.Code.RawCode} в списке отправленных на проверку.");
 				}
 
-				var productCheckResult = new TrueMarkProductCheckResult {
+				var productCheckResult = new TrueMarkProductCheckResult
+				{
 					Code = productCode,
 					Introduced = checkResult.Introduced,
 					OwnerInn = checkResult.OwnerInn,
@@ -83,7 +89,7 @@ namespace Vodovoz.Models.TrueMark
 
 			var productInstancesInfo = await _trueMarkClient.GetProductInstanceInfoAsync(productCodes.Keys, cancellationToken);
 
-			if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage))
+			if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage) && !productInstancesInfo.InstanceStatuses.Any())
 			{
 				throw new TrueMarkException($"Не удалось получить информацию о состоянии товаров в системе Честный знак. Подробности: {productInstancesInfo.ErrorMessage}");
 			}
@@ -91,20 +97,19 @@ namespace Vodovoz.Models.TrueMark
 			foreach(var instanceStatus in productInstancesInfo.InstanceStatuses)
 			{
 				var codeFound = productCodes.TryGetValue(instanceStatus.IdentificationCode, out TrueMarkWaterIdentificationCode code);
+
 				if(!codeFound)
 				{
 					continue;
 				}
 
-				var resultItem = new TrueMarkCheckResult
+				result.Add(new TrueMarkCheckResult
 				{
 					Code = code,
 					Introduced = instanceStatus.Status == ProductInstanceStatusEnum.Introduced,
 					OwnerInn = instanceStatus.OwnerInn,
 					OwnerName = instanceStatus.OwnerName
-
-				};
-				result.Add(resultItem);
+				});
 			}
 
 			return result;

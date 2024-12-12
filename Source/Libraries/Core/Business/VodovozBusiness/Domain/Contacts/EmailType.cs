@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -50,8 +51,22 @@ namespace Vodovoz.Domain.Contacts
 			ValidationContext context = new ValidationContext(this, new Dictionary<object, object> {
 				{"Reason", nameof(ConfigureValidationContext)}
 			});
-			context.ServiceContainer.AddService(typeof(IUnitOfWork), uow);
-			context.ServiceContainer.AddService(typeof(IEmailRepository), emailRepository);
+
+			context.InitializeServiceProvider(type =>
+			{
+				if(type == typeof(IUnitOfWork))
+				{
+					return uow;
+				}
+
+				if (type == typeof(IEmailRepository))
+				{
+					return emailRepository;
+				}
+
+				return null;
+			});
+
 			return context;
 		}
 

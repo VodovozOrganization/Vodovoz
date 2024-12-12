@@ -17,6 +17,7 @@ namespace Vodovoz.Domain.Logistic
 	[HistoryTrace]
 	public class DeliverySchedule: PropertyChangedBase, IDomainObject, IValidatableObject, IRoboatsEntity
 	{
+		public const string FastDelivery = "Доставка за час";
 		private string _name;
 		private TimeSpan _from;
 		private TimeSpan _to;

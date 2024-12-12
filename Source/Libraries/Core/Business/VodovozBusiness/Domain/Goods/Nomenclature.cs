@@ -1,14 +1,18 @@
-﻿using Gamma.Utilities;
+using Autofac;
+using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -16,15 +20,11 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Goods
 {
-	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "номенклатуры",
-		Nominative = "номенклатура")]
-	[EntityPermission]
-	[HistoryTrace]
-	public class Nomenclature : BusinessObjectBase<Nomenclature>, INamedDomainObject, INamed, IArchivable, IValidatableObject
+	public class Nomenclature : NomenclatureEntity, IArchivable, IValidatableObject
 	{
 		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
 		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
@@ -34,9 +34,10 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
-		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
+		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;		
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
+		private bool _hasConditionAccounting;
 		private GlassHolderType? _glassHolderType;
 		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
 		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
@@ -61,18 +62,13 @@ namespace Vodovoz.Domain.Goods
 		private TapType? _tapType;
 		private bool _isSparklingWater;
 
-		private int _id;
-
 		private decimal _length;
 		private decimal _width;
 		private decimal _height;
 		private IList<NomenclatureOnlineParameters> _nomenclatureOnlineParameters = new List<NomenclatureOnlineParameters>();
 
-		private bool _isAccountableInTrueMark;
-		private string _gtin;
 		private DateTime? _createDate;
 		private User _createdBy;
-		private string _name;
 		private string _officialName;
 		private bool _isArchive;
 		private bool _isDiler;
@@ -114,7 +110,6 @@ namespace Vodovoz.Domain.Goods
 		private string _bottleCapColor;
 		private OnlineStore _onlineStore;
 		private ProductGroup _productGroup;
-		private IList<NomenclatureImage> _images = new List<NomenclatureImage>();
 
 		private string _onlineStoreExternalId;
 		private Counterparty _shipperCounterparty;
@@ -153,19 +148,9 @@ namespace Vodovoz.Domain.Goods
 		private ProductivityUnits? _coolingProductivityUnits;
 		private ProductivityComparisionSign? _heatingProductivityComparisionSign;
 		private ProductivityComparisionSign? _coolingProductivityComparisionSign;
-		
-		public Nomenclature()
-		{
-			Category = NomenclatureCategory.water;
-		}
+		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse = new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
 
 		#region Свойства
-
-		public virtual int Id
-		{
-			get => _id;
-			set => SetField(ref _id, value);
-		}
 
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate
@@ -179,13 +164,6 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _createdBy;
 			set => SetField(ref _createdBy, value);
-		}
-
-		[Display(Name = "Название")]
-		public virtual string Name
-		{
-			get => _name;
-			set => SetField(ref _name, value);
 		}
 
 		[Display(Name = "Официальное название")]
@@ -366,7 +344,7 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		[Display(Name = "Категория")]
-		public virtual NomenclatureCategory Category
+		public virtual new NomenclatureCategory Category
 		{
 			get => _category;
 			set
@@ -387,6 +365,10 @@ namespace Vodovoz.Domain.Goods
 					{
 						SaleCategory = null;
 					}
+					if(value != NomenclatureCategory.master)
+					{
+						MasterServiceType = null;
+					}
 				}
 			}
 		}
@@ -403,6 +385,13 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _typeOfDepositCategory;
 			set => SetField(ref _typeOfDepositCategory, value);
+		}
+
+		[Display(Name = "Тип выезда мастера")]
+		public virtual MasterServiceType? MasterServiceType
+		{
+			get => _masterServiceType;
+			set => SetField(ref _masterServiceType, value);
 		}
 
 		[Display(Name = "Цвет оборудования")]
@@ -553,13 +542,6 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _productGroup, value);
 		}
 
-		[Display(Name = "Изображения")]
-		public virtual IList<NomenclatureImage> Images
-		{
-			get => _images;
-			set => SetField(ref _images, value);
-		}
-
 		[Display(Name = "Каталог в мобильном приложении")]
 		public virtual MobileCatalog MobileCatalog
 		{
@@ -643,28 +625,28 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _innerDeliveryPrices, value);
 		}
 
+		[Display(Name = "Минимальный остаток на складе ")]
+		public virtual IObservableList<NomenclatureMinimumBalanceByWarehouse> NomenclatureMinimumBalancesByWarehouse
+		{
+			get => _nomenclatureMinimumBalancesByWarehouse;
+			set => SetField(ref _nomenclatureMinimumBalancesByWarehouse, value);
+		}
+
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
-
-		[Display(Name = "Подлежит учету в Честном Знаке")]
-		public virtual bool IsAccountableInTrueMark
-		{
-			get => _isAccountableInTrueMark;
-			set => SetField(ref _isAccountableInTrueMark, value);
-		}
-
-		[Display(Name = "Номер товарной продукции GTIN")]
-		public virtual string Gtin
-		{
-			get => _gtin;
-			set => SetField(ref _gtin, value);
-		}
 
 		[Display(Name = "Инвентарный учет")]
 		public virtual bool HasInventoryAccounting
 		{
 			get => _hasInventoryAccounting;
 			set => SetField(ref _hasInventoryAccounting, value);
+		}
+		
+		[Display(Name = "Учет состояния ТМЦ(б/у | Нов)")]
+		public virtual bool HasConditionAccounting
+		{
+			get => _hasConditionAccounting;
+			set => SetField(ref _hasConditionAccounting, value);
 		}
 
 		[Display(Name = "Тип стаканодержателя")]
@@ -1174,13 +1156,24 @@ namespace Vodovoz.Domain.Goods
 			return false;
 		}
 
+		public virtual decimal GetPurchasePriceOnDate(DateTime date)
+		{
+			var purchasePrice =
+				PurchasePrices
+				.Where(p => p.StartDate <= date && (p.EndDate == null || p.EndDate >= date))
+				.Select(p => p.PurchasePrice)
+				.FirstOrDefault();
+
+			return purchasePrice;
+		}
+
 		#endregion Методы
 
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!(validationContext.ServiceContainer.GetService(
+			if(!(validationContext.GetService(
 				typeof(INomenclatureRepository)) is INomenclatureRepository nomenclatureRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(nomenclatureRepository)}");
@@ -1358,6 +1351,7 @@ namespace Vodovoz.Domain.Goods
 
 		public static string PrefixOfCode1c = "ДВ";
 		public static int LengthOfCode1c = 10;
+		private MasterServiceType? _masterServiceType;
 
 		/// <summary>
 		/// Категории товаров к которым применима категория продажи

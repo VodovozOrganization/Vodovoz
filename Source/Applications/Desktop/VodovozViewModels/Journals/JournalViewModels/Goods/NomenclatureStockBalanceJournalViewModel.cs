@@ -244,6 +244,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				);
 			}
 
+			NomenclatureMinimumBalanceByWarehouse nomenclatureMinimumBalanceByWarehouseAlias = null;
+
+			var minWarehouseBalanceSubquery = QueryOver.Of(() => nomenclatureMinimumBalanceByWarehouseAlias)
+				.Where(() => nomenclatureMinimumBalanceByWarehouseAlias.Nomenclature.Id == nomenclatureAlias.Id);
+
+			if(_filterViewModel.Warehouse != null)
+			{
+				minWarehouseBalanceSubquery.Where(() => nomenclatureMinimumBalanceByWarehouseAlias.Warehouse.Id == _filterViewModel.Warehouse.Id);
+			};
+
+			minWarehouseBalanceSubquery
+			.Select(
+				Projections.Conditional(
+					Restrictions.IsNull(Projections.Property(() => nomenclatureMinimumBalanceByWarehouseAlias.Id)),
+					Projections.Cast(NHibernateUtil.Int32, Projections.Property(() => nomenclatureAlias.MinStockCount)),
+					Projections.Max(() => nomenclatureMinimumBalanceByWarehouseAlias.MinimumBalance)
+				));
+
 			queryStock.Where(
 				GetSearchCriterion(
 					() => nomenclatureAlias.Name,
@@ -257,7 +275,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-					.Select(() => nomenclatureAlias.MinStockCount).WithAlias(() => resultAlias.MinNomenclatureAmount)
+					.SelectSubQuery(minWarehouseBalanceSubquery).WithAlias(() => resultAlias.MinNomenclatureAmount)
 					.Select(() => nomenclatureAlias.HasInventoryAccounting).WithAlias(() => resultAlias.HasInventoryAccounting)
 					.Select(() => measurementUnitsAlias.Name).WithAlias(() => resultAlias.UnitName)
 					.Select(() => measurementUnitsAlias.Digits).WithAlias(() => resultAlias.UnitDigits)

@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -48,7 +49,7 @@ namespace Vodovoz
 			_nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 			_nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
 			_carLoadDocumentRepository = ScopeProvider.Scope.Resolve<ICarLoadDocumentRepository>();
-			_carUnloadRepository = new CarUnloadRepository();
+			_carUnloadRepository = ScopeProvider.Scope.Resolve<ICarUnloadRepository>();
 			_subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 
 			Build();
@@ -301,7 +302,7 @@ namespace Vodovoz
 			{
 				_userHasOnlyAccessToWarehouseAndComplaints =
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						"user_have_access_only_to_warehouse_and_complaints")
+						Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 

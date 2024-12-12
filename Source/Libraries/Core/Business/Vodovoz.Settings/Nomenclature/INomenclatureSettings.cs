@@ -32,5 +32,6 @@
 		int NomenclatureToAddWithMasterId { get; }
 		int ForfeitId { get; }
 		int FastDeliveryNomenclatureId { get; }
+		int MasterCallNomenclatureId { get; }
 	}
 }

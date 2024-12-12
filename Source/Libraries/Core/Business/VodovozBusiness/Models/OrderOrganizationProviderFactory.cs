@@ -7,7 +7,7 @@ using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Models
 {
-	public class OrderOrganizationProviderFactory
+	public class OrderOrganizationProviderFactory : IOrderOrganizationProviderFactory
 	{
 		private readonly ILifetimeScope _scope;
 

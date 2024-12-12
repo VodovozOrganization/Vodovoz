@@ -1,26 +1,27 @@
-﻿using QS.Dialog;
+﻿using DateTimeHelpers;
+using Gamma.Utilities;
+using QS.Commands;
+using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
+using QS.Report;
 using QS.Report.ViewModels;
+using QS.Services;
 using QS.ViewModels.Widgets;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
+using Vodovoz.Reports.Editing;
+using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
-using Gamma.Utilities;
-using Vodovoz.Domain.Logistic;
-using QS.Report;
-using System.Linq;
-using Vodovoz.Reports.Editing.Modifiers;
-using QS.Commands;
-using System.Reflection;
-using System.IO;
-using Vodovoz.Reports.Editing;
-using QS.DomainModel.Entity;
-using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -53,9 +54,24 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IEmployeeRepository employeeRepository,
 			IInteractiveService interactiveService,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
-			ILeftRightListViewModelFactory leftRightListViewModelFactory)
-			: base(rdlViewerViewModel)
+			ILeftRightListViewModelFactory leftRightListViewModelFactory,
+			IReportInfoFactory reportInfoFactory,
+			IUserService userService,
+			ICurrentPermissionService currentPermissionService
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
+			if(userService is null)
+			{
+				throw new ArgumentNullException(nameof(userService));
+			}
+
+			if(currentPermissionService is null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+
+			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports);
+
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
@@ -70,10 +86,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_unitOfWork.Session.DefaultReadOnly = true;
 
 			_userIsSalesRepresentative =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+				&& !userService.GetCurrentUser().IsAdmin;
 
-			_canSeePhones = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
+			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
 
 			SetupFilter();
 
@@ -131,20 +147,18 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		{
 			get
 			{
-				var reportInfo = new ReportInfo
-				{
-					Source = _source,
-					Parameters = Parameters,
-					Title = Title,
-					UseUserVariables = true
-				};
+				var reportInfo = base.ReportInfo;
+				reportInfo.Source = _source;
+				reportInfo.UseUserVariables = true;
 				return reportInfo;
 			}
 		}
 
+		public bool CanAccessSalesReports { get; }
+
 		private void SetupFilter()
 		{
-			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, !_userIsSalesRepresentative && CanAccessSalesReports);
 
 			var additionalParams = new Dictionary<string, string>
 			{
@@ -215,23 +229,30 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				groupCounter++;
 			}
 
-            return result;
+			return result;
 		}
 
 		private void GenerateReport()
 		{
 			if(StartDate == null || StartDate == default(DateTime))
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату начала выборки");
+				return;
+			}
+			
+			if(EndDate == null || EndDate == default(DateTime))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату окончания выборки");
+				return;
 			}
 
 			_parameters = FilterViewModel.GetReportParametersSet();
-			_parameters.Add("start_date", StartDate.Value.ToString(DateTimeFormats.QueryDateTimeFormat));
-			_parameters.Add("end_date", EndDate.Value.LatestDayTime().ToString(DateTimeFormats.QueryDateTimeFormat));
+			_parameters.Add("start_date", StartDate?.ToString(DateTimeFormats.QueryDateTimeFormat));
+			_parameters.Add("end_date", EndDate?.LatestDayTime().ToString(DateTimeFormats.QueryDateTimeFormat));
 			_parameters.Add("creation_date", DateTime.Now);
 			_parameters.Add("show_phones", ShowPhones);
 
-			if(_userIsSalesRepresentative)
+			if(_userIsSalesRepresentative || !CanAccessSalesReports)
 			{
 				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(_unitOfWork);
 

@@ -26,6 +26,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.OnlineOrder).Column("online_order_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.PromoSet).Column("promo_set_id");
+			References(x => x.DiscountReason).Column("discount_reason_id");
 		}
 	}
 }

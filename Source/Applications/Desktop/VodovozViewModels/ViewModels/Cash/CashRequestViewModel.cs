@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 {
 	public class CashRequestViewModel : EntityTabViewModelBase<CashRequest>, IAskSaveOnCloseViewModel
 	{
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICashRepository _cashRepository;
 		private readonly HashSet<CashRequestSumItem> _sumsGiven = new HashSet<CashRequestSumItem>();
 		private readonly ILifetimeScope _scope;
@@ -53,16 +54,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ICashRequestForDriverIsGivenForTakeNotificationReciever cashRequestForDriverIsGivenForTakeNotificationReciever)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			if(employeeRepository is null)
-			{
-				throw new ArgumentNullException(nameof(employeeRepository));
-			}
-
 			if(navigation is null)
 			{
 				throw new ArgumentNullException(nameof(navigation));
 			}
-
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 
 			IsNewEntity = uowBuilder?.IsNewEntity ?? throw new ArgumentNullException(nameof(uowBuilder));
@@ -88,7 +84,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				Dispose();
 				throw new AbortCreatingPageException("Нет прав для открытия диалога", "Невозможно открыть");
 			}
-			
+
 			IsRoleChooserSensitive = UserRoles.Count() > 1;
 			UserRole = UserRoles.First();
 
@@ -133,15 +129,23 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				e => e.ExpenseCategoryId,
 				() => FinancialExpenseCategory);
 
-			ApproveCommand = new DelegateCommand(() =>
-				{
-					ChangeStateAndSave(PayoutRequestState.Agreed);
-				},
-				() => true);
-
 			AcceptCommand = new DelegateCommand(() =>
 				{
 					ChangeStateAndSave(PayoutRequestState.Submited);
+					ShowInfoMessage($"Ваша заявка передана на согласование {AuthorsSubdivisionChiefName}");
+				},
+				() => true);
+
+			SubdivisionChiefApproveCommand = new DelegateCommand(() =>
+				{
+					ChangeStateAndSave(PayoutRequestState.AgreedBySubdivisionChief);
+				},
+				() => CanSubdivisionChiefApprove);
+			SubdivisionChiefApproveCommand.CanExecuteChangedWith(this, x => x.CanSubdivisionChiefApprove);
+
+			ApproveCommand = new DelegateCommand(() =>
+				{
+					ChangeStateAndSave(PayoutRequestState.Agreed);
 				},
 				() => true);
 
@@ -307,6 +311,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => VisibleOnlyForStatusUpperThanCreated);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanSeeGiveSum);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanAccept);
+			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanSubdivisionChiefApprove);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanApprove);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanConveyForResults);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanReturnToRenegotiation);
@@ -329,7 +334,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public DelegateCommand<(CashRequestSumItem, decimal)> GiveSumPartiallyCommand { get; }
 
-		public string StateName => Entity.PayoutRequestState.GetEnumTitle();
+		private string AuthorsSubdivisionChiefName =>
+			Entity.Author?.Subdivision?.Chief?.ShortName ?? "Руководитель не указан";
+
+		public string StateName =>
+			Entity.PayoutRequestState == PayoutRequestState.Submited
+			? $"{Entity.PayoutRequestState.GetEnumTitle()}. Ожидает согласования {AuthorsSubdivisionChiefName}"
+			: Entity.PayoutRequestState.GetEnumTitle();
 
 		public bool CanExecuteGive(CashRequestSumItem sumItem)
 		{
@@ -402,11 +413,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				OnPropertyChanged(() => VisibleOnlyForFinancer);
 				OnPropertyChanged(() => CanSeeGiveSum);
 				OnPropertyChanged(() => CanGiveSum);
+				OnPropertyChanged(() => CanSubdivisionChiefApprove);
 				OnPropertyChanged(() => CanApprove);
 				OnPropertyChanged(() => CanConveyForResults);
+				OnPropertyChanged(() => CanReturnToRenegotiation);
 				OnPropertyChanged(() => CanCancel);
 				OnPropertyChanged(() => CanConfirmPossibilityNotToReconcilePayments);
 				OnPropertyChanged(() => ExpenseCategoryVisibility);
+				OnPropertyChanged(() => CanAddSum);
 			}
 		}
 
@@ -475,24 +489,40 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public bool CanAccept => Entity.PayoutRequestState == PayoutRequestState.New
 							  || Entity.PayoutRequestState == PayoutRequestState.OnClarification;
 
-		//Согласовать
-		public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.Submited
-							   && UserRole == PayoutRequestUserRole.Coordinator;
+		//Согласовать руководителем отдела
+		public bool CanSubdivisionChiefApprove =>
+			Entity.PayoutRequestState == PayoutRequestState.Submited
+			&& UserRole == PayoutRequestUserRole.SubdivisionChief;
+
+		//Согласовать исполнительным директором
+		public bool CanApprove =>
+			(Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief || Entity.PayoutRequestState == PayoutRequestState.Submited)
+			&& UserRole == PayoutRequestUserRole.Coordinator;
 
 		public bool CanConveyForResults => UserRole == PayoutRequestUserRole.Financier
 										&& Entity.PayoutRequestState == PayoutRequestState.Agreed;
 
-		public bool CanReturnToRenegotiation => Entity.PayoutRequestState == PayoutRequestState.Agreed
-											 || Entity.PayoutRequestState == PayoutRequestState.GivenForTake
-											 || Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed
-											 || Entity.PayoutRequestState == PayoutRequestState.Canceled;
+		public bool CanReturnToRenegotiation =>
+			(Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
+				|| Entity.PayoutRequestState == PayoutRequestState.Agreed
+				|| Entity.PayoutRequestState == PayoutRequestState.GivenForTake
+				|| Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed)
+			&& UserRole != PayoutRequestUserRole.RequestCreator
+			|| Entity.PayoutRequestState == PayoutRequestState.Canceled;
 
 		public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submited
 							  || Entity.PayoutRequestState == PayoutRequestState.OnClarification
-							  || Entity.PayoutRequestState == PayoutRequestState.Agreed
-							  && UserRole == PayoutRequestUserRole.Coordinator
+							  || ((Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief || Entity.PayoutRequestState == PayoutRequestState.Agreed)
+							  && (UserRole == PayoutRequestUserRole.SubdivisionChief || UserRole == PayoutRequestUserRole.Coordinator))
 							  || Entity.PayoutRequestState == PayoutRequestState.GivenForTake
 							  && UserRole == PayoutRequestUserRole.Coordinator;
+
+		public bool CanAddSum =>
+			(Entity.PayoutRequestState == PayoutRequestState.New
+			|| Entity.PayoutRequestState == PayoutRequestState.OnClarification
+			|| Entity.PayoutRequestState == PayoutRequestState.Submited
+			|| UserRole == PayoutRequestUserRole.Coordinator)
+			&& !IsSecurityServiceRole;
 
 		#endregion Permissions
 
@@ -517,6 +547,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				roles.Add(PayoutRequestUserRole.Financier);
 			}
 
+			if(IsAuthorSubdivisionControlledByCurrentEmployee() || CurrentUser.IsAdmin)
+			{
+				roles.Add(PayoutRequestUserRole.SubdivisionChief);
+			}
+
 			if(CheckRole("role_coordinator_cash_request", userId))
 			{
 				roles.Add(PayoutRequestUserRole.Coordinator);
@@ -538,6 +573,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 
 			return roles;
+		}
+
+		private bool IsAuthorSubdivisionControlledByCurrentEmployee()
+		{
+			var subdivisionsControlledByCurrentEmployee =
+				_employeeRepository.GetControlledByEmployeeSubdivisionIds(UoW, CurrentEmployee.Id);
+
+			return subdivisionsControlledByCurrentEmployee.Contains(Entity.Author?.Subdivision?.Id ?? -1);
 		}
 
 		private void CreateNewExpenseForItem(CashRequestSumItem sumItem, decimal sum)
@@ -611,6 +654,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		}
 
 		public DelegateCommand AcceptCommand { get; }
+		public DelegateCommand SubdivisionChiefApproveCommand { get; }
 
 		public DelegateCommand ApproveCommand { get; }
 

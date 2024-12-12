@@ -1,21 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Project.Services;
-using QS.Report;
-using QSReport;
-using Vodovoz.Domain.Sale;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
-	public partial class FuelConsumptionReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class FuelConsumptionReport : ViewBase<FuelConsumptionReportViewModel>
 	{
-		GenericObservableList<GeoGroup> geographicGroups;
-
-		public FuelConsumptionReport(bool orderById = false)
+		public FuelConsumptionReport(FuelConsumptionReportViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			ConfigureDlg();
@@ -23,53 +13,22 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		void ConfigureDlg()
 		{
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-			geographicGroup.UoW = UoW;
+			dateperiodpicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			chkDetailed.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Detailed, w => w.Active)
+				.InitializeFromSource();
+
+			geographicGroup.UoW = ViewModel.UoW;
 			geographicGroup.Label = "Часть города:";
-			geographicGroups = new GenericObservableList<GeoGroup>();
-			geographicGroup.Items = geographicGroups;
-			foreach(var gg in UoW.Session.QueryOver<GeoGroup>().List())
-				geographicGroups.Add(gg);
-		}
+			geographicGroup.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.GeoGroups, w => w.Items)
+				.InitializeFromSource();
 
-		#region IParametersWidget implementation
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		public string Title => "Отчет по выдаче топлива по МЛ";
-
-		#endregion
-
-		private int[] GetResultIds(IEnumerable<int> ids)
-		{
-			return ids.Any() ? ids.ToArray() : new int[] { 0 };
-		}
-
-		void OnUpdate(bool hide = false)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
-		private ReportInfo GetReportInfo()
-		{
-			return new ReportInfo {
-				Identifier = chkDetailed.Active ? "Logistic.FuelConsumptionDetailedReport" : "Logistic.FuelConsumptionReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "geo_group_ids", GetResultIds(geographicGroups.Select(g => g.Id)) }
-				}
-			};
-		}
-
-		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
-		{
-			if(dateperiodpicker.StartDateOrNull == null) {
-				MessageDialogHelper.RunErrorDialog("Необходимо выбрать дату");
-				return;
-			}
-			OnUpdate(true);
+			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }

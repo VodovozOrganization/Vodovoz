@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gtk;
 using QS.Project.Services;
 using QS.Tdi;
@@ -9,9 +9,13 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.FastPayments;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Complaints;
 using Vodovoz.Settings.Delivery;
@@ -29,45 +33,59 @@ namespace Vodovoz.SidePanel
 	{
 		public static Widget Create(PanelViewType type)
 		{
+			var orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
+
 			switch(type)
 			{
 				case PanelViewType.CounterpartyView:
-					return new CounterpartyPanelView(ServicesConfig.CommonServices);
+					return new CounterpartyPanelView(ServicesConfig.CommonServices, orderRepository);
 				case PanelViewType.DeliveryPointView:
-					return new DeliveryPointPanelView(ServicesConfig.CommonServices);
+					var deliveryPointRepository = ScopeProvider.Scope.Resolve<IDeliveryPointRepository>();
+					var bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
+					var depositRepository = ScopeProvider.Scope.Resolve<IDepositRepository>();
+					return new DeliveryPointPanelView(ServicesConfig.CommonServices, deliveryPointRepository, bottlesRepository, depositRepository, orderRepository);
 				case PanelViewType.DeliveryPricePanelView:
 					var deliveryPriceCalculator = ScopeProvider.Scope.Resolve<IDeliveryPriceCalculator>();
 					return new DeliveryPricePanelView(deliveryPriceCalculator);
 				case PanelViewType.UndeliveredOrdersPanelView:
-					return new UndeliveredOrdersPanelView();
+					var undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
+					return new UndeliveredOrdersPanelView(undeliveredOrdersRepository);
 				case PanelViewType.EmailsPanelView:
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
 					var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
+					var employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
 					return new CallTaskPanelView(
 						employeeSettings,
-						new EmployeeRepository(),
+						employeeRepository,
 						ServicesConfig.CommonServices);
 				case PanelViewType.ComplaintPanelView:
 					var complaintSettigs = ScopeProvider.Scope.Resolve<IComplaintSettings>();
-					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository(), complaintSettigs);
+					var complaintsRepository = ScopeProvider.Scope.Resolve<IComplaintsRepository>();
+					var complaintResultsRepository = ScopeProvider.Scope.Resolve<IComplaintResultsRepository>();
+					return new ComplaintPanelView(complaintsRepository, complaintResultsRepository, complaintSettigs);
 				case PanelViewType.SmsSendPanelView:
 					var fastPaymentSettings = ScopeProvider.Scope.Resolve<IFastPaymentSettings>();
+					var fastPaymentRepository = ScopeProvider.Scope.Resolve<IFastPaymentRepository>();
 					return new SmsSendPanelView(
 						ServicesConfig.CommonServices,
-						new FastPaymentRepository(),
+						fastPaymentRepository,
 						fastPaymentSettings);
 				case PanelViewType.FixedPricesPanelView:
 					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
 					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener, ServicesConfig.CommonServices);
 					return new FixedPricesPanelView(fixedPricesPanelViewModel);
 				case PanelViewType.CashInfoPanelView:
+					var cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
 					var subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
-					return new CashInfoPanelView(
+					var userRepository = ScopeProvider.Scope.Resolve<IUserRepository>();
+					var cashInfoPanelViewModel = new CashInfoPanelViewModel(
 						ServicesConfig.UnitOfWorkFactory,
-						new CashRepository(),
+						ServicesConfig.CommonServices,
+						cashRepository,
 						subdivisionRepository,
-						new UserRepository());
+						userRepository);
+					return new CashInfoPanelView(cashInfoPanelViewModel);
 				case PanelViewType.EdoLightsMatrixPanelView:
 					var edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
 					IGtkTabsOpener gtkTabsOpener = new GtkTabsOpener();

@@ -156,8 +156,10 @@ namespace Vodovoz.Views.Payments
 					.AddTextRenderer(n => n.OrderStatus.HasValue ? n.OrderStatus.GetEnumTitle() : string.Empty)
 				.AddColumn("Сумма по акту")
 					.AddNumericRenderer(n => n.DocumentOrderSum)
+					.Digits(2)
 				.AddColumn("Сумма по ДВ")
 					.AddNumericRenderer(n => n.ProgramOrderSum)
+					.Digits(2)
 					.AddSetter((spin, node) =>
 					{
 						spin.ForegroundGdk = _primaryTextColor;
@@ -169,10 +171,22 @@ namespace Vodovoz.Views.Payments
 					})
 				.AddColumn("Распределенная сумма")
 					.AddNumericRenderer(n => n.AllocatedSum)
+					.Digits(2)
 				.AddColumn("Статус оплаты заказа")
 					.AddTextRenderer(n => n.OrderPaymentStatus.HasValue
 						? n.OrderPaymentStatus.GetEnumTitle()
 						: string.Empty)
+				.AddColumn("Клиент")
+					.AddTextRenderer(n => n.OrderClientNameInDatabase)
+					.AddSetter((spin, node) =>
+					{
+						spin.ForegroundGdk = _primaryTextColor;
+
+						if(ViewModel.SelectedClient != null && node.OrderClientInnInDatabase != ViewModel.SelectedClient.INN)
+						{
+							spin.ForegroundGdk = _dangerTextColor;
+						}
+					})
 				.AddColumn("")
 				.Finish();
 
@@ -190,8 +204,10 @@ namespace Vodovoz.Views.Payments
 					.AddTextRenderer(n => n.PayerName)
 				.AddColumn("Сумма по акту")
 					.AddNumericRenderer(n => n.DocumentPaymentSum)
+					.Digits(2)
 				.AddColumn("Сумма по ДВ")
 					.AddNumericRenderer(n => n.ProgramPaymentSum)
+					.Digits(2)
 				.AddColumn("Распределено на клиента")
 					.AddTextRenderer(n => n.CounterpartyId.ToString())
 					.AddTextRenderer(n => n.CounterpartyName)
@@ -222,8 +238,10 @@ namespace Vodovoz.Views.Payments
 					.WrapWidth(1200).WrapMode(WrapMode.WordChar)
 				.AddColumn("Баланс по ДВ")
 					.AddNumericRenderer(n => n.CounterpartyBalance)
+					.Digits(2)
 				.AddColumn("Баланс по 1С")
 					.AddNumericRenderer(n => n.CounterpartyBalance1C)
+					.Digits(2)
 				.AddColumn("")
 				.Finish();
 

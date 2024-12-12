@@ -9,10 +9,13 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Orders
@@ -20,23 +23,32 @@ namespace Vodovoz.ViewModels.Orders
 	public class UndeliveryDiscussionsViewModel : EntityWidgetViewModelBase<UndeliveredOrder>, IDisposable
 	{
 		private readonly IEmployeeService _employeeService;
-		private readonly INavigationManager _navigationManager;		
+		private readonly IUserRepository _userRepository;
+		private readonly INavigationManager _navigationManager;
+		private readonly IUndeliveryDiscussionCommentFileStorageService _undeliveryDiscussionCommentFileStorageService;
+		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
 		private ITdiTab _parentTab;
 		private readonly Dictionary<int, UndeliveryDiscussionViewModel> _viewModelsCache = new Dictionary<int, UndeliveryDiscussionViewModel>();
 		private GenericObservableList<UndeliveryDiscussionViewModel> _observableUndeliveryDiscussionViewModels = new GenericObservableList<UndeliveryDiscussionViewModel>();
 
 		public UndeliveryDiscussionsViewModel(
 			UndeliveredOrder entity,
-			IUnitOfWork uow,			
+			IUnitOfWork uow,
 			ITdiTab parentTab,
 			IEmployeeService employeeService,
+			IUserRepository userRepository,
 			ICommonServices commonServices,
-			INavigationManager navigationManager) : base(entity, commonServices)
+			INavigationManager navigationManager,
+			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
+			: base(entity, commonServices)
 		{
 			_parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_navigationManager = navigationManager;
-
+			_undeliveryDiscussionCommentFileStorageService = undeliveryDiscussionCommentFileStorageService;
+			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory;
 			UoW = uow;
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
@@ -81,7 +93,14 @@ namespace Vodovoz.ViewModels.Orders
 				return _viewModelsCache[subdivisionId];
 			}
 
-			var viewModel =	new UndeliveryDiscussionViewModel(complaintDiscussion, _employeeService, CommonServices, UoW);
+			var viewModel =	new UndeliveryDiscussionViewModel(
+				complaintDiscussion,
+				_employeeService,
+				CommonServices,
+				UoW,
+				_userRepository,
+				_undeliveryDiscussionCommentFileStorageService,
+				_attachedFileInformationsViewModelFactory);
 
 			_viewModelsCache.Add(subdivisionId, viewModel);
 

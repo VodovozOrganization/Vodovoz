@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -27,6 +28,7 @@ using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -58,6 +60,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private readonly INomenclatureInstanceRepository _nomenclatureInstanceRepository;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly ILifetimeScope _scope;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IEntityExtendedPermissionValidator _extendedPermissionValidator;
 		private bool _isInstanceAccountingActive;
 		private bool _isBulkAccountingActive;
@@ -87,7 +90,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			INomenclatureInstanceRepository nomenclatureInstanceRepository,
 			IReportViewOpener reportViewOpener,
 			IEntityExtendedPermissionValidator extendedPermissionValidator,
-			ILifetimeScope scope)
+			ILifetimeScope scope,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
@@ -97,6 +102,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				nomenclatureInstanceRepository ?? throw new ArgumentNullException(nameof(nomenclatureInstanceRepository));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_extendedPermissionValidator =
 				extendedPermissionValidator ?? throw new ArgumentNullException(nameof(extendedPermissionValidator));
 
@@ -171,37 +177,31 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					}
 				}
 
-				ReportInfo reportInfo;
+				var reportInfo = _reportInfoFactory.Create();
 
 				if(Entity.Car != null && (Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus || Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle))
 				{
-					reportInfo = new QS.Report.ReportInfo
+					reportInfo.Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}";
+					reportInfo.Identifier = "Store.ShiftChangeWarehouseWithCarDefectionAct";
+					reportInfo.Parameters = new Dictionary<string, object>
 					{
-						Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}",
-						Identifier = "Store.ShiftChangeWarehouseWithCarDefectionAct",
-						Parameters = new Dictionary<string, object>
-						{
-							{ "document_id", Entity.Id },
-							{ "car_id", Entity.Car?.Id },
-							{ "include_largus_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus },
-							{ "include_GAZelle_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
-							{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName },
-							{ "sender_fio", Entity.Sender.FullName },
-							{ "receiver_fio", Entity.Receiver.FullName },
-						}
+						{ "document_id", Entity.Id },
+						{ "car_id", Entity.Car?.Id },
+						{ "include_largus_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus },
+						{ "include_GAZelle_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
+						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName },
+						{ "sender_fio", Entity.Sender.FullName },
+						{ "receiver_fio", Entity.Receiver.FullName },
 					};
 				}
 				else
 				{
-					reportInfo = new QS.Report.ReportInfo
+					reportInfo.Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}";
+					reportInfo.Identifier = "Store.ShiftChangeWarehouse";
+					reportInfo.Parameters = new Dictionary<string, object>
 					{
-						Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}",
-						Identifier = "Store.ShiftChangeWarehouse",
-						Parameters = new Dictionary<string, object>
-						{
-							{ "document_id", Entity.Id },
-							{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
-						}
+						{ "document_id", Entity.Id },
+						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
 					};
 				}
 
@@ -660,7 +660,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var customName = CustomProjections.Concat(
 						Projections.Property(() => nomenclatureAlias.OfficialName),
 						Projections.Constant(" "),
-						Projections.Property(() => instanceAlias.InventoryNumber));
+						InventoryNomenclatureInstanceProjections.InventoryNumberProjection());
 
 					query.SelectList(list => list
 						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
@@ -873,7 +873,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			{
 				_instancesDiscrepancies.Add(
 					instanceData.Id,
-					$"{instanceData.Name} {instanceData.InventoryNumber} числится на этом складе");
+					$"{instanceData.Name} {instanceData.GetInventoryNumber} числится на этом складе");
 			}
 
 			var currentInstancesOnOtherStorages =
@@ -888,7 +888,15 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var instanceData = groupInstanceData.First();
 					var storages = string.Join(",", groupInstanceData.Select(x => x.StorageName));
 
-					_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.InventoryNumber} числится на: {storages}");
+					if(!_instancesDiscrepancies.ContainsKey(key))
+					{
+						_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.GetInventoryNumber} числится на: {storages}");
+					}
+					else
+					{
+						_instancesDiscrepancies[key] =
+							$"{instanceData.Name} {instanceData.GetInventoryNumber} числится на: {storages} помимо выбранного склада";
+					}
 				}
 			}
 

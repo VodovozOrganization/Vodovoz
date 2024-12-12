@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using DateTimeHelpers;
+using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -17,6 +20,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -38,15 +42,24 @@ namespace Vodovoz.Representations
 {
 	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
 	{
+		private readonly ILogger<SelfDeliveriesJournalViewModel> _logger;
+		private readonly ICommonServices _commonServices;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly Employee _currentEmployee;
 		private readonly IOrderPaymentSettings _orderPaymentSettings;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly ICashRepository _cashRepository;
+		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly bool _userCanChangePayTypeToByCard;
+
+		private readonly string _dataIsLoadingString = "Идёт загрузка данных... ";
+		private string _footerInfo;
+		private CancellationTokenSource _cancellationTokenSource;
 
 		public SelfDeliveriesJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
+			ILogger<SelfDeliveriesJournalViewModel> logger,
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
 			ICallTaskWorker callTaskWorker,
@@ -54,15 +67,21 @@ namespace Vodovoz.Representations
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IEmployeeService employeeService,
+			ICashRepository cashRepository,
 			INavigationManager navigationManager,
+			IGuiDispatcher guiDispatcher,
 			Action<OrderJournalFilterViewModel> filterConfig = null) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
 					UoW,
@@ -82,6 +101,8 @@ namespace Vodovoz.Representations
 			UpdateOnChanges(
 				typeof(VodovozOrder),
 				typeof(OrderItem));
+
+			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 
 			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 		}
@@ -114,6 +135,35 @@ namespace Vodovoz.Representations
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 								   .Where(() => orderAlias.SelfDelivery)
 								   .Where(() => orderAlias.OrderAddressType != OrderAddressType.Service);
+
+			var bottleCountSubquery = QueryOver.Of(() => orderItemAlias)
+				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Select(Projections.Sum(() => orderItemAlias.Count));
+
+			var orderSumSubquery = QueryOver.Of(() => orderItemAlias)
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.Select(
+					Projections.Sum(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(IFNULL(?1, ?2) * ?3 - ?4, 2)"),
+							NHibernateUtil.Decimal,
+							Projections.Property<OrderItem>(x => x.ActualCount),
+							Projections.Property<OrderItem>(x => x.Count),
+							Projections.Property<OrderItem>(x => x.Price),
+							Projections.Property<OrderItem>(x => x.DiscountMoney)
+						)
+					)
+				);
+
+			var incomeSumSubquery = QueryOver.Of(() => incomeAlias)
+				.Where(() => incomeAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Sum(() => incomeAlias.Money));
+
+			var expenseSumSubquery = QueryOver.Of(() => expenseAlias)
+				.Where(() => expenseAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Sum(() => expenseAlias.Money));
 
 			if(FilterViewModel.RestrictStatus != null)
 				query.Where(o => o.OrderStatus == FilterViewModel.RestrictStatus);
@@ -157,12 +207,7 @@ namespace Vodovoz.Representations
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias)
-				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Left.JoinAlias(() => orderAlias.OrderDepositItems, () => orderDepositItemAlias)
-				.Left.JoinAlias(o => o.Contract, () => contractAlias)
-				.JoinEntityAlias(() => incomeAlias, () => orderAlias.Id == incomeAlias.Order.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => expenseAlias, () => orderAlias.Id == expenseAlias.Order.Id, JoinType.LeftOuterJoin);
+				.Left.JoinAlias(o => o.Contract, () => contractAlias);
 
 			query.Where(GetSearchCriterion(
 				() => counterpartyAlias.Name,
@@ -173,7 +218,7 @@ namespace Vodovoz.Representations
 			));
 
 			var result = query.SelectList(list => list
-					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
 					.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
@@ -182,25 +227,10 @@ namespace Vodovoz.Representations
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 					.Select(() => orderAlias.PayAfterShipment).WithAlias(() => resultAlias.PayAfterLoad)
 					.Select(() => orderAlias.PaymentType).WithAlias(() => resultAlias.PaymentTypeEnum)
-					.Select(Projections.Sum(
-						   Projections.Conditional(
-							   Restrictions.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L),
-							   Projections.Property(() => orderItemAlias.Count),
-							Projections.Constant(0, NHibernateUtil.Decimal)
-						)
-					)).WithAlias(() => resultAlias.BottleAmount)
-					.Select(Projections.Sum(
-						Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(IFNULL(?2, ?1) * ?3 - ?4, 2)"),
-							NHibernateUtil.Decimal,
-							Projections.Property(() => orderItemAlias.Count),
-							Projections.Property(() => orderItemAlias.ActualCount),
-							Projections.Property(() => orderItemAlias.Price),
-							Projections.Property(() => orderItemAlias.DiscountMoney)
-						   )
-					)).WithAlias(() => resultAlias.OrderSum)
-					.Select(Projections.Property(() => incomeAlias.Money)).WithAlias(() => resultAlias.CashPaid)
-					.Select(Projections.Property(() => expenseAlias.Money)).WithAlias(() => resultAlias.CashReturn)
+					.SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
+					.SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.OrderSum)
+					.SelectSubQuery(incomeSumSubquery).WithAlias(() => resultAlias.CashPaid)
+					.SelectSubQuery(expenseSumSubquery).WithAlias(() => resultAlias.CashReturn)
 					.SelectSubQuery(depositReturnQuery).WithAlias(() => resultAlias.OrderReturnSum)
 				)
 				.OrderBy(x => x.DeliveryDate).Desc.ThenBy(x => x.Id).Desc
@@ -217,26 +247,82 @@ namespace Vodovoz.Representations
 		//FIXME отделить от GTK
 		protected override Func<SelfDeliveryJournalNode, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
 
-		public override string FooterInfo {
-			get {
-				StringBuilder sb = new StringBuilder();
-				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
-					var lst = ItemsSourceQueryFunction(uow).List<SelfDeliveryJournalNode>();
-					sb.Append("Сумма БН: <b>").Append(lst.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Сумма нал: <b>").Append(lst.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Из них возврат: <b>").Append(lst.Sum(n => n.OrderReturnSum).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Приход: <b>").Append(lst.Sum(n => n.CashPaid).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Возврат: <b>").Append(lst.Sum(n => n.CashReturn).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Итог: <b>").Append(lst.Sum(n => n.CashTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-					var difference = lst.Sum(n => n.TotalCashDiff);
-					if(difference == 0)
-						sb.Append("Расх.нал: <b>").Append(difference.ToShortCurrencyString()).Append("</b>\t\t");
-					else
-						sb.Append($"Расх.нал: <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
-					sb.Append($"<span foreground=\"{GdkColors.InsensitiveText.ToHtmlColor()}\"><b>").Append(base.FooterInfo).Append("</b></span>");
+		public override string FooterInfo
+		{
+			get => _footerInfo;
+			set => SetField(ref _footerInfo, value);
+		}
+
+		private void OnDataLoaderItemsListUpdated(object sender, EventArgs e)
+		{
+			UpdateFooterInfo();
+		}
+
+		private async Task UpdateFooterInfo()
+		{
+			FooterInfo = _dataIsLoadingString;
+
+			try
+			{
+				if(_cancellationTokenSource != null)
+				{
+					_cancellationTokenSource.Cancel();
+					_cancellationTokenSource.Dispose();
+					_cancellationTokenSource = null;
 				}
-				return sb.ToString();
+
+				_cancellationTokenSource = new CancellationTokenSource();
+
+				FooterInfo = await GetFooterInfo(_cancellationTokenSource.Token);
 			}
+			catch(OperationCanceledException ex)
+			{
+				return;
+			}
+			catch(Exception ex)
+			{
+				var errorMessage = "Ошибка при обновлении суммарной информации в журнале самовывозов";
+
+				_logger.LogError(ex, errorMessage);
+
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, errorMessage);
+				});
+
+				return;
+			}
+		}
+
+		protected async Task<string> GetFooterInfo(CancellationToken token)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var nodes = await ItemsSourceQueryFunction(uow).ListAsync<SelfDeliveryJournalNode>(token);
+
+				sb.Append("Сумма БН: <b>").Append(nodes.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Сумма нал: <b>").Append(nodes.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Из них возврат: <b>").Append(nodes.Sum(n => n.OrderReturnSum).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Приход: <b>").Append(nodes.Sum(n => n.CashPaid).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Возврат: <b>").Append(nodes.Sum(n => n.CashReturn).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Итог: <b>").Append(nodes.Sum(n => n.CashTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				
+				var difference = nodes.Sum(n => n.TotalCashDiff);
+				if(difference == 0)
+				{
+					sb.Append("Расх.нал: <b>").Append(difference.ToShortCurrencyString()).Append("</b>\t\t");
+				}
+				else
+				{
+					sb.Append($"Расх.нал: <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
+				}
+
+				sb.Append($"<span foreground=\"{GdkColors.InsensitiveText.ToHtmlColor()}\"><b>").Append(base.FooterInfo).Append("</b></span>");
+			};
+
+			return sb.ToString();
 		}
 
 		public INavigationManager NavigationManager { get; }
@@ -344,7 +430,7 @@ namespace Vodovoz.Representations
 		{
 			var order = UoW.GetById<VodovozOrder>(orderId);
 
-			if(order.SelfDeliveryIsFullyPaid(new CashRepository())) {
+			if(order.SelfDeliveryIsFullyPaid(_cashRepository)) {
 				MessageDialogHelper.RunInfoDialog("Заказ уже оплачен полностью");
 				return;
 			}
@@ -358,6 +444,16 @@ namespace Vodovoz.Representations
 				var page = NavigationManager.OpenViewModel<ExpenseSelfDeliveryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 				page.ViewModel.SetOrderById(orderId);
 			}
+		}
+
+		public override void Dispose()
+		{
+			FilterViewModel.OnFiltered -= OnDataLoaderItemsListUpdated;
+
+			_cancellationTokenSource?.Dispose();
+			_cancellationTokenSource = null;
+
+			base.Dispose();
 		}
 	}
 }

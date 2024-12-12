@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Settings.Database.Common
@@ -10,6 +9,8 @@ namespace Vodovoz.Settings.Database.Common
 	public class GeneralSettings : IGeneralSettings
 	{
 		private readonly ISettingsController _settingsController;
+		public const string PaymentWriteOffAllowedFinancialExpenseCategoriesParameterName =
+			"Accounting.PaymentWriteOff.AllowedFinancialExpenseCategories";
 		private const string _routeListPrintedFormPhones = "route_list_printed_form_phones";
 		private const string _canAddForwarderToLargus = "can_add_forwarders_to_largus";
 		private const string _orderAutoComment = "OrderAutoComment";
@@ -26,6 +27,7 @@ namespace Vodovoz.Settings.Database.Common
 		private const string _carLoadDocumentInfoString = "car_load_document_info_string";
 		private const string _upcomingTechInspectForOurCars = nameof(UpcomingTechInspectForOurCars);
 		private const string _upcomingTechInspectFoRaskatCars = nameof(UpcomingTechInspectForRaskatCars);
+		private const string _carTechnicalCheckupEndingNotificationDaysBefore = "CarTechnicalCheckup.EndingNotificationDaysBefore";
 		private const string _fastDeliveryIntervalFrom = nameof(FastDeliveryIntervalFrom);
 		private const string _fastDeliveryMaximumPermissibleLateMinutes = nameof(FastDeliveryMaximumPermissibleLateMinutes);
 
@@ -112,8 +114,10 @@ namespace Vodovoz.Settings.Database.Common
 		public void UpdateFastDelivery19LBottlesLimitCount(int value) => _settingsController.CreateOrUpdateSetting(_fastDelivery19LBottlesLimitCount, value.ToString());
 		public void UpdateUpcomingTechInspectForOurCars(int value) => _settingsController.CreateOrUpdateSetting(_upcomingTechInspectForOurCars, value.ToString());
 		public void UpdateUpcomingTechInspectForRaskatCars(int value) => _settingsController.CreateOrUpdateSetting(_upcomingTechInspectFoRaskatCars, value.ToString());
+		public void UpdateCarTechnicalCheckupEndingNotificationDaysBefore(int value) => _settingsController.CreateOrUpdateSetting(_carTechnicalCheckupEndingNotificationDaysBefore, value.ToString());
 		public int UpcomingTechInspectForOurCars => _settingsController.GetValue<int>(_upcomingTechInspectForOurCars);
 		public int UpcomingTechInspectForRaskatCars => _settingsController.GetValue<int>(_upcomingTechInspectFoRaskatCars);
+		public int CarTechnicalCheckupEndingNotificationDaysBefore => _settingsController.GetValue<int>(_carTechnicalCheckupEndingNotificationDaysBefore);
 		public FastDeliveryIntervalFromEnum FastDeliveryIntervalFrom => _settingsController.GetValue<FastDeliveryIntervalFromEnum>(_fastDeliveryIntervalFrom);
 		public void UpdateFastDeliveryIntervalFrom(FastDeliveryIntervalFromEnum value) => _settingsController.CreateOrUpdateSetting(_fastDeliveryIntervalFrom, value.ToString());
 		public int FastDeliveryMaximumPermissibleLateMinutes => _settingsController.GetValue<int>(_fastDeliveryMaximumPermissibleLateMinutes);
@@ -167,6 +171,8 @@ namespace Vodovoz.Settings.Database.Common
 			}
 		}
 
+		public int[] PaymentWriteOffAllowedFinancialExpenseCategories => GetPaymentWriteOffAllowedFinancialExpenseCategoriesParameter();
+
 		public void UpdateCarLoadDocumentInfoString(string value) =>
 			_settingsController.CreateOrUpdateSetting(_carLoadDocumentInfoString, value);
 
@@ -185,6 +191,16 @@ namespace Vodovoz.Settings.Database.Common
 			return splitedIds
 				.Select(x => int.Parse(x))
 				.ToArray();
+		}
+
+		private int[] GetPaymentWriteOffAllowedFinancialExpenseCategoriesParameter()
+		{
+			return ParseIdsFromString(PaymentWriteOffAllowedFinancialExpenseCategoriesParameterName);
+		}
+
+		public void UpdatePaymentWriteOffAllowedFinancialExpenseCategoriesParameter(int[] ids, string parameterName)
+		{
+			_settingsController.CreateOrUpdateSetting(parameterName, string.Join(", ", ids));
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using Autofac;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSOrmProject;
@@ -16,7 +17,7 @@ namespace Vodovoz
 
 		static CurrentUserSettings()
 		{
-			var userRepository = new UserRepository();
+			var userRepository = ScopeProvider.Scope.Resolve<IUserRepository>();
 			manager.CreateUserSettings = uow => new UserSettings(userRepository.GetCurrentUser(uow));
 			manager.LoadUserSettings = userRepository.GetCurrentUserSettings;
 		}
@@ -107,4 +108,3 @@ namespace Vodovoz
 
 	}
 }
-

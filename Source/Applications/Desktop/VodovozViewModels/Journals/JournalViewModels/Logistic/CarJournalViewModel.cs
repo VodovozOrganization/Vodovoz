@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Logistic;
@@ -79,8 +80,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(Car),
 				typeof(CarModel),
 				typeof(Employee),
-				typeof(CarVersion)
-				);
+				typeof(CarVersion));
 
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 		}
@@ -108,6 +108,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CarInsurance kaskoAlias = null;
 			Counterparty osagoInsurerAlias = null;
 			Counterparty kaskoInsurerAlias = null;
+			CarEvent carEventALias = null;
 
 			var lastOsagoInsuranceIdSubquery = QueryOver.Of(() => carInsuranceAlias)
 				.Where(() => carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Osago)
@@ -120,6 +121,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.Where(() => !carAlias.IsKaskoInsuranceNotRelevant && carInsuranceAlias.Car.Id == carAlias.Id && carInsuranceAlias.InsuranceType == CarInsuranceType.Kasko)
 				.Select(ins => ins.Id)
 				.OrderBy(() => carInsuranceAlias.EndDate)
+				.Desc
+				.Take(1);
+
+			var lastCarTechnicalCheckupEventSubquery = QueryOver.Of(() => carEventALias)
+				.Where(ce => ce.Car.Id == carAlias.Id
+					&& ce.CarEventType.Id == _carEventSettings.CarTechnicalCheckupEventTypeId
+					&& ce.CarTechnicalCheckupEndingDate != null)
+				.Select(ce => ce.CarTechnicalCheckupEndingDate)
+				.OrderBy(ce => ce.CarTechnicalCheckupEndingDate)
 				.Desc
 				.Take(1);
 
@@ -196,24 +206,35 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					DateTime.Today.AddDays(_carInsuranceSettings.KaskoEndingNotifyDaysBefore)))
 				.Add(() => !carAlias.IsKaskoInsuranceNotRelevant);
 
-			var isOsagoExpiresProjection = Projections.Conditional(
-				isOsagoExpiresRestriction,
-				Projections.Constant(true),
-				Projections.Constant(false));
+			#endregion
 
-			var isKaskoExpiresProjection = Projections.Conditional(
-				isKaskoExpiresRestriction,
-				Projections.Constant(true),
-				Projections.Constant(false));
+			#region Проверка наличия и окончания срока действия ГТО
 
+			var carTechnicalCheckupEndDateProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.DateTime, "IFNULL(?1, ?2)"),
+				NHibernateUtil.DateTime,
+				Projections.SubQuery(lastCarTechnicalCheckupEventSubquery),
+				Projections.Constant(DateTime.MinValue.ToShortDateString()));
+
+			var isCarTechnicalCheckupExpiresRestriction = Restrictions.Conjunction()
+				.Add(Restrictions.Disjunction()
+					.Add(isCompanyCarRestriction)
+					.Add(isRaskatCarRestriction))
+				.Add(Restrictions.Le(
+					carTechnicalCheckupEndDateProjection,
+					DateTime.Today.AddDays(_generalSettings.CarTechnicalCheckupEndingNotificationDaysBefore)));
 			#endregion
 
 			var isShowBackgroundColorNotificationProjection = Projections.Conditional(
-				Restrictions.Disjunction()
-					.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
-					.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
-					.Add(isOsagoExpiresRestriction)
-					.Add(isKaskoExpiresRestriction),
+				Restrictions.Conjunction()
+					.Add(Restrictions.Not(Restrictions.Eq(Projections.Property(() => carModelAlias.CarTypeOfUse), CarTypeOfUse.Loader)))
+					.Add(Restrictions.Not(Restrictions.In(Projections.Property(() => carAlias.Id), _carEventSettings.CarsExcludedFromReportsIds)))
+					.Add(Restrictions.Disjunction()
+						.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
+						.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
+						.Add(isOsagoExpiresRestriction)
+						.Add(isKaskoExpiresRestriction)
+						.Add(isCarTechnicalCheckupExpiresRestriction)),
 				Projections.Constant(true),
 				Projections.Constant(false));
 
@@ -319,45 +340,72 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			base.CreateNodeActions();
 
-			CreateCarInsurancesReportAction();
-			CreateCarTechInspectReportAction();
-			ExportJournalItemsToExcelAction();
+			var reportActions = new JournalAction("Отчёты",
+				(selected) => true,
+				(selected) => true				
+			);
+
+			reportActions.ChildActionsList.AddRange(
+				new[]
+				{
+					CreateCarInsurancesReportAction(),
+					CreateCarTechInspectReportAction(),
+					CreateCarsTechnicalCheckupReportAction(),
+					CreateExportJournalItemsToExcelAction()
+				}
+			);
+
+			NodeActionsList.Add(reportActions);			
 		}
 
-		private void CreateCarInsurancesReportAction()
+		private JournalAction CreateCarInsurancesReportAction()
 		{
 			var selectAction = new JournalAction("Отчёт по страховкам",
 				(selected) => true,
 				(selected) => true,
 				(selected) => CreateCarInsurancesReport()
 			);
-			NodeActionsList.Add(selectAction);
+
+			return selectAction;			
 		}
 
-		private void CreateCarTechInspectReportAction()
+		private JournalAction CreateCarTechInspectReportAction()
 		{
 			var selectAction = new JournalAction("Отчёт по ТО",
 				(selected) => true,
 				(selected) => true,
 				(selected) => CreateCarTechInspectReport()
 			);
-			NodeActionsList.Add(selectAction);
+
+			return selectAction;
 		}
 
-		private void ExportJournalItemsToExcelAction()
+		private JournalAction CreateCarsTechnicalCheckupReportAction()
+		{
+			var selectAction = new JournalAction("Отчёт по ГТО",
+				(selected) => true,
+				(selected) => true,
+				(selected) => CreateCarTechnicalCheckupReport()
+			);
+
+			return selectAction;
+		}
+
+		private JournalAction CreateExportJournalItemsToExcelAction()
 		{
 			var selectAction = new JournalAction("Экспорт в Excel",
 				(selected) => true,
 				(selected) => true,
 				(selected) => ExportJournalItemsToExcel()
 			);
-			NodeActionsList.Add(selectAction);
+
+			return selectAction;
 		}
 
 		private void CreateCarInsurancesReport()
 		{
-			var osagoInsurances = _carRepository.GetActualCarInsurances(UoW, CarInsuranceType.Osago).ToList();
-			var kaskoInsurances = _carRepository.GetActualCarInsurances(UoW, CarInsuranceType.Kasko).ToList();
+			var osagoInsurances = _carRepository.GetActualCarInsurances(UoW, CarInsuranceType.Osago, _carEventSettings.CarsExcludedFromReportsIds).ToList();
+			var kaskoInsurances = _carRepository.GetActualCarInsurances(UoW, CarInsuranceType.Kasko, _carEventSettings.CarsExcludedFromReportsIds).ToList();
 			var insurances = osagoInsurances
 				.Union(kaskoInsurances.Where(ins => !ins.IsKaskoNotRelevant))
 				.OrderByDescending(ins => ins.LastInsurance is null)
@@ -380,7 +428,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			var techInspects =
 				_carRepository
-				.GetCarsTechInspectData(UoW, _carEventSettings.TechInspectCarEventTypeId)
+				.GetCarsTechInspectData(UoW, _carEventSettings.TechInspectCarEventTypeId, _carEventSettings.CarsExcludedFromReportsIds)
 				.OrderBy(ti => ti.LeftUntilTechInspectKm)
 				.ToList();
 
@@ -394,6 +442,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			}
 
 			CarTechInspectReport.ExportToExcel(result.Path, techInspects);
+		}
+
+		private void CreateCarTechnicalCheckupReport()
+		{
+			var carsTechnicalCheckups =
+				_carRepository
+				.GetCarsTechnicalCheckupData(UoW, _carEventSettings.CarTechnicalCheckupEventTypeId, _carEventSettings.CarsExcludedFromReportsIds)
+				.ToList()
+				.OrderByDescending(d => d.LastCarTechnicalCheckupEvent is null)
+				.ThenBy(d => d.DaysLeftToNextTechnicalCheckup);
+
+			var dialogSettings = GetSaveExcelReportDialogSettings($"{CarTechnicalCheckupReport.ReportTitle}");
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			CarTechnicalCheckupReport.ExportToExcel(
+				result.Path,
+				carsTechnicalCheckups,
+				_generalSettings.CarTechnicalCheckupEndingNotificationDaysBefore);
 		}
 
 		private void ExportJournalItemsToExcel()

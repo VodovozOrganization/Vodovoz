@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+	<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
     <UserSecretsId>aspnet-DriverAPI-FDB83907-6562-4080-9D21-59FAA6ABC15B</UserSecretsId>
     <!-- Warning: Setting the following switch is *NOT* recommended in web apps. Remove it when Nhibernate fix BinaryFormatter Using -->
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
@@ -17,7 +18,7 @@
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	<DockerfileContext>..\..\..\..</DockerfileContext>
+	<DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,7 +34,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\docker.vod.qsolution.ru-latest.pubxml" />
+	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-dev.pubxml" />
+	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-prod.pubxml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -51,14 +53,12 @@
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="Google.OrTools" Version="6.4.4495" />
     <PackageReference Include="Google.Protobuf" Version="3.22.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 	<PackageReference Include="MySqlConnector" Version="2.2.6" />
 	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.17" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.14" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -83,6 +83,7 @@
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
     <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
     <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
   </ItemGroup>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -208,6 +209,9 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 				ObservableItems.Remove(item);
 			}
 		}
+
+		public virtual decimal TotalSumOfDamage =>
+			ObservableItems.Sum(x => x.SumOfDamage);
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

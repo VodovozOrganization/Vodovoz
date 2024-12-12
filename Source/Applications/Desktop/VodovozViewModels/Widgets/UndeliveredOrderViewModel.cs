@@ -18,6 +18,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -494,7 +495,8 @@ namespace Vodovoz.ViewModels.Widgets
 				}
 
 				var address = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.OldOrder);
-				if(address != null)
+				if(address != null
+					&& RouteListItem.GetUndeliveryStatuses().Contains(address.Status))
 				{
 					address.BottlesReturned = 0;
 					UoW.Save(address);

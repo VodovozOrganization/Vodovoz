@@ -16,11 +16,11 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.HBox hbox2;
 
-		private global::Gtk.Button buttonPrintAll;
+		private global::Gamma.GtkWidgets.yButton buttonPrintAll;
 
-		private global::Gtk.Button buttonPrint;
+		private global::Gamma.GtkWidgets.yButton buttonPrint;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::fyiReporting.RdlGtkViewer.ReportViewer reportviewer;
 
@@ -59,7 +59,7 @@ namespace Vodovoz.Dialogs
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonPrintAll = new global::Gtk.Button();
+			this.buttonPrintAll = new global::Gamma.GtkWidgets.yButton();
 			this.buttonPrintAll.CanFocus = true;
 			this.buttonPrintAll.Name = "buttonPrintAll";
 			this.buttonPrintAll.UseUnderline = true;
@@ -73,7 +73,7 @@ namespace Vodovoz.Dialogs
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonPrint = new global::Gtk.Button();
+			this.buttonPrint = new global::Gamma.GtkWidgets.yButton();
 			this.buttonPrint.CanFocus = true;
 			this.buttonPrint.Name = "buttonPrint";
 			this.buttonPrint.UseUnderline = true;
@@ -87,7 +87,7 @@ namespace Vodovoz.Dialogs
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;

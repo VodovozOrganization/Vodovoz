@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
@@ -18,7 +17,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			Map(x => x.LogisticServiceOrders).Column("logistic_service_orders");
 			Map(x => x.LogisticChainStoreOrders).Column("logistic_chainstore_orders");
 			Map(x => x.UseEmployeeSubdivision).Column("use_employee_subdivision");
-			Map(x => x.DefaultComplaintStatus).Column("default_complaint_status").CustomType<ComplaintStatusesStringType>();
+			Map(x => x.DefaultComplaintStatus).Column("default_complaint_status");
 			Map(x => x.ReorderTabs).Column("reorder_tabs");
 			Map(x => x.HighlightTabsWithColor).Column("highlight_tabs_with_color");
 			Map(x => x.KeepTabColor).Column("keep_tab_color");
@@ -41,6 +40,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 
 			HasMany(x => x.CashSubdivisionSortingSettings).KeyColumn("user_settings_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad().OrderBy("sorting_index");
+
+			HasMany(x => x.DocumentPrinterSettings).KeyColumn("user_settings_id")
+				.Cascade.AllDeleteOrphan().Inverse().LazyLoad().OrderBy("id");
 		}
 	}
 }

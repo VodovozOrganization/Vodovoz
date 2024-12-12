@@ -7,26 +7,27 @@ using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Server.Breaks
 {
-	public class GlobalBreakController
+	public class GlobalBreakController : IGlobalBreakController
 	{
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IBreakAvailabilityNotifier _breakAvailabilityNotifier;
 		private IPacsDomainSettings _actualSettings;
 		private List<OperatorState> _onBreak = new List<OperatorState>();
 
-		internal event EventHandler<SettingsChangedEventArgs> SettingsChanged;
 		public GlobalBreakAvailabilityEvent BreakAvailability { get; private set; }
+
+		public event EventHandler<SettingsChangedEventArgs> SettingsChanged;
 
 		public GlobalBreakController(IPacsRepository pacsRepository, IBreakAvailabilityNotifier breakAvailabilityNotifier)
 		{
 			_pacsRepository = pacsRepository ?? throw new ArgumentNullException(nameof(pacsRepository));
 			_breakAvailabilityNotifier = breakAvailabilityNotifier ?? throw new ArgumentNullException(nameof(breakAvailabilityNotifier));
-			BreakAvailability = new GlobalBreakAvailabilityEvent();
+			BreakAvailability = new GlobalBreakAvailabilityEvent { EventId = Guid.NewGuid() };
 			_actualSettings = _pacsRepository.GetPacsDomainSettings();
 			UpdateBreakAvailability();
 		}
 
-		internal void UpdateSettings(IPacsDomainSettings domainSettings)
+		public void UpdateSettings(IPacsDomainSettings domainSettings)
 		{
 			_actualSettings = domainSettings;
 			var operatorsOnBreak = _pacsRepository.GetOperatorsOnBreak(DateTime.Today);
@@ -41,7 +42,7 @@ namespace Pacs.Server.Breaks
 			UpdateBreakAvailability(operatorsOnBreak, domainSettings);
 		}
 
-		internal void UpdateBreakAvailability()
+		public void UpdateBreakAvailability()
 		{
 			var operatorsOnBreak = _pacsRepository.GetOperatorsOnBreak(DateTime.Today);
 			UpdateBreakAvailability(operatorsOnBreak, _actualSettings);
@@ -53,7 +54,7 @@ namespace Pacs.Server.Breaks
 			var longBreakAvailable = ValidateLongBreakMaxOperatorsRestriction(operatorsOnBreak, currentSettings);
 			var shortBreakAvailable = ValidateShortBreakMaxOperatorsRestriction(operatorsOnBreak, currentSettings);
 
-			var globalBreakAvailable = new GlobalBreakAvailabilityEvent();
+			var globalBreakAvailable = new GlobalBreakAvailabilityEvent { EventId = Guid.NewGuid() };
 			if(!longBreakAvailable)
 			{
 				globalBreakAvailable.LongBreakAvailable = false;
@@ -171,8 +172,10 @@ namespace Pacs.Server.Breaks
 
 			var onBreakEvent = new OperatorsOnBreakEvent
 			{
+				EventId = Guid.NewGuid(),
 				OnBreak = result
 			};
+
 			return onBreakEvent;
 		}
 

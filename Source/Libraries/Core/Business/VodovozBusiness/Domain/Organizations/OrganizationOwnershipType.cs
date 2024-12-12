@@ -84,7 +84,7 @@ namespace Vodovoz.Domain.Organizations
 				throw new ArgumentException($"Для валидации типа организации должен быть доступен UnitOfWork");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(IOrganizationRepository)) is IOrganizationRepository organizationRepository))
+			if(!(validationContext.GetService(typeof(IOrganizationRepository)) is IOrganizationRepository organizationRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(IOrganizationRepository)}");
 			}

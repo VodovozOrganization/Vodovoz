@@ -1,26 +1,18 @@
 ﻿using QS.Attachments.Domain;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "автомобили",
-		Nominative = "автомобиль",
-		GenitivePlural = "автомобилей")]
-	[EntityPermission]
-	[HistoryTrace]
-	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
+	public class Car : CarEntity, IValidatableObject, IHasPhoto
 	{
-		private IList<Attachment> _attachments = new List<Attachment>();
 		private CarModel _carModel;
 		private bool _isArchive;
 		private IList<CarVersion> _carVersions = new List<CarVersion>();
@@ -55,15 +47,14 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private GenericObservableList<GeoGroup> _observableGeographicGroups;
 		private int? _orderNumber;
 		private byte[] _photo;
-		private string _registrationNumber = string.Empty;
 		private string _vIn;
 		private DateTime? _archivingDate;
 		private ArchivingReason? _archivingReason;
 		private int _leftUntilTechInspect;
 		private IncomeChannel _incomeChannel;
 		private bool _isKaskoInsuranceNotRelevant = true;
-
-		public virtual int Id { get; set; }
+		private int? _techInspectForKm;
+		private string _photoFileName;
 
 		[Display(Name = "Модель")]
 		public virtual CarModel CarModel
@@ -134,13 +125,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public virtual GenericObservableList<CarInsurance> ObservableCarInsurances => _observableCarInsurances
 			?? (_observableCarInsurances = new GenericObservableList<CarInsurance>(CarInsurances));
-
-		[Display(Name = "Государственный номер")]
-		public virtual string RegistrationNumber
-		{
-			get => _registrationNumber;
-			set => SetField(ref _registrationNumber, value);
-		}
 
 		[Display(Name = "VIN")]
 		[StringLength(17, MinimumLength = 17, ErrorMessage = "VIN должен содержать 17 знаков ")]
@@ -283,6 +267,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _photo, value);
 		}
 
+		[Display(Name = "Имя файла фотографии")]
+		public virtual string PhotoFileName
+		{
+			get => _photoFileName;
+			set => SetField(ref _photoFileName, value);
+		}
+
 		[Display(Name = "Порядковый номер автомобиля")]
 		public virtual int? OrderNumber
 		{
@@ -307,18 +298,18 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _geographicGroups, value);
 		}
 
-		[Display(Name = "Прикрепленные файлы")]
-		public virtual IList<Attachment> Attachments
-		{
-			get => _attachments;
-			set => SetField(ref _attachments, value);
-		}
-
 		[Display(Name = "Осталось до ТО, км")]
 		public virtual int LeftUntilTechInspect
 		{
 			get => _leftUntilTechInspect;
 			set => SetField(ref _leftUntilTechInspect, value);
+		}
+
+		[Display(Name = "ТО на км")]
+		public virtual int? TechInspectForKm
+		{
+			get => _techInspectForKm;
+			set => SetField(ref _techInspectForKm, value);
 		}
 
 		[Display(Name = "Канал поступления")]
@@ -339,11 +330,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		public virtual GenericObservableList<GeoGroup> ObservableGeographicGroups =>
 			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups));
 
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Attachment> ObservableAttachments =>
-			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(Attachments));
-
 		public virtual string Title => $"{CarModel?.Name} ({RegistrationNumber})";
+		public virtual string FullTitle => $"{CarModel?.Title} ({RegistrationNumber})";
 
 		/// <param name="dateTime">Если равно null, возвращает активную версию на текущее время</param>
 		public virtual CarVersion GetActiveCarVersionOnDate(DateTime? dateTime = null)

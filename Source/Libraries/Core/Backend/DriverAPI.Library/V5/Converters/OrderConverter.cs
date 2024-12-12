@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 
@@ -55,7 +56,7 @@ namespace DriverAPI.Library.V5.Converters
 			Order vodovozOrder,
 			DateTime addedToRouteListTime,
 			SmsPaymentStatus? smsPaymentStatus,
-			Vodovoz.Domain.FastPayments.FastPaymentStatus? qrPaymentDtoStatus)
+			FastPaymentStatus? qrPaymentDtoStatus)
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
@@ -70,7 +71,7 @@ namespace DriverAPI.Library.V5.Converters
 				BottlesByStockActualCount = vodovozOrder.BottlesByStockActualCount,
 				Counterparty = vodovozOrder.Client.FullName,
 				PhoneNumbers = CreatePhoneList(vodovozOrder),
-				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
+				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderSum = vodovozOrder.OrderSum,
 				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems),
@@ -210,7 +211,8 @@ namespace DriverAPI.Library.V5.Converters
 				IsDiscountInMoney = saleItem.IsDiscountInMoney,
 				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
 				DiscountReason = saleItem.DiscountReason?.Name,
-				CapColor = saleItem.Nomenclature.BottleCapColor
+				CapColor = saleItem.Nomenclature.BottleCapColor,
+				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false
 			};
 
 			if(saleItem.Nomenclature.TareVolume != null)

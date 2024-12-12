@@ -36,7 +36,7 @@ namespace Vodovoz.ReportsParameters.Employees
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewPaymentForms;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -177,7 +177,7 @@ namespace Vodovoz.ReportsParameters.Employees
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.vboxParameters]));
 			w15.Position = 1;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;

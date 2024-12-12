@@ -1,13 +1,20 @@
-﻿using QS.DomainModel.UoW;
+﻿using Core.Infrastructure;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Documents.MovementDocuments;
-using Vodovoz.Domain.Documents.MovementDocuments.BulkAccounting;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Errors;
+using Vodovoz.Settings.Database.Nomenclature;
+using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Service;
+using VodovozBusiness.Services;
 
 namespace Vodovoz.Application.Goods
 {
@@ -25,7 +32,8 @@ namespace Vodovoz.Application.Goods
 		private readonly IGenericRepository<CarInstanceGoodsAccountingOperation> _carInstanceGoodsAccountingOperationRepository;
 
 		private readonly IGenericRepository<MovementDocument> _movementDocumentRepository;
-
+		private readonly IDeliveryRepository _deliveryRepository;
+		private readonly int _masterCallNomenclatureId;
 
 		public NomenclatureService(
 			IGenericRepository<Nomenclature> nomenclatureRepository,
@@ -35,7 +43,9 @@ namespace Vodovoz.Application.Goods
 			IGenericRepository<EmployeeInstanceGoodsAccountingOperation> employeeInstanceGoodsAccountingOperationRepository,
 			IGenericRepository<CarBulkGoodsAccountingOperation> carBulkGoodsAccountingOperationRepository,
 			IGenericRepository<CarInstanceGoodsAccountingOperation> carInstanceGoodsAccountingOperationRepository,
-			IGenericRepository<MovementDocument> movementDocumentRepository)
+			IGenericRepository<MovementDocument> movementDocumentRepository,
+			INomenclatureSettings nomenclatureSettings,
+			IDeliveryRepository deliveryRepository)
 		{
 			_nomenclatureRepository = nomenclatureRepository
 				?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -53,6 +63,14 @@ namespace Vodovoz.Application.Goods
 				?? throw new ArgumentNullException(nameof(carInstanceGoodsAccountingOperationRepository));
 			_movementDocumentRepository = movementDocumentRepository
 				?? throw new ArgumentNullException(nameof(movementDocumentRepository));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+
+			if(nomenclatureSettings is null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
+			}
+
+			_masterCallNomenclatureId = nomenclatureSettings.MasterCallNomenclatureId;
 		}
 
 		public Result Archive(IUnitOfWork unitOfWork, int nomenclatureId)
@@ -61,7 +79,7 @@ namespace Vodovoz.Application.Goods
 
 			if(nomenclature is null)
 			{
-				return Result.Failure(Errors.Goods.Nomenclature.NotFound(nomenclatureId));
+				return Result.Failure(Vodovoz.Errors.Goods.Nomenclature.NotFound(nomenclatureId));
 			}
 
 			return Archive(unitOfWork, nomenclature);
@@ -140,22 +158,22 @@ namespace Vodovoz.Application.Goods
 
 			if(warehouseBalance != 0)
 			{
-				errors.Add(Errors.Goods.Nomenclature.HasResiduesInWarhouses);
+				errors.Add(Vodovoz.Errors.Goods.Nomenclature.HasResiduesInWarhouses);
 			}
 
 			if(employeeBalance != 0)
 			{
-				errors.Add(Errors.Goods.Nomenclature.HasResiduesOnEmployees);
+				errors.Add(Vodovoz.Errors.Goods.Nomenclature.HasResiduesOnEmployees);
 			}
 
 			if(carBalance != 0)
 			{
-				errors.Add(Errors.Goods.Nomenclature.HasResiduesOnCars);
+				errors.Add(Vodovoz.Errors.Goods.Nomenclature.HasResiduesOnCars);
 			}
 
 			if(sendedButNotRecievedBalance != 0)
 			{
-				errors.Add(Errors.Goods.Nomenclature.HasNotAcceptedTransfers);
+				errors.Add(Vodovoz.Errors.Goods.Nomenclature.HasNotAcceptedTransfers);
 			}
 
 			if(!errors.Any())
@@ -167,6 +185,68 @@ namespace Vodovoz.Application.Goods
 			{
 				return Result.Failure(errors);
 			}
+		}
+
+		public void CalculateMasterCallNomenclaturePriceIfNeeded(IUnitOfWork unitOfWork, Order order)
+		{
+			var masterCallOrerItem = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _masterCallNomenclatureId);
+
+			if(masterCallOrerItem is null)
+			{
+				return;
+			}
+			
+			var deliveryPoint = order.DeliveryPoint;
+
+			if(deliveryPoint is null || order.DeliveryDate is null)
+			{
+				masterCallOrerItem.SetPrice(masterCallOrerItem.Nomenclature.GetPrice(1));
+				
+				return;
+			}
+
+			var serviceDistrict = _deliveryRepository.GetServiceDistrictByCoordinates(unitOfWork, deliveryPoint.Latitude.Value, deliveryPoint.Longitude.Value);
+
+			if(serviceDistrict is null)
+			{
+				masterCallOrerItem.SetPrice(masterCallOrerItem.Nomenclature.GetPrice(1));
+
+				return;
+			}
+
+			decimal price = 0;
+
+			if(order.OrderItems.Any(x => x.Nomenclature.MasterServiceType ==  MasterServiceType.Cleaning))
+			{
+				price = GetMasterServiceTypePrice(serviceDistrict, MasterServiceType.Cleaning, order.DeliveryDate.Value);
+			}
+			else if(order.OrderItems.Any(x => x.Nomenclature.MasterServiceType == MasterServiceType.Repair))
+			{
+				price = GetMasterServiceTypePrice(serviceDistrict, MasterServiceType.Repair, order.DeliveryDate.Value);
+			}
+
+			masterCallOrerItem.SetPrice(price);
+		}
+
+		private decimal GetMasterServiceTypePrice(ServiceDistrict serviceDistrict, MasterServiceType masterServiceType, DateTime deliveryDate)
+		{
+			var serviceDistrictRuleByWeekDay = serviceDistrict.GetWeekDayServiceDistrictRuleByDeliveryDate(deliveryDate)
+				.Where(x => x.ServiceType == masterServiceType);
+
+			if(serviceDistrictRuleByWeekDay.Any())
+			{
+				return serviceDistrictRuleByWeekDay.Single().Price;
+			}
+
+			var commonServiceDistrictRule = serviceDistrict.GetCommonServiceDistrictRules()
+				.Where(x => x.ServiceType == masterServiceType);
+
+			if(commonServiceDistrictRule.Any())
+			{
+				return commonServiceDistrictRule.Single().Price;
+			}
+
+			return 0;
 		}
 	}
 }

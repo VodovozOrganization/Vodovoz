@@ -24,15 +24,17 @@ namespace Vodovoz.Reports
 	public partial class EquipmentReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private SelectableParametersReportFilter filter;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IInteractiveService _interactiveService;
 
-		public EquipmentReport(IInteractiveService interactiveService)
+		public EquipmentReport(IReportInfoFactory reportInfoFactory, IInteractiveService interactiveService)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			filter = new SelectableParametersReportFilter(UoW);
 			ConfigureDlg();
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 
 		void ConfigureDlg()
@@ -190,11 +192,9 @@ namespace Vodovoz.Reports
 				parameters.Add(item.Key, item.Value);
 			}
 
-			return new ReportInfo
-			{
-				Identifier = "ServiceCenter.EquipmentReport",
-				Parameters = parameters
-			};
+			var reportInfo = _reportInfoFactory.Create("ServiceCenter.EquipmentReport", Title, parameters);
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

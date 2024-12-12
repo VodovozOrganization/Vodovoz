@@ -1,8 +1,8 @@
 ﻿using Pacs.Core.Messages.Events;
-using Pacs.Server;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Operators.Client
 {
@@ -22,5 +22,6 @@ namespace Pacs.Operators.Client
 		Task<OperatorStateEvent> ChangeNumber(string phoneNumber);
 		Task<OperatorStateEvent> StartBreak(OperatorBreakType breakType, CancellationToken cancellationToken = default);
 		Task<OperatorStateEvent> EndBreak(CancellationToken cancellationToken = default);
+		Task<OperatorBreakAvailability> GetOperatorBreakAvailability(int operatorId);
 	}
 }

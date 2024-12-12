@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -251,15 +252,14 @@ namespace DeliveryRulesService.Controllers
 				return (district.TariffZone?.Id, response);
 			}
 
-			var message = string.Format(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
 			_logger.LogDebug(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
 
 			var deliveryRules = new DeliveryRulesDTO
 				{
 					StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
 					WeekDayDeliveryRules = null,
-					Message = message
-				};
+					Message = ReformatMessage(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude)
+			};
 			
 			return (null, deliveryRules);
 		}
@@ -329,11 +329,10 @@ namespace DeliveryRulesService.Controllers
 				return (district.TariffZone?.Id, response);
 			}
 
-			var message = string.Format(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
 			_logger.LogDebug(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
 
 			var result = new ExtendedDeliveryRulesDto();
-			result.RuleNotFoundState(message);
+			result.RuleNotFoundState(ReformatMessage(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude));
 
 			return (null, result);
 		}
@@ -365,7 +364,6 @@ namespace DeliveryRulesService.Controllers
 					return FillDeliveryInfoDTO(district);
 				}
 
-				var message = string.Format(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
 				_logger.LogDebug(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude);
 
 				return new DeliveryInfoDTO
@@ -373,7 +371,7 @@ namespace DeliveryRulesService.Controllers
 					StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
 					WeekDayDeliveryInfos = null,
 					GeoGroup = null,
-					Message = message
+					Message = ReformatMessage(ServiceConstants.DistrictNotFoundByCoordinates, latitude, longitude)
 				};
 			}
 		}
@@ -571,6 +569,27 @@ namespace DeliveryRulesService.Controllers
 			var allowedRouteLists = fastDeliveryAvailabilityHistory.Items;
 			return await ValueTask.FromResult(
 				allowedRouteLists != null && allowedRouteLists.Any(x => x.IsValidToFastDelivery));
+		}
+
+		private string ReformatMessage(string text, params object[] args)
+		{
+			var argReplacement = new List<string>();
+
+			var matches = Regex.Matches(text, "{(.*)}");
+
+			foreach(Match match in matches)
+			{
+				if(!argReplacement.Contains(match.Value))
+				{
+					argReplacement.Add(match.Value);
+				}
+			}
+
+			var matchEveluator = new MatchEvaluator((match) => "{" + argReplacement.IndexOf(match.Value) + "}");
+
+			var result = Regex.Replace(text, "{(.*)}", matchEveluator);
+
+			return string.Format(result, args);
 		}
 	}
 }

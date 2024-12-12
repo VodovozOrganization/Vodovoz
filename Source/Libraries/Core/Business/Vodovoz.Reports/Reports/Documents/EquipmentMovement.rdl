@@ -15,7 +15,7 @@
     <DataSet Name="Order">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT orders.id, orders.delivery_date, CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number, counterparty.full_name, 
+        <CommandText>SELECT orders.id, orders.delivery_date, counterparty_contract.number AS contract_number, counterparty.full_name, 
 delivery_points.compiled_address, organizations.name as organization,
 (SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.comment IS NULL,'',phones.comment)) SEPARATOR '; ')
 	FROM phones 

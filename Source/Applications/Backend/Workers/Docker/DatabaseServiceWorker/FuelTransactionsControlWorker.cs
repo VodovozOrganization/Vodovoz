@@ -12,6 +12,7 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.Zabbix.Sender;
 using VodovozInfrastructure.Utils;
 
 namespace DatabaseServiceWorker
@@ -31,6 +32,7 @@ namespace DatabaseServiceWorker
 		private readonly IFuelControlTransactionsDataService _fuelControlTransactionsDataService;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly IFuelControlSettings _fuelControlSettings;
+		private readonly IZabbixSender _zabbixSender;
 
 		public FuelTransactionsControlWorker(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -39,7 +41,8 @@ namespace DatabaseServiceWorker
 			IFuelControlAuthorizationService authorizationService,
 			IFuelControlTransactionsDataService fuelControlTransactionsDataService,
 			IFuelRepository fuelRepository,
-			IFuelControlSettings fuelControlSettings)
+			IFuelControlSettings fuelControlSettings,
+			IZabbixSender zabbixSender)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
@@ -48,6 +51,7 @@ namespace DatabaseServiceWorker
 			_fuelControlTransactionsDataService = fuelControlTransactionsDataService ?? throw new ArgumentNullException(nameof(fuelControlTransactionsDataService));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
 		protected override TimeSpan Interval => _options.Value.ScanInterval;
@@ -64,6 +68,11 @@ namespace DatabaseServiceWorker
 				return;
 			}
 
+			if(DateTime.Now.Hour < _options.Value.TransactionsDataRequestMinHour)
+			{
+				return;
+			}
+
 			_isWorkInProgress = true;
 
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(FuelTransactionsControlWorker));
@@ -73,6 +82,8 @@ namespace DatabaseServiceWorker
 			await MonthlyFuelTransactionsUpdate(uow, stoppingToken);
 
 			_isWorkInProgress = false;
+
+			await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 		}
 
 		private async Task DailyFuelTransactionsUpdate(IUnitOfWork uow, CancellationToken cancellationToken)
@@ -81,9 +92,13 @@ namespace DatabaseServiceWorker
 
 			var transactionsPerDayLastUpdateDate = _fuelControlSettings.FuelTransactionsPerDayLastUpdateDate;
 
+			var isNeedToUpdateExistingTransactions =
+				DateTime.Today.Day == _options.Value.SavedTransactionsUpdateDay
+				&& transactionsPerDayLastUpdateDate < DateTime.Today.AddDays(-1);
+
 			var startDate = transactionsPerDayLastUpdateDate.AddDays(1);
 
-			if(startDate < GeneralUtils.GetCurrentMonthStartDate())
+			if(startDate < GeneralUtils.GetCurrentMonthStartDate() || isNeedToUpdateExistingTransactions)
 			{
 				startDate = GeneralUtils.GetCurrentMonthStartDate();
 			}
@@ -98,7 +113,7 @@ namespace DatabaseServiceWorker
 				return;
 			}
 
-			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate, cancellationToken);
+			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate, isNeedToUpdateExistingTransactions, cancellationToken);
 
 			if(isTransactionsUpdated)
 			{
@@ -129,7 +144,7 @@ namespace DatabaseServiceWorker
 				return;
 			}
 
-			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate, cancellationToken);
+			var isTransactionsUpdated = await GetAndSaveFuelTransactions(uow, startDate, endDate, true, cancellationToken);
 
 			if(isTransactionsUpdated)
 			{
@@ -141,6 +156,7 @@ namespace DatabaseServiceWorker
 			IUnitOfWork uow,
 			DateTime startDate,
 			DateTime endDate,
+			bool isNeedToUpdateExistingTransactions,
 			CancellationToken cancellationToken)
 		{
 			try
@@ -165,7 +181,16 @@ namespace DatabaseServiceWorker
 
 					if(transactionsCount > 0)
 					{
-						var savedTransactionsCount = await _fuelRepository.SaveFuelTransactionsIfNeedAsync(uow, transactions);
+						int savedTransactionsCount = default;
+
+						if(isNeedToUpdateExistingTransactions)
+						{
+							savedTransactionsCount = await _fuelRepository.SaveNewAndUpdateExistingFuelTransactions(uow, transactions);
+						}
+						else
+						{
+							savedTransactionsCount = await _fuelRepository.SaveFuelTransactionsIfNeedAsync(uow, transactions);
+						}
 
 						_logger.LogInformation("Сохранено в базе данных {SavedTransactionsCount} транзакций",
 							savedTransactionsCount);

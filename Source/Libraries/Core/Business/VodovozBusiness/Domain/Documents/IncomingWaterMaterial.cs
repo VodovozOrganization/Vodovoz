@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "Строки производства (сырьё)",
 		Nominative = "Строка производства (сырьё)")]
 	[HistoryTrace]
-	public class IncomingWaterMaterial : PropertyChangedBase, IDomainObject
+	public class IncomingWaterMaterial : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
@@ -53,7 +53,6 @@ namespace Vodovoz.Domain.Documents
 
 		decimal amount;
 
-		[Min(1)]
 		[Display(Name = "Количество")]
 		public virtual decimal Amount {
 			get { return amount; }
@@ -73,7 +72,6 @@ namespace Vodovoz.Domain.Documents
 				SetField(ref amountOnSource, value, () => AmountOnSource);
 			}
 		}
-
 
 		public virtual string Name => Nomenclature != null ? Nomenclature.Name : "";
 
@@ -107,7 +105,14 @@ namespace Vodovoz.Domain.Documents
 			};
 		}
 
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Amount < 1)
+			{
+				yield return new ValidationResult("Количество должно быть больше 1", new[] { nameof(Amount) });
+			}
+		}
+
 		#endregion
 	}
 }
-

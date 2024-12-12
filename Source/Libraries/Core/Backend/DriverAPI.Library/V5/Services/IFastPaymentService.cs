@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.FastPayments;
+using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Domain.FastPayments;
 
 namespace DriverAPI.Library.V5.Services
 {

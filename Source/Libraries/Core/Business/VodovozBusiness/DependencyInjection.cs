@@ -1,8 +1,9 @@
-using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using QS.Utilities.Extensions;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain;
 using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.EntityRepositories;
@@ -10,11 +11,6 @@ using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.NotificationRecievers;
 using Vodovoz.Options;
-using Vodovoz.Services;
-using Vodovoz.Settings.Database.Delivery;
-using Vodovoz.Settings.Database.Fuel;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -26,48 +22,46 @@ namespace Vodovoz
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddBusiness(this IServiceCollection services, IConfiguration configuration) => services
+		public static IServiceCollection AddBusiness(
+			this IServiceCollection services,
+			IConfiguration configuration,
+			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped) =>
+			services
+				.AddCoreDomainServices()
+				.RegisterClassesByInterfaces("Controller", serviceLifetime)
+				.RegisterClassesByInterfaces("Converter", serviceLifetime)
+				.RegisterClassesByInterfaces("Repository", serviceLifetime)
+				.RegisterClassesByInterfaces("Service", serviceLifetime)
+				.RegisterClassesByInterfaces("Handler", serviceLifetime)
+				.RegisterClassesByInterfaces("Factory", serviceLifetime)
+				
+				.ConfigureBusinessOptions(configuration)
+				.AddService<RouteGeometryCalculator>(serviceLifetime)
+				.AddService<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>(), serviceLifetime)
+				.AddService<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>(serviceLifetime)
+				.AddService<IFastPaymentSender, FastPaymentSender>(serviceLifetime)
+				.AddService<IOrganizationProvider, Stage2OrganizationProvider>(serviceLifetime)
+				.AddService<ISmsClientChannelFactory, SmsClientChannelFactory>(serviceLifetime)
+				.AddService<IDeliveryPriceCalculator, DeliveryPriceCalculator>(serviceLifetime)
+				.AddService<FastDeliveryHandler>(serviceLifetime)
+				.AddService<IFastDeliveryValidator, FastDeliveryValidator>(serviceLifetime)
+				.AddService<ICallTaskWorker, CallTaskWorker>(serviceLifetime)
+				.AddService<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance(), serviceLifetime)
+				.AddService<IErrorReporter>(context => ErrorReporter.Instance, serviceLifetime)
+				.AddService<OrderStateKey>(serviceLifetime)
+				.AddService<OnlineOrderStateKey>(serviceLifetime)
+				.AddDriverApiHelper()
+			;
 
-			.RegisterClassesByInterfaces("Controller")
-			.RegisterClassesByInterfaces("Repository")
-			.RegisterClassesByInterfaces("Service")
-			.RegisterClassesByInterfaces("Handler")
-			.RegisterClassesByInterfaces("Factory")
-			
-			.ConfigureBusinessOptions(configuration)
-			.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-			.AddScoped<RouteGeometryCalculator>()
-			.AddScoped<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>())
-			.AddScoped<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>()
-			.AddScoped<IFastPaymentSender, FastPaymentSender>()
-			.AddScoped<IOrganizationProvider, Stage2OrganizationProvider>()
-			.AddScoped<ISmsClientChannelFactory, SmsClientChannelFactory>()
-			.AddScoped<IDeliveryPriceCalculator, DeliveryPriceCalculator>()
-			.AddScoped<FastDeliveryHandler>()
-			.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
-			.AddScoped<ICallTaskWorker, CallTaskWorker>()
-			.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
-			.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
-			.AddScoped<OrderStateKey>()
-			.AddScoped<OnlineOrderStateKey>()
-			.AddScoped<INomenclatureOnlineCharacteristicsConverter, NomenclatureOnlineCharacteristicsConverter>()
-			.AddDriverApiHelper()
-		;
-
-		private static IServiceCollection RegisterClassesByInterfaces(this IServiceCollection services, string classEndsWith)
+		private static IServiceCollection RegisterClassesByInterfaces(
+			this IServiceCollection services,
+			string classEndsWith,
+			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
 		{
-			var settingsTypes = typeof(DependencyInjection).Assembly.GetTypes()
-				.Where(t => t.IsClass
-					&& t.Name.EndsWith(classEndsWith)
-					&& t.GetInterfaces().Any(i => i.Name == $"I{t.Name}"));
-
-			foreach(var type in settingsTypes)
-			{
-				services.AddScoped(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
-			}
-			
+			services.AddServicesEndsWith(typeof(DependencyInjection).Assembly, classEndsWith, serviceLifetime);
 			return services;
 		}
+
 		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services, IConfiguration configuration) => services
 			.Configure<PushNotificationSettings>(pushNotificationOptions =>
 				configuration.GetSection(nameof(PushNotificationSettings)).Bind(pushNotificationOptions));

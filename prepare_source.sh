@@ -1,12 +1,16 @@
 #!/bin/bash
-echo "Что делаем?"
-echo "1) git pull"
-echo "2) nuget restore"
-echo "3) cleanup packages directories"
-echo "4) build Vodovoz.sln (for Linux)"
-echo "5) remove obj & bin folders"
-echo "Можно вызывать вместе, например git+nuget=12"
-read case;
+if [ $1 != '' ]; then
+	case=$1
+else
+	echo "Что делаем?"
+	echo "1) git pull"
+	echo "2) nuget restore"
+	echo "3) cleanup packages directories"
+	echo "4) build Vodovoz.sln (for Linux)"
+	echo "5) remove obj & bin folders"
+	echo "Можно вызывать вместе, например git+nuget=12"
+	read case;
+fi
 
 case $case in
     *5*)

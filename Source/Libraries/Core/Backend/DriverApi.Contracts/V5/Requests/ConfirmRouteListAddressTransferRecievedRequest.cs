@@ -15,6 +15,6 @@ namespace DriverApi.Contracts.V5.Requests
 		/// <summary>
 		/// Время нажатия на кнопку подтверждения в мобильном приложении водителей
 		/// </summary>
-		public DateTime ActionTime { get; set; }
+		public DateTime ActionTimeUtc { get; set; }
 	}
 }

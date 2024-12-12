@@ -11,7 +11,6 @@ namespace Vodovoz.JournalColumnsConfigs
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<CounterpartyJournalNode> config) =>
 			config.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
-				.AddColumn("Вн.номер").AddTextRenderer(x => x.InternalId.ToString())
 				.AddColumn("Тег").AddTextRenderer(x => x.Tags, useMarkup: true)
 				.AddColumn("Контрагент").AddTextRenderer(node => node.Name).WrapWidth(450).WrapMode(WrapMode.WordChar)
 				.AddColumn("Классификация\nконтрагента").AddTextRenderer(x => x.CounterpartyClassification)

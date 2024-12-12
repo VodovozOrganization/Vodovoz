@@ -40,7 +40,7 @@ namespace Vodovoz.Filters.ViewModels
 		private PaymentFrom _paymentByCardFrom;
 		private PaymentOrder? _paymentOrder;
 		private bool _paymentsFromVisibility;
-		private Counterparty _restrictCounterparty;
+		private Counterparty _counterparty;
 		private DateTime? _restrictEndDate;
 		private bool? _restrictHideService;
 		private bool? _restrictLessThreeHours;
@@ -65,7 +65,7 @@ namespace Vodovoz.Filters.ViewModels
 		private IEnumerable<Organization> _organisations;
 		private IEnumerable<PaymentFrom> _paymentsFrom;
 		private IEnumerable<GeoGroup> _geographicGroups;
-		private bool _excludeClosingDocumentDeliverySchedule;
+		private bool? _filterClosingDocumentDeliverySchedule;
 		private string _counterpartyInn;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 		private ILifetimeScope _lifetimeScope;
@@ -194,14 +194,22 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _allowPaymentTypes, value);
 		}
 
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => UpdateFilterField(ref _counterparty, value);
+		}
+
 		public virtual Counterparty RestrictCounterparty
 		{
-			get => _restrictCounterparty;
+			get => _counterparty;
 			set
 			{
-				if(UpdateFilterField(ref _restrictCounterparty, value))
+				if(UpdateFilterField(ref _counterparty, value))
 				{
 					CanChangeCounterparty = false;
+					OnPropertyChanged(nameof(CanChangeCounterparty));
+					OnPropertyChanged(nameof(Counterparty));
 					_deliveryPointJournalFilterViewModel.Counterparty = value;
 					if(value == null)
 					{
@@ -511,10 +519,10 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _counterpartyNameLike, value);
 		}
 
-		public bool ExcludeClosingDocumentDeliverySchedule
+		public bool? FilterClosingDocumentDeliverySchedule
 		{
-			get => _excludeClosingDocumentDeliverySchedule;
-			set => UpdateFilterField(ref _excludeClosingDocumentDeliverySchedule, value);
+			get => _filterClosingDocumentDeliverySchedule;
+			set => UpdateFilterField(ref _filterClosingDocumentDeliverySchedule, value);
 		}
 		public override bool IsShow { get; set; } = true;
 
@@ -546,6 +554,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		public override void Dispose()
 		{
+			_journal = null;
 			_lifetimeScope = null;
 			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
 			base.Dispose();

@@ -1,5 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.ViewModels.Counterparties;
+using static Vodovoz.ViewModels.Counterparties.CallTaskFilterViewModel;
 
 namespace Vodovoz.Filters.GtkViews
 {

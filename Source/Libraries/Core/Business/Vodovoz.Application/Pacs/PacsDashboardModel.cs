@@ -137,7 +137,7 @@ namespace Vodovoz.Application.Pacs
 
 			ClearOperators();
 
-			var recentOperators = _repository.GetOperators(from.Value);
+			var recentOperators = _repository.GetOperatorStatesFrom(from.Value);
 			foreach(var operatorState in recentOperators)
 			{
 				AddOperatorState(operatorState);

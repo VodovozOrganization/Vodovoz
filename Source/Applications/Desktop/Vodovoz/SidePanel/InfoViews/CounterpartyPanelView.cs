@@ -28,19 +28,20 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CounterpartyPanelView : Bin, IPanelView
 	{
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IOrderRepository _orderRepository;
 		private readonly ICommonServices _commonServices;
 		private Counterparty _counterparty;
 		private IPermissionResult _counterpartyPermissionResult;
 		private bool _textviewcommentBufferChanged = false;
 
-		public CounterpartyPanelView(ICommonServices commonServices)
+		public CounterpartyPanelView(ICommonServices commonServices, IOrderRepository orderRepository)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			Build();
 			_counterpartyPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Counterparty));
 			Configure();
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
 		private void Configure()

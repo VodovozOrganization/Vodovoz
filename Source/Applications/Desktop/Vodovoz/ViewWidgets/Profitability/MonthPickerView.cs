@@ -1,13 +1,20 @@
 using System;
+using System.ComponentModel;
+using Gtk;
+using Pango;
 using QS.Views.GtkUI;
-using Vodovoz.ViewModels.Widgets.Profitability;
+using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
+using Image = Gtk.Image;
 
 namespace Vodovoz.ViewWidgets.Profitability
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MonthPickerView : WidgetViewBase<MonthPickerViewModel>
+	[ToolboxItem(true)]
+	public partial class MonthPickerView : WidgetViewBase<DatePickerViewModel>
 	{
-		public MonthPickerView(MonthPickerViewModel viewModel) : base(viewModel)
+		private Dialog _calendarDialog;
+		public static int? CalendarFontSize;
+		
+		public MonthPickerView(DatePickerViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			Configure();
@@ -15,20 +22,83 @@ namespace Vodovoz.ViewWidgets.Profitability
 
 		private void Configure()
 		{
-			btnNextMonth.Clicked += (sender, e) => ViewModel.NextMonthCommand.Execute();
-			btnPreviousMonth.Clicked += (sender, e) => ViewModel.PreviousMonthCommand.Execute();
+			btnNextDate.BindCommand(ViewModel.NextDateCommand);
+			btnPreviousDate.BindCommand(ViewModel.PreviousDateCommand);
+			btnCalendar.Clicked += OnCalendarClicked;
 
-			btnNextMonth.Binding
-				.AddBinding(ViewModel, vm => vm.CanSelectNextMonth, w => w.Sensitive)
+			btnNextDate.Binding
+				.AddBinding(ViewModel, vm => vm.CanSelectNextDate, w => w.Sensitive)
 				.InitializeFromSource();
-			btnPreviousMonth.Binding
-				.AddBinding(ViewModel, vm => vm.CanSelectPreviousMonth, w => w.Sensitive)
+			btnPreviousDate.Binding
+				.AddBinding(ViewModel, vm => vm.CanSelectPreviousDate, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			btnCalendar.Image = new Image(typeof(Startup).Assembly, "Vodovoz.icons.common.Сalendar.png");
+			btnCalendar.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditDateFromCalendar, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryMonth.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedMonthTitle, w => w.Text)
+			entryDate.WidthRequest = 100;
+			entryDate.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedDateTitle, w => w.Text)
 				.InitializeFromSource();
-			entryMonth.IsEditable = false;
+			entryDate.IsEditable = false;
+		}
+
+		private void OnCalendarClicked(object sender, EventArgs e)
+		{
+			var parentWin = (Window)Toplevel;
+			_calendarDialog = new Dialog(
+				"Выберите дату",
+				parentWin,
+				DialogFlags.DestroyWithParent)
+			{
+				Modal = true
+			};
+			
+			_calendarDialog.AddButton ("Отмена", ResponseType.Cancel);
+			_calendarDialog.AddButton ("Ok", ResponseType.Ok);
+			
+			var calendar = new Calendar();
+			calendar.DisplayOptions = CalendarDisplayOptions.ShowHeading  | 
+			                          CalendarDisplayOptions.ShowDayNames | 
+			                          CalendarDisplayOptions.ShowWeekNumbers;
+			
+			calendar.DaySelectedDoubleClick += OnCalendarDaySelectedDoubleClick;
+			calendar.Date = ViewModel.SelectedDate;
+
+			if(CalendarFontSize.HasValue)
+			{
+				var desc = new FontDescription { AbsoluteSize = CalendarFontSize.Value * 1000 };
+				calendar.ModifyFont(desc);
+			}
+			_calendarDialog.VBox.Add(calendar);
+			_calendarDialog.ShowAll();
+			var response = _calendarDialog.Run();
+			
+			if(response == (int)ResponseType.Ok)
+			{
+				var selectedDate = calendar.GetDate();
+				
+				if(ViewModel.CanChangeToPreviousDate(selectedDate) && ViewModel.CanChangeToNextDate(selectedDate))
+				{
+					ViewModel.SelectedDate = selectedDate;
+					ViewModel.OnDateChangedByUser();
+				}
+			}
+			
+			calendar.Destroy();
+			_calendarDialog.Destroy();
+		}
+		
+		private void OnCalendarDaySelectedDoubleClick(object sender, EventArgs e)
+		{
+			if(sender is Calendar calendar)
+			{
+				calendar.DaySelectedDoubleClick -= OnCalendarDaySelectedDoubleClick;
+			}
+			
+			_calendarDialog.Respond(ResponseType.Ok);
 		}
 	}
 }

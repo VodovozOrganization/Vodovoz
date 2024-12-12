@@ -9,6 +9,7 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Orders.Documents;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
@@ -36,7 +37,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 
 			Title = $"Повторная отправка неотправленных УПД контрагента {Entity.Name}";
 
-			CanResendSelectedEdoDocuments = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			CanResendSelectedEdoDocuments = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_edo_documents");
 
 			GetLastUpdByOrderIds(ordersIds);
 		}
@@ -109,7 +110,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			{
 				var order = document.EdoContainer.Order;
 
-				var edoValidateResult = _edoService.ValidateOrderForUpd(order);
+				var edoValidateResult = _edoService.ValidateOrderForDocument(order, document.EdoContainer.Type);
 
 				var errorMessages = edoValidateResult.Errors.Select(x => x.Message).ToArray();
 

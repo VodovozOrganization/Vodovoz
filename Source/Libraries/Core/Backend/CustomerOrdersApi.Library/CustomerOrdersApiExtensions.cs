@@ -1,7 +1,14 @@
-﻿using System.Security.Authentication;
+﻿using System;
+using System.Linq;
+using System.Net.Security;
+using System.Security.Authentication;
+using CustomerOrdersApi.Library.Config;
+using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Dto.Orders;
+using CustomerOrdersApi.Library.Factories;
 using CustomerOrdersApi.Library.Services;
 using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using Vodovoz.Settings.Pacs;
@@ -11,9 +18,20 @@ namespace CustomerOrdersApi.Library
 {
 	public static class CustomerOrdersApiExtensions
 	{
-		public static IServiceCollection AddCustomerOrdersApiLibrary(this IServiceCollection services)
+		public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration config)
 		{
-			services.AddLibraryDependencies();
+			services.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position));
+			
+			return services;
+		}
+		
+		public static IServiceCollection AddDependenciesGroup(this IServiceCollection services)
+		{
+			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
+				.AddScoped<ISignatureManager, SignatureManager>()
+				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
+				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
+				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>();
 			
 			return services;
 		}
@@ -34,7 +52,15 @@ namespace CustomerOrdersApi.Library
 
 						if(messageSettings.UseSSL)
 						{
-							hostConfigurator.UseSsl(ssl => ssl.Protocol = SslProtocols.Tls12);
+							hostConfigurator.UseSsl(ssl =>
+							{
+								if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
+								{
+									ssl.AllowPolicyErrors(allowedPolicyErrors);
+								}
+
+								ssl.Protocol = SslProtocols.Tls12;
+							});
 						}
 					});
 								
@@ -67,16 +93,6 @@ namespace CustomerOrdersApi.Library
 			});
 			
 			return busConf;
-		}
-
-		private static IServiceCollection AddLibraryDependencies(this IServiceCollection services)
-		{
-			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
-				.AddScoped<ISignatureManager, SignatureManager>()
-				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
-				;
-			
-			return services;
 		}
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Excel;
-using Irony.Parsing;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -7,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
 {

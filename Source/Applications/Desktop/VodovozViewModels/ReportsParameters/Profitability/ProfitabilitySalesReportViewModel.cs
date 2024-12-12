@@ -2,6 +2,7 @@
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Report;
 using QS.Report.ViewModels;
 using QS.Services;
@@ -15,6 +16,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Factories;
@@ -48,33 +50,46 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			RdlViewerViewModel rdlViewerViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeRepository employeeRepository,
-			ICommonServices commonServices,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
-			ILeftRightListViewModelFactory leftRightListViewModelFactory)
-			: base(rdlViewerViewModel)
+			ILeftRightListViewModelFactory leftRightListViewModelFactory,
+			IReportInfoFactory reportInfoFactory,
+			IUserService userService,
+			IInteractiveService interactiveService,
+			ICurrentPermissionService currentPermissionService
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			if(unitOfWorkFactory is null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
 
-			if(commonServices is null)
+			if(userService is null)
 			{
-				throw new ArgumentNullException(nameof(commonServices));
+				throw new ArgumentNullException(nameof(userService));
+			}
+
+			if(currentPermissionService is null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports))
+			{
+				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
 			}
 
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
-			_interactiveService = commonServices.InteractiveService;
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
 			Title = "Отчет по продажам с рентабельностью";
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 
 			_userIsSalesRepresentative =
-				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
-				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+				&& !userService.GetCurrentUser().IsAdmin;
 
 			StartDate = DateTime.Today;
 			EndDate = DateTime.Today;
@@ -90,13 +105,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		{
 			get
 			{
-				var reportInfo = new ReportInfo
-				{
-					Source = _source,
-					Parameters = Parameters,
-					Title = Title,
-					UseUserVariables = true
-				};
+				var reportInfo = base.ReportInfo;
+				reportInfo.Source = _source;
+				reportInfo.UseUserVariables = true;
 				return reportInfo;
 			}
 		}
@@ -127,7 +138,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 		private void SetupFilter()
 		{
-			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, !_userIsSalesRepresentative);
 
 			var additionalParams = new Dictionary<string, string>
 			{

@@ -16,6 +16,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			public decimal ProgramOrderSum { get; set; }
 			public decimal AllocatedSum { get; set; }
 			public bool IsMissingFromDocument { get; set; }
+			public string OrderClientNameInDatabase { get; set; }
+			public string OrderClientInnInDatabase { get; set; }
 			public bool OrderSumDiscrepancy => ProgramOrderSum != DocumentOrderSum;
 			public DateTime? OrderDeliveryDate => OrderDeliveryDateInDatabase ?? OrderDeliveryDateInDocument;
 		}

@@ -73,7 +73,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			set
 			{
 				SetField(ref _selectedInstance, value);
-				InventoryNumber = _selectedInstance?.InventoryNumber;
+				InventoryNumber = _selectedInstance?.GetInventoryNumber;
 			}
 		}
 
@@ -398,7 +398,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			int index = 1;
 			var title = ws.Range(1, index, 1, colNames.Length);
 			title.Cell(1, 1).Value =
-				$"Отчет по движению инвентарного номера({_selectedInstance.Name} инв. номер: {_selectedInstance.InventoryNumber})";
+				$"Отчет по движению инвентарного номера({_selectedInstance.Name} инв. номер: {_selectedInstance.GetInventoryNumber})";
 			title.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
 			title.Merge();
 			

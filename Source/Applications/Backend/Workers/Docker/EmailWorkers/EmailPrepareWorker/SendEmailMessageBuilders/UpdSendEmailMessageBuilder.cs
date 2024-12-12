@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
@@ -16,11 +17,12 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 
 		public UpdSendEmailMessageBuilder(
 			IEmailSettings emailSettings,
+			IEmailRepository emailRepository,
 			IUnitOfWork unitOfWork,
 			IEmailDocumentPreparer emailDocumentPreparer,
 			CounterpartyEmail counterpartyEmail,
 			int instanceId) 
-			: base(unitOfWork, emailSettings, emailDocumentPreparer, counterpartyEmail, instanceId)
+			: base(unitOfWork, emailSettings, emailRepository, emailDocumentPreparer, counterpartyEmail, instanceId)
 		{
 			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
 			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));

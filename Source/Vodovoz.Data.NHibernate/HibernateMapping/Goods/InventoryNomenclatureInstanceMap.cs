@@ -11,6 +11,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 
 			Map(x => x.InventoryNumber).Column("inventory_number");
 			Map(x => x.IsArchive).Column("is_archive");
+			Map(x => x.IsUsed).Column("is_used");
 		}
 	}
 }

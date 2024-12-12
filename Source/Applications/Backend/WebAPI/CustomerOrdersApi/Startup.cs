@@ -1,4 +1,4 @@
-using CustomerOrdersApi.Library;
+﻿using CustomerOrdersApi.Library;
 using MassTransit;
 using MessageTransport;
 using Microsoft.AspNetCore.Builder;
@@ -7,7 +7,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using QS.Project.Core;
 using QS.Services;
+using Vodovoz;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Data.NHibernate;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace CustomerOrdersApi
 {
@@ -28,13 +33,34 @@ namespace CustomerOrdersApi
 				{
 					c.SwaggerDoc("v1", new OpenApiInfo
 					{
-						Title = "CustomerOrdersApi", Version = "v1"
+						Title = "CustomerOrdersApi",
+						Version = "v1"
 					});
 				})
-				
+
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddTrackedUoW()
+				.AddBusiness(Configuration)
+				.AddInfrastructure()
+				.AddConfig(Configuration)
+				.AddDependenciesGroup();
+
+			services.AddStaticScopeForEntity();
+
+			services
+				.AddMemoryCache()
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
-				.AddCustomerOrdersApiLibrary()
 				.AddHttpClient();
 		}
 

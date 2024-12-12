@@ -2,6 +2,7 @@
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Report;
 using QS.Report.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -21,8 +22,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 		private IInteractiveService _interactiveService;
 		private readonly IGeneralSettings _generalSettings;
 
-		public DeliveriesLateReportViewModel(RdlViewerViewModel rdlViewerViewModel, IUnitOfWorkFactory uowFactory, IInteractiveService interactiveService, IGeneralSettings generalSettings)
-			: base(rdlViewerViewModel)
+		public DeliveriesLateReportViewModel(
+			RdlViewerViewModel rdlViewerViewModel,
+			IUnitOfWorkFactory uowFactory,
+			IInteractiveService interactiveService,
+			IGeneralSettings generalSettings,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
@@ -47,18 +53,18 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 			LoadReport();
 		}
 
-		private IntervalSelectMode GetIntervalSelectedMode()
+		private FastDeliveryIntervalFromEnum GetIntervalSelectedMode()
 		{
 			if(IsIntervalFromFirstAddress)
 			{
-				return IntervalSelectMode.FirstAddress;
+				return FastDeliveryIntervalFromEnum.AddedInFirstRouteList;
 			}
 			if(IsIntervalFromTransferTime)
 			{
-				return IntervalSelectMode.Transfer;
+				return FastDeliveryIntervalFromEnum.RouteListItemTransfered;
 			}
 
-			return IntervalSelectMode.Create;
+			return FastDeliveryIntervalFromEnum.OrderCreated;
 		}
 
 		private OrderSelectMode GetOrderSelectMode()

@@ -1,6 +1,7 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 
@@ -17,5 +18,7 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 		IList<object[]> GetGuiltyAndCountForDates(IUnitOfWork uow, DateTime? start = null, DateTime? end = null);
 		decimal GetUndelivered19LBottlesQuantity(IUnitOfWork uow, DateTime? start = null, DateTime? end = null);
 		Order GetOldOrderFromUndeliveredByNewOrderId(IUnitOfWork uow, int newOrderId);
+		IQueryable<UndeliveredOrder> GetUndeliveriesForOrders(IUnitOfWork unitOfWork, IList<int> ordersIds);
+		IList<OksDailyReportUndeliveredOrderDataNode> GetUndeliveredOrdersForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
 	}
 }

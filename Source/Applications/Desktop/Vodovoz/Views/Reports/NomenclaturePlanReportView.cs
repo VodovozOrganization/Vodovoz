@@ -6,8 +6,8 @@ using QS.Utilities;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.NomenclaturePlanReport;
 
@@ -269,9 +269,7 @@ namespace Vodovoz.Views.Reports
 			ytreeviewSelectedNomenclatures.RowActivated += NomenclatureDeleted;
 			ytreeviewSelectedNomenclatures.Selection.Mode = SelectionMode.Multiple;
 
-			yentryProductGroup.SetEntityAutocompleteSelectorFactory(ViewModel.ProductGroupSelectorFactory);
-			yentryProductGroup.Binding.AddBinding(ViewModel, vm => vm.ProductGroup, w => w.Subject).InitializeFromSource();
-			yentryProductGroup.Changed += (sender, args) => ViewModel.NomenclatureSearchCommand.Execute();
+			entityentryProductGroup.ViewModel = ViewModel.ProductGroupEntityEntryViewModel;
 
 			ytreeviewNomenclatures.Binding.AddFuncBinding(ViewModel, vm => vm.NomenclatureDataLoader.Items, w => w.ItemsDataSource).InitializeFromSource();
 

@@ -317,7 +317,7 @@ WHERE stored_resource.id = @id1</CommandText>
     n.name AS nomenclature,
     ni.id AS instance_id,
     ROUND(amount_in_db) as amount_in_db,
-    ni.inventory_number as inventory_number,
+    GET_INVENTORY_NUMBER(ni.is_used, ni.inventory_number) as inventory_number,
     IF(is_missing, 0, 1) as amount_in_fact,
     ROUND((select amount_in_fact) - amount_in_db) as difference,
     store_inventory_instance_item.comment

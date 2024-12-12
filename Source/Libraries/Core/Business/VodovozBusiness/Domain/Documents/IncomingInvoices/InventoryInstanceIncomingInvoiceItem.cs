@@ -47,7 +47,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		
 		public override string InventoryNumberString =>
 			InventoryNomenclatureInstance?.Nomenclature != null && InventoryNomenclatureInstance.Nomenclature.HasInventoryAccounting
-				? InventoryNomenclatureInstance.InventoryNumber
+				? InventoryNomenclatureInstance.GetInventoryNumber
 				: string.Empty;
 
 		public override bool CanEditAmount => false;

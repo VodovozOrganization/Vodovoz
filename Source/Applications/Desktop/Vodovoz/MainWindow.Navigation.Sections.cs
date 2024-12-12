@@ -1,6 +1,9 @@
-﻿using QS.Dialog.GtkUI;
+using Autofac;
+using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
+using QS.Report;
+using QS.Report.ViewModels;
 using System;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Dialogs.Logistic;
@@ -19,6 +22,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 
 public partial class MainWindow
@@ -177,31 +181,38 @@ public partial class MainWindow
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
+			null,
+			filter =>
+			{
+				filter.StartDate = DateTime.Today.AddMonths(-2);
+				filter.EndDate = DateTime.Today;
+			},
+			OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnOrdersRatingsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OrdersRatingsJournalViewModel>(null);
 	}
 
 	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OnecCommentsReport>(),
-			() => new QSReport.ReportViewDlg(new OnecCommentsReport())
+			() => new QSReport.ReportViewDlg(new OnecCommentsReport(reportInfoFactory))
 		);
 	}
 
 	protected void OpenRoutesListRegisterReport()
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.RoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.RoutesListRegisterReport())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RoutesListRegisterReportViewModel));
 	}
 
 	protected void OpenDriverRoutesListRegisterReport()
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DriverRoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new DriverRoutesListRegisterReport())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DriverRoutesListRegisterReportViewModel));
 	}
 
 	protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
@@ -225,7 +236,12 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			null,
-			filter => filter.IsForRetail = true,
+			filter =>
+			{
+				filter.IsForRetail = true;
+				filter.StartDate = DateTime.Today.AddMonths(-2);
+				filter.EndDate = DateTime.Today;
+			},
 			OpenPageOptions.IgnoreHash);
 	}
 

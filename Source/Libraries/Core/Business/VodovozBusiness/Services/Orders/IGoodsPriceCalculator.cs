@@ -8,7 +8,7 @@ namespace Vodovoz.Domain.Service
 	public interface IGoodsPriceCalculator
 	{
 		decimal CalculateItemPrice(
-			IEnumerable<Product> products,
+			IEnumerable<IProduct> products,
 			DeliveryPoint deliveryPoint,
 			CounterpartyContract contract,
 			Nomenclature nomenclature,

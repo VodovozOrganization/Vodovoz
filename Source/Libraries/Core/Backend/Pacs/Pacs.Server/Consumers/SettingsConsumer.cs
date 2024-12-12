@@ -8,9 +8,9 @@ namespace Pacs.Server.Consumers
 {
 	public class PacsSettingsConsumer : IConsumer<SettingsEvent>
 	{
-		private readonly GlobalBreakController _globalBreakController;
+		private readonly IGlobalBreakController _globalBreakController;
 
-		public PacsSettingsConsumer(GlobalBreakController globalBreakController)
+		public PacsSettingsConsumer(IGlobalBreakController globalBreakController)
 		{
 			_globalBreakController = globalBreakController ?? throw new ArgumentNullException(nameof(globalBreakController));
 		}

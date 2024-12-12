@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -151,12 +152,11 @@ namespace Vodovoz.Application.Orders.Services
 
 				var promoSetItemsCount = promoSet.PromotionalSetItems.Count;
 				var onlinePromoItemsCount = onlineOrderItemGroup.Count();
-				var promoSetCount = onlinePromoItemsCount % promoSetItemsCount;
+				var promoSetCount = onlinePromoItemsCount / promoSetItemsCount;
 
 				if(promoSetCount == default)
 				{
 					promoSetCount = 1;
-					//добавить сообщение о несоответствии количества позиций в пришедшем промике и существующем
 				}
 
 				for(var i = 0; i < promoSetCount; i++)
@@ -197,8 +197,28 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					continue;
 				}
-				
-				AddNomenclature(order, onlineOrderItem);
+
+				if(onlineOrderItem.OnlineOrderErrorState.HasValue
+					&& onlineOrderItem.OnlineOrderErrorState == OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable)
+				{
+					order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
+				}
+				else
+				{
+					if(onlineOrderItem.DiscountReason is null)
+					{
+						order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
+					}
+					else
+					{
+						order.AddNomenclature(
+							onlineOrderItem.Nomenclature,
+							onlineOrderItem.Count,
+							onlineOrderItem.GetDiscount,
+							onlineOrderItem.IsDiscountInMoney,
+							onlineOrderItem.DiscountReason);
+					}
+				}
 			}
 		}
 		
@@ -211,16 +231,13 @@ namespace Vodovoz.Application.Orders.Services
 					continue;
 				}
 				
-				AddNomenclature(order, onlineOrderItem);
+				order.AddNomenclature(
+					onlineOrderItem.Nomenclature,
+					onlineOrderItem.Count,
+					onlineOrderItem.GetDiscount,
+					onlineOrderItem.IsDiscountInMoney,
+					onlineOrderItem.DiscountReason);
 			}
-		}
-
-		private void AddNomenclature(Order order, Product onlineOrderItem)
-		{
-			order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
-			//временный костыль для исправления расчета цены, пока не протестили основное решение
-			order.RecalculateItemsPrice();
-			order.UpdateRentsCount();
 		}
 
 		private void AddFreeRentPackages(Order order, IEnumerable<OnlineFreeRentPackage> onlineRentPackages)

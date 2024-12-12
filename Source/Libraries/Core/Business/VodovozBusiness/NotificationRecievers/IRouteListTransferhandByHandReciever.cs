@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
+using Vodovoz.Errors;
 
 namespace Vodovoz.NotificationRecievers
 {
 	public interface IRouteListTransferhandByHandReciever
 	{
-		Task NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId);
+		Task<Result> NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId);
 	}
 }

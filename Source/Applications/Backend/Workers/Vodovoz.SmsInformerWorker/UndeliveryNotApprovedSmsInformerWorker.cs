@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -17,20 +18,15 @@ namespace Vodovoz.SmsInformerWorker
 	/// </summary>
 	internal class UndeliveryNotApprovedSmsInformerWorker : SmsInformerWorkerBase
 	{
-		private readonly ISmsNotificationRepository _smsNotificationRepository;
-
 		public UndeliveryNotApprovedSmsInformerWorker(
 			IOptions<SmsInformerOptions> options,
 			ILogger<UndeliveryNotApprovedSmsInformerWorker> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IServiceScopeFactory serviceScopeFactory,
 			ISmsSender smsSender,
-			ISmsNotificationRepository smsNotificationRepository,
 			ISmsBalanceNotifier smsBalanceNotifier,
 			ILowBalanceNotificationService lowBalanceNotificationService)
-			: base(options, logger, unitOfWorkFactory, smsSender, smsBalanceNotifier, lowBalanceNotificationService)
+			: base(options, logger, serviceScopeFactory, smsSender, smsBalanceNotifier, lowBalanceNotificationService)
 		{
-			_smsNotificationRepository = smsNotificationRepository
-				?? throw new ArgumentNullException(nameof(smsNotificationRepository));
 		}
 
 		public override void SendNotification(SmsNotification notification)
@@ -67,7 +63,7 @@ namespace Vodovoz.SmsInformerWorker
 			base.OnStopService();
 		}
 
-		public override IEnumerable<SmsNotification> GetNotifications(IUnitOfWork unitOfWork) =>
-			_smsNotificationRepository.GetUnsendedUndeliveryNotApprovedSmsNotifications(unitOfWork);
+		public override IEnumerable<SmsNotification> GetNotifications(IUnitOfWork unitOfWork, IServiceProvider serviceProvider) =>
+			serviceProvider.GetRequiredService<ISmsNotificationRepository>().GetUnsendedUndeliveryNotApprovedSmsNotifications(unitOfWork);
 	}
 }

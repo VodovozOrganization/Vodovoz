@@ -369,7 +369,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						_logger.LogError(e, "Ошибка получения результатов вычисления маршрута");
 					}
 
-					var distance = route?.Routes.First().TotalDistanceKm;
+					var distance = route?.Routes?.First().TotalDistanceKm;
 
 					routeListNodes.Add(new RouteListNode
 					{

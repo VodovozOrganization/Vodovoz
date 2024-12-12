@@ -20,7 +20,7 @@ namespace Vodovoz.Core.Permissions
 	public partial class SubdivisionForUserEntityPermissionWidget : Gtk.Bin, IUserPermissionTab
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private IEmployeeRepository _employeeRepository;
 		private SubdivisionsJournalViewModel _subdivisionJVM;
 
 		public string Title => "Особые права на подразделения";
@@ -29,8 +29,14 @@ namespace Vodovoz.Core.Permissions
 		
 		public SubdivisionForUserEntityPermissionWidget()
 		{
+			ResolveDependencies();
 			Build();
 			Sensitive = false;
+		}
+
+		private void ResolveDependencies()
+		{
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
 		}
 
 		public void ConfigureDlg(IUnitOfWork uow, UserBase user)
@@ -183,6 +189,7 @@ namespace Vodovoz.Core.Permissions
 
 		public override void Destroy()
 		{
+			_employeeRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 			base.Destroy();

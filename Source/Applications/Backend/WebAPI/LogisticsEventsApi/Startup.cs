@@ -16,6 +16,7 @@ using QS.Project.Core;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
 using VodovozHealthCheck;
 
@@ -59,6 +60,7 @@ namespace LogisticsEventsApi
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddInfrastructure()
 				.AddTrackedUoW()
 				;
 

@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Sale
 		NominativePlural = "Версии частей города")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class GeoGroupVersion : VersionEntityBase, IValidatableObject
+	public class GeoGroupVersion : VersionEntityBase, IValidatableObject, IDomainObject
 	{
 		private Employee _author;
 		private GeoGroup _geoGroup;

@@ -1,10 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using Gamma.Utilities;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools.Comparers;
 using Vodovoz.Tools.Logistic;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Service;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -14,6 +19,7 @@ namespace Vodovoz.ViewWidgets
 		private const int _maxScheduleCountOnLine = 4;
 
 		private DeliveryPriceNode _deliveryPrice;
+		private ServiceDistrict _serviceDistrict;
 		private IList<DeliveryRuleRow> _deliveryRulesMonday;
 		private IList<DeliveryRuleRow> _deliveryRulesTuesday;
 		private IList<DeliveryRuleRow> _deliveryRulesWednesday;
@@ -40,6 +46,12 @@ namespace Vodovoz.ViewWidgets
 			set => _district = value;
 		}
 
+		public ServiceDistrict ServiceDistrict
+		{
+			get => _serviceDistrict;
+			set => _serviceDistrict = value;
+		}
+
 		public DeliveryPriceNode DeliveryPrice
 		{
 			get
@@ -64,7 +76,7 @@ namespace Vodovoz.ViewWidgets
 			{
 				_deliveryRulesToday = value;
 				drrvToday.Title = "Сегодня";
-				drrvToday.ConfigureDeliveryRulesTreeView(DeliveryRulesToday);
+				drrvToday.ConfigureDeliveryRulesTreeView(DeliveryRulesToday, TypeOfAddress == OrderAddressType.Service);
 			}
 		}
 
@@ -75,7 +87,7 @@ namespace Vodovoz.ViewWidgets
 			{
 				_deliveryRulesMonday = value;
 				drrvMonday.Title = "Понедельник";
-				drrvMonday.ConfigureDeliveryRulesTreeView(DeliveryRulesMonday);
+				drrvMonday.ConfigureDeliveryRulesTreeView(DeliveryRulesMonday, TypeOfAddress == OrderAddressType.Service);
 			}
 		}
 
@@ -86,7 +98,7 @@ namespace Vodovoz.ViewWidgets
 			{
 				_deliveryRulesTuesday = value;
 				drrvTuesday.Title = "Вторник";
-				drrvTuesday.ConfigureDeliveryRulesTreeView(DeliveryRulesTuesday);
+				drrvTuesday.ConfigureDeliveryRulesTreeView(DeliveryRulesTuesday, TypeOfAddress == OrderAddressType.Service);
 			}
 		}
 
@@ -97,7 +109,7 @@ namespace Vodovoz.ViewWidgets
 			{
 				_deliveryRulesWednesday = value;
 				drrvWednesday.Title = "Среда";
-				drrvWednesday.ConfigureDeliveryRulesTreeView(DeliveryRulesWednesday);
+				drrvWednesday.ConfigureDeliveryRulesTreeView(DeliveryRulesWednesday, TypeOfAddress == OrderAddressType.Service);
 			}
 		}
 
@@ -108,7 +120,7 @@ namespace Vodovoz.ViewWidgets
 			{
 				_deliveryRulesThursday = value;
 				drrvThursday.Title = "Четверг";
-				drrvThursday.ConfigureDeliveryRulesTreeView(DeliveryRulesThursday);
+				drrvThursday.ConfigureDeliveryRulesTreeView(DeliveryRulesThursday, TypeOfAddress == OrderAddressType.Service);
 			}
 		}
 
@@ -120,7 +132,7 @@ namespace Vodovoz.ViewWidgets
 			{
 				_deliveryRulesFriday = value;
 				drrvFriday.Title = "Пятница";
-				drrvFriday.ConfigureDeliveryRulesTreeView(DeliveryRulesFriday);
+				drrvFriday.ConfigureDeliveryRulesTreeView(DeliveryRulesFriday, TypeOfAddress == OrderAddressType.Service);
 			}
 		}
 
@@ -131,7 +143,7 @@ namespace Vodovoz.ViewWidgets
 			{
 				_deliveryRulesSaturday = value;
 				drrvSaturday.Title = "Суббота";
-				drrvSaturday.ConfigureDeliveryRulesTreeView(DeliveryRulesSaturday);
+				drrvSaturday.ConfigureDeliveryRulesTreeView(DeliveryRulesSaturday, TypeOfAddress == OrderAddressType.Service);
 			}
 		}
 
@@ -142,7 +154,7 @@ namespace Vodovoz.ViewWidgets
 			{
 				_deliverySundayRules = value;
 				drrvSunday.Title = "Воскресенье";
-				drrvSunday.ConfigureDeliveryRulesTreeView(DeliveryRulesSunday);
+				drrvSunday.ConfigureDeliveryRulesTreeView(DeliveryRulesSunday, TypeOfAddress == OrderAddressType.Service);
 			}
 		}
 
@@ -193,6 +205,7 @@ namespace Vodovoz.ViewWidgets
 			get => drrvSunday.Schedule;
 			set => drrvSunday.Schedule = value;
 		}
+		public OrderAddressType? TypeOfAddress { get; internal set; }
 
 		private void ShowResults(DeliveryPriceNode deliveryPriceNode)
 		{
@@ -200,11 +213,23 @@ namespace Vodovoz.ViewWidgets
 			GtkScrolledWindow.Visible = deliveryPriceNode.ByDistance;
 			ytreeviewPrices.SetItemsSource(deliveryPriceNode.Prices);
 			lblDistrict.LabelProp = deliveryPriceNode.DistrictName;
-			wageTypeValueLabel.Text = deliveryPriceNode.WageDistrict + ",";
+			if(deliveryPriceNode.WageDistrict != null)
+			{
+				wageTypeValueLabel.Text = deliveryPriceNode.WageDistrict + ",";
+			}
+			else
+			{
+				wageTypeValueLabel.Text = "Часть города: ";
+			}
 
-			if(District?.Id != null)
+			if(TypeOfAddress == OrderAddressType.Service)
+			{
+				RefreshServiceDistrictData();
+			}
+			else if(District?.Id != null)
 			{
 				RefreshDistrictData();
+
 			}
 		}
 
@@ -220,6 +245,8 @@ namespace Vodovoz.ViewWidgets
 					District.TodayDistrictRuleItems.Any()
 					? District.TodayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvToday.Visible = true;
 			}
 			else
 			{
@@ -234,6 +261,8 @@ namespace Vodovoz.ViewWidgets
 					District.MondayDistrictRuleItems.Any()
 					? District.MondayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvMonday.Visible = true;
 			}
 			else
 			{
@@ -248,6 +277,8 @@ namespace Vodovoz.ViewWidgets
 					District.TuesdayDistrictRuleItems.Any()
 					? District.TuesdayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvTuesday.Visible = true;
 			}
 			else
 			{
@@ -262,6 +293,8 @@ namespace Vodovoz.ViewWidgets
 					District.WednesdayDistrictRuleItems.Any()
 					? District.WednesdayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvWednesday.Visible = true;
 			}
 			else
 			{
@@ -276,6 +309,8 @@ namespace Vodovoz.ViewWidgets
 					District.ThursdayDistrictRuleItems.Any()
 					? District.ThursdayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvThursday.Visible = true;
 			}
 			else
 			{
@@ -290,6 +325,8 @@ namespace Vodovoz.ViewWidgets
 					District.FridayDistrictRuleItems.Any()
 					? District.FridayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvFriday.Visible = true;
 			}
 			else
 			{
@@ -304,6 +341,8 @@ namespace Vodovoz.ViewWidgets
 					District.SaturdayDistrictRuleItems.Any()
 					? District.SaturdayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvSaturday.Visible = true;
 			}
 			else
 			{
@@ -318,6 +357,8 @@ namespace Vodovoz.ViewWidgets
 					District.SundayDistrictRuleItems.Any()
 					? District.SundayDistrictRuleItems
 					: District.CommonDistrictRuleItems.Cast<DistrictRuleItemBase>());
+
+				drrvSunday.Visible = true;
 			}
 			else
 			{
@@ -326,7 +367,7 @@ namespace Vodovoz.ViewWidgets
 
 			#endregion DeliveryRules
 
-			#region Sheduules
+			#region Shedules
 
 			ScheduleRestrictionsToday = GetSheduleRestrictionsFor(WeekDayName.Today);
 			ScheduleRestrictionsMonday = GetSheduleRestrictionsFor(WeekDayName.Monday);
@@ -340,13 +381,170 @@ namespace Vodovoz.ViewWidgets
 			#endregion Shedules
 		}
 
-		private string GetSheduleRestrictionsFor(WeekDayName weekDayName)
+		private void RefreshServiceDistrictData()
 		{
-			var restrictions = District
-				.GetAllDeliveryScheduleRestrictions()
+			#region DeliveryRules
+
+			foreach(var weekDay in Enum.GetValues(typeof(WeekDayName)).Cast<WeekDayName>())
+			{
+				if(ServiceDistrict?.GetWeekDayRulesByWeekDayName(weekDay) is IList<WeekDayServiceDistrictRule> dayServiceDistrictRule)
+				{
+					var dayRule = ConvertToServiceDeliveryRuleRows(dayServiceDistrictRule.Any()
+						? dayServiceDistrictRule
+						: ServiceDistrict?.GetCommonServiceDistrictRules() as IEnumerable<ServiceDistrictRule>);
+
+					var isDayVisible = dayRule.Any() && GetServiceSheduleRestrictionsForDay(weekDay).Any(); //Удали меня
+
+					switch(weekDay)
+					{
+						case WeekDayName.Today:
+							DeliveryRulesToday = dayRule;
+							drrvToday.Visible = isDayVisible;
+							break;
+						case WeekDayName.Monday:
+							DeliveryRulesMonday = dayRule;
+							drrvMonday.Visible = isDayVisible;
+							break;
+						case WeekDayName.Tuesday:
+							DeliveryRulesTuesday = dayRule;
+							drrvTuesday.Visible = isDayVisible;
+							break;
+						case WeekDayName.Wednesday:
+							DeliveryRulesWednesday = dayRule;
+							drrvWednesday.Visible = isDayVisible;
+							break;
+						case WeekDayName.Thursday:
+							DeliveryRulesThursday = dayRule;
+							drrvThursday.Visible = isDayVisible;
+							break;
+						case WeekDayName.Friday:
+							DeliveryRulesFriday = dayRule;
+							drrvFriday.Visible = isDayVisible;
+							break;
+						case WeekDayName.Saturday:
+							DeliveryRulesSaturday = dayRule;
+							drrvSaturday.Visible = isDayVisible;
+							break;
+						case WeekDayName.Sunday:
+							DeliveryRulesSunday = dayRule;
+							drrvSunday.Visible = isDayVisible;
+							break;
+					}
+				}
+			}
+
+			#endregion DeliveryRules
+
+			#region Sheduules
+
+			ScheduleRestrictionsToday = GetServiceSheduleRestrictionsForDay(WeekDayName.Today);
+			ScheduleRestrictionsMonday = GetServiceSheduleRestrictionsForDay(WeekDayName.Monday);
+			ScheduleRestrictionsTuesday = GetServiceSheduleRestrictionsForDay(WeekDayName.Tuesday);
+			ScheduleRestrictionsWednesday = GetServiceSheduleRestrictionsForDay(WeekDayName.Wednesday);
+			ScheduleRestrictionsThursday = GetServiceSheduleRestrictionsForDay(WeekDayName.Thursday);
+			ScheduleRestrictionsFriday = GetServiceSheduleRestrictionsForDay(WeekDayName.Friday);
+			ScheduleRestrictionsSaturday = GetServiceSheduleRestrictionsForDay(WeekDayName.Saturday);
+			ScheduleRestrictionsSunday = GetServiceSheduleRestrictionsForDay(WeekDayName.Sunday);
+
+			#endregion Shedules			
+		}
+
+		private string GetSheduleRestrictionsFor(WeekDayName weekDayName, bool isForServiceDistrict = false)
+			{
+
+			var restrictions = District.GetAllDeliveryScheduleRestrictions()
 				.Where(x => x.WeekDay == weekDayName)
 				.OrderBy(x => x.DeliverySchedule.From)
 				.ThenBy(x => x.DeliverySchedule.To);
+
+			var result = new StringBuilder();
+
+			int i = 1;
+
+			if(weekDayName == WeekDayName.Today)
+			{
+				var groupedTodayRestrictions = restrictions
+					.GroupBy(x => x.AcceptBefore?.Name)
+					.OrderBy(x => x.Key, new StringOrNullAfterComparer());
+
+				foreach(var group in groupedTodayRestrictions)
+				{
+					if(!string.IsNullOrWhiteSpace(group.Key))
+					{
+						result.Append($"<b>до {group.Key}:</b> ");
+					}
+					else
+					{
+						result.Append($"<b>Без ограничений:</b> ");
+					}
+
+					i = 1;
+					int maxScheduleCountOnLine = 3;
+					var restrictionsInGroup = group.ToList();
+					int lastItemOnDayId = restrictionsInGroup.Last().Id;
+					foreach(var restriction in restrictionsInGroup)
+					{
+						result.Append(restriction.DeliverySchedule.Name);
+						result.Append(restriction.Id == lastItemOnDayId ? ";" : ", ");
+						if(i == maxScheduleCountOnLine && restriction.Id != lastItemOnDayId)
+						{
+							result.AppendLine();
+							maxScheduleCountOnLine = _maxScheduleCountOnLine;
+							i = 0;
+						}
+						i++;
+					}
+					result.AppendLine();
+				}
+
+				return result.ToString();
+			}
+
+			var groupedRestrictions = restrictions
+				.GroupBy(x => x.AcceptBefore?.Name)
+				.OrderBy(x => x.Key, new StringOrNullAfterComparer());
+
+			foreach(var group in groupedRestrictions)
+			{
+				if(!string.IsNullOrWhiteSpace(group.Key))
+				{
+					result.Append($"<b>до {group.Key} (предыдущего дня):</b> ");
+				}
+				else
+				{
+					result.Append($"<b>Без ограничений:</b> ");
+				}
+
+				i = 1;
+				int maxScheduleCountOnLine = 3;
+				var restrictionsInGroup = group.ToList();
+				int lastItemOnDayId = restrictionsInGroup.Last().Id;
+				foreach(var restriction in restrictionsInGroup)
+				{
+					result.Append(restriction.DeliverySchedule.Name);
+					result.Append(restriction.Id == lastItemOnDayId ? ";" : ", ");
+					if(i == maxScheduleCountOnLine && restriction.Id != lastItemOnDayId)
+					{
+						result.AppendLine();
+						maxScheduleCountOnLine = _maxScheduleCountOnLine;
+						i = 0;
+					}
+					i++;
+				}
+				result.AppendLine();
+			}
+
+			return result.ToString();
+		}
+
+		private string GetServiceSheduleRestrictionsForDay(WeekDayName weekDayName)
+		{
+			if(ServiceDistrict is null)
+			{
+				return string.Empty;
+			}
+
+			var restrictions = ServiceDistrict.GetServiceScheduleRestrictionsByWeekDay(weekDayName);
 
 			var result = new StringBuilder();
 
@@ -466,6 +664,46 @@ namespace Vodovoz.ViewWidgets
 				}
 
 				deliveryRuleRow.FreeDeliveryBottlesCount = deliveryRuleRow.DynamicColumns.Last();
+
+				deliveryRuleRows.Add(deliveryRuleRow);
+			}
+
+			return deliveryRuleRows;
+		}
+
+		private IList<DeliveryRuleRow> ConvertToServiceDeliveryRuleRows(IEnumerable<ServiceDistrictRule> weekDayDistrictRuleItems)
+		{
+			var sortedByBottlesCountRules = weekDayDistrictRuleItems;
+
+			var deliveryRuleRows = new List<DeliveryRuleRow>();
+
+			if(!weekDayDistrictRuleItems.Any())
+			{
+				return deliveryRuleRows;
+			}
+
+			var volumes = DeliveryPriceRule.Volumes;
+
+			var deliveryRuleHeader = new DeliveryRuleRow
+			{
+				DynamicColumns = new List<string>()
+			};
+
+			deliveryRuleHeader.DynamicColumns.Add("Тип сервисной доставки");
+			deliveryRuleHeader.DynamicColumns.Add("Цена");
+
+			deliveryRuleRows.Add(deliveryRuleHeader);
+
+			foreach(var weekDayDistrictRuleItem in weekDayDistrictRuleItems)
+			{
+				var deliveryRuleRow = new DeliveryRuleRow
+				{
+					DynamicColumns = new List<string>
+					{
+						weekDayDistrictRuleItem.ServiceType.GetEnumTitle(),
+						weekDayDistrictRuleItem.Price.ToString()
+					}
+				};
 
 				deliveryRuleRows.Add(deliveryRuleRow);
 			}

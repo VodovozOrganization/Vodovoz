@@ -1,8 +1,6 @@
-using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Services;
@@ -14,6 +12,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -30,18 +30,7 @@ using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Client
 {
-	[
-		Appellative(
-			Gender = GrammaticalGender.Masculine,
-			NominativePlural = "контрагенты",
-			Nominative = "контрагент",
-			Accusative = "контрагента",
-			Genitive = "контрагента"
-		)
-	]
-	[HistoryTrace]
-	[EntityPermission]
-	public class Counterparty : AccountOwnerBase, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class Counterparty : CounterpartyEntity, IValidatableObject, INamed, IArchivable
 	{
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
 		private const int _specialContractNameLimit = 800;
@@ -54,8 +43,6 @@ namespace Vodovoz.Domain.Client
 		private bool _isNotSendDocumentsByEdo;
 		private bool _canSendUpdInAdvance;
 		private RegistrationInChestnyZnakStatus _registrationInChestnyZnakStatus;
-		private OrderStatusForSendingUpd _orderStatusForSendingUpd;
-		private ConsentForEdoStatus _consentForEdoStatus;
 		private string _personalAccountIdInEdo;
 		private EdoOperator _edoOperator;
 		private string _specialContractName;
@@ -154,8 +141,6 @@ namespace Vodovoz.Domain.Client
 		private bool _alwaysSendReceipts;
 		private IList<NomenclatureFixedPrice> _nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
 		private GenericObservableList<NomenclatureFixedPrice> _observableNomenclatureFixedPrices;
-		private IList<CounterpartyFile> _files = new List<CounterpartyFile>();
-		private GenericObservableList<CounterpartyFile> _observableFiles;
 		private Organization _worksThroughOrganization;
 		private IList<ISupplierPriceNode> _priceNodes = new List<ISupplierPriceNode>();
 		private GenericObservableList<ISupplierPriceNode> _observablePriceNodes;
@@ -269,8 +254,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _proxies, value);
 		}
 
-		public virtual int Id { get; set; }
-
 		[Display(Name = "Максимальный кредит")]
 		public virtual decimal MaxCredit
 		{
@@ -305,16 +288,6 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _fullName;
 			set => SetField(ref _fullName, value);
-		}
-
-		/// <summary>
-		/// Генерируется триггером на строне БД.
-		/// </summary>
-		[Display(Name = "Внутренний номер контрагента")]
-		public virtual int VodovozInternalId
-		{
-			get => _vodovozInternalId;
-			set => SetField(ref _vodovozInternalId, value);
 		}
 
 		public virtual string Code1c
@@ -552,14 +525,14 @@ namespace Vodovoz.Domain.Client
 			get => _cameFrom;
 			set => SetField(ref _cameFrom, value);
 		}
-		
+
 		[Display(Name = "Первый заказ")]
 		public virtual Order FirstOrder
 		{
 			get => _firstOrder;
 			set => SetField(ref _firstOrder, value);
 		}
-		
+
 		[Display(Name = "Налогобложение")]
 		public virtual TaxType TaxType
 		{
@@ -582,7 +555,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#region ОсобаяПечать
-		
+
 		[Display(Name = "Особая печать документов")]
 		public virtual bool UseSpecialDocFields
 		{
@@ -784,20 +757,6 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _registrationInChestnyZnakStatus;
 			set => SetField(ref _registrationInChestnyZnakStatus, value);
-		}
-
-		[Display(Name = "Согласие клиента на ЭДО")]
-		public virtual ConsentForEdoStatus ConsentForEdoStatus
-		{
-			get => _consentForEdoStatus;
-			set => SetField(ref _consentForEdoStatus, value);
-		}
-
-		[Display(Name = "Статус заказа для отправки УПД")]
-		public virtual OrderStatusForSendingUpd OrderStatusForSendingUpd
-		{
-			get => _orderStatusForSendingUpd;
-			set => SetField(ref _orderStatusForSendingUpd, value);
 		}
 
 		[Display(Name = "Отказ от печатных документов")]
@@ -1026,27 +985,6 @@ namespace Vodovoz.Domain.Client
 				new GenericObservableList<NomenclatureFixedPrice>(NomenclatureFixedPrices));
 		}
 
-		[Display(Name = "Документы")]
-		public virtual IList<CounterpartyFile> Files
-		{
-			get => _files;
-			set => SetField(ref _files, value);
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<CounterpartyFile> ObservableFiles
-		{
-			get
-			{
-				if(_observableFiles == null)
-				{
-					_observableFiles = new GenericObservableList<CounterpartyFile>(Files);
-				}
-
-				return _observableFiles;
-			}
-		}
-
 		[Display(Name = "Работает через организацию")]
 		public virtual Organization WorksThroughOrganization
 		{
@@ -1240,25 +1178,6 @@ namespace Vodovoz.Domain.Client
 						PaymentType = type
 					}
 				);
-			}
-		}
-
-		public virtual void AddFile(CounterpartyFile file)
-		{
-			if(ObservableFiles.Contains(file))
-			{
-				return;
-			}
-
-			file.Counterparty = this;
-			ObservableFiles.Add(file);
-		}
-
-		public virtual void RemoveFile(CounterpartyFile file)
-		{
-			if(ObservableFiles.Contains(file))
-			{
-				ObservableFiles.Remove(file);
 			}
 		}
 
@@ -1552,7 +1471,7 @@ namespace Vodovoz.Domain.Client
 					}
 				}
 
-				if(TechnicalProcessingDelay > 0 && Files.Count == 0)
+				if(TechnicalProcessingDelay > 0 && AttachedFileInformations.Count == 0)
 				{
 					yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
 				}
@@ -1561,7 +1480,7 @@ namespace Vodovoz.Domain.Client
 				var phoneNumberDuplicatesIsChecked = new List<string>();
 
 				var phonesDuplicates =
-					counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(uow, Phones.ToList(), Id);
+					counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(uow, Phones.Where(p => !p.IsArchive).ToList(), Id);
 
 				foreach(var phone in phonesDuplicates)
 				{

@@ -209,7 +209,17 @@ namespace Vodovoz.Domain.Fuel
 			ValidationContext context = new ValidationContext(this, new Dictionary<object, object>() {
 				{"ForStatus", FuelTransferDocumentStatuses.Sent}
 			});
-			context.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+
+			context.InitializeServiceProvider(type =>
+			{
+				if(type == typeof(IFuelRepository))
+				{
+					return fuelRepository;
+				}
+
+				return null;
+			});
+
 			string exceptionMessage = this.RaiseValidationAndGetResult(context);
 			if(!string.IsNullOrWhiteSpace(exceptionMessage)) {
 				throw new ValidationException(exceptionMessage);

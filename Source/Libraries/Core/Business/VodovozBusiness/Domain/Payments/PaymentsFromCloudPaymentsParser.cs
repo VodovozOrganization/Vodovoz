@@ -40,7 +40,9 @@ namespace Vodovoz.Domain.Payments
 						throw new ArgumentException("Не подходящий файл или выбран не тот тип загрузки.");
 					}
 
-					if(data.Length < 15 || data[14] != "Завершена" || !Guid.TryParse(data[5], out _))
+					if(data.Length < 15
+						|| (data[14] != "Завершена" && data[14] != "Completed")
+						|| !Guid.TryParse(data[5], out _))
 					{
 						continue;
 					}

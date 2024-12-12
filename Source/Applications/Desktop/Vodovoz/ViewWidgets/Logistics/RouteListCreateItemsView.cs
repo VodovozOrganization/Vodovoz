@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -35,8 +36,9 @@ namespace Vodovoz
 	[ToolboxItem(true)]
 	public partial class RouteListCreateItemsView : WidgetOnTdiTabBase
 	{
-		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private IRouteColumnRepository _routeColumnRepository;
+		private IOrderRepository _orderRepository;
+		private IRouteListItemRepository _routeListItemRepository;
 
 		private int _goodsColumnsCount = -1;
 		private bool _isEditable = true;
@@ -88,10 +90,19 @@ namespace Vodovoz
 
 		public RouteListCreateItemsView()
 		{
+			ResolveDependencies();
 			Build();
 			enumbuttonAddOrder.ItemsEnum = typeof(AddOrderEnum);
 			ytreeviewItems.Selection.Changed += OnSelectionChanged;
 			ytreeviewItems.Selection.Mode = SelectionMode.Multiple;
+		}
+
+		[Obsolete("Удалить при разрешении проблем с контейнером")]
+		private void ResolveDependencies()
+		{
+			_routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
+			_orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
+			_routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
 		}
 
 		public void SubscribeOnChanges()
@@ -315,7 +326,7 @@ namespace Vodovoz
 		{
 			foreach(var selectedRouteListItem in _selectedRouteListItems)
 			{
-				if(!RouteListUoW.Root.TryRemoveAddress(selectedRouteListItem, out string message, new RouteListItemRepository()))
+				if(!RouteListUoW.Root.TryRemoveAddress(selectedRouteListItem, out string message, _routeListItemRepository))
 				{
 					ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message, "Невозможно удалить");
 				}
@@ -362,7 +373,7 @@ namespace Vodovoz
 					filter.RestrictWithoutSelfDelivery = true;
 					filter.RestrictOnlySelfDelivery = false;
 					filter.RestrictHideService = true;
-					filter.ExcludeClosingDocumentDeliverySchedule = true;
+					filter.FilterClosingDocumentDeliverySchedule = false;
 
 					if(geoGrpIds.Any())
 					{
@@ -543,6 +554,14 @@ namespace Vodovoz
 			{
 				buttonOpenOrder.Click();
 			}
+		}
+
+		public override void Destroy()
+		{
+			_routeColumnRepository = null;
+			_routeListItemRepository = null;
+			_orderRepository = null;
+			base.Destroy();
 		}
 	}
 }

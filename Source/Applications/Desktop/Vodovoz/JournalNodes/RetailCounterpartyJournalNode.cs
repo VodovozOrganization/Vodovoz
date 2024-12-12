@@ -7,8 +7,6 @@ namespace Vodovoz.JournalNodes
 	{
 		public override string Title => Name;
 
-		public int InternalId { get; set; }
-
 		public bool IsArhive { get; set; }
 		
 		public bool IsLiquidating { get; set; }
