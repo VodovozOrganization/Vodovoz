@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		public bool OnlyQRScanRequiredCarLoadDocuments
 		{
 			get => _onlyQRScanRequiredCarLoadDocuments;
-			set => SetField(ref _onlyQRScanRequiredCarLoadDocuments, value);
+			set => UpdateFilterField(ref _onlyQRScanRequiredCarLoadDocuments, value);
 		}
 
 		public bool IsUserHasAccessNotOnlyToWarehouseAndComplaints =>
@@ -111,6 +111,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		}
 
 		[PropertyChangedAlso(nameof(CanSelectMovementStatus))]
+		[PropertyChangedAlso(nameof(OnlyQRScanRequiredCarLoadDocuments))]
 		[PropertyChangedAlso(nameof(ShowOnlyQRScanRequiredCarLoadDocuments))]
 		public DocumentType? DocumentType
 		{
