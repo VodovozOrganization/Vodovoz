@@ -13,9 +13,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
-using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Warehouse;
 using VodovozBusiness.Services.TrueMark;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
@@ -28,33 +26,27 @@ namespace WarehouseApi.Library.Errors
 		private readonly ILogger<CarLoadDocumentProcessingErrorsChecker> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
-		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly ICarLoadDocumentLoadingProcessSettings _carLoadDocumentLoadingProcessSettings;
 		private readonly IGenericRepository<OrderEntity> _orderRepository;
-		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 
 		public CarLoadDocumentProcessingErrorsChecker(
 			ILogger<CarLoadDocumentProcessingErrorsChecker> logger,
 			IUnitOfWork uow,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
-			ITrueMarkRepository trueMarkRepository,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,
-			IGenericRepository<OrderEntity> orderRepository,
-			TrueMarkCodesChecker trueMarkCodesChecker)
+			IGenericRepository<OrderEntity> orderRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
-			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_employeeWithLoginRepository = employeeWithLoginRepository ?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
 			_carLoadDocumentLoadingProcessSettings = carLoadDocumentLoadingProcessSettings;
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_trueMarkCodesChecker = trueMarkCodesChecker ?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
 
 		}
 

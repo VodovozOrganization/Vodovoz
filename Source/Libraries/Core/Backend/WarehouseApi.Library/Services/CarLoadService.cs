@@ -37,7 +37,6 @@ namespace WarehouseApi.Library.Services
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
-		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
@@ -50,7 +49,6 @@ namespace WarehouseApi.Library.Services
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
-			ITrueMarkRepository trueMarkRepository,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
@@ -62,7 +60,6 @@ namespace WarehouseApi.Library.Services
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_employeeWithLoginRepository = employeeWithLoginRepository;
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
-			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
