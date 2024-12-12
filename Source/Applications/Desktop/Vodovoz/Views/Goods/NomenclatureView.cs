@@ -1172,21 +1172,12 @@ namespace Vodovoz.Views.Goods
 
 		public override void Destroy()
 		{
-			if(pricesView != null)
-			{
-				pricesView.PricesList.ElementAdded -= PriceAdded;
-				pricesView.PricesList.ElementRemoved -= PriceRemoved;
-				pricesView.PricesList.ElementChanged -= PriceRowChanged;
-				pricesView.PricesList.PropertyOfElementChanged -= PricePropertyChanged;
-			}
-
-			if(alternativePricesView != null)
-			{
-				alternativePricesView.PricesList.ElementAdded -= PriceAdded;
-				alternativePricesView.PricesList.ElementRemoved -= PriceRemoved;
-				alternativePricesView.PricesList.ElementChanged -= PriceRowChanged;
-				alternativePricesView.PricesList.PropertyOfElementChanged -= PricePropertyChanged;
-			}
+			enumCategory.Changed -= ViewModel.OnEnumCategoryChanged;
+			enumCategory.ChangedByUser -= ViewModel.OnEnumCategoryChangedByUser;
+			ViewModel.Entity.PropertyChanged -= OnEntityPropertyChanged;
+			UnsubscribePricesViews();
+			UnsubscribeSitesAndAppsTabWidgets();
+			base.Destroy();
 		}
 		
 		private void UnsubscribeSitesAndAppsTabWidgets()
@@ -1210,24 +1201,23 @@ namespace Vodovoz.Views.Goods
 			entryLockerRefrigeratorVolumeOnline.Changed -= OnNumericEntryChanged;
 		}
 
-		public override void Destroy()
+		private void UnsubscribePricesViews()
 		{
-			Dispose();
-			base.Destroy();
-		}
+			if(pricesView != null)
+			{
+				pricesView.PricesList.ElementAdded -= PriceAdded;
+				pricesView.PricesList.ElementRemoved -= PriceRemoved;
+				pricesView.PricesList.ElementChanged -= PriceRowChanged;
+				pricesView.PricesList.PropertyOfElementChanged -= PricePropertyChanged;
+			}
 
-		public override void Dispose()
-		{
-			checkIsArchive.Released -= OnCheckIsArchiveReleased;
-			radioEquipment.Toggled -= OnRadioEquipmentToggled;
-			radioPrice.Toggled -= OnRadioPriceToggled;
-			radioSitesAndApps.Toggled -= OnSitesAndAppsToggled;
-			enumCategory.Changed -= ViewModel.OnEnumCategoryChanged;
-			enumCategory.ChangedByUser -= ViewModel.OnEnumCategoryChangedByUser;
-			ViewModel.Entity.PropertyChanged -= OnEntityPropertyChanged;
-			UnsubscribePricesViews();
-			UnsubscribeSitesAndAppsTabWidgets();
-			base.Dispose();
+			if(alternativePricesView != null)
+			{
+				alternativePricesView.PricesList.ElementAdded -= PriceAdded;
+				alternativePricesView.PricesList.ElementRemoved -= PriceRemoved;
+				alternativePricesView.PricesList.ElementChanged -= PriceRowChanged;
+				alternativePricesView.PricesList.PropertyOfElementChanged -= PricePropertyChanged;
+			}
 		}
 	}
 }
