@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using DocumentFormat.OpenXml.Wordprocessing;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using System;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -12,11 +10,11 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки пересортицы",
 		Nominative = "строка пересортицы")]
 	[HistoryTrace]
-	public class RegradingOfGoodsDocumentItem: PropertyChangedBase, IDomainObject
+	public class RegradingOfGoodsDocumentItem : PropertyChangedBase, IDomainObject
 	{
 		private RegradingOfGoodsReason _regradingOfGoodsReason;
 
@@ -24,91 +22,112 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual RegradingOfGoodsDocument Document { get; set; }
 
-		Nomenclature nomenclatureOld;
+		private Nomenclature _nomenclatureOld;
 
-		[Required (ErrorMessage = "Старая номенклатура должна быть заполнена.")]
-		[Display (Name = "Старая номенклатура")]
-		public virtual Nomenclature NomenclatureOld {
-			get { return nomenclatureOld; }
-			set {
-				SetField (ref nomenclatureOld, value, () => NomenclatureOld);
+		[Required(ErrorMessage = "Старая номенклатура должна быть заполнена.")]
+		[Display(Name = "Старая номенклатура")]
+		public virtual Nomenclature NomenclatureOld
+		{
+			get => _nomenclatureOld;
+			set
+			{
+				SetField(ref _nomenclatureOld, value);
 
-				if (WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Nomenclature != nomenclatureOld)
-					WarehouseWriteOffOperation.Nomenclature = nomenclatureOld;
+				if(WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Nomenclature != _nomenclatureOld)
+				{
+					WarehouseWriteOffOperation.Nomenclature = _nomenclatureOld;
+				}
 			}
 		}
 
-		Nomenclature nomenclatureNew;
+		private Nomenclature _nomenclatureNew;
 
-		[Required (ErrorMessage = "Новая номенклатура должна быть заполнена.")]
-		[Display (Name = "Новая номенклатура")]
-		public virtual Nomenclature NomenclatureNew {
-			get { return nomenclatureNew; }
-			set {
-				SetField (ref nomenclatureNew, value, () => NomenclatureNew);
+		[Required(ErrorMessage = "Новая номенклатура должна быть заполнена.")]
+		[Display(Name = "Новая номенклатура")]
+		public virtual Nomenclature NomenclatureNew
+		{
+			get => _nomenclatureNew;
+			set
+			{
+				SetField(ref _nomenclatureNew, value);
 
-				if (WarehouseIncomeOperation != null && WarehouseIncomeOperation.Nomenclature != nomenclatureNew)
-					WarehouseIncomeOperation.Nomenclature = nomenclatureNew;
+				if(WarehouseIncomeOperation != null && WarehouseIncomeOperation.Nomenclature != _nomenclatureNew)
+				{
+					WarehouseIncomeOperation.Nomenclature = _nomenclatureNew;
+				}
 			}
 		}
 
-		decimal amount;
+		private decimal _amount;
 
-		[Display (Name = "Количество")]
-		public virtual decimal Amount {
-			get { return amount; }
-			set {
-				SetField (ref amount, value, () => Amount);
+		[Display(Name = "Количество")]
+		public virtual decimal Amount
+		{
+			get => _amount;
+			set
+			{
+				SetField(ref _amount, value);
 
-				if (WarehouseIncomeOperation != null && WarehouseIncomeOperation.Amount != Amount)
+				if(WarehouseIncomeOperation != null && WarehouseIncomeOperation.Amount != Amount)
+				{
 					WarehouseIncomeOperation.Amount = Amount;
-				if (WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Amount != Amount)
+				}
+
+				if(WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Amount != Amount)
+				{
 					WarehouseWriteOffOperation.Amount = -Amount;
+				}
 			}
 		}
 
-		string comment;
+		private string _comment;
 
-		[Display (Name = "Комментарий")]
-		public virtual string Comment {
-			get { return comment; }
-			set { SetField (ref comment, value, () => Comment); }
+		[Display(Name = "Комментарий")]
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
 
-		Fine fine;
+		private Fine _fine;
 
-		[Display (Name = "Штраф")]
-		public virtual Fine Fine {
-			get { return fine; }
-			set { SetField (ref fine, value, () => Fine); }
+		[Display(Name = "Штраф")]
+		public virtual Fine Fine
+		{
+			get => _fine;
+			set => SetField(ref _fine, value);
 		}
 
-		CullingCategory typeOfDefect;
+		private CullingCategory _typeOfDefect;
 		[Display(Name = "Тип брака")]
-		public virtual CullingCategory TypeOfDefect {
-			get { return typeOfDefect; }
-			set { SetField(ref typeOfDefect, value, () => TypeOfDefect); }
+		public virtual CullingCategory TypeOfDefect
+		{
+			get => _typeOfDefect;
+			set => SetField(ref _typeOfDefect, value);
 		}
 
-		DefectSource source;
+		private DefectSource _source;
 		[Display(Name = "Источник брака")]
-		public virtual DefectSource Source {
-			get { return source; }
-			set { SetField(ref source, value, () => Source); }
+		public virtual DefectSource Source
+		{
+			get => _source;
+			set => SetField(ref _source, value);
 		}
 
-		WarehouseBulkGoodsAccountingOperation warehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation();
+		private WarehouseBulkGoodsAccountingOperation _warehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation();
 
-		public virtual WarehouseBulkGoodsAccountingOperation WarehouseWriteOffOperation {
-			get => warehouseWriteOffOperation;
-			set => SetField (ref warehouseWriteOffOperation, value);
+		public virtual WarehouseBulkGoodsAccountingOperation WarehouseWriteOffOperation
+		{
+			get => _warehouseWriteOffOperation;
+			set => SetField(ref _warehouseWriteOffOperation, value);
 		}
 
-		WarehouseBulkGoodsAccountingOperation warehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation();
+		private WarehouseBulkGoodsAccountingOperation _warehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation();
 
-		public virtual WarehouseBulkGoodsAccountingOperation WarehouseIncomeOperation {
-			get => warehouseIncomeOperation;
-			set => SetField (ref warehouseIncomeOperation, value);
+		public virtual WarehouseBulkGoodsAccountingOperation WarehouseIncomeOperation
+		{
+			get => _warehouseIncomeOperation;
+			set => SetField(ref _warehouseIncomeOperation, value);
 		}
 
 		[Display(Name = "Причина пересортицы")]
@@ -123,24 +142,25 @@ namespace Vodovoz.Domain.Documents
 		[Display(Name = "Сумма ущерба")]
 		public virtual decimal SumOfDamage => Amount == 0 ? 0 : NomenclatureOld.SumOfDamage * Amount;
 
-		decimal amountInStock;
+		private decimal _amountInStock;
 
-		[Display (Name = "Количество на складе")]
-		public virtual decimal AmountInStock {
-			get { return amountInStock; }
-			set {
-				SetField (ref amountInStock, value, () => AmountInStock);
-			}
+		[Display(Name = "Количество на складе")]
+		public virtual decimal AmountInStock
+		{
+			get => _amountInStock;
+			set => SetField(ref _amountInStock, value);
 		}
 
 		#endregion
 
 		#region Расчетные
 
-		public virtual string Title {
-			get{
-				return String.Format("{0} -> {1} - {2}", 
-					NomenclatureOld.Name, 
+		public virtual string Title
+		{
+			get
+			{
+				return String.Format("{0} -> {1} - {2}",
+					NomenclatureOld.Name,
 					NomenclatureNew.Name,
 					NomenclatureOld.Unit.MakeAmountShortStr(Amount));
 			}
@@ -153,19 +173,19 @@ namespace Vodovoz.Domain.Documents
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
 			WarehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation
-				{
-					Warehouse = warehouse,
-					Amount = -Amount,
-					OperationTime = time,
-					Nomenclature = NomenclatureOld
-				};
+			{
+				Warehouse = warehouse,
+				Amount = -Amount,
+				OperationTime = time,
+				Nomenclature = NomenclatureOld
+			};
 			WarehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation
-				{
-					Warehouse = warehouse,
-					Amount = Amount,
-					OperationTime = time,
-					Nomenclature = NomenclatureNew
-				};
+			{
+				Warehouse = warehouse,
+				Amount = Amount,
+				OperationTime = time,
+				Nomenclature = NomenclatureNew
+			};
 		}
 
 		#endregion
