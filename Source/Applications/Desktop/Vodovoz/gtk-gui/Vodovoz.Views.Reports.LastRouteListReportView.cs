@@ -14,6 +14,28 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gamma.GtkWidgets.yVBox yvboxParameters;
 
+		private global::Gtk.Table table1;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker calculationPicker;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker firedPicker;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker firstWorkingDayPicker;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker hiredPicker;
+
+		private global::Gtk.Label label3;
+
+		private global::Gtk.Label label4;
+
+		private global::Gtk.Label label6;
+
+		private global::Gtk.Label label7;
+
+		private global::Gtk.Label label8;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker lastRLPicker;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonCreateReport;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAbortCreateReport;
@@ -72,16 +94,142 @@ namespace Vodovoz.Views.Reports
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vboxFilterContainer[this.yvboxParameters]));
 			w2.Position = 0;
 			// Container child vboxFilterContainer.Gtk.Box+BoxChild
+			this.table1 = new global::Gtk.Table(((uint)(5)), ((uint)(2)), false);
+			this.table1.Name = "table1";
+			this.table1.RowSpacing = ((uint)(6));
+			this.table1.ColumnSpacing = ((uint)(6));
+			// Container child table1.Gtk.Table+TableChild
+			this.calculationPicker = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.calculationPicker.Events = ((global::Gdk.EventMask)(256));
+			this.calculationPicker.Name = "calculationPicker";
+			this.calculationPicker.StartDate = new global::System.DateTime(0);
+			this.calculationPicker.EndDate = new global::System.DateTime(0);
+			this.table1.Add(this.calculationPicker);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.calculationPicker]));
+			w3.TopAttach = ((uint)(3));
+			w3.BottomAttach = ((uint)(4));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.firedPicker = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.firedPicker.Events = ((global::Gdk.EventMask)(256));
+			this.firedPicker.Name = "firedPicker";
+			this.firedPicker.StartDate = new global::System.DateTime(0);
+			this.firedPicker.EndDate = new global::System.DateTime(0);
+			this.table1.Add(this.firedPicker);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.firedPicker]));
+			w4.TopAttach = ((uint)(4));
+			w4.BottomAttach = ((uint)(5));
+			w4.LeftAttach = ((uint)(1));
+			w4.RightAttach = ((uint)(2));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.firstWorkingDayPicker = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.firstWorkingDayPicker.Events = ((global::Gdk.EventMask)(256));
+			this.firstWorkingDayPicker.Name = "firstWorkingDayPicker";
+			this.firstWorkingDayPicker.StartDate = new global::System.DateTime(0);
+			this.firstWorkingDayPicker.EndDate = new global::System.DateTime(0);
+			this.table1.Add(this.firstWorkingDayPicker);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.firstWorkingDayPicker]));
+			w5.TopAttach = ((uint)(1));
+			w5.BottomAttach = ((uint)(2));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.hiredPicker = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.hiredPicker.Events = ((global::Gdk.EventMask)(256));
+			this.hiredPicker.Name = "hiredPicker";
+			this.hiredPicker.StartDate = new global::System.DateTime(0);
+			this.hiredPicker.EndDate = new global::System.DateTime(0);
+			this.table1.Add(this.hiredPicker);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.hiredPicker]));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label3 = new global::Gtk.Label();
+			this.label3.Name = "label3";
+			this.label3.Xalign = 1F;
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Дата приема на работу:");
+			this.table1.Add(this.label3);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.label3]));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label4 = new global::Gtk.Label();
+			this.label4.Name = "label4";
+			this.label4.Xalign = 1F;
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Первый рабочий день:");
+			this.table1.Add(this.label4);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.label4]));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label6 = new global::Gtk.Label();
+			this.label6.Name = "label6";
+			this.label6.Xalign = 1F;
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Дата последнего МЛ:");
+			this.table1.Add(this.label6);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.label6]));
+			w9.TopAttach = ((uint)(2));
+			w9.BottomAttach = ((uint)(3));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label7 = new global::Gtk.Label();
+			this.label7.Name = "label7";
+			this.label7.Xalign = 1F;
+			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("Дата расчета:");
+			this.table1.Add(this.label7);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.label7]));
+			w10.TopAttach = ((uint)(3));
+			w10.BottomAttach = ((uint)(4));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label8 = new global::Gtk.Label();
+			this.label8.Name = "label8";
+			this.label8.Xalign = 1F;
+			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString("Дата увольнения:");
+			this.table1.Add(this.label8);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.label8]));
+			w11.TopAttach = ((uint)(4));
+			w11.BottomAttach = ((uint)(5));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.lastRLPicker = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.lastRLPicker.Events = ((global::Gdk.EventMask)(256));
+			this.lastRLPicker.Name = "lastRLPicker";
+			this.lastRLPicker.StartDate = new global::System.DateTime(0);
+			this.lastRLPicker.EndDate = new global::System.DateTime(0);
+			this.table1.Add(this.lastRLPicker);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.lastRLPicker]));
+			w12.TopAttach = ((uint)(2));
+			w12.BottomAttach = ((uint)(3));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.vboxFilterContainer.Add(this.table1);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxFilterContainer[this.table1]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child vboxFilterContainer.Gtk.Box+BoxChild
 			this.ybuttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCreateReport.CanFocus = true;
 			this.ybuttonCreateReport.Name = "ybuttonCreateReport";
 			this.ybuttonCreateReport.UseUnderline = true;
 			this.ybuttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vboxFilterContainer.Add(this.ybuttonCreateReport);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxFilterContainer[this.ybuttonCreateReport]));
-			w3.Position = 1;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxFilterContainer[this.ybuttonCreateReport]));
+			w14.Position = 2;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child vboxFilterContainer.Gtk.Box+BoxChild
 			this.ybuttonAbortCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonAbortCreateReport.CanFocus = true;
@@ -89,10 +237,10 @@ namespace Vodovoz.Views.Reports
 			this.ybuttonAbortCreateReport.UseUnderline = true;
 			this.ybuttonAbortCreateReport.Label = global::Mono.Unix.Catalog.GetString("Отчет в процессе формирования... (Отменить)");
 			this.vboxFilterContainer.Add(this.ybuttonAbortCreateReport);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxFilterContainer[this.ybuttonAbortCreateReport]));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxFilterContainer[this.ybuttonAbortCreateReport]));
+			w15.Position = 3;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child vboxFilterContainer.Gtk.Box+BoxChild
 			this.ybuttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonSave.CanFocus = true;
@@ -100,15 +248,15 @@ namespace Vodovoz.Views.Reports
 			this.ybuttonSave.UseUnderline = true;
 			this.ybuttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
 			this.vboxFilterContainer.Add(this.ybuttonSave);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxFilterContainer[this.ybuttonSave]));
-			w5.Position = 3;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxFilterContainer[this.ybuttonSave]));
+			w16.Position = 4;
+			w16.Expand = false;
+			w16.Fill = false;
 			w1.Add(this.vboxFilterContainer);
 			this.scrolledwindowFilter.Add(w1);
 			this.hboxControls.Add(this.scrolledwindowFilter);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxControls[this.scrolledwindowFilter]));
-			w8.Position = 0;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxControls[this.scrolledwindowFilter]));
+			w19.Position = 0;
 			// Container child hboxControls.Gtk.Box+BoxChild
 			this.eventboxArrow = new global::Gtk.EventBox();
 			this.eventboxArrow.Name = "eventboxArrow";
@@ -120,16 +268,16 @@ namespace Vodovoz.Views.Reports
 			this.vseparator1 = new global::Gtk.VSeparator();
 			this.vseparator1.Name = "vseparator1";
 			this.vbox4.Add(this.vseparator1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator1]));
-			w9.Position = 0;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator1]));
+			w20.Position = 0;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.arrowSlider = new global::Gtk.Arrow(((global::Gtk.ArrowType)(3)), ((global::Gtk.ShadowType)(2)));
 			this.arrowSlider.Name = "arrowSlider";
 			this.vbox4.Add(this.arrowSlider);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.arrowSlider]));
-			w10.Position = 1;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.arrowSlider]));
+			w21.Position = 1;
+			w21.Expand = false;
+			w21.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.labelTitle = new global::Gtk.Label();
 			this.labelTitle.Name = "labelTitle";
@@ -137,25 +285,25 @@ namespace Vodovoz.Views.Reports
 			this.labelTitle.SingleLineMode = true;
 			this.labelTitle.Angle = 90D;
 			this.vbox4.Add(this.labelTitle);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.labelTitle]));
-			w11.Position = 2;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.labelTitle]));
+			w22.Position = 2;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.vseparator2 = new global::Gtk.VSeparator();
 			this.vseparator2.Name = "vseparator2";
 			this.vbox4.Add(this.vseparator2);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator2]));
-			w12.Position = 3;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator2]));
+			w23.Position = 3;
 			this.eventboxArrow.Add(this.vbox4);
 			this.hboxControls.Add(this.eventboxArrow);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxControls[this.eventboxArrow]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hboxControls[this.eventboxArrow]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.hpanedMain.Add(this.hboxControls);
-			global::Gtk.Paned.PanedChild w15 = ((global::Gtk.Paned.PanedChild)(this.hpanedMain[this.hboxControls]));
-			w15.Resize = false;
+			global::Gtk.Paned.PanedChild w26 = ((global::Gtk.Paned.PanedChild)(this.hpanedMain[this.hboxControls]));
+			w26.Resize = false;
 			// Container child hpanedMain.Gtk.Paned+PanedChild
 			this.GtkScrolledWindowData = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowData.Name = "GtkScrolledWindowData";

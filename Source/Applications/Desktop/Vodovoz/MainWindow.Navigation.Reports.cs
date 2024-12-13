@@ -871,20 +871,6 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(EmployeesPremiumsViewModel));
 	}
 
-	/// <summary>
-	/// Отчет по сотрудникам
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
-	{
-		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
-		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesReport(reportInfoFactory, interactiveService)));
-	}
-
 	#endregion Сотрудники
 
 	#region Водители
