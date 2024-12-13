@@ -12,6 +12,9 @@ using Vodovoz.Domain.Store;
 
 namespace VodovozBusiness.Domain.Documents
 {
+	/// <summary>
+	/// Строка пересортицы товаров
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки пересортицы",
 		Nominative = "строка пересортицы")]
@@ -19,13 +22,30 @@ namespace VodovozBusiness.Domain.Documents
 	public class RegradingOfGoodsDocumentItem : PropertyChangedBase, IDomainObject
 	{
 		private RegradingOfGoodsReason _regradingOfGoodsReason;
+		private Nomenclature _nomenclatureOld;
+		private Nomenclature _nomenclatureNew;
+		private decimal _amount;
+		private string _comment;
+		private Fine _fine;
+		private CullingCategory _typeOfDefect;
+		private WarehouseBulkGoodsAccountingOperation _warehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation();
+		private WarehouseBulkGoodsAccountingOperation _warehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation();
+		private DefectSource _source;
+		private decimal _amountInStock;
 
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
 		public virtual int Id { get; set; }
 
+		/// <summary>
+		/// Документ пересортицы потоваро (Не использовать, необходимо для NHibernate)
+		/// </summary>
 		public virtual RegradingOfGoodsDocument Document { get; set; }
 
-		private Nomenclature _nomenclatureOld;
-
+		/// <summary>
+		/// Старая номенклатура
+		/// </summary>
 		[Required(ErrorMessage = "Старая номенклатура должна быть заполнена.")]
 		[Display(Name = "Старая номенклатура")]
 		public virtual Nomenclature NomenclatureOld
@@ -35,15 +55,17 @@ namespace VodovozBusiness.Domain.Documents
 			{
 				SetField(ref _nomenclatureOld, value);
 
-				if(WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Nomenclature != _nomenclatureOld)
+				if(WarehouseWriteOffOperation != null
+					&& WarehouseWriteOffOperation.Nomenclature != _nomenclatureOld)
 				{
 					WarehouseWriteOffOperation.Nomenclature = _nomenclatureOld;
 				}
 			}
 		}
 
-		private Nomenclature _nomenclatureNew;
-
+		/// <summary>
+		/// Новая номенклатура
+		/// </summary>
 		[Required(ErrorMessage = "Новая номенклатура должна быть заполнена.")]
 		[Display(Name = "Новая номенклатура")]
 		public virtual Nomenclature NomenclatureNew
@@ -53,15 +75,17 @@ namespace VodovozBusiness.Domain.Documents
 			{
 				SetField(ref _nomenclatureNew, value);
 
-				if(WarehouseIncomeOperation != null && WarehouseIncomeOperation.Nomenclature != _nomenclatureNew)
+				if(WarehouseIncomeOperation != null
+					&& WarehouseIncomeOperation.Nomenclature != _nomenclatureNew)
 				{
 					WarehouseIncomeOperation.Nomenclature = _nomenclatureNew;
 				}
 			}
 		}
 
-		private decimal _amount;
-
+		/// <summary>
+		/// Количество
+		/// </summary>
 		[Display(Name = "Количество")]
 		public virtual decimal Amount
 		{
@@ -82,8 +106,9 @@ namespace VodovozBusiness.Domain.Documents
 			}
 		}
 
-		private string _comment;
-
+		/// <summary>
+		/// Комментарий
+		/// </summary>
 		[Display(Name = "Комментарий")]
 		public virtual string Comment
 		{
@@ -91,8 +116,9 @@ namespace VodovozBusiness.Domain.Documents
 			set => SetField(ref _comment, value);
 		}
 
-		private Fine _fine;
-
+		/// <summary>
+		/// Штраф
+		/// </summary>
 		[Display(Name = "Штраф")]
 		public virtual Fine Fine
 		{
@@ -100,7 +126,9 @@ namespace VodovozBusiness.Domain.Documents
 			set => SetField(ref _fine, value);
 		}
 
-		private CullingCategory _typeOfDefect;
+		/// <summary>
+		/// Тип брака
+		/// </summary>
 		[Display(Name = "Тип брака")]
 		public virtual CullingCategory TypeOfDefect
 		{
@@ -108,7 +136,9 @@ namespace VodovozBusiness.Domain.Documents
 			set => SetField(ref _typeOfDefect, value);
 		}
 
-		private DefectSource _source;
+		/// <summary>
+		/// Источник брака
+		/// </summary>
 		[Display(Name = "Источник брака")]
 		public virtual DefectSource Source
 		{
@@ -116,22 +146,27 @@ namespace VodovozBusiness.Domain.Documents
 			set => SetField(ref _source, value);
 		}
 
-		private WarehouseBulkGoodsAccountingOperation _warehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation();
-
+		/// <summary>
+		/// Операция списания
+		/// </summary>
 		public virtual WarehouseBulkGoodsAccountingOperation WarehouseWriteOffOperation
 		{
 			get => _warehouseWriteOffOperation;
 			set => SetField(ref _warehouseWriteOffOperation, value);
 		}
 
-		private WarehouseBulkGoodsAccountingOperation _warehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation();
-
+		/// <summary>
+		/// Операция пополнения
+		/// </summary>
 		public virtual WarehouseBulkGoodsAccountingOperation WarehouseIncomeOperation
 		{
 			get => _warehouseIncomeOperation;
 			set => SetField(ref _warehouseIncomeOperation, value);
 		}
 
+		/// <summary>
+		/// Причина пересортицы
+		/// </summary>
 		[Display(Name = "Причина пересортицы")]
 		public virtual RegradingOfGoodsReason RegradingOfGoodsReason
 		{
@@ -141,11 +176,10 @@ namespace VodovozBusiness.Domain.Documents
 
 		#region Не сохраняемые
 
-		[Display(Name = "Сумма ущерба")]
-		public virtual decimal SumOfDamage => Amount == 0 ? 0 : NomenclatureOld.SumOfDamage * Amount;
-
-		private decimal _amountInStock;
-
+		/// <summary>
+		/// Количество на складе
+		/// </summary>
+		[Obsolete("Не используется в классе, нужно убрать, оставлено для обратной совместимости")]
 		[Display(Name = "Количество на складе")]
 		public virtual decimal AmountInStock
 		{
@@ -157,21 +191,25 @@ namespace VodovozBusiness.Domain.Documents
 
 		#region Расчетные
 
-		public virtual string Title
-		{
-			get
-			{
-				return string.Format("{0} -> {1} - {2}",
-					NomenclatureOld.Name,
-					NomenclatureNew.Name,
-					NomenclatureOld.Unit.MakeAmountShortStr(Amount));
-			}
-		}
+		/// <summary>
+		/// Сумма ущерба
+		/// </summary>
+		[Display(Name = "Сумма ущерба")]
+		public virtual decimal SumOfDamage => Amount == 0 ? 0 : NomenclatureOld.SumOfDamage * Amount;
 
+		/// <summary>
+		/// Заголовок
+		/// </summary>
+		public virtual string Title => $"{NomenclatureOld.Name} -> {NomenclatureNew.Name} - {NomenclatureOld.Unit.MakeAmountShortStr(Amount)}";
 		#endregion
 
 		#region Функции
 
+		/// <summary>
+		/// СОздание операций
+		/// </summary>
+		/// <param name="warehouse">Склад пересортицы</param>
+		/// <param name="time">Время операций</param>
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
 			WarehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation
@@ -181,6 +219,7 @@ namespace VodovozBusiness.Domain.Documents
 				OperationTime = time,
 				Nomenclature = NomenclatureOld
 			};
+
 			WarehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation
 			{
 				Warehouse = warehouse,
