@@ -1343,6 +1343,34 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult("Должна быть выбрана принадлежность номенклатуры к группе товаров",
 					new[] { nameof(ProductGroup) });
 			}
+
+			if((_lengthOnline >= 0 && (!_widthOnline.HasValue || _widthOnline == 0 || !_heightOnline.HasValue || _heightOnline == 0))
+				|| (_widthOnline >= 0 && (!_lengthOnline.HasValue || _lengthOnline == 0 || !_heightOnline.HasValue || _heightOnline == 0))
+				|| (_heightOnline >= 0 && (!_lengthOnline.HasValue || _lengthOnline == 0 || !_widthOnline.HasValue || _widthOnline == 0)))
+			{
+				yield return new ValidationResult(
+					"Габариты на вкладке Сайты и приложения должны быть либо пустыми, либо заполнены и больше 0",
+					new[] { nameof(LengthOnline), nameof(WidthOnline), nameof(HeightOnline) });
+			}
+			
+			if(_weightOnline == 0)
+			{
+				yield return new ValidationResult(
+					"Вес на вкладке Сайты и приложения должен быть больше 0",
+					new[] { nameof(WeightOnline) });
+			}
+			
+			if(_coolingTemperatureFromOnline > _coolingTemperatureToOnline)
+			{
+				yield return new ValidationResult("Начальное значение температуры охлаждения не может быть больше конечного",
+					new[] { nameof(CoolingTemperatureFromOnline), nameof(CoolingTemperatureToOnline) });
+			}
+			
+			if(_heatingTemperatureFromOnline > _heatingTemperatureToOnline)
+			{
+				yield return new ValidationResult("Начальное значение температуры нагрева не может быть больше конечного",
+					new[] { nameof(HeatingTemperatureFromOnline), nameof(HeatingTemperatureToOnline) });
+			}
 		}
 
 		#endregion IValidatableObject implementation
