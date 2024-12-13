@@ -53,6 +53,7 @@
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportOrderData.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportRow.cs" />
     <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReport.cs" />
+    <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReport.RowsCreating.cs" />
     <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReportRow.cs" />
     <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReportViewModel.cs" />
     <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReportViewModel.SelectableKeyValueNode.cs" />

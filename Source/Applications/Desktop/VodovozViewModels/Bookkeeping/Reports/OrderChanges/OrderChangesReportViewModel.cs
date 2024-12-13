@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Reports;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 {
@@ -44,9 +45,15 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			IGenericRepository<Organization> organizationGenericRepository,
 			IGuiDispatcher guiDispatcher,
 			IFileDialogService fileDialogService,
-			IArchiveDataSettings archiveDataSettings)
+			IArchiveDataSettings archiveDataSettings,
+			IReportSettings reportSettings)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			if(reportSettings is null)
+			{
+				throw new ArgumentNullException(nameof(reportSettings));
+			}
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_organizationGenericRepository = organizationGenericRepository ?? throw new ArgumentNullException(nameof(organizationGenericRepository));
@@ -60,7 +67,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			Title = "Отчет по изменениям заказа при доставке";
 
 			Organizations = GetAllOrganizations();
-			SelectedOrganization = Organizations.FirstOrDefault();
+			SelectedOrganization = Organizations.FirstOrDefault(x => x.Id == reportSettings.GetDefaultOrderChangesOrganizationId);
 
 			UpdateSelectedPeriod();
 
@@ -308,7 +315,15 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 			try
 			{
-				report = await OrderChangesReport.Create();
+				report = await OrderChangesReport.Create(
+					UoW,
+					StartDate.Value,
+					EndDate.Value,
+					IsOldMonitoring,
+					SelectedOrganization,
+					ChangeTypes,
+					IssueTypes,
+					_cancellationTokenSource.Token);
 			}
 			catch(OperationCanceledException ex)
 			{

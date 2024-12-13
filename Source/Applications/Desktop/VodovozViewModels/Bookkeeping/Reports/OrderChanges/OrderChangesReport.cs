@@ -1,44 +1,88 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Domain.Organizations;
+using static Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges.OrderChangesReportViewModel;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 {
-	public class OrderChangesReport
+	public partial class OrderChangesReport
 	{
-		private OrderChangesReport()
-		{
+		private const string _dateFormatString = "yyyy-MM-dd";
+		private const string _dateAndTimeFormatString = "yyyy-MM-dd hh:mm:ss";
 
+		private DateTime _startDate;
+		private DateTime _endDate;
+		private bool _isOldMonitoring;
+		private Organization _selectedOrganization;
+		private IEnumerable<SelectableKeyValueNode> _selectedChangeTypes = new List<SelectableKeyValueNode>();
+		private IEnumerable<SelectableKeyValueNode> _selectedIssueTypes = new List<SelectableKeyValueNode>();
+
+		private OrderChangesReport(
+			DateTime startDate,
+			DateTime endDate,
+			bool isOldMonitoring,
+			Organization selectedOrganization,
+			IEnumerable<SelectableKeyValueNode> selectedChangeTypes,
+			IEnumerable<SelectableKeyValueNode> selectedIssueTypes)
+		{
+			_startDate = startDate;
+			_endDate = endDate;
+			_isOldMonitoring = isOldMonitoring;
+			_selectedOrganization = selectedOrganization;
+			_selectedChangeTypes = selectedChangeTypes;
+			_selectedIssueTypes = selectedIssueTypes;
 		}
 
-		public IList<OrderChangesReportRow> Rows { get; set; } = new List<OrderChangesReportRow>
-		{
-			new OrderChangesReportRow
-			{
-				RowNumber = 1,
-				Counterparty = "Клиент",
-				DriverPhoneComment = "Comment",
-				PaymentDate = DateTime.Today.AddDays(-2),
-				OrderId = 12345,
-				OrderSum = 34.5m,
-				DeliveryDate = DateTime.Today.AddDays(-1),
-				ChangeTime = DateTime.Today,
-				Nomenclature = "Water",
-				OldValue = "OldValue",
-				NewValue = "NewValue",
-				Driver = "Driver",
-				Author = "Author"
-			}
-		};
+		public DateTime StartDate => _startDate;
+		public DateTime EndDate => _endDate;
+		public bool IsOldMonitoring => _isOldMonitoring;
+		public Organization SelectedOrganization => _selectedOrganization;
+
+		public string Title =>
+			$"Отчет по изменениям заказа при доставке\n" +
+			$"с {StartDate.ToString(_dateFormatString)} по {EndDate.ToString(_dateFormatString)}";
+
+		public string SelectedFiltersDescription =>
+			$"Организация: {SelectedOrganization.Name}\n" +
+			$"Типы изменений: {string.Join(" ,", _selectedChangeTypes.Select(x => x.Value))}\n" +
+			$"Типы проблем: {string.Join(" ,", _selectedIssueTypes.Select(x => x.Value))}\n";
+
+		public string ReportCreationTimeInfo =>
+			$"Сформировано {DateTime.Now.ToString(_dateAndTimeFormatString)}";
+
+
+		public IEnumerable<OrderChangesReportRow> Rows { get; set; } = new List<OrderChangesReportRow>();
 
 		public void ExportToExcel(string path)
 		{
 
 		}
 
-		public static async Task<OrderChangesReport> Create()
+		public static async Task<OrderChangesReport> Create(
+			IUnitOfWork unitOfWork,
+			DateTime startDate,
+			DateTime endDate,
+			bool isOldMonitoring,
+			Organization selectedOrganization,
+			IEnumerable<SelectableKeyValueNode> selectedChangeTypes,
+			IEnumerable<SelectableKeyValueNode> selectedIssueTypes,
+			CancellationToken cancellationToken)
 		{
-			return new OrderChangesReport();
+			var report = new OrderChangesReport(
+				startDate,
+				endDate,
+				isOldMonitoring,
+				selectedOrganization,
+				selectedChangeTypes,
+				selectedIssueTypes);
+
+			await report.SetReportRows(unitOfWork, cancellationToken);
+
+			return report;
 		}
 	}
 }
