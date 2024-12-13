@@ -9,9 +9,4 @@ namespace Vodovoz.Domain.WageCalculation
 		[Display(Name = "Для автомобилей наемных водителей")]
 		ForMercenariesCars
 	}
-
-	public class WageParameterTargetsStringType : NHibernate.Type.EnumStringType
-	{
-		public WageParameterTargetsStringType() : base(typeof(WageParameterTargets)) { }
-	}
 }

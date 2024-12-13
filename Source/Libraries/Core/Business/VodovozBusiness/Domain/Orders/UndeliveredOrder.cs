@@ -637,18 +637,4 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Перенос клиентом")]
 		TransferredByCounterparty
 	}
-
-	public class UndeliveredOrderTransferTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public UndeliveredOrderTransferTypeStringType() : base(typeof(TransferType))
-		{
-		}
-	}
-
-	public class UndeliveredOrderUndeliveryStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public UndeliveredOrderUndeliveryStatusStringType() : base(typeof(UndeliveryStatus))
-		{
-		}
-	}
 }

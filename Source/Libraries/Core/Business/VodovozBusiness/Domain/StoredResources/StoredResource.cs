@@ -58,17 +58,4 @@ namespace Vodovoz.Domain.StoredResources
 		[Display(Name = "Прочее")]
 		Other
 	}
-	public class ImageResoureceFileStringType : NHibernate.Type.EnumStringType
-	{
-		public ImageResoureceFileStringType() : base(typeof(ImageType))
-		{
-		}
-	}
-
-	public class ResoureceFileStringType : NHibernate.Type.EnumStringType
-	{
-		public ResoureceFileStringType() : base(typeof(ResoureceType))
-		{
-		}
-	}
 }
