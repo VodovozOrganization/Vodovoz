@@ -192,13 +192,6 @@ namespace Vodovoz.Domain.Client
 		Repair
 	}
 
-	public class AgreementTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public AgreementTypeStringType () : base (typeof(AgreementType))
-		{
-		}
-	}
-
 	public enum RentType
 	{
 		[Display (Name = "Долгосрочная аренда")]

@@ -228,11 +228,6 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Забрать")] PickUp
 	}
 
-	public class DirectionStringType : NHibernate.Type.EnumStringType
-	{
-		public DirectionStringType() : base(typeof(Direction)) { }
-	}
-
 	public enum DirectionReason
 	{
 		[Display(Name = "")]
@@ -251,11 +246,6 @@ namespace Vodovoz.Domain.Orders
 		ClientGift,
 	}
 
-	public class DirectionReasonStringType : NHibernate.Type.EnumStringType
-	{
-		public DirectionReasonStringType() : base(typeof(DirectionReason)) { }
-	}
-
 	public enum Reason
 	{
 		[Display(Name = "Неизвестна")] Unknown,
@@ -265,11 +255,6 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Продажа")] Sale
 	}
 
-	public class ReasonStringType : NHibernate.Type.EnumStringType
-	{
-		public ReasonStringType() : base(typeof(Reason)) { }
-	}
-
 	public enum OwnTypes
 	{
 		[Display(Name = "")] None,
@@ -277,10 +262,4 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Дежурный")] Duty,
 		[Display(Name = "Аренда")] Rent
 	}
-
-	public class OwnTypesStringType : NHibernate.Type.EnumStringType
-	{
-		public OwnTypesStringType() : base(typeof(OwnTypes)) { }
-	}
 }
-

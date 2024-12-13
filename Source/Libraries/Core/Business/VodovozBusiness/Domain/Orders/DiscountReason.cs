@@ -191,9 +191,4 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 	}
-
-	public class DiscountUnitTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public DiscountUnitTypeStringType() : base(typeof(DiscountUnits)) { }
-	}
 }

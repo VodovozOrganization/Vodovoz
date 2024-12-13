@@ -6,7 +6,6 @@ using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.ComponentModel;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -15,6 +14,7 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Warehouses;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz
 {

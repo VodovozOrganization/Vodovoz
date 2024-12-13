@@ -54,11 +54,4 @@ namespace Vodovoz.Domain.Operations
 		PremiumWage
 	}
 
-	public class WagesTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public WagesTypeStringType () : base (typeof(WagesType))
-		{
-		}
-	}
 }
-
