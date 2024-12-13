@@ -167,7 +167,8 @@ namespace VodovozBusiness.Domain.Documents
 				}
 
 				if(item.NomenclatureOld.Category == NomenclatureCategory.bottle
-				   && item.NomenclatureNew.Category == NomenclatureCategory.water && !item.NomenclatureNew.IsDisposableTare
+				   && item.NomenclatureNew.Category == NomenclatureCategory.water
+				   && !item.NomenclatureNew.IsDisposableTare
 				   && item.Amount > 39)
 				{
 					yield return new ValidationResult(
@@ -177,14 +178,14 @@ namespace VodovozBusiness.Domain.Documents
 				}
 			}
 
-			if(ObservableItems.Any(x => x.NomenclatureNew.IsDefectiveBottle && x.TypeOfDefect == null))
+			if(ObservableItems.Any(x => x.IsDefective && x.TypeOfDefect == null))
 			{
 				yield return new ValidationResult(
 					"Необходимо указать вид брака.",
 					new[] { this.GetPropertyName(o => o.ObservableItems) });
 			}
 
-			if(ObservableItems.Any(x => x.NomenclatureNew.IsDefectiveBottle && x.Source == DefectSource.None))
+			if(ObservableItems.Any(x => x.IsDefective && x.Source == DefectSource.None))
 			{
 				yield return new ValidationResult(
 					"Необходимо указать источник брака.",
