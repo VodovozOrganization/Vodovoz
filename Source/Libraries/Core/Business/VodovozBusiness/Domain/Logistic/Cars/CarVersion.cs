@@ -70,10 +70,4 @@ namespace Vodovoz.Domain.Logistic.Cars
 		[Display(Name = "ТС водителя")]
 		Driver
 	}
-
-	public class CarOwnTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public CarOwnTypeStringType() : base(typeof(CarOwnType))
-		{ }
-	}
 }

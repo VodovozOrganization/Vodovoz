@@ -118,11 +118,4 @@ namespace Vodovoz.Domain.Documents
 		ReturnCashEquipment
 	}
 
-	public class ReciveTypesStringType : NHibernate.Type.EnumStringType
-	{
-		public ReciveTypesStringType () : base (typeof(ReciveTypes))
-		{
-		}
-	}
 }
-
