@@ -971,6 +971,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			if(FilterViewModel.ShowOnlyQRScanRequiredCarLoadDocuments && FilterViewModel.OnlyQRScanRequiredCarLoadDocuments)
 			{
+				var paymentTypes = new PaymentType[]
+				{
+					PaymentType.Cashless
+				};
+
 				RouteListItem routeListItemAlias = null;
 				Order orderAlias = null;
 				Counterparty counterpartyAlias = null;
@@ -980,6 +985,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Inner.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 					.Where(() => routeListItemAlias.RouteList.Id == routeListAlias.Id
 						&& counterpartyAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
+					.Where(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), paymentTypes))
 					.Select(x => x.Id);
 
 				query.Where(Subqueries.Exists(hasOrdersWithNetworkClientRequiredQRCodeScan.DetachedCriteria));
