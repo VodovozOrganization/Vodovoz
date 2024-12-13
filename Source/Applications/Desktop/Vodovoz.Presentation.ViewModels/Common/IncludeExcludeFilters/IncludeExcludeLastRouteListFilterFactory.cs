@@ -24,7 +24,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			includeExludeFiltersViewModel.WithExcludes = false;
 			_initIncludeFilter = initIncludeFilter;
 
-			AddEmployeeStatusFilter(includeExludeFiltersViewModel);
+			AddEmployeeCategoryFilter(includeExludeFiltersViewModel);
 			AddCarTypeOfUseFilter(includeExludeFiltersViewModel);
 			AddCarOwnTypeFilter(includeExludeFiltersViewModel);
 			AddVisitingMasterTypeFilter(includeExludeFiltersViewModel);
@@ -32,7 +32,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			return includeExludeFiltersViewModel;
 		}
 
-		private void AddEmployeeStatusFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
+		private void AddEmployeeCategoryFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{
 			includeExludeFiltersViewModel.AddFilter<EmployeeStatus>(config =>
 			{
@@ -88,22 +88,20 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 
 		private void AddVisitingMasterTypeFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{
-			includeExludeFiltersViewModel.AddFilter<VisitingMasterFilterType>(config =>
+			includeExludeFiltersViewModel.AddFilter<EmployeeCategoryFilterType>(config =>
 			{
 				config.RefreshFilteredElements();
 
 				foreach(var element in config.FilteredElements)
 				{
-					if(element is IncludeExcludeElement<VisitingMasterFilterType, VisitingMasterFilterType> enumElement
+					if(element is IncludeExcludeElement<EmployeeCategoryFilterType, EmployeeCategoryFilterType> enumElement
 						&& _initIncludeFilter != null
-						&& _initIncludeFilter.VisitingMaster.Contains(enumElement.Id))
+						&& _initIncludeFilter.EmployeeCategoryFilterTypeInclude.Contains(enumElement.Id))
 					{
 						enumElement.Include = true;
 					}
 				}
-			},
-			true
-			);
+			});
 		}
 
 		private IncludeExludeFiltersViewModel CreateDefaultIncludeExludeFiltersViewModel()

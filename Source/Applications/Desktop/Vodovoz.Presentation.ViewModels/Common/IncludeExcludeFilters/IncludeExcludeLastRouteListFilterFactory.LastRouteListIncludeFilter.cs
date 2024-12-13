@@ -13,7 +13,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 
 			public CarOwnType[] CarOwnTypesForInclude { get; set; }
 
-			public VisitingMasterFilterType[] VisitingMaster { get; set; }
+			public EmployeeCategoryFilterType[] EmployeeCategoryFilterTypeInclude { get; set; }
 		}
 	}
 }

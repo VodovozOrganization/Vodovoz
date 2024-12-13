@@ -35,9 +35,35 @@ namespace Vodovoz.Views.Reports
 			ybuttonAbortCreateReport.BindCommand(ViewModel.AbortReportGenerationCommand);
 			ybuttonSave.BindCommand(ViewModel.SaveReportCommand);
 
-			ShowIncludeExludeFilter();
+			firedPicker.Binding.AddSource(ViewModel)
+
+				.AddBinding(vm => vm.FiredStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.FiredEndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			firstWorkingDayPicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.FirstWorkDayStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.FirstWorkDayEndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			lastRLPicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.LastRouteListStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.LastRouteListEndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			calculationPicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CalculateStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.CalculateEndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			hiredPicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.HiredStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.HiredEndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 
 			ConfigureDataTreeView();
+
+			ShowIncludeExludeFilter();
 
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 
@@ -66,13 +92,13 @@ namespace Vodovoz.Views.Reports
 				.AddColumn("Последний МЛ").AddNumericRenderer(r => r.LastRouteListId)
 				.AddColumn("Дата доставки последнего МЛ\nв статусе «Закрыт»").AddDateRenderer(r => r.LastClosedRouteListDate)
 				.AddColumn("Кол-во дней прошло\nот последнего МЛ").AddNumericRenderer(r => r.DaysCountFromLastClosedRouteList)
-				.AddColumn("Выездной мастер").AddTextRenderer(r => r.VisitinMasterString)
+				.AddColumn("Категория").AddTextRenderer(r => r.EmployeeCategoryString)
 				.AddColumn("Управляет а/м типа").AddTextRenderer(r => r.CarTypeOfUseString)
 				.AddColumn("Принадлежность").AddTextRenderer(r => r.CarsOwnString)
 				.AddColumn("")
 				.Finish();
 
-			ytreeReportRows.Binding				
+			ytreeReportRows.Binding
 				.AddFuncBinding(ViewModel, vm => vm.Report.Rows, w => w.ItemsDataSource)
 				.InitializeFromSource();
 

@@ -91,9 +91,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 					CarOwnType.Company,
 					CarOwnType.Raskat
 				},
-				VisitingMaster = new[]
+				EmployeeCategoryFilterTypeInclude = new[]
 				{
-					VisitingMasterFilterType.ExcludeVisitingMaster
+					EmployeeCategoryFilterType.Driver,
+					EmployeeCategoryFilterType.Forwarder
 				}
 			};
 
@@ -235,6 +236,67 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 		public bool CanSaveReport =>
 			!IsReportGenerationInProgress
 			&& Enumerable.Any(Report.Rows);
+
+		public DateTime? FiredStartDate
+		{
+			get => Report.FiredStartDate;
+			set => Report.FiredStartDate = value;
+		}
+
+		public DateTime? FiredEndDate
+		{
+			get => Report.FiredEndDate;
+			set => Report.FiredEndDate = value?.AddDays(1).AddMilliseconds(-1);
+		}
+
+		public DateTime? FirstWorkDayStartDate
+		{
+			get => Report.FirstWorkDayStartDate;
+			set => Report.FirstWorkDayStartDate = value;
+		}
+
+		public DateTime? FirstWorkDayEndDate
+		{
+			get => Report.FirstWorkDayEndDate;
+			set => Report.FirstWorkDayEndDate = value?.AddDays(1).AddMilliseconds(-1);
+		}
+
+		public DateTime? LastRouteListStartDate
+		{
+			get => Report.LastRouteListStartDate;
+			set => Report.LastRouteListStartDate = value;
+		}
+
+		public DateTime? LastRouteListEndDate
+		{
+			get => Report.LastRouteListEndDate;
+			set => Report.LastRouteListEndDate = value?.AddDays(1).AddMilliseconds(-1);
+		}
+
+		public DateTime? CalculateStartDate
+		{
+			get => Report.CalculateStartDate;
+			set => Report.CalculateStartDate = value;
+		}
+
+		public DateTime? CalculateEndDate
+		{
+			get => Report.CalculateEndDate;
+			set => Report.CalculateEndDate = value?.AddDays(1).AddMilliseconds(-1);
+		}
+
+		public DateTime? HiredStartDate
+		{
+			get => Report.HiredStartDate;
+			set => Report.HiredStartDate = value;
+		}
+
+		public DateTime? HiredEndDate
+		{
+			get => Report.HiredEndDate;
+			set => Report.HiredEndDate = value?.AddDays(1).AddMilliseconds(-1);
+		}
+
 
 		public override void Dispose()
 		{

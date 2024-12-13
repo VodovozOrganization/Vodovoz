@@ -6,32 +6,32 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 	public partial class IncludeExcludeLastRouteListFilterFactory
 	{
 		/// <summary>
-		/// Фильтры по выездному мастеру
+		/// Фильтр по категории сотрудников
 		/// </summary>
 
 		[Appellative(Gender = GrammaticalGender.Masculine,
-			Nominative = "выездной мастер",
-			NominativePlural = "выездной мастер"
+			Nominative = "категория сотрудника",
+			NominativePlural = "категории сотрдуника"
 		)]
-		public enum VisitingMasterFilterType
+		public enum EmployeeCategoryFilterType
 		{
 			/// <summary>
-			/// В отчёт попадает выездные мастера
+			/// Выезд мастера
 			/// </summary>
-			[Display(Name = "Включая")]
-			IncludeVisitingMaster,
+			[Display(Name = "Выезд мастера")]
+			VisitingMaster,
 
 			/// <summary>
-			/// Исключение из отчёта выездных мастеров
+			/// Водитель
 			/// </summary>
-			[Display(Name = "Исключая")]
-			ExcludeVisitingMaster,
+			[Display(Name = "Водитель")]
+			Driver,
 
 			/// <summary>
-			/// В отчёте только выездные мастера
+			/// Экспедитор
 			/// </summary>
-			[Display(Name = "Только")]
-			OnlyVisitingMaster
+			[Display(Name = "Экспедитор")]
+			Forwarder
 		}
 	}
 }

@@ -21,16 +21,17 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 		public int? LastRouteListId { get; internal set; }
 		public DateTime? LastClosedRouteListDate { get; internal set; }
 		public int DaysCountFromLastClosedRouteList => (DateTime.Today - (LastClosedRouteListDate ?? DateTime.Today)).Days;
-		public bool? VisitinMaster { get; internal set; }
 		public CarTypeOfUse? CarTypeOfUse { get; internal set; }
 		public CarOwnType? CarsOwn { get; internal set; }
 		public string CarTypeOfUseString => CarTypeOfUse?.GetEnumTitle() ?? "";
 		public string CarsOwnString => CarsOwn?.GetEnumTitle() ?? "";
-		public string VisitinMasterString =>
+		public bool? VisitinMaster { get; internal set; }
+		public EmployeeCategory? EmployeeCategory { get; internal set; }
+		public string EmployeeCategoryString =>
 			VisitinMaster.HasValue
 			? VisitinMaster.Value
-				? "да"
-				: "нет"
+				? "Выездной мастер"
+				: EmployeeCategory?.GetEnumTitle()
 			: "";
 	}
 }

@@ -3,9 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Employees
 {
+	/// <summary>
+	/// Статус сотрудника
+	/// </summary>
+	/// 
 	[Appellative(
 		Nominative = "Статус сотрудника",
-		NominativePlural = "Статусы сотрудников")]
+		NominativePlural = "Статусы сотрудников")]	
 	public enum EmployeeStatus
 	{
 		/// <summary>

@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 		private IEnumerable<EmployeeStatus> _includedEmployeeStatus;
 		private IEnumerable<CarTypeOfUse> _includedCarTypeOfUse;
 		private IEnumerable<CarOwnType> _includedCarOwn;
-		private VisitingMasterFilterType _includedVisitingMaster;
+		private IEnumerable<EmployeeCategoryFilterType> _includedEmployeeCategories;
 
 		public async Task GenerateRows(
 			IUnitOfWork unitOfWork,
@@ -45,21 +45,24 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 				.GetFilter<IncludeExcludeEnumFilter<CarOwnType>>()
 				.GetIncluded();
 
-			_includedVisitingMaster = filterViewModel
-				.GetFilter<IncludeExcludeEnumFilter<VisitingMasterFilterType>>()
-				.GetIncluded()
-				.FirstOrDefault();
+			_includedEmployeeCategories = filterViewModel
+				.GetFilter<IncludeExcludeEnumFilter<EmployeeCategoryFilterType>>()
+				.GetIncluded();
 
 			var rows =
 				from employee in unitOfWork.Session.Query<Employee>()
 				where
-					employee.Category == EmployeeCategory.driver
-					&& _includedEmployeeStatus.Contains(employee.Status)
+					_includedEmployeeStatus.Contains(employee.Status)
 					&& (
-							_includedVisitingMaster == VisitingMasterFilterType.IncludeVisitingMaster
-							|| (_includedVisitingMaster == VisitingMasterFilterType.ExcludeVisitingMaster && employee.VisitingMaster == false)
-							|| (_includedVisitingMaster == VisitingMasterFilterType.OnlyVisitingMaster && employee.VisitingMaster == true)
+							(_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Driver) && employee.Category == EmployeeCategory.driver)
+							|| (_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Forwarder) && employee.Category == EmployeeCategory.forwarder)
+							|| (_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.VisitingMaster) && employee.VisitingMaster == true)
+							|| (!_includedEmployeeCategories.Any())
 						)
+					&& (FiredStartDate == null || (employee.DateFired >= FiredStartDate && employee.DateFired <= FiredEndDate))
+					&& (HiredStartDate == null || (employee.DateHired >= HiredStartDate && employee.DateHired <= HiredEndDate))
+					&& (FirstWorkDayStartDate == null || (employee.FirstWorkDay >= FirstWorkDayStartDate && employee.FirstWorkDay <= FirstWorkDayEndDate))
+					&& (CalculateStartDate == null || (employee.DateCalculated >= CalculateStartDate && employee.DateCalculated <= CalculateEndDate))
 
 				let lastRouteListId =
 				(
@@ -101,7 +104,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 					select carVersion.CarOwnType
 				).FirstOrDefault()
 
-				where lastRouteListId != null
+				where LastRouteListStartDate == null
+					|| (/*lastRouteListId != null && */ (lastRouteListDate >= LastRouteListStartDate && lastRouteListDate < LastRouteListEndDate))
 
 				orderby DateTime.Now - lastRouteListDate descending
 
@@ -112,6 +116,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 					DriverPatronymic = employee.Patronymic,
 					DriverStatus = employee.Status,
 					FirstWorkDay = employee.FirstWorkDay,
+					EmployeeCategory = employee.Category,
 					DateHired = employee.DateHired,
 					DateFired = employee.DateFired,
 					DateCalculated = employee.DateCalculated,
@@ -136,8 +141,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 
 		public string SelectedCarTypeOfUse => string.Join(", ", _includedCarTypeOfUse.Select(x => x.GetEnumTitle()));
 
-		public string SelectedVisitingMaster => _includedVisitingMaster.GetEnumTitle();
+		public string SelectedEmployeeCategories => string.Join(", ", _includedEmployeeCategories.Select(x => x.GetEnumTitle()));
 
+		public DateTime? FiredStartDate { get; internal set; }
+		public DateTime? FiredEndDate { get; internal set; }
+		public DateTime? FirstWorkDayStartDate { get; internal set; }
+		public DateTime? FirstWorkDayEndDate { get; internal set; }
+		public DateTime? LastRouteListStartDate { get; internal set; }
+		public DateTime? LastRouteListEndDate { get; internal set; }
+		public DateTime? CalculateStartDate { get; internal set; }
+		public DateTime? CalculateEndDate { get; internal set; }
+		public DateTime? HiredStartDate { get; internal set; }
+		public DateTime? HiredEndDate { get; internal set; }
 
 		public List<LastRouteListReportRow> Rows = new List<LastRouteListReportRow>();
 	}
