@@ -11,6 +11,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.Domain.Documents
 {

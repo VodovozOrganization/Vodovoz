@@ -2,13 +2,15 @@
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 
-namespace Vodovoz.Domain.Documents
+namespace VodovozBusiness.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки пересортицы",
@@ -159,7 +161,7 @@ namespace Vodovoz.Domain.Documents
 		{
 			get
 			{
-				return String.Format("{0} -> {1} - {2}",
+				return string.Format("{0} -> {1} - {2}",
 					NomenclatureOld.Name,
 					NomenclatureNew.Name,
 					NomenclatureOld.Unit.MakeAmountShortStr(Amount));
