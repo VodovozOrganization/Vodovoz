@@ -622,8 +622,6 @@ namespace WarehouseApi.Library.Services
 				edoRequests.Add(edoRequest);
 			}
 
-			_uow.Commit();
-
 			return edoRequests;
 		}
 
