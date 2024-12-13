@@ -8,12 +8,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using VodovozBusiness.Domain.Documents;
 
-namespace Vodovoz.Domain.Documents
+namespace VodovozBusiness.Domain.Documents
 {
 	/// <summary>
 	/// Документ пересортицы товаров
