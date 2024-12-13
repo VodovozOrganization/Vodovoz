@@ -13,7 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 
 			Map(x => x.Redhead).Column("redhead");
 			Map(x => x.ReciveType).Column("receive_type").CustomType<ReciveTypesStringType>();
-			Map(x => x.DefectSource).Column("source").CustomType<DefectSourceStringType>();
+			Map(x => x.DefectSource).Column("source");
 
 			References(x => x.Document).Column("car_unload_document_id");
 			References(x => x.GoodsAccountingOperation).Column("warehouse_movement_operation_id").Cascade.All();

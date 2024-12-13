@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
@@ -14,6 +14,7 @@ using QS.Services;
 using QS.Tdi;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -35,6 +36,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Warehouses;
 using VodovozBusiness.Domain.Documents;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
@@ -966,6 +968,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if(FilterViewModel.Car != null)
 			{
 				query.Where(() => routeListAlias.Car.Id == FilterViewModel.Car.Id);
+			}
+
+			if(FilterViewModel.ShowOnlyQRScanRequiredCarLoadDocuments && FilterViewModel.OnlyQRScanRequiredCarLoadDocuments)
+			{
+				var paymentTypes = new PaymentType[]
+				{
+					PaymentType.Cashless
+				};
+
+				RouteListItem routeListItemAlias = null;
+				Order orderAlias = null;
+				Counterparty counterpartyAlias = null;
+
+				var hasOrdersWithNetworkClientRequiredQRCodeScan = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
+					.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+					.Inner.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+					.Where(() => routeListItemAlias.RouteList.Id == routeListAlias.Id
+						&& counterpartyAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
+					.Where(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), paymentTypes))
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(hasOrdersWithNetworkClientRequiredQRCodeScan.DetachedCriteria));
 			}
 
 			query.Where(GetSearchCriterion(
