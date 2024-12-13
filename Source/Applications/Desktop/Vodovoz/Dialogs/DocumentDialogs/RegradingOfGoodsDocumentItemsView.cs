@@ -48,7 +48,8 @@ namespace Vodovoz
 
 			List<CullingCategory> types;
 			List<RegradingOfGoodsReason> regradingReasons;
-			using(IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			{
 				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
 				regradingReasons = uow.GetAll<RegradingOfGoodsReason>().OrderBy(c => c.Name).ToList();
 			}
@@ -97,7 +98,10 @@ namespace Vodovoz
 						(c, n) =>
 						{
 							if(!n.NomenclatureNew.IsDefectiveBottle)
+							{
 								n.Source = DefectSource.None;
+							}
+
 							c.Editable = n.NomenclatureNew.IsDefectiveBottle;
 							c.BackgroundGdk = n.NomenclatureNew.IsDefectiveBottle && n.Source == DefectSource.None
 								? colorLightRed
@@ -118,34 +122,47 @@ namespace Vodovoz
 
 		public ITdiCompatibilityNavigation NavigationManager { get; set; }
 
-		private double GetMaxValueForAdjustmentSetting(RegradingOfGoodsDocumentItem item){
+		private double GetMaxValueForAdjustmentSetting(RegradingOfGoodsDocumentItem item)
+		{
 			if(item.NomenclatureOld.Category == NomenclatureCategory.bottle
 			   && item.NomenclatureNew.Category == NomenclatureCategory.water)
+			{
 				return 39;
+			}
+
 			return (double)item.AmountInStock;
 		}
 
-		private void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
+		private void YtreeviewItems_Selection_Changed(object sender, EventArgs e)
 		{
 			UpdateButtonState();
 		}
 
 		private IUnitOfWorkGeneric<RegradingOfGoodsDocument> documentUoW;
 
-		public IUnitOfWorkGeneric<RegradingOfGoodsDocument> DocumentUoW {
+		public IUnitOfWorkGeneric<RegradingOfGoodsDocument> DocumentUoW
+		{
 			get { return documentUoW; }
-			set {
-				if (documentUoW == value)
+			set
+			{
+				if(documentUoW == value)
+				{
 					return;
+				}
+
 				documentUoW = value;
-				if (DocumentUoW.Root.Items == null)
-					DocumentUoW.Root.Items = new List<RegradingOfGoodsDocumentItem> ();
+				if(DocumentUoW.Root.Items == null)
+				{
+					DocumentUoW.Root.Items = new List<RegradingOfGoodsDocumentItem>();
+				}
 
 				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableItems;
 				UpdateButtonState();
 				DocumentUoW.Root.PropertyChanged += DocumentUoW_Root_PropertyChanged;
-				if (!DocumentUoW.IsNew)
+				if(!DocumentUoW.IsNew)
+				{
 					LoadStock();
+				}
 			}
 		}
 
@@ -159,18 +176,24 @@ namespace Vodovoz
 			buttonFine.Sensitive = selected != null;
 			if(selected != null)
 			{
-				if (selected.Fine != null)
+				if(selected.Fine != null)
+				{
 					buttonFine.Label = "Изменить штраф";
+				}
 				else
+				{
 					buttonFine.Label = "Добавить штраф";
+				}
 			}
 			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
 		}
 
-		private void DocumentUoW_Root_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void DocumentUoW_Root_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName == DocumentUoW.Root.GetPropertyName(x => x.Warehouse))
+			if(e.PropertyName == DocumentUoW.Root.GetPropertyName(x => x.Warehouse))
+			{
 				UpdateButtonState();
+			}
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
@@ -179,18 +202,20 @@ namespace Vodovoz
 
 			var vm = NavigationManager.OpenViewModelOnTdi<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(ParrentDlg, filterParams)
 				.ViewModel;
-			
+
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.TabName = "Выберите номенклатуру на замену";
 			vm.OnEntitySelectedResult += (s, ea) =>
 			{
 				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
-				if(selectedNode == null) {
+				if(selectedNode == null)
+				{
 					return;
 				}
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
 
-				newRow = new RegradingOfGoodsDocumentItem() {
+				newRow = new RegradingOfGoodsDocumentItem()
+				{
 					NomenclatureOld = nomenclature,
 					AmountInStock = selectedNode.StockAmount
 				};
@@ -203,14 +228,14 @@ namespace Vodovoz
 			};
 		}
 
-		private void SelectNewNomenclature_ObjectSelected (object sender, JournalSelectedEventArgs e)
+		private void SelectNewNomenclature_ObjectSelected(object sender, JournalSelectedEventArgs e)
 		{
 			var journalNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
-			if (journalNode != null)
+			if(journalNode != null)
 			{
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(journalNode.Id);
 
-				if (!nomenclature.IsDefectiveBottle)
+				if(!nomenclature.IsDefectiveBottle)
 				{
 					newRow.Source = DefectSource.None;
 					newRow.TypeOfDefect = null;
@@ -228,7 +253,7 @@ namespace Vodovoz
 				_stockRepository.NomenclatureInStock(
 					DocumentUoW,
 					nomenclatureIds,
-					new []{ DocumentUoW.Root.Warehouse.Id },
+					new[] { DocumentUoW.Root.Warehouse.Id },
 					DocumentUoW.Root.TimeStamp);
 
 			foreach(var item in DocumentUoW.Root.Items)
@@ -250,10 +275,12 @@ namespace Vodovoz
 
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.TabName = "Изменить старую номенклатуру";
-			vm.OnEntitySelectedResult += (s, ea) => {
+			vm.OnEntitySelectedResult += (s, ea) =>
+			{
 				var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
 				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
-				if(selectedNode == null) {
+				if(selectedNode == null)
+				{
 					return;
 				}
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
@@ -274,14 +301,14 @@ namespace Vodovoz
 		private void ChangeNewNomenclature_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
 			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
-			if (row == null)
+			if(row == null)
 			{
 				return;
 			}
 
 			var id = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault()?.Id;
 
-			if (id == null)
+			if(id == null)
 			{
 				return;
 			}
@@ -293,28 +320,42 @@ namespace Vodovoz
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
 			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
-			if (row.WarehouseIncomeOperation.Id == 0)
+			if(row.WarehouseIncomeOperation.Id == 0)
+			{
 				DocumentUoW.Delete(row.WarehouseIncomeOperation);
-			if (row.WarehouseWriteOffOperation.Id == 0)
+			}
+
+			if(row.WarehouseWriteOffOperation.Id == 0)
+			{
 				DocumentUoW.Delete(row.WarehouseWriteOffOperation);
+			}
+
 			if(row.Id != 0)
+			{
 				DocumentUoW.Delete(row);
+			}
+
 			DocumentUoW.Root.ObservableItems.Remove(row);
 		}
 
 		protected void OnYtreeviewItemsRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			if (args.Column.Title == "Старая номенклатура")
+			if(args.Column.Title == "Старая номенклатура")
+			{
 				buttonChangeOld.Click();
-			if (args.Column.Title == "Новая номенклатура")
+			}
+
+			if(args.Column.Title == "Новая номенклатура")
+			{
 				buttonChangeNew.Click();
+			}
 		}
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)
 		{
 			var selected = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
 
-			if (selected.Fine != null)
+			if(selected.Fine != null)
 			{
 				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(ParrentDlg, EntityUoWBuilder.ForOpen(selected.Fine.Id), OpenPageOptions.AsSlave);
 
@@ -332,13 +373,13 @@ namespace Vodovoz
 			FineEditItem = selected;
 		}
 
-		private void OnFineDlgNewEntitySaved (object sender, EntitySavedEventArgs e)
+		private void OnFineDlgNewEntitySaved(object sender, EntitySavedEventArgs e)
 		{
 			FineEditItem.Fine = e.Entity as Fine;
 			FineEditItem = null;
 		}
 
-		private void OnFineDlgExistEntitySaved (object sender, EntitySavedEventArgs e)
+		private void OnFineDlgExistEntitySaved(object sender, EntitySavedEventArgs e)
 		{
 			DocumentUoW.Session.Refresh(FineEditItem.Fine);
 		}
@@ -359,24 +400,28 @@ namespace Vodovoz
 			MyTab.TabParent.AddSlaveTab(MyTab, selectTemplate);
 		}
 
-		private void SelectTemplate_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		private void SelectTemplate_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			if (DocumentUoW.Root.Items.Count > 0)
+			if(DocumentUoW.Root.Items.Count > 0)
 			{
-				if (MessageDialogWorks.RunQuestionDialog("Текущий список будет очищен. Продолжить?"))
+				if(MessageDialogWorks.RunQuestionDialog("Текущий список будет очищен. Продолжить?"))
+				{
 					DocumentUoW.Root.ObservableItems.Clear();
+				}
 				else
+				{
 					return;
+				}
 			}
 
 			var template = DocumentUoW.GetById<RegradingOfGoodsTemplate>((e.Subject as RegradingOfGoodsTemplate).Id);
 			foreach(var item in template.Items)
 			{
 				DocumentUoW.Root.AddItem(new RegradingOfGoodsDocumentItem()
-					{
-						NomenclatureNew = item.NomenclatureNew,
-						NomenclatureOld = item.NomenclatureOld
-					});
+				{
+					NomenclatureNew = item.NomenclatureNew,
+					NomenclatureOld = item.NomenclatureOld
+				});
 			}
 			LoadStock();
 		}
