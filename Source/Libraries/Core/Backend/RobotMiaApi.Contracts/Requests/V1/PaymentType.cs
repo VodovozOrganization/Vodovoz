@@ -13,6 +13,10 @@ namespace RobotMiaApi.Contracts.Requests.V1
 		/// </summary>
 		Cash,
 		/// <summary>
+		/// Терминал
+		/// </summary>
+		Terminal,
+		/// <summary>
 		/// Qr-код
 		/// </summary>
 		SmsQR
