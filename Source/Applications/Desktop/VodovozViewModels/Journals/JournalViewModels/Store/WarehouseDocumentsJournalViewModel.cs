@@ -978,7 +978,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				var hasOrdersWithNetworkClientRequiredQRCodeScan = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
 					.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 					.Inner.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-					.Where(() => counterpartyAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
+					.Where(() => routeListItemAlias.RouteList.Id == routeListAlias.Id
+						&& counterpartyAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
 					.Select(x => x.Id);
 
 				query.Where(Subqueries.Exists(hasOrdersWithNetworkClientRequiredQRCodeScan.DetachedCriteria));
