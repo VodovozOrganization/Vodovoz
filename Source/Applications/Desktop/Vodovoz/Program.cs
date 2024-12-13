@@ -441,7 +441,6 @@ namespace Vodovoz
 
 					#region Reports
 
-					builder.RegisterType<OrderChangesReport>().AsSelf();
 					builder.RegisterType<CashFlow>().AsSelf();
 					builder.RegisterType<WayBillReportGroupPrint>().AsSelf();
 					builder.RegisterType<StockMovements>().AsSelf();

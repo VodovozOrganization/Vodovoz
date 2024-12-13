@@ -32,6 +32,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Reports;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges;
 using Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl;
 using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Counterparties;
@@ -1078,22 +1079,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderChangesReportActivated(object sender, EventArgs e)
 	{
-		var reportSettings = _autofacScope.Resolve<IReportSettings>();
-		var archiveSettings = _autofacScope.Resolve<IArchiveDataSettings>();
-
-		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
-		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
-			() => new QSReport.ReportViewDlg(
-				new OrderChangesReport(
-					reportInfoFactory,
-					reportSettings,
-					interactiveService,
-					archiveSettings)
-				)
-			);
+		NavigationManager.OpenViewModel<OrderChangesReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
