@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -103,66 +103,6 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#endregion
-	}
-
-	public enum DocumentType
-	{
-		[Display(Name = "Входящая накладная")]
-		IncomingInvoice,
-		[Display(Name = "Документ производства")]
-		IncomingWater,
-		[Display(Name = "Документ перемещения")]
-		MovementDocument,
-		[Display(Name = "Акт списания")]
-		WriteoffDocument,
-		[Display(Name = "Отпуск самовывоза")]
-		SelfDeliveryDocument,
-		[Display(Name = "Талон погрузки")]
-		CarLoadDocument,
-		[Display(Name = "Талон разгрузки")]
-		CarUnloadDocument,
-		[Display(Name = "Инвентаризация")]
-		InventoryDocument,
-		[Display(Name = "Акт передачи остатков")]
-		ShiftChangeDocument,
-		[Display (Name = "Пересортица товаров")]
-		RegradingOfGoodsDocument,
-		[Display (Name = "Документ доставки")]
-		DeliveryDocument,
-		[Display(Name = "Документы перемещения терминала водителя")]
-		DriverTerminalMovement,
-		[Display(Name = "Документ выдачи терминала водителя")]
-		DriverTerminalGiveout,
-		[Display(Name = "Документ возврата терминала водителя")]
-		DriverTerminalReturn
-	}
-
-	public class DocumentTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public DocumentTypeStringType () : base (typeof(DocumentType))
-		{
-		}
-	}
-
-	public enum DefectSource
-	{
-		[Display(Name = "")]
-		None,
-		[Display(Name = "Водитель")]
-		Driver,
-		[Display(Name = "Клиент")]
-		Client,
-		[Display(Name = "Производство")]
-		Production,
-		[Display(Name = "Склад")]
-		Warehouse
-	}
-
-	public class DefectSourceStringType : NHibernate.Type.EnumStringType
-	{
-		public DefectSourceStringType() : base(typeof(DefectSource))
-		{
-		}
 	}
 }
 
