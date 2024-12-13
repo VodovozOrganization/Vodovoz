@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private bool _isOldMonitoring;
-		private Organization _organization;
+		private Organization _selectedOrganization;
 		private bool _isReportGenerationInProgress;
 		private OrderChangesReport _report;
 		private CancellationTokenSource _cancellationTokenSource;
@@ -57,7 +57,10 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 				(archiveDataSettings ?? throw new ArgumentNullException(nameof(archiveDataSettings)))
 				.GetMonitoringPeriodAvailableInDays;
 
+			Title = "Отчет по изменениям заказа при доставке";
+
 			Organizations = GetAllOrganizations();
+			SelectedOrganization = Organizations.FirstOrDefault();
 
 			UpdateSelectedPeriod();
 
@@ -75,14 +78,11 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 			SaveReportCommand = new DelegateCommand(SaveReport, () => CanSaveReport);
 			SaveReportCommand.CanExecuteChangedWith(this, vm => vm.CanSaveReport);
-
-			UpdateSelectedPeriodCommand = new DelegateCommand(UpdateSelectedPeriod);
 		}
 
 		public DelegateCommand GenerateReportCommand { get; }
 		public DelegateCommand AbortReportGenerationCommand { get; }
 		public DelegateCommand SaveReportCommand { get; }
-		public DelegateCommand UpdateSelectedPeriodCommand { get; }
 
 		public IList<Organization> Organizations { get; }
 
@@ -119,16 +119,16 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			{
 				SetField(ref _isOldMonitoring, value);
 
-				UpdateReportGeneratingAvailabilitySettings();
+				UpdateSelectedPeriod();
 			}
 		}
 
 		[PropertyChangedAlso(
 			nameof(CanGenerateReport))]
-		public Organization Organization
+		public Organization SelectedOrganization
 		{
-			get => _organization;
-			set => SetField(ref _organization, value);
+			get => _selectedOrganization;
+			set => SetField(ref _selectedOrganization, value);
 		}
 
 		[PropertyChangedAlso(
@@ -168,7 +168,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 		public bool CanGenerateReport =>
 			!IsReportGenerationInProgress
-			&& Organization != null
+			&& SelectedOrganization != null
 			&& IsValidPeriodSelected
 			&& (ChangeTypes.Any(x => x.IsSelected) || IssueTypes.Any(x => x.IsSelected));
 
@@ -181,6 +181,11 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 		public bool CanChangeIssueTypesSelection =>
 			ChangeTypes.Any(x => x.Value == "PaymentType" && !x.IsSelected);
+
+		public bool IsWideDateRangeWarningMessageVisible =>
+			(!StartDate.HasValue && EndDate.HasValue)
+			|| (StartDate.HasValue && !EndDate.HasValue && StartDate.Value < DateTime.Today.AddDays(-13))
+			|| (StartDate.HasValue && EndDate.HasValue && StartDate.Value < EndDate.Value.AddDays(-13));
 
 		private IList<Organization> GetAllOrganizations()
 		{
@@ -258,6 +263,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		{
 			OnPropertyChanged(nameof(CanChangeIssueTypesSelection));
 			OnPropertyChanged(nameof(CanGenerateReport));
+			OnPropertyChanged(nameof(IsWideDateRangeWarningMessageVisible));
 
 			if(!IsValidPeriodSelected)
 			{
