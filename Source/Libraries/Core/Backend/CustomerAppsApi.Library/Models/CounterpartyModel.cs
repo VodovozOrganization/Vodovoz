@@ -341,8 +341,7 @@ namespace CustomerAppsApi.Library.Models
 				return ("Не совпадает номер телефона у пользователя и который пришел в запросе", null);
 			}
 			
-			var counterparties =
-				_counterpartyServiceDataHandler.GetLegalCustomersByInn(_uow, dto);
+			var counterparties = _counterpartyServiceDataHandler.GetLegalCustomersByInn(_uow, dto);
 			
 			return (null, counterparties);
 		}
@@ -428,7 +427,10 @@ namespace CustomerAppsApi.Library.Models
 			
 			_uow.Save(typeOwnership);
 
-			var newLegalCounterparty = new Counterparty();
+			var newLegalCounterparty = new Counterparty
+			{
+				PersonType = PersonType.legal
+			};
 			newLegalCounterparty.FillLegalProperties(dto);
 			newLegalCounterparty.CameFrom = _uow.GetById<ClientCameFrom>((int)dto.Source);
 
