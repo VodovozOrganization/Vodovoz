@@ -408,7 +408,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDefectiveItemsReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(Vodovoz.ViewModels.ReportsParameters.Store.DefectiveItemsReportViewModel));
+		NavigationManager.OpenViewModel<Vodovoz.ViewModels.Store.Reports.DefectiveItemsReportViewModel>(null);
 	}
 
 	/// <summary>

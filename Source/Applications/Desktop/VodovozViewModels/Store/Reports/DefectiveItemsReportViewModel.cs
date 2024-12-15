@@ -6,8 +6,12 @@ using QS.ViewModels.Dialog;
 using System;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Tools;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
-namespace Vodovoz.Presentation.ViewModels.Store.Reports
+namespace Vodovoz.ViewModels.Store.Reports
 {
 	public class DefectiveItemsReportViewModel : DialogViewModelBase, IDisposable
 	{
@@ -16,7 +20,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 		private Employee _driver;
 		private DateTime _startDate;
 		private DateTime _endDate;
-		private DefectSource _defectSource;
+		private DefectSource? _defectSource;
 
 		public DefectiveItemsReportViewModel(
 			INavigationManager navigation,
@@ -34,12 +38,20 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				throw new ArgumentNullException(nameof(employeeViewModelEEVMBuilder));
 			}
 
+			Title = typeof(DefectiveItemsReport).GetClassUserFriendlyName().Nominative.CapitalizeSentence(); ;
+
+			StartDate = DateTime.Today;
+			EndDate = DateTime.Today;
+
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot("Отчет по браку");
 
-			employeeViewModelEEVMBuilder
+			DriverViewModel = employeeViewModelEEVMBuilder
 				.SetViewModel(this)
 				.SetUnitOfWork(UnitOfWork)
-				.ForProperty(this, x => x.Driver);
+				.ForProperty(this, x => x.Driver)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(x => x.Category = Core.Domain.Employees.EmployeeCategory.driver)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}
@@ -68,7 +80,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			set => SetField(ref _endDate, value);
 		}
 
-		public DefectSource DefectSource
+		public DefectSource? DefectSource
 		{
 			get => _defectSource;
 			set => SetField(ref _defectSource, value);
@@ -81,7 +93,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 
 		private void GenerateReport()
 		{
-			Report = DefectiveItemsReport.Create(UnitOfWork, StartDate, EndDate, Driver?.Id);
+			Report = DefectiveItemsReport.Create(UnitOfWork, StartDate, EndDate, DefectSource, Driver?.Id);
 		}
 
 		public void Dispose()

@@ -397,6 +397,9 @@
     <Compile Include="ReportsParameters\Wages\DriverWagesReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\ForwarderWageReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\WagesOperationsReportViewModel.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReport.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReportRow.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReportViewModel.cs" />
     <Compile Include="TempAdapters\IReportExporter.cs" />
     <Compile Include="TempAdapters\PacsViewModelOpener.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />

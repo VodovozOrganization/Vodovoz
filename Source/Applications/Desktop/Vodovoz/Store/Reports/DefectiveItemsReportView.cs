@@ -1,9 +1,13 @@
-﻿using Gtk;
+﻿using DynamicData;
+using Gtk;
 using QS.Dialog;
 using QS.Views.Dialog;
 using System;
 using System.ComponentModel;
-using Vodovoz.Presentation.ViewModels.Store.Reports;
+using Gamma.Utilities;
+using Vodovoz.ViewModels.Store.Reports;
+using Gamma.ColumnConfig;
+using System.Linq;
 
 namespace Vodovoz.Store.Reports
 {
@@ -32,6 +36,7 @@ namespace Vodovoz.Store.Reports
 		private void Initialize()
 		{
 			yEnumCmbSource.ItemsEnum = ViewModel.DefectSourceType;
+			yEnumCmbSource.ShowSpecialStateAll = true;
 			yEnumCmbSource.AddEnumToHideList(ViewModel.HiddenDefectSources);
 			yEnumCmbSource.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.DefectSource, w => w.SelectedItemOrNull)
@@ -67,7 +72,44 @@ namespace Vodovoz.Store.Reports
 
 		private void RefreshReportPreview()
 		{
+			ytreeviewMain.CreateFluentColumnsConfig<DefectiveItemsReport.DefectiveItemsReportRow>()
+				.AddColumn("#").AddNumericRenderer(n => ViewModel != null ? ViewModel.Report != null ? ViewModel.Report.Rows != null ? ViewModel.Report.Rows.IndexOf(n) + 1 : 0 : 0 : 0)
+				.AddColumn("Дата").AddDateRenderer(x => x.Date)
+				.AddColumn("Кол-во").AddNumericRenderer(x => x.Amount)
+				.AddColumn("Тип").AddTextRenderer(x => x.DefectTypeName)
+				.AddColumn("Место обнаружения проблемы").AddTextRenderer(x => x.DefectDetectedAt)
+				.AddColumn("Источник").AddTextRenderer(x => x.DefectSource.GetEnumTitle())
+				.AddColumn("Водитель и номер МЛ").AddTextRenderer(x => x.RouteListId == null ? "" : $"{x.DriverLastName} МЛ №{x.RouteListId}")
+				.AddColumn("Источник").AddTextRenderer(x => $"{x.DocumentTypeName} {x.Id}")
+				.AddColumn("Автор").AddTextRenderer(x => x.AuthorLastName)
+				.AddColumn("Комментарий").AddTextRenderer(x => x.Comment)
+				.Finish();
 
+			var summaryConfigPart = new FluentColumnsConfig<DefectiveItemsReport.SummaryDisplayRow>()
+			   .AddColumn("Из них")
+			   .AddTextRenderer(x => x.Title);
+
+			var dynamicColumnsTitles = ViewModel.Report.WarehouseNames;
+			var dynamicColumnsCount = dynamicColumnsTitles.Count();
+
+			for(var i = 0; i < dynamicColumnsCount; i++)
+			{
+				var currentId = i;
+
+				summaryConfigPart.AddColumn(dynamicColumnsTitles.ElementAt(currentId))
+					.AddTextRenderer(x => x.DynamicColls.ElementAt(currentId).ToString());
+			}
+
+			summaryConfigPart.AddColumn("Итог")
+				.AddTextRenderer(x => x.Summary);
+
+			ytreeviewSummary.ColumnsConfig = summaryConfigPart.Finish();
+
+			if(ViewModel.Report != null)
+			{
+				ytreeviewMain.ItemsDataSource = ViewModel.Report.Rows;
+				ytreeviewSummary.ItemsDataSource = ViewModel.Report.SummaryDisplayRows;
+			}
 		}
 
 		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)

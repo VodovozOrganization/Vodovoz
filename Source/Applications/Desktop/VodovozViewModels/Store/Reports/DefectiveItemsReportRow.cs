@@ -1,7 +1,9 @@
 ﻿using System;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Tools;
 
-namespace Vodovoz.Presentation.ViewModels.Store.Reports
+namespace Vodovoz.ViewModels.Store.Reports
 {
 	public partial class DefectiveItemsReport
 	{
@@ -9,16 +11,19 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 		{
 			public int Id { get; set; }
 			public DateTime Date { get; set; }
+			public int WarehouseId { get; internal set; }
 			public decimal Amount { get; set; }
-			public string DefectTypeName { get; set; }
 			public string DefectiveItemName { get; set; }
-			public string DriverSurname { get; set; }
+			public string DriverLastName { get; set; }
 			public int? RouteListId { get; set; }
-			public DocumentType DocumentType { get; set; }
+			public Type DocumentType { get; set; }
+			public int DefectTypeId { get; set; }
+			public string DefectTypeName { get; set; }
 			public DefectSource DefectSource { get; set; }
-			public string AuthorSurname { get; set; }
+			public string AuthorLastName { get; set; }
 			public string Comment {  get; set; }
 			public string DefectDetectedAt { get; set; }
+			public string DocumentTypeName => DocumentType.GetClassUserFriendlyName().Nominative.CapitalizeSentence();
 		}
 	}
 }
