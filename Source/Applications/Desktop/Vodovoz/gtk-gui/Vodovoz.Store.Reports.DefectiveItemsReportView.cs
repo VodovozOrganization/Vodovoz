@@ -52,6 +52,10 @@ namespace Vodovoz.Store.Reports
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewMain;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelSummaryBySource;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewSummaryBySource;
+
 		private global::Gamma.GtkWidgets.yLabel ylabelSummary;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewSummary;
@@ -281,21 +285,37 @@ namespace Vodovoz.Store.Reports
 			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeviewMain]));
 			w24.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.ylabelSummary = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelSummary.Name = "ylabelSummary";
-			this.ylabelSummary.LabelProp = global::Mono.Unix.Catalog.GetString("Итог");
-			this.vbox1.Add(this.ylabelSummary);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelSummary]));
+			this.ylabelSummaryBySource = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelSummaryBySource.Name = "ylabelSummaryBySource";
+			this.ylabelSummaryBySource.LabelProp = global::Mono.Unix.Catalog.GetString("За выбранный период на складе было выявлено:");
+			this.vbox1.Add(this.ylabelSummaryBySource);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelSummaryBySource]));
 			w25.Position = 2;
 			w25.Expand = false;
 			w25.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ytreeviewSummaryBySource = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewSummaryBySource.CanFocus = true;
+			this.ytreeviewSummaryBySource.Name = "ytreeviewSummaryBySource";
+			this.vbox1.Add(this.ytreeviewSummaryBySource);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeviewSummaryBySource]));
+			w26.Position = 3;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelSummary = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelSummary.Name = "ylabelSummary";
+			this.ylabelSummary.LabelProp = global::Mono.Unix.Catalog.GetString("Из них:");
+			this.vbox1.Add(this.ylabelSummary);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelSummary]));
+			w27.Position = 4;
+			w27.Expand = false;
+			w27.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.ytreeviewSummary = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeviewSummary.CanFocus = true;
 			this.ytreeviewSummary.Name = "ytreeviewSummary";
 			this.vbox1.Add(this.ytreeviewSummary);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeviewSummary]));
-			w26.Position = 3;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeviewSummary]));
+			w28.Position = 5;
 			w22.Add(this.vbox1);
 			this.scrolledwindow1.Add(w22);
 			this.hpaned1.Add(this.scrolledwindow1);
