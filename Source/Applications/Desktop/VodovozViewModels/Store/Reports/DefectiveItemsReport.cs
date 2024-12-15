@@ -1,9 +1,12 @@
 ﻿using DateTimeHelpers;
+using NHibernate.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -11,6 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.Errors;
 using Vodovoz.Presentation.ViewModels.Reports;
 using VodovozBusiness.Domain.Documents;
 
@@ -53,11 +57,11 @@ namespace Vodovoz.ViewModels.Store.Reports
 		public IEnumerable<SummaryDisplayRow> SummaryDisplayRows { get; }
 		public List<string> WarehouseNames { get; }
 
-		public static DefectiveItemsReport Create(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate, DefectSource? defectSource, int? driverId)
+		public static async Task<Result<DefectiveItemsReport>> Create(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate, DefectSource? defectSource, int? driverId, CancellationToken cancellationToken)
 		{
 			endDate = endDate.LatestDayTime();
 
-			var regradingOfGoodsRows =
+			var regradingOfGoodsRows = await
 				(from rogdi in unitOfWork.Session.Query<RegradingOfGoodsDocumentItem>()
 				 join rogd in unitOfWork.Session.Query<RegradingOfGoodsDocument>()
 				 on rogdi.Document.Id equals rogd.Id
@@ -79,9 +83,9 @@ namespace Vodovoz.ViewModels.Store.Reports
 					 AuthorId = rogd.Author.Id,
 					 rogd.Comment
 				 })
-				.ToList();
+				.ToListAsync(cancellationToken);
 
-			var carUnloadDocumentRows =
+			var carUnloadDocumentRows = await
 				(from cudi in unitOfWork.Session.Query<CarUnloadDocumentItem>()
 				 join cud in unitOfWork.Session.Query<CarUnloadDocument>()
 				 on cudi.Document.Id equals cud.Id
@@ -109,7 +113,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 					 AuthorId = cud.Author.Id,
 					 cud.Comment
 				 })
-				.ToList();
+				.ToListAsync(cancellationToken);
 
 			var employeesIds = regradingOfGoodsRows
 				.Select(x => x.AuthorId)
@@ -139,7 +143,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 			var warehousesIdsToNames =
 				(from warehouse in unitOfWork.Session.Query<Warehouse>()
 				 where warehousesIds.Contains(warehouse.Id)
-				 select new WarehouseIdToNameNode
+				 select new EntityIdToNameNode
 				 {
 					 Id = warehouse.Id,
 					 Name = warehouse.Name,
@@ -155,7 +159,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 			var nomenclatureIdsNames =
 				(from nomenclature in unitOfWork.Session.Query<Nomenclature>()
 				 where nomenclatureIds.Contains(nomenclature.Id)
-				 select new NomenclatureIdToNameNode
+				 select new EntityIdToNameNode
 				 {
 					 Id = nomenclature.Id,
 					 Name = nomenclature.Name,
@@ -171,7 +175,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 			var defectTypesIdsNames =
 				(from cullingCategory in unitOfWork.Session.Query<CullingCategory>()
 				 where defectTypesIds.Contains(cullingCategory.Id)
-				 select new CullingCategoryIdToNameNode
+				 select new EntityIdToNameNode
 				 {
 					 Id = cullingCategory.Id,
 					 Name = cullingCategory.Name,
@@ -281,46 +285,6 @@ namespace Vodovoz.ViewModels.Store.Reports
 			});
 
 			return new DefectiveItemsReport(startDate, endDate, driverId, defectSource, sortedRows, summaryRows, summaryDisplayRows, warehouseNames);
-		}
-
-		public class SummaryRow
-		{
-			public string DefectType { get; set; }
-			public IEnumerable<decimal> DynamicColls { get; set; }
-			public decimal Summary { get; set; }
-		}
-
-		public class SummaryDisplayRow
-		{
-			public string Title { get; set; }
-			public IEnumerable<string> DynamicColls { get; set; }
-			public string Summary { get; set; }
-		}
-
-		public class EmployeeIdToFioNode
-		{
-			public int Id { get; set; }
-			public string Name { get; set; }
-			public string LastName { get; set; }
-			public string Patronymic { get; set; }
-		}
-
-		public class WarehouseIdToNameNode
-		{
-			public int Id { get; set; }
-			public string Name { get; set; }
-		}
-
-		public class NomenclatureIdToNameNode
-		{
-			public int Id { get; set; }
-			public string Name { get; set; }
-		}
-
-		public class CullingCategoryIdToNameNode
-		{
-			public int Id { get; set; }
-			public string Name { get; set; }
 		}
 	}
 }

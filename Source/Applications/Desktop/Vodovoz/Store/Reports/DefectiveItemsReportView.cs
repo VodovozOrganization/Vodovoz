@@ -49,7 +49,21 @@ namespace Vodovoz.Store.Reports
 
 			entityentryDriver.ViewModel = ViewModel.DriverViewModel;
 
-			buttonRun.BindCommand(ViewModel.GenerateReportCommand);
+			ybuttonSave.BindCommand(ViewModel.SaveCommand);
+
+			ybuttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
+
+			ybuttonCreateReport.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanGenerateReport, w => w.Visible)
+				.InitializeFromSource();
+
+			ybuttonAbortCreateReport.BindCommand(ViewModel.AbortCreateCommand);
+
+			ybuttonAbortCreateReport.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanCancelGenerateReport, w => w.Visible)
+				.InitializeFromSource();
+
+			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 
 			hpaned1.Position = _hpanedDefaultPosition;
 
