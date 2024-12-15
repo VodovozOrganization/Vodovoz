@@ -1,4 +1,5 @@
 ﻿using DateTimeHelpers;
+using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -31,7 +32,8 @@ namespace Vodovoz.ViewModels.Store.Reports
 			IEnumerable<DefectiveItemsReportRow> defectiveItemsReportRows,
 			IEnumerable<SummaryRow> summaryRows,
 			IEnumerable<SummaryDisplayRow> summaryDisplayRows,
-			List<string> warehouseNames)
+			List<string> warehouseNames,
+			List<SummaryBySourceRow> summaryBySourceRows)
 		{
 			StartDate = startDate;
 			EndDate = endDate.LatestDayTime();
@@ -41,6 +43,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 			SummaryRows = summaryRows ?? throw new ArgumentNullException(nameof(summaryRows));
 			SummaryDisplayRows = summaryDisplayRows ?? throw new ArgumentNullException(nameof(summaryDisplayRows));
 			WarehouseNames = warehouseNames ?? throw new ArgumentNullException(nameof(warehouseNames));
+			SummaryBySourceRows = summaryBySourceRows;
 			CreatedAt = DateTime.Now;
 		}
 
@@ -55,6 +58,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 		public IEnumerable<DefectiveItemsReportRow> Rows { get; }
 		public IEnumerable<SummaryRow> SummaryRows { get; }
 		public IEnumerable<SummaryDisplayRow> SummaryDisplayRows { get; }
+		public IEnumerable<SummaryBySourceRow> SummaryBySourceRows { get; }
 		public List<string> WarehouseNames { get; }
 
 		public static async Task<Result<DefectiveItemsReport>> Create(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate, DefectSource? defectSource, int? driverId, CancellationToken cancellationToken)
@@ -258,8 +262,8 @@ namespace Vodovoz.ViewModels.Store.Reports
 				summaryDisplayRows.Add(new SummaryDisplayRow
 				{
 					Title = defectTypesIdsNames[defectTypeId].Name,
-					DynamicColls = amountBySource.Select(x => x.ToString()),
-					Summary = amountBySource.Sum(x => x).ToString()
+					DynamicColls = amountBySource.Select(x => x.ToString("# ##0")),
+					Summary = amountBySource.Sum(x => x).ToString("# ##0")
 				});
 			}
 
@@ -280,11 +284,24 @@ namespace Vodovoz.ViewModels.Store.Reports
 			summaryDisplayRows.Add(new SummaryDisplayRow()
 			{
 				Title = "Итог",
-				DynamicColls = summaryByColumn.Select(x => x.ToString()),
-				Summary = summaryByColumn.Sum().ToString()
+				DynamicColls = summaryByColumn.Select(x => x.ToString("# ##0")),
+				Summary = summaryByColumn.Sum().ToString("# ##0")
 			});
 
-			return new DefectiveItemsReport(startDate, endDate, driverId, defectSource, sortedRows, summaryRows, summaryDisplayRows, warehouseNames);
+			var summaryBySourceRows = new List<SummaryBySourceRow>();
+
+			foreach(DefectSource source in Enum.GetValues(typeof(DefectSource)))
+			{
+				summaryBySourceRows.Add(new SummaryBySourceRow()
+				{
+					Title = source.GetEnumTitle(),
+					Value = sortedRows.Where(x => x.DefectSource == source).Sum(x => x.Amount).ToString("# ##0")
+				});
+			}
+
+			summaryBySourceRows.RemoveAll(x => x.Value == "0");
+
+			return new DefectiveItemsReport(startDate, endDate, driverId, defectSource, sortedRows, summaryRows, summaryDisplayRows, warehouseNames, summaryBySourceRows);
 		}
 	}
 }

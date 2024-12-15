@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Domain;
+using Gamma.Utilities;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Tools;
 
@@ -20,6 +20,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 			public int DefectTypeId { get; set; }
 			public string DefectTypeName { get; set; }
 			public DefectSource DefectSource { get; set; }
+			public string DefectSourceName => DefectSource.GetEnumTitle();
 			public string AuthorLastName { get; set; }
 			public string Comment {  get; set; }
 			public string DefectDetectedAt { get; set; }
