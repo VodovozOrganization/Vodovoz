@@ -299,7 +299,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 				});
 			}
 
-			summaryBySourceRows.RemoveAll(x => x.Value == "0");
+			summaryBySourceRows.RemoveAll(x => x.Value.Trim() == "0");
 
 			return new DefectiveItemsReport(startDate, endDate, driverId, defectSource, sortedRows, summaryRows, summaryDisplayRows, warehouseNames, summaryBySourceRows);
 		}

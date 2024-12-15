@@ -106,6 +106,12 @@ namespace Vodovoz.Store.Reports
 			var dynamicColumnsTitles = ViewModel.Report.WarehouseNames;
 			var dynamicColumnsCount = dynamicColumnsTitles.Count();
 
+			ytreeviewSummaryBySource.CreateFluentColumnsConfig<DefectiveItemsReport.SummaryBySourceRow>()
+				.AddColumn("").AddTextRenderer(x => $"{x.Value} браков по вине {x.Title}")
+				.Finish();
+
+			ytreeviewSummaryBySource.ItemsDataSource = ViewModel.Report.SummaryBySourceRows;
+
 			for(var i = 0; i < dynamicColumnsCount; i++)
 			{
 				var currentId = i;
