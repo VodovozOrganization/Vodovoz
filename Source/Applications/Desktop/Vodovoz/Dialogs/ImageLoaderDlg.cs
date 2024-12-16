@@ -1,11 +1,6 @@
-﻿using System;
-using NLog;
-using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
+﻿using QS.Dialog.Gtk;
 using QS.Project.Services;
-using QS.Validation;
 using Vodovoz.Core.Domain.StoredResources;
-using Vodovoz.Domain.StoredResources;
 
 namespace Vodovoz.Dialogs
 {

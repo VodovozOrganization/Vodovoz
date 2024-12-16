@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Domain.StoredResources
+﻿namespace Vodovoz.Core.Domain.StoredResources
 {
 	public enum ResourceType
 	{
