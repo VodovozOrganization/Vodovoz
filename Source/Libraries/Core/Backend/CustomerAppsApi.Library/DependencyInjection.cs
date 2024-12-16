@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Security;
 using System.Security.Authentication;
 using CustomerAppsApi.Factories;
@@ -20,6 +20,7 @@ using RabbitMQ.Client;
 using RabbitMQ.MailSending;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
+using Vodovoz.Converters;
 using Vodovoz.Factories;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -78,6 +79,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
 				.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
+				.AddScoped<INomenclatureOnlineCharacteristicsConverter, NomenclatureOnlineCharacteristicsConverter>()
 				.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>()
 				.AddSingleton<PricesFrequencyRequestsHandler>()
 				.AddSingleton<NomenclaturesFrequencyRequestsHandler>()
