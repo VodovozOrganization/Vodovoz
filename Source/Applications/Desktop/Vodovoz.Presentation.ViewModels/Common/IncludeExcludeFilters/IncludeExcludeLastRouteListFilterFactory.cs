@@ -24,15 +24,15 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			includeExludeFiltersViewModel.WithExcludes = false;
 			_initIncludeFilter = initIncludeFilter;
 
-			AddEmployeeCategoryFilter(includeExludeFiltersViewModel);
+			AddEmployeeStatusFilter(includeExludeFiltersViewModel);
 			AddCarTypeOfUseFilter(includeExludeFiltersViewModel);
 			AddCarOwnTypeFilter(includeExludeFiltersViewModel);
-			AddVisitingMasterTypeFilter(includeExludeFiltersViewModel);
+			AddEmployeeCategoryFilter(includeExludeFiltersViewModel);
 
 			return includeExludeFiltersViewModel;
 		}
 
-		private void AddEmployeeCategoryFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
+		private void AddEmployeeStatusFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{
 			includeExludeFiltersViewModel.AddFilter<EmployeeStatus>(config =>
 			{
@@ -86,7 +86,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			});
 		}
 
-		private void AddVisitingMasterTypeFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
+		private void AddEmployeeCategoryFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{
 			includeExludeFiltersViewModel.AddFilter<EmployeeCategoryFilterType>(config =>
 			{
