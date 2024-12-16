@@ -397,6 +397,8 @@
     <Compile Include="ReportsParameters\Wages\DriverWagesReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\ForwarderWageReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\WagesOperationsReportViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsDocumentItemsViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsDocumentViewModel.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryBySourceRow.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryDisplayRow.cs" />
