@@ -33,10 +33,10 @@ namespace Vodovoz
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.RegradingOfGoodsDocumentDlg
+			// Widget Vodovoz.Store.RegradingOfGoodsDocumentView
 			global::Stetic.BinContainer.Attach(this);
-			this.Name = "Vodovoz.RegradingOfGoodsDocumentDlg";
-			// Container child Vodovoz.RegradingOfGoodsDocumentDlg.Gtk.Container+ContainerChild
+			this.Name = "Vodovoz.Store.RegradingOfGoodsDocumentView";
+			// Container child Vodovoz.Store.RegradingOfGoodsDocumentView.Gtk.Container+ContainerChild
 			this.vbox4 = new global::Gtk.VBox();
 			this.vbox4.Name = "vbox4";
 			this.vbox4.Spacing = 6;
