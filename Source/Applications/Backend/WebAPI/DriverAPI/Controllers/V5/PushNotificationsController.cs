@@ -1,3 +1,4 @@
+﻿using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Requests;
 using DriverAPI.Library.V5.Services;
 using DriverAPI.Services;
@@ -416,7 +417,13 @@ namespace DriverAPI.Controllers.V5
 
 			if(sourceDriverFirebaseTokenFound)
 			{
-				await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю");
+				var data = new Dictionary<string, string>
+				{
+					{ PushNotificationDataType.EventType.ToString(), PushNotificationDataEventType.OrderTransferFrom.ToString() },
+					{ "OrderId ", orderId.ToString()  }
+				};
+
+				await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю", data);
 			}
 			else
 			{
@@ -425,7 +432,13 @@ namespace DriverAPI.Controllers.V5
 
 			if(targetDriverFirebaseTokenFound)
 			{
-				await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", $"Вам передан заказ №{orderId}");
+				var data = new Dictionary<string, string>
+				{
+					{ PushNotificationDataType.EventType.ToString(), PushNotificationDataEventType.OrderTransferTo.ToString() },
+					{ "OrderId ", orderId.ToString()  }
+				};
+
+				await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", $"Вам передан заказ №{orderId}", data);
 			}
 
 			if(message == string.Empty)
@@ -439,7 +452,7 @@ namespace DriverAPI.Controllers.V5
 		}
 
 		/// <summary>
-		/// Уведомления о новом поступившем заказе с доставкой за час
+		/// Оповещение об изменении состави МЛ
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		[HttpPost]
@@ -472,12 +485,17 @@ namespace DriverAPI.Controllers.V5
 				return NoContent();
 			}
 
-			_logger.LogInformation("Отправка PUSH-сообщения об изменении состава вашего маршрутного листа ({OrderId}) для доставки за час", orderId);
-			
-			await _firebaseCloudMessagingService.SendMessage(token, $"Уведомление об изменении состава вашего МЛ {routeListId}", "Состав вашего маршрутного листа был изменен");
+			_logger.LogInformation("Отправка PUSH-сообщения об изменении состава маршрутного листа ({OrderId})", orderId);
+
+			var data = new Dictionary<string, string>
+			{
+				{ PushNotificationDataType.EventType.ToString(), PushNotificationDataEventType.RouteListContentChanged.ToString() },
+				{ "RouteListId ",routeListId.ToString()  }
+			};
+
+			await _firebaseCloudMessagingService.SendMessage(token, $"Уведомление об изменении состава вашего МЛ {routeListId}", "Состав вашего маршрутного листа был изменен", data);
 
 			return NoContent();
 		}
-
 	}
 }
