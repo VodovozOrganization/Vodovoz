@@ -14,9 +14,9 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
 using Vodovoz.Models;
@@ -36,6 +36,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IUnitOfWork _uow;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
+		private readonly IGenericRepository<OrderEntity> _orderRepository;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
@@ -48,6 +49,7 @@ namespace WarehouseApi.Library.Services
 			IUnitOfWork uow,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
+			IGenericRepository<OrderEntity> orderRepository,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
@@ -59,6 +61,7 @@ namespace WarehouseApi.Library.Services
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_employeeWithLoginRepository = employeeWithLoginRepository;
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
@@ -404,6 +407,7 @@ namespace WarehouseApi.Library.Services
 			if(!isLogisticEventCreated)
 			{
 				var error = CarLoadDocumentErrors.CarLoadDocumentLogisticEventCreationError;
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<EndLoadResponse>(error);
@@ -413,9 +417,9 @@ namespace WarehouseApi.Library.Services
 
 			var edoRequests = CreateEdoRequests(carLoadDocument);
 
-			await PublishEdoRequestCreatedEvents(edoRequests);
-
 			_uow.Commit();
+
+			await PublishEdoRequestCreatedEvents(edoRequests);
 
 			var successResponse = new EndLoadResponse
 			{
@@ -430,7 +434,7 @@ namespace WarehouseApi.Library.Services
 		{
 			_logger.LogInformation("Получаем данные по заказу #{OrderId} из талона погрузки", orderId);
 			var documentOrderItems =
-				await _carLoadDocumentRepository.GeAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(_uow, orderId);
+				await _carLoadDocumentRepository.GetAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(_uow, orderId);
 
 			return documentOrderItems;
 		}
@@ -597,16 +601,25 @@ namespace WarehouseApi.Library.Services
 				carLoadDocument.Items.Where(x => x.IsIndividualSetForOrder && x.OrderId != null)
 				.ToList();
 
+			var orders = _orderRepository.Get(_uow, x => carLoadDocumentsItemsNeedsRequest.Select(item => item.OrderId).Contains(x.Id));
+
 			var edoRequests = new List<OrderEdoRequest>();
 
 			foreach(var item in carLoadDocumentsItemsNeedsRequest)
 			{
+				var order = orders.Where(x => x.Id == item.OrderId).FirstOrDefault();
+
+				if(order?.IsClientWorksWithNewEdoProcessing == false)
+				{
+					continue;
+				}
+
 				var edoRequest = new OrderEdoRequest
 				{
 					Time = DateTime.Now,
 					Source = CustomerEdoRequestSource.Warehouse,
 					DocumentType = EdoDocumentType.UPD,
-					Order = new OrderEntity { Id = item.OrderId.Value },
+					Order = orders.Where(x => x.Id == item.OrderId).FirstOrDefault(),
 				};
 
 				var productCodes = item.TrueMarkCodes
