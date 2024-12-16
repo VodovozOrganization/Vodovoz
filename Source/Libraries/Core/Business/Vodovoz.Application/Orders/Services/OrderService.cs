@@ -213,11 +213,8 @@ namespace Vodovoz.Application.Orders.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
 			{
-				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
-				if(roboatsEmployee == null)
-				{
-					throw new InvalidOperationException(_employeeRequiredForServiceError);
-				}
+				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
+					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
 
 				var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
 				order.AcceptOrder(roboatsEmployee, _callTaskWorker);
@@ -295,6 +292,25 @@ namespace Vodovoz.Application.Orders.Services
 				case PaymentType.DriverApplicationQR:
 					order.Trifle = 0;
 					break;
+				case PaymentType.Terminal:
+					if(createOrderRequest.PaymentByTerminalSource is null)
+					{
+						throw new InvalidOperationException("Должен быть указан источник оплаты для типа оплаты терминал");
+					}
+
+					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByCard)
+					{
+						order.PaymentByTerminalSource = PaymentByTerminalSource.ByCard;
+						break;
+					}
+
+					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByQR)
+					{
+						order.PaymentByTerminalSource = PaymentByTerminalSource.ByQR;
+						break;
+					}
+
+					throw new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
 			}
 
 			order.DeliverySchedule = deliverySchedule;
