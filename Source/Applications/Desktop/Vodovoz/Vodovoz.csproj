@@ -859,10 +859,10 @@
     <Compile Include="Store\RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Store.RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterMaterialView.cs" />
-    <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateItemsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsTemplateItemsView.cs" />
-    <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsTemplateDlg.cs" />
+    <Compile Include="Store\RegradingOfGoodsTemplateItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Store.RegradingOfGoodsTemplateItemsView.cs" />
+    <Compile Include="Store\RegradingOfGoodsTemplateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Store.RegradingOfGoodsTemplateView.cs" />
     <Compile Include="ReportsParameters\EmployeesFines.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.EmployeesFines.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.StockMovements.cs" />
