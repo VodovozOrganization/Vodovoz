@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 					join carVersion in unitOfWork.Session.Query<CarVersion>() on routeList.Car.Id equals carVersion.Car.Id
 					where
 						routeList.Driver.Id == employee.Id
-						&& routeList.Status == RouteListStatus.Closed
+						&& RouteList.DeliveredRouteListStatuses.Contains(routeList.Status)
 						&& carVersion.StartDate <= DateTime.Now
 						&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
 						&& _includedCarOwn.Contains(carVersion.CarOwnType)
@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 				).FirstOrDefault()
 
 				where LastRouteListStartDate == null
-					|| (/*lastRouteListId != null && */ (lastRouteListDate >= LastRouteListStartDate && lastRouteListDate < LastRouteListEndDate))
+					|| (lastRouteListDate >= LastRouteListStartDate && lastRouteListDate < LastRouteListEndDate)
 
 				orderby DateTime.Now - lastRouteListDate descending
 
