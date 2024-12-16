@@ -8,13 +8,14 @@ using Gamma.Utilities;
 using Vodovoz.ViewModels.Store.Reports;
 using Gamma.ColumnConfig;
 using System.Linq;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.Store.Reports
 {
 	[ToolboxItem(true)]
 	public partial class DefectiveItemsReportView : DialogViewBase<DefectiveItemsReportViewModel>
 	{
-		private int _hpanedDefaultPosition = 680;
+		private int _hpanedDefaultPosition = 480;
 		private int _hpanedMinimalPosition = 16;
 		private readonly IGuiDispatcher _guiDispatcher;
 
@@ -35,9 +36,10 @@ namespace Vodovoz.Store.Reports
 
 		private void Initialize()
 		{
-			yEnumCmbSource.ItemsEnum = ViewModel.DefectSourceType;
+			yEnumCmbSource.ItemsEnum = typeof(DefectSource);
+			yEnumCmbSource.AddEnumToHideList(DefectSource.None);
 			yEnumCmbSource.ShowSpecialStateAll = true;
-			yEnumCmbSource.AddEnumToHideList(ViewModel.HiddenDefectSources);
+
 			yEnumCmbSource.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.DefectSource, w => w.SelectedItemOrNull)
 				.InitializeFromSource();

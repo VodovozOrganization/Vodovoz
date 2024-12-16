@@ -75,8 +75,6 @@ namespace Vodovoz.ViewModels.Store.Reports
 			StartDate = DateTime.Today;
 			EndDate = DateTime.Today;
 
-			HiddenDefectSources = new DefectSource[] { Domain.Documents.DefectSource.None };
-
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot("Отчет по браку");
 
 			DriverViewModel = employeeViewModelEEVMBuilder
@@ -135,8 +133,6 @@ namespace Vodovoz.ViewModels.Store.Reports
 			set => SetField(ref _defectSource, value);
 		}
 
-		public Type DefectSourceType => typeof(DefectSource);
-		public DefectSource[] HiddenDefectSources { get; }
 		public IEntityEntryViewModel DriverViewModel { get; }
 		public AsyncCommand GenerateReportCommand { get; }
 		public DelegateCommand SaveCommand { get; }

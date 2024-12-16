@@ -61,7 +61,13 @@ namespace Vodovoz.ViewModels.Store.Reports
 		public IEnumerable<SummaryBySourceRow> SummaryBySourceRows { get; }
 		public List<string> WarehouseNames { get; }
 
-		public static async Task<Result<DefectiveItemsReport>> Create(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate, DefectSource? defectSource, int? driverId, CancellationToken cancellationToken)
+		public static async Task<Result<DefectiveItemsReport>> Create(
+			IUnitOfWork unitOfWork,
+			DateTime startDate,
+			DateTime endDate,
+			DefectSource? defectSource,
+			int? driverId,
+			CancellationToken cancellationToken)
 		{
 			endDate = endDate.LatestDayTime();
 
@@ -142,6 +148,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 				.Select(x => x.WarehouseId)
 				.Concat(carUnloadDocumentRows.Select(x => x.WarehouseId))
 				.Distinct()
+				.OrderBy(x => x)
 				.ToArray();
 
 			var warehousesIdsToNames =
@@ -238,7 +245,10 @@ namespace Vodovoz.ViewModels.Store.Reports
 			var summaryRows = new List<SummaryRow>();
 			var summaryDisplayRows = new List<SummaryDisplayRow>();
 
-			var warehouseNames = warehousesIdsToNames.Values.Select(x => x.Name).ToList();
+			var warehouseNames = warehousesIdsToNames.Values
+				.OrderBy(x => x.Id)
+				.Select(x => x.Name)
+				.ToList();
 
 			foreach (var defectTypeId in defectTypesIds)
 			{
@@ -295,7 +305,10 @@ namespace Vodovoz.ViewModels.Store.Reports
 				summaryBySourceRows.Add(new SummaryBySourceRow()
 				{
 					Title = source.GetEnumTitle(),
-					Value = sortedRows.Where(x => x.DefectSource == source).Sum(x => x.Amount).ToString("# ##0")
+					Value = sortedRows
+						.Where(x => x.DefectSource == source)
+						.Sum(x => x.Amount)
+						.ToString("# ##0")
 				});
 			}
 
