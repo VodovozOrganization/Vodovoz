@@ -10,8 +10,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			Table("user_settings");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			Map(x => x.ToolbarStyle).Column("toolbar_style").CustomType<ToolbarStyleStringType>();
-			Map(x => x.ToolBarIconsSize).Column("toolbar_icons_size").CustomType<ToolBarIconsSizeStringType>();
+			Map(x => x.ToolbarStyle).Column("toolbar_style");
+			Map(x => x.ToolBarIconsSize).Column("toolbar_icons_size");
 			Map(x => x.DefaultSaleCategory).Column("default_sale_category");
 			Map(x => x.LogisticDeliveryOrders).Column("logistic_delivery_orders");
 			Map(x => x.LogisticServiceOrders).Column("logistic_service_orders");

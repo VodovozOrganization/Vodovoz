@@ -125,11 +125,4 @@ namespace Vodovoz.Domain.Contacts
 		[Display(Name = "Личный")]
 		Personal
 	}
-
-	public class EmailPurposeStringType : NHibernate.Type.EnumStringType
-	{
-		public EmailPurposeStringType() : base(typeof(EmailPurpose))
-		{
-		}
-	}
 }

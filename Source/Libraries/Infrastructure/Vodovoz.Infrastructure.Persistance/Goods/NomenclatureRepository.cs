@@ -499,7 +499,21 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 				.Select(n => n.LockerRefrigeratorType).WithAlias(() => resultAlias.LockerRefrigeratorType)
 				.Select(n => n.LockerRefrigeratorVolume).WithAlias(() => resultAlias.LockerRefrigeratorVolume)
 				.Select(n => n.TapType).WithAlias(() => resultAlias.TapType)
-				.Select(n => n.GlassHolderType).WithAlias(() => resultAlias.GlassHolderType);
+				.Select(n => n.GlassHolderType).WithAlias(() => resultAlias.GlassHolderType)
+				.Select(n => n.HeatingTemperatureFromOnline).WithAlias(() => resultAlias.HeatingTemperatureFrom)
+				.Select(n => n.HeatingTemperatureToOnline).WithAlias(() => resultAlias.HeatingTemperatureTo)
+				.Select(n => n.CoolingTemperatureFromOnline).WithAlias(() => resultAlias.CoolingTemperatureFrom)
+				.Select(n => n.CoolingTemperatureToOnline).WithAlias(() => resultAlias.CoolingTemperatureTo)
+				.Select(n => n.LengthOnline).WithAlias(() => resultAlias.Length)
+				.Select(n => n.WidthOnline).WithAlias(() => resultAlias.Width)
+				.Select(n => n.HeightOnline).WithAlias(() => resultAlias.Height)
+				.Select(n => n.WeightOnline).WithAlias(() => resultAlias.Weight)
+				.Select(n => n.HeatingPowerUnits).WithAlias(() => resultAlias.HeatingPowerUnits)
+				.Select(n => n.CoolingPowerUnits).WithAlias(() => resultAlias.CoolingPowerUnits)
+				.Select(n => n.HeatingProductivityUnits).WithAlias(() => resultAlias.HeatingProductivityUnits)
+				.Select(n => n.CoolingProductivityUnits).WithAlias(() => resultAlias.CoolingProductivityUnits)
+				.Select(n => n.HeatingProductivityComparisionSign).WithAlias(() => resultAlias.HeatingProductivityComparisionSign)
+				.Select(n => n.CoolingProductivityComparisionSign).WithAlias(() => resultAlias.CoolingProductivityComparisionSign);
 
 			switch(parameterType)
 			{

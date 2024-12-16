@@ -1,4 +1,4 @@
-﻿using EdoDocumentsPreparer.Factories;
+using EdoDocumentsPreparer.Factories;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -52,6 +52,8 @@ namespace EdoDocumentsPreparer
 		private readonly IInfoForCreatingEdoBillFactory _billInfoFactory;
 		private readonly IFileDataFactory _fileDataFactory;
 		private readonly IPublishEndpoint _publishEndpoint;
+		private readonly IHostApplicationLifetime _applicationLifetime;
+		private readonly DateTime _startDate;
 
 		public EdoDocumentsPreparerWorker(
 			ILogger<EdoDocumentsPreparerWorker> logger,
@@ -70,7 +72,8 @@ namespace EdoDocumentsPreparer
 			IInfoForCreatingBillWithoutShipmentEdoFactory billWithoutShipmentEdoInfoFactory,
 			IInfoForCreatingEdoBillFactory billInfoFactory,
 			IFileDataFactory fileDataFactory,
-			IPublishEndpoint publishEndpoint)
+			IPublishEndpoint publishEndpoint,
+			IHostApplicationLifetime applicationLifetime)
 		{
 			_logger = logger;
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
@@ -90,6 +93,8 @@ namespace EdoDocumentsPreparer
 			_billInfoFactory = billInfoFactory ?? throw new ArgumentNullException(nameof(billInfoFactory));
 			_fileDataFactory = fileDataFactory ?? throw new ArgumentNullException(nameof(fileDataFactory));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
+			_startDate = DateTime.Now;
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -100,6 +105,13 @@ namespace EdoDocumentsPreparer
 
 				try
 				{
+					if((DateTime.Now - _startDate).TotalDays > 1)
+					{
+						_logger.LogInformation("EdoDocumentsPreparerWorker termination to prevent memory leak at: {time}", DateTimeOffset.Now);
+						_applicationLifetime.StopApplication();
+						return;
+					}
+					
 					await Task.Delay(1000 * _documentFlowOptions.DelayBetweenPreparingInSeconds, stoppingToken);
 
 					using var uow = _unitOfWorkFactory.CreateWithoutRoot();

@@ -365,12 +365,4 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "безнал")]
 		Cashless
 	}
-
-	public class FuelPaymentTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public FuelPaymentTypeStringType() : base(typeof(FuelPaymentType))
-		{
-		}
-	}
 }
-

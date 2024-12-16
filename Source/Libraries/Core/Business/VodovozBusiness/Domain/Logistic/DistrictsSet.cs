@@ -168,9 +168,4 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Закрыта")]
 		Closed
 	}
-
-	public class DistrictsSetStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public DistrictsSetStatusStringType() : base(typeof(DistrictsSetStatus)) { }
-	}
 }

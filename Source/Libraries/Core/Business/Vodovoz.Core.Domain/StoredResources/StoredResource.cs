@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
@@ -62,5 +62,20 @@ namespace Vodovoz.Core.Domain.StoredResources
 				yield return new ValidationResult("Должен быть указан файл", new[] { nameof(BinaryFile) });
 			}
 		}
+	}
+
+	public enum ResoureceType
+	{
+		Image,
+		Pdf,
+		Binary
+	}
+
+	public enum ImageType
+	{
+		[Display(Name = "Подпись")]
+		Signature,
+		[Display(Name = "Прочее")]
+		Other
 	}
 }

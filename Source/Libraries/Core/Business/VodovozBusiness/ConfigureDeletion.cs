@@ -1,4 +1,4 @@
-﻿using QS.Banks;
+using QS.Banks;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Deletion;
@@ -47,7 +47,7 @@ using Vodovoz.Domain.WageCalculation;
 using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Service;
-using Vodovoz.Core.Domain.StoredResources;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz
 {

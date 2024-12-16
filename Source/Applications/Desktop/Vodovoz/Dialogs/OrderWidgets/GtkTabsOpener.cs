@@ -19,6 +19,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.Dialogs.OrderWidgets
 {

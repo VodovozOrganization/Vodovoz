@@ -13,7 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			DiscriminateSubClassesOnColumn("type");
 
-			Map(x => x.Type).Column("type").CustomType<BulkEmailEvent.BulkEmailEventTypeString>().ReadOnly();
+			Map(x => x.Type).Column("type").ReadOnly();
 			Map(x => x.ActionTime).Column("action_time").ReadOnly();
 			Map(x => x.ReasonDetail).Column("reason_detail");
 
