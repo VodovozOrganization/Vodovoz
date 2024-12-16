@@ -1,4 +1,4 @@
-﻿using Gamma.Binding;
+using Gamma.Binding;
 using Gamma.Utilities;
 using NLog;
 using QS.BusinessCommon.Domain;
@@ -38,6 +38,8 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.StoredResources;
+using Vodovoz.Store;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Fuel;
@@ -146,7 +148,7 @@ namespace Vodovoz.Configuration
                 //Склад
                 OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w => w.Name)
 					.Column("В архиве", w => w.IsArchive ? "Да" : "").End(),
-				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView()
+				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateView>().DefaultTableView()
 					.Column("Название", w => w.Name).End(),
 				OrmObjectMapping<CarEventType>.Create().Dialog<CarEventTypeViewModel>()
 			};
