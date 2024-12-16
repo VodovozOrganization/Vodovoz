@@ -8,54 +8,39 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Tdi;
 using QS.Utilities;
+using QS.Views.GtkUI;
 using QSOrmProject;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Store;
 using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RegradingOfGoodsDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
+	[ToolboxItem(true)]
+	public partial class RegradingOfGoodsDocumentItemsView : WidgetViewBase<RegradingOfGoodsDocumentItemsViewModel>
 	{
-		private IStockRepository _stockRepository;
-		private ILifetimeScope _lifetimeScope;
-		private RegradingOfGoodsDocumentItem _newRow;
-		private RegradingOfGoodsDocumentItem _fineEditItem;
-
-		public RegradingOfGoodsDocumentItemsView()
+		public RegradingOfGoodsDocumentItemsView(
+			RegradingOfGoodsDocumentItemsViewModel viewModel)
+			: base(viewModel)
 		{
-			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-			var unitOfWorkFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
-
-			_stockRepository = _lifetimeScope.Resolve<IStockRepository>();
 			Build();
+
 			var basePrimary = GdkColors.PrimaryBase;
 			var colorLightRed = GdkColors.DangerBase;
-
-			List<CullingCategory> types;
-			List<RegradingOfGoodsReason> regradingReasons;
-
-			using(IUnitOfWork uow = unitOfWorkFactory.CreateWithoutRoot())
-			{
-				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
-				regradingReasons = uow.GetAll<RegradingOfGoodsReason>().OrderBy(c => c.Name).ToList();
-			}
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsDocumentItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
@@ -83,7 +68,7 @@ namespace Vodovoz
 				.AddColumn("Тип брака")
 					.AddComboRenderer(x => x.TypeOfDefect)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(types)
+					.FillItems(ViewModel.DefectTypesCache)
 					.AddSetter(
 						(c, n) =>
 						{
@@ -122,15 +107,14 @@ namespace Vodovoz
 				.AddColumn("Причина пересортицы")
 					.AddComboRenderer(x => x.RegradingOfGoodsReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(regradingReasons)
+					.FillItems(ViewModel.RegradingReasonsCache)
 					.Editing()
 				.Finish();
+
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+
+			buttonAdd.BindCommand(ViewModel.AddItemCommand);
 		}
-
-		public ITdiTab ParrentDlg { get; set; }
-
-		public ITdiCompatibilityNavigation NavigationManager { get; set; }
 
 		private double GetMaxValueForAdjustmentSetting(RegradingOfGoodsDocumentItem item)
 		{
@@ -147,8 +131,6 @@ namespace Vodovoz
 		{
 			UpdateButtonState();
 		}
-
-		private IUnitOfWorkGeneric<RegradingOfGoodsDocument> _documentUoW;
 
 		public IUnitOfWorkGeneric<RegradingOfGoodsDocument> DocumentUoW
 		{
@@ -208,58 +190,6 @@ namespace Vodovoz
 			if(e.PropertyName == DocumentUoW.Root.GetPropertyName(x => x.Warehouse))
 			{
 				UpdateButtonState();
-			}
-		}
-
-		protected void OnButtonAddClicked(object sender, EventArgs e)
-		{
-			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.Warehouse;
-
-			var vm = NavigationManager.OpenViewModelOnTdi<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(ParrentDlg, filterParams)
-				.ViewModel;
-
-			vm.SelectionMode = JournalSelectionMode.Single;
-			vm.TabName = "Выберите номенклатуру на замену";
-			vm.OnEntitySelectedResult += (s, ea) =>
-			{
-				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
-
-				if(selectedNode == null)
-				{
-					return;
-				}
-				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
-
-				_newRow = new RegradingOfGoodsDocumentItem()
-				{
-					NomenclatureOld = nomenclature,
-					AmountInStock = selectedNode.StockAmount
-				};
-
-				var nomenclaturesJournalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
-				nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-				nomenclaturesJournalViewModel.OnSelectResult += SelectNewNomenclature_ObjectSelected;
-
-				MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
-			};
-		}
-
-		private void SelectNewNomenclature_ObjectSelected(object sender, JournalSelectedEventArgs e)
-		{
-			var journalNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
-
-			if(journalNode != null)
-			{
-				var nomenclature = DocumentUoW.GetById<Nomenclature>(journalNode.Id);
-
-				if(!nomenclature.IsDefectiveBottle)
-				{
-					_newRow.Source = DefectSource.None;
-					_newRow.TypeOfDefect = null;
-				}
-
-				_newRow.NomenclatureNew = nomenclature;
-				DocumentUoW.Root.AddItem(_newRow);
 			}
 		}
 
