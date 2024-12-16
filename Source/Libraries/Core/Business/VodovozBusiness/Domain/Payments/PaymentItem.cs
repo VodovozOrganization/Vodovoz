@@ -102,7 +102,7 @@ namespace Vodovoz.Domain.Payments
 
 			if(needUpdateOrderPaymentStatus)
 			{
-				Order.UpdateOrderPaymentStatus(Sum);
+				Order.UpdateCashlessOrderPaymentStatus(Sum);
 			}
 		}
 
