@@ -854,8 +854,8 @@
     <Compile Include="Dialogs\Client\ContactDlg.cs" />
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
     <Compile Include="Representations\EquipmentKindsForRentVM.cs" />
-    <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentDlg.cs" />
+    <Compile Include="Store\RegradingOfGoodsDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Store.RegradingOfGoodsDocumentView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterMaterialView.cs" />
