@@ -20,7 +20,8 @@ namespace RobotMiaApi.Extensions.Mapping
 			return paymentType switch
 			{
 				PaymentTypeV1.Cash => PaymentType.Cash,
-				PaymentTypeV1.Terminal => PaymentType.Terminal,
+				PaymentTypeV1.TerminalQR => PaymentType.Terminal,
+				PaymentTypeV1.TerminalCard => PaymentType.Terminal,
 				PaymentTypeV1.SmsQR => PaymentType.SmsQR,
 				_ => throw new ArgumentException($"Тип оплаты {paymentType} не поддерживается", nameof(paymentType))
 			};
