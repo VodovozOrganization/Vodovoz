@@ -13,6 +13,7 @@ namespace VodovozBusiness.Services.Orders
 		public DateTime Date { get; set; }
 		public int DeliveryScheduleId { get; set; }
 		public PaymentType PaymentType { get; set; }
+		public PaymentByTerminalSource? PaymentByTerminalSource { get; set; }
 		public int? BanknoteForReturn { get; set; }
 	}
 }
