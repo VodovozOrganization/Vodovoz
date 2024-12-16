@@ -89,7 +89,7 @@ namespace Vodovoz.Store.Reports
 		private void RefreshReportPreview()
 		{
 			ytreeviewMain.CreateFluentColumnsConfig<DefectiveItemsReport.DefectiveItemsReportRow>()
-				.AddColumn("#").AddNumericRenderer(n => ViewModel != null ? ViewModel.Report != null ? ViewModel.Report.Rows != null ? ViewModel.Report.Rows.IndexOf(n) + 1 : 0 : 0 : 0)
+				.AddColumn("№").AddNumericRenderer(n => ViewModel != null ? ViewModel.Report != null ? ViewModel.Report.Rows != null ? ViewModel.Report.Rows.IndexOf(n) + 1 : 0 : 0 : 0)
 				.AddColumn("Дата").AddDateRenderer(x => x.Date)
 				.AddColumn("Кол-во").AddNumericRenderer(x => x.Amount)
 				.AddColumn("Тип").AddTextRenderer(x => x.DefectTypeName)
