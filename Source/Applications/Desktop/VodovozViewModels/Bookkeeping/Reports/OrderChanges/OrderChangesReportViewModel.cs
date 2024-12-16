@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Reports;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
@@ -27,6 +28,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		private readonly IGenericRepository<Organization> _organizationGenericRepository;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly IOrderSettings _orderSettings;
 		private readonly int _monitoringPeriodAvailableInDays;
 
 		private DateTime? _startDate;
@@ -46,7 +48,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			IGuiDispatcher guiDispatcher,
 			IFileDialogService fileDialogService,
 			IArchiveDataSettings archiveDataSettings,
-			IReportSettings reportSettings)
+			IReportSettings reportSettings,
+			IOrderSettings orderSettings)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(reportSettings is null)
@@ -59,7 +62,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			_organizationGenericRepository = organizationGenericRepository ?? throw new ArgumentNullException(nameof(organizationGenericRepository));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_monitoringPeriodAvailableInDays =
 				(archiveDataSettings ?? throw new ArgumentNullException(nameof(archiveDataSettings)))
 				.GetMonitoringPeriodAvailableInDays;
@@ -317,6 +320,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			{
 				report = await OrderChangesReport.Create(
 					UoW,
+					_orderSettings,
 					StartDate.Value,
 					EndDate.Value,
 					IsOldMonitoring,

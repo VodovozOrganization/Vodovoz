@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Settings.Orders;
 using static Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges.OrderChangesReportViewModel;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
@@ -22,6 +23,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		private IEnumerable<SelectableKeyValueNode> _selectedIssueTypes = new List<SelectableKeyValueNode>();
 
 		private OrderChangesReport(
+			IOrderSettings orderSettings,
 			DateTime startDate,
 			DateTime endDate,
 			bool isOldMonitoring,
@@ -35,6 +37,21 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			_selectedOrganization = selectedOrganization;
 			_selectedChangeTypes = selectedChangeTypes;
 			_selectedIssueTypes = selectedIssueTypes;
+
+			_isPaymentTypeChangeTypeSelected =
+				_selectedChangeTypes.Select(x => x.Value).Contains("PaymentType");
+
+			_isSmsIssuesTypeSelected =
+				_selectedIssueTypes.Select(x => x.Value).Contains("SmsIssues");
+			_isQrIssuesTypeSelected =
+				_selectedIssueTypes.Select(x => x.Value).Contains("QrIssues");
+			_isTerminalIssuesTypeSelected =
+				_selectedIssueTypes.Select(x => x.Value).Contains("TerminalIssues");
+			_isManagersIssuesTypeSelected =
+				_selectedIssueTypes.Select(x => x.Value).Contains("ManagersIssues");
+
+			_paymentByCardFromSmsId = orderSettings.PaymentByCardFromSmsId;
+			_paymentByCardFromFastPaymentServiceId = orderSettings.GetPaymentByCardFromFastPaymentServiceId;
 		}
 
 		public DateTime StartDate => _startDate;
@@ -64,6 +81,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 		public static async Task<OrderChangesReport> Create(
 			IUnitOfWork unitOfWork,
+			IOrderSettings orderSettings,
 			DateTime startDate,
 			DateTime endDate,
 			bool isOldMonitoring,
@@ -73,6 +91,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			CancellationToken cancellationToken)
 		{
 			var report = new OrderChangesReport(
+				orderSettings,
 				startDate,
 				endDate,
 				isOldMonitoring,
