@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
@@ -19,7 +20,7 @@ using static Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters.Includ
 namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 {
 	[Appellative(Nominative = "Отчет по последнему МЛ по водителям")]
-	public class LastRouteListReport : IClosedXmlReport
+	public partial class LastRouteListReport : IClosedXmlReport
 	{
 		public string TemplatePath => @".\Reports\Logistic\LastRouteListReport.xlsx";
 
@@ -28,10 +29,95 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 		private IEnumerable<CarOwnType> _includedCarOwn;
 		private IEnumerable<EmployeeCategoryFilterType> _includedEmployeeCategories;
 
+		private IQueryable<LastRouteListReportRow> GetQuery(IUnitOfWork unitOfWork, bool forDriver)
+		{
+			Expression<Func<Employee, bool>> EmployeeFilter = (employee) =>
+				_includedEmployeeStatus.Contains(employee.Status)
+				&& (
+						(_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Driver) && employee.Category == EmployeeCategory.driver)
+						|| (_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Forwarder) && employee.Category == EmployeeCategory.forwarder)
+						|| (_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.VisitingMaster) && employee.VisitingMaster == true)
+						|| (!_includedEmployeeCategories.Any())
+					)
+				&& (FiredStartDate == null || (employee.DateFired >= FiredStartDate && employee.DateFired <= FiredEndDate))
+				&& (HiredStartDate == null || (employee.DateHired >= HiredStartDate && employee.DateHired <= HiredEndDate))
+				&& (FirstWorkDayStartDate == null || (employee.FirstWorkDay >= FirstWorkDayStartDate && employee.FirstWorkDay <= FirstWorkDayEndDate))
+					&& (CalculateStartDate == null || (employee.DateCalculated >= CalculateStartDate && employee.DateCalculated <= CalculateEndDate));
+
+			Expression<Func<Employee, LastRouteListNodeNode>> LastRouteListIdSelector = (employee) => new LastRouteListNodeNode
+			{
+				Employee = employee,
+				LastRouteListId = unitOfWork.Session.Query<RouteList>()
+					.Join(unitOfWork.Session.Query<CarVersion>(),
+						routeList => routeList.Car.Id,
+						carVersion => carVersion.Car.Id,
+						(routeList, carVersion) => new { routeList, carVersion })
+					.Where(x => forDriver ? x.routeList.Driver.Id == employee.Id : x.routeList.Forwarder.Id == employee.Id)
+					.Where
+						(x => RouteList.DeliveredRouteListStatuses.Contains(x.routeList.Status)
+						&& x.carVersion.StartDate <= DateTime.Now
+						&& (x.carVersion.EndDate >= DateTime.Now || x.carVersion.EndDate == null)
+						&& _includedCarOwn.Contains(x.carVersion.CarOwnType)
+						&& _includedCarTypeOfUse.Contains(x.routeList.Car.CarModel.CarTypeOfUse))
+					.OrderByDescending(x => x.routeList.Date)
+					.Select(x => x.routeList.Id)
+					.FirstOrDefault()
+			};
+
+			var query = unitOfWork.Session.Query<Employee>()
+				.Where(EmployeeFilter)
+				.Select(LastRouteListIdSelector)
+				.Select(x => new
+				{
+					x.Employee,
+					x.LastRouteListId,
+					LastRouteListDate = unitOfWork.Session.Query<RouteList>()
+						.Where(r => r.Id == x.LastRouteListId)
+						.Select(r => r.Date)
+						.FirstOrDefault(),
+					LastRouteListCarTypeOfUse = unitOfWork.Session.Query<RouteList>()
+						.Where(r => r.Id == x.LastRouteListId)
+						.Select(r => r.Car.CarModel.CarTypeOfUse)
+						.FirstOrDefault(),
+					LastRouteListCarsOwn = unitOfWork.Session.Query<RouteList>()
+						.Join(unitOfWork.Session.Query<CarVersion>(),
+							routeList => routeList.Car.Id,
+							carVersion => carVersion.Car.Id,
+							(routeList, carVersion) => new { routeList, carVersion })
+						.Where(r => r.routeList.Id == x.LastRouteListId
+							&& r.carVersion.StartDate <= DateTime.Now
+							&& (r.carVersion.EndDate >= DateTime.Now || r.carVersion.EndDate == null))
+						.Select(r => r.carVersion.CarOwnType)
+						.FirstOrDefault()
+				})
+				.Where(x => LastRouteListStartDate == null
+					|| (x.LastRouteListDate >= LastRouteListStartDate && x.LastRouteListDate < LastRouteListEndDate))
+
+				.Select(x => new LastRouteListReportRow
+				{
+					DriverLastName = x.Employee.LastName,
+					DriverFirstName = x.Employee.Name,
+					DriverPatronymic = x.Employee.Patronymic,
+					DriverStatus = x.Employee.Status,
+					FirstWorkDay = x.Employee.FirstWorkDay,
+					EmployeeCategory = x.Employee.Category,
+					DateHired = x.Employee.DateHired,
+					DateFired = x.Employee.DateFired,
+					DateCalculated = x.Employee.DateCalculated,
+					LastRouteListId = x.LastRouteListId,
+					LastClosedRouteListDate = x.LastRouteListDate,
+					VisitinMaster = x.Employee.VisitingMaster,
+					CarTypeOfUse = x.LastRouteListCarTypeOfUse,
+					CarsOwn = x.LastRouteListCarsOwn
+				});
+
+			return query;
+		}
+
 		public async Task GenerateRows(
-			IUnitOfWork unitOfWork,
-			IncludeExludeFiltersViewModel filterViewModel,
-			CancellationToken cancellationToken)
+		IUnitOfWork unitOfWork,
+		IncludeExludeFiltersViewModel filterViewModel,
+		CancellationToken cancellationToken)
 		{
 			_includedEmployeeStatus = filterViewModel
 				.GetFilter<IncludeExcludeEnumFilter<EmployeeStatus>>()
@@ -49,91 +135,31 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 				.GetFilter<IncludeExcludeEnumFilter<EmployeeCategoryFilterType>>()
 				.GetIncluded();
 
-			var rows =
-				from employee in unitOfWork.Session.Query<Employee>()
-				where
-					_includedEmployeeStatus.Contains(employee.Status)
-					&& (
-							(_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Driver) && employee.Category == EmployeeCategory.driver)
-							|| (_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Forwarder) && employee.Category == EmployeeCategory.forwarder)
-							|| (_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.VisitingMaster) && employee.VisitingMaster == true)
-							|| (!_includedEmployeeCategories.Any())
-						)
-					&& (FiredStartDate == null || (employee.DateFired >= FiredStartDate && employee.DateFired <= FiredEndDate))
-					&& (HiredStartDate == null || (employee.DateHired >= HiredStartDate && employee.DateHired <= HiredEndDate))
-					&& (FirstWorkDayStartDate == null || (employee.FirstWorkDay >= FirstWorkDayStartDate && employee.FirstWorkDay <= FirstWorkDayEndDate))
-					&& (CalculateStartDate == null || (employee.DateCalculated >= CalculateStartDate && employee.DateCalculated <= CalculateEndDate))
+			List<LastRouteListReportRow> driverRows = new List<LastRouteListReportRow>();
 
-				let lastRouteListId =
-				(
-					from routeList in unitOfWork.Session.Query<RouteList>()
-					join carVersion in unitOfWork.Session.Query<CarVersion>() on routeList.Car.Id equals carVersion.Car.Id
-					where
-						routeList.Driver.Id == employee.Id
-						&& RouteList.DeliveredRouteListStatuses.Contains(routeList.Status)
-						&& carVersion.StartDate <= DateTime.Now
-						&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
-						&& _includedCarOwn.Contains(carVersion.CarOwnType)
-						&& _includedCarTypeOfUse.Contains(routeList.Car.CarModel.CarTypeOfUse)
+			if(_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Driver)
+				|| _includedEmployeeCategories.Contains(EmployeeCategoryFilterType.VisitingMaster))
+			{
+				driverRows = await GetQuery(unitOfWork, true)
+					.ToListAsync(cancellationToken);
+			}
 
-					orderby routeList.Date descending
-					select routeList.Id
-				).FirstOrDefault()
+			List<LastRouteListReportRow> forwarderRows = new List<LastRouteListReportRow>();
 
-				let lastRouteListDate =
-				(
-					from routeList in unitOfWork.Session.Query<RouteList>()
-					where routeList.Id == lastRouteListId
-					select routeList.Date
-				).FirstOrDefault()
+			if(_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Forwarder))
+			{
 
-				let lastRouteListCarTypeOfUse =
-				(
-					from routeList in unitOfWork.Session.Query<RouteList>()
-					where routeList.Id == lastRouteListId
-					select routeList.Car.CarModel.CarTypeOfUse
-				).FirstOrDefault()
+				forwarderRows = await GetQuery(unitOfWork, false)
+					.ToListAsync(cancellationToken);
+			}
 
-				let lastRouteListCarsOwn =
-				(
-					from routeList in unitOfWork.Session.Query<RouteList>()
-					join carVersion in unitOfWork.Session.Query<CarVersion>() on routeList.Car.Id equals carVersion.Car.Id
-					where routeList.Id == lastRouteListId
-						&& carVersion.StartDate <= DateTime.Now
-						&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
-					select carVersion.CarOwnType
-				).FirstOrDefault()
-
-				where LastRouteListStartDate == null
-					|| (lastRouteListDate >= LastRouteListStartDate && lastRouteListDate < LastRouteListEndDate)
-
-				orderby DateTime.Now - lastRouteListDate descending
-
-				select new LastRouteListReportRow
-				{
-					DriverLastName = employee.LastName,
-					DriverFirstName = employee.Name,
-					DriverPatronymic = employee.Patronymic,
-					DriverStatus = employee.Status,
-					FirstWorkDay = employee.FirstWorkDay,
-					EmployeeCategory = employee.Category,
-					DateHired = employee.DateHired,
-					DateFired = employee.DateFired,
-					DateCalculated = employee.DateCalculated,
-					LastRouteListId = lastRouteListId,
-					LastClosedRouteListDate = lastRouteListDate,
-					VisitinMaster = employee.VisitingMaster,
-					CarTypeOfUse = lastRouteListCarTypeOfUse,
-					CarsOwn = lastRouteListCarsOwn
-				};
-
-			var result = (await rows.ToListAsync(cancellationToken));
+			var reportRows = driverRows.Concat(forwarderRows).OrderByDescending(x => DateTime.Now - x.LastClosedRouteListDate).ToList();
 
 			var rowNumber = 1;
-			result.ForEach(x => x.RowNum = rowNumber++);
+			reportRows.ForEach(x => x.RowNum = rowNumber++);
 
-			Rows = result;
-		}
+			Rows = reportRows;
+		}		
 
 		public string SelectedEmployeeStatus => string.Join(", ", _includedEmployeeStatus.Select(x => x.GetEnumTitle()));
 
