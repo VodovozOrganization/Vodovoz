@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Navigation;
@@ -18,7 +18,7 @@ using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz
 {
-	public partial class RegradingOfGoodsDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<RegradingOfGoodsDocument>, INotifyPropertyChanged
+	public partial class RegradingOfGoodsDocumentView : QS.Dialog.Gtk.EntityDialogBase<RegradingOfGoodsDocument>, INotifyPropertyChanged
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private IEmployeeRepository _employeeRepository;
@@ -31,7 +31,7 @@ namespace Vodovoz
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		public RegradingOfGoodsDocumentDlg()
+		public RegradingOfGoodsDocumentView()
 		{
 			ResolveDependencies();
 			this.Build();
@@ -49,7 +49,7 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public RegradingOfGoodsDocumentDlg(int id)
+		public RegradingOfGoodsDocumentView(int id)
 		{
 			ResolveDependencies();
 			this.Build();
@@ -58,7 +58,7 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public RegradingOfGoodsDocumentDlg(RegradingOfGoodsDocument sub) : this(sub.Id)
+		public RegradingOfGoodsDocumentView(RegradingOfGoodsDocument sub) : this(sub.Id)
 		{
 		}
 

@@ -188,7 +188,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			OpenDialogTabFor<ShiftChangeWarehouseDocumentDlg, ShiftChangeWarehouseDocument>(shiftChangeWarehouseDocumentId, master);
 
 		public ITdiTab OpenRegradingOfGoodsDocumentDlg(int regradingOfGoodsDocumentId, ITdiTab master = null) =>
-			OpenDialogTabFor<RegradingOfGoodsDocumentDlg, RegradingOfGoodsDocument>(regradingOfGoodsDocumentId, master);
+			OpenDialogTabFor<RegradingOfGoodsDocumentView, RegradingOfGoodsDocument>(regradingOfGoodsDocumentId, master);
 
 		private ITdiTab OpenDialogTabFor<TDialog, TEntity>(int entityId, ITdiTab master = null)
 			where TDialog : ITdiTab
