@@ -1,30 +1,28 @@
 ﻿using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
-using QS.Validation;
 using Vodovoz.Domain.Store;
 
-namespace Vodovoz
+namespace Vodovoz.Store
 {
-	public partial class RegradingOfGoodsTemplateDlg : QS.Dialog.Gtk.EntityDialogBase<RegradingOfGoodsTemplate>
+	public partial class RegradingOfGoodsTemplateView : EntityDialogBase<RegradingOfGoodsTemplate>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
-		public RegradingOfGoodsTemplateDlg()
+		public RegradingOfGoodsTemplateView()
 		{
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<RegradingOfGoodsTemplate> ();
 			ConfigureDlg ();
 		}
 
-		public RegradingOfGoodsTemplateDlg (int id)
+		public RegradingOfGoodsTemplateView (int id)
 		{
 			this.Build ();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsTemplate> (id);
 			ConfigureDlg ();
 		}
 
-		public RegradingOfGoodsTemplateDlg (RegradingOfGoodsTemplate sub) : this (sub.Id)
+		public RegradingOfGoodsTemplateView (RegradingOfGoodsTemplate sub) : this (sub.Id)
 		{
 		}
 
@@ -49,4 +47,3 @@ namespace Vodovoz
 		}
 	}
 }
-
