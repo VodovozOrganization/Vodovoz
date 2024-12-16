@@ -1,7 +1,6 @@
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
-using NLog;
 using QS.BusinessCommon.Domain;
 using QS.Navigation;
 using QS.Views.GtkUI;
@@ -31,7 +30,6 @@ namespace Vodovoz.Views.Goods
 	[ToolboxItem(true)]
 	public partial class NomenclatureView : TabViewBase<NomenclatureViewModel>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private Entry _entry;
 		private const int _maxWidthOnlineSizeWidget = 50;
 		private const int _maxLenghtNumericEntry = 5;
