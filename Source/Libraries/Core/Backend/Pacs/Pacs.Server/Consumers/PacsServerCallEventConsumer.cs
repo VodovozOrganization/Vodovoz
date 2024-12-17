@@ -1,10 +1,9 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Logging;
-using NHibernate.Util;
+using Pacs.Core.Idenpotency;
 using Pacs.Core.Messages.Events;
 using Pacs.Server.Operators;
 using System;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
@@ -15,15 +14,16 @@ namespace Pacs.Server.Consumers
 	{
 		private readonly ILogger<PacsServerCallEventConsumer> _logger;
 		private readonly IOperatorStateService _operatorStateService;
-		private static ConcurrentQueue<Guid> _processedEventsPool = new ConcurrentQueue<Guid>();
-		private const int MaxEventsPoolSize = 100;
+		private readonly IPacsEventIdempotencyService<PacsCallEvent> _pacsEventIdempotencyService;
 
 		public PacsServerCallEventConsumer(
 			ILogger<PacsServerCallEventConsumer> logger,
-			IOperatorStateService operatorControllerProvider)
+			IOperatorStateService operatorControllerProvider,
+			IPacsEventIdempotencyService<PacsCallEvent> pacsEventIdempotencyService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_operatorStateService = operatorControllerProvider ?? throw new ArgumentNullException(nameof(operatorControllerProvider));
+			_pacsEventIdempotencyService = pacsEventIdempotencyService ?? throw new ArgumentNullException(nameof(pacsEventIdempotencyService));
 		}
 
 		public async Task Consume(ConsumeContext<PacsCallEvent> context)
@@ -46,14 +46,14 @@ namespace Pacs.Server.Consumers
 
 			if(call.Status == CallStatus.Connected)
 			{
-				if(WasProcessedBefore(context.Message.EventId))
+				if(_pacsEventIdempotencyService.WasProcessedBefore(context.Message))
 				{
 					return;
 				}
 
 				await _operatorStateService.TakeCall(connectedSubCall.ToExtension, connectedSubCall.CallId);
 
-				RegisterProcessed(context.Message.EventId);
+				_pacsEventIdempotencyService.RegisterProcessed(context.Message);
 			}
 			else
 			{
@@ -61,16 +61,5 @@ namespace Pacs.Server.Consumers
 			}
 		}
 
-		public static bool WasProcessedBefore(Guid eventId) => _processedEventsPool.Any(x => x == eventId);
-
-		public static void RegisterProcessed(Guid eventId)
-		{
-			while(_processedEventsPool.Count >= MaxEventsPoolSize)
-			{
-				_processedEventsPool.TryDequeue(out _);
-			}
-
-			_processedEventsPool.Enqueue(eventId);
-		}
 	}
 }
