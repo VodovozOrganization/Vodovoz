@@ -601,7 +601,9 @@ namespace WarehouseApi.Library.Services
 				carLoadDocument.Items.Where(x => x.IsIndividualSetForOrder && x.OrderId != null)
 				.ToList();
 
-			var orders = _orderRepository.Get(_uow, x => carLoadDocumentsItemsNeedsRequest.Select(item => item.OrderId).Contains(x.Id));
+			var orderIdsNeedsRequest = carLoadDocumentsItemsNeedsRequest.Select(item => item.OrderId);
+
+			var orders = _orderRepository.Get(_uow, x => orderIdsNeedsRequest.Contains(x.Id));
 
 			var edoRequests = new List<OrderEdoRequest>();
 
