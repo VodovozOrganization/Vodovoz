@@ -15,7 +15,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Store
 {
-	public class RegradingOfGoodsTemplateItemsViewModel : WidgetViewModelBase
+	public class RegradingOfGoodsTemplateItemsViewModel : WidgetViewModelBase, IDisposable
 	{
 		private readonly INavigationManager _navigationManager;
 
@@ -188,6 +188,12 @@ namespace Vodovoz.ViewModels.Store
 			}
 
 			Items.Remove(row);
+		}
+
+		public void Dispose()
+		{
+			ParentViewModel = null;
+			UnitOfWork = null;
 		}
 	}
 }

@@ -24,7 +24,7 @@ using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.ViewModels.Store
 {
-	public class RegradingOfGoodsDocumentViewModel : EntityTabViewModelBase<RegradingOfGoodsDocument>
+	public class RegradingOfGoodsDocumentViewModel : EntityTabViewModelBase<RegradingOfGoodsDocument>, IDisposable
 	{
 		private readonly ILogger<RegradingOfGoodsDocumentViewModel> _logger;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -191,6 +191,12 @@ namespace Vodovoz.ViewModels.Store
 			_logger.LogInformation("Ok.");
 
 			return true;
+		}
+
+		public override void Dispose()
+		{
+			ItemsViewModel?.Dispose();
+			base.Dispose();
 		}
 	}
 }

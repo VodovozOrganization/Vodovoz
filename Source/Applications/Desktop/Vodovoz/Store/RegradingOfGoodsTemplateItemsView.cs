@@ -13,6 +13,11 @@ namespace Vodovoz.Store
 		public RegradingOfGoodsTemplateItemsView()
 		{
 			Build();
+
+			buttonAdd.Clicked += OnButtonAddClicked;
+			buttonChangeOld.Clicked += OnButtonChangeOldClicked;
+			buttonChangeNew.Clicked += OnButtonChangeNewClicked;
+			buttonDelete.Clicked += OnButtonDeleteClicked;
 		}
 
 		protected override void ConfigureWidget()
@@ -81,21 +86,11 @@ namespace Vodovoz.Store
 		private void SubscribeUIEvents()
 		{
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
-
-			buttonAdd.Clicked += OnButtonAddClicked;
-			buttonChangeOld.Clicked += OnButtonChangeOldClicked;
-			buttonChangeNew.Clicked += OnButtonChangeNewClicked;
-			buttonDelete.Clicked += OnButtonDeleteClicked;
 		}
 
 		private void UnSubscribeUIEvents()
 		{
 			ytreeviewItems.Selection.Changed -= YtreeviewItems_Selection_Changed;
-
-			buttonAdd.Clicked -= OnButtonAddClicked;
-			buttonChangeOld.Clicked -= OnButtonChangeOldClicked;
-			buttonChangeNew.Clicked -= OnButtonChangeNewClicked;
-			buttonDelete.Clicked -= OnButtonDeleteClicked;
 		}
 
 		public override void Destroy()

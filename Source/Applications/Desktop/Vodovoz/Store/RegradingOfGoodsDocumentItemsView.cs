@@ -17,6 +17,14 @@ namespace Vodovoz
 		public RegradingOfGoodsDocumentItemsView()
 		{
 			Build();
+
+			buttonFromTemplate.Clicked += OnButtonFromTemplateClicked;
+			buttonAdd.Clicked += OnAddButtonClicked;
+			buttonChangeOld.Clicked += OnButtonChangeOldClicked;
+			buttonChangeNew.Clicked += OnButtonChangeNewClicked;
+			buttonDelete.Clicked += OnButtonDeleteClicked;
+			buttonFine.Clicked += OnButtonFineClicked;
+			buttonDeleteFine.Clicked += OnButtonDeleteFineClicked;
 		}
 
 		protected override void ConfigureWidget()
@@ -224,32 +232,17 @@ namespace Vodovoz
 		{
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
 			ytreeviewItems.RowActivated += OnYtreeviewItemsRowActivated;
-			buttonFromTemplate.Clicked += OnButtonFromTemplateClicked;
-			buttonAdd.Clicked += OnAddButtonClicked;
-			buttonChangeOld.Clicked += OnButtonChangeOldClicked;
-			buttonChangeNew.Clicked += OnButtonChangeNewClicked;
-			buttonDelete.Clicked += OnButtonDeleteClicked;
-			buttonFine.Clicked += OnButtonFineClicked;
-			buttonDeleteFine.Clicked += OnButtonDeleteFineClicked;
 		}
 
 		private void UnSubscribeOnUIEvents()
 		{
 			ytreeviewItems.Selection.Changed -= YtreeviewItems_Selection_Changed;
 			ytreeviewItems.RowActivated -= OnYtreeviewItemsRowActivated;
-			buttonFromTemplate.Clicked -= OnButtonFromTemplateClicked;
-			buttonAdd.Clicked -= OnAddButtonClicked;
-			buttonChangeOld.Clicked -= OnButtonChangeOldClicked;
-			buttonChangeNew.Clicked -= OnButtonChangeNewClicked;
-			buttonDelete.Clicked -= OnButtonDeleteClicked;
-			buttonFine.Clicked -= OnButtonFineClicked;
-			buttonDeleteFine.Clicked -= OnButtonDeleteFineClicked;
 		}
 
 		public override void Destroy()
 		{
 			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-
 			UnSubscribeOnUIEvents();
 			base.Destroy();
 		}
