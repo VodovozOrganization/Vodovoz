@@ -27,7 +27,7 @@ using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.ViewModels.Store
 {
-	public class RegradingOfGoodsDocumentItemsViewModel : WidgetViewModelBase
+	public class RegradingOfGoodsDocumentItemsViewModel : WidgetViewModelBase, IDisposable
 	{
 		private readonly IInteractiveService _interactiveService;
 		private IStockRepository _stockRepository;
@@ -422,6 +422,12 @@ namespace Vodovoz.ViewModels.Store
 			}
 
 			LoadStock();
+		}
+
+		public void Dispose()
+		{
+			ParentViewModel = null;
+			UnitOfWork = null;
 		}
 	}
 }
