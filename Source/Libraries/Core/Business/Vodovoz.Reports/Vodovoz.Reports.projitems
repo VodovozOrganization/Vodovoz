@@ -106,6 +106,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Store\CarLoadDocumentEquipmentStore.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Store\DefectiveItemsReport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Store\ShiftChangeWarehouseWithCarDefectionAct.rdl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

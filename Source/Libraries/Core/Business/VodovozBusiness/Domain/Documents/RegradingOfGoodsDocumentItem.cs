@@ -2,6 +2,7 @@
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -187,9 +188,14 @@ namespace VodovozBusiness.Domain.Documents
 			set => SetField(ref _amountInStock, value);
 		}
 
-		#endregion
+		#endregion Не сохраняемые
 
 		#region Расчетные
+
+		public virtual bool IsDefective =>
+			NomenclatureNew.IsDefectiveBottle
+			|| (NomenclatureNew.Category == NomenclatureCategory.bottle
+				&& NomenclatureOld.Category == NomenclatureCategory.water);
 
 		/// <summary>
 		/// Сумма ущерба
@@ -201,7 +207,8 @@ namespace VodovozBusiness.Domain.Documents
 		/// Заголовок
 		/// </summary>
 		public virtual string Title => $"{NomenclatureOld.Name} -> {NomenclatureNew.Name} - {NomenclatureOld.Unit.MakeAmountShortStr(Amount)}";
-		#endregion
+
+		#endregion Расчетные
 
 		#region Функции
 
@@ -229,6 +236,6 @@ namespace VodovozBusiness.Domain.Documents
 			};
 		}
 
-		#endregion
+		#endregion Функции
 	}
 }
