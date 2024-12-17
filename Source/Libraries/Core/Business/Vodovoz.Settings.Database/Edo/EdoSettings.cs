@@ -1,4 +1,6 @@
-﻿using Vodovoz.Settings.Edo;
+﻿using System;
+using System.Linq;
+using Vodovoz.Settings.Edo;
 
 namespace Vodovoz.Settings.Database.Edo
 {
@@ -28,5 +30,10 @@ namespace Vodovoz.Settings.Database.Edo
 		public int CodePoolCheckCodesDepth => _settingsController.GetIntValue("TrueMarkCodePoolCheckCodesDepth");
 		public int CodePoolCheckIntervalMinutes => _settingsController.GetIntValue("TrueMarkCodePoolCheckIntervalMinutes");
 		public int CodePoolPromoteWithExtraSeconds => _settingsController.GetIntValue("TrueMarkCodePoolPromoteWithExtraSeconds");
+		public int[] OrganizationsHavingAccountsInTrueMark => _settingsController
+			.GetStringValue("TrueMark.OrganizationsHavingAccountsInTrueMark")
+			.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
+			.Select(x => int.Parse(x.Trim(' ')))
+			.ToArray();
 	}
 }

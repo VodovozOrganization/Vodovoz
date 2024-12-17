@@ -162,6 +162,12 @@ namespace Vodovoz.Errors.Stores
 				nameof(CarLoadDocumentStateChangeError),
 				$"Ошибка при изменении статуса операции погрузки талона погрузки #{id}");
 
+		public static Error CarLoadDocumentLogisticEventCreationError =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(CarLoadDocumentLogisticEventCreationError),
+				"Ошибка при создании логистического события при изменении статуса операции погрузки талона погрузки");
+
 		public static Error CarLoadDocumentAlreadyHasPickerError =>
 			new Error(
 				typeof(CarLoadDocument),

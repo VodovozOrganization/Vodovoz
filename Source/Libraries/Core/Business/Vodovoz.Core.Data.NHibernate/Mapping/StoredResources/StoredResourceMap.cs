@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.StoredResources;
+using Vodovoz.Core.Domain.StoredResources;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping
+namespace Vodovoz.Core.Data.NHibernate.Mapping.StoredResources
 {
 	public class StoredResourceMap : ClassMap<StoredResource>
 	{
