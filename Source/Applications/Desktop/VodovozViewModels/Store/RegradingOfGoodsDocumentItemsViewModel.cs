@@ -197,7 +197,7 @@ namespace Vodovoz.ViewModels.Store
 							return;
 						}
 
-						var nomenclature = ParentViewModel.UoW
+						var nomenclature = UnitOfWork
 							.GetById<Nomenclature>(selectedNode.Id);
 
 						_newRow = new RegradingOfGoodsDocumentItem()
@@ -273,7 +273,7 @@ namespace Vodovoz.ViewModels.Store
 
 			if(journalNode != null)
 			{
-				var nomenclature = ParentViewModel.UoW
+				var nomenclature = UnitOfWork
 					.GetById<Nomenclature>(journalNode.Id);
 
 				if(!nomenclature.IsDefectiveBottle)
@@ -283,8 +283,6 @@ namespace Vodovoz.ViewModels.Store
 				}
 
 				_newRow.NomenclatureNew = nomenclature;
-
-				// TODO: Тренняк!!! Убрать!!!
 
 				ParentViewModel.Entity.AddItem(_newRow);
 			}
@@ -334,7 +332,7 @@ namespace Vodovoz.ViewModels.Store
 				UnitOfWork.Delete(row);
 			}
 
-			ParentViewModel.Entity.Items.Remove(row);
+			Items.Remove(row);
 		}
 
 		private void AddFine()

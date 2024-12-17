@@ -40,10 +40,6 @@ namespace Vodovoz
 				entityentryWarehouse.Binding
 					.AddFuncBinding(ViewModel.Entity, e => e.CanEdit, w => w.Sensitive)
 					.InitializeFromSource();
-
-				regradingofgoodsitemsview.Sensitive = false;
-
-				buttonSave.Sensitive = false;
 			}
 
 			buttonSave.BindCommand(ViewModel.SaveCommand);

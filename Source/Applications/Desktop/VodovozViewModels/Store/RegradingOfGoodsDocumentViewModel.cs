@@ -32,6 +32,7 @@ namespace Vodovoz.ViewModels.Store
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
 		private readonly IValidator _validator;
 		private bool _canEditItems;
+		private bool _canSave;
 
 		public RegradingOfGoodsDocumentViewModel(
 			ILogger<RegradingOfGoodsDocumentViewModel> logger,
@@ -80,6 +81,7 @@ namespace Vodovoz.ViewModels.Store
 					"Ошибка");
 			}
 
+			CanSave = true;
 			CanEditItems = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse);
 
 			var userHasOnlyAccessToWarehouseAndComplaints =
@@ -113,7 +115,8 @@ namespace Vodovoz.ViewModels.Store
 
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Today)
 			{
-
+				CanEditItems = false;
+				CanSave = false;
 			}
 			else
 			{
@@ -128,8 +131,14 @@ namespace Vodovoz.ViewModels.Store
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
-			SaveCommand = new DelegateCommand(SaveAndClose, () => Entity.CanEdit);
+			SaveCommand = new DelegateCommand(SaveAndClose, () => CanSave);
 			CancelCommand = new DelegateCommand(() => Close(true, CloseSource.Cancel));
+		}
+
+		public bool CanSave
+		{
+			get => _canSave;
+			private set => SetField(ref _canSave, value);
 		}
 
 		public bool CanEditItems
