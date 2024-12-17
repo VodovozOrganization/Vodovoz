@@ -248,6 +248,8 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+
 			UnSubscribeOnUIEvents();
 			base.Destroy();
 		}

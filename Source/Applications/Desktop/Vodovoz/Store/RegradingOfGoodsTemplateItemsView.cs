@@ -10,7 +10,6 @@ namespace Vodovoz.Store
 	[ToolboxItem(true)]
 	public partial class RegradingOfGoodsTemplateItemsView : WidgetViewBase<RegradingOfGoodsTemplateItemsViewModel>
 	{
-
 		public RegradingOfGoodsTemplateItemsView()
 		{
 			Build();
@@ -20,16 +19,15 @@ namespace Vodovoz.Store
 		{
 			base.ConfigureWidget();
 
-			ytreeviewItems.Selection.Changed -= YtreeviewItems_Selection_Changed;
+			UnSubscribeUIEvents();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<RegradingOfGoodsTemplateItem>()
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
 				.AddColumn("Новая номенклатура").AddTextRenderer(x => x.NomenclatureNew.Name)
 				.Finish();
 
-			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
-
 			UpdateButtonState();
+			SubscribeUIEvents();
 		}
 
 		void YtreeviewItems_Selection_Changed(object sender, EventArgs e)
@@ -39,8 +37,11 @@ namespace Vodovoz.Store
 
 		private void UpdateButtonState()
 		{
-			var selected = ViewModel.SelectedItem;
-			buttonChangeNew.Sensitive = buttonDelete.Sensitive = buttonChangeOld.Sensitive = selected != null;
+			var sensitive = ViewModel.SelectedItem != null;
+
+			buttonChangeNew.Sensitive = sensitive;
+			buttonDelete.Sensitive = sensitive;
+			buttonChangeOld.Sensitive = sensitive;
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
@@ -77,9 +78,29 @@ namespace Vodovoz.Store
 			}
 		}
 
-		public override void Destroy()
+		private void SubscribeUIEvents()
+		{
+			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+
+			buttonAdd.Clicked += OnButtonAddClicked;
+			buttonChangeOld.Clicked += OnButtonChangeOldClicked;
+			buttonChangeNew.Clicked += OnButtonChangeNewClicked;
+			buttonDelete.Clicked += OnButtonDeleteClicked;
+		}
+
+		private void UnSubscribeUIEvents()
 		{
 			ytreeviewItems.Selection.Changed -= YtreeviewItems_Selection_Changed;
+
+			buttonAdd.Clicked -= OnButtonAddClicked;
+			buttonChangeOld.Clicked -= OnButtonChangeOldClicked;
+			buttonChangeNew.Clicked -= OnButtonChangeNewClicked;
+			buttonDelete.Clicked -= OnButtonDeleteClicked;
+		}
+
+		public override void Destroy()
+		{
+			UnSubscribeUIEvents();
 			base.Destroy();
 		}
 	}
