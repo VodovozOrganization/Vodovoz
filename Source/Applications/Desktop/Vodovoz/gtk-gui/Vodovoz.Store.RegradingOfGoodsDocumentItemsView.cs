@@ -188,13 +188,6 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonFromTemplate.Clicked += new global::System.EventHandler(this.OnButtonFromTemplateClicked);
-			this.ytreeviewItems.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewItemsRowActivated);
-			this.buttonChangeOld.Clicked += new global::System.EventHandler(this.OnButtonChangeOldClicked);
-			this.buttonChangeNew.Clicked += new global::System.EventHandler(this.OnButtonChangeNewClicked);
-			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
-			this.buttonFine.Clicked += new global::System.EventHandler(this.OnButtonFineClicked);
-			this.buttonDeleteFine.Clicked += new global::System.EventHandler(this.OnButtonDeleteFineClicked);
 		}
 	}
 }

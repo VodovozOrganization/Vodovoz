@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
@@ -32,6 +32,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
+using Vodovoz.ViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Warehouses;
@@ -185,8 +186,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		{
 			RegisterEntity(GetRegradingOfGoodsDocumentsQuery)
 				.AddDocumentConfiguration<ITdiTab>(
-					() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.RegradingOfGoodsDocument),
-					(node) => _gtkTabsOpener.OpenRegradingOfGoodsDocumentDlg(node.Id),
+					() => NavigationManager.OpenViewModel<RegradingOfGoodsDocumentViewModel, IEntityUoWBuilder>(
+						null, EntityUoWBuilder.ForCreate()).ViewModel,
+					(node) => NavigationManager.OpenViewModel<RegradingOfGoodsDocumentViewModel, IEntityUoWBuilder>(
+						null, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
 					(node) => node.EntityType == typeof(RegradingOfGoodsDocument))
 				.FinishConfiguration();
 		}
