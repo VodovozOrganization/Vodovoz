@@ -83,8 +83,8 @@ namespace Vodovoz.Views.Reports
 		{
 			ytreeReportRows.ColumnsConfig = FluentColumnsConfig<LastRouteListReportRow>.Create()
 				.AddColumn("№ п/п").AddNumericRenderer(r => r.RowNum)
-				.AddColumn("ФИО водителя").AddTextRenderer(r => r.DriverFio)
-				.AddColumn("Статус водителя").AddEnumRenderer(r => r.DriverStatus)
+				.AddColumn("ФИО сотрудника").AddTextRenderer(r => r.DriverFio)
+				.AddColumn("Статус сотрудника").AddEnumRenderer(r => r.DriverStatus)
 				.AddColumn("Первый раб.день").AddDateRenderer(r => r.FirstWorkDay)
 				.AddColumn("Дата приема").AddDateRenderer(r => r.DateHired)
 				.AddColumn("Дата увольнения").AddDateRenderer(r => r.DateFired)
