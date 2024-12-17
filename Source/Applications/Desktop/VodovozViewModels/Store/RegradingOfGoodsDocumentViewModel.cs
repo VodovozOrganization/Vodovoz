@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -9,6 +10,7 @@ using QS.Validation;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.ComponentModel;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
@@ -29,6 +31,7 @@ namespace Vodovoz.ViewModels.Store
 		private readonly IUserRepository _userRepository;
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
 		private readonly IValidator _validator;
+		private bool _canEditItems;
 
 		public RegradingOfGoodsDocumentViewModel(
 			ILogger<RegradingOfGoodsDocumentViewModel> logger,
@@ -40,12 +43,18 @@ namespace Vodovoz.ViewModels.Store
 			IUserRepository userRepository,
 			IStoreDocumentHelper storeDocumentHelper,
 			IValidator validator,
-			ViewModelEEVMBuilder<Warehouse> warehouseViewModelEEVMBuilder)
+			ViewModelEEVMBuilder<Warehouse> warehouseViewModelEEVMBuilder,
+			RegradingOfGoodsDocumentItemsViewModel regradingOfGoodsDocumentItemsViewModel)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(warehouseViewModelEEVMBuilder is null)
 			{
 				throw new ArgumentNullException(nameof(warehouseViewModelEEVMBuilder));
+			}
+
+			if(regradingOfGoodsDocumentItemsViewModel is null)
+			{
+				throw new ArgumentNullException(nameof(regradingOfGoodsDocumentItemsViewModel));
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -71,8 +80,7 @@ namespace Vodovoz.ViewModels.Store
 					"Ошибка");
 			}
 
-			// TODO: разобраться зачем это нужно
-			IsEditing = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse);
+			CanEditItems = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse);
 
 			var userHasOnlyAccessToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
@@ -111,13 +119,40 @@ namespace Vodovoz.ViewModels.Store
 			{
 				Entity.CanEdit = true;
 			}
+
+			ItemsViewModel = regradingOfGoodsDocumentItemsViewModel;
+			ItemsViewModel.SetUnitOfWork(UoW);
+			ItemsViewModel.Items = Entity.Items;
+			ItemsViewModel.CurrentWarehouse = Entity.Warehouse;
+			ItemsViewModel.ParentViewModel = this;
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+
+			SaveCommand = new DelegateCommand(SaveAndClose, () => Entity.CanEdit);
+			CancelCommand = new DelegateCommand(() => Close(true, CloseSource.Cancel));
 		}
 
-		public bool IsEditing { get; }
+		public bool CanEditItems
+		{
+			get => _canEditItems;
+			private set => SetField(ref _canEditItems, value);
+		}
 
 		public IEntityEntryViewModel WarehouseViewModel { get; }
+		public RegradingOfGoodsDocumentItemsViewModel ItemsViewModel { get; }
+		public DelegateCommand SaveCommand { get; }
+		public DelegateCommand CancelCommand { get; }
 
-		public override bool Save()
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Warehouse))
+			{
+				ItemsViewModel.CurrentWarehouse = Entity.Warehouse;
+				CanEditItems = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse);
+			}
+		}
+
+		public override bool Save(bool close)
 		{
 			if(!Entity.CanEdit)
 			{

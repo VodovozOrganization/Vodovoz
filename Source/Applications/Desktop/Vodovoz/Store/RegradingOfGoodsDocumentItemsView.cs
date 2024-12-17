@@ -1,30 +1,11 @@
-﻿using Autofac;
-using Gamma.GtkWidgets;
-using Gamma.Utilities;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Navigation;
-using QS.Project.Domain;
-using QS.Project.Journal;
-using QS.Tdi;
+﻿using Gamma.GtkWidgets;
 using QS.Utilities;
 using QS.Views.GtkUI;
-using QSOrmProject;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure;
-using Vodovoz.Journals.JournalNodes;
-using Vodovoz.ViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Store;
 using VodovozBusiness.Domain.Documents;
 
@@ -33,11 +14,18 @@ namespace Vodovoz
 	[ToolboxItem(true)]
 	public partial class RegradingOfGoodsDocumentItemsView : WidgetViewBase<RegradingOfGoodsDocumentItemsViewModel>
 	{
-		public RegradingOfGoodsDocumentItemsView(
-			RegradingOfGoodsDocumentItemsViewModel viewModel)
-			: base(viewModel)
+		public RegradingOfGoodsDocumentItemsView()
 		{
 			Build();
+		}
+
+		protected override void ConfigureWidget()
+		{
+			base.ConfigureWidget();
+
+			UnSubscribeOnUIEvents();
+
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
 
 			var basePrimary = GdkColors.PrimaryBase;
 			var colorLightRed = GdkColors.DangerBase;
@@ -111,9 +99,31 @@ namespace Vodovoz
 					.Editing()
 				.Finish();
 
-			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+			ytreeviewItems.ItemsDataSource = ViewModel.Items;
 
-			buttonAdd.BindCommand(ViewModel.AddItemCommand);
+			ytreeviewItems.Binding.AddBinding(ViewModel, vm => vm.SelectedItemObject, w => w.SelectedRow);
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+			SubscribeOnUIEvents();
+			UpdateButtonState();
+		}
+
+		public override RegradingOfGoodsDocumentItemsViewModel ViewModel
+		{
+			get => base.ViewModel;
+			set
+			{
+				if(base.ViewModel != value)
+				{
+					base.ViewModel = value;
+				}
+			}
+		}
+
+		private void OnAddButtonClicked(object sender, EventArgs e)
+		{
+			ViewModel.AddItemCommand.Execute();
 		}
 
 		private double GetMaxValueForAdjustmentSetting(RegradingOfGoodsDocumentItem item)
@@ -132,41 +142,14 @@ namespace Vodovoz
 			UpdateButtonState();
 		}
 
-		public IUnitOfWorkGeneric<RegradingOfGoodsDocument> DocumentUoW
-		{
-			get => _documentUoW;
-			set
-			{
-				if(_documentUoW == value)
-				{
-					return;
-				}
-
-				_documentUoW = value;
-
-				if(DocumentUoW.Root.Items == null)
-				{
-					DocumentUoW.Root.Items = new List<RegradingOfGoodsDocumentItem>();
-				}
-
-				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableItems;
-				UpdateButtonState();
-				DocumentUoW.Root.PropertyChanged += DocumentUoW_Root_PropertyChanged;
-
-				if(!DocumentUoW.IsNew)
-				{
-					LoadStock();
-				}
-			}
-		}
-
 		private void UpdateButtonState()
 		{
 			var selected = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
 
 			buttonChangeNew.Sensitive = buttonDelete.Sensitive = selected != null;
-			buttonChangeOld.Sensitive = selected != null && DocumentUoW.Root.Warehouse != null;
-			buttonAdd.Sensitive = buttonFromTemplate.Sensitive = DocumentUoW.Root.Warehouse != null;
+			buttonChangeOld.Sensitive = selected != null
+				&& ViewModel.CurrentWarehouse != null;
+			buttonAdd.Sensitive = buttonFromTemplate.Sensitive = ViewModel.CurrentWarehouse != null;
 
 			buttonFine.Sensitive = selected != null;
 
@@ -185,110 +168,27 @@ namespace Vodovoz
 			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
 		}
 
-		private void DocumentUoW_Root_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == DocumentUoW.Root.GetPropertyName(x => x.Warehouse))
+			if(e.PropertyName == nameof(RegradingOfGoodsDocumentItemsViewModel.CurrentWarehouse))
 			{
 				UpdateButtonState();
 			}
 		}
 
-		private void LoadStock()
-		{
-			var nomenclatureIds = DocumentUoW.Root.Items.Select(x => x.NomenclatureOld.Id).ToArray();
-			var inStock =
-				_stockRepository.NomenclatureInStock(
-					DocumentUoW,
-					nomenclatureIds,
-					new[] { DocumentUoW.Root.Warehouse.Id },
-					DocumentUoW.Root.TimeStamp);
-
-			foreach(var item in DocumentUoW.Root.Items)
-			{
-				if(inStock.ContainsKey(item.NomenclatureOld.Id))
-				{
-					item.AmountInStock = inStock[item.NomenclatureOld.Id];
-				}
-			}
-		}
-
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
 		{
-			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.Warehouse;
-
-			var vm = Startup.MainWin.NavigationManager
-				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
-				.ViewModel;
-
-			vm.SelectionMode = JournalSelectionMode.Single;
-			vm.TabName = "Изменить старую номенклатуру";
-			vm.OnEntitySelectedResult += (s, ea) =>
-			{
-				var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
-
-				var selectedNode = ea.SelectedNodes
-					.Cast<NomenclatureStockJournalNode>()
-					.FirstOrDefault();
-
-				if(selectedNode == null)
-				{
-					return;
-				}
-
-				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
-				row.NomenclatureOld = nomenclature;
-				row.AmountInStock = selectedNode.StockAmount;
-			};
+			ViewModel.ChangeOldNomenclatureCommand.Execute();
 		}
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
 		{
-			var nomenclaturesJournalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>();
-			nomenclaturesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-			nomenclaturesJournalViewModel.OnSelectResult += ChangeNewNomenclature_OnEntitySelectedResult;
-
-			MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
-		}
-
-		private void ChangeNewNomenclature_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
-		{
-			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
-			if(row == null)
-			{
-				return;
-			}
-
-			var id = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault()?.Id;
-
-			if(id == null)
-			{
-				return;
-			}
-
-			var nomenclature = UoW.Session.Get<Nomenclature>(id);
-			row.NomenclatureNew = nomenclature;
+			ViewModel.ChangeNewNomenclatureCommand.Execute();
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
-
-			if(row.WarehouseIncomeOperation.Id == 0)
-			{
-				DocumentUoW.Delete(row.WarehouseIncomeOperation);
-			}
-
-			if(row.WarehouseWriteOffOperation.Id == 0)
-			{
-				DocumentUoW.Delete(row.WarehouseWriteOffOperation);
-			}
-
-			if(row.Id != 0)
-			{
-				DocumentUoW.Delete(row);
-			}
-
-			DocumentUoW.Root.ObservableItems.Remove(row);
+			ViewModel.DeleteItemCommand.Execute();
 		}
 
 		protected void OnYtreeviewItemsRowActivated(object o, Gtk.RowActivatedArgs args)
@@ -306,91 +206,49 @@ namespace Vodovoz
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)
 		{
-			var selected = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
-
-			if(selected.Fine != null)
-			{
-				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(ParrentDlg, EntityUoWBuilder.ForOpen(selected.Fine.Id), OpenPageOptions.AsSlave);
-
-				page.ViewModel.Entity.TotalMoney = selected.SumOfDamage;
-				page.ViewModel.EntitySaved += OnFineDlgExistEntitySaved;
-			}
-			else
-			{
-				var page = NavigationManager.OpenViewModelOnTdi<FineViewModel, IEntityUoWBuilder>(ParrentDlg, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
-
-				page.ViewModel.Entity.FineReasonString = "Недостача";
-				page.ViewModel.Entity.TotalMoney = selected.SumOfDamage;
-				page.ViewModel.EntitySaved += OnFineDlgNewEntitySaved;
-			}
-
-			_fineEditItem = selected;
-		}
-
-		private void OnFineDlgNewEntitySaved(object sender, EntitySavedEventArgs e)
-		{
-			_fineEditItem.Fine = e.Entity as Fine;
-			_fineEditItem = null;
-		}
-
-		private void OnFineDlgExistEntitySaved(object sender, EntitySavedEventArgs e)
-		{
-			DocumentUoW.Session.Refresh(_fineEditItem.Fine);
+			ViewModel.AddFineCommand.Execute();
 		}
 
 		protected void OnButtonDeleteFineClicked(object sender, EventArgs e)
 		{
-			var item = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
-			DocumentUoW.Delete(item.Fine);
-			item.Fine = null;
+			ViewModel.DeleteFineCommand.Execute();
 			UpdateButtonState();
 		}
 
 		protected void OnButtonFromTemplateClicked(object sender, EventArgs e)
 		{
-			var selectTemplate = new OrmReference(typeof(RegradingOfGoodsTemplate));
-			selectTemplate.Mode = OrmReferenceMode.Select;
-			selectTemplate.ObjectSelected += SelectTemplate_ObjectSelected;
-			MyTab.TabParent.AddSlaveTab(MyTab, selectTemplate);
+			ViewModel.FillFromTemplateCommand.Execute();
 		}
 
-		private void SelectTemplate_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void SubscribeOnUIEvents()
 		{
-			if(DocumentUoW.Root.Items.Count > 0)
-			{
-				if(MessageDialogHelper.RunQuestionDialog("Текущий список будет очищен. Продолжить?"))
-				{
-					DocumentUoW.Root.ObservableItems.Clear();
-				}
-				else
-				{
-					return;
-				}
-			}
+			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+			ytreeviewItems.RowActivated += OnYtreeviewItemsRowActivated;
+			buttonFromTemplate.Clicked += OnButtonFromTemplateClicked;
+			buttonAdd.Clicked += OnAddButtonClicked;
+			buttonChangeOld.Clicked += OnButtonChangeOldClicked;
+			buttonChangeNew.Clicked += OnButtonChangeNewClicked;
+			buttonDelete.Clicked += OnButtonDeleteClicked;
+			buttonFine.Clicked += OnButtonFineClicked;
+			buttonDeleteFine.Clicked += OnButtonDeleteFineClicked;
+		}
 
-			var template = DocumentUoW.GetById<RegradingOfGoodsTemplate>((e.Subject as RegradingOfGoodsTemplate).Id);
-
-			foreach(var item in template.Items)
-			{
-				DocumentUoW.Root.AddItem(new RegradingOfGoodsDocumentItem()
-				{
-					NomenclatureNew = item.NomenclatureNew,
-					NomenclatureOld = item.NomenclatureOld
-				});
-			}
-			LoadStock();
+		private void UnSubscribeOnUIEvents()
+		{
+			ytreeviewItems.Selection.Changed -= YtreeviewItems_Selection_Changed;
+			ytreeviewItems.RowActivated -= OnYtreeviewItemsRowActivated;
+			buttonFromTemplate.Clicked -= OnButtonFromTemplateClicked;
+			buttonAdd.Clicked -= OnAddButtonClicked;
+			buttonChangeOld.Clicked -= OnButtonChangeOldClicked;
+			buttonChangeNew.Clicked -= OnButtonChangeNewClicked;
+			buttonDelete.Clicked -= OnButtonDeleteClicked;
+			buttonFine.Clicked -= OnButtonFineClicked;
+			buttonDeleteFine.Clicked -= OnButtonDeleteFineClicked;
 		}
 
 		public override void Destroy()
 		{
-			_stockRepository = null;
-
-			if(_lifetimeScope != null)
-			{
-				_lifetimeScope.Dispose();
-				_lifetimeScope = null;
-			}
-
+			UnSubscribeOnUIEvents();
 			base.Destroy();
 		}
 	}

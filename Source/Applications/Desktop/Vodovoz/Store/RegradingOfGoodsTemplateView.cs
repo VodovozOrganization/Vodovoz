@@ -1,49 +1,26 @@
-﻿using QS.Dialog.Gtk;
-using QS.Project.Services;
-using Vodovoz.Domain.Store;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Store;
 
 namespace Vodovoz.Store
 {
-	public partial class RegradingOfGoodsTemplateView : EntityDialogBase<RegradingOfGoodsTemplate>
+	public partial class RegradingOfGoodsTemplateView : TabViewBase<RegradingOfGoodsTemplateViewModel>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-
-		public RegradingOfGoodsTemplateView()
+		public RegradingOfGoodsTemplateView(RegradingOfGoodsTemplateViewModel viewModel)
+			: base(viewModel)
 		{
-			this.Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<RegradingOfGoodsTemplate> ();
-			ConfigureDlg ();
+			Initialize();
 		}
 
-		public RegradingOfGoodsTemplateView (int id)
+		private void Initialize()
 		{
-			this.Build ();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsTemplate> (id);
-			ConfigureDlg ();
-		}
+			regradingofgoodstemplateitemsview1.ViewModel = ViewModel.ItemsViewModel;
 
-		public RegradingOfGoodsTemplateView (RegradingOfGoodsTemplate sub) : this (sub.Id)
-		{
-		}
+			yentryName.Binding
+				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+				.InitializeFromSource();
 
-		void ConfigureDlg ()
-		{
-			regradingofgoodstemplateitemsview1.TemplateUoW = UoWGeneric;
-			yentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
-		}
-
-		public override bool Save ()
-		{
-			var validator = ServicesConfig.ValidationService;
-			if(!validator.Validate(Entity))
-			{
-				return false;
-			}
-
-			logger.Info ("Сохраняем шаблон пересортицы...");
-			UoWGeneric.Save ();
-			logger.Info ("Ok.");
-			return true;
+			buttonSave.BindCommand(ViewModel.SaveCommand);
+			buttonCancel.BindCommand(ViewModel.CancelCommand);
 		}
 	}
 }

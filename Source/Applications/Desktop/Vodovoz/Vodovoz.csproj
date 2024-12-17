@@ -433,6 +433,7 @@
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\RegradingOfGoodsTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ServiceDistrictsSetJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelCardJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FundsJournalRegistrar.cs" />
