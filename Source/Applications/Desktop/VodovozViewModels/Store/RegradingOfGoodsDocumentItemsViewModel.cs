@@ -38,6 +38,7 @@ namespace Vodovoz.ViewModels.Store
 		private IUnitOfWork _unitOfWork;
 		private RegradingOfGoodsDocumentViewModel _parentViewModel;
 		private object _selectedItem;
+		private Warehouse _currentWarehouse;
 
 		public RegradingOfGoodsDocumentItemsViewModel(
 			IInteractiveService interactiveService,
@@ -92,7 +93,11 @@ namespace Vodovoz.ViewModels.Store
 			set => _items = value;
 		}
 
-		public Warehouse CurrentWarehouse { get; set; }
+		public Warehouse CurrentWarehouse
+		{
+			get => _currentWarehouse;
+			set => SetField(ref _currentWarehouse, value);
+		}
 
 		public RegradingOfGoodsDocumentViewModel ParentViewModel
 		{
@@ -102,7 +107,7 @@ namespace Vodovoz.ViewModels.Store
 				if(_parentViewModel != value)
 				{
 					_parentViewModel = value;
-					if(value.Entity.Id != 0)
+					if(value?.Entity != null && value.Entity.Id != 0)
 					{
 						LoadStock();
 					}
@@ -439,7 +444,7 @@ namespace Vodovoz.ViewModels.Store
 			}
 
 			var template = UnitOfWork
-				.GetById<RegradingOfGoodsTemplate>(e.SelectedObjects.Cast<RegradingOfGoodsTemplate>().FirstOrDefault().Id);
+				.GetById<RegradingOfGoodsTemplate>(e.SelectedObjects.Cast<RegradingOfGoodsTemplateJournalNode>().FirstOrDefault().Id);
 
 			foreach(var item in template.Items)
 			{
@@ -462,6 +467,17 @@ namespace Vodovoz.ViewModels.Store
 		{
 			ParentViewModel = null;
 			UnitOfWork = null;
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is RegradingOfGoodsDocumentItemsViewModel model &&
+				   EqualityComparer<Warehouse>.Default.Equals(CurrentWarehouse, model.CurrentWarehouse);
+		}
+
+		public override int GetHashCode()
+		{
+			return -206061919 + EqualityComparer<Warehouse>.Default.GetHashCode(CurrentWarehouse);
 		}
 	}
 }
