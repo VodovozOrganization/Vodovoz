@@ -8,6 +8,8 @@ namespace Vodovoz.Store
 		public RegradingOfGoodsTemplateView(RegradingOfGoodsTemplateViewModel viewModel)
 			: base(viewModel)
 		{
+			Build();
+
 			Initialize();
 		}
 
