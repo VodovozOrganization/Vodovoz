@@ -6,7 +6,6 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
@@ -29,7 +28,6 @@ namespace VodovozBusiness.Domain.Documents
 		private string _comment;
 		private Warehouse _warehouse;
 		private IObservableList<RegradingOfGoodsDocumentItem> _items = new ObservableList<RegradingOfGoodsDocumentItem>();
-		private GenericObservableList<RegradingOfGoodsDocumentItem> _observableItems;
 
 		/// <summary>
 		/// Дата пересортицы
@@ -99,11 +97,7 @@ namespace VodovozBusiness.Domain.Documents
 		public virtual IObservableList<RegradingOfGoodsDocumentItem> Items
 		{
 			get => _items;
-			set
-			{
-				SetField(ref _items, value);
-				_observableItems = null;
-			}
+			set => SetField(ref _items, value);
 		}
 
 		/// <summary>
