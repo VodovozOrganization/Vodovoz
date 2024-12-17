@@ -1,8 +1,10 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate.Util;
 using Pacs.Core.Messages.Events;
 using Pacs.Server.Operators;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Pacs;
@@ -13,6 +15,8 @@ namespace Pacs.Server.Consumers
 	{
 		private readonly ILogger<PacsServerCallEventConsumer> _logger;
 		private readonly IOperatorStateService _operatorStateService;
+		private static ConcurrentQueue<Guid> _processedEventsPool = new ConcurrentQueue<Guid>();
+		private const int MaxEventsPoolSize = 100;
 
 		public PacsServerCallEventConsumer(
 			ILogger<PacsServerCallEventConsumer> logger,
@@ -42,12 +46,31 @@ namespace Pacs.Server.Consumers
 
 			if(call.Status == CallStatus.Connected)
 			{
+				if(WasProcessedBefore(context.Message.EventId))
+				{
+					return;
+				}
+
 				await _operatorStateService.TakeCall(connectedSubCall.ToExtension, connectedSubCall.CallId);
+
+				RegisterProcessed(context.Message.EventId);
 			}
 			else
 			{
 				await _operatorStateService.EndCall(connectedSubCall.ToExtension, connectedSubCall.CallId);
 			}
+		}
+
+		public static bool WasProcessedBefore(Guid eventId) => _processedEventsPool.Any(x => x == eventId);
+
+		public static void RegisterProcessed(Guid eventId)
+		{
+			while(_processedEventsPool.Count >= MaxEventsPoolSize)
+			{
+				_processedEventsPool.TryDequeue(out _);
+			}
+
+			_processedEventsPool.Enqueue(eventId);
 		}
 	}
 }
