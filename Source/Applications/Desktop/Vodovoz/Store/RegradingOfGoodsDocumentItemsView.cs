@@ -117,18 +117,6 @@ namespace Vodovoz
 			UpdateButtonState();
 		}
 
-		public override RegradingOfGoodsDocumentItemsViewModel ViewModel
-		{
-			get => base.ViewModel;
-			set
-			{
-				if(base.ViewModel != value)
-				{
-					base.ViewModel = value;
-				}
-			}
-		}
-
 		private void OnAddButtonClicked(object sender, EventArgs e)
 		{
 			ViewModel.AddItemCommand.Execute();
