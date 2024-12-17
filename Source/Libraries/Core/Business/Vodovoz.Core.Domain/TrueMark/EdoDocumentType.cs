@@ -2,11 +2,20 @@
 
 namespace Vodovoz.Core.Domain.TrueMark
 {
+	/// <summary>
+	/// Тип документа ЭДО
+	/// </summary>
 	public enum EdoDocumentType
 	{
+		/// <summary>
+		/// УПД
+		/// </summary>
 		[Display(Name = "УПД")]
 		UPD,
 
+		/// <summary>
+		/// Счет
+		/// </summary>
 		[Display(Name = "Счет")]
 		Bill,
 	}

@@ -5,6 +5,9 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.Core.Domain.StoredResources
 {
+	/// <summary>
+	/// Хранимые ресурсы, файлы
+	/// </summary>
 	public class StoredResource : BusinessObjectBase<StoredResource>, IDomainObject, IValidatableObject
 	{
 		private int _id;
@@ -13,7 +16,9 @@ namespace Vodovoz.Core.Domain.StoredResources
 		private byte[] _binaryFile;
 		private ImageType _imageType;
 
-
+		/// <summary>
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -21,6 +26,9 @@ namespace Vodovoz.Core.Domain.StoredResources
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Тип
+		/// </summary>
 		[Display(Name = "Тип")]
 		public virtual ResourceType Type
 		{
@@ -28,6 +36,9 @@ namespace Vodovoz.Core.Domain.StoredResources
 			set => SetField(ref _type, value);
 		}
 
+		/// <summary>
+		/// Название
+		/// </summary>
 		[Display(Name = "Название")]
 		public virtual string Name
 		{
@@ -35,6 +46,9 @@ namespace Vodovoz.Core.Domain.StoredResources
 			set { SetField(ref _name, value); }
 		}
 
+		/// <summary>
+		/// Бинарный файл
+		/// </summary>
 		[Display(Name = "Бинарный файл")]
 		public virtual byte[] BinaryFile
 		{
@@ -42,6 +56,9 @@ namespace Vodovoz.Core.Domain.StoredResources
 			set { SetField(ref _binaryFile, value); }
 		}
 
+		/// <summary>
+		/// Тип изображения
+		/// </summary>
 		[Display(Name = "Тип изображения")]
 		public virtual ImageType ImageType
 		{

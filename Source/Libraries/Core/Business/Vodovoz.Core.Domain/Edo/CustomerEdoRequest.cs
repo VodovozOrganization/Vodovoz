@@ -7,6 +7,9 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Domain.Edo
 {
+	/// <summary>
+	/// Заявка на отправку документов ЭДО
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		Nominative = "заявка на отправку документов ЭДО",
 		NominativePlural = "заявки на отправку документов ЭДО"
@@ -20,6 +23,9 @@ namespace Vodovoz.Core.Domain.Edo
 		private IObservableList<TrueMarkProductCode> _productCodes = new ObservableList<TrueMarkProductCode>();
 		private EdoDocumentType _documentType;
 
+		/// <summary>
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -27,6 +33,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Время
+		/// </summary>
 		[Display(Name = "Время")]
 		public virtual DateTime Time
 		{
@@ -34,6 +43,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _time, value);
 		}
 
+		/// <summary>
+		/// Тип
+		/// </summary>
 		[Display(Name = "Тип")]
 		public virtual CustomerEdoRequestType Type
 		{
@@ -41,6 +53,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _type, value);
 		}
 
+		/// <summary>
+		/// Источник
+		/// </summary>
 		[Display(Name = "Источник")]
 		public virtual CustomerEdoRequestSource Source
 		{
@@ -48,6 +63,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _source, value);
 		}
 
+		/// <summary>
+		/// Коды маркировки
+		/// </summary>
 		[Display(Name = "Коды маркировки")]
 		public virtual IObservableList<TrueMarkProductCode> ProductCodes
 		{
@@ -55,6 +73,11 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _productCodes, value);
 		}
 
+
+		/// <summary>
+		/// Тип документа
+		/// </summary>
+		[Display(Name = "Тип документа")]
 		public virtual EdoDocumentType DocumentType
 		{
 			get => _documentType;

@@ -1,4 +1,4 @@
-using QS.Banks.Domain;
+﻿using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
@@ -12,6 +12,9 @@ using Vodovoz.Core.Domain.StoredResources;
 
 namespace Vodovoz.Core.Domain.Organizations
 {
+	/// <summary>
+	/// Организация
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "организации",
 		Nominative = "организация")]
@@ -49,6 +52,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			Email = string.Empty;
 		}
 
+		/// <summary>
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -56,6 +62,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Название
+		/// </summary>
 		[Display(Name = "Название")]
 		public virtual string Name
 		{
@@ -63,6 +72,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _name, value);
 		}
 
+		/// <summary>
+		/// Полное название
+		/// </summary>
 		[Display(Name = "Полное название")]
 		public virtual string FullName
 		{
@@ -70,6 +82,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _fullName, value);
 		}
 
+		/// <summary>
+		/// ИНН
+		/// </summary>
 		[Display(Name = "ИНН")]
 		public virtual string INN
 		{
@@ -77,6 +92,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _iNN, value);
 		}
 
+		/// <summary>
+		/// КПП
+		/// </summary>
 		[Display(Name = "КПП")]
 		public virtual string KPP
 		{
@@ -84,6 +102,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _kPP, value);
 		}
 
+		/// <summary>
+		/// ОГРН/ОГРНИП
+		/// </summary>
 		[Display(Name = "ОГРН/ОГРНИП")]
 		public virtual string OGRN
 		{
@@ -91,6 +112,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _oGRN, value);
 		}
 
+		/// <summary>
+		/// ОКПО
+		/// </summary>
 		[Display(Name = "ОКПО")]
 		public virtual string OKPO
 		{
@@ -98,6 +122,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _oKPO, value);
 		}
 
+		/// <summary>
+		/// ОКВЭД
+		/// </summary>
 		[Display(Name = "ОКВЭД")]
 		public virtual string OKVED
 		{
@@ -105,6 +132,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _oKVED, value);
 		}
 
+		/// <summary>
+		/// E-mail адреса
+		/// </summary>
 		[Display(Name = "E-mail адреса")]
 		public virtual string Email
 		{
@@ -112,6 +142,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _email, value);
 		}
 
+		/// <summary>
+		/// ID Кассового аппарата
+		/// </summary>
 		[Display(Name = "ID Кассового аппарата")]
 		public virtual int? CashBoxId
 		{
@@ -119,6 +152,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _cashBoxId, value);
 		}
 
+		/// <summary>
+		/// Без НДС
+		/// </summary>
 		[Display(Name = "Без НДС")]
 		public virtual bool WithoutVAT
 		{
@@ -126,6 +162,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _withoutVAT, value);
 		}
 
+		/// <summary>
+		/// Печать
+		/// </summary>
 		[Display(Name = "Печать")]
 		public virtual StoredResource Stamp
 		{
@@ -133,6 +172,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _stamp, value);
 		}
 
+		/// <summary>
+		/// Id организации в Авангарде
+		/// </summary>
 		[IgnoreHistoryTrace]
 		[Display(Name = "Id организации в Авангарде")]
 		public virtual int? AvangardShopId
@@ -141,6 +183,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _avangardShopId, value);
 		}
 
+		/// <summary>
+		/// Id кабинета в Такскоме
+		/// </summary>
 		[IgnoreHistoryTrace]
 		[Display(Name = "Id кабинета в Такскоме")]
 		public virtual string TaxcomEdoAccountId
@@ -149,6 +194,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _taxcomEdoAccountId, value);
 		}
 
+		/// <summary>
+		/// Телефоны
+		/// </summary>
 		[Display(Name = "Телефоны")]
 		public virtual ObservableList<PhoneEntity> Phones
 		{
@@ -156,6 +204,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _phones, value);
 		}
 
+		/// <summary>
+		/// Версии
+		/// </summary>
 		[Display(Name = "Версии")]
 		public virtual ObservableList<OrganizationVersionEntity> OrganizationVersions
 		{
@@ -252,6 +303,10 @@ namespace Vodovoz.Core.Domain.Organizations
 			}
 		}
 
+		/// <summary>
+		/// Получение списка дубликатов названий расчетных счетов
+		/// </summary>
+		/// <returns>Список дублей названий расчетных счетов</returns>
 		private IEnumerable<string> GetDuplicatedBankAccountNames() => Accounts
 			.GroupBy(a => a.Name)
 			.Where(g => g.Key != null && g.Count() > 1)

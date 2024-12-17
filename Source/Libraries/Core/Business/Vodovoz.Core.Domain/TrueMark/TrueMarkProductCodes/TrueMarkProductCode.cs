@@ -7,7 +7,9 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 {
-
+	/// <summary>
+	/// Код ЧЗ товара
+	/// </summary>
 	[Appellative(
 			Gender = GrammaticalGender.Masculine,
 			NominativePlural = "коды ЧЗ товаров",
@@ -23,7 +25,9 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 		private int _duplicatesCount;
 		private CustomerEdoRequest _customerEdoRequst;
 
-
+		/// <summary>
+		/// Время создания
+		/// </summary>
 		[Display(Name = "Время создания")]
 		public virtual DateTime CreationTime
 		{
@@ -31,6 +35,9 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			set => SetField(ref _creationTime, value);
 		}
 
+		/// <summary>
+		/// Стадия
+		/// </summary>
 		[Display(Name = "Стадия")]
 		public virtual SourceProductCodeStatus SourceCodeStatus
 		{
@@ -38,8 +45,14 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			set => SetField(ref _sourceCodeStatus, value);
 		}
 
+		/// <summary>
+		/// Id
+		/// </summary>
 		public virtual int Id { get; set; }
 
+		/// <summary>
+		/// Исходный код
+		/// </summary>
 		[Display(Name = "Исходный код")]
 		public virtual TrueMarkWaterIdentificationCode SourceCode
 		{
@@ -47,6 +60,9 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			set => SetField(ref _sourceCode, value);
 		}
 
+		/// <summary>
+		/// Результирующий код
+		/// </summary>
 		[Display(Name = "Результирующий код")]
 		public virtual TrueMarkWaterIdentificationCode ResultCode
 		{
@@ -54,6 +70,9 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			set => SetField(ref _resultCode, value);
 		}
 
+		/// <summary>
+		/// Проблема
+		/// </summary>
 		[Display(Name = "Проблема")]
 		public virtual ProductCodeProblem Problem
 		{
@@ -61,6 +80,9 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			set => SetField(ref _problem, value);
 		}
 
+		/// <summary>
+		/// Кол-во дубликатов
+		/// </summary>
 		[Display(Name = "Кол-во дубликатов")]
 		public virtual int DuplicatesCount
 		{
@@ -68,6 +90,9 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			set => SetField(ref _duplicatesCount, value);
 		}
 
+		/// <summary>
+		/// Заявка на отправку документов клиенту
+		/// </summary>
 		[Display(Name = "Заявка на отправку документов клиенту")]
 		public virtual CustomerEdoRequest CustomerEdoRequest
 		{

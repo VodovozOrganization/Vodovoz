@@ -55,6 +55,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _orderStatusForSendingUpd, value);
 		}
 
+		/// <summary>
+		/// Документооборот по ЭДО с клиентом осуществляется по новой схеме
+		/// </summary>
 		[Display(Name = "Работа с ЭДО по новой схеме")]
 		public virtual bool IsNewEdoProcessing
 		{
