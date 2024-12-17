@@ -186,36 +186,43 @@ namespace Vodovoz.ViewModels.Store
 				{
 					viewModel.SelectionMode = JournalSelectionMode.Single;
 					viewModel.TabName = "Выберите номенклатуру на замену";
-					viewModel.OnEntitySelectedResult += (s, ea) =>
-					{
-						var selectedNode = ea.SelectedNodes
-							.Cast<NomenclatureStockJournalNode>()
-							.FirstOrDefault();
-
-						if(selectedNode == null)
-						{
-							return;
-						}
-
-						var nomenclature = UnitOfWork
-							.GetById<Nomenclature>(selectedNode.Id);
-
-						_newRow = new RegradingOfGoodsDocumentItem()
-						{
-							NomenclatureOld = nomenclature,
-							AmountInStock = selectedNode.StockAmount
-						};
-
-						_navigationManager.OpenViewModel<NomenclaturesJournalViewModel>(
-							viewModel,
-							OpenPageOptions.AsSlave,
-							nextViewModel =>
-							{
-								nextViewModel.SelectionMode = JournalSelectionMode.Single;
-								nextViewModel.OnSelectResult += SelectNewNomenclature_ObjectSelected;
-							});
-					};
+					viewModel.OnEntitySelectedResult += OnAddItemOldNomenclatureSelected;
 				});
+		}
+
+		private void OnAddItemOldNomenclatureSelected(object sender, JournalSelectedNodesEventArgs ea)
+		{
+			var selectedNode = ea.SelectedNodes
+				.Cast<NomenclatureStockJournalNode>()
+				.FirstOrDefault();
+
+			if(selectedNode == null)
+			{
+				return;
+			}
+
+			var nomenclature = UnitOfWork
+				.GetById<Nomenclature>(selectedNode.Id);
+
+			_newRow = new RegradingOfGoodsDocumentItem()
+			{
+				NomenclatureOld = nomenclature,
+				AmountInStock = selectedNode.StockAmount
+			};
+
+			_navigationManager.OpenViewModel<NomenclaturesJournalViewModel>(
+				ParentViewModel,
+				OpenPageOptions.AsSlave,
+				nextViewModel =>
+				{
+					nextViewModel.SelectionMode = JournalSelectionMode.Single;
+					nextViewModel.OnSelectResult += OnAddItemSelectedNewNomenclature;
+				});
+
+			if(sender is NomenclatureStockBalanceJournalViewModel nomenclatureStockBalanceJournalViewModel)
+			{
+				nomenclatureStockBalanceJournalViewModel.OnEntitySelectedResult -= OnAddItemOldNomenclatureSelected;
+			}
 		}
 
 		private void ChangeOldNomenclature()
@@ -232,25 +239,32 @@ namespace Vodovoz.ViewModels.Store
 					{
 						viewModel.SelectionMode = JournalSelectionMode.Single;
 						viewModel.TabName = "Изменить старую номенклатуру";
-						viewModel.OnEntitySelectedResult += (s, ea) =>
-						{
-							var row = SelectedItem;
-
-							var selectedNode = ea.SelectedNodes
-								.Cast<NomenclatureStockJournalNode>()
-								.FirstOrDefault();
-
-							if(selectedNode == null)
-							{
-								return;
-							}
-
-							var nomenclature = UnitOfWork
-								.GetById<Nomenclature>(selectedNode.Id);
-							row.NomenclatureOld = nomenclature;
-							row.AmountInStock = selectedNode.StockAmount;
-						};
+						viewModel.OnEntitySelectedResult += OnChangeOldNomenclatureSelected;
 					});
+		}
+
+		private void OnChangeOldNomenclatureSelected(object sender, JournalSelectedNodesEventArgs ea)
+		{
+			var row = SelectedItem;
+
+			var selectedNode = ea.SelectedNodes
+				.Cast<NomenclatureStockJournalNode>()
+				.FirstOrDefault();
+
+			if(selectedNode == null)
+			{
+				return;
+			}
+
+			var nomenclature = UnitOfWork
+				.GetById<Nomenclature>(selectedNode.Id);
+			row.NomenclatureOld = nomenclature;
+			row.AmountInStock = selectedNode.StockAmount;
+
+			if(sender is NomenclatureStockBalanceJournalViewModel nomenclatureStockBalanceJournalViewModel)
+			{
+				nomenclatureStockBalanceJournalViewModel.OnEntitySelectedResult -= OnChangeOldNomenclatureSelected;
+			}
 		}
 
 		private void ChangeNewNomenclature()
@@ -261,11 +275,11 @@ namespace Vodovoz.ViewModels.Store
 				viewModel =>
 				{
 					viewModel.SelectionMode = JournalSelectionMode.Single;
-					viewModel.OnSelectResult += ChangeNewNomenclature_OnEntitySelectedResult;
+					viewModel.OnSelectResult += OnChangeNewNomenclatureEntitySelectedResult;
 				});
 		}
 
-		private void SelectNewNomenclature_ObjectSelected(object sender, JournalSelectedEventArgs e)
+		private void OnAddItemSelectedNewNomenclature(object sender, JournalSelectedEventArgs e)
 		{
 			var journalNode = e.SelectedObjects
 				.Cast<NomenclatureJournalNode>()
@@ -286,9 +300,14 @@ namespace Vodovoz.ViewModels.Store
 
 				ParentViewModel.Entity.AddItem(_newRow);
 			}
+
+			if(sender is NomenclaturesJournalViewModel nomenclaturesJournalViewModel)
+			{
+				nomenclaturesJournalViewModel.OnSelectResult -= OnAddItemSelectedNewNomenclature;
+			}
 		}
 
-		private void ChangeNewNomenclature_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
+		private void OnChangeNewNomenclatureEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
 			var row = SelectedItem;
 
@@ -309,7 +328,7 @@ namespace Vodovoz.ViewModels.Store
 
 			if(sender is NomenclaturesJournalViewModel nomenclaturesJournalViewModel)
 			{
-				nomenclaturesJournalViewModel.OnSelectResult -= ChangeNewNomenclature_OnEntitySelectedResult;
+				nomenclaturesJournalViewModel.OnSelectResult -= OnChangeNewNomenclatureEntitySelectedResult;
 			}
 		}
 
@@ -372,11 +391,21 @@ namespace Vodovoz.ViewModels.Store
 		{
 			_fineEditItem.Fine = e.Entity as Fine;
 			_fineEditItem = null;
+
+			if(sender is FineViewModel fineViewModel)
+			{
+				fineViewModel.EntitySaved -= OnFineNewEntitySaved;
+			}
 		}
 
 		private void OnFineExistEntitySaved(object sender, EntitySavedEventArgs e)
 		{
 			UnitOfWork.Session.Refresh(_fineEditItem.Fine);
+
+			if(sender is FineViewModel fineViewModel)
+			{
+				fineViewModel.EntitySaved -= OnFineExistEntitySaved;
+			}
 		}
 
 		private void DeleteFine()
@@ -422,6 +451,11 @@ namespace Vodovoz.ViewModels.Store
 			}
 
 			LoadStock();
+
+			if(sender is RegradingOfGoodsTemplateJournalViewModel regradingOfGoodsTemplateJournalViewModel)
+			{
+				regradingOfGoodsTemplateJournalViewModel.OnSelectResult -= OnTemplateToFillSelected;
+			}
 		}
 
 		public void Dispose()
