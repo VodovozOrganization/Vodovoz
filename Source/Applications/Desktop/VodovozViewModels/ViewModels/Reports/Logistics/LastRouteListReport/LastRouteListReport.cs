@@ -34,15 +34,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 			Expression<Func<Employee, bool>> EmployeeFilter = (employee) =>
 				_includedEmployeeStatus.Contains(employee.Status)
 				&& (
-						(_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Driver) && employee.Category == EmployeeCategory.driver)
-						|| (_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Forwarder) && employee.Category == EmployeeCategory.forwarder)
-						|| (_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.VisitingMaster) && employee.VisitingMaster == true)
+						(forDriver
+							? _includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Driver) && employee.Category == EmployeeCategory.driver && employee.VisitingMaster == false
+							: false)
+						|| (forDriver
+								? false
+								: _includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Forwarder) && employee.Category == EmployeeCategory.forwarder)
+						|| (forDriver
+								?_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.VisitingMaster) && employee.VisitingMaster == true
+								: false)
 						|| (!_includedEmployeeCategories.Any())
 					)
 				&& (FiredStartDate == null || (employee.DateFired >= FiredStartDate && employee.DateFired <= FiredEndDate))
 				&& (HiredStartDate == null || (employee.DateHired >= HiredStartDate && employee.DateHired <= HiredEndDate))
 				&& (FirstWorkDayStartDate == null || (employee.FirstWorkDay >= FirstWorkDayStartDate && employee.FirstWorkDay <= FirstWorkDayEndDate))
-					&& (CalculateStartDate == null || (employee.DateCalculated >= CalculateStartDate && employee.DateCalculated <= CalculateEndDate));
+				&& (CalculateStartDate == null || (employee.DateCalculated >= CalculateStartDate && employee.DateCalculated <= CalculateEndDate));
 
 			Expression<Func<Employee, LastRouteListNodeNode>> LastRouteListIdSelector = (employee) => new LastRouteListNodeNode
 			{

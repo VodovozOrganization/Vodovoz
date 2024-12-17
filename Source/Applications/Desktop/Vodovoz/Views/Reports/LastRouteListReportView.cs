@@ -90,7 +90,7 @@ namespace Vodovoz.Views.Reports
 				.AddColumn("Дата увольнения").AddDateRenderer(r => r.DateFired)
 				.AddColumn("Дата расчета").AddDateRenderer(r => r.DateCalculated)
 				.AddColumn("Последний МЛ").AddNumericRenderer(r => r.LastRouteListId)
-				.AddColumn("Дата доставки последнего МЛ\nв статусе «Закрыт»").AddDateRenderer(r => r.LastClosedRouteListDate)
+				.AddColumn("Дата последнего доставленного МЛ").AddDateRenderer(r => r.LastClosedRouteListDate)
 				.AddColumn("Кол-во дней прошло\nот последнего МЛ").AddNumericRenderer(r => r.DaysCountFromLastClosedRouteList)
 				.AddColumn("Категория").AddTextRenderer(r => r.EmployeeCategoryString)
 				.AddColumn("Управляет а/м типа").AddTextRenderer(r => r.CarTypeOfUseString)

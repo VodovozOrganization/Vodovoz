@@ -147,8 +147,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 					IsReportGenerationInProgress = false;
 				});
 
-				IsReportGenerationInProgress = false;
-
 				_cancellationTokenSource?.Dispose();
 				_cancellationTokenSource = null;
 			}

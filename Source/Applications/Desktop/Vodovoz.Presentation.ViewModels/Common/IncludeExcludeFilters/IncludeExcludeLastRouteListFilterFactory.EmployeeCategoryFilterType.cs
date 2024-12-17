@@ -11,7 +11,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 
 		[Appellative(Gender = GrammaticalGender.Masculine,
 			Nominative = "категория сотрудника",
-			NominativePlural = "категории сотрдуника"
+			NominativePlural = "категории сотрудника"
 		)]
 		public enum EmployeeCategoryFilterType
 		{
