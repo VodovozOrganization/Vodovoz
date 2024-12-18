@@ -7,6 +7,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 	{
 		public class ChangesData
 		{
+			public int ChangeEntityId { get; set; }
 			public int OrderId { get; set; }
 			public int OrganizationId { get; set; }
 			public string DriversPhoneComment { get; set; }
