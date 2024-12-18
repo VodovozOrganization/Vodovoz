@@ -21,8 +21,8 @@ namespace RobotMiaApi.Extensions.Mapping
 			=> new DeliveryIntervalDto
 			{
 				Id = deliverySchedule.Id,
-				From = dateTime.Add(deliverySchedule.From),
-				To = dateTime.Add(deliverySchedule.To),
+				From = dateTime.Add(deliverySchedule.From).ToUniversalTime(),
+				To = dateTime.Add(deliverySchedule.To).ToUniversalTime(),
 			};
 
 		/// <summary>
