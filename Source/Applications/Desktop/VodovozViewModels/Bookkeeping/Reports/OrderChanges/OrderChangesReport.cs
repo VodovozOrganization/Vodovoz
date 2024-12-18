@@ -1,16 +1,19 @@
-﻿using QS.DomainModel.UoW;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Presentation.ViewModels.Reports;
 using Vodovoz.Settings.Orders;
 using static Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges.OrderChangesReportViewModel;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 {
-	public partial class OrderChangesReport
+	[Appellative(Nominative = "Отчет по изменениям заказа при доставке")]
+	public partial class OrderChangesReport : IClosedXmlReport
 	{
 		private const string _dateFormatString = "yyyy-MM-dd";
 		private const string _dateAndTimeFormatString = "yyyy-MM-dd hh:mm:ss";
@@ -75,13 +78,9 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		public string ReportCreationTimeInfo =>
 			$"Сформировано {DateTime.Now.ToString(_dateAndTimeFormatString)}";
 
-
 		public IEnumerable<OrderChangesReportRow> Rows { get; set; } = new List<OrderChangesReportRow>();
 
-		public void ExportToExcel(string path)
-		{
-
-		}
+		public string TemplatePath => @".\Reports\Orders\OrderChangesReport.xlsx";
 
 		public static async Task<OrderChangesReport> Create(
 			IUnitOfWork unitOfWork,

@@ -1,6 +1,5 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
-using NetTopologySuite.Mathematics;
 using QS.Views.GtkUI;
 using System.Linq;
 using Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges;
@@ -85,11 +84,11 @@ namespace Vodovoz.Views.Reports
 				.AddColumn("№\nп/п").AddNumericRenderer(x => x.RowNumber)
 				.AddColumn("Контрагент").AddTextRenderer(x => x.CounterpartyInfo).WrapWidth(150).WrapMode(WrapMode.WordChar)
 				.AddColumn("Комментарий\nвод.телефона").AddTextRenderer(x => x.DriverPhoneComment).WrapWidth(100).WrapMode(WrapMode.WordChar)
-				.AddColumn("Дата\nоплаты").AddDateRenderer(x => x.PaymentDate)
+				.AddColumn("Дата\nоплаты").AddTextRenderer(x => x.PaymentDateString)
 				.AddColumn("Заказ").AddNumericRenderer(x => x.OrderId)
 				.AddColumn("Сумма\nзаказа").AddTextRenderer(x => (x.OrderSum.HasValue ? x.OrderSum.Value : 0).ToString("F2"))
-				.AddColumn("Дата\nдоставки").AddTextRenderer(x => x.TimeDelivered.HasValue ? x.TimeDelivered.Value.ToString("dd.MM.yyyy\nhh-mm") : string.Empty)
-				.AddColumn("Время\nизменения").AddTextRenderer(x => x.ChangeTime.ToString("dd.MM.yyyy\nhh-mm"))
+				.AddColumn("Дата\nдоставки").AddTextRenderer(x => x.TimeDeliveredString)
+				.AddColumn("Время\nизменения").AddTextRenderer(x => x.ChangeTimeString)
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.NomenclatureName).WrapWidth(150).WrapMode(WrapMode.WordChar)
 				.AddColumn("Старое\nзначение").AddTextRenderer(x => x.OldValueFull).WrapWidth(100).WrapMode(WrapMode.WordChar)
 				.AddColumn("Новое\nзначение").AddTextRenderer(x => x.NewValueFull).WrapWidth(100).WrapMode(WrapMode.WordChar)

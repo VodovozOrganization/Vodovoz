@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic.FileIO;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -15,6 +14,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Presentation.ViewModels.Extensions;
+using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Reports;
@@ -29,6 +30,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IOrderSettings _orderSettings;
+		private readonly IDialogSettingsFactory _dialogSettingsFactory;
 		private readonly int _monitoringPeriodAvailableInDays;
 
 		private DateTime? _startDate;
@@ -49,7 +51,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			IFileDialogService fileDialogService,
 			IArchiveDataSettings archiveDataSettings,
 			IReportSettings reportSettings,
-			IOrderSettings orderSettings)
+			IOrderSettings orderSettings,
+			IDialogSettingsFactory dialogSettingsFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(reportSettings is null)
@@ -63,6 +66,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_dialogSettingsFactory = dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
 			_monitoringPeriodAvailableInDays =
 				(archiveDataSettings ?? throw new ArgumentNullException(nameof(archiveDataSettings)))
 				.GetMonitoringPeriodAvailableInDays;
@@ -373,38 +377,46 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 		private void SaveReport()
 		{
-			if(Report is null || IsReportGenerationInProgress)
-			{
-				return;
-			}
-
-			var dialogSettings = CreateDialogSettings();
+			var dialogSettings = _dialogSettingsFactory.CreateForClosedXmlReport(_report);
 
 			var saveDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
 
 			if(saveDialogResult.Successful)
 			{
-				Report.ExportToExcel(saveDialogResult.Path);
+				_report.RenderTemplate().Export(saveDialogResult.Path);
 			}
+			//if(Report is null || IsReportGenerationInProgress)
+			//{
+			//	return;
+			//}
+
+			//var dialogSettings = CreateDialogSettings();
+
+			//var saveDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			//if(saveDialogResult.Successful)
+			//{
+			//	Report.ExportToExcel(saveDialogResult.Path);
+			//}
 		}
 
-		private DialogSettings CreateDialogSettings()
-		{
-			var reportFileExtension = ".xlsx";
+		//private DialogSettings CreateDialogSettings()
+		//{
+		//	var reportFileExtension = ".xlsx";
 
-			var dialogSettings = new DialogSettings
-			{
-				Title = "Сохранить",
-				DefaultFileExtention = reportFileExtension,
-				InitialDirectory = SpecialDirectories.Desktop,
-				FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
-			};
+		//	var dialogSettings = new DialogSettings
+		//	{
+		//		Title = "Сохранить",
+		//		DefaultFileExtention = reportFileExtension,
+		//		InitialDirectory = SpecialDirectories.Desktop,
+		//		FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+		//	};
 
-			dialogSettings.FileFilters.Clear();
-			dialogSettings.FileFilters.Add(new DialogFileFilter("Отчет Excel", "*" + reportFileExtension));
+		//	dialogSettings.FileFilters.Clear();
+		//	dialogSettings.FileFilters.Add(new DialogFileFilter("Отчет Excel", "*" + reportFileExtension));
 
-			return dialogSettings;
-		}
+		//	return dialogSettings;
+		//}
 
 		private void LogErrorAndShowMessageInGuiThread(Exception ex, string message)
 		{

@@ -32,6 +32,15 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			? string.Concat(CounterpartyFullName, " ", CounterpartyInn)
 			: CounterpartyFullName;
 
+		public string PaymentDateString =>
+			PaymentDate?.ToString("dd.MM.yyyy\nhh:mm");
+
+		public string TimeDeliveredString =>
+			TimeDelivered?.ToString("dd.MM.yyyy\nhh:mm");
+
+		public string ChangeTimeString =>
+			ChangeTime.ToString("dd.MM.yyyy\nhh:mm");
+
 		public string OldValueFull
 		{
 			get
