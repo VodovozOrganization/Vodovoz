@@ -30,7 +30,6 @@ namespace Vodovoz.ViewModels.Store
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
-		private readonly IValidator _validator;
 		private bool _canEditItems;
 		private bool _canSave;
 
@@ -43,7 +42,6 @@ namespace Vodovoz.ViewModels.Store
 			IEmployeeRepository employeeRepository,
 			IUserRepository userRepository,
 			IStoreDocumentHelper storeDocumentHelper,
-			IValidator validator,
 			ViewModelEEVMBuilder<Warehouse> warehouseViewModelEEVMBuilder,
 			RegradingOfGoodsDocumentItemsViewModel regradingOfGoodsDocumentItemsViewModel)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
@@ -62,7 +60,6 @@ namespace Vodovoz.ViewModels.Store
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_storeDocumentHelper = storeDocumentHelper ?? throw new ArgumentNullException(nameof(storeDocumentHelper));
-			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -161,14 +158,9 @@ namespace Vodovoz.ViewModels.Store
 			}
 		}
 
-		public override bool Save(bool close)
+		protected override bool BeforeSave()
 		{
 			if(!Entity.CanEdit)
-			{
-				return false;
-			}
-
-			if(!_validator.Validate(Entity))
 			{
 				return false;
 			}
@@ -183,12 +175,6 @@ namespace Vodovoz.ViewModels.Store
 					"Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
-
-			_logger.LogInformation("Сохраняем документ пересортицы...");
-
-			UoWGeneric.Save();
-
-			_logger.LogInformation("Ok.");
 
 			return true;
 		}
