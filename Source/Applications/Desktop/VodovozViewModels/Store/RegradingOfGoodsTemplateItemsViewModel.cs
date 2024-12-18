@@ -29,9 +29,16 @@ namespace Vodovoz.ViewModels.Store
 				?? throw new ArgumentNullException(nameof(navigationManager));
 
 			AddItemCommand = new DelegateCommand(AddItem);
-			ChangeNewNomenclatureCommand = new DelegateCommand(ChangeNewNomenclature);
-			ChangeOldNomenclatureCommand = new DelegateCommand(ChangeOldNomenclature);
-			DeleteItemCommand = new DelegateCommand(DeleteItem);
+
+			ChangeNewNomenclatureCommand = new DelegateCommand(ChangeNewNomenclature, () => CanChangeSelectedItem);
+			ChangeNewNomenclatureCommand.CanExecuteChangedWith(this, x => CanChangeSelectedItem);
+
+			ChangeOldNomenclatureCommand = new DelegateCommand(ChangeOldNomenclature, () => CanChangeSelectedItem);
+			ChangeOldNomenclatureCommand.CanExecuteChangedWith(this, x => CanChangeSelectedItem);
+
+			DeleteItemCommand = new DelegateCommand(DeleteItem, () => CanChangeSelectedItem);
+			DeleteItemCommand.CanExecuteChangedWith(this, x => CanChangeSelectedItem);
+
 		}
 
 		public DelegateCommand AddItemCommand { get; }
@@ -48,6 +55,7 @@ namespace Vodovoz.ViewModels.Store
 		}
 
 		[PropertyChangedAlso(nameof(SelectedItem))]
+		[PropertyChangedAlso(nameof(CanChangeSelectedItem))]
 		public object SelectedItemObject
 		{
 			get => _selectedItem;
@@ -55,6 +63,8 @@ namespace Vodovoz.ViewModels.Store
 		}
 
 		public RegradingOfGoodsTemplateItem SelectedItem => SelectedItemObject as RegradingOfGoodsTemplateItem;
+
+		public bool CanChangeSelectedItem => SelectedItem != null;
 
 		public void SetUnitOfWork(IUnitOfWork unitOfWork)
 		{

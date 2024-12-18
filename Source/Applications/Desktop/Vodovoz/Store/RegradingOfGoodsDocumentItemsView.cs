@@ -33,8 +33,6 @@ namespace Vodovoz
 
 			UnSubscribeOnUIEvents();
 
-			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-
 			var basePrimary = GdkColors.PrimaryBase;
 			var colorLightRed = GdkColors.DangerBase;
 
@@ -111,10 +109,7 @@ namespace Vodovoz
 
 			ytreeviewItems.Binding.AddBinding(ViewModel, vm => vm.SelectedItemObject, w => w.SelectedRow);
 
-			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
-
 			SubscribeOnUIEvents();
-			UpdateButtonState();
 		}
 
 		private void OnAddButtonClicked(object sender, EventArgs e)
@@ -131,45 +126,6 @@ namespace Vodovoz
 			}
 
 			return (double)item.AmountInStock;
-		}
-
-		private void YtreeviewItems_Selection_Changed(object sender, EventArgs e)
-		{
-			UpdateButtonState();
-		}
-
-		private void UpdateButtonState()
-		{
-			var selected = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
-
-			buttonChangeNew.Sensitive = buttonDelete.Sensitive = selected != null;
-			buttonChangeOld.Sensitive = selected != null
-				&& ViewModel.CurrentWarehouse != null;
-			buttonAdd.Sensitive = buttonFromTemplate.Sensitive = ViewModel.CurrentWarehouse != null;
-
-			buttonFine.Sensitive = selected != null;
-
-			if(selected != null)
-			{
-				if(selected.Fine != null)
-				{
-					buttonFine.Label = "Изменить штраф";
-				}
-				else
-				{
-					buttonFine.Label = "Добавить штраф";
-				}
-			}
-
-			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
-		}
-
-		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(RegradingOfGoodsDocumentItemsViewModel.CurrentWarehouse))
-			{
-				UpdateButtonState();
-			}
 		}
 
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
@@ -202,13 +158,12 @@ namespace Vodovoz
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)
 		{
-			ViewModel.AddFineCommand.Execute();
+			ViewModel.ActionFineCommand.Execute();
 		}
 
 		protected void OnButtonDeleteFineClicked(object sender, EventArgs e)
 		{
 			ViewModel.DeleteFineCommand.Execute();
-			UpdateButtonState();
 		}
 
 		protected void OnButtonFromTemplateClicked(object sender, EventArgs e)
@@ -218,19 +173,54 @@ namespace Vodovoz
 
 		private void SubscribeOnUIEvents()
 		{
-			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
 			ytreeviewItems.RowActivated += OnYtreeviewItemsRowActivated;
+
+			buttonAdd.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddItem, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonFromTemplate.Binding
+				.AddBinding(ViewModel, vm => vm.CanFillFromTemplate, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonChangeOld.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeOldNomenclature, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonChangeNew.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeSelectedItem, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonDelete.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeSelectedItem, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonFine.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanActionFine, w => w.Sensitive)
+				.AddBinding(vm => vm.FineButtonText, w => w.Label)
+				.InitializeFromSource();
+
+			buttonDeleteFine.Binding
+				.AddBinding(ViewModel, vm => vm.CanDeleteFine, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 
 		private void UnSubscribeOnUIEvents()
 		{
-			ytreeviewItems.Selection.Changed -= YtreeviewItems_Selection_Changed;
 			ytreeviewItems.RowActivated -= OnYtreeviewItemsRowActivated;
+
+			buttonAdd.Binding.CleanSources();
+			buttonFromTemplate.Binding.CleanSources();
+			buttonChangeOld.Binding.CleanSources();
+			buttonChangeNew.Binding.CleanSources();
+			buttonDelete.Binding.CleanSources();
+			buttonFine.Binding.CleanSources();
+			buttonDeleteFine.Binding.CleanSources();
 		}
 
 		public override void Destroy()
 		{
-			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
 			UnSubscribeOnUIEvents();
 			base.Destroy();
 		}
