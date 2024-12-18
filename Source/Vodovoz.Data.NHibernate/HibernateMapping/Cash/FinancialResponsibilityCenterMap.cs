@@ -7,7 +7,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Cash
 	{
 		public FinancialResponsibilityCenterMap()
 		{
-			Table("cash_expense");
+			Table("financial_responsibility_centers");
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.Name).Column("name");
