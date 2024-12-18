@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.Cash
 		{
 			FinancialResponsibilityCenterNode resultAlias = null;
 
-			return UoW.Session.QueryOver<FinancialResponsibilityCenter>()
+			return uow.Session.QueryOver<FinancialResponsibilityCenter>()
 				.SelectList(list =>
 					list.Select(x => x.Id).WithAlias(() => resultAlias.Id)
 						.Select(x => x.Name).WithAlias(() => resultAlias.Name))
