@@ -25,6 +25,7 @@ namespace Vodovoz.Core.Domain.Cash
 		private int _responsibleEmployeeId;
 		private int _viceResponsibleEmployeeId;
 		private bool _isArchive;
+		private bool _requestApprovalDenied;
 
 		/// <summary>
 		/// Идентификатор
@@ -76,6 +77,16 @@ namespace Vodovoz.Core.Domain.Cash
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
+		}
+
+		/// <summary>
+		/// Подтверждение заявок запрещено
+		/// </summary>
+		[Display(Name = "Подтверждение заявок запрещено")]
+		public virtual bool RequestApprovalDenied
+		{
+			get => _requestApprovalDenied;
+			set => SetField(ref _requestApprovalDenied, value);
 		}
 	}
 }
