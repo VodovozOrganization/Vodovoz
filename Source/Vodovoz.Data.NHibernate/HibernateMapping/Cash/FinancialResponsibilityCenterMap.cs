@@ -15,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Cash
 			Map(x => x.ViceResponsibleEmployeeId).Column("vice_responsible_employee_id");
 
 			Map(x => x.IsArchive).Column("is_archive");
+			Map(x => x.RequestApprovalDenied).Column("request_approval_denied");
 		}
 	}
 }
