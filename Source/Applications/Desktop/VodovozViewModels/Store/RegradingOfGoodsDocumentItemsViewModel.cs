@@ -52,16 +52,34 @@ namespace Vodovoz.ViewModels.Store
 			_navigationManager = navigationManager
 				?? throw new ArgumentNullException(nameof(navigationManager));
 
-			AddItemCommand = new DelegateCommand(AddItem);
-			ChangeOldNomenclatureCommand = new DelegateCommand(ChangeOldNomenclature);
-			ChangeNewNomenclatureCommand = new DelegateCommand(ChangeNewNomenclature);
-			DeleteItemCommand = new DelegateCommand(DeleteItem);
-			AddFineCommand = new DelegateCommand(AddFine);
-			DeleteFineCommand = new DelegateCommand(DeleteFine);
-			FillFromTemplateCommand = new DelegateCommand(FillFromTemplate);
+			AddItemCommand = new DelegateCommand(AddItem, () => CanAddItem);
+			AddItemCommand.CanExecuteChangedWith(this, x => x.CanAddItem);
+
+			ChangeOldNomenclatureCommand = new DelegateCommand(ChangeOldNomenclature, () => CanChangeOldNomenclature);
+			ChangeOldNomenclatureCommand.CanExecuteChangedWith(this, x => CanChangeOldNomenclature);
+
+			ChangeNewNomenclatureCommand = new DelegateCommand(ChangeNewNomenclature, () => CanChangeSelectedItem);
+			ChangeNewNomenclatureCommand.CanExecuteChangedWith(this, x => CanChangeSelectedItem);
+
+			DeleteItemCommand = new DelegateCommand(DeleteItem, () => CanChangeSelectedItem);
+			DeleteItemCommand.CanExecuteChangedWith(this, x => CanChangeSelectedItem);
+
+			ActionFineCommand = new DelegateCommand(AddFine, () => CanActionFine);
+			ActionFineCommand.CanExecuteChangedWith(this, x => CanActionFine);
+
+			DeleteFineCommand = new DelegateCommand(DeleteFine, () => CanDeleteFine);
+			DeleteFineCommand.CanExecuteChangedWith(this, x => CanDeleteFine);
+
+			FillFromTemplateCommand = new DelegateCommand(FillFromTemplate, () => CanFillFromTemplate);
+			FillFromTemplateCommand.CanExecuteChangedWith(this, x => x.FillFromTemplateCommand);
 		}
 
 		[PropertyChangedAlso(nameof(SelectedItem))]
+		[PropertyChangedAlso(nameof(CanChangeSelectedItem))]
+		[PropertyChangedAlso(nameof(CanChangeOldNomenclature))]
+		[PropertyChangedAlso(nameof(CanActionFine))]
+		[PropertyChangedAlso(nameof(CanDeleteFine))]
+		[PropertyChangedAlso(nameof(FineButtonText))]
 		public object SelectedItemObject
 		{
 			get => _selectedItem;
@@ -69,6 +87,20 @@ namespace Vodovoz.ViewModels.Store
 		}
 
 		public RegradingOfGoodsDocumentItem SelectedItem => SelectedItemObject as RegradingOfGoodsDocumentItem;
+
+		public bool CanChangeSelectedItem => SelectedItem != null;
+
+		public bool CanAddItem => CurrentWarehouse != null;
+		public bool CanFillFromTemplate => CurrentWarehouse != null;
+		public bool CanActionFine => CanChangeSelectedItem && SelectedItem.Fine == null;
+		public bool CanDeleteFine => CanChangeSelectedItem && SelectedItem.Fine != null;
+		public bool CanChangeOldNomenclature => CanChangeSelectedItem
+			&& CurrentWarehouse != null;
+
+		public string FineButtonText =>
+			CanChangeSelectedItem && SelectedItem?.Fine != null
+			? "Изменить штраф"
+			: "Добавить штраф";
 
 		public List<RegradingOfGoodsReason> RegradingReasonsCache { get; } = new List<RegradingOfGoodsReason>();
 		public List<CullingCategory> DefectTypesCache { get; } = new List<CullingCategory>();
@@ -93,6 +125,9 @@ namespace Vodovoz.ViewModels.Store
 			set => _items = value;
 		}
 
+		[PropertyChangedAlso(nameof(CanAddItem))]
+		[PropertyChangedAlso(nameof(CanFillFromTemplate))]
+		[PropertyChangedAlso(nameof(CanChangeOldNomenclature))]
 		public Warehouse CurrentWarehouse
 		{
 			get => _currentWarehouse;
@@ -119,7 +154,7 @@ namespace Vodovoz.ViewModels.Store
 		public DelegateCommand ChangeOldNomenclatureCommand { get; set; }
 		public DelegateCommand ChangeNewNomenclatureCommand { get; }
 		public DelegateCommand DeleteItemCommand { get; set; }
-		public DelegateCommand AddFineCommand { get; }
+		public DelegateCommand ActionFineCommand { get; }
 		public DelegateCommand DeleteFineCommand { get; }
 		public DelegateCommand FillFromTemplateCommand { get; }
 
@@ -321,7 +356,10 @@ namespace Vodovoz.ViewModels.Store
 				return;
 			}
 
-			var id = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault()?.Id;
+			var id = e.SelectedObjects
+				.Cast<NomenclatureJournalNode>()
+				.FirstOrDefault()
+				?.Id;
 
 			if(id == null)
 			{
@@ -401,6 +439,10 @@ namespace Vodovoz.ViewModels.Store
 			{
 				fineViewModel.EntitySaved -= OnFineNewEntitySaved;
 			}
+
+			OnPropertyChanged(nameof(CanActionFine));
+			OnPropertyChanged(nameof(CanDeleteFine));
+			OnPropertyChanged(nameof(FineButtonText));
 		}
 
 		private void OnFineExistEntitySaved(object sender, EntitySavedEventArgs e)
@@ -411,6 +453,10 @@ namespace Vodovoz.ViewModels.Store
 			{
 				fineViewModel.EntitySaved -= OnFineExistEntitySaved;
 			}
+
+			OnPropertyChanged(nameof(CanActionFine));
+			OnPropertyChanged(nameof(CanDeleteFine));
+			OnPropertyChanged(nameof(FineButtonText));
 		}
 
 		private void DeleteFine()
@@ -418,6 +464,10 @@ namespace Vodovoz.ViewModels.Store
 			var item = SelectedItem;
 			UnitOfWork.Delete(item.Fine);
 			item.Fine = null;
+
+			OnPropertyChanged(nameof(CanActionFine));
+			OnPropertyChanged(nameof(CanDeleteFine));
+			OnPropertyChanged(nameof(FineButtonText));
 		}
 
 		private void FillFromTemplate()

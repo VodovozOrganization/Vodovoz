@@ -31,22 +31,7 @@ namespace Vodovoz.Store
 				.AddColumn("Новая номенклатура").AddTextRenderer(x => x.NomenclatureNew.Name)
 				.Finish();
 
-			UpdateButtonState();
 			SubscribeUIEvents();
-		}
-
-		private void YtreeviewItems_Selection_Changed(object sender, EventArgs e)
-		{
-			UpdateButtonState();
-		}
-
-		private void UpdateButtonState()
-		{
-			var sensitive = ViewModel.SelectedItem != null;
-
-			buttonChangeNew.Sensitive = sensitive;
-			buttonDelete.Sensitive = sensitive;
-			buttonChangeOld.Sensitive = sensitive;
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
@@ -84,12 +69,24 @@ namespace Vodovoz.Store
 
 		private void SubscribeUIEvents()
 		{
-			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+			buttonChangeNew.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeSelectedItem, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonChangeOld.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeSelectedItem, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonDelete.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeSelectedItem, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 
 		private void UnSubscribeUIEvents()
 		{
-			ytreeviewItems.Selection.Changed -= YtreeviewItems_Selection_Changed;
+			buttonChangeNew.Binding.CleanSources();
+			buttonChangeOld.Binding.CleanSources();
+			buttonDelete.Binding.CleanSources();
 		}
 
 		public override void Destroy()
