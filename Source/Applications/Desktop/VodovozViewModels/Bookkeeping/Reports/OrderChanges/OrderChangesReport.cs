@@ -40,6 +40,10 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 			_isPaymentTypeChangeTypeSelected =
 				_selectedChangeTypes.Select(x => x.Value).Contains("PaymentType");
+			_isPriceChangeTypeSelected =
+				_selectedChangeTypes.Select(x => x.Value).Contains("Price");
+			_isOrderItemsCountChangeSelected =
+				_selectedChangeTypes.Select(x => x.Value).Contains("OrderItemsCount");
 
 			_isSmsIssuesTypeSelected =
 				_selectedIssueTypes.Select(x => x.Value).Contains("SmsIssues");

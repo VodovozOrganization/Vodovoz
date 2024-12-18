@@ -14,6 +14,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.FastPayments;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
@@ -32,6 +33,9 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		private readonly int _paymentByCardFromFastPaymentServiceId;
 
 		private readonly bool _isPaymentTypeChangeTypeSelected;
+		private readonly bool _isPriceChangeTypeSelected;
+		private readonly bool _isOrderItemsCountChangeSelected;
+
 		private readonly bool _isSmsIssuesTypeSelected;
 		private readonly bool _isQrIssuesTypeSelected;
 		private readonly bool _isTerminalIssuesTypeSelected;
@@ -54,10 +58,13 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			var rows = new List<OrderChangesReportRow>();
 
 			var paymentTypesChangesData = (await GetPaymentTypeChangesData(uow, cancellationToken)).ToList();
-			//var orderItemChangesData = (await GetOrderItemsChangesData(uow, cancellationToken)).ToList();
+			var orderItemChangesData = (await GetOrderItemsChangesData(uow, cancellationToken)).ToList();
 
 			rows.AddRange(paymentTypesChangesData);
-			//rows.AddRange(orderItemChangesData);
+			rows.AddRange(orderItemChangesData);
+
+			var counter = 1;
+			rows.ForEach(row => row.RowNumber = counter++);
 
 			return rows;
 		}
@@ -143,7 +150,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 				(decimal?)(from oi in uow.Session.Query<OrderItem>()
 						   where oi.Order.Id == order.Id
 						   select ((oi.ActualCount == null ? oi.Count : oi.ActualCount.Value) * oi.Price - oi.DiscountMoney))
-				.Sum()
+						   .Sum()
 
 				where
 					changedEntity.ChangeTime > order.TimeDelivered
@@ -174,6 +181,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 				select new OrderChangesReportRow
 				{
+					ChangedEntityId = changedEntity.Id,
 					RowNumber = 0,
 					CounterpartyFullName = counterparty.FullName,
 					CounterpartyPersonType = counterparty.PersonType,
@@ -204,40 +212,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			return await query.ToListAsync(cancellationToken);
 		}
 
-		private string GetPaymentTypeChangedValue(string paymentTypeValue, PaymentFrom paymentByCardFrom, PaymentByTerminalSource? terminalSubtype)
-		{
-			switch(paymentTypeValue)
-			{
-				case "cash":
-				case "Cash":
-					return PaymentType.Cash.GetEnumDisplayName();
-				case "cashless":
-				case "Cashless":
-					return PaymentType.Cashless.GetEnumDisplayName();
-				case "barter":
-				case "Barter":
-					return PaymentType.Barter.GetEnumDisplayName();
-				case "DriverApplicationQR":
-					return PaymentType.DriverApplicationQR.GetEnumDisplayName();
-				case "SmsQR":
-					return PaymentType.SmsQR.GetEnumDisplayName();
-				case "ByCard":
-					return $"По карте {paymentByCardFrom?.Name}";
-				case "PaidOnline":
-					return $"{PaymentType.PaidOnline.GetEnumDisplayName()} {paymentByCardFrom?.Name}";
-				case "ContractDoc":
-				case "ContractDocumentation":
-					return PaymentType.ContractDocumentation.GetEnumDisplayName();
-				case "BeveragesWorld":
-					return "Мир напитков";
-				case "Terminal":
-					return $"{PaymentType.Terminal.GetEnumDisplayName()} {terminalSubtype?.GetEnumDisplayName()}";
-				default:
-					return paymentTypeValue;
-			}
-		}
-
-		private async Task<IEnumerable<ChangesData>> GetOrderItemsChangesData(IUnitOfWork uow, CancellationToken cancellationToken)
+		private async Task<IEnumerable<OrderChangesReportRow>> GetOrderItemsChangesData(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			var operations = new List<EntityChangeOperation>
 			{
@@ -248,13 +223,58 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 			var query =
 				from changedEntity in uow.Session.Query<ChangedEntity>()
-				join orderItem in uow.Session.Query<OrderItem>() on changedEntity.EntityId equals orderItem.Id
-				join order in uow.Session.Query<Order>() on orderItem.Order.Id equals order.Id
-				join counterpartyContract in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals counterpartyContract.Id
-				join pf in uow.Session.Query<PaymentFrom>() on order.PaymentByCardFrom.Id equals pf.Id into paymentsByCardFrom
+
+				join orderItem in uow.Session.Query<OrderItem>()
+					on changedEntity.EntityId equals orderItem.Id
+
+				join order in uow.Session.Query<Order>()
+					on orderItem.Order.Id equals order.Id
+
+				join counterpartyContract in uow.Session.Query<CounterpartyContract>()
+					on order.Contract.Id equals counterpartyContract.Id
+
+				join counterparty in uow.Session.Query<Counterparty>()
+					on counterpartyContract.Counterparty.Id equals counterparty.Id
+
+				join pf in uow.Session.Query<PaymentFrom>()
+					on order.PaymentByCardFrom.Id equals pf.Id into paymentsByCardFrom
 				from paymentByCardFrom in paymentsByCardFrom.DefaultIfEmpty()
-				join hc in uow.Session.Query<FieldChange>() on changedEntity.Id equals hc.Entity.Id into fieldChanges
+
+				join fc in uow.Session.Query<FieldChange>()
+					on changedEntity.Id equals fc.Entity.Id into fieldChanges
 				from fieldChange in fieldChanges.DefaultIfEmpty()
+
+				join sp in uow.Session.Query<SmsPayment>()
+					on new { order.Id, SmsPaymentStatus = SmsPaymentStatus.Paid } equals new { sp.Order.Id, sp.SmsPaymentStatus } into smsPayments
+				from smsPayment in smsPayments.DefaultIfEmpty()
+
+				join fp in uow.Session.Query<FastPayment>()
+					on new { order.Id, FastPaymentStatus = FastPaymentStatus.Performed } equals new { fp.Order.Id, fp.FastPaymentStatus } into fastPayments
+				from fastPayment in fastPayments.DefaultIfEmpty()
+
+				join hc in uow.Session.Query<ChangeSet>()
+					on changedEntity.ChangeSet.Id equals hc.Id into changeSets
+				from changeSet in changeSets.DefaultIfEmpty()
+
+				join e in uow.Session.Query<Employee>()
+					on changeSet.User.Id equals e.User.Id into authors
+				from author in authors.DefaultIfEmpty()
+
+				join n in uow.Session.Query<Nomenclature>()
+					on orderItem.Nomenclature.Id equals n.Id into nomenclatures
+				from nomenclature in nomenclatures.DefaultIfEmpty()
+
+				join rla in uow.Session.Query<RouteListItem>()
+					on order.Id equals rla.Order.Id into routeListItems
+				from routeListItem in routeListItems.DefaultIfEmpty()
+
+				join rl in uow.Session.Query<RouteList>()
+					on routeListItem.RouteList.Id equals rl.Id into routeLists
+				from routeList in routeLists.DefaultIfEmpty()
+
+				join e2 in uow.Session.Query<Employee>()
+					on routeList.Driver.Id equals e2.Id into routeListDrivers
+				from driver in routeListDrivers.DefaultIfEmpty()
 
 				let smsNew =
 				(from subChangedEntity in uow.Session.Query<ChangedEntity>()
@@ -280,6 +300,12 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 				 select subFieldChange.NewValue)
 				 .FirstOrDefault() ?? string.Empty
 
+				let orderSum =
+				(decimal?)(from oi in uow.Session.Query<OrderItem>()
+						   where oi.Order.Id == order.Id
+						   select ((oi.ActualCount == null ? oi.Count : oi.ActualCount.Value) * oi.Price - oi.DiscountMoney))
+						   .Sum()
+
 				where
 					changedEntity.EntityClassName == "OrderItem"
 					&& changedEntity.ChangeTime >= _startDate
@@ -287,22 +313,31 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& operations.Contains(changedEntity.Operation)
 					&& counterpartyContract.Organization.Id == _selectedOrganization.Id
 					&& changedEntity.ChangeTime > order.TimeDelivered
+					&& ((fieldChange.Type == FieldChangeType.Changed
+						&& (fieldChange.Path == "Price" || fieldChange.Path == "ActualCount")
+						&& _isPriceChangeTypeSelected
+						&& _isPaymentTypeChangeTypeSelected)
+						||
+						((changedEntity.Operation == EntityChangeOperation.Create || changedEntity.Operation == EntityChangeOperation.Delete)
+						&& fieldChange.Path == "Price"
+						&& _isOrderItemsCountChangeSelected))
 
-				select new ChangesData
+				select new OrderChangesReportRow
 				{
-					ChangeEntityId = changedEntity.Id,
+					ChangedEntityId = changedEntity.Id,
+					RowNumber = 0,
+					CounterpartyFullName = counterparty.FullName,
+					CounterpartyPersonType = counterparty.PersonType,
+					CounterpartyInn = counterparty.INN,
+					DriverPhoneComment = order.CommentManager ?? string.Empty,
+					PaymentDate = smsPayment == null ? fastPayment.PaidDate : smsPayment.PaidDate,
 					OrderId = order.Id,
-					OrganizationId = counterpartyContract.Organization.Id,
-					DriversPhoneComment = order.CommentManager ?? string.Empty,
-					CounterpartyId = counterpartyContract.Counterparty.Id,
-					ChangeSetId = changedEntity.ChangeSet.Id,
-					EntityClassName = changedEntity.EntityClassName,
-					EntityId = changedEntity.EntityId,
+					OrderSum = orderSum,
+					TimeDelivered = order.TimeDelivered,
 					ChangeTime = changedEntity.ChangeTime,
+					NomenclatureName = nomenclature == null ? string.Empty : nomenclature.Name,
+					NomenclatureOfficialName = nomenclature == null ? string.Empty : nomenclature.OfficialName,
 					ChangeOperation = changedEntity.Operation,
-					ShippedDate = order.TimeDelivered,
-					ChangeType = fieldChange.Type,
-					FieldName = "Форма оплаты",
 					OldValue =
 						changedEntity.Operation == EntityChangeOperation.Create || changedEntity.Operation == EntityChangeOperation.Delete
 						? string.Empty
@@ -311,11 +346,16 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 						changedEntity.Operation == EntityChangeOperation.Create || changedEntity.Operation == EntityChangeOperation.Delete
 						? string.Empty
 						: GetPaymentTypeChangedValue(fieldChange.NewValue, paymentByCardFrom, order.PaymentByTerminalSource),
+					Driver = driver == null ? string.Empty : driver.ShortName,
+					Author = author == null ? string.Empty : author.ShortName,
 					SmsNew = smsNew,
-					QrNew = qrNew
+					QrNew = qrNew,
 				};
 
-			var changesData = (await query.ToListAsync(cancellationToken)).ToList().DistinctBy(x => x.ChangeEntityId).ToList();
+			var changesData = (await query.ToListAsync(cancellationToken))
+				.GroupBy(x => x.ChangedEntityId)
+				.Select(x => x.FirstOrDefault())
+				.ToList();
 
 			var paymentTypeChangedOrderIds = await GetPaymentTypeChangesOrderIds(uow, changesData.Select(x => x.OrderId).Distinct(), cancellationToken);
 
@@ -354,6 +394,39 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			var oderdIds = (await query.ToListAsync(cancellationToken)).Distinct().ToList();
 
 			return oderdIds;
+		}
+
+		private string GetPaymentTypeChangedValue(string paymentTypeValue, PaymentFrom paymentByCardFrom, PaymentByTerminalSource? terminalSubtype)
+		{
+			switch(paymentTypeValue)
+			{
+				case "cash":
+				case "Cash":
+					return PaymentType.Cash.GetEnumDisplayName();
+				case "cashless":
+				case "Cashless":
+					return PaymentType.Cashless.GetEnumDisplayName();
+				case "barter":
+				case "Barter":
+					return PaymentType.Barter.GetEnumDisplayName();
+				case "DriverApplicationQR":
+					return PaymentType.DriverApplicationQR.GetEnumDisplayName();
+				case "SmsQR":
+					return PaymentType.SmsQR.GetEnumDisplayName();
+				case "ByCard":
+					return $"По карте {paymentByCardFrom?.Name}";
+				case "PaidOnline":
+					return $"{PaymentType.PaidOnline.GetEnumDisplayName()} {paymentByCardFrom?.Name}";
+				case "ContractDoc":
+				case "ContractDocumentation":
+					return PaymentType.ContractDocumentation.GetEnumDisplayName();
+				case "BeveragesWorld":
+					return "Мир напитков";
+				case "Terminal":
+					return $"{PaymentType.Terminal.GetEnumDisplayName()} {terminalSubtype?.GetEnumDisplayName()}";
+				default:
+					return paymentTypeValue;
+			}
 		}
 	}
 }

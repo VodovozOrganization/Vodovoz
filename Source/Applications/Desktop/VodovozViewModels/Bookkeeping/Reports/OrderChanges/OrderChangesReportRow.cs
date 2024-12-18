@@ -6,6 +6,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 {
 	public class OrderChangesReportRow
 	{
+		public int ChangedEntityId { get; set; }
 		public int RowNumber { get; set; }
 		public string CounterpartyFullName { get; set; }
 		public PersonType CounterpartyPersonType { get; set; }
