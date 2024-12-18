@@ -2054,6 +2054,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.LastRouteListReportView.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Store.Reports.DefectiveItemsReportView.cs" />
+    <Compile Include="Cash\FinancialResponsibilityCenterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.FinancialResponsibilityCenterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
