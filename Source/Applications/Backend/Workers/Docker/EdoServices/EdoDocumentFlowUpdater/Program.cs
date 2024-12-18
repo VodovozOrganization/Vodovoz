@@ -1,4 +1,5 @@
 using Autofac.Extensions.DependencyInjection;
+using Edo.Docflow.Taxcom;
 using EdoDocumentFlowUpdater.Configs;
 using EdoDocumentFlowUpdater.Options;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,6 +54,7 @@ namespace EdoDocumentFlowUpdater
 						.AddStaticScopeForEntity()
 						.Configure<TaxcomEdoDocumentFlowUpdaterOptions>(
 							hostContext.Configuration.GetSection(TaxcomEdoDocumentFlowUpdaterOptions.Path))
+						.AddScoped<IEdoDocflowHandler, EdoDocflowHandler>()
 						.AddHttpClient()
 						.AddTaxcomClient()
 						
