@@ -214,7 +214,6 @@ stage('Compress'){
 		"Desktop" : { CompressDesktopArtifact() },
 
 		"FastPaymentsAPI" : { CompressWebArtifact("Backend/WebAPI/FastPaymentsAPI") },
-		"PayPageAPI" : { CompressWebArtifact("Frontend/PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { CompressWebArtifact("Backend/WebAPI/Email/MailjetEventsDistributorAPI") },
 		"UnsubscribePage" : { CompressWebArtifact("Frontend/UnsubscribePage") },
 		"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
@@ -240,7 +239,6 @@ stage('Delivery'){
 
 		// IIS
 		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
-		"PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
 		"UnsubscribePage" : { DeliveryWebArtifact("UnsubscribePage") },
 		"DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
@@ -268,7 +266,6 @@ stage('Publish'){
 		"Desktop ${NODE_VOD13}" : { PublishDesktop(NODE_VOD13) },
 
 		"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
-		"PayPageAPI" : { PublishWeb("PayPageAPI") },
 		"MailjetEventsDistributorAPI" : { PublishWeb("MailjetEventsDistributorAPI") },
 		"UnsubscribePage" : { PublishWeb("UnsubscribePage") },
 		"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
