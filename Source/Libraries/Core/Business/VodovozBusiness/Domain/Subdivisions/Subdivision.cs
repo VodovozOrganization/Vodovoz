@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -39,6 +39,7 @@ namespace Vodovoz
 		private SubdivisionType _subdivisionType;
 		private string _address;
 		private bool _isArchive;
+		private int _financialResponsibilityCenterId;
 
 		#region Свойства
 
@@ -69,6 +70,17 @@ namespace Vodovoz
 		{
 			get => _parentSubdivision;
 			set => SetField(ref _parentSubdivision, value);
+		}
+
+		/// <summary>
+		/// Идентификатор центра финансовой ответственности
+		/// </summary>
+		[Display(Name = "Центр финансовой ответственности")]
+		[HistoryIdentifier(TargetType = typeof(FinancialResponsibilityCenter))]
+		public virtual int FinancialResponsibilityCenterId
+		{
+			get => _financialResponsibilityCenterId;
+			set => SetField(ref _financialResponsibilityCenterId, value);
 		}
 
 		[Display(Name = "Дочерние подразделения")]
