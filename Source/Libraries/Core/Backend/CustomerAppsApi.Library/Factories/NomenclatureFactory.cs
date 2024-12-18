@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Goods;
+using Vodovoz.Converters;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Nodes;
 
@@ -17,11 +17,14 @@ namespace CustomerAppsApi.Library.Factories
 			};
 		}
 		
-		public NomenclaturesDto CreateNomenclaturesDto(IList<OnlineNomenclatureNode> onlineNomenclatures)
+		public NomenclaturesDto CreateNomenclaturesDto(
+			INomenclatureOnlineCharacteristicsConverter nomenclatureOnlineCharacteristicsConverter,
+			IEnumerable<OnlineNomenclatureNode> onlineNomenclatures)
 		{
 			return new NomenclaturesDto
 			{
-				OnlineNomenclatures = new List<OnlineNomenclatureDto>(onlineNomenclatures.Select(OnlineNomenclatureDto.Create))
+				OnlineNomenclatures = new List<OnlineNomenclatureDto>(
+					onlineNomenclatures.Select(x => OnlineNomenclatureDto.Create(nomenclatureOnlineCharacteristicsConverter, x)))
 			};
 		}
 		

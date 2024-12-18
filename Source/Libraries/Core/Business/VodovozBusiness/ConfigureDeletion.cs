@@ -42,12 +42,13 @@ using Vodovoz.Domain.Roboats;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.Domain.WageCalculation;
 using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Service;
+using VodovozBusiness.Domain.Documents;
+using Vodovoz.Core.Domain.StoredResources;
 
 namespace Vodovoz
 {

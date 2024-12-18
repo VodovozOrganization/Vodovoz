@@ -11,7 +11,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.WageRateType).Column("wage_rate_type").CustomType<WageRateTypesStringType>();
+			Map(x => x.WageRateType).Column("wage_rate_type");
 			Map(x => x.ForDriverWithForwarder).Column("for_driver_with_forwarder");
 			Map(x => x.ForDriverWithoutForwarder).Column("for_driver_without_forwarder");
 			Map(x => x.ForForwarder).Column("for_forwarder");

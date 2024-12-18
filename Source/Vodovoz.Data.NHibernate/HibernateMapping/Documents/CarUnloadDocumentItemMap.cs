@@ -12,7 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.Redhead).Column("redhead");
-			Map(x => x.ReciveType).Column("receive_type").CustomType<ReciveTypesStringType>();
+			Map(x => x.ReciveType).Column("receive_type");
 			Map(x => x.DefectSource).Column("source");
 
 			References(x => x.Document).Column("car_unload_document_id");

@@ -10,7 +10,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation.AdvancedWageP
 			Table("advanced_wage_parameter");
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			DiscriminateSubClassesOnColumn("type");
-			Map(x => x.AdvancedWageParameterType).Column("type").CustomType<AdvancedWageParameterStringType>().Update().Not.Insert();
+			Map(x => x.AdvancedWageParameterType).Column("type").Update().Not.Insert();
 
 			Map(x => x.ForDriverWithForwarder).Column("for_driver_with_forwarder");
 			Map(x => x.ForDriverWithoutForwarder).Column("for_driver_without_forwarder");

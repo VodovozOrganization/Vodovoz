@@ -9,6 +9,7 @@ using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 {

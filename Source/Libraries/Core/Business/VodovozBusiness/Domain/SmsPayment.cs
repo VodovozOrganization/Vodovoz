@@ -159,11 +159,4 @@ namespace Vodovoz.Domain
         [Display(Name = "Готов к отправке")]
         ReadyToSend = 3,
     }
-	
-    public class SmsPaymentStatusStringType : NHibernate.Type.EnumStringType
-    {
-        public SmsPaymentStatusStringType() : base(typeof(SmsPaymentStatus))
-        {
-        }
-    }
 }

@@ -12,6 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.OrderStatusForSendingUpd).Column("order_status_for_sending_upd");
 			Map(x => x.ConsentForEdoStatus).Column("consent_for_edo_status");
+			Map(x => x.IsNewEdoProcessing).Column("is_new_edo_processing");
 		}
 	}
 }

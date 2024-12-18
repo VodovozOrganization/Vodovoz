@@ -9,5 +9,10 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		public override string Number => Id.ToString();
 
 		public Type Type => typeof(T);
+
+		public IncludeExcludeElement(bool isRadio = false)
+		{
+			IsRadio = isRadio;
+		}
 	}
 }
