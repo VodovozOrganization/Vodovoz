@@ -22,11 +22,4 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Хутор", ShortName = "х.")]
 		isolated_dwelling
 	}
-
-	public class LocalityTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public LocalityTypeStringType() : base(typeof(LocalityType))
-		{
-		}
-	}
 }

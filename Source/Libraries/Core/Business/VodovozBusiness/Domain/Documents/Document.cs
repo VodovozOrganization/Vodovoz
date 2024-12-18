@@ -7,6 +7,7 @@ using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.Domain.Documents
 {

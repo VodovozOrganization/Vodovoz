@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Extensions;
 using Sms.Internal.Client.Framework;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain;
+using Vodovoz.Converters;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.NotificationRecievers;

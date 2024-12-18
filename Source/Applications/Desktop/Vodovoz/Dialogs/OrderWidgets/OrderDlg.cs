@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -326,7 +326,7 @@ namespace Vodovoz
 					PanelViewType.DeliveryPointView,
 					PanelViewType.EmailsPanelView,
 					PanelViewType.CallTaskPanelView,
-					PanelViewType.SmsSendPanelView,
+					//PanelViewType.SmsSendPanelView,
 					PanelViewType.EdoLightsMatrixPanelView
 				};
 			}
