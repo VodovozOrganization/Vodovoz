@@ -1,4 +1,4 @@
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.Utilities;
 using NLog;
 using QS.BusinessCommon.Domain;
@@ -38,7 +38,6 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.Store;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Counterparties;

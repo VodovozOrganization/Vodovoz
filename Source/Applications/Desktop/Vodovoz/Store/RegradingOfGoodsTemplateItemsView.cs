@@ -35,7 +35,7 @@ namespace Vodovoz.Store
 			SubscribeUIEvents();
 		}
 
-		void YtreeviewItems_Selection_Changed(object sender, EventArgs e)
+		private void YtreeviewItems_Selection_Changed(object sender, EventArgs e)
 		{
 			UpdateButtonState();
 		}
@@ -58,7 +58,6 @@ namespace Vodovoz.Store
 		{
 			ViewModel.ChangeNewNomenclatureCommand.Execute();
 		}
-
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
 		{

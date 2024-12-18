@@ -13,16 +13,11 @@ namespace Vodovoz.ViewModels.Store
 {
 	public class RegradingOfGoodsTemplateViewModel : EntityTabViewModelBase<RegradingOfGoodsTemplate>, IDisposable
 	{
-		private readonly ILogger<RegradingOfGoodsTemplateViewModel> _logger;
-		private readonly IValidator _validator;
-
 		public RegradingOfGoodsTemplateViewModel(
-			ILogger<RegradingOfGoodsTemplateViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			RegradingOfGoodsTemplateItemsViewModel regradingOfGoodsTemplateItemsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IValidator validator,
 			INavigationManager navigation)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -30,9 +25,6 @@ namespace Vodovoz.ViewModels.Store
 			{
 				throw new ArgumentNullException(nameof(regradingOfGoodsTemplateItemsViewModel));
 			}
-
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 
 			ItemsViewModel = regradingOfGoodsTemplateItemsViewModel;
 			ItemsViewModel.SetUnitOfWork(UoW);
@@ -46,19 +38,6 @@ namespace Vodovoz.ViewModels.Store
 		public RegradingOfGoodsTemplateItemsViewModel ItemsViewModel { get; }
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
-
-		public override bool Save(bool close)
-		{
-			if(!_validator.Validate(Entity))
-			{
-				return false;
-			}
-
-			_logger.LogInformation("Сохраняем шаблон пересортицы...");
-			UoWGeneric.Save();
-			_logger.LogInformation("Ok.");
-			return true;
-		}
 
 		public override void Dispose()
 		{
