@@ -31,6 +31,8 @@ namespace Vodovoz.Store
 				.AddColumn("Новая номенклатура").AddTextRenderer(x => x.NomenclatureNew.Name)
 				.Finish();
 
+			ytreeviewItems.ItemsDataSource = ViewModel.Items;
+
 			SubscribeUIEvents();
 		}
 
