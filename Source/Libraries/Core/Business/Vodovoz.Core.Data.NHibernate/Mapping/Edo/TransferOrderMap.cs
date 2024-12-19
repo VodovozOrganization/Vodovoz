@@ -15,6 +15,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("id")
 				.GeneratedBy.Native();
 
+			Map(x => x.Date)
+				.Column("date");
+
 			References(x => x.Seller)
 				.Column("seller_organization_id");
 

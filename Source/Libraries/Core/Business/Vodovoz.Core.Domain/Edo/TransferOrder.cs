@@ -1,5 +1,5 @@
 ﻿using QS.DomainModel.Entity;
-using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Organizations;
@@ -15,6 +15,7 @@ namespace Vodovoz.Core.Domain.Edo
 	public class TransferOrder : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
+		private DateTime _date = DateTime.Now;
 		private OrganizationEntity _seller;
 		private OrganizationEntity _customer;
 		private IEnumerable<TransferOrderTrueMarkCode> _trueMarkCodes = new List<TransferOrderTrueMarkCode>();
@@ -27,6 +28,16 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _id;
 			set => SetField(ref _id, value);
+		}
+
+		/// <summary>
+		/// Дата
+		/// </summary>
+		[Display(Name = "Дата")]
+		public virtual DateTime Date
+		{
+			get => _date;
+			set => SetField(ref _date, value);
 		}
 
 		/// <summary>
