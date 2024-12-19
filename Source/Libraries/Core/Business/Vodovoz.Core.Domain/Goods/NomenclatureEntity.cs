@@ -4,6 +4,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
@@ -25,6 +26,8 @@ namespace Vodovoz.Core.Domain.Goods
 		private MeasurementUnits _unit;
 		private VAT _vAT = VAT.Vat18;
 		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
+		private IObservableList<NomenclaturePriceEntity> _nomenclaturePrice = new ObservableList<NomenclaturePriceEntity>();
+		private IObservableList<AlternativeNomenclaturePriceEntity> _alternativeNomenclaturePrices = new ObservableList<AlternativeNomenclaturePriceEntity>();
 
 		public NomenclatureEntity()
 		{
@@ -100,6 +103,26 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _vAT;
 			set => SetField(ref _vAT, value);
+		}
+
+		/// <summary>
+		/// Цены
+		/// </summary>
+		[Display(Name = "Цены")]
+		public virtual IObservableList<NomenclaturePriceEntity> NomenclaturePrice
+		{
+			get => _nomenclaturePrice;
+			set => SetField(ref _nomenclaturePrice, value);
+		}
+
+		/// <summary>
+		/// Альтернативные цены
+		/// </summary>
+		[Display(Name = "Альтернативные цены")]
+		public virtual IObservableList<AlternativeNomenclaturePriceEntity> AlternativeNomenclaturePrices
+		{
+			get => _alternativeNomenclaturePrices;
+			set => SetField(ref _alternativeNomenclaturePrices, value);
 		}
 
 		/// <summary>

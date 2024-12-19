@@ -488,7 +488,7 @@ namespace Vodovoz.Domain.Goods
 		/// Цены
 		/// </summary>
 		[Display(Name = "Цены")]
-		public virtual IList<NomenclaturePrice> NomenclaturePrice
+		public virtual new IList<NomenclaturePrice> NomenclaturePrice
 		{
 			get => _nomenclaturePrice;
 			set => SetField(ref _nomenclaturePrice, value);
@@ -498,7 +498,7 @@ namespace Vodovoz.Domain.Goods
 		/// Альтернативные цены
 		/// </summary>
 		[Display(Name = "Альтернативные цены")]
-		public virtual IList<AlternativeNomenclaturePrice> AlternativeNomenclaturePrices
+		public virtual new IList<AlternativeNomenclaturePrice> AlternativeNomenclaturePrices
 		{
 			get => _alternativeNomenclaturePrices;
 			set => SetField(ref _alternativeNomenclaturePrices, value);
