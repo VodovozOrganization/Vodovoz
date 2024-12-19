@@ -26,10 +26,11 @@ namespace Vodovoz.Views.Organization
 			: base(viewModel)
 		{
 			Build();
-			ConfigureDlg();
+
+			Initialize();
 		}
 
-		private void ConfigureDlg()
+		private void Initialize()
 		{
 			subdivisionentitypermissionwidget.ConfigureDlg(ViewModel.EntitySubdivisionPermissionViewModel);
 			subdivisionentitypermissionwidget.Sensitive = ViewModel.CanEdit;
@@ -42,6 +43,11 @@ namespace Vodovoz.Views.Organization
 
 			entrySubdivision.ViewModel = ViewModel.ParentSubdivisionViewModel;
 			entrySubdivision.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
+
+			entryFinancialResponsibilityCenter.ViewModel = ViewModel.FinancialResponsibilityCenterViewModel;
+			entryFinancialResponsibilityCenter.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 

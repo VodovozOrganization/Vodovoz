@@ -10,6 +10,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
@@ -18,6 +19,8 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Permissions;
@@ -39,6 +42,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		private bool _isAddSubdivisionPermissionsSelected;
 		private bool _isReplaceSubdivisionPermissionsSelected;
 
+		private FinancialResponsibilityCenter _financialResponsibilityCenter;
+
 		public SubdivisionViewModel(
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -49,8 +54,15 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			ILifetimeScope scope,
 			ISubdivisionPermissionsService subdivisionPermissionsService,
 			IGenericRepository<Subdivision> _subdivisionGenericRepository,
-			SubdivisionsJournalViewModel subdivisionsJournalViewModel) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			SubdivisionsJournalViewModel subdivisionsJournalViewModel,
+			ViewModelEEVMBuilder<FinancialResponsibilityCenter> financialResponsibilityCenterViewModelEEVMBuilder)
+			: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			if(financialResponsibilityCenterViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(financialResponsibilityCenterViewModelEEVMBuilder));
+			}
+
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
@@ -92,6 +104,14 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 				.UseViewModelJournal<SalesChannelJournalViewModel>()
 				.Finish();
 
+			FinancialResponsibilityCenterViewModel = financialResponsibilityCenterViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, x => x.FinancialResponsibilityCenter)
+				.UseViewModelJournalAndAutocompleter<FinancialResponsibilityCenterJournalViewModel>()
+				.UseViewModelDialog<FinancialResponsibilityCenterViewModel>()
+				.Finish();
+
 			ConfigureEntityChangingRelations();
 			CreateCommands();
 
@@ -112,9 +132,15 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		public IEntityEntryViewModel ChiefViewModel { get; private set; }
 		public IEntityEntryViewModel ParentSubdivisionViewModel { get; private set; }
 		public IEntityEntryViewModel DefaultSalesPlanViewModel { get; private set; }
-
+		public IEntityEntryViewModel FinancialResponsibilityCenterViewModel { get; }
 		public DelegateCommand AddSubdivisionPermissionsCommand { get; }
 		public DelegateCommand ReplaceSubdivisionPermissionsCommand { get; }
+
+		public FinancialResponsibilityCenter FinancialResponsibilityCenter
+		{
+			get => this.GetIdRefField(ref _financialResponsibilityCenter, Entity.FinancialResponsibilityCenterId);
+			set => this.SetIdRefField(SetField, ref _financialResponsibilityCenter, () => Entity.FinancialResponsibilityCenterId, value);
+		}
 
 		public EntitySubdivisionPermissionViewModel EntitySubdivisionPermissionViewModel { get; }
 
