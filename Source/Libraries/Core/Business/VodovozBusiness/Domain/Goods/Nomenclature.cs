@@ -73,7 +73,6 @@ namespace Vodovoz.Domain.Goods
 		private Folder1c _folder1;
 		private string _model;
 		private decimal _weight;
-		private VAT _vAT = VAT.Vat18;
 		private bool _doNotReserve;
 		private bool _rentPriority;
 		private bool _isDuty;
@@ -300,16 +299,6 @@ namespace Vodovoz.Domain.Goods
 					OnPropertyChanged(nameof(Volume));
 				}
 			}
-		}
-
-		/// <summary>
-		/// НДС
-		/// </summary>
-		[Display(Name = "НДС")]
-		public virtual VAT VAT
-		{
-			get => _vAT;
-			set => SetField(ref _vAT, value);
 		}
 
 		/// <summary>

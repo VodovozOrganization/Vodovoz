@@ -17,6 +17,7 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 			Map(x => x.Category).Column("category");
 			Map(x => x.IsAccountableInTrueMark).Column("is_accountable_in_chestniy_znak");
 			Map(x => x.Gtin).Column("gtin");
+			Map(x => x.VAT).Column("vat");
 
 			References(x => x.Unit).Column("unit_id").Fetch.Join().Not.LazyLoad();
 

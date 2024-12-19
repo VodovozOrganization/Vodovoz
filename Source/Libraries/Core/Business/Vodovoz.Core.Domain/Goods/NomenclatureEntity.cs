@@ -23,6 +23,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private bool _isAccountableInTrueMark;
 		private string _gtin;
 		private MeasurementUnits _unit;
+		private VAT _vAT = VAT.Vat18;
 		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
 
 		public NomenclatureEntity()
@@ -89,6 +90,16 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _unit;
 			set => SetField(ref _unit, value);
+		}
+
+		/// <summary>
+		/// НДС
+		/// </summary>
+		[Display(Name = "НДС")]
+		public virtual VAT VAT
+		{
+			get => _vAT;
+			set => SetField(ref _vAT, value);
 		}
 
 		public virtual void AddFileInformation(string fileName)
