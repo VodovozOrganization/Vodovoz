@@ -352,9 +352,11 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					QrNew = qrNew,
 				};
 
-			var changesData = (await query.ToListAsync(cancellationToken))
+			var changesData = await query.ToListAsync(cancellationToken);
+
+			var data = (await query.ToListAsync(cancellationToken))
 				.GroupBy(x => x.ChangedEntityId)
-				.Select(x => x.FirstOrDefault())
+				.SelectMany(x => x.Where(c => c.TimeDelivered < c.ChangeTime))
 				.ToList();
 
 			var paymentTypeChangedOrderIds = await GetPaymentTypeChangesOrderIds(uow, changesData.Select(x => x.OrderId).Distinct(), cancellationToken);

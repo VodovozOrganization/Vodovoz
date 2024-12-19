@@ -6,6 +6,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 {
 	public class OrderChangesReportRow
 	{
+		private const string _dateTimeFormatString = "dd.MM.yyyy\nHH:mm";
 		public int ChangedEntityId { get; set; }
 		public int RowNumber { get; set; }
 		public string CounterpartyFullName { get; set; }
@@ -33,13 +34,13 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			: CounterpartyFullName;
 
 		public string PaymentDateString =>
-			PaymentDate?.ToString("dd.MM.yyyy\nhh:mm");
+			PaymentDate?.ToString(_dateTimeFormatString);
 
 		public string TimeDeliveredString =>
-			TimeDelivered?.ToString("dd.MM.yyyy\nhh:mm");
+			TimeDelivered?.ToString(_dateTimeFormatString);
 
 		public string ChangeTimeString =>
-			ChangeTime.ToString("dd.MM.yyyy\nhh:mm");
+			ChangeTime.ToString(_dateTimeFormatString);
 
 		public string OldValueFull
 		{
