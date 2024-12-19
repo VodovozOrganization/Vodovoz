@@ -1536,8 +1536,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.OrderAnalyticsReportView.cs" />
     <Compile Include="Filters\GtkViews\OrganizationCashTransferDocumentFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrganizationCashTransferDocumentFilterView.cs" />
-    <Compile Include="ReportsParameters\Employees\EmployeesReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Employees.EmployeesReport.cs" />
     <Compile Include="ReportsParameters\Logistic\AddressesOverpaymentsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.AddressesOverpaymentsReport.cs" />
     <Compile Include="Views\Reports\CarsExploitationReportView.cs" />
@@ -2051,6 +2049,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.AverageFlowDiscrepanciesReportView.cs" />
     <Compile Include="Filters\GtkViews\CarEventTypeFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventTypeFilterView.cs" />
+    <Compile Include="Views\Reports\LastRouteListReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.LastRouteListReportView.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Store.Reports.DefectiveItemsReportView.cs" />
     <Compile Include="Views\Reports\OrderChangesReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.OrderChangesReportView.cs" />
   </ItemGroup>

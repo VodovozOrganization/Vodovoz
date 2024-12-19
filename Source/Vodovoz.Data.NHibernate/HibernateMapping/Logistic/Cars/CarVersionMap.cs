@@ -13,7 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.EndDate).Column("end_date");
-			Map(x => x.CarOwnType).Column("car_own_type").CustomType<CarOwnTypeStringType>();
+			Map(x => x.CarOwnType).Column("car_own_type");
 
 			References(x => x.Car).Column("car_id");
 			References(x => x.CarOwnerOrganization).Column("car_owner_organization_id");

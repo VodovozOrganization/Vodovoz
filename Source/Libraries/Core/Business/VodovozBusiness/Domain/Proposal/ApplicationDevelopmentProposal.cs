@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
@@ -99,13 +99,6 @@ namespace Vodovoz.Domain.Proposal
                 yield return new ValidationResult("Необходимо заполнить ответ по предложению.",
                     new[] { nameof(ProposalResponse) });
             }
-        }
-    }
-    
-    public class ApplicationDevelopmentProposalStatusStringType : NHibernate.Type.EnumStringType
-    {
-        public ApplicationDevelopmentProposalStatusStringType() : base(typeof(ApplicationDevelopmentProposalStatus))
-        {
         }
     }
 }

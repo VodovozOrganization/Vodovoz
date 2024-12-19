@@ -2,8 +2,8 @@
 using QSOrmProject;
 using QSProjectsLib;
 using System;
+using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;

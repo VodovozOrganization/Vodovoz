@@ -47,7 +47,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			return await documents.ToListAsync();
 		}
 
-		public async Task<IEnumerable<CarLoadDocumentItemEntity>> GeAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(
+		public async Task<IEnumerable<CarLoadDocumentItemEntity>> GetAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(
 			IUnitOfWork uow,
 			int orderId)
 		{

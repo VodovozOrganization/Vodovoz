@@ -1,5 +1,6 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 {
@@ -20,7 +21,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			References(x => x.WarehouseIncomeOperation).Column("warehouse_income_operation_id").Cascade.All();
 			References(x => x.TypeOfDefect).Column("defect_type_id");
 			References(x => x.RegradingOfGoodsReason).Column("regrading_of_goods_reason_id");
-			Map(x => x.Source).Column("source").CustomType<DefectSourceStringType>();
+			Map(x => x.Source).Column("source");
 		}
 	}
 }

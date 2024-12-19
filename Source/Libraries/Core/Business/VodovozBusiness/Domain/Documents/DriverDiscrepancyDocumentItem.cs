@@ -65,10 +65,4 @@ namespace Vodovoz.Domain.Documents
         [Display(Name = "Сдал меньше, чем требовалось")]
         UnloadedDeficiently
     }
-    
-    public class DiscrepancyReasonStringType : NHibernate.Type.EnumStringType
-    {
-        public DiscrepancyReasonStringType() : base(typeof(DiscrepancyReason)) { }
-    }
-    
 }

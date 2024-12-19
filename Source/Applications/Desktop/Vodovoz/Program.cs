@@ -514,7 +514,6 @@ namespace Vodovoz
 					builder.RegisterType<CounterpartyReport>().AsSelf();
 					builder.RegisterType<DriversToDistrictsAssignmentReport>().AsSelf();
 					builder.RegisterType<GeneralSalaryInfoReport>().AsSelf();
-					builder.RegisterType<EmployeesReport>().AsSelf();
 					builder.RegisterType<AddressesOverpaymentsReport>().AsSelf();
 					builder.RegisterType<StockMovementsAdvancedReport>().AsSelf();
 

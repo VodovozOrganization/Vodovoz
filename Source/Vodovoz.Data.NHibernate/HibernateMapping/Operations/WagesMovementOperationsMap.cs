@@ -13,10 +13,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
 
 			Map(x => x.OperationTime).Column("operation_time");
 			Map(x => x.Money).Column("money");
-			Map(x => x.OperationType).Column("operation_type").CustomType<WagesTypeStringType>();
+			Map(x => x.OperationType).Column("operation_type");
 
 			References(x => x.Employee).Column("employee_id");
 		}
 	}
 }
-

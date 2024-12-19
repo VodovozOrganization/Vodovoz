@@ -403,6 +403,14 @@
     <Compile Include="ReportsParameters\Wages\DriverWagesReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\ForwarderWageReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\WagesOperationsReportViewModel.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReport.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReport.SummaryBySourceRow.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReport.SummaryDisplayRow.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReport.SummaryRow.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReportRow.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReportViewModel.cs" />
+    <Compile Include="Store\Reports\EmployeeIdToFioNode.cs" />
+    <Compile Include="Store\Reports\WarehouseIdToNameNode.cs" />
     <Compile Include="TempAdapters\IReportExporter.cs" />
     <Compile Include="TempAdapters\PacsViewModelOpener.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
@@ -827,6 +835,10 @@
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReport.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReport.LastRouteListNodeNode.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersRatingsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />

@@ -109,11 +109,4 @@ namespace Vodovoz.Domain.Contacts
 		[Display(Name = "Для чеков")]
 		ForReceipts
 	}
-
-	public class PhonePurposeStringType : NHibernate.Type.EnumStringType
-	{
-		public PhonePurposeStringType() : base(typeof(PhonePurpose))
-		{
-		}
-	}
 }
