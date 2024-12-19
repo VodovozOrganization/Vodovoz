@@ -25,6 +25,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private string _gtin;
 		private MeasurementUnits _unit;
 		private VAT _vAT = VAT.Vat18;
+		private NomenclatureEntity _dependsOnNomenclature;
 		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
 		private IObservableList<NomenclaturePriceEntity> _nomenclaturePrice = new ObservableList<NomenclaturePriceEntity>();
 		private IObservableList<AlternativeNomenclaturePriceEntity> _alternativeNomenclaturePrices = new ObservableList<AlternativeNomenclaturePriceEntity>();
@@ -126,6 +127,16 @@ namespace Vodovoz.Core.Domain.Goods
 		}
 
 		/// <summary>
+		/// Влияющая номенклатура
+		/// </summary>
+		[Display(Name = "Влияющая номенклатура")]
+		public virtual NomenclatureEntity DependsOnNomenclature
+		{
+			get => _dependsOnNomenclature;
+			set => SetField(ref _dependsOnNomenclature, value);
+		}
+
+		/// <summary>
 		/// Числовое значение НДС
 		/// </summary>
 		/// <returns></returns>
@@ -180,6 +191,30 @@ namespace Vodovoz.Core.Domain.Goods
 			{
 				fileInformation.NomenclatureId = Id;
 			}
+		}
+
+		public virtual decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
+		{
+			if(itemsCount < 1)
+			{
+				itemsCount = 1;
+			}
+
+			decimal price = 0m;
+			if(DependsOnNomenclature != null)
+			{
+				price = DependsOnNomenclature.GetPrice(itemsCount, useAlternativePrice);
+			}
+			else
+			{
+				var nomPrice = (useAlternativePrice
+						? AlternativeNomenclaturePrices.Cast<NomenclaturePriceEntityBase>()
+						: NomenclaturePrice.Cast<NomenclaturePriceEntityBase>())
+					.OrderByDescending(p => p.MinCount)
+					.FirstOrDefault(p => p.MinCount <= itemsCount);
+				price = nomPrice?.Price ?? 0;
+			}
+			return price;
 		}
 	}
 }

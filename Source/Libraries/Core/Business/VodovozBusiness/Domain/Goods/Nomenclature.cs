@@ -599,7 +599,7 @@ namespace Vodovoz.Domain.Goods
 		/// Влияющая номенклатура
 		/// </summary>
 		[Display(Name = "Влияющая номенклатура")]
-		public virtual Nomenclature DependsOnNomenclature
+		public virtual new Nomenclature DependsOnNomenclature
 		{
 			get => _dependsOnNomenclature;
 			set => SetField(ref _dependsOnNomenclature, value);
@@ -1412,30 +1412,6 @@ namespace Vodovoz.Domain.Goods
 				CreateDate = DateTime.Now;
 				CreatedBy = userRepository.GetCurrentUser(UoW);
 			}
-		}
-
-		public virtual decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
-		{
-			if(itemsCount < 1)
-			{
-				itemsCount = 1;
-			}
-
-			decimal price = 0m;
-			if(DependsOnNomenclature != null)
-			{
-				price = DependsOnNomenclature.GetPrice(itemsCount, useAlternativePrice);
-			}
-			else
-			{
-				var nomPrice = (useAlternativePrice
-						? AlternativeNomenclaturePrices.Cast<NomenclaturePriceBase>()
-						: NomenclaturePrice.Cast<NomenclaturePriceBase>())
-					.OrderByDescending(p => p.MinCount)
-					.FirstOrDefault(p => p.MinCount <= itemsCount);
-				price = nomPrice?.Price ?? 0;
-			}
-			return price;
 		}
 
 		/// <summary>
