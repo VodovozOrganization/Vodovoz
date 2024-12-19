@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -60,7 +60,7 @@ namespace TrueMarkWorker
 						.ConfigureTrueMarkWorker(hostContext)
 						;
 
-					services.ConfigureZabbixSender(nameof(TrueMarkWorker));
+					services.ConfigureZabbixSenderFromDataBase(nameof(TrueMarkWorker));
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});
