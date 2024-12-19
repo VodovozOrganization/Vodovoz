@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -63,7 +63,6 @@ namespace Vodovoz.Application.Pacs
 		private IDisposable _settingsSubscription;
 		private IDisposable _operatorsOnBreakSubscription;
 
-
 		public OperatorService(
 			ILogger<OperatorService> logger,
 			IEmployeeService employeeService,
@@ -113,12 +112,6 @@ namespace Vodovoz.Application.Pacs
 			}
 		}
 
-		private async Task OnBreakAvailabilityTimerElapsedAsync(object sender,  ElapsedEventArgs e)
-		{
-			await RefreshBreakAvailability();
-			UpdateBreakInfo();
-		}
-
 		public bool IsInitialized { get; }
 		public bool IsAdministrator { get; }
 		public bool IsOperator { get; }
@@ -129,9 +122,15 @@ namespace Vodovoz.Application.Pacs
 			private set => SetField(ref _isConnected, value);
 		}
 
+		private async Task OnBreakAvailabilityTimerElapsedAsync(object sender,  ElapsedEventArgs e)
+		{
+			await RefreshBreakAvailability();
+			UpdateBreakInfo();
+		}
+
 		private void StartConnecting()
 		{
-			if(!(IsInitialized && IsOperator))
+			if(!IsInitialized || !IsOperator)
 			{
 				_logger.LogWarning("Подключение невозможно, так как не инициализирован сервис оператора");
 				return;
@@ -403,34 +402,39 @@ namespace Vodovoz.Application.Pacs
 
 		public string GetBreakInfo()
 		{
-			string result = "";
+			var stringBuilder = new StringBuilder();
+
 			if(GlobalBreakAvailability == null || BreakAvailability == null)
 			{
-				return result;
-			}
-			if(!GlobalBreakAvailability.LongBreakAvailable)
-			{
-				result += $"\n{GlobalBreakAvailability.LongBreakDescription}";
-			}
-			if(!BreakAvailability.LongBreakAvailable)
-			{
-				result += $"\n{BreakAvailability.LongBreakDescription}";
+				return stringBuilder.ToString();
 			}
 
-			if(!GlobalBreakAvailability.ShortBreakAvailable)
+			if(!GlobalBreakAvailability.LongBreakAvailable && !string.IsNullOrWhiteSpace(GlobalBreakAvailability.LongBreakDescription))
 			{
-				result += $"\n{GlobalBreakAvailability.ShortBreakDescription}";
+				stringBuilder.Append(GlobalBreakAvailability.LongBreakDescription);
 			}
-			if(!BreakAvailability.ShortBreakAvailable)
+
+			if(!BreakAvailability.LongBreakAvailable && !string.IsNullOrWhiteSpace(BreakAvailability.LongBreakDescription))
 			{
-				result += $"\n{BreakAvailability.ShortBreakDescription}";
+				stringBuilder.AppendLine(BreakAvailability.LongBreakDescription);
+			}
+
+			if(!GlobalBreakAvailability.ShortBreakAvailable && !string.IsNullOrWhiteSpace(GlobalBreakAvailability.ShortBreakDescription))
+			{
+				stringBuilder.AppendLine(GlobalBreakAvailability.ShortBreakDescription);
+			}
+
+			if(!BreakAvailability.ShortBreakAvailable && !string.IsNullOrWhiteSpace(BreakAvailability.ShortBreakDescription))
+			{
+				stringBuilder.AppendLine(BreakAvailability.ShortBreakDescription);
+
 				if(BreakAvailability.ShortBreakSupposedlyAvailableAfter.HasValue)
 				{
-					result += $"\nМалый перерыв будет доступен после: {BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value:dd.MM HH:mm}";
+					stringBuilder.AppendLine($"Малый перерыв будет доступен после: {BreakAvailability.ShortBreakSupposedlyAvailableAfter.Value:dd.MM HH:mm}");
 				}
 			}
 
-			return result.Trim('\n');
+			return stringBuilder.ToString();
 		}
 
 		#region Long break

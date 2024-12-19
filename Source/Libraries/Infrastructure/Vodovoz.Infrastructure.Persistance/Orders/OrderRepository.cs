@@ -37,6 +37,7 @@ using Vodovoz.Settings.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -1120,20 +1121,23 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return result;
 		}
 
-		public IEnumerable<int> GetOrdersThatMustBeLoadedBeforeUpdSending(IUnitOfWork uow, IEnumerable<int> orderIds)
+		public IEnumerable<int> GetNewEdoProcessOrders(IUnitOfWork uow, IEnumerable<int> orderIds)
 		{
 			var query =
 				from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItem>()
-				join carLoadDocument in uow.Session.Query<CarLoadDocument>()
-				on carLoadDocumentItem.Document.Id equals carLoadDocument.Id
-				join nomenclature in uow.Session.Query<Nomenclature>()
-				on carLoadDocumentItem.Nomenclature.Id equals nomenclature.Id
+				join carLoadDocument in uow.Session.Query<CarLoadDocument>() on carLoadDocumentItem.Document.Id equals carLoadDocument.Id
+				join nomenclature in uow.Session.Query<Nomenclature>() on carLoadDocumentItem.Nomenclature.Id equals nomenclature.Id
+				join order in uow.Session.Query<Order>() on carLoadDocumentItem.OrderId equals order.Id
+				join client in uow.Session.Query<Counterparty>() on order.Client.Id equals client.Id
+				join oer in uow.Session.Query<OrderEdoRequest>() on order.Id equals oer.Order.Id into orderEdoRequests
+				from orderEdoRequest in orderEdoRequests.DefaultIfEmpty()
 				where
 					orderIds.Contains((int)carLoadDocumentItem.OrderId)
 					&& carLoadDocumentItem.IsIndividualSetForOrder
 					&& nomenclature.IsAccountableInTrueMark
 					&& nomenclature.Gtin != null
-					&& carLoadDocument.LoadOperationState != CarLoadDocumentLoadOperationState.Done
+					&& (orderEdoRequest != null
+						|| (client.IsNewEdoProcessing && orderEdoRequest == null && order.OrderStatus == OrderStatus.OnTheWay))
 				select (int)carLoadDocumentItem.OrderId;
 
 			return query.Distinct().ToList();

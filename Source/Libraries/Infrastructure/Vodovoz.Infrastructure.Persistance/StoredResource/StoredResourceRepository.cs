@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Domain.StoredResources;
+using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.EntityRepositories.StoredResourceRepository;
 using VodovozStoredResource = Vodovoz.Core.Domain.StoredResources.StoredResource;
 

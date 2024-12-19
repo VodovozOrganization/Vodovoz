@@ -1,5 +1,4 @@
-using Autofac;
-using Autofac.Core.Lifetime;
+﻿using Autofac;
 using EdoService.Library;
 using EdoService.Library.Converters;
 using EdoService.Library.Dto;
@@ -12,7 +11,6 @@ using NHibernate;
 using NHibernate.Transform;
 using NLog;
 using QS.Attachments.Domain;
-using QS.Attachments.ViewModels.Widgets;
 using QS.Banks.Domain;
 using QS.Banks.Repositories;
 using QS.Dialog;
@@ -49,10 +47,9 @@ using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -106,7 +103,6 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
-using VodovozBusiness.Domain.Complaints;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
@@ -1620,8 +1616,7 @@ namespace Vodovoz
 					Entity.PayerSpecialKPP = null;
 				}
 
-				_phonesViewModel.RemoveEmpty();
-				emailsView.ViewModel.RemoveEmpty();
+				RemoveEmptyEmailsAndPhones();
 
 				if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 				{
@@ -1652,6 +1647,12 @@ namespace Vodovoz
 			{
 				SetSensetivity(true);
 			}
+		}
+
+		private void RemoveEmptyEmailsAndPhones()
+		{
+			_phonesViewModel.RemoveEmpty();
+			emailsView.ViewModel.RemoveEmpty();
 		}
 
 		private void AddAttachedFilesIfNeeded()
@@ -2376,6 +2377,8 @@ namespace Vodovoz
 			{
 				return;
 			}
+			
+			RemoveEmptyEmailsAndPhones();
 
 			if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 			{

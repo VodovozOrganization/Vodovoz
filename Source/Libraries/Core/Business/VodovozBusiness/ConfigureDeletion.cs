@@ -47,6 +47,7 @@ using Vodovoz.Domain.WageCalculation;
 using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Service;
+using VodovozBusiness.Domain.Documents;
 using Vodovoz.Core.Domain.StoredResources;
 
 namespace Vodovoz

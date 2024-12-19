@@ -1,6 +1,7 @@
-﻿using Gamma.Utilities;
+﻿using Edo.Transport.Messages.Events;
+using Gamma.Utilities;
+using MassTransit;
 using Microsoft.Extensions.Logging;
-using NHibernate;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -10,14 +11,16 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
 using Vodovoz.Models;
-using Vodovoz.Models.TrueMark;
+using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Common;
@@ -33,38 +36,41 @@ namespace WarehouseApi.Library.Services
 		private readonly IUnitOfWork _uow;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
+		private readonly IGenericRepository<OrderEntity> _orderRepository;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
-		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
-		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
+		private readonly IBus _messageBus;
 
 		public CarLoadService(
 			ILogger<CarLoadService> logger,
 			IUnitOfWork uow,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
+			IGenericRepository<OrderEntity> orderRepository,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
-			ITrueMarkRepository trueMarkRepository,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
-			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
-			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker)
+			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
+			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_employeeWithLoginRepository = employeeWithLoginRepository;
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
-			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
-			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
+			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
-		public async Task<RequestProcessingResult<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken)
+		public async Task<RequestProcessingResult<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
 			var carLoadDocument =
@@ -79,8 +85,12 @@ namespace WarehouseApi.Library.Services
 				Result = OperationResultEnumDto.Error
 			};
 
-			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee, out Error error))
+			var checkResult = _documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<StartLoadResponse>(error);
@@ -90,8 +100,12 @@ namespace WarehouseApi.Library.Services
 
 			CreateAndSaveCarLoadDocumentLoadingProcessAction(carLoadDocument?.Id ?? 0, pickerEmployee, CarLoadDocumentLoadingProcessActionType.StartLoad);
 
-			if(!_documentErrorsChecker.IsCarLoadDocumentLoadingCanBeStarted(carLoadDocument, documentId, out error))
+			checkResult = _documentErrorsChecker.IsCarLoadDocumentLoadingCanBeStarted(carLoadDocument, documentId);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<StartLoadResponse>(error);
@@ -99,18 +113,33 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			var isDocumentSavedAndEventsCreated =
-				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.InProgress, accessToken);
+			var isDocumentLoadOperationStateUpdated =
+				SetDocumentLoadOperationState(carLoadDocument, CarLoadDocumentLoadOperationState.InProgress);
 
-			if(!isDocumentSavedAndEventsCreated)
+			if(!isDocumentLoadOperationStateUpdated)
 			{
-				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
+				var error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<StartLoadResponse>(error);
 
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
+
+			var isLogisticEventCreated =
+				await CreateStartLoadLogisticEvent(carLoadDocument.Id, accessToken, cancellationToken);
+
+			if(!isLogisticEventCreated)
+			{
+				var error = CarLoadDocumentErrors.CarLoadDocumentLogisticEventCreationError;
+				failureResponse.Error = error.Message;
+
+				var result = Result.Failure<StartLoadResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
+
+			_uow.Commit();
 
 			var successResponse = new StartLoadResponse
 			{
@@ -131,9 +160,26 @@ namespace WarehouseApi.Library.Services
 				Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems)
 			};
 
-			if(!_documentErrorsChecker.IsOrderNeedIndividualSetOnLoad(orderId, out Error error)
-				|| !_documentErrorsChecker.IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, documentOrderItems, out error))
+			var checkResult = _documentErrorsChecker.IsOrderNeedIndividualSetOnLoad(orderId);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
+				response.Result = OperationResultEnumDto.Error;
+				response.Error = error.Message;
+
+				var result = Result.Failure<GetOrderResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, response);
+			}
+
+			checkResult = _documentErrorsChecker.IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, documentOrderItems);
+
+			if(checkResult.IsFailure)
+			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				response.Result = OperationResultEnumDto.Error;
 				response.Error = error.Message;
 
@@ -148,9 +194,14 @@ namespace WarehouseApi.Library.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(response));
 		}
 
-		public async Task<RequestProcessingResult<AddOrderCodeResponse>> AddOrderCode(int orderId, int nomenclatureId, string scannedCode, string userLogin)
+		public async Task<RequestProcessingResult<AddOrderCodeResponse>> AddOrderCode(
+			int orderId,
+			int nomenclatureId,
+			string scannedCode,
+			string userLogin,
+			CancellationToken cancellationToken)
 		{
-			var isScannedCodeValid = _trueMarkWaterCodeParser.TryParse(scannedCode, out TrueMarkWaterCode trueMarkCode);
+			var trueMarkWaterCode = _trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
 
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
@@ -164,8 +215,12 @@ namespace WarehouseApi.Library.Services
 				Result = OperationResultEnumDto.Error,
 			};
 
-			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee, out Error error))
+			var checkResult = _documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<AddOrderCodeResponse>(error);
@@ -178,17 +233,19 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.AddTrueMarkCode);
 
-			if(!_documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
+			checkResult = await _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
 				orderId,
 				nomenclatureId,
-				scannedCode,
-				isScannedCodeValid,
-				trueMarkCode,
+				trueMarkWaterCode,
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
 				documentItemToEdit,
-				out error))
+				cancellationToken);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<AddOrderCodeResponse>(error);
@@ -196,11 +253,14 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			AddTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, trueMarkCode);
+			AddTrueMarkCodeToCarLoadDocumentItem(documentItemToEdit, trueMarkWaterCode);
+
+			_uow.Save(documentItemToEdit);
+			_uow.Commit();
 
 			var successResponse = new AddOrderCodeResponse
 			{
-				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
+				Nomenclature = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
 				Result = OperationResultEnumDto.Success,
 				Error = null
 			};
@@ -213,10 +273,11 @@ namespace WarehouseApi.Library.Services
 			int nomenclatureId,
 			string oldScannedCode,
 			string newScannedCode,
-			string userLogin)
+			string userLogin,
+			CancellationToken cancellationToken)
 		{
-			var isOldScannedCodeValid = _trueMarkWaterCodeParser.TryParse(oldScannedCode, out TrueMarkWaterCode oldTrueMarkCode);
-			var isNewScannedCodeValid = _trueMarkWaterCodeParser.TryParse(newScannedCode, out TrueMarkWaterCode newTrueMarkCode);
+			var oldTrueMarkWaterCode = _trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, oldScannedCode);
+			var newTrueMarkWaterCode = _trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, newScannedCode);
 
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
@@ -230,8 +291,12 @@ namespace WarehouseApi.Library.Services
 				Result = OperationResultEnumDto.Error,
 			};
 
-			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee, out Error error))
+			var checkResult = _documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<ChangeOrderCodeResponse>(error);
@@ -244,20 +309,20 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.ChangeTrueMarkCode);
 
-			if(!_documentErrorsChecker.IsTrueMarkCodeCanBeChanged(
+			checkResult = await _documentErrorsChecker.IsTrueMarkCodeCanBeChanged(
 				orderId,
 				nomenclatureId,
-				oldScannedCode,
-				isOldScannedCodeValid,
-				oldTrueMarkCode,
-				newScannedCode,
-				isNewScannedCodeValid,
-				newTrueMarkCode,
+				oldTrueMarkWaterCode,
+				newTrueMarkWaterCode,
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
 				documentItemToEdit,
-				out error))
+				cancellationToken);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<ChangeOrderCodeResponse>(error);
@@ -265,7 +330,10 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(documentItemToEdit, oldTrueMarkCode, newTrueMarkCode);
+			ChangeTrueMarkCodeInCarLoadDocumentItem(documentItemToEdit, oldTrueMarkWaterCode, newTrueMarkWaterCode);
+
+			_uow.Save(documentItemToEdit);
+			_uow.Commit();
 
 			var successResponse = new ChangeOrderCodeResponse
 			{
@@ -277,7 +345,7 @@ namespace WarehouseApi.Library.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		public async Task<RequestProcessingResult<EndLoadResponse>> EndLoad(int documentId, string userLogin, string accessToken)
+		public async Task<RequestProcessingResult<EndLoadResponse>> EndLoad(int documentId, string userLogin, string accessToken, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получаем данные по талону погрузки #{DocumentId}", documentId);
 			var carLoadDocument =
@@ -291,8 +359,12 @@ namespace WarehouseApi.Library.Services
 				Result = OperationResultEnumDto.Error
 			};
 
-			if(!_documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee, out Error error))
+			var checkResult = _documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentId, pickerEmployee);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<EndLoadResponse>(error);
@@ -302,8 +374,12 @@ namespace WarehouseApi.Library.Services
 
 			CreateAndSaveCarLoadDocumentLoadingProcessAction(carLoadDocument?.Id ?? 0, pickerEmployee, CarLoadDocumentLoadingProcessActionType.EndLoad);
 
-			if(!_documentErrorsChecker.IsCarLoadDocumentLoadingCanBeDone(carLoadDocument, documentId, out error))
+			checkResult = _documentErrorsChecker.IsCarLoadDocumentLoadingCanBeDone(carLoadDocument, documentId);
+
+			if(checkResult.IsFailure)
 			{
+				var error = checkResult.Errors.FirstOrDefault();
+
 				failureResponse.Error = error.Message;
 
 				var result = Result.Failure<EndLoadResponse>(error);
@@ -311,12 +387,12 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			var isDocumentSavedAndEventsCreated =
-				await SetLoadOperationStateAndSaveDocument(carLoadDocument, CarLoadDocumentLoadOperationState.Done, accessToken);
+			var isDocumentLoadOperationStateUpdated =
+				SetDocumentLoadOperationState(carLoadDocument, CarLoadDocumentLoadOperationState.Done);
 
-			if(!isDocumentSavedAndEventsCreated)
+			if(!isDocumentLoadOperationStateUpdated)
 			{
-				error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
+				var error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
 
 				failureResponse.Error = error.Message;
 
@@ -324,6 +400,26 @@ namespace WarehouseApi.Library.Services
 
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
+
+			var isLogisticEventCreated =
+				await CreateEndLoadLogisticEvent(carLoadDocument.Id, accessToken, cancellationToken);
+
+			if(!isLogisticEventCreated)
+			{
+				var error = CarLoadDocumentErrors.CarLoadDocumentLogisticEventCreationError;
+
+				failureResponse.Error = error.Message;
+
+				var result = Result.Failure<EndLoadResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
+
+			var edoRequests = CreateEdoRequests(carLoadDocument);
+
+			_uow.Commit();
+
+			await PublishEdoRequestCreatedEvents(edoRequests);
 
 			var successResponse = new EndLoadResponse
 			{
@@ -338,7 +434,7 @@ namespace WarehouseApi.Library.Services
 		{
 			_logger.LogInformation("Получаем данные по заказу #{OrderId} из талона погрузки", orderId);
 			var documentOrderItems =
-				await _carLoadDocumentRepository.GeAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(_uow, orderId);
+				await _carLoadDocumentRepository.GetAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(_uow, orderId);
 
 			return documentOrderItems;
 		}
@@ -354,10 +450,9 @@ namespace WarehouseApi.Library.Services
 			return carLoadDocumentDto;
 		}
 
-		private async Task<bool> SetLoadOperationStateAndSaveDocument(
+		private bool SetDocumentLoadOperationState(
 			CarLoadDocumentEntity document,
-			CarLoadDocumentLoadOperationState newLoadOperationState,
-			string logisticsEventApiAccessToken)
+			CarLoadDocumentLoadOperationState newLoadOperationState)
 		{
 			if(newLoadOperationState != CarLoadDocumentLoadOperationState.InProgress
 				&& newLoadOperationState != CarLoadDocumentLoadOperationState.Done)
@@ -373,21 +468,8 @@ namespace WarehouseApi.Library.Services
 				newLoadOperationState);
 
 			document.LoadOperationState = newLoadOperationState;
+
 			_uow.Save(document);
-
-			var isLogisticsEventCreated =
-				newLoadOperationState == CarLoadDocumentLoadOperationState.InProgress
-				? await CreateStartLoadLogisticEvent(document.Id, logisticsEventApiAccessToken)
-				: await CreateEndLoadLogisticEvent(document.Id, logisticsEventApiAccessToken);
-
-			if(!isLogisticsEventCreated)
-			{
-				_logger.LogInformation("Логистическое событие для талона погрузки не было создано. Отменяем изменение статуса талона погрузки.");
-				_uow.Session.GetCurrentTransaction().Rollback();
-				return false;
-			}
-
-			_uow.Commit();
 
 			_logger.LogInformation("Статус талона погрузки #{DocumentId} успешно изменен на \"{NewStatus}\"",
 				document.Id,
@@ -396,54 +478,42 @@ namespace WarehouseApi.Library.Services
 			return true;
 		}
 
-		private void AddTrueMarkCodeAndSaveCarLoadDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterCode trueMarkCode)
+		private void AddTrueMarkCodeToCarLoadDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterIdentificationCode trueMarkWaterCode)
 		{
-			var codeEntity = CreateTrueMarkCodeEntity(trueMarkCode);
-
 			carLoadDocumentItem.TrueMarkCodes.Add(new CarLoadDocumentItemTrueMarkProductCode
 			{
-				TrueMarkCode = codeEntity,
+				CreationTime = DateTime.Now,
+				SourceCode = trueMarkWaterCode,
+				ResultCode = trueMarkWaterCode,
+				Problem = ProductCodeProblem.None,
+				SourceCodeStatus = SourceProductCodeStatus.Accepted,
 				CarLoadDocumentItem = carLoadDocumentItem
 			});
-
-			_uow.Save(carLoadDocumentItem);
-			_uow.Commit();
 		}
 
-		private void ChangeTrueMarkCodeAndSaveCarLoadDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterCode oldTrueMarkCode, TrueMarkWaterCode newTrueMarkCode)
+		private void ChangeTrueMarkCodeInCarLoadDocumentItem(
+			CarLoadDocumentItemEntity carLoadDocumentItem,
+			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode,
+			TrueMarkWaterIdentificationCode newTrueMarkWaterCode)
 		{
 			var codeToRemove = carLoadDocumentItem.TrueMarkCodes
 				.Where(x =>
-					x.TrueMarkCode.GTIN == oldTrueMarkCode.GTIN
-					&& x.TrueMarkCode.SerialNumber == oldTrueMarkCode.SerialNumber
-					&& x.TrueMarkCode.CheckCode == oldTrueMarkCode.CheckCode)
+					x.SourceCode.GTIN == oldTrueMarkWaterCode.GTIN
+					&& x.SourceCode.SerialNumber == oldTrueMarkWaterCode.SerialNumber
+					&& x.SourceCode.CheckCode == oldTrueMarkWaterCode.CheckCode)
 				.First();
 
 			var codeToAdd = new CarLoadDocumentItemTrueMarkProductCode
 			{
-				TrueMarkCode = CreateTrueMarkCodeEntity(newTrueMarkCode),
+				SourceCode = newTrueMarkWaterCode,
+				ResultCode = newTrueMarkWaterCode,
+				Problem = ProductCodeProblem.None,
+				SourceCodeStatus = SourceProductCodeStatus.Accepted,
 				CarLoadDocumentItem = carLoadDocumentItem
 			};
 
 			carLoadDocumentItem.TrueMarkCodes.Remove(codeToRemove);
 			carLoadDocumentItem.TrueMarkCodes.Add(codeToAdd);
-
-			_uow.Save(carLoadDocumentItem);
-			_uow.Commit();
-		}
-
-		private TrueMarkWaterIdentificationCode CreateTrueMarkCodeEntity(TrueMarkWaterCode trueMarkCode)
-		{
-			var codeEntity = new TrueMarkWaterIdentificationCode
-			{
-				IsInvalid = false,
-				RawCode = trueMarkCode.SourceCode?.Substring(0, Math.Min(255, trueMarkCode.SourceCode.Length)),
-				GTIN = trueMarkCode.GTIN,
-				SerialNumber = trueMarkCode.SerialNumber,
-				CheckCode = trueMarkCode.CheckCode
-			};
-
-			return codeEntity;
 		}
 
 		private void CreateAndSaveCarLoadDocumentLoadingProcessAction(
@@ -475,7 +545,7 @@ namespace WarehouseApi.Library.Services
 			_uow.Commit();
 		}
 
-		private async Task<bool> CreateStartLoadLogisticEvent(int documentId, string accessToken)
+		private async Task<bool> CreateStartLoadLogisticEvent(int documentId, string accessToken, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -487,7 +557,7 @@ namespace WarehouseApi.Library.Services
 					accessToken);
 
 				var isEventCreated =
-					await _logisticsEventsCreationService.CreateStartLoadingWarehouseEvent(documentId, accessToken, CancellationToken.None);
+					await _logisticsEventsCreationService.CreateStartLoadingWarehouseEvent(documentId, accessToken, cancellationToken);
 
 				_logger.LogInformation("Запрос к службе логистических событий для создания события начала сборки выполнен успешно");
 
@@ -500,7 +570,7 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		private async Task<bool> CreateEndLoadLogisticEvent(int documentId, string accessToken)
+		private async Task<bool> CreateEndLoadLogisticEvent(int documentId, string accessToken, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -512,7 +582,7 @@ namespace WarehouseApi.Library.Services
 					accessToken);
 
 				var isEventCreated =
-					await _logisticsEventsCreationService.CreateEndLoadingWarehouseEvent(documentId, accessToken, CancellationToken.None);
+					await _logisticsEventsCreationService.CreateEndLoadingWarehouseEvent(documentId, accessToken, cancellationToken);
 
 				_logger.LogInformation("Запрос к службе логистических событий для создания события завершения сборки выполнен успешно");
 
@@ -522,6 +592,81 @@ namespace WarehouseApi.Library.Services
 			{
 				_logger.LogError(ex.Message, ex);
 				return false;
+			}
+		}
+
+		private IEnumerable<OrderEdoRequest> CreateEdoRequests(CarLoadDocumentEntity carLoadDocument)
+		{
+			var carLoadDocumentsItemsNeedsRequest =
+				carLoadDocument.Items.Where(x => x.IsIndividualSetForOrder && x.OrderId != null)
+				.ToList();
+
+			var orderIdsNeedsRequest = carLoadDocumentsItemsNeedsRequest.Select(item => item.OrderId);
+
+			var orders = _orderRepository.Get(_uow, x => orderIdsNeedsRequest.Contains(x.Id));
+
+			var edoRequests = new List<OrderEdoRequest>();
+
+			foreach(var item in carLoadDocumentsItemsNeedsRequest)
+			{
+				var order = orders.Where(x => x.Id == item.OrderId).FirstOrDefault();
+
+				if(order?.IsClientWorksWithNewEdoProcessing == false)
+				{
+					continue;
+				}
+
+				var edoRequest = new OrderEdoRequest
+				{
+					Time = DateTime.Now,
+					Source = CustomerEdoRequestSource.Warehouse,
+					DocumentType = EdoDocumentType.UPD,
+					Order = orders.Where(x => x.Id == item.OrderId).FirstOrDefault(),
+				};
+
+				var productCodes = item.TrueMarkCodes
+					.Where(x => _trueMarkWaterCodeService.SuccessfullyUsedProductCodesStatuses.Contains(x.SourceCodeStatus));
+
+				foreach(var code in productCodes)
+				{
+					edoRequest.ProductCodes.Add(code);
+				}
+
+				_uow.Save(edoRequest);
+
+				edoRequests.Add(edoRequest);
+			}
+
+			return edoRequests;
+		}
+
+		private async Task PublishEdoRequestCreatedEvents(IEnumerable<OrderEdoRequest> edoRequests)
+		{
+			foreach(var edoRequest in edoRequests)
+			{
+				await PublishEdoRequestCreatedEvent(edoRequest.Id);
+			}
+		}
+
+		private async Task PublishEdoRequestCreatedEvent(int requestId)
+		{
+			_logger.LogInformation(
+				"Отправляем событие создания новой заявки на отправку документов ЭДО.  Id заявки: {TaskId}.",
+				requestId);
+
+			try
+			{
+				await _messageBus.Publish(new EdoRequestCreatedEvent { Id = requestId });
+
+				_logger.LogInformation("Событие создания новой заявки на отправку документов ЭДО отправлено успешно");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка при отправке события создания новой заявки на отправку документов ЭДО. Id задачи: {TaskId}. Exception: {ExceptionMessage}",
+					requestId,
+					ex.Message);
 			}
 		}
 

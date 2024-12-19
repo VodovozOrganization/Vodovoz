@@ -9,7 +9,7 @@ namespace Vodovoz.EntityRepositories.Store
 	{
 		decimal LoadedTerminalAmount(IUnitOfWork uow, int routelistId, int terminalId);
 		Task<IEnumerable<CarLoadDocumentEntity>> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId);
-		Task<IEnumerable<CarLoadDocumentItemEntity>> GeAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(IUnitOfWork uow, int orderId);
+		Task<IEnumerable<CarLoadDocumentItemEntity>> GetAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(IUnitOfWork uow, int orderId);
 		CarLoadDocumentLoadingProcessAction GetLastLoadingProcessActionByDocumentId(IUnitOfWork uow, int documentId);
 	}
 }

@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 
@@ -16,7 +16,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping
 			Map(x => x.DateCreated).Column("date_created");
 			Map(x => x.DateActivated).Column("date_activated");
 			Map(x => x.DateClosed).Column("date_closed");
-			Map(x => x.Status).Column("status").CustomType<DistrictsSetStatusStringType>();
+			Map(x => x.Status).Column("status");
 
 			References(x => x.Author).Column("author_id");
 

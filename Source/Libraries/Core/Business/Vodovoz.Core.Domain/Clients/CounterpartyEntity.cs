@@ -27,6 +27,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private OrderStatusForSendingUpd _orderStatusForSendingUpd;
 		private ConsentForEdoStatus _consentForEdoStatus;
 		private OrganizationEntity _worksThroughOrganization;
+		private bool _isNewEdoProcessing;
 		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
 
 		[Display(Name = "Код")]
@@ -61,6 +62,16 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _worksThroughOrganization;
 			set => SetField(ref _worksThroughOrganization, value);
+		}
+
+		/// <summary>
+		/// Документооборот по ЭДО с клиентом осуществляется по новой схеме
+		/// </summary>
+		[Display(Name = "Работа с ЭДО по новой схеме")]
+		public virtual bool IsNewEdoProcessing
+		{
+			get => _isNewEdoProcessing;
+			set => SetField(ref _isNewEdoProcessing, value);
 		}
 
 		[Display(Name = "Информация о прикрепленных файлах")]

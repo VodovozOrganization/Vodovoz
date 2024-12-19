@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Proposal;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Proposal
@@ -16,7 +16,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Proposal
 			Map(x => x.Location).Column("location");
 			Map(x => x.Description).Column("description");
 			Map(x => x.ProposalResponse).Column("proposal_response");
-			Map(x => x.Status).CustomType<ApplicationDevelopmentProposalStatusStringType>();
+			Map(x => x.Status);
 
 			References(x => x.Author).Column("author_id");
 		}

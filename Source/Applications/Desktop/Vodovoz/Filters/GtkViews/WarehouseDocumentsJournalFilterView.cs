@@ -25,6 +25,12 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CanChangeRestrictedDocumentType, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ychkbtnQRScanRequired.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowOnlyQRScanRequiredCarLoadDocuments, w => w.Visible)
+				.AddBinding(vm => vm.OnlyQRScanRequiredCarLoadDocuments, w => w.Active)
+				.InitializeFromSource();
+
 			yenumcomboboxMovementStatus.ItemsEnum = typeof(MovementDocumentStatus);
 			yenumcomboboxMovementStatus.Binding
 				.AddSource(ViewModel)

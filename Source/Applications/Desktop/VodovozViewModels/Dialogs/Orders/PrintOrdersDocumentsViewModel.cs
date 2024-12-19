@@ -78,7 +78,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 				OrdersToPrint.Add(new OrdersToPrintNode
 				{
 					Id = order.Id,
-					DeliveryDate = order.DeliveryDate.Value,
+					DeliveryDate = order.DeliveryDate,
 					Selected = true
 				});
 			}

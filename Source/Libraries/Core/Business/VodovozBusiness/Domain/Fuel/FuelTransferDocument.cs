@@ -317,11 +317,4 @@ namespace Vodovoz.Domain.Fuel
 		[Display(Name = "Получен")]
 		Received
 	}
-
-	public class FuelTransferDocumentStatusesStringType : NHibernate.Type.EnumStringType
-	{
-		public FuelTransferDocumentStatusesStringType() : base(typeof(FuelTransferDocumentStatuses))
-		{
-		}
-	}
 }

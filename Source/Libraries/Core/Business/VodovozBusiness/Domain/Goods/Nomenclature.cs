@@ -53,11 +53,11 @@ namespace Vodovoz.Domain.Goods
 		private CupHolderBracingType? _cupHolderBracingType;
 		private bool? _hasHeating;
 		private int? _newHeatingPower;
-		private int? _heatingProductivity;
+		private decimal? _heatingProductivity;
 		private ProtectionOnHotWaterTap? _protectionOnHotWaterTap;
 		private bool? _hasCooling;
 		private int? _newCoolingPower;
-		private int? _coolingProductivity;
+		private decimal? _coolingProductivity;
 		private CoolingType? _newCoolingType;
 		private LockerRefrigeratorType? _lockerRefrigeratorType;
 		private int? _lockerRefrigeratorVolume;
@@ -136,10 +136,27 @@ namespace Vodovoz.Domain.Goods
 		private int? _planMonth;
 		private string _amountInAPackage;
 		private int? _planDay;
+		private int? _heatingTemperatureFromOnline;
+		private int? _heatingTemperatureToOnline;
+		private int? _coolingTemperatureFromOnline;
+		private int? _coolingTemperatureToOnline;
+		private int? _lengthOnline;
+		private int? _widthOnline;
+		private int? _heightOnline;
+		private decimal? _weightOnline;
+		private PowerUnits? _heatingPowerUnits;
+		private PowerUnits? _coolingPowerUnits;
+		private ProductivityUnits? _heatingProductivityUnits;
+		private ProductivityUnits? _coolingProductivityUnits;
+		private ProductivityComparisionSign? _heatingProductivityComparisionSign;
+		private ProductivityComparisionSign? _coolingProductivityComparisionSign;
 		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse = new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
 
 		#region Свойства
 
+		/// <summary>
+		/// Дата создания
+		/// </summary>
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate
 		{
@@ -147,6 +164,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _createDate, value);
 		}
 
+		/// <summary>
+		/// Кем создана(пользователь)
+		/// </summary>
 		[Display(Name = "Кем создана")]
 		public virtual User CreatedBy
 		{
@@ -154,6 +174,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _createdBy, value);
 		}
 
+		/// <summary>
+		/// Официальное название
+		/// </summary>
 		[Display(Name = "Официальное название")]
 		public virtual string OfficialName
 		{
@@ -161,6 +184,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _officialName, value);
 		}
 
+		/// <summary>
+		/// Архив
+		/// </summary>
 		[Display(Name = "Архивная")]
 		public virtual bool IsArchive
 		{
@@ -168,6 +194,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _isArchive, value);
 		}
 
+		/// <summary>
+		/// Дилер
+		/// </summary>
 		[Display(Name = "Дилер")]
 		public virtual bool IsDiler
 		{
@@ -175,6 +204,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _isDiler, value);
 		}
 
+		/// <summary>
+		/// Печатается прайс в документах
+		/// </summary>
 		[Display(Name = "Печатается прайс в документах")]
 		public virtual bool CanPrintPrice
 		{
@@ -182,6 +214,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _canPrintPrice, value);
 		}
 
+		/// <summary>
+		/// Код 1с
+		/// </summary>
 		[Display(Name = "Код 1с")]
 		[StringLength(11)]
 		public virtual string Code1c
@@ -190,6 +225,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _code1c, value);
 		}
 
+		/// <summary>
+		/// Папка в 1с
+		/// </summary>
 		[Display(Name = "Папка в 1с")]
 		public virtual Folder1c Folder1C
 		{
@@ -197,6 +235,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _folder1, value);
 		}
 
+		/// <summary>
+		/// Модель оборудования
+		/// </summary>
 		[Display(Name = "Модель оборудования")]
 		public virtual string Model
 		{
@@ -204,6 +245,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _model, value);
 		}
 
+		/// <summary>
+		/// Вес
+		/// </summary>
 		[Display(Name = "Вес")]
 		public virtual decimal Weight
 		{
@@ -265,6 +309,9 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		/// <summary>
+		/// НДС
+		/// </summary>
 		[Display(Name = "НДС")]
 		public virtual VAT VAT
 		{
@@ -272,6 +319,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _vAT, value);
 		}
 
+		/// <summary>
+		/// Не резервировать
+		/// </summary>
 		[Display(Name = "Не резервировать")]
 		public virtual bool DoNotReserve
 		{
@@ -279,6 +329,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _doNotReserve, value);
 		}
 
+		/// <summary>
+		/// Приоритет аренды
+		/// </summary>
 		[Display(Name = "Приоритет аренды")]
 		public virtual bool RentPriority
 		{
@@ -296,6 +349,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _isDuty, value);
 		}
 
+		/// <summary>
+		/// Серийный номер
+		/// </summary>
 		[Display(Name = "Серийный номер")]
 		public virtual bool IsSerial
 		{
@@ -303,6 +359,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _isSerial, value);
 		}
 
+		/// <summary>
+		/// Единица измерения
+		/// </summary>
 		[Display(Name = "Единица измерения")]
 		public virtual MeasurementUnits Unit
 		{
@@ -310,6 +369,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _unit, value);
 		}
 
+		/// <summary>
+		/// Минимальное количество на складе
+		/// </summary>
 		[Display(Name = "Минимальное количество на складе")]
 		public virtual decimal MinStockCount
 		{
@@ -317,6 +379,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _minStockCount, value);
 		}
 
+		/// <summary>
+		/// Одноразовая тара
+		/// </summary>
 		[Display(Name = "Одноразовая тара для воды")]
 		public virtual bool IsDisposableTare
 		{
@@ -324,6 +389,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _isDisposableTare, value);
 		}
 
+		/// <summary>
+		/// Объем тары
+		/// </summary>
 		[Display(Name = "Объем тары для воды")]
 		public virtual TareVolume? TareVolume
 		{
@@ -331,6 +399,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _tareVolume, value);
 		}
 
+		/// <summary>
+		/// Категория
+		/// </summary>
 		[Display(Name = "Категория")]
 		public virtual new NomenclatureCategory Category
 		{
@@ -361,6 +432,9 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		/// <summary>
+		/// Доступность для продаж
+		/// </summary>
 		[Display(Name = "Доступность для продаж")]
 		public virtual SaleCategory? SaleCategory
 		{
@@ -368,6 +442,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _saleCategory, value);
 		}
 
+		/// <summary>
+		/// Подкатегория залогов
+		/// </summary>
 		[Display(Name = "Подкатегория залогов")]
 		public virtual TypeOfDepositCategory? TypeOfDepositCategory
 		{
@@ -375,6 +452,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _typeOfDepositCategory, value);
 		}
 
+		/// <summary>
+		/// Тип выезда мастера
+		/// </summary>
 		[Display(Name = "Тип выезда мастера")]
 		public virtual MasterServiceType? MasterServiceType
 		{
@@ -382,6 +462,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _masterServiceType, value);
 		}
 
+		/// <summary>
+		/// Цвет оборудования
+		/// </summary>
 		[Display(Name = "Цвет оборудования")]
 		public virtual EquipmentColors EquipmentColor
 		{
@@ -389,6 +472,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _equipmentColor, value);
 		}
 
+		/// <summary>
+		/// Вид оборудования
+		/// </summary>
 		[Display(Name = "Вид оборудования")]
 		public virtual EquipmentKind Kind
 		{
@@ -396,6 +482,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _kind, value);
 		}
 
+		/// <summary>
+		/// Производитель
+		/// </summary>
 		[Display(Name = "Производитель")]
 		public virtual Manufacturer Manufacturer
 		{
@@ -403,6 +492,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _manufacturer, value);
 		}
 
+		/// <summary>
+		/// Колонка МЛ
+		/// </summary>
 		[Display(Name = "Колонка МЛ")]
 		public virtual RouteColumn RouteListColumn
 		{
@@ -410,6 +502,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _routeListColumn, value);
 		}
 
+		/// <summary>
+		/// Сумма ущерба
+		/// </summary>
 		[Display(Name = "Сумма ущерба")]
 		public virtual decimal SumOfDamage
 		{
@@ -417,6 +512,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _sumOfDamage, value);
 		}
 
+		/// <summary>
+		/// Цены
+		/// </summary>
 		[Display(Name = "Цены")]
 		public virtual IList<NomenclaturePrice> NomenclaturePrice
 		{
@@ -424,6 +522,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _nomenclaturePrice, value);
 		}
 
+		/// <summary>
+		/// Альтернативные цены
+		/// </summary>
 		[Display(Name = "Альтернативные цены")]
 		public virtual IList<AlternativeNomenclaturePrice> AlternativeNomenclaturePrices
 		{
@@ -431,6 +532,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _alternativeNomenclaturePrices, value);
 		}
 
+		/// <summary>
+		/// Сокращенное название
+		/// </summary>
 		[Display(Name = "Сокращенное название")]
 		public virtual string ShortName
 		{
@@ -438,6 +542,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _shortName, value);
 		}
 
+		/// <summary>
+		/// Скрыть из МЛ
+		/// </summary>
 		[Display(Name = "Скрыть из МЛ")]
 		public virtual bool Hide
 		{
@@ -445,6 +552,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _hide, value);
 		}
 
+		/// <summary>
+		/// Доставка не требуется
+		/// </summary>
 		[Display(Name = "Доставка не требуется")]
 		public virtual bool NoDelivery
 		{
@@ -452,6 +562,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _noDelivery, value);
 		}
 
+		/// <summary>
+		/// Это новая бутыль
+		/// </summary>
 		[Display(Name = "Это новая бутыль")]
 		public virtual bool IsNewBottle
 		{
@@ -466,6 +579,9 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		/// <summary>
+		/// Это бракованая бутыль
+		/// </summary>
 		[Display(Name = "Это бракованая бутыль")]
 		public virtual bool IsDefectiveBottle
 		{
@@ -480,6 +596,9 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		/// <summary>
+		/// Стройка
+		/// </summary>
 		[Display(Name = "Стройка")]
 		public virtual bool IsShabbyBottle
 		{
@@ -494,6 +613,9 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		/// <summary>
+		/// Тип топлива
+		/// </summary>
 		[Display(Name = "Тип топлива")]
 		public virtual FuelType FuelType
 		{
@@ -501,6 +623,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _fuelType, value);
 		}
 
+		/// <summary>
+		/// Влияющая номенклатура
+		/// </summary>
 		[Display(Name = "Влияющая номенклатура")]
 		public virtual Nomenclature DependsOnNomenclature
 		{
@@ -508,7 +633,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _dependsOnNomenclature, value);
 		}
 
-
+		/// <summary>
+		/// Процент зарплаты мастера
+		/// </summary>
 		[Display(Name = "Процент зарплаты мастера")]
 		public virtual double PercentForMaster
 		{
@@ -516,6 +643,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _percentForMaster, value);
 		}
 
+		/// <summary>
+		/// Guid интернет магазина
+		/// </summary>
 		[Display(Name = "Guid интернет магазина")]
 		public virtual Guid? OnlineStoreGuid
 		{
@@ -523,6 +653,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _onlineStoreGuid, value);
 		}
 
+		/// <summary>
+		/// Группа товаров
+		/// </summary>
 		[Display(Name = "Группа товаров")]
 		public virtual ProductGroup ProductGroup
 		{
@@ -530,6 +663,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _productGroup, value);
 		}
 
+		/// <summary>
+		/// Каталог в мобильном приложении
+		/// </summary>
 		[Display(Name = "Каталог в мобильном приложении")]
 		public virtual MobileCatalog MobileCatalog
 		{
@@ -537,6 +673,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _mobileCatalog, value);
 		}
 
+		/// <summary>
+		/// Описание товара
+		/// </summary>
 		[Display(Name = "Описание товара")]
 		public virtual string Description
 		{
@@ -544,6 +683,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _description, value);
 		}
 
+		/// <summary>
+		/// Цвет пробки 19л бутыли
+		/// </summary>
 		[Display(Name = "Цвет пробки 19л бутыли")]
 		public virtual string BottleCapColor
 		{
@@ -551,6 +693,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _bottleCapColor, value);
 		}
 
+		/// <summary>
+		/// Интернет-магазин
+		/// </summary>
 		[Display(Name = "Интернет-магазин")]
 		public virtual OnlineStore OnlineStore
 		{
@@ -558,6 +703,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _onlineStore, value);
 		}
 
+		/// <summary>
+		/// Участвует в групповом заполнении себестоимости
+		/// </summary>
 		[Display(Name = "Участвует в групповом заполнении себестоимости")]
 		public virtual bool UsingInGroupPriceSet
 		{
@@ -565,12 +713,18 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _usingInGroupPriceSet, value);
 		}
 
+		/// <summary>
+		/// Параметры номенклатуры для ИПЗ
+		/// </summary>
 		public virtual IList<NomenclatureOnlineParameters> NomenclatureOnlineParameters
 		{
 			get => _nomenclatureOnlineParameters;
 			set => SetField(ref _nomenclatureOnlineParameters, value);
 		}
 
+		/// <summary>
+		/// Цены закупки ТМЦ
+		/// </summary>
 		[Display(Name = "Цены закупки ТМЦ")]
 		public virtual IList<NomenclaturePurchasePrice> PurchasePrices
 		{
@@ -581,6 +735,9 @@ namespace Vodovoz.Domain.Goods
 		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
 			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
 
+		/// <summary>
+		/// Себестоимость ТМЦ
+		/// </summary>
 		[Display(Name = "Себестоимость ТМЦ")]
 		public virtual IList<NomenclatureCostPrice> CostPrices
 		{
@@ -606,6 +763,9 @@ namespace Vodovoz.Domain.Goods
 			set => _observableAlternativeNomenclaturePrices = value;
 		}
 
+		/// <summary>
+		/// Стоимости доставки ТМЦ на склад
+		/// </summary>
 		[Display(Name = "Стоимости доставки ТМЦ на склад")]
 		public virtual IList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
 		{
@@ -613,7 +773,10 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _innerDeliveryPrices, value);
 		}
 
-		[Display(Name = "Минимальный остаток на складе ")]
+		/// <summary>
+		/// Минимальный остаток на складе
+		/// </summary>
+		[Display(Name = "Минимальный остаток на складе")]
 		public virtual IObservableList<NomenclatureMinimumBalanceByWarehouse> NomenclatureMinimumBalancesByWarehouse
 		{
 			get => _nomenclatureMinimumBalancesByWarehouse;
@@ -623,6 +786,9 @@ namespace Vodovoz.Domain.Goods
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
 
+		/// <summary>
+		/// Инвентарный учет
+		/// </summary>
 		[Display(Name = "Инвентарный учет")]
 		public virtual bool HasInventoryAccounting
 		{
@@ -630,6 +796,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _hasInventoryAccounting, value);
 		}
 		
+		/// <summary>
+		/// Учет состояния ТМЦ(б/у | Нов)
+		/// </summary>
 		[Display(Name = "Учет состояния ТМЦ(б/у | Нов)")]
 		public virtual bool HasConditionAccounting
 		{
@@ -637,6 +806,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _hasConditionAccounting, value);
 		}
 
+		/// <summary>
+		/// Тип стаканодержателя
+		/// </summary>
 		[Display(Name = "Тип стаканодержателя")]
 		public virtual GlassHolderType? GlassHolderType
 		{
@@ -648,6 +820,9 @@ namespace Vodovoz.Domain.Goods
 
 		#region Свойства товаров для магазина
 
+		/// <summary>
+		/// Id в интернет магазине
+		/// </summary>
 		[Display(Name = "Id в интернет магазине")]
 		public virtual string OnlineStoreExternalId
 		{
@@ -655,6 +830,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _onlineStoreExternalId, value);
 		}
 
+		/// <summary>
+		/// Поставщик
+		/// </summary>
 		[Display(Name = "Поставщик")]
 		public virtual Counterparty ShipperCounterparty
 		{
@@ -662,6 +840,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _shipperCounterparty, value);
 		}
 
+		/// <summary>
+		/// Ячейка хранения
+		/// </summary>
 		[Display(Name = "Ячейка хранения")]
 		public virtual string StorageCell
 		{
@@ -669,6 +850,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _storageCell, value);
 		}
 
+		/// <summary>
+		/// Цвет
+		/// </summary>
 		[Display(Name = "Цвет")]
 		public virtual string Color
 		{
@@ -676,6 +860,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _color, value);
 		}
 
+		/// <summary>
+		/// Материал
+		/// </summary>
 		[Display(Name = "Материал")]
 		public virtual string Material
 		{
@@ -683,6 +870,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _material, value);
 		}
 
+		/// <summary>
+		/// Объем
+		/// </summary>
 		[Display(Name = "Объем")]
 		public virtual string Liters
 		{
@@ -690,6 +880,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _liters, value);
 		}
 
+		/// <summary>
+		/// Размеры
+		/// </summary>
 		[Display(Name = "Размеры")]
 		public virtual string Size
 		{
@@ -697,6 +890,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _size, value);
 		}
 
+		/// <summary>
+		/// Тип упаковки
+		/// </summary>
 		[Display(Name = "Тип упаковки")]
 		public virtual string Package
 		{
@@ -704,6 +900,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _package, value);
 		}
 
+		/// <summary>
+		/// Степень обжарки
+		/// </summary>
 		[Display(Name = "Степень обжарки")]
 		public virtual string DegreeOfRoast
 		{
@@ -711,6 +910,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _degreeOfRoast, value);
 		}
 
+		/// <summary>
+		/// Запах
+		/// </summary>
 		[Display(Name = "Запах")]
 		public virtual string Smell
 		{
@@ -718,6 +920,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _smell, value);
 		}
 
+		/// <summary>
+		/// Вкус
+		/// </summary>
 		[Display(Name = "Вкус")]
 		public virtual string Taste
 		{
@@ -725,6 +930,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _taste, value);
 		}
 
+		/// <summary>
+		/// Объем шкафчика/холодильника
+		/// </summary>
 		[Display(Name = "Объем шкафчика/холодильника")]
 		public virtual string RefrigeratorCapacity
 		{
@@ -732,6 +940,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _refrigeratorCapacity, value);
 		}
 
+		/// <summary>
+		/// Тип охлаждения
+		/// </summary>
 		[Display(Name = "Тип охлаждения")]
 		public virtual string CoolingType
 		{
@@ -739,6 +950,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _coolingType, value);
 		}
 
+		/// <summary>
+		/// Мощность нагрева
+		/// </summary>
 		[Display(Name = "Мощность нагрева")]
 		public virtual string HeatingPower
 		{
@@ -746,6 +960,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _heatingPower, value);
 		}
 
+		/// <summary>
+		/// Мощность охлаждения
+		/// </summary>
 		[Display(Name = "Мощность охлаждения")]
 		public virtual string CoolingPower
 		{
@@ -753,6 +970,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _coolingPower, value);
 		}
 
+		/// <summary>
+		/// Производительность нагрева
+		/// </summary>
 		[Display(Name = "Производительность нагрева")]
 		public virtual string HeatingPerformance
 		{
@@ -760,6 +980,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _heatingPerformance, value);
 		}
 
+		/// <summary>
+		/// Производительность охлаждения
+		/// </summary>
 		[Display(Name = "Производительность охлаждения")]
 		public virtual string CoolingPerformance
 		{
@@ -767,6 +990,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _coolingPerformance, value);
 		}
 
+		/// <summary>
+		/// Количество картриджей
+		/// </summary>
 		[Display(Name = "Количество картриджей")]
 		public virtual string NumberOfCartridges
 		{
@@ -774,6 +1000,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _numberOfCartridges, value);
 		}
 
+		/// <summary>
+		/// Характеристика картриджей
+		/// </summary>
 		[Display(Name = "Характеристика картриджей")]
 		public virtual string CharacteristicsOfCartridges
 		{
@@ -781,6 +1010,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _characteristicsOfCartridges, value);
 		}
 
+		/// <summary>
+		/// Страна происхождения
+		/// </summary>
 		[Display(Name = "Страна происхождения")]
 		public virtual string CountryOfOrigin
 		{
@@ -788,6 +1020,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _countryOfOrigin, value);
 		}
 
+		/// <summary>
+		/// Количество  в упаковке
+		/// </summary>
 		[Display(Name = "Количество  в упаковке")]
 		public virtual string AmountInAPackage
 		{
@@ -795,6 +1030,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _amountInAPackage, value);
 		}
 
+		/// <summary>
+		/// План день
+		/// </summary>
 		[Display(Name = "План день")]
 		public virtual int? PlanDay
 		{
@@ -802,6 +1040,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _planDay, value);
 		}
 
+		/// <summary>
+		/// План месяц
+		/// </summary>
 		[Display(Name = "План месяц")]
 		public virtual int? PlanMonth
 		{
@@ -813,6 +1054,9 @@ namespace Vodovoz.Domain.Goods
 
 		#region Онлайн характеристики для ИПЗ
 
+		/// <summary>
+		/// Онлайн каталог в мобильном приложении
+		/// </summary>
 		[Display(Name = "Онлайн каталог в мобильном приложении")]
 		public virtual MobileAppNomenclatureOnlineCatalog MobileAppNomenclatureOnlineCatalog
 		{
@@ -820,6 +1064,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _mobileAppNomenclatureOnlineCatalog, value);
 		}
 
+		/// <summary>
+		/// Онлайн каталог на сайте ВВ
+		/// </summary>
 		[Display(Name = "Онлайн каталог на сайте ВВ")]
 		public virtual VodovozWebSiteNomenclatureOnlineCatalog VodovozWebSiteNomenclatureOnlineCatalog
 		{
@@ -827,6 +1074,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _vodovozWebSiteNomenclatureOnlineCatalog, value);
 		}
 
+		/// <summary>
+		/// Онлайн каталог на сайте Кулер Сэйл
+		/// </summary>
 		[Display(Name = "Онлайн каталог на сайте Кулер Сэйл")]
 		public virtual KulerSaleWebSiteNomenclatureOnlineCatalog KulerSaleWebSiteNomenclatureOnlineCatalog
 		{
@@ -834,6 +1084,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _kulerSaleWebSiteNomenclatureOnlineCatalog, value);
 		}
 
+		/// <summary>
+		/// Онлайн вид товара
+		/// </summary>
 		[Display(Name = "Онлайн вид товара")]
 		public virtual NomenclatureOnlineGroup NomenclatureOnlineGroup
 		{
@@ -841,6 +1094,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _nomenclatureOnlineGroup, value);
 		}
 
+		/// <summary>
+		/// Онлайн тип товара
+		/// </summary>
 		[Display(Name = "Онлайн тип товара")]
 		public virtual NomenclatureOnlineCategory NomenclatureOnlineCategory
 		{
@@ -848,6 +1104,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _nomenclatureOnlineCategory, value);
 		}
 
+		/// <summary>
+		/// Название в ИПЗ
+		/// </summary>
 		[Display(Name = "Название в ИПЗ")]
 		public virtual string OnlineName
 		{
@@ -855,6 +1114,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _onlineName, value);
 		}
 
+		/// <summary>
+		/// Тип установки
+		/// </summary>
 		[Display(Name = "Тип установки")]
 		public virtual EquipmentInstallationType? EquipmentInstallationType
 		{
@@ -862,6 +1124,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _equipmentInstallationType, value);
 		}
 
+		/// <summary>
+		/// Тип загрузки
+		/// </summary>
 		[Display(Name = "Тип загрузки")]
 		public virtual EquipmentWorkloadType? EquipmentWorkloadType
 		{
@@ -869,6 +1134,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _equipmentWorkloadType, value);
 		}
 
+		/// <summary>
+		/// Тип помпы
+		/// </summary>
 		[Display(Name = "Тип помпы")]
 		public virtual PumpType? PumpType
 		{
@@ -876,6 +1144,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _pumpType, value);
 		}
 
+		/// <summary>
+		/// Тип крепления(стаканодержатель)
+		/// </summary>
 		[Display(Name = "Тип крепления(стаканодержатель)")]
 		public virtual CupHolderBracingType? CupHolderBracingType
 		{
@@ -883,6 +1154,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _cupHolderBracingType, value);
 		}
 
+		/// <summary>
+		/// Нагрев
+		/// </summary>
 		[Display(Name = "Нагрев")]
 		public virtual bool? HasHeating
 		{
@@ -890,6 +1164,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _hasHeating, value);
 		}
 
+		/// <summary>
+		/// Мощность нагрева
+		/// </summary>
 		[Display(Name = "Мощность нагрева")]
 		public virtual int? NewHeatingPower
 		{
@@ -897,13 +1174,19 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _newHeatingPower, value);
 		}
 
+		/// <summary>
+		/// Производительность нагрева
+		/// </summary>
 		[Display(Name = "Производительность нагрева")]
-		public virtual int? HeatingProductivity
+		public virtual decimal? HeatingProductivity
 		{
 			get => _heatingProductivity;
 			set => SetField(ref _heatingProductivity, value);
 		}
 
+		/// <summary>
+		/// Защита на кране горячей воды
+		/// </summary>
 		[Display(Name = "Защита на кране горячей воды")]
 		public virtual ProtectionOnHotWaterTap? ProtectionOnHotWaterTap
 		{
@@ -911,6 +1194,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _protectionOnHotWaterTap, value);
 		}
 
+		/// <summary>
+		/// Охлаждение
+		/// </summary>
 		[Display(Name = "Охлаждение")]
 		public virtual bool? HasCooling
 		{
@@ -918,6 +1204,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _hasCooling, value);
 		}
 
+		/// <summary>
+		/// Мощность охлаждения
+		/// </summary>
 		[Display(Name = "Мощность охлаждения")]
 		public virtual int? NewCoolingPower
 		{
@@ -925,13 +1214,19 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _newCoolingPower, value);
 		}
 
+		/// <summary>
+		/// Производительность охлаждения
+		/// </summary>
 		[Display(Name = "Производительность охлаждения")]
-		public virtual int? CoolingProductivity
+		public virtual decimal? CoolingProductivity
 		{
 			get => _coolingProductivity;
 			set => SetField(ref _coolingProductivity, value);
 		}
 
+		/// <summary>
+		/// Тип охлаждения
+		/// </summary>
 		[Display(Name = "Тип охлаждения")]
 		public virtual CoolingType? NewCoolingType
 		{
@@ -939,6 +1234,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _newCoolingType, value);
 		}
 
+		/// <summary>
+		/// Шкафчик/холодильник
+		/// </summary>
 		[Display(Name = "Шкафчик/холодильник")]
 		public virtual LockerRefrigeratorType? LockerRefrigeratorType
 		{
@@ -946,6 +1244,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _lockerRefrigeratorType, value);
 		}
 
+		/// <summary>
+		/// Объем шкафчика/холодильника
+		/// </summary>
 		[Display(Name = "Объем шкафчика/холодильника")]
 		public virtual int? LockerRefrigeratorVolume
 		{
@@ -953,6 +1254,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _lockerRefrigeratorVolume, value);
 		}
 
+		/// <summary>
+		/// Тип кранов
+		/// </summary>
 		[Display(Name = "Тип кранов")]
 		public virtual TapType? TapType
 		{
@@ -960,11 +1264,154 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _tapType, value);
 		}
 
-		[Display(Name = "Газированная вода?")]
+		/// <summary>
+		/// Газированная вода
+		/// </summary>
+		[Display(Name = "Газированная вода")]
 		public virtual bool IsSparklingWater
 		{
 			get => _isSparklingWater;
 			set => SetField(ref _isSparklingWater, value);
+		}
+
+		/// <summary>
+		/// Температура нагрева от
+		/// </summary>
+		[Display(Name = "Температура нагрева от")]
+		public virtual int? HeatingTemperatureFromOnline
+		{
+			get => _heatingTemperatureFromOnline;
+			set => SetField(ref _heatingTemperatureFromOnline, value);
+		}
+
+		/// <summary>
+		/// Температура нагрева до
+		/// </summary>
+		[Display(Name = "Температура нагрева до")]
+		public virtual int? HeatingTemperatureToOnline
+		{
+			get => _heatingTemperatureToOnline;
+			set => SetField(ref _heatingTemperatureToOnline, value);
+		}
+
+		/// <summary>
+		/// Температура охлаждения от
+		/// </summary>
+		[Display(Name = "Температура охлаждения от")]
+		public virtual int? CoolingTemperatureFromOnline
+		{
+			get => _coolingTemperatureFromOnline;
+			set => SetField(ref _coolingTemperatureFromOnline, value);
+		}
+
+		/// <summary>
+		/// Температура охлаждения до
+		/// </summary>
+		[Display(Name = "Температура охлаждения до")]
+		public virtual int? CoolingTemperatureToOnline
+		{
+			get => _coolingTemperatureToOnline;
+			set => SetField(ref _coolingTemperatureToOnline, value);
+		}
+
+		/// <summary>
+		/// Длина для ИПЗ
+		/// </summary>
+		[Display(Name = "Длина для ИПЗ")]
+		public virtual int? LengthOnline
+		{
+			get => _lengthOnline;
+			set => SetField(ref _lengthOnline, value);
+		}
+		
+		/// <summary>
+		/// Ширина для ИПЗ
+		/// </summary>
+		[Display(Name = "Ширина для ИПЗ")]
+		public virtual int? WidthOnline
+		{
+			get => _widthOnline;
+			set => SetField(ref _widthOnline, value);
+		}
+		
+		/// <summary>
+		/// Высота для ИПЗ
+		/// </summary>
+		[Display(Name = "Высота для ИПЗ")]
+		public virtual int? HeightOnline
+		{
+			get => _heightOnline;
+			set => SetField(ref _heightOnline, value);
+		}
+		
+		/// <summary>
+		/// Вес для ИПЗ
+		/// </summary>
+		[Display(Name = "Вес для ИПЗ")]
+		public virtual decimal? WeightOnline
+		{
+			get => _weightOnline;
+			set => SetField(ref _weightOnline, value);
+		}
+
+		/// <summary>
+		/// Единицы измерения мощности нагрева
+		/// </summary>
+		[Display(Name = "Единицы измерения мощности нагрева")]
+		public virtual PowerUnits? HeatingPowerUnits
+		{
+			get => _heatingPowerUnits;
+			set => SetField(ref _heatingPowerUnits, value);
+		}
+		
+		/// <summary>
+		/// Единицы измерения мощности охлаждения
+		/// </summary>
+		[Display(Name = "Единицы измерения мощности охлаждения")]
+		public virtual PowerUnits? CoolingPowerUnits
+		{
+			get => _coolingPowerUnits;
+			set => SetField(ref _coolingPowerUnits, value);
+		}
+		
+		/// <summary>
+		/// Единицы измерения производительности нагрева
+		/// </summary>
+		[Display(Name = "Единицы измерения производительности нагрева")]
+		public virtual ProductivityUnits? HeatingProductivityUnits
+		{
+			get => _heatingProductivityUnits;
+			set => SetField(ref _heatingProductivityUnits, value);
+		}
+		
+		/// <summary>
+		/// Единицы измерения производительности охлаждения
+		/// </summary>
+		[Display(Name = "Единицы измерения производительности охлаждения")]
+		public virtual ProductivityUnits? CoolingProductivityUnits
+		{
+			get => _coolingProductivityUnits;
+			set => SetField(ref _coolingProductivityUnits, value);
+		}
+		
+		/// <summary>
+		/// Показатель производительности нагрева
+		/// </summary>
+		[Display(Name = "Показатель производительности нагрева")]
+		public virtual ProductivityComparisionSign? HeatingProductivityComparisionSign
+		{
+			get => _heatingProductivityComparisionSign;
+			set => SetField(ref _heatingProductivityComparisionSign, value);
+		}
+		
+		/// <summary>
+		/// Показатель производительности охлаждения
+		/// </summary>
+		[Display(Name = "Показатель производительности охлаждения")]
+		public virtual ProductivityComparisionSign? CoolingProductivityComparisionSign
+		{
+			get => _coolingProductivityComparisionSign;
+			set => SetField(ref _coolingProductivityComparisionSign, value);
 		}
 
 		#endregion Онлайн характеристики для ИПЗ
@@ -1233,6 +1680,34 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult("Должна быть выбрана принадлежность номенклатуры к группе товаров",
 					new[] { nameof(ProductGroup) });
 			}
+
+			if((_lengthOnline >= 0 && (!_widthOnline.HasValue || _widthOnline == 0 || !_heightOnline.HasValue || _heightOnline == 0))
+				|| (_widthOnline >= 0 && (!_lengthOnline.HasValue || _lengthOnline == 0 || !_heightOnline.HasValue || _heightOnline == 0))
+				|| (_heightOnline >= 0 && (!_lengthOnline.HasValue || _lengthOnline == 0 || !_widthOnline.HasValue || _widthOnline == 0)))
+			{
+				yield return new ValidationResult(
+					"Габариты на вкладке Сайты и приложения должны быть либо пустыми, либо заполнены и больше 0",
+					new[] { nameof(LengthOnline), nameof(WidthOnline), nameof(HeightOnline) });
+			}
+			
+			if(_weightOnline == 0)
+			{
+				yield return new ValidationResult(
+					"Вес на вкладке Сайты и приложения должен быть больше 0",
+					new[] { nameof(WeightOnline) });
+			}
+			
+			if(_coolingTemperatureFromOnline > _coolingTemperatureToOnline)
+			{
+				yield return new ValidationResult("Начальное значение температуры охлаждения не может быть больше конечного",
+					new[] { nameof(CoolingTemperatureFromOnline), nameof(CoolingTemperatureToOnline) });
+			}
+			
+			if(_heatingTemperatureFromOnline > _heatingTemperatureToOnline)
+			{
+				yield return new ValidationResult("Начальное значение температуры нагрева не может быть больше конечного",
+					new[] { nameof(HeatingTemperatureFromOnline), nameof(HeatingTemperatureToOnline) });
+			}
 		}
 
 		#endregion IValidatableObject implementation
@@ -1450,13 +1925,9 @@ namespace Vodovoz.Domain.Goods
 			PumpType = null;
 			CupHolderBracingType = null;
 			HasHeating = null;
-			NewHeatingPower = null;
-			HeatingProductivity = null;
-			ProtectionOnHotWaterTap = null;
 			HasCooling = null;
-			NewCoolingPower = null;
-			CoolingProductivity = null;
-			NewCoolingType = null;
+			ResetHeatingParameters();
+			ResetCoolingParameters();
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
@@ -1485,13 +1956,9 @@ namespace Vodovoz.Domain.Goods
 			EquipmentWorkloadType = null;
 			CupHolderBracingType = null;
 			HasHeating = null;
-			NewHeatingPower = null;
-			HeatingProductivity = null;
-			ProtectionOnHotWaterTap = null;
 			HasCooling = null;
-			NewCoolingPower = null;
-			CoolingProductivity = null;
-			NewCoolingType = null;
+			ResetHeatingParameters();
+			ResetCoolingParameters();
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
@@ -1504,13 +1971,9 @@ namespace Vodovoz.Domain.Goods
 			EquipmentWorkloadType = null;
 			PumpType = null;
 			HasHeating = null;
-			NewHeatingPower = null;
-			HeatingProductivity = null;
-			ProtectionOnHotWaterTap = null;
 			HasCooling = null;
-			NewCoolingPower = null;
-			CoolingProductivity = null;
-			NewCoolingType = null;
+			ResetHeatingParameters();
+			ResetCoolingParameters();
 			LockerRefrigeratorType = null;
 			LockerRefrigeratorVolume = null;
 			TapType = null;
@@ -1519,15 +1982,25 @@ namespace Vodovoz.Domain.Goods
 		public virtual void ResetCoolingParameters()
 		{
 			NewCoolingPower = null;
+			CoolingPowerUnits = null;
 			CoolingProductivity = null;
+			CoolingProductivityComparisionSign = null;
+			CoolingProductivityUnits = null;
 			NewCoolingType = null;
+			CoolingTemperatureFromOnline = null;
+			CoolingTemperatureToOnline = null;
 		}
 
 		public virtual void ResetHeatingParameters()
 		{
 			NewHeatingPower = null;
+			HeatingPowerUnits = null;
 			HeatingProductivity = null;
+			HeatingProductivityComparisionSign = null;
+			HeatingProductivityUnits = null;
 			ProtectionOnHotWaterTap = null;
+			HeatingTemperatureFromOnline = null;
+			HeatingTemperatureToOnline = null;
 		}
 
 		public virtual void ResetLockerRefrigeratorVolume()

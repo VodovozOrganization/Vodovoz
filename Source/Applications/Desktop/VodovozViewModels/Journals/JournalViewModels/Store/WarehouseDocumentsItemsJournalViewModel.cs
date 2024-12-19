@@ -44,6 +44,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Warehouses;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {

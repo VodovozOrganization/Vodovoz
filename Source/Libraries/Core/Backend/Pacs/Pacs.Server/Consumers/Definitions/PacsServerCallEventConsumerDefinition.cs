@@ -1,5 +1,4 @@
-﻿using Core.Infrastructure;
-using MassTransit;
+﻿using MassTransit;
 using Pacs.Core.Messages.Events;
 using RabbitMQ.Client;
 

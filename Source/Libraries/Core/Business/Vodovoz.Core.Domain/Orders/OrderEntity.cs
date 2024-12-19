@@ -680,6 +680,12 @@ namespace Vodovoz.Core.Domain.Orders
 			&& Client?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
 
+		/// <summary>
+		/// Документооборот по ЭДО с клиентом по заказу осуществляется по новой схеме
+		/// </summary>
+		public virtual bool IsClientWorksWithNewEdoProcessing =>
+			Client?.IsNewEdoProcessing ?? false;
+
 		#endregion Вычисляемые свойства
 
 		public override string ToString()
