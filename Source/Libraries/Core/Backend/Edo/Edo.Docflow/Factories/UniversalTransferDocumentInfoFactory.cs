@@ -36,11 +36,19 @@ namespace Edo.Docflow.Factories
 				throw new ArgumentNullException(nameof(transferOrder));
 			}
 
-			if(transferOrder.Seller is null
-				|| transferOrder.Customer is null
-				|| !transferOrder.TrueMarkCodes.Any())
+			if(transferOrder.Seller is null)
 			{
-				throw new InvalidOperationException("В заказе перемещения товаров часть данных отсутствует");
+				throw new InvalidOperationException("В заказе перемещения товаров не указан продавец");
+			}
+
+			if(transferOrder.Customer is null)
+			{
+				throw new InvalidOperationException("В заказе перемещения товаров не указан покупатель");
+			}
+
+			if(transferOrder.Date == default)
+			{
+				throw new InvalidOperationException("В заказе перемещения товаров не указана дата");
 			}
 
 			if(transferOrder.Id == 0)
@@ -53,10 +61,12 @@ namespace Edo.Docflow.Factories
 
 		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(TransferOrder transferOrder)
 		{
+			var products = GetProducts(transferOrder);
+
 			var document = new UniversalTransferDocumentInfo
 			{
 				Number = transferOrder.Id,
-				Sum = 0,
+				Sum = products.Sum(x => x.Sum),
 				Date = transferOrder.Date,
 				Seller = GetSellerInfo(transferOrder),
 				Customer = GetCustomerInfo(transferOrder),
@@ -64,8 +74,8 @@ namespace Edo.Docflow.Factories
 				DocumentConfirmingShipment = GetDocumentConfirmingShipmentInfo(transferOrder),
 				BasisShipment = GetBasisShipmentInfo(transferOrder),
 				Payments = GetPayments(transferOrder),
-				Products = GetProducts(transferOrder),
-				AdditionalInformation = GettAdditionalInformation(transferOrder)
+				Products = products,
+				//AdditionalInformation = GettAdditionalInformation(transferOrder)
 			};
 
 			return document;
@@ -152,16 +162,19 @@ namespace Edo.Docflow.Factories
 
 				var productCount = gtinGroup.Value.Count;
 
+				var price = nomenclature.GetPrice(productCount);
+				var includeVat = Math.Round(price * nomenclature.VatNumericValue / (1 + nomenclature.VatNumericValue), 2);
+
 				var product = new ProductInfo
 				{
 					Name = nomenclature.Name,
 					IsService = nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId,
 					UnitName = nomenclature.Unit.Name,
 					OKEI = nomenclature.Unit.OKEI,
-					Code = "",
+					Code = nomenclature.Id.ToString(),
 					Count = productCount,
 					Price = nomenclature.GetPrice(productCount),
-					IncludeVat = 0,
+					IncludeVat = includeVat,
 					ValueAddedTax = nomenclature.VatNumericValue,
 					DiscountMoney = 0,
 					TrueMarkCodes = gtinGroup.Value.Select(x => x.RawCode),
