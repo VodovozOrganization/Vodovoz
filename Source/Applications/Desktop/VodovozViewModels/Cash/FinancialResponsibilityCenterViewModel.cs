@@ -1,4 +1,5 @@
 ﻿using QS.Commands;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -14,6 +15,7 @@ using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Store.Reports;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Cash
 {
@@ -21,6 +23,7 @@ namespace Vodovoz.ViewModels.Cash
 	{
 		private Employee _responsibleEmployee;
 		private Employee _viceResponsibleEmployee;
+		private object _selectedSubdivisionNodeObject;
 
 		public FinancialResponsibilityCenterViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -73,6 +76,17 @@ namespace Vodovoz.ViewModels.Cash
 
 			SaveCommand = new DelegateCommand(SaveAndClose);
 			CancelCommand = new DelegateCommand(() => Close(HasChanges, CloseSource.Cancel));
+
+			OpenSubdivisionCommand = new DelegateCommand(OpenSubdivision,()=> CanOpenSubdivision);
+			OpenSubdivisionCommand.CanExecuteChangedWith(this, x => x.CanOpenSubdivision);
+		}
+
+		[PropertyChangedAlso(nameof(SelectedSubdivisionNode))]
+		[PropertyChangedAlso(nameof(CanOpenSubdivision))]
+		public object SelectedSubdivisionNodeObject
+		{
+			get => _selectedSubdivisionNodeObject;
+			set => SetField(ref _selectedSubdivisionNodeObject, value);
 		}
 
 		public Employee ResponsibleEmployee
@@ -92,5 +106,20 @@ namespace Vodovoz.ViewModels.Cash
 		public IEnumerable<EntityIdToNameNode> ResponsibleOfSubdivisions { get; }
 		public DelegateCommand SaveCommand { get; set; }
 		public DelegateCommand CancelCommand { get; set; }
+		public DelegateCommand OpenSubdivisionCommand { get; }
+
+		public EntityIdToNameNode SelectedSubdivisionNode => SelectedSubdivisionNodeObject as EntityIdToNameNode;
+
+		public bool CanOpenSubdivision => SelectedSubdivisionNode != null;
+
+		private void OpenSubdivision()
+		{
+			if(SelectedSubdivisionNode is null)
+			{
+				return;
+			}
+
+			NavigationManager.OpenViewModel<SubdivisionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(SelectedSubdivisionNode.Id));
+		}
 	}
 }

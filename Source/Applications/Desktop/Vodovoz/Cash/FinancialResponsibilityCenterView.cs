@@ -1,8 +1,10 @@
-﻿using Gdk;
+﻿using Gtk;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Store.Reports;
+using Selection = Gdk.Selection;
 
 namespace Vodovoz.Cash
 {
@@ -37,11 +39,23 @@ namespace Vodovoz.Cash
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.InitializeFromSource();
 
+			ResponsibleOfSubdivisions.CreateFluentColumnsConfig<EntityIdToNameNode>()
+				.AddColumn("Код").AddNumericRenderer(node => node.Id)
+				.AddColumn("Название").AddTextRenderer(node => node.Name)
+				.Finish();
+
+			ResponsibleOfSubdivisions.RowActivated += OnResponsibleSubdivisionsRowActivated;
+
 			buttonSave.BindCommand(ViewModel.SaveCommand);
 			buttonCancel.BindCommand(ViewModel.CancelCommand);
 
 			btnCopyEntityId.Sensitive = ViewModel.Entity.Id > 0;
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		private void OnResponsibleSubdivisionsRowActivated(object o, RowActivatedArgs args)
+		{
+			ViewModel.OpenSubdivisionCommand.Execute();
 		}
 
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
