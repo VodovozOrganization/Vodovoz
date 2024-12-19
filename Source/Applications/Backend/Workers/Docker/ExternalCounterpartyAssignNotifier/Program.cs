@@ -36,7 +36,7 @@ namespace ExternalCounterpartyAssignNotifier
 						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
 					})
 
-					.ConfigureZabbixSender(nameof(ExternalCounterpartyAssignNotifier))
+					.ConfigureZabbixSenderFromDataBase(nameof(ExternalCounterpartyAssignNotifier))
 
 					.AddMappingAssemblies(
 						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,

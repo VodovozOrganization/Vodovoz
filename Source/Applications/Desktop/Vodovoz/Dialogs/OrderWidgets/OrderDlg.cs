@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -326,7 +326,7 @@ namespace Vodovoz
 					PanelViewType.DeliveryPointView,
 					PanelViewType.EmailsPanelView,
 					PanelViewType.CallTaskPanelView,
-					PanelViewType.SmsSendPanelView,
+					//PanelViewType.SmsSendPanelView,
 					PanelViewType.EdoLightsMatrixPanelView
 				};
 			}
@@ -2903,18 +2903,23 @@ namespace Vodovoz
 			logger.Info("Открытие документа заказа");
 			
 			if(!treeDocuments.GetSelectedObjects().Any())
+			{
 				return;
+			}
 
-			var rdlDocs = treeDocuments.GetSelectedObjects()
-									   .OfType<PrintableOrderDocument>()
-									   .Where(d => d.PrintType == PrinterType.RDL)
-									   .ToList();
+			var rdlDocs =
+				treeDocuments.GetSelectedObjects()
+					.OfType<PrintableOrderDocument>()
+					.Where(d => d.PrintType == PrinterType.RDL)
+					.ToList();
 
 			if(rdlDocs.Any())
 			{
-				string whatToPrint = rdlDocs.ToList().Count > 1
-											? "документов"
-											: "документа \"" + rdlDocs.Cast<OrderDocument>().First().Type.GetEnumTitle() + "\"";
+				var whatToPrint =
+					rdlDocs.ToList().Count > 1
+						? "документов"
+						: "документа \"" + rdlDocs.Cast<OrderDocument>().First().Type.GetEnumTitle() + "\"";
+				
 				if(CanEditByPermission && UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
 				{
 					UoWGeneric.Save();
@@ -2922,49 +2927,69 @@ namespace Vodovoz
 				rdlDocs.ForEach(
 					doc =>
 					{
-						if(doc is IPrintableRDLDocument)
-							TabParent.AddTab(QSReport.DocumentPrinter.GetPreviewTab(doc as IPrintableRDLDocument), this, false);
+						if(doc is IPrintableRDLDocument document)
+						{
+							TabParent.AddTab(QSReport.DocumentPrinter.GetPreviewTab(document), this, false);
+						}
 					}
 				);
 			}
 
-			var odtDocs = treeDocuments.GetSelectedObjects()
-									   .OfType<PrintableOrderDocument>()
-									   .Where(d => d.PrintType == PrinterType.ODT)
-									   .ToList();
+			var odtDocs =
+				treeDocuments.GetSelectedObjects()
+					.OfType<PrintableOrderDocument>()
+					.Where(d => d.PrintType == PrinterType.ODT)
+					.ToList();
+			
 			if(odtDocs.Any())
+			{
 				foreach(var doc in odtDocs)
 				{
-					if(doc is OrderContract)
+					if(doc is OrderContract orderContract)
+					{
+						if(orderContract.Id == 0)
+						{
+							MessageDialogHelper.RunInfoDialog("Перед просмотром документа необходимо сохранить заказ");
+							return;
+						}
+
 						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<CounterpartyContract>((doc as OrderContract).Contract.Id),
+							DialogHelper.GenerateDialogHashName<CounterpartyContract>(orderContract.Contract.Id),
 							() =>
 							{
-								var dialog = OrmMain.CreateObjectDialog((doc as OrderContract).Contract);
+								var dialog = OrmMain.CreateObjectDialog(orderContract.Contract);
 								if(dialog != null)
+								{
 									(dialog as IEditableDialog).IsEditable = false;
+								}
+
 								return dialog;
 							}
 						);
-					else if(doc is OrderM2Proxy)
+					}
+					else if(doc is OrderM2Proxy orderM2Proxy)
 					{
-						if(doc.Id == 0)
+						if(orderM2Proxy.Id == 0)
 						{
 							MessageDialogHelper.RunInfoDialog("Перед просмотром документа необходимо сохранить заказ");
 							return;
 						}
 						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<M2ProxyDocument>((doc as OrderM2Proxy).M2Proxy.Id),
+							DialogHelper.GenerateDialogHashName<M2ProxyDocument>(orderM2Proxy.M2Proxy.Id),
 							() =>
 							{
-								var dialog = OrmMain.CreateObjectDialog((doc as OrderM2Proxy).M2Proxy);
+								var dialog = OrmMain.CreateObjectDialog(orderM2Proxy.M2Proxy);
 								if(dialog != null)
+								{
 									(dialog as IEditableDialog).IsEditable = false;
+								}
+
 								return dialog;
 							}
 						);
 					}
 				}
+			}
 		}
 
 		/// <summary>

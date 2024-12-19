@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Vodovoz.Domain.StoredResources;
+using Vodovoz.Core.Domain.StoredResources;
 
 namespace Vodovoz.EntityRepositories.StoredResourceRepository
 {

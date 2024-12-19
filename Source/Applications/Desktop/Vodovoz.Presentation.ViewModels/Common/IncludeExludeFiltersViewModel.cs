@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using NHibernate.Linq;
 using NHibernate.Util;
 using QS.Commands;
@@ -209,7 +209,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			Filters.Add(newFilter);
 		}
 
-		public void AddFilter<TEnum>(Action<IncludeExcludeEnumFilter<TEnum>> includeExcludeFilter = null)
+		public void AddFilter<TEnum>(Action<IncludeExcludeEnumFilter<TEnum>> includeExcludeFilter = null, bool isRadio = false)
 			where TEnum : Enum
 		{
 			var title = typeof(TEnum).GetClassUserFriendlyName().NominativePlural.CapitalizeSentence();
@@ -219,6 +219,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				Title = title,
 				Type = typeof(TEnum)
 			};
+
+			newFilter.IsRadio = isRadio;
 
 			newFilter.RefreshFunc = (filter) =>
 			{
@@ -233,7 +235,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 						&& (string.IsNullOrWhiteSpace(CurrentSearchString)
 							|| enumElement.GetEnumTitle().Contains(CurrentSearchString)))
 					{
-						filter.FilteredElements.Add(new IncludeExcludeElement<TEnum, TEnum>()
+						filter.FilteredElements.Add(new IncludeExcludeElement<TEnum, TEnum>(isRadio)
 						{
 							Id = enumElement,
 							Title = enumElement.GetEnumTitle(),

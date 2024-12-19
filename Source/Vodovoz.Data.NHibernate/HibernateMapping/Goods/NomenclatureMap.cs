@@ -90,6 +90,20 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.LockerRefrigeratorType).Column("locker_refrigerator_type");
 			Map(x => x.LockerRefrigeratorVolume).Column("locker_refrigerator_volume");
 			Map(x => x.TapType).Column("tap_type");
+			Map(x => x.HeatingTemperatureFromOnline).Column("heating_temperature_from_online");
+			Map(x => x.HeatingTemperatureToOnline).Column("heating_temperature_to_online");
+			Map(x => x.CoolingTemperatureFromOnline).Column("cooling_temperature_from_online");
+			Map(x => x.CoolingTemperatureToOnline).Column("cooling_temperature_to_online");
+			Map(x => x.LengthOnline).Column("length_online");
+			Map(x => x.WidthOnline).Column("width_online");
+			Map(x => x.HeightOnline).Column("height_online");
+			Map(x => x.WeightOnline).Column("weight_online");
+			Map(x => x.HeatingPowerUnits).Column("heating_power_units");
+			Map(x => x.HeatingProductivityUnits).Column("heating_productivity_units");
+			Map(x => x.CoolingPowerUnits).Column("cooling_power_units");
+			Map(x => x.CoolingProductivityUnits).Column("cooling_productivity_units");
+			Map(x => x.HeatingProductivityComparisionSign).Column("heating_productivity_comparision_sign");
+			Map(x => x.CoolingProductivityComparisionSign).Column("cooling_productivity_comparision_sign");
 
 			Map(x => x.StorageCell).Column("storage_cell");
 

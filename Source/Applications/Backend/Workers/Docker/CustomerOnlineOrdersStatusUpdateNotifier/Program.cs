@@ -33,7 +33,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 				.ConfigureServices((hostContext, services) =>
 				{
 					services
-						.ConfigureZabbixSender(nameof(OnlineOrdersStatusUpdatedNotifier))
+						.ConfigureZabbixSenderFromDataBase(nameof(OnlineOrdersStatusUpdatedNotifier))
 
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,

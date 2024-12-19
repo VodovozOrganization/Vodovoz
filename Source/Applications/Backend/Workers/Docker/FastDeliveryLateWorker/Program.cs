@@ -59,7 +59,7 @@ namespace FastDeliveryLateWorker
 						.AddScoped<OrderStateKey>()
 						;
 
-					services.ConfigureZabbixSender(nameof(FastDeliveryLateWorker));
+					services.ConfigureZabbixSenderFromDataBase(nameof(FastDeliveryLateWorker));
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});

@@ -10,6 +10,7 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Pacs;
 
@@ -42,6 +43,10 @@ namespace Pacs.Operator.Service
 				.AddPacsOperatorServer()
 
 				.AddApiKeyAuthentication()
+
+				.AddMappingAssemblies(
+					typeof(QS.Banks.Domain.Account).Assembly
+				)
 				;
 
 			services.AddStaticHistoryTracker();

@@ -20,6 +20,8 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 			SelectEntityCommand = new DelegateCommand<object>(SelectEntity);
 			SelectEntityFromJournalCommand = new DelegateCommand(SelectEntityFromJournal, () => DialogSettings.IsCanOpenJournal);
 
+			WindowPosition = QS.Dialog.WindowGravity.None;
+
 			Title = DialogSettings.Title;
 		}
 
