@@ -1,8 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using System.Collections.Generic;
+using QS.Extensions.Observable.Collections.List;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Store
 {
@@ -16,8 +15,7 @@ namespace Vodovoz.Domain.Store
 	public class RegradingOfGoodsTemplate : PropertyChangedBase, IDomainObject
 	{
 		private string _name;
-		private IList<RegradingOfGoodsTemplateItem> _items = new List<RegradingOfGoodsTemplateItem>();
-		private GenericObservableList<RegradingOfGoodsTemplateItem> _observableItems;
+		private IObservableList<RegradingOfGoodsTemplateItem> _items = new ObservableList<RegradingOfGoodsTemplateItem>();
 
 		/// <summary>
 		/// Конструктор
@@ -46,31 +44,10 @@ namespace Vodovoz.Domain.Store
 		/// Строки
 		/// </summary>
 		[Display(Name = "Строки")]
-		public virtual IList<RegradingOfGoodsTemplateItem> Items
+		public virtual IObservableList<RegradingOfGoodsTemplateItem> Items
 		{
 			get => _items;
-			set
-			{
-				SetField(ref _items, value);
-				_observableItems = null;
-			}
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		/// <summary>
-		/// Строки
-		/// </summary>
-		public virtual GenericObservableList<RegradingOfGoodsTemplateItem> ObservableItems
-		{
-			get
-			{
-				if(_observableItems == null)
-				{
-					_observableItems = new GenericObservableList<RegradingOfGoodsTemplateItem>(Items);
-				}
-
-				return _observableItems;
-			}
+			set => SetField(ref _items, value);
 		}
 
 		/// <summary>
@@ -80,7 +57,7 @@ namespace Vodovoz.Domain.Store
 		public virtual void AddItem(RegradingOfGoodsTemplateItem item)
 		{
 			item.Template = this;
-			ObservableItems.Add(item);
+			Items.Add(item);
 		}
 	}
 }

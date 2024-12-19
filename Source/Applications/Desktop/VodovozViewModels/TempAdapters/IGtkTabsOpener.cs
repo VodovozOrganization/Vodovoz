@@ -2,7 +2,6 @@
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
-using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
@@ -31,7 +30,6 @@ namespace Vodovoz.TempAdapters
 		ITdiTab OpenCarLoadDocumentDlg(int carLoadDocumentId, ITdiTab master = null);
 		ITdiTab OpenCarUnloadDocumentDlg(int carUnloadDocumentId, ITdiTab master = null);
 		ITdiTab OpenShiftChangeWarehouseDocumentDlg(int shiftChangeWarehouseDocumentId, ITdiTab master = null);
-		ITdiTab OpenRegradingOfGoodsDocumentDlg(int regradingOfGoodsDocumentId, ITdiTab master = null);
 		ITdiTab OpenRouteListControlDlg(ITdiTabParent tabParent, int id);
 		string GenerateDialogHashName<T>(int id) where T : IDomainObject;
 		void OpenCarLoadDocumentDlg(ITdiTabParent tabParent, Action<CarLoadDocument, IUnitOfWork, int, int> fillCarLoadDocumentFunc, int routeListId, int warehouseId);
