@@ -75,6 +75,10 @@ namespace Vodovoz.Views.Reports
 				.AddColumn("Тип").AddTextRenderer(x => x.Key)
 				.Finish();
 
+			ytreeviewIssueTypes.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeIssueTypesSelection, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ytreeviewIssueTypes.ItemsDataSource = ViewModel.IssueTypes;
 		}
 

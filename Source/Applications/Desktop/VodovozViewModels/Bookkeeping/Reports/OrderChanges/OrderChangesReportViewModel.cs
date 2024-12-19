@@ -24,6 +24,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 {
 	public partial class OrderChangesReportViewModel : DialogTabViewModelBase
 	{
+		private const string _paymentChangeTypeString = "PaymentType";
+
 		private readonly ILogger<OrderChangesReportViewModel> _logger;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IGenericRepository<Organization> _organizationGenericRepository;
@@ -194,7 +196,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			&& !IsReportGenerationInProgress;
 
 		public bool CanChangeIssueTypesSelection =>
-			ChangeTypes.Any(x => x.Value == "PaymentType" && !x.IsSelected);
+			ChangeTypes.Any(x => x.Value == _paymentChangeTypeString && !x.IsSelected);
 
 		public bool IsWideDateRangeWarningMessageVisible =>
 			(!StartDate.HasValue && EndDate.HasValue)
@@ -229,7 +231,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			AddChangeType("Фактическое кол-во товара", "ActualCount");
 			AddChangeType("Цена товара", "Price");
 			AddChangeType("Добавление/Удаление товаров", "OrderItemsCount");
-			AddChangeType("Тип оплаты заказа", "PaymentType");
+			AddChangeType("Тип оплаты заказа", _paymentChangeTypeString);
 		}
 
 		private void FillIssueTypes()
@@ -320,6 +322,12 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 			_cancellationTokenSource = new CancellationTokenSource();
 
+			var selectedChangeTypes = ChangeTypes.Where(x => x.IsSelected);
+
+			var selectedIssueTypes =
+				CanChangeIssueTypesSelection
+				? IssueTypes.Where(x => x.IsSelected)
+				: Enumerable.Empty<SelectableKeyValueNode>();
 			try
 			{
 				report = await OrderChangesReport.Create(
@@ -329,8 +337,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					EndDate.Value,
 					IsOldMonitoring,
 					SelectedOrganization,
-					ChangeTypes,
-					IssueTypes,
+					selectedChangeTypes,
+					selectedIssueTypes,
 					_cancellationTokenSource.Token);
 			}
 			catch(OperationCanceledException ex)
@@ -385,38 +393,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			{
 				_report.RenderTemplate().Export(saveDialogResult.Path);
 			}
-			//if(Report is null || IsReportGenerationInProgress)
-			//{
-			//	return;
-			//}
-
-			//var dialogSettings = CreateDialogSettings();
-
-			//var saveDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
-
-			//if(saveDialogResult.Successful)
-			//{
-			//	Report.ExportToExcel(saveDialogResult.Path);
-			//}
 		}
-
-		//private DialogSettings CreateDialogSettings()
-		//{
-		//	var reportFileExtension = ".xlsx";
-
-		//	var dialogSettings = new DialogSettings
-		//	{
-		//		Title = "Сохранить",
-		//		DefaultFileExtention = reportFileExtension,
-		//		InitialDirectory = SpecialDirectories.Desktop,
-		//		FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
-		//	};
-
-		//	dialogSettings.FileFilters.Clear();
-		//	dialogSettings.FileFilters.Add(new DialogFileFilter("Отчет Excel", "*" + reportFileExtension));
-
-		//	return dialogSettings;
-		//}
 
 		private void LogErrorAndShowMessageInGuiThread(Exception ex, string message)
 		{
