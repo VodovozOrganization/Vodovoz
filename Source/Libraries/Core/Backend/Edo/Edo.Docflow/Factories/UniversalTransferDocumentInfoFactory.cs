@@ -157,13 +157,15 @@ namespace Edo.Docflow.Factories
 					UnitName = nomenclature.Unit.Name,
 					OKEI = nomenclature.Unit.OKEI,
 					Code = "",
-					Count = 0,
-					Price = gtinGroup.Value.Count,
+					Count = gtinGroup.Value.Count,
+					Price = 0,
 					IncludeVat = 0,
-					ValueAddedTax = 0,
+					ValueAddedTax = nomenclature.VatNumericValue,
 					DiscountMoney = 0,
 					TrueMarkCodes = gtinGroup.Value.Select(x => x.RawCode),
 				};
+
+				products.Add(product);
 			}
 
 			return products;
