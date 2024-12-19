@@ -197,7 +197,7 @@ namespace Vodovoz
 
 			buttonFine.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanActionFine, w => w.Sensitive)
+				.AddBinding(vm => vm.CanChangeSelectedItem, w => w.Sensitive)
 				.AddBinding(vm => vm.FineButtonText, w => w.Label)
 				.InitializeFromSource();
 

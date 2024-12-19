@@ -64,8 +64,8 @@ namespace Vodovoz.ViewModels.Store
 			DeleteItemCommand = new DelegateCommand(DeleteItem, () => CanChangeSelectedItem);
 			DeleteItemCommand.CanExecuteChangedWith(this, x => CanChangeSelectedItem);
 
-			ActionFineCommand = new DelegateCommand(AddFine, () => CanActionFine);
-			ActionFineCommand.CanExecuteChangedWith(this, x => CanActionFine);
+			ActionFineCommand = new DelegateCommand(AddOrChangeFine, () => CanChangeSelectedItem);
+			ActionFineCommand.CanExecuteChangedWith(this, x => CanChangeSelectedItem);
 
 			DeleteFineCommand = new DelegateCommand(DeleteFine, () => CanDeleteFine);
 			DeleteFineCommand.CanExecuteChangedWith(this, x => CanDeleteFine);
@@ -77,7 +77,6 @@ namespace Vodovoz.ViewModels.Store
 		[PropertyChangedAlso(nameof(SelectedItem))]
 		[PropertyChangedAlso(nameof(CanChangeSelectedItem))]
 		[PropertyChangedAlso(nameof(CanChangeOldNomenclature))]
-		[PropertyChangedAlso(nameof(CanActionFine))]
 		[PropertyChangedAlso(nameof(CanDeleteFine))]
 		[PropertyChangedAlso(nameof(FineButtonText))]
 		public object SelectedItemObject
@@ -92,7 +91,6 @@ namespace Vodovoz.ViewModels.Store
 
 		public bool CanAddItem => CurrentWarehouse != null;
 		public bool CanFillFromTemplate => CurrentWarehouse != null;
-		public bool CanActionFine => CanChangeSelectedItem && SelectedItem.Fine == null;
 		public bool CanDeleteFine => CanChangeSelectedItem && SelectedItem.Fine != null;
 		public bool CanChangeOldNomenclature => CanChangeSelectedItem
 			&& CurrentWarehouse != null;
@@ -397,7 +395,7 @@ namespace Vodovoz.ViewModels.Store
 			Items.Remove(row);
 		}
 
-		private void AddFine()
+		private void AddOrChangeFine()
 		{
 			var selected = SelectedItem;
 
@@ -440,7 +438,6 @@ namespace Vodovoz.ViewModels.Store
 				fineViewModel.EntitySaved -= OnFineNewEntitySaved;
 			}
 
-			OnPropertyChanged(nameof(CanActionFine));
 			OnPropertyChanged(nameof(CanDeleteFine));
 			OnPropertyChanged(nameof(FineButtonText));
 		}
@@ -454,7 +451,6 @@ namespace Vodovoz.ViewModels.Store
 				fineViewModel.EntitySaved -= OnFineExistEntitySaved;
 			}
 
-			OnPropertyChanged(nameof(CanActionFine));
 			OnPropertyChanged(nameof(CanDeleteFine));
 			OnPropertyChanged(nameof(FineButtonText));
 		}
@@ -465,7 +461,6 @@ namespace Vodovoz.ViewModels.Store
 			UnitOfWork.Delete(item.Fine);
 			item.Fine = null;
 
-			OnPropertyChanged(nameof(CanActionFine));
 			OnPropertyChanged(nameof(CanDeleteFine));
 			OnPropertyChanged(nameof(FineButtonText));
 		}

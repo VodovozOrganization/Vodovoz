@@ -1,10 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
-using QS.Validation;
 using QS.ViewModels;
 using System;
 using Vodovoz.Domain.Store;
@@ -32,7 +30,7 @@ namespace Vodovoz.ViewModels.Store
 			ItemsViewModel.ParentViewModel = this;
 
 			SaveCommand = new DelegateCommand(SaveAndClose);
-			CancelCommand = new DelegateCommand(() => Close(true, CloseSource.Cancel));
+			CancelCommand = new DelegateCommand(() => Close(HasChanges, CloseSource.Cancel));
 		}
 
 		public RegradingOfGoodsTemplateItemsViewModel ItemsViewModel { get; }
