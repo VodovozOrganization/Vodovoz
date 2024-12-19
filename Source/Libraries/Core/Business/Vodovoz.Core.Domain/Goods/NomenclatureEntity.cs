@@ -102,6 +102,31 @@ namespace Vodovoz.Core.Domain.Goods
 			set => SetField(ref _vAT, value);
 		}
 
+		/// <summary>
+		/// Числовое значение НДС
+		/// </summary>
+		/// <returns></returns>
+		[Display(Name = "Числовое значение НДС")]
+		public virtual decimal VatNumericValue
+		{
+			get
+			{
+				switch(VAT)
+				{
+					case VAT.No:
+						return 0m;
+					case VAT.Vat10:
+						return 0.10m;
+					case VAT.Vat18:
+						return 0.18m;
+					case VAT.Vat20:
+						return 0.20m;
+					default:
+						return 0m;
+				}
+			}
+		}
+
 		public virtual void AddFileInformation(string fileName)
 		{
 			if(AttachedFileInformations.Any(a => a.FileName == fileName))
