@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.TrueMark;
 

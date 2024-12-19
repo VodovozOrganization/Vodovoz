@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using QS.BusinessCommon.Domain;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -21,6 +22,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private NomenclatureCategory _category;
 		private bool _isAccountableInTrueMark;
 		private string _gtin;
+		private MeasurementUnits _unit;
 		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
 
 		public NomenclatureEntity()
@@ -77,6 +79,16 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _attachedFileInformations;
 			set => SetField(ref _attachedFileInformations, value);
+		}
+
+		/// <summary>
+		/// Единица измерения
+		/// </summary>
+		[Display(Name = "Единица измерения")]
+		public virtual MeasurementUnits Unit
+		{
+			get => _unit;
+			set => SetField(ref _unit, value);
 		}
 
 		public virtual void AddFileInformation(string fileName)

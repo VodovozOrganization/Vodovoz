@@ -1,17 +1,13 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
-using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
-using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -20,8 +16,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Services;
-using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Goods
@@ -85,7 +79,6 @@ namespace Vodovoz.Domain.Goods
 		private bool _isDuty;
 		private MobileCatalog _mobileCatalog;
 		private bool _isSerial;
-		private MeasurementUnits _unit;
 		private decimal _minStockCount;
 		private bool _isDisposableTare;
 		private TareVolume? _tareVolume;
@@ -357,16 +350,6 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _isSerial;
 			set => SetField(ref _isSerial, value);
-		}
-
-		/// <summary>
-		/// Единица измерения
-		/// </summary>
-		[Display(Name = "Единица измерения")]
-		public virtual MeasurementUnits Unit
-		{
-			get => _unit;
-			set => SetField(ref _unit, value);
 		}
 
 		/// <summary>

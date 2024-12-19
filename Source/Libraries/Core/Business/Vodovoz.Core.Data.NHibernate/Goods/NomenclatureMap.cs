@@ -18,6 +18,8 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 			Map(x => x.IsAccountableInTrueMark).Column("is_accountable_in_chestniy_znak");
 			Map(x => x.Gtin).Column("gtin");
 
+			References(x => x.Unit).Column("unit_id").Fetch.Join().Not.LazyLoad();
+
 			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("nomenclature_id");
 		}
 	}
