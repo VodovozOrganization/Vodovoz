@@ -150,6 +150,8 @@ namespace Edo.Docflow.Factories
 					throw new InvalidOperationException(errorMessage);
 				}
 
+				var productCount = gtinGroup.Value.Count;
+
 				var product = new ProductInfo
 				{
 					Name = nomenclature.Name,
@@ -157,8 +159,8 @@ namespace Edo.Docflow.Factories
 					UnitName = nomenclature.Unit.Name,
 					OKEI = nomenclature.Unit.OKEI,
 					Code = "",
-					Count = gtinGroup.Value.Count,
-					Price = 0,
+					Count = productCount,
+					Price = nomenclature.GetPrice(productCount),
 					IncludeVat = 0,
 					ValueAddedTax = nomenclature.VatNumericValue,
 					DiscountMoney = 0,
