@@ -22,8 +22,8 @@ namespace Vodovoz.Core.Domain.Cash
 	{
 		private int _id;
 		private string _name;
-		private int _responsibleEmployeeId;
-		private int _viceResponsibleEmployeeId;
+		private int? _responsibleEmployeeId;
+		private int? _viceResponsibleEmployeeId;
 		private bool _isArchive;
 		private bool _requestApprovalDenied;
 
@@ -52,7 +52,7 @@ namespace Vodovoz.Core.Domain.Cash
 		/// </summary>
 		[Display(Name = "Ответственное лицо")]
 		[HistoryIdentifier(TargetType = typeof(EmployeeEntity))]
-		public virtual int ResponsibleEmployeeId
+		public virtual int? ResponsibleEmployeeId
 		{
 			get => _responsibleEmployeeId;
 			set => SetField(ref _responsibleEmployeeId, value);
@@ -63,7 +63,7 @@ namespace Vodovoz.Core.Domain.Cash
 		/// </summary>
 		[Display(Name = "Заместитель")]
 		[HistoryIdentifier(TargetType = typeof(EmployeeEntity))]
-		public virtual int ViceResponsibleEmployeeId
+		public virtual int? ViceResponsibleEmployeeId
 		{
 			get => _viceResponsibleEmployeeId;
 			set => SetField(ref _viceResponsibleEmployeeId, value);

@@ -39,7 +39,7 @@ namespace Vodovoz
 		private SubdivisionType _subdivisionType;
 		private string _address;
 		private bool _isArchive;
-		private int _financialResponsibilityCenterId;
+		private int? _financialResponsibilityCenterId;
 
 		#region Свойства
 
@@ -77,7 +77,7 @@ namespace Vodovoz
 		/// </summary>
 		[Display(Name = "Центр финансовой ответственности")]
 		[HistoryIdentifier(TargetType = typeof(FinancialResponsibilityCenter))]
-		public virtual int FinancialResponsibilityCenterId
+		public virtual int? FinancialResponsibilityCenterId
 		{
 			get => _financialResponsibilityCenterId;
 			set => SetField(ref _financialResponsibilityCenterId, value);
