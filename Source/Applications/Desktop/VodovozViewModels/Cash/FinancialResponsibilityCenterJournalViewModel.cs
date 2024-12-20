@@ -29,7 +29,8 @@ namespace Vodovoz.ViewModels.Cash
 			return uow.Session.QueryOver<FinancialResponsibilityCenter>()
 				.SelectList(list =>
 					list.Select(x => x.Id).WithAlias(() => resultAlias.Id)
-						.Select(x => x.Name).WithAlias(() => resultAlias.Name))
+						.Select(x => x.Name).WithAlias(() => resultAlias.Name)
+						.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive))
 				.TransformUsing(Transformers.AliasToBean(typeof(FinancialResponsibilityCenterNode)));
 		}
 	}

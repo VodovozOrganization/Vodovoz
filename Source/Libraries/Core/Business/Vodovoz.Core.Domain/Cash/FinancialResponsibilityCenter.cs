@@ -6,6 +6,9 @@ using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Core.Domain.Cash
 {
+	/// <summary>
+	/// Центр финансовой ответственности
+	/// </summary>
 	[Appellative(
 		Gender = GrammaticalGender.Masculine,
 		Nominative = "центр фининсовой ответственности",
@@ -18,7 +21,7 @@ namespace Vodovoz.Core.Domain.Cash
 		PrepositionalPlural = "центрах фининсовой ответственности")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class FinancialResponsibilityCenter : PropertyChangedBase, IDomainObject, IArchivable
+	public class FinancialResponsibilityCenter : PropertyChangedBase, IDomainObject, IArchivable, INamed
 	{
 		private int _id;
 		private string _name;
