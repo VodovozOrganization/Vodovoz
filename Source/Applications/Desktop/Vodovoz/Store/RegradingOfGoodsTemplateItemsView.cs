@@ -90,11 +90,5 @@ namespace Vodovoz.Store
 			buttonChangeOld.Binding.CleanSources();
 			buttonDelete.Binding.CleanSources();
 		}
-
-		public override void Destroy()
-		{
-			UnSubscribeUIEvents();
-			base.Destroy();
-		}
 	}
 }
