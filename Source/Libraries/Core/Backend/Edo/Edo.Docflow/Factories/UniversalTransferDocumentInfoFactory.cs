@@ -1,4 +1,4 @@
-﻿using Edo.Docflow.Dto;
+using Edo.Docflow.Dto;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using Vodovoz.Settings.Nomenclature;
 
 namespace Edo.Docflow.Factories
 {
-	public class UniversalTransferDocumentInfoFactory
+	public class UniversalTransferDocumentInfoFactory : IUniversalTransferDocumentInfoFactory
 	{
 		private const string _dateFormatString = "dd.MM.yyyy";
 
