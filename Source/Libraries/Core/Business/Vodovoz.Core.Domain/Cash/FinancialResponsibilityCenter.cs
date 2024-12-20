@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Employees;
 
@@ -21,7 +22,7 @@ namespace Vodovoz.Core.Domain.Cash
 		PrepositionalPlural = "центрах фининсовой ответственности")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class FinancialResponsibilityCenter : PropertyChangedBase, IDomainObject, IArchivable, INamed
+	public class FinancialResponsibilityCenter : PropertyChangedBase, IDomainObject, IArchivable, INamed, IValidatableObject
 	{
 		private int _id;
 		private string _name;
@@ -90,6 +91,19 @@ namespace Vodovoz.Core.Domain.Cash
 		{
 			get => _requestApprovalDenied;
 			set => SetField(ref _requestApprovalDenied, value);
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(string.IsNullOrWhiteSpace(Name))
+			{
+				yield return new ValidationResult("Название ЦФО должно быть заполнено", new[] { nameof(Name) });
+			}
+
+			if(ResponsibleEmployeeId == null)
+			{
+				yield return new ValidationResult("Ответственное лицо должно быть заполнено", new[] { nameof(ResponsibleEmployeeId) });
+			}
 		}
 	}
 }
