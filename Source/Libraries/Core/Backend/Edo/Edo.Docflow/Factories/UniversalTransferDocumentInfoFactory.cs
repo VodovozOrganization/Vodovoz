@@ -1,4 +1,4 @@
-using Edo.Docflow.Dto;
+﻿using Edo.Docflow.Dto;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -75,6 +75,7 @@ namespace Edo.Docflow.Factories
 				BasisShipment = GetBasisShipmentInfo(transferOrder),
 				Payments = GetPayments(transferOrder),
 				Products = products,
+				// Не понятно, что нужно сюда добавлять. Посмотрел в имеющемся контейнере. Нигде ТекстИнфТип не встречается
 				//AdditionalInformation = GettAdditionalInformation(transferOrder)
 			};
 
