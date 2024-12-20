@@ -164,6 +164,7 @@ namespace Vodovoz
 		protected void OnButtonDeleteFineClicked(object sender, EventArgs e)
 		{
 			ViewModel.DeleteFineCommand.Execute();
+			ytreeviewItems.YTreeModel.EmitModelChanged();
 		}
 
 		protected void OnButtonFromTemplateClicked(object sender, EventArgs e)
