@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Vodovoz.Attributes;
+using Vodovoz.Core.Domain.Attributes;
 
-namespace Vodovoz.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	public enum VAT
 	{

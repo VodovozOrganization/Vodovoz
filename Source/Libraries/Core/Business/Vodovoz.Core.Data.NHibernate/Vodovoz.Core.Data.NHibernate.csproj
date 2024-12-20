@@ -13,6 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\..\External\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj" />
 	  <ProjectReference Include="..\..\..\External\QSProjects\QS.Project\QS.Project.csproj" />
 	  <ProjectReference Include="..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
 	  <ProjectReference Include="..\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
