@@ -1,14 +1,14 @@
 ﻿using System;
 
-namespace Vodovoz
+namespace Vodovoz.Core.Domain.Attributes
 {
-	[System.AttributeUsage(System.AttributeTargets.Field)]
+	[AttributeUsage(AttributeTargets.Field)]
 	public class Code1c : Attribute
 	{
 		public string Code;
 		public Code1c(string code)
 		{
-			this.Code = code;
+			Code = code;
 		}
 	}
 }

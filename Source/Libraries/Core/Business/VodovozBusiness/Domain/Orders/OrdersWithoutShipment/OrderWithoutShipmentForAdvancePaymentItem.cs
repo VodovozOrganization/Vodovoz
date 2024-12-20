@@ -5,6 +5,7 @@ using Autofac;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Models;

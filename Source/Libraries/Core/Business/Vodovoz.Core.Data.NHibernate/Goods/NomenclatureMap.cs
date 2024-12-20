@@ -110,6 +110,10 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 			//Честный знак
 			Map(x => x.IsAccountableInTrueMark).Column("is_accountable_in_chestniy_znak");
 			Map(x => x.Gtin).Column("gtin");
+			Map(x => x.VAT).Column("vat");
+
+			References(x => x.Unit).Column("unit_id").Fetch.Join().Not.LazyLoad();
+			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
 
 			References(x => x.Unit).Column("unit_id").Fetch.Join().Not.LazyLoad();
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");

@@ -1,4 +1,4 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System;
@@ -39,12 +39,12 @@ namespace Vodovoz.Domain.Organizations
 		public virtual GenericObservableList<OrganizationVersion> ObservableOrganizationVersions => _observableOrganizationVersions
 			?? (_observableOrganizationVersions = new GenericObservableList<OrganizationVersion>(OrganizationVersions));
 
-		public virtual OrganizationVersion OrganizationVersionOnDate(DateTime dateTime) =>
+		public virtual new OrganizationVersion OrganizationVersionOnDate(DateTime dateTime) =>
 			ObservableOrganizationVersions.LastOrDefault(x =>
 				x.StartDate <= dateTime && (x.EndDate == null || x.EndDate >= dateTime));
 
 		[Display(Name = "Активная версия")]
-		public virtual OrganizationVersion ActiveOrganizationVersion =>
+		public virtual new OrganizationVersion ActiveOrganizationVersion =>
 			_activeOrganizationVersion ?? OrganizationVersionOnDate(DateTime.Now);
 
 		public virtual void SetActiveOrganizationVersion(OrganizationVersion organizationVersion)

@@ -1,17 +1,13 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
-using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
-using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -182,7 +178,7 @@ namespace Vodovoz.Domain.Goods
 		/// Цены
 		/// </summary>
 		[Display(Name = "Цены")]
-		public virtual IList<NomenclaturePrice> NomenclaturePrice
+		public virtual new IList<NomenclaturePrice> NomenclaturePrice
 		{
 			get => _nomenclaturePrice;
 			set => SetField(ref _nomenclaturePrice, value);
@@ -192,7 +188,7 @@ namespace Vodovoz.Domain.Goods
 		/// Альтернативные цены
 		/// </summary>
 		[Display(Name = "Альтернативные цены")]
-		public virtual IList<AlternativeNomenclaturePrice> AlternativeNomenclaturePrices
+		public virtual new IList<AlternativeNomenclaturePrice> AlternativeNomenclaturePrices
 		{
 			get => _alternativeNomenclaturePrices;
 			set => SetField(ref _alternativeNomenclaturePrices, value);
@@ -264,7 +260,7 @@ namespace Vodovoz.Domain.Goods
 		/// Влияющая номенклатура
 		/// </summary>
 		[Display(Name = "Влияющая номенклатура")]
-		public virtual Nomenclature DependsOnNomenclature
+		public virtual new Nomenclature DependsOnNomenclature
 		{
 			get => _dependsOnNomenclature;
 			set => SetField(ref _dependsOnNomenclature, value);
@@ -508,30 +504,6 @@ namespace Vodovoz.Domain.Goods
 				CreateDate = DateTime.Now;
 				CreatedBy = userRepository.GetCurrentUser(UoW);
 			}
-		}
-
-		public virtual decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
-		{
-			if(itemsCount < 1)
-			{
-				itemsCount = 1;
-			}
-
-			decimal price = 0m;
-			if(DependsOnNomenclature != null)
-			{
-				price = DependsOnNomenclature.GetPrice(itemsCount, useAlternativePrice);
-			}
-			else
-			{
-				var nomPrice = (useAlternativePrice
-						? AlternativeNomenclaturePrices.Cast<NomenclaturePriceBase>()
-						: NomenclaturePrice.Cast<NomenclaturePriceBase>())
-					.OrderByDescending(p => p.MinCount)
-					.FirstOrDefault(p => p.MinCount <= itemsCount);
-				price = nomPrice?.Price ?? 0;
-			}
-			return price;
 		}
 
 		/// <summary>

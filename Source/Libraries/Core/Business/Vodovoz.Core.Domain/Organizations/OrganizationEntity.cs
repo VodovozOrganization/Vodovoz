@@ -3,6 +3,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -312,6 +313,14 @@ namespace Vodovoz.Core.Domain.Organizations
 			.Where(g => g.Key != null && g.Count() > 1)
 			.Select(g => g.Key)
 			.ToList();
+
+		public virtual OrganizationVersionEntity OrganizationVersionOnDate(DateTime dateTime) =>
+			OrganizationVersions.LastOrDefault(x =>
+				x.StartDate <= dateTime && (x.EndDate == null || x.EndDate >= dateTime));
+
+		[Display(Name = "Активная версия")]
+		public virtual OrganizationVersionEntity ActiveOrganizationVersion =>
+			_activeOrganizationVersion ?? OrganizationVersionOnDate(DateTime.Now);
 	}
 }
 

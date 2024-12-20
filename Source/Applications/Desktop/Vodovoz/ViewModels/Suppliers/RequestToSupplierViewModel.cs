@@ -20,6 +20,7 @@ using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Suppliers
 {
