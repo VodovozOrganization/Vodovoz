@@ -287,7 +287,7 @@ stage('Publish'){
 					echo "Publish not needed"
 					return;
 				}
-
+				echo sh "ls"
 				DotnetPublish("./Source/Applications/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj", profile)
 				DotnetPublish("./Source/Applications/Backend/WebAPI/DriverAPI/DriverAPI.csproj", profile)
 				DotnetPublish("./Source/Applications/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj", profile)
