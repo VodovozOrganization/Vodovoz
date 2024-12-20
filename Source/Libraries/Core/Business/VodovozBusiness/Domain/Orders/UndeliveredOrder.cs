@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -398,34 +399,50 @@ namespace Vodovoz.Domain.Orders
 		{
 			StringBuilder info = new StringBuilder("\n").AppendLine($"<b>Автор недовоза:</b> {Author?.ShortName}");
 			if(oldOrder != null) {
-				info.AppendLine(string.Format("<b>Автор накладной:</b> {0}", oldOrder.Author?.ShortName));
-				info.AppendLine(string.Format("<b>Клиент:</b> {0}", oldOrder.Client.Name));
+				info.AppendLine($"<b>Автор накладной:</b> {WebUtility.HtmlEncode(oldOrder.Author?.ShortName)}");
+				info.AppendLine($"<b>Клиент:</b> {WebUtility.HtmlEncode(oldOrder.Client.Name)}");
 				if(oldOrder.SelfDelivery)
-					info.AppendLine(string.Format("<b>Адрес:</b> {0}", "Самовывоз"));
+				{
+					info.AppendLine($"<b>Адрес:</b> {"Самовывоз"}");
+				}
 				else
-					info.AppendLine(string.Format("<b>Адрес:</b> {0}", oldOrder.DeliveryPoint?.ShortAddress));
-				info.AppendLine(string.Format("<b>Дата заказа:</b> {0}", oldOrder.DeliveryDate.Value.ToString("dd.MM.yyyy")));
+				{
+					info.AppendLine($"<b>Адрес:</b> {WebUtility.HtmlEncode(oldOrder.DeliveryPoint?.ShortAddress)}");
+				}
+
+				info.AppendLine($"<b>Дата заказа:</b> {oldOrder.DeliveryDate.Value.ToString("dd.MM.yyyy")}");
 				if(oldOrder.SelfDelivery || oldOrder.DeliverySchedule == null)
-					info.AppendLine(string.Format("<b>Интервал:</b> {0}", "Самовывоз"));
+				{
+					info.AppendLine($"<b>Интервал:</b> {"Самовывоз"}");
+				}
 				else
-					info.AppendLine(string.Format("<b>Интервал:</b> {0}", oldOrder.DeliverySchedule.Name));
-				info.AppendLine(string.Format("<b>Сумма отменённого заказа:</b> {0}", CurrencyWorks.GetShortCurrencyString(oldOrder.OrderSum)));
+				{
+					info.AppendLine($"<b>Интервал:</b> {WebUtility.HtmlEncode(oldOrder.DeliverySchedule.Name)}");
+				}
+
+				info.AppendLine($"<b>Сумма отменённого заказа:</b> {CurrencyWorks.GetShortCurrencyString(oldOrder.OrderSum)}");
 				int watter19LQty = orderRepository.Get19LWatterQtyForOrder(UoW, oldOrder);
 				var eqToClient = orderRepository.GetEquipmentToClientForOrder(UoW, oldOrder);
 				var eqFromClient = orderRepository.GetEquipmentFromClientForOrder(UoW, oldOrder);
 
 				if(watter19LQty > 0) {
-					info.AppendLine(string.Format("<b>19л вода:</b> {0}", watter19LQty));
+					info.AppendLine($"<b>19л вода:</b> {watter19LQty}");
 				} else if(eqToClient.Any()) {
 					string eq = string.Empty;
 					foreach(var e in eqToClient)
-						eq += string.Format("{0} - {1}, ", e.ShortName ?? e.Name, e.Count);
-					info.AppendLine(string.Format("<b>К клиенту:</b> {0}", eq.Trim(new char[] { ' ', ',' })));
+					{
+						eq += $"{e.ShortName ?? e.Name} - {e.Count}, ";
+					}
+
+					info.AppendLine($"<b>К клиенту:</b> {eq.Trim(new char[] { ' ', ',' })}");
 				} else if(eqFromClient.Any()) {
 					string eq = string.Empty;
 					foreach(var e in eqFromClient)
-						eq += string.Format("{0} - {1}\n", e.ShortName ?? e.Name, e.Count);
-					info.AppendLine(string.Format("<b>От клиента:</b> {0}", eq.Trim()));
+					{
+						eq += $"{e.ShortName ?? e.Name} - {e.Count}\n";
+					}
+
+					info.AppendLine($"<b>От клиента:</b> {eq.Trim()}");
 				}
 
 				var drivers = GetDrivers(orderRepository);
@@ -434,17 +451,21 @@ namespace Vodovoz.Domain.Orders
 					var sb = new StringBuilder();
 					foreach(var d in drivers)
 					{
-						sb.AppendFormat("{0} ← ", d.ShortName);
+						sb.AppendFormat("{0} ← ", WebUtility.HtmlEncode(d.ShortName));
 					}
 
-					info.AppendLine(string.Format("<b>Водитель:</b> {0}", sb.ToString().Trim(new char[] { ' ', '←' })));
+					info.AppendLine($"<b>Водитель:</b> {sb.ToString().Trim(new char[] { ' ', '←' })}");
 				}
 				var routeLists = orderRepository.GetAllRLForOrder(UoW, OldOrder);
 				if(routeLists.Any()) {
 					StringBuilder rls = new StringBuilder();
+
 					foreach(var l in routeLists)
+					{
 						rls.AppendFormat("{0} ← ", l.Id);
-					info.AppendLine(string.Format("<b>Маршрутный лист:</b> {0}", rls.ToString().Trim(new char[] { ' ', '←' })));
+					}
+
+					info.AppendLine($"<b>Маршрутный лист:</b> {rls.ToString().Trim(new char[] { ' ', '←' })}");
 				}
 			}
 

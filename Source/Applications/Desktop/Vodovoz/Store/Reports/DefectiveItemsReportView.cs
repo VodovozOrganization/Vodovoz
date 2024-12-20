@@ -96,7 +96,7 @@ namespace Vodovoz.Store.Reports
 				.AddColumn("Место обнаружения проблемы").AddTextRenderer(x => x.DefectDetectedAt)
 				.AddColumn("Источник").AddTextRenderer(x => x.DefectSource.GetEnumTitle())
 				.AddColumn("Водитель и номер МЛ").AddTextRenderer(x => x.RouteListId == null ? "" : $"{x.DriverLastName} МЛ №{x.RouteListId}")
-				.AddColumn("Источник").AddTextRenderer(x => $"{x.DocumentTypeName} {x.Id}")
+				.AddColumn("Документ и номер").AddTextRenderer(x => $"{x.DocumentTypeName} {x.Id}")
 				.AddColumn("Автор").AddTextRenderer(x => x.AuthorLastName)
 				.AddColumn("Комментарий").AddTextRenderer(x => x.Comment)
 				.Finish();
