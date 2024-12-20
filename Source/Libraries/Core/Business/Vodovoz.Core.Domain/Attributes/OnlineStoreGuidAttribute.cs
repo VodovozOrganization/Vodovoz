@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Vodovoz.Domain.Goods
+namespace Vodovoz.Core.Domain.Attributes
 {
-	[System.AttributeUsage(System.AttributeTargets.Field)]
+	[AttributeUsage(AttributeTargets.Field)]
 	public class OnlineStoreGuidAttribute : Attribute
 	{
 		public Guid Guid;

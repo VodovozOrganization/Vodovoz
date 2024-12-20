@@ -6,6 +6,7 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Project.Repositories;
 using QS.Utilities.Text;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
