@@ -39,7 +39,6 @@ using Vodovoz.ViewModels.Widgets.Goods;
 using VodovozBusiness.Services;
 using VodovozInfrastructure.StringHandlers;
 using Vodovoz.ViewModels.Goods.ProductGroups;
-using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {

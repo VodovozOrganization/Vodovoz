@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using QS.BusinessCommon.Domain;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vodovoz.Attributes
+namespace Vodovoz.Core.Domain.Attributes
 {
 	[AttributeUsage(AttributeTargets.Field)]
 	public class Value1c : Attribute
@@ -9,7 +9,7 @@ namespace Vodovoz.Attributes
 
 		public Value1c(string value)
 		{
-			this.Value = value;
+			Value = value;
 		}
 	}
 }
