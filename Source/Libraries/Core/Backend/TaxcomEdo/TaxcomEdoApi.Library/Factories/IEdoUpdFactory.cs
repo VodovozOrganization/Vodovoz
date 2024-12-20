@@ -1,4 +1,5 @@
-﻿using Taxcom.Client.Api.Document.DocumentByFormat1115131;
+﻿using Edo.Docflow.Dto;
+using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdoApi.Library.Config;
 
@@ -8,6 +9,12 @@ namespace TaxcomEdoApi.Library.Factories
 	{
 		Fajl CreateNewUpdXml(
 			InfoForCreatingEdoUpd orderInfoForEdo,
+			WarrantOptions warrantOptions,
+			string organizationAccountId,
+			string certificateSubject);
+		
+		Fajl CreateNewUpdXml(
+			UniversalTransferDocumentInfo updInfo,
 			WarrantOptions warrantOptions,
 			string organizationAccountId,
 			string certificateSubject);

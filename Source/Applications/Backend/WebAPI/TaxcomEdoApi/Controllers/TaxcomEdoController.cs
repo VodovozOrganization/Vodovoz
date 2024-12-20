@@ -1,5 +1,6 @@
 ﻿using System;
 using Core.Infrastructure;
+using Edo.Docflow.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Taxcom.Client.Api;
@@ -47,6 +48,38 @@ namespace TaxcomEdoApi.Controllers
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", orderId);
+				return Problem();
+			}
+		}
+		
+		[HttpPost]
+		public IActionResult CreateAndSendUpd(UniversalTransferDocumentInfo updInfo)
+		{
+			var documentId = updInfo.DocumentId;
+			_logger.LogInformation(
+				"Поступил запрос отправки УПД {UpdNumber} {DocumentId}",
+				updInfo.Number,
+				documentId);
+			
+			try
+			{
+				var container = _taxcomEdoService.CreateContainerWithUpd(updInfo);
+				
+				_logger.LogInformation(
+					"Отправляем контейнер с УПД {UpdNumber} {DocumentId}",
+					updInfo.Number,
+					documentId);
+				
+				_taxcomApi.Send(container);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка в процессе формирования УПД №{UpdNumber} {DocumentId} и ее отправки",
+					updInfo.Number,
+					documentId);
 				return Problem();
 			}
 		}

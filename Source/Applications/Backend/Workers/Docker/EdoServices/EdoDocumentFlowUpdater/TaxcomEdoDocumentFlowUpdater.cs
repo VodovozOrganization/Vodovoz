@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Docflow.Taxcom;
+using Edo.Transport2;
 using EdoDocumentFlowUpdater.Configs;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -36,7 +38,7 @@ namespace EdoDocumentFlowUpdater
 		private readonly IOrderRepository _orderRepository;
 		private readonly ITaxcomEdoDocflowLastProcessTimeRepository _edoDocflowLastProcessTimeRepository;
 		private readonly IEdoContainerFileStorageService _edoContainerFileStorageService;
-		private readonly IEdoDocflowHandler _edoDocflowHandler;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		private TaxcomEdoDocflowLastProcessTime _lastEventsProcessTime;
 
@@ -51,7 +53,7 @@ namespace EdoDocumentFlowUpdater
 			ISettingsController settingController,
 			IZabbixSender zabbixSender,
 			IEdoContainerFileStorageService edoContainerFileStorageService,
-			IEdoDocflowHandler edoDocflowHandler)
+			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
@@ -61,7 +63,7 @@ namespace EdoDocumentFlowUpdater
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_edoContainerFileStorageService =
 				edoContainerFileStorageService ?? throw new ArgumentNullException(nameof(edoContainerFileStorageService));
-			_edoDocflowHandler = edoDocflowHandler ?? throw new ArgumentNullException(nameof(edoDocflowHandler));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_edoDocflowLastProcessTimeRepository =
@@ -154,8 +156,14 @@ namespace EdoDocumentFlowUpdater
 								container = _orderRepository.GetEdoContainerByMainDocumentId(uow, mainDocument.ExternalIdentifier);
 							}
 
-							await TryUpdateEdoContainer(cancellationToken, container, item, mainDocument, taxcomApiClient, uow);
-							await TryUpdateTaxcomEdoDocFlow(uow, item, cancellationToken);
+							if(container != null)
+							{
+								await TryUpdateEdoContainer(cancellationToken, container, item, mainDocument, taxcomApiClient, uow);
+							}
+							else
+							{
+								await SendOutgoingTaxcomDocflowUpdatedEvent(item, mainDocument, cancellationToken);
+							}
 
 							_lastEventsProcessTime.LastProcessedEventOutgoingDocuments = item.StatusChangeDateTime;
 						}
@@ -172,12 +180,22 @@ namespace EdoDocumentFlowUpdater
 			}
 		}
 
-		private async Task TryUpdateTaxcomEdoDocFlow(
-			IUnitOfWork uow,
+		private async Task SendOutgoingTaxcomDocflowUpdatedEvent(
 			EdoDocFlow docflow,
+			EdoDocFlowDocument mainDocument,
 			CancellationToken cancellationToken)
 		{
-			await _edoDocflowHandler.UpdateOutgoingTaxcomDocFlow(uow, docflow, cancellationToken);
+			var @event = new OutgoingTaxcomDocflowUpdatedEvent
+			{
+				DocFlowId = docflow.Id,
+				MainDocumentId = mainDocument.ExternalIdentifier,
+				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
+				Status = docflow.Status,
+				StatusChangeDateTime = docflow.StatusChangeDateTime,
+				ErrorDescription = docflow.ErrorDescription
+			};
+			
+			await _publishEndpoint.Publish(@event, cancellationToken);
 		}
 		
 		private async Task ProcessIngoingDocuments(CancellationToken cancellationToken)
@@ -218,7 +236,7 @@ namespace EdoDocumentFlowUpdater
 
 						foreach(var item in docFlowUpdates.Updates)
 						{
-							await TryProcessIngoingTaxcomEdoDocFlow(uow, item, cancellationToken);
+							await SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(item, cancellationToken);
 							_lastEventsProcessTime.LastProcessedEventIngoingDocuments = item.StatusChangeDateTime;
 						}
 					} while(!docFlowUpdates.IsLast);
@@ -234,9 +252,17 @@ namespace EdoDocumentFlowUpdater
 			}
 		}
 
-		private async Task TryProcessIngoingTaxcomEdoDocFlow(IUnitOfWork uow, EdoDocFlow docflow, CancellationToken cancellationToken)
+		private async Task SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(
+			EdoDocFlow docflow, CancellationToken cancellationToken)
 		{
-			await _edoDocflowHandler.ProcessIngoingTaxcomEdoDocFlow(uow, docflow, cancellationToken);
+			var @event = new AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent
+			{
+				DocFlowId = docflow.Id,
+				MainDocumentId = docflow.Documents.First().ExternalIdentifier,
+				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
+			};
+			
+			await _publishEndpoint.Publish(@event, cancellationToken);
 		}
 
 		private async Task TryUpdateEdoContainer(

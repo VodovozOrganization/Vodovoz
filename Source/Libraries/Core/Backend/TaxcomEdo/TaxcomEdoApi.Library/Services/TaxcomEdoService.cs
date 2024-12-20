@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
+using Edo.Docflow.Dto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Taxcom.Client.Api.Converters;
@@ -89,6 +90,66 @@ namespace TaxcomEdoApi.Library.Services
 				container.SetWarrantParameters(
 					_warrantOptions.WarrantNumber,
 					infoForCreatingEdoUpd.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.Inn,
+					_warrantOptions.StartDate,
+					_warrantOptions.EndDate);
+			}
+
+			return container;
+		}
+		
+		public TaxcomContainer CreateContainerWithUpd(UniversalTransferDocumentInfo updInfo)
+		{
+			var edoAccountId = _apiOptions.EdxClientId;
+			var organizationEdoId = updInfo.Seller.Organization.EdoAccountId;
+
+			if(edoAccountId != organizationEdoId)
+			{
+				_logger.LogError(
+					"edxClientId {EdoAccountId} отличается от указанного в организации {OrganizationEdoId}",
+					edoAccountId,
+					organizationEdoId);
+				
+				throw new InvalidOperationException("Кабинет ЭДО организации отличается от указанной для отправки документов в конфиге");
+			}
+			
+			var updXml = _edoUpdFactory.CreateNewUpdXml(
+				updInfo,
+				_warrantOptions,
+				edoAccountId,
+				_certificate.Subject);
+			
+			var container = new TaxcomContainer
+			{
+				SignMode = DocumentSignMode.UseSpecifiedCertificate
+			};
+			
+			var upd = new UniversalInvoiceDocument();
+			UniversalInvoiceConverter.Convert(upd, updXml);
+
+			if(!upd.Validate(out var errors))
+			{
+				var errorsString = string.Join(", ", errors);
+				_logger.LogError(
+					"УПД {UpdNumber} {DocumentId} не прошла валидацию\nОшибки: {ErrorsString}",
+					updInfo.Number,
+					updInfo.DocumentId,
+					errorsString);
+
+				throw new InvalidOperationException($"УПД {updInfo.Number} {updInfo.DocumentId} не прошла валидацию, отправка не возможна");
+				//подумать, что делаем в таких случаях
+			}
+			
+			upd.ExternalIdentifier = updInfo.DocumentId.ToString();
+			container.Documents.Add(upd);
+			upd.AddCertificateForSign(_certificate.Thumbprint);
+			
+			//На случай, если МЧД будет не готова, просто проставляем пустые строки в конфиге
+			//чтобы отправка шла без прикрепления доверки
+			if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber))
+			{
+				container.SetWarrantParameters(
+					_warrantOptions.WarrantNumber,
+					updInfo.Seller.Organization.Inn,
 					_warrantOptions.StartDate,
 					_warrantOptions.EndDate);
 			}

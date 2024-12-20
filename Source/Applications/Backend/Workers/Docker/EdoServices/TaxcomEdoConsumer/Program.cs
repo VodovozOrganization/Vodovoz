@@ -1,25 +1,21 @@
+﻿using Microsoft.Extensions.Hosting;
+using System.Text;
 using Autofac.Extensions.DependencyInjection;
-using Edo.Docflow.Taxcom;
-using EdoDocumentFlowUpdater.Configs;
-using EdoDocumentFlowUpdater.Options;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
-using QS.HistoryLog;
 using QS.Project.Core;
-using TaxcomEdo.Client;
-using TaxcomEdo.Library;
+using TaxcomEdoConsumer.Consumers;
+using TaxcomEdoConsumer.Options;
+using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
-using Vodovoz.Infrastructure.FileStorage;
 using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.Zabbix.Sender;
 
-namespace EdoDocumentFlowUpdater
+namespace TaxcomEdoConsumer
 {
 	public class Program
 	{
@@ -31,12 +27,16 @@ namespace EdoDocumentFlowUpdater
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
-				.ConfigureLogging((context, builder) => {
+				.ConfigureLogging((context, builder) =>
+				{
 					builder.AddNLog();
 					builder.AddConfiguration(context.Configuration.GetSection(nameof(NLog)));
 				})
 				.ConfigureServices((hostContext, services) =>
 				{
+					Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+					var configuration = hostContext.Configuration;
+
 					services
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -50,24 +50,27 @@ namespace EdoDocumentFlowUpdater
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
-						.AddInfrastructure(ServiceLifetime.Singleton)
-						.ConfigureOptions<ConfigureS3Options>()
-						.AddFileStorage()
-						.AddStaticHistoryTracker()
-						.AddStaticScopeForEntity()
-						.Configure<TaxcomEdoDocumentFlowUpdaterOptions>(
-							hostContext.Configuration.GetSection(TaxcomEdoDocumentFlowUpdaterOptions.Path))
-						.AddHttpClient()
-						.AddTaxcomClient()
-						
-						.ConfigureZabbixSender(nameof(TaxcomEdoDocumentFlowUpdater))
-						.AddHostedService<TaxcomEdoDocumentFlowUpdater>()
-						
+						.AddBusiness(configuration)
+						.AddTaxcomEdoConsumerDependenciesGroup()
+						.Configure<TaxcomEdoConsumerOptions>(configuration.GetSection(TaxcomEdoConsumerOptions.Path))
+						.AddInfrastructure()
+
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
 						{
+							busConf.AddConsumer<
+								AcceptingIngoingTaxcomDocflowWaitingForSignatureEventConsumer,
+								AcceptingIngoingTaxcomDocflowWaitingForSignatureEventConsumerDefinition>();
+							
+							busConf.AddConsumer<
+								OutgoingTaxcomDocflowUpdatedEventConsumer,
+								OutgoingTaxcomDocflowUpdatedEventConsumerDefinition>();
+							
+							busConf.AddConsumer<TaxcomDocflowSendEventConsumer, TaxcomDocflowSendEventConsumerDefinition>();
+							
 							busConf.ConfigureRabbitMq();
-						});
+						})
+						.AddStaticScopeForEntity();
 				});
 	}
 }

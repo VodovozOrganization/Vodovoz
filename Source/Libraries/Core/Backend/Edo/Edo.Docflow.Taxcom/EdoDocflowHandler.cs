@@ -2,41 +2,40 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Docflow.Dto;
+using Edo.Transport2;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using TaxcomEdo.Client;
-using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Domain.Documents;
 
 namespace Edo.Docflow.Taxcom
 {
 	public class EdoDocflowHandler : IEdoDocflowHandler
 	{
+		private readonly IUnitOfWork _uow;
 		private readonly ILogger<EdoDocflowHandler> _logger;
 		private readonly ITaxcomApiClient _taxcomApiClient;
 
 		public EdoDocflowHandler(
+			IUnitOfWork uow,
 			ILogger<EdoDocflowHandler> logger,
 			ITaxcomApiClient taxcomApiClient)
 		{
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApiClient = taxcomApiClient ?? throw new ArgumentNullException(nameof(taxcomApiClient));
 		}
 
-		public async Task CreateTaxcomDocFlowAndSendDocument(
-			IUnitOfWork uow,
-			int edoOutgoingDocumentId,
-			UniversalTransferDocumentInfo updInfo)
+		public async Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event)
 		{
 			var now = DateTime.Now;
 			
 			var taxcomDocflow = new TaxcomDocflow
 			{
 				CreationTime = now,
-				MainDocumentId = updInfo.DocumentId.ToString(),
+				MainDocumentId = @event.UpdInfo.DocumentId.ToString(),
 				DocflowId = null,
-				EdoDocumentId = edoOutgoingDocumentId
+				EdoDocumentId = @event.EdoOutgoingDocumentId
 			};
 			
 			taxcomDocflow.Actions.Add(new TaxcomDocflowAction
@@ -45,10 +44,10 @@ namespace Edo.Docflow.Taxcom
 				Time = now
 			});
 			
-			await uow.SaveAsync(taxcomDocflow);
-			await uow.CommitAsync();
+			await _uow.SaveAsync(taxcomDocflow);
+			await _uow.CommitAsync();
 
-			var result = await _taxcomApiClient.SendDataForCreateUpdByEdo(updInfo);
+			var result = await _taxcomApiClient.SendDataForCreateUpdByEdo(@event.UpdInfo);
 
 			if(!result)
 			{
@@ -60,36 +59,30 @@ namespace Edo.Docflow.Taxcom
 					ErrorMessage = "Не удалось отправить УПД на сервер Такском"
 				};
 				
-				await uow.SaveAsync(newAction);
-				await uow.CommitAsync();
+				await _uow.SaveAsync(newAction);
+				await _uow.CommitAsync();
 			}
 		}
 
-		public async Task UpdateOutgoingTaxcomDocFlow(IUnitOfWork uow, EdoDocFlow edoDocFlow, CancellationToken cancellationToken)
+		public async Task UpdateOutgoingTaxcomDocFlow(
+			OutgoingTaxcomDocflowUpdatedEvent @event, CancellationToken cancellationToken = default)
 		{
-			if(!edoDocFlow.Documents.Any())
-			{
-				return;
-			}
-			
-			var mainDocument = edoDocFlow.Documents.First();
-			
-			var taxcomDocflow = uow.Session.Query<TaxcomDocflow>()
-				.SingleOrDefault(x => x.MainDocumentId == mainDocument.ExternalIdentifier);
+			var taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
+				.SingleOrDefault(x => x.MainDocumentId == @event.MainDocumentId);
 
 			if(taxcomDocflow is null)
 			{
 				return;
 			}
 
-			taxcomDocflow.DocflowId = edoDocFlow.Id;
+			taxcomDocflow.DocflowId = @event.DocFlowId;
 			
 			var newAction = new TaxcomDocflowAction
 			{
-				State = (EdoDocFlowStatus)Enum.Parse(typeof(EdoDocFlowStatus), edoDocFlow.Status.ToString()),
-				Time = edoDocFlow.StatusChangeDateTime,
+				State = (EdoDocFlowStatus)Enum.Parse(typeof(EdoDocFlowStatus), @event.Status.ToString()),
+				Time = @event.StatusChangeDateTime,
 				TaxcomDocflowId = taxcomDocflow.Id,
-				ErrorMessage = edoDocFlow.ErrorDescription
+				ErrorMessage = @event.ErrorDescription
 			};
 			
 			taxcomDocflow.Actions.Add(newAction);
@@ -120,35 +113,29 @@ namespace Edo.Docflow.Taxcom
 				taxcomDocflow.DocflowId,
 				taxcomDocflow.MainDocumentId);
 			
-			await uow.SaveAsync(taxcomDocflow);
-			await uow.CommitAsync();
+			await _uow.SaveAsync(taxcomDocflow);
+			await _uow.CommitAsync();
 		}
 
-		public async Task ProcessIngoingTaxcomEdoDocFlow(IUnitOfWork uow, EdoDocFlow edoDocFlow, CancellationToken cancellationToken)
+		public async Task AcceptIngoingTaxcomEdoDocFlowWaitingForSignature(
+			AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent @event, CancellationToken cancellationToken = default)
 		{
-			if(!edoDocFlow.Documents.Any())
-			{
-				return;
-			}
-			
-			var mainDocument = edoDocFlow.Documents.First();
-			
-			var taxcomDocflow = uow.Session.Query<TaxcomDocflow>()
-				.SingleOrDefault(x => x.MainDocumentId == mainDocument.ExternalIdentifier);
+			var taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
+				.SingleOrDefault(x => x.MainDocumentId == @event.MainDocumentId);
 
 			if(taxcomDocflow is null)
 			{
 				return;
 			}
 
-			var result = await _taxcomApiClient.AcceptIngoingDocflow(edoDocFlow.Id, cancellationToken);
+			var result = await _taxcomApiClient.AcceptIngoingDocflow(@event.DocFlowId, cancellationToken);
 
 			if(!result)
 			{
 				_logger.LogError(
 					"Не удалось подписать входящий документ {ExternalIdentifier} документооборота {Docflow}",
 					taxcomDocflow.MainDocumentId,
-					edoDocFlow.Id);
+					@event.DocFlowId);
 			}
 		}
 	}
