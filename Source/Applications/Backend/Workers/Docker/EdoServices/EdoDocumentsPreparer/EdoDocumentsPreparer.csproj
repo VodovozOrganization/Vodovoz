@@ -14,12 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\..\..\..\..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdo.Library\TaxcomEdo.Library.csproj" />
