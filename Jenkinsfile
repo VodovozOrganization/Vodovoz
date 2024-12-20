@@ -53,6 +53,9 @@ NODE_VOD13 = "Vod13"
 NODE_WIN_BUILD = "WIN_BUILD"
 NODE_DOCKER_BUILD = "DOCKER_BUILD"
 
+PUBLISHPROFILE_PROD = "registry-prod"
+PUBLISHPROFILE_DEV = "registry-dev"
+
 // 102	Настройки. Глобальные
 ARCHIVE_EXTENTION = '.7z'
 APP_PATH = "Vodovoz/Source/Applications"
@@ -167,25 +170,24 @@ stage('Web'){
 				PublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
 
 				// Docker
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker/EmailStatusUpdateWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/ExternalCounterpartyAssignNotifier/ExternalCounterpartyAssignNotifier.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/WarehouseApi/WarehouseApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker/EmailStatusUpdateWorker.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/ExternalCounterpartyAssignNotifier/ExternalCounterpartyAssignNotifier.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Backend/WebAPI/WarehouseApi/WarehouseApi.csproj")
+			//	DockerPublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
 			}
 		}
@@ -272,6 +274,42 @@ stage('Publish'){
 		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
 		"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
+		"LinuxDotnetPublish" : {
+			node(NODE_DOCKER_BUILD){
+				def profile ="";
+				if(IS_HOTFIX || IS_RELEASE){
+					profile = PUBLISHPROFILE_PROD
+				}
+				else if(IS_PULL_REQUEST){
+					profile = PUBLISHPROFILE_DEV
+				}
+				else{
+					echo "Publish not needed"
+					return;
+				}
+				echo sh "ls"
+				DotnetPublish("./Source/Applications/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/WebAPI/DriverAPI/DriverAPI.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/WebAPI/WarehouseApi/WarehouseApi.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/EmailWorkers/EmailSendWorker/EmailSendWorker.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker/EmailStatusUpdateWorker.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/ExternalCounterpartyAssignNotifier/ExternalCounterpartyAssignNotifier.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/TrueMarkWorker/TrueMarkWorker.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj", profile)
+				DotnetPublish("./Source/Applications/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj", profile)
+				DotnetPublish("./Source/Applications/Frontend/PayPageAPI/PayPageAPI.csproj", profile)
+			}
+		}
 	)
 }
 
@@ -585,7 +623,7 @@ def RunPowerShell(psScript){
 	powershell"""
 		\$ErrorActionPreference = "Stop";
 		${psScript}
-        """
+		"""
 }
 
 def GetWorkspacePath()  {
@@ -619,4 +657,8 @@ def WinRemoveDirectory(destPath){
 	RunPowerShell("""
 		Remove-Item -LiteralPath "${destPath}" -Force -Recurse
 	""")
+}
+
+def DotnetPublish(projectFile, profile) {
+    sh "dotnet publish ${projectFile} -c Release /p:PublishProfile=${profile}"
 }
