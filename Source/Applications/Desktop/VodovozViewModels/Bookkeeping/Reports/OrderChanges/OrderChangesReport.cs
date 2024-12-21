@@ -67,13 +67,17 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		public Organization SelectedOrganization => _selectedOrganization;
 
 		public string Title =>
-			$"Отчет по изменениям заказа при доставке\n" +
+			$"Отчет по изменениям заказа при доставке " +
 			$"с {StartDate.ToString(_dateFormatString)} по {EndDate.ToString(_dateFormatString)}";
 
-		public string SelectedFiltersDescription =>
-			$"Организация: {SelectedOrganization.Name}\n" +
-			$"Типы изменений: {string.Join(" ,", _selectedChangeTypes.Select(x => x.Value))}\n" +
-			$"Типы проблем: {string.Join(" ,", _selectedIssueTypes.Select(x => x.Value))}\n";
+		public string SelectedOrganizationInfo =>
+			$"Организация: {SelectedOrganization.Name}";
+
+		public string SelectedChangeTypesInfo =>
+			$"Типы изменений: {string.Join(", ", _selectedChangeTypes.Select(x => x.Key))}";
+
+		public string SelectedIssueTypesInfo =>
+			$"Типы проблем: {string.Join(", ", _selectedIssueTypes.Select(x => x.Key))}";
 
 		public string ReportCreationTimeInfo =>
 			$"Сформировано {DateTime.Now.ToString(_dateAndTimeFormatString)}";
