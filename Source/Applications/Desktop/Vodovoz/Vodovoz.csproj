@@ -478,7 +478,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CastomMessageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PremiumJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.ProfitabilitySalesReportView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.CashlessRequestView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.OrganizationCashTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumRaskatGAZelleView.cs" />
@@ -685,7 +684,6 @@
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
     <Compile Include="ReportsParameters\CashBookReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CashBookReport.cs" />
-    <Compile Include="ReportsParameters\Orders\OrderChangesReport.cs" />
     <Compile Include="ReportsParameters\Sales\SalesReportView.cs" />
     <Compile Include="ServiceDialogs\CastomInteractiveService.cs" />
     <Compile Include="ServiceDialogs\CastomMessageDialogHelper.cs" />
