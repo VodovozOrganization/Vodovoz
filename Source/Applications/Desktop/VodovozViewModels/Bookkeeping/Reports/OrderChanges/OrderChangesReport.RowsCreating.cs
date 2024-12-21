@@ -165,11 +165,13 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& fieldChange.Path == "PaymentType"
 					&& (_selectedIssueTypes.Any() || _isPaymentTypeChangeTypeSelected)
 
-					&& (((_cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.NewValue) || _cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.OldValue))
+					&& (((_cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.NewValue)
+								|| _cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.OldValue))
 							&& _isPaymentTypeChangeTypeSelected)
 						|| ((fieldChangePayType.NewValue == "Terminal" || fieldChangePayType.OldValue == "Terminal")
 							&& _isTerminalIssuesTypeSelected)
-						|| ((_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue) || _byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.OldValue))
+						|| ((_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue)
+								|| _byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.OldValue))
 							&& _isManagersIssuesTypeSelected
 							&& order.PaymentByCardFrom.Id != null
 							&& order.PaymentByCardFrom.Id != _paymentByCardFromSmsId)
@@ -315,13 +317,12 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& counterpartyContract.Organization.Id == _selectedOrganization.Id
 					&& changedEntity.ChangeTime > order.TimeDelivered
 					&& ((fieldChange.Type == FieldChangeType.Changed
-						&& (fieldChange.Path == "Price" || fieldChange.Path == "ActualCount")
-						&& _isPriceChangeTypeSelected
-						&& _isPaymentTypeChangeTypeSelected)
-						||
-						((changedEntity.Operation == EntityChangeOperation.Create || changedEntity.Operation == EntityChangeOperation.Delete)
-						&& fieldChange.Path == "Price"
-						&& _isOrderItemsCountChangeSelected))
+							&& (fieldChange.Path == "Price" || fieldChange.Path == "ActualCount")
+							&& _isPriceChangeTypeSelected
+							&& _isPaymentTypeChangeTypeSelected)
+						|| ((changedEntity.Operation == EntityChangeOperation.Create || changedEntity.Operation == EntityChangeOperation.Delete)
+							&& fieldChange.Path == "Price"
+							&& _isOrderItemsCountChangeSelected))
 
 				select new OrderChangesReportRow
 				{
@@ -355,12 +356,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 			var changesData = await query.ToListAsync(cancellationToken);
 
-			var data = (await query.ToListAsync(cancellationToken))
-				.GroupBy(x => x.ChangedEntityId)
-				.SelectMany(x => x.Where(c => c.TimeDelivered < c.ChangeTime))
-				.ToList();
-
-			var paymentTypeChangedOrderIds = await GetPaymentTypeChangesOrderIds(uow, changesData.Select(x => x.OrderId).Distinct(), cancellationToken);
+			var paymentTypeChangedOrderIds =
+				await GetPaymentTypeChangesOrderIds(uow, changesData.Select(x => x.OrderId).Distinct(), cancellationToken);
 
 			return changesData.Where(x => paymentTypeChangedOrderIds.Contains(x.OrderId));
 		}
@@ -378,11 +375,13 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& fieldChangePayType.Path == "PaymentType"
 					&& orderIds.Contains(order.Id)
 
-					&& (((_cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.NewValue) || _cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.OldValue))
+					&& (((_cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.NewValue)
+								|| _cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.OldValue))
 							&& _isPaymentTypeChangeTypeSelected)
 						|| ((fieldChangePayType.NewValue == "Terminal" || fieldChangePayType.OldValue == "Terminal")
 							&& _isTerminalIssuesTypeSelected)
-						|| ((_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue) || _byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.OldValue))
+						|| ((_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue)
+								|| _byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.OldValue))
 							&& _isManagersIssuesTypeSelected
 							&& order.PaymentByCardFrom.Id != null
 							&& order.PaymentByCardFrom.Id != _paymentByCardFromSmsId)
