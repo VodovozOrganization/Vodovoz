@@ -45,6 +45,10 @@ namespace Vodovoz.Views.Reports
 				.AddBinding(ViewModel, vm => vm.IsWideDateRangeWarningMessageVisible, w => w.Visible)
 				.InitializeFromSource();
 
+			ybuttonCreateReport.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsReportGenerationInProgress, w => w.Visible)
+				.InitializeFromSource();
+
 			ybuttonAbortCreateReport.Binding
 				.AddBinding(ViewModel, vm => vm.CanAbortReport, w => w.Visible)
 				.InitializeFromSource();
