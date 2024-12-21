@@ -5,6 +5,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
+using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ using Vodovoz.Settings.Reports;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 {
-	public partial class OrderChangesReportViewModel : DialogTabViewModelBase
+	public partial class OrderChangesReportViewModel : DialogTabViewModelBase, ITDICloseControlTab
 	{
 		private const string _paymentChangeTypeString = "PaymentType";
 
@@ -403,6 +404,22 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error, message);
 			});
+		}
+
+		public bool CanClose()
+		{
+			if(!IsReportGenerationInProgress)
+			{
+				return true;
+			}
+
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Error,
+				   "Формирование отчета в процессе.\n\n" +
+				   "Чтобы закрыть вкладку необходимо либо дождаться результата формирования отчета,\n" +
+				   "либо отменить его выполнение");
+
+			return false;
 		}
 
 		public override void Dispose()
