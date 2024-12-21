@@ -251,6 +251,23 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
+		
+		[HttpGet]
+		public IActionResult AcceptIngoingDocflow(string docFlowId)
+		{
+			_logger.LogInformation("Поступил запрос принятия входящего документооборота {DocFlowId}", docFlowId);
+			
+			try
+			{
+				_taxcomApi.Accept(docFlowId);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при принятии входящего документооборота {DocFlowId}", docFlowId);
+				return Problem();
+			}
+		}
 
 		[HttpGet]
 		public IActionResult GetStatus()

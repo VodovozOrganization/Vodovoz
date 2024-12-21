@@ -7,6 +7,7 @@ namespace Edo.Transport2
 	/// </summary>
 	public class TaxcomDocflowSendEvent
 	{
+		public const string Event = "TaxcomDocflowSend";
 		/// <summary>
 		/// Код кабинета в ЭДО
 		/// </summary>

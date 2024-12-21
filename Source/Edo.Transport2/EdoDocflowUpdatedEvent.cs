@@ -7,6 +7,7 @@ namespace Edo.Transport2
 	/// </summary>
 	public class EdoDocflowUpdatedEvent
 	{
+		public const string Event = "EdoDocflowUpdated";
 		/// <summary>
 		/// Id главного документа
 		/// </summary>

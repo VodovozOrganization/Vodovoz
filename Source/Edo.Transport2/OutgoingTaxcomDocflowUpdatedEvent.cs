@@ -7,6 +7,7 @@ namespace Edo.Transport2
 	/// </summary>
 	public class OutgoingTaxcomDocflowUpdatedEvent
 	{
+		public const string Event = "OutgoingTaxcomDocflowUpdated";
 		/// <summary>
 		/// Код кабинета в ЭДО
 		/// </summary>

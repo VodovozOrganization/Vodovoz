@@ -7,6 +7,7 @@ namespace Edo.Transport2
 	/// </summary>
 	public class AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent
 	{
+		public const string Event = "AcceptingIngoingTaxcomDocflowWaitingForSignature";
 		/// <summary>
 		/// Код кабинета в ЭДО
 		/// </summary>

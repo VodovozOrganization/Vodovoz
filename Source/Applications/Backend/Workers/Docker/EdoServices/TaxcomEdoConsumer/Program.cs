@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
+using TaxcomEdo.Client;
 using TaxcomEdoConsumer.Consumers;
 using TaxcomEdoConsumer.Options;
 using Vodovoz;
@@ -54,6 +55,7 @@ namespace TaxcomEdoConsumer
 						.AddTaxcomEdoConsumerDependenciesGroup()
 						.Configure<TaxcomEdoConsumerOptions>(configuration.GetSection(TaxcomEdoConsumerOptions.Path))
 						.AddInfrastructure()
+						.AddTaxcomClient()
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Security;
 using System.Security.Authentication;
 using Edo.Docflow.Taxcom;
@@ -69,22 +69,16 @@ namespace TaxcomEdoConsumer
 		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(
 			this IRabbitMqBusFactoryConfigurator configurator, string edoAccount)
 		{
-			var exchange = "AcceptingIngoingTaxcomDocflowWaitingForSignature";
 			configurator.Send<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
-
-			configurator.Publish<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
+			configurator.ReceiveEndpoint($"{edoAccount}_{AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent.Event}", e =>
 			{
-				x.ExchangeType = ExchangeType.Direct;
-				x.Durable = true;
-				x.AutoDelete = false;
-				x.BindQueue(
-					exchange,
-					$"{edoAccount}_{nameof(AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent)}",
-					conf =>
-					{
-						conf.ExchangeType = ExchangeType.Direct;
-						conf.RoutingKey = $"{edoAccount}";
-					});
+				e.Bind(AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent.Event, x =>
+				{
+					x.Durable = true;
+					x.AutoDelete = false;
+					x.ExchangeType = ExchangeType.Direct;
+					x.RoutingKey = $"{edoAccount}";
+				});
 			});
 			
 			return configurator;
@@ -93,22 +87,16 @@ namespace TaxcomEdoConsumer
 		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForOutgoingTaxcomDocflowUpdatedEvent(
 			this IRabbitMqBusFactoryConfigurator configurator, string edoAccount)
 		{
-			var exchange = "OutgoingTaxcomDocflowUpdated";
 			configurator.Send<OutgoingTaxcomDocflowUpdatedEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
-
-			configurator.Publish<OutgoingTaxcomDocflowUpdatedEvent>(x =>
+			configurator.ReceiveEndpoint($"{edoAccount}_{OutgoingTaxcomDocflowUpdatedEvent.Event}", e =>
 			{
-				x.ExchangeType = ExchangeType.Direct;
-				x.Durable = true;
-				x.AutoDelete = false;
-				x.BindQueue(
-					exchange,
-					$"{edoAccount}_{nameof(OutgoingTaxcomDocflowUpdatedEvent)}",
-					conf =>
-					{
-						conf.ExchangeType = ExchangeType.Direct;
-						conf.RoutingKey = $"{edoAccount}";
-					});
+				e.Bind(OutgoingTaxcomDocflowUpdatedEvent.Event, x =>
+				{
+					x.Durable = true;
+					x.AutoDelete = false;
+					x.ExchangeType = ExchangeType.Direct;
+					x.RoutingKey = $"{edoAccount}";
+				});
 			});
 			
 			return configurator;
@@ -122,7 +110,7 @@ namespace TaxcomEdoConsumer
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
 				x.AutoDelete = false;
-				x.BindQueue(nameof(EdoDocflowUpdatedEvent), nameof(EdoDocflowUpdatedEvent));
+				x.BindQueue($"{EdoDocflowUpdatedEvent.Event}", $"{EdoDocflowUpdatedEvent.Event}");
 			});
 			
 			return configurator;
@@ -132,20 +120,15 @@ namespace TaxcomEdoConsumer
 			this IRabbitMqBusFactoryConfigurator configurator, string edoAccount)
 		{
 			configurator.Send<TaxcomDocflowSendEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
-
-			configurator.Publish<TaxcomDocflowSendEvent>(x =>
+			configurator.ReceiveEndpoint($"{edoAccount}_{TaxcomDocflowSendEvent.Event}", e =>
 			{
-				x.ExchangeType = ExchangeType.Direct;
-				x.Durable = true;
-				x.AutoDelete = false;
-				x.BindQueue(
-					nameof(TaxcomDocflowSendEvent),
-					$"{edoAccount}_{nameof(TaxcomDocflowSendEvent)}",
-					conf =>
-					{
-						conf.ExchangeType = ExchangeType.Direct;
-						conf.RoutingKey = $"{edoAccount}";
-					});
+				e.Bind(TaxcomDocflowSendEvent.Event, x =>
+				{
+					x.Durable = true;
+					x.AutoDelete = false;
+					x.ExchangeType = ExchangeType.Direct;
+					x.RoutingKey = $"{edoAccount}";
+				});
 			});
 			
 			return configurator;
