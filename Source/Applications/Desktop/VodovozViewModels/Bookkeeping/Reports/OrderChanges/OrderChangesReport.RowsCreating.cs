@@ -57,8 +57,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		{
 			var rows = new List<OrderChangesReportRow>();
 
-			var paymentTypesChangesData = (await GetPaymentTypeChangesData(uow, cancellationToken)).ToList();
-			var orderItemChangesData = (await GetOrderItemsChangesData(uow, cancellationToken)).ToList();
+			var paymentTypesChangesData = (await GetPaymentTypeChangesData(uow, cancellationToken)).OrderBy(x => x.OrderId).ToList();
+			var orderItemChangesData = (await GetOrderItemsChangesData(uow, cancellationToken)).OrderBy(x => x.OrderId).ToList();
 
 			rows.AddRange(paymentTypesChangesData);
 			rows.AddRange(orderItemChangesData);
@@ -163,14 +163,15 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& fieldChangePayType.Path == "PaymentType"
 					&& fieldChange.Type == FieldChangeType.Changed
 					&& fieldChange.Path == "PaymentType"
-					&& (!_selectedIssueTypes.Any() || _isPaymentTypeChangeTypeSelected)
+					&& (_selectedIssueTypes.Any() || _isPaymentTypeChangeTypeSelected)
 
 					&& (((_cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.NewValue) || _cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.OldValue))
 							&& _isPaymentTypeChangeTypeSelected)
 						|| ((fieldChangePayType.NewValue == "Terminal" || fieldChangePayType.OldValue == "Terminal")
 							&& _isTerminalIssuesTypeSelected)
-						|| (_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue) || _byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.OldValue)
+						|| ((_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue) || _byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.OldValue))
 							&& _isManagersIssuesTypeSelected
+							&& order.PaymentByCardFrom.Id != null
 							&& order.PaymentByCardFrom.Id != _paymentByCardFromSmsId)
 						|| (_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue)
 							&& order.PaymentByCardFrom.Id == _paymentByCardFromSmsId
@@ -381,15 +382,17 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 							&& _isPaymentTypeChangeTypeSelected)
 						|| ((fieldChangePayType.NewValue == "Terminal" || fieldChangePayType.OldValue == "Terminal")
 							&& _isTerminalIssuesTypeSelected)
-						|| (_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue) || _byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.OldValue)
+						|| ((_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue) || _byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.OldValue))
 							&& _isManagersIssuesTypeSelected
+							&& order.PaymentByCardFrom.Id != null
 							&& order.PaymentByCardFrom.Id != _paymentByCardFromSmsId)
 						|| (_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue)
 							&& order.PaymentByCardFrom.Id == _paymentByCardFromSmsId
 							&& _isSmsIssuesTypeSelected)
 						|| (_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue)
 							&& order.PaymentByCardFrom.Id == _paymentByCardFromFastPaymentServiceId
-							&& _isQrIssuesTypeSelected))
+							&& _isQrIssuesTypeSelected)
+							)
 
 				select order.Id;
 
