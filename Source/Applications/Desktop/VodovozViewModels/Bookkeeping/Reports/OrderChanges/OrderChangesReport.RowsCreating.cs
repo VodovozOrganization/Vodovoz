@@ -784,7 +784,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 				case "BeveragesWorld":
 					return "Мир напитков";
 				case "Terminal":
-					return $"{PaymentType.Terminal.GetEnumDisplayName()} {terminalSubtype?.GetEnumDisplayName()}";
+					return $"{PaymentType.Terminal.GetEnumDisplayName()}, {terminalSubtype?.GetEnumDisplayName()}";
 				default:
 					return paymentTypeValue;
 			}
