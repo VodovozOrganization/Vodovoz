@@ -466,9 +466,6 @@
     <None Include="$(MSBuildThisFileDirectory)\Reports\Orders\OnecComments.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="$(MSBuildThisFileDirectory)\Reports\Orders\OrderChangesReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="$(MSBuildThisFileDirectory)\Reports\Orders\OrderRegistryReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
