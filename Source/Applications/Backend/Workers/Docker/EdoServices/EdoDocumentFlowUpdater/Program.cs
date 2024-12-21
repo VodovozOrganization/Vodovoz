@@ -56,7 +56,7 @@ namespace EdoDocumentFlowUpdater
 						.AddHttpClient()
 						.AddTaxcomClient()
 						
-						.ConfigureZabbixSender(nameof(TaxcomEdoDocumentFlowUpdater))
+						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoDocumentFlowUpdater))
 						.AddHostedService<TaxcomEdoDocumentFlowUpdater>();
 				});
 	}

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading;
@@ -14,24 +15,43 @@ namespace Vodovoz.Zabbix.Sender
 		private string _workerName;
 		private readonly IMetricSettings _metricSettings;
 		private readonly ILogger<VodovozZabbixSender> _logger;
+		private readonly IHostEnvironment _hostEnvironment;
 
-		public VodovozZabbixSender(string workerName, IMetricSettings metricSettings, ILogger<VodovozZabbixSender> logger)
+		public VodovozZabbixSender(string workerName, IMetricSettings metricSettings, ILogger<VodovozZabbixSender> logger, IHostEnvironment hostEnvironment)
 		{
 			_workerName = workerName ?? throw new ArgumentNullException(nameof(workerName));
 			_metricSettings = metricSettings ?? throw new ArgumentNullException(nameof(metricSettings));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_hostEnvironment = hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
+		}
+
+		private bool CanSendMetrics()
+		{
+			if(_hostEnvironment.IsDevelopment())
+			{
+				_logger.LogInformation("В девелопе отключена отправка метрики", _workerName);
+
+				return false;
+			}
+
+			if(!_metricSettings.ZabbixNeedSendMetrics)
+			{
+				_logger.LogInformation("В настройках отключена отправка метрики в zabbix.");
+
+				return false;
+			}
+
+			return true;
 		}
 
 		public async Task<bool> SendIsHealthyAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Отправляем информацию \"Работает\" в zabbix по {WorkerName}.", _workerName);
-
-			if(!_metricSettings.ZabbixNeedSendMetrics)
+			if(!CanSendMetrics())
 			{
-				_logger.LogInformation("Для текущей БД отключена отправка метрики в zabbix.");
-
 				return false;
 			}
+
+			_logger.LogInformation("Отправляем информацию \"Работает\" в zabbix по {WorkerName}.", _workerName);
 
 			var sender = new ZabbixAsyncSender(_metricSettings.ZabbixUrl, timeout: 5000);
 
@@ -51,16 +71,14 @@ namespace Vodovoz.Zabbix.Sender
 			return GetResponseResult(response);
 		}
 
-		public async Task<bool> SendIsUnhealthyAsync(ZabixSenderMessageType zabixSenderMessageType, string message, CancellationToken cancellationToken)
+		public async Task<bool> SendProblemMessageAsync(ZabixSenderMessageType zabixSenderMessageType, string message, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Отправляем информацию о проблеме в zabbix по {WorkerName}.", _workerName);
-
-			if(!_metricSettings.ZabbixNeedSendMetrics)
+			if(!CanSendMetrics())
 			{
-				_logger.LogInformation("Для текущей БД отключена отправка метрики в zabbix.");
-
 				return false;
 			}
+
+			_logger.LogInformation("Отправляем сообщение в zabbix по {WorkerName}.", _workerName);
 
 			var sender = new ZabbixAsyncSender(_metricSettings.ZabbixUrl, timeout: 5000);
 

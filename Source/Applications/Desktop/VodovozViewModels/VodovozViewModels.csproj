@@ -403,6 +403,12 @@
     <Compile Include="ReportsParameters\Wages\DriverWagesReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\ForwarderWageReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\WagesOperationsReportViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsDocumentItemsViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsDocumentViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsTemplateItemsViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsTemplateJournalNode.cs" />
+    <Compile Include="Store\RegradingOfGoodsTemplateJournalViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsTemplateViewModel.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryBySourceRow.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryDisplayRow.cs" />

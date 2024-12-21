@@ -66,11 +66,11 @@ namespace DatabaseServiceWorker
 						.ConfigurePowerBiExportWorker(hostContext)
 						.ConfigureTextInspectWorker(hostContext)
 						.AddFuelTransactionsControlWorker(hostContext)
-						.ConfigureZabbixSender(nameof(TechInspectWorker))
-						.ConfigureZabbixSender(nameof(PowerBiExportWorker))
-						.ConfigureZabbixSender(nameof(ClearFastDeliveryAvailabilityHistoryWorker))
-						.ConfigureZabbixSender(nameof(FuelTransactionsControlWorker))
-						.ConfigureZabbixSender(nameof(MonitoringArchivingWorker))
+						.ConfigureZabbixSenderFromDataBase(nameof(TechInspectWorker))
+						.ConfigureZabbixSenderFromDataBase(nameof(PowerBiExportWorker))
+						.ConfigureZabbixSenderFromDataBase(nameof(ClearFastDeliveryAvailabilityHistoryWorker))
+						.ConfigureZabbixSenderFromDataBase(nameof(FuelTransactionsControlWorker))
+						.ConfigureZabbixSenderFromDataBase(nameof(MonitoringArchivingWorker))
 						.AddScoped<IPowerBiConnectionFactory, PowerBiConnectionFactory>()
 						;
 
