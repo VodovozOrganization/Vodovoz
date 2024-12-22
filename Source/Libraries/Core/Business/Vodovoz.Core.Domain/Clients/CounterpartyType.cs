@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Client
+namespace Vodovoz.Core.Domain.Clients
 {
 	[Appellative(Nominative = "Тип контрагента",
 		NominativePlural = "Типы контрагента")]
