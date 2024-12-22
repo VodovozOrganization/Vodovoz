@@ -1,5 +1,4 @@
-﻿using System;
-using Taxcom.Client.Api.Document.DocumentByFormat1115131;
+﻿using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Organizations;
 
@@ -9,6 +8,6 @@ namespace TaxcomEdoApi.Library.Converters
 	{
 		UchastnikTip ConvertCounterpartyToUchastnikTip(CounterpartyInfoForEdo client);
 		UchastnikTip ConvertCounterpartyToUchastnikTip(CounterpartyInfoForEdo client, DeliveryPointInfoForEdo deliveryPoint);
-		UchastnikTip ConvertOrganizationToUchastnikTip(OrganizationInfoForEdo org, DateTime? deliveryDate);
+		UchastnikTip ConvertOrganizationToUchastnikTip(OrganizationInfoForEdo org);
 	}
 }

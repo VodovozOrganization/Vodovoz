@@ -1,4 +1,5 @@
 ﻿using System;
+using Edo.Docflow.Dto;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Organizations;
@@ -60,8 +61,8 @@ namespace TaxcomEdoApi.Library.Converters
 					return ConvertCounterpartyToUchastnikTip(client);
 			}
 		}
-		
-		public UchastnikTip ConvertOrganizationToUchastnikTip(OrganizationInfoForEdo org, DateTime? deliveryDate)
+
+		public UchastnikTip ConvertOrganizationToUchastnikTip(OrganizationInfoForEdo org)
 		{
 			return new UchastnikTip
 			{
