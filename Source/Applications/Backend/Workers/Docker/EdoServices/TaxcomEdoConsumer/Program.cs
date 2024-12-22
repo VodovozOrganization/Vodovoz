@@ -55,6 +55,7 @@ namespace TaxcomEdoConsumer
 						.AddTaxcomEdoConsumerDependenciesGroup()
 						.Configure<TaxcomEdoConsumerOptions>(configuration.GetSection(TaxcomEdoConsumerOptions.Path))
 						.AddInfrastructure()
+						.AddHttpClient()
 						.AddTaxcomClient()
 
 						.AddMessageTransportSettings()

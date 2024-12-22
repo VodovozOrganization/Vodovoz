@@ -53,7 +53,7 @@ namespace TaxcomEdoApi.Controllers
 		}
 		
 		[HttpPost]
-		public IActionResult CreateAndSendUpd(UniversalTransferDocumentInfo updInfo)
+		public IActionResult NewCreateAndSendUpd(UniversalTransferDocumentInfo updInfo)
 		{
 			var documentId = updInfo.DocumentId;
 			_logger.LogInformation(
