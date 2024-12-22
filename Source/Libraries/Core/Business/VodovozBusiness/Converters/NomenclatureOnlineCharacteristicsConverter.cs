@@ -1,5 +1,5 @@
 ﻿using Gamma.Utilities;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Converters
 {

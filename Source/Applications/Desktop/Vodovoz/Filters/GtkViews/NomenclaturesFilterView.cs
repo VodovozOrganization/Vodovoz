@@ -2,7 +2,6 @@
 using QS.Views.GtkUI;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.Filters.GtkViews

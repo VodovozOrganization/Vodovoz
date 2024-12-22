@@ -1,7 +1,6 @@
 ﻿using Gamma.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
 namespace Vodovoz.Filters.GtkViews

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace VodovozBusiness.Domain.Orders
+namespace Vodovoz.Core.Domain.Goods
 {
 	/// <summary>
 	/// Тип выезда мастера
