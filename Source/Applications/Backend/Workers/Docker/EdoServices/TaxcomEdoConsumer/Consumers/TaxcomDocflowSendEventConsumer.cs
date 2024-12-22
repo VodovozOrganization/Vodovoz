@@ -1,4 +1,4 @@
-﻿using Edo.Docflow.Taxcom;
+using Edo.Docflow.Taxcom;
 using Edo.Transport.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
