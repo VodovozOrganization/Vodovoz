@@ -73,6 +73,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 
 			References(x => x.CopiedFromUndelivery)
 				.Column("copied_from_undelivery_id");
+
+			References(x => x.Nomenclature)
+				.Column("nomenclature_id");
 		}
 	}
 }
