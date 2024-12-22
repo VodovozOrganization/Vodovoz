@@ -20,7 +20,6 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Nodes;
-using VodovozBusiness.Domain.Orders;
 using Menu = Gtk.Menu;
 using MenuItem = Gtk.MenuItem;
 using ValidationType = QSWidgetLib.ValidationType;

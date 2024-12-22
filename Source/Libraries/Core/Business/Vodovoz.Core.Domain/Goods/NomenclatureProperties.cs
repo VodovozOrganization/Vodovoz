@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Attributes;
 
-namespace Vodovoz.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	/// <summary>
 	/// Список дополнительных свойств номенклатуры. 
