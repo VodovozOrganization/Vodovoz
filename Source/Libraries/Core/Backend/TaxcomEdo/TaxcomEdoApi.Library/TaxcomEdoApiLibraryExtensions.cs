@@ -14,6 +14,7 @@ namespace TaxcomEdoApi.Library
 				.AddScoped<IEdoBillFactory, EdoBillFactory>()
 				.AddScoped<IParticipantDocFlowConverter, ParticipantDocFlowConverter>()
 				.AddScoped<IUpdProductConverter, UpdProductConverter>()
+				.AddScoped<IErpDocumentInfoConverter, ErpDocumentInfoConverter>()
 				.AddScoped<ITaxcomEdoService, TaxcomEdoService>();
 			
 			return services;
