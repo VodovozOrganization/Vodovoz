@@ -8,7 +8,6 @@ using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.Reports.Editing;

@@ -16,7 +16,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -1397,7 +1396,7 @@ namespace Vodovoz.Domain.Goods
 		public virtual bool IsWater19L =>
 			Category == NomenclatureCategory.water
 			&& TareVolume.HasValue
-			&& TareVolume.Value == Goods.TareVolume.Vol19L;
+			&& TareVolume.Value == Core.Domain.Goods.TareVolume.Vol19L;
 
 		public override string ToString() => $"id = {Id} Name = {Name}";
 
