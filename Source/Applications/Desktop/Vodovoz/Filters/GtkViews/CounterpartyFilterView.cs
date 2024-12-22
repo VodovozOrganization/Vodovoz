@@ -8,7 +8,6 @@ using QS.Widgets.GtkUI;
 using System;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;

@@ -3,6 +3,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
