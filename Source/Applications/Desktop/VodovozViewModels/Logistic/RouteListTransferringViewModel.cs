@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private int? _sourceRouteListId;
 		private RouteList _sourceRouteList;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly IRouteListTransferReciever _routeListTransferHandByHandReciever;
+		private readonly IRouteListTransferReciever _routeListTransferReciever;
 
 		private readonly RouteListStatus[] _defaultSourceRouteListStatuses =
 		{
@@ -116,7 +116,7 @@ namespace Vodovoz.ViewModels.Logistic
 			DeliveryFreeBalanceViewModel targetDeliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<RouteList> sourceRouteListEEVMBuilder,
 			ViewModelEEVMBuilder<RouteList> targetRouteListEEVMBuilder,
-			IRouteListTransferReciever routeListTransferhandByHandReciever)
+			IRouteListTransferReciever routeListTransferReciever)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_logger = logger
@@ -149,8 +149,8 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(sourceDeliveryFreeBalanceViewModel));
 			TargetRouteListDeliveryFreeBalanceViewModel = targetDeliveryFreeBalanceViewModel
 				?? throw new ArgumentNullException(nameof(targetDeliveryFreeBalanceViewModel));
-			_routeListTransferHandByHandReciever = routeListTransferhandByHandReciever
-				?? throw new ArgumentNullException(nameof(routeListTransferhandByHandReciever));
+			_routeListTransferReciever = routeListTransferReciever
+				?? throw new ArgumentNullException(nameof(routeListTransferReciever));
 
 			SourceRouteListJournalFilterViewModel.SetAndRefilterAtOnce(filter =>
 			{
@@ -843,7 +843,7 @@ namespace Vodovoz.ViewModels.Logistic
 						continue;
 					}
 
-					var isTransfer = node.RouteListItem != null && _routeListItemRepository.GetTransferredFrom(UoW, node.RouteListItem) != null;
+					var isTransfer = node.RouteListItem != null;
 
 					var notificationRequest = new NotificationRouteListChangesRequest
 					{
@@ -851,7 +851,7 @@ namespace Vodovoz.ViewModels.Logistic
 						PushNotificationDataEventType = isTransfer ? PushNotificationDataEventType.TranseferAddress : PushNotificationDataEventType.RouteListContentChanged
 					};
 
-					var result = _routeListTransferHandByHandReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(notificationRequest).GetAwaiter().GetResult();
+					var result = _routeListTransferReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(notificationRequest).GetAwaiter().GetResult();
 
 					if(result.IsSuccess)
 					{

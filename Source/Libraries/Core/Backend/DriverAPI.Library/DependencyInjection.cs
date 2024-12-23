@@ -65,7 +65,7 @@ namespace DriverAPI.Library
 
 			services
 				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>()
-				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
+				.AddScoped<IRouteListTransferReciever, DriverAPIHelper>();
 
 			return services;
 		}

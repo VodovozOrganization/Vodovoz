@@ -10,7 +10,7 @@ namespace DriverApi.Contracts.V5
 	public enum PushNotificationDataEventType
 	{
 		/// <summary>
-		/// Перенос с передачей товара от водителя к водителю
+		/// Перенос товаров от водителя к водителю
 		/// </summary>				
 		TranseferAddress,
 
