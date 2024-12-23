@@ -1149,7 +1149,7 @@ namespace Vodovoz.Application.Logistics
 			return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
 		}
 
-		public Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress)
+		public Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress, bool isFromHandToHandOnly)
 		{
 			var transferItems = _routeListAddressTransferItemRepository.Get(
 				unitOfWork,
@@ -1185,7 +1185,8 @@ namespace Vodovoz.Application.Logistics
 					targetFound = true;
 				}
 
-				if(transferItem.AddressTransferType != AddressTransferType.FromHandToHand)
+				if(isFromHandToHandOnly
+					&& transferItem.AddressTransferType != AddressTransferType.FromHandToHand)
 				{
 					break;
 				}

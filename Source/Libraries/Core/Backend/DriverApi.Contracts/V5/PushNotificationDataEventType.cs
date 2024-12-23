@@ -1,23 +1,22 @@
-﻿namespace DriverApi.Contracts.V5
+﻿using System.Text.Json.Serialization;
+
+namespace DriverApi.Contracts.V5
 {
 	/// <summary>
 	/// Тип события для уведомлений
 	/// </summary>
+ 
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum PushNotificationDataEventType
 	{
 		/// <summary>
-		/// Изменение состава МЛ
+		/// Перенос с передачей товара от водителя к водителю
 		/// </summary>				
-		RouteListContentChanged,
+		TranseferAddress,
 
 		/// <summary>
-		/// Передача заказа от водителя
-		/// </summary>
-		OrderTransferFrom,
-
-		/// <summary>
-		/// Получение заказа водителем
-		/// </summary>
-		OrderTransferTo
+		/// Другое событие изменения состава МЛ
+		/// </summary>				
+		RouteListContentChanged
 	}
 }
