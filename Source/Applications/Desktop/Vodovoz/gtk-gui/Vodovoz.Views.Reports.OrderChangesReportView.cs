@@ -44,11 +44,11 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gamma.GtkWidgets.yTextView ytextview1;
 
-		private global::Gamma.GtkWidgets.yButton ybuttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton ybuttonSave;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAbortCreateReport;
 
-		private global::Gamma.GtkWidgets.yButton ybuttonSave;
+		private global::Gamma.GtkWidgets.yButton ybuttonCreateReport;
 
 		private global::Gtk.EventBox eventboxArrow;
 
@@ -274,13 +274,14 @@ namespace Vodovoz.Views.Reports
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child yvboxFilterContainer.Gtk.Box+BoxChild
-			this.ybuttonCreateReport = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonCreateReport.CanFocus = true;
-			this.ybuttonCreateReport.Name = "ybuttonCreateReport";
-			this.ybuttonCreateReport.UseUnderline = true;
-			this.ybuttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
-			this.yvboxFilterContainer.Add(this.ybuttonCreateReport);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yvboxFilterContainer[this.ybuttonCreateReport]));
+			this.ybuttonSave = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonSave.CanFocus = true;
+			this.ybuttonSave.Name = "ybuttonSave";
+			this.ybuttonSave.UseUnderline = true;
+			this.ybuttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.yvboxFilterContainer.Add(this.ybuttonSave);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yvboxFilterContainer[this.ybuttonSave]));
+			w18.PackType = ((global::Gtk.PackType)(1));
 			w18.Position = 2;
 			w18.Expand = false;
 			w18.Fill = false;
@@ -292,17 +293,19 @@ namespace Vodovoz.Views.Reports
 			this.ybuttonAbortCreateReport.Label = global::Mono.Unix.Catalog.GetString("Отчет в процессе формирования... (Отменить)");
 			this.yvboxFilterContainer.Add(this.ybuttonAbortCreateReport);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yvboxFilterContainer[this.ybuttonAbortCreateReport]));
+			w19.PackType = ((global::Gtk.PackType)(1));
 			w19.Position = 3;
 			w19.Expand = false;
 			w19.Fill = false;
 			// Container child yvboxFilterContainer.Gtk.Box+BoxChild
-			this.ybuttonSave = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonSave.CanFocus = true;
-			this.ybuttonSave.Name = "ybuttonSave";
-			this.ybuttonSave.UseUnderline = true;
-			this.ybuttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			this.yvboxFilterContainer.Add(this.ybuttonSave);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yvboxFilterContainer[this.ybuttonSave]));
+			this.ybuttonCreateReport = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonCreateReport.CanFocus = true;
+			this.ybuttonCreateReport.Name = "ybuttonCreateReport";
+			this.ybuttonCreateReport.UseUnderline = true;
+			this.ybuttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
+			this.yvboxFilterContainer.Add(this.ybuttonCreateReport);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yvboxFilterContainer[this.ybuttonCreateReport]));
+			w20.PackType = ((global::Gtk.PackType)(1));
 			w20.Position = 4;
 			w20.Expand = false;
 			w20.Fill = false;
