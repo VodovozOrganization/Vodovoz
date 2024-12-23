@@ -15,6 +15,14 @@ namespace Edo.Transport2
 		/// <summary>
 		/// Id документооборота
 		/// </summary>
-		public Guid DocFlowId { get; set; }
+		public Guid? DocFlowId { get; set; }
+		/// <summary>
+		/// Общий статус документооборота
+		/// </summary>
+		public string DocFlowStatus { get; set; }
+		/// <summary>
+		/// Время завершения документооборота
+		/// </summary>
+		public DateTime? AcceptTime { get; set; }
 	}
 }
