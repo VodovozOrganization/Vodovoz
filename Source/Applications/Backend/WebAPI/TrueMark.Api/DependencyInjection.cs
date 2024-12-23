@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,6 +55,7 @@ public static class DependencyInjection
 		services
 			.AddAuthorization(configuration)
 			.ConfigureTrueMarkApi(configuration)
+			.ConfigureTestOrganizationInfo(configuration)
 			.AddTrueMarkApiOpenTelemetry()
 			.AddTrueMarkApiMassTransit();
 
@@ -108,6 +109,9 @@ public static class DependencyInjection
 
 	public static IServiceCollection ConfigureTrueMarkApi(this IServiceCollection services, IConfiguration configuration) => services
 		.Configure<TrueMarkApiOptions>(configuration.GetSection(nameof(TrueMarkApiOptions)));
+
+	public static IServiceCollection ConfigureTestOrganizationInfo(this IServiceCollection services, IConfiguration configuration) => services
+		.Configure<TestOrganizationInfo>(configuration.GetSection(nameof(TestOrganizationInfo)));
 
 	public static IServiceCollection AddTrueMarkApiMassTransit(this IServiceCollection services)
 	{
