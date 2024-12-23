@@ -31,6 +31,8 @@ namespace Vodovoz.Views.Reports
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
+			datePeriodPicker.PeriodChangedByUser += OnDatePeriodPickerPeriodChanged;
+
 			ycheckbuttonArchive.Binding
 				.AddBinding(ViewModel, vm => vm.IsOldMonitoring, w => w.Active)
 				.InitializeFromSource();
@@ -127,9 +129,15 @@ namespace Vodovoz.Views.Reports
 			arrowSlider.ArrowType = yvboxFilterContainer.Visible ? ArrowType.Left : ArrowType.Right;
 		}
 
+		private void OnDatePeriodPickerPeriodChanged(object sender, System.EventArgs e)
+		{
+			ViewModel.UpdateReportGeneratingAvailabilitySettings();
+		}
+
 		public override void Destroy()
 		{
 			eventboxArrow.ButtonPressEvent -= OnEventboxArrowButtonPressEvent;
+			datePeriodPicker.PeriodChanged -= OnDatePeriodPickerPeriodChanged;
 
 			base.Destroy();
 		}

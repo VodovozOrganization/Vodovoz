@@ -110,23 +110,13 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		public DateTime? StartDate
 		{
 			get => _startDate;
-			set
-			{
-				SetField(ref _startDate, value);
-
-				UpdateReportGeneratingAvailabilitySettings();
-			}
+			set => SetField(ref _startDate, value);
 		}
 
 		public DateTime? EndDate
 		{
 			get => _endDate;
-			set
-			{
-				SetField(ref _endDate, value);
-
-				UpdateReportGeneratingAvailabilitySettings();
-			}
+			set => SetField(ref _endDate, value);
 		}
 
 		public bool IsOldMonitoring
@@ -276,7 +266,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			UpdateReportGeneratingAvailabilitySettings();
 		}
 
-		private void UpdateReportGeneratingAvailabilitySettings()
+		public void UpdateReportGeneratingAvailabilitySettings()
 		{
 			OnPropertyChanged(nameof(CanChangeIssueTypesSelection));
 			OnPropertyChanged(nameof(CanGenerateReport));
