@@ -1,6 +1,4 @@
 ﻿using MassTransit;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,7 +20,7 @@ using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorization
 
 namespace TrueMark.Api.Controllers;
 
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ApiController]
 [Route("api/[action]")]
 
@@ -32,12 +30,14 @@ public class TrueMarkApiController : ControllerBase
 	private readonly HttpClient _httpClient;
 	private readonly IAuthorizationService _authorizationService;
 	private readonly IOptions<TrueMarkApiOptions> _options;
+	private readonly IOptions<TestOrganizationInfo> _testOrganizationInfoOptions;
 	private readonly OrganizationCertificate _organizationCertificate;
 
 	public TrueMarkApiController(
 		IHttpClientFactory httpClientFactory,
 		IAuthorizationService authorizationService,
 		IOptions<TrueMarkApiOptions> options,
+		IOptions<TestOrganizationInfo> testOrganizationInfoOptions,
 		ILogger<TrueMarkApiController> logger)
 	{
 		if(httpClientFactory is null)
@@ -51,6 +51,7 @@ public class TrueMarkApiController : ControllerBase
 			?? throw new ArgumentNullException(nameof(authorizationService));
 		_options = options
 			?? throw new ArgumentNullException(nameof(options));
+		_testOrganizationInfoOptions = testOrganizationInfoOptions ?? throw new ArgumentNullException(nameof(testOrganizationInfoOptions));
 		_httpClient = httpClientFactory.CreateClient("truemark-external");
 
 		_organizationCertificate = options.Value.OrganizationCertificates.FirstOrDefault();
@@ -59,6 +60,8 @@ public class TrueMarkApiController : ControllerBase
 	[HttpGet]
 	public async Task<TrueMarkRegistrationResultDto> ParticipantRegistrationForWaterAsync(string inn)
 	{
+		throw new NotImplementedException();
+
 		var uri = $"participants?inns={inn}";
 
 		var errorMessage = new StringBuilder();
@@ -114,6 +117,8 @@ public class TrueMarkApiController : ControllerBase
 	[HttpPost]
 	public async Task<IList<ParticipantRegistrationDto>> ParticipantsAsync(IList<string> inns)
 	{
+		throw new NotImplementedException();
+
 		if(!inns.Any())
 		{
 			return null;
@@ -147,96 +152,124 @@ public class TrueMarkApiController : ControllerBase
 		IEnumerable<string> identificationCodes,
 		CancellationToken cancellationToken)
 	{
-		var identificationCodesArray = identificationCodes.ToArray();
+		var instanceStatuses = new List<ProductInstanceStatus>();
 
-		var errorMessage = new StringBuilder();
+		var ownerInn = _testOrganizationInfoOptions.Value.Inn;
+		var ownerName = _testOrganizationInfoOptions.Value.Name;
 
-		string bearerToken;
-
-		try
+		foreach(var code in identificationCodes)
 		{
-			bearerToken = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
-		}
-		catch(Exception e)
-		{
-			const string tokenRequestFailedMessage = "Ошибка получения токена авторизации в Честном знаке";
-
-			_logger.LogError(e, tokenRequestFailedMessage);
-
-			return new ProductInstancesInfoResponse
+			var instanceStatus = new ProductInstanceStatus
 			{
-				ErrorMessage = tokenRequestFailedMessage
+				IdentificationCode = code,
+				Status = ProductInstanceStatusEnum.Introduced,
+				OwnerInn = ownerInn,
+				OwnerName = ownerName,
 			};
+
+			instanceStatuses.Add(instanceStatus);
 		}
 
-		List<Task<Response<ProductInstanceInfoResponse>>> requestsTasks = CreateRequestsTasks(requestClient, identificationCodesArray, bearerToken, cancellationToken);
-
-		var productInstancesInfoResponses = new List<ProductInstanceStatus>();
-
-		try
+		var response = new ProductInstancesInfoResponse
 		{
-			var results = await Task.WhenAll(requestsTasks);
+			InstanceStatuses = instanceStatuses
+		};
 
-			return ProcessResponses(errorMessage, productInstancesInfoResponses, results.Select(r => r.Message));
-		}
-		catch
-		{
-			var partiallyProcessedResults = new List<ProductInstanceInfoResponse>();
+		return response;
 
-			foreach(var requestTask in requestsTasks)
-			{
-				if(requestTask.Status != TaskStatus.Canceled)
-				{
-					if(requestTask.Exception != null)
-					{
-						var indexOfFaultedTask = requestsTasks.IndexOf(requestTask);
+		//var identificationCodesArray = identificationCodes.ToArray();
 
-						if(indexOfFaultedTask != -1 && identificationCodesArray.Length < indexOfFaultedTask)
-						{
-							_logger.LogError(
-							requestTask.Exception,
-							"Request of code #{Code} was faulted with exception",
-							identificationCodesArray[indexOfFaultedTask]);
-						}
+		//var errorMessage = new StringBuilder();
 
-						errorMessage.AppendLine(requestTask.Exception.Message);
-					}
-					else
-					{
-						partiallyProcessedResults.Add(requestTask.Result.Message);
-					}
-				}
-				else
-				{
-					var indexOfCancelledTask = requestsTasks.IndexOf(requestTask);
+		//string bearerToken;
 
-					if(indexOfCancelledTask != -1 && identificationCodesArray.Length < indexOfCancelledTask)
-					{
-						_logger.LogWarning(
-							"Request of code #{Code} was cancelled",
-							identificationCodesArray[indexOfCancelledTask]);
-					}
-				}
-			}
+		//try
+		//{
+		//	bearerToken = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
+		//}
+		//catch(Exception e)
+		//{
+		//	const string tokenRequestFailedMessage = "Ошибка получения токена авторизации в Честном знаке";
 
-			if(requestsTasks.Any(rt => rt.Status == TaskStatus.Canceled))
-			{
-				errorMessage.AppendLine("Часть запросов была отменена");
-			}
+		//	_logger.LogError(e, tokenRequestFailedMessage);
 
-			return ProcessResponses(errorMessage, productInstancesInfoResponses, partiallyProcessedResults);
-		}
+		//	return new ProductInstancesInfoResponse
+		//	{
+		//		ErrorMessage = tokenRequestFailedMessage
+		//	};
+		//}
+
+		//List<Task<Response<ProductInstanceInfoResponse>>> requestsTasks = CreateRequestsTasks(requestClient, identificationCodesArray, bearerToken, cancellationToken);
+
+		//var productInstancesInfoResponses = new List<ProductInstanceStatus>();
+
+		//try
+		//{
+		//	var results = await Task.WhenAll(requestsTasks);
+
+		//	return ProcessResponses(errorMessage, productInstancesInfoResponses, results.Select(r => r.Message));
+		//}
+		//catch
+		//{
+		//	var partiallyProcessedResults = new List<ProductInstanceInfoResponse>();
+
+		//	foreach(var requestTask in requestsTasks)
+		//	{
+		//		if(requestTask.Status != TaskStatus.Canceled)
+		//		{
+		//			if(requestTask.Exception != null)
+		//			{
+		//				var indexOfFaultedTask = requestsTasks.IndexOf(requestTask);
+
+		//				if(indexOfFaultedTask != -1 && identificationCodesArray.Length < indexOfFaultedTask)
+		//				{
+		//					_logger.LogError(
+		//					requestTask.Exception,
+		//					"Request of code #{Code} was faulted with exception",
+		//					identificationCodesArray[indexOfFaultedTask]);
+		//				}
+
+		//				errorMessage.AppendLine(requestTask.Exception.Message);
+		//			}
+		//			else
+		//			{
+		//				partiallyProcessedResults.Add(requestTask.Result.Message);
+		//			}
+		//		}
+		//		else
+		//		{
+		//			var indexOfCancelledTask = requestsTasks.IndexOf(requestTask);
+
+		//			if(indexOfCancelledTask != -1 && identificationCodesArray.Length < indexOfCancelledTask)
+		//			{
+		//				_logger.LogWarning(
+		//					"Request of code #{Code} was cancelled",
+		//					identificationCodesArray[indexOfCancelledTask]);
+		//			}
+		//		}
+		//	}
+
+		//	if(requestsTasks.Any(rt => rt.Status == TaskStatus.Canceled))
+		//	{
+		//		errorMessage.AppendLine("Часть запросов была отменена");
+		//	}
+
+		//	return ProcessResponses(errorMessage, productInstancesInfoResponses, partiallyProcessedResults);
+		//}
 	}
 
 	[HttpGet, Produces(MediaTypeNames.Text.Plain)]
 	public async Task<string> Login(string certificateThumbPrint, string inn)
 	{
+		throw new NotImplementedException();
+
 		return await _authorizationService.Login(certificateThumbPrint, inn);
 	}
 
 	[HttpGet]
 	public async Task<byte[]> Sign(string data, bool isDeatchedSign, string certificateThumbPrint, string inn)
 	{
+		throw new NotImplementedException();
 		var currentCert = _options.Value.OrganizationCertificates.SingleOrDefault(c => c.CertificateThumbPrint == certificateThumbPrint && c.Inn == inn);
 
 		return await _authorizationService.CreateAttachedSignedCmsWithStore2012_256(data, isDeatchedSign, currentCert.CertPath, currentCert.CertPwd);
@@ -245,6 +278,7 @@ public class TrueMarkApiController : ControllerBase
 	[HttpGet]
 	public async Task<GetTrueMarkApiTokenResponse> GetTrueMarkApiToken()
 	{
+		throw new NotImplementedException();
 		try
 		{
 			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
