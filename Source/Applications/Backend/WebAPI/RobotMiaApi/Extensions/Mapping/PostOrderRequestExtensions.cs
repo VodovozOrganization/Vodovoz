@@ -26,7 +26,7 @@ namespace RobotMiaApi.Extensions.Mapping
 				: postOrderRequest.PaymentType == Contracts.Requests.V1.PaymentType.TerminalCard
 					? Vodovoz.Domain.Client.PaymentByTerminalSource.ByCard
 					: null,
-			BanknoteForReturn = (int)postOrderRequest.Trifle,
+			BanknoteForReturn = postOrderRequest.Trifle,
 			BottlesReturn = postOrderRequest.BottlesReturn,
 			SaleItems = postOrderRequest.SaleItems.MapToSaleItem()
 		};

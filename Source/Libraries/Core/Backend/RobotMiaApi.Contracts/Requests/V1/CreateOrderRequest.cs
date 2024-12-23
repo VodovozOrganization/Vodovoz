@@ -61,7 +61,7 @@ namespace RobotMiaApi.Contracts.Requests.V1
 		/// Сдача с
 		/// </summary>
 		[JsonPropertyName("trifle"), Required]
-		public decimal Trifle { get; set; }
+		public int Trifle { get; set; }
 
 		/// <summary>
 		/// Комментарий водителю
