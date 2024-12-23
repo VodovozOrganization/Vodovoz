@@ -52,7 +52,6 @@
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.ExportToExcel.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportOrderData.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportRow.cs" />
-    <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReport.ChangesData.cs" />
     <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReport.cs" />
     <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReport.RowsCreating.cs" />
     <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReportRow.cs" />
