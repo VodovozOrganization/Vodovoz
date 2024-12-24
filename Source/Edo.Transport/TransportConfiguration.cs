@@ -11,8 +11,9 @@ namespace Edo.Transport
 {
 	public static class TransportConfiguration
 	{
-		public static void AddEdoRequestBaseTopology(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
+		public static void AddEdoTopology(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
 		{
+			// rename exchange: edo.customer-request-created.publish
 			cfg.Message<EdoRequestCreatedEvent>(x => x.SetEntityName("edo.event.request_created"));
 			cfg.Publish<EdoRequestCreatedEvent>(x =>
 			{
@@ -20,11 +21,100 @@ namespace Edo.Transport
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
+
+			// rename exchange: edo.docflow-updated.publish
+			cfg.Message<EdoDocflowUpdatedEvent>(x => x.SetEntityName("EdoDocflowUpdated"));
+			cfg.Publish<EdoDocflowUpdatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<DocumentTaskCreatedEvent>(x => x.SetEntityName("edo.document-task-created.publish"));
+			cfg.Publish<DocumentTaskCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<TransferRequestCreatedEvent>(x => x.SetEntityName("edo.transfer-request-created.publish"));
+			cfg.Publish<TransferRequestCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<TransferTaskReadyToSendEvent>(x => x.SetEntityName("edo.transfer-task-ready-to-send.publish"));
+			cfg.Publish<TransferTaskReadyToSendEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<TransferDocumentAcceptedEvent>(x => x.SetEntityName("edo.transfer-document-accepted.publish"));
+			cfg.Publish<TransferDocumentAcceptedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<TransferDocumentSendEvent>(x => x.SetEntityName("edo.transfer-document-send.publish"));
+			cfg.Publish<TransferDocumentSendEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<TransferDoneEvent>(x => x.SetEntityName("edo.transfer-done.publish"));
+			cfg.Publish<TransferDoneEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<TransferDoneEvent>(x => x.SetEntityName("edo.transfer-done.publish"));
+			cfg.Publish<TransferDoneEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<CustomerDocumentSendEvent>(x => x.SetEntityName("edo.customer-document-send.publish"));
+			cfg.Publish<CustomerDocumentSendEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<CustomerDocumentSentEvent>(x => x.SetEntityName("edo.customer-document-sent.publish"));
+			cfg.Publish<CustomerDocumentSentEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<CustomerDocumentAcceptedEvent>(x => x.SetEntityName("edo.customer-document-accepted.publish"));
+			cfg.Publish<CustomerDocumentAcceptedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
 		}
 
-		public static IServiceCollection AddEdoRequestMassTransit(
+		public static IServiceCollection AddEdoMassTransit(
 			this IServiceCollection services,
-			Action<IBusRegistrationContext, IRabbitMqBusFactoryConfigurator> configureRabbit,
+			Action<IBusRegistrationContext, IRabbitMqBusFactoryConfigurator> configureRabbit = null,
 			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddMassTransit(busCfg =>
@@ -54,7 +144,10 @@ namespace Edo.Transport
 						}
 					);
 
-					rabbitCfg.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
+					//rabbitCfg.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
+
+					rabbitCfg.AddEdoTopology(context);
+
 					configureRabbit?.Invoke(context, rabbitCfg);
 
 					rabbitCfg.ConfigureEndpoints(context);

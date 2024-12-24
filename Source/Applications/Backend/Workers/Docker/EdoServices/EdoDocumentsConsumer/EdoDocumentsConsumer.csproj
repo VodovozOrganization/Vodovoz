@@ -10,7 +10,7 @@
     <ItemGroup>
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
         <PackageReference Include="MassTransit.Abstractions" Version="8.0.12" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
         <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
     </ItemGroup>
@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Docflow.Taxcom\Edo.Docflow.Taxcom.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdo.Client\TaxcomEdo.Client.csproj" />

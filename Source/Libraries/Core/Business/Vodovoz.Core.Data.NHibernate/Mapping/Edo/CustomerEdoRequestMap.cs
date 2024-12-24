@@ -32,6 +32,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.KeyColumn("customer_request_id")
 				.Cascade.AllDeleteOrphan();
 
+			References(x => x.Task)
+				.Column("customer_task_id")
+				.Cascade.All()
+				.Unique();
+
 			Map(x => x.DocumentType)
 				.Column("document_type");
 

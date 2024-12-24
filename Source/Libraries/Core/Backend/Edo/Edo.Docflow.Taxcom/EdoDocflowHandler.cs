@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Transport2;
+using Edo.Transport.Messages.Events;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using TaxcomEdo.Client;
@@ -89,14 +89,14 @@ namespace Edo.Docflow.Taxcom
 
 			var edoDocflowUpdatedEvent = new EdoDocflowUpdatedEvent
 			{
+				EdoDocumentId = taxcomDocflow.EdoDocumentId,
 				DocFlowId = @event.DocFlowId,
-				MainDocumentId = @event.MainDocumentId,
-				DocFlowStatus = @event.Status.ToString()
+				DocFlowStatus = newAction.State
 			};
 
 			if(newAction.State == EdoDocFlowStatus.Succeed)
 			{
-				edoDocflowUpdatedEvent.AcceptTime = @event.StatusChangeDateTime;
+				edoDocflowUpdatedEvent.StatusChangeTime = @event.StatusChangeDateTime;
 				//TODO если нужно сохранять файлы по завершению документооборота,
 				//нужно модифицировать сервис под новую сущность
 				

@@ -55,6 +55,11 @@ namespace Vodovoz.Core.Domain.TrueMark
 			get => _checkCode;
 			set => SetField(ref _checkCode, value);
 		}
+
+		public string IdentificationCode => $"01{GTIN}21{SerialNumber}";
+
+		public string FullCode => $"\u001d01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
+
 		public override bool Equals(object obj)
 		{
 			if(obj is TrueMarkWaterIdentificationCode)

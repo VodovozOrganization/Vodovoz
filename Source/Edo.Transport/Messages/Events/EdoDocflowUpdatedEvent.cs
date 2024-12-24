@@ -1,6 +1,7 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Documents;
 
-namespace Edo.Transport2
+namespace Edo.Transport.Messages.Events
 {
 	/// <summary>
 	/// Событие для обновления статуса документооборота в Erp
@@ -8,21 +9,25 @@ namespace Edo.Transport2
 	public class EdoDocflowUpdatedEvent
 	{
 		public const string Event = "EdoDocflowUpdated";
+
 		/// <summary>
-		/// Id главного документа
+		/// Id ЭДО документа
 		/// </summary>
-		public string MainDocumentId { get; set; }
+		public int EdoDocumentId { get; set; }
+
 		/// <summary>
 		/// Id документооборота
 		/// </summary>
 		public Guid? DocFlowId { get; set; }
+
 		/// <summary>
 		/// Общий статус документооборота
 		/// </summary>
-		public string DocFlowStatus { get; set; }
+		public EdoDocFlowStatus DocFlowStatus { get; set; }
+
 		/// <summary>
-		/// Время завершения документооборота
+		/// Время обновления статуса документооборота
 		/// </summary>
-		public DateTime? AcceptTime { get; set; }
+		public DateTime? StatusChangeTime { get; set; }
 	}
 }
