@@ -27,7 +27,6 @@ namespace Vodovoz
 	public class Subdivision : SubdivisionEntity, IValidatableObject, INamed, IArchivable
 	{
 		private SalesPlan _defaultSalesPlan;
-		private string _name;
 		private string _shortName;
 		private Employee _chief;
 		private Subdivision _parentSubdivision;
@@ -39,17 +38,8 @@ namespace Vodovoz
 		private SubdivisionType _subdivisionType;
 		private string _address;
 		private bool _isArchive;
-		private int? _financialResponsibilityCenterId;
 
 		#region Свойства
-
-		[Display(Name = "Название подразделения")]
-		[Required(ErrorMessage = "Название подразделения должно быть заполнено.")]
-		public virtual string Name
-		{
-			get => _name;
-			set => SetField(ref _name, value);
-		}
 
 		[Display(Name = "Сокращенное наименование")]
 		public virtual string ShortName
@@ -70,17 +60,6 @@ namespace Vodovoz
 		{
 			get => _parentSubdivision;
 			set => SetField(ref _parentSubdivision, value);
-		}
-
-		/// <summary>
-		/// Идентификатор центра финансовой ответственности
-		/// </summary>
-		[Display(Name = "Центр финансовой ответственности")]
-		[HistoryIdentifier(TargetType = typeof(FinancialResponsibilityCenter))]
-		public virtual int? FinancialResponsibilityCenterId
-		{
-			get => _financialResponsibilityCenterId;
-			set => SetField(ref _financialResponsibilityCenterId, value);
 		}
 
 		[Display(Name = "Дочерние подразделения")]

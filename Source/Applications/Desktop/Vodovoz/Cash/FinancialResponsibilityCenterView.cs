@@ -46,6 +46,12 @@ namespace Vodovoz.Cash
 
 			ResponsibleOfSubdivisions.RowActivated += OnResponsibleSubdivisionsRowActivated;
 
+			ResponsibleOfSubdivisions.ItemsDataSource = ViewModel.ResponsibleOfSubdivisions;
+
+			ResponsibleOfSubdivisions.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedSubdivisionNodeObject, w => w.SelectedRow)
+				.InitializeFromSource();
+
 			buttonSave.BindCommand(ViewModel.SaveCommand);
 			buttonCancel.BindCommand(ViewModel.CancelCommand);
 

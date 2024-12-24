@@ -77,7 +77,7 @@ namespace Vodovoz.ViewModels.Cash
 			SaveCommand = new DelegateCommand(SaveAndClose);
 			CancelCommand = new DelegateCommand(() => Close(HasChanges, CloseSource.Cancel));
 
-			OpenSubdivisionCommand = new DelegateCommand(OpenSubdivision,()=> CanOpenSubdivision);
+			OpenSubdivisionCommand = new DelegateCommand(OpenSubdivision, ()=> CanOpenSubdivision);
 			OpenSubdivisionCommand.CanExecuteChangedWith(this, x => x.CanOpenSubdivision);
 		}
 

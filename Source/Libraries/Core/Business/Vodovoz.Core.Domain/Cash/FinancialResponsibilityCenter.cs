@@ -1,9 +1,14 @@
-﻿using QS.DomainModel.Entity;
+﻿using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Repositories;
 
 namespace Vodovoz.Core.Domain.Cash
 {
@@ -103,6 +108,33 @@ namespace Vodovoz.Core.Domain.Cash
 			if(ResponsibleEmployeeId == null)
 			{
 				yield return new ValidationResult("Ответственное лицо должно быть заполнено", new[] { nameof(ResponsibleEmployeeId) });
+			}
+
+			if(IsArchive)
+			{
+				var subdivisionsRepository = validationContext
+					.GetRequiredService<IGenericRepository<SubdivisionEntity>>();
+
+				var unitOfWorkFactory = validationContext
+					.GetRequiredService<IUnitOfWorkFactory>();
+
+				using(var unitOfWork = unitOfWorkFactory.CreateWithoutRoot())
+				{
+					unitOfWork.Session.DefaultReadOnly = true;
+
+					var subdivisionsReferedAt = subdivisionsRepository.GetValue(
+						unitOfWork,
+						s => s.Name,
+						s => s.FinancialResponsibilityCenterId == Id);
+
+					if(subdivisionsReferedAt.Any())
+					{
+						yield return new ValidationResult(
+							"Нельзя установить признак архивности, пока следующие подразделения ссылаяются на этот ЦФО: " +
+							string.Join(", ", subdivisionsReferedAt),
+							new[] { nameof(ResponsibleEmployeeId) });
+					}
+				}
 			}
 		}
 	}
