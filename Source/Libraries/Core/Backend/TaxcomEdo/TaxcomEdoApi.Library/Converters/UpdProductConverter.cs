@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Edo.Docflow.Dto;
+using Edo.Transport.Messages.Dto;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdo.Contracts.Goods;
 using TaxcomEdo.Contracts.Orders;

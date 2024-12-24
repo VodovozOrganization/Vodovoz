@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class EdoTask : PropertyChangedBase, IDomainObject
+	public abstract class EdoTask : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private DateTime _creationDate;
@@ -14,6 +15,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private EdoTaskStatus _status;
 		private DateTime? _startTime;
 		private DateTime? _endTime;
+		private ObservableList<EdoTaskProblem> _problems;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -56,5 +58,13 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _endTime;
 			set => SetField(ref _endTime, value);
 		}
+
+		[Display(Name = "Проблемы")]
+		public virtual ObservableList<EdoTaskProblem> Problems
+		{
+			get => _problems;
+			set => SetField(ref _problems, value);
+		}
+
 	}
 }

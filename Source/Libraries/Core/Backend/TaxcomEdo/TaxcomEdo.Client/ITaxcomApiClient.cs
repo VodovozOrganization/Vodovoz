@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Docflow.Dto;
+using Edo.Transport.Messages.Dto;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;

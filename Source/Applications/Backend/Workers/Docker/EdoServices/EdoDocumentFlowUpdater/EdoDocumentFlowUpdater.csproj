@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\Edo.Transport2\Edo.Transport2.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Docflow.Taxcom\Edo.Docflow.Taxcom.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />

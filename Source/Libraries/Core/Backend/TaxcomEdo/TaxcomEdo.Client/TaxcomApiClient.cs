@@ -5,7 +5,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Docflow.Dto;
+using Edo.Transport.Messages.Dto;
 using TaxcomEdo.Client.Configs;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;

@@ -1,14 +1,14 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Domain.Edo
 {
 	public class EdoTaskItem : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
-		private int _orderEdoTaskId;
-		private int _orderItemId;
-		private int _codeId;
+		private CustomerEdoTask _edoTask;
+		private TrueMarkProductCode _productCode;
 		private int _transferEdoTaskId;
 
 		[Display(Name = "Код")]
@@ -18,25 +18,18 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _id, value);
 		}
 
-		[Display(Name = "Код ЭДО задачи заказа")]
-		public virtual int OrderEdoTaskId
+		[Display(Name = "Код ЭДО задачи")]
+		public virtual CustomerEdoTask EdoTask
 		{
-			get => _orderEdoTaskId;
-			set => SetField(ref _orderEdoTaskId, value);
-		}
-
-		[Display(Name = "Код товара в заказе")]
-		public virtual int OrderItemId
-		{
-			get => _orderItemId;
-			set => SetField(ref _orderItemId, value);
+			get => _edoTask;
+			set => SetField(ref _edoTask, value);
 		}
 
 		[Display(Name = "Код ЧЗ")]
-		public virtual int CodeId
+		public virtual TrueMarkProductCode ProductCode
 		{
-			get => _codeId;
-			set => SetField(ref _codeId, value);
+			get => _productCode;
+			set => SetField(ref _productCode, value);
 		}
 
 		[Display(Name = "Код ЭДО задачи перемещения")]

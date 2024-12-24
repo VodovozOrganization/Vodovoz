@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 {
@@ -9,8 +9,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		{
 			DiscriminatorValue(nameof(EdoTaskType.Receipt));
 
-			Map(x => x.OrderId)
-				.Column("order_id");
+			Extends(typeof(CustomerEdoTask));
+
+			Map(x => x.CashReceiptId)
+				.Column("cash_receipt_id");
 		}
 	}
 }

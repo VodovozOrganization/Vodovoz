@@ -21,6 +21,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private CustomerEdoRequestType _type;
 		private CustomerEdoRequestSource _source;
 		private IObservableList<TrueMarkProductCode> _productCodes = new ObservableList<TrueMarkProductCode>();
+		private CustomerEdoTask _task;
 		private EdoDocumentType _documentType;
 
 		/// <summary>
@@ -71,6 +72,13 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _productCodes;
 			set => SetField(ref _productCodes, value);
+		}
+
+		[Display(Name = "Задача ЭДО")]
+		public virtual CustomerEdoTask Task
+		{
+			get => _task;
+			set => SetField(ref _task, value);
 		}
 
 

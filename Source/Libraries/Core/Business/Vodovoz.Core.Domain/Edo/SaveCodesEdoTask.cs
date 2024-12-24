@@ -4,14 +4,8 @@ using System.Text;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class SaveCodesEdoTask : EdoTask
+	public class SaveCodesEdoTask : CustomerEdoTask
 	{
-		private int _orderId;
-
-		public virtual int OrderId
-		{
-			get => _orderId;
-			set => SetField(ref _orderId, value);
-		}
+		// Пока ничего не требуется, просто сохранение кодов
 	}
 }

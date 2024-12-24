@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Net.Security;
 using System.Security.Authentication;
 using Edo.Docflow.Taxcom;
-using Edo.Transport2;
+using Edo.Transport;
+using Edo.Transport.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -58,7 +59,7 @@ namespace TaxcomEdoConsumer
 				configurator
 					.ConfigureTopologyForAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(edoAccount)
 					.ConfigureTopologyForOutgoingTaxcomDocflowUpdatedEvent(edoAccount)
-					.ConfigureTopologyForEdoDocflowUpdatedEvent()
+					.ConfigureTopologyForEdoDocflowUpdatedEvent(context)
 					.ConfigureTopologyForTaxcomDocflowSendEvent(edoAccount)
 					;
 
@@ -98,17 +99,12 @@ namespace TaxcomEdoConsumer
 			return configurator;
 		}
 		
+		// Убрать, и использовать общий конфиг транспорта для ЭДО
 		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForEdoDocflowUpdatedEvent(
-			this IRabbitMqBusFactoryConfigurator configurator)
+			this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
 		{
-			configurator.Message<EdoDocflowUpdatedEvent>(x => x.SetEntityName(EdoDocflowUpdatedEvent.Event));
-			configurator.Publish<EdoDocflowUpdatedEvent>(x =>
-			{
-				x.ExchangeType = ExchangeType.Fanout;
-				x.Durable = true;
-				x.AutoDelete = false;
-			});
-			
+			configurator.AddEdoTopology(context);
+
 			return configurator;
 		}
 		

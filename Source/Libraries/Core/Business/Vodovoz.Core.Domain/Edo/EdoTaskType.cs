@@ -3,12 +3,12 @@
 	public enum EdoTaskType
 	{
 		/// <summary>
-		/// Задача отправки документов по заказу
+		/// Задача отправки документов клиенту
 		/// </summary>
-		Order,
+		CustomerDocument,
 
 		/// <summary>
-		/// Задача отправки документов от поставщика
+		/// Задача перемещения ТМЦ
 		/// </summary>
 		Transfer,
 
@@ -20,6 +20,11 @@
 		/// <summary>
 		/// Задача сохранения кодов
 		/// </summary>
-		SaveCode
+		SaveCode,
+
+		/// <summary>
+		/// Задача объемно-сортового учета
+		/// </summary>
+		BulkAccounting
 	}
 }

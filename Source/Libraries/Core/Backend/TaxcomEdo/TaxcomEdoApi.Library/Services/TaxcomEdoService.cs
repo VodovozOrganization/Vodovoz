@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
-using Edo.Docflow.Dto;
+using Edo.Transport.Messages.Dto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Taxcom.Client.Api.Converters;

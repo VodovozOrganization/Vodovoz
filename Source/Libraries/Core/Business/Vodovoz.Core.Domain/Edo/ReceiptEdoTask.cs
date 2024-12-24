@@ -5,15 +5,16 @@ using System.Text;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class ReceiptEdoTask : EdoTask
+	public class ReceiptEdoTask : CustomerEdoTask
 	{
-		private int _orderId;
+		private int _cashReceiptId;
 
-		[Display(Name = "Код заказа")]
-		public virtual int OrderId
+		// Допускается связь с чеком, для интеграции со старой системой чеков
+		[Display(Name = "Код чека")]
+		public virtual int CashReceiptId
 		{
-			get => _orderId;
-			set => SetField(ref _orderId, value);
+			get => _cashReceiptId;
+			set => SetField(ref _cashReceiptId, value);
 		}
 	}
 }
