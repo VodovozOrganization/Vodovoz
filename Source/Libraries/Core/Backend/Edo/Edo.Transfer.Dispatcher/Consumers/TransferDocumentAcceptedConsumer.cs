@@ -16,7 +16,7 @@ namespace Edo.Transfer.Dispatcher.Consumers
 
 		public async Task Consume(ConsumeContext<TransferDocumentAcceptedEvent> context)
 		{
-			await _transferEdoHandler.HandleTransferDocumentAcceptance(context.Message.Id, context.CancellationToken);
+			await _transferEdoHandler.HandleTransferDocumentAcceptance(context.Message.DocumentId, context.CancellationToken);
 		}
 	}
 }

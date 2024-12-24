@@ -118,6 +118,8 @@ namespace Edo.Docflow
 					// проверять по документам такском а не по статусу InProgress
 					break;
 				case EdoDocFlowStatus.Succeed:
+					var acceptTime = updatedEvent.StatusChangeTime ?? DateTime.Now;
+					await AcceptDocument(document, acceptTime, cancellationToken);
 					break;
 				case EdoDocFlowStatus.Unknown:
 				case EdoDocFlowStatus.Warning:
@@ -133,17 +135,47 @@ namespace Edo.Docflow
 				default:
 					throw new InvalidOperationException($"Неизвестный статус документооборота {updatedEvent.DocFlowStatus}");
 			}
+		}
 
+		private async Task AcceptDocument(OutgoingEdoDocument document, DateTime acceptTime, CancellationToken cancellationToken)
+		{
+			document.Status = EdoDocumentStatus.Succeed;
+			document.AcceptTime = acceptTime;
 
+			await _uow.SaveAsync(document, cancellationToken: cancellationToken);
+			await _uow.CommitAsync();
 
-			// 
-			var message = new TaxcomDocflowSendEvent
+			switch(document.Type)
 			{
-				EdoAccount = sender.TaxcomEdoAccountId,
-				EdoOutgoingDocumentId = document.Id,
-				UpdInfo = updInfo
+				case OutgoingEdoDocumentType.Transfer:
+					await NotifyTransferForAcceptDocument(document, cancellationToken);
+					break;
+				case OutgoingEdoDocumentType.Customer:
+					await NotifyCustomerForAcceptDocument(document, cancellationToken);
+					break;
+				default:
+					throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
+			}
+		}
+
+		private async Task NotifyTransferForAcceptDocument(OutgoingEdoDocument document, CancellationToken cancellationToken)
+		{
+			var message = new TransferDocumentAcceptedEvent
+			{
+				DocumentId = document.Id
 			};
-			await _messageBus.Publish(message);
+
+			await _messageBus.Publish(message, cancellationToken);
+		}
+
+		private async Task NotifyCustomerForAcceptDocument(OutgoingEdoDocument document, CancellationToken cancellationToken)
+		{
+			var message = new CustomerDocumentAcceptedEvent
+			{
+				DocumentId = document.Id
+			};
+
+			await _messageBus.Publish(message, cancellationToken);
 		}
 
 		public void Dispose()
