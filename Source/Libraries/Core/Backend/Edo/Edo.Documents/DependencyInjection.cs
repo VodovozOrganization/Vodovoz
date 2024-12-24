@@ -24,8 +24,8 @@ namespace Edo.Documents
 			{
 				cfg.AddConsumer<TransferDoneConsumer, TransferDoneConsumerDefinition>();
 				cfg.AddConsumer<DocumentTaskCreatedConsumer, DocumentTaskCreatedConsumerDefinition>();
-				cfg.AddConsumer<DocumentSentConsumer, DocumentSentConsumerDefinition>();
-				cfg.AddConsumer<DocumentAcceptedConsumer, DocumentAcceptedConsumerDefinition>();
+				cfg.AddConsumer<CustomerDocumentSentConsumer, CustomerDocumentSentConsumerDefinition>();
+				cfg.AddConsumer<CustomerDocumentAcceptedConsumer, CustomerDocumentAcceptedConsumerDefinition>();
 			});
 
 			return services;

@@ -3,10 +3,10 @@ using RabbitMQ.Client;
 
 namespace Edo.Documents.Consumers.Definitions
 {
-	public class DocumentAcceptedConsumerDefinition : ConsumerDefinition<DocumentAcceptedConsumer>
+	public class CustomerDocumentSentConsumerDefinition : ConsumerDefinition<CustomerDocumentSentConsumer>
 	{
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<DocumentAcceptedConsumer> consumerConfigurator)
+			IConsumerConfigurator<CustomerDocumentSentConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
 
