@@ -11,13 +11,16 @@ namespace TaxcomEdoConsumer.Consumers
 	{
 		private readonly ILogger<OutgoingTaxcomDocflowUpdatedEventConsumer> _logger;
 		private readonly IEdoDocflowHandler _edoDocflowHandler;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public OutgoingTaxcomDocflowUpdatedEventConsumer(
 			ILogger<OutgoingTaxcomDocflowUpdatedEventConsumer> logger,
-			IEdoDocflowHandler edoDocflowHandler)
+			IEdoDocflowHandler edoDocflowHandler,
+			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoDocflowHandler = edoDocflowHandler ?? throw new ArgumentNullException(nameof(edoDocflowHandler));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		public async Task Consume(ConsumeContext<OutgoingTaxcomDocflowUpdatedEvent> context)
@@ -30,7 +33,12 @@ namespace TaxcomEdoConsumer.Consumers
 					"Отправляем информацию об обновленном исходящем документообороте с документом {EdoDocument}",
 					message.MainDocumentId);
 
-				await _edoDocflowHandler.UpdateOutgoingTaxcomDocFlow(message);
+				var edoDocflowUpdatedEvent = await _edoDocflowHandler.UpdateOutgoingTaxcomDocFlow(message);
+
+				if(edoDocflowUpdatedEvent != null)
+				{
+					await _publishEndpoint.Publish(edoDocflowUpdatedEvent);
+				}
 			}
 			catch(Exception e)
 			{

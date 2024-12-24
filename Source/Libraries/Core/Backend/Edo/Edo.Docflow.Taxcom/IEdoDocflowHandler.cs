@@ -10,7 +10,8 @@ namespace Edo.Docflow.Taxcom
 	public interface IEdoDocflowHandler
 	{
 		Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event);
-		Task UpdateOutgoingTaxcomDocFlow(OutgoingTaxcomDocflowUpdatedEvent @event, CancellationToken cancellationToken = default);
+		Task<EdoDocflowUpdatedEvent> UpdateOutgoingTaxcomDocFlow(
+			OutgoingTaxcomDocflowUpdatedEvent @event, CancellationToken cancellationToken = default);
 		Task AcceptIngoingTaxcomEdoDocFlowWaitingForSignature(
 			AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent @event, CancellationToken cancellationToken = default);
 	}

@@ -64,7 +64,7 @@ namespace Edo.Docflow.Taxcom
 			}
 		}
 
-		public async Task UpdateOutgoingTaxcomDocFlow(
+		public async Task<EdoDocflowUpdatedEvent> UpdateOutgoingTaxcomDocFlow(
 			OutgoingTaxcomDocflowUpdatedEvent @event, CancellationToken cancellationToken = default)
 		{
 			var taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
@@ -72,7 +72,7 @@ namespace Edo.Docflow.Taxcom
 
 			if(taxcomDocflow is null)
 			{
-				return;
+				return null;
 			}
 
 			taxcomDocflow.DocflowId = @event.DocFlowId;
@@ -87,8 +87,16 @@ namespace Edo.Docflow.Taxcom
 			
 			taxcomDocflow.Actions.Add(newAction);
 
+			var edoDocflowUpdatedEvent = new EdoDocflowUpdatedEvent
+			{
+				DocFlowId = @event.DocFlowId,
+				MainDocumentId = @event.MainDocumentId,
+				DocFlowStatus = @event.Status.ToString()
+			};
+
 			if(newAction.State == EdoDocFlowStatus.Succeed)
 			{
+				edoDocflowUpdatedEvent.AcceptTime = @event.StatusChangeDateTime;
 				//TODO если нужно сохранять файлы по завершению документооборота,
 				//нужно модифицировать сервис под новую сущность
 				
@@ -115,6 +123,8 @@ namespace Edo.Docflow.Taxcom
 			
 			await _uow.SaveAsync(taxcomDocflow);
 			await _uow.CommitAsync();
+
+			return edoDocflowUpdatedEvent;
 		}
 
 		public async Task AcceptIngoingTaxcomEdoDocFlowWaitingForSignature(
