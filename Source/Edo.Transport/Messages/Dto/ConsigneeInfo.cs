@@ -9,5 +9,9 @@ namespace Edo.Transport.Messages.Dto
 		/// Данные организации
 		/// </summary>
 		public OrganizationInfo Organization { get; set; }
+		/// <summary>
+		/// Особый грузополучатель
+		/// </summary>
+		public string CargoReceiver { get; set; }
 	}
 }

@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Transport.Messages.Dto;
 using QS.DomainModel.UoW;
 using System;
@@ -50,12 +50,12 @@ namespace Edo.Docflow.Factories
 				Date = order.DeliveryDate.Value,
 				Seller = GetSellerInfo(order),
 				Customer = GetCustomerInfo(order),
-				Consignee = GetConsigneeInfo(order),
+				Consignee = GetConsigneeInfo(order.Client, order.DeliveryPoint),
 				DocumentConfirmingShipment = GetDocumentConfirmingShipmentInfo(order),
-				BasisShipment = GetBasisShipmentInfo(order),
+				BasisShipment = GetBasisShipmentInfo(order.Client, order.Contract),
 				Payments = GetPayments(order),
 				Products = products,
-				AdditionalInformation = GettAdditionalInformation(order)
+				AdditionalInformation = GetAdditionalInformation(order)
 			};
 
 			return document;
@@ -65,10 +65,22 @@ namespace Edo.Docflow.Factories
 			new SellerInfo { Organization = GetOrganizationInfo(order.Contract.Organization) };
 
 		private CustomerInfo GetCustomerInfo(OrderEntity order) =>
-			new CustomerInfo { Organization = GetCounterpartyInfo(order.Client) };
+			new CustomerInfo { Organization = GetCustomerOrganizationInfo(order.Client) };
 
-		private ConsigneeInfo GetConsigneeInfo(OrderEntity order) =>
-			new ConsigneeInfo { Organization = GetCounterpartyInfo(order.Client) };
+		private ConsigneeInfo GetConsigneeInfo(CounterpartyEntity counterparty, DeliveryPointEntity deliveryPoint)
+		{
+			var consignee = new ConsigneeInfo
+			{
+				Organization = GetConsigneeOrganizationInfo(counterparty, deliveryPoint)
+			};
+			
+			if(!string.IsNullOrWhiteSpace(counterparty.CargoReceiver) && counterparty.UseSpecialDocFields)
+			{
+				consignee.CargoReceiver = counterparty.CargoReceiver;
+			}
+			
+			return consignee;
+		}
 
 		private DocumentConfirmingShipmentInfo GetDocumentConfirmingShipmentInfo(OrderEntity order) =>
 			new DocumentConfirmingShipmentInfo
@@ -77,12 +89,35 @@ namespace Edo.Docflow.Factories
 				Date = order.DeliveryDate.Value.ToString(_dateFormatString)
 			};
 
-		private BasisShipmentInfo GetBasisShipmentInfo(OrderEntity order) =>
-			new BasisShipmentInfo
+		private BasisShipmentInfo GetBasisShipmentInfo(CounterpartyEntity counterparty, CounterpartyContractEntity counterpartyContract)
+		{
+			var basis = new BasisShipmentInfo();
+
+			if(counterparty.UseSpecialDocFields
+			   && !string.IsNullOrWhiteSpace(counterparty.SpecialContractName)
+			   && !string.IsNullOrWhiteSpace(counterparty.SpecialContractNumber)
+			   && counterparty.SpecialContractDate.HasValue)
 			{
-				Number = order.Id.ToString(),
-				Date = order.DeliveryDate.Value.ToString(_dateFormatString)
-			};
+				basis.Document = counterparty.SpecialContractName;
+				basis.Number = counterparty.SpecialContractNumber;
+				basis.Date = counterparty.SpecialContractDate.Value.ToString(_dateFormatString);
+				return basis;
+			}
+			
+			if(counterparty.UseSpecialDocFields && !string.IsNullOrWhiteSpace(counterparty.SpecialContractName))
+			{
+				return basis;
+			}
+
+			if(counterpartyContract != null)
+			{
+				basis.Document = "Договор";
+				basis.Number = counterpartyContract.Number;
+				basis.Date = counterpartyContract.IssueDate.ToString(_dateFormatString);
+			}
+
+			return basis;
+		}
 
 		private IEnumerable<PaymentInfo> GetPayments(OrderEntity order) =>
 			new List<PaymentInfo>
@@ -94,12 +129,34 @@ namespace Edo.Docflow.Factories
 				}
 			};
 
-		private IEnumerable<UpdAdditionalInfo> GettAdditionalInformation(OrderEntity order) =>
-			new List<UpdAdditionalInfo>();
+		private IEnumerable<UpdAdditionalInfo> GetAdditionalInformation(OrderEntity order)
+		{
+			var additionalInformation = new List<UpdAdditionalInfo>();
+			
+			if(order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			{
+				additionalInformation.Add(new UpdAdditionalInfo
+				{
+					Id = "СвВыбытияМАРК",
+					Value = "1"
+				});
+			}
+
+			if(order.CounterpartyExternalOrderId != null && order.Client.UseSpecialDocFields)
+			{
+				additionalInformation.Add(new UpdAdditionalInfo
+				{
+					Id = "номер_заказа",
+					Value = $"N{ order.CounterpartyExternalOrderId }"
+				});
+			}
+			
+			return additionalInformation;
+		}
 
 		private OrganizationInfo GetOrganizationInfo(OrganizationEntity organization)
 		{
-			var oganizationInfo = new OrganizationInfo
+			var organizationInfo = new OrganizationInfo
 			{
 				Name = organization.Name,
 				Address = new AddressInfo
@@ -111,24 +168,95 @@ namespace Edo.Docflow.Factories
 				EdoAccountId = organization.TaxcomEdoAccountId,
 			};
 
-			return oganizationInfo;
+			return organizationInfo;
 		}
-
-		private OrganizationInfo GetCounterpartyInfo(CounterpartyEntity counterparty)
+		
+		private OrganizationInfo GetCustomerOrganizationInfo(CounterpartyEntity counterparty)
 		{
-			var oganizationInfo = new OrganizationInfo
+			if(counterparty.PersonType == PersonType.natural)
 			{
-				Name = counterparty.FullName,
+				throw new InvalidOperationException("Нельзя сделать УПД для физического лица");
+			}
+			
+			var clientName = counterparty.FullName;
+			var clientKpp = counterparty.KPP;
+
+			if(counterparty.UseSpecialDocFields)
+			{
+				if(!string.IsNullOrWhiteSpace(counterparty.SpecialCustomer))
+				{
+					clientName = counterparty.SpecialCustomer;
+				}
+				if(!string.IsNullOrWhiteSpace(counterparty.PayerSpecialKPP))
+				{
+					clientKpp = counterparty.PayerSpecialKPP;
+				}
+			}
+			
+			var organizationInfo = GetCounterpartyOrganizationInfo(
+				clientName,
+				counterparty.INN,
+				clientKpp,
+				counterparty.JurAddress,
+				counterparty.PersonalAccountIdInEdo);
+
+			return organizationInfo;
+		}
+		
+		private OrganizationInfo GetConsigneeOrganizationInfo(CounterpartyEntity counterparty, DeliveryPointEntity deliveryPoint)
+		{
+			var address = string.Empty;
+			var kpp = string.Empty;
+			
+			switch(counterparty.CargoReceiverSource)
+			{
+				case CargoReceiverSource.FromDeliveryPoint:
+					address = deliveryPoint != null ? deliveryPoint.ShortAddress : counterparty.JurAddress;
+					kpp = deliveryPoint?.KPP ?? counterparty.KPP;
+					
+					return GetCounterpartyOrganizationInfo(
+						counterparty.FullName,
+						counterparty.INN,
+						kpp,
+						address,
+						counterparty.PersonalAccountIdInEdo);
+				case CargoReceiverSource.Special:
+					if(!string.IsNullOrWhiteSpace(counterparty.CargoReceiver) && counterparty.UseSpecialDocFields)
+					{
+						address = counterparty.CargoReceiver;
+						kpp = counterparty.PayerSpecialKPP ?? counterparty.KPP;
+						
+						return GetCounterpartyOrganizationInfo(
+							counterparty.FullName,
+							counterparty.INN,
+							kpp,
+							address,
+							counterparty.PersonalAccountIdInEdo);
+					}
+					return GetCustomerOrganizationInfo(counterparty);
+				default:
+					return GetCustomerOrganizationInfo(counterparty);
+			}
+		}
+		
+		private OrganizationInfo GetCounterpartyOrganizationInfo(
+			string name,
+			string inn,
+			string kpp,
+			string address,
+			string accountEdo)
+		{
+			return new OrganizationInfo
+			{
+				Name = name,
 				Address = new AddressInfo
 				{
-					Address = counterparty.JurAddress,
+					Address = address,
 				},
-				Inn = counterparty.INN,
-				Kpp = counterparty.KPP,
-				EdoAccountId = counterparty.PersonalAccountIdInEdo,
+				Inn = inn,
+				Kpp = kpp,
+				EdoAccountId = accountEdo,
 			};
-
-			return oganizationInfo;
 		}
 
 		private IEnumerable<ProductInfo> GetProducts(OrderEntity order, IEnumerable<TrueMarkWaterIdentificationCode> codes)
@@ -151,7 +279,9 @@ namespace Edo.Docflow.Factories
 				var product = new ProductInfo
 				{
 					Name = nomenclature.Name,
-					IsService = nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId,
+					IsService =
+						nomenclature.Category == NomenclatureCategory.master
+						|| nomenclature.Category == NomenclatureCategory.service,
 					UnitName = nomenclature.Unit.Name,
 					OKEI = nomenclature.Unit.OKEI,
 					Code = nomenclature.Id.ToString(),
@@ -160,7 +290,7 @@ namespace Edo.Docflow.Factories
 					IncludeVat = orderItem.IncludeNDS ?? 0,
 					ValueAddedTax = orderItem.ValueAddedTax,
 					DiscountMoney = orderItem.DiscountMoney,
-					TrueMarkCodes = orderItemsCodes,
+					TrueMarkCodes = orderItemsCodes
 				};
 
 				products.Add(product);
