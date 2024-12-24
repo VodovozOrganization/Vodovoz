@@ -78,7 +78,7 @@ namespace TaxcomEdoApi.Library.Converters
 			{
 				return new SvIPTip
 				{
-					FIO = FillFIOTip(clientName),
+					FIO = FillFIOTip(consignee.CargoReceiver ?? clientName),
 					INNFL = clientInn
 				};
 			}
