@@ -2,6 +2,6 @@
 {
 	public class TransferDocumentAcceptedEvent
 	{
-		public int Id { get; set; }
+		public int DocumentId { get; set; }
 	}
 }

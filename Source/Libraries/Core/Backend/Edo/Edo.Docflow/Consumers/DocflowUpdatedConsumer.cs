@@ -16,8 +16,7 @@ namespace Edo.Docflow.Consumers
 
 		public async Task Consume(ConsumeContext<EdoDocflowUpdatedEvent> context)
 		{
-			// необходимо написать процесс обновления документооборота по событию из такском сервисов
-			await _docflowHandler.HandleCustomerDocument(context.Message, context.CancellationToken);
+			await _docflowHandler.HandleDocflowUpdated(context.Message, context.CancellationToken);
 		}
 	}
 }
