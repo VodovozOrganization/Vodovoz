@@ -6,6 +6,7 @@ using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -87,11 +88,11 @@ namespace Vodovoz.Core.Domain.Orders
 		private PaymentFromEntity _paymentByCardFrom;
 		private PaymentType _paymentType;
 		private CounterpartyEntity _client;
+		private DeliveryPointEntity _deliveryPoint;
 		private CounterpartyContractEntity _contract;
 
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
-
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -605,6 +606,13 @@ namespace Vodovoz.Core.Domain.Orders
 			protected set => SetField(ref _client, value);
 		}
 
+		[Display(Name = "Точка доставки")]
+		public virtual DeliveryPointEntity DeliveryPoint
+		{
+			get => _deliveryPoint;
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _deliveryPoint, value);
+		}
 
 		[Display(Name = "Договор")]
 		public virtual CounterpartyContractEntity Contract
