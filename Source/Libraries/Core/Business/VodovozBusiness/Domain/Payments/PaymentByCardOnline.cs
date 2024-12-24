@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Payments
 			CreateInstanceFromTinkoff(data);
 		}
 
-		public PaymentByCardOnline(string[] data, PaymentByCardOnlineFrom paymentFrom)
+		public PaymentByCardOnline(string[] data, PaymentByCardOnlineFrom paymentFrom, bool newFormat = false)
 		{
 			switch(paymentFrom)
 			{
@@ -32,7 +32,7 @@ namespace Vodovoz.Domain.Payments
 					CreateInstanceFromCloudPayment(data, paymentFrom);
 					break;
 				default:
-					CreateInstanceFromYookassa(data, paymentFrom);
+					CreateInstanceFromYookassa(data, paymentFrom, newFormat);
 					break;
 			}
 		}
@@ -77,19 +77,23 @@ namespace Vodovoz.Domain.Payments
 			Phone = data[7];
 		}
 		
-		void CreateInstanceFromYookassa(string[] data, PaymentByCardOnlineFrom paymentFrom)
+		void CreateInstanceFromYookassa(string[] data, PaymentByCardOnlineFrom paymentFrom, bool newFormat = false)
 		{
 			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
 			culture.NumberFormat.NumberDecimalSeparator = ".";
 
 			if(!decimal.TryParse(data[1].Trim(), NumberStyles.AllowDecimalPoint, culture.NumberFormat, out paymentRUR))
 				paymentRUR = 0m;
-			
-			DateAndTime = ParseDate(data[4].Trim());
 
-			if(!int.TryParse(GetNumberFromDescription(data[6], ref paymentFrom), out paymentNr))
+			DateAndTime = ParseDate(newFormat ? data[5].Trim() : data[4].Trim());
+
+			if(newFormat)
 			{
-				paymentNr = 0;
+				int.TryParse(GetNumberFromDescription(data[7], ref paymentFrom), out paymentNr);
+			}
+			else
+			{
+				int.TryParse(GetNumberFromDescription(data[6], ref paymentFrom), out paymentNr);
 			}
 
 			//Проверяем дополнительно здесь, т.к. по одной из касс прилетают оплаты трех форматов
@@ -102,7 +106,10 @@ namespace Vodovoz.Domain.Payments
 
 			PaymentStatus = PaymentStatus.CONFIRMED;
 
-			Email = GetEmailFromDescription(data[6]);
+			if(!newFormat)
+			{
+				Email = GetEmailFromDescription(data[6]);
+			}
 		}
 
 		void CreateInstanceFromCloudPayment(string[] data, PaymentByCardOnlineFrom paymentFrom)
