@@ -216,7 +216,7 @@ namespace Vodovoz.Domain.Orders
 		private DeliveryPoint deliveryPoint;
 
 		[Display(Name = "Точка доставки")]
-		public virtual DeliveryPoint DeliveryPoint {
+		public virtual new DeliveryPoint DeliveryPoint {
 			get => deliveryPoint;
 			set {
 				var oldDeliveryPoint = deliveryPoint;
