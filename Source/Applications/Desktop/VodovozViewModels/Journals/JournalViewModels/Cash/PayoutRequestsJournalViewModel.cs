@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Deletion;
@@ -49,7 +48,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICashRepository _cashRepository;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IFileDialogService _fileDialogService;
@@ -90,7 +88,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -182,7 +179,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			get => _footerInfo;
 			set => SetField(ref _footerInfo, value);
 		}
-		public INavigationManager NavigationManager { get; }
+
 		public ILifetimeScope Scope => _scope;
 
 		private void OnDataLoaderItemsListUpdated(object sender, EventArgs e)
