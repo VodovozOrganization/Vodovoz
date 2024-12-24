@@ -25,10 +25,6 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <_WebToolingArtifacts Remove="Properties\PublishProfiles\DockerRegistry.pubxml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.52.0" />
     <PackageReference Include="Grpc.AspNetCore.Web" Version="2.53.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
