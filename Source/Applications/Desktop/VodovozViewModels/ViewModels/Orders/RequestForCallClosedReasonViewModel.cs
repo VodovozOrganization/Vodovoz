@@ -28,7 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_permissionResult = commonServices.CurrentPermissionService
-				.ValidateEntityPermission(typeof(OrderRatingReason));
+				.ValidateEntityPermission(typeof(RequestForCallClosedReason));
 
 			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
 			Title = Entity.ToString();
