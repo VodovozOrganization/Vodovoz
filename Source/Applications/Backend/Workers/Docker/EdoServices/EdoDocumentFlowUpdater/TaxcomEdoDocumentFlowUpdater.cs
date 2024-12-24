@@ -1,10 +1,9 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Docflow.Taxcom;
-using Edo.Transport2;
+using Edo.Transport.Messages.Events;
 using EdoDocumentFlowUpdater.Configs;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
