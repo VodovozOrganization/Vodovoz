@@ -1,11 +1,14 @@
-﻿using NHibernate;
+﻿using DateTimeHelpers;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -403,6 +406,62 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 			var givedLitersSum = carFuelOperations.Sum(o => o.LitersGived);
 
 			return givedLitersSum;
+		}
+
+		public async Task<IDictionary<string, decimal>> GetFuelPricesByLastWeekTransactionsData(
+			IUnitOfWork uow,
+			CancellationToken cancellationToken)
+		{
+			var lastWeekStartDate = DateTime.Today.AddDays(-7).FirstDayOfWeek();
+			var lastWeekEndDate = DateTime.Today.AddDays(-7).LastDayOfWeek();
+
+			return await GetFuelPricesByTransactionsDataForPeriod(uow, lastWeekStartDate, lastWeekEndDate, cancellationToken);
+		}
+
+		private async Task<IDictionary<string, decimal>> GetFuelPricesByTransactionsDataForPeriod(
+			IUnitOfWork uow,
+			DateTime periodStart,
+			DateTime periodEnd,
+			CancellationToken cancellationToken)
+		{
+			var startDate = periodStart.Date;
+			var endDate = periodEnd.LatestDayTime();
+
+			var query =
+				from transaction in uow.Session.Query<FuelTransaction>()
+				join card in uow.Session.Query<FuelCard>() on transaction.CardId equals card.CardId
+				join cardVersion in uow.Session.Query<FuelCardVersion>() on card.Id equals cardVersion.FuelCard.Id
+				join car in uow.Session.Query<Car>() on cardVersion.Car.Id equals car.Id
+				join fuelType in uow.Session.Query<FuelType>() on car.FuelType.Id equals fuelType.Id
+				where
+					cardVersion.StartDate <= transaction.TransactionDate
+					&& (cardVersion.EndDate > transaction.TransactionDate || cardVersion.EndDate == null)
+				select new { fuelType.ProductGroupId, transaction.PricePerItem };
+
+			var fuelPrices = await query.ToListAsync(cancellationToken);
+
+			var groupedPrices =
+				fuelPrices.GroupBy(
+					x => x.ProductGroupId,
+					x => x.PricePerItem)
+				.ToDictionary(
+					x => x.Key,
+					x => x.Average(price => price));
+
+			return groupedPrices;
+		}
+
+		public async Task<IEnumerable<FuelType>> GetFuelTypesByProductGroupIds(
+			IUnitOfWork uow,
+			IEnumerable<string> productGroupIds,
+			CancellationToken cancellationToken)
+		{
+			var fuleTypes =
+				await uow.Session.Query<FuelType>()
+				.Where(ft => productGroupIds.Contains(ft.ProductGroupId))
+				.ToListAsync(cancellationToken);
+
+			return fuleTypes;
 		}
 	}
 }

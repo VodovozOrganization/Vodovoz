@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -27,5 +28,7 @@ namespace Vodovoz.EntityRepositories.Fuel
 		string GetFuelCardIdByNumber(IUnitOfWork unitOfWork, string cardNumber);
 		FuelDocument GetFuelDocumentByFuelLimitId(IUnitOfWork unitOfWork, string fuelLimitId);
 		decimal GetGivedFuelInLitersOnDate(IUnitOfWork unitOfWork, int carId, DateTime date);
+		Task<IDictionary<string, decimal>> GetFuelPricesByLastWeekTransactionsData(IUnitOfWork uow, CancellationToken cancellationToken);
+		Task<IEnumerable<FuelType>> GetFuelTypesByProductGroupIds(IUnitOfWork uow, IEnumerable<string> productGroupIds, CancellationToken cancellationToken);
 	}
 }
