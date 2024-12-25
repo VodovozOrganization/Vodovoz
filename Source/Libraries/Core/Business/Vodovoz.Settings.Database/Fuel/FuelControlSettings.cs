@@ -68,8 +68,8 @@ namespace Vodovoz.Settings.Database.Fuel
 		public int LoaderFuelLimitMaxTransactionsCount =>
 			_settingsController.GetValue<int>($"{_parametersPrefix}{nameof(LoaderFuelLimitMaxTransactionsCount)}");
 
-		public DateTime AverageFuelPricesLastUpdateDate =>
-			_settingsController.GetDateTimeValue($"{_parametersPrefix}{nameof(AverageFuelPricesLastUpdateDate)}");
+		public DateTime FuelPricesLastUpdateDate =>
+			_settingsController.GetDateTimeValue($"{_parametersPrefix}{nameof(FuelPricesLastUpdateDate)}");
 
 		public void SetFuelTransactionsPerDayLastUpdateDate(string value)
 		{

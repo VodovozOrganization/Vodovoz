@@ -95,9 +95,9 @@ namespace Vodovoz.Settings.Fuel
 		int LoaderFuelLimitMaxTransactionsCount { get; }
 
 		/// <summary>
-		/// Дата последнего обновления средних цен на топливо
+		/// Дата последнего обновления стоимости топлива
 		/// </summary>
-		DateTime AverageFuelPricesLastUpdateDate { get; }
+		DateTime FuelPricesLastUpdateDate { get; }
 
 		/// <summary>
 		/// Обновление даты на которую были успешно получены данные по транзакциям за день
