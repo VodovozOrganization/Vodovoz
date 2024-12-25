@@ -1,5 +1,4 @@
-﻿using Edo.Transport.Messages.Events;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate.Util;
 using QS.DomainModel.UoW;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Contracts.Messages.Events;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Transfer.Dispatcher

@@ -1,4 +1,4 @@
-﻿namespace Edo.Transport.Messages.Events
+﻿namespace Edo.Contracts.Messages.Events
 {
 	public class DocumentTaskCreatedEvent
 	{

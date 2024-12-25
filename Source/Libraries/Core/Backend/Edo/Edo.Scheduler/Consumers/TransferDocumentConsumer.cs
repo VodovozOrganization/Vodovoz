@@ -1,8 +1,8 @@
 ﻿using Edo.Scheduler.Service;
-using Edo.Transport.Messages.Events;
 using MassTransit;
 using System;
 using System.Threading.Tasks;
+using Edo.Contracts.Messages.Events;
 
 namespace Edo.Docflow.Consumers
 {

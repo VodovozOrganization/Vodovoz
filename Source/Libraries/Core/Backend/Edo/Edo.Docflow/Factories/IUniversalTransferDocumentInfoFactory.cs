@@ -1,4 +1,4 @@
-﻿using Edo.Transport.Messages.Dto;
+﻿using Edo.Contracts.Messages.Dto;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Docflow.Factories

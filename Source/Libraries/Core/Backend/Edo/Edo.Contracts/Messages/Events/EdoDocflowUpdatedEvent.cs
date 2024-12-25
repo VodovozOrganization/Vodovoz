@@ -1,7 +1,6 @@
 ﻿using System;
-using Vodovoz.Core.Domain.Documents;
 
-namespace Edo.Transport.Messages.Events
+namespace Edo.Contracts.Messages.Events
 {
 	/// <summary>
 	/// Событие для обновления статуса документооборота в Erp
@@ -23,7 +22,7 @@ namespace Edo.Transport.Messages.Events
 		/// <summary>
 		/// Общий статус документооборота
 		/// </summary>
-		public EdoDocFlowStatus DocFlowStatus { get; set; }
+		public string DocFlowStatus { get; set; }
 
 		/// <summary>
 		/// Время обновления статуса документооборота

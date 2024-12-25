@@ -1,10 +1,10 @@
-﻿using Edo.Transport.Messages.Events;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Contracts.Messages.Events;
 using TaxcomEdo.Client;
 using Vodovoz.Core.Domain.Documents;
 
@@ -91,7 +91,7 @@ namespace Edo.Docflow.Taxcom
 			{
 				EdoDocumentId = taxcomDocflow.EdoDocumentId,
 				DocFlowId = @event.DocFlowId,
-				DocFlowStatus = newAction.State
+				DocFlowStatus = newAction.State.ToString()
 			};
 
 			if(newAction.State == EdoDocFlowStatus.Succeed)

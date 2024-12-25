@@ -1,6 +1,6 @@
-﻿using Edo.Transport.Messages.Events;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Contracts.Messages.Events;
 
 namespace Edo.Docflow.Taxcom
 {

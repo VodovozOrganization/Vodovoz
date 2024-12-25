@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Edo.Transport2;
+using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
@@ -27,8 +27,8 @@ namespace TaxcomEdoConsumer.Consumers
 			catch(Exception e)
 			{
 				_logger.LogError(e,
-					"Ошибка при уведомлении об обновлении исходящего документооборота с документом {EdoDocument}",
-					message.MainDocumentId);
+					"Ошибка при уведомлении об обновлении исходящего документооборота {DocflowId}",
+					message.DocFlowId);
 			}
 		}
 	}

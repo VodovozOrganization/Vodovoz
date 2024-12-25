@@ -1,10 +1,10 @@
-﻿using Edo.Transport.Messages.Events;
-using MassTransit;
+﻿using MassTransit;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Contracts.Messages.Events;
 
 namespace Edo.Transfer.Routine
 {

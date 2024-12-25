@@ -1,4 +1,4 @@
-﻿using Edo.Transport2;
+﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
 using RabbitMQ.Client;
 

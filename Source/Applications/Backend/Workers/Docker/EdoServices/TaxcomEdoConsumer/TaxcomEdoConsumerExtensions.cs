@@ -1,9 +1,9 @@
 using System;
 using System.Net.Security;
 using System.Security.Authentication;
+using Edo.Contracts.Messages.Events;
 using Edo.Docflow.Taxcom;
 using Edo.Transport;
-using Edo.Transport.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;

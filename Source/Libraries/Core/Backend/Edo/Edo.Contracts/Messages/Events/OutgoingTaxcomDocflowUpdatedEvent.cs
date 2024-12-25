@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Edo.Transport.Messages.Events
+namespace Edo.Contracts.Messages.Events
 {
 	/// <summary>
 	/// Событие обновления статуса документооборота в Такском
