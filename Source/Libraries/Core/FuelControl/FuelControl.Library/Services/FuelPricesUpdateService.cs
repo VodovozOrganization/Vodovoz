@@ -30,12 +30,11 @@ namespace FuelControl.Library.Services
 
 			foreach(var fuelType in fuelTypes)
 			{
-				_fuelPriceVersionsController.SetFuelType(fuelType);
-
 				var isPriceCalculated = fuelAveragePrices.TryGetValue(fuelType.ProductGroupId, out var price);
 
 				if(isPriceCalculated)
 				{
+					_fuelPriceVersionsController.SetFuelType(fuelType);
 					_fuelPriceVersionsController.CreateAndAddVersion(price);
 
 					uow.Save(fuelType);

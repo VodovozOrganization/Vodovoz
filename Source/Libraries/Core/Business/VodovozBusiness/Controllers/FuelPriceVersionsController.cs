@@ -10,6 +10,12 @@ namespace Vodovoz.Controllers
 	{
 		private FuelType _fuelType;
 
+		private bool _isNeedSetFuelType =>
+			_fuelType is null;
+
+		private string _fuelTypeNotSetErrorMessage =>
+			"Значение типа топлива не установлено";
+
 		public void SetFuelType(FuelType fuelType)
 		{
 			_fuelType = fuelType ?? throw new ArgumentNullException(nameof(fuelType));
@@ -17,6 +23,11 @@ namespace Vodovoz.Controllers
 
 		public void ChangeVersionStartDate(FuelPriceVersion version, DateTime newStartDate)
 		{
+			if(_isNeedSetFuelType)
+			{
+				throw new InvalidOperationException(_fuelTypeNotSetErrorMessage);
+			}
+
 			if(version == null)
 			{
 				throw new ArgumentNullException(nameof(version));
@@ -37,6 +48,11 @@ namespace Vodovoz.Controllers
 
 		public void CreateAndAddVersion(decimal fuelPrice, DateTime? startDate)
 		{
+			if(_isNeedSetFuelType)
+			{
+				throw new InvalidOperationException(_fuelTypeNotSetErrorMessage);
+			}
+
 			if(startDate == null)
 			{
 				startDate = DateTime.Now;
@@ -80,6 +96,11 @@ namespace Vodovoz.Controllers
 
 		public bool IsValidDateForVersionStartDateChange(FuelPriceVersion version, DateTime newStartDate)
 		{
+			if(_isNeedSetFuelType)
+			{
+				throw new InvalidOperationException(_fuelTypeNotSetErrorMessage);
+			}
+
 			if(version == null)
 			{
 				throw new ArgumentNullException(nameof(version));
@@ -98,6 +119,11 @@ namespace Vodovoz.Controllers
 
 		public bool IsValidDateForNewCarVersion(DateTime dateTime)
 		{
+			if(_isNeedSetFuelType)
+			{
+				throw new InvalidOperationException(_fuelTypeNotSetErrorMessage);
+			}
+
 			return _fuelType.FuelPriceVersions.All(x => x.StartDate < dateTime);
 		}
 
