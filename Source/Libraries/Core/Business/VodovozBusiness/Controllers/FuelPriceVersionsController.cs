@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Controllers
@@ -11,7 +9,8 @@ namespace Vodovoz.Controllers
 	public class FuelPriceVersionsController : IFuelPriceVersionsController
 	{
 		private FuelType _fuelType;
-		public FuelPriceVersionsController(FuelType fuelType)
+
+		public void SetFuelType(FuelType fuelType)
 		{
 			_fuelType = fuelType ?? throw new ArgumentNullException(nameof(fuelType));
 		}
