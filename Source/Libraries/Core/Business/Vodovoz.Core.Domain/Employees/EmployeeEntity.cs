@@ -353,7 +353,7 @@ namespace Vodovoz.Core.Domain.Employees
 		[Display(Name = "ФИО")]
 		public virtual string FullName
 		{
-			get => string.Format("{0} {1} {2}", LastName, Name, Patronymic);
+			get => PersonHelper.PersonFullName(LastName, Name, Patronymic);
 		}
 
 		[Display(Name = "Фамилия и инициалы")]
@@ -361,6 +361,8 @@ namespace Vodovoz.Core.Domain.Employees
 		{
 			get => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 		}
+
+		public virtual string Title => FullName;
 
 		public virtual void AddFileInformation(string fileName)
 		{
