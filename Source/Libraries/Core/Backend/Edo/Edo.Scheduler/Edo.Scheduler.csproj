@@ -10,7 +10,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\..\..\Edo.Transport\Edo.Transport.csproj" />
+		<ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
 		<ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
 	</ItemGroup>
 

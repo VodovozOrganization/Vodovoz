@@ -1,4 +1,4 @@
-﻿using Edo.Docflow.Dto;
+﻿using Edo.Transport.Messages.Dto;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;

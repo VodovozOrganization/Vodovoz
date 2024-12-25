@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Edo.Transport.Messages.Events;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Transport.Messages.Events;
-using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using TaxcomEdo.Client;
 using Vodovoz.Core.Domain.Documents;
 
