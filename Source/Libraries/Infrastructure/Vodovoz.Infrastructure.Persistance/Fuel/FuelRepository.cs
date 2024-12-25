@@ -408,17 +408,17 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 			return givedLitersSum;
 		}
 
-		public async Task<IDictionary<string, decimal>> GetFuelPricesByLastWeekTransactionsData(
+		public async Task<IDictionary<string, decimal>> GetAverageFuelPricesByLastWeekTransactionsData(
 			IUnitOfWork uow,
 			CancellationToken cancellationToken)
 		{
 			var lastWeekStartDate = DateTime.Today.AddDays(-7).FirstDayOfWeek();
 			var lastWeekEndDate = DateTime.Today.AddDays(-7).LastDayOfWeek();
 
-			return await GetFuelPricesByTransactionsDataForPeriod(uow, lastWeekStartDate, lastWeekEndDate, cancellationToken);
+			return await GetAverageFuelPricesByTransactionsDataForPeriod(uow, lastWeekStartDate, lastWeekEndDate, cancellationToken);
 		}
 
-		private async Task<IDictionary<string, decimal>> GetFuelPricesByTransactionsDataForPeriod(
+		private async Task<IDictionary<string, decimal>> GetAverageFuelPricesByTransactionsDataForPeriod(
 			IUnitOfWork uow,
 			DateTime periodStart,
 			DateTime periodEnd,

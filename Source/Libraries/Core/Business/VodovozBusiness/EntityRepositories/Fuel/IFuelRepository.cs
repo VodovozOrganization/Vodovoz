@@ -28,7 +28,7 @@ namespace Vodovoz.EntityRepositories.Fuel
 		string GetFuelCardIdByNumber(IUnitOfWork unitOfWork, string cardNumber);
 		FuelDocument GetFuelDocumentByFuelLimitId(IUnitOfWork unitOfWork, string fuelLimitId);
 		decimal GetGivedFuelInLitersOnDate(IUnitOfWork unitOfWork, int carId, DateTime date);
-		Task<IDictionary<string, decimal>> GetFuelPricesByLastWeekTransactionsData(IUnitOfWork uow, CancellationToken cancellationToken);
+		Task<IDictionary<string, decimal>> GetAverageFuelPricesByLastWeekTransactionsData(IUnitOfWork uow, CancellationToken cancellationToken);
 		Task<IEnumerable<FuelType>> GetFuelTypesByProductGroupIds(IUnitOfWork uow, IEnumerable<string> productGroupIds, CancellationToken cancellationToken);
 	}
 }

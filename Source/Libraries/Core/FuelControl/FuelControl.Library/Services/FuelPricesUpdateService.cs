@@ -23,7 +23,7 @@ namespace FuelControl.Library.Services
 		public async Task UpdateFuelPricesByLastWeekTransaction(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			var fuelAveragePrices =
-				await _fuelRepository.GetFuelPricesByLastWeekTransactionsData(uow, cancellationToken);
+				await _fuelRepository.GetAverageFuelPricesByLastWeekTransactionsData(uow, cancellationToken);
 
 			var fuelTypes =
 				await _fuelRepository.GetFuelTypesByProductGroupIds(uow, fuelAveragePrices.Keys, cancellationToken);
