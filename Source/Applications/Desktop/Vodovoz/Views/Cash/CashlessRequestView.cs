@@ -1,68 +1,103 @@
-﻿using System.ComponentModel;
+﻿using Autofac;
+using Gamma.Binding;
+using Gamma.Binding.Core.LevelTreeConfig;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using Gtk;
 using QS.Navigation;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Complaints;
+using Vodovoz.Infrastructure;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
+using VodovozBusiness.Domain.Cash.CashRequest;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.Views.Cash
 {
 	public partial class CashlessRequestView : TabViewBase<CashlessRequestViewModel>
 	{
-		public CashlessRequestView(CashlessRequestViewModel viewModel) : base(viewModel)
+		private readonly ILifetimeScope _lifetimeScope;
+
+		public CashlessRequestView(CashlessRequestViewModel viewModel,
+			ILifetimeScope lifetimeScope)
+			: base(viewModel)
 		{
+			_lifetimeScope = lifetimeScope
+				?? throw new ArgumentNullException(nameof(lifetimeScope));
+
 			Build();
-			Configure();
+			Initialize();
 		}
 
-		private void Configure()
+		private void Initialize()
 		{
 			comboRoleChooser.SetRenderTextFunc<PayoutRequestUserRole>(ur => ur.GetEnumTitle());
 			comboRoleChooser.ItemsList = ViewModel.UserRoles;
 			comboRoleChooser.Binding
 				.AddBinding(ViewModel, vm => vm.UserRole, w => w.SelectedItem)
 				.InitializeFromSource();
+
 			comboRoleChooser.Sensitive = ViewModel.IsRoleChooserSensitive;
 
 			labelStatus.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.PayoutRequestState.GetEnumTitle(), w => w.Text)
 				.InitializeFromSource();
 
-			evmeAuthor.Sensitive = false;
-			evmeAuthor.Binding
-				.AddBinding(ViewModel.Entity, e => e.Author, w => w.Subject)
-				.InitializeFromSource();
+			entryAuthorEmployee.ViewModel = ViewModel.AuthorViewModel;
 
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
-			evmeCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelector);
-			evmeCounterparty.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject)
+			ViewModel.CounterpartyViewModel = new LegacyEEVMBuilderFactory<CashlessRequest>(
+					ViewModel,
+					ViewModel.Entity,
+					ViewModel.UoW,
+					ViewModel.NavigationManager,
+					_lifetimeScope)
+				.ForProperty(x => x.Counterparty)
+				.UseTdiDialog<CounterpartyDlg>()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+
+			entryCounterparty.ViewModel = ViewModel.CounterpartyViewModel;
+
+			entryCounterparty.Binding
+				.AddFuncBinding(
+					ViewModel,
+					vm => vm.IsNotClosed && !vm.IsSecurityServiceRole,
+					w => w.Sensitive)
 				.InitializeFromSource();
 
-			spinSum.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Sum, w => w.ValueAsDecimal)
-				.InitializeFromSource();
+			//spinSum.Binding
+			//	.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+			//	.AddBinding(ViewModel.Entity, e => e.Sum, w => w.ValueAsDecimal)
+			//	.InitializeFromSource();
 
-			checkNotToReconcile.Binding
-				.AddBinding(ViewModel, vm => vm.CanSeeNotToReconcile, w => w.Visible)
-				.AddBinding(ViewModel.Entity, e => e.PossibilityNotToReconcilePayments, w => w.Active)
-				.InitializeFromSource();
+			//checkNotToReconcile.Binding
+			//.AddBinding(ViewModel, vm => vm.CanSeeNotToReconcile, w => w.Visible)
+			//.AddBinding(ViewModel.Entity, e => e.PossibilityNotToReconcilePayments, w => w.Active)
+			//.InitializeFromSource();
 
-			eventBoxOrganisationSeparator.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CanSeeOrganisation || vm.CanSeeExpenseCategory, w => w.Visible)
-				.InitializeFromSource();
-			labelComboOrganization.Binding
-				.AddBinding(ViewModel, vm => vm.CanSeeOrganisation, w => w.Visible)
-				.InitializeFromSource();
-			comboOrganisation.SetRenderTextFunc<Domain.Organizations.Organization>(org => org.Name);
-			comboOrganisation.ItemsList = ViewModel.OurOrganisations;
-			comboOrganisation.ShowSpecialStateNot = true;
-			comboOrganisation.Binding
+			ViewModel.OrganizationViewModel = new LegacyEEVMBuilderFactory<CashlessRequest>(
+					ViewModel,
+					ViewModel.Entity,
+					ViewModel.UoW,
+					ViewModel.NavigationManager,
+					_lifetimeScope)
+				.ForProperty(x => x.Organization)
+				.UseTdiDialog<OrganizationDlg>()
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.Finish();
+
+			entryOrganization.ViewModel = ViewModel.OrganizationViewModel;
+
+			entryOrganization.Binding
 				.AddFuncBinding(ViewModel, vm => vm.CanSetOrganisaton && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Organization, w => w.SelectedItem)
 				.AddBinding(ViewModel, vm => vm.CanSeeOrganisation, w => w.Visible)
 				.InitializeFromSource();
 
@@ -75,41 +110,43 @@ namespace Vodovoz.Views.Cash
 				.AddBinding(ViewModel, vm => vm.CanSeeExpenseCategory, w => w.Visible)
 				.InitializeFromSource();
 
-			entryBasis.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Basis, w => w.Buffer.Text)
-				.InitializeFromSource();
-			entryExplanation.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Explanation, w => w.Buffer.Text)
-				.InitializeFromSource();
+			//entryBasis.Binding
+			//	.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+			//	.AddBinding(ViewModel.Entity, e => e.Basis, w => w.Buffer.Text)
+			//	.InitializeFromSource();
+			//entryExplanation.Binding
+			//.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+			//.AddBinding(ViewModel.Entity, e => e.Explanation, w => w.Buffer.Text)
+			//.InitializeFromSource();
 
-			eventBoxReasonsSeparator.Binding
-				.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-				.InitializeFromSource();
-			eventBoxCancelReason.Binding
-				.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-				.InitializeFromSource();
-			labelCancelReason.Binding
-				.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-				.InitializeFromSource();
-			entryCancelReason.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.CancelReason, w => w.Buffer.Text)
-				.InitializeFromSource();
+			//eventBoxReasonsSeparator.Binding
+			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
+			//	.InitializeFromSource();
+			//eventBoxCancelReason.Binding
+			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
+			//	.InitializeFromSource();
+			//labelCancelReason.Binding
+			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
+			//	.InitializeFromSource();
+			//entryCancelReason.Binding
+			//	.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+			//	.AddBinding(ViewModel.Entity, e => e.CancelReason, w => w.Buffer.Text)
+			//	.InitializeFromSource();
 
-			eventBoxWhySentToReapproval.Binding
-				.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-				.InitializeFromSource();
-			labelWhySentToReapproval.Binding
-				.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-				.InitializeFromSource();
-			entryWhySentToReapproval.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.ReasonForSendToReappropriate, w => w.Buffer.Text)
-				.InitializeFromSource();
+			//eventBoxWhySentToReapproval.Binding
+			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
+			//	.InitializeFromSource();
+			//labelWhySentToReapproval.Binding
+			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
+			//	.InitializeFromSource();
+			//entryWhySentToReapproval.Binding
+			//.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+			//.AddBinding(ViewModel.Entity, e => e.ReasonForSendToReappropriate, w => w.Buffer.Text)
+			//.InitializeFromSource();
 
-			smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+			smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+
+			InitializeComments();
 
 			buttonSave.Clicked += (s, a) => ViewModel.Save(true);
 			buttonSave.Sensitive = !ViewModel.IsSecurityServiceRole;
@@ -150,6 +187,120 @@ namespace Vodovoz.Views.Cash
 				.AddBinding(ViewModel, vm => vm.CanConveyForPayout, w => w.Visible)
 				.InitializeFromSource();
 			btnConveyForPayout.Clicked += (s, a) => ViewModel.ConveyForPayout();
+		}
+
+		private void InitializeComments()
+		{
+			ytreeviewComments.ShowExpanders = false;
+			ytreeviewComments.ColumnsConfig = FluentColumnsConfig<object>.Create()
+				.AddColumn("Время")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetTime(x))
+				.AddColumn("Автор")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetAuthor(x))
+				.AddColumn("Комментарий")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetNodeName(x))
+						.WrapWidth(300)
+						.WrapMode(Pango.WrapMode.WordChar)
+				.RowCells().AddSetter<CellRenderer>(SetColor)
+				.Finish();
+
+			var levels = LevelConfigFactory
+				.FirstLevel<CashlessRequestComment, CashlessRequestCommentFileInformation>(x => x.AttachedFileInformations)
+				.LastLevel(afi => ViewModel.Entity.Comments.FirstOrDefault(c => c.Id == afi.CashlessRequestCommentId))
+				.EndConfig();
+
+			ytreeviewComments.YTreeModel = new LevelTreeModel<CashlessRequestComment>(ViewModel.Entity.Comments, levels);
+
+			ViewModel.Entity.Comments.CollectionChanged += (sender, e) => {
+				ytreeviewComments.YTreeModel.EmitModelChanged();
+				ytreeviewComments.ExpandAll();
+			};
+
+			ytreeviewComments.ExpandAll();
+			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
+
+			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
+			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+
+			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
+			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.AttachedFileInformationsViewModel))
+			{
+				smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+			}
+		}
+
+		private void YtreeviewComments_RowActivated(object o, RowActivatedArgs args)
+		{
+			if(!(ytreeviewComments.GetSelectedObject() is ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation))
+			{
+				return;
+			}
+			ViewModel.OpenFileCommand.Execute(complaintDiscussionCommentFileInformation);
+		}
+
+		private string GetNodeName(object node)
+		{
+			if(node is ComplaintDiscussionComment complaintDiscussionComment)
+			{
+				return complaintDiscussionComment.Comment;
+			}
+			if(node is ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation)
+			{
+				return complaintDiscussionCommentFileInformation.FileName;
+			}
+			return "";
+		}
+
+		private string GetTime(object node)
+		{
+			if(node is ComplaintDiscussionComment)
+			{
+				return (node as ComplaintDiscussionComment).CreationTime.ToShortDateString() + "\n" + (node as ComplaintDiscussionComment).CreationTime.ToShortTimeString();
+			}
+
+			return "";
+		}
+
+		private string GetAuthor(object node)
+		{
+			if(node is ComplaintDiscussionComment)
+			{
+				var author = (node as ComplaintDiscussionComment).Author;
+				var subdivisionName = author.Subdivision != null && !string.IsNullOrWhiteSpace(author.Subdivision.ShortName) ? "\n" + author.Subdivision.ShortName : "";
+				var result = $"{author.GetPersonNameWithInitials()}{subdivisionName}";
+				return result;
+			}
+			return "";
+		}
+
+		private void SetColor(CellRenderer cell, object node)
+		{
+			if(node is ComplaintDiscussionComment)
+			{
+				cell.CellBackgroundGdk = GdkColors.DiscussionCommentBase;
+			}
+			else
+			{
+				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
+			}
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			ytreeviewComments.RowActivated -= YtreeviewComments_RowActivated;
+
+			base.Destroy();
 		}
 	}
 }

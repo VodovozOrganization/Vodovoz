@@ -668,18 +668,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 		private CashlessRequestViewModel CreateCashlessRequestViewModelForMassOpenWithoutGui(PayoutRequestJournalNode node)
 		{
-			return new CashlessRequestViewModel(
-				_fileDialogService,
-				_userRepository,
-				_counterpartyJournalFactory,
-				_employeeRepository,
-				EntityUoWBuilder.ForOpen(node.Id),
-				_unitOfWorkFactory,
-				_commonServices,
-				NavigationManager,
-				_cashlessRequestFileStorageService,
-				_attachedFileInformationsViewModelFactory,
-				_scope
+			return _scope.Resolve<CashlessRequestViewModel>(
+				new TypedParameter(typeof(IEntityUoWBuilder),
+				EntityUoWBuilder.ForOpen(node.Id))
 			);
 		}
 

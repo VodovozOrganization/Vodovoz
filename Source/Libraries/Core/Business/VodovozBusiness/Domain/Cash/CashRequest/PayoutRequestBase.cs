@@ -40,6 +40,7 @@ namespace Vodovoz.Domain.Cash
 					_id = value;
 
 					UpdateFileInformations();
+					UpdateComments();
 				}
 			}
 		}
@@ -172,6 +173,7 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		protected abstract void UpdateFileInformations();
+		protected abstract void UpdateComments();
 
 		public abstract void ChangeState(PayoutRequestState newState);
 	}

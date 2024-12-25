@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -13,6 +12,9 @@ using VodovozBusiness.Domain.Cash.CashRequest;
 
 namespace Vodovoz.Domain.Cash
 {
+	/// <summary>
+	/// Заявка на оплату по безналу
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "заявки на оплату по безналу",
 		Nominative = "заявка на оплату по безналу",
@@ -24,13 +26,15 @@ namespace Vodovoz.Domain.Cash
 		private decimal _sum;
 		private Counterparty _counterparty;
 		private IObservableList<CashlessRequestFileInformation> _attachedFileInformations = new ObservableList<CashlessRequestFileInformation>();
-
-		#region Свойства
+		private IObservableList<CashlessRequestComment> _comments = new ObservableList<CashlessRequestComment>();
 
 		public override string Title => $"Заявка на оплату по Б/Н №{Id} от {Date:d}";
 
 		public override PayoutRequestDocumentType PayoutRequestDocumentType => PayoutRequestDocumentType.CashlessRequest;
 
+		/// <summary>
+		/// Сумма
+		/// </summary>
 		[Display(Name = "Сумма")]
 		public virtual decimal Sum
 		{
@@ -38,6 +42,9 @@ namespace Vodovoz.Domain.Cash
 			set => SetField(ref _sum, value);
 		}
 
+		/// <summary>
+		/// Поставщик
+		/// </summary>
 		[Display(Name = "Поставщик")]
 		public virtual Counterparty Counterparty
 		{
@@ -45,6 +52,19 @@ namespace Vodovoz.Domain.Cash
 			set => SetField(ref _counterparty, value);
 		}
 
+		/// <summary>
+		/// Комментарии
+		/// </summary>
+		[Display(Name = "Комментарии")]
+		public virtual IObservableList<CashlessRequestComment> Comments
+		{
+			get => _comments;
+			set => SetField(ref _comments, value);
+		}
+
+		/// <summary>
+		/// Информация о прикрепленных файлах
+		/// </summary>
 		[Display(Name = "Информация о прикрепленных файлах")]
 		public virtual IObservableList<CashlessRequestFileInformation> AttachedFileInformations
 		{
@@ -52,10 +72,12 @@ namespace Vodovoz.Domain.Cash
 			set => SetField(ref _attachedFileInformations, value);
 		}
 
-		#endregion
-
 		#region Методы
 
+		/// <summary>
+		/// Изменение статуса
+		/// </summary>
+		/// <param name="newState">Новый статус</param>
 		public override void ChangeState(PayoutRequestState newState)
 		{
 			if(newState == PayoutRequestState)
@@ -66,6 +88,10 @@ namespace Vodovoz.Domain.Cash
 			PayoutRequestState = newState;
 		}
 
+		/// <summary>
+		/// Добавление информации о файле
+		/// </summary>
+		/// <param name="fileName">Имя файла</param>
 		public virtual void AddFileInformation(string fileName)
 		{
 			if(AttachedFileInformations.Any(afi => afi.FileName == fileName))
@@ -80,6 +106,10 @@ namespace Vodovoz.Domain.Cash
 			});
 		}
 
+		/// <summary>
+		/// Удаление информации о файле
+		/// </summary>
+		/// <param name="fileName">Имя файла</param>
 		public virtual void RemoveFileInformation(string fileName)
 		{
 			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
@@ -87,11 +117,39 @@ namespace Vodovoz.Domain.Cash
 
 		#endregion
 
+		/// <summary>
+		/// Обновление информации о файлах
+		/// 
+		/// Обновляет идентификатор заявки на оплату в информации о файлах
+		/// </summary>
 		protected override void UpdateFileInformations()
 		{
 			foreach(var fileInformation in AttachedFileInformations)
 			{
 				fileInformation.CashlessReqwuestId = Id;
+			}
+		}
+
+		/// <summary>
+		/// Добавление комментария
+		/// </summary>
+		/// <param name="cashlessRequestComment">Комментарий</param>
+		public virtual void AddComment(CashlessRequestComment cashlessRequestComment)
+		{
+			cashlessRequestComment.CashlessRequestId = Id;
+			Comments.Add(cashlessRequestComment);
+		}
+
+		/// <summary>
+		/// Обновление комментариев
+		/// 
+		/// Обновляет идентификатор заявки на оплату в комментариях
+		/// </summary>
+		protected override void UpdateComments()
+		{
+			foreach(var comment in Comments)
+			{
+				comment.CashlessRequestId = Id;
 			}
 		}
 

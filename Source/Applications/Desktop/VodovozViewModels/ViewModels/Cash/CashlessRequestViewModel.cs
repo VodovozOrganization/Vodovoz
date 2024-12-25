@@ -1,10 +1,10 @@
 ﻿using Autofac;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
@@ -12,6 +12,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -27,6 +28,8 @@ using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using VodovozBusiness.Domain.Cash.CashRequest;
 
@@ -34,9 +37,29 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 {
 	public class CashlessRequestViewModel : EntityTabViewModelBase<CashlessRequest>, IAskSaveOnCloseViewModel
 	{
+		private bool _canChangeFinancialExpenseCategory
+			=> CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.CanChangeFinancialExpenseCategory);
+
+		private PayoutRequestState[] _expenseCategoriesForAll => new[]
+		{
+			PayoutRequestState.New,
+			PayoutRequestState.OnClarification,
+			PayoutRequestState.Submited
+		};
+
+		private PayoutRequestState[] _expenseCategoriesWithSpecialPermission => new[]
+		{
+			PayoutRequestState.Agreed,
+			PayoutRequestState.GivenForTake,
+			PayoutRequestState.PartiallyClosed
+		};
+
 		private PayoutRequestUserRole _userRole;
 		private readonly Employee _currentEmployee;
+		private readonly IUserRepository _userRepository;
 		private readonly ICashlessRequestFileStorageService _cashlessRequestFileStorageService;
+		private readonly ICashlessRequestCommentFileStorageService _cashlessRequestCommentFileStorageService;
+		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
 		private ILifetimeScope _lifetimeScope;
 		private IInteractiveService _interactiveService;
 		private FinancialExpenseCategory _financialExpenseCategory;
@@ -53,16 +76,21 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			INavigationManager navigation,
 			ICashlessRequestFileStorageService cashlessRequestFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
-			ILifetimeScope lifetimeScope)
+			ILifetimeScope lifetimeScope,
+			ViewModelEEVMBuilder<Employee> authorViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			if(attachedFileInformationsViewModelFactory is null)
+			if(authorViewModelEEVMBuilder is null)
 			{
-				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+				throw new ArgumentNullException(nameof(authorViewModelEEVMBuilder));
 			}
 
 			TabName = base.TabName;
+			_userRepository = userRepository
+				?? throw new ArgumentNullException(nameof(userRepository));
 			_cashlessRequestFileStorageService = cashlessRequestFileStorageService ?? throw new ArgumentNullException(nameof(cashlessRequestFileStorageService));
+			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory
+				?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 			CounterpartyAutocompleteSelector =
@@ -90,6 +118,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			IsRoleChooserSensitive = UserRoles.Count() > 1;
 			UserRole = UserRoles.First();
+
+			AuthorViewModel = authorViewModelEEVMBuilder.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.Author)
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelDialog<EmployeeViewModel>()
+				.Finish();
+
+			AuthorViewModel.IsEditable = false;
 
 			OurOrganisations = UoW.Session.QueryOver<Organization>().List();
 
@@ -126,29 +163,24 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			SubdivisionViewModel.IsEditable = false;
 
-			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<CashlessRequest, CashlessRequestFileInformation>(
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.Create(
 				UoW,
-				Entity,
-				_cashlessRequestFileStorageService,
-				_cancellationTokenSource.Token,
-				Entity.AddFileInformation,
-				Entity.RemoveFileInformation);
+				CashlessRequestComment.AddFileInformation,
+				CashlessRequestComment.DeleteFileInformation);
 
 			AttachedFileInformationsViewModel.ReadOnly = !IsNotClosed || IsSecurityServiceRole;
+
+			AddCommentCommand = new DelegateCommand(AddCommentHandler, () => CanAddComment);
+			AddCommentCommand.CanExecuteChangedWith(this, x => x.CanAddComment);
+
+			OpenFileCommand = new DelegateCommand<CashlessRequestCommentFileInformation>(OpenFile);
 		}
-
-		#region Статья расхода
-		private bool _hasFinancialExpenseCategoryPermission => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.CanChangeFinancialExpenseCategory);
-		private PayoutRequestState[] _expenseCategoriesForAll => new[] { PayoutRequestState.New, PayoutRequestState.OnClarification, PayoutRequestState.Submited };
-		private PayoutRequestState[] _expenseCategoriesWithSpecialPermission => new[] { PayoutRequestState.Agreed, PayoutRequestState.GivenForTake, PayoutRequestState.PartiallyClosed };
-		#endregion
-
-		#region Инициализация виджетов
 
 		public IEnumerable<Organization> OurOrganisations { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelector { get; }
 
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
+		public IEntityEntryViewModel AuthorViewModel { get; }
 		public IEntityEntryViewModel SubdivisionViewModel { get; }
 		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
 
@@ -158,55 +190,67 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			set => this.SetIdRefField(SetField, ref _financialExpenseCategory, () => Entity.ExpenseCategoryId, value);
 		}
 
-		#endregion
-
 		#region Настройки кнопок смены состояний
 
-		public bool CanPayout => Entity.PayoutRequestState == PayoutRequestState.GivenForTake
-		                         && UserRole == PayoutRequestUserRole.Accountant;
+		public bool CanPayout =>
+			Entity.PayoutRequestState == PayoutRequestState.GivenForTake
+			&& UserRole == PayoutRequestUserRole.Accountant;
 
-		public bool CanAccept => Entity.PayoutRequestState == PayoutRequestState.New
-		                         || Entity.PayoutRequestState == PayoutRequestState.OnClarification;
+		public bool CanAccept =>
+			Entity.PayoutRequestState == PayoutRequestState.New
+			|| Entity.PayoutRequestState == PayoutRequestState.OnClarification;
 
-		public bool CanApprove => Entity.PayoutRequestState == PayoutRequestState.Submited
-		                          && UserRole == PayoutRequestUserRole.Coordinator;
+		public bool CanApprove =>
+			Entity.PayoutRequestState == PayoutRequestState.Submited
+			&& UserRole == PayoutRequestUserRole.Coordinator;
 
-		public bool CanCancel => Entity.PayoutRequestState == PayoutRequestState.Submited
-		                         || Entity.PayoutRequestState == PayoutRequestState.OnClarification
-		                         || UserRole == PayoutRequestUserRole.Coordinator
-		                         && (Entity.PayoutRequestState == PayoutRequestState.Agreed
-		                             || Entity.PayoutRequestState == PayoutRequestState.GivenForTake);
+		public bool CanCancel =>
+			Entity.PayoutRequestState == PayoutRequestState.Submited
+			|| Entity.PayoutRequestState == PayoutRequestState.OnClarification
+			|| UserRole == PayoutRequestUserRole.Coordinator
+			&& (Entity.PayoutRequestState == PayoutRequestState.Agreed
+				|| Entity.PayoutRequestState == PayoutRequestState.GivenForTake);
 
-		public bool CanReapprove => Entity.PayoutRequestState == PayoutRequestState.Agreed ||
-		                            Entity.PayoutRequestState == PayoutRequestState.GivenForTake ||
-		                            Entity.PayoutRequestState == PayoutRequestState.Canceled;
+		public bool CanReapprove =>
+			Entity.PayoutRequestState == PayoutRequestState.Agreed
+			|| Entity.PayoutRequestState == PayoutRequestState.GivenForTake
+			|| Entity.PayoutRequestState == PayoutRequestState.Canceled;
 
-		public bool CanConveyForPayout => Entity.PayoutRequestState == PayoutRequestState.Agreed
-		                                  && UserRole == PayoutRequestUserRole.Financier;
+		public bool CanConveyForPayout =>
+			Entity.PayoutRequestState == PayoutRequestState.Agreed
+			&& UserRole == PayoutRequestUserRole.Financier;
 
-		#endregion
+		#endregion Настройки кнопок смены состояний
 
 		#region Настройки остальных виджетов
+
+		public bool CanEdit { get; private set; }
 
 		public bool IsRoleChooserSensitive { get; }
 		public bool IsNotClosed => Entity.PayoutRequestState != PayoutRequestState.Closed;
 		public bool IsNotNew => Entity.PayoutRequestState != PayoutRequestState.New;
 
-		public bool CanSeeNotToReconcile => Entity.PayoutRequestState == PayoutRequestState.Submited
-		                                    && UserRole == PayoutRequestUserRole.Coordinator;
+		public bool CanSeeNotToReconcile =>
+			Entity.PayoutRequestState == PayoutRequestState.Submited
+			&& UserRole == PayoutRequestUserRole.Coordinator;
 
 		public bool CanSeeOrganisation => UserRole == PayoutRequestUserRole.Financier;
 
-		public bool CanSetOrganisaton => Entity.PayoutRequestState == PayoutRequestState.New
-		                                 || Entity.PayoutRequestState == PayoutRequestState.Agreed
-		                                 || Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
+		public bool CanSetOrganisaton =>
+			Entity.PayoutRequestState == PayoutRequestState.New
+			|| Entity.PayoutRequestState == PayoutRequestState.Agreed
+			|| Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
 
 		public bool CanSeeExpenseCategory => true;
 
-		public bool CanSetExpenseCategory => _expenseCategoriesForAll.Contains(Entity.PayoutRequestState)
-				|| (_expenseCategoriesWithSpecialPermission.Contains(Entity.PayoutRequestState) && _hasFinancialExpenseCategoryPermission);
+		public bool CanSetExpenseCategory =>
+			_expenseCategoriesForAll.Contains(Entity.PayoutRequestState)
+			|| (_expenseCategoriesWithSpecialPermission.Contains(Entity.PayoutRequestState)
+				&& _canChangeFinancialExpenseCategory);
 
-		public bool CanSetCancelReason => UserRole == PayoutRequestUserRole.Coordinator && IsNotClosed;
+		public bool CanSetCancelReason =>
+			UserRole == PayoutRequestUserRole.Coordinator
+			&& IsNotClosed;
 
 		public PayoutRequestUserRole UserRole
 		{
@@ -233,11 +277,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public bool AskSaveOnClose => !IsSecurityServiceRole;
 
-		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; private set; }
+		public EntityEntryViewModel<Domain.Client.Counterparty> CounterpartyViewModel { get; set; }
+		public EntityEntryViewModel<Organization> OrganizationViewModel { get; set; }
 
-		#endregion
+		#endregion IAskSaveOnCloseViewModel
 
-		#endregion
+		#endregion Настройки остальных виджетов
 
 		#region Public методы
 
@@ -339,7 +385,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private IEnumerable<PayoutRequestUserRole> GetUserRoles(int userId)
 		{
 			bool CheckRole(string roleName, int id) =>
-				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(roleName, id);
+				CommonServices.PermissionService.ValidateUserPresetPermission(roleName, id);
 
 			var roles = new List<PayoutRequestUserRole>();
 
@@ -446,6 +492,118 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		}
 
 		#endregion
+
+		public bool CanAddComment => !string.IsNullOrWhiteSpace(NewCommentText);
+
+		public string NewCommentText { get; private set; }
+
+		public Dictionary<Func<int>, Dictionary<string, byte[]>> FilesToUploadOnSave { get; }
+			= new Dictionary<Func<int>, Dictionary<string, byte[]>>();
+
+		public CashlessRequestComment CashlessRequestComment { get; set; } = new CashlessRequestComment();
+
+		#region Commands
+
+		public DelegateCommand AddCommentCommand { get; }
+		public DelegateCommand<CashlessRequestCommentFileInformation> OpenFileCommand { get; }
+
+		private void AddCommentHandler()
+		{
+			if(_currentEmployee == null)
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
+				return;
+			}
+
+			CashlessRequestComment.AuthorId = _currentEmployee.Id;
+			CashlessRequestComment.CreatedAt = DateTime.Now;
+			CashlessRequestComment.Text = NewCommentText;
+
+			Entity.AddComment(CashlessRequestComment);
+
+			NewCommentText = string.Empty;
+
+			var newComment = CashlessRequestComment;
+			FilesToUploadOnSave.Add(() => newComment.Id, AttachedFileInformationsViewModel.AttachedFiles.ToDictionary(kv => kv.Key, kv => kv.Value));
+
+			CashlessRequestComment = new CashlessRequestComment();
+			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+			AttachedFileInformationsViewModel = _attachedFileInformationsViewModelFactory.CreateAndInitialize<CashlessRequestComment, CashlessRequestCommentFileInformation>(
+				UoW,
+				CashlessRequestComment,
+				_cashlessRequestCommentFileStorageService,
+				_cancellationTokenSource.Token,
+				CashlessRequestComment.AddFileInformation,
+				CashlessRequestComment.DeleteFileInformation);
+
+			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
+		}
+
+		public void OpenFile(CashlessRequestCommentFileInformation cashlessRequestCommentFileInformation)
+		{
+			byte[] blob;
+
+			if(cashlessRequestCommentFileInformation.CashlessRequestCommentId == 0)
+			{
+				blob = FilesToUploadOnSave.FirstOrDefault(actionCommentIdToFile => actionCommentIdToFile.Value.ContainsKey(cashlessRequestCommentFileInformation.FileName))
+					.Value[cashlessRequestCommentFileInformation.FileName];
+			}
+			else
+			{
+				var comment = Entity.Comments.FirstOrDefault(cdc => cdc.Id == cashlessRequestCommentFileInformation.CashlessRequestCommentId);
+
+				var fileResult = _cashlessRequestCommentFileStorageService.GetFileAsync(comment, cashlessRequestCommentFileInformation.FileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+
+				if(fileResult.IsFailure)
+				{
+					return;
+				}
+
+				using(var ms = new MemoryStream())
+				{
+					fileResult.Value.CopyTo(ms);
+
+					blob = ms.ToArray();
+				}
+			}
+
+			var vodovozUserTempDirectory = _userRepository.GetTempDirForCurrentUser(UoW);
+
+			if(string.IsNullOrWhiteSpace(vodovozUserTempDirectory))
+			{
+				return;
+			}
+
+			var tempFilePath = Path.Combine(Path.GetTempPath(), vodovozUserTempDirectory, cashlessRequestCommentFileInformation.FileName);
+
+			if(!File.Exists(tempFilePath))
+			{
+				File.WriteAllBytes(tempFilePath, blob);
+			}
+
+			var process = new Process
+			{
+				EnableRaisingEvents = true
+			};
+
+			process.StartInfo.FileName = Path.Combine(vodovozUserTempDirectory, cashlessRequestCommentFileInformation.FileName);
+
+			process.Exited += OnProcessExited;
+			process.Start();
+		}
+
+		#endregion Commands
+
+		private void OnProcessExited(object sender, EventArgs e)
+		{
+			if(sender is Process process)
+			{
+				File.Delete(process.StartInfo.FileName);
+				process.Exited -= OnProcessExited;
+			}
+		}
 
 		public override void Dispose()
 		{
