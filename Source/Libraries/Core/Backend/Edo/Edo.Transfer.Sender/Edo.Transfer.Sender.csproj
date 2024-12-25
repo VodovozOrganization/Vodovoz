@@ -6,7 +6,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
-		<ProjectReference Include="..\..\..\..\..\Edo.Transport\Edo.Transport.csproj" />
+		<ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
 		<ProjectReference Include="..\Edo.Transfer\Edo.Transfer.csproj" />
 	</ItemGroup>
 

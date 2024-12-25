@@ -10,7 +10,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\..\..\Edo.Transport\Edo.Transport.csproj" />
+	  <ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
 	  <ProjectReference Include="..\Edo.Transfer\Edo.Transfer.csproj" />
 	</ItemGroup>
 
