@@ -59,7 +59,6 @@ namespace TaxcomEdoConsumer
 				configurator
 					.ConfigureTopologyForAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(edoAccount)
 					.ConfigureTopologyForOutgoingTaxcomDocflowUpdatedEvent(edoAccount)
-					.ConfigureTopologyForEdoDocflowUpdatedEvent(context)
 					.ConfigureTopologyForTaxcomDocflowSendEvent(edoAccount)
 					;
 
@@ -96,15 +95,6 @@ namespace TaxcomEdoConsumer
 				x.AutoDelete = false;
 			});
 			
-			return configurator;
-		}
-		
-		// Убрать, и использовать общий конфиг транспорта для ЭДО
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForEdoDocflowUpdatedEvent(
-			this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
-		{
-			configurator.AddEdoTopology(context);
-
 			return configurator;
 		}
 		
