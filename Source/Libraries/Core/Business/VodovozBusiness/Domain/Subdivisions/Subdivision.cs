@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -27,7 +27,6 @@ namespace Vodovoz
 	public class Subdivision : SubdivisionEntity, IValidatableObject, INamed, IArchivable
 	{
 		private SalesPlan _defaultSalesPlan;
-		private string _name;
 		private string _shortName;
 		private Employee _chief;
 		private Subdivision _parentSubdivision;
@@ -41,14 +40,6 @@ namespace Vodovoz
 		private bool _isArchive;
 
 		#region Свойства
-
-		[Display(Name = "Название подразделения")]
-		[Required(ErrorMessage = "Название подразделения должно быть заполнено.")]
-		public virtual string Name
-		{
-			get => _name;
-			set => SetField(ref _name, value);
-		}
 
 		[Display(Name = "Сокращенное наименование")]
 		public virtual string ShortName

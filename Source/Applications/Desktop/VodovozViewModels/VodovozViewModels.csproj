@@ -67,6 +67,9 @@
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesGroupsJournalViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesJournalFilterViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesJournalNode.cs" />
+    <Compile Include="Cash\FinancialResponsibilityCenterJournalViewModel.cs" />
+    <Compile Include="Cash\FinancialResponsibilityCenterNode.cs" />
+    <Compile Include="Cash\FinancialResponsibilityCenterViewModel.cs" />
     <Compile Include="Cash\IncomeSelfDeliveryViewModel.cs" />
     <Compile Include="Cash\IncomeViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialExpenseCategoryViewModel.cs" />
