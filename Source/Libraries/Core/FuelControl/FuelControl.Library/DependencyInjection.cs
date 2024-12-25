@@ -2,7 +2,6 @@
 using FuelControl.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Vodovoz.Controllers;
 
 namespace FuelControl.Library
 {
@@ -12,9 +11,7 @@ namespace FuelControl.Library
 			.AddScoped<IFuelControlAuthorizationService, GazpromAuthorizationService>()
 			.AddScoped<IFuelControlFuelCardsDataService, GazpromFuelCardsDataService>()
 			.AddScoped<IFuelLimitsManagementService, GazpromFuelLimitsManagementService>()
-			.AddScoped<IFuelPricesUpdateService, FuelPricesUpdateService>()
 			.AddScoped<IFuelCardConverter, FuelCardConverter>()
-			.AddScoped<IFuelLimitConverter, FuelLimitConverter>()
-			.AddScoped<IFuelPriceVersionsController, FuelPriceVersionsController>();
+			.AddScoped<IFuelLimitConverter, FuelLimitConverter>();
 	}
 }
