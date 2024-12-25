@@ -40,10 +40,10 @@ namespace Vodovoz.Controllers
 			var previousVersion = GetPreviousVersionOrNull(version);
 			if(previousVersion != null)
 			{
-				var newEndDate = newStartDate.AddMilliseconds(-1);
+				var newEndDate = newStartDate.Date.AddMilliseconds(-1);
 				previousVersion.EndDate = newEndDate;
 			}
-			version.StartDate = newStartDate;
+			version.StartDate = newStartDate.Date;
 		}
 
 		public void CreateAndAddVersion(decimal fuelPrice, DateTime? startDate)
@@ -55,7 +55,7 @@ namespace Vodovoz.Controllers
 
 			if(startDate == null)
 			{
-				startDate = DateTime.Now;
+				startDate = DateTime.Today;
 			}
 
 			var newVersion = new FuelPriceVersion
@@ -77,7 +77,7 @@ namespace Vodovoz.Controllers
 			{
 				newCarFuelVersion.FuelType = _fuelType;
 			}
-			newCarFuelVersion.StartDate = startDate;
+			newCarFuelVersion.StartDate = startDate.Date;
 
 			if(_fuelType.FuelPriceVersions.Any())
 			{
