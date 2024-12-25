@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Edo\Edo.Docflow\Edo.Docflow.csproj" />
+      <ProjectReference Include="..\..\Edo\Edo.Contracts\Edo.Contracts.csproj" />
       <ProjectReference Include="..\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
     </ItemGroup>
 
