@@ -11,12 +11,13 @@ namespace Vodovoz.Settings.Database.Edo
 			_settingsController = settingsController ?? throw new System.ArgumentNullException(nameof(settingsController));
 		}
 
-		public string TaxcomIntegratorId => _settingsController.GetStringValue("TaxcomIntegratorId");
+		public int TransferTaskRequestsWaitingTimeoutMinute => _settingsController
+			.GetIntValue("edo.transfer.requests_waiting_timeout_minutes");
 
-		public int TransferTaskTimeoutMinute => _settingsController.GetIntValue("edo.transfer.task_timeout_minutes");
+		public int TransferTaskRequestsWaitingTimeoutCheckIntervalSecond => _settingsController
+			.GetIntValue("edo.transfer.requests_waiting_timeout_check_interval_seconds");
 
-		public int TransferTaskTimeoutCheckIntervalSecond => _settingsController.GetIntValue("edo.transfer.task_timeout_check_interval_seconds");
-
-		public int MinCodesCountForStartTransfer => _settingsController.GetIntValue("edo.transfer.min_codes_count_for_start_transfer");
+		public int MinCodesCountForStartTransfer => _settingsController
+			.GetIntValue("edo.transfer.min_codes_count_for_start_transfer");
 	}
 }

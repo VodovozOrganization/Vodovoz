@@ -16,15 +16,15 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("id")
 				.GeneratedBy.Native();
 
-			DiscriminateSubClassesOnColumn("type");
+			Map(x => x.CreationTime)
+				.Column("creation_time")
+				.ReadOnly();
 
 			Map(x => x.TaskType)
 				.Column("type")
 				.ReadOnly();
 
-			Map(x => x.CreationDate)
-				.Column("creation_date")
-				.ReadOnly();
+			DiscriminateSubClassesOnColumn("type");
 
 			Map(x => x.Status)
 				.Column("status");
@@ -34,6 +34,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			Map(x => x.EndTime)
 				.Column("end_time");
+
+			HasMany(x => x.Problems)
+				.KeyColumn("edo_task_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse();
 		}
 	}
 }

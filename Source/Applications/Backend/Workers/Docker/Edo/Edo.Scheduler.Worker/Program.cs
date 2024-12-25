@@ -5,8 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using QS.BusinessCommon.Domain;
 using QS.Project.Core;
+using System;
+using System.Text;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Infrastructure;
 
 namespace Edo.Scheduler.Worker
 {
@@ -14,6 +18,7 @@ namespace Edo.Scheduler.Worker
 	{
 		public static void Main(string[] args)
 		{
+			Console.OutputEncoding = Encoding.UTF8;
 			CreateHostBuilder(args).Build().Run();
 		}
 
@@ -27,6 +32,14 @@ namespace Edo.Scheduler.Worker
 				.ConfigureServices((hostContext, services) =>
 				{
 					services
+						.AddMappingAssemblies(
+							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+							typeof(QS.Banks.Domain.Bank).Assembly,
+							typeof(QS.HistoryLog.HistoryMain).Assembly,
+							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
+							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
+						)
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
@@ -34,7 +47,7 @@ namespace Edo.Scheduler.Worker
 						.AddEdoScheduler()
 						;
 
-					services.AddHostedService<HostWarmUpService>();
+					services.AddHostedService<InitDbConnectionOnHostStartedService>();
 				});
 	}
 }

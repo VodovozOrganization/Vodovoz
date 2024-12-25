@@ -81,7 +81,6 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _task, value);
 		}
 
-
 		/// <summary>
 		/// Тип документа
 		/// </summary>

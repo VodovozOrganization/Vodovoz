@@ -2,11 +2,15 @@
 using Edo.Documents;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
+using System;
+using System.Text;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Infrastructure;
 
 namespace Edo.Docflow
 {
@@ -14,6 +18,7 @@ namespace Edo.Docflow
 	{
 		public static void Main(string[] args)
 		{
+			Console.OutputEncoding = Encoding.UTF8;
 			CreateHostBuilder(args).Build().Run();
 		}
 
@@ -27,12 +32,22 @@ namespace Edo.Docflow
 				.ConfigureServices((hostContext, services) =>
 				{
 					services
+						.AddMappingAssemblies(
+							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+							typeof(QS.Banks.Domain.Bank).Assembly,
+							typeof(QS.HistoryLog.HistoryMain).Assembly,
+							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
+							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
+						)
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoDocflow()
 						;
+
+					services.AddHostedService<InitDbConnectionOnHostStartedService>();
 				});
 	}
 }

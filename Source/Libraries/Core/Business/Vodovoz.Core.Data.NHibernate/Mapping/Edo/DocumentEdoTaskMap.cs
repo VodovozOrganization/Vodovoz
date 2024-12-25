@@ -19,7 +19,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("to_client_id");
 
 			Map(x => x.DocumentType)
-				.Column("type");
+				.Column("document_type");
 		}
 	}
 }

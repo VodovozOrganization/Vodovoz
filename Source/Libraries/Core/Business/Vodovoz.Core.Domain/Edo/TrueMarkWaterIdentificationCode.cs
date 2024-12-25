@@ -56,9 +56,9 @@ namespace Vodovoz.Core.Domain.TrueMark
 			set => SetField(ref _checkCode, value);
 		}
 
-		public string IdentificationCode => $"01{GTIN}21{SerialNumber}";
+		public virtual string IdentificationCode => $"01{GTIN}21{SerialNumber}";
 
-		public string FullCode => $"\u001d01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
+		public virtual string FullCode => $"\u001d01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
 
 		public override bool Equals(object obj)
 		{

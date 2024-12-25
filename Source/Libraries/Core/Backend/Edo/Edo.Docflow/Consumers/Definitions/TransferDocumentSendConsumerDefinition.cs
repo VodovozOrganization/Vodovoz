@@ -1,4 +1,4 @@
-﻿using Edo.Docflow.Consumers;
+﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
 using RabbitMQ.Client;
 
@@ -6,6 +6,11 @@ namespace Edo.Docflow.Consumers.Definitions
 {
 	public class TransferDocumentSendConsumerDefinition : ConsumerDefinition<TransferDocumentSendConsumer>
 	{
+		public TransferDocumentSendConsumerDefinition()
+		{
+			Endpoint(x => x.Name = "edo.transfer-document-send.consumer.docflow");
+		}
+
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
 			IConsumerConfigurator<TransferDocumentSendConsumer> consumerConfigurator)
 		{
@@ -14,8 +19,9 @@ namespace Edo.Docflow.Consumers.Definitions
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.AutoDelete = true;
-				rmq.Exclusive = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
+
+				rmq.Bind<TransferDocumentSendEvent>();
 			}
 		}
 	}

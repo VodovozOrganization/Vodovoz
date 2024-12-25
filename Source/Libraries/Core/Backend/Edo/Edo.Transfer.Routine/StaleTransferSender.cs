@@ -1,10 +1,10 @@
-﻿using MassTransit;
+﻿using Edo.Contracts.Messages.Events;
+using MassTransit;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Contracts.Messages.Events;
 
 namespace Edo.Transfer.Routine
 {
@@ -30,6 +30,7 @@ namespace Edo.Transfer.Routine
 		public async Task SendStaleTasksAsync(CancellationToken cancellationToken)
 		{
 			_uow.Session.BeginTransaction();
+
 			var staleTasks = await _transferDispatcher.SendStaleTasksAsync(_uow, cancellationToken);
 			var events = staleTasks.Select(x => new TransferTaskReadyToSendEvent { Id = x.Id });
 

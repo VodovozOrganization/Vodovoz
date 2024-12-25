@@ -8,8 +8,8 @@ namespace Vodovoz.Core.Domain.Edo
 	public class EdoTaskProblem : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
-		private EdoTask _edoTask;
 		private DateTime _creationTime;
+		private EdoTask _edoTask;
 		private DateTime _updateTime;
 		private TaskProblemState _state;
 		private string _validatorName;
@@ -20,13 +20,6 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _id;
 			set => SetField(ref _id, value);
-		}
-
-		[Display(Name = "Задача")]
-		public virtual EdoTask EdoTask
-		{
-			get => _edoTask;
-			set => SetField(ref _edoTask, value);
 		}
 
 		[Display(Name = "Время создания")]
@@ -41,6 +34,13 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _updateTime;
 			set => SetField(ref _updateTime, value);
+		}
+
+		[Display(Name = "Задача")]
+		public virtual EdoTask EdoTask
+		{
+			get => _edoTask;
+			set => SetField(ref _edoTask, value);
 		}
 
 		[Display(Name = "Состояние")]

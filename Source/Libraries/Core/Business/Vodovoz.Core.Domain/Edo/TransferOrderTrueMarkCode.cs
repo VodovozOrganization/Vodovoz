@@ -31,7 +31,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Заказ по перемещению товаров между организациями
 		/// </summary>
 		[Display(Name = "Заказ по перемещению товаров")]
-		public TransferOrder TransferOrder
+		public virtual TransferOrder TransferOrder
 		{
 			get => _transferOrder;
 			set => SetField(ref _transferOrder, value);
@@ -41,7 +41,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Код ЧЗ
 		/// </summary>
 		[Display(Name = "Код ЧЗ")]
-		public TrueMarkWaterIdentificationCode TrueMarkCode
+		public virtual TrueMarkWaterIdentificationCode TrueMarkCode
 		{
 			get => _trueMarkCode;
 			set => SetField(ref _trueMarkCode, value);

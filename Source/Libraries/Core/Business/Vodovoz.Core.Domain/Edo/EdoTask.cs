@@ -1,16 +1,14 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Vodovoz.Core.Domain.Edo
 {
 	public abstract class EdoTask : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
-		private DateTime _creationDate;
+		private DateTime _creationTime;
 		private EdoTaskType _taskType;
 		private EdoTaskStatus _status;
 		private DateTime? _startTime;
@@ -25,10 +23,10 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Дата создания")]
-		public virtual DateTime CreationDate
+		public virtual DateTime CreationTime
 		{
-			get => _creationDate;
-			set => SetField(ref _creationDate, value);
+			get => _creationTime;
+			set => SetField(ref _creationTime, value);
 		}
 
 		[Display(Name = "Тип")]

@@ -1,10 +1,16 @@
-﻿using MassTransit;
+﻿using Edo.Contracts.Messages.Events;
+using MassTransit;
 using RabbitMQ.Client;
 
 namespace Edo.Transfer.Dispatcher.Consumers.Definitions
 {
 	public class TransferDocumentAcceptedConsumerDefinition : ConsumerDefinition<TransferDocumentAcceptedConsumer>
 	{
+		public TransferDocumentAcceptedConsumerDefinition()
+		{
+			Endpoint(x => x.Name = "edo.transfer-document-accepted.consumer.transfer-dispatcher");
+		}
+
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
 			IConsumerConfigurator<TransferDocumentAcceptedConsumer> consumerConfigurator)
 		{
@@ -13,8 +19,9 @@ namespace Edo.Transfer.Dispatcher.Consumers.Definitions
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.AutoDelete = true;
-				rmq.Exclusive = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
+
+				rmq.Bind<TransferDocumentAcceptedEvent>();
 			}
 		}
 	}

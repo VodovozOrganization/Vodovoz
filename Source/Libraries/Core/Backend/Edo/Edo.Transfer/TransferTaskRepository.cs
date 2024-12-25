@@ -80,8 +80,8 @@ namespace Edo.Transfer
 			var tasks = await uow.Session.CreateSQLQuery(sql)
 					.AddEntity(typeof(TransferEdoTask))
 					.SetParameter("transferStatus", TransferEdoTaskStatus.WaitingRequests)
-					.SetParameter("transferTaskTimeout", _transferSettings.TransferTaskTimeoutMinute)
-					.ListAsync<TransferEdoTask>(cancellationToken);
+					.SetParameter("transferTaskTimeout", _transferSettings.TransferTaskRequestsWaitingTimeoutMinute)
+					.ListAsync<TransferEdoTask>();
 
 			return tasks;
 		}

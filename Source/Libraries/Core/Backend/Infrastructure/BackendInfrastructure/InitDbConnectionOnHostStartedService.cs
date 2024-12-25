@@ -1,23 +1,22 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Edo.Scheduler.Worker
+namespace Vodovoz.Infrastructure
 {
-	public sealed class HostWarmUpService : IHostedService
+	/// <summary>
+	/// Сервис вызывающий подключение к базе данных в момент старта хоста.
+	/// </summary>
+	public sealed class InitDbConnectionOnHostStartedService : IHostedService
 	{
-		private readonly ILogger _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 
-		public HostWarmUpService(
-			ILogger<HostWarmUpService> logger,
+		public InitDbConnectionOnHostStartedService(
 			IUnitOfWorkFactory uowFactory,
 			IHostApplicationLifetime appLifetime)
 		{
-			_logger = logger;
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
 			appLifetime.ApplicationStarted.Register(OnStarted);
@@ -25,12 +24,10 @@ namespace Edo.Scheduler.Worker
 
 		private void OnStarted()
 		{
-			_logger.LogInformation("Application starting");
-			WarmUp();
-			_logger.LogInformation("Application started");
+			InitilizeDbConnection();
 		}
 
-		public void WarmUp()
+		public void InitilizeDbConnection()
 		{
 			_uowFactory.CreateWithoutRoot().Dispose();
 		}

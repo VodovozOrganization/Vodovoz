@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Domain.Edo
 	public class EdoTaskItem : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
-		private CustomerEdoTask _edoTask;
+		private CustomerEdoTask _customerEdoTask;
 		private TrueMarkProductCode _productCode;
 		private int _transferEdoTaskId;
 
@@ -19,10 +19,10 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Код ЭДО задачи")]
-		public virtual CustomerEdoTask EdoTask
+		public virtual CustomerEdoTask CustomerEdoTask
 		{
-			get => _edoTask;
-			set => SetField(ref _edoTask, value);
+			get => _customerEdoTask;
+			set => SetField(ref _customerEdoTask, value);
 		}
 
 		[Display(Name = "Код ЧЗ")]
@@ -32,11 +32,13 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _productCode, value);
 		}
 
+		/*
 		[Display(Name = "Код ЭДО задачи перемещения")]
 		public virtual int TransferEdoTaskId
 		{
 			get => _transferEdoTaskId;
 			set => SetField(ref _transferEdoTaskId, value);
 		}
+		*/
 	}
 }
