@@ -47,6 +47,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 				_selectedChangeTypes.Select(x => x.Value).Contains("Price");
 			_isOrderItemsCountChangeSelected =
 				_selectedChangeTypes.Select(x => x.Value).Contains("OrderItemsCount");
+			_isActualCountChangeSelected =
+				_selectedChangeTypes.Select(x => x.Value).Contains("ActualCount");
 
 			_isSmsIssuesTypeSelected =
 				_selectedIssueTypes.Select(x => x.Value).Contains("SmsIssues");

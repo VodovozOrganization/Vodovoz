@@ -36,6 +36,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		private readonly bool _isPaymentTypeChangeTypeSelected;
 		private readonly bool _isPriceChangeTypeSelected;
 		private readonly bool _isOrderItemsCountChangeSelected;
+		private readonly bool _isActualCountChangeSelected;
 
 		private readonly bool _isSmsIssuesTypeSelected;
 		private readonly bool _isQrIssuesTypeSelected;
@@ -491,7 +492,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& ((fieldChange.Type == FieldChangeType.Changed
 							&& (fieldChange.Path == "Price" || fieldChange.Path == "ActualCount")
 							&& _isPriceChangeTypeSelected
-							&& _isPaymentTypeChangeTypeSelected)
+							&& _isActualCountChangeSelected)
 						|| ((changedEntity.Operation == EntityChangeOperation.Create || changedEntity.Operation == EntityChangeOperation.Delete)
 							&& fieldChange.Path == "Price"
 							&& _isOrderItemsCountChangeSelected))
@@ -676,7 +677,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& ((fieldChange.Type == FieldChangeType.Changed
 							&& (fieldChange.Path == "Price" || fieldChange.Path == "ActualCount")
 							&& _isPriceChangeTypeSelected
-							&& _isPaymentTypeChangeTypeSelected)
+							&& _isActualCountChangeSelected)
 						|| ((changedEntity.Operation == EntityChangeOperation.Create || changedEntity.Operation == EntityChangeOperation.Delete)
 							&& fieldChange.Path == "Price"
 							&& _isOrderItemsCountChangeSelected))
