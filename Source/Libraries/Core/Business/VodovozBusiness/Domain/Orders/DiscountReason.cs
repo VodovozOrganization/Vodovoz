@@ -201,6 +201,8 @@ namespace Vodovoz.Domain.Orders
 		
 		public virtual bool HasPromoCodeDurationTime => _startTimePromoCode.HasValue || _endTimePromoCode.HasValue;
 		public virtual bool HasOrderMinSum => PromoCodeOrderMinSum > 0;
+		public virtual string StartTimePromoCodeString => StartTimePromoCode.HasValue ? $"{StartTimePromoCode.Value:hh:mm}" : string.Empty;
+		public virtual string EndTimePromoCodeString => EndTimePromoCode.HasValue ? $"{EndTimePromoCode.Value:hh:mm}" : string.Empty;
 		
 		public virtual void AddProductGroup(ProductGroup productGroup)
 		{

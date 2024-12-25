@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
+using Vodovoz.Infrastructure.Persistance.Orders;
 
 namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 {
@@ -50,6 +52,33 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 				.SingleOrDefault();
 
 			return discountReason != null;
+		}
+
+		public DiscountReason GetActivePromoCode(IUnitOfWork uow, string promoCode)
+		{
+			var discount = (
+				from discountReason in uow.Session.QueryOver<DiscountReason>()
+				where discountReason.IsPromoCode && discountReason.Name.ToLower() == promoCode.ToLower()
+					select discountReason)
+				.SingleOrDefault();
+			
+			return discount;
+		}
+
+		public bool HasBeenUsagePromoCode(IUnitOfWork uow, int counterpartyId, int discountReasonId)
+		{
+			var query = 
+				from orderItem in uow.Session.Query<OrderItem>()
+				join order in uow.Session.Query<Vodovoz.Domain.Orders.Order>()
+					on orderItem.Order.Id equals order.Id
+				where order.Client.Id == counterpartyId
+					&& orderItem.DiscountReason.Id == discountReasonId
+					&& order.OrderStatus != OrderStatus.DeliveryCanceled
+					&& order.OrderStatus != OrderStatus.Canceled
+					&& order.OrderStatus != OrderStatus.NotDelivered
+				select orderItem;
+
+			return query.Any();
 		}
 	}
 }

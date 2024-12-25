@@ -1,9 +1,11 @@
-﻿namespace CustomerOrdersApi.Library.Dto.Orders
+﻿using VodovozBusiness.Domain.Orders;
+
+namespace CustomerOrdersApi.Library.Dto.Orders
 {
 	/// <summary>
-	/// Позиция онлайн заказа
+	/// Товар онлайн заказа
 	/// </summary>
-	public class OnlineOrderItemDto
+	public class OnlineOrderItemDto : IOnlineOrderedProduct
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ
@@ -34,5 +36,10 @@
 		/// Id промонабора
 		/// </summary>
 		public int? PromoSetId { get; set; }
+		
+		/// <summary>
+		/// Id скидки/промокода
+		/// </summary>
+		public int? DiscountReasonId { get; set; }
 	}
 }
