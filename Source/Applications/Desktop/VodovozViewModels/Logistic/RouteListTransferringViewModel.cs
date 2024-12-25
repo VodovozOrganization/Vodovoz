@@ -848,7 +848,7 @@ namespace Vodovoz.ViewModels.Logistic
 					var notificationRequest = new NotificationRouteListChangesRequest
 					{
 						OrderId = node.OrderId,
-						PushNotificationDataEventType = isTransfer ? PushNotificationDataEventType.TranseferAddress : PushNotificationDataEventType.RouteListContentChanged
+						PushNotificationDataEventType = isTransfer ? PushNotificationDataEventType.TransferAddress : PushNotificationDataEventType.RouteListContentChanged
 					};
 
 					var result = _routeListTransferReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(notificationRequest).GetAwaiter().GetResult();

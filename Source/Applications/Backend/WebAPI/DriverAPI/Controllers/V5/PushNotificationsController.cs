@@ -336,7 +336,7 @@ namespace DriverAPI.Controllers.V5
 		{
 			var orderId = notificationRouteListChangesRequest.OrderId;
 			var pushNotificationDataEventType = notificationRouteListChangesRequest.PushNotificationDataEventType;
-			var isTransfer = pushNotificationDataEventType == PushNotificationDataEventType.TranseferAddress;
+			var isTransfer = pushNotificationDataEventType == PushNotificationDataEventType.TransferAddress;
 
 			var targetAddress = _routeListItemRepository
 				.Get(
@@ -442,7 +442,7 @@ namespace DriverAPI.Controllers.V5
 
 			switch(pushNotificationDataEventType)
 			{
-				case PushNotificationDataEventType.TranseferAddress:
+				case PushNotificationDataEventType.TransferAddress:
 					notificationMessageFrom =
 						targetAddress.AddressTransferType == AddressTransferType.FromHandToHand
 							? $"Заказ №{orderId} необходимо передать другому водителю"
@@ -466,7 +466,7 @@ namespace DriverAPI.Controllers.V5
 
 			switch(pushNotificationDataEventType)
 			{
-				case PushNotificationDataEventType.TranseferAddress:
+				case PushNotificationDataEventType.TransferAddress:
 					notificationMessageTo = $"Вам передан заказ №{orderId}";
 					break;
 				case PushNotificationDataEventType.RouteListContentChanged:
