@@ -28,43 +28,43 @@ namespace Vodovoz.Views.Cash
 				.AddFuncBinding(ViewModel.Entity, e => e.PayoutRequestState.GetEnumTitle(), w => w.Text)
 				.InitializeFromSource();
 
-			evmeAuthor.Sensitive = false;
-			evmeAuthor.Binding
-				.AddBinding(ViewModel.Entity, e => e.Author, w => w.Subject)
-				.InitializeFromSource();
+			//evmeAuthor.Sensitive = false;
+			//evmeAuthor.Binding
+				//.AddBinding(ViewModel.Entity, e => e.Author, w => w.Subject)
+				//.InitializeFromSource();
 
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
-			evmeCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelector);
-			evmeCounterparty.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject)
-				.InitializeFromSource();
+			//evmeCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelector);
+			//evmeCounterparty.Binding
+			//	.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+			//	.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject)
+			//	.InitializeFromSource();
 
-			spinSum.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Sum, w => w.ValueAsDecimal)
-				.InitializeFromSource();
+			//spinSum.Binding
+			//	.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+			//	.AddBinding(ViewModel.Entity, e => e.Sum, w => w.ValueAsDecimal)
+			//	.InitializeFromSource();
 
-			checkNotToReconcile.Binding
-				.AddBinding(ViewModel, vm => vm.CanSeeNotToReconcile, w => w.Visible)
-				.AddBinding(ViewModel.Entity, e => e.PossibilityNotToReconcilePayments, w => w.Active)
-				.InitializeFromSource();
+			//checkNotToReconcile.Binding
+				//.AddBinding(ViewModel, vm => vm.CanSeeNotToReconcile, w => w.Visible)
+				//.AddBinding(ViewModel.Entity, e => e.PossibilityNotToReconcilePayments, w => w.Active)
+				//.InitializeFromSource();
 
-			eventBoxOrganisationSeparator.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CanSeeOrganisation || vm.CanSeeExpenseCategory, w => w.Visible)
-				.InitializeFromSource();
-			labelComboOrganization.Binding
-				.AddBinding(ViewModel, vm => vm.CanSeeOrganisation, w => w.Visible)
-				.InitializeFromSource();
-			comboOrganisation.SetRenderTextFunc<Domain.Organizations.Organization>(org => org.Name);
-			comboOrganisation.ItemsList = ViewModel.OurOrganisations;
-			comboOrganisation.ShowSpecialStateNot = true;
-			comboOrganisation.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CanSetOrganisaton && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Organization, w => w.SelectedItem)
-				.AddBinding(ViewModel, vm => vm.CanSeeOrganisation, w => w.Visible)
-				.InitializeFromSource();
+			//eventBoxOrganisationSeparator.Binding
+			//	.AddFuncBinding(ViewModel, vm => vm.CanSeeOrganisation || vm.CanSeeExpenseCategory, w => w.Visible)
+			//	.InitializeFromSource();
+			//labelComboOrganization.Binding
+			//	.AddBinding(ViewModel, vm => vm.CanSeeOrganisation, w => w.Visible)
+			//	.InitializeFromSource();
+			//comboOrganisation.SetRenderTextFunc<Domain.Organizations.Organization>(org => org.Name);
+			//comboOrganisation.ItemsList = ViewModel.OurOrganisations;
+			//comboOrganisation.ShowSpecialStateNot = true;
+			//comboOrganisation.Binding
+				//.AddFuncBinding(ViewModel, vm => vm.CanSetOrganisaton && !vm.IsSecurityServiceRole, w => w.Sensitive)
+				//.AddBinding(ViewModel.Entity, e => e.Organization, w => w.SelectedItem)
+				//.AddBinding(ViewModel, vm => vm.CanSeeOrganisation, w => w.Visible)
+				//.InitializeFromSource();
 
 			labelExpenceCategory.Binding.AddBinding(ViewModel, vm => vm.CanSeeExpenseCategory, w => w.Visible).InitializeFromSource();
 
@@ -75,41 +75,41 @@ namespace Vodovoz.Views.Cash
 				.AddBinding(ViewModel, vm => vm.CanSeeExpenseCategory, w => w.Visible)
 				.InitializeFromSource();
 
-			entryBasis.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Basis, w => w.Buffer.Text)
-				.InitializeFromSource();
-			entryExplanation.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Explanation, w => w.Buffer.Text)
-				.InitializeFromSource();
+			//entryBasis.Binding
+			//	.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+			//	.AddBinding(ViewModel.Entity, e => e.Basis, w => w.Buffer.Text)
+			//	.InitializeFromSource();
+			//entryExplanation.Binding
+				//.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+				//.AddBinding(ViewModel.Entity, e => e.Explanation, w => w.Buffer.Text)
+				//.InitializeFromSource();
 
-			eventBoxReasonsSeparator.Binding
-				.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-				.InitializeFromSource();
-			eventBoxCancelReason.Binding
-				.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-				.InitializeFromSource();
-			labelCancelReason.Binding
-				.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-				.InitializeFromSource();
-			entryCancelReason.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.CancelReason, w => w.Buffer.Text)
-				.InitializeFromSource();
+			//eventBoxReasonsSeparator.Binding
+			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
+			//	.InitializeFromSource();
+			//eventBoxCancelReason.Binding
+			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
+			//	.InitializeFromSource();
+			//labelCancelReason.Binding
+			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
+			//	.InitializeFromSource();
+			//entryCancelReason.Binding
+			//	.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+			//	.AddBinding(ViewModel.Entity, e => e.CancelReason, w => w.Buffer.Text)
+			//	.InitializeFromSource();
 
-			eventBoxWhySentToReapproval.Binding
-				.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-				.InitializeFromSource();
-			labelWhySentToReapproval.Binding
-				.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-				.InitializeFromSource();
-			entryWhySentToReapproval.Binding
-				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.ReasonForSendToReappropriate, w => w.Buffer.Text)
-				.InitializeFromSource();
+			//eventBoxWhySentToReapproval.Binding
+			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
+			//	.InitializeFromSource();
+			//labelWhySentToReapproval.Binding
+			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
+			//	.InitializeFromSource();
+			//entryWhySentToReapproval.Binding
+				//.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+				//.AddBinding(ViewModel.Entity, e => e.ReasonForSendToReappropriate, w => w.Buffer.Text)
+				//.InitializeFromSource();
 
-			smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+			//smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 
 			buttonSave.Clicked += (s, a) => ViewModel.Save(true);
 			buttonSave.Sensitive = !ViewModel.IsSecurityServiceRole;
