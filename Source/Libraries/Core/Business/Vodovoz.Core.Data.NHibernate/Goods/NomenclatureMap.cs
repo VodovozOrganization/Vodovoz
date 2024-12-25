@@ -115,9 +115,6 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 			References(x => x.Unit).Column("unit_id").Fetch.Join().Not.LazyLoad();
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
 
-			References(x => x.Unit).Column("unit_id").Fetch.Join().Not.LazyLoad();
-			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
-
 			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("nomenclature_id");
 
 			HasMany(x => x.NomenclaturePrice)
