@@ -11,6 +11,7 @@ namespace FuelControl.Library
 			.AddScoped<IFuelControlAuthorizationService, GazpromAuthorizationService>()
 			.AddScoped<IFuelControlFuelCardsDataService, GazpromFuelCardsDataService>()
 			.AddScoped<IFuelLimitsManagementService, GazpromFuelLimitsManagementService>()
+			.AddScoped<IFuelPricesUpdateService, FuelPricesUpdateService>()
 			.AddScoped<IFuelCardConverter, FuelCardConverter>()
 			.AddScoped<IFuelLimitConverter, FuelLimitConverter>();
 	}
