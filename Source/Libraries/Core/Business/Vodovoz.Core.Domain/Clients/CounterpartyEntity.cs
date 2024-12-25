@@ -82,18 +82,18 @@ namespace Vodovoz.Core.Domain.Clients
 		private decimal _specialExpireDatePercent;
 		private string _payerSpecialKPP;
 		private string _cargoReceiver;
-		private string _customer;
+		private string _specialCustomer;
 		private string _govContract;
-		private string _deliveryAddress;
-		private int? _ttnCount;
+		private string _specialDeliveryAddress;
+		private int? _tTNCount;
 		private int? _torg2Count;
-		private int? _updCount;
-		private int? _updAllCount;
+		private int? _uPDCount;
+		private int? _allUPDCount;
 		private int? _torg12Count;
 		private int? _shetFacturaCount;
 		private int? _carProxyCount;
-		private string _okpo;
-		private string _okdp;
+		private string _oKPO;
+		private string _oKDP;
 		private CargoReceiverSource _cargoReceiverSource;
 		private int _delayDaysForProviders;
 		private int _delayDaysForBuyers;
@@ -443,8 +443,8 @@ namespace Vodovoz.Core.Domain.Clients
 		[Display(Name = "Особый покупатель")]
 		public virtual string SpecialCustomer
 		{
-			get => _customer;
-			set => SetField(ref _customer, value);
+			get => _specialCustomer;
+			set => SetField(ref _specialCustomer, value);
 		}
 
 		[Display(Name = "Идентификатор государственного контракта")]
@@ -457,15 +457,15 @@ namespace Vodovoz.Core.Domain.Clients
 		[Display(Name = "Особый адрес доставки")]
 		public virtual string SpecialDeliveryAddress
 		{
-			get => _deliveryAddress;
-			set => SetField(ref _deliveryAddress, value);
+			get => _specialDeliveryAddress;
+			set => SetField(ref _specialDeliveryAddress, value);
 		}
 
 		[Display(Name = "Кол-во ТТН")]
 		public virtual int? TTNCount
 		{
-			get => _ttnCount;
-			set => SetField(ref _ttnCount, value);
+			get => _tTNCount;
+			set => SetField(ref _tTNCount, value);
 		}
 
 		[Display(Name = "Кол-во Торг-2")]
@@ -478,15 +478,15 @@ namespace Vodovoz.Core.Domain.Clients
 		[Display(Name = "Кол-во УПД(не для безнала)")]
 		public virtual int? UPDCount
 		{
-			get => _updCount;
-			set => SetField(ref _updCount, value);
+			get => _uPDCount;
+			set => SetField(ref _uPDCount, value);
 		}
 
 		[Display(Name = "Кол-во УПД")]
 		public virtual int? AllUPDCount
 		{
-			get => _updAllCount;
-			set => SetField(ref _updAllCount, value);
+			get => _allUPDCount;
+			set => SetField(ref _allUPDCount, value);
 		}
 
 		[Display(Name = "Кол-во Торг-12")]
@@ -513,15 +513,15 @@ namespace Vodovoz.Core.Domain.Clients
 		[Display(Name = "ОКПО")]
 		public virtual string OKPO
 		{
-			get => _okpo;
-			set => SetField(ref _okpo, value);
+			get => _oKPO;
+			set => SetField(ref _oKPO, value);
 		}
 
 		[Display(Name = "ОКДП")]
 		public virtual string OKDP
 		{
-			get => _okdp;
-			set => SetField(ref _okdp, value);
+			get => _oKDP;
+			set => SetField(ref _oKDP, value);
 		}
 
 		[Display(Name = "Источник грузополучателя")]

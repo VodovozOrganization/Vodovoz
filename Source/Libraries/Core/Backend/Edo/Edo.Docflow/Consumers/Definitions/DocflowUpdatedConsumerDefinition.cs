@@ -1,10 +1,16 @@
-﻿using MassTransit;
+﻿using Edo.Contracts.Messages.Events;
+using MassTransit;
 using RabbitMQ.Client;
 
 namespace Edo.Docflow.Consumers.Definitions
 {
 	public class DocflowUpdatedConsumerDefinition : ConsumerDefinition<DocflowUpdatedConsumer>
 	{
+		public DocflowUpdatedConsumerDefinition()
+		{
+			Endpoint(x => x.Name = "edo.docflow-updated.consumer.docflow");
+		}
+
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
 			IConsumerConfigurator<DocflowUpdatedConsumer> consumerConfigurator)
 		{
@@ -13,8 +19,9 @@ namespace Edo.Docflow.Consumers.Definitions
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.AutoDelete = true;
-				rmq.Exclusive = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
+
+				rmq.Bind<EdoDocflowUpdatedEvent>();
 			}
 		}
 	}

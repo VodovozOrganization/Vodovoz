@@ -1,5 +1,4 @@
-using QS.Extensions.Observable.Collections.List;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo

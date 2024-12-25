@@ -245,7 +245,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			References(x => x.WorksThroughOrganization)
 				.Column("works_through_organization_id");
-				
 		}
 	}
 }

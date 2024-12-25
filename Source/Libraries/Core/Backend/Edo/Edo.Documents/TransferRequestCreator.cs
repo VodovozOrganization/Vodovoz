@@ -48,7 +48,7 @@ namespace Edo.Documents
 
 				if(itemStatus.Status == null)
 				{
-					throw new EdoException($"Строка №{itemStatus.EdoTaskItem.Id} в задаче №{itemStatus.EdoTaskItem.EdoTask.Id} " +
+					throw new EdoException($"Строка №{itemStatus.EdoTaskItem.Id} в задаче №{itemStatus.EdoTaskItem.CustomerEdoTask.Id} " +
 						$"не была проверена в честном знаке." +
 						$"Эта проблема должна обрабатываться валидацией, необходимо проверить работу валидатора.");
 				}

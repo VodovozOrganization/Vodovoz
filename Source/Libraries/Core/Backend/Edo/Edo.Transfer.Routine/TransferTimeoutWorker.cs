@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
@@ -8,23 +9,36 @@ namespace Edo.Transfer.Routine
 {
 	public class TransferTimeoutWorker : TimerBackgroundServiceBase
 	{
+		private readonly ILogger<TransferTimeoutWorker> _logger;
 		private readonly IEdoTransferSettings _edoTransferSettings;
 		private readonly StaleTransferSender _staleTransferSender;
 		private readonly TimeSpan _transferTaskTimeoutCheckIntervalSecond;
 
-		public TransferTimeoutWorker(IEdoTransferSettings edoTransferSettings, StaleTransferSender staleTransferSender)
+		public TransferTimeoutWorker(
+			ILogger<TransferTimeoutWorker> logger,
+			IEdoTransferSettings edoTransferSettings, 
+			StaleTransferSender staleTransferSender
+			)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoTransferSettings = edoTransferSettings ?? throw new ArgumentNullException(nameof(edoTransferSettings));
 			_staleTransferSender = staleTransferSender ?? throw new ArgumentNullException(nameof(staleTransferSender));
 
-			_transferTaskTimeoutCheckIntervalSecond = TimeSpan.FromSeconds(_edoTransferSettings.TransferTaskTimeoutCheckIntervalSecond);
+			_transferTaskTimeoutCheckIntervalSecond = TimeSpan.FromSeconds(_edoTransferSettings.TransferTaskRequestsWaitingTimeoutCheckIntervalSecond);
 		}
 
 		protected override TimeSpan Interval => _transferTaskTimeoutCheckIntervalSecond;
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			await _staleTransferSender.SendStaleTasksAsync(stoppingToken);
+			try
+			{
+				await _staleTransferSender.SendStaleTasksAsync(stoppingToken);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при периодической проверки задач трансфера на необходимость отправки.");
+			}
 		}
 	}
 }

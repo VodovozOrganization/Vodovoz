@@ -68,7 +68,7 @@ namespace Edo.Scheduler.Service
 					new EdoTaskItem
 					{
 						ProductCode = x,
-						EdoTask = task
+						CustomerEdoTask = task
 					})
 			);
 
@@ -98,7 +98,7 @@ namespace Edo.Scheduler.Service
 					new EdoTaskItem
 					{
 						ProductCode = x,
-						EdoTask = task
+						CustomerEdoTask = task
 					})
 			);
 
@@ -118,7 +118,7 @@ namespace Edo.Scheduler.Service
 					new EdoTaskItem
 					{
 						ProductCode = x,
-						EdoTask = task
+						CustomerEdoTask = task
 					})
 			);
 

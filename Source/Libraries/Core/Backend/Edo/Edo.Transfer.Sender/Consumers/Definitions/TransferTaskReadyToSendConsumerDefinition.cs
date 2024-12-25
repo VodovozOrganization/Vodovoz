@@ -1,4 +1,4 @@
-﻿using Edo.Transfer.Sender.Consumers;
+﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
 using RabbitMQ.Client;
 
@@ -6,6 +6,11 @@ namespace Edo.Transfer.Sender.Consumers.Definitions
 {
 	public class TransferTaskReadyToSendConsumerDefinition : ConsumerDefinition<TransferTaskReadyToSendConsumer>
 	{
+		public TransferTaskReadyToSendConsumerDefinition()
+		{
+			Endpoint(x => x.Name = "edo.transfer-task-ready-to-send.consumer.transfer-sender");
+		}
+
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
 			IConsumerConfigurator<TransferTaskReadyToSendConsumer> consumerConfigurator)
 		{
@@ -14,8 +19,9 @@ namespace Edo.Transfer.Sender.Consumers.Definitions
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.AutoDelete = true;
-				rmq.Exclusive = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
+
+				rmq.Bind<TransferTaskReadyToSendEvent>();
 			}
 		}
 	}
