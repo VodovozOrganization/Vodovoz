@@ -12,6 +12,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
@@ -21,7 +22,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
-	public class DiscountReasonViewModel : EntityTabViewModelBase<DiscountReason>
+	public class DiscountReasonViewModel : EntityTabViewModelBase<DiscountReason>, IAskSaveOnCloseViewModel
 	{
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private ILifetimeScope _lifetimeScope;
@@ -29,12 +30,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private ProductGroup _selectedProductGroup;
 		private ProductGroupsJournalViewModel _selectProductGroupJournalViewModel;
 
-		private DelegateCommand<bool> _updateSelectedCategoriesCommand;
 		private int _currentPage;
 		private bool _hasOrderMinSum;
 		private bool _discountInfoTabActive;
 		private bool _promoCodeSettingsTabActive;
 		private bool _hasPromoCodeDurationTime;
+		private bool _selectedAllCategories;
 
 		public DiscountReasonViewModel(
 			ILifetimeScope lifetimeScope,
@@ -58,8 +59,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		}
 
 		public bool IsNewEntity => Entity.Id == 0;
+		public bool AskSaveOnClose => CanEditDiscountReason;
 		public bool CanEditDiscountReason => (IsNewEntity && PermissionResult.CanCreate) || PermissionResult.CanUpdate;
+		public bool CanRemoveNomenclature => IsNomenclatureSelected && CanEditDiscountReason;
 		public bool IsNomenclatureSelected => SelectedNomenclature != null;
+		public bool CanRemoveProductGroup => IsProductGroupSelected && CanEditDiscountReason;
 		public bool IsProductGroupSelected => SelectedProductGroup != null;
 		public bool CanChangeDiscountReasonName => IsNewEntity && CanEditDiscountReason;
 
@@ -86,6 +90,18 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				}
 			} 
 		}
+		
+		public bool SelectedAllCategories
+		{
+			get => _selectedAllCategories;
+			set
+			{
+				if(SetField(ref _selectedAllCategories, value))
+				{
+					UpdateSelectedCategories(_selectedAllCategories);
+				}
+			}
+		}
 
 		public IList<SelectableNomenclatureCategoryNode> SelectableNomenclatureCategoryNodes { get; private set; }
 		
@@ -95,19 +111,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public ICommand RemoveProductGroupCommand { get; private set; }
 		public ICommand AddNomenclatureCommand { get; private set; }
 		public ICommand RemoveNomenclatureCommand { get; private set; }
-
-		public DelegateCommand<bool> UpdateSelectedCategoriesCommand =>
-			_updateSelectedCategoriesCommand ?? (_updateSelectedCategoriesCommand = new DelegateCommand<bool>(
-					selected =>
-					{
-						foreach(var node in SelectableNomenclatureCategoryNodes)
-						{
-							node.IsSelected = selected;
-							UpdateNomenclatureCategories(node);
-						}
-					}
-				)
-			);
 
 		public int CurrentPage
 		{
@@ -166,7 +169,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				}
 			}
 		}
-		
+
 		public void UpdateNomenclatureCategories(SelectableNomenclatureCategoryNode selectedCategory) =>
 			Entity.UpdateNomenclatureCategories(selectedCategory);
 
@@ -205,6 +208,15 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			RemoveProductGroupCommand = new DelegateCommand(RemoveProductGroup);
 			AddNomenclatureCommand = new DelegateCommand(AddNomenclature);
 			RemoveNomenclatureCommand = new DelegateCommand(RemoveNomenclature);
+		}
+		
+		private void UpdateSelectedCategories(bool value)
+		{
+			foreach(var node in SelectableNomenclatureCategoryNodes)
+			{
+				node.IsSelected = value;
+				UpdateNomenclatureCategories(node);
+			}
 		}
 		
 		private void AddNomenclature()

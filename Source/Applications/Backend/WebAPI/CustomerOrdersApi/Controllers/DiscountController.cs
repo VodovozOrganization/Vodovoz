@@ -47,7 +47,7 @@ namespace CustomerOrdersApi.Controllers
 					return Ok(result.Value);
 				}
 
-				return BadRequest(result.Errors.First());
+				return NotFound(result.Errors.First().Message);
 			}
 			catch(Exception e)
 			{

@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.DiscountReasons;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -201,8 +204,12 @@ namespace Vodovoz.Domain.Orders
 		
 		public virtual bool HasPromoCodeDurationTime => _startTimePromoCode.HasValue || _endTimePromoCode.HasValue;
 		public virtual bool HasOrderMinSum => PromoCodeOrderMinSum > 0;
-		public virtual string StartTimePromoCodeString => StartTimePromoCode.HasValue ? $"{StartTimePromoCode.Value:hh:mm}" : string.Empty;
-		public virtual string EndTimePromoCodeString => EndTimePromoCode.HasValue ? $"{EndTimePromoCode.Value:hh:mm}" : string.Empty;
+		public virtual string StartTimePromoCodeString => StartTimePromoCode.HasValue
+			? $"{StartTimePromoCode.Value:hh\\:mm}"
+			: string.Empty;
+		public virtual string EndTimePromoCodeString => EndTimePromoCode.HasValue
+			? $"{EndTimePromoCode.Value:hh\\:mm}"
+			: string.Empty;
 		
 		public virtual void AddProductGroup(ProductGroup productGroup)
 		{
@@ -306,9 +313,23 @@ namespace Vodovoz.Domain.Orders
 				if(!EndTimePromoCode.HasValue)
 				{
 					yield return new ValidationResult(
-						$"Не заполнена конечная дата действия промокода",
+						"Не заполнена конечная дата действия промокода",
 						new[] { nameof(EndTimePromoCode) });
 				}
+
+				//уточнить необходимость этой проверки
+				/*using(var uow = validationContext.GetRequiredService<IUnitOfWorkFactory>()
+					      .CreateWithoutRoot("Проверка промокода на дубли"))
+				{
+					var discountRepository = validationContext.GetRequiredService<IDiscountReasonRepository>();
+
+					if(discountRepository.ExistsPromoCodeWithName(uow, Id, PromoCodeName, out var duplicatePromoCode))
+					{
+						yield return new ValidationResult(
+							"Уже есть созданный промокод",
+							new[] { nameof(EndTimePromoCode) });
+					}
+				}*/
 			}
 		}
 

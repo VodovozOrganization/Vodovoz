@@ -18,6 +18,11 @@ namespace Vodovoz.Views.Orders
 		private void Configure()
 		{
 			buttonSave.BindCommand(ViewModel.SaveCommand);
+			
+			buttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			buttonCancel.BindCommand(ViewModel.CloseCommand);
 			
 			radioDiscountInfo.Binding
@@ -74,7 +79,11 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel.Entity, e => e.IsPresent, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
 				.InitializeFromSource();
-			chkBtnSelectAll.Toggled += (s, e) => ViewModel.UpdateSelectedCategoriesCommand.Execute(chkBtnSelectAll.Active);
+			
+			chkBtnSelectAll.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.SelectedAllCategories, w => w.Active)
+				.InitializeFromSource();
 			
 			chkPromoCode.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsPromoCode, w => w.Active)
@@ -102,6 +111,7 @@ namespace Vodovoz.Views.Orders
 				.AddColumn("")
 					.AddToggleRenderer(x => x.IsSelected)
 					.ToggledEvent(OnDiscountNomenclatureCategorySelected)
+					.AddSetter((c, n) => c.Activatable = ViewModel.CanEditDiscountReason)
 				.AddColumn("")
 				.Finish();
 
@@ -143,8 +153,12 @@ namespace Vodovoz.Views.Orders
 			btnAddNomenclature.BindCommand(ViewModel.AddNomenclatureCommand);
 			btnRemoveNomenclature.BindCommand(ViewModel.RemoveNomenclatureCommand);
 			
+			btnAddNomenclature.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			btnRemoveNomenclature.Binding
-				.AddBinding(ViewModel, vm => vm.IsNomenclatureSelected, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanRemoveNomenclature, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 
@@ -168,8 +182,12 @@ namespace Vodovoz.Views.Orders
 			btnAddProductGroup.BindCommand(ViewModel.AddProductGroupCommand);
 			btnRemoveProductGroup.BindCommand(ViewModel.RemoveProductGroupCommand);
 			
+			btnAddProductGroup.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			btnRemoveProductGroup.Binding
-				.AddBinding(ViewModel, vm => vm.IsProductGroupSelected, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanRemoveProductGroup, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 

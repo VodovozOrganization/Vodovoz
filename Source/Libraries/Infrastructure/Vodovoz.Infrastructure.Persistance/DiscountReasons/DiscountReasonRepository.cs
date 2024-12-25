@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Infrastructure.Persistance.Orders;
@@ -57,12 +59,25 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 		public DiscountReason GetActivePromoCode(IUnitOfWork uow, string promoCode)
 		{
 			var discount = (
-				from discountReason in uow.Session.QueryOver<DiscountReason>()
-				where discountReason.IsPromoCode && discountReason.Name.ToLower() == promoCode.ToLower()
+				from discountReason in uow.Session.Query<DiscountReason>()
+				where discountReason.IsPromoCode && discountReason.PromoCodeName.ToLower() == promoCode.ToLower()
 					select discountReason)
 				.SingleOrDefault();
 			
 			return discount;
+		}
+		
+		public bool ExistsPromoCodeWithName(IUnitOfWork uow, int discountReasonId, string promoCode, out DiscountReason discountReason)
+		{
+			discountReason = (
+				from discount in uow.Session.Query<DiscountReason>()
+				where discount.IsPromoCode
+					&& discount.PromoCodeName.ToLower() == promoCode.ToLower()
+					&& discount.Id != discountReasonId
+				select discount)
+				.SingleOrDefault();
+
+			return discountReason != null;
 		}
 
 		public bool HasBeenUsagePromoCode(IUnitOfWork uow, int counterpartyId, int discountReasonId)

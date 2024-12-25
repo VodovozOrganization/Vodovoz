@@ -21,7 +21,9 @@ namespace CustomerOrdersApi.Library
 	{
 		public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration config)
 		{
-			services.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position));
+			services
+				.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position))
+				.Configure<SignatureOptions>(config.GetSection(SignatureOptions.Path));
 			
 			return services;
 		}

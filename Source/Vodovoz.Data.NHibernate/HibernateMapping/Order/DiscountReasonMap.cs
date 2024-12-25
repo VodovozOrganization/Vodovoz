@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using NHibernate.Type;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
@@ -20,8 +21,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.PromoCodeName).Column("promo_code_name");
 			Map(x => x.PromoCodeOrderMinSum).Column("promo_code_order_min_sum");
 			Map(x => x.IsOneTimePromoCode).Column("is_one_time_promo_code");
-			Map(x => x.StartTimePromoCode).Column("start_time_promo_code");
-			Map(x => x.EndTimePromoCode).Column("end_time_promo_code");
+			Map(x => x.StartTimePromoCode).Column("start_time_promo_code").CustomType<TimeAsTimeSpanType>();
+			Map(x => x.EndTimePromoCode).Column("end_time_promo_code").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.StartDatePromoCode).Column("start_date_promo_code");
 			Map(x => x.EndDatePromoCode).Column("end_date_promo_code");
 

@@ -18,5 +18,6 @@ namespace Vodovoz.EntityRepositories.DiscountReasons
 		bool ExistsActiveDiscountReasonWithName(IUnitOfWork uow, int discountReasonId, string name, out DiscountReason discountReason);
 		DiscountReason GetActivePromoCode(IUnitOfWork uow, string promoCode);
 		bool HasBeenUsagePromoCode(IUnitOfWork uow, int counterpartyId, int discountReasonId);
+		bool ExistsPromoCodeWithName(IUnitOfWork uow, int discountReasonId, string promoCode, out DiscountReason discountReason);
 	}
 }
