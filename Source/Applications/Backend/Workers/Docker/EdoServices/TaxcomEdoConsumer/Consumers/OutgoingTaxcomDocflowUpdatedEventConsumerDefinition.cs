@@ -1,8 +1,8 @@
-using Edo.Transport.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using System;
+using Edo.Contracts.Messages.Events;
 using TaxcomEdoConsumer.Options;
 
 namespace TaxcomEdoConsumer.Consumers

@@ -1,6 +1,4 @@
 ﻿using Edo.Docflow.Factories;
-using Edo.Transport.Messages.Dto;
-using Edo.Transport.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -8,6 +6,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Infrastructure;
+using Edo.Contracts.Messages.Dto;
+using Edo.Contracts.Messages.Events;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
@@ -110,8 +111,9 @@ namespace Edo.Docflow
 		{
 			var documentId = updatedEvent.EdoDocumentId;
 			var document = await _uow.Session.GetAsync<OutgoingEdoDocument>(documentId, cancellationToken);
+			var docflowStatus = updatedEvent.DocFlowStatus.TryParseAsEnum<EdoDocFlowStatus>();
 
-			switch(updatedEvent.DocFlowStatus)
+			switch(docflowStatus)
 			{
 				case EdoDocFlowStatus.InProgress:
 					// Тут сделать обработку успшеной отправки

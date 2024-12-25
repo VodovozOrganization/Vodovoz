@@ -1,6 +1,6 @@
-﻿using Edo.Transport.Messages.Dto;
+﻿using Edo.Contracts.Messages.Dto;
 
-namespace Edo.Transport.Messages.Events
+namespace Edo.Contracts.Messages.Events
 {
 	/// <summary>
 	/// Событие для создания УПД по ЭДО

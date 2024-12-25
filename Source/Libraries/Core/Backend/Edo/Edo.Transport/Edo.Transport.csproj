@@ -9,8 +9,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
     <ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
+    <ProjectReference Include="..\Edo.Contracts\Edo.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

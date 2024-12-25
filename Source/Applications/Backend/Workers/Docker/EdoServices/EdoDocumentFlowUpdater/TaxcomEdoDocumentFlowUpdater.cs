@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Transport.Messages.Events;
+using Edo.Contracts.Messages.Events;
 using EdoDocumentFlowUpdater.Configs;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,10 +1,10 @@
-﻿using Edo.Transport.Messages.Events;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Contracts.Messages.Events;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Transfer.Sender

@@ -1,9 +1,9 @@
 using Edo.Docflow.Taxcom;
-using Edo.Transport.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Edo.Contracts.Messages.Events;
 
 namespace TaxcomEdoConsumer.Consumers
 {

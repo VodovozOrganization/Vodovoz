@@ -1,6 +1,6 @@
 using System;
 
-namespace Edo.Transport.Messages.Dto
+namespace Edo.Contracts.Messages.Dto
 {
 	/// <summary>
 	/// Информация о документе

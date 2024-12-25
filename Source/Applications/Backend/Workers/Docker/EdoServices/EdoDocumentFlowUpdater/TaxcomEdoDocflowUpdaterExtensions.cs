@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Security;
 using System.Security.Authentication;
-using Edo.Transport.Messages.Events;
+using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;

@@ -1,9 +1,9 @@
 ﻿using Core.Infrastructure;
-using Edo.Transport.Messages.Dto;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Edo.Contracts.Messages.Dto;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Goods;

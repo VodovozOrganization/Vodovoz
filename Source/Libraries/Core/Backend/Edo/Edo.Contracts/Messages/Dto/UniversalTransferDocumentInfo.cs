@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Edo.Transport.Messages.Dto
+namespace Edo.Contracts.Messages.Dto
 {
 	/// <summary>
 	/// Данные для УПД по ЭДО

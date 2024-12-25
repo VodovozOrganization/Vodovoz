@@ -1,5 +1,4 @@
-﻿using Edo.Transport.Messages.Events;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Contracts.Messages.Events;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;

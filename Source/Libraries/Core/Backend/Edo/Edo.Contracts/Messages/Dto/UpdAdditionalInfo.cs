@@ -1,4 +1,4 @@
-﻿namespace Edo.Transport.Messages.Dto
+﻿namespace Edo.Contracts.Messages.Dto
 {
 	/// <summary>
 	/// Дополнительная информация для УПД(ТекстИнфТип)
