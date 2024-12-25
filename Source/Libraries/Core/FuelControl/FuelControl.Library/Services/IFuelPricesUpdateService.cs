@@ -6,6 +6,6 @@ namespace FuelControl.Library.Services
 {
 	public interface IFuelPricesUpdateService
 	{
-		Task UpdateFuelPricesByLastWeekTransaction(IUnitOfWork uow, CancellationToken cancellationToken);
+		Task UpdateFuelPricesByLastWeekTransaction(CancellationToken cancellationToken);
 	}
 }
