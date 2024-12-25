@@ -434,7 +434,9 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 				join car in uow.Session.Query<Car>() on cardVersion.Car.Id equals car.Id
 				join fuelType in uow.Session.Query<FuelType>() on car.FuelType.Id equals fuelType.Id
 				where
-					cardVersion.StartDate <= transaction.TransactionDate
+					transaction.TransactionDate >= startDate
+					&& transaction.TransactionDate <= endDate
+					&& cardVersion.StartDate <= transaction.TransactionDate
 					&& (cardVersion.EndDate > transaction.TransactionDate || cardVersion.EndDate == null)
 				select new { fuelType.ProductGroupId, transaction.PricePerItem };
 
