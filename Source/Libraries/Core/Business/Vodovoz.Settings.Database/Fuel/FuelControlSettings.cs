@@ -100,5 +100,10 @@ namespace Vodovoz.Settings.Database.Fuel
 		{
 			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(LoaderMaxDailyFuelLimit)}", value.ToString());
 		}
+
+		public void SetFuelPricesLastUpdateDate(string value)
+		{
+			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(FuelPricesLastUpdateDate)}", value);
+		}
 	}
 }

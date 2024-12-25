@@ -130,5 +130,11 @@ namespace Vodovoz.Settings.Fuel
 		/// Установка значения максимального суточного лимита на топливо для авто типа Погрузчик
 		/// </summary>
 		void SetLoaderMaxDailyFuelLimit(int value);
+
+		/// <summary>
+		/// Установка значения даты последнего обновления стоимости топлива
+		/// </summary>
+		/// <param name="value"></param>
+		void SetFuelPricesLastUpdateDate(string value);
 	}
 }
