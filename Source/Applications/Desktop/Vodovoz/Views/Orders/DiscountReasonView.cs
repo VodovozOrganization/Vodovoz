@@ -21,11 +21,14 @@ namespace Vodovoz.Views.Orders
 			buttonCancel.BindCommand(ViewModel.CloseCommand);
 			
 			radioDiscountInfo.Binding
-				.AddBinding(ViewModel, vm => vm.DiscountInfoTabActive, w => w.Active)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.DiscountInfoTabActive, w => w.Active)
+				.AddBinding(vm => vm.CanEditDiscountReason, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			radioPromoCodeSettings.Binding
 				.AddBinding(ViewModel, vm => vm.PromoCodeSettingsTabActive, w => w.Active)
+				.AddBinding(ViewModel.Entity, e => e.IsPromoCode, w => w.Sensitive)
 				.InitializeFromSource();
 
 			notebook.ShowTabs = false;
@@ -48,23 +51,28 @@ namespace Vodovoz.Views.Orders
 			
 			checkIsArchive.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			spinDiscount.Binding
 				.AddBinding(ViewModel.Entity, e => e.Value, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			enumDiscountValueType.ItemsEnum = typeof(DiscountUnits);
 			enumDiscountValueType.Binding
 				.AddBinding(ViewModel.Entity, e => e.ValueType, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			chkBtnPremiumDiscount.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsPremiumDiscount, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			chkBtnPresent.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsPresent, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
 				.InitializeFromSource();
 			chkBtnSelectAll.Toggled += (s, e) => ViewModel.UpdateSelectedCategoriesCommand.Execute(chkBtnSelectAll.Active);
 			
@@ -173,16 +181,19 @@ namespace Vodovoz.Views.Orders
 		{
 			entryPromoCodeName.Binding
 				.AddBinding(ViewModel.Entity, e => e.PromoCodeName, w => w.Text)
+				.AddBinding(ViewModel, e => e.CanChangePromoCodeName, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			datePromoCodeDuration.Binding
 				.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.StartDatePromoCode, w => w.StartDateOrNull)
 				.AddBinding(e => e.EndDatePromoCode, w => w.EndDateOrNull)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			chkPromoCodeTimeDuration.Binding
 				.AddBinding(ViewModel, vm => vm.HasPromoCodeDurationTime, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
 				.InitializeFromSource();
 
 			timePromoCodeDuration.AutocompleteStepInMinutes = 60;
@@ -190,16 +201,19 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel.Entity, e => e.StartTimePromoCode, w => w.TimeStart)
 				.AddBinding(ViewModel.Entity, e => e.EndTimePromoCode, w => w.TimeEnd)
 				.AddBinding(ViewModel, vm => vm.HasPromoCodeDurationTime, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			chkOrderMinSum.Binding
 				.AddBinding(ViewModel, vm => vm.HasOrderMinSum, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
 				.InitializeFromSource();
 
 			spinMinOrderSum.Adjustment = new Adjustment(0, 0, DiscountReason.PromoCodeOrderMinSumLimit, 100, 1000, 0);
 			spinMinOrderSum.Binding
 				.AddBinding(ViewModel.Entity, e => e.PromoCodeOrderMinSum, w => w.ValueAsDecimal)
 				.AddBinding(ViewModel, vm => vm.HasOrderMinSum, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			lblRubles.Binding
@@ -208,6 +222,7 @@ namespace Vodovoz.Views.Orders
 			
 			chkOneTimePromoCode.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsOneTimePromoCode, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 

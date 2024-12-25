@@ -48,17 +48,20 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			
-			TabName = UoWGeneric.IsNew ? "Новое основание для скидки" : $"Основание для скидки \"{Entity.Name}\"";
-			
+			TabName = IsNewEntity ? "Новое основание для скидки" : $"Основание для скидки \"{Entity.Name}\"";
+
+			SetPermissions();
 			InitializeCommands();
 			InitializeNomenclatureCategoriesList();
 			InitializeHasOrderMinSum();
 			InitializeHasPromoCodeDurationTime();
 		}
 
+		public bool IsNewEntity => Entity.Id == 0;
+		public bool CanEditDiscountReason => (IsNewEntity && PermissionResult.CanCreate) || PermissionResult.CanUpdate;
 		public bool IsNomenclatureSelected => SelectedNomenclature != null;
 		public bool IsProductGroupSelected => SelectedProductGroup != null;
-		public bool CanChangeDiscountReasonName => Entity.Id == 0;
+		public bool CanChangeDiscountReasonName => IsNewEntity && CanEditDiscountReason;
 
 		public Nomenclature SelectedNomenclature
 		{
@@ -136,7 +139,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 		}
 
-		public bool CanChangeIsPromoCode => Entity.Id > 0;
+		public bool CanEditPromoCode { get; private set; }
+		public bool CanChangePromoCodeName => IsNewEntity && CanEditPromoCode;
+		public bool CanChangeIsPromoCode => IsNewEntity && CanEditPromoCode;
 
 		public bool DiscountInfoTabActive
 		{
@@ -183,6 +188,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 			
 			return base.Save(close);
+		}
+		
+		private void SetPermissions()
+		{
+			CanEditPromoCode = CommonServices.CurrentPermissionService.ValidatePresetPermission(
+				Vodovoz.Permissions.DiscountReason.CanEditPromoCode)
+				&& CanEditDiscountReason;
 		}
 		
 		private void InitializeCommands()

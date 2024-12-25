@@ -295,6 +295,20 @@ namespace Vodovoz.Domain.Orders
 						$"Превышена длина названия промокода на {PromoCodeName.Length}-{_promoCodeNameLimit}",
 						new[] { nameof(PromoCodeName) });
 				}
+
+				if(!StartDatePromoCode.HasValue)
+				{
+					yield return new ValidationResult(
+						"Не заполнена начальная дата действия промокода",
+						new[] { nameof(StartDatePromoCode) });
+				}
+
+				if(!EndTimePromoCode.HasValue)
+				{
+					yield return new ValidationResult(
+						$"Не заполнена конечная дата действия промокода",
+						new[] { nameof(EndTimePromoCode) });
+				}
 			}
 		}
 
@@ -313,10 +327,5 @@ namespace Vodovoz.Domain.Orders
 				NomenclatureCategories.Remove(selectedCategory.DiscountReasonNomenclatureCategory);
 			}
 		}
-	}
-
-	public class DiscountUnitTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public DiscountUnitTypeStringType() : base(typeof(DiscountUnits)) { }
 	}
 }
