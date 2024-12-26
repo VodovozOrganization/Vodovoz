@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Gamma.Utilities;
 using QS.Utilities;
 using Vodovoz.Core.Domain.FastPayments;
@@ -51,7 +51,8 @@ namespace PayPageAPI.Models
 			? $"{_paymentAttemptMessage} вернитесь в свой заказ и попробуйте снова"
 			: $"{_paymentAttemptMessage} перезвоните нам для получения новой ссылки";
 		public string OfertaUrl { get; private set; }
-		
+		public bool IsPaymentByCard { get; private set; }
+
 		private void Initialize(FastPayment fastPayment)
 		{
 			if(fastPayment.Order != null)
@@ -66,6 +67,7 @@ namespace PayPageAPI.Models
 			
 			Ticket = fastPayment.Ticket;
 			_fastPaymentStatus = fastPayment.FastPaymentStatus;
+			IsPaymentByCard = fastPayment.FastPaymentPayType == FastPaymentPayType.ByCard;
 			FillOfertaUrl(fastPayment.Organization);
 		}
 
@@ -82,6 +84,10 @@ namespace PayPageAPI.Models
 			else if(organization.Id == _organizationSettings.VodovozEastOrganizationId)
 			{
 				OfertaUrl = "pdf/offer_vv_east.pdf";
+			}
+			else if(organization.Id == _organizationSettings.VodovozOrganizationId)
+			{
+				OfertaUrl = "pdf/offer_vv.pdf";
 			}
 			else
 			{
