@@ -1,4 +1,4 @@
-using RestSharp.Extensions;
+﻿using RestSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +6,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.Models.CashReceipts.DTO;
 using Vodovoz.Models.TrueMark;
@@ -264,10 +265,24 @@ namespace Vodovoz.Models.CashReceipts
 				Name = orderItem.Nomenclature.OfficialName,
 				PriceWithoutDiscount = Math.Round(orderItem.Price, 2),
 				Quantity = orderItem.Count,
-				DiscSum = orderItem.DiscountMoney,
-				VatTag = (int)VatTag.VatFree
+				DiscSum = orderItem.DiscountMoney
 			};
+
+			SetVatProperties(orderItem, inventPosition);
 			return inventPosition;
+		}
+
+		private void SetVatProperties(OrderItem orderItem, InventPosition inventPosition)
+		{
+			var organization = orderItem.Order.Contract?.Organization;
+
+			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == Domain.Goods.VAT.No)
+			{
+				inventPosition.VatTag = (int)VatTag.VatFree;
+				return;
+			}
+			
+			inventPosition.VatTag = (int)VatTag.Vat20;
 		}
 
 		private void FillMoneyPositions(FiscalDocument fiscalDocument, CashReceipt cashReceipt)

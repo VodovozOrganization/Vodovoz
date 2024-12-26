@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gtk;
 using QS.Project.Services;
 using QS.Tdi;
@@ -64,13 +64,13 @@ namespace Vodovoz.SidePanel
 					var complaintsRepository = ScopeProvider.Scope.Resolve<IComplaintsRepository>();
 					var complaintResultsRepository = ScopeProvider.Scope.Resolve<IComplaintResultsRepository>();
 					return new ComplaintPanelView(complaintsRepository, complaintResultsRepository, complaintSettigs);
-				//case PanelViewType.SmsSendPanelView:
-				//	var fastPaymentSettings = ScopeProvider.Scope.Resolve<IFastPaymentSettings>();
-				//	var fastPaymentRepository = ScopeProvider.Scope.Resolve<IFastPaymentRepository>();
-				//	return new SmsSendPanelView(
-				//		ServicesConfig.CommonServices,
-				//		fastPaymentRepository,
-				//		fastPaymentSettings);
+				case PanelViewType.SmsSendPanelView:
+					var fastPaymentSettings = ScopeProvider.Scope.Resolve<IFastPaymentSettings>();
+					var fastPaymentRepository = ScopeProvider.Scope.Resolve<IFastPaymentRepository>();
+					return new SmsSendPanelView(
+						ServicesConfig.CommonServices,
+						fastPaymentRepository,
+						fastPaymentSettings);
 				case PanelViewType.FixedPricesPanelView:
 					var fixedPricesDialogOpener = new FixedPricesDialogOpener();
 					var fixedPricesPanelViewModel = new FixedPricesPanelViewModel(fixedPricesDialogOpener, ServicesConfig.CommonServices);
