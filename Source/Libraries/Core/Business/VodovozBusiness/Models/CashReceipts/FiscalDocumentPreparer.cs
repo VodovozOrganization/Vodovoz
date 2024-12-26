@@ -1,4 +1,4 @@
-using RestSharp.Extensions;
+﻿using RestSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -276,7 +276,7 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			var organization = orderItem.Order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT)
+			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == Domain.Goods.VAT.No)
 			{
 				inventPosition.VatTag = (int)VatTag.VatFree;
 				return;
