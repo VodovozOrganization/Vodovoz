@@ -24,6 +24,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 {
 	public partial class OrderChangesReport
 	{
+		private const int _oldMonitoringQueriesTimeoutInSeconds = 180;
+
 		private readonly IEnumerable<string> _cashAndCashlessPaymentTypesValues
 			= new List<string> { "cash", "cashless", "Cash", "Cashless" };
 
@@ -385,7 +387,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					QrNew = qrNew,
 				};
 
-			return await query.ToListAsync(cancellationToken);
+			return await query.WithOptions(options => options.SetTimeout(_oldMonitoringQueriesTimeoutInSeconds)).ToListAsync(cancellationToken);
 		}
 
 		private async Task<IEnumerable<OrderChangesReportRow>> GetOrderItemsChangesData(IUnitOfWork uow, CancellationToken cancellationToken)
@@ -709,7 +711,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					QrNew = qrNew,
 				};
 
-			var changesData = await query.ToListAsync(cancellationToken);
+			var changesData = await query.WithOptions(options => options.SetTimeout(_oldMonitoringQueriesTimeoutInSeconds)).ToListAsync(cancellationToken);
 
 			var paymentTypeChangedOrderIds =
 				await GetOldMonitoringPaymentTypeChangesOrderIds(uow, changesData.Select(x => x.OrderId).Distinct(), cancellationToken);
@@ -750,7 +752,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 				select order.Id;
 
-			var oderdIds = (await query.ToListAsync(cancellationToken)).Distinct().ToList();
+			var oderdIds = (await query.WithOptions(options => options.SetTimeout(_oldMonitoringQueriesTimeoutInSeconds)).ToListAsync(cancellationToken)).Distinct().ToList();
 
 			return oderdIds;
 		}

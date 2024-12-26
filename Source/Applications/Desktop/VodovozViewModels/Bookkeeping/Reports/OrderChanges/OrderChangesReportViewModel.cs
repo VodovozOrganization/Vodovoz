@@ -335,12 +335,11 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			catch(OperationCanceledException ex)
 			{
 				var message = "Формирование отчета было прервано вручную";
-
 				LogErrorAndShowMessageInGuiThread(ex, message);
 			}
 			catch(Exception ex)
 			{
-				var message = $"При формировании отчета возникла ошибка:\n{ex.Message}";
+				var message = $"При формировании отчета возникла ошибка";
 
 				LogErrorAndShowMessageInGuiThread(ex, message);
 
