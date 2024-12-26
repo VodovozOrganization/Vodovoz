@@ -482,8 +482,11 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 						   select ((oi.ActualCount == null ? oi.Count : oi.ActualCount.Value) * oi.Price - oi.DiscountMoney))
 						   .Sum()
 
+				let paymentTypeChangesOrderIds = GetPaymentTypeChangesOrderIds(uow)
+
 				where
 					changedEntity.EntityClassName == "OrderItem"
+					&& paymentTypeChangesOrderIds.Contains(order.Id)
 					&& changedEntity.ChangeTime >= _startDate
 					&& changedEntity.ChangeTime <= _endDate.LatestDayTime()
 					&& operations.Contains(changedEntity.Operation)
@@ -529,13 +532,10 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 			var changesData = await query.ToListAsync(cancellationToken);
 
-			var paymentTypeChangedOrderIds =
-				await GetPaymentTypeChangesOrderIds(uow, changesData.Select(x => x.OrderId).Distinct(), cancellationToken);
-
-			return changesData.Where(x => paymentTypeChangedOrderIds.Contains(x.OrderId));
+			return changesData;
 		}
 
-		private async Task<IEnumerable<int>> GetPaymentTypeChangesOrderIds(IUnitOfWork uow, IEnumerable<int> orderIds, CancellationToken cancellationToken)
+		private IQueryable<int> GetPaymentTypeChangesOrderIds(IUnitOfWork uow)
 		{
 			var query =
 				from changedEntity in uow.Session.Query<ChangedEntity>()
@@ -546,7 +546,6 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& (changedEntity.Operation == EntityChangeOperation.Create || changedEntity.Operation == EntityChangeOperation.Change)
 					&& (fieldChangePayType.Type == FieldChangeType.Added || fieldChangePayType.Type == FieldChangeType.Changed)
 					&& fieldChangePayType.Path == "PaymentType"
-					&& orderIds.Contains(order.Id)
 
 					&& (((_cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.NewValue)
 								|| _cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.OldValue))
@@ -568,9 +567,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 				select order.Id;
 
-			var oderdIds = (await query.ToListAsync(cancellationToken)).Distinct().ToList();
-
-			return oderdIds;
+			return query;
 		}
 
 		private async Task<IEnumerable<OrderChangesReportRow>> GetOldMonitoringOrderItemsChangesData(IUnitOfWork uow, CancellationToken cancellationToken)
