@@ -15,8 +15,8 @@ namespace RobotMiaApi.Extensions.Mapping
 		/// <returns></returns>
 		public static CreateOrderRequest MapToCreateOrderRequest(this ApiCreateOrderRequest postOrderRequest) => new CreateOrderRequest
 		{
-			CounterpartyId = postOrderRequest.CounterpartyId,
-			DeliveryPointId = postOrderRequest.DeliveryPointId,
+			CounterpartyId = postOrderRequest.CounterpartyId, //Обязательное поле
+			DeliveryPointId = postOrderRequest.DeliveryPointId, //Обязательное поле
 			Date = postOrderRequest.DeliveryDate,
 			DeliveryScheduleId = postOrderRequest.DeliveryIntervalId,
 			PaymentType = postOrderRequest.PaymentType.MapToPaymentType(),
