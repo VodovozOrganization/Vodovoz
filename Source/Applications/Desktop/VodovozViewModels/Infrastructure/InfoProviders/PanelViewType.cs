@@ -9,7 +9,7 @@
 		EmailsPanelView,
 		CallTaskPanelView,
 		ComplaintPanelView,
-		//SmsSendPanelView,
+		SmsSendPanelView,
 		FixedPricesPanelView,
 		CashInfoPanelView,
 		EdoLightsMatrixPanelView,

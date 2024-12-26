@@ -105,7 +105,7 @@ namespace EdoDocumentsPreparer
 
 				try
 				{
-					if((DateTime.Now - _startDate).TotalDays > 1)
+					if((DateTime.Now - _startDate).TotalDays > 0.2)
 					{
 						_logger.LogInformation("EdoDocumentsPreparerWorker termination to prevent memory leak at: {time}", DateTimeOffset.Now);
 						_applicationLifetime.StopApplication();

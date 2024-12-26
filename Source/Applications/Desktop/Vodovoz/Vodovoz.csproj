@@ -433,6 +433,7 @@
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\FinancialResponsibilityCenterJournalViewModelRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ServiceDistrictsSetJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelCardJournalRegistrar.cs" />
@@ -478,7 +479,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CastomMessageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PremiumJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.ProfitabilitySalesReportView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.OrderChangesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.CashlessRequestView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.OrganizationCashTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumRaskatGAZelleView.cs" />
@@ -685,7 +685,6 @@
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
     <Compile Include="ReportsParameters\CashBookReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CashBookReport.cs" />
-    <Compile Include="ReportsParameters\Orders\OrderChangesReport.cs" />
     <Compile Include="ReportsParameters\Sales\SalesReportView.cs" />
     <Compile Include="ServiceDialogs\CastomInteractiveService.cs" />
     <Compile Include="ServiceDialogs\CastomMessageDialogHelper.cs" />
@@ -2054,6 +2053,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.LastRouteListReportView.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Store.Reports.DefectiveItemsReportView.cs" />
+    <Compile Include="Views\Reports\OrderChangesReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.OrderChangesReportView.cs" />
+    <Compile Include="Cash\FinancialResponsibilityCenterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.FinancialResponsibilityCenterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

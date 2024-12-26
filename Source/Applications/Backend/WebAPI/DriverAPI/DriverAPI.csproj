@@ -34,11 +34,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-dev.pubxml" />
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-prod.pubxml" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="appsettings.Development.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
