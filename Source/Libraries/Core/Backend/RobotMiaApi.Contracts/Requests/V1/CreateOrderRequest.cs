@@ -30,13 +30,13 @@ namespace RobotMiaApi.Contracts.Requests.V1
 		/// <summary>
 		/// Дата доставки
 		/// </summary>
-		[JsonPropertyName("delivery_date"), Required]
+		[JsonPropertyName("delivery_date")]
 		public DateTime DeliveryDate { get; set; }
 
 		/// <summary>
 		/// Идентификатор интервала доставки
 		/// </summary>
-		[JsonPropertyName("delivery_interval_id"), Required]
+		[JsonPropertyName("delivery_interval_id")]
 		public int DeliveryIntervalId { get; set; }
 
 		/// <summary>
@@ -48,25 +48,25 @@ namespace RobotMiaApi.Contracts.Requests.V1
 		/// <summary>
 		/// Телефон для связи 
 		/// </summary>
-		[JsonPropertyName("contact_phone"), Required]
+		[JsonPropertyName("contact_phone")]
 		public string ContactPhone { get; set; }
 
 		/// <summary>
 		/// Тип оплаты
 		/// </summary>
-		[JsonPropertyName("payment_type"), Required]
+		[JsonPropertyName("payment_type")]
 		public PaymentType PaymentType { get; set; }
 
 		/// <summary>
 		/// Сдача с
 		/// </summary>
-		[JsonPropertyName("trifle"), Required]
+		[JsonPropertyName("trifle")]
 		public int Trifle { get; set; }
 
 		/// <summary>
 		/// Комментарий водителю
 		/// </summary>
-		[JsonPropertyName("driver_app_comment"), Required]
+		[JsonPropertyName("driver_app_comment")]
 		public string DriverAppComment { get; set; }
 
 		/// <summary>
@@ -78,7 +78,7 @@ namespace RobotMiaApi.Contracts.Requests.V1
 		/// <summary>
 		/// Количество бутылей на возврат
 		/// </summary>
-		[JsonPropertyName("bottles_return"), Required]
+		[JsonPropertyName("bottles_return")]
 		public int BottlesReturn { get; set; }
 
 		/// <summary>
@@ -90,7 +90,7 @@ namespace RobotMiaApi.Contracts.Requests.V1
 		/// <summary>
 		/// Заказываемые товары
 		/// </summary>
-		[JsonPropertyName("items"), Required]
+		[JsonPropertyName("items")]
 		public SaleItem[] SaleItems { get; set; }
 	}
 }
