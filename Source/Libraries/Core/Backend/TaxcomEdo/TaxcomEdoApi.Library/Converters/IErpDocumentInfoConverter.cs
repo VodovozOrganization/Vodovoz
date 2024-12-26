@@ -1,4 +1,4 @@
-using Edo.Transport.Messages.Dto;
+using Edo.Contracts.Messages.Dto;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 
 namespace TaxcomEdoApi.Library.Converters

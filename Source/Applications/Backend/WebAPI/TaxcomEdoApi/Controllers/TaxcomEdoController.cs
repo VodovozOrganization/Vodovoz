@@ -1,6 +1,6 @@
 ﻿using System;
 using Core.Infrastructure;
-using Edo.Transport.Messages.Dto;
+using Edo.Contracts.Messages.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Taxcom.Client.Api;
