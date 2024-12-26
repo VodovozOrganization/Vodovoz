@@ -26,7 +26,7 @@ namespace Vodovoz.Domain.Client
 		private Counterparty _counterparty;
 		private DocTemplate _contractTemplate;
 
-		public IUnitOfWork UoW { get; set; }
+		public virtual IUnitOfWork UoW { get; set; }
 
 		#region Сохраняемые поля
 
