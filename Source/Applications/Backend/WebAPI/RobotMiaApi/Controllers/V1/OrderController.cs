@@ -9,6 +9,7 @@ using RobotMiaApi.Services;
 using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Vodovoz.Domain.Client;
 using Vodovoz.Presentation.WebApi.Common;
 using VodovozBusiness.Services.Orders;
 using CreateOrderRequest = RobotMiaApi.Contracts.Requests.V1.CreateOrderRequest;
@@ -61,9 +62,25 @@ namespace RobotMiaApi.Controllers.V1
 				return Problem($"Не найдена запись о звонке {postOrderRequest.CallId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			var createdOrderId = _orderService.CreateAndAcceptOrder(postOrderRequest.MapToCreateOrderRequest());
+			if(unitOfWork.GetById<DeliveryPoint>(postOrderRequest.CounterpartyId) == default)
+			{
+				return Problem($"Должен быть указан идентификатор контрагента, указано значение: {postOrderRequest.CounterpartyId}", statusCode: StatusCodes.Status400BadRequest);
+			}
 
-			_logger.LogInformation("Создан заказ #{OrderId}", createdOrderId);
+			if(unitOfWork.GetById<DeliveryPoint>(postOrderRequest.DeliveryPointId) is not DeliveryPoint deliveryPoint || deliveryPoint.Counterparty.Id != postOrderRequest.CounterpartyId)
+			{
+				return Problem($"Должен быть указан идентификатор существующей точки доставки указанного контрагента, указано значение: {postOrderRequest.DeliveryPointId}", statusCode: StatusCodes.Status400BadRequest);
+			}
+
+			try
+			{
+				var createdOrderId = _orderService.CreateAndAcceptOrder(postOrderRequest.MapToCreateOrderRequest());
+				_logger.LogInformation("Создан заказ #{OrderId}", createdOrderId);
+			}
+			catch(Exception ex)
+			{
+
+			}
 
 			return NoContent();
 		}
