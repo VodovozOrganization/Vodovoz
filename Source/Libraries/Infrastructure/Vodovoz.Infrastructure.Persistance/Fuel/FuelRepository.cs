@@ -433,11 +433,14 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 				join cardVersion in uow.Session.Query<FuelCardVersion>() on card.Id equals cardVersion.FuelCard.Id
 				join car in uow.Session.Query<Car>() on cardVersion.Car.Id equals car.Id
 				join fuelType in uow.Session.Query<FuelType>() on car.FuelType.Id equals fuelType.Id
+				join e in uow.Session.Query<Employee>() on car.Driver.Id equals e.Id into drivers
+					from driver in drivers.DefaultIfEmpty()
 				where
 					transaction.TransactionDate >= startDate
 					&& transaction.TransactionDate <= endDate
 					&& cardVersion.StartDate <= transaction.TransactionDate
 					&& (cardVersion.EndDate > transaction.TransactionDate || cardVersion.EndDate == null)
+					&& driver.Category == Core.Domain.Employees.EmployeeCategory.driver
 				select new { fuelType.ProductGroupId, transaction.PricePerItem };
 
 			var fuelPrices = await query.ToListAsync(cancellationToken);
