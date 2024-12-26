@@ -28,7 +28,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDate;
 
-		private global::Vodovoz.RegradingOfGoodsDocumentItemsView regradingofgoodsitemsview;
+		private global::Vodovoz.Store.RegradingOfGoodsDocumentItemsView regradingofgoodsitemsview;
 
 		protected virtual void Build()
 		{
@@ -157,7 +157,7 @@ namespace Vodovoz
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
-			this.regradingofgoodsitemsview = new global::Vodovoz.RegradingOfGoodsDocumentItemsView();
+			this.regradingofgoodsitemsview = new global::Vodovoz.Store.RegradingOfGoodsDocumentItemsView();
 			this.regradingofgoodsitemsview.Events = ((global::Gdk.EventMask)(256));
 			this.regradingofgoodsitemsview.Name = "regradingofgoodsitemsview";
 			this.vbox4.Add(this.regradingofgoodsitemsview);
