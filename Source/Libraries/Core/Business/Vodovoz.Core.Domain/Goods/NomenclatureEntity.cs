@@ -1139,8 +1139,8 @@ namespace Vodovoz.Core.Domain.Goods
 			else
 			{
 				var nomPrice = (useAlternativePrice
-						? AlternativeNomenclaturePrices.Cast<NomenclaturePriceEntityBase>()
-						: NomenclaturePrice.Cast<NomenclaturePriceEntityBase>())
+						? AlternativeNomenclaturePrices.Cast<NomenclaturePriceGeneralBase>()
+						: NomenclaturePrice.Cast<NomenclaturePriceGeneralBase>())
 					.OrderByDescending(p => p.MinCount)
 					.FirstOrDefault(p => p.MinCount <= itemsCount);
 				price = nomPrice?.Price ?? 0;
