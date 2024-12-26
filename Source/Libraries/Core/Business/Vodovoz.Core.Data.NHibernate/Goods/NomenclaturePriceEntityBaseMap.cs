@@ -23,7 +23,7 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 	{
 		public NomenclaturePriceEntityMap()
 		{
-			DiscriminatorValue(nameof(NomenclaturePriceEntityBase.NomenclaturePriceType.General));
+			DiscriminatorValue(nameof(NomenclaturePriceGeneralBase.NomenclaturePriceType.General));
 		}
 	}
 

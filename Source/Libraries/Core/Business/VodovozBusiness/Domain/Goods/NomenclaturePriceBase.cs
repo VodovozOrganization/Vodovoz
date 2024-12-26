@@ -9,7 +9,7 @@ namespace Vodovoz.Domain.Goods
 		NominativePlural = "цены",
 		Nominative = "цена")]
 	[HistoryTrace]
-	public class NomenclaturePriceBase : NomenclaturePriceEntityBase
+	public class NomenclaturePriceBase : NomenclaturePriceGeneralBase
 	{
 		private Nomenclature _nomenclature;
 
