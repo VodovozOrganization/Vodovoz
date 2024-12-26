@@ -1,5 +1,4 @@
 ﻿using System;
-using Edo.Docflow.Dto;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Organizations;

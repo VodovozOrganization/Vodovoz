@@ -1,4 +1,4 @@
-using Edo.Transport.Messages.Dto;
+using Edo.Contracts.Messages.Dto;
 using Taxcom.Client.Api.Entity;
 using TaxcomEdo.Contracts.Documents;
 
