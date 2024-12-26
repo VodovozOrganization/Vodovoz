@@ -45,6 +45,7 @@ namespace PayPageAPI.Models
 		public string SumString => _orderSum.ToShortCurrencyString();
 		public string StatusString => _fastPaymentStatus.GetEnumTitle();
 		public bool IsNotProcessingStatus => _fastPaymentStatus != FastPaymentStatus.Processing;
+		public bool IsNotProcessingOrNotPaymentByCard => _fastPaymentStatus != FastPaymentStatus.Processing || !IsPaymentByCard;
 		public bool IsPerformedStatus => _fastPaymentStatus == FastPaymentStatus.Performed;
 		public string PayOrderTitle => IsOnlineOrder ? $"Оплата онлайн-заказа №{OrderNum}" : $"Оплата заказа №{OrderNum}";
 		public string PaymentAttemptMessage => IsOnlineOrder
