@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Extensions;
 using Sms.Internal.Client.Framework;
@@ -84,6 +84,6 @@ namespace Vodovoz
 				.AddScoped<IFastDeliveryOrderAddedNotificationReciever, DriverAPIHelper>()
 				.AddScoped<IWaitingTimeChangedNotificationReciever, DriverAPIHelper>()
 				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationReciever, DriverAPIHelper>()
-				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
+				.AddScoped<IRouteListTransferReciever, DriverAPIHelper>();
 	}
 }

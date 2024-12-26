@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using DriverApi.Contracts.V5.Requests;
+using DriverApi.Contracts.V5;
 using Gamma.Utilities;
 using MoreLinq;
 using QS.Commands;
@@ -27,6 +29,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.NotificationRecievers;
 using Vodovoz.Settings.Common;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
@@ -59,6 +62,7 @@ namespace Vodovoz
 		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _forwarderViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _logisticianViewModelEEVMBuilder;
+		private readonly IRouteListTransferReciever _routeListTransferReciever;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
@@ -82,7 +86,8 @@ namespace Vodovoz
 			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> forwarderViewModelEEVMBuilder,
-			ViewModelEEVMBuilder<Employee> logisticianViewModelEEVMBuilder)
+			ViewModelEEVMBuilder<Employee> logisticianViewModelEEVMBuilder,
+			IRouteListTransferReciever routeListTransferReciever)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -99,6 +104,7 @@ namespace Vodovoz
 			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
 			_forwarderViewModelEEVMBuilder = forwarderViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(forwarderViewModelEEVMBuilder));
 			_logisticianViewModelEEVMBuilder = logisticianViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(logisticianViewModelEEVMBuilder));
+			_routeListTransferReciever = routeListTransferReciever ?? throw new ArgumentNullException(nameof(routeListTransferReciever));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -498,6 +504,25 @@ namespace Vodovoz
 
 			address.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
 			UoW.Save(address.RouteListItem);
+
+			var notificationRequest = new NotificationRouteListChangesRequest
+			{
+				OrderId = e.UndeliveredOrder.OldOrder.Id ,
+				PushNotificationDataEventType = PushNotificationDataEventType.RouteListContentChanged
+			};
+
+			var result = _routeListTransferReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(notificationRequest).GetAwaiter().GetResult();
+
+			if(!result.IsSuccess)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					string.Join(", ",
+					result.Errors
+					.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferTypeNotSet)
+					.Select(x => x.Message))
+					);
+			}
 		}
 
 		private void OnForwarderChanged(object sender, EventArgs e)

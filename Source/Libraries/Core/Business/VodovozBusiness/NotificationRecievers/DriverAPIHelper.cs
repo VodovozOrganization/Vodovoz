@@ -1,20 +1,21 @@
-﻿using System;
+﻿using DriverApi.Contracts.V5.Requests;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Vodovoz.Errors;
 
 namespace Vodovoz.NotificationRecievers
 {
-	public class DriverAPIHelper : 
+	public class DriverAPIHelper :
 		ISmsPaymentStatusNotificationReciever,
 		IFastDeliveryOrderAddedNotificationReciever,
 		IWaitingTimeChangedNotificationReciever,
 		ICashRequestForDriverIsGivenForTakeNotificationReciever,
-		IRouteListTransferhandByHandReciever,
+		IRouteListTransferReciever,
 		IDisposable
 	{
 		private readonly ILogger<DriverAPIHelper> _logger;
@@ -109,9 +110,9 @@ namespace Vodovoz.NotificationRecievers
 			_apiClient?.Dispose();
 		}
 
-		public async Task<Result> NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
+		public async Task<Result> NotifyOfOrderWithGoodsTransferingIsTransfered(NotificationRouteListChangesRequest notificationRouteListChangesRequest)
 		{
-			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfOrderWithGoodsTransferingIsTransferedUri, orderId))
+			using(var response = await _apiClient.PostAsJsonAsync(_notifyOfOrderWithGoodsTransferingIsTransferedUri, notificationRouteListChangesRequest))
 			{
 				var responseBody = await response.Content.ReadAsStringAsync();
 
