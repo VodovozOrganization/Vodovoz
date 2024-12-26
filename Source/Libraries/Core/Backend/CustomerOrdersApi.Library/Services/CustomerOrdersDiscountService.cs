@@ -80,7 +80,7 @@ namespace CustomerOrdersApi.Library.Services
 			{
 				PromoCode =	applyPromoCodeDto.PromoCode,
 				Time = applyPromoCodeDto.RequestTime,
-				CounterpartyId = applyPromoCodeDto.CounterpartyErpId.Value,
+				CounterpartyId = applyPromoCodeDto.ErpCounterpartyId.Value,
 				Products = applyPromoCodeDto.OnlineOrderItems
 			};
 			
