@@ -321,7 +321,15 @@ namespace Vodovoz.Application.Orders.Services
 			foreach(var waterInfo in createOrderRequest.SaleItems)
 			{
 				var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
-				order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+
+				if(nomenclature != null)
+				{
+					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+				}
+				else
+				{
+					_logger.LogError("Попытка добавить отсутствующую номенклатуру {NomenclatureId}", waterInfo.NomenclatureId);
+				}
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
