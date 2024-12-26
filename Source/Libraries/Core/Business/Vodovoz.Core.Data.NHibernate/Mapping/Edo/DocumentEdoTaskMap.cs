@@ -15,8 +15,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.FromOrganization)
 				.Column("from_organization_id");
 
-			Map(x => x.ToClient)
-				.Column("to_client_id");
+			Map(x => x.ToCustomer)
+				.Column("to_customer_id");
 
 			Map(x => x.DocumentType)
 				.Column("document_type");

@@ -6,7 +6,7 @@ namespace Vodovoz.Core.Domain.Edo
 	public class DocumentEdoTask : CustomerEdoTask
 	{
 		private int _fromOrganization;
-		private int _toClient;
+		private int _toCustomer;
 		private EdoDocumentType _documentType;
 		private DocumentEdoTaskStage _stage;
 		private ObservableList<TransferEdoRequest> _transferRequests;
@@ -19,10 +19,10 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Код контрагента")]
-		public virtual int ToClient
+		public virtual int ToCustomer
 		{
-			get => _toClient;
-			set => SetField(ref _toClient, value);
+			get => _toCustomer;
+			set => SetField(ref _toCustomer, value);
 		}
 
 		[Display(Name = "Тип документа")]

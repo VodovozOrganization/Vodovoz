@@ -35,7 +35,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			HasManyToMany(x => x.TaskItems)
 				.Table("edo_task_problem_items")
 				.ParentKeyColumn("edo_task_problem_id")
-				.ChildKeyColumn("edo_task_item_id")
+				.ChildKeyColumn("customer_edo_task_item_id")
 				.LazyLoad();
 		}
 	}
