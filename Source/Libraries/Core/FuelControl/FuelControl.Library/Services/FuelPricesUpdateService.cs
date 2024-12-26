@@ -77,6 +77,11 @@ namespace FuelControl.Library.Services
 
 				cancellationToken.ThrowIfCancellationRequested();
 
+				if(!uow.HasChanges)
+				{
+					return;
+				}
+
 				uow.Commit();
 			}
 		}

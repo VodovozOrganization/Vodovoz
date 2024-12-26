@@ -14,6 +14,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.Zabbix.Sender;
 using VodovozInfrastructure.Utils;
+using DateTimeHelpers;
 
 namespace DatabaseServiceWorker
 {
@@ -84,7 +85,7 @@ namespace DatabaseServiceWorker
 
 			await MonthlyFuelTransactionsUpdate(uow, stoppingToken);
 
-			await FuelPricesUpdate(uow, stoppingToken);
+			await FuelPricesUpdate(stoppingToken);
 
 			_isWorkInProgress = false;
 
@@ -157,13 +158,13 @@ namespace DatabaseServiceWorker
 			}
 		}
 
-		public async Task FuelPricesUpdate(IUnitOfWork uow, CancellationToken cancellationToken)
+		public async Task FuelPricesUpdate(CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Начинается обновление цен топлива...");
 
 			var averageFuelPricesLastUpdateDate = _fuelControlSettings.FuelPricesLastUpdateDate;
 
-			if(DateTime.Today.DayOfWeek != DayOfWeek.Monday
+			if(DateTime.Today.DayOfWeek != DayOfWeek.Monday && DateTime.Today.FirstDayOfWeek() <= averageFuelPricesLastUpdateDate
 				|| averageFuelPricesLastUpdateDate >= DateTime.Today)
 			{
 				_logger.LogInformation(
@@ -175,7 +176,7 @@ namespace DatabaseServiceWorker
 
 			try
 			{
-				await _fuelPricesUpdateService.UpdateFuelPricesByLastWeekTransaction(uow, cancellationToken);
+				await _fuelPricesUpdateService.UpdateFuelPricesByLastWeekTransaction(cancellationToken);
 
 				_fuelControlSettings.SetFuelPricesLastUpdateDate(DateTime.Today.ToString(_dateTimeFormatString));
 
