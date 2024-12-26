@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public TransferOrderTrueMarkCodeMap()
 		{
-			Table("transfer_order_true_mark_codes");
+			Table("transfer_order_codes");
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 

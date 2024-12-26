@@ -15,13 +15,13 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("id")
 				.GeneratedBy.Native();
 
-			References(x => x.DocumentEdoTask)
-				.Column("document_edo_task_id")
-				.Cascade.All();
-
 			Map(x => x.Time)
 				.Column("time")
 				.ReadOnly();
+
+			References(x => x.DocumentEdoTask)
+				.Column("document_edo_task_id")
+				.Cascade.All();
 
 			Map(x => x.FromOrganizationId)
 				.Column("from_organization_id");
@@ -32,7 +32,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			HasManyToMany(x => x.TransferedItems)
 				.Table("edo_transfered_items")
 				.ParentKeyColumn("transfer_edo_request_id")
-				.ChildKeyColumn("edo_task_item_id");
+				.ChildKeyColumn("customer_edo_task_item_id");
 
 			References(x => x.TransferEdoTask)
 				.Column("transfer_edo_task_id")
