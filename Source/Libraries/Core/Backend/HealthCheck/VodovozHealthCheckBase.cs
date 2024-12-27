@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using VodovozHealthCheck.Dto;
 
@@ -20,7 +21,7 @@ namespace VodovozHealthCheck
 			_unitOfWorkFactory = unitOfWorkFactory;
 		}
 
-		public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new ())
+		public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new())
 		{
 			_logger.LogInformation("Поступил запрос на информацию о здоровье.");
 
@@ -46,20 +47,28 @@ namespace VodovozHealthCheck
 				return HealthCheckResult.Unhealthy("Возникло искючение во время проверки здоровья.", e);
 			}
 
-			if(healthResult == null )
+			if(healthResult == null)
 			{
 				return HealthCheckResult.Unhealthy("Пустой результат проверки.");
 			}
 
-			if(healthResult.IsHealthy )
+			if(healthResult.IsHealthy)
 			{
 				return HealthCheckResult.Healthy("Проверка пройдена успешно");
 			}
 
-			var unhealthyDictionary = new Dictionary<string, object>
+			Dictionary<string, object> unhealthyDictionary = null;
+
+			if(Enumerable.Any(healthResult.AdditionalUnhealthyResults))
 			{
-				{ "results", healthResult.AdditionalUnhealthyResults }
-			};
+				unhealthyDictionary = new Dictionary<string, object>
+				{
+					{
+						"results",
+						healthResult.AdditionalUnhealthyResults
+					}
+				};
+			}
 
 			var failedMessage = "Проверка не пройдена";
 
@@ -78,7 +87,7 @@ namespace VodovozHealthCheck
 					var result = query.UniqueResult();
 					return result != null;
 				}
-				catch(Exception) 
+				catch(Exception)
 				{
 					return false;
 				}
