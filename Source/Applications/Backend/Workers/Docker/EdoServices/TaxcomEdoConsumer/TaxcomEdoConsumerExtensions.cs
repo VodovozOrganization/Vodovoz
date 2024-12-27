@@ -21,10 +21,10 @@ namespace TaxcomEdoConsumer
 			services
 				.AddScoped<IEdoDocflowHandler, EdoDocflowHandler>()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot());
-			
+
 			return services;
 		}
-		
+
 		public static IBusRegistrationConfigurator ConfigureRabbitMq(this IBusRegistrationConfigurator busConf)
 		{
 			busConf.UsingRabbitMq((context, configurator) =>
@@ -55,36 +55,39 @@ namespace TaxcomEdoConsumer
 							});
 						}
 					});
-				
+
 				configurator
-					.ConfigureTopologyForAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(edoAccount)
-					.ConfigureTopologyForOutgoingTaxcomDocflowUpdatedEvent(edoAccount)
-					.ConfigureTopologyForTaxcomDocflowSendEvent(edoAccount)
+					.ConfigureTopologyForAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent()
+					.ConfigureTopologyForOutgoingTaxcomDocflowUpdatedEvent()
+					.ConfigureTopologyForTaxcomDocflowSendEvent()
+					.ConfigureTopologyForEdoDocflowUpdatedEvent(context)
 					;
 
 				configurator.ConfigureEndpoints(context);
 			});
-			
+
 			return busConf;
 		}
 
 		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(
-			this IRabbitMqBusFactoryConfigurator configurator, string edoAccount)
+			this IRabbitMqBusFactoryConfigurator configurator)
 		{
-			configurator.Send<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
-			configurator.Message<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x => x.SetEntityName(AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent.Event));
+			configurator.Send<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
+				x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
+			configurator.Message<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
+				x.SetEntityName(AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent.Event));
 			configurator.Publish<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Direct;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
-			
+
 			return configurator;
 		}
-		
+
 		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForOutgoingTaxcomDocflowUpdatedEvent(
-			this IRabbitMqBusFactoryConfigurator configurator, string edoAccount)
+			this IRabbitMqBusFactoryConfigurator configurator)
 		{
 			configurator.Send<OutgoingTaxcomDocflowUpdatedEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
 			configurator.Message<OutgoingTaxcomDocflowUpdatedEvent>(x => x.SetEntityName(OutgoingTaxcomDocflowUpdatedEvent.Event));
@@ -94,12 +97,12 @@ namespace TaxcomEdoConsumer
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
-			
+
 			return configurator;
 		}
-		
+
 		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForTaxcomDocflowSendEvent(
-			this IRabbitMqBusFactoryConfigurator configurator, string edoAccount)
+			this IRabbitMqBusFactoryConfigurator configurator)
 		{
 			configurator.Send<TaxcomDocflowSendEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
 			configurator.Message<TaxcomDocflowSendEvent>(x => x.SetEntityName(TaxcomDocflowSendEvent.Event));
@@ -109,7 +112,15 @@ namespace TaxcomEdoConsumer
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
-			
+
+			return configurator;
+		}
+
+		// Убрать, и использовать общий конфиг транспорта для ЭДО
+		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForEdoDocflowUpdatedEvent(
+			this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
+		{
+			configurator.AddEdoTopology(context);
 			return configurator;
 		}
 	}
