@@ -284,7 +284,7 @@ namespace EdoDocumentFlowUpdater
 			container.Received = containerReceived;
 			container.InternalId = mainDocument.InternalId;
 			container.ErrorDescription = item.ErrorDescription;
-			container.EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status.ToString());
+			container.EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status);
 
 			if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 			{

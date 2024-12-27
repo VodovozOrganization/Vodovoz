@@ -780,7 +780,26 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsOrderCashlessAndPaid =>
 			PaymentType == PaymentType.Cashless
 			&& (OrderPaymentStatus == OrderPaymentStatus.Paid || OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid);
+		
+		/// <summary>
+		/// Полная сумма заказа
+		/// </summary>
+		public override decimal OrderSum => OrderPositiveSum - OrderNegativeSum;
 
+		/// <summary>
+		/// Вся положительная сумма заказа
+		/// </summary>
+		public override decimal OrderPositiveSum => OrderItems.Sum(item => item.ActualSum);
+
+		/// <summary>
+		/// Вся положительная изначальная сумма заказа
+		/// </summary>
+		public override decimal OrderPositiveOriginalSum => OrderItems.Sum(item => item.Sum);
+
+		/// <summary>
+		/// Вся отрицательная сумма заказа
+		/// </summary>
+		public override decimal OrderNegativeSum => OrderDepositItems.Sum(dep => dep.ActualSum);
 
 		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author)
 		{

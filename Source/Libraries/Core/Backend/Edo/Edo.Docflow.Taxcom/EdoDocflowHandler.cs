@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
 using TaxcomEdo.Client;
 using Vodovoz.Core.Domain.Documents;
@@ -76,46 +77,64 @@ namespace Edo.Docflow.Taxcom
 			}
 
 			taxcomDocflow.DocflowId = @event.DocFlowId;
-			
-			var newAction = new TaxcomDocflowAction
+			var lastAction = taxcomDocflow.Actions.LastOrDefault();
+			var newStatus = @event.Status.TryParseAsEnum<EdoDocFlowStatus>();
+
+			if(newStatus is null)
 			{
-				State = (EdoDocFlowStatus)Enum.Parse(typeof(EdoDocFlowStatus), @event.Status.ToString()),
-				Time = @event.StatusChangeDateTime,
-				TaxcomDocflowId = taxcomDocflow.Id,
-				ErrorMessage = @event.ErrorDescription
-			};
-			
-			taxcomDocflow.Actions.Add(newAction);
-
-			var edoDocflowUpdatedEvent = new EdoDocflowUpdatedEvent
-			{
-				EdoDocumentId = taxcomDocflow.EdoDocumentId,
-				DocFlowId = @event.DocFlowId,
-				DocFlowStatus = newAction.State.ToString()
-			};
-
-			if(newAction.State == EdoDocFlowStatus.Succeed)
-			{
-				edoDocflowUpdatedEvent.StatusChangeTime = @event.StatusChangeDateTime;
-				//TODO если нужно сохранять файлы по завершению документооборота,
-				//нужно модифицировать сервис под новую сущность
-				
-                /*var containerRawData =
-					await _taxcomApiClient.GetDocFlowRawData(edoDocFlow.Id.Value.ToString(), cancellationToken);
-
-				using(var ms = new MemoryStream(containerRawData.ToArray()))
-				{
-					var result =
-						await _edoContainerFileStorageService.UpdateContainerAsync(container, ms, cancellationToken);
-
-					if(result.IsFailure)
-					{
-						var errors = string.Join(", ", result.Errors.Select(e => e.Message));
-						_logger.LogError("Не удалось обновить контейнер, ошибка: {Errors}", errors);
-					}
-				}*/
+				throw new InvalidOperationException($"Неизвестный статус документооборота {@event.Status}");
 			}
 
+			EdoDocflowUpdatedEvent edoDocflowUpdatedEvent = null;
+
+			if(lastAction is null || lastAction.State != newStatus.Value)
+			{
+				var newAction = new TaxcomDocflowAction
+				{
+					State = newStatus.Value,
+					Time = @event.StatusChangeDateTime,
+					TaxcomDocflowId = taxcomDocflow.Id,
+					ErrorMessage = @event.ErrorDescription
+				};
+			
+				taxcomDocflow.Actions.Add(newAction);
+
+				edoDocflowUpdatedEvent = new EdoDocflowUpdatedEvent
+				{
+					EdoDocumentId = taxcomDocflow.EdoDocumentId,
+					DocFlowId = @event.DocFlowId,
+					DocFlowStatus = newAction.State.ToString()
+				};
+
+				if(newAction.State == EdoDocFlowStatus.Succeed)
+				{
+					edoDocflowUpdatedEvent.StatusChangeTime = @event.StatusChangeDateTime;
+					//TODO если нужно сохранять файлы по завершению документооборота,
+					//нужно модифицировать сервис под новую сущность
+				
+					/*var containerRawData =
+						await _taxcomApiClient.GetDocFlowRawData(edoDocFlow.Id.Value.ToString(), cancellationToken);
+
+					using(var ms = new MemoryStream(containerRawData.ToArray()))
+					{
+						var result =
+							await _edoContainerFileStorageService.UpdateContainerAsync(container, ms, cancellationToken);
+
+						if(result.IsFailure)
+						{
+							var errors = string.Join(", ", result.Errors.Select(e => e.Message));
+							_logger.LogError("Не удалось обновить контейнер, ошибка: {Errors}", errors);
+						}
+					}*/
+				}
+			}
+
+			await SaveTaxcomDocflow(taxcomDocflow);
+			return edoDocflowUpdatedEvent;
+		}
+
+		private async Task SaveTaxcomDocflow(TaxcomDocflow taxcomDocflow)
+		{
 			_logger.LogInformation(
 				"Сохраняем изменения документооборота {DocflowId} по документу {DocumentId}",
 				taxcomDocflow.DocflowId,
@@ -123,8 +142,6 @@ namespace Edo.Docflow.Taxcom
 			
 			await _uow.SaveAsync(taxcomDocflow);
 			await _uow.CommitAsync();
-
-			return edoDocflowUpdatedEvent;
 		}
 
 		public async Task AcceptIngoingTaxcomEdoDocFlowWaitingForSignature(
