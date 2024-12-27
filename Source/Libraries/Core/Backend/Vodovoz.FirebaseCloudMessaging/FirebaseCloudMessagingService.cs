@@ -80,7 +80,7 @@ namespace Vodovoz.FirebaseCloudMessaging
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошло исключение при отправки PUSH-сообщения: {ExceptionMessage}", ex.Message);
-				return Result.Failure(FirebaseCloudMessagingServiceErrors.SendingError);
+				return FirebaseCloudMessagingServiceErrors.SendingError;
 			}
 		}
 
@@ -127,12 +127,12 @@ namespace Vodovoz.FirebaseCloudMessaging
 			catch(FirebaseMessagingException firebaseMessagingException) when (firebaseMessagingException.MessagingErrorCode == MessagingErrorCode.Unregistered)
 			{
 				_logger.LogError(firebaseMessagingException, "Ошибка отправки PUSH-сообщения, токен {Token} не зарегистрирован", recipientToken);
-				return Result.Failure(FirebaseCloudMessagingServiceErrors.Unregistered);
+				return FirebaseCloudMessagingServiceErrors.Unregistered;
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошло исключение при отправки PUSH-сообщения: {ExceptionMessage}", ex.Message);
-				return Result.Failure(FirebaseCloudMessagingServiceErrors.SendingError);
+				return FirebaseCloudMessagingServiceErrors.SendingError;
 			}
 		}
 	}

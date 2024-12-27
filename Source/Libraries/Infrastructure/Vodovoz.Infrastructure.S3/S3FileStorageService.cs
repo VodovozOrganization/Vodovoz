@@ -51,7 +51,7 @@ namespace Vodovoz.Infrastructure.S3
 						fileName,
 						bucketName);
 
-					return await Task.FromResult(Result.Failure(Application.Errors.S3.FileAlreadyExists));
+					return await Task.FromResult(Application.Errors.S3.FileAlreadyExists);
 				}
 
 				return await PutFileAsync(bucketName, fileName, inputStream, cancellationToken);
@@ -60,7 +60,7 @@ namespace Vodovoz.Infrastructure.S3
 			{
 				HandleCommonExceptions(e, "создании файла в S3 хранилище");
 
-				return Result.Failure(Application.Errors.S3.ServiceUnavailable);
+				return Application.Errors.S3.ServiceUnavailable;
 			}
 		}
 
@@ -86,7 +86,7 @@ namespace Vodovoz.Infrastructure.S3
 			{
 				HandleCommonExceptions(e, "получении файла из S3 хранилища");
 
-				return Result.Failure<Stream>(Application.Errors.S3.ServiceUnavailable);
+				return Application.Errors.S3.ServiceUnavailable;
 			}
 		}
 
@@ -112,7 +112,7 @@ namespace Vodovoz.Infrastructure.S3
 						fileName,
 						bucketName);
 
-					return await Task.FromResult(Result.Failure(Application.Errors.S3.FileNotExists));
+					return await Task.FromResult(Application.Errors.S3.FileNotExists);
 				}
 
 				return await PutFileAsync(bucketName, fileName, inputStream, cancellationToken);
@@ -121,7 +121,7 @@ namespace Vodovoz.Infrastructure.S3
 			{
 				HandleCommonExceptions(e, "обновлении файла в S3 хранилище");
 
-				return Result.Failure(Application.Errors.S3.ServiceUnavailable);
+				return Application.Errors.S3.ServiceUnavailable;
 			}
 		}
 
@@ -146,7 +146,7 @@ namespace Vodovoz.Infrastructure.S3
 			{
 				HandleCommonExceptions(e, "удалении файла из S3 хранилища");
 
-				return Result.Failure(Application.Errors.S3.ServiceUnavailable);
+				return Application.Errors.S3.ServiceUnavailable;
 			}
 		}
 
@@ -171,7 +171,7 @@ namespace Vodovoz.Infrastructure.S3
 			{
 				HandleCommonExceptions(e, "получении списка файлов из S3 хранилища");
 
-				return Result.Failure<IEnumerable<string>>(Application.Errors.S3.ServiceUnavailable);
+				return Application.Errors.S3.ServiceUnavailable;
 			}
 		}
 
@@ -190,7 +190,7 @@ namespace Vodovoz.Infrastructure.S3
 			{
 				HandleCommonExceptions(e, "проверке наличия файла в S3 хранилище");
 
-				return Result.Failure<bool>(Application.Errors.S3.ServiceUnavailable);
+				return Application.Errors.S3.ServiceUnavailable;
 			}
 		}
 
