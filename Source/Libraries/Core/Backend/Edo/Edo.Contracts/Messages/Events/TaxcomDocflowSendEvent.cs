@@ -7,7 +7,7 @@ namespace Edo.Contracts.Messages.Events
 	/// </summary>
 	public class TaxcomDocflowSendEvent
 	{
-		public const string Event = "TaxcomDocflowSend";
+		public const string Event = "taxcom-docflow-send";
 		/// <summary>
 		/// Код кабинета в ЭДО, от имени которого отправляется документ
 		/// </summary>

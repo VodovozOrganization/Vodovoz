@@ -21,7 +21,7 @@ namespace TaxcomEdoConsumer.Consumers
 			
 			Endpoint(x =>
 			{
-				x.Name = $"{_taxcomEdoConsumerOptions.EdoAccount}_{AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent.Event}";
+				x.Name = $"{AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent.Event}.consumer_{_taxcomEdoConsumerOptions.EdoAccount}";
 			});
 		}
 		

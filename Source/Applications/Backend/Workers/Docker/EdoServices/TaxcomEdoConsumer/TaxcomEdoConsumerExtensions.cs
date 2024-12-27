@@ -56,72 +56,11 @@ namespace TaxcomEdoConsumer
 						}
 					});
 
-				configurator
-					.ConfigureTopologyForAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent()
-					.ConfigureTopologyForOutgoingTaxcomDocflowUpdatedEvent()
-					.ConfigureTopologyForTaxcomDocflowSendEvent()
-					.ConfigureTopologyForEdoDocflowUpdatedEvent(context)
-					;
-
+				configurator.AddEdoTopology(context);
 				configurator.ConfigureEndpoints(context);
 			});
 
 			return busConf;
-		}
-
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(
-			this IRabbitMqBusFactoryConfigurator configurator)
-		{
-			configurator.Send<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
-				x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
-			configurator.Message<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
-				x.SetEntityName(AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent.Event));
-			configurator.Publish<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
-			{
-				x.ExchangeType = ExchangeType.Direct;
-				x.Durable = true;
-				x.AutoDelete = false;
-			});
-
-			return configurator;
-		}
-
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForOutgoingTaxcomDocflowUpdatedEvent(
-			this IRabbitMqBusFactoryConfigurator configurator)
-		{
-			configurator.Send<OutgoingTaxcomDocflowUpdatedEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
-			configurator.Message<OutgoingTaxcomDocflowUpdatedEvent>(x => x.SetEntityName(OutgoingTaxcomDocflowUpdatedEvent.Event));
-			configurator.Publish<OutgoingTaxcomDocflowUpdatedEvent>(x =>
-			{
-				x.ExchangeType = ExchangeType.Direct;
-				x.Durable = true;
-				x.AutoDelete = false;
-			});
-
-			return configurator;
-		}
-
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForTaxcomDocflowSendEvent(
-			this IRabbitMqBusFactoryConfigurator configurator)
-		{
-			configurator.Send<TaxcomDocflowSendEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
-			configurator.Message<TaxcomDocflowSendEvent>(x => x.SetEntityName(TaxcomDocflowSendEvent.Event));
-			configurator.Publish<TaxcomDocflowSendEvent>(x =>
-			{
-				x.ExchangeType = ExchangeType.Direct;
-				x.Durable = true;
-				x.AutoDelete = false;
-			});
-
-			return configurator;
-		}
-
-		// Убрать, и использовать общий конфиг транспорта для ЭДО
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForEdoDocflowUpdatedEvent(
-			this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
-		{
-			configurator.AddEdoTopology(context);
-			return configurator;
 		}
 	}
 }
