@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Net.Security;
 using System.Security.Authentication;
-using Edo.Contracts.Messages.Events;
+using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
-using RabbitMQ.Client;
 using Vodovoz.Settings.Pacs;
 
 namespace TaxcomEdo.Library
@@ -39,44 +38,11 @@ namespace TaxcomEdo.Library
 						}
 					});
 				
-				configurator
-					.ConfigureTopologyForAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent()
-					.ConfigureTopologyForOutgoingTaxcomDocflowUpdatedEvent();
-
+				configurator.AddTaxcomEdoTopology();
 				configurator.ConfigureEndpoints(context);
 			});
 			
 			return busConf;
-		}
-
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(
-			this IRabbitMqBusFactoryConfigurator configurator)
-		{
-			configurator.Send<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
-			configurator.Message<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x => x.SetEntityName(AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent.Event));
-			configurator.Publish<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
-			{
-				x.ExchangeType = ExchangeType.Direct;
-				x.Durable = true;
-				x.AutoDelete = false;
-			});
-			
-			return configurator;
-		}
-		
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForOutgoingTaxcomDocflowUpdatedEvent(
-			this IRabbitMqBusFactoryConfigurator configurator)
-		{
-			configurator.Send<OutgoingTaxcomDocflowUpdatedEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
-			configurator.Message<OutgoingTaxcomDocflowUpdatedEvent>(x => x.SetEntityName(OutgoingTaxcomDocflowUpdatedEvent.Event));
-			configurator.Publish<OutgoingTaxcomDocflowUpdatedEvent>(x =>
-			{
-				x.ExchangeType = ExchangeType.Direct;
-				x.Durable = true;
-				x.AutoDelete = false;
-			});
-			
-			return configurator;
 		}
 	}
 }

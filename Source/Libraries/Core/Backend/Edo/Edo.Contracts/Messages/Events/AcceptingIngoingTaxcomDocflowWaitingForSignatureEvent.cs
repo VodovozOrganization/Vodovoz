@@ -7,7 +7,7 @@ namespace Edo.Contracts.Messages.Events
 	/// </summary>
 	public class AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent
 	{
-		public const string Event = "AcceptingIngoingTaxcomDocflowWaitingForSignature";
+		public const string Event = "accepting-ingoing-taxcom-Docflow-waiting-for-signature";
 		/// <summary>
 		/// Код кабинета в ЭДО
 		/// </summary>

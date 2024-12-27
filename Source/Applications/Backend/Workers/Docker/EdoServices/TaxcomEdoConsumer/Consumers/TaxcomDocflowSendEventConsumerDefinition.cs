@@ -19,7 +19,7 @@ namespace TaxcomEdoConsumer.Consumers
 			
 			Endpoint(x =>
 			{
-				x.Name = $"{_taxcomEdoConsumerOptions.EdoAccount}_{TaxcomDocflowSendEvent.Event}";
+				x.Name = $"{TaxcomDocflowSendEvent.Event}.consumer_{_taxcomEdoConsumerOptions.EdoAccount}";
 			});
 		}
 		

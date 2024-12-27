@@ -110,6 +110,8 @@ namespace Edo.Transport
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
+			
+			AddTaxcomEdoTopology(cfg);
 		}
 
 		public static IServiceCollection AddEdoMassTransit(
@@ -155,6 +157,37 @@ namespace Edo.Transport
 			});
 
 			return services;
+		}
+
+		public static void AddTaxcomEdoTopology(this IRabbitMqBusFactoryConfigurator cfg)
+		{
+			cfg.Send<TaxcomDocflowSendEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
+			cfg.Message<TaxcomDocflowSendEvent>(x => x.SetEntityName($"{TaxcomDocflowSendEvent.Event}.publish"));
+			cfg.Publish<TaxcomDocflowSendEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Direct;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Send<OutgoingTaxcomDocflowUpdatedEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
+			cfg.Message<OutgoingTaxcomDocflowUpdatedEvent>(x => x.SetEntityName($"{OutgoingTaxcomDocflowUpdatedEvent.Event}.publish"));
+			cfg.Publish<OutgoingTaxcomDocflowUpdatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Direct;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Send<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
+			cfg.Message<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
+				x.SetEntityName($"{AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent.Event}.publish"));
+			cfg.Publish<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Direct;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
 		}
 	}
 }
