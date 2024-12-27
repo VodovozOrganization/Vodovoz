@@ -63,7 +63,7 @@ namespace Vodovoz.Models.TrueMark
 					"Ошибка при обновлении статуса фискального документа чека. Должен быть указан валидный код чека. Переданное значение: {ReceiptId}",
 					receiptId);
 
-				return Result.Failure(CashReceiptErrors.CashReceiptIdNotValid);
+				return CashReceiptErrors.CashReceiptIdNotValid;
 			}
 
 			var request = new RefreshReceiptRequest
@@ -87,7 +87,7 @@ namespace Vodovoz.Models.TrueMark
 					}
 
 					_logger.LogCritical("Обновление статуса фискального документа чека завершилось неудачей. Детали: {ResponseError}", response.Error);
-					return Result.Failure(CashReceiptErrors.CreateCashReceiptApiRequestProcessingError(response.Error));
+					return CashReceiptErrors.CreateCashReceiptApiRequestProcessingError(response.Error);
 				}
 			}
 			catch(RpcException ex)
@@ -105,14 +105,14 @@ namespace Vodovoz.Models.TrueMark
 
 				_logger.LogCritical(ex, error.Message);
 
-				return Result.Failure(error);
+				return error;
 			}
 			catch(Exception ex)
 			{
 				var message = $"При попытке обновления статуса фискального документа чека произошла ошибка:\n{ex.Message}";
 				_logger.LogCritical(ex, message);
 
-				return Result.Failure(CashReceiptErrors.CreateCashReceiptApiRequestProcessingError(message));
+				return CashReceiptErrors.CreateCashReceiptApiRequestProcessingError(message);
 			}
 		}
 
@@ -126,7 +126,7 @@ namespace Vodovoz.Models.TrueMark
 					"Ошибка при повторном проведении чека. Должен быть указан валидный код чека. Переданное значение: {ReceiptId}",
 					receiptId);
 
-				return Result.Failure(CashReceiptErrors.CashReceiptIdNotValid);
+				return CashReceiptErrors.CashReceiptIdNotValid;
 			}
 
 			var request = new RequeueDocumentRequest
@@ -150,7 +150,7 @@ namespace Vodovoz.Models.TrueMark
 					}
 
 					_logger.LogCritical("Повторное проведение чека завершилось неудачей. Детали: {ResponseError}", response.Error);
-					return Result.Failure(CashReceiptErrors.CreateCashReceiptApiRequestProcessingError(response.Error));
+					return CashReceiptErrors.CreateCashReceiptApiRequestProcessingError(response.Error);
 				}
 			}
 			catch(RpcException ex)
@@ -168,14 +168,14 @@ namespace Vodovoz.Models.TrueMark
 
 				_logger.LogCritical(ex, error.Message);
 
-				return Result.Failure(error);
+				return error;
 			}
 			catch(Exception ex)
 			{
 				var message = $"При попытке повторного проведения чека произошла ошибка:\n{ex.Message}";
 				_logger.LogCritical(ex, message);
 
-				return Result.Failure(CashReceiptErrors.CreateCashReceiptApiRequestProcessingError(message));
+				return CashReceiptErrors.CreateCashReceiptApiRequestProcessingError(message);
 			}
 		}
 	}

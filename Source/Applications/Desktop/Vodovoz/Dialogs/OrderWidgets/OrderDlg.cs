@@ -2357,7 +2357,7 @@ namespace Vodovoz
 
 				if(!Validate(validationContext))
 				{
-					_lastSaveResult = Result.Failure(Errors.Orders.Order.Validation);
+					_lastSaveResult = Errors.Orders.Order.Validation;
 
 					return false;
 				}
@@ -2419,7 +2419,7 @@ namespace Vodovoz
 			}
 			catch(Exception e)
 			{
-				_lastSaveResult = Result.Failure(Errors.Orders.Order.Save);
+				_lastSaveResult = Errors.Orders.Order.Save;
 
 				logger.Log(LogLevel.Error, e);
 
@@ -2526,7 +2526,7 @@ namespace Vodovoz
 					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
 
-					return Result.Failure(Errors.Orders.Order.AcceptException);
+					return Errors.Orders.Order.AcceptException;
 				}
 			}
 		}
@@ -2535,7 +2535,7 @@ namespace Vodovoz
 		{
 			if(!Entity.CanSetOrderAsAccepted)
 			{
-				return Result.Failure(Errors.Orders.Order.CantEdit);
+				return Errors.Orders.Order.CantEdit;
 			}
 
 			var canContinue = Entity.DefaultWaterCheck(ServicesConfig.InteractiveService);
@@ -2543,7 +2543,7 @@ namespace Vodovoz
 			if(canContinue.HasValue && !canContinue.Value)
 			{
 				toggleGoods.Activate();
-				return Result.Failure(Errors.Orders.Order.Accept.HasNoDefaultWater);
+				return Errors.Orders.Order.Accept.HasNoDefaultWater;
 			}
 
 			var validationResult = ValidateAndFormOrder();
@@ -2555,7 +2555,7 @@ namespace Vodovoz
 
 			if(!CheckCertificates(canSaveFromHere: true))
 			{
-				return Result.Failure(Errors.Orders.Order.HasNoValidCertificates);
+				return Errors.Orders.Order.HasNoValidCertificates;
 			}
 
 			var promosetDuplicateFinder = new PromosetDuplicateFinder(_freeLoaderChecker, new CastomInteractiveService());
@@ -2578,7 +2578,7 @@ namespace Vodovoz
 					"В заказ добавлен промонабор для новых клиентов, но это не первый заказ клиента\n" +
 					"Хотите продолжить сохранение?"))
 				{
-					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+					return Errors.Orders.Order.AcceptAbortedByUser;
 				}
 			}
 
@@ -2586,13 +2586,13 @@ namespace Vodovoz
 			{
 				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.Id, Entity.DeliveryPoint, phones))
 				{
-					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+					return Errors.Orders.Order.AcceptAbortedByUser;
 				}
 			}
 			if(hasPromoSetForNewClients && _freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(
 				UoW, Entity.SelfDelivery, Entity.Client, Entity.DeliveryPoint))
 			{
-				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
+				return Errors.Orders.Order.UnableToShipPromoSet;
 			}
 
 			PrepareSendBillInformation();
@@ -2602,7 +2602,7 @@ namespace Vodovoz
 			   && (!Counterparty.NeedSendBillByEdo || Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
-				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+				return Errors.Orders.Order.AcceptAbortedByUser;
 			}
 			
 			var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(UoW, Entity);
@@ -2646,10 +2646,10 @@ namespace Vodovoz
 						return Result.Success();
 					}
 
-					return Result.Failure(Errors.Orders.Order.Save);
+					return Errors.Orders.Order.Save;
 				}
 
-				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+				return Errors.Orders.Order.AcceptAbortedByUser;
 			}
 
 			if(Entity.PaymentType == PaymentType.Cashless)
@@ -2660,7 +2660,7 @@ namespace Vodovoz
 				   && !ServicesConfig.InteractiveService.Question(
 					   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
 				{
-					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+					return Errors.Orders.Order.AcceptAbortedByUser;
 				}
 			}
 
@@ -2768,7 +2768,7 @@ namespace Vodovoz
 			if(!Validate(validationContext))
 			{
 				autofacScope.Dispose();
-				return Result.Failure(Errors.Orders.Order.Validation);
+				return Errors.Orders.Order.Validation;
 			}
 
 			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.CalculateDistricts(UoW, _deliveryRepository).Any())

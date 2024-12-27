@@ -85,7 +85,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			if(cancellationToken.IsCancellationRequested)
 			{
-				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
+				return await Task.FromResult(Report.CreateAborted);
 			}
 
 			IQueryable<OrderRow> ordersQuery = GetOrdersQuery(startDate, endDate, unitOfWork);
@@ -96,7 +96,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			if(cancellationToken.IsCancellationRequested)
 			{
-				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
+				return await Task.FromResult(Report.CreateAborted);
 			}
 
 			IQueryable<PaymentByCardOnline> onlinePaymentsQuery = GetOnlinePaymentsQuery(unitOfWork, onlineOrdersIds, selectedShop);
@@ -107,7 +107,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			if(cancellationToken.IsCancellationRequested)
 			{
-				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
+				return await Task.FromResult(Report.CreateAborted);
 			}
 
 			IQueryable<PaymentByCardOnline> smsPymentsQuery = GetSmsPaymentsQuery(unitOfWork, ordersIds, selectedShop);
@@ -202,7 +202,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 			if(cancellationToken.IsCancellationRequested)
 			{
-				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.CreateAborted));
+				return await Task.FromResult(Report.CreateAborted);
 			}
 
 			IQueryable<PaymentWithoutOrderRow> paymentsWithoutOrdersQuery = GetPaymentsWithoutOrdersQuery(startDate, endDate, selectedShop, unitOfWork);
@@ -253,25 +253,24 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				|| underpaidFutureOrders.Any()
 				|| paymentsWithoutOrders.Any()))
 			{
-				return await Task.FromResult(Result.Failure<OnlinePaymentsReport>(Report.NoData));
+				return await Task.FromResult(Report.NoData);
 			}
 
 			return await Task.FromResult(
-				Result.Success(
-					new OnlinePaymentsReport(
-						startDate,
-						endDate,
-						selectedShop,
-						paidTodayOrders,
-						paidFutureOrders,
-						paymentMissingTodayOrders,
-						paymentMissingFutureOrders,
-						overpaidTodayOrders,
-						overpaidFutureOrders,
-						underpaidTodayOrders,
-						underpaidFutureOrders,
-						paymentsWithoutOrders,
-						startTime)));
+				new OnlinePaymentsReport(
+					startDate,
+					endDate,
+					selectedShop,
+					paidTodayOrders,
+					paidFutureOrders,
+					paymentMissingTodayOrders,
+					paymentMissingFutureOrders,
+					overpaidTodayOrders,
+					overpaidFutureOrders,
+					underpaidTodayOrders,
+					underpaidFutureOrders,
+					paymentsWithoutOrders,
+					startTime));
 		}
 
 		private static IQueryable<PaymentWithoutOrderRow> GetPaymentsWithoutOrdersQuery(

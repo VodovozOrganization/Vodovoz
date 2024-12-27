@@ -79,7 +79,7 @@ namespace Vodovoz.Application.Goods
 
 			if(nomenclature is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Goods.Nomenclature.NotFound(nomenclatureId));
+				return Vodovoz.Errors.Goods.Nomenclature.NotFound(nomenclatureId);
 			}
 
 			return Archive(unitOfWork, nomenclature);

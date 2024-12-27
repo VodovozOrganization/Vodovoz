@@ -19,46 +19,46 @@ namespace Vodovoz.Validation
 		{
 			if(!order.DeliveryDate.HasValue || order.DeliveryDate.Value.Date != DateTime.Now.Date)
 			{
-				return Result.Failure(Errors.Orders.FastDelivery.InvalidDate);
+				return Errors.Orders.FastDelivery.InvalidDate;
 			}
 
 			if(!Order.PaymentTypesFastDeliveryAvailableFor.Contains(order.PaymentType))
 			{
-				return Result.Failure(Errors.Orders.FastDelivery.CreateInvalidPaymentTypeError(order.PaymentType));
+				return Errors.Orders.FastDelivery.CreateInvalidPaymentTypeError(order.PaymentType);
 			}
 
 			if(order.DeliveryPoint == null)
 			{
-				return Result.Failure(Errors.Orders.FastDelivery.DeliveryPointIsMissing);
+				return Errors.Orders.FastDelivery.DeliveryPointIsMissing;
 			}
 
 			if(order.DeliveryPoint.Longitude == null || order.DeliveryPoint.Latitude == null)
 			{
-				return Result.Failure(Errors.Clients.DeliveryPoint.FastDelivery.CoordinatesIsMissing);
+				return Errors.Clients.DeliveryPoint.FastDelivery.CoordinatesIsMissing;
 			}
 
 			var district = order.DeliveryPoint.District;
 
 			if(district == null)
 			{
-				return Result.Failure(Errors.Clients.DeliveryPoint.FastDelivery.DistrictIsMissing);
+				return Errors.Clients.DeliveryPoint.FastDelivery.DistrictIsMissing;
 			}
 
 			if(district.TariffZone == null)
 			{
-				return Result.Failure(Errors.Logistics.District.FastDelivery.TariffZoneIsMissing);
+				return Errors.Logistics.District.FastDelivery.TariffZoneIsMissing;
 			}
 
 			if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
 			{
-				return Result.Failure(Errors.Logistics.TariffZone.FastDelivery.CreateFastDeliveryIsUnavailableAtCurrentTimeError(district.TariffZone.FastDeliveryTimeFrom));
+				return Errors.Logistics.TariffZone.FastDelivery.CreateFastDeliveryIsUnavailableAtCurrentTimeError(district.TariffZone.FastDeliveryTimeFrom);
 			}
 
 			var total19LBottlesToDeliver = order.Total19LBottlesToDeliver;
 			
 			if(total19LBottlesToDeliver == 0)
 			{
-				return Result.Failure(Errors.Orders.FastDelivery.Water19LIsMissing);
+				return Errors.Orders.FastDelivery.Water19LIsMissing;
 			}
 			
 			var isFastDelivery19LBottlesLimitActive = _generalSettings.IsFastDelivery19LBottlesLimitActive;
@@ -69,8 +69,7 @@ namespace Vodovoz.Validation
 
 				if(total19LBottlesToDeliver > fastDelivery19LBottlesLimitCount)
 				{
-					return Result.Failure(Errors.Orders.Order.FastDelivery19LBottlesLimitError(
-						total19LBottlesToDeliver, fastDelivery19LBottlesLimitCount));
+					return Errors.Orders.Order.FastDelivery19LBottlesLimitError(total19LBottlesToDeliver, fastDelivery19LBottlesLimitCount);
 				}
 			}
 
