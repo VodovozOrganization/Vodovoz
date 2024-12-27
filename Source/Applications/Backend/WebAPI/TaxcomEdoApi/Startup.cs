@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Runtime.Serialization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using CustomerAppsApi.HealthChecks;
 using VodovozHealthCheck;
 
@@ -43,7 +46,12 @@ namespace TaxcomEdoApi
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 			services.AddControllers()
-				.AddXmlSerializerFormatters();
+				.AddXmlSerializerFormatters()
+				.AddJsonOptions(options =>
+				{
+					options.JsonSerializerOptions.Converters.Add(
+						new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+				});
 
 			services.AddSwaggerGen(c =>
 			{
