@@ -1,4 +1,5 @@
-﻿using ApiCreateOrderRequest = RobotMiaApi.Contracts.Requests.V1.CreateOrderRequest;
+﻿using System;
+using ApiCreateOrderRequest = RobotMiaApi.Contracts.Requests.V1.CreateOrderRequest;
 using CreateOrderRequest = VodovozBusiness.Services.Orders.CreateOrderRequest;
 
 namespace RobotMiaApi.Extensions.Mapping
@@ -17,9 +18,9 @@ namespace RobotMiaApi.Extensions.Mapping
 		{
 			CounterpartyId = postOrderRequest.CounterpartyId, //Обязательное поле
 			DeliveryPointId = postOrderRequest.DeliveryPointId, //Обязательное поле
-			Date = postOrderRequest.DeliveryDate,
-			DeliveryScheduleId = postOrderRequest.DeliveryIntervalId,
-			PaymentType = postOrderRequest.PaymentType.MapToPaymentType(),
+			Date = postOrderRequest.DeliveryDate ?? DateTime.Today,
+			DeliveryScheduleId = postOrderRequest.DeliveryIntervalId ?? default,
+			PaymentType = postOrderRequest.PaymentType?.MapToPaymentType() ?? Vodovoz.Domain.Client.PaymentType.Cash,
 			PaymentByTerminalSource =
 				postOrderRequest.PaymentType == Contracts.Requests.V1.PaymentType.TerminalQR
 				? Vodovoz.Domain.Client.PaymentByTerminalSource.ByQR
@@ -27,7 +28,7 @@ namespace RobotMiaApi.Extensions.Mapping
 					? Vodovoz.Domain.Client.PaymentByTerminalSource.ByCard
 					: null,
 			BanknoteForReturn = postOrderRequest.Trifle,
-			BottlesReturn = postOrderRequest.BottlesReturn,
+			BottlesReturn = postOrderRequest.BottlesReturn ?? default,
 			SaleItems = postOrderRequest.SaleItems.MapToSaleItem()
 		};
 	}
