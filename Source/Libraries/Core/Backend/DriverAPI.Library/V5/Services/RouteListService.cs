@@ -110,7 +110,7 @@ namespace DriverAPI.Library.V5.Services
 
 			if(driver is null)
 			{
-				return Result.Failure<IEnumerable<int>>(Vodovoz.Errors.Employees.Driver.NotFound);
+				return Vodovoz.Errors.Employees.Driver.NotFound;
 			}
 
 			return Result.Success(_routeListRepository.GetDriverRouteListsIds(
@@ -126,19 +126,19 @@ namespace DriverAPI.Library.V5.Services
 			if(routeListAddress is null)
 			{
 				_logger.LogWarning("Адрес МЛ {RouteListItemId} не нейден", routeListAddressId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound;
 			}
 
 			if(routeListAddress.Order is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Vodovoz.Errors.Orders.Order.NotFound;
 			}
 
 			var deliveryPoint = routeListAddress.Order.DeliveryPoint;
 
 			if(deliveryPoint is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Clients.DeliveryPoint.NotFound);
+				return Vodovoz.Errors.Clients.DeliveryPoint.NotFound;
 			}
 
 			if(routeListAddress.RouteList.Driver.Id != driverId)
@@ -148,7 +148,7 @@ namespace DriverAPI.Library.V5.Services
 					routeListAddress.RouteList.Driver.Id,
 					driverId);
 
-				return Result.Failure(Errors.Security.Authorization.RouteListAccessDenied);
+				return Errors.Security.Authorization.RouteListAccessDenied;
 			}
 
 			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute)
@@ -161,7 +161,7 @@ namespace DriverAPI.Library.V5.Services
 					routeListAddress.Status,
 					driverId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Vodovoz.Errors.Logistics.RouteList.NotEnRouteState;
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
@@ -174,7 +174,7 @@ namespace DriverAPI.Library.V5.Services
 					routeListAddress.Status,
 					driverId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				return Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState;
 			}
 
 			var coordinate = new DeliveryPointEstimatedCoordinate()
@@ -200,14 +200,14 @@ namespace DriverAPI.Library.V5.Services
 		{
 			if(routeListAddressId <= 0)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound;
 			}
 
 			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId);
 
 			if(routeListAddress is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound;
 			}
 
 			if(!IsRouteListBelongToDriver(routeListAddress.RouteList.Id, driverId))
@@ -217,17 +217,17 @@ namespace DriverAPI.Library.V5.Services
 					driverId,
 					routeListAddress.RouteList.Driver?.Id);
 
-				return Result.Failure(Errors.Security.Authorization.RouteListAccessDenied);
+				return Errors.Security.Authorization.RouteListAccessDenied;
 			}
 
 			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Vodovoz.Errors.Logistics.RouteList.NotEnRouteState;
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.Completed)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotCompletedState);
+				return Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotCompletedState;
 			}
 
 			routeListAddress.RouteList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.EnRoute);
@@ -341,7 +341,7 @@ namespace DriverAPI.Library.V5.Services
 
 			if(currentDriver is null)
 			{
-				return Result.Failure<DriverTransfersInfoResponse>(Vodovoz.Errors.Employees.Driver.NotFound);
+				return Vodovoz.Errors.Employees.Driver.NotFound;
 			}
 
 			return new DriverTransfersInfoResponse
@@ -431,7 +431,7 @@ namespace DriverAPI.Library.V5.Services
 
 			if(order is null)
 			{
-				return Result.Failure<IEnumerable<TransferItemDto>>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Vodovoz.Errors.Orders.Order.NotFound;
 			}
 
 			var result = new List<TransferItemDto>();

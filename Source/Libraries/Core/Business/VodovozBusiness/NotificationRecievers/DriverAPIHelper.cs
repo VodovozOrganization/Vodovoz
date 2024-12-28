@@ -122,17 +122,17 @@ namespace Vodovoz.NotificationRecievers
 
 				if(string.IsNullOrWhiteSpace(responseBody))
 				{
-					return Result.Failure(Errors.Common.DriverApiClient.ApiError(response.ReasonPhrase));
+					return Errors.Common.DriverApiClient.ApiError(response.ReasonPhrase);
 				}
 				else if(response.IsSuccessStatusCode)
 				{
 					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
-					return Result.Failure(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail));
+					return Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail);
 				}
 				else
 				{
 					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
-					return Result.Failure(Errors.Common.DriverApiClient.ApiError(problemDetails.Detail));
+					return Errors.Common.DriverApiClient.ApiError(problemDetails.Detail);
 				}
 			}
 		}
