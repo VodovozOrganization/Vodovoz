@@ -1,8 +1,8 @@
-﻿using Core.Infrastructure.Specifications;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Specifications;
 
 namespace Vodovoz.Core.Domain.Subdivisions
 {
