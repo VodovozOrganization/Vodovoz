@@ -67,7 +67,8 @@ namespace RobotMiaApi.Controllers.V1
 				return Problem($"Должен быть указан идентификатор контрагента, указано значение: {postOrderRequest.CounterpartyId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			if(unitOfWork.GetById<DeliveryPoint>(postOrderRequest.DeliveryPointId) is not DeliveryPoint deliveryPoint || deliveryPoint.Counterparty.Id != postOrderRequest.CounterpartyId)
+			if(unitOfWork.GetById<DeliveryPoint>(postOrderRequest.DeliveryPointId) is not DeliveryPoint deliveryPoint
+				|| deliveryPoint.Counterparty.Id != postOrderRequest.CounterpartyId)
 			{
 				return Problem($"Должен быть указан идентификатор существующей точки доставки указанного контрагента, указано значение: {postOrderRequest.DeliveryPointId}", statusCode: StatusCodes.Status400BadRequest);
 			}
