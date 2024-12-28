@@ -24,6 +24,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 		private readonly IFuelControlAuthorizationService _fuelControlAuthorizationService;
 		private readonly IFuelControlFuelCardsDataService _fuelCardsDataService;
 		private readonly IFuelLimitsManagementService _fuelLimitsManagementService;
+		private readonly IFuelControlFuelCardProductRestrictionService _productRestrictionService;
 		private readonly IUserSettingsService _userSettingsService;
 		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly IFuelRepository _fuelRepository;
@@ -34,6 +35,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			IFuelControlAuthorizationService fuelControlAuthorizationService,
 			IFuelControlFuelCardsDataService fuelCardsDataService,
 			IFuelLimitsManagementService fuelLimitsManagementService,
+			IFuelControlFuelCardProductRestrictionService productRestrictionService,
 			IUserSettingsService userSettingsService,
 			IFuelControlSettings fuelControlSettings,
 			IFuelRepository fuelRepository)
@@ -43,6 +45,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			_fuelControlAuthorizationService = fuelControlAuthorizationService ?? throw new ArgumentNullException(nameof(fuelControlAuthorizationService));
 			_fuelCardsDataService = fuelCardsDataService ?? throw new ArgumentNullException(nameof(fuelCardsDataService));
 			_fuelLimitsManagementService = fuelLimitsManagementService ?? throw new ArgumentNullException(nameof(fuelLimitsManagementService));
+			_productRestrictionService = productRestrictionService ?? throw new ArgumentNullException(nameof(productRestrictionService));
 			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -243,6 +246,125 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			finally
 			{
 				await SaveFuelApiRequestData(request);
+			}
+		}
+
+		public async Task<string> SetProductRestrictionAndRemoveExistingByCardId(
+			string cardId,
+			string productGroupId,
+			CancellationToken cancellationToken)
+		{
+			var existingRestrictions =
+				await GetProductRestrictionByCardId(cardId, cancellationToken);
+
+			foreach(var restriction in existingRestrictions)
+			{
+				await RemoveProductRestrictionById(restriction.RestrictionId, cancellationToken);
+			}
+
+			var newRestriction =
+				(await SetProductRestriction(cardId, productGroupId, cancellationToken))
+				.FirstOrDefault();
+
+			return newRestriction;
+		}
+
+		private async Task<IEnumerable<(string RestrictionId, string ProductTypeId, string ProductGroupId)>> GetProductRestrictionByCardId(
+			string cardId,
+			CancellationToken cancellationToken)
+		{
+			var sessionId = await GetSessionIdOrLogin(cancellationToken);
+
+			var requestData = CreateFuelApiRequestData(FuelApiRequestFunction.None);
+
+			try
+			{
+				var restrictions = await _productRestrictionService.GetProductRestrictionsByCardId(
+					cardId,
+					sessionId,
+					_userSettingsService.Settings.FuelControlApiKey,
+					cancellationToken);
+
+				requestData.ResponseResult = FuelApiResponseResult.Success;
+
+				return restrictions;
+			}
+			catch(Exception ex)
+			{
+				requestData.ResponseResult = FuelApiResponseResult.Error;
+				requestData.ErrorResponseMessage = GetErrorMessageFromException(ex);
+
+				throw ex;
+			}
+			finally
+			{
+				await SaveFuelApiRequestData(requestData);
+			}
+		}
+
+		private async Task<bool> RemoveProductRestrictionById(string restrictionId, CancellationToken cancellationToken)
+		{
+			var sessionId = await GetSessionIdOrLogin(cancellationToken);
+
+			var requestData = CreateFuelApiRequestData(FuelApiRequestFunction.None);
+
+			try
+			{
+				var isRemoved = await _productRestrictionService.RemoveProductRestictionById(
+					restrictionId,
+					sessionId,
+					_userSettingsService.Settings.FuelControlApiKey,
+					cancellationToken);
+
+				requestData.ResponseResult = FuelApiResponseResult.Success;
+
+				return isRemoved;
+			}
+			catch(Exception ex)
+			{
+				requestData.ResponseResult = FuelApiResponseResult.Error;
+				requestData.ErrorResponseMessage = GetErrorMessageFromException(ex);
+
+				throw ex;
+			}
+			finally
+			{
+				await SaveFuelApiRequestData(requestData);
+			}
+		}
+
+		private async Task<IEnumerable<string>> SetProductRestriction(
+			string cardId,
+			string productGroupId,
+			CancellationToken cancellationToken)
+		{
+			var sessionId = await GetSessionIdOrLogin(cancellationToken);
+
+			var requestData = CreateFuelApiRequestData(FuelApiRequestFunction.None);
+
+			try
+			{
+				var createdLimits = await _productRestrictionService.SetProductRestriction(
+					cardId,
+					productGroupId,
+					sessionId,
+					_userSettingsService.Settings.FuelControlApiKey,
+					cancellationToken);
+
+				requestData.ResponseResult = FuelApiResponseResult.Success;
+
+				return createdLimits;
+			}
+			catch(Exception ex)
+			{
+				requestData.ResponseResult = FuelApiResponseResult.Error;
+				requestData.ErrorResponseMessage = GetErrorMessageFromException(ex);
+
+				throw ex;
+			}
+			finally
+			{
+				await SaveFuelApiRequestData(requestData);
 			}
 		}
 
