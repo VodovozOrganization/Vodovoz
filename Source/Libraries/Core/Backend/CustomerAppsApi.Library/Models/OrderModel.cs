@@ -24,11 +24,17 @@ namespace CustomerAppsApi.Library.Models
 
 		public bool CanCounterpartyOrderPromoSetForNewClients(FreeLoaderCheckingDto freeLoaderCheckingDto)
 		{
+			var digitsNumber =
+				!string.IsNullOrWhiteSpace(freeLoaderCheckingDto.Phone) && freeLoaderCheckingDto.Phone.Length > 2
+					? freeLoaderCheckingDto.Phone[2..]
+					: null;
+			
 			return _freeLoaderChecker.CanOrderPromoSetForNewClientsFromOnline(
 				_unitOfWork,
 				freeLoaderCheckingDto.IsSelfDelivery,
 				freeLoaderCheckingDto.ErpCounterpartyId,
-				freeLoaderCheckingDto.ErpDeliveryPointId)
+				freeLoaderCheckingDto.ErpDeliveryPointId,
+				digitsNumber)
 				.IsSuccess;
 		}
 	}

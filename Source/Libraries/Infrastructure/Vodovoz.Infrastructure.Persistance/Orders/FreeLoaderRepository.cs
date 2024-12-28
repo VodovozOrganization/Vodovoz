@@ -63,7 +63,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public IEnumerable<FreeLoaderInfoNode> GetPossibleFreeLoadersInfoByCounterpartyPhones(
 			IUnitOfWork uow,
 			int orderId,
-			IEnumerable<Phone> phones)
+			IEnumerable<string> phoneNumbers)
 		{
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemAlias = null;
@@ -73,20 +73,19 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			Phone deliveryPointPhoneAlias = null;
 			FreeLoaderInfoNode resultAlias = null;
 
-			var phonesArray = phones.Select(x => x.DigitsNumber).ToArray();
 			var nullProjection = Projections.SqlFunction( 
 				new SQLFunctionTemplate(NHibernateUtil.String, "NULLIF(1,1)"),
 				NHibernateUtil.String
 			);
 
 			var counterpartyPhoneProjection = Projections.Conditional(
-				Restrictions.In(Projections.Property(() => counterpartyPhoneAlias.DigitsNumber), phonesArray),
+				Restrictions.InG(Projections.Property(() => counterpartyPhoneAlias.DigitsNumber), phoneNumbers),
 				Projections.Property(() => counterpartyPhoneAlias.DigitsNumber),
 				nullProjection
 			);
 
 			var deliveryPointPhoneProjection = Projections.Conditional(
-				Restrictions.In(Projections.Property(() => deliveryPointPhoneAlias.DigitsNumber), phonesArray),
+				Restrictions.InG(Projections.Property(() => deliveryPointPhoneAlias.DigitsNumber), phoneNumbers),
 				Projections.Property(() => deliveryPointPhoneAlias.DigitsNumber),
 				nullProjection
 			);
@@ -118,7 +117,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
-				.WhereRestrictionOn(() => counterpartyPhoneAlias.DigitsNumber).IsInG(phonesArray)
+				.WhereRestrictionOn(() => counterpartyPhoneAlias.DigitsNumber).IsInG(phoneNumbers)
 				.And(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)))
 				.And(() => orderAlias.Id != orderId)
 				.SelectList(list => list
@@ -135,7 +134,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public IEnumerable<FreeLoaderInfoNode> GetPossibleFreeLoadersInfoByDeliveryPointPhones(
 			IUnitOfWork uow,
 			IEnumerable<int> excludeOrderIds,
-			IEnumerable<Phone> phones)
+			IEnumerable<string> phoneNumbers)
 		{
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			Vodovoz.Domain.Orders.OrderItem orderItemAlias = null;
@@ -145,21 +144,19 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			Phone deliveryPointPhoneAlias = null;
 			FreeLoaderInfoNode resultAlias = null;
 
-			var phonesArray = phones.Select(x => x.DigitsNumber).ToArray();
-			
 			var nullProjection = Projections.SqlFunction( 
 				new SQLFunctionTemplate(NHibernateUtil.String, "NULLIF(1,1)"),
 				NHibernateUtil.String
 			);
 
 			var counterpartyPhoneProjection = Projections.Conditional(
-				Restrictions.In(Projections.Property(() => counterpartyPhoneAlias.DigitsNumber), phonesArray),
+				Restrictions.InG(Projections.Property(() => counterpartyPhoneAlias.DigitsNumber), phoneNumbers),
 				Projections.Property(() => counterpartyPhoneAlias.DigitsNumber),
 				nullProjection
 			);
 
 			var deliveryPointPhoneProjection = Projections.Conditional(
-				Restrictions.In(Projections.Property(() => deliveryPointPhoneAlias.DigitsNumber), phonesArray),
+				Restrictions.InG(Projections.Property(() => deliveryPointPhoneAlias.DigitsNumber), phoneNumbers),
 				Projections.Property(() => deliveryPointPhoneAlias.DigitsNumber),
 				nullProjection
 			);
@@ -191,7 +188,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
-				.WhereRestrictionOn(() => deliveryPointPhoneAlias.DigitsNumber).IsInG(phonesArray)
+				.WhereRestrictionOn(() => deliveryPointPhoneAlias.DigitsNumber).IsInG(phoneNumbers)
 				.AndRestrictionOn(() => orderAlias.Id).Not.IsInG(excludeOrderIds)
 				.And(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)))
 				.SelectList(list => list

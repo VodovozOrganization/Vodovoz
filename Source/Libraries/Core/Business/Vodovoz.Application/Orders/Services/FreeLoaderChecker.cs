@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -52,11 +52,11 @@ namespace Vodovoz.Application.Orders.Services
 			IUnitOfWork uow,
 			int orderId,
 			DeliveryPoint deliveryPoint,
-			IEnumerable<Phone> phones)
+			IEnumerable<string> phoneNumbers)
 		{
-			if(phones == null)
+			if(phoneNumbers == null)
 			{
-				throw new ArgumentNullException(nameof(phones));
+				throw new ArgumentNullException(nameof(phoneNumbers));
 			}
 			
 			PossibleFreeLoadersByAddress =
@@ -65,14 +65,14 @@ namespace Vodovoz.Application.Orders.Services
 					: Array.Empty<FreeLoaderInfoNode>();
 
 			var phoneResultByCounterparty =
-				_freeLoaderRepository.GetPossibleFreeLoadersInfoByCounterpartyPhones(uow, orderId, phones);
+				_freeLoaderRepository.GetPossibleFreeLoadersInfoByCounterpartyPhones(uow, orderId, phoneNumbers);
 			
 			var excludeOrderIds =
 				phoneResultByCounterparty.Select(x => x.OrderId)
 					.Concat(new[] { orderId });
 
 			var phoneResultByDeliveryPoint =
-				_freeLoaderRepository.GetPossibleFreeLoadersInfoByDeliveryPointPhones(uow, excludeOrderIds, phones);
+				_freeLoaderRepository.GetPossibleFreeLoadersInfoByDeliveryPointPhones(uow, excludeOrderIds, phoneNumbers);
 			
 			PossibleFreeLoadersByPhones = phoneResultByCounterparty.Concat(phoneResultByDeliveryPoint);
 
@@ -83,7 +83,8 @@ namespace Vodovoz.Application.Orders.Services
 			IUnitOfWork uow,
 			bool isSelfDelivery,
 			int? counterpartyId,
-			int? deliveryPointId)
+			int? deliveryPointId,
+			string digitsNumber = null)
 		{
 			if(isSelfDelivery)
 			{
@@ -114,9 +115,14 @@ namespace Vodovoz.Application.Orders.Services
 				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
 			}
 
-			var phones = new List<Phone>();
-			phones.AddRange(counterparty.Phones);
-			phones.AddRange(deliveryPoint.Phones);
+			var phones = new List<string>();
+			phones.AddRange(counterparty.Phones.Select(x => x.DigitsNumber));
+			phones.AddRange(deliveryPoint.Phones.Select(x => x.DigitsNumber));
+
+			if(!string.IsNullOrWhiteSpace(digitsNumber))
+			{
+				phones.Add(digitsNumber);
+			}
 
 			if(CheckFreeLoaders(uow, 0, deliveryPoint, phones))
 			{

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -2561,13 +2561,13 @@ namespace Vodovoz
 
 			var promosetDuplicateFinder = new PromosetDuplicateFinder(_freeLoaderChecker, new CastomInteractiveService());
 			
-			var phones = new List<Phone>();
+			var phones = new List<string>();
 
-			phones.AddRange(Entity.Client.Phones);
+			phones.AddRange(Entity.Client.Phones.Select(x => x.DigitsNumber));
 
 			if(Entity.DeliveryPoint != null)
 			{
-				phones.AddRange(Entity.DeliveryPoint.Phones);
+				phones.AddRange(Entity.DeliveryPoint.Phones.Select(x => x.DigitsNumber));
 			}
 
 			var hasPromoSetForNewClients = Entity.PromotionalSets.Any(x => x.PromotionalSetForNewClients);

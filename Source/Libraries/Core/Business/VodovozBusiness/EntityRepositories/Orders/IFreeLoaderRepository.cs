@@ -30,12 +30,12 @@ namespace VodovozBusiness.EntityRepositories.Orders
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="orderId">Номер текущего заказа для исключения из выборки</param>
-		/// <param name="phones">Список телефонов для поиска</param>
+		/// <param name="phones">Список номеров телефонов в формате XXXXXXXXXX(только цифры)</param>
 		/// <returns>Набор данных о ранних заказах промиков по указанным телефонам <see cref="FreeLoaderInfoNode"/></returns>
 		IEnumerable<FreeLoaderInfoNode> GetPossibleFreeLoadersInfoByCounterpartyPhones(
 			IUnitOfWork uow,
 			int orderId,
-			IEnumerable<Phone> phones);
+			IEnumerable<string> phones);
 
 		/// <summary>
 		/// Выборка информации о заказах с промонаборами, которые заказывались на такой же телефон
@@ -44,12 +44,12 @@ namespace VodovozBusiness.EntityRepositories.Orders
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="excludeOrderIds">Номера исключаемых заказов</param>
-		/// <param name="phones">Список телефонов для поиска</param>
+		/// <param name="phones">Список номеров телефонов в формате XXXXXXXXXX(только цифры)</param>
 		/// <returns>Набор данных о ранних заказах промиков по указанным телефонам <see cref="FreeLoaderInfoNode"/></returns>
 		IEnumerable<FreeLoaderInfoNode> GetPossibleFreeLoadersInfoByDeliveryPointPhones(
 			IUnitOfWork uow,
 			IEnumerable<int> excludeOrderIds,
-			IEnumerable<Phone> phones);
+			IEnumerable<string> phones);
 		/// <summary>
 		/// Выборка информации о заказах с промонаборами, которые заказывались на такой же адрес(сравнение по Guid дома в ФИАСе) с квартирой
 		/// Если найдется хоть одно совпадение, значит клиент может являться халявщиком

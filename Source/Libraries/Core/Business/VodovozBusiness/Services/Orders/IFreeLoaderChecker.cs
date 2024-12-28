@@ -28,13 +28,13 @@ namespace VodovozBusiness.Services.Orders
 		/// <param name="uow">unit of work</param>
 		/// <param name="orderId">Номер текущего заказа</param>
 		/// <param name="deliveryPoint">Информация об адресе</param>
-		/// <param name="phones">Телефоны для проверки</param>
+		/// <param name="phoneNumbers">Телефоны для проверки в формате XXXXXXXXXX(только цифры)</param>
 		/// <returns></returns>
 		bool CheckFreeLoaders(
 			IUnitOfWork uow,
 			int orderId,
 			DeliveryPoint deliveryPoint,
-			IEnumerable<Phone> phones);
+			IEnumerable<string> phoneNumbers);
 		/// <summary>
 		/// Проверка на использование промонабора в заказе на адрес
 		/// Если клиент физик заказывает на адрес с типом Склад <see cref="RoomType.Store"/> или Офис <see cref="RoomType.Office"/>
@@ -50,6 +50,7 @@ namespace VodovozBusiness.Services.Orders
 			bool isSelfDelivery,
 			Counterparty client,
 			DeliveryPoint deliveryPoint);
+
 		/// <summary>
 		/// Проверка на возможного халявщика для ИПЗ(можно ли заказывать промик для нового клиента).
 		/// </summary>
@@ -57,6 +58,7 @@ namespace VodovozBusiness.Services.Orders
 		/// <param name="isSelfDelivery">Самовывоз или нет</param>
 		/// <param name="counterpartyId">Id клиента</param>
 		/// <param name="deliveryPointId">Id точки доставки</param>
+		/// <param name="digitsNumber">Номер телефона в формате XXXXXXXXXX (только цифры)</param>
 		/// <returns>
 		/// <see cref="Result.IsSuccess"/> - может заказывать промик для новых клиентов,
 		/// <see cref="Result.Failure(Vodovoz.Errors.Error)"/> - нет</returns>
@@ -64,6 +66,7 @@ namespace VodovozBusiness.Services.Orders
 			IUnitOfWork uow,
 			bool isSelfDelivery,
 			int? counterpartyId,
-			int? deliveryPointId);
+			int? deliveryPointId,
+			string digitsNumber = null);
 	}
 }
