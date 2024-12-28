@@ -68,6 +68,9 @@ namespace Vodovoz.Settings.Database.Fuel
 		public int LoaderFuelLimitMaxTransactionsCount =>
 			_settingsController.GetValue<int>($"{_parametersPrefix}{nameof(LoaderFuelLimitMaxTransactionsCount)}");
 
+		public DateTime FuelPricesLastUpdateDate =>
+			_settingsController.GetDateTimeValue($"{_parametersPrefix}{nameof(FuelPricesLastUpdateDate)}");
+
 		public void SetFuelTransactionsPerDayLastUpdateDate(string value)
 		{
 			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(FuelTransactionsPerDayLastUpdateDate)}", value);
@@ -96,6 +99,11 @@ namespace Vodovoz.Settings.Database.Fuel
 		public void SetLoaderMaxDailyFuelLimit(int value)
 		{
 			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(LoaderMaxDailyFuelLimit)}", value.ToString());
+		}
+
+		public void SetFuelPricesLastUpdateDate(string value)
+		{
+			_settingsController.CreateOrUpdateSetting($"{_parametersPrefix}{nameof(FuelPricesLastUpdateDate)}", value);
 		}
 	}
 }

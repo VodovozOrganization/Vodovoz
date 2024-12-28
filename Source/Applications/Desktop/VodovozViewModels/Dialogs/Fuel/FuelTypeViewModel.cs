@@ -25,7 +25,8 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		{
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
-			_fuelVersionsController = new FuelPriceVersionsController(Entity);
+			_fuelVersionsController = new FuelPriceVersionsController();
+			_fuelVersionsController.SetFuelType(Entity);
 
 			CanEdit = PermissionResult.CanUpdate
 				|| (PermissionResult.CanCreate && Entity.Id == 0);
