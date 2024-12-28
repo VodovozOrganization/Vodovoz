@@ -1,8 +1,5 @@
 ﻿using Autofac;
-using FluentNHibernate.Data;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using QS.Attachments;
 using QS.Commands;
 using QS.Dialog;
 using QS.Dialog.ViewModels;
@@ -16,6 +13,7 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -23,6 +21,7 @@ using System.Threading;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -33,12 +32,10 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
-using Vodovoz.Presentation.ViewModels;
-using Vodovoz.Settings.Database.Logistics;
+using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
@@ -52,8 +49,6 @@ using Vodovoz.ViewModels.Widgets.Cars;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using VodovozInfrastructure.StringHandlers;
-using System.Collections.Generic;
-using Vodovoz.Core.Domain.Logistics.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -63,6 +58,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ILogger<CarViewModel> _logger;
 		private readonly ICarFileStorageService _carFileStorageService;
+		private readonly IFuelApiService _fuelApiService;
 		private bool _canChangeBottlesFromAddress;
 
 		private IPage<GeoGroupJournalViewModel> _gooGroupPage = null;
@@ -83,12 +79,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private byte[] _photo;
 		private string _photoFilename;
 
+		private FuelType _oldFuelType;
+		private FuelCard _oldLastFuelCard;
+		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
+
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			ICarFileStorageService carFileStorageService,
+			IFuelApiService fuelApiService,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IFuelCardVersionViewModelFactory fuelCardVersionViewModelFactory,
 			IRouteListsWageController routeListsWageController,
@@ -122,6 +123,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_carFileStorageService = carFileStorageService ?? throw new ArgumentNullException(nameof(carFileStorageService));
+			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -231,6 +233,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
 			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);
 			CreateRentalContractCommand = new DelegateCommand(CreateRentalContract);
+
+			_oldFuelType = Entity.FuelType;
+			_oldLastFuelCard = GetLastFuelCard();
 		}
 
 		private void ConfigureTechInspectInfo()
@@ -503,6 +508,89 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				}
 			}
 		}
+
+		protected override void AfterSave()
+		{
+			UpdateFuelCardProductRestrictionInGazpromIfNeed();
+
+			base.AfterSave();
+		}
+
+		private void UpdateFuelCardProductRestrictionInGazpromIfNeed()
+		{
+			if(!IsFuelCardChanged() && !IsFuelTypeChanged)
+			{
+				return;
+			}
+
+			var currentLastFuelCard = GetLastFuelCard();
+
+			if(currentLastFuelCard is null || Entity.FuelType is null)
+			{
+				return;
+			}
+
+			if(_fuelCardUpdateCancellationTokenSource != null)
+			{
+				ShowErrorMessage("В данный момент уже выполняется обновление товарного ограничителя!");
+
+				return;
+			}
+
+			_fuelCardUpdateCancellationTokenSource = new CancellationTokenSource();
+
+			try
+			{
+				var cardChangeResult = _fuelApiService.SetProductRestrictionAndRemoveExistingByCardId(
+					currentLastFuelCard.CardId,
+					Entity.FuelType.ProductGroupId,
+					_fuelCardUpdateCancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+
+				_oldFuelType = Entity.FuelType;
+				_oldLastFuelCard = currentLastFuelCard;
+			}
+			catch(Exception ex)
+			{
+				ShowErrorMessage("При обновлении товарного ограничителя в сервисе Газпром возникла ошибка.\n" +
+					"Необходимо с использованием браузера зайти в веб-интерфейс Газпромнефть и убедиться,\n" +
+					"что для топливной карты установлен правильный товарный ограничитель!");
+
+				_logger.LogCritical(
+					ex,
+					"Ошибка при обновлении товарного ограничителя в сервисе Газпром. Номер карты:{CardNumber}. Тип топлива: {FuelTypeName}.",
+					currentLastFuelCard.CardNumber,
+					Entity.FuelType.Name);
+			}
+			finally
+			{
+				_fuelCardUpdateCancellationTokenSource.Dispose();
+				_fuelCardUpdateCancellationTokenSource = null;
+			}
+		}
+
+		private FuelCard GetLastFuelCard() =>
+			Entity.FuelCardVersions
+			.OrderByDescending(x => x.StartDate)
+			.Select(x => x.FuelCard)
+			.FirstOrDefault();
+
+		private bool IsFuelCardChanged()
+		{
+			var currentLastFuelCard = GetLastFuelCard();
+
+			if(_oldLastFuelCard is null && currentLastFuelCard is null)
+			{
+				return false;
+			}
+
+			return _oldLastFuelCard?.Id != currentLastFuelCard?.Id;
+		}
+
+		private bool IsFuelTypeChanged =>
+			_oldFuelType?.Id != Entity.FuelType?.Id;
+
 
 		private bool SetOtherCarsFuelCardVersionEndDateIfNeed()
 		{
