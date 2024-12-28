@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using NHibernate.Util;
 using QS.DomainModel.UoW;
 using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
 using RobotMiaApi.Extensions.Mapping;
 using RobotMiaApi.Services;
 using System;
+using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
@@ -73,15 +75,22 @@ namespace RobotMiaApi.Controllers.V1
 				return Problem($"Должен быть указан идентификатор существующей точки доставки указанного контрагента, указано значение: {postOrderRequest.DeliveryPointId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			try
+			if(postOrderRequest.DeliveryDate is null
+				|| postOrderRequest.DeliveryIntervalId is null
+				|| postOrderRequest.SignatureType is null
+				|| postOrderRequest.ContactPhone is null
+				|| postOrderRequest.PaymentType is null
+				|| postOrderRequest.CallBeforeArrivalMinutes is null
+				|| postOrderRequest.BottlesReturn is null
+				|| !postOrderRequest.SaleItems.Any())
 			{
-				var createdOrderId = _orderService.CreateAndAcceptOrder(postOrderRequest.MapToCreateOrderRequest());
-				_logger.LogInformation("Создан заказ #{OrderId}", createdOrderId);
-			}
-			catch(Exception ex)
-			{
+				_orderService.CreateIncompleteOrder(postOrderRequest.MapToCreateOrderRequest());
 
+				return NoContent();
 			}
+
+			var createdOrderId = _orderService.CreateAndAcceptOrder(postOrderRequest.MapToCreateOrderRequest());
+			_logger.LogInformation("Создан заказ #{OrderId}", createdOrderId);
 
 			return NoContent();
 		}

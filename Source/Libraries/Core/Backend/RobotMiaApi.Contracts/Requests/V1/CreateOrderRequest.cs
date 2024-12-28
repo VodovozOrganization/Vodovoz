@@ -31,13 +31,13 @@ namespace RobotMiaApi.Contracts.Requests.V1
 		/// Дата доставки
 		/// </summary>
 		[JsonPropertyName("delivery_date")]
-		public DateTime DeliveryDate { get; set; }
+		public DateTime? DeliveryDate { get; set; }
 
 		/// <summary>
 		/// Идентификатор интервала доставки
 		/// </summary>
 		[JsonPropertyName("delivery_interval_id")]
-		public int DeliveryIntervalId { get; set; }
+		public int? DeliveryIntervalId { get; set; }
 
 		/// <summary>
 		/// Подписание документов
@@ -55,13 +55,13 @@ namespace RobotMiaApi.Contracts.Requests.V1
 		/// Тип оплаты
 		/// </summary>
 		[JsonPropertyName("payment_type")]
-		public PaymentType PaymentType { get; set; }
+		public PaymentType? PaymentType { get; set; }
 
 		/// <summary>
 		/// Сдача с
 		/// </summary>
 		[JsonPropertyName("trifle")]
-		public int Trifle { get; set; }
+		public int? Trifle { get; set; }
 
 		/// <summary>
 		/// Комментарий водителю
@@ -79,7 +79,7 @@ namespace RobotMiaApi.Contracts.Requests.V1
 		/// Количество бутылей на возврат
 		/// </summary>
 		[JsonPropertyName("bottles_return")]
-		public int BottlesReturn { get; set; }
+		public int? BottlesReturn { get; set; }
 
 		/// <summary>
 		/// Причина не возврата тары
