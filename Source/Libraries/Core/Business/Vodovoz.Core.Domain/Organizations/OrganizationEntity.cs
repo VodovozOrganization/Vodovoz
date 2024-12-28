@@ -36,12 +36,13 @@ namespace Vodovoz.Core.Domain.Organizations
 		private bool _withoutVAT;
 		private int? _avangardShopId;
 		private string _taxcomEdoAccountId;
+		private OrganizationEdoType _organizationEdoType;
 
 		private OrganizationVersionEntity _activeOrganizationVersion;
 		private StoredResource _stamp;
 
-		private ObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
-		private ObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
+		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
+		private IObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
 
 		public OrganizationEntity()
 		{
@@ -199,17 +200,24 @@ namespace Vodovoz.Core.Domain.Organizations
 		/// Телефоны
 		/// </summary>
 		[Display(Name = "Телефоны")]
-		public virtual ObservableList<PhoneEntity> Phones
+		public virtual IObservableList<PhoneEntity> Phones
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
+		}
+
+		[Display(Name = "Тип участия в ЭДО")]
+		public virtual OrganizationEdoType OrganizationEdoType
+		{
+			get => _organizationEdoType;
+			set => SetField(ref _organizationEdoType, value);
 		}
 
 		/// <summary>
 		/// Версии
 		/// </summary>
 		[Display(Name = "Версии")]
-		public virtual ObservableList<OrganizationVersionEntity> OrganizationVersions
+		public virtual IObservableList<OrganizationVersionEntity> OrganizationVersions
 		{
 			get => _organizationVersions;
 			set => SetField(ref _organizationVersions, value);

@@ -18,18 +18,17 @@ namespace Edo.Docflow.Factories
 	public class OrderUpdInfoFactory
 	{
 		private const string _dateFormatString = "dd.MM.yyyy";
-
-		private readonly IUnitOfWork _uow;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public OrderUpdInfoFactory(
-			IUnitOfWork uow,
+			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
 			INomenclatureSettings nomenclatureSettings
 			)
 		{
-			_uow = uow ?? throw new System.ArgumentNullException(nameof(uow));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
@@ -298,8 +297,5 @@ namespace Edo.Docflow.Factories
 
 			return products;
 		}
-
-		private NomenclatureEntity GetNomenclatureByGtin(string gtin) =>
-			_nomenclatureRepository.Get(_uow, x => x.Gtin == gtin).FirstOrDefault();
 	}
 }

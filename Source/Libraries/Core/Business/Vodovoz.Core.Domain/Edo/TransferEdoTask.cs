@@ -10,8 +10,8 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _toOrganizationId;
 		//private ObservableList<TransferEdoRequest> _transferRequests;
 		private TransferEdoTaskStatus _transferStatus;
-		private DateTime _transferStartTime;
-		private int _transferOrderId;
+		private DateTime? _transferStartTime;
+		private int? _transferOrderId;
 
 		[Display(Name = "ЭДО задача по документам клиента")]
 		public virtual int DocumentEdoTaskId
@@ -49,14 +49,14 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Время начала переноса")]
-		public virtual DateTime TransferStartTime
+		public virtual DateTime? TransferStartTime
 		{
 			get => _transferStartTime;
 			set => SetField(ref _transferStartTime, value);
 		}
 
 		[Display(Name = "Заказ")]
-		public virtual int TransferOrderId
+		public virtual int? TransferOrderId
 		{
 			get => _transferOrderId;
 			set => SetField(ref _transferOrderId, value);

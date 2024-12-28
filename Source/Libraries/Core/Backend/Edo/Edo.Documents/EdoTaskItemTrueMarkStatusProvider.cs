@@ -49,7 +49,7 @@ namespace Edo.Documents
 		private async Task Check(CancellationToken cancellationToken)
 		{
 			var response = await _trueMarkApiClient.GetProductInstanceInfoAsync(_codesStatuses.Keys, cancellationToken);
-			if(response.ErrorMessage.IsNullOrWhiteSpace())
+			if(!response.ErrorMessage.IsNullOrWhiteSpace())
 			{
 				throw new EdoException($"Не удалось получить данные о кодах из честного знака для ЭДО задачи №{_edoTask.Id}. " +
 					$"Подробности: {response.ErrorMessage}");

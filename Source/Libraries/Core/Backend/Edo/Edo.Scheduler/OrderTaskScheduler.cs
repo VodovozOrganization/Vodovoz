@@ -41,26 +41,13 @@ namespace Edo.Scheduler.Service
 
 		private EdoTask CreateDocumentEdoTask(OrderEdoRequest edoRequest)
 		{
-			// Клиентов с объемным учетом обслуживание по старому
-			/*
-			if(edoRequest.Order.Client.HasBulkAccounting)
-			{
-				return CreateBulkAccountingEdoTask(edoRequest);
-			}
-			*/
-
 			var task = new DocumentEdoTask
 			{
-				CustomerEdoRequest = edoRequest,
 				DocumentType = edoRequest.DocumentType,
-
-				//Перенести контракт
-				//FromOrganization = edoRequest.Order.IsContractCloser.Organization.Id,
-
-				//Перенести клиента
-				//ToClient = edoRequest.Order.Client.Id,
-
-				Status = EdoTaskStatus.New
+				FromOrganization = edoRequest.Order.Contract.Organization.Id,
+				ToCustomer = edoRequest.Order.Client.Id,
+				Status = EdoTaskStatus.New,
+				Stage = DocumentEdoTaskStage.New
 			};
 
 			task.Items = new ObservableList<EdoTaskItem>(
@@ -72,6 +59,8 @@ namespace Edo.Scheduler.Service
 					})
 			);
 
+			edoRequest.Task = task;
+
 			return task;
 		}
 
@@ -79,9 +68,11 @@ namespace Edo.Scheduler.Service
 		{
 			var task = new BulkAccountingEdoTask
 			{
-				CustomerEdoRequest = edoRequest,
 				Status = EdoTaskStatus.New
 			};
+
+			edoRequest.Task = task;
+
 			return task;
 		}
 
@@ -89,7 +80,6 @@ namespace Edo.Scheduler.Service
 		{
 			var task = new ReceiptEdoTask
 			{
-				CustomerEdoRequest = edoRequest,
 				Status = EdoTaskStatus.New
 			};
 
@@ -101,6 +91,8 @@ namespace Edo.Scheduler.Service
 						CustomerEdoTask = task
 					})
 			);
+
+			edoRequest.Task = task;
 
 			return task;
 		}
@@ -109,7 +101,6 @@ namespace Edo.Scheduler.Service
 		{
 			var task = new SaveCodesEdoTask
 			{
-				CustomerEdoRequest = edoRequest,
 				Status = EdoTaskStatus.New
 			};
 
@@ -121,6 +112,8 @@ namespace Edo.Scheduler.Service
 						CustomerEdoTask = task
 					})
 			);
+
+			edoRequest.Task = task;
 
 			return task;
 		}

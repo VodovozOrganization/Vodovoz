@@ -1,4 +1,5 @@
 ﻿using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Persister.Entity;
 using NHibernate.SqlCommand;
 using NHibernate.Util;
@@ -79,7 +80,7 @@ namespace Edo.Transfer
 
 			var tasks = await uow.Session.CreateSQLQuery(sql)
 					.AddEntity(typeof(TransferEdoTask))
-					.SetParameter("transferStatus", TransferEdoTaskStatus.WaitingRequests)
+					.SetParameter("transferStatus", nameof(TransferEdoTaskStatus.WaitingRequests))
 					.SetParameter("transferTaskTimeout", _transferSettings.TransferTaskRequestsWaitingTimeoutMinute)
 					.ListAsync<TransferEdoTask>();
 
@@ -111,14 +112,19 @@ namespace Edo.Transfer
 			TrueMarkProductCode trueMarkProductCodeAlias = null;
 			TrueMarkWaterIdentificationCode codeAlias = null;
 
-			var codes = await uow.Session.QueryOver(() => codeAlias)
-				.JoinEntityAlias(() => trueMarkProductCodeAlias, 
-					() => trueMarkProductCodeAlias.ResultCode.Id == codeAlias.Id, JoinType.InnerJoin)
-				.JoinEntityAlias(() => edoTaskItemAlias,
+			var codes = await uow.Session.QueryOver(() => transferEdoRequestAlias)
+				.JoinAlias(() => transferEdoRequestAlias.TransferedItems,
+					() => edoTaskItemAlias, JoinType.InnerJoin)
+
+				.JoinEntityAlias(() => trueMarkProductCodeAlias,
 					() => edoTaskItemAlias.ProductCode.Id == trueMarkProductCodeAlias.Id, JoinType.InnerJoin)
-				.JoinAlias(() => transferEdoRequestAlias.TransferedItems, () => edoTaskItemAlias, JoinType.InnerJoin)
+
+				.JoinEntityAlias(() => codeAlias, 
+					() => trueMarkProductCodeAlias.ResultCode.Id == codeAlias.Id, JoinType.InnerJoin)
+				
+				.Select(p => codeAlias.AsEntity())
 				.Where(() => transferEdoRequestAlias.TransferEdoTask.Id == transferTask.Id)
-				.ListAsync();
+				.ListAsync<TrueMarkWaterIdentificationCode>();
 
 			return codes;
 		}

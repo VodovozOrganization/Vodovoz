@@ -52,10 +52,10 @@ namespace Edo.Docflow
 				return;
 			}
 
-			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(transferDocumentId, cancellationToken);
+			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
 			var transferOrder = await _uow.Session.GetAsync<TransferOrder>(transferTask.TransferOrderId, cancellationToken);
 			
-			var updInfo = _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(transferOrder);
+			var updInfo = _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(_uow, transferOrder);
 
 			var message = new TaxcomDocflowSendEvent
 			{

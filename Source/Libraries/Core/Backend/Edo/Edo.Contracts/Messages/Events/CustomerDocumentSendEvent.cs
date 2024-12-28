@@ -2,6 +2,6 @@
 {
 	public class CustomerDocumentSendEvent
 	{
-		public int Id { get; set; }
+		public int CustomerDocumentId { get; set; }
 	}
 }

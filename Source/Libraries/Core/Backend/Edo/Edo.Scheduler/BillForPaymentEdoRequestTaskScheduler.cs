@@ -8,7 +8,6 @@ namespace Edo.Scheduler.Service
 		{
 			var task = new DocumentEdoTask
 			{
-				CustomerEdoRequest = edoRequest,
 				DocumentType = edoRequest.DocumentType,
 
 				// как-то нужно заполнить организацию
@@ -19,6 +18,9 @@ namespace Edo.Scheduler.Service
 
 				Status = EdoTaskStatus.New
 			};
+
+			edoRequest.Task = task;
+
 			return task;
 		}
 	}

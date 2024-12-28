@@ -8,7 +8,9 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace Edo.Transfer.Sender.Worker
 {
@@ -38,10 +40,14 @@ namespace Edo.Transfer.Sender.Worker
 							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
 						)
 						.AddDatabaseConnection()
+						.AddNHibernateConventions()
+						.AddCoreDataRepositories()
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoTransferSender()
+
+						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();

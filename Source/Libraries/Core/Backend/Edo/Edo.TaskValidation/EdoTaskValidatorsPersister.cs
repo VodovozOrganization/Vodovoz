@@ -48,7 +48,7 @@ namespace Edo.TaskValidation
 						};
 					}
 
-					if(savedValidator != registeredValidator)
+					if(!savedValidator.Equals(registeredValidator))
 					{
 						savedValidator.Importance = registeredValidator.Importance;
 						savedValidator.Message = registeredValidator.Message;

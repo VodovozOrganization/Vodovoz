@@ -9,7 +9,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _toCustomer;
 		private EdoDocumentType _documentType;
 		private DocumentEdoTaskStage _stage;
-		private ObservableList<TransferEdoRequest> _transferRequests;
+		private IObservableList<TransferEdoRequest> _transferEdoRequests = new ObservableList<TransferEdoRequest>();
 
 		[Display(Name = "Код организации")]
 		public virtual int FromOrganization
@@ -40,10 +40,10 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Заявки на перенос")]
-		public virtual ObservableList<TransferEdoRequest> TransferEdoRequests
+		public virtual IObservableList<TransferEdoRequest> TransferEdoRequests
 		{
-			get => _transferRequests;
-			set => SetField(ref _transferRequests, value);
+			get => _transferEdoRequests;
+			set => SetField(ref _transferEdoRequests, value);
 		}
 	}
 }

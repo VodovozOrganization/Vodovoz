@@ -45,7 +45,7 @@ namespace Edo.TaskValidation.Validators
 		public override Task<bool> NotValidCondition(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
 			var orderEdoRequest = GetOrderEdoRequest(edoTask);
-			var condition = orderEdoRequest.Order.OrderStatus >= OrderStatus.OnTheWay;
+			var condition = orderEdoRequest.Order.OrderStatus < OrderStatus.OnTheWay;
 
 			return Task.FromResult(condition);
 		}

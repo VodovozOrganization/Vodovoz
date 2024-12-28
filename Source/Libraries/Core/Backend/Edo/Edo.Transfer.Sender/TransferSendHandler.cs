@@ -29,7 +29,7 @@ namespace Edo.Transfer.Sender
 
 		public async Task HandleReadyToSend(int transferTaskId, CancellationToken cancellationToken)
 		{
-			_uow.Session.BeginTransaction();
+			_uow.OpenTransaction();
 
 			var transferDocument = await _uow.Session.QueryOver<TransferEdoDocument>()
 				.Where(x => x.TransferTaskId == transferTaskId)
@@ -53,6 +53,7 @@ namespace Edo.Transfer.Sender
 
 			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(transferTaskId);
 			transferTask.TransferStatus = TransferEdoTaskStatus.InProgress;
+			transferTask.TransferStartTime = DateTime.Now;
 
 			await _uow.SaveAsync(transferDocument, cancellationToken: cancellationToken);
 			await _uow.SaveAsync(transferTask, cancellationToken: cancellationToken);
