@@ -249,17 +249,17 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			}
 		}
 
-		public async Task<string> SetProductRestrictionAndRemoveExistingByCardId(
+		public async Task<long> SetProductRestrictionAndRemoveExistingByCardId(
 			string cardId,
 			string productGroupId,
 			CancellationToken cancellationToken)
 		{
-			var existingRestrictions =
+			var existingRestrictionIds =
 				await GetProductRestrictionByCardId(cardId, cancellationToken);
 
-			foreach(var restriction in existingRestrictions)
+			foreach(var restrictionId in existingRestrictionIds)
 			{
-				await RemoveProductRestrictionById(restriction.RestrictionId, cancellationToken);
+				await RemoveProductRestrictionById(restrictionId, cancellationToken);
 			}
 
 			var newRestriction =
@@ -269,7 +269,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			return newRestriction;
 		}
 
-		private async Task<IEnumerable<(string RestrictionId, string ProductTypeId, string ProductGroupId)>> GetProductRestrictionByCardId(
+		private async Task<IEnumerable<string>> GetProductRestrictionByCardId(
 			string cardId,
 			CancellationToken cancellationToken)
 		{
@@ -333,7 +333,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			}
 		}
 
-		private async Task<IEnumerable<string>> SetProductRestriction(
+		private async Task<IEnumerable<long>> SetProductRestriction(
 			string cardId,
 			string productGroupId,
 			CancellationToken cancellationToken)

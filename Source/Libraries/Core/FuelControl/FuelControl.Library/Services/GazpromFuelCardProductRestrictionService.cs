@@ -31,7 +31,7 @@ namespace FuelControl.Library.Services
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
-		public async Task<IEnumerable<(string RestrictionId, string ProductTypeId, string ProductGroupId)>> GetProductRestrictionsByCardId(
+		public async Task<IEnumerable<string>> GetProductRestrictionsByCardId(
 			string cardId,
 			string sessionId,
 			string apiKey,
@@ -85,9 +85,9 @@ namespace FuelControl.Library.Services
 				_logger.LogDebug("Количество полученных товарных ограничителей: {RestrictionsCount}",
 					responseData.FuelCardProductRestrictionsData.FuelCardProductRestrictionsCount);
 
-				var transactions = responseData.FuelCardProductRestrictionsData.FuelCardProductRestrictions;
+				var restrictions = responseData.FuelCardProductRestrictionsData.FuelCardProductRestrictions;
 
-				return transactions.Select(x => (x.Id, x.ProductTypeId, x.ProductGroupId));
+				return restrictions.Select(x => x.Id).ToList();
 			}
 		}
 
@@ -149,7 +149,7 @@ namespace FuelControl.Library.Services
 			}
 		}
 
-		public async Task<IEnumerable<string>> SetProductRestriction(
+		public async Task<IEnumerable<long>> SetProductRestriction(
 			string cardId,
 			string productGroupId,
 			string sessionId,
@@ -213,7 +213,7 @@ namespace FuelControl.Library.Services
 					LogErrorMessageAndThrowException(errorMessage);
 				}
 
-				return responseData.CreatedRestrictionsIds;
+				return responseData.CreatedRestrictionsIds.ToList();
 			}
 		}
 
@@ -248,7 +248,7 @@ namespace FuelControl.Library.Services
 
 			var requestData = new List<KeyValuePair<string, string>>
 			{
-				new KeyValuePair<string, string>("limit", $"[{requestParameters}]")
+				new KeyValuePair<string, string>("restriction", $"[{requestParameters}]")
 			};
 
 			var content = new FormUrlEncodedContent(requestData);

@@ -12,6 +12,6 @@ namespace FuelControl.Contracts.Responses
 		/// Результат создания продуктового товарного ограничителя
 		/// </summary>
 		[JsonPropertyName("data")]
-		public IEnumerable<string> CreatedRestrictionsIds { get; set; }
+		public IEnumerable<long> CreatedRestrictionsIds { get; set; }
 	}
 }
