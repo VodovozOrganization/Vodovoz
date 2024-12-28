@@ -35,13 +35,13 @@ namespace FuelControl.Contracts.Dto
 		/// ID типа продукта
 		/// </summary>
 		[JsonPropertyName("productType")]
-		public string ProductType { get; set; }
+		public string ProductTypeId { get; set; }
 
 		/// <summary>
 		/// ID группы продукта
 		/// </summary>
 		[JsonPropertyName("productGroup")]
-		public string ProductGroup { get; set; }
+		public string ProductGroupId { get; set; }
 
 		/// <summary>
 		/// Название типа продукта
