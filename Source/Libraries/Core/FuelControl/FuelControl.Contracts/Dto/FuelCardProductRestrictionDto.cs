@@ -23,7 +23,7 @@ namespace FuelControl.Contracts.Dto
 		/// ID группы карт
 		/// </summary>
 		[JsonPropertyName("group_id")]
-		public string GroupId { get; set; }
+		public string CardGroupId { get; set; }
 
 		/// <summary>
 		/// ID договора

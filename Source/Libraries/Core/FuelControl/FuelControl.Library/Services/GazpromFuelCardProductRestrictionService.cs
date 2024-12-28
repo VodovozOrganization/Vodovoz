@@ -31,7 +31,7 @@ namespace FuelControl.Library.Services
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
-		public async Task<IEnumerable<FuelCardProductRestrictionDto>> GetProductRestrictionsByCardId(
+		public async Task<IEnumerable<(string RestrictionId, string ProductTypeId, string ProductGroupId)>> GetProductRestrictionsByCardId(
 			string cardId,
 			string sessionId,
 			string apiKey,
@@ -87,7 +87,7 @@ namespace FuelControl.Library.Services
 
 				var transactions = responseData.FuelCardProductRestrictionsData.FuelCardProductRestrictions;
 
-				return transactions;
+				return transactions.Select(x => (x.Id, x.ProductTypeId, x.ProductGroupId));
 			}
 		}
 
