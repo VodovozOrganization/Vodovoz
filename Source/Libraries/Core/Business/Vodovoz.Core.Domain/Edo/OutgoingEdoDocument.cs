@@ -7,19 +7,27 @@ namespace Vodovoz.Core.Domain.Edo
 	public class OutgoingEdoDocument : PropertyChangedBase
 	{
 		private int _id;
+		private DateTime _creationTime;
 		private OutgoingEdoDocumentType _type;
 		private Guid _documentId;
 		private EdoType _edoType;
 		private EdoDocumentType _documentType;
 		private EdoDocumentStatus _status;
-		private DateTime _sendTime;
-		private DateTime _acceptTime;
+		private DateTime? _sendTime;
+		private DateTime? _acceptTime;
 
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
 			get => _id;
 			set => SetField(ref _id, value);
+		}
+
+		[Display(Name = "Время создания")]
+		public virtual DateTime CreationTime
+		{
+			get => _creationTime;
+			set => SetField(ref _creationTime, value);
 		}
 
 		[Display(Name = "Тип")]
@@ -58,14 +66,14 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Время отправки")]
-		public virtual DateTime SendTime
+		public virtual DateTime? SendTime
 		{
 			get => _sendTime;
 			set => SetField(ref _sendTime, value);
 		}
 
 		[Display(Name = "Время приема")]
-		public virtual DateTime AcceptTime
+		public virtual DateTime? AcceptTime
 		{
 			get => _acceptTime;
 			set => SetField(ref _acceptTime, value);
@@ -80,11 +88,21 @@ namespace Vodovoz.Core.Domain.Edo
 
 	public class TransferEdoDocument : OutgoingEdoDocument
 	{
-		public int TransferTaskId { get; set; }
+		private int _transferTaskId;
+		public virtual int TransferTaskId
+		{
+			get => _transferTaskId;
+			set => SetField(ref _transferTaskId, value);
+		}
 	}
 
 	public class CustomerEdoDocument : OutgoingEdoDocument
 	{
-		public int DocumentTaskId { get; set; }
+		private int _documentTaskId;
+		public virtual int DocumentTaskId
+		{
+			get => _documentTaskId;
+			set => SetField(ref _documentTaskId, value);
+		}
 	}
 }

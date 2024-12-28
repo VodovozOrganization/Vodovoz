@@ -26,7 +26,7 @@ namespace Edo.TaskValidation
 
 			foreach(var validatorType in validatorTypes)
 			{
-				services.AddSingleton(validatorType);
+				services.AddSingleton(typeof(IEdoTaskValidator), validatorType);
 			}
 
 			return services;

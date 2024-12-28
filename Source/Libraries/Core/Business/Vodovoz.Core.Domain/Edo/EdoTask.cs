@@ -13,7 +13,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private EdoTaskStatus _status;
 		private DateTime? _startTime;
 		private DateTime? _endTime;
-		private ObservableList<EdoTaskProblem> _problems;
+		private IObservableList<EdoTaskProblem> _problems;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -58,7 +58,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Проблемы")]
-		public virtual ObservableList<EdoTaskProblem> Problems
+		public virtual IObservableList<EdoTaskProblem> Problems
 		{
 			get => _problems;
 			set => SetField(ref _problems, value);

@@ -1,4 +1,5 @@
 ﻿using Core.Infrastructure;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,11 @@ namespace Edo.Documents
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 		}
 
-		public async Task CreateTransferRequests(DocumentEdoTask edoTask, EdoTaskItemTrueMarkStatusProvider taskItemStatusProvider, CancellationToken cancellationToken)
+		public async Task CreateTransferRequests(
+			IUnitOfWork _uow,
+			DocumentEdoTask edoTask, 
+			EdoTaskItemTrueMarkStatusProvider taskItemStatusProvider, 
+			CancellationToken cancellationToken)
 		{
 			var orderEdoRequest = edoTask.CustomerEdoRequest as OrderEdoRequest;
 			if(orderEdoRequest == null)
@@ -35,7 +40,7 @@ namespace Edo.Documents
 
 			var itemStatuses = await taskItemStatusProvider.GetItemsStatusesAsync(cancellationToken);
 
-			var edoOrganizations = _edoRepository.GetEdoOrganizations();
+			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
 			var organizationTo = orderEdoRequest.Order.Contract.Organization;
 
 			var transferRequests = new Dictionary<string, TransferEdoRequest>();
@@ -71,6 +76,11 @@ namespace Edo.Documents
 				{
 					transferRequest.TransferedItems.Add(itemStatus.EdoTaskItem);
 				}
+			}
+
+			foreach(var transferRequest in transferRequests.Values)
+			{
+				await _uow.SaveAsync(transferRequest, cancellationToken: cancellationToken);
 			}
 		}
 	}

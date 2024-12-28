@@ -32,7 +32,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			HasManyToMany(x => x.TransferedItems)
 				.Table("edo_transfered_items")
 				.ParentKeyColumn("transfer_edo_request_id")
-				.ChildKeyColumn("customer_edo_task_item_id");
+				.ChildKeyColumn("customer_edo_task_item_id")
+				.Cascade.AllDeleteOrphan();
 
 			References(x => x.TransferEdoTask)
 				.Column("transfer_edo_task_id")

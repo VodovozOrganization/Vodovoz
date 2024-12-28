@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Edo.Contracts.Messages.Events;
+using MassTransit;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Threading;
@@ -18,6 +20,7 @@ namespace Edo.Scheduler.Service
 		private readonly BillForAdvanceEdoRequestTaskScheduler _billForAdvanceEdoRequestTaskScheduler;
 		private readonly BillForDebtEdoRequestTaskScheduler _billForDebtEdoRequestTaskScheduler;
 		private readonly BillForPaymentEdoRequestTaskScheduler _billForPaymentEdoRequestTaskScheduler;
+		private readonly IBus _messageBus;
 
 		public EdoTaskScheduler(
 			ILogger<EdoTaskScheduler> logger,
@@ -26,7 +29,8 @@ namespace Edo.Scheduler.Service
 			OrderTaskScheduler orderTaskScheduler,
 			BillForAdvanceEdoRequestTaskScheduler billForAdvanceEdoRequestTaskScheduler,
 			BillForDebtEdoRequestTaskScheduler billForDebtEdoRequestTaskScheduler,
-			BillForPaymentEdoRequestTaskScheduler billForPaymentEdoRequestTaskScheduler
+			BillForPaymentEdoRequestTaskScheduler billForPaymentEdoRequestTaskScheduler,
+			IBus messageBus
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -36,6 +40,7 @@ namespace Edo.Scheduler.Service
 			_billForAdvanceEdoRequestTaskScheduler = billForAdvanceEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(billForAdvanceEdoRequestTaskScheduler));
 			_billForDebtEdoRequestTaskScheduler = billForDebtEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(billForDebtEdoRequestTaskScheduler));
 			_billForPaymentEdoRequestTaskScheduler = billForPaymentEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(billForPaymentEdoRequestTaskScheduler));
+			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		public async Task CreateTask(int requestId, CancellationToken cancellationToken)
@@ -70,8 +75,32 @@ namespace Edo.Scheduler.Service
 							$"{nameof(CustomerEdoRequest)} {request.Type}");
 				}
 
+				await uow.SaveAsync(request, cancellationToken: cancellationToken);
 				await uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
+
+				object message = null;
+				switch(edoTask.TaskType)
+				{
+					case EdoTaskType.CustomerDocument:
+						message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
+						break;
+					case EdoTaskType.Receipt:
+						throw new NotImplementedException("Необходимо реализовать процесс для отправки чека");
+						break;
+					case EdoTaskType.SaveCode:
+						throw new NotImplementedException("Необходимо реализовать процесс для сохранения кодов");
+						break;
+					case EdoTaskType.BulkAccounting:
+						throw new NotImplementedException("Необходимо реализовать процесс для объемно-сортового учета");
+						break;
+					case EdoTaskType.Transfer:
+						throw new NotSupportedException("Создание задачи на трансфер из планировщика не предусмотрено");
+					default:
+						throw new InvalidOperationException($"Неизвестный тип задачи {edoTask.TaskType}");
+				}
+
+				await _messageBus.Publish(message, cancellationToken);
 			}
 		}
 	}

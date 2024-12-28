@@ -14,22 +14,21 @@ namespace Edo.Docflow.Factories
 	public class UniversalTransferDocumentInfoFactory : IUniversalTransferDocumentInfoFactory
 	{
 		private const string _dateFormatString = "dd.MM.yyyy";
-
-		private readonly IUnitOfWork _uow;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public UniversalTransferDocumentInfoFactory(
-			IUnitOfWork uow,
+			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
 			INomenclatureSettings nomenclatureSettings)
 		{
-			_uow = uow ?? throw new System.ArgumentNullException(nameof(uow));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
-		public UniversalTransferDocumentInfo CreateUniversalTransferDocumentInfo(TransferOrder transferOrder)
+		public UniversalTransferDocumentInfo CreateUniversalTransferDocumentInfo(IUnitOfWork uow, TransferOrder transferOrder)
 		{
 			if(transferOrder is null)
 			{
@@ -56,12 +55,12 @@ namespace Edo.Docflow.Factories
 				throw new InvalidOperationException("При заполнении данных в УПД необходимо, чтобы заказ перемещения товаров был предварительно сохранен");
 			}
 
-			return ConvertTransferOrderToUniversalTransferDocumentInfo(transferOrder);
+			return ConvertTransferOrderToUniversalTransferDocumentInfo(uow, transferOrder);
 		}
 
-		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(TransferOrder transferOrder)
+		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(IUnitOfWork uow, TransferOrder transferOrder)
 		{
-			var products = GetProducts(transferOrder);
+			var products = GetProducts(uow, transferOrder);
 
 			var document = new UniversalTransferDocumentInfo
 			{
@@ -135,7 +134,7 @@ namespace Edo.Docflow.Factories
 			return oganizationInfo;
 		}
 
-		private IEnumerable<ProductInfo> GetProducts(TransferOrder transferOrder)
+		private IEnumerable<ProductInfo> GetProducts(IUnitOfWork uow, TransferOrder transferOrder)
 		{
 			var products = new List<ProductInfo>();
 			var codes = transferOrder.TrueMarkCodes.Select(x => x.TrueMarkCode);
@@ -153,7 +152,7 @@ namespace Edo.Docflow.Factories
 
 			foreach(var gtinGroup in gtinGroups)
 			{
-				var nomenclature = GetNomenclatureByGtin(gtinGroup.Key);
+				var nomenclature = GetNomenclatureByGtin(uow, gtinGroup.Key);
 
 				if(nomenclature is null)
 				{
@@ -187,7 +186,9 @@ namespace Edo.Docflow.Factories
 			return products;
 		}
 
-		private NomenclatureEntity GetNomenclatureByGtin(string gtin) =>
-			_nomenclatureRepository.Get(_uow, x => x.Gtin == gtin).FirstOrDefault();
+		private NomenclatureEntity GetNomenclatureByGtin(IUnitOfWork uow, string gtin)
+		{
+			return _nomenclatureRepository.Get(uow, x => x.Gtin == gtin).FirstOrDefault();
+		}
 	}
 }

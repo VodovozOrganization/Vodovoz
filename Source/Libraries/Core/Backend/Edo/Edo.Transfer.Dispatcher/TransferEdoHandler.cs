@@ -34,7 +34,7 @@ namespace Edo.Transfer.Dispatcher
 
 		public async Task HandleDocumentTask(int documentEdoTaskId, CancellationToken cancellationToken)
 		{
-			_uow.Session.BeginTransaction();
+			//_uow.Session.BeginTransaction();
 			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
 
 			var hasAssignedTransferTask = documentTask.TransferEdoRequests.Any(x => x.TransferEdoTask != null);
@@ -60,17 +60,17 @@ namespace Edo.Transfer.Dispatcher
 
 			var transferTasks = await Task.WhenAll(addRequestsTasks);
 			var sentTasks = transferTasks.Where(x => x.TransferStatus == TransferEdoTaskStatus.InProgress);
-			await _uow.CommitAsync();
+			await _uow.CommitAsync(cancellationToken);
 
 			var events = sentTasks.Select(x => new TransferTaskReadyToSendEvent { Id = x.Id });
-			var publishTasks = events.Select(x => _messageBus.Publish(x, cancellationToken));
+			var publishTasks = events.Select(message => _messageBus.Publish(message, cancellationToken));
 
 			await Task.WhenAll(publishTasks);
 		}
 
 		public async Task HandleTransferDocumentAcceptance(int documentId, CancellationToken cancellationToken)
 		{
-			_uow.Session.BeginTransaction();
+			_uow.OpenTransaction();
 
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(documentId, cancellationToken);
 
@@ -84,7 +84,16 @@ namespace Edo.Transfer.Dispatcher
 				_logger.LogError("Неозможно завершить трансфер, так как документ №{documentId} еще не принят.", documentId);
 			}
 
-			var transferTask = await _transferDispatcher.CompleteTransfer(_uow, document, cancellationToken);
+			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
+			if(transferTask.Status == EdoTaskStatus.Completed)
+			{
+				_logger.LogWarning("При обработке принятия документа трансфера №{documentId} обнаружено, что трансфер уже завершен.", documentId);
+				_uow.Dispose();
+				return;
+			}
+
+			_transferDispatcher.CompleteTransfer(transferTask);
+			await _uow.SaveAsync(transferTask, cancellationToken: cancellationToken);
 
 			var allComplete = await _transferDispatcher.IsAllTransfersComplete(_uow, transferTask, cancellationToken);
 
