@@ -1,5 +1,4 @@
-﻿using Core.Infrastructure.Specifications;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
