@@ -75,6 +75,9 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				.CreateSlices(dateTimeSliceType, startDate, endDate)
 				.ToArray();
 
+			slices.First().StartDate = startDate;
+			slices.Last().EndDate = endDate.LatestDayTime();
+
 			var nomenclaturesSmallNodes = await GetNomenclaturesQuery(
 				unitOfWork,
 				includedNomenclatureCategoryIds,
