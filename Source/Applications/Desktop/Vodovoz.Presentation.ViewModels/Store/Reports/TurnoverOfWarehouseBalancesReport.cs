@@ -247,20 +247,20 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 							if(sliceSalesSum is null
 								|| sliceSalesSum == 0m)
 							{
-								sliceValue = $"{_noSalesPrefix}{residueAtEndOfSlice:##0.000}";
+								sliceValue = $"{_noSalesPrefix}{residueAtEndOfSlice:# ##0.000}";
 							}
 							else
 							{
 								var medianValue = residuesInSlice * (decimal)residueMedianDays / sliceSalesSum.Value;
 
 								slicesSales += sliceSalesSum.Value;
-								sliceValue = medianValue.ToString("##0.000");
+								sliceValue = medianValue.ToString("# ##0.000");
 							}
 							sliceValues.Add(sliceValue);
 						}
 						else
 						{
-							sliceValues.Add($"{_noSalesPrefix} {residueAtEndOfSlice:0.000}");
+							sliceValues.Add($"{_noSalesPrefix} {residueAtEndOfSlice:# ##0.000}");
 						}
 					}
 
@@ -272,7 +272,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 					}
 					else
 					{
-						total = $"{slicesValue / slicesSales:0.000}";
+						total = $"{slicesValue / slicesSales:# ##0.000}";
 					}
 
 					reportRows.Add(new TurnoverOfWarehouseBalancesReportRow
