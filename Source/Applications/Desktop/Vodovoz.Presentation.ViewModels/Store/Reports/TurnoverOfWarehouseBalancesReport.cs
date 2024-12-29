@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -170,8 +170,10 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 
 						foreach(var residue in newResidues)
 						{
-							var currentDiff = diff.FirstOrDefault(dr => dr.NomenclatureId == residue.NomenclatureId
-								&& dr.WarehouseId == residue.WarehouseId);
+							var currentDiff = diff
+								.FirstOrDefault(dr =>
+									dr.NomenclatureId == residue.NomenclatureId
+									&& dr.WarehouseId == residue.WarehouseId);
 
 							if(currentDiff is null)
 							{
