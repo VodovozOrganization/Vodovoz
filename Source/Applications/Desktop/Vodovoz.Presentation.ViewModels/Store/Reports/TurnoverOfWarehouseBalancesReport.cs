@@ -231,7 +231,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 							.LastOrDefault();
 
 						var residueAtEndOfSlice =
-							residueOfCurrentMomenclatureAndWarehouse?.StockAmount;
+							residueOfCurrentMomenclatureAndWarehouse?.StockAmount ?? 0m;
 
 						if(warehouseToNomenclatureSalesGroup != null)
 						{
