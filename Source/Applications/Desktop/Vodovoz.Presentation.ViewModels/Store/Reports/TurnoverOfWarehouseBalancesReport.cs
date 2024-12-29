@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using NHibernate.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -161,6 +161,11 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 								WarehouseId = previousResidue.WarehouseId,
 								StockAmount = previousResidue.StockAmount
 							});
+
+							if(cancellationToken.IsCancellationRequested)
+							{
+								throw new OperationCanceledException(cancellationToken);
+							}
 						}
 
 						foreach(var residue in newResidues)
@@ -174,6 +179,11 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 							}
 
 							residue.StockAmount += currentDiff.StockAmountDiff;
+
+							if(cancellationToken.IsCancellationRequested)
+							{
+								throw new OperationCanceledException(cancellationToken);
+							}
 						}
 
 						residuesAtDates.Add(
@@ -185,6 +195,11 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 					{
 						throw new OperationCanceledException(cancellationToken);
 					}
+				}
+
+				if(cancellationToken.IsCancellationRequested)
+				{
+					throw new OperationCanceledException(cancellationToken);
 				}
 			}
 
@@ -262,6 +277,11 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 						{
 							sliceValues.Add($"{_noSalesPrefix} {residueAtEndOfSlice:# ##0.000}");
 						}
+
+						if(cancellationToken.IsCancellationRequested)
+						{
+							throw new OperationCanceledException(cancellationToken);
+						}
 					}
 
 					string total;
@@ -282,6 +302,16 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 						SliceValues = sliceValues,
 						Total = total
 					});
+
+					if(cancellationToken.IsCancellationRequested)
+					{
+						throw new OperationCanceledException(cancellationToken);
+					}
+				}
+
+				if(cancellationToken.IsCancellationRequested)
+				{
+					throw new OperationCanceledException(cancellationToken);
 				}
 			}
 
