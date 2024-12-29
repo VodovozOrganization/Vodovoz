@@ -113,91 +113,57 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				warehouseSmallNodesIds,
 				nomenclaturesSmallNodesIds);
 
-			var salesResult = 
+			var salesResult =
 				(await salesQuery.ToListAsync(cancellationToken))
 				.Concat(await selfDeliverySales.ToListAsync(cancellationToken));
 
-			var reportRows = new List<TurnoverOfWarehouseBalancesReportRow>();
 
 			var grouppedSalesResult = salesResult
 				.GroupBy(sr => (sr.WarehouseId, sr.NomenclatureId));
 
-			var residuesAtDates = new Dictionary<DateTime, WarehouseResidueNode[]>();
+			var residuesAtDates = await ProcessResidues(
+				unitOfWork,
+				slices,
+				nomenclaturesSmallNodesIds,
+				warehouseSmallNodesIds,
+				cancellationToken);
 
-			foreach(var slice in slices)
+			var reportRows = ProcessReportRows(
+				slices,
+				nomenclaturesSmallNodes,
+				warehousesNodes,
+				grouppedSalesResult,
+				residuesAtDates,
+				cancellationToken);
+
+			return new TurnoverOfWarehouseBalancesReport(
+				startDate,
+				endDate,
+				slices,
+				reportRows);
+		}
+
+		private static List<TurnoverOfWarehouseBalancesReportRow> ProcessReportRows(
+			IDateTimeSlice[] slices,
+			List<NomenclatureGenerationNode> nomenclaturesSmallNodes,
+			List<WarehouseGenerationNode> warehousesNodes,
+			IEnumerable<IGrouping<(int WarehouseId, int NomenclatureId), SalesGenerationNode>> grouppedSalesResult,
+			Dictionary<DateTime, WarehouseResidueNode[]> residuesAtDates,
+			CancellationToken cancellationToken)
+		{
+			var reportRows = new List<TurnoverOfWarehouseBalancesReportRow>();
+
+			foreach(var wsn in warehousesNodes)
 			{
-				for(DateTime i = slice.StartDate; i < slice.EndDate; i = i.AddDays(1))
-				{
-					if(slice == slices.First())
-					{
-						residuesAtDates.Add(
-							i,
-							GetWarehousesBalanceAtAsync(
-									unitOfWork,
-									nomenclaturesSmallNodesIds,
-									warehouseSmallNodesIds,
-									i.LatestDayTime())
-								.ToArray());
-					}
-					else
-					{
-						var diff = GetWarehouseResidueDiffsQuery(
-								unitOfWork,
-								nomenclaturesSmallNodesIds,
-								warehouseSmallNodesIds,
-								i,
-								i.LatestDayTime())
-							.ToArray();
+				ProcessWarehouse(
+					reportRows,
+					wsn,
+					slices,
+					nomenclaturesSmallNodes,
+					grouppedSalesResult,
+					residuesAtDates,
+					cancellationToken);
 
-						var newResidues = new List<WarehouseResidueNode>();
-
-						var previousResidues = residuesAtDates[i.AddDays(-1)];
-
-						foreach(var previousResidue in previousResidues)
-						{
-							newResidues.Add(new WarehouseResidueNode
-							{
-								NomenclatureId = previousResidue.NomenclatureId,
-								WarehouseId = previousResidue.WarehouseId,
-								StockAmount = previousResidue.StockAmount
-							});
-
-							if(cancellationToken.IsCancellationRequested)
-							{
-								throw new OperationCanceledException(cancellationToken);
-							}
-						}
-
-						foreach(var residue in newResidues)
-						{
-							var currentDiff = diff
-								.FirstOrDefault(dr =>
-									dr.NomenclatureId == residue.NomenclatureId
-									&& dr.WarehouseId == residue.WarehouseId);
-
-							if(currentDiff is null)
-							{
-								continue;
-							}
-
-							residue.StockAmount += currentDiff.StockAmountDiff;
-
-							if(cancellationToken.IsCancellationRequested)
-							{
-								throw new OperationCanceledException(cancellationToken);
-							}
-						}
-
-						residuesAtDates.Add(
-							i,
-							newResidues.ToArray());
-					}
-
-					if(cancellationToken.IsCancellationRequested)
-					{
-						throw new OperationCanceledException(cancellationToken);
-					}
-				}
 
 				if(cancellationToken.IsCancellationRequested)
 				{
@@ -205,80 +171,255 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				}
 			}
 
-			foreach(var wsn in warehousesNodes)
+			return reportRows;
+		}
+
+		private static void ProcessWarehouse(
+			List<TurnoverOfWarehouseBalancesReportRow> reportRows,
+			WarehouseGenerationNode wsn,
+			IDateTimeSlice[] slices,
+			List<NomenclatureGenerationNode> nomenclaturesSmallNodes,
+			IEnumerable<IGrouping<(int WarehouseId, int NomenclatureId), SalesGenerationNode>> grouppedSalesResult,
+			Dictionary<DateTime, WarehouseResidueNode[]> residuesAtDates,
+			CancellationToken cancellationToken)
+		{
+			foreach(var nsn in nomenclaturesSmallNodes)
 			{
-				foreach(var nsn in nomenclaturesSmallNodes)
+				cancellationToken = ProcessNomenclature(
+					reportRows,
+					wsn,
+					slices,
+					grouppedSalesResult,
+					residuesAtDates,
+					nsn,
+					cancellationToken);
+
+				if(cancellationToken.IsCancellationRequested)
 				{
-					var sliceValues = new List<string>(slices.Length);
+					throw new OperationCanceledException(cancellationToken);
+				}
+			}
+		}
 
-					var warehouseToNomenclatureSalesGroup = grouppedSalesResult
-						.FirstOrDefault(gsr =>
-							gsr.Key.NomenclatureId == nsn.Id
-							&& gsr.Key.WarehouseId == wsn.Id);
+		private static CancellationToken ProcessNomenclature(
+			List<TurnoverOfWarehouseBalancesReportRow> reportRows,
+			WarehouseGenerationNode wsn,
+			IDateTimeSlice[] slices,
+			IEnumerable<IGrouping<(int WarehouseId, int NomenclatureId), SalesGenerationNode>> grouppedSalesResult,
+			Dictionary<DateTime, WarehouseResidueNode[]> residuesAtDates,
+			NomenclatureGenerationNode nsn,
+			CancellationToken cancellationToken)
+		{
+			var sliceValues = new List<string>(slices.Length);
 
-					var slicesValue = 0m;
-					var slicesSales = 0m;
+			var warehouseToNomenclatureSalesGroup = grouppedSalesResult
+				.FirstOrDefault(gsr =>
+					gsr.Key.NomenclatureId == nsn.Id
+					&& gsr.Key.WarehouseId == wsn.Id);
 
-					foreach(var slice in slices)
+			var slicesValue = 0m;
+			var slicesSales = 0m;
+
+			foreach(var slice in slices)
+			{
+				ProcessNomenclatureByDateTimeSlice(
+					wsn,
+					residuesAtDates,
+					nsn,
+					sliceValues,
+					warehouseToNomenclatureSalesGroup,
+					ref slicesValue,
+					ref slicesSales,
+					slice);
+
+				if(cancellationToken.IsCancellationRequested)
+				{
+					throw new OperationCanceledException(cancellationToken);
+				}
+			}
+
+			AddNomenclatureTotal(
+				reportRows,
+				wsn,
+				nsn,
+				sliceValues,
+				slicesValue,
+				slicesSales);
+
+			return cancellationToken;
+		}
+
+		private static void ProcessNomenclatureByDateTimeSlice(
+			WarehouseGenerationNode wsn,
+			Dictionary<DateTime, WarehouseResidueNode[]> residuesAtDates,
+			NomenclatureGenerationNode nsn,
+			List<string> sliceValues,
+			IGrouping<(int WarehouseId, int NomenclatureId), SalesGenerationNode> warehouseToNomenclatureSalesGroup,
+			ref decimal slicesValue,
+			ref decimal slicesSales,
+			IDateTimeSlice slice)
+		{
+			var residueMedianDays = (slice.EndDate.Date - slice.StartDate).TotalDays + 1;
+
+			var residuesInSlice = 0m;
+
+			var residuesAtDate = residuesAtDates
+				.Where(pair => pair.Key >= slice.StartDate
+					&& pair.Key <= slice.EndDate)
+				.SelectMany(x => x.Value)
+				.Where(x => x.NomenclatureId == nsn.Id
+					&& x.WarehouseId == wsn.Id)
+				.Sum(x => x.StockAmount);
+
+			residuesInSlice += residuesAtDate / (decimal)residueMedianDays;
+			slicesValue += residuesInSlice * (decimal)residueMedianDays;
+
+			var lastResidue = residuesAtDates
+				.Where(pair => pair.Key >= slice.StartDate
+					&& pair.Key <= slice.EndDate)
+				.LastOrDefault();
+
+			var residueOfCurrentMomenclatureAndWarehouse = lastResidue
+				.Value
+				.Where(x => x.NomenclatureId == nsn.Id
+					&& x.WarehouseId == wsn.Id)
+				.LastOrDefault();
+
+			var residueAtEndOfSlice =
+				residueOfCurrentMomenclatureAndWarehouse?.StockAmount ?? 0m;
+
+			if(warehouseToNomenclatureSalesGroup == null)
+			{
+				sliceValues.Add($"{_noSalesPrefix} {residueAtEndOfSlice:# ##0.000}");
+				return;
+			}
+
+			var sliceItems = warehouseToNomenclatureSalesGroup
+				.Where(gi => gi.SaleDate <= slice.EndDate
+					&& gi.SaleDate >= slice.StartDate);
+
+			var sliceSalesSum = sliceItems
+				.Sum(si => si.ActualCount);
+
+			var sliceValue = "";
+
+			if(sliceSalesSum is null
+				|| sliceSalesSum == 0m)
+			{
+				sliceValue = $"{_noSalesPrefix}{residueAtEndOfSlice:# ##0.000}";
+			}
+			else
+			{
+				var medianValue = residuesInSlice * (decimal)residueMedianDays / sliceSalesSum.Value;
+
+				slicesSales += sliceSalesSum.Value;
+				sliceValue = medianValue.ToString("# ##0.000");
+			}
+
+			sliceValues.Add(sliceValue);
+		}
+
+		private static void AddNomenclatureTotal(
+			List<TurnoverOfWarehouseBalancesReportRow> reportRows,
+			WarehouseGenerationNode wsn,
+			NomenclatureGenerationNode nsn,
+			List<string> sliceValues,
+			decimal slicesValue,
+			decimal slicesSales)
+		{
+			string total;
+
+			if(slicesSales == 0)
+			{
+				total = "Продаж не было";
+			}
+			else
+			{
+				total = $"{slicesValue / slicesSales:# ##0.000}";
+			}
+
+			reportRows.Add(new TurnoverOfWarehouseBalancesReportRow
+			{
+				WarehouseName = wsn.Name,
+				NomanclatureName = nsn.Name,
+				SliceValues = sliceValues,
+				Total = total
+			});
+		}
+
+		private static async Task<Dictionary<DateTime, WarehouseResidueNode[]>> ProcessResidues(
+			IUnitOfWork unitOfWork,
+			IDateTimeSlice[] slices,
+			int[] nomenclaturesSmallNodesIds,
+			int[] warehouseSmallNodesIds,
+			CancellationToken cancellationToken)
+		{
+			var residuesAtDates = new Dictionary<DateTime, WarehouseResidueNode[]>();
+
+			foreach(var slice in slices)
+			{
+				ProcessResiduesDateTimeSlice(
+					unitOfWork,
+					slices,
+					nomenclaturesSmallNodesIds,
+					warehouseSmallNodesIds,
+					residuesAtDates,
+					slice,
+					cancellationToken);
+
+				if(cancellationToken.IsCancellationRequested)
+				{
+					throw new OperationCanceledException(cancellationToken);
+				}
+			}
+
+			return await Task.FromResult(residuesAtDates);
+		}
+
+		private static void ProcessResiduesDateTimeSlice(
+			IUnitOfWork unitOfWork,
+			IDateTimeSlice[] slices,
+			int[] nomenclaturesSmallNodesIds,
+			int[] warehouseSmallNodesIds,
+			Dictionary<DateTime, WarehouseResidueNode[]> residuesAtDates,
+			IDateTimeSlice slice,
+			CancellationToken cancellationToken)
+		{
+			for(DateTime i = slice.StartDate; i < slice.EndDate; i = i.AddDays(1))
+			{
+				if(slice == slices.First())
+				{
+					residuesAtDates.Add(
+						i,
+						GetWarehousesBalanceAtAsync(
+								unitOfWork,
+								nomenclaturesSmallNodesIds,
+								warehouseSmallNodesIds,
+								i.LatestDayTime())
+							.ToArray());
+				}
+				else
+				{
+					var diff = GetWarehouseResidueDiffsQuery(
+							unitOfWork,
+							nomenclaturesSmallNodesIds,
+							warehouseSmallNodesIds,
+							i,
+							i.LatestDayTime())
+						.ToArray();
+
+					var newResidues = new List<WarehouseResidueNode>();
+
+					var previousResidues = residuesAtDates[i.AddDays(-1)];
+
+					foreach(var previousResidue in previousResidues)
 					{
-						var residueMedianDays = (slice.EndDate.Date - slice.StartDate).TotalDays + 1;
-
-						var residuesInSlice = 0m;
-
-						var residuesAtDate = residuesAtDates
-							.Where(pair => pair.Key >= slice.StartDate
-								&& pair.Key <= slice.EndDate)
-							.SelectMany(x => x.Value)
-							.Where(x => x.NomenclatureId == nsn.Id
-								&& x.WarehouseId == wsn.Id)
-							.Sum(x => x.StockAmount);
-
-						residuesInSlice += residuesAtDate / (decimal)residueMedianDays;
-						slicesValue += residuesInSlice * (decimal)residueMedianDays;
-
-						var lastResidue = residuesAtDates
-							.Where(pair => pair.Key >= slice.StartDate
-								&& pair.Key <= slice.EndDate)
-							.LastOrDefault();
-
-						var residueOfCurrentMomenclatureAndWarehouse = lastResidue
-							.Value
-							.Where(x => x.NomenclatureId == nsn.Id
-								&& x.WarehouseId == wsn.Id)
-							.LastOrDefault();
-
-						var residueAtEndOfSlice =
-							residueOfCurrentMomenclatureAndWarehouse?.StockAmount ?? 0m;
-
-						if(warehouseToNomenclatureSalesGroup != null)
+						newResidues.Add(new WarehouseResidueNode
 						{
-							var sliceItems = warehouseToNomenclatureSalesGroup
-								.Where(gi => gi.SaleDate <= slice.EndDate
-									&& gi.SaleDate >= slice.StartDate);
-
-							var sliceSalesSum = sliceItems
-								.Sum(si => si.ActualCount);
-
-							var sliceValue = "";
-
-							if(sliceSalesSum is null
-								|| sliceSalesSum == 0m)
-							{
-								sliceValue = $"{_noSalesPrefix}{residueAtEndOfSlice:# ##0.000}";
-							}
-							else
-							{
-								var medianValue = residuesInSlice * (decimal)residueMedianDays / sliceSalesSum.Value;
-
-								slicesSales += sliceSalesSum.Value;
-								sliceValue = medianValue.ToString("# ##0.000");
-							}
-							sliceValues.Add(sliceValue);
-						}
-						else
-						{
-							sliceValues.Add($"{_noSalesPrefix} {residueAtEndOfSlice:# ##0.000}");
-						}
+							NomenclatureId = previousResidue.NomenclatureId,
+							WarehouseId = previousResidue.WarehouseId,
+							StockAmount = previousResidue.StockAmount
+						});
 
 						if(cancellationToken.IsCancellationRequested)
 						{
@@ -286,29 +427,29 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 						}
 					}
 
-					string total;
+					foreach(var residue in newResidues)
+					{
+						var currentDiff = diff
+							.FirstOrDefault(dr =>
+								dr.NomenclatureId == residue.NomenclatureId
+								&& dr.WarehouseId == residue.WarehouseId);
 
-					if(slicesSales == 0)
-					{
-						total = "Продаж не было";
-					}
-					else
-					{
-						total = $"{slicesValue / slicesSales:# ##0.000}";
+						if(currentDiff is null)
+						{
+							continue;
+						}
+
+						residue.StockAmount += currentDiff.StockAmountDiff;
+
+						if(cancellationToken.IsCancellationRequested)
+						{
+							throw new OperationCanceledException(cancellationToken);
+						}
 					}
 
-					reportRows.Add(new TurnoverOfWarehouseBalancesReportRow
-					{
-						WarehouseName = wsn.Name,
-						NomanclatureName = nsn.Name,
-						SliceValues = sliceValues,
-						Total = total
-					});
-
-					if(cancellationToken.IsCancellationRequested)
-					{
-						throw new OperationCanceledException(cancellationToken);
-					}
+					residuesAtDates.Add(
+						i,
+						newResidues.ToArray());
 				}
 
 				if(cancellationToken.IsCancellationRequested)
@@ -316,12 +457,6 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 					throw new OperationCanceledException(cancellationToken);
 				}
 			}
-
-			return new TurnoverOfWarehouseBalancesReport(
-				startDate,
-				endDate,
-				slices,
-				reportRows);
 		}
 
 		private static IQueryable<SalesGenerationNode> GetSelfDeliverySalesQuery(
