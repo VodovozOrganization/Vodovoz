@@ -132,7 +132,7 @@ namespace Vodovoz.Models
 					organizationId = _organizationSettings.VodovozOrganizationId;
 					break;
 				case PaymentType.Cash:
-					organizationId = _organizationSettings.BeveragesWorldOrganizationId;
+					organizationId = _organizationSettings.VodovozSouthOrganizationId;
 					break;
 				case PaymentType.Terminal:
 					organizationId = _organizationSettings.BeveragesWorldOrganizationId;
@@ -178,7 +178,7 @@ namespace Vodovoz.Models
 					organizationId = _organizationSettings.VodovozOrganizationId;
 					break;
 				case PaymentType.Cash:
-					organizationId = _organizationSettings.BeveragesWorldOrganizationId;
+					organizationId = _organizationSettings.VodovozSouthOrganizationId;
 					break;
 				case PaymentType.Terminal:
 					organizationId = _organizationSettings.BeveragesWorldOrganizationId;
