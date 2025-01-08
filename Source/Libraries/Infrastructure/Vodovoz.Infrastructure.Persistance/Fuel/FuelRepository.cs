@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Fuel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
@@ -408,17 +409,17 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 			return givedLitersSum;
 		}
 
-		public async Task<IDictionary<string, decimal>> GetAverageFuelPricesByLastWeekTransactionsData(
+		public async Task<IDictionary<int, decimal>> GetAverageFuelPricesByLastWeekTransactionsData(
 			IUnitOfWork uow,
 			CancellationToken cancellationToken)
 		{
 			var lastWeekStartDate = DateTime.Today.AddDays(-7).FirstDayOfWeek();
 			var lastWeekEndDate = DateTime.Today.AddDays(-7).LastDayOfWeek();
 
-			return await GetAverageFuelPricesByTransactionsDataForPeriod(uow, lastWeekStartDate, lastWeekEndDate, cancellationToken);
+			return await GetFuelTypesAverageFuelPricesByTransactionsDataForPeriod(uow, lastWeekStartDate, lastWeekEndDate, cancellationToken);
 		}
 
-		private async Task<IDictionary<string, decimal>> GetAverageFuelPricesByTransactionsDataForPeriod(
+		private async Task<IDictionary<int, decimal>> GetFuelTypesAverageFuelPricesByTransactionsDataForPeriod(
 			IUnitOfWork uow,
 			DateTime periodStart,
 			DateTime periodEnd,
@@ -429,25 +430,19 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 
 			var query =
 				from transaction in uow.Session.Query<FuelTransaction>()
-				join card in uow.Session.Query<FuelCard>() on transaction.CardId equals card.CardId
-				join cardVersion in uow.Session.Query<FuelCardVersion>() on card.Id equals cardVersion.FuelCard.Id
-				join car in uow.Session.Query<Car>() on cardVersion.Car.Id equals car.Id
-				join fuelType in uow.Session.Query<FuelType>() on car.FuelType.Id equals fuelType.Id
-				join e in uow.Session.Query<Employee>() on car.Driver.Id equals e.Id into drivers
-					from driver in drivers.DefaultIfEmpty()
+				join fuelProduct in uow.Session.Query<FuelProduct>() on transaction.ProductId equals fuelProduct.ProductId
+				join fuelType in uow.Session.Query<FuelType>() on fuelProduct.FuelTypeId equals fuelType.Id
 				where
 					transaction.TransactionDate >= startDate
 					&& transaction.TransactionDate <= endDate
-					&& cardVersion.StartDate <= transaction.TransactionDate
-					&& (cardVersion.EndDate > transaction.TransactionDate || cardVersion.EndDate == null)
-					&& driver.Category == Core.Domain.Employees.EmployeeCategory.driver
-				select new { fuelType.ProductGroupId, transaction.PricePerItem };
+					&& !fuelProduct.IsArchived
+				select new { FuelTypeId = fuelType.Id, transaction.PricePerItem };
 
 			var fuelPrices = await query.ToListAsync(cancellationToken);
 
 			var groupedPrices =
 				fuelPrices.GroupBy(
-					x => x.ProductGroupId,
+					x => x.FuelTypeId,
 					x => x.PricePerItem)
 				.ToDictionary(
 					x => x.Key,
@@ -456,14 +451,14 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 			return groupedPrices;
 		}
 
-		public async Task<IEnumerable<FuelType>> GetFuelTypesByProductGroupIds(
+		public async Task<IEnumerable<FuelType>> GetFuelTypesByIds(
 			IUnitOfWork uow,
-			IEnumerable<string> productGroupIds,
+			IEnumerable<int> fuelTypeIds,
 			CancellationToken cancellationToken)
 		{
 			var fuleTypes =
 				await uow.Session.Query<FuelType>()
-				.Where(ft => productGroupIds.Contains(ft.ProductGroupId))
+				.Where(ft => fuelTypeIds.Contains(ft.Id))
 				.ToListAsync(cancellationToken);
 
 			return fuleTypes;

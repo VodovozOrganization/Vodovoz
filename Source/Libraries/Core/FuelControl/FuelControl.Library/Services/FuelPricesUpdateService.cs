@@ -35,13 +35,13 @@ namespace FuelControl.Library.Services
 					await _fuelRepository.GetAverageFuelPricesByLastWeekTransactionsData(uow, cancellationToken);
 
 				var fuelTypes =
-					await _fuelRepository.GetFuelTypesByProductGroupIds(uow, fuelAveragePrices.Keys, cancellationToken);
+					await _fuelRepository.GetFuelTypesByIds(uow, fuelAveragePrices.Keys, cancellationToken);
 
 				var newVersionsStartDate = DateTime.Today;
 
 				foreach(var fuelType in fuelTypes)
 				{
-					var isPriceCalculated = fuelAveragePrices.TryGetValue(fuelType.ProductGroupId, out var price);
+					var isPriceCalculated = fuelAveragePrices.TryGetValue(fuelType.Id, out var price);
 
 					if(!isPriceCalculated)
 					{
