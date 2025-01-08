@@ -35,6 +35,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
+using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Dialogs.Fuel;
@@ -71,6 +72,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IFuelRepository _fuelRepository;
 		private readonly IDocTemplateRepository _documentTemplateRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly IUserSettingsService _userSettingsService;
 		private readonly CarVersionsManagementViewModel _carVersionsManagementViewModel;
 		private readonly IDocumentPrinter _documentPrinter;
 		private readonly IInteractiveService _interactiveService;
@@ -80,7 +82,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private string _photoFilename;
 
 		private FuelType _oldFuelType;
-		private FuelCard _oldLastFuelCard;
+		private FuelCardVersion _oldLastFuelCardVersion;
 		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
 
 		public CarViewModel(
@@ -102,6 +104,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IDocTemplateRepository documentTemplateRepository,
 			IUserRepository userRepository,
 			IStringHandler stringHandler,
+			IUserSettingsService userSettingsService,
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
@@ -133,6 +136,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_documentTemplateRepository = documentTemplateRepository ?? throw new ArgumentNullException(nameof(documentTemplateRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
+			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
 			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
 			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
@@ -235,7 +239,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CreateRentalContractCommand = new DelegateCommand(CreateRentalContract);
 
 			_oldFuelType = Entity.FuelType;
-			_oldLastFuelCard = GetLastFuelCard();
+			_oldLastFuelCardVersion = GetLastFuelCardVersion();
 		}
 
 		private void ConfigureTechInspectInfo()
@@ -302,6 +306,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			if(!SetOtherCarsFuelCardVersionEndDateIfNeed())
 			{
+				return false;
+			}
+
+			if(IsFuelDataChanged && !IsUserHasAccessToGazprom)
+			{
+				ShowErrorMessage("Только пользователи, имеющие доступ в Газпромнефть могут редактировать топливные карты");
+
 				return false;
 			}
 
@@ -518,14 +529,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void UpdateFuelCardProductRestrictionInGazpromIfNeed()
 		{
-			if(!IsFuelCardChanged() && !IsFuelTypeChanged)
+			if(!IsFuelDataChanged)
 			{
 				return;
 			}
 
-			var currentLastFuelCard = GetLastFuelCard();
+			var currentLastFuelCardVersion = GetLastFuelCardVersion();
+			var currentActiveFuelCardVersion = Entity.GetCurrentActiveFuelCardVersion();
 
-			if(currentLastFuelCard is null || Entity.FuelType is null)
+			if(Entity.FuelType is null)
 			{
 				return;
 			}
@@ -541,15 +553,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			try
 			{
-				var cardChangeResult = _fuelApiService.SetProductRestrictionAndRemoveExistingByCardId(
-					currentLastFuelCard.CardId,
-					Entity.FuelType.ProductGroupId,
-					_fuelCardUpdateCancellationTokenSource.Token)
-					.GetAwaiter()
-					.GetResult();
+				if(currentActiveFuelCardVersion != null)
+				{
+					var currentActiveFuelCardChangeResult = SetFuelCardProductGroupRestrictionByCardId(currentActiveFuelCardVersion.FuelCard.CardId);
+				}
+
+				if(currentLastFuelCardVersion != null
+					&& currentLastFuelCardVersion.FuelCard.Id != currentActiveFuelCardVersion?.FuelCard?.Id
+					&& currentLastFuelCardVersion.StartDate >= DateTime.Today)
+				{
+					var cardChangeResult = SetFuelCardProductGroupRestrictionByCardId(currentLastFuelCardVersion.FuelCard.CardId);
+				}
 
 				_oldFuelType = Entity.FuelType;
-				_oldLastFuelCard = currentLastFuelCard;
+				_oldLastFuelCardVersion = GetLastFuelCardVersion();
 			}
 			catch(Exception ex)
 			{
@@ -559,9 +576,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				_logger.LogCritical(
 					ex,
-					"Ошибка при обновлении товарного ограничителя в сервисе Газпром. Номер карты:{CardNumber}. Тип топлива: {FuelTypeName}.",
-					currentLastFuelCard.CardNumber,
-					Entity.FuelType.Name);
+					"Ошибка при обновлении товарного ограничителя в сервисе Газпром.");
 			}
 			finally
 			{
@@ -570,22 +585,35 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		private FuelCard GetLastFuelCard() =>
+		private long SetFuelCardProductGroupRestrictionByCardId(string fuelCardId) =>
+			_fuelApiService.SetProductRestrictionAndRemoveExistingByCardId(
+				fuelCardId,
+				Entity.FuelType.ProductGroupId,
+				_fuelCardUpdateCancellationTokenSource.Token)
+				.GetAwaiter()
+				.GetResult();
+
+		private FuelCardVersion GetLastFuelCardVersion() =>
 			Entity.FuelCardVersions
 			.OrderByDescending(x => x.StartDate)
-			.Select(x => x.FuelCard)
 			.FirstOrDefault();
+
+		private bool IsUserHasAccessToGazprom =>
+			_userSettingsService.Settings.IsUserHasAuthDataForFuelControlApi;
+
+		private bool IsFuelDataChanged =>
+			IsFuelCardChanged() || IsFuelTypeChanged;
 
 		private bool IsFuelCardChanged()
 		{
-			var currentLastFuelCard = GetLastFuelCard();
+			var currentLastFuelCardVersion = GetLastFuelCardVersion();
 
-			if(_oldLastFuelCard is null && currentLastFuelCard is null)
+			if(_oldLastFuelCardVersion is null && currentLastFuelCardVersion is null)
 			{
 				return false;
 			}
 
-			return _oldLastFuelCard?.Id != currentLastFuelCard?.Id;
+			return _oldLastFuelCardVersion?.Id != currentLastFuelCardVersion?.Id;
 		}
 
 		private bool IsFuelTypeChanged =>
