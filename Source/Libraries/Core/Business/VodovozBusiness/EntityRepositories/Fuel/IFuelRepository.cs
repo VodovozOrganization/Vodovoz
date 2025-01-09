@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Fuel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
@@ -30,5 +31,6 @@ namespace Vodovoz.EntityRepositories.Fuel
 		decimal GetGivedFuelInLitersOnDate(IUnitOfWork unitOfWork, int carId, DateTime date);
 		Task<IDictionary<int, decimal>> GetAverageFuelPricesByLastWeekTransactionsData(IUnitOfWork uow, CancellationToken cancellationToken);
 		Task<IEnumerable<FuelType>> GetFuelTypesByIds(IUnitOfWork uow, IEnumerable<int> fuelTypeIds, CancellationToken cancellationToken);
+		IEnumerable<FuelProduct> GetFuelProductsByFuelTypeId(IUnitOfWork uow, int fuelTypeId);
 	}
 }

@@ -463,5 +463,14 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 
 			return fuleTypes;
 		}
+
+		public IEnumerable<FuelProduct> GetFuelProductsByFuelTypeId(IUnitOfWork uow, int  fuelTypeId)
+		{
+			var products = uow.Session.Query<FuelProduct>()
+				.Where(x => x.FuelTypeId == fuelTypeId)
+				.ToList();
+
+			return products;
+		}
 	}
 }

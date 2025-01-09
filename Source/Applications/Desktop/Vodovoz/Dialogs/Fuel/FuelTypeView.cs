@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using System.ComponentModel;
+using Vodovoz.Core.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 
@@ -41,6 +42,14 @@ namespace Vodovoz.Dialogs.Fuel
 			yentryProductGroupId.Binding
 				.AddBinding(ViewModel.Entity, e => e.ProductGroupId, w => w.Text)
 				.InitializeFromSource();
+
+			ytreeviewProductsInGroup.ColumnsConfig = FluentColumnsConfig<FuelProduct>.Create()
+				.AddColumn("Код продукта").HeaderAlignment(0.5f).AddTextRenderer(x => x.ProductId)
+				.AddColumn("Описание продукта").AddTextRenderer(x => x.Description)
+				.AddColumn("")
+				.Finish();
+			ytreeviewProductsInGroup.ItemsDataSource = ViewModel.FuelProductsInGroup;
+			ytreeviewProductsInGroup.HeightRequest = 100;
 
 			buttonNewVersion.Binding.AddBinding(ViewModel, vm => vm.CanAddNewFuelVersion, w => w.Sensitive).InitializeFromSource();
 			buttonNewVersion.Clicked += (sender, args) => ViewModel.AddNewCarFuelVersion();
