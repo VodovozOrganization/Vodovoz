@@ -44,8 +44,8 @@ namespace Vodovoz.Dialogs.Fuel
 				.InitializeFromSource();
 
 			ytreeviewProductsInGroup.ColumnsConfig = FluentColumnsConfig<FuelProduct>.Create()
-				.AddColumn("Код продукта").HeaderAlignment(0.5f).AddTextRenderer(x => x.ProductId)
-				.AddColumn("Описание продукта").AddTextRenderer(x => x.Description)
+				.AddColumn("Наименование").HeaderAlignment(0.5f).AddTextRenderer(x => x.Description).XAlign(0.5f)
+				.AddColumn("Код").MinWidth(120).HeaderAlignment(0.5f).AddTextRenderer(x => x.ProductId).XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 			ytreeviewProductsInGroup.ItemsDataSource = ViewModel.FuelProductsInGroup;
