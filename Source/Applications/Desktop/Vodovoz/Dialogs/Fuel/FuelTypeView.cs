@@ -49,7 +49,6 @@ namespace Vodovoz.Dialogs.Fuel
 				.AddColumn("")
 				.Finish();
 			ytreeviewProductsInGroup.ItemsDataSource = ViewModel.FuelProductsInGroup;
-			ytreeviewProductsInGroup.HeightRequest = 100;
 
 			buttonNewVersion.Binding.AddBinding(ViewModel, vm => vm.CanAddNewFuelVersion, w => w.Sensitive).InitializeFromSource();
 			buttonNewVersion.Clicked += (sender, args) => ViewModel.AddNewCarFuelVersion();

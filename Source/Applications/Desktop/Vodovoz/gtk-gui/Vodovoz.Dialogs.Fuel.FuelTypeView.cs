@@ -104,6 +104,7 @@ namespace Vodovoz.Dialogs.Fuel
 			this.tableContent.ColumnSpacing = ((uint)(6));
 			// Container child tableContent.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.HeightRequest = 120;
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
@@ -277,6 +278,7 @@ namespace Vodovoz.Dialogs.Fuel
 			this.ylabelProductsInGroup = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelProductsInGroup.Name = "ylabelProductsInGroup";
 			this.ylabelProductsInGroup.Xalign = 1F;
+			this.ylabelProductsInGroup.Yalign = 0F;
 			this.ylabelProductsInGroup.LabelProp = global::Mono.Unix.Catalog.GetString("Продукты в группе\nв сервисе\nГазпромнефть:");
 			this.ylabelProductsInGroup.Justify = ((global::Gtk.Justification)(1));
 			this.tableContent.Add(this.ylabelProductsInGroup);
