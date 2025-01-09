@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Fuel
 {
+	/// <summary>
+	/// Топливо
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "топливо",
 		Nominative = "топливо"
@@ -15,6 +18,9 @@ namespace Vodovoz.Core.Domain.Fuel
 		private string _description;
 		private bool _isArchived;
 
+		/// <summary>
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -22,6 +28,9 @@ namespace Vodovoz.Core.Domain.Fuel
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Код типа топлива
+		/// </summary>
 		[Display(Name = "Код типа топлива")]
 		public virtual int FuelTypeId
 		{
@@ -29,13 +38,19 @@ namespace Vodovoz.Core.Domain.Fuel
 			set => SetField(ref _fuelTypeId, value);
 		}
 
-		[Display(Name = "Код топлива")]
+		/// <summary>
+		/// Код топлива в газпроме
+		/// </summary>
+		[Display(Name = "Код топлива в газпроме")]
 		public virtual string ProductId
 		{
 			get => _productId;
 			set => SetField(ref _productId, value);
 		}
 
+		/// <summary>
+		/// Описание
+		/// </summary>
 		[Display(Name = "Описание")]
 		public virtual string Description
 		{
@@ -43,6 +58,9 @@ namespace Vodovoz.Core.Domain.Fuel
 			set => SetField(ref _description, value);
 		}
 
+		/// <summary>
+		/// В архиве
+		/// </summary>
 		[Display(Name = "В архиве")]
 		public virtual bool IsArchived
 		{
