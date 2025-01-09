@@ -20,4 +20,7 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Discussions\" />
+  </ItemGroup>
 </Project>
