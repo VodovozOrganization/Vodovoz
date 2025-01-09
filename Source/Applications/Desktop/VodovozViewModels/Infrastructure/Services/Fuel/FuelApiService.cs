@@ -294,7 +294,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 				requestData.ResponseResult = FuelApiResponseResult.Error;
 				requestData.ErrorResponseMessage = GetErrorMessageFromException(ex);
 
-				throw ex;
+				throw;
 			}
 			finally
 			{
@@ -325,7 +325,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 				requestData.ResponseResult = FuelApiResponseResult.Error;
 				requestData.ErrorResponseMessage = GetErrorMessageFromException(ex);
 
-				throw ex;
+				throw;
 			}
 			finally
 			{
@@ -360,7 +360,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 				requestData.ResponseResult = FuelApiResponseResult.Error;
 				requestData.ErrorResponseMessage = GetErrorMessageFromException(ex);
 
-				throw ex;
+				throw;
 			}
 			finally
 			{
