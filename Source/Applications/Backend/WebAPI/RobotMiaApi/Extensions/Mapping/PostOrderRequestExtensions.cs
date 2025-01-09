@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ApiCreateOrderRequest = RobotMiaApi.Contracts.Requests.V1.CreateOrderRequest;
 using CreateOrderRequest = VodovozBusiness.Services.Orders.CreateOrderRequest;
 
@@ -29,7 +30,8 @@ namespace RobotMiaApi.Extensions.Mapping
 					: null,
 			BanknoteForReturn = postOrderRequest.Trifle,
 			BottlesReturn = postOrderRequest.BottlesReturn ?? default,
-			SaleItems = postOrderRequest.SaleItems.MapToSaleItem()
+			SaleItems = postOrderRequest.SaleItems?.MapToSaleItem()
+				?? Enumerable.Empty<CreateOrderRequest.SaleItem>()
 		};
 	}
 }
