@@ -430,7 +430,7 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 
 			var query =
 				from transaction in uow.Session.Query<FuelTransaction>()
-				join fuelProduct in uow.Session.Query<FuelProduct>() on transaction.ProductId equals fuelProduct.ProductId
+				join fuelProduct in uow.Session.Query<FuelProduct>() on transaction.ProductId equals fuelProduct.GazpromFuelProductId
 				join fuelType in uow.Session.Query<FuelType>() on fuelProduct.FuelTypeId equals fuelType.Id
 				where
 					transaction.TransactionDate >= startDate

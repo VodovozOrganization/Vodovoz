@@ -14,7 +14,7 @@ namespace Vodovoz.Core.Domain.Fuel
 	{
 		private int _id;
 		private int _fuelTypeId;
-		private string _productId;
+		private string _gazpromFuelProductId;
 		private string _description;
 		private bool _isArchived;
 
@@ -42,10 +42,10 @@ namespace Vodovoz.Core.Domain.Fuel
 		/// Код топлива в газпроме
 		/// </summary>
 		[Display(Name = "Код топлива в газпроме")]
-		public virtual string ProductId
+		public virtual string GazpromFuelProductId
 		{
-			get => _productId;
-			set => SetField(ref _productId, value);
+			get => _gazpromFuelProductId;
+			set => SetField(ref _gazpromFuelProductId, value);
 		}
 
 		/// <summary>

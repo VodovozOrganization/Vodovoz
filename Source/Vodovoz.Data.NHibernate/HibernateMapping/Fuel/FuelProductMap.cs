@@ -12,7 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.FuelTypeId).Column("fuel_type_id");
-			Map(x => x.ProductId).Column("product_id");
+			Map(x => x.GazpromFuelProductId).Column("product_id");
 			Map(x => x.Description).Column("description");
 			Map(x => x.IsArchived).Column("is_archived");
 		}
