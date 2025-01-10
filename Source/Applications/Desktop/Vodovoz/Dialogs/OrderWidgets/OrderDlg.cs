@@ -4744,18 +4744,16 @@ namespace Vodovoz
 			{
 				return;
 			}
-			string email = "";
-			if(!Entity.Client.Emails.Any())
+			
+			var email = string.Empty;
+			
+			var clientEmail =
+				Entity.Client.Emails.FirstOrDefault(x => x.EmailType?.EmailPurpose == EmailPurpose.ForBills)
+					?? Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null)
+						?? Entity.Client.Emails.FirstOrDefault();
+
+			if(clientEmail != null)
 			{
-				email = "";
-			}
-			else
-			{
-				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
-				if(clientEmail == null)
-				{
-					clientEmail = Entity.Client.Emails.FirstOrDefault();
-				}
 				email = clientEmail.Address;
 			}
 
