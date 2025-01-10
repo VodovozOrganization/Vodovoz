@@ -29,8 +29,30 @@ namespace Vodovoz.EntityRepositories.Fuel
 		string GetFuelCardIdByNumber(IUnitOfWork unitOfWork, string cardNumber);
 		FuelDocument GetFuelDocumentByFuelLimitId(IUnitOfWork unitOfWork, string fuelLimitId);
 		decimal GetGivedFuelInLitersOnDate(IUnitOfWork unitOfWork, int carId, DateTime date);
+
+		/// <summary>
+		/// Средние цены на топливо по данным транзакций за предыдущую неделю
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns>Средняя стоимость топлива сгруппировання по Id типа топлива</returns>
 		Task<IDictionary<int, decimal>> GetAverageFuelPricesByLastWeekTransactionsData(IUnitOfWork uow, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Типы топлива, имеющие указанные Id
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="fuelTypeIds">Коллекция Id</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns></returns>
 		Task<IEnumerable<FuelType>> GetFuelTypesByIds(IUnitOfWork uow, IEnumerable<int> fuelTypeIds, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Продукты (топливо), относящихся к указанному типу
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="fuelTypeId">Id типа топлива</param>
+		/// <returns>Продукты (топливо)</returns>
 		IEnumerable<FuelProduct> GetFuelProductsByFuelTypeId(IUnitOfWork uow, int fuelTypeId);
 	}
 }
