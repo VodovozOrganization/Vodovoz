@@ -561,8 +561,10 @@ namespace DatabaseServiceWorker.PowerBiWorker
 			var dayNum = date.Day;
 			var isWorkDay = weekDayNum < 6;
 
-			var sql = $@"INSERT INTO calendar (`date`, month_num, month_name, month_shortName, weekday_num, weekday_name, weekday_shortName, day_num, workday)
-						VALUES(""{date.ToString("yyyy-MM-dd")}"", {montNum}, ""{monthName}"", ""{monthShortName}"", {weekDayNum}, ""{weekDayName}"", ""{weekDayShortName}"", {dayNum}, {isWorkDay})";
+			var year = date.Year;
+
+			var sql = $@"INSERT INTO calendar (`date`, month_num, month_name, month_shortName, weekday_num, weekday_name, weekday_shortName, day_num, workday, year)
+						VALUES(""{date.ToString("yyyy-MM-dd")}"", {montNum}, ""{monthName}"", ""{monthShortName}"", {weekDayNum}, ""{weekDayName}"", ""{weekDayShortName}"", {dayNum}, {isWorkDay}, {year})";
 
 			return sql;
 		}
