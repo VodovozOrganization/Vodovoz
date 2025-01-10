@@ -188,7 +188,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 		{
 			foreach(var nsn in nomenclaturesSmallNodes)
 			{
-				cancellationToken = ProcessNomenclature(
+				ProcessNomenclature(
 					reportRows,
 					wsn,
 					slices,
@@ -204,7 +204,7 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 			}
 		}
 
-		private static CancellationToken ProcessNomenclature(
+		private static void ProcessNomenclature(
 			List<TurnoverOfWarehouseBalancesReportRow> reportRows,
 			WarehouseGenerationNode wsn,
 			IDateTimeSlice[] slices,
@@ -248,8 +248,6 @@ namespace Vodovoz.Presentation.ViewModels.Store.Reports
 				sliceValues,
 				slicesValue,
 				slicesSales);
-
-			return cancellationToken;
 		}
 
 		private static void ProcessNomenclatureByDateTimeSlice(
