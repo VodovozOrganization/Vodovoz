@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -276,7 +277,7 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			var organization = orderItem.Order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == Domain.Goods.VAT.No)
+			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == VAT.No)
 			{
 				inventPosition.VatTag = (int)VatTag.VatFree;
 				return;
