@@ -1,10 +1,9 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -21,8 +20,7 @@ namespace Vodovoz.Domain.Complaints
 		private DateTime _startSubdivisionDate;
 		private DateTime _plannedCompletionDate;
 		private ComplaintDiscussionStatuses _status;
-		private IList<ComplaintDiscussionComment> _comments = new List<ComplaintDiscussionComment>();
-		private GenericObservableList<ComplaintDiscussionComment> _observableComments;
+		private IObservableList<ComplaintDiscussionComment> _comments = new ObservableList<ComplaintDiscussionComment>();
 
 		public ComplaintDiscussion() { }
 
@@ -64,24 +62,10 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		[Display(Name = "Комментарии")]
-		public virtual IList<ComplaintDiscussionComment> Comments
+		public virtual IObservableList<ComplaintDiscussionComment> Comments
 		{
 			get => _comments;
 			set => SetField(ref _comments, value);
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ComplaintDiscussionComment> ObservableComments
-		{
-			get
-			{
-				if(_observableComments == null)
-				{
-					_observableComments = new GenericObservableList<ComplaintDiscussionComment>(Comments);
-				}
-
-				return _observableComments;
-			}
 		}
 
 		public virtual string Title => $"{typeof(ComplaintDiscussion).GetSubjectName()} подразделения \"{Subdivision.Name}\"";

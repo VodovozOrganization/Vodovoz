@@ -161,7 +161,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ComplaintDiscussionComment.Comment = NewCommentText;
 
 			ComplaintDiscussionComment.ComplaintDiscussion = Entity;
-			Entity.ObservableComments.Add(ComplaintDiscussionComment);
+			Entity.Comments.Add(ComplaintDiscussionComment);
 			NewCommentText = string.Empty;
 
 			var newComment = ComplaintDiscussionComment;

@@ -56,12 +56,12 @@ namespace Vodovoz.Views.Complaints
 
 			var levels = LevelConfigFactory
 				.FirstLevel<ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>(x => x.AttachedFileInformations)
-				.LastLevel(afi => ViewModel.Entity.ObservableComments.FirstOrDefault(c => c.Id == afi.ComplaintDiscussionCommentId))
+				.LastLevel(afi => ViewModel.Entity.Comments.FirstOrDefault(c => c.Id == afi.ComplaintDiscussionCommentId))
 				.EndConfig();
 
 			ytreeviewComments.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
 
-			ViewModel.Entity.ObservableComments.ListContentChanged += (sender, e) => {
+			ViewModel.Entity.Comments.CollectionChanged += (sender, e) => {
 				ytreeviewComments.YTreeModel.EmitModelChanged();
 				ytreeviewComments.ExpandAll();
 			};
