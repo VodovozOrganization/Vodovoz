@@ -251,8 +251,8 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 
 		public async Task<long> SetProductRestrictionAndRemoveExistingByCardId(
 			string cardId,
-			string productGroupId,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken,
+			string productGroupId = "")
 		{
 			var existingRestrictionIds =
 				await GetProductRestrictionByCardId(cardId, cancellationToken);
@@ -263,7 +263,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			}
 
 			var newRestriction =
-				(await SetProductRestriction(cardId, productGroupId, cancellationToken))
+				(await SetProductRestriction(cardId, cancellationToken, productGroupId))
 				.FirstOrDefault();
 
 			return newRestriction;
@@ -335,21 +335,34 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 
 		private async Task<IEnumerable<long>> SetProductRestriction(
 			string cardId,
-			string productGroupId,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken,
+			string productGroupId = null)
 		{
 			var sessionId = await GetSessionIdOrLogin(cancellationToken);
 
 			var requestData = CreateFuelApiRequestData(FuelApiRequestFunction.None);
 
+			var createdLimits = Enumerable.Empty<long>();
+
 			try
 			{
-				var createdLimits = await _productRestrictionService.SetProductRestriction(
-					cardId,
-					productGroupId,
-					sessionId,
-					_userSettingsService.Settings.FuelControlApiKey,
-					cancellationToken);
+				if(string.IsNullOrWhiteSpace(productGroupId))
+				{
+					createdLimits = await _productRestrictionService.SetCommonFuelRestriction(
+						cardId,
+						sessionId,
+						_userSettingsService.Settings.FuelControlApiKey,
+						cancellationToken);
+				}
+				else
+				{
+					createdLimits = await _productRestrictionService.SetFuelProductGroupRestriction(
+						cardId,
+						productGroupId,
+						sessionId,
+						_userSettingsService.Settings.FuelControlApiKey,
+						cancellationToken);
+				}
 
 				requestData.ResponseResult = FuelApiResponseResult.Success;
 

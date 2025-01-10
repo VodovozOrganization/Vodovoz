@@ -149,7 +149,31 @@ namespace FuelControl.Library.Services
 			}
 		}
 
-		public async Task<IEnumerable<long>> SetProductRestriction(
+		public async Task<IEnumerable<long>> SetCommonFuelRestriction(
+			string cardId,
+			string sessionId,
+			string apiKey,
+			CancellationToken cancellationToken)
+		{
+			if(string.IsNullOrWhiteSpace(cardId))
+			{
+				throw new ArgumentException($"'{nameof(cardId)}' cannot be null or whitespace.", nameof(cardId));
+			}
+
+			if(string.IsNullOrWhiteSpace(sessionId))
+			{
+				throw new ArgumentException($"'{nameof(sessionId)}' cannot be null or whitespace.", nameof(sessionId));
+			}
+
+			if(string.IsNullOrWhiteSpace(apiKey))
+			{
+				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
+			}
+
+			return await SetProductRestriction(cardId, string.Empty, sessionId, apiKey, cancellationToken);
+		}
+
+		public async Task<IEnumerable<long>> SetFuelProductGroupRestriction(
 			string cardId,
 			string productGroupId,
 			string sessionId,
@@ -176,6 +200,16 @@ namespace FuelControl.Library.Services
 				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
 			}
 
+			return await SetProductRestriction(cardId, productGroupId, sessionId, apiKey, cancellationToken);
+		}
+
+		private async Task<IEnumerable<long>> SetProductRestriction(
+			string cardId,
+			string productGroupId,
+			string sessionId,
+			string apiKey,
+			CancellationToken cancellationToken)
+		{
 			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
 			var httpContent =
 				CreateSetRestrictionHttpContent(_fuelControlSettings.OrganizationContractId, cardId, productGroupId, apiKey, sessionId);
@@ -239,10 +273,14 @@ namespace FuelControl.Library.Services
 			{
 				ContractId = contractId,
 				CardId = cardId,
-				ProductGroupId = productGroupId,
 				ProductTypeId = _fuelControlSettings.FuelProductTypeId,
 				RestrictionType = 1
 			};
+
+			if(!string.IsNullOrWhiteSpace(productGroupId))
+			{
+				restriction.ProductGroupId = productGroupId;
+			}
 
 			var requestParameters = JsonSerializer.Serialize(restriction);
 

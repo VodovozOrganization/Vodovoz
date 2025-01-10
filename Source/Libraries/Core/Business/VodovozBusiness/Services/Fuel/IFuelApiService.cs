@@ -13,6 +13,6 @@ namespace Vodovoz.Services.Fuel
 		Task<IEnumerable<FuelLimit>> GetFuelLimitsByCardId(string cardId, CancellationToken cancellationToken);
 		Task<bool> RemoveFuelLimitById(string limitId, CancellationToken cancellationToken);
 		Task<IEnumerable<string>> SetFuelLimit(FuelLimit fuelLimit, CancellationToken cancellationToken);
-		Task<long> SetProductRestrictionAndRemoveExistingByCardId(string cardId, string productGroupId, CancellationToken cancellationToken);
+		Task<long> SetProductRestrictionAndRemoveExistingByCardId(string cardId, CancellationToken cancellationToken, string productGroupId = "");
 	}
 }

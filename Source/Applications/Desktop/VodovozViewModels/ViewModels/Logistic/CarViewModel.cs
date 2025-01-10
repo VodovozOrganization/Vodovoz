@@ -534,8 +534,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			var currentLastFuelCardVersion = GetLastFuelCardVersion();
-			var currentActiveFuelCardVersion = Entity.GetCurrentActiveFuelCardVersion();
+			var lastFuelCardVersion = GetLastFuelCardVersion();
+			var activeFuelCardVersion = Entity.GetCurrentActiveFuelCardVersion();
 
 			if(Entity.FuelType is null)
 			{
@@ -549,20 +549,28 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
+			var isNeedSetProductCategoryRestriction = Entity.Driver is null || Entity.Driver?.Category == EmployeeCategory.driver;
+
 			_fuelCardUpdateCancellationTokenSource = new CancellationTokenSource();
 
 			try
 			{
-				if(currentActiveFuelCardVersion != null)
+				if(activeFuelCardVersion != null)
 				{
-					var currentActiveFuelCardChangeResult = SetFuelCardProductGroupRestrictionByCardId(currentActiveFuelCardVersion.FuelCard.CardId);
+					var currentActiveFuelCardChangeResult =
+						isNeedSetProductCategoryRestriction
+						? SetFuelCardProductGroupRestrictionByCardId(activeFuelCardVersion.FuelCard.CardId)
+						: SetFuelCardCommonFuelRestrictionByCardId(activeFuelCardVersion.FuelCard.CardId);
 				}
 
-				if(currentLastFuelCardVersion != null
-					&& currentLastFuelCardVersion.FuelCard.Id != currentActiveFuelCardVersion?.FuelCard?.Id
-					&& currentLastFuelCardVersion.StartDate >= DateTime.Today)
+				if(lastFuelCardVersion != null
+					&& lastFuelCardVersion.FuelCard.Id != activeFuelCardVersion?.FuelCard?.Id
+					&& lastFuelCardVersion.StartDate >= DateTime.Today)
 				{
-					var cardChangeResult = SetFuelCardProductGroupRestrictionByCardId(currentLastFuelCardVersion.FuelCard.CardId);
+					var cardChangeResult =
+						isNeedSetProductCategoryRestriction
+						? SetFuelCardProductGroupRestrictionByCardId(lastFuelCardVersion.FuelCard.CardId)
+						: SetFuelCardCommonFuelRestrictionByCardId(lastFuelCardVersion.FuelCard.CardId);
 				}
 
 				_oldFuelType = Entity.FuelType;
@@ -585,11 +593,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		private long SetFuelCardCommonFuelRestrictionByCardId(string fuelCardId) =>
+			_fuelApiService.SetProductRestrictionAndRemoveExistingByCardId(
+				fuelCardId,
+				_fuelCardUpdateCancellationTokenSource.Token)
+				.GetAwaiter()
+				.GetResult();
+
 		private long SetFuelCardProductGroupRestrictionByCardId(string fuelCardId) =>
 			_fuelApiService.SetProductRestrictionAndRemoveExistingByCardId(
 				fuelCardId,
-				Entity.FuelType.ProductGroupId,
-				_fuelCardUpdateCancellationTokenSource.Token)
+				_fuelCardUpdateCancellationTokenSource.Token,
+				Entity.FuelType.ProductGroupId)
 				.GetAwaiter()
 				.GetResult();
 
