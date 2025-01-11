@@ -394,6 +394,14 @@ namespace Vodovoz.Domain.Orders
 			return result;
 		}
 
+		public virtual void RecalculateNotDepositItemPrice()
+		{
+			if(Nomenclature.Category == NomenclatureCategory.deposit && Price != 0)
+			{
+				RecalculatePrice();
+			}
+		}
+
 		public virtual void RecalculatePrice()
 		{
 			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || CopiedFromUndelivery != null)
@@ -623,7 +631,7 @@ namespace Vodovoz.Domain.Orders
 			if(Count != count)
 			{
 				Count = count;
-				Order?.RecalculateItemsPrice();
+				Order?.RecalculateWaterItemsPrices();
 				RecalculateDiscount();
 				RecalculateVAT();
 				Order?.UpdateRentsCount();

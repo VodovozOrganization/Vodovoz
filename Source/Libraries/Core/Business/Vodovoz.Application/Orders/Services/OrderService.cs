@@ -149,7 +149,7 @@ namespace Vodovoz.Application.Orders.Services
 					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
 				}
 
-				order.RecalculateItemsPrice();
+				order.RecalculateWaterItemsPrices();
 				UpdateDeliveryCost(unitOfWork, order);
 				return order.OrderSum;
 			}
@@ -185,7 +185,7 @@ namespace Vodovoz.Application.Orders.Services
 					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
 				}
 
-				order.RecalculateItemsPrice();
+				order.RecalculateWaterItemsPrices();
 				UpdateDeliveryCost(unitOfWork, order);
 				return
 				(
@@ -304,7 +304,7 @@ namespace Vodovoz.Application.Orders.Services
 				order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
-			order.RecalculateItemsPrice();
+			order.RecalculateWaterItemsPrices();
 			UpdateDeliveryCost(unitOfWork, order);
 			order.AddDeliveryPointCommentToOrder();
 

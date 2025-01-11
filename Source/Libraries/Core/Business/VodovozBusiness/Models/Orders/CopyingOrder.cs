@@ -164,7 +164,7 @@ namespace Vodovoz.Models.Orders
 				CopyDependentOrderEquipment(orderItem);
 			}
 
-			_resultOrder.RecalculateItemsPrice();
+			_resultOrder.RecalculateWaterItemsPrices();
 
 			return this;
 		}
@@ -194,7 +194,7 @@ namespace Vodovoz.Models.Orders
 				CopyDependentOrderEquipment(orderItem);
 			}
 
-			_resultOrder.RecalculateItemsPrice();
+			_resultOrder.RecalculateWaterItemsPrices();
 
 			return this;
 		}
