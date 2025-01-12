@@ -1251,7 +1251,7 @@ namespace Vodovoz
 			#region Рекламации
 
 			DeleteConfig.AddHibernateDeleteInfo<Complaint>()
-						.AddDeleteDependence<ComplaintDiscussion>(item => item.Complaint)
+						.AddDeleteDependence<ComplaintDiscussion>(item => item.Container)
 						.AddDeleteDependence<ComplaintFile>(item => item.Complaint)
 						.AddDeleteDependence<ComplaintGuiltyItem>(item => item.Complaint)
 						.AddDeleteDependence<ComplaintArrangementComment>(item => item.Complaint)
@@ -1259,7 +1259,7 @@ namespace Vodovoz
 						;
 
 			DeleteConfig.AddHibernateDeleteInfo<ComplaintDiscussion>()
-						.AddDeleteDependence<ComplaintDiscussionComment>(item => item.ComplaintDiscussion)
+						.AddDeleteDependence<ComplaintDiscussionComment>(item => item.Container)
 						;
 
 			DeleteConfig.AddHibernateDeleteInfo<ComplaintFile>()

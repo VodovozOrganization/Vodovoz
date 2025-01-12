@@ -160,7 +160,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ComplaintDiscussionComment.CreationTime = DateTime.Now;
 			ComplaintDiscussionComment.Comment = NewCommentText;
 
-			ComplaintDiscussionComment.ComplaintDiscussion = Entity;
+			ComplaintDiscussionComment.Container = Entity;
 			Entity.Comments.Add(ComplaintDiscussionComment);
 			NewCommentText = string.Empty;
 

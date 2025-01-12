@@ -422,7 +422,7 @@ namespace Vodovoz.Domain.Complaints
 			{
 				StartSubdivisionDate = DateTime.Now,
 				PlannedCompletionDate = DateTime.Today,
-				Complaint = this,
+				Container = this,
 				Subdivision = subdivision
 			};
 			ObservableComplaintDiscussions.Add(newDiscussion);

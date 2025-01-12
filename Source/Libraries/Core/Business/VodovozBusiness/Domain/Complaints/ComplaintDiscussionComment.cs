@@ -8,6 +8,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Employees;
 using VodovozBusiness.Domain.Complaints;
+using VodovozBusiness.Domain.Discussions;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -17,7 +18,7 @@ namespace Vodovoz.Domain.Complaints
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class ComplaintDiscussionComment : PropertyChangedBase, IDomainObject, IHasAttachedFilesInformations<ComplaintDiscussionCommentFileInformation>
+	public class ComplaintDiscussionComment : PropertyChangedBase, IDomainObject, IHasAttachedFilesInformations<ComplaintDiscussionCommentFileInformation>, IDiscussionComment<ComplaintDiscussionCommentFileInformation>
 	{
 		private IObservableList<ComplaintDiscussionCommentFileInformation> _attachedFileInformations = new ObservableList<ComplaintDiscussionCommentFileInformation>();
 
@@ -40,28 +41,32 @@ namespace Vodovoz.Domain.Complaints
 
 		private Employee author;
 		[Display(Name = "Автор")]
-		public virtual Employee Author {
+		public virtual Employee Author
+		{
 			get => author;
 			set => SetField(ref author, value, () => Author);
 		}
 
 		private DateTime creationTime;
 		[Display(Name = "Время создания")]
-		public virtual DateTime CreationTime {
+		public virtual DateTime CreationTime
+		{
 			get => creationTime;
 			set => SetField(ref creationTime, value, () => CreationTime);
 		}
 
-		private ComplaintDiscussion complaintDiscussion;
+		private ComplaintDiscussion _container;
 		[Display(Name = "Обсуждение рекламации")]
-		public virtual ComplaintDiscussion ComplaintDiscussion {
-			get => complaintDiscussion;
-			set => SetField(ref complaintDiscussion, value, () => ComplaintDiscussion);
+		public virtual ComplaintDiscussion Container
+		{
+			get => _container;
+			set => SetField(ref _container, value);
 		}
 
 		private string comment;
 		[Display(Name = "Комментарий")]
-		public virtual string Comment {
+		public virtual string Comment
+		{
 			get => comment;
 			set => SetField(ref comment, value, () => Comment);
 		}

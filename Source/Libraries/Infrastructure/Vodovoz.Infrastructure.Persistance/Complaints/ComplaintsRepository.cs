@@ -86,7 +86,7 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 			ComplaintDiscussionComment complaintDiscussionCommentAlias = null;
 
 			var complaintsIds = uow.Session.QueryOver(() => complaintDiscussionAlias)
-				.Left.JoinAlias(() => complaintDiscussionAlias.Complaint, () => complaintAlias)
+				.Left.JoinAlias(() => complaintDiscussionAlias.Container, () => complaintAlias)
 				.Left.JoinAlias(() => complaintDiscussionAlias.Comments, () => complaintDiscussionCommentAlias)
 				.Where(() => complaintAlias.Status != ComplaintStatuses.Closed)
 				.Where(() => complaintDiscussionAlias.Subdivision.Id == subdivisionId && complaintDiscussionAlias.Status != ComplaintDiscussionStatuses.Closed)
@@ -177,11 +177,11 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 
 				let discussionSubdivisions =
 				uow.Session.Query<ComplaintDiscussion>()
-				.Where(d => d.Complaint.Id == complaint.Id)
+				.Where(d => d.Container.Id == complaint.Id)
 				.Select(d => new DiscussionSubdivisionData
 				{
 					DiscussionId = d.Id,
-					ComplaintId = d.Complaint.Id,
+					ComplaintId = d.Container.Id,
 					SubdivisionId = d.Subdivision.Id,
 					DiscussionStatuse = d.Status
 				})

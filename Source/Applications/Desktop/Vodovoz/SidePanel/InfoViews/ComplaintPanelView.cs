@@ -216,7 +216,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				dicussionQuery = QueryOver.Of(() => discussionAlias)
 					.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
 					.Where(() => discussionAlias.Subdivision.Id == filter.Subdivision.Id)
-					.And(() => discussionAlias.Complaint.Id == complaintAlias.Id);
+					.And(() => discussionAlias.Container.Id == complaintAlias.Id);
 			}
 
 			if(filter.StartDate.HasValue) {

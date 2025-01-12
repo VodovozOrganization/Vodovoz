@@ -342,7 +342,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			var isNeedWorkSubquery = QueryOver.Of(() => discussionAlias)
 				.Where(() => discussionAlias.Status == ComplaintDiscussionStatuses.InProcess)
-				.Where(() => discussionAlias.Complaint.Id == complaintAlias.Id)
+				.Where(() => discussionAlias.Container.Id == complaintAlias.Id)
 				.Select(Projections.Id())
 				.Take(1);
 
@@ -390,7 +390,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					dicussionQuery = QueryOver.Of(() => discussionAlias)
 						.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
 						.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
-						.And(() => discussionAlias.Complaint.Id == complaintAlias.Id);
+						.And(() => discussionAlias.Container.Id == complaintAlias.Id);
 				}
 
 				switch(FilterViewModel.FilterDateType)
@@ -595,7 +595,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					dicussionQuery = QueryOver.Of(() => discussionAlias)
 						.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
 						.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
-						.And(() => discussionAlias.Complaint.Id == complaintAlias.Id);
+						.And(() => discussionAlias.Container.Id == complaintAlias.Id);
 				}
 
 				switch(FilterViewModel.FilterDateType)

@@ -366,7 +366,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					dicussionQuery = QueryOver.Of(() => discussionAlias)
 						.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
 						.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
-						.And(() => discussionAlias.Complaint.Id == complaintAlias.Id);
+						.And(() => discussionAlias.Container.Id == complaintAlias.Id);
 				}
 
 				switch(FilterViewModel.FilterDateType)
@@ -497,7 +497,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			
 			var departmentFirstCommentTimeSubQuery = QueryOver.Of(() => discussionAlias)
 				.JoinAlias(() => discussionAlias.Comments, () => complaintDiscussionCommentAlias)
-				.Where(() => complaintAlias.Id == discussionAlias.Complaint.Id)
+				.Where(() => complaintAlias.Id == discussionAlias.Container.Id)
 				.Where(() => subdivisionAlias.Id == discussionAlias.Subdivision.Id)
 				.Select(Projections.Min(() => complaintDiscussionCommentAlias.CreationTime));
 
@@ -580,7 +580,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					dicussionQuery = QueryOver.Of(() => discussionAlias)
 						.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
 						.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
-						.And(() => discussionAlias.Complaint.Id == complaintAlias.Id);
+						.And(() => discussionAlias.Container.Id == complaintAlias.Id);
 				}
 
 				switch(FilterViewModel.FilterDateType)

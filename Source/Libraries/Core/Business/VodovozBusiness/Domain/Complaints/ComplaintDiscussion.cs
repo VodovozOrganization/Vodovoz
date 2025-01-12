@@ -4,6 +4,8 @@ using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using VodovozBusiness.Domain.Complaints;
+using VodovozBusiness.Domain.Discussions;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -13,9 +15,12 @@ namespace Vodovoz.Domain.Complaints
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class ComplaintDiscussion : PropertyChangedBase, IDomainObject
+	public class ComplaintDiscussion
+		: PropertyChangedBase,
+		IDomainObject,
+		IDiscussion<Complaint, ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>
 	{
-		private Complaint _complaint;
+		private Complaint _container;
 		private Subdivision _subdivision;
 		private DateTime _startSubdivisionDate;
 		private DateTime _plannedCompletionDate;
@@ -27,10 +32,10 @@ namespace Vodovoz.Domain.Complaints
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Рекламация")]
-		public virtual Complaint Complaint
+		public virtual Complaint Container
 		{
-			get => _complaint;
-			set => SetField(ref _complaint, value);
+			get => _container;
+			set => SetField(ref _container, value);
 		}
 
 		[Display(Name = "Подразделение")]
@@ -69,5 +74,11 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		public virtual string Title => $"{typeof(ComplaintDiscussion).GetSubjectName()} подразделения \"{Subdivision.Name}\"";
+
+		public void AddComment(ComplaintDiscussionComment discussionComment)
+		{
+			discussionComment.Container = this;
+			Comments.Add(discussionComment);
+		}
 	}
 }

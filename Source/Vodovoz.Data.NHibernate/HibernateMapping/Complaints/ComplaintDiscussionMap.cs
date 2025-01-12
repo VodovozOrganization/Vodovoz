@@ -11,7 +11,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			References(x => x.Complaint).Column("complaint_id");
+			References(x => x.Container).Column("complaint_id");
 			References(x => x.Subdivision).Column("subdivision_id");
 			Map(x => x.StartSubdivisionDate).Column("start_subdivision_date");
 			Map(x => x.PlannedCompletionDate).Column("planned_completion_date");
