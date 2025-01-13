@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Extensions;
 using Sms.Internal.Client.Framework;
@@ -27,7 +27,7 @@ namespace Vodovoz
 			IConfiguration configuration,
 			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped) =>
 			services
-				.AddCoreDomainServices()
+				.AddFeatureManagement()
 				.RegisterClassesByInterfaces("Controller", serviceLifetime)
 				.RegisterClassesByInterfaces("Converter", serviceLifetime)
 				.RegisterClassesByInterfaces("Repository", serviceLifetime)
