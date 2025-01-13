@@ -5,11 +5,8 @@ using QS.Views.GtkUI;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
-using Vodovoz.Domain.Complaints;
 using Vodovoz.Presentation.ViewModels.Discussions;
 using Vodovoz.Presentation.Views.Themes;
-using VodovozBusiness.Domain.Complaints;
 using VodovozBusiness.Domain.Discussions;
 
 namespace Vodovoz.Presentation.Views.Discussions
@@ -32,7 +29,7 @@ namespace Vodovoz.Presentation.Views.Discussions
 			ViewModel.CommentsCollectionChanged -= OnCommentsCollectionChanged;
 			ytreeviewComments.RowActivated -= YtreeviewComments_RowActivated;
 
-			ytreeviewComments.CreateFluentColumnsConfig<IDiscussionComment<FileInformation>>()
+			ytreeviewComments.CreateFluentColumnsConfig<IDiscussionComment<DiscussionCommentFileInformation>>()
 				.AddColumn("Время")
 					.AddTextRenderer(x => GetTime(x))
 				.AddColumn("Автор")
@@ -45,11 +42,11 @@ namespace Vodovoz.Presentation.Views.Discussions
 				.Finish();
 
 			var levels = LevelConfigFactory
-				.FirstLevel<IDiscussionComment<FileInformation>, FileInformation>(x => x.AttachedFileInformations)
+				.FirstLevel<IDiscussionComment<DiscussionCommentFileInformation>, DiscussionCommentFileInformation>(x => x.AttachedFileInformations)
 				.LastLevel(afi => ViewModel.Discussion.Comments.FirstOrDefault(c => c.Id == afi.Id))
 				.EndConfig();
 
-			ytreeviewComments.YTreeModel = new LevelTreeModel<IDiscussionComment<FileInformation>>(ViewModel.Discussion.Comments, levels);
+			ytreeviewComments.YTreeModel = new LevelTreeModel<IDiscussionComment<DiscussionCommentFileInformation>>(ViewModel.Discussion.Comments, levels);
 
 			ytreeviewComments.ExpandAll();
 			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
@@ -67,11 +64,11 @@ namespace Vodovoz.Presentation.Views.Discussions
 
 		private string GetNodeName(object node)
 		{
-			if(node is IDiscussionComment<FileInformation> discussionComment)
+			if(node is IDiscussionComment<DiscussionCommentFileInformation> discussionComment)
 			{
 				return discussionComment.Comment;
 			}
-			if(node is FileInformation fileInformation)
+			if(node is DiscussionCommentFileInformation fileInformation)
 			{
 				return fileInformation.FileName;
 			}
@@ -80,7 +77,7 @@ namespace Vodovoz.Presentation.Views.Discussions
 
 		private string GetTime(object node)
 		{
-			if(node is IDiscussionComment<FileInformation> discussionComment)
+			if(node is IDiscussionComment<DiscussionCommentFileInformation> discussionComment)
 			{
 				return discussionComment.CreationTime.ToShortDateString() + "\n" +
 					discussionComment.CreationTime.ToShortTimeString();
@@ -91,7 +88,7 @@ namespace Vodovoz.Presentation.Views.Discussions
 
 		private string GetAuthor(object node)
 		{
-			if(node is IDiscussionComment<FileInformation> discussionComment)
+			if(node is IDiscussionComment<DiscussionCommentFileInformation> discussionComment)
 			{
 				var author = discussionComment.Author;
 				var subdivisionName = author.Subdivision != null
@@ -104,7 +101,7 @@ namespace Vodovoz.Presentation.Views.Discussions
 
 		private void SetColor(CellRenderer cell, object node)
 		{
-			if(node is ComplaintDiscussionComment)
+			if(node is IDiscussionComment<DiscussionCommentFileInformation>)
 			{
 				cell.CellBackgroundGdk = GdkColors.DiscussionCommentBase;
 			}
@@ -116,11 +113,11 @@ namespace Vodovoz.Presentation.Views.Discussions
 
 		private void YtreeviewComments_RowActivated(object o, RowActivatedArgs args)
 		{
-			if(!(ytreeviewComments.GetSelectedObject() is ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation))
+			if(!(ytreeviewComments.GetSelectedObject() is IDiscussionComment<DiscussionCommentFileInformation> discussionCommentFileInformation))
 			{
 				return;
 			}
-			ViewModel.OpenFileCommand.Execute(complaintDiscussionCommentFileInformation);
+			ViewModel.OpenFileCommand.Execute(discussionCommentFileInformation);
 		}
 
 		private void OnCommentsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

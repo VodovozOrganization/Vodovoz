@@ -76,6 +76,8 @@ namespace Vodovoz.Views.Complaints
 			//ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
 
 			//smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+
+			discussionview1.ViewModel = ViewModel.DiscussionViewModel;
 		}
 
 		public string TabName

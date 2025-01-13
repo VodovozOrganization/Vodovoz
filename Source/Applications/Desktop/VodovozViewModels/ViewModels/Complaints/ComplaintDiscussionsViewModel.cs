@@ -26,7 +26,9 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
+		private readonly IUserService _userService;
 		private readonly IUserRepository _userRepository;
+		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly INavigationManager _navigationManager;
 		private readonly IComplaintDiscussionCommentFileStorageService _complaintDiscussionCommentFileStorageService;
 		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
@@ -41,7 +43,9 @@ namespace Vodovoz.ViewModels.Complaints
 			IFileDialogService fileDialogService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
+			IUserService userService,
 			IUserRepository userRepository,
+			ICurrentPermissionService currentPermissionService,
 			INavigationManager navigationManager,
 			IComplaintDiscussionCommentFileStorageService complaintDiscussionCommentFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
@@ -50,7 +54,9 @@ namespace Vodovoz.ViewModels.Complaints
 			_parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_currentPermissionService = currentPermissionService;
 			_navigationManager = navigationManager;
 			_complaintDiscussionCommentFileStorageService = complaintDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(complaintDiscussionCommentFileStorageService));
 			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
@@ -124,7 +130,9 @@ namespace Vodovoz.ViewModels.Complaints
 					_employeeService,
 					CommonServices,
 					UoW,
+					_userService,
 					_userRepository,
+					_currentPermissionService,
 					_complaintDiscussionCommentFileStorageService,
 					_attachedFileInformationsViewModelFactory);
 

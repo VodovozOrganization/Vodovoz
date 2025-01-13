@@ -18,9 +18,11 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
+using Vodovoz.Presentation.ViewModels.Discussions;
 using Vodovoz.Services;
 using Vodovoz.ViewModelBased;
 using VodovozBusiness.Domain.Complaints;
+using VodovozBusiness.Domain.Discussions;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -42,11 +44,18 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			IUnitOfWork uow,
+			IUserService userService,
 			IUserRepository userRepository,
+			ICurrentPermissionService currentPermissionService,
 			IComplaintDiscussionCommentFileStorageService complaintDiscussionCommentFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
 			: base(complaintDiscussion, commonServices)
 		{
+			if(userService is null)
+			{
+				throw new ArgumentNullException(nameof(userService));
+			}
+
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -72,6 +81,19 @@ namespace Vodovoz.ViewModels.Complaints
 				ComplaintDiscussionComment.DeleteFileInformation);
 
 			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
+
+			DiscussionViewModel = new DiscussionViewModel(
+				UoW,
+				Entity.Container,
+				Entity,
+				userService,
+				userRepository,
+				employeeService,
+				CommonServices.InteractiveService,
+				currentPermissionService,
+				_attachedFileInformationsViewModelFactory,
+				_complaintDiscussionCommentFileStorageService as IEntityFileStorageService<IDiscussionComment<DiscussionCommentFileInformation>>,
+				() => new ComplaintDiscussionComment() as IDiscussionComment<DiscussionCommentFileInformation>);
 		}
 
 		private void ConfigureEntityPropertyChanges()
@@ -185,6 +207,7 @@ namespace Vodovoz.ViewModels.Complaints
 		#region OpenFileCommand
 
 		public DelegateCommand<ComplaintDiscussionCommentFileInformation> OpenFileCommand { get; }
+		public DiscussionViewModel DiscussionViewModel { get; }
 
 		public void OpenFile(ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation)
 		{

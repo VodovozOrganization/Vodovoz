@@ -53,8 +53,8 @@ namespace Vodovoz.FirebaseCloudMessaging
 					Notification = new Notification
 					{
 						Title = title,
-						Body = body
-					}
+						Body = body,
+					},
 				};
 
 				var options = _optionsMonitor.CurrentValue;

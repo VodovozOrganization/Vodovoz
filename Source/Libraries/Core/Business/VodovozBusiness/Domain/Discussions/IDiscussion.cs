@@ -1,20 +1,13 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
-using System.ComponentModel;
-using Vodovoz.Core.Domain.Common;
 
 namespace VodovozBusiness.Domain.Discussions
 {
-	public interface IDiscussion<TContainer, TDiscussionComment, TFileInformation>
-		: IDomainObject
-		where TContainer : IDomainObject
-		where TFileInformation : FileInformation
-		where TDiscussionComment
-			: IDiscussionComment<TFileInformation>
+	public interface IDiscussion
 	{
-		TContainer Container { get; set; }
-		IObservableList<TDiscussionComment> Comments { get; }
+		IDomainObject Container { get; set; }
+		IObservableList<IDiscussionComment<DiscussionCommentFileInformation>> Comments { get; }
 
-		void AddComment(TDiscussionComment discussionComment);
+		void AddComment(IDiscussionComment<DiscussionCommentFileInformation> discussionComment);
 	}
 }
