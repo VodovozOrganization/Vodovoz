@@ -1,10 +1,15 @@
-﻿using System.ComponentModel;
+﻿using Gamma.Binding;
+using Gamma.Binding.Core.LevelTreeConfig;
 using Gtk;
 using QS.Views.GtkUI;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Presentation.ViewModels.Discussions;
 using Vodovoz.Presentation.Views.Themes;
+using VodovozBusiness.Domain.Complaints;
 using VodovozBusiness.Domain.Discussions;
 
 namespace Vodovoz.Presentation.Views.Discussions
@@ -24,17 +29,77 @@ namespace Vodovoz.Presentation.Views.Discussions
 				return;
 			}
 
+			ViewModel.CommentsCollectionChanged -= OnCommentsCollectionChanged;
+			ytreeviewComments.RowActivated -= YtreeviewComments_RowActivated;
+
 			ytreeviewComments.CreateFluentColumnsConfig<IDiscussionComment<FileInformation>>()
 				.AddColumn("Время")
-					.AddTextRenderer(x => x.CreationTime.ToShortDateString())
+					.AddTextRenderer(x => GetTime(x))
 				.AddColumn("Автор")
-					.AddTextRenderer(x => x.Author.ShortName)
+					.AddTextRenderer(x => GetAuthor(x))
 				.AddColumn("Комментарий")
-					.AddTextRenderer(x => x.Comment)
+					.AddTextRenderer(x => GetNodeName(x))
 				.WrapWidth(300)
 					.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
+
+			var levels = LevelConfigFactory
+				.FirstLevel<IDiscussionComment<FileInformation>, FileInformation>(x => x.AttachedFileInformations)
+				.LastLevel(afi => ViewModel.Discussion.Comments.FirstOrDefault(c => c.Id == afi.Id))
+				.EndConfig();
+
+			ytreeviewComments.YTreeModel = new LevelTreeModel<IDiscussionComment<FileInformation>>(ViewModel.Discussion.Comments, levels);
+
+			ytreeviewComments.ExpandAll();
+			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
+
+			ViewModel.CommentsCollectionChanged += OnCommentsCollectionChanged;
+
+			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
+			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+
+			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
+			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
+
+			smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+		}
+
+		private string GetNodeName(object node)
+		{
+			if(node is IDiscussionComment<FileInformation> discussionComment)
+			{
+				return discussionComment.Comment;
+			}
+			if(node is FileInformation fileInformation)
+			{
+				return fileInformation.FileName;
+			}
+			return "";
+		}
+
+		private string GetTime(object node)
+		{
+			if(node is IDiscussionComment<FileInformation> discussionComment)
+			{
+				return discussionComment.CreationTime.ToShortDateString() + "\n" +
+					discussionComment.CreationTime.ToShortTimeString();
+			}
+
+			return "";
+		}
+
+		private string GetAuthor(object node)
+		{
+			if(node is IDiscussionComment<FileInformation> discussionComment)
+			{
+				var author = discussionComment.Author;
+				var subdivisionName = author.Subdivision != null
+					&& !string.IsNullOrWhiteSpace(author.Subdivision.ShortName) ? "\n" + author.Subdivision.ShortName : "";
+				var result = $"{author.ShortName}{subdivisionName}";
+				return result;
+			}
+			return "";
 		}
 
 		private void SetColor(CellRenderer cell, object node)
@@ -47,6 +112,28 @@ namespace Vodovoz.Presentation.Views.Discussions
 			{
 				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 			}
+		}
+
+		private void YtreeviewComments_RowActivated(object o, RowActivatedArgs args)
+		{
+			if(!(ytreeviewComments.GetSelectedObject() is ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation))
+			{
+				return;
+			}
+			ViewModel.OpenFileCommand.Execute(complaintDiscussionCommentFileInformation);
+		}
+
+		private void OnCommentsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			ytreeviewComments.YTreeModel.EmitModelChanged();
+			ytreeviewComments.ExpandAll();
+		}
+
+		override public void Destroy()
+		{
+			ViewModel.CommentsCollectionChanged -= OnCommentsCollectionChanged;
+			ytreeviewComments.RowActivated -= YtreeviewComments_RowActivated;
+			base.Destroy();
 		}
 	}
 }

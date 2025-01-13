@@ -6,6 +6,7 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -95,7 +96,12 @@ namespace Vodovoz.Presentation.ViewModels.Discussions
 				DiscussionComment.DeleteFileInformation);
 
 			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
+
+			Discussion.Comments.CollectionChanged += OnDiscussionCommentsChanged;
 		}
+
+
+		public event EventHandler<NotifyCollectionChangedEventArgs> CommentsCollectionChanged;
 
 		public IDiscussion<IDomainObject, IDiscussionComment<FileInformation>, FileInformation> Discussion { get; }
 
@@ -242,6 +248,11 @@ namespace Vodovoz.Presentation.ViewModels.Discussions
 				File.Delete(process.StartInfo.FileName);
 				process.Exited -= OnProcessExited;
 			}
+		}
+
+		private void OnDiscussionCommentsChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			CommentsCollectionChanged?.Invoke(sender, e);
 		}
 	}
 }

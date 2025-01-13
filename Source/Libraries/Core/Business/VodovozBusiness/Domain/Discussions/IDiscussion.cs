@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
+using System.ComponentModel;
 using Vodovoz.Core.Domain.Common;
 
 namespace VodovozBusiness.Domain.Discussions
