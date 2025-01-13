@@ -15,7 +15,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.ViewWidgets.Permissions

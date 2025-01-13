@@ -10,8 +10,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 

@@ -3,7 +3,7 @@ using Gdk;
 using Gtk;
 using System;
 using Vodovoz.Domain.Client;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Counterparties;
 using static Vodovoz.ViewModels.Counterparties.CallTaskJournalViewModel;
 using WrapMode = Pango.WrapMode;

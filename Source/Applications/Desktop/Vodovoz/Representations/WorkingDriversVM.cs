@@ -19,9 +19,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModel

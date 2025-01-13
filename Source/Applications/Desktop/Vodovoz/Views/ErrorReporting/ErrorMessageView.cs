@@ -1,7 +1,7 @@
 ﻿using System;
 using Gtk;
 using QS.ErrorReporting;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Views

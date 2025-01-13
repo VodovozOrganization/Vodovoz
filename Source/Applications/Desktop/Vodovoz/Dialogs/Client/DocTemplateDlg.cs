@@ -7,11 +7,11 @@ using QSDocTemplates;
 using QSProjectsLib;
 using System;
 using Vodovoz.Domain.Client;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using QS.DocTemplates;
 using FileWorker = QSDocTemplates.FileWorker;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz
 {

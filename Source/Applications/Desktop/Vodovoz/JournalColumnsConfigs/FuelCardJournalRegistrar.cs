@@ -1,7 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
 using Vodovoz.Domain.Fuel;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Fuel.FuelCards;
 using WrapMode = Pango.WrapMode;
 

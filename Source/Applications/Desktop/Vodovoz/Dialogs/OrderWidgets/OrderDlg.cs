@@ -88,7 +88,6 @@ using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Persistance.Orders;
 using Vodovoz.Infrastructure.Print;
@@ -137,6 +136,8 @@ using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using LogLevel = NLog.LogLevel;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz
 {

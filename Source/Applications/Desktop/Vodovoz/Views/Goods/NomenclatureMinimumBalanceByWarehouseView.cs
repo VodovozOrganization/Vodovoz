@@ -2,9 +2,9 @@
 using QS.Views.GtkUI;
 using System.ComponentModel;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets.Goods;
 using Gdk;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Views.Goods
 {

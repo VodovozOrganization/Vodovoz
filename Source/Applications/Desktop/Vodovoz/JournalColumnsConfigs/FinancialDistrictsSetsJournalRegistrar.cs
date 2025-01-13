@@ -2,8 +2,8 @@
 using Gamma.Utilities;
 using Gtk;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 
 namespace Vodovoz.JournalColumnsConfigs

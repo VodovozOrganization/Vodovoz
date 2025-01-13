@@ -3,8 +3,8 @@ using Gamma.Utilities;
 using Gtk;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using WrapMode = Pango.WrapMode;
 

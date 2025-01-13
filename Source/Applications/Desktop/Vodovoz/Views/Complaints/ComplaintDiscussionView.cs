@@ -6,10 +6,10 @@ using Gamma.Binding;
 using System.Linq;
 using Gtk;
 using Gamma.Binding.Core.LevelTreeConfig;
-using Vodovoz.Infrastructure;
 using VodovozBusiness.Domain.Complaints;
 using System.ComponentModel;
-using Vodovoz.Extensions;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Views.Complaints
 {

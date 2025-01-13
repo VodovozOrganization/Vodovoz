@@ -6,7 +6,7 @@ using NHibernate.Transform;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Store;
 using Gamma.Binding;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Representations
 {

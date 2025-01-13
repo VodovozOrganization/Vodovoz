@@ -23,7 +23,6 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Tools.Store;
-using Vodovoz.Infrastructure;
 using QS.Navigation;
 using QS.Project.Journal;
 using Vodovoz.Core.Domain.Goods;
@@ -32,6 +31,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Autofac;
 using QS.Report;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {

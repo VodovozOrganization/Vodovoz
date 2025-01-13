@@ -5,7 +5,7 @@ using System;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Store;
 using VodovozBusiness.Domain.Documents;
 

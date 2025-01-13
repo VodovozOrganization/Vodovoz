@@ -13,7 +13,7 @@ using QS.Views.GtkUI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.ViewModels;
 
 namespace Vodovoz.Views

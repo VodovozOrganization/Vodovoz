@@ -1,7 +1,7 @@
 ﻿using Gtk;
 using QS.Views.GtkUI;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders

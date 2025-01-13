@@ -6,7 +6,7 @@ using QS.Views.Dialog;
 using QS.Views.GtkUI;
 using System;
 using System.Linq;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Dialogs.Goods;
 
 namespace Vodovoz.Views.Goods

@@ -4,7 +4,7 @@ using Gtk;
 using System;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 

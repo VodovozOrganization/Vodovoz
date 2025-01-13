@@ -9,7 +9,7 @@ using System;
 using NLog;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ViewModels.Payments;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Views
 {

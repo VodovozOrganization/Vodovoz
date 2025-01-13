@@ -1,9 +1,9 @@
 ﻿using Gtk;
 using QS.DomainModel.Entity;
 using QS.Views.Dialog;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Views
 {

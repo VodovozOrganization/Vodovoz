@@ -6,7 +6,7 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.ViewModel
 {

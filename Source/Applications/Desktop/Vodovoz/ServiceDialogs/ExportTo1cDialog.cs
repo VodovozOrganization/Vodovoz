@@ -10,8 +10,8 @@ using System.Xml;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ExportTo1c;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 

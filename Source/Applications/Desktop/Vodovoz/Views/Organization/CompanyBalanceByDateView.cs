@@ -7,8 +7,8 @@ using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.Dialog;
 using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Organisations;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewWidgets.Profitability;
 
 namespace Vodovoz.Views.Organization

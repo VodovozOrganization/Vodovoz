@@ -1,6 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using WrapMode = Pango.WrapMode;

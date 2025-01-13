@@ -9,8 +9,8 @@ using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Views.Organization

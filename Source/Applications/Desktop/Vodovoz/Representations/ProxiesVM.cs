@@ -9,7 +9,7 @@ using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.ViewModel
 {

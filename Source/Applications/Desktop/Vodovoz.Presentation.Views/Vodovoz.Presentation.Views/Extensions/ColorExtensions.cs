@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Extensions
+﻿namespace Vodovoz.Presentation.Views.Extensions
 {
 	public static class ColorExtensions
 	{
@@ -22,7 +22,7 @@
 			return index < 186;
 		}
 
-		public static bool IsDark(this Gtk.Style style) => !IsLight(style);
+		public static bool IsDark(this Gtk.Style style) => !style.IsLight();
 
 		public static string ToHtmlColor(this Gdk.Color color) =>
 			System.Drawing.ColorTranslator.ToHtml(color.ToDrawingsColor());

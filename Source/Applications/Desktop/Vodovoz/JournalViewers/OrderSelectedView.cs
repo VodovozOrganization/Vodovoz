@@ -16,8 +16,8 @@ using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.JournalViewers
 {

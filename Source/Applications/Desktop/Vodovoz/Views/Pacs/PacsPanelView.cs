@@ -3,10 +3,10 @@ using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
 using Vodovoz.Application.Pacs;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Presentation.ViewModels.Pacs;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Views.Pacs
 {

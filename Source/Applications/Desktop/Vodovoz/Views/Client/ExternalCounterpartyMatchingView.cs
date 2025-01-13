@@ -7,7 +7,7 @@ using QS.Journal.GtkUI;
 using QS.Navigation;
 using QS.Tdi;
 using QS.Views;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.Views.Client

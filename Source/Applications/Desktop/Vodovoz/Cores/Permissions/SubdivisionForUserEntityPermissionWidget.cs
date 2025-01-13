@@ -10,9 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Core.Permissions
 {

@@ -5,8 +5,8 @@ using Gamma.Binding.Core;
 using QS.DocTemplates;
 using QSDocTemplates;
 using QSProjectsLib;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 using FileWorker = QSDocTemplates.FileWorker;
 
 namespace Vodovoz.ViewWidgets

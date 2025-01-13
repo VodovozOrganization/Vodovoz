@@ -10,7 +10,7 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.ViewModel
 {

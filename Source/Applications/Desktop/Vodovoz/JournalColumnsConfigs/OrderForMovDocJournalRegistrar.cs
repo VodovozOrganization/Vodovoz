@@ -3,9 +3,9 @@ using Gamma.Utilities;
 using Gtk;
 using QSProjectsLib;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Presentation.Views.Themes;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs

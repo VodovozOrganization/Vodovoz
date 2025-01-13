@@ -3,8 +3,8 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Mango.Client;
 using QS.Views.Dialog;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.ViewModels.Mango;
 

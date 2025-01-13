@@ -4,8 +4,8 @@ using QS.Views.GtkUI;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Counterparties.ClientClassification;
 using static Vodovoz.ViewModels.Counterparties.ClientClassification.CounterpartyClassificationCalculationViewModel;
 

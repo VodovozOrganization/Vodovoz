@@ -22,7 +22,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.Dialogs.Logistic

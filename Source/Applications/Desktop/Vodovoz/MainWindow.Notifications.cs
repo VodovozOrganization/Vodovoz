@@ -7,8 +7,8 @@ using Vodovoz.Controllers;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz;
 using System.Linq;
-using Vodovoz.Infrastructure;
-using Vodovoz.Extensions;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 
 public partial class MainWindow
 {

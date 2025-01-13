@@ -5,7 +5,7 @@ using Gtk;
 using QS.Navigation;
 using QS.Views.Dialog;
 using RevenueService.Client.Dto;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using WrapMode = Pango.WrapMode;
 

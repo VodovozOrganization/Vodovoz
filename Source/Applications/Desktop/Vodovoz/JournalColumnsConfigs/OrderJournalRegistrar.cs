@@ -5,9 +5,9 @@ using QSProjectsLib;
 using System;
 using System.Globalization;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Presentation.Views.Themes;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs

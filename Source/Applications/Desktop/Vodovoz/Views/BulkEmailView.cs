@@ -2,8 +2,8 @@
 using System;
 using Gdk;
 using Vodovoz.ViewModels.ViewModels;
-using Vodovoz.Infrastructure;
-using Vodovoz.Extensions;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Views
 {

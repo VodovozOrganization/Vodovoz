@@ -4,7 +4,7 @@ using Gdk;
 using Gtk;
 using System.Globalization;
 using Vodovoz.Domain.Proposal;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 

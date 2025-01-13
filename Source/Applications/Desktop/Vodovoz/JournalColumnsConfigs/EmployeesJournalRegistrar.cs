@@ -3,7 +3,7 @@ using Gamma.Utilities;
 using Gtk;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using WrapMode = Pango.WrapMode;

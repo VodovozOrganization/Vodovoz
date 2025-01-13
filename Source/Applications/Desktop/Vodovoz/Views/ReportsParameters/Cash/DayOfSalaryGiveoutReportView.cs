@@ -3,9 +3,9 @@ using Gtk;
 using QS.Views;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
-using EmployeeNode  = Vodovoz.ViewModels.ReportsParameters.Cash.DayOfSalaryGiveoutReportViewModel.EmployeeNode;
+using EmployeeNode = Vodovoz.ViewModels.ReportsParameters.Cash.DayOfSalaryGiveoutReportViewModel.EmployeeNode;
 
 namespace Vodovoz.Views.ReportsParameters.Cash
 {

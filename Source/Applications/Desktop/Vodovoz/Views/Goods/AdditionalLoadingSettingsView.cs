@@ -5,9 +5,9 @@ using QS.Navigation;
 using QS.Views.Dialog;
 using QS.Widgets;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Goods;
 
 namespace Vodovoz.Views.Goods

@@ -4,9 +4,9 @@ using QS.Views.GtkUI;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Cash;
 
 namespace Vodovoz.Cash

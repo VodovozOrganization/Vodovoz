@@ -17,7 +17,7 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.ServiceDialogs
 {

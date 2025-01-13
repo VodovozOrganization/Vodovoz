@@ -4,8 +4,8 @@ using DiffPlex.DiffBuilder.Model;
 using QS.HistoryLog;
 using System;
 using System.Text;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Commons
 {

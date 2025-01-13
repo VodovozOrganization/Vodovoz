@@ -1,9 +1,9 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Presentation.Views.Themes;
 using VodovozBusiness.Domain.Service;
 using WrapMode = Pango.WrapMode;
 

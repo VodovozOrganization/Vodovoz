@@ -8,12 +8,12 @@ using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.Views;
 using Vodovoz.ViewModels.Orders;
 using VodovozBusiness.Domain.Complaints;
 using VodovozBusiness.Domain.Orders;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 namespace Vodovoz.Views.Orders
 {
 	[System.ComponentModel.ToolboxItem(true)]

@@ -17,8 +17,8 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic

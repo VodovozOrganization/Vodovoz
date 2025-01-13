@@ -3,8 +3,8 @@ using Gamma.Utilities;
 using Gtk;
 using QSProjectsLib;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.Representations;
 
 namespace Vodovoz.JournalColumnsConfigs

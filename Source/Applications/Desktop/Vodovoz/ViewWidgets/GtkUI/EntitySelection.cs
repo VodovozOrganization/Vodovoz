@@ -8,8 +8,8 @@ using System.Collections;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.ViewWidgets.GtkUI
 {

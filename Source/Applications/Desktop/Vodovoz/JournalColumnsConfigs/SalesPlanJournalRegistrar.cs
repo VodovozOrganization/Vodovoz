@@ -1,8 +1,8 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
-using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.JournalColumnsConfigs
 {

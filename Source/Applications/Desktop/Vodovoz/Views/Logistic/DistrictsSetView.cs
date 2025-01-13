@@ -19,7 +19,7 @@ using System.Linq;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Logistic;
 using Action = System.Action;
 using GdkColor = Gdk.Color;

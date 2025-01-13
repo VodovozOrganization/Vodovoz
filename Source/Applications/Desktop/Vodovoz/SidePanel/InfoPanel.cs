@@ -3,7 +3,7 @@ using Gtk;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.SidePanel

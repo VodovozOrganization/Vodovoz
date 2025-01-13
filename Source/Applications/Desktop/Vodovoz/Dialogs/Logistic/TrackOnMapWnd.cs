@@ -17,8 +17,8 @@ using Vodovoz;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Extensions;
 using Vodovoz.Factories;
+using Vodovoz.Presentation.Views.Extensions;
 using Vodovoz.Settings.Common;
 
 namespace Dialogs.Logistic

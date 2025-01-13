@@ -3,8 +3,8 @@ using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Discussions;
+using Vodovoz.Presentation.Views.Themes;
 using VodovozBusiness.Domain.Discussions;
 
 namespace Vodovoz.Presentation.Views.Discussions

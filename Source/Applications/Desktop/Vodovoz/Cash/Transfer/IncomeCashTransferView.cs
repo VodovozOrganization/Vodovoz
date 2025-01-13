@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Cash.Transfer;
 
 namespace Vodovoz.Cash.Transfer

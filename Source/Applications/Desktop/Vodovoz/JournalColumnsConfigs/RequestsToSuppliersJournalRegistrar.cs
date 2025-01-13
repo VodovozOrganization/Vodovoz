@@ -1,9 +1,9 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalViewModels.Suppliers;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.JournalColumnsConfigs
 {

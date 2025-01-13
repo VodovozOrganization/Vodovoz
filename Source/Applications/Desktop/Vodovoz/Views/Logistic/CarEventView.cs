@@ -3,9 +3,9 @@ using QS.Navigation;
 using QS.Views.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic

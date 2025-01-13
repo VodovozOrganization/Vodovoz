@@ -8,8 +8,8 @@ using QS.Views.GtkUI;
 using QS.Navigation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Views.Orders
 {

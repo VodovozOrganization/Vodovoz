@@ -3,7 +3,7 @@ using Gtk;
 using QS.Views;
 using QS.Views.Dialog;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic

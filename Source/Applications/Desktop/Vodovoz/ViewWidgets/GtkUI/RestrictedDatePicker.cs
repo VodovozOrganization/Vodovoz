@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using VodovozInfrastructure.Utils;
 
 namespace Vodovoz.ViewWidgets.GtkUI

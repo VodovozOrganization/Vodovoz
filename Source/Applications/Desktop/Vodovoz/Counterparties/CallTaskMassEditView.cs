@@ -6,7 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Client;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Counterparties;
 using WrapMode = Pango.WrapMode;
 

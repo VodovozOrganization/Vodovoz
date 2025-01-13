@@ -465,7 +465,6 @@
     <Compile Include="Dialogs\CastomMessageDlg.cs" />
     <Compile Include="Dialogs\Logistic\RouteListClosingDlg.RouteListActions.cs" />
     <Compile Include="Dialogs\Logistic\RouteListClosingDlg.RouteListPrintDocuments.cs" />
-    <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
     <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\DialogsFactory.cs" />
@@ -2059,6 +2058,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Folder Include="Extensions\" />
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
   </ItemGroup>

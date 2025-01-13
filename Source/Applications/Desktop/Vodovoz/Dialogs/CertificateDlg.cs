@@ -6,14 +6,14 @@ using QS.Navigation;
 using QS.Project.Journal;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Extensions;
-using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using QS.Project.Services;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Presentation.Views.Extensions;
+using Vodovoz.Presentation.Views.Themes;
 
 namespace Vodovoz.Dialogs
 {

@@ -1,6 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Vodovoz.EntityRepositories.Nodes;
-using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.Views.Themes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 
 namespace Vodovoz.JournalColumnsConfigs
