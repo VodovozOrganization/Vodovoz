@@ -57,20 +57,25 @@ namespace DatabaseServiceWorker
 						.AddCore()
 						.AddInfrastructure()
 						.AddTrackedUoW()
+
 						.AddHostedService<MonitoringArchivingWorker>()
-						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
-						.AddHostedService<PowerBiExportWorker>()
-						.AddHostedService<TechInspectWorker>()
-						.AddHostedService<FuelTransactionsControlWorker>()
-						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
-						.ConfigurePowerBiExportWorker(hostContext)
-						.ConfigureTextInspectWorker(hostContext)
-						.AddFuelTransactionsControlWorker(hostContext)
-						.ConfigureZabbixSenderFromDataBase(nameof(TechInspectWorker))
-						.ConfigureZabbixSenderFromDataBase(nameof(PowerBiExportWorker))
-						.ConfigureZabbixSenderFromDataBase(nameof(ClearFastDeliveryAvailabilityHistoryWorker))
-						.ConfigureZabbixSenderFromDataBase(nameof(FuelTransactionsControlWorker))
 						.ConfigureZabbixSenderFromDataBase(nameof(MonitoringArchivingWorker))
+
+						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(ClearFastDeliveryAvailabilityHistoryWorker))
+						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
+
+						.AddHostedService<TechInspectWorker>()
+						.ConfigureTechInspectWorker(hostContext)
+						.ConfigureZabbixSenderFromDataBase(nameof(TechInspectWorker))
+
+						.AddHostedService<FuelTransactionsControlWorker>()
+						.AddFuelTransactionsControlWorker(hostContext)
+						.ConfigureZabbixSenderFromDataBase(nameof(FuelTransactionsControlWorker))
+
+						.AddHostedService<PowerBiExportWorker>()
+						.ConfigurePowerBiExportWorker(hostContext)
+						.ConfigureZabbixSenderFromDataBase(nameof(PowerBiExportWorker))
 						.AddScoped<IPowerBiConnectionFactory, PowerBiConnectionFactory>()
 						;
 
