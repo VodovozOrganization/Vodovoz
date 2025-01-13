@@ -1,8 +1,7 @@
-﻿using DriverApi.Contracts.V5;
-using DriverApi.Contracts.V5.Requests;
+﻿using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using DriverAPI.Library.Helpers;
-using DriverAPI.Library.V5.Services;
+using DriverAPI.Library.V6.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -17,12 +16,12 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Errors;
 
-namespace DriverAPI.Controllers.V5
+namespace DriverAPI.Controllers.V6
 {
 	/// <summary>
 	/// Контроллер регистраций событий
 	/// </summary>
-	[ApiVersion("5.0")]
+	[ApiVersion("6.0")]
 	[Authorize]
 	public class RegistrationsController : VersionedController
 	{
