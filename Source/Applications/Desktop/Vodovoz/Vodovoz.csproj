@@ -489,7 +489,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsStreetView.cs" />
     <Compile Include="Infrastructure\Converters\DoubleToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullableDecimalToStringConverter.cs" />
-    <Compile Include="Infrastructure\GdkColors.cs" />
     <Compile Include="Infrastructure\Services\GtkConfirmationQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\ApplicationDevelopmentProposalsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BulkEmailEventReasonJournalRegistrar.cs" />
