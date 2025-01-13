@@ -20,12 +20,8 @@ using VodovozBusiness.Domain.Discussions;
 
 namespace Vodovoz.Presentation.ViewModels.Discussions
 {
-	public abstract class DiscussionViewModel : WidgetViewModelBase
-	{
-	}
-
 	public class DiscussionViewModel<TDiscussionContainer, TDiscussion, TDiscussionComment, TFileInformation>
-		: DiscussionViewModel
+		: WidgetViewModelBase
 		where TDiscussionContainer : IDomainObject
 		where TDiscussionComment : class, IDiscussionComment<TFileInformation>, new()
 		where TDiscussion : class, IDiscussion<TDiscussionContainer, TDiscussionComment, TFileInformation>
