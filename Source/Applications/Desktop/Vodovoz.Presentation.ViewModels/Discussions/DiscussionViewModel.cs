@@ -20,12 +20,7 @@ using VodovozBusiness.Domain.Discussions;
 
 namespace Vodovoz.Presentation.ViewModels.Discussions
 {
-	public class DiscussionViewModel<TDiscussionContainer, TDiscussion, TDiscussionComment, TFileInformation>
-		: WidgetViewModelBase
-		where TDiscussionContainer : IDomainObject
-		where TDiscussionComment : class, IDiscussionComment<TFileInformation>, new()
-		where TDiscussion : class, IDiscussion<TDiscussionContainer, TDiscussionComment, TFileInformation>
-		where TFileInformation : FileInformation
+	public abstract class DiscussionViewModel : WidgetViewModelBase
 	{
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -38,23 +33,26 @@ namespace Vodovoz.Presentation.ViewModels.Discussions
 		private readonly IEmployeeService _employeeService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
-		private readonly IEntityFileStorageService<TDiscussionComment> _entityFileStorageService;
+		private readonly IEntityFileStorageService<IDiscussionComment<FileInformation>> _entityFileStorageService;
+		private readonly Func<IDiscussionComment<FileInformation>> _discussionCommentFactory;
 		private string _newCommentText;
 		private Employee _currentEmployee;
 
-		private TDiscussionComment _discussionComment;
+		private IDiscussionComment<FileInformation> _discussionComment;
 		private AttachedFileInformationsViewModel _attachedFileInformationsViewModel;
 
 		public DiscussionViewModel(
 			IUnitOfWork unitOfWork,
-			TDiscussion discussion,
+			IDomainObject discussionContainer,
+			IDiscussion<IDomainObject, IDiscussionComment<FileInformation>, FileInformation> discussion,
 			IUserService userService,
 			IUserRepository userRepository,
 			IEmployeeService employeeService,
 			IInteractiveService interactiveService,
 			ICurrentPermissionService currentPermissionService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
-			IEntityFileStorageService<TDiscussionComment> entityFileStorageService)
+			IEntityFileStorageService<IDiscussionComment<FileInformation>> entityFileStorageService,
+			Func<IDiscussionComment<FileInformation>> discussionCommentFactory)
 		{
 			if(currentPermissionService is null)
 			{
@@ -62,9 +60,9 @@ namespace Vodovoz.Presentation.ViewModels.Discussions
 			}
 
 			_containerEntiryPermissionResult =
-				currentPermissionService.ValidateEntityPermission(typeof(TDiscussionContainer));
+				currentPermissionService.ValidateEntityPermission(discussionContainer.GetType());
 			_discussionPermissionResult =
-				currentPermissionService.ValidateEntityPermission(typeof(TDiscussion));
+				currentPermissionService.ValidateEntityPermission(discussion.GetType());
 
 			_unitOfWork = unitOfWork
 				?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -81,12 +79,14 @@ namespace Vodovoz.Presentation.ViewModels.Discussions
 			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory
 				?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
 			_entityFileStorageService = entityFileStorageService ?? throw new ArgumentNullException(nameof(entityFileStorageService));
+			_discussionCommentFactory = discussionCommentFactory ?? throw new ArgumentNullException(nameof(discussionCommentFactory));
+
 			AddCommentCommand = new DelegateCommand(AddComment, () => CanAddComment);
 
-			DiscussionComment = new TDiscussionComment();
-			OpenFileCommand = new DelegateCommand<TFileInformation>(OpenFile);
+			DiscussionComment = _discussionCommentFactory.Invoke();
+			OpenFileCommand = new DelegateCommand<FileInformation>(OpenFile);
 
-			AttachedFileInformationsViewModel = _attachedFileInformationsViewModelFactory.CreateAndInitialize<TDiscussionComment, TFileInformation>(
+			AttachedFileInformationsViewModel = _attachedFileInformationsViewModelFactory.CreateAndInitialize<IDiscussionComment<FileInformation>, FileInformation>(
 				_unitOfWork,
 				DiscussionComment,
 				_entityFileStorageService,
@@ -97,11 +97,12 @@ namespace Vodovoz.Presentation.ViewModels.Discussions
 			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
 		}
 
-		public TDiscussion Discussion { get; }
+		public IDiscussion<IDomainObject, IDiscussionComment<FileInformation>, FileInformation> Discussion { get; }
 
-		public DelegateCommand AddCommentCommand { get; }
-		public DelegateCommand<TFileInformation> OpenFileCommand { get; }
+		public DelegateCommand AddCommentCommand { get; protected set; }
+		public DelegateCommand<FileInformation> OpenFileCommand { get; protected set; }
 
+		
 		[PropertyChangedAlso(nameof(CanAddComment))]
 		public virtual string NewCommentText
 		{
@@ -121,7 +122,7 @@ namespace Vodovoz.Presentation.ViewModels.Discussions
 			}
 		}
 
-		public TDiscussionComment DiscussionComment
+		public IDiscussionComment<FileInformation> DiscussionComment
 		{
 			get => _discussionComment;
 			set => SetField(ref _discussionComment, value);
@@ -166,9 +167,9 @@ namespace Vodovoz.Presentation.ViewModels.Discussions
 				AttachedFileInformationsViewModel.AttachedFiles
 					.ToDictionary(kv => kv.Key, kv => kv.Value));
 
-			DiscussionComment = new TDiscussionComment();
+			DiscussionComment = _discussionCommentFactory.Invoke();
 			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
-			AttachedFileInformationsViewModel = _attachedFileInformationsViewModelFactory.CreateAndInitialize<TDiscussionComment, TFileInformation>(
+			AttachedFileInformationsViewModel = _attachedFileInformationsViewModelFactory.CreateAndInitialize<IDiscussionComment<FileInformation>, FileInformation>(
 				_unitOfWork,
 				DiscussionComment,
 				_entityFileStorageService,
@@ -179,7 +180,7 @@ namespace Vodovoz.Presentation.ViewModels.Discussions
 			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
 		}
 
-		private void OpenFile(TFileInformation fileInformation)
+		private void OpenFile(FileInformation fileInformation)
 		{
 			byte[] blob;
 
