@@ -627,7 +627,28 @@ namespace Pacs.Server.Operators
 
 			if(!operatorServerStateMachine.CanChangedBy(OperatorTrigger.StartBreak))
 			{
-				return new OperatorResult(GetResultContent(operatorServerStateMachine), $"В данный момент нельзя начать перерыв");
+				string reason;
+
+				if(operatorServerStateMachine.OperatorState.State == OperatorStateType.Talk)
+				{
+					reason = "Нельзя начать перерыв во время разговора";
+				}
+				else if(operatorServerStateMachine.OperatorState.State == OperatorStateType.Break)
+				{
+					reason = "Нельзя начать перерыв, вы уже на перерыве";
+				}
+				else if(operatorServerStateMachine.OperatorState.State == OperatorStateType.New
+					|| operatorServerStateMachine.OperatorState.State == OperatorStateType.Disconnected
+					|| operatorServerStateMachine.OperatorState.State == OperatorStateType.Connected)
+				{
+					reason = "Нельзя начать перерыв, вы не на смене";
+				}
+				else
+				{
+					reason = "В данный момент нельзя начать перерыв (неизвестная причина)";
+				}
+
+				return new OperatorResult(GetResultContent(operatorServerStateMachine), reason);
 			}
 
 			return null;
