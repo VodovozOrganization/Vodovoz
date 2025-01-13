@@ -38,44 +38,44 @@ namespace Vodovoz.Views.Complaints
 			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.CanEditStatus, w => w.Sensitive).InitializeFromSource();
 			UpdateStatusEnum();
 
-			ytreeviewComments.ShowExpanders = false;
-			ytreeviewComments.ColumnsConfig = FluentColumnsConfig<object>.Create()
-				.AddColumn("Время")
-					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetTime(x))
-				.AddColumn("Автор")
-					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetAuthor(x))
-				.AddColumn("Комментарий")
-					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetNodeName(x))
-						.WrapWidth(300)
-						.WrapMode(Pango.WrapMode.WordChar)
-				.RowCells().AddSetter<CellRenderer>(SetColor)
-				.Finish();
+			//ytreeviewComments.ShowExpanders = false;
+			//ytreeviewComments.ColumnsConfig = FluentColumnsConfig<object>.Create()
+				//.AddColumn("Время")
+				//	.HeaderAlignment(0.5f)
+				//	.AddTextRenderer(x => GetTime(x))
+				//.AddColumn("Автор")
+				//	.HeaderAlignment(0.5f)
+				//	.AddTextRenderer(x => GetAuthor(x))
+				//.AddColumn("Комментарий")
+				//	.HeaderAlignment(0.5f)
+				//	.AddTextRenderer(x => GetNodeName(x))
+				//		.WrapWidth(300)
+				//		.WrapMode(Pango.WrapMode.WordChar)
+				//.RowCells().AddSetter<CellRenderer>(SetColor)
+				//.Finish();
 
 			var levels = LevelConfigFactory
 				.FirstLevel<ComplaintDiscussionComment, ComplaintDiscussionCommentFileInformation>(x => x.AttachedFileInformations)
 				.LastLevel(afi => ViewModel.Entity.Comments.FirstOrDefault(c => c.Id == afi.ComplaintDiscussionCommentId))
 				.EndConfig();
 
-			ytreeviewComments.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
+			//ytreeviewComments.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
 
-			ViewModel.Entity.Comments.CollectionChanged += (sender, e) => {
-				ytreeviewComments.YTreeModel.EmitModelChanged();
-				ytreeviewComments.ExpandAll();
-			};
+			//ViewModel.Entity.Comments.CollectionChanged += (sender, e) => {
+			//	ytreeviewComments.YTreeModel.EmitModelChanged();
+			//	ytreeviewComments.ExpandAll();
+			//};
 
-			ytreeviewComments.ExpandAll();
-			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
+			//ytreeviewComments.ExpandAll();
+			//ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
 
-			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
-			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			//ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
+			//ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
-			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
+			//ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
+			//ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
 
-			smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+			//smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 		}
 
 		public string TabName
@@ -107,10 +107,10 @@ namespace Vodovoz.Views.Complaints
 				UpdateStatusEnum();
 			}
 
-			if(e.PropertyName == nameof(ViewModel.AttachedFileInformationsViewModel))
-			{
-				smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
-			}
+			//if(e.PropertyName == nameof(ViewModel.AttachedFileInformationsViewModel))
+			//{
+			//	smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+			//}
 
 			if(e.PropertyName == nameof(ViewModel.Status))
 			{
@@ -129,11 +129,11 @@ namespace Vodovoz.Views.Complaints
 
 		void YtreeviewComments_RowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			if(!(ytreeviewComments.GetSelectedObject() is ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation))
-			{
-				return;
-			}
-			ViewModel.OpenFileCommand.Execute(complaintDiscussionCommentFileInformation);
+			//if(!(ytreeviewComments.GetSelectedObject() is ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation))
+			//{
+			//	return;
+			//}
+			//ViewModel.OpenFileCommand.Execute(complaintDiscussionCommentFileInformation);
 		}
 
 		private string GetNodeName(object node)
@@ -179,7 +179,7 @@ namespace Vodovoz.Views.Complaints
 		public override void Destroy()
 		{
 			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-			ytreeviewComments.RowActivated -= YtreeviewComments_RowActivated;
+			//ytreeviewComments.RowActivated -= YtreeviewComments_RowActivated;
 
 			base.Destroy();
 		}

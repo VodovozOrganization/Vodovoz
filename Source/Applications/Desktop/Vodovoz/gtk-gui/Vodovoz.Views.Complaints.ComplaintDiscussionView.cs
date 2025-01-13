@@ -22,21 +22,7 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboStatus;
 
-		private global::Gtk.Label labelComments;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-
-		private global::Gamma.GtkWidgets.yTreeView ytreeviewComments;
-
-		private global::Gtk.Table tableNewComment;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
-
-		private global::Gamma.GtkWidgets.yTextView ytextviewComment;
-
-		private global::Vodovoz.Presentation.Views.SmallFileInformationsView smallfileinformationsview2;
-
-		private global::Gamma.GtkWidgets.yButton ybuttonAddComment;
+		private global::Vodovoz.Presentation.Views.Discussions.DiscussionView discussionview1;
 
 		protected virtual void Build()
 		{
@@ -130,72 +116,12 @@ namespace Vodovoz.Views.Complaints
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child vboxWidget.Gtk.Box+BoxChild
-			this.labelComments = new global::Gtk.Label();
-			this.labelComments.Name = "labelComments";
-			this.labelComments.Xalign = 0F;
-			this.labelComments.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарии:");
-			this.vboxWidget.Add(this.labelComments);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.labelComments]));
+			this.discussionview1 = new global::Vodovoz.Presentation.Views.Discussions.DiscussionView();
+			this.discussionview1.Events = ((global::Gdk.EventMask)(256));
+			this.discussionview1.Name = "discussionview1";
+			this.vboxWidget.Add(this.discussionview1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.discussionview1]));
 			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
-			// Container child vboxWidget.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeviewComments = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewComments.CanFocus = true;
-			this.ytreeviewComments.Name = "ytreeviewComments";
-			this.GtkScrolledWindow.Add(this.ytreeviewComments);
-			this.vboxWidget.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.GtkScrolledWindow]));
-			w11.Position = 3;
-			// Container child vboxWidget.Gtk.Box+BoxChild
-			this.tableNewComment = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
-			this.tableNewComment.Name = "tableNewComment";
-			this.tableNewComment.RowSpacing = ((uint)(6));
-			this.tableNewComment.ColumnSpacing = ((uint)(6));
-			// Container child tableNewComment.Gtk.Table+TableChild
-			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow1.HeightRequest = 70;
-			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
-			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.ytextviewComment = new global::Gamma.GtkWidgets.yTextView();
-			this.ytextviewComment.CanFocus = true;
-			this.ytextviewComment.Name = "ytextviewComment";
-			this.GtkScrolledWindow1.Add(this.ytextviewComment);
-			this.tableNewComment.Add(this.GtkScrolledWindow1);
-			// Container child tableNewComment.Gtk.Table+TableChild
-			this.smallfileinformationsview2 = new global::Vodovoz.Presentation.Views.SmallFileInformationsView();
-			this.smallfileinformationsview2.WidthRequest = 250;
-			this.smallfileinformationsview2.Events = ((global::Gdk.EventMask)(256));
-			this.smallfileinformationsview2.Name = "smallfileinformationsview2";
-			this.tableNewComment.Add(this.smallfileinformationsview2);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableNewComment[this.smallfileinformationsview2]));
-			w14.BottomAttach = ((uint)(2));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableNewComment.Gtk.Table+TableChild
-			this.ybuttonAddComment = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonAddComment.CanFocus = true;
-			this.ybuttonAddComment.Name = "ybuttonAddComment";
-			this.ybuttonAddComment.UseUnderline = true;
-			this.ybuttonAddComment.Label = global::Mono.Unix.Catalog.GetString("Добавить комментарий");
-			this.tableNewComment.Add(this.ybuttonAddComment);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableNewComment[this.ybuttonAddComment]));
-			w15.TopAttach = ((uint)(1));
-			w15.BottomAttach = ((uint)(2));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vboxWidget.Add(this.tableNewComment);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.tableNewComment]));
-			w16.Position = 4;
-			w16.Expand = false;
-			w16.Fill = false;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{
