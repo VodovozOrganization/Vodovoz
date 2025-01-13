@@ -5,9 +5,9 @@ namespace Vodovoz.Core.Domain
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddCoreDomainServices(this IServiceCollection services)
+		public static IServiceCollection AddFeatureManagement(this IServiceCollection services)
 		{
-			services.AddFeatureManagement();
+			ServiceCollectionExtensions.AddFeatureManagement(services);
 
 			return services;
 		}
