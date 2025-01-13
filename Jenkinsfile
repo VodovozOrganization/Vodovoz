@@ -53,7 +53,7 @@ NODE_VOD13 = "Vod13"
 NODE_WIN_BUILD = "WIN_BUILD"
 NODE_DOCKER_BUILD = "DOCKER_BUILD"
 
-// 102	Настройки. Глобальные
+// 102.1	Настройки. Глобальные
 ARCHIVE_EXTENTION = '.7z'
 APP_PATH = "Vodovoz/Source/Applications"
 WEB_BUILD_OUTPUT_CATALOG = "bin/Release/net5.0_publish"
@@ -62,11 +62,17 @@ DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
 DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
 JOB_FOLDER_NAME = GetJobFolderName()
+
+// 102.2	Настройки. Вычисляемые
+GIT_BRANCH = env.BRANCH_NAME
+JENKINS_BRANCH_NAME = env.BRANCH_NAME
+
+// 102.3	Настройки. Флаги:
 IS_PULL_REQUEST = env.CHANGE_ID != null
-IS_DEVELOP = env.BRANCH_NAME == 'develop'
-IS_HOTFIX = env.BRANCH_NAME == 'master'
-IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
-IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
+IS_DEVELOP = GIT_BRANCH == 'develop'
+IS_HOTFIX = GIT_BRANCH == 'master'
+IS_RELEASE = GIT_BRANCH ==~ /^[Rr]elease(.*?)/
+IS_MANUAL_BUILD = GIT_BRANCH ==~ /^manual-build(.*?)/
 
 // 103	Настройки. Подготовка репозитория
 
@@ -82,10 +88,12 @@ CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
 CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
 CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
 
-// 107	Настройки. Доставка
+// 107.1	Настройки. Доставка
 CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP
 CAN_DELIVERY_WEB = CAN_COMPRESS_WEB
 WIN_DELIVERY_SHARED_FOLDER_NAME = "JenkinsWorkspace"
+
+// 107.2	Настройки. Доставка. Пути
 DESKTOP_VOD1_DELIVERY_PATH = "\\\\${NODE_VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD3_DELIVERY_PATH = "\\\\${NODE_VOD3}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD5_DELIVERY_PATH = "\\\\${NODE_VOD5}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
@@ -113,6 +121,83 @@ WEB_PUBLISH_PATH = "E:/CD"
 //-----------------------------------------------------------------------
 
 // 200	Этапы
+
+stage('Log') {
+
+	echo "101	Настройки. Идентификаторы нод:"
+	echo "Node Vod1: ${NODE_VOD1}"
+	echo "Node Vod3: ${NODE_VOD3}"
+	echo "Node Vod5: ${NODE_VOD5}"
+	echo "Node Vod6: ${NODE_VOD6}"
+	echo "Node Vod7: ${NODE_VOD7}"
+	echo "Node Vod13: ${NODE_VOD13}"
+	echo "Node Win Build: ${NODE_WIN_BUILD}"
+	echo "Node Docker Build: ${NODE_DOCKER_BUILD}"
+
+	echo "102.1	Настройки. Глобальные:"
+	echo "Archive Extention: ${ARCHIVE_EXTENTION}"
+	echo "App Path: ${APP_PATH}"
+	echo "Web Build Output Catalog: ${WEB_BUILD_OUTPUT_CATALOG}"
+	echo "Win Build Tool: ${WIN_BUILD_TOOL}"
+	echo "Desktop Water Delivery Path: ${DESKTOP_WATER_DELIVERY_PATH}"
+	echo "Desktop Work Path: ${DESKTOP_WORK_PATH}"
+	echo "Update Lock File: ${UPDATE_LOCK_FILE}"
+	echo "Job Folder Name: ${JOB_FOLDER_NAME}"
+
+	echo "102.2	Настройки. Вычисляемые:"
+	echo "Git Branch: ${GIT_BRANCH}"
+	echo "Jenkins Branch Name: ${JENKINS_BRANCH_NAME}"
+	echo "Change ID: ${env.CHANGE_ID}"
+
+	echo "102.3	Настройки. Флаги:"
+	echo "Is Pull Request: ${IS_PULL_REQUEST}"
+	echo "Is Develop: ${IS_DEVELOP}"
+	echo "Is Hotfix: ${IS_HOTFIX}"
+	echo "Is Release: ${IS_RELEASE}"
+	echo "Is Manual Build: ${IS_MANUAL_BUILD}"
+
+	echo "103	Настройки. Подготовка репозитория"
+
+	echo "104	Настройки. Восстановление пакетов"
+
+	echo "105	Настройки. Сборка"
+	echo "Can Build Desktop: ${CAN_BUILD_DESKTOP}"
+	echo "Can Build Web: ${CAN_BUILD_WEB}"
+	echo "Can Publish Build Web: ${CAN_PUBLISH_BUILD_WEB}"
+
+	echo "106	Настройки. Архивация"
+	echo "Can Compress Desktop: ${CAN_COMPRESS_DESKTOP}"
+	echo "Can Compress Web: ${CAN_COMPRESS_WEB}"
+
+	echo "107.1	Настройки. Доставка"
+	echo "Can Delivery Desktop: ${CAN_DELIVERY_DESKTOP}"
+	echo "Can Delivery Web: ${CAN_DELIVERY_WEB}"
+
+	echo "107.2	Настройки. Доставка. Пути"
+	echo "Win Delivery Shared Folder Name: ${WIN_DELIVERY_SHARED_FOLDER_NAME}"
+	echo "Desktop Vod1 Delivery Path: ${DESKTOP_VOD1_DELIVERY_PATH}"
+	echo "Desktop Vod3 Delivery Path: ${DESKTOP_VOD3_DELIVERY_PATH}"
+	echo "Desktop Vod5 Delivery Path: ${DESKTOP_VOD5_DELIVERY_PATH}"
+	echo "Desktop Vod7 Delivery Path: ${DESKTOP_VOD7_DELIVERY_PATH}"
+	echo "Desktop Vod13 Delivery Path: ${DESKTOP_VOD13_DELIVERY_PATH}"
+	echo "Web Delivery Path: ${WEB_DELIVERY_PATH}"
+
+	echo "108	Настройки. Развертывание"
+	echo "Deploy Path: ${DEPLOY_PATH}"
+	echo "Can Deploy Desktop: ${CAN_DEPLOY_DESKTOP}"
+	echo "Can Deploy Web: ${CAN_DEPLOY_WEB}"
+
+	echo "109	Настройки. Публикация"
+	echo "Can Publish Desktop: ${CAN_PUBLISH_DESKTOP}"
+	echo "Can Publish Web: ${CAN_PUBLISH_WEB}"
+
+	echo "New Desktop Hotfix Folder Name Prefix: ${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}"
+	echo "New Web Hotfix Folder Name: ${NEW_WEB_HOTFIX_FOLDER_NAME}"
+	echo "New Release Folder Name: ${NEW_RELEASE_FOLDER_NAME}"
+	echo "Desktop Hotfix Publish Path: ${DESKTOP_HOTFIX_PUBLISH_PATH}"
+	echo "Desktop New Release Publish Path: ${DESKTOP_NEW_RELEASE_PUBLISH_PATH}"
+	echo "Web Publish Path: ${WEB_PUBLISH_PATH}"
+}
 
 // 201	Этапы. Подготовка репозитория
 stage('Checkout'){
@@ -271,7 +356,7 @@ stage('Publish'){
 		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
-		"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") },
+		"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") }
 	)
 }
 
