@@ -266,6 +266,9 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 			#endregion
 
+			// Остальное пока не нужно
+			return;
+
 			// Скоро не понадобится
 			#region ExcelFile
 
