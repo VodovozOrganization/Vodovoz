@@ -309,7 +309,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return false;
 			}
 
-			if(IsFuelDataChanged && !IsUserHasAccessToGazprom)
+			if(IsNeedToUpdateFuelCardProductRestriction && !IsUserHasAccessToGazprom)
 			{
 				ShowErrorMessage("Только пользователи, имеющие доступ в Газпромнефть могут редактировать топливные карты");
 
@@ -529,18 +529,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void UpdateFuelCardProductRestrictionInGazpromIfNeed()
 		{
-			if(!IsFuelDataChanged)
+			if(!IsNeedToUpdateFuelCardProductRestriction)
 			{
 				return;
 			}
 
 			var lastFuelCardVersion = GetLastFuelCardVersion();
 			var activeFuelCardVersion = Entity.GetCurrentActiveFuelCardVersion();
-
-			if(Entity.FuelType is null)
-			{
-				return;
-			}
 
 			if(_fuelCardUpdateCancellationTokenSource != null)
 			{
@@ -616,8 +611,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool IsUserHasAccessToGazprom =>
 			_userSettingsService.Settings.IsUserHasAuthDataForFuelControlApi;
 
-		private bool IsFuelDataChanged =>
-			IsFuelCardChanged() || IsFuelTypeChanged;
+		private bool IsNeedToUpdateFuelCardProductRestriction =>
+			(IsFuelCardChanged() && Entity.FuelType != null)
+			|| (IsFuelTypeChanged
+				&& (Entity.GetCurrentActiveFuelCardVersion() != null || Entity.GetActiveFuelCardVersionOnDate(DateTime.Today.AddDays(1)) != null));
 
 		private bool IsFuelCardChanged()
 		{
@@ -632,7 +629,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		private bool IsFuelTypeChanged =>
-			_oldFuelType?.Id != Entity.FuelType?.Id;
+			Entity.FuelType != null
+			&& _oldFuelType?.Id != Entity.FuelType.Id;
 
 
 		private bool SetOtherCarsFuelCardVersionEndDateIfNeed()
