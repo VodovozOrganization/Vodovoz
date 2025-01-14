@@ -30,25 +30,4 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Cash
 			References(x => x.Organization).Column("organization_id");
 		}
 	}
-
-	public class CashlessRequestMap : SubclassMap<CashlessRequest>
-	{
-		public CashlessRequestMap()
-		{
-			DiscriminatorValue(PayoutRequestDocumentType.CashlessRequest.ToString());
-			Map(clr => clr.Sum).Column("sum");
-			References(clr => clr.Counterparty).Column("counterparty_id");
-			HasMany(clr => clr.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("cashless_request_id");
-		}
-	}
-
-	public class CashRequestMap : SubclassMap<CashRequest>
-	{
-		public CashRequestMap()
-		{
-			DiscriminatorValue(PayoutRequestDocumentType.CashRequest.ToString());
-			Map(cr => cr.HaveReceipt).Column("have_receipt");
-			HasMany(cr => cr.Sums).Inverse().Cascade.All().LazyLoad().KeyColumn("cash_request_id");
-		}
-	}
 }
