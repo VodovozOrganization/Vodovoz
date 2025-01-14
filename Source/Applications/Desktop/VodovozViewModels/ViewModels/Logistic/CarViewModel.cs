@@ -83,6 +83,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private FuelType _oldFuelType;
 		private FuelCardVersion _oldLastFuelCardVersion;
+		private EmployeeCategory? _oldDriverCategory;
 		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
 
 		public CarViewModel(
@@ -240,6 +241,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			_oldFuelType = Entity.FuelType;
 			_oldLastFuelCardVersion = GetLastFuelCardVersion();
+			_oldDriverCategory = Entity.Driver?.Category;
 		}
 
 		private void ConfigureTechInspectInfo()
@@ -544,7 +546,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			var isNeedSetProductCategoryRestriction = Entity.Driver is null || Entity.Driver?.Category == EmployeeCategory.driver;
+			var isNeedSetProductGroupRestriction = Entity.Driver is null || Entity.Driver?.Category == EmployeeCategory.driver;
 
 			_fuelCardUpdateCancellationTokenSource = new CancellationTokenSource();
 
@@ -553,7 +555,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				if(activeFuelCardVersion != null)
 				{
 					var currentActiveFuelCardChangeResult =
-						isNeedSetProductCategoryRestriction
+						isNeedSetProductGroupRestriction
 						? SetFuelCardProductGroupRestrictionByCardId(activeFuelCardVersion.FuelCard.CardId)
 						: SetFuelCardCommonFuelRestrictionByCardId(activeFuelCardVersion.FuelCard.CardId);
 				}
@@ -563,13 +565,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					&& lastFuelCardVersion.StartDate >= DateTime.Today)
 				{
 					var cardChangeResult =
-						isNeedSetProductCategoryRestriction
+						isNeedSetProductGroupRestriction
 						? SetFuelCardProductGroupRestrictionByCardId(lastFuelCardVersion.FuelCard.CardId)
 						: SetFuelCardCommonFuelRestrictionByCardId(lastFuelCardVersion.FuelCard.CardId);
 				}
 
 				_oldFuelType = Entity.FuelType;
 				_oldLastFuelCardVersion = GetLastFuelCardVersion();
+				_oldDriverCategory = Entity.Driver?.Category;
 			}
 			catch(Exception ex)
 			{
@@ -613,8 +616,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private bool IsNeedToUpdateFuelCardProductRestriction =>
 			(IsFuelCardChanged() && Entity.FuelType != null)
-			|| (IsFuelTypeChanged
-				&& (Entity.GetCurrentActiveFuelCardVersion() != null || Entity.GetActiveFuelCardVersionOnDate(DateTime.Today.AddDays(1)) != null));
+			|| (IsFuelTypeChanged && IsFuelCardToChangeProductRestrictionAdded)
+			|| (IsDriverCategoryChanged && IsFuelCardToChangeProductRestrictionAdded);
 
 		private bool IsFuelCardChanged()
 		{
@@ -632,6 +635,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Entity.FuelType != null
 			&& _oldFuelType?.Id != Entity.FuelType.Id;
 
+		private bool IsDriverCategoryChanged =>
+			!(_oldDriverCategory is null && Entity.Driver?.Category is null)
+			&& _oldDriverCategory != Entity.Driver?.Category;
+
+		private bool IsFuelCardToChangeProductRestrictionAdded =>
+			Entity.GetCurrentActiveFuelCardVersion() != null
+			|| Entity.GetActiveFuelCardVersionOnDate(DateTime.Today.AddDays(1)) != null;
 
 		private bool SetOtherCarsFuelCardVersionEndDateIfNeed()
 		{
