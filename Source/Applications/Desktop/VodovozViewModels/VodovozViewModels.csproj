@@ -105,7 +105,9 @@
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.PromosetNode.cs" />
     <Compile Include="Organizations\OrganizationJournalFilterViewModel.cs" />
+    <Compile Include="Organizations\OrganizationJournalNode.cs" />
     <Compile Include="Organizations\OrganizationJournalViewModel.cs" />
+    <Compile Include="Organizations\OrganizationViewModel.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.SubdivisionRow.cs" />
     <Compile Include="ReportsParameters\Bottles\Drivers.cs" />
     <Compile Include="ReportsParameters\Bottles\PercentNode.cs" />
@@ -667,7 +669,6 @@
     <Compile Include="TempAdapters\IDeliveryScheduleJournalFactory.cs" />
     <Compile Include="TempAdapters\IDialogsFactory.cs" />
     <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
-    <Compile Include="TempAdapters\IOrganizationJournalFactory.cs" />
     <Compile Include="TempAdapters\IExpenseCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\IIncomeCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\ICarManufacturerJournalFactory.cs" />

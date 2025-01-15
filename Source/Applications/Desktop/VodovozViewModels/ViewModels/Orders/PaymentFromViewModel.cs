@@ -19,18 +19,13 @@ namespace Vodovoz.ViewModels.Orders
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			IPaymentFromRepository paymentFromRepository,
-			IOrganizationJournalFactory organizationJournalFactory,
 			IOrderSettings orderSettings) : base(uoWBuilder, uowFactory, commonServices)
 		{
 			if(paymentFromRepository is null)
 			{
 				throw new ArgumentNullException(nameof(paymentFromRepository));
 			}
-			
-			OrganizationSelectorFactory =
-				(organizationJournalFactory ?? throw new ArgumentNullException(nameof(organizationJournalFactory)))
-				.CreateOrganizationAutocompleteSelectorFactory();
-			
+
 			CanShowOrganization = true;
 			ValidationContext.ServiceContainer.AddService(typeof(IPaymentFromRepository), paymentFromRepository);
 			ValidationContext.ServiceContainer.AddService(typeof(IOrderSettings), orderSettings);

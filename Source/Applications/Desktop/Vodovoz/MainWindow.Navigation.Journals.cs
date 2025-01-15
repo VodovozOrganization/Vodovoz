@@ -58,6 +58,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Profitability;
 using Vodovoz.ViewModels.Store;
 
