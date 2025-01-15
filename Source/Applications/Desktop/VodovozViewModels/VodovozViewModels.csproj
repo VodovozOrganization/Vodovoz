@@ -104,6 +104,8 @@
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.RowsCreating.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.PromosetNode.cs" />
+    <Compile Include="Organizations\OrganizationJournalFilterViewModel.cs" />
+    <Compile Include="Organizations\OrganizationJournalViewModel.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.SubdivisionRow.cs" />
     <Compile Include="ReportsParameters\Bottles\Drivers.cs" />
     <Compile Include="ReportsParameters\Bottles\PercentNode.cs" />
