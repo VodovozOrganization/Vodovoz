@@ -205,17 +205,17 @@ namespace VodovozBusiness.Services.TrueMark
 				.ToList();
 		}
 
-		public Result IsTrueMarkWaterIdentificationCodeNotUsed(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode)
+		public Result IsTrueMarkWaterIdentificationCodeNotUsed(
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			int exceptProductCodeId = 0)
 		{
 			if(trueMarkWaterIdentificationCode is null)
 			{
 				throw new ArgumentNullException(nameof(trueMarkWaterIdentificationCode));
 			}
 
-			var isCodeAlreadyUsed = _trueMarkProductCodeRepository.Get(
-				_uow,
-				x => x.ResultCode.Id == trueMarkWaterIdentificationCode.Id
-					&& _successfullyUsedProductCodesStatuses.Contains(x.SourceCodeStatus))
+			var isCodeAlreadyUsed =
+				_trueMarkProductCodesHavingRequiredResultCode(trueMarkWaterIdentificationCode.Id, exceptProductCodeId)
 				.Any();
 
 			if(isCodeAlreadyUsed)
@@ -226,5 +226,12 @@ namespace VodovozBusiness.Services.TrueMark
 
 			return Result.Success();
 		}
+
+		private IEnumerable<TrueMarkProductCode> _trueMarkProductCodesHavingRequiredResultCode(int resultCodeId, int exceptProductCodeId = 0) =>
+			_trueMarkProductCodeRepository.Get(
+				_uow,
+				x => x.ResultCode.Id == resultCodeId
+					&& _successfullyUsedProductCodesStatuses.Contains(x.SourceCodeStatus)
+				&& (exceptProductCodeId == 0 || x.Id != exceptProductCodeId));
 	}
 }
