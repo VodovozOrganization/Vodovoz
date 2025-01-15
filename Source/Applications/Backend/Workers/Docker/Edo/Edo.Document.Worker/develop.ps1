@@ -3,8 +3,8 @@
 
 $registry = "docker.vod.qsolution.ru:5100"
 $projectFile = "Edo.Document.Worker.csproj"
-$imageName = "edo.documents"
-$tagName = "develop"
+$imageName = "edo.document"
+$tagName = "dev"
 $containerName = "$imageName.$tagName"
 
 Write-Host -ForegroundColor DarkCyan ("What needs to be done?")
