@@ -2057,11 +2057,16 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.OrderChangesReportView.cs" />
     <Compile Include="Cash\FinancialResponsibilityCenterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Cash.FinancialResponsibilityCenterView.cs" />
+    <Compile Include="Organizations\OrganizationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Organizations.OrganizationView.cs" />
+    <Compile Include="Organizations\OrganizationJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Organizations.OrganizationJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Organizations\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
