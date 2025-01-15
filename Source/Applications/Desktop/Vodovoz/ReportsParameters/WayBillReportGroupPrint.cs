@@ -69,14 +69,14 @@ namespace Vodovoz.ReportsParameters
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 
+			Build();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+
 			OrganizationViewModel = new LegacyEEVMBuilderFactory<WayBillReportGroupPrint>(ParentTab, this, UoW, navigationManager, _lifetimeScope)
 				.ForProperty(x => x.Organization)
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
 				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
-
-			Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			ConfigureSingleReport();
 			ConfigureGroupReportForOneDay();
