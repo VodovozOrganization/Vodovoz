@@ -3,6 +3,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Core.Domain.Organizations
 {
@@ -18,6 +19,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _name;
 		private bool _pacsTimeManagementEnabled;
 		private int? _financialResponsibilityCenterId;
+		private int? _chiefId;
 
 		/// <summary>
 		/// Идентификатор
@@ -48,6 +50,17 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _pacsTimeManagementEnabled;
 			set => SetField(ref _pacsTimeManagementEnabled, value);
+		}
+
+		/// <summary>
+		/// Идентификатор начальника подразделения
+		/// </summary>
+		[Display(Name = "Начальник подразделения")]
+		[HistoryIdentifier(TargetType = typeof(EmployeeEntity))]
+		public virtual int? ChiefId
+		{
+			get => _chiefId;
+			set => SetField(ref _chiefId, value);
 		}
 
 		/// <summary>

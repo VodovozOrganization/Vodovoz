@@ -14,6 +14,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.Zabbix.Sender;
 using VodovozInfrastructure.Utils;
+using DateTimeHelpers;
 
 namespace DatabaseServiceWorker
 {
@@ -30,6 +31,7 @@ namespace DatabaseServiceWorker
 		private readonly ILogger<FuelTransactionsControlWorker> _logger;
 		private readonly IFuelControlAuthorizationService _authorizationService;
 		private readonly IFuelControlTransactionsDataService _fuelControlTransactionsDataService;
+		private readonly IFuelPricesUpdateService _fuelPricesUpdateService;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly IZabbixSender _zabbixSender;
@@ -40,6 +42,7 @@ namespace DatabaseServiceWorker
 			ILogger<FuelTransactionsControlWorker> logger,
 			IFuelControlAuthorizationService authorizationService,
 			IFuelControlTransactionsDataService fuelControlTransactionsDataService,
+			IFuelPricesUpdateService fuelPricesUpdateService,
 			IFuelRepository fuelRepository,
 			IFuelControlSettings fuelControlSettings,
 			IZabbixSender zabbixSender)
@@ -49,6 +52,7 @@ namespace DatabaseServiceWorker
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			_fuelControlTransactionsDataService = fuelControlTransactionsDataService ?? throw new ArgumentNullException(nameof(fuelControlTransactionsDataService));
+			_fuelPricesUpdateService = fuelPricesUpdateService ?? throw new ArgumentNullException(nameof(fuelPricesUpdateService));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
@@ -80,6 +84,8 @@ namespace DatabaseServiceWorker
 			await DailyFuelTransactionsUpdate(uow, stoppingToken);
 
 			await MonthlyFuelTransactionsUpdate(uow, stoppingToken);
+
+			await FuelPricesUpdate(stoppingToken);
 
 			_isWorkInProgress = false;
 
@@ -149,6 +155,37 @@ namespace DatabaseServiceWorker
 			if(isTransactionsUpdated)
 			{
 				_fuelControlSettings.SetFuelTransactionsPerMonthLastUpdateDate(endDate.ToString(_dateTimeFormatString));
+			}
+		}
+
+		public async Task FuelPricesUpdate(CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("Начинается обновление цен топлива...");
+
+			var averageFuelPricesLastUpdateDate = _fuelControlSettings.FuelPricesLastUpdateDate;
+
+			if(DateTime.Today.DayOfWeek != DayOfWeek.Monday && DateTime.Today.FirstDayOfWeek() <= averageFuelPricesLastUpdateDate
+				|| averageFuelPricesLastUpdateDate >= DateTime.Today)
+			{
+				_logger.LogInformation(
+					"Обновление цен топлива не требуется. Дата последнего обновления: {LastUpdateDate}",
+					averageFuelPricesLastUpdateDate.ToString(_dateTimeFormatString));
+
+				return;
+			}
+
+			try
+			{
+				await _fuelPricesUpdateService.UpdateFuelPricesByLastWeekTransaction(cancellationToken);
+
+				_fuelControlSettings.SetFuelPricesLastUpdateDate(DateTime.Today.ToString(_dateTimeFormatString));
+
+				_logger.LogInformation("Цены топлива обновлены успешно");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError("При выполнении операции обновления цен топлива возникла ошибка: {ErrorMessage}",
+					ex.Message);
 			}
 		}
 

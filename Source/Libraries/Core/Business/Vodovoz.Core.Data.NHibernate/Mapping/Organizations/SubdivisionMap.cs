@@ -12,6 +12,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.FinancialResponsibilityCenterId).Column("financial_responsibility_center_id");
+			Map(x => x.ChiefId).Column("chief_id");
 			Map(x => x.PacsTimeManagementEnabled).Column("pacs_time_management_enabled");
 		}
 	}

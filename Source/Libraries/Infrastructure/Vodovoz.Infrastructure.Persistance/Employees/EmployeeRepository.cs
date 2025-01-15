@@ -1,4 +1,5 @@
-﻿using NHibernate.Criterion;
+﻿using Core.Infrastructure.Specifications;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
@@ -6,7 +7,9 @@ using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Subdivisions;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -219,10 +222,26 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 
 		public IEnumerable<int> GetControlledByEmployeeSubdivisionIds(IUnitOfWork uow, int employeeId)
 		{
-			return uow.Session.Query<Subdivision>()
-				.Where(s => s.Chief.Id == employeeId)
+			var financialResponcibilitiesCentersIds = uow.Session.Query<FinancialResponsibilityCenter>()
+				.Where(FinancialResponsibilityCenterSpecifications
+					.ForEmployeeIdIsResponsible(employeeId).Expression)
+				.Select(x => x.Id)
+				.ToArray();
+
+			var subdivisionsResponsibleByFinancialResponsibilityCentersIds = uow.Session
+				.Query<Subdivision>()
+				.Where(SubdivisionSpecifications.ForFinancialResponsibilityCenters(financialResponcibilitiesCentersIds).Expression)
 				.Select(s => s.Id)
-				.ToList();
+				.ToArray();
+			
+			var subdivisionChiefIds = uow.Session.Query<Subdivision>()
+				.Where(SubdivisionSpecifications.ForEmployeeIsChief(employeeId).Expression)
+				.Select(s => s.Id)
+				.ToArray();
+
+			return subdivisionsResponsibleByFinancialResponsibilityCentersIds
+				.Concat(subdivisionChiefIds)
+				.Distinct();
 		}
 	}
 }
