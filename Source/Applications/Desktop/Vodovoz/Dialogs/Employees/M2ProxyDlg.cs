@@ -96,7 +96,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			organizationViewModel.Changed += (sender, e) => UpdateStates();
 
-			//entryOrganization.ViewModel = organizationViewModel;
+			entryOrganization.ViewModel = organizationViewModel;
 
 			FillForOrder();
 
@@ -210,7 +210,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			bool isNewDoc = !(Entity.Id > 0);
 			evmeOrder.Sensitive = yDPDatesRange.Sensitive = evmeEmployee.Sensitive = evmeSupplier.Sensitive = yETicketNr.Sensitive
-				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = evmeOrganization.Sensitive = isNewDoc;
+				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = entryOrganization.Sensitive = isNewDoc;
 
 			if(Entity.Organization == null || !isNewDoc) {
 				return;

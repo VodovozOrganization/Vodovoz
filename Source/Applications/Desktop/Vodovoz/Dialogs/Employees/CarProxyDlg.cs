@@ -74,7 +74,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			organizationViewModel.Changed += (sender, e) => UpdateStates();
 
-			//entryOrganization.ViewModel = organizationViewModel;
+			entryOrganization.ViewModel = organizationViewModel;
 
 			var employeeFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true));
@@ -165,7 +165,7 @@ namespace Vodovoz.Dialogs.Employees
 		void UpdateStates()
 		{
 			bool isNewDoc = !(Entity.Id > 0);
-			evmeOrganisation.Sensitive = isNewDoc;
+			entryOrganization.Sensitive = isNewDoc;
 			evmeDriver.Sensitive = isNewDoc;
 			entityentryCar.Sensitive = isNewDoc;
 			if(Entity.Organization == null 
