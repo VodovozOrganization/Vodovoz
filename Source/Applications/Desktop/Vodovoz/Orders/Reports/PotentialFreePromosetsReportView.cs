@@ -1,6 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
-using QS.Views.Dialog;
+using QS.Views.GtkUI;
 using System.Linq;
 using Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets;
 using static Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets.PotentialFreePromosetsReport;
@@ -9,7 +9,7 @@ using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Orders.Reports
 {
-	public partial class PotentialFreePromosetsReportView : DialogViewBase<PotentialFreePromosetsReportViewModel>
+	public partial class PotentialFreePromosetsReportView : TabViewBase<PotentialFreePromosetsReportViewModel>
 	{
 		private const int _hpanedDefaultPosition = 428;
 		private const int _hpanedMinimalPosition = 16;
