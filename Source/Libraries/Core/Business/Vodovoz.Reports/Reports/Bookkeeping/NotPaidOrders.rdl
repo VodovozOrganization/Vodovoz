@@ -1082,7 +1082,7 @@
         0
     ) AS partial_order_sum,
     c.delay_days_for_buyers,
-    DATEDIFF(NOW(), o.create_date) - CAST(c.delay_days_for_buyers AS INT) delay_days_fact
+    DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) delay_days_fact
 FROM orders o
 INNER JOIN counterparty c ON o.client_id = c.id
 LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
