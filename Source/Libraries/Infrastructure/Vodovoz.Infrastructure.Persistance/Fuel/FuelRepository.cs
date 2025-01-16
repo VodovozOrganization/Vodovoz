@@ -479,7 +479,7 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 				.Where(x => x.FuelTypeId == fuelTypeId && !x.IsArchived)
 				.ToList();
 
-			return productGroups.Distinct();
+			return productGroups;
 		}
 	}
 }
