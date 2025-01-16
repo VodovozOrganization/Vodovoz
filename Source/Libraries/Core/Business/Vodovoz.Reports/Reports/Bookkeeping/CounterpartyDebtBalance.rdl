@@ -1041,7 +1041,7 @@
             0
         ) AS partial_paid_orders_sum,
         c.delay_days_for_buyers,
-        MAX(DATEDIFF(NOW(), o.create_date) - CAST(c.delay_days_for_buyers AS INT)) AS max_delay_days_fact,
+        MAX(DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT)) AS max_delay_days_fact,
         CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судебный"
               WHEN c.close_delivery_debt_type = 'WriteOff' THEN "Списание"
               WHEN c.close_delivery_debt_type = 'ShortTerm' THEN "Краткосрочный"
