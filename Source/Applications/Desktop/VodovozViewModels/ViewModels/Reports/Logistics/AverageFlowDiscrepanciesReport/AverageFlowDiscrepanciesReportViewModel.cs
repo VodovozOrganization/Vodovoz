@@ -171,7 +171,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				{
 					CalibrationDate = carEvent.CreateDate,
 					ActualBalance = carEvent.ActualFuelBalance ?? 0,
-					CurrentBalance = carEvent.ActualFuelBalance ?? 0,
+					CurrentBalance = carEvent.CurrentFuelBalance ?? 0,
 					Car = carEvent.Car.RegistrationNumber,
 					ConfirmedDistance = confirmedDistance,
 					Consumption100KmPlan = carFuelConsumption,
