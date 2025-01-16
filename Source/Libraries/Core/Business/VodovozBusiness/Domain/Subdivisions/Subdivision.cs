@@ -48,11 +48,18 @@ namespace Vodovoz
 			set => SetField(ref _shortName, value);
 		}
 
+		[IgnoreHistoryTrace]
 		[Display(Name = "Начальник подразделения")]
 		public virtual Employee Chief
 		{
 			get => _chief;
-			set => SetField(ref _chief, value);
+			set
+			{
+				if(SetField(ref _chief, value))
+				{
+					ChiefId = value?.Id;
+				}
+			}
 		}
 
 		[Display(Name = "Вышестоящее подразделение")]

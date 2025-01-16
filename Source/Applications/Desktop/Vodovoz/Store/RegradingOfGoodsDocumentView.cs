@@ -2,7 +2,7 @@
 using System;
 using Vodovoz.ViewModels.Store;
 
-namespace Vodovoz
+namespace Vodovoz.Store
 {
 	public partial class RegradingOfGoodsDocumentView : TabViewBase<RegradingOfGoodsDocumentViewModel>
 	{

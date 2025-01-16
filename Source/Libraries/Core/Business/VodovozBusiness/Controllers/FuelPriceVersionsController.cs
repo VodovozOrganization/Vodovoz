@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Controllers
@@ -11,13 +9,19 @@ namespace Vodovoz.Controllers
 	public class FuelPriceVersionsController : IFuelPriceVersionsController
 	{
 		private FuelType _fuelType;
-		public FuelPriceVersionsController(FuelType fuelType)
+
+		private bool _isNeedSetFuelType =>
+			_fuelType is null;
+
+		public void SetFuelType(FuelType fuelType)
 		{
 			_fuelType = fuelType ?? throw new ArgumentNullException(nameof(fuelType));
 		}
 
 		public void ChangeVersionStartDate(FuelPriceVersion version, DateTime newStartDate)
 		{
+			ThrowExceptionIfFuelTypeNotSet();
+
 			if(version == null)
 			{
 				throw new ArgumentNullException(nameof(version));
@@ -30,17 +34,19 @@ namespace Vodovoz.Controllers
 			var previousVersion = GetPreviousVersionOrNull(version);
 			if(previousVersion != null)
 			{
-				var newEndDate = newStartDate.AddMilliseconds(-1);
+				var newEndDate = newStartDate.Date.AddMilliseconds(-1);
 				previousVersion.EndDate = newEndDate;
 			}
-			version.StartDate = newStartDate;
+			version.StartDate = newStartDate.Date;
 		}
 
 		public void CreateAndAddVersion(decimal fuelPrice, DateTime? startDate)
 		{
+			ThrowExceptionIfFuelTypeNotSet();
+
 			if(startDate == null)
 			{
-				startDate = DateTime.Now;
+				startDate = DateTime.Today;
 			}
 
 			var newVersion = new FuelPriceVersion
@@ -62,7 +68,7 @@ namespace Vodovoz.Controllers
 			{
 				newCarFuelVersion.FuelType = _fuelType;
 			}
-			newCarFuelVersion.StartDate = startDate;
+			newCarFuelVersion.StartDate = startDate.Date;
 
 			if(_fuelType.FuelPriceVersions.Any())
 			{
@@ -81,6 +87,8 @@ namespace Vodovoz.Controllers
 
 		public bool IsValidDateForVersionStartDateChange(FuelPriceVersion version, DateTime newStartDate)
 		{
+			ThrowExceptionIfFuelTypeNotSet();
+
 			if(version == null)
 			{
 				throw new ArgumentNullException(nameof(version));
@@ -99,6 +107,8 @@ namespace Vodovoz.Controllers
 
 		public bool IsValidDateForNewCarVersion(DateTime dateTime)
 		{
+			ThrowExceptionIfFuelTypeNotSet();
+
 			return _fuelType.FuelPriceVersions.All(x => x.StartDate < dateTime);
 		}
 
@@ -108,6 +118,14 @@ namespace Vodovoz.Controllers
 				.Where(x => x.StartDate < currentVersion.StartDate)
 				.OrderByDescending(x => x.StartDate)
 				.FirstOrDefault();
+		}
+
+		private void ThrowExceptionIfFuelTypeNotSet()
+		{
+			if(_isNeedSetFuelType)
+			{
+				throw new InvalidOperationException("Значение типа топлива не установлено");
+			}
 		}
 	}
 }
