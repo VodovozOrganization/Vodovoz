@@ -7,7 +7,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel
 	{
 		public GazpromFuelProductsGroupMap()
 		{
-			Table("fuel_products");
+			Table("gazprom_fuel_categories");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 

@@ -29,9 +29,9 @@ namespace Vodovoz.Core.Domain.Fuel
 		}
 
 		/// <summary>
-		/// Код типа топлива
+		/// Код типа топлива в ДВ
 		/// </summary>
-		[Display(Name = "Код типа топлива")]
+		[Display(Name = "Код типа топлива в ДВ")]
 		public virtual int FuelTypeId
 		{
 			get => _fuelTypeId;
