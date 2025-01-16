@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		/// <summary>
 		/// Цена топлива на конец периода между калибровками
 		/// </summary>
-		public decimal LastFuelCost { get; internal set; }
+		public decimal? LastFuelCost { get; internal set; }
 
 		/// <summary>
 		/// Разница в руб.
@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		/// <summary>
 		/// План. расход на 100 км
 		/// </summary>
-		public double Consumption100KmPlan { get; internal set; }
+		public double? Consumption100KmPlan { get; internal set; }
 
 		/// <summary>
 		/// Процент расхождения
