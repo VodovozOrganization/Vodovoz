@@ -892,7 +892,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				CardId = fuelCardId,
 				ContractId = _fuelControlSettings.OrganizationContractId,
-				ProductGroup = FuelDocument.Fuel.ProductGroupId,
 				ProductType = _fuelControlSettings.FuelProductTypeId,
 				TermType = FuelLimitTermType.AllDays,
 				Period = 1,

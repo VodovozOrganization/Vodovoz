@@ -546,28 +546,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			var isNeedSetProductGroupRestriction = Entity.Driver is null || Entity.Driver?.Category == EmployeeCategory.driver;
-
 			_fuelCardUpdateCancellationTokenSource = new CancellationTokenSource();
 
 			try
 			{
 				if(activeFuelCardVersion != null)
 				{
-					var currentActiveFuelCardChangeResult =
-						isNeedSetProductGroupRestriction
-						? SetFuelCardProductGroupRestrictionByCardId(activeFuelCardVersion.FuelCard.CardId)
-						: SetFuelCardCommonFuelRestrictionByCardId(activeFuelCardVersion.FuelCard.CardId);
+					ChangeFuelCardProductGroupRestriction(activeFuelCardVersion.FuelCard.CardId, _fuelCardUpdateCancellationTokenSource.Token);
 				}
 
 				if(lastFuelCardVersion != null
 					&& lastFuelCardVersion.FuelCard.Id != activeFuelCardVersion?.FuelCard?.Id
 					&& lastFuelCardVersion.StartDate >= DateTime.Today)
 				{
-					var cardChangeResult =
-						isNeedSetProductGroupRestriction
-						? SetFuelCardProductGroupRestrictionByCardId(lastFuelCardVersion.FuelCard.CardId)
-						: SetFuelCardCommonFuelRestrictionByCardId(lastFuelCardVersion.FuelCard.CardId);
+					ChangeFuelCardProductGroupRestriction(lastFuelCardVersion.FuelCard.CardId, _fuelCardUpdateCancellationTokenSource.Token);
 				}
 
 				_oldFuelType = Entity.FuelType;
@@ -591,20 +583,46 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		private long SetFuelCardCommonFuelRestrictionByCardId(string fuelCardId) =>
-			_fuelApiService.SetProductRestrictionAndRemoveExistingByCardId(
-				fuelCardId,
-				_fuelCardUpdateCancellationTokenSource.Token)
-				.GetAwaiter()
-				.GetResult();
+		private void ChangeFuelCardProductGroupRestriction(string fuelCardId, CancellationToken cancellationToken)
+		{
+			var isNeedSetProductGroupRestriction = Entity.Driver is null || Entity.Driver?.Category == EmployeeCategory.driver;
 
-		private long SetFuelCardProductGroupRestrictionByCardId(string fuelCardId) =>
-			_fuelApiService.SetProductRestrictionAndRemoveExistingByCardId(
+			if(isNeedSetProductGroupRestriction)
+			{
+				SetFuelCardProductGroupRestrictionByCardId(fuelCardId, cancellationToken);
+				return;
+			}
+
+			SetFuelCardCommonFuelRestrictionByCardId(fuelCardId, cancellationToken);
+		}
+
+		private void SetFuelCardCommonFuelRestrictionByCardId(string fuelCardId, CancellationToken cancellationToken)
+		{
+			_fuelApiService.SetProductRestrictionsAndRemoveExistingByCardId(
 				fuelCardId,
-				_fuelCardUpdateCancellationTokenSource.Token,
-				Entity.FuelType.ProductGroupId)
+				cancellationToken)
 				.GetAwaiter()
 				.GetResult();
+		}			
+
+		private void SetFuelCardProductGroupRestrictionByCardId(string fuelCardId, CancellationToken cancellationToken)
+		{
+			var gazpromFuelProductsGroups = GazpromFuelProductsGroups.ToList();
+
+			_fuelApiService.SetProductRestrictionsAndRemoveExistingByCardId(
+				fuelCardId,
+				cancellationToken,
+				gazpromFuelProductsGroups)
+				.GetAwaiter()
+				.GetResult();
+		}
+
+		private IEnumerable<string> GazpromFuelProductsGroups =>
+			Entity.FuelType is null
+			? Enumerable.Empty<string>()
+			: _fuelRepository
+				.GetGazpromFuelProductsGroupsByFuelTypeId(UoW, Entity.FuelType.Id)
+				.Select(x => x.GazpromFuelProductGroupId);
 
 		private FuelCardVersion GetLastFuelCardVersion() =>
 			Entity.FuelCardVersions

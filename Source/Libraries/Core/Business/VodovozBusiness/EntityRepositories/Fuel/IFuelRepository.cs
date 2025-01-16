@@ -51,8 +51,16 @@ namespace Vodovoz.EntityRepositories.Fuel
 		/// Продукты (топливо), относящихся к указанному типу
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="fuelTypeId">Id типа топлива</param>
+		/// <param name="fuelTypeId">Id типа топлива в ДВ</param>
 		/// <returns>Продукты (топливо)</returns>
 		IEnumerable<FuelProduct> GetFuelProductsByFuelTypeId(IUnitOfWork uow, int fuelTypeId);
+
+		/// <summary>
+		/// Группы продуктов (топлива) Газпромнефти, относящихся к указанному типу топлива в ДВ
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="fuelTypeId">Id типа топлива в ДВ</param>
+		/// <returns></returns>
+		IEnumerable<GazpromFuelProductsGroup> GetGazpromFuelProductsGroupsByFuelTypeId(IUnitOfWork uow, int fuelTypeId);
 	}
 }
