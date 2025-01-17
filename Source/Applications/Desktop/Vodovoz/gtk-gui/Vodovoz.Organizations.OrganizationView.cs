@@ -307,6 +307,7 @@ namespace Vodovoz.Organizations
 			this.label10.Name = "label10";
 			this.label10.Xalign = 1F;
 			this.label10.LabelProp = global::Mono.Unix.Catalog.GetString("ОГРН/ОГРНИП<span foreground=\"red\">*</span>:");
+			this.label10.UseMarkup = true;
 			this.datatableMain.Add(this.label10);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label10]));
 			w20.TopAttach = ((uint)(6));
@@ -329,6 +330,7 @@ namespace Vodovoz.Organizations
 			this.label15.Name = "label15";
 			this.label15.Xalign = 1F;
 			this.label15.LabelProp = global::Mono.Unix.Catalog.GetString("ОКПО<span foreground=\"red\">*</span>:");
+			this.label15.UseMarkup = true;
 			this.datatableMain.Add(this.label15);
 			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label15]));
 			w22.TopAttach = ((uint)(7));
@@ -383,6 +385,7 @@ namespace Vodovoz.Organizations
 			this.label7.Name = "label7";
 			this.label7.Xalign = 1F;
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("ИНН<span foreground=\"red\">*</span>:");
+			this.label7.UseMarkup = true;
 			this.datatableMain.Add(this.label7);
 			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label7]));
 			w27.TopAttach = ((uint)(4));
@@ -394,6 +397,7 @@ namespace Vodovoz.Organizations
 			this.label8.Name = "label8";
 			this.label8.Xalign = 1F;
 			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString("КПП<span foreground=\"red\">*</span>:");
+			this.label8.UseMarkup = true;
 			this.datatableMain.Add(this.label8);
 			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label8]));
 			w28.TopAttach = ((uint)(5));
