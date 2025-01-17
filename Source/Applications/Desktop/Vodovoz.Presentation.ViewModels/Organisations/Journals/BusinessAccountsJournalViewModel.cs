@@ -25,6 +25,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 			: base(unitOfWorkFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService)
 		{
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
+			_filterViewModel.JournalTab = this;
 			JournalFilter = _filterViewModel;
 			_filterViewModel.OnFiltered += OnFilterFiltered;
 		}
@@ -58,7 +59,12 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 					_filterViewModel.Bank,
 					MatchMode.Anywhere));
 			}
-			
+
+			if(_filterViewModel?.AccountFillType != null)
+			{
+				query.Where(ba => ba.AccountFillType == _filterViewModel.AccountFillType);
+			}
+
 			if(_filterViewModel != null && !string.IsNullOrWhiteSpace(_filterViewModel.Number))
 			{
 				query.Where(ba => ba.Number == _filterViewModel.Number);
