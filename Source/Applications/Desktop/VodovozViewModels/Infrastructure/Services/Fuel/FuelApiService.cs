@@ -349,13 +349,13 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 
 			var requestData = CreateFuelApiRequestData(FuelApiRequestFunction.None);
 
-			var createdLimits = Enumerable.Empty<long>();
+			var createdRestrictions = Enumerable.Empty<long>();
 
 			try
 			{
 				if(string.IsNullOrWhiteSpace(productGroupId))
 				{
-					createdLimits = await _productRestrictionService.SetCommonFuelRestriction(
+					createdRestrictions = await _productRestrictionService.SetCommonFuelRestriction(
 						cardId,
 						sessionId,
 						_userSettingsService.Settings.FuelControlApiKey,
@@ -363,7 +363,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 				}
 				else
 				{
-					createdLimits = await _productRestrictionService.SetFuelProductGroupRestriction(
+					createdRestrictions = await _productRestrictionService.SetFuelProductGroupRestriction(
 						cardId,
 						productGroupId,
 						sessionId,
@@ -373,7 +373,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 
 				requestData.ResponseResult = FuelApiResponseResult.Success;
 
-				return createdLimits;
+				return createdRestrictions;
 			}
 			catch(Exception ex)
 			{
