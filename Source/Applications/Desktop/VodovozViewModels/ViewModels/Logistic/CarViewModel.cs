@@ -313,7 +313,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(IsNeedToUpdateFuelCardProductRestriction && !IsUserHasAccessToGazprom)
 			{
-				ShowErrorMessage("Только пользователи, имеющие доступ в Газпромнефть могут редактировать топливные карты");
+				ShowErrorMessage(
+					"Вы выполнили действия, которое требует изменения товарного ограничителя топливной карты в Газпромнефть.\n" +
+					"Только пользователи, имеющие доступ в Газпромнефть могут редактировать топливные карты");
 
 				return false;
 			}
@@ -548,6 +550,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			_fuelCardUpdateCancellationTokenSource = new CancellationTokenSource();
 
+			_oldFuelType = Entity.FuelType;
+			_oldLastFuelCardVersion = GetLastFuelCardVersion();
+			_oldDriverCategory = Entity.Driver?.Category;
+
 			try
 			{
 				if(activeFuelCardVersion != null)
@@ -561,10 +567,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					ChangeFuelCardProductGroupRestriction(lastFuelCardVersion.FuelCard.CardId, _fuelCardUpdateCancellationTokenSource.Token);
 				}
-
-				_oldFuelType = Entity.FuelType;
-				_oldLastFuelCardVersion = GetLastFuelCardVersion();
-				_oldDriverCategory = Entity.Driver?.Category;
 			}
 			catch(Exception ex)
 			{
