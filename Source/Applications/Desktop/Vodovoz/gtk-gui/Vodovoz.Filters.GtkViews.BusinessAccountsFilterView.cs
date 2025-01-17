@@ -114,7 +114,7 @@ namespace Vodovoz.Filters.GtkViews
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.enumCmbAccountFillType = global::Gtk.ComboBox.NewText();
+			this.enumCmbAccountFillType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumCmbAccountFillType.Name = "enumCmbAccountFillType";
 			this.enumCmbAccountFillType.ShowSpecialStateAll = false;
 			this.enumCmbAccountFillType.ShowSpecialStateNot = false;

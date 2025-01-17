@@ -28,6 +28,9 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 			_filterViewModel.JournalTab = this;
 			JournalFilter = _filterViewModel;
 			_filterViewModel.OnFiltered += OnFilterFiltered;
+
+			_filterViewModel.IsShow = true;
+			SearchEnabled = false;
 		}
 
 		protected override IQueryOver<BusinessAccount> ItemsQuery(IUnitOfWork uow)

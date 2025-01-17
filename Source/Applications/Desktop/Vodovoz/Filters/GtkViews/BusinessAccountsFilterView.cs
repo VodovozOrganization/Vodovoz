@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using Gtk;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Presentation.ViewModels.Organisations.Journals;
 
 namespace Vodovoz.Filters.GtkViews
@@ -54,6 +55,7 @@ namespace Vodovoz.Filters.GtkViews
 		private void ConfigureComboBox()
 		{
 			enumCmbAccountFillType.ShowSpecialStateAll = true;
+			enumCmbAccountFillType.ItemsEnum = typeof(AccountFillType);
 			enumCmbAccountFillType.Binding
 				.AddBinding(ViewModel, vm => vm.AccountFillType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
