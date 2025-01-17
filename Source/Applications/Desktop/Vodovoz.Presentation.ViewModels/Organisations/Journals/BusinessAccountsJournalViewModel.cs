@@ -94,7 +94,8 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 				.Select(() => fundsAlias.Name).WithAlias(() => resultAlias.Funds)
 			)
 			.TransformUsing(Transformers.AliasToBean<BusinessAccountJournalNode>())
-			.OrderBy(ba => ba.Name);
+			.OrderBy(ba => ba.Name)
+			.Asc();
 
 			return query;
 		}
