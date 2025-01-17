@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using NPOI.SS.Formula.Functions;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.TrueMark;
@@ -19,6 +21,8 @@ namespace Vodovoz.Models.TrueMark
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IEdoSettings _edoSettings;
 		private readonly OurCodesChecker _ourCodesChecker;
+		private readonly ITag1260Checker _tag1260Checker;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
 		public TrueMarkCodePoolChecker(
 			ILogger<TrueMarkCodePoolChecker> logger,
@@ -26,7 +30,9 @@ namespace Vodovoz.Models.TrueMark
 			TrueMarkCodesChecker trueMarkCodesChecker,
 			ITrueMarkRepository trueMarkRepository,
 			IEdoSettings edoSettings,
-			OurCodesChecker ourCodesChecker
+			OurCodesChecker ourCodesChecker,
+			ITag1260Checker tag1260Checker,
+			IUnitOfWorkFactory unitOfWorkFactory
 		)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -35,6 +41,8 @@ namespace Vodovoz.Models.TrueMark
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_edoSettings = edoSettings;
 			_ourCodesChecker = ourCodesChecker ?? throw new ArgumentNullException(nameof(ourCodesChecker));
+			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
 		public async Task StartCheck(CancellationToken cancellationToken)
@@ -43,6 +51,7 @@ namespace Vodovoz.Models.TrueMark
 
 			_logger.LogInformation("Для проверки требуется {selectingCodesCount} кодов.", selectingCodesCount);
 			_logger.LogInformation("Запрос ранее не проверенных кодов.");
+
 			var selectedCodeIds = _trueMarkCodesPool.SelectCodes(selectingCodesCount, false).ToList();
 			_logger.LogInformation("Получено {selectedCodesCount} ранее не проверенных кодов.", selectedCodeIds.Count);
 
@@ -84,14 +93,23 @@ namespace Vodovoz.Models.TrueMark
 				_logger.LogInformation("Отправка на проверку {codesToCheckCount}/{selectedCodesCount} кодов.", codesToCheck.Count(), selectedCodeIds.Count);
 
 				await Task.Delay(2000);
+
+				using(var unitOfWorkTag1260 = _unitOfWorkFactory.CreateWithoutRoot("Tag1260 codes Check"))
+				{
+					await _tag1260Checker.UpdateInfoForTag1260Async(codesToCheck, unitOfWorkTag1260, 1, cancellationToken);
+
+					unitOfWorkTag1260.Commit();
+				}
+
 				var checkResults = await _trueMarkCodesChecker.CheckCodesAsync(codesToCheck, cancellationToken);
 
 				foreach(var checkResult in checkResults)
 				{
 					var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(checkResult.OwnerInn);
 					var isOurGtin = _ourCodesChecker.IsOurGtinOwner(checkResult.Code.GTIN);
+					var isTag1260Valid = checkResult.Code?.IsTag1260Valid ?? false;
 
-					if(checkResult.Introduced && isOurOrganizationOwner && isOurGtin)
+					if(checkResult.Introduced && isOurOrganizationOwner && isOurGtin && isTag1260Valid)
 					{
 						codeIdsToPromote.Add(checkResult.Code.Id);
 					}

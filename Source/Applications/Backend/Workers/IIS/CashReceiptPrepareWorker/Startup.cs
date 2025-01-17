@@ -11,6 +11,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using VodovozBusiness.Models.TrueMark;
@@ -51,7 +52,8 @@ namespace CashReceiptPrepareWorker
 				.AddCore()
 				.AddInfrastructure()
 				.AddTrackedUoW()
-				;
+				.AddHttpClient()
+			;
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddHostedService<ReceiptsPrepareWorker>();
@@ -113,11 +115,24 @@ namespace CashReceiptPrepareWorker
 			builder.RegisterInstance(ErrorReporter.Instance)
 				.As<IErrorReporter>()
 				.SingleInstance();
+
+			builder.RegisterType<Tag1260Checker>()
+				.As<ITag1260Checker>();
+
+			builder.Register((context) => new ModulKassaOrganizationSettingProvider(GetModulKassaOrganizationsSetting()))
+				.As<IModulKassaOrganizationSettingProvider>()
+				.SingleInstance();
+
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+		}
+
+		private IConfigurationSection GetModulKassaOrganizationsSetting()
+		{
+			return Configuration.GetSection("ModulKassaOrganizationSettings");
 		}
 	}
 }

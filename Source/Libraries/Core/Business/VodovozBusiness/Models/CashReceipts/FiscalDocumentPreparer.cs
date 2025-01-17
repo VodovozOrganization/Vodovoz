@@ -6,7 +6,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.Models.CashReceipts.DTO;
 using Vodovoz.Models.TrueMark;
@@ -78,9 +77,15 @@ namespace Vodovoz.Models.CashReceipts
 					continue;
 				}
 
+				var tag1260CheckResult = cashReceipt.ScannedCodes
+					.Where(x => x.OrderItem.Id == orderItem.Id
+						&& (x.ResultCode?.IsTag1260Valid ?? false))
+					.Select(x => x.ResultCode.Tag1260CodeCheckResult)
+					.LastOrDefault();
+
 				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
 				{
-					var inventPosition = CreateInventPosition(orderItem);
+					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					continue;
 				}
@@ -104,8 +109,9 @@ namespace Vodovoz.Models.CashReceipts
 
 				if(orderItem.Count == 1)
 				{
-					var inventPosition = CreateInventPosition(orderItem);
+					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
 					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemsCodes.First().ResultCode);
+
 					fiscalDocument.InventPositions.Add(inventPosition);
 					continue;
 				}
@@ -115,7 +121,7 @@ namespace Vodovoz.Models.CashReceipts
 				//i == 1 чтобы пропуcтить последний элемент, у него расчет происходит из остатков
 				for(int i = 1; i <= orderItem.Count - 1; i++)
 				{
-					var inventPosition = CreateInventPosition(orderItem);
+					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
 
 					if(wholeDiscount < orderItem.DiscountMoney)
 					{
@@ -142,7 +148,7 @@ namespace Vodovoz.Models.CashReceipts
 					residueDiscount = 0;
 				}
 
-				var lastInventPosition = CreateInventPosition(orderItem);
+				var lastInventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
 				lastInventPosition.Quantity = 1;
 				lastInventPosition.DiscSum = residueDiscount;
 				lastInventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemCode.ResultCode);
@@ -163,7 +169,7 @@ namespace Vodovoz.Models.CashReceipts
 					$"{nameof(cashReceipt.InnerNumber)} внутренний номер чека должен быть указан," +
 					$" если маркированных позиций больше {maxCodesCount}");
 			}
-			
+
 			foreach(var orderItem in cashReceipt.Order.OrderItems)
 			{
 				if(orderItem.HasZeroCountOrSum())
@@ -171,14 +177,19 @@ namespace Vodovoz.Models.CashReceipts
 					continue;
 				}
 
+				var tag1260CheckResult = cashReceipt.ScannedCodes
+					.Where(x => x.OrderItem.Id == orderItem.Id && x.SourceCode.IsTag1260Valid)
+					.Select(x => x.SourceCode.Tag1260CodeCheckResult)
+					.LastOrDefault();
+
 				if(!orderItem.Nomenclature.IsAccountableInTrueMark && receiptNumber == 1)
 				{
-					var inventPosition = CreateInventPosition(orderItem);
+					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += orderItem.Sum;
 					continue;
 				}
-				
+
 				if(unprocessedCodesCount == 0)
 				{
 					continue;
@@ -204,8 +215,8 @@ namespace Vodovoz.Models.CashReceipts
 						unprocessedCodesCount -= 1;
 						continue;
 					}
-					
-					var inventPosition = CreateInventPosition(orderItem);
+
+					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
 					inventPosition.ProductMark =
 						_codeParser.GetProductCodeForCashReceipt(TryGetCodeFromScannedCodes(orderItemsCodes, orderItem));
 					fiscalDocument.InventPositions.Add(inventPosition);
@@ -231,8 +242,8 @@ namespace Vodovoz.Models.CashReceipts
 					}
 
 					var discount = i == orderItemsCountWithoutLast ? lastPartDiscount : partDiscount;
-					
-					var inventPosition = CreateInventPosition(orderItem);
+
+					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
 					inventPosition.Quantity = 1;
 					inventPosition.DiscSum = discount;
 					inventPosition.ProductMark =
@@ -254,11 +265,11 @@ namespace Vodovoz.Models.CashReceipts
 					$"включена обязательная маркировка, но для строки заказа Id {orderItem.Id} количество кодов ({orderItemsCodes.Count}) не " +
 					$"совпадает с количеством товара ({orderItem.Count})");
 			}
-			
+
 			return orderItemsCodes.Dequeue().ResultCode;
 		}
 
-		private InventPosition CreateInventPosition(OrderItem orderItem)
+		private InventPosition CreateInventPosition(OrderItem orderItem, Tag1260CodeCheckResult tag1260CheckResult)
 		{
 			var inventPosition = new InventPosition
 			{
@@ -267,6 +278,14 @@ namespace Vodovoz.Models.CashReceipts
 				Quantity = orderItem.Count,
 				DiscSum = orderItem.DiscountMoney
 			};
+
+			if(tag1260CheckResult != null)
+			{
+				inventPosition.IndustryRequisite = new IndustryRequisite
+				{
+					DocData = $"UUID={tag1260CheckResult.ReqId}&Time={tag1260CheckResult.ReqTimestamp}"
+				};
+			}
 
 			SetVatProperties(orderItem, inventPosition);
 			return inventPosition;
@@ -281,7 +300,7 @@ namespace Vodovoz.Models.CashReceipts
 				inventPosition.VatTag = (int)VatTag.VatFree;
 				return;
 			}
-			
+
 			inventPosition.VatTag = (int)VatTag.Vat20;
 		}
 
@@ -293,7 +312,7 @@ namespace Vodovoz.Models.CashReceipts
 
 			AddMoneyPosition(fiscalDocument, order.PaymentType, sum);
 		}
-		
+
 		private void FillMoneyPositions(FiscalDocument fiscalDocument, PaymentType orderPaymentType, decimal cashReceiptSum)
 		{
 			AddMoneyPosition(fiscalDocument, orderPaymentType, cashReceiptSum);

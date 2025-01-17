@@ -7,6 +7,7 @@ using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.TrueMark;
 
 namespace Vodovoz.Infrastructure.Persistance.TrueMark
@@ -79,6 +80,40 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Where(x => x.GTIN == gtin && x.SerialNumber == serialNumber && x.CheckCode == checkCode);
 
 			return query.ToList();
+		}
+
+		public IEnumerable<TrueMarkWaterIdentificationCodeByOrganizationDto> GetOrganizationIdsByTrueMarkWaterIdentificationCodes(
+			IUnitOfWork uow,
+			IEnumerable<TrueMarkWaterIdentificationCode> codes)
+		{
+			var codeIds = codes.Select(x => x.Id).ToArray();
+
+			var sourceCodes = 
+				(
+					from productCodes in uow.Session.Query<CashReceiptProductCode>()
+					where codeIds.Contains(productCodes.SourceCode.Id)
+
+					select new TrueMarkWaterIdentificationCodeByOrganizationDto
+					{
+						OrganizationId = productCodes.OrderItem.Order.Contract.Organization.Id,
+						TrueMarkWaterIdentificationCodeId = productCodes.SourceCode.Id
+					}
+				).ToList();
+
+			var resultCodes = (
+				from productCodes in uow.Session.Query<CashReceiptProductCode>()
+				where codeIds.Contains(productCodes.ResultCode.Id)
+
+				select new TrueMarkWaterIdentificationCodeByOrganizationDto
+				{
+					OrganizationId = productCodes.OrderItem.Order.Contract.Organization.Id,
+					TrueMarkWaterIdentificationCodeId = productCodes.ResultCode.Id
+				}
+			).ToList();
+
+			var result = sourceCodes.Union(resultCodes).ToList();
+
+			return result;
 		}
 	}
 }
