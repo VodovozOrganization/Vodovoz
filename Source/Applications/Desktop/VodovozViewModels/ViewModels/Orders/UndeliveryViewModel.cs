@@ -344,7 +344,7 @@ namespace Vodovoz.ViewModels.Orders
 
 								if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
 								{
-									_logger.LogWarning("Сохранение файла {FileName} размером {Size}",
+									_logger.LogWarning("Не удалось сохранить файл {FileName} размером {Size}",
 										fileToUploadPair.Key,
 										fileToUploadPair.Value.Length);
 									errors.Add(fileToUploadPair.Key, string.Join(", ", result.Errors.Select(e => e.Message)));
