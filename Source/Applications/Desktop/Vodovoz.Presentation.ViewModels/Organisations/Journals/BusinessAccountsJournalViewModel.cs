@@ -1,5 +1,6 @@
 ﻿using System;
 using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -30,17 +31,47 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 
 		protected override IQueryOver<BusinessAccount> ItemsQuery(IUnitOfWork uow)
 		{
+			BusinessAccount businessAccountAlias = null;
 			BusinessActivity businessActivityAlias = null;
 			Funds fundsAlias = null;
 			BusinessAccountJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver<BusinessAccount>()
+			var query = uow.Session.QueryOver(() => businessAccountAlias)
 				.JoinAlias(ba => ba.BusinessActivity, () => businessActivityAlias)
 				.JoinAlias(ba => ba.Funds, () => fundsAlias);
 
 			if(_filterViewModel != null && !_filterViewModel.ShowArchived)
 			{
 				query.Where(ba => !ba.IsArchive);
+			}
+
+			if(_filterViewModel != null && !string.IsNullOrWhiteSpace(_filterViewModel.Name))
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => businessAccountAlias.Name),
+					_filterViewModel.Name,
+					MatchMode.Anywhere));
+			}
+			
+			if(_filterViewModel != null && !string.IsNullOrWhiteSpace(_filterViewModel.Bank))
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => businessAccountAlias.Bank),
+					_filterViewModel.Bank,
+					MatchMode.Anywhere));
+			}
+			
+			if(_filterViewModel != null && !string.IsNullOrWhiteSpace(_filterViewModel.Number))
+			{
+				query.Where(ba => ba.Number == _filterViewModel.Number);
+			}
+			
+			if( _filterViewModel?.Funds != null)
+			{
+				query.Where(() => fundsAlias.Id == _filterViewModel.Funds.Id);
+			}
+			
+			if( _filterViewModel?.BusinessActivity != null)
+			{
+				query.Where(() => businessActivityAlias.Id == _filterViewModel.BusinessActivity.Id);
 			}
 
 			query.SelectList(list => list
@@ -53,7 +84,8 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 				.Select(() => businessActivityAlias.Name).WithAlias(() => resultAlias.BusinessActivity)
 				.Select(() => fundsAlias.Name).WithAlias(() => resultAlias.Funds)
 			)
-			.TransformUsing(Transformers.AliasToBean<BusinessAccountJournalNode>());
+			.TransformUsing(Transformers.AliasToBean<BusinessAccountJournalNode>())
+			.OrderBy(ba => ba.Name);
 
 			return query;
 		}
