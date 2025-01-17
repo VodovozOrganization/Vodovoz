@@ -87,8 +87,8 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 				.Finish();
 
 			organizationViewModel.CanViewEntity = false;
-			OrganizationViewModel.IsEditable = IsNew;
 			OrganizationViewModel = organizationViewModel;
+			OrganizationViewModel.IsEditable = IsNew;
 
 			FinancialExpenseCategoryViewModel = financialExpenseCategoryViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
