@@ -1,16 +1,14 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
+using System;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Pacs;
 using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Orders
@@ -44,7 +42,7 @@ namespace Vodovoz.ViewModels.Orders
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(Entity, x => x.OrganizationForOnlinePayments)
-				.UseViewModelJournalAndAutocompleter<OperatorsJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
 				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
 		}
