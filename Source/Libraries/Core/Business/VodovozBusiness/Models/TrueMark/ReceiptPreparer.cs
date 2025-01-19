@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -246,7 +246,7 @@ namespace Vodovoz.Models.TrueMark
 						_codesPool.PutCode(code.ResultCode.Id);
 					}
 
-					code.ResultCode = GetCodeFromPool(code.OrderItem.Nomenclature.Gtin);
+					code.ResultCode = GetCodeFromPool(code.OrderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id);
 				}
 			}
 
@@ -279,7 +279,7 @@ namespace Vodovoz.Models.TrueMark
 						{
 							_codesPool.PutCode(invalidCodes[i].ResultCode.Id);
 						}
-						invalidCodes[i].ResultCode = GetCodeFromPool(invalidCodes[i].OrderItem.Nomenclature.Gtin);
+						invalidCodes[i].ResultCode = GetCodeFromPool(invalidCodes[i].OrderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id);
 					}
 					else
 					{
@@ -299,7 +299,7 @@ namespace Vodovoz.Models.TrueMark
 					{
 						_codesPool.PutCode(invalidCode.ResultCode.Id);
 					}
-					invalidCode.ResultCode = GetCodeFromPool(invalidCode.OrderItem.Nomenclature.Gtin);
+					invalidCode.ResultCode = GetCodeFromPool(invalidCode.OrderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id);
 				}
 			}
 		}
@@ -336,7 +336,7 @@ namespace Vodovoz.Models.TrueMark
 					continue;
 				}
 
-				defectiveCode.ResultCode = GetCodeFromPool(defectiveCode.OrderItem.Nomenclature.Gtin);
+				defectiveCode.ResultCode = GetCodeFromPool(defectiveCode.OrderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id);
 
 				_uow.Save(defectiveCode);
 			}
@@ -468,10 +468,18 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		private TrueMarkWaterIdentificationCode GetCodeFromPool(string gtin)
+		private TrueMarkWaterIdentificationCode GetCodeFromPool(string gtin, int? organizationId)
 		{
 			var codeId = _codesPool.TakeCode(gtin);
-			return _uow.GetById<TrueMarkWaterIdentificationCode>(codeId);
+
+			var code = _uow.GetById<TrueMarkWaterIdentificationCode>(codeId);
+
+			var codesToCheck = new TrueMarkWaterIdentificationCode[] { code };
+
+			// Перефиксируем проверку кода уже от новой организации
+			_tag1260Checker.UpdateInfoForTag1260Async(codesToCheck, _uow, organizationId ?? 1, default).GetAwaiter().GetResult();
+
+			return code;
 		}
 
 		private bool CheckNeedCreateMoreReceiptsForOrder(Order order, out decimal countReceiptsNeeded)
@@ -641,7 +649,7 @@ namespace Vodovoz.Models.TrueMark
 				CashReceipt = receipt,
 				OrderItem = orderItem,
 				IsUnscannedSourceCode = true,
-				ResultCode = GetCodeFromPool(orderItem.Nomenclature.Gtin)
+				ResultCode = GetCodeFromPool(orderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id)
 			};
 
 			receipt.ScannedCodes.Add(newCode);
