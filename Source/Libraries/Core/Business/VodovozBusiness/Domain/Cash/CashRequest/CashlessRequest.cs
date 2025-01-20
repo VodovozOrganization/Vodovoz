@@ -277,24 +277,26 @@ namespace Vodovoz.Domain.Cash
 		{
 			#region Без учета статуса
 
-			foreach(var validationResult in base.Validate(validationContext))
+			if(Author == null)
 			{
-				yield return validationResult;
+				yield return new ValidationResult(
+					"Автор не указан. Ваш пользователь не привязан к сотруднику, которого можно указать в качестве автора",
+					new[] { nameof(Author) });
 			}
 
-			if(Sum <= 0)
+			if(Subdivision == null)
 			{
-				yield return new ValidationResult("Сумма должна быть больше нуля", new[] { nameof(Sum) });
+				yield return new ValidationResult("Не указано подразделение", new[] { nameof(Subdivision) });
 			}
 
-			if(!AttachedFileInformations.Any())
+			if(FinancialResponsibilityCenterId == null)
 			{
-				yield return new ValidationResult("Необходимо добавить хотя бы один файл", new[] { nameof(AttachedFileInformations) });
+				yield return new ValidationResult("Не указан ЦФО", new[] { nameof(FinancialResponsibilityCenterId) });
 			}
 
-			if(Counterparty == null)
+			if(Sum < 0)
 			{
-				yield return new ValidationResult("Необходимо указать поставщика", new[] { nameof(Counterparty) });
+				yield return new ValidationResult("Сумма должна быть положительной", new[] { nameof(Sum) });
 			}
 
 			#endregion
