@@ -57,11 +57,11 @@ namespace VodovozBusiness.Models.TrueMark
 			_httpClient = httpClientFactory.CreateClient(nameof(Tag1260Checker));
 		}
 
-		private void SetHttpClientHeaderApiKey(string headerApiKey)
+		private void SetHttpClientHeaderApiKey(Guid headerApiKey)
 		{
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			_httpClient.DefaultRequestHeaders.Add("X-API-KEY", headerApiKey);
+			_httpClient.DefaultRequestHeaders.Add("X-API-KEY", headerApiKey.ToString());
 		}
 
 		private async Task<string> GetCdnAsync(CancellationToken cancellationToken)
@@ -104,21 +104,15 @@ namespace VodovozBusiness.Models.TrueMark
 			return result;
 		}
 
-		private void UpdateTag1260CodeCheckResult(IUnitOfWork unitOfWork, IEnumerable<TrueMarkWaterIdentificationCode> sourceCodes, CodeCheckResponse codeCheckResponse)
+		private void UpdateTag1260CodeCheckResult(IUnitOfWork unitOfWork, IEnumerable<TrueMarkWaterIdentificationCode> sourceCodes, CodeCheckResponse codeCheckResponse, Tag1260CodeCheckResult tag1260CodeCheckResult)
 		{
-			var tag1260CodeCheckResult = new Tag1260CodeCheckResult
-			{
-				ReqId = codeCheckResponse.ReqId,
-				ReqTimestamp = codeCheckResponse.ReqTimestamp
-			};
-
 			foreach(var sourceCode in sourceCodes)
 			{
 				var code = _trueMarkWaterCodeParser.GetProductCodeForTag1260(sourceCode);
 
 				var codeCheckInfo = codeCheckResponse.Codes.FirstOrDefault(x => x.Cis.Equals(code));
 
-				codeCheckResponse.Codes.Remove(codeCheckInfo);
+				//codeCheckResponse.Codes.Remove(codeCheckInfo);
 
 				//if(sourceCode.Tag1260CodeCheckResult is null)
 				//{
@@ -141,7 +135,7 @@ namespace VodovozBusiness.Models.TrueMark
 			}
 		}
 
-		private async Task CheckAndUpdateAsync(IUnitOfWork unitOfWork, IEnumerable<TrueMarkWaterIdentificationCode> sourceCodes, string headerApiKey, CancellationToken cancellationToken)
+		private async Task CheckAndUpdateAsync(IUnitOfWork unitOfWork, IEnumerable<TrueMarkWaterIdentificationCode> sourceCodes, Guid headerApiKey, CancellationToken cancellationToken)
 		{
 			SetHttpClientHeaderApiKey(headerApiKey);
 
@@ -184,7 +178,25 @@ namespace VodovozBusiness.Models.TrueMark
 
 				var result = await JsonSerializer.DeserializeAsync<CodeCheckResponse>(responseBody, _serializeOptions, cancellationToken);
 
-				UpdateTag1260CodeCheckResult(unitOfWork, sourceCodes, result);
+				JsonSerializerOptions options = new JsonSerializerOptions
+				{
+					Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+					WriteIndented = true,
+					PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+				};
+
+				var jsonResponse = JsonSerializer.Serialize(result, options);
+
+				var tag1260CodeCheckResult = new Tag1260CodeCheckResult
+				{
+					ReqId = result.ReqId,
+					ReqTimestamp = result.ReqTimestamp,
+					RequestJson = serializedRequest,
+					ResponseJson = jsonResponse,
+					HeaderApiKey = headerApiKey
+				};
+
+				UpdateTag1260CodeCheckResult(unitOfWork, sourceCodes, result, tag1260CodeCheckResult);
 
 				if(toSkip < codesCount)
 				{
@@ -221,14 +233,14 @@ namespace VodovozBusiness.Models.TrueMark
 
 			var headerKey = modulKassaOrganizationSettings?
 				.FirstOrDefault(x => x.OrganizationId == organizationId)?
-				.HeaderApiKey.ToString();
+				.HeaderApiKey;
 
 			if(headerKey == null)
 			{
 				throw new Exception("В настройках модуль кассы отсутствует headerApiKey");
 			}
 
-			await CheckAndUpdateAsync(unitOfWork, sourceCodes, headerKey, cancellationToken);
+			await CheckAndUpdateAsync(unitOfWork, sourceCodes, headerKey.Value, cancellationToken);
 
 			return;
 
@@ -253,14 +265,14 @@ namespace VodovozBusiness.Models.TrueMark
 
 				var headerApiKey = modulKassaOrganizationSettings?
 					.FirstOrDefault(x => x.OrganizationId == orgId)?
-					.HeaderApiKey.ToString();
+					.HeaderApiKey;
 
 				if(headerApiKey == null)
 				{
 					throw new Exception("В настройках модуль кассы отсутствует headerApiKey");
 				}
 
-				await CheckAndUpdateAsync(unitOfWork, codesToCheck, headerApiKey, cancellationToken);
+				await CheckAndUpdateAsync(unitOfWork, codesToCheck, headerApiKey.Value, cancellationToken);
 			}
 
 			var codesWithoutOrganizations = sourceCodes.Where(x => !codesWithOrganizationsIds.Contains(x.Id)).ToList();
@@ -269,14 +281,14 @@ namespace VodovozBusiness.Models.TrueMark
 			{
 				var headerApiKey = modulKassaOrganizationSettings?
 					.FirstOrDefault(x => x.OrganizationId == 1)?
-					.HeaderApiKey.ToString();
+					.HeaderApiKey;
 
 				if(headerApiKey == null)
 				{
 					throw new Exception("В настройках модуль кассы отсутствует headerApiKey");
 				}
 
-				await CheckAndUpdateAsync(unitOfWork, codesWithoutOrganizations, headerApiKey, cancellationToken);
+				await CheckAndUpdateAsync(unitOfWork, codesWithoutOrganizations, headerApiKey.Value, cancellationToken);
 			}
 		}
 	}

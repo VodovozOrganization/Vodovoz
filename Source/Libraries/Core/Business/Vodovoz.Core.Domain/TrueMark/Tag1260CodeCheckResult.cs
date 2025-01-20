@@ -14,14 +14,46 @@ namespace Vodovoz.Core.Domain.TrueMark
 		Nominative = "результат проверки разрешительного режима для тэга 1260"
 		)
 	]
-	public class Tag1260CodeCheckResult : IDomainObject
+	public class Tag1260CodeCheckResult : PropertyChangedBase, IDomainObject
 	{
+		private long _reqTimestamp;
+		private Guid _reqId;
+		private string _requestJson;
+		private string _responseJson;
+		private Guid _headerApiKey;
+
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Уникальный идентификатор запроса")]
-		public virtual Guid ReqId { get; set; }
+		public virtual Guid ReqId
+		{
+			get => _reqId;
+			set => _reqId = value;
+		}
 
 		[Display(Name = "Дата и время регистрации запроса (в UTC)")]
-		public virtual long ReqTimestamp { get; set; }
+		public virtual long ReqTimestamp
+		{
+			get => _reqTimestamp;
+			set => SetField(ref _reqTimestamp, value);
+		}
+
+		public virtual string RequestJson
+		{
+			get => _requestJson;
+			set => SetField(ref _requestJson, value);
+		}
+
+		public virtual string ResponseJson
+		{
+			get => _responseJson;
+			set => SetField(ref _responseJson, value);
+		}
+
+		public virtual Guid HeaderApiKey 
+		{ 
+			get => _headerApiKey;
+			set => SetField(ref _headerApiKey, value);
+		}
 	}
 }
