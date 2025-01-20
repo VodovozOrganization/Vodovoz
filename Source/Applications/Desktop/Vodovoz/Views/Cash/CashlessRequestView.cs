@@ -12,6 +12,9 @@ using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Payments;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
@@ -37,6 +40,8 @@ namespace Vodovoz.Views.Cash
 
 		private void Initialize()
 		{
+			// Шапка
+
 			comboRoleChooser.SetRenderTextFunc<PayoutRequestUserRole>(ur => ur.GetEnumTitle());
 			comboRoleChooser.ItemsList = ViewModel.UserRoles;
 			comboRoleChooser.Binding
@@ -49,9 +54,32 @@ namespace Vodovoz.Views.Cash
 				.AddFuncBinding(ViewModel.Entity, e => e.PayoutRequestState.GetEnumTitle(), w => w.Text)
 				.InitializeFromSource();
 
+			// Левая колонка
+
 			entryAuthorEmployee.ViewModel = ViewModel.AuthorViewModel;
 
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
+
+			entryFinancialResponsibilityCenter.ViewModel = ViewModel.FinancialResponsibilityCenterViewModel;
+
+			datepickerPaymentDatePlanned.Binding
+				.AddBinding(ViewModel.Entity, e => e.PaymentDatePlanned, w => w.DateOrNull)
+				.AddBinding(ViewModel, vm => vm.CanEditPaymentDatePlanned, w => w.IsEditable)
+				.InitializeFromSource();
+
+			entryOrganization.ViewModel = ViewModel.OrganizationViewModel;
+
+			entryOrganization.Binding
+				.AddFuncBinding(ViewModel, vm => vm.CanSetOrganisaton && !vm.IsSecurityServiceRole, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanSeeOrganisation, w => w.Visible)
+				.InitializeFromSource();
+
+			entryOrganizationBankAccount.ViewModel = ViewModel.OurOrganizationBankAccountViewModel;
+
+			entryOrganizationBankAccount.Binding
+				.AddFuncBinding(ViewModel, vm => vm.CanSetOrganisaton && !vm.IsSecurityServiceRole, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanSeeOrganisation, w => w.Visible)
+				.InitializeFromSource();
 
 			ViewModel.CounterpartyViewModel = new LegacyEEVMBuilderFactory<CashlessRequest>(
 					ViewModel,
@@ -61,7 +89,10 @@ namespace Vodovoz.Views.Cash
 					_lifetimeScope)
 				.ForProperty(x => x.Counterparty)
 				.UseTdiDialog<CounterpartyDlg>()
-				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictCounterpartyType = Domain.Client.CounterpartyType.Supplier;
+				})
 				.Finish();
 
 			entryCounterparty.ViewModel = ViewModel.CounterpartyViewModel;
@@ -73,33 +104,7 @@ namespace Vodovoz.Views.Cash
 					w => w.Sensitive)
 				.InitializeFromSource();
 
-			//spinSum.Binding
-			//	.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-			//	.AddBinding(ViewModel.Entity, e => e.Sum, w => w.ValueAsDecimal)
-			//	.InitializeFromSource();
-
-			//checkNotToReconcile.Binding
-			//.AddBinding(ViewModel, vm => vm.CanSeeNotToReconcile, w => w.Visible)
-			//.AddBinding(ViewModel.Entity, e => e.PossibilityNotToReconcilePayments, w => w.Active)
-			//.InitializeFromSource();
-
-			ViewModel.OrganizationViewModel = new LegacyEEVMBuilderFactory<CashlessRequest>(
-					ViewModel,
-					ViewModel.Entity,
-					ViewModel.UoW,
-					ViewModel.NavigationManager,
-					_lifetimeScope)
-				.ForProperty(x => x.Organization)
-				.UseTdiDialog<OrganizationDlg>()
-				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-				.Finish();
-
-			entryOrganization.ViewModel = ViewModel.OrganizationViewModel;
-
-			entryOrganization.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CanSetOrganisaton && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel, vm => vm.CanSeeOrganisation, w => w.Visible)
-				.InitializeFromSource();
+			entryCounterpartyBankAccount.ViewModel = ViewModel.SupplierBankAccountViewModel;
 
 			labelExpenceCategory.Binding.AddBinding(ViewModel, vm => vm.CanSeeExpenseCategory, w => w.Visible).InitializeFromSource();
 
@@ -110,43 +115,96 @@ namespace Vodovoz.Views.Cash
 				.AddBinding(ViewModel, vm => vm.CanSeeExpenseCategory, w => w.Visible)
 				.InitializeFromSource();
 
-			//entryBasis.Binding
-			//	.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-			//	.AddBinding(ViewModel.Entity, e => e.Basis, w => w.Buffer.Text)
-			//	.InitializeFromSource();
-			//entryExplanation.Binding
-			//.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-			//.AddBinding(ViewModel.Entity, e => e.Explanation, w => w.Buffer.Text)
-			//.InitializeFromSource();
+			yentryBillNumber.Binding
+				.AddBinding(ViewModel.Entity, e => e.BillNumber, w => w.Text)
+				.InitializeFromSource();
 
-			//eventBoxReasonsSeparator.Binding
-			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-			//	.InitializeFromSource();
-			//eventBoxCancelReason.Binding
-			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-			//	.InitializeFromSource();
-			//labelCancelReason.Binding
-			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-			//	.InitializeFromSource();
-			//entryCancelReason.Binding
-			//	.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-			//	.AddBinding(ViewModel.Entity, e => e.CancelReason, w => w.Buffer.Text)
-			//	.InitializeFromSource();
+			datepickerBillDate.Binding
+				.AddBinding(ViewModel.Entity, e => e.BillDate, w => w.DateOrNull)
+				.InitializeFromSource();
 
-			//eventBoxWhySentToReapproval.Binding
-			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-			//	.InitializeFromSource();
-			//labelWhySentToReapproval.Binding
-			//	.AddBinding(ViewModel, vm => vm.IsNotNew, w => w.Visible)
-			//	.InitializeFromSource();
-			//entryWhySentToReapproval.Binding
-			//.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
-			//.AddBinding(ViewModel.Entity, e => e.ReasonForSendToReappropriate, w => w.Buffer.Text)
-			//.InitializeFromSource();
+			datepickerBillDate.IsEditable = true;
+
+			spinBillSum.Binding
+				.AddFuncBinding(ViewModel, vm => vm.IsNotClosed && !vm.IsSecurityServiceRole, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.Sum, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			speciallistcomboboxBillVat.ItemsList = Enum.GetValues(typeof(VAT));
+			speciallistcomboboxBillVat.SetRenderTextFunc<VAT>(node => node.GetEnumTitle());
+
+			speciallistcomboboxBillVat.Binding
+				.AddBinding(ViewModel.Entity, e => e.VatType, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			ytextviewPurpose.Binding
+				.AddBinding(ViewModel.Entity, e => e.PaymentPurpose, w => w.Buffer.Text)
+				.InitializeFromSource();
 
 			smallfileinformationsview2.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 
 			InitializeComments();
+
+			// Правая колонка
+
+			InitializePayments();
+
+			spinBillSum1.IsEditable = false;
+			spinBillSum1.Binding
+				.AddBinding(ViewModel, vm => vm.SumGiven, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			spinBillSum2.IsEditable = false;
+			spinBillSum2.Binding
+				.AddBinding(ViewModel, vm => vm.SumRemaining, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			ycheckbuttonImidiatelyBill.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsImidiatelyBill, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonCreateGiveOutSchedule.Binding
+				.AddBinding(ViewModel, vm => vm.CreateGiveOutSchedule, w => w.Active)
+				.InitializeFromSource();
+
+			speciallistcomboboxRepeatIntervalType.ItemsList = Enum.GetValues(typeof(RepeatIntervalTypes));
+			speciallistcomboboxRepeatIntervalType.SetRenderTextFunc<RepeatIntervalTypes>(node => node.GetEnumTitle());
+
+			labelRepeatIntervalType.Binding
+				.AddBinding(ViewModel, vm => vm.CreateGiveOutSchedule, w => w.Visible)
+				.InitializeFromSource();
+
+			speciallistcomboboxRepeatIntervalType.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.RepeatIntervalType, w => w.SelectedItem)
+				.AddBinding(vm => vm.CreateGiveOutSchedule, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelRepeatsCount.Binding
+				.AddBinding(ViewModel, vm => vm.CreateGiveOutSchedule, w => w.Visible)
+				.InitializeFromSource();
+
+			spinRepeatsCount.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.RepeatsCount, w => w.ValueAsInt)
+				.AddBinding(vm => vm.CreateGiveOutSchedule, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelRepeatInterval.Binding
+				.AddBinding(ViewModel, vm => vm.CreateGiveOutSchedule, w => w.Visible)
+				.InitializeFromSource();
+
+			spinIntervals.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.Intervals, w => w.ValueAsInt)
+				.AddBinding(vm => vm.CreateGiveOutSchedule, w => w.Visible)
+				.InitializeFromSource();
+
+			buttonSave1.Binding
+				.AddBinding(ViewModel, vm => vm.CreateGiveOutSchedule, w => w.Visible)
+				.InitializeFromSource();
+
+			// Кнопки
 
 			buttonSave.Clicked += (s, a) => ViewModel.Save(true);
 			buttonSave.Sensitive = !ViewModel.IsSecurityServiceRole;
@@ -229,6 +287,20 @@ namespace Vodovoz.Views.Cash
 			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void InitializePayments()
+		{
+			ytreeview1.CreateFluentColumnsConfig<Payment>()
+				.AddColumn("Номер")
+				.AddNumericRenderer(node => node.PaymentNum)
+				.AddColumn("Время")
+				.AddDateRenderer(node => node.Date)
+				.AddColumn("Сумма")
+				.AddNumericRenderer(node => node.PaymentItems.Sum(pi => pi.Sum))
+				.Finish();
+
+			ytreeview1.ItemsDataSource = ViewModel.Entity.Payments;
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)

@@ -108,7 +108,7 @@ namespace VodovozBusiness.Domain.Cash.CashRequest
 		/// Добавление информации о файле
 		/// </summary>
 		/// <param name="fileName">Имя файла</param>
-		public void AddFileInformation(string fileName)
+		public virtual void AddFileInformation(string fileName)
 		{
 			if(AttachedFileInformations.Any(a => a.FileName == fileName))
 			{
@@ -126,7 +126,7 @@ namespace VodovozBusiness.Domain.Cash.CashRequest
 		/// Удаление информации о файле
 		/// </summary>
 		/// <param name="fileName">Имя файла</param>
-		public void DeleteFileInformation(string fileName)
+		public virtual void DeleteFileInformation(string fileName)
 		{
 			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
