@@ -705,7 +705,8 @@ namespace Vodovoz.ViewModels.Logistic
 			return new JournalAction(
 				"Выдать топливо",
 				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
-					&& _fuelIssuingStatuses.Contains(node.StatusEnum),
+					&& _fuelIssuingStatuses.Contains(node.StatusEnum)
+					&& node.Date >= DateTime.Today,
 				selectedItems => true,
 				selectedItems =>
 				{
