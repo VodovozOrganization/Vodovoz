@@ -10,6 +10,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -65,8 +66,8 @@ namespace Vodovoz.Dialogs.Employees
 				_lifetimeScope);
 
 			var organizationEntryViewModel = organizationEntryViewModelBuilder.ForProperty(x => x.Organization)
-				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
 
 			organizationEntryViewModel.CanViewEntity = false;
