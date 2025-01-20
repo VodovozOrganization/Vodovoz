@@ -4,11 +4,6 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Vodovoz.ViewModels.Organizations
 {
@@ -21,7 +16,6 @@ namespace Vodovoz.ViewModels.Organizations
 			INavigationManager navigation)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-
 		}
 	}
 }
