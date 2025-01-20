@@ -73,7 +73,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private Account _ourOrganizationBankAccount;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private Account _supplierBankAccount;
-		private bool _createGiveOutSchedule;
+		private bool _createGiveOutSchedule = false;
 		private int _repeatsCount;
 		private int _intervals;
 		private RepeatIntervalTypes _repeatIntervalType;
@@ -87,6 +87,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
+			ICurrentPermissionService currentPermissionService,
 			ICashlessRequestFileStorageService cashlessRequestFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			ILifetimeScope lifetimeScope,
@@ -97,6 +98,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ViewModelEEVMBuilder<Account> supplierBankAccountViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			if(currentPermissionService is null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+
 			if(authorViewModelEEVMBuilder is null)
 			{
 				throw new ArgumentNullException(nameof(authorViewModelEEVMBuilder));
@@ -134,6 +140,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			_currentEmployee =
 				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
 				.GetEmployeeForCurrentUser(UoW);
+
+			CanCreateGiveOutSchedule = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CashlessRequest.CanCreateGiveOutSchedule);
 
 			if(Entity.Id == 0)
 			{
@@ -313,6 +321,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			|| Entity.PayoutRequestState == PayoutRequestState.Submited;
 
 		public bool CanAddComment => !string.IsNullOrWhiteSpace(NewCommentText);
+
+		public bool CanCreateGiveOutSchedule { get; }
 
 		public string NewCommentText { get; private set; }
 
