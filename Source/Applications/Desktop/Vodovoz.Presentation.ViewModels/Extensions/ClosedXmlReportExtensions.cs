@@ -5,13 +5,13 @@ namespace Vodovoz.Presentation.ViewModels.Extensions
 {
 	public static class ClosedXmlReportExtensions
 	{
-		public static XLTemplate RenderTemplate(this IClosedXmlReport closedXmlReport, bool adjustToContents = true)
+		public static XLTemplate RenderTemplate(this IClosedXmlReport closedXmlReport, bool adjustColumnsToContents = true, bool adjustRowsToContents = true)
 		{
 			var template = closedXmlReport.GetRawTemplate();
 			template.AddVariable(closedXmlReport);
 			template.Generate();
 
-			if(adjustToContents)
+			if(adjustColumnsToContents)
 			{
 				foreach(var worksheet in template.Workbook.Worksheets)
 				{
@@ -19,7 +19,13 @@ namespace Vodovoz.Presentation.ViewModels.Extensions
 					{
 						column.AdjustToContents();
 					}
+				}
+			}
 
+			if(adjustRowsToContents)
+			{
+				foreach(var worksheet in template.Workbook.Worksheets)
+				{
 					foreach(var row in worksheet.Rows())
 					{
 						row.AdjustToContents();
@@ -61,9 +67,9 @@ namespace Vodovoz.Presentation.ViewModels.Extensions
 			return new XLTemplate(closedXmlReport.TemplatePath);
 		}
 
-		public static void Export(this IClosedXmlReport closedXmlReport, string path, bool adjustToContents = true)
+		public static void Export(this IClosedXmlReport closedXmlReport, string path, bool adjustColumnsToContents = true, bool adjustRowsToContents = true)
 		{
-			var renderedTemplate = closedXmlReport.RenderTemplate(adjustToContents);
+			var renderedTemplate = closedXmlReport.RenderTemplate(adjustColumnsToContents, adjustRowsToContents);
 
 			renderedTemplate.Export(path);
 		}

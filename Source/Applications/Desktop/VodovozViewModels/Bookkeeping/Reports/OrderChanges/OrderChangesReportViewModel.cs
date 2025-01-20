@@ -381,7 +381,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 			if(saveDialogResult.Successful)
 			{
-				_report.RenderTemplate().Export(saveDialogResult.Path);
+				_report.RenderTemplate(adjustColumnsToContents: false).Export(saveDialogResult.Path);
 			}
 		}
 
