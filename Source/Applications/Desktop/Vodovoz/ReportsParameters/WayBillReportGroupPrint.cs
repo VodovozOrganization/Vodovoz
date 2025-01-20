@@ -40,7 +40,6 @@ namespace Vodovoz.ReportsParameters
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 
-
 		private readonly IInteractiveService _interactiveService;
 		private Func<ReportInfo> _selectedReport;
 		private IList<NamedDomainObjectNode> _availableSubdivisionsForOneDayGroupReport;

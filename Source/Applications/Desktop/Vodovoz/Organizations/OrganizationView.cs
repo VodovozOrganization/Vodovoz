@@ -1,4 +1,5 @@
 ﻿using QS.Views.GtkUI;
+using QS.Widgets;
 using System;
 using System.ComponentModel;
 using Vodovoz.ViewModels.Organizations;
@@ -38,28 +39,28 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.FullName, w => w.Text)
 				.InitializeFromSource();
 
-			dataentryEmail.ValidationMode = QSWidgetLib.ValidationType.email;
-			dataentryEmail.Binding
+			validatedentryEmail.ValidationMode = ValidationType.Email;
+			validatedentryEmail.Binding
 				.AddBinding(ViewModel.Entity, e => e.Email, w => w.Text)
 				.InitializeFromSource();
 
-			dataentryINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			dataentryINN.Binding
+			validatedentryInn.ValidationMode = ValidationType.Numeric;
+			validatedentryInn.Binding
 				.AddBinding(ViewModel.Entity, e => e.INN, w => w.Text)
 				.InitializeFromSource();
 
-			dataentryKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			dataentryKPP.Binding
+			validatedentryKpp.ValidationMode = ValidationType.Numeric;
+			validatedentryKpp.Binding
 				.AddBinding(ViewModel.Entity, e => e.KPP, w => w.Text)
 				.InitializeFromSource();
 
-			dataentryOGRN.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			dataentryOGRN.Binding
+			validatedentryOgrn.ValidationMode = ValidationType.Numeric;
+			validatedentryOgrn.Binding
 				.AddBinding(ViewModel.Entity, e => e.OGRN, w => w.Text)
 				.InitializeFromSource();
 
-			dataentryOKPO.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			dataentryOKPO.Binding
+			validatedentryOkpo.ValidationMode = ValidationType.Numeric;
+			validatedentryOkpo.Binding
 				.AddBinding(ViewModel.Entity, e => e.OKPO, w => w.Text)
 				.InitializeFromSource();
 
