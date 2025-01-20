@@ -23,7 +23,8 @@ namespace Vodovoz.Domain.Orders
 		private DateTime _creationTime;
 		private UndeliveryDiscussion _undeliveryDiscussion;
 		private string _comment;
-		private IObservableList<UndeliveryDiscussionCommentFileInformation> _attachedFileInformations = new ObservableList<UndeliveryDiscussionCommentFileInformation>();
+		private IObservableList<UndeliveryDiscussionCommentFileInformation> _attachedFileInformations =
+			new ObservableList<UndeliveryDiscussionCommentFileInformation>();
 		private int _id;
 
 		public virtual int Id
