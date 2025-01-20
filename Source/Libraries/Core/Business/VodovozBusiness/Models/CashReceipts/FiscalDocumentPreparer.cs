@@ -1,4 +1,4 @@
-﻿using RestSharp.Extensions;
+using RestSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,15 +77,9 @@ namespace Vodovoz.Models.CashReceipts
 					continue;
 				}
 
-				var tag1260CheckResult = cashReceipt.ScannedCodes
-					.Where(x => x.OrderItem.Id == orderItem.Id
-						&& (x.ResultCode?.IsTag1260Valid ?? false))
-					.Select(x => x.ResultCode.Tag1260CodeCheckResult)
-					.LastOrDefault();
-
 				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
 				{
-					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
+					var inventPosition = CreateInventPosition(orderItem);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					continue;
 				}
@@ -108,9 +102,11 @@ namespace Vodovoz.Models.CashReceipts
 				}
 
 				if(orderItem.Count == 1)
-				{
-					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
-					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemsCodes.First().ResultCode);
+				{					
+					var inventPosition = CreateInventPosition(orderItem);
+					var code = orderItemsCodes.First().ResultCode;					
+					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
+					CreateIndustryRequisite(inventPosition, code);
 
 					fiscalDocument.InventPositions.Add(inventPosition);
 					continue;
@@ -121,7 +117,7 @@ namespace Vodovoz.Models.CashReceipts
 				//i == 1 чтобы пропуcтить последний элемент, у него расчет происходит из остатков
 				for(int i = 1; i <= orderItem.Count - 1; i++)
 				{
-					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
+					var inventPosition = CreateInventPosition(orderItem);
 
 					if(wholeDiscount < orderItem.DiscountMoney)
 					{
@@ -135,7 +131,9 @@ namespace Vodovoz.Models.CashReceipts
 					}
 
 					inventPosition.Quantity = 1;
-					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemsCodes[i - 1].ResultCode);
+					var code = orderItemsCodes[i - 1].ResultCode;
+					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
+					CreateIndustryRequisite(inventPosition, code);
 					fiscalDocument.InventPositions.Add(inventPosition);
 				}
 
@@ -148,10 +146,12 @@ namespace Vodovoz.Models.CashReceipts
 					residueDiscount = 0;
 				}
 
-				var lastInventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
+				var lastInventPosition = CreateInventPosition(orderItem);
 				lastInventPosition.Quantity = 1;
 				lastInventPosition.DiscSum = residueDiscount;
-				lastInventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemCode.ResultCode);
+				var lastCode = orderItemCode.ResultCode;
+				lastInventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(lastCode);
+				CreateIndustryRequisite(lastInventPosition, lastCode);
 				fiscalDocument.InventPositions.Add(lastInventPosition);
 			}
 		}
@@ -177,14 +177,9 @@ namespace Vodovoz.Models.CashReceipts
 					continue;
 				}
 
-				var tag1260CheckResult = cashReceipt.ScannedCodes
-					.Where(x => x.OrderItem.Id == orderItem.Id && x.SourceCode.IsTag1260Valid)
-					.Select(x => x.SourceCode.Tag1260CodeCheckResult)
-					.LastOrDefault();
-
 				if(!orderItem.Nomenclature.IsAccountableInTrueMark && receiptNumber == 1)
 				{
-					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
+					var inventPosition = CreateInventPosition(orderItem);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += orderItem.Sum;
 					continue;
@@ -216,9 +211,10 @@ namespace Vodovoz.Models.CashReceipts
 						continue;
 					}
 
-					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
-					inventPosition.ProductMark =
-						_codeParser.GetProductCodeForCashReceipt(TryGetCodeFromScannedCodes(orderItemsCodes, orderItem));
+					var code = TryGetCodeFromScannedCodes(orderItemsCodes, orderItem);
+					var inventPosition = CreateInventPosition(orderItem);
+					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
+					CreateIndustryRequisite(inventPosition, code);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += orderItem.Sum;
 					unprocessedCodesCount -= 1;
@@ -243,11 +239,12 @@ namespace Vodovoz.Models.CashReceipts
 
 					var discount = i == orderItemsCountWithoutLast ? lastPartDiscount : partDiscount;
 
-					var inventPosition = CreateInventPosition(orderItem, tag1260CheckResult);
+					var inventPosition = CreateInventPosition(orderItem);
 					inventPosition.Quantity = 1;
 					inventPosition.DiscSum = discount;
-					inventPosition.ProductMark =
-						_codeParser.GetProductCodeForCashReceipt(TryGetCodeFromScannedCodes(orderItemsCodes, orderItem));
+					var code = TryGetCodeFromScannedCodes(orderItemsCodes, orderItem);
+					inventPosition.ProductMark =_codeParser.GetProductCodeForCashReceipt(code);
+					CreateIndustryRequisite(inventPosition, code);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += inventPosition.PriceWithoutDiscount - discount;
 					unprocessedCodesCount -= 1;
@@ -269,7 +266,7 @@ namespace Vodovoz.Models.CashReceipts
 			return orderItemsCodes.Dequeue().ResultCode;
 		}
 
-		private InventPosition CreateInventPosition(OrderItem orderItem, Tag1260CodeCheckResult tag1260CheckResult)
+		private InventPosition CreateInventPosition(OrderItem orderItem)
 		{
 			var inventPosition = new InventPosition
 			{
@@ -277,18 +274,18 @@ namespace Vodovoz.Models.CashReceipts
 				PriceWithoutDiscount = Math.Round(orderItem.Price, 2),
 				Quantity = orderItem.Count,
 				DiscSum = orderItem.DiscountMoney
-			};
-
-			if(tag1260CheckResult != null)
-			{
-				inventPosition.IndustryRequisite = new IndustryRequisite
-				{
-					DocData = $"UUID={tag1260CheckResult.ReqId}&Time={tag1260CheckResult.ReqTimestamp}"
-				};
-			}
+			};			
 
 			SetVatProperties(orderItem, inventPosition);
 			return inventPosition;
+		}
+
+		private void CreateIndustryRequisite(InventPosition inventPosition, TrueMarkWaterIdentificationCode code)
+		{		
+			inventPosition.IndustryRequisite = new IndustryRequisite
+			{
+				DocData = $"UUID={code.Tag1260CodeCheckResult.ReqId}&Time={code.Tag1260CodeCheckResult.ReqTimestamp}"
+			};
 		}
 
 		private void SetVatProperties(OrderItem orderItem, InventPosition inventPosition)

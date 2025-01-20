@@ -120,21 +120,22 @@ namespace VodovozBusiness.Models.TrueMark
 
 				codeCheckResponse.Codes.Remove(codeCheckInfo);
 
-				if(sourceCode.Tag1260CodeCheckResult is null)
-				{
+				//if(sourceCode.Tag1260CodeCheckResult is null)
+				//{
 					sourceCode.Tag1260CodeCheckResult = tag1260CodeCheckResult;
-				}
-				else
-				{
-					sourceCode.Tag1260CodeCheckResult.ReqId = codeCheckResponse.ReqId;
-					sourceCode.Tag1260CodeCheckResult.ReqTimestamp = codeCheckResponse.ReqTimestamp;
-				}
+				//}
+				//else
+				//{
+				//	sourceCode.Tag1260CodeCheckResult.ReqId = codeCheckResponse.ReqId;
+				//	sourceCode.Tag1260CodeCheckResult.ReqTimestamp = codeCheckResponse.ReqTimestamp;
+				//}
 
 				unitOfWork.Save(sourceCode.Tag1260CodeCheckResult);
 
 				sourceCode.IsTag1260Valid =
-					codeCheckInfo.ErrorCode == 0 && codeCheckInfo.Found == true && codeCheckInfo.Valid == true && codeCheckInfo.Sold == false && codeCheckInfo.ExpireDate > DateTime.Now
-					&& codeCheckInfo.IsBlocked == false && codeCheckInfo.Realizable == true;
+					codeCheckInfo.ErrorCode == 0 && codeCheckInfo.Found && codeCheckInfo.Valid && codeCheckInfo.Verified
+					&& codeCheckInfo.ExpireDate > DateTime.Now && codeCheckInfo.Realizable && codeCheckInfo.Utilised					
+					&& !codeCheckInfo.IsBlocked && !codeCheckInfo.Sold;
 
 				unitOfWork.Save(sourceCode);
 			}
