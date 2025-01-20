@@ -8,7 +8,7 @@
 		public static class CashlessRequest
 		{
 			/// <summary>
-			/// Достапно создание календаря платежей
+			/// Доступно создание календаря платежей
 			/// </summary>
 			public static string CanCreateGiveOutSchedule => "can_create_give_out_schedule";
 		}
