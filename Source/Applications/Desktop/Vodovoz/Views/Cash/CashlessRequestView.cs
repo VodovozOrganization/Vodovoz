@@ -164,6 +164,7 @@ namespace Vodovoz.Views.Cash
 				.InitializeFromSource();
 
 			ycheckbuttonCreateGiveOutSchedule.Binding
+				.AddBinding(ViewModel, vm => vm.CanCreateGiveOutSchedule, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.CreateGiveOutSchedule, w => w.Active)
 				.InitializeFromSource();
 
