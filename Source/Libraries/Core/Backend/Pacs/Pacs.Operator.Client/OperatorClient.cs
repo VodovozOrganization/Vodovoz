@@ -221,6 +221,11 @@ namespace Pacs.Operators.Client
 				}
 				else
 				{
+					_logger.LogError("Error: {FailureDescription}, OperatorState: {OperatorStateState}, {@OperatorState}",
+						operatorResult.FailureDescription,
+						operatorResult.OperatorState?.State,
+						operatorResult.OperatorState);
+
 					throw new PacsException(operatorResult.FailureDescription);
 				}
 			}
