@@ -307,7 +307,12 @@ namespace Vodovoz.Domain.Cash
 				yield break;
 			}
 
-			yield return ValidateState(nextState);
+			var stateValidationResult = ValidateState(nextState);
+
+			if(stateValidationResult != ValidationResult.Success)
+			{
+				yield return ValidateState(nextState);
+			}
 
 			switch(nextState)
 			{
