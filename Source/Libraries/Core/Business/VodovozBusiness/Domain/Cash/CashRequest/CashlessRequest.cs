@@ -403,7 +403,9 @@ namespace Vodovoz.Domain.Cash
 			}
 			else if(nextState == PayoutRequestState.AgreedBySubdivisionChief)
 			{
-				if(PayoutRequestState != PayoutRequestState.Submited)
+				if(PayoutRequestState != PayoutRequestState.Submited
+					&& PayoutRequestState != PayoutRequestState.OnClarification
+					&& PayoutRequestState != PayoutRequestState.Canceled)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
@@ -443,10 +445,34 @@ namespace Vodovoz.Domain.Cash
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
 			}
+			else if(nextState == PayoutRequestState.OnClarification)
+			{
+				if(PayoutRequestState != PayoutRequestState.Submited
+					&& PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief
+					&& PayoutRequestState != PayoutRequestState.AgreedByFinancialResponsibilityCenter
+					&& PayoutRequestState != PayoutRequestState.WaitingForAgreedByExecutiveDirector
+					&& PayoutRequestState != PayoutRequestState.Agreed)
+				{
+					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
+				}
+			}
+			else if(nextState == PayoutRequestState.Canceled)
+			{
+				if(PayoutRequestState != PayoutRequestState.New
+					&& PayoutRequestState != PayoutRequestState.Submited
+					&& PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief
+					&& PayoutRequestState != PayoutRequestState.AgreedByFinancialResponsibilityCenter
+					&& PayoutRequestState != PayoutRequestState.WaitingForAgreedByExecutiveDirector
+					&& PayoutRequestState != PayoutRequestState.Agreed
+					&& PayoutRequestState != PayoutRequestState.GivenForTake)
+				{
+					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
+				}
+			}
 			else if(nextState == PayoutRequestState.Closed)
 			{
 				if(PayoutRequestState != PayoutRequestState.GivenForTake
-					|| PayoutRequestState != PayoutRequestState.PartiallyClosed )
+					&& PayoutRequestState != PayoutRequestState.PartiallyClosed)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
