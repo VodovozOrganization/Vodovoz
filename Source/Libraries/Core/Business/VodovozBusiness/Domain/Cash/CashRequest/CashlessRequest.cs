@@ -311,6 +311,29 @@ namespace Vodovoz.Domain.Cash
 
 			switch(nextState)
 			{
+				case PayoutRequestState.Submited:
+					var submittedValidationsErrors = ValidateSubmited();
+
+					foreach(var error in submittedValidationsErrors)
+					{
+						yield return error;
+					}
+
+					break;
+
+				case PayoutRequestState.AgreedBySubdivisionChief:
+					var submittedValidationsErrors2 = ValidateSubmited();
+					var agreedBySubdivisionChiefValidationsErrors = ValidateAgreedBySubdivisionChief();
+
+					var allErrors = submittedValidationsErrors2.Concat(agreedBySubdivisionChiefValidationsErrors);
+
+					foreach(var error in allErrors)
+					{
+						yield return error;
+					}
+
+					break;
+
 				case PayoutRequestState.Canceled:
 					if(string.IsNullOrWhiteSpace(CancelReason))
 					{
@@ -345,6 +368,49 @@ namespace Vodovoz.Domain.Cash
 
 					break;
 			}
+		}
+
+		private IEnumerable<ValidationResult> ValidateSubmited()
+		{
+			if(PaymentDatePlanned is null)
+			{
+				yield return new ValidationResult("Не указана дата платежа (план)", new[] { nameof(PaymentDatePlanned) });
+			}
+
+			if(Organization is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить организацию", new[] { nameof(Organization) });
+			}
+
+			if(Counterparty is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить поставщика", new[] { nameof(Counterparty) });
+			}
+
+			if(SupplierBankAccountId is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить расчетный счет поставщика", new[] { nameof(SupplierBankAccountId) });
+			}
+
+			if(ExpenseCategoryId is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить статью расхода", new[] { nameof(ExpenseCategoryId) });
+			}
+
+			if(Sum <= 0)
+			{
+				yield return new ValidationResult("Необходимо заполнить сумму", new[] { nameof(Sum) });
+			}
+
+			//if(VatType is null)
+			//{
+			//	yield return new ValidationResult("Необходимо заполнить ставку НДС в счёте", new[] { nameof(VatType) });
+			//}
+		}
+
+		private IEnumerable<ValidationResult> ValidateAgreedBySubdivisionChief()
+		{
+			
 		}
 
 		private ValidationResult ValidateState(PayoutRequestState nextState)
