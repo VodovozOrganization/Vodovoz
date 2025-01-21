@@ -316,7 +316,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					|| e.PropertyName == nameof(CashlessRequest.VatType))
 				&& !string.IsNullOrEmpty(Entity.BillNumber)
 				&& Entity.BillDate != null
-				&& Entity.Sum != 0m)
+				&& Entity.Sum >= 0m)
 			{
 				Entity.PaymentPurpose = $"Оплата по счету № {Entity.BillNumber} от {Entity.BillDate:dd.MM.yyyy}.Сумма {Entity.Sum:# ###.##}.{Entity.VatType.GetEnumTitle()}";
 			}
