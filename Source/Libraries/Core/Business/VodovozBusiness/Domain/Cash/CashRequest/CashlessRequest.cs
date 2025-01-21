@@ -422,9 +422,16 @@ namespace Vodovoz.Domain.Cash
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
 			}
-			else if(nextState == PayoutRequestState.GivenForTake)
+			else if(nextState == PayoutRequestState.Agreed)
 			{
 				if(PayoutRequestState != PayoutRequestState.WaitingForAgreedByExecutiveDirector)
+				{
+					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
+				}
+			}
+			else if(nextState == PayoutRequestState.GivenForTake)
+			{
+				if(PayoutRequestState != PayoutRequestState.Agreed)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
