@@ -214,45 +214,4 @@ namespace Vodovoz.Domain.Cash
 		[Display(Name = "Закрыта")]
 		Closed // все суммы выданы
 	}
-
-	public enum PayoutRequestUserRole
-	{
-		[Display(Name = "Заявитель")]
-		RequestCreator,
-
-		[Display(Name = "Руководитель отдела")]
-		SubdivisionChief,
-
-		[Display(Name = "Согласователь")]
-		Coordinator,
-
-		[Display(Name = "Финансист")]
-		Financier,
-
-		[Display(Name = "Кассир")]
-		Cashier,
-
-		[Display(Name = "Другие")]
-		Other,
-
-		[Display(Name = "Бухгалтер")]
-		Accountant,
-		
-		[Display(Name = "Служба безопасности")]
-		SecurityService,
-	}
-
-	public class CashRequestStateStringType : EnumStringType
-	{
-		public CashRequestStateStringType() : base(typeof(PayoutRequestState))
-		{
-		}
-	}
-
-	public class CashRequestDocTypeStringType : EnumStringType
-	{
-		public CashRequestDocTypeStringType() : base(typeof(PayoutRequestDocumentType))
-		{
-		}
-	}
 }
