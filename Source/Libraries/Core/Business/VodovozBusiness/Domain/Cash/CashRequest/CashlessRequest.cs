@@ -317,22 +317,10 @@ namespace Vodovoz.Domain.Cash
 			switch(nextState)
 			{
 				case PayoutRequestState.Submited:
+				case PayoutRequestState.AgreedBySubdivisionChief:
 					var submittedValidationsErrors = ValidateSubmited();
 
 					foreach(var error in submittedValidationsErrors)
-					{
-						yield return error;
-					}
-
-					break;
-
-				case PayoutRequestState.AgreedBySubdivisionChief:
-					var submittedValidationsErrors2 = ValidateSubmited();
-					var agreedBySubdivisionChiefValidationsErrors = ValidateAgreedBySubdivisionChief();
-
-					var allErrors = submittedValidationsErrors2.Concat(agreedBySubdivisionChiefValidationsErrors);
-
-					foreach(var error in allErrors)
 					{
 						yield return error;
 					}
@@ -411,11 +399,6 @@ namespace Vodovoz.Domain.Cash
 			//{
 			//	yield return new ValidationResult("Необходимо заполнить ставку НДС в счёте", new[] { nameof(VatType) });
 			//}
-		}
-
-		private IEnumerable<ValidationResult> ValidateAgreedBySubdivisionChief()
-		{
-			
 		}
 
 		private ValidationResult ValidateState(PayoutRequestState nextState)
