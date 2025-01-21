@@ -14,7 +14,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Presentation.ViewModels.Reports;
 
-namespace Vodovoz.ViewModels.Transport.Reports
+namespace Vodovoz.ViewModels.Transport.Reports.IncorrectFuel
 {
 	[Appellative(Nominative = "Отчет по заправкам некорректным типом топлива")]
 	public class IncorrectFuelReport : IClosedXmlReport
