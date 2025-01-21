@@ -148,13 +148,13 @@ namespace Vodovoz.Views.Cash
 
 			InitializePayments();
 
-			spinBillSum1.IsEditable = false;
-			spinBillSum1.Binding
+			spinBillSumGived.IsEditable = false;
+			spinBillSumGived.Binding
 				.AddBinding(ViewModel, vm => vm.SumGiven, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
-			spinBillSum2.IsEditable = false;
-			spinBillSum2.Binding
+			spinBillSumRemainingToGive.IsEditable = false;
+			spinBillSumRemainingToGive.Binding
 				.AddBinding(ViewModel, vm => vm.SumRemaining, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
