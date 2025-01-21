@@ -230,10 +230,10 @@ namespace Vodovoz.Views.Cash
 				.AddBinding(ViewModel, vm => vm.CanCancel, w => w.Visible)
 				.InitializeFromSource();
 
-			btnReapprove.BindCommand(ViewModel.ReapproveCommand);
-			btnReapprove.Binding
-				.AddBinding(ViewModel, vm => vm.CanReapprove, w => w.Visible)
-				.InitializeFromSource();
+			//btnReapprove.BindCommand(ViewModel.ReapproveCommand);
+			//btnReapprove.Binding
+			//	.AddBinding(ViewModel, vm => vm.CanReapprove, w => w.Visible)
+			//	.InitializeFromSource();
 
 			btnConveyForPayout.BindCommand(ViewModel.ConveyForPayoutCommand);
 			btnConveyForPayout.Binding

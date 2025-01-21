@@ -284,16 +284,6 @@ namespace Vodovoz.Domain.Cash
 					new[] { nameof(Author) });
 			}
 
-			if(Subdivision == null)
-			{
-				yield return new ValidationResult("Не указано подразделение", new[] { nameof(Subdivision) });
-			}
-
-			if(FinancialResponsibilityCenterId == null)
-			{
-				yield return new ValidationResult("Не указан ЦФО", new[] { nameof(FinancialResponsibilityCenterId) });
-			}
-
 			if(Sum < 0)
 			{
 				yield return new ValidationResult("Сумма должна быть положительной", new[] { nameof(Sum) });
@@ -327,36 +317,30 @@ namespace Vodovoz.Domain.Cash
 
 					break;
 
-				case PayoutRequestState.Canceled:
-					if(string.IsNullOrWhiteSpace(CancelReason))
-					{
-						yield return new ValidationResult("Не указана причина отмены", new[] { nameof(CancelReason) });
-					}
-
-					break;
+				case PayoutRequestState.Agreed:
 				case PayoutRequestState.GivenForTake:
-				{
-					if(Organization == null)
-					{
-						yield return new ValidationResult("Необходимо заполнить организацию", new[] { nameof(Organization) });
-					}
-
-					break;
-				}
+				case PayoutRequestState.PartiallyClosed:
 				case PayoutRequestState.Closed:
-				{
-					if(ExpenseCategoryId == null)
+					if(Subdivision is null)
 					{
-						yield return new ValidationResult("Необходимо заполнить статью расхода", new[] { nameof(ExpenseCategoryId) });
+						yield return new ValidationResult("Не указано подразделение", new[] { nameof(Subdivision) });
 					}
 
-					break;
-				}
-				case PayoutRequestState.OnClarification:
-					if(string.IsNullOrWhiteSpace(ReasonForSendToReappropriate))
+					if(FinancialResponsibilityCenterId is null)
 					{
-						yield return new ValidationResult("Необходимо заполнить причину отправки на пересогласование",
-							new[] { nameof(ReasonForSendToReappropriate) });
+						yield return new ValidationResult("Не указан ЦФО", new[] { nameof(FinancialResponsibilityCenterId) });
+					}
+
+					var submittedValidationsErrors2 = ValidateSubmited();
+
+					foreach(var error in submittedValidationsErrors2)
+					{
+						yield return error;
+					}
+
+					if(OurOrganizationBankAccountId is null)
+					{
+						yield return new ValidationResult("Не указан расчетный счет нашей организации", new[] { nameof(OurOrganizationBankAccountId) });
 					}
 
 					break;
@@ -412,48 +396,50 @@ namespace Vodovoz.Domain.Cash
 
 			if(nextState == PayoutRequestState.Submited)
 			{
-				if(PayoutRequestState != PayoutRequestState.New
-				&& PayoutRequestState != PayoutRequestState.OnClarification)
+				if(PayoutRequestState != PayoutRequestState.New)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
 			}
-			else if(nextState == PayoutRequestState.OnClarification)
-			{
-				if(PayoutRequestState != PayoutRequestState.Agreed
-				&& PayoutRequestState != PayoutRequestState.GivenForTake
-				&& PayoutRequestState != PayoutRequestState.Canceled)
-				{
-					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
-				}
-			}
-			else if(nextState == PayoutRequestState.Agreed)
+			else if(nextState == PayoutRequestState.AgreedBySubdivisionChief)
 			{
 				if(PayoutRequestState != PayoutRequestState.Submited)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
 			}
-			else if(nextState == PayoutRequestState.GivenForTake)
+			else if(nextState == PayoutRequestState.AgreedByFinancialResponsibilityCenter)
 			{
-				if(PayoutRequestState != PayoutRequestState.Agreed)
+				if(PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
 			}
-			else if(nextState == PayoutRequestState.Canceled)
+			else if(nextState == PayoutRequestState.WaitingForAgreedByExecutiveDirector)
 			{
-				if(PayoutRequestState != PayoutRequestState.Submited
-				&& PayoutRequestState != PayoutRequestState.OnClarification
-				&& PayoutRequestState != PayoutRequestState.GivenForTake
-				&& PayoutRequestState != PayoutRequestState.Agreed)
+				if(PayoutRequestState != PayoutRequestState.AgreedByFinancialResponsibilityCenter)
+				{
+					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
+				}
+			}
+			else if(nextState == PayoutRequestState.GivenForTake)
+			{
+				if(PayoutRequestState != PayoutRequestState.WaitingForAgreedByExecutiveDirector)
+				{
+					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
+				}
+			}
+			else if(nextState == PayoutRequestState.PartiallyClosed)
+			{
+				if(PayoutRequestState != PayoutRequestState.GivenForTake)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
 			}
 			else if(nextState == PayoutRequestState.Closed)
 			{
-				if(PayoutRequestState != PayoutRequestState.GivenForTake)
+				if(PayoutRequestState != PayoutRequestState.GivenForTake
+					|| PayoutRequestState != PayoutRequestState.PartiallyClosed )
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}

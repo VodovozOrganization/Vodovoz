@@ -298,9 +298,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			CancelRequestCommand = new DelegateCommand(CancelRequest, () => CanCancel && !IsSecurityServiceRole);
 			CancelRequestCommand.CanExecuteChangedWith(this, x => x.CanCancel);
 
-			ReapproveCommand = new DelegateCommand(Reapprove, () => CanReapprove && !IsSecurityServiceRole);
-			ReapproveCommand.CanExecuteChangedWith(this, x => x.CanReapprove);
-
 			ConveyForPayoutCommand = new DelegateCommand(ConveyForPayout, () => CanConveyForPayout && !IsSecurityServiceRole);
 			ConveyForPayoutCommand.CanExecuteChangedWith(this, x => x.CanConveyForPayout);
 
@@ -434,7 +431,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public DelegateCommand AcceptCommand { get; }
 		public DelegateCommand ApproveCommand { get; }
 		public DelegateCommand CancelRequestCommand { get; }
-		public DelegateCommand ReapproveCommand { get; }
 		public DelegateCommand ConveyForPayoutCommand { get; }
 
 		#endregion Commands
@@ -641,8 +637,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private void Accept() => ValidateAndSave(PayoutRequestState.Submited);
 
 		private void CancelRequest() => ValidateAndSave(PayoutRequestState.Canceled);
-
-		private void Reapprove() => ValidateAndSave(PayoutRequestState.OnClarification);
 
 		private void ConveyForPayout() => ValidateAndSave(PayoutRequestState.GivenForTake);
 
