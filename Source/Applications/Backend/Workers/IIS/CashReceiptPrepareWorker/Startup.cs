@@ -119,8 +119,8 @@ namespace CashReceiptPrepareWorker
 			builder.RegisterType<Tag1260Checker>()
 				.As<ITag1260Checker>();
 
-			builder.Register((context) => new ModulKassaOrganizationSettingProvider(GetModulKassaOrganizationsSetting()))
-				.As<IModulKassaOrganizationSettingProvider>()
+			builder.Register((context) => new TrueMarkOrganizationClientSettingProvider(GetTrueMarkOrganizationsClientSetting()))
+				.As<ITrueMarkOrganizationClientSettingProvider>()
 				.SingleInstance();
 
 		}
@@ -130,9 +130,9 @@ namespace CashReceiptPrepareWorker
 		{
 		}
 
-		private IConfigurationSection GetModulKassaOrganizationsSetting()
+		private IConfigurationSection GetTrueMarkOrganizationsClientSetting()
 		{
-			return Configuration.GetSection("ModulKassaOrganizationSettings");
+			return Configuration.GetSection("TrueMarkOrganizationsClientSettings");
 		}
 	}
 }

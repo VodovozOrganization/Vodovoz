@@ -96,7 +96,11 @@ namespace Vodovoz.Models.TrueMark
 
 				using(var unitOfWorkTag1260 = _unitOfWorkFactory.CreateWithoutRoot("Tag1260 codes Check"))
 				{
-					await _tag1260Checker.UpdateInfoForTag1260Async(codesToCheck, unitOfWorkTag1260, 1, cancellationToken);
+					// Проверям код на валидность от организации 1, т.к. пока не знаем, для какой организации он будет использоваться, в пуле просто убеждаемся, что код валидный.
+					// Проверяется от нужной организации ещё раз в месте использования.
+					var organizationId = 1;
+
+					await _tag1260Checker.UpdateInfoForTag1260Async(codesToCheck, unitOfWorkTag1260, organizationId, cancellationToken);
 
 					unitOfWorkTag1260.Commit();
 				}

@@ -52,12 +52,12 @@ namespace TrueMarkCodePoolCheckWorker
 						.AddInfrastructure()
 						.AddTrackedUoW()
 
-						.AddSingleton<IModulKassaOrganizationSettingProvider>((sp) =>
+						.AddSingleton<ITrueMarkOrganizationClientSettingProvider>((sp) =>
 						{
 							var configuration = sp.GetRequiredService<IConfiguration>();
-							var modulKassaSettings = new ModulKassaOrganizationSettingProvider(configuration.GetSection("ModulKassaOrganizationSettings"));
+							var trueMarkOrganizationClientSetting = new TrueMarkOrganizationClientSettingProvider(configuration.GetSection("TrueMarkOrganizationsClientSettings"));
 
-							return modulKassaSettings;
+							return trueMarkOrganizationClientSetting;
 						})
 
 						.AddHostedService<CodePoolCheckWorker>()

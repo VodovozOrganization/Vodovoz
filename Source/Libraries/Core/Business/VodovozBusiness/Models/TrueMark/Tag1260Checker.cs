@@ -1,5 +1,4 @@
-﻿using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -10,6 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using QS.DomainModel.UoW;
 using TrueMark.Contracts.Responses;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.TrueMark;
@@ -23,9 +23,7 @@ namespace VodovozBusiness.Models.TrueMark
 	{
 		private readonly HttpClient _httpClient;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
-		private readonly ITrueMarkRepository _trueMarkRepository;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IModulKassaOrganizationSettingProvider _modulKassaOrganizationSettingProvider;
+		private readonly ITrueMarkOrganizationClientSettingProvider _trueMarkOrganizationClientSettingProvider;
 
 		private readonly JsonSerializerOptions _serializeOptions = new JsonSerializerOptions
 		{
@@ -34,15 +32,12 @@ namespace VodovozBusiness.Models.TrueMark
 			Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
 			PropertyNameCaseInsensitive = true
 		};
-		private string _before;
 
 		public Tag1260Checker(
 			IHttpClientFactory httpClientFactory,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
-			ITrueMarkRepository trueMarkRepository,
-			IModulKassaOrganizationSettingProvider modulKassaOrganizationSettingProvider,
-			IUnitOfWorkFactory unitOfWorkFactory
-			)
+			ITrueMarkOrganizationClientSettingProvider trueMarkOrganizationClientSettingProvide
+		)
 		{
 			if(httpClientFactory is null)
 			{
@@ -50,9 +45,8 @@ namespace VodovozBusiness.Models.TrueMark
 			}
 
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
-			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
-			_modulKassaOrganizationSettingProvider = modulKassaOrganizationSettingProvider ?? throw new ArgumentNullException(nameof(modulKassaOrganizationSettingProvider));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_trueMarkOrganizationClientSettingProvider = trueMarkOrganizationClientSettingProvide ??
+			                                             throw new ArgumentNullException(nameof(trueMarkOrganizationClientSettingProvide));
 
 			_httpClient = httpClientFactory.CreateClient(nameof(Tag1260Checker));
 		}
@@ -104,7 +98,8 @@ namespace VodovozBusiness.Models.TrueMark
 			return result;
 		}
 
-		private void UpdateTag1260CodeCheckResult(IUnitOfWork unitOfWork, IEnumerable<TrueMarkWaterIdentificationCode> sourceCodes, CodeCheckResponse codeCheckResponse, Tag1260CodeCheckResult tag1260CodeCheckResult)
+		private void UpdateTag1260CodeCheckResult(IUnitOfWork unitOfWork, IEnumerable<TrueMarkWaterIdentificationCode> sourceCodes,
+			CodeCheckResponse codeCheckResponse, Tag1260CodeCheckResult tag1260CodeCheckResult)
 		{
 			foreach(var sourceCode in sourceCodes)
 			{
@@ -112,30 +107,21 @@ namespace VodovozBusiness.Models.TrueMark
 
 				var codeCheckInfo = codeCheckResponse.Codes.FirstOrDefault(x => x.Cis.Equals(code));
 
-				//codeCheckResponse.Codes.Remove(codeCheckInfo);
-
-				//if(sourceCode.Tag1260CodeCheckResult is null)
-				//{
-					sourceCode.Tag1260CodeCheckResult = tag1260CodeCheckResult;
-				//}
-				//else
-				//{
-				//	sourceCode.Tag1260CodeCheckResult.ReqId = codeCheckResponse.ReqId;
-				//	sourceCode.Tag1260CodeCheckResult.ReqTimestamp = codeCheckResponse.ReqTimestamp;
-				//}
+				sourceCode.Tag1260CodeCheckResult = tag1260CodeCheckResult;
 
 				unitOfWork.Save(sourceCode.Tag1260CodeCheckResult);
 
 				sourceCode.IsTag1260Valid =
 					codeCheckInfo.ErrorCode == 0 && codeCheckInfo.Found && codeCheckInfo.Valid && codeCheckInfo.Verified
-					&& codeCheckInfo.ExpireDate > DateTime.Now && codeCheckInfo.Realizable && codeCheckInfo.Utilised					
+					&& codeCheckInfo.ExpireDate > DateTime.Now && codeCheckInfo.Realizable && codeCheckInfo.Utilised
 					&& !codeCheckInfo.IsBlocked && !codeCheckInfo.Sold;
 
 				unitOfWork.Save(sourceCode);
 			}
 		}
 
-		private async Task CheckAndUpdateAsync(IUnitOfWork unitOfWork, IEnumerable<TrueMarkWaterIdentificationCode> sourceCodes, Guid headerApiKey, CancellationToken cancellationToken)
+		private async Task CheckAndUpdateAsync(IUnitOfWork unitOfWork, IEnumerable<TrueMarkWaterIdentificationCode> sourceCodes,
+			Guid headerApiKey, CancellationToken cancellationToken)
 		{
 			SetHttpClientHeaderApiKey(headerApiKey);
 
@@ -171,7 +157,8 @@ namespace VodovozBusiness.Models.TrueMark
 
 				if(!response.IsSuccessStatusCode)
 				{
-					throw new Exception($"Не удалось проверить коды для разрешительного режима 1260. Code: {response.StatusCode}. {response.ReasonPhrase}");
+					throw new Exception(
+						$"Не удалось проверить коды для разрешительного режима 1260. Code: {response.StatusCode}. {response.ReasonPhrase}");
 				}
 
 				var responseBody = await response.Content.ReadAsStreamAsync();
@@ -191,9 +178,6 @@ namespace VodovozBusiness.Models.TrueMark
 				{
 					ReqId = result.ReqId,
 					ReqTimestamp = result.ReqTimestamp,
-					RequestJson = serializedRequest,
-					ResponseJson = jsonResponse,
-					HeaderApiKey = headerApiKey
 				};
 
 				UpdateTag1260CodeCheckResult(unitOfWork, sourceCodes, result, tag1260CodeCheckResult);
@@ -222,18 +206,19 @@ namespace VodovozBusiness.Models.TrueMark
 			await UpdateInfoForTag1260Async(sourceCodes, unitOfWork, organizationId.Value, cancellationToken);
 		}
 
-		public async Task UpdateInfoForTag1260Async(IEnumerable<TrueMarkWaterIdentificationCode> sourceCodes, IUnitOfWork unitOfWork, int organizationId, CancellationToken cancellationToken)
+		public async Task UpdateInfoForTag1260Async(IEnumerable<TrueMarkWaterIdentificationCode> sourceCodes, IUnitOfWork unitOfWork,
+			int organizationId, CancellationToken cancellationToken)
 		{
 			if(!sourceCodes.Any())
 			{
 				return;
 			}
 
-			var modulKassaOrganizationSettings = _modulKassaOrganizationSettingProvider.GetModulKassaOrganizationSettings();
+			var trueMarkOrganizationClientSetting = _trueMarkOrganizationClientSettingProvider.GetModulKassaOrganizationSettings();
 
-			var headerKey = modulKassaOrganizationSettings?
+			var headerKey = trueMarkOrganizationClientSetting?
 				.FirstOrDefault(x => x.OrganizationId == organizationId)?
-				.HeaderApiKey;
+				.HeaderTokenApiKey;
 
 			if(headerKey == null)
 			{
@@ -241,55 +226,6 @@ namespace VodovozBusiness.Models.TrueMark
 			}
 
 			await CheckAndUpdateAsync(unitOfWork, sourceCodes, headerKey.Value, cancellationToken);
-
-			return;
-
-			// Пока не разбиваем по организациям (для пула)
-
-			var organizationIds = modulKassaOrganizationSettings.Select(x => x.OrganizationId);
-
-			var codesWithOrganizations = _trueMarkRepository.GetOrganizationIdsByTrueMarkWaterIdentificationCodes(unitOfWork, sourceCodes).ToList();
-
-			var codesWithOrganizationsIds = codesWithOrganizations.Select(x => x.TrueMarkWaterIdentificationCodeId);
-
-			foreach(var orgId in organizationIds)
-			{
-				var organizationCodes = codesWithOrganizations.Where(x => x.OrganizationId == orgId).Select(x => x.TrueMarkWaterIdentificationCodeId);
-
-				var codesToCheck = sourceCodes.Where(x => organizationCodes.Contains(x.Id));
-
-				if(!codesToCheck.Any())
-				{
-					continue;
-				}
-
-				var headerApiKey = modulKassaOrganizationSettings?
-					.FirstOrDefault(x => x.OrganizationId == orgId)?
-					.HeaderApiKey;
-
-				if(headerApiKey == null)
-				{
-					throw new Exception("В настройках модуль кассы отсутствует headerApiKey");
-				}
-
-				await CheckAndUpdateAsync(unitOfWork, codesToCheck, headerApiKey.Value, cancellationToken);
-			}
-
-			var codesWithoutOrganizations = sourceCodes.Where(x => !codesWithOrganizationsIds.Contains(x.Id)).ToList();
-
-			if(codesWithoutOrganizations.Any())
-			{
-				var headerApiKey = modulKassaOrganizationSettings?
-					.FirstOrDefault(x => x.OrganizationId == 1)?
-					.HeaderApiKey;
-
-				if(headerApiKey == null)
-				{
-					throw new Exception("В настройках модуль кассы отсутствует headerApiKey");
-				}
-
-				await CheckAndUpdateAsync(unitOfWork, codesWithoutOrganizations, headerApiKey.Value, cancellationToken);
-			}
 		}
 	}
 }

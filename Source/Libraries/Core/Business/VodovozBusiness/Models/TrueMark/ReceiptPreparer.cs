@@ -476,7 +476,7 @@ namespace Vodovoz.Models.TrueMark
 
 			var codesToCheck = new TrueMarkWaterIdentificationCode[] { code };
 
-			// Перефиксируем проверку кода уже от новой организации
+			// Фиксируем снова проверку кода уже от нужной организации
 			_tag1260Checker.UpdateInfoForTag1260Async(codesToCheck, _uow, organizationId ?? 1, default).GetAwaiter().GetResult();
 
 			return code;

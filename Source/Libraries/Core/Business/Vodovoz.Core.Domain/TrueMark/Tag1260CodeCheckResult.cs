@@ -18,9 +18,6 @@ namespace Vodovoz.Core.Domain.TrueMark
 	{
 		private long _reqTimestamp;
 		private Guid _reqId;
-		private string _requestJson;
-		private string _responseJson;
-		private Guid _headerApiKey;
 
 		public virtual int Id { get; set; }
 
@@ -36,24 +33,6 @@ namespace Vodovoz.Core.Domain.TrueMark
 		{
 			get => _reqTimestamp;
 			set => SetField(ref _reqTimestamp, value);
-		}
-
-		public virtual string RequestJson
-		{
-			get => _requestJson;
-			set => SetField(ref _requestJson, value);
-		}
-
-		public virtual string ResponseJson
-		{
-			get => _responseJson;
-			set => SetField(ref _responseJson, value);
-		}
-
-		public virtual Guid HeaderApiKey 
-		{ 
-			get => _headerApiKey;
-			set => SetField(ref _headerApiKey, value);
 		}
 	}
 }

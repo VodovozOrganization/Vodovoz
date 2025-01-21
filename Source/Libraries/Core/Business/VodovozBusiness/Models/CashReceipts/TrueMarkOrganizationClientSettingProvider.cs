@@ -6,27 +6,27 @@ using VodovozBusiness.Models.CashReceipts.DTO;
 
 namespace Vodovoz.Models.CashReceipts
 {
-	public class ModulKassaOrganizationSettingProvider : IModulKassaOrganizationSettingProvider
+	public class TrueMarkOrganizationClientSettingProvider : ITrueMarkOrganizationClientSettingProvider
 	{
 		private const string _configValueNotFoundString = "Не удалось прочитать значение параметра \"{0}\" из конфигурации настроек организаций.";
-		private readonly IConfigurationSection _modulKassaOrganizationsConfiguration;
-		private List<ModulKassaOrganizationSetting> _settings = new List<ModulKassaOrganizationSetting>();
+		private readonly IConfigurationSection _trueMarkOrganizationClientConfiguration;
+		private List<TrueMarkOrganizationClientSetting> _settings = new List<TrueMarkOrganizationClientSetting>();
 
-		public ModulKassaOrganizationSettingProvider(IConfigurationSection modulKassaOrganizationesConfiguration)
+		public TrueMarkOrganizationClientSettingProvider(IConfigurationSection trueMarkOrganizationClientConfiguration)
 		{
-			_modulKassaOrganizationsConfiguration = modulKassaOrganizationesConfiguration ?? throw new ArgumentNullException(nameof(modulKassaOrganizationesConfiguration));
+			_trueMarkOrganizationClientConfiguration = trueMarkOrganizationClientConfiguration ?? throw new ArgumentNullException(nameof(trueMarkOrganizationClientConfiguration));
 			Setup();
 		}
 
 		private void Setup()
 		{
-			if(!_modulKassaOrganizationsConfiguration.Exists())
+			if(!_trueMarkOrganizationClientConfiguration.Exists())
 			{
 				throw new ConfigurationErrorsException("Невозможно прочитать секцию конфигурации с настройками организаций.");
 			}
 
 
-			foreach(var modulKassaOrganizationConfig in _modulKassaOrganizationsConfiguration.GetChildren())
+			foreach(var modulKassaOrganizationConfig in _trueMarkOrganizationClientConfiguration.GetChildren())
 			{
 				string stringOrganizationId = modulKassaOrganizationConfig["OrganizationId"];
 				if(string.IsNullOrWhiteSpace(stringOrganizationId) || !int.TryParse(stringOrganizationId, out int organizationId))
@@ -40,17 +40,17 @@ namespace Vodovoz.Models.CashReceipts
 					throw new ConfigurationErrorsException(string.Format(_configValueNotFoundString, "HeaderApiKey"));
 				}
 
-				var modulKassaOrganization = new ModulKassaOrganizationSetting
+				var modulKassaOrganization = new TrueMarkOrganizationClientSetting
 				{
 					OrganizationId = organizationId,
-					HeaderApiKey = headerApiKey,
+					HeaderTokenApiKey = headerApiKey,
 				};
 
 				_settings.Add(modulKassaOrganization);
 			}
 		}
 
-		public IEnumerable<ModulKassaOrganizationSetting> GetModulKassaOrganizationSettings()
+		public IEnumerable<TrueMarkOrganizationClientSetting> GetModulKassaOrganizationSettings()
 		{
 			return _settings;
 		}

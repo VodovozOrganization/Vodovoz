@@ -1,4 +1,4 @@
-using RestSharp.Extensions;
+﻿using RestSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,9 +102,9 @@ namespace Vodovoz.Models.CashReceipts
 				}
 
 				if(orderItem.Count == 1)
-				{					
+				{
 					var inventPosition = CreateInventPosition(orderItem);
-					var code = orderItemsCodes.First().ResultCode;					
+					var code = orderItemsCodes.First().ResultCode;
 					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
 					CreateIndustryRequisite(inventPosition, code);
 
@@ -243,7 +243,7 @@ namespace Vodovoz.Models.CashReceipts
 					inventPosition.Quantity = 1;
 					inventPosition.DiscSum = discount;
 					var code = TryGetCodeFromScannedCodes(orderItemsCodes, orderItem);
-					inventPosition.ProductMark =_codeParser.GetProductCodeForCashReceipt(code);
+					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
 					CreateIndustryRequisite(inventPosition, code);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += inventPosition.PriceWithoutDiscount - discount;
@@ -274,14 +274,14 @@ namespace Vodovoz.Models.CashReceipts
 				PriceWithoutDiscount = Math.Round(orderItem.Price, 2),
 				Quantity = orderItem.Count,
 				DiscSum = orderItem.DiscountMoney
-			};			
+			};
 
 			SetVatProperties(orderItem, inventPosition);
 			return inventPosition;
 		}
 
 		private void CreateIndustryRequisite(InventPosition inventPosition, TrueMarkWaterIdentificationCode code)
-		{		
+		{
 			inventPosition.IndustryRequisite = new IndustryRequisite
 			{
 				DocData = $"UUID={code.Tag1260CodeCheckResult.ReqId}&Time={code.Tag1260CodeCheckResult.ReqTimestamp}"
