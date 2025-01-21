@@ -207,45 +207,38 @@ namespace Vodovoz.Views.Cash
 
 			// Кнопки
 
-			buttonSave.Clicked += (s, a) => ViewModel.Save(true);
-			buttonSave.Sensitive = !ViewModel.IsSecurityServiceRole;
-			buttonCancel.Clicked += (s, a) => ViewModel.Close(ViewModel.AskSaveOnClose, CloseSource.Cancel);
+			buttonSave.BindCommand(ViewModel.SaveCommand);
+			buttonCancel.BindCommand(ViewModel.CloseTabCommand);
 
+			buttonPayout.BindCommand(ViewModel.PayoutCommand);
 			buttonPayout.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsSecurityServiceRole, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.CanPayout, w => w.Visible)
 				.InitializeFromSource();
-			buttonPayout.Clicked += (s, a) => ViewModel.Payout();
 
+			btnAccept.BindCommand(ViewModel.AcceptCommand);
 			btnAccept.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsSecurityServiceRole, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Visible)
 				.InitializeFromSource();
-			btnAccept.Clicked += (s, a) => ViewModel.Accept();
 
+			btnApprove.BindCommand(ViewModel.ApproveCommand);
 			btnApprove.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsSecurityServiceRole, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.CanApprove, w => w.Visible)
 				.InitializeFromSource();
-			btnApprove.Clicked += (s, a) => ViewModel.Approve();
-
+			
+			btnCancel.BindCommand(ViewModel.CancelRequestCommand);
 			btnCancel.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsSecurityServiceRole, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.CanCancel, w => w.Visible)
 				.InitializeFromSource();
-			btnCancel.Clicked += (s, a) => ViewModel.Cancel();
 
+			btnReapprove.BindCommand(ViewModel.ReapproveCommand);
 			btnReapprove.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsSecurityServiceRole, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.CanReapprove, w => w.Visible)
 				.InitializeFromSource();
-			btnReapprove.Clicked += (s, a) => ViewModel.Reapprove();
 
+			btnConveyForPayout.BindCommand(ViewModel.ConveyForPayoutCommand);
 			btnConveyForPayout.Binding
-				.AddFuncBinding(ViewModel, vm => !vm.IsSecurityServiceRole, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.CanConveyForPayout, w => w.Visible)
 				.InitializeFromSource();
-			btnConveyForPayout.Clicked += (s, a) => ViewModel.ConveyForPayout();
 		}
 
 		private void InitializeComments()
@@ -281,11 +274,15 @@ namespace Vodovoz.Views.Cash
 			ytreeviewComments.ExpandAll();
 			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
 
-			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
-			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ytextviewComment.Binding
+				.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text)
+				.InitializeFromSource();
 
-			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
-			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
+			ytextviewComment.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonAddComment.BindCommand(ViewModel.AddCommentCommand);
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
@@ -327,10 +324,12 @@ namespace Vodovoz.Views.Cash
 			{
 				return complaintDiscussionComment.Comment;
 			}
+
 			if(node is ComplaintDiscussionCommentFileInformation complaintDiscussionCommentFileInformation)
 			{
 				return complaintDiscussionCommentFileInformation.FileName;
 			}
+
 			return "";
 		}
 
@@ -351,8 +350,10 @@ namespace Vodovoz.Views.Cash
 				var author = (node as ComplaintDiscussionComment).Author;
 				var subdivisionName = author.Subdivision != null && !string.IsNullOrWhiteSpace(author.Subdivision.ShortName) ? "\n" + author.Subdivision.ShortName : "";
 				var result = $"{author.GetPersonNameWithInitials()}{subdivisionName}";
+
 				return result;
 			}
+
 			return "";
 		}
 

@@ -297,7 +297,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 							var cashlessRequestVM = CreateCashlessRequestViewModelForMassOpenWithoutGui(selectedNode);
 							if(cashlessRequestVM.CanConveyForPayout)
 							{
-								cashlessRequestVM.ConveyForPayout();
+								cashlessRequestVM.ConveyForPayoutCommand.Execute();
 							}
 							cashlessRequestVM.Dispose();
 						}
@@ -342,7 +342,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 						else if(selectedNode.EntityType == typeof(CashlessRequest))
 						{
 							var cashlessRequestVM = CreateCashlessRequestViewModelForMassOpenWithoutGui(selectedNode);
-							cashlessRequestVM.Approve();
+							cashlessRequestVM.ApproveCommand.Execute();
 							cashlessRequestVM.Dispose();
 						}
 					}

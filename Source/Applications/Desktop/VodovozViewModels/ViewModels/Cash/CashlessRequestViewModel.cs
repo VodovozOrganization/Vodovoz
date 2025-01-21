@@ -274,10 +274,37 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			Entity.PropertyChanged += OnCashlessRequestPropertyChanged;
 
+			#region Commands
+
+			SaveCommand = new DelegateCommand(() => Save(true), () => !IsSecurityServiceRole);
+			SaveCommand.CanExecuteChangedWith(this, x => x.IsSecurityServiceRole);
+
+			CloseTabCommand = new DelegateCommand(() => Close(AskSaveOnClose, CloseSource.Cancel));
+
 			AddCommentCommand = new DelegateCommand(AddCommentHandler, () => CanAddComment);
 			AddCommentCommand.CanExecuteChangedWith(this, x => x.CanAddComment);
 
 			OpenFileCommand = new DelegateCommand<CashlessRequestCommentFileInformation>(OpenFile);
+
+			PayoutCommand = new DelegateCommand(Payout, () => CanPayout && !IsSecurityServiceRole);
+			PayoutCommand.CanExecuteChangedWith(this, x => x.CanPayout);
+
+			AcceptCommand = new DelegateCommand(Accept, () => CanAccept && !IsSecurityServiceRole);
+			AcceptCommand.CanExecuteChangedWith(this, x => x.CanAccept);
+
+			ApproveCommand = new DelegateCommand(Approve, () => CanApprove && !IsSecurityServiceRole);
+			ApproveCommand.CanExecuteChangedWith(this, x => x.CanApprove);
+
+			CancelRequestCommand = new DelegateCommand(CancelRequest, () => CanCancel && !IsSecurityServiceRole);
+			CancelRequestCommand.CanExecuteChangedWith(this, x => x.CanCancel);
+
+			ReapproveCommand = new DelegateCommand(Reapprove, () => CanReapprove && !IsSecurityServiceRole);
+			ReapproveCommand.CanExecuteChangedWith(this, x => x.CanReapprove);
+
+			ConveyForPayoutCommand = new DelegateCommand(ConveyForPayout, () => CanConveyForPayout && !IsSecurityServiceRole);
+			ConveyForPayoutCommand.CanExecuteChangedWith(this, x => x.CanConveyForPayout);
+
+			#endregion Commands
 		}
 
 		private void OnCashlessRequestPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -397,8 +424,18 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		#region Commands
 
+		public DelegateCommand SaveCommand { get; }
+		public DelegateCommand CloseTabCommand { get; }
+
 		public DelegateCommand AddCommentCommand { get; }
 		public DelegateCommand<CashlessRequestCommentFileInformation> OpenFileCommand { get; }
+
+		public DelegateCommand PayoutCommand { get; }
+		public DelegateCommand AcceptCommand { get; }
+		public DelegateCommand ApproveCommand { get; }
+		public DelegateCommand CancelRequestCommand { get; }
+		public DelegateCommand ReapproveCommand { get; }
+		public DelegateCommand ConveyForPayoutCommand { get; }
 
 		#endregion Commands
 
@@ -484,6 +521,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				OnPropertyChanged(nameof(CanSeeOrganisation));
 				OnPropertyChanged(nameof(CanSeeExpenseCategory));
 				OnPropertyChanged(nameof(CanSetCancelReason));
+				OnPropertyChanged(nameof(IsSecurityServiceRole));
 			}
 		}
 
@@ -598,17 +636,17 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		#region StateChanges
 
-		public void Approve() => ValidateAndSave(PayoutRequestState.Agreed);
+		private void Approve() => ValidateAndSave(PayoutRequestState.Agreed);
 
-		public void Accept() => ValidateAndSave(PayoutRequestState.Submited);
+		private void Accept() => ValidateAndSave(PayoutRequestState.Submited);
 
-		public void Cancel() => ValidateAndSave(PayoutRequestState.Canceled);
+		private void CancelRequest() => ValidateAndSave(PayoutRequestState.Canceled);
 
-		public void Reapprove() => ValidateAndSave(PayoutRequestState.OnClarification);
+		private void Reapprove() => ValidateAndSave(PayoutRequestState.OnClarification);
 
-		public void ConveyForPayout() => ValidateAndSave(PayoutRequestState.GivenForTake);
+		private void ConveyForPayout() => ValidateAndSave(PayoutRequestState.GivenForTake);
 
-		public void Payout() => ValidateAndSave(PayoutRequestState.Closed);
+		private void Payout() => ValidateAndSave(PayoutRequestState.Closed);
 
 		#endregion StateChanges
 
