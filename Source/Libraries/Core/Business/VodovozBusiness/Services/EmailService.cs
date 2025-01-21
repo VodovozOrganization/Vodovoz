@@ -160,14 +160,14 @@ namespace Vodovoz.Services
 
 			if(document is null)
 			{
-				return Result.Failure(Errors.Email.Email.MissingDocumentForSending);
+				return Errors.Email.Email.MissingDocumentForSending;
 			}
 
 			var emailAddress = GetEmailAddressForBill(order);
 
 			if(emailAddress is null)
 			{
-				return Result.Failure(Errors.Email.Email.MissingEmailForRequiredMailType);
+				return Errors.Email.Email.MissingEmailForRequiredMailType;
 			}
 
 			var dateTimeNow = DateTime.Now;
@@ -205,7 +205,7 @@ namespace Vodovoz.Services
 
 			if(document is null)
 			{			
-				return Result.Failure(Errors.Email.Email.MissingDocumentForSending);
+				return Errors.Email.Email.MissingDocumentForSending;
 			}
 
 			try
@@ -214,7 +214,7 @@ namespace Vodovoz.Services
 
 				if(_emailAddressForBill is null)
 				{
-					return Result.Failure(Errors.Email.Email.MissingEmailForRequiredMailType);
+					return Errors.Email.Email.MissingEmailForRequiredMailType;
 				}
 
 				var dateTimeNow = DateTime.Now;

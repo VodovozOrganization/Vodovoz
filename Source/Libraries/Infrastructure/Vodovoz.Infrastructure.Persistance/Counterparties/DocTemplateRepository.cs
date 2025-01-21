@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
@@ -66,7 +66,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 
 			if(result is null)
 			{
-				return Result.Failure<IDocTemplate>(Errors.Documents.DocumentTemplate.NotFound);
+				return Errors.Documents.DocumentTemplate.NotFound;
 			}
 
 			return result;
