@@ -1,12 +1,10 @@
-﻿using Autofac;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Banks.Domain;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -29,7 +27,6 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
@@ -60,28 +57,28 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			PayoutRequestState.PartiallyClosed
 		};
 
-		private PayoutRequestUserRole _userRole;
-		private readonly Employee _currentEmployee;
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
 		private readonly IUserRepository _userRepository;
 		private readonly ICashlessRequestFileStorageService _cashlessRequestFileStorageService;
 		private readonly ICashlessRequestCommentFileStorageService _cashlessRequestCommentFileStorageService;
 		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
-		private ILifetimeScope _lifetimeScope;
-		private IInteractiveService _interactiveService;
+		private readonly IInteractiveService _interactiveService;
+
+		private PayoutRequestUserRole _userRole;
+		private readonly Employee _currentEmployee;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private FinancialResponsibilityCenter _financialResponsibilityCenter;
 		private Account _ourOrganizationBankAccount;
-		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private Account _supplierBankAccount;
+
 		private bool _createGiveOutSchedule = false;
+		private RepeatIntervalTypes _repeatIntervalType;
 		private int _repeatsCount;
 		private int _intervals;
-		private RepeatIntervalTypes _repeatIntervalType;
 
 		public CashlessRequestViewModel(
-			IFileDialogService fileDialogService,
 			IUserRepository userRepository,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IEmployeeRepository employeeRepository,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -90,14 +87,22 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ICurrentPermissionService currentPermissionService,
 			ICashlessRequestFileStorageService cashlessRequestFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
-			ILifetimeScope lifetimeScope,
 			ViewModelEEVMBuilder<Employee> authorViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Subdivision> subdivisionViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<FinancialResponsibilityCenter> financialResponsibilityCenterViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Organization> ourOrganizationViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Account> ourOrganizationBankAccountViewModelEEVMBuilder,
-			ViewModelEEVMBuilder<Account> supplierBankAccountViewModelEEVMBuilder)
+			ViewModelEEVMBuilder<Account> supplierBankAccountViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<FinancialExpenseCategory> financialExpenseCategoryViewModelViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			#region Services NullChecks
+
+			if(employeeRepository is null)
+			{
+				throw new ArgumentNullException(nameof(employeeRepository));
+			}
+
 			if(currentPermissionService is null)
 			{
 				throw new ArgumentNullException(nameof(currentPermissionService));
@@ -106,6 +111,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			if(authorViewModelEEVMBuilder is null)
 			{
 				throw new ArgumentNullException(nameof(authorViewModelEEVMBuilder));
+			}
+
+			if(subdivisionViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(subdivisionViewModelEEVMBuilder));
 			}
 
 			if(financialResponsibilityCenterViewModelEEVMBuilder is null)
@@ -128,17 +138,25 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				throw new ArgumentNullException(nameof(supplierBankAccountViewModelEEVMBuilder));
 			}
 
-			TabName = base.TabName;
+			if(financialExpenseCategoryViewModelViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(financialExpenseCategoryViewModelViewModelEEVMBuilder));
+			}
+
+			#endregion Services NullChecks
+
 			_userRepository = userRepository
 				?? throw new ArgumentNullException(nameof(userRepository));
-			_cashlessRequestFileStorageService = cashlessRequestFileStorageService ?? throw new ArgumentNullException(nameof(cashlessRequestFileStorageService));
+			_cashlessRequestFileStorageService = cashlessRequestFileStorageService
+				?? throw new ArgumentNullException(nameof(cashlessRequestFileStorageService));
 			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory
 				?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
+			_interactiveService = commonServices?.InteractiveService
+				?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 
-			_currentEmployee =
-				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
+			TabName = base.TabName;
+
+			_currentEmployee = employeeRepository
 				.GetEmployeeForCurrentUser(UoW);
 
 			CanCreateGiveOutSchedule = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CashlessRequest.CanCreateGiveOutSchedule);
@@ -162,6 +180,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			IsRoleChooserSensitive = UserRoles.Count() > 1;
 			UserRole = UserRoles.First();
+
+			#region Inner ViewModels configurations
 
 			AuthorViewModel = authorViewModelEEVMBuilder.SetUnitOfWork(UoW)
 				.SetViewModel(this)
@@ -208,10 +228,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				})
 				.Finish();
 
-			var expenseCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashlessRequestViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
-
-			var expenseCategoryViewModel = expenseCategoryEntryViewModelBuilder
-				.ForProperty(x => x.FinancialExpenseCategory)
+			var expenseCategoryViewModel = financialExpenseCategoryViewModelViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, x => x.FinancialExpenseCategory)
 				.UseViewModelDialog<FinancialExpenseCategoryViewModel>()
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
@@ -227,14 +247,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			FinancialExpenseCategoryViewModel.IsEditable = false;
 
-			SetPropertyChangeRelation(
-				e => e.ExpenseCategoryId,
-				() => FinancialExpenseCategory);
-
-			ConfigureEntityChangingRelations();
-
-			SubdivisionViewModel = new CommonEEVMBuilderFactory<CashlessRequest>(this, Entity, UoW, NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.Subdivision)
+			SubdivisionViewModel = subdivisionViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.Subdivision)
 				.UseViewModelDialog<SubdivisionViewModel>()
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
 				.Finish();
@@ -248,12 +264,20 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			AttachedFileInformationsViewModel.ReadOnly = !IsNotClosed || IsSecurityServiceRole;
 
+			#endregion Inner ViewModels configurations
+
+			SetPropertyChangeRelation(
+				e => e.ExpenseCategoryId,
+				() => FinancialExpenseCategory);
+
+			ConfigureEntityChangingRelations();
+
+			Entity.PropertyChanged += OnCashlessRequestPropertyChanged;
+
 			AddCommentCommand = new DelegateCommand(AddCommentHandler, () => CanAddComment);
 			AddCommentCommand.CanExecuteChangedWith(this, x => x.CanAddComment);
 
 			OpenFileCommand = new DelegateCommand<CashlessRequestCommentFileInformation>(OpenFile);
-
-			Entity.PropertyChanged += OnCashlessRequestPropertyChanged;
 		}
 
 		private void OnCashlessRequestPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -272,6 +296,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		}
 
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
+
+		#region Inner ViewModels
+
 		public IEntityEntryViewModel AuthorViewModel { get; }
 		public IEntityEntryViewModel SubdivisionViewModel { get; }
 		public IEntityEntryViewModel FinancialResponsibilityCenterViewModel { get; }
@@ -282,6 +309,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public IEntityEntryViewModel SupplierBankAccountViewModel { get; }
 
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; private set; }
+
+		#endregion Inner ViewModels
+
+		#region Passthrough Properties
 
 		/// <summary>
 		/// Статья расхода
@@ -309,12 +340,17 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			get => this.GetIdRefField(ref _ourOrganizationBankAccount, Entity.OurOrganizationBankAccountId);
 			set => this.SetIdRefField(SetField, ref _ourOrganizationBankAccount, () => Entity.OurOrganizationBankAccountId, value);
 		}
-
+		
+		/// <summary>
+		/// Расчетный счет поставщика
+		/// </summary>
 		public Account SupplierBankAccount
 		{
 			get => this.GetIdRefField(ref _supplierBankAccount, Entity.SupplierBankAccountId);
 			set => this.SetIdRefField(SetField, ref _supplierBankAccount, () => Entity.SupplierBankAccountId, value);
 		}
+
+		#endregion Passthrough Properties
 
 		public bool CanEditPaymentDatePlanned =>
 			Entity.PayoutRequestState == PayoutRequestState.New
@@ -461,73 +497,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		#endregion Настройки остальных виджетов
 
-		#region Public методы
-
-		public void Approve()
-		{
-			if(ValidateForNextState(PayoutRequestState.Agreed))
-			{
-				Save(true);
-			}
-		}
-
-		public void Accept()
-		{
-			if(ValidateForNextState(PayoutRequestState.Submited))
-			{
-				Save(true);
-			}
-		}
-
-		public void Cancel()
-		{
-			if(ValidateForNextState(PayoutRequestState.Canceled))
-			{
-				Save(true);
-			}
-		}
-
-		public void Reapprove()
-		{
-			if(ValidateForNextState(PayoutRequestState.OnClarification))
-			{
-				Save(true);
-			}
-		}
-
-		public void ConveyForPayout()
-		{
-			if(ValidateForNextState(PayoutRequestState.GivenForTake))
-			{
-				Save(true);
-			}
-		}
-
-		public void Payout()
-		{
-			if(ValidateForNextState(PayoutRequestState.Closed))
-			{
-				Save(true);
-			}
-		}
-
-		public override bool Save(bool close)
-		{
-			if(!base.Save(false))
-			{
-				return false;
-			}
-
-			AddAttachedFilesIfNeeded();
-			UpdateAttachedFilesIfNeeded();
-			DeleteAttachedFilesIfNeeded();
-			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
-
-			return base.Save(close);
-		}
-
-		#endregion
-
 		#region Command Handlers
 
 		/// <summary>
@@ -627,6 +596,37 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		#endregion Command Handlers
 
+		#region StateChanges
+
+		public void Approve() => ValidateAndSave(PayoutRequestState.Agreed);
+
+		public void Accept() => ValidateAndSave(PayoutRequestState.Submited);
+
+		public void Cancel() => ValidateAndSave(PayoutRequestState.Canceled);
+
+		public void Reapprove() => ValidateAndSave(PayoutRequestState.OnClarification);
+
+		public void ConveyForPayout() => ValidateAndSave(PayoutRequestState.GivenForTake);
+
+		public void Payout() => ValidateAndSave(PayoutRequestState.Closed);
+
+		#endregion StateChanges
+
+		public override bool Save(bool close)
+		{
+			if(!base.Save(false))
+			{
+				return false;
+			}
+
+			AddAttachedFilesIfNeeded();
+			UpdateAttachedFilesIfNeeded();
+			DeleteAttachedFilesIfNeeded();
+			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+
+			return base.Save(close);
+		}
+
 		#region Private методы
 
 		private void ConfigureEntityChangingRelations()
@@ -647,8 +647,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private bool ValidateForNextState(PayoutRequestState nextState)
 		{
 			ValidationContext.Items.Add("next_state", nextState);
+
 			var valid = Validate();
+
 			ValidationContext.Items.Remove("next_state");
+
 			if(valid)
 			{
 				Entity.ChangeState(nextState);
@@ -659,9 +662,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		private IEnumerable<PayoutRequestUserRole> GetUserRoles(int userId)
 		{
-			bool CheckRole(string roleName, int id) =>
-				CommonServices.PermissionService.ValidateUserPresetPermission(roleName, id);
-
 			var roles = new List<PayoutRequestUserRole>();
 
 			if(Entity.Author == null || Entity.Author.Id == _currentEmployee.Id)
@@ -669,24 +669,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				roles.Add(PayoutRequestUserRole.RequestCreator);
 			}
 
-			if(CheckRole("role_financier_cash_request", userId))
+			foreach(var permissionToRole in Vodovoz.Permissions.Cash.CashlessRequest.PresetPermissionsRoles.PermissionsToRoles)
 			{
-				roles.Add(PayoutRequestUserRole.Financier);
-			}
-
-			if(CheckRole("role_coordinator_cash_request", userId))
-			{
-				roles.Add(PayoutRequestUserRole.Coordinator);
-			}
-
-			if(CheckRole("role_cashless_payout_accountant", userId))
-			{
-				roles.Add(PayoutRequestUserRole.Accountant);
-			}
-
-			if(CheckRole("role_security_service_cash_request", userId))
-			{
-				roles.Add(PayoutRequestUserRole.SecurityService);
+				if(CommonServices.PermissionService
+					.ValidateUserPresetPermission(permissionToRole.Key, userId))
+				{
+					roles.Add(permissionToRole.Value);
+				}
 			}
 
 			return roles;
@@ -768,6 +757,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		#endregion
 
+		private void ValidateAndSave(PayoutRequestState nextState)
+		{
+			if(ValidateForNextState(nextState))
+			{
+				Save(true);
+			}
+		}
+
 		private void OnProcessExited(object sender, EventArgs e)
 		{
 			if(sender is Process process)
@@ -775,12 +772,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				File.Delete(process.StartInfo.FileName);
 				process.Exited -= OnProcessExited;
 			}
-		}
-
-		public override void Dispose()
-		{
-			_lifetimeScope = null;
-			base.Dispose();
 		}
 	}
 }

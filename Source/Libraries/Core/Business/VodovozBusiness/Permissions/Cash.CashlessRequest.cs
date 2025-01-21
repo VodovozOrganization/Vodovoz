@@ -5,7 +5,7 @@
 		/// <summary>
 		/// Права заявок на выдачу денежных средств по безналу
 		/// </summary>
-		public static class CashlessRequest
+		public static partial class CashlessRequest
 		{
 			/// <summary>
 			/// Доступно создание календаря платежей
