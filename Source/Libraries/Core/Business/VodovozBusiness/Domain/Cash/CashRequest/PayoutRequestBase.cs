@@ -184,34 +184,4 @@ namespace Vodovoz.Domain.Cash
 		[Display(Name = "Заявка на оплату по Б/Н")]
 		CashlessRequest
 	}
-
-	public enum PayoutRequestState
-	{
-		[Display(Name = "Новая")]
-		New,
-
-		[Display(Name = "На уточнении")]
-		OnClarification, // после отправки на пересогласование
-
-		[Display(Name = "Подана")]
-		Submited, // после подтверждения
-
-		[Display(Name = "Согласована руководителем отдела")]
-		AgreedBySubdivisionChief, // после согласования руководителем
-
-		[Display(Name = "Согласована исполнительным директором")]
-		Agreed, // после согласования исполнительным директором
-
-		[Display(Name = "Передана на выдачу")]
-		GivenForTake,
-
-		[Display(Name = "Частично закрыта")]
-		PartiallyClosed, // содержит не выданные суммы
-
-		[Display(Name = "Отменена")]
-		Canceled,
-
-		[Display(Name = "Закрыта")]
-		Closed // все суммы выданы
-	}
 }
