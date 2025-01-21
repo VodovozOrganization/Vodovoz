@@ -130,11 +130,10 @@ namespace Vodovoz.Views.Cash
 				.AddBinding(ViewModel.Entity, e => e.Sum, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
-			speciallistcomboboxBillVat.ItemsList = Enum.GetValues(typeof(VAT));
-			speciallistcomboboxBillVat.SetRenderTextFunc<VAT>(node => node.GetEnumTitle());
+			speciallistcomboboxBillVat.ItemsList = ViewModel.VatValues.Keys;
 
 			speciallistcomboboxBillVat.Binding
-				.AddBinding(ViewModel.Entity, e => e.VatType, w => w.SelectedItem)
+				.AddBinding(ViewModel, e => e.SelectedVatValue, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			ytextviewPurpose.Binding

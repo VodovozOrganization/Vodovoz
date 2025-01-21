@@ -17,7 +17,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Cash
 			Map(clr => clr.BillNumber).Column("bill_number");
 			Map(clr => clr.BillDate).Column("bill_date");
 			Map(clr => clr.Sum).Column("sum");
-			Map(clr => clr.VatType).Column("vat_type");
+			Map(clr => clr.VatValue).Column("vat_value");
 			Map(clr => clr.PaymentPurpose).Column("payment_purpose");
 			Map(clr => clr.IsImidiatelyBill).Column("is_imidiately_bill");
 

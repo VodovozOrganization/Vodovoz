@@ -39,9 +39,9 @@ namespace Vodovoz.Domain.Cash
 		private int? _supplierBankAccountId;
 		private string _billNumber;
 		private DateTime? _billDate;
-		private VAT _vatType;
 		private string _paymentPurpose;
 		private bool _isImidiatelyBill;
+		private decimal _vatValue;
 
 		public override string Title => $"Заявка на оплату по Б/Н №{Id} от {Date:d}";
 
@@ -134,10 +134,10 @@ namespace Vodovoz.Domain.Cash
 		/// Ставка НДС в счёте
 		/// </summary>
 		[Display(Name = "Ставка НДС в счёте")]
-		public virtual VAT VatType
+		public virtual decimal VatValue
 		{
-			get => _vatType;
-			set => SetField(ref _vatType, value);
+			get => _vatValue;
+			set => SetField(ref _vatValue, value);
 		}
 
 		/// <summary>

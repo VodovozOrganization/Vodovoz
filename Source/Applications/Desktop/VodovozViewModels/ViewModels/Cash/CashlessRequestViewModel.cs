@@ -1,5 +1,4 @@
-﻿using Gamma.Utilities;
-using QS.Banks.Domain;
+﻿using QS.Banks.Domain;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -76,6 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private RepeatIntervalTypes _repeatIntervalType;
 		private int _repeatsCount;
 		private int _intervals;
+		private string _selectedVatValue;
 
 		public CashlessRequestViewModel(
 			IUserRepository userRepository,
@@ -302,6 +302,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ConveyForPayoutCommand.CanExecuteChangedWith(this, x => x.CanConveyForPayout);
 
 			#endregion Commands
+
+			SelectedVatValue = VatValues.Keys.First();
 		}
 
 		private void OnCashlessRequestPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -310,14 +312,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				&& (e.PropertyName == nameof(CashlessRequest.BillNumber)
 					|| e.PropertyName == nameof(CashlessRequest.BillDate)
 					|| e.PropertyName == nameof(CashlessRequest.Sum)
-					|| e.PropertyName == nameof(CashlessRequest.VatType))
+					|| e.PropertyName == nameof(CashlessRequest.VatValue))
 				&& !string.IsNullOrEmpty(Entity.BillNumber)
 				&& Entity.BillDate != null
 				&& Entity.Sum >= 0m)
 			{
-				Entity.PaymentPurpose = $"Оплата по счету № {Entity.BillNumber} от {Entity.BillDate:dd.MM.yyyy}.Сумма {Entity.Sum:# ###.##}.{Entity.VatType.GetEnumTitle()}";
+				Entity.PaymentPurpose = $"Оплата по счету № {Entity.BillNumber} от {Entity.BillDate:dd.MM.yyyy}.Сумма {Entity.Sum:# ###.##}. {VatString}";
 			}
 		}
+
 
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
 
@@ -381,6 +384,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			|| Entity.PayoutRequestState == PayoutRequestState.Submited;
 
 		public bool CanAddComment => !string.IsNullOrWhiteSpace(NewCommentText);
+		
+		public string VatString => Entity.VatValue == 0 ? "Без НДС" : Entity.VatValue.ToString();
 
 		public bool CanCreateGiveOutSchedule { get; }
 
@@ -522,6 +527,57 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		}
 
 		public bool IsSecurityServiceRole => UserRole == PayoutRequestUserRole.SecurityService;
+
+		public string SelectedVatValue
+		{
+			get
+			{
+				if(_selectedVatValue != VatValues.Keys.Last()
+					&& VatValues.Values.Contains(Entity.VatValue)
+					&& VatValues[_selectedVatValue] == Entity.VatValue)
+				{
+					return _selectedVatValue;
+				}
+				else if(_selectedVatValue == VatValues.Keys.Last()
+					&& !VatValues.Values.Contains(Entity.VatValue))
+				{
+					return _selectedVatValue;
+				}
+				else
+				{
+					var newSelectedValue = VatValues
+						.FirstOrDefault(kv => kv.Value == Entity.VatValue).Key;
+
+					if(newSelectedValue != null)
+					{
+						_selectedVatValue = newSelectedValue;
+					}
+					else
+					{
+						_selectedVatValue = VatValues.Keys.Last();
+					}
+				}
+
+				return _selectedVatValue;
+			}
+			set
+			{
+				if(SetField(ref _selectedVatValue, value)
+					&& value != VatValues.Keys.Last())
+				{
+					Entity.VatValue = VatValues[value];
+				}
+			}
+		}
+
+		public Dictionary<string, decimal> VatValues => new Dictionary<string, decimal>
+		{
+			{ "Без НДС", 0m },
+			{ "НДС 5%", 5m },
+			{ "НДС 10%", 10m},
+			{ "НДС 12,20%", 12.20m },
+			{ "Другой НДС", 0m }
+		};
 
 		#region IAskSaveOnCloseViewModel
 
@@ -674,6 +730,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanSeeNotToReconcile);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => IsNotNew);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => IsNotClosed);
+			SetPropertyChangeRelation(e => e.VatValue, () => VatString);
+			SetPropertyChangeRelation(e => e.VatValue, () => SelectedVatValue);
 		}
 
 		private bool ValidateForNextState(PayoutRequestState nextState)
