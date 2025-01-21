@@ -20,6 +20,8 @@ namespace Vodovoz.Core.Domain.TrueMark
 		private string _gtin;
 		private string _serialNumber;
 		private string _checkCode;
+		private Tag1260CodeCheckResult _tag1260CodeCheckResult;
+		private bool _isTagValid;
 
 		[Display(Name = "Необработанный код")]
 		public virtual string RawCode
@@ -55,6 +57,21 @@ namespace Vodovoz.Core.Domain.TrueMark
 			get => _checkCode;
 			set => SetField(ref _checkCode, value);
 		}
+
+		[Display(Name = "Результаты проверки кода для тэга 1260")]
+		public virtual Tag1260CodeCheckResult Tag1260CodeCheckResult
+		{
+			get => _tag1260CodeCheckResult;
+			set => SetField(ref _tag1260CodeCheckResult, value);
+		}
+
+		[Display(Name = "Код валиден для тэга 1260")]
+		public virtual bool IsTag1260Valid 
+		{ 
+			get => _isTagValid;
+			set => SetField(ref _isTagValid, value);
+		}
+
 		public override bool Equals(object obj)
 		{
 			if(obj is TrueMarkWaterIdentificationCode)
