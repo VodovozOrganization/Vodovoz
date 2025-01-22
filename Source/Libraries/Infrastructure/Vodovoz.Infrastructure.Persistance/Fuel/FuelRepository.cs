@@ -396,12 +396,17 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 
 		public decimal GetGivedFuelInLitersOnDate(IUnitOfWork unitOfWork, int carId, DateTime date)
 		{
-			var carFuelOperations = unitOfWork.Session.Query<FuelOperation>()
-				.Where(o =>
-					o.Car.Id == carId
-					&& o.LitersGived > 0
-					&& o.OperationTime >= date.Date
-					&& o.OperationTime < date.Date.AddDays(1))
+			var carFuelOperations =
+				(from fuelOperation in unitOfWork.Session.Query<FuelOperation>()
+				 join ce in unitOfWork.Session.Query<CarEvent>() on fuelOperation.Id equals ce.CalibrationFuelOperation.Id into events
+				 from carEvent in events.DefaultIfEmpty()
+				 where
+					fuelOperation.Car.Id == carId
+					&& fuelOperation.LitersGived > 0
+					&& fuelOperation.OperationTime >= date.Date
+					&& fuelOperation.OperationTime < date.Date.AddDays(1)
+					&& carEvent.Id == null
+				select fuelOperation)
 				.ToList();
 
 			var givedLitersSum = carFuelOperations.Sum(o => o.LitersGived);
