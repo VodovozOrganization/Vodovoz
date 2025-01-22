@@ -9,14 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.FastPayments;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -526,178 +524,9 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private TrueMarkWaterIdentificationCode LoadCode(string code)
-		{
-			return _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
-				.Where(x => x.RawCode == code)
-				.SingleOrDefault();
-		}
-
-		private int GetCodeDuplicatesCount(int codeId)
-		{
-			return _uow.GetAll<CashReceiptProductCode>()
-				.Where(x => x.DuplicatedIdentificationCodeId == codeId)
-				.Count();
-		}
-
-		private void FillCashReceiptByScannedCodes(IEnumerable<ITrueMarkOrderItemScannedInfo> scannedItems, CashReceipt cashReceipt)
-		{
-			foreach(var scannedItem in scannedItems)
-			{
-				var orderItem = OrderItem.CreateEmptyWithId(scannedItem.OrderSaleItemId);
-
-				foreach(var defectiveCode in scannedItem.DefectiveBottleCodes)
-				{
-					var orderCode = CreateCashReceiptProductCode(defectiveCode, cashReceipt, orderItem);
-					orderCode.IsDefectiveSourceCode = true;
-
-					cashReceipt.ScannedCodes.Add(orderCode);
-				}
-
-				foreach(var code in scannedItem.BottleCodes)
-				{
-					var orderCode = CreateCashReceiptProductCode(code, cashReceipt, orderItem);
-
-					cashReceipt.ScannedCodes.Add(orderCode);
-				}
-			}
-		}
-
 		private void SaveScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo)
 		{
-			if(completeOrderInfo.ScannedItems == null)
-			{
-				return;
-			}
 
-			var cashReceiptExists = _uow.Session.QueryOver<CashReceipt>()
-				.Where(x => x.Order.Id == completeOrderInfo.OrderId).List().Any();
-
-			if(cashReceiptExists)
-			{
-				_logger.LogInformation("Получен повторный запрос на сохранение кодов для заказа {0}", completeOrderInfo.OrderId);
-				return;
-			}
-
-			var orderId = completeOrderInfo.OrderId;
-			var unprocessedCodes = _orderRepository.GetIsAccountableInTrueMarkOrderItemsCount(_uow, orderId);
-			if(unprocessedCodes > CashReceipt.MaxMarkCodesInReceipt)
-			{
-				CreateCashReceipts(completeOrderInfo, orderId, actionTime, unprocessedCodes);
-			}
-			else
-			{
-				CreateCashReceipt(completeOrderInfo, orderId, actionTime);
-			}
-		}
-
-		private void CreateCashReceipts(
-			ITrueMarkOrderScannedInfo completeOrderInfo, int orderId, DateTime actionTime, decimal unprocessedCodes)
-		{
-			var cashReceipts = new Queue<CashReceipt>();
-			var countReceiptsNeeded = Math.Ceiling(unprocessedCodes / CashReceipt.MaxMarkCodesInReceipt);
-
-			for(var i = 0; i < countReceiptsNeeded; i++)
-			{
-				var receipt = GetNewCashReceipt(completeOrderInfo, orderId, actionTime);
-				receipt.InnerNumber = i + 1;
-				cashReceipts.Enqueue(receipt);
-			}
-
-			var trueMarkCashReceiptOrder = cashReceipts.Peek();
-
-			// Кидаю все отсканированные коды в один чек, скорее всего водитель не будет сканировать 128+ позиций,
-			// если же он их отсканировал, обработчик отправит лишку в пул и они нормально распределятся
-			FillCashReceiptByScannedCodes(completeOrderInfo.ScannedItems, trueMarkCashReceiptOrder);
-
-			foreach(var cashReceipt in cashReceipts)
-			{
-				_uow.Save(cashReceipt);
-			}
-		}
-
-		private void CreateCashReceipt(ITrueMarkOrderScannedInfo completeOrderInfo, int orderId, DateTime actionTime)
-		{
-			var trueMarkCashReceiptOrder = GetNewCashReceipt(completeOrderInfo, orderId, actionTime);
-
-			FillCashReceiptByScannedCodes(completeOrderInfo.ScannedItems, trueMarkCashReceiptOrder);
-
-			_uow.Save(trueMarkCashReceiptOrder);
-		}
-
-		private CashReceipt GetNewCashReceipt(ITrueMarkOrderScannedInfo completeOrderInfo, int orderId, DateTime actionTime)
-		{
-			return new CashReceipt
-			{
-				UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason,
-				Order = new Order { Id = orderId },
-				CreateDate = actionTime,
-				Status = CashReceiptStatus.New
-			};
-		}
-
-		private CashReceiptProductCode CreateCashReceiptProductCode(string code, CashReceipt trueMarkCashReceiptOrder, OrderItem orderItem)
-		{
-			var orderProductCode = new CashReceiptProductCode
-			{
-				CashReceipt = trueMarkCashReceiptOrder,
-				OrderItem = orderItem
-			};
-
-			TrueMarkWaterIdentificationCode codeEntity;
-
-			var parsed = _trueMarkWaterCodeParser.TryParse(code, out TrueMarkWaterCode parsedCode);
-			if(parsed)
-			{
-				codeEntity = LoadCode(parsedCode.SourceCode);
-				if(codeEntity == null)
-				{
-					codeEntity = new TrueMarkWaterIdentificationCode
-					{
-						IsInvalid = false,
-						RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length)),
-						GTIN = parsedCode.GTIN,
-						SerialNumber = parsedCode.SerialNumber,
-						CheckCode = parsedCode.CheckCode
-					};
-
-					orderProductCode.SourceCode = codeEntity;
-					_uow.Save(codeEntity);
-				}
-				else
-				{
-					//Не можем создать код идентификации честного знака, потому что такой уже существует.
-					//Позже при обработке этого заказа будет подобран подходящий код
-					orderProductCode.IsDuplicateSourceCode = true;
-					orderProductCode.DuplicatedIdentificationCodeId = codeEntity.Id;
-					orderProductCode.DuplicatesCount = GetCodeDuplicatesCount(codeEntity.Id) + 1;
-				}
-			}
-			else
-			{
-				codeEntity = LoadCode(code);
-				if(codeEntity == null)
-				{
-					codeEntity = new TrueMarkWaterIdentificationCode
-					{
-						IsInvalid = true,
-						RawCode = code
-					};
-
-					orderProductCode.SourceCode = codeEntity;
-					_uow.Save(codeEntity);
-				}
-				else
-				{
-					//Не можем создать код идентификации честного знака, потому что такой уже существует.
-					//Позже при обработке этого заказа будет подобран подходящий код
-					orderProductCode.IsDuplicateSourceCode = true;
-					orderProductCode.DuplicatedIdentificationCodeId = codeEntity.Id;
-					orderProductCode.DuplicatesCount = GetCodeDuplicatesCount(codeEntity.Id) + 1;
-				}
-			}
-
-			return orderProductCode;
 		}
 
 		private void CreateComplaintIfNeeded(IDriverComplaintInfo driverComplaintInfo, Order order, Employee driver, DateTime actionTime)
