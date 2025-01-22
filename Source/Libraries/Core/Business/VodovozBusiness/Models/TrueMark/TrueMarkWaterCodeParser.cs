@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
@@ -128,11 +128,15 @@ namespace Vodovoz.Models.TrueMark
 			return $"\u001d01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
 		}
 
+		public string GetProductCodeForTag1260(ITrueMarkWaterCode trueMarkWaterCode)
+		{			
+			return  $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
+		}
 		public TrueMarkWaterCode ParseCodeFrom1c(string code)
 		{
 			var cleanCode = code
-				.Replace("\"\"", "\"")
-				.Replace("_x001d_", _restrictedChar);
+			.Replace("\"\"", "\"")
+			.Replace("_x001d_", _restrictedChar);
 
 			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>[^{_restrictedChar}]{{14}})21(?<{_serialGroupName}>[^{_restrictedChar}]{{13}}))((\|ГС\|)|(\\u001d)|()|())93(?<{_checkGroupName}>[^{_restrictedChar}]{{4}})";
 			_regex = new Regex(pattern);
