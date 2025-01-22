@@ -401,11 +401,15 @@ namespace Pacs.Server.Operators
 		{
 			try
 			{
-				var operatorStateMachine = FindOperatorControllerByOperatorPhone(toExtension);
+				var operatorStateMachine = FindOperatorControllerByOperatorPhone(toExtension)
+					?? throw new Exception($"Не найден оператор для принятия звонка {callId} на номер {toExtension}");
 
-				if(operatorStateMachine == null)
+				var callHistory = await _pacsRepository.GetCallHistoryByCallIdAsync(callId);
+
+				if(callHistory.Any(ce => ce.State == CallState.Disconnected))
 				{
-					throw new Exception($"Не найден оператор для принятия звонка {callId} на номер {toExtension}");
+					_logger.LogWarning("Звонок {CallId} уже завершен", callId);
+					return;
 				}
 
 				await CheckConnection(operatorStateMachine);
