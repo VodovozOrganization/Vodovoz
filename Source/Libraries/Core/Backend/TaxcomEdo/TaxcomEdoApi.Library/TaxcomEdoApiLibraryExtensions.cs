@@ -10,7 +10,7 @@ namespace TaxcomEdoApi.Library
 		public static IServiceCollection AddTaxcomEdoApiLibrary(this IServiceCollection services)
 		{
 			services	
-				.AddScoped<IEdoUpdFactory, EdoUpdFactory>()
+				.AddScoped<IEdoTaxcomDocumentsFactory, EdoTaxcomDocumentsFactory>()
 				.AddScoped<IEdoBillFactory, EdoBillFactory>()
 				.AddScoped<IParticipantDocFlowConverter, ParticipantDocFlowConverter>()
 				.AddScoped<IUpdProductConverter, UpdProductConverter>()

@@ -8,24 +8,28 @@ using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.Goods;
 using TaxcomEdo.Contracts.Orders;
+using TaxcomEdoApi.Library.Builders;
 using TaxcomEdoApi.Library.Config;
 using TaxcomEdoApi.Library.Converters;
 using TISystems.TTC.Common;
+using Fajl = Taxcom.Client.Api.Document.DocumentByFormat1115131.Fajl;
+using FajlSvUchDokObor = Taxcom.Client.Api.Document.DocumentByFormat1115131.FajlSvUchDokObor;
+using FajlVersForm = Taxcom.Client.Api.Document.DocumentByFormat1115131.FajlVersForm;
+using FIOTip = Taxcom.Client.Api.Document.DocumentByFormat1115131.FIOTip;
 
 namespace TaxcomEdoApi.Library.Factories
 {
-	public class EdoUpdFactory : IEdoUpdFactory
+	public class EdoTaxcomDocumentsFactory : IEdoTaxcomDocumentsFactory
 	{
-		private const string _updPrefix = "ON_NSCHFDOPPR";
-		private const string _updMarkTag = "MARK";
 		private const string _productsShipped = "Товары переданы";
 		private const string _servicesHaveBeenProvided = "Услуги оказаны в полном объеме";
+		private const string _jobResponsibilities = "Должностные обязанности";
 		
 		private readonly IParticipantDocFlowConverter _participantDocFlowConverter;
 		private readonly IErpDocumentInfoConverter _erpDocumentInfoConverter;
 		private readonly IUpdProductConverter _updProductConverter;
 
-		public EdoUpdFactory(
+		public EdoTaxcomDocumentsFactory(
 			IParticipantDocFlowConverter participantDocFlowConverter,
 			IErpDocumentInfoConverter erpDocumentInfoConverter,
 			IUpdProductConverter updProductConverter)
@@ -35,7 +39,9 @@ namespace TaxcomEdoApi.Library.Factories
 			_erpDocumentInfoConverter = erpDocumentInfoConverter ?? throw new ArgumentNullException(nameof(erpDocumentInfoConverter));
 			_updProductConverter = updProductConverter ?? throw new ArgumentNullException(nameof(updProductConverter));
 		}
-		
+
+		#region УПД
+
 		public Fajl CreateNewUpdXml(
 			InfoForCreatingEdoUpd infoForCreatingEdoUpd,
 			WarrantOptions warrantOptions,
@@ -193,10 +199,7 @@ namespace TaxcomEdoApi.Library.Factories
 				SvPer = new FajlDokumentSvProdPerSvPer
 				{
 					SodOper = GetOperationName(orderItems),
-					OsnPer = new[]
-					{
-						GetBasis(orderInfoForEdo)
-					},
+					OsnPer = new []{ GetBasis(orderInfoForEdo) },
 					SvLicPer = new FajlDokumentSvProdPerSvPerSvLicPer
 					{
 						Item = new FajlDokumentSvProdPerSvPerSvLicPerRabOrgProd
@@ -219,7 +222,7 @@ namespace TaxcomEdoApi.Library.Factories
 				{
 					OblPoln = FajlDokumentPodpisantOblPoln.Item5,
 					Status = FajlDokumentPodpisantStatus.Item1,
-					OsnPoln = "Должностные обязанности",
+					OsnPoln = _jobResponsibilities,
 					Item = new FajlDokumentPodpisantJuL
 					{
 						FIO = new FIOTip
@@ -257,8 +260,20 @@ namespace TaxcomEdoApi.Library.Factories
 				}
 			};
 
-			var uniqueId = Guid.NewGuid().ToString("D").ToUpper();
-			upd.IdFajl = $"ON_NSCHFDOPPRMARK_{upd.SvUchDokObor.IdPol}_{upd.SvUchDokObor.IdOtpr}_{updInfo.Date:yyyyMMdd}_{uniqueId}";
+			var hasMarkGoods = updInfo.Products.Any(x => x.TrueMarkCodes.Any());
+
+			var updNameBuilder =
+				EdoSellerUpdNameBuilder.Create()
+					.ReceiverId(upd.SvUchDokObor.IdPol)
+					.SenderId(upd.SvUchDokObor.IdOtpr)
+					.Date(updInfo.Date);
+
+			if(hasMarkGoods)
+			{
+				updNameBuilder.ControlMarkGoods();
+			}
+				
+			upd.IdFajl = updNameBuilder.ToString();
 			
 			upd.Dokument = new FajlDokument
 			{
@@ -375,9 +390,10 @@ namespace TaxcomEdoApi.Library.Factories
 				SvPer = new FajlDokumentSvProdPerSvPer
 				{
 					SodOper = GetOperationName(products),
-					OsnPer = new[]
+					DataPer = updInfo.Date.ToShortDateString(),
+					OsnPer = new OsnovanieTip[]
 					{
-						new OsnovanieTip
+						new()
 						{
 							NaimOsn = updInfo.DocumentConfirmingShipment.Document,
 							NomOsn = updInfo.DocumentConfirmingShipment.Number,
@@ -406,7 +422,7 @@ namespace TaxcomEdoApi.Library.Factories
 				{
 					OblPoln = FajlDokumentPodpisantOblPoln.Item5,
 					Status = FajlDokumentPodpisantStatus.Item1,
-					OsnPoln = "Должностные обязанности",
+					OsnPoln = _jobResponsibilities,
 					Item = new FajlDokumentPodpisantJuL
 					{
 						FIO = new FIOTip
@@ -424,6 +440,8 @@ namespace TaxcomEdoApi.Library.Factories
 
 			return upd;
 		}
+
+		#endregion
 
 		private OsnovanieTip GetBasis(OrderInfoForEdo orderInfoForEdo)
 		{

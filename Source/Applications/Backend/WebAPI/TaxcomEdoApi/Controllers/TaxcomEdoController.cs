@@ -253,13 +253,18 @@ namespace TaxcomEdoApi.Controllers
 		}
 		
 		[HttpGet]
-		public IActionResult AcceptIngoingDocflow(string docFlowId)
+		public IActionResult AcceptIngoingDocflow(string docFlowId, string organization)
 		{
 			_logger.LogInformation("Поступил запрос принятия входящего документооборота {DocFlowId}", docFlowId);
 			
 			try
 			{
-				_taxcomApi.Accept(docFlowId);
+				var sendCustomerInfoEvent = _taxcomEdoService.GetSendCustomerInformationEvent(docFlowId, organization);
+				var xmlString = sendCustomerInfoEvent.ToXmlString();
+				
+				_logger.LogInformation("Сформировали файл действие для отправки титула покупателя по {DocFlowId}", docFlowId);
+				
+				_taxcomApi.SendCustomerInformationWithRawData(xmlString);
 				return Ok();
 			}
 			catch(Exception e)

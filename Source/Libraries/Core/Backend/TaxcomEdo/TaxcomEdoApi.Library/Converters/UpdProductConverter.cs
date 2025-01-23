@@ -51,16 +51,16 @@ namespace TaxcomEdoApi.Library.Converters
 				},
 				
 				NomStr = row.ToString(),
-				CenaTov = orderItemInfoForEdo.PriceWithoutVat,
-				CenaTovSpecified = true,
-				KolTov = count,
-				KolTovSpecified = true,
 				NaimTov = orderItemInfoForEdo.NomenclatureInfoForEdo?.OfficialName,
+				OKEI_Tov = orderItemInfoForEdo.NomenclatureInfoForEdo.MeasurementUnitInfoForEdo.OKEI,
+				KolTov = count,
+				CenaTov = orderItemInfoForEdo.PriceWithoutVat,
+				StTovBezNDS = orderItemInfoForEdo.SumWithoutVat,
 				NalSt = GetProductTaxRate(orderItemInfoForEdo.ValueAddedTax),
 				StTovUchNal = orderItemInfoForEdo.ActualSum,
-				StTovBezNDS = orderItemInfoForEdo.SumWithoutVat,
+				CenaTovSpecified = true,
+				KolTovSpecified = true,
 				StTovBezNDSSpecified = true,
-				OKEI_Tov = orderItemInfoForEdo.NomenclatureInfoForEdo.MeasurementUnitInfoForEdo.OKEI,
 				DopSvedTov = new FajlDokumentTablSchFaktSvedTovDopSvedTov
 				{
 					NaimEdIzm = orderItemInfoForEdo.NomenclatureInfoForEdo.MeasurementUnitInfoForEdo.Name,
