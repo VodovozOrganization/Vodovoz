@@ -494,7 +494,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& operations.Contains(changedEntity.Operation)
 					&& counterpartyContract.Organization.Id == _selectedOrganization.Id
 					&& changedEntity.ChangeTime > order.TimeDelivered
-					&& ((fieldChange.Type == FieldChangeType.Changed
+					&& (((fieldChange.Type == FieldChangeType.Changed || fieldChange.Type == FieldChangeType.Removed)
 							&& (fieldChange.Path == "Price" || fieldChange.Path == "ActualCount")
 							&& _isPriceChangeTypeSelected
 							&& _isActualCountChangeSelected)
@@ -673,7 +673,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& operations.Contains(changedEntity.Operation)
 					&& counterpartyContract.Organization.Id == _selectedOrganization.Id
 					&& changedEntity.ChangeTime > order.TimeDelivered
-					&& ((fieldChange.Type == FieldChangeType.Changed
+					&& (((fieldChange.Type == FieldChangeType.Changed || fieldChange.Type == FieldChangeType.Removed)
 							&& (fieldChange.Path == "Price" || fieldChange.Path == "ActualCount")
 							&& _isPriceChangeTypeSelected
 							&& _isActualCountChangeSelected)
