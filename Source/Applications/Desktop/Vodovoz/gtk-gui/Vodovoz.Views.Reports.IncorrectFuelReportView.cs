@@ -192,6 +192,7 @@ namespace Vodovoz.Views.Reports
 			// Container child yvboxCarTypeOfUse.Gtk.Box+BoxChild
 			this.GtkScrolledWindowTypeOfUse = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowTypeOfUse.WidthRequest = 200;
+			this.GtkScrolledWindowTypeOfUse.HeightRequest = 130;
 			this.GtkScrolledWindowTypeOfUse.Name = "GtkScrolledWindowTypeOfUse";
 			this.GtkScrolledWindowTypeOfUse.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindowTypeOfUse.Gtk.Container+ContainerChild
@@ -226,6 +227,7 @@ namespace Vodovoz.Views.Reports
 			// Container child yvboxCarOwnType.Gtk.Box+BoxChild
 			this.GtkScrolledWindowOwnType = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowOwnType.WidthRequest = 200;
+			this.GtkScrolledWindowOwnType.HeightRequest = 130;
 			this.GtkScrolledWindowOwnType.Name = "GtkScrolledWindowOwnType";
 			this.GtkScrolledWindowOwnType.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindowOwnType.Gtk.Container+ContainerChild
@@ -247,6 +249,7 @@ namespace Vodovoz.Views.Reports
 			this.yvboxFilterContainer.Add(this.yhbox2);
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yvboxFilterContainer[this.yhbox2]));
 			w21.Position = 1;
+			w21.Expand = false;
 			// Container child yvboxFilterContainer.Gtk.Box+BoxChild
 			this.ycheckbuttonExcludeOfficeWorkers = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonExcludeOfficeWorkers.CanFocus = true;
