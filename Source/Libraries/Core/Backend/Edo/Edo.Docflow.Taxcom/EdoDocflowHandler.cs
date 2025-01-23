@@ -155,7 +155,7 @@ namespace Edo.Docflow.Taxcom
 				return;
 			}
 
-			var result = await _taxcomApiClient.AcceptIngoingDocflow(@event.DocFlowId, cancellationToken);
+			var result = await _taxcomApiClient.AcceptIngoingDocflow(@event.DocFlowId, @event.Organization, cancellationToken);
 
 			if(!result)
 			{

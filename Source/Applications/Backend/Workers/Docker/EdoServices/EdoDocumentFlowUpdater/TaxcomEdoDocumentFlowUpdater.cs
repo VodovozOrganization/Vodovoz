@@ -20,6 +20,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Edo;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
 using Vodovoz.Zabbix.Sender;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
@@ -35,6 +36,7 @@ namespace EdoDocumentFlowUpdater
 		private readonly IZabbixSender _zabbixSender;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ITaxcomEdoDocflowLastProcessTimeRepository _edoDocflowLastProcessTimeRepository;
 		private readonly IEdoContainerFileStorageService _edoContainerFileStorageService;
 		private readonly IPublishEndpoint _publishEndpoint;
@@ -48,6 +50,7 @@ namespace EdoDocumentFlowUpdater
 			IServiceScopeFactory serviceScopeFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOrderRepository orderRepository,
+			IOrganizationRepository organizationRepository,
 			ITaxcomEdoDocflowLastProcessTimeRepository edoDocflowLastProcessTimeRepository,
 			ISettingsController settingController,
 			IZabbixSender zabbixSender,
@@ -65,6 +68,7 @@ namespace EdoDocumentFlowUpdater
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_edoDocflowLastProcessTimeRepository =
 				edoDocflowLastProcessTimeRepository ?? throw new ArgumentNullException(nameof(edoDocflowLastProcessTimeRepository));
 		}
@@ -232,10 +236,19 @@ namespace EdoDocumentFlowUpdater
 						_logger.LogInformation(
 							"Обрабатываем полученные входящие документообороты {DocFlowUpdatesCount}",
 							docFlowUpdates.Updates.Count());
+						
+						var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(
+							uow, _documentFlowUpdaterOptions.EdoAccount);
+
+						if(organization is null)
+						{
+							throw new InvalidOperationException(
+								"Не найдена организация с таким кабинетом ЭДО " + _documentFlowUpdaterOptions.EdoAccount);
+						}
 
 						foreach(var item in docFlowUpdates.Updates)
 						{
-							await SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(item, cancellationToken);
+							await SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(item, organization.Name, cancellationToken);
 							_lastEventsProcessTime.LastProcessedEventIngoingDocuments = item.StatusChangeDateTime;
 						}
 					} while(!docFlowUpdates.IsLast);
@@ -252,11 +265,12 @@ namespace EdoDocumentFlowUpdater
 		}
 
 		private async Task SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(
-			EdoDocFlow docflow, CancellationToken cancellationToken)
+			EdoDocFlow docflow, string organization, CancellationToken cancellationToken)
 		{
 			var @event = new AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent
 			{
 				DocFlowId = docflow.Id,
+				Organization = organization,
 				MainDocumentId = docflow.Documents.First().ExternalIdentifier,
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
 			};

@@ -140,7 +140,7 @@ namespace TaxcomEdo.Client
 				.GetAsync(_taxcomApiOptions.OfferCancellationEndpoint + query, cancellationToken);
 		}
 
-		public async Task<bool> AcceptIngoingDocflow(Guid? docflowId, CancellationToken cancellationToken = default)
+		public async Task<bool> AcceptIngoingDocflow(Guid? docflowId, string organization, CancellationToken cancellationToken = default)
 		{
 			if(!docflowId.HasValue)
 			{
@@ -150,6 +150,7 @@ namespace TaxcomEdo.Client
 			var query = HttpQueryBuilder
 				.Create()
 				.AddParameter(docflowId, nameof(docflowId))
+				.AddParameter(organization, nameof(organization))
 				.ToString();
 			
 			var result = await CreateClient()
