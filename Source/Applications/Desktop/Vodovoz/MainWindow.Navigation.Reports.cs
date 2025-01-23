@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -56,6 +56,7 @@ using Vodovoz.ViewModels.ReportsParameters.Selfdelivery;
 using Vodovoz.ViewModels.ReportsParameters.Service;
 using Vodovoz.ViewModels.ReportsParameters.Store;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
+using Vodovoz.ViewModels.Transport.Reports.IncorrectFuel;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
@@ -1147,6 +1148,8 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFuelReportActivated(object sender, EventArgs e)
 	{
+		OnIncorrectFuelReportActivated(sender, e);
+
 		var dlg = NavigationManager.OpenTdiTab<ReportViewDlg>(
 			null,
 			options: OpenPageOptions.IgnoreHash,
@@ -1358,6 +1361,16 @@ public partial class MainWindow
 	protected void OnActionAverageFlowDiscrepancyReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<AverageFlowDiscrepanciesReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Отчет по заправкам некорректным типом топлива
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnIncorrectFuelReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<IncorrectFuelReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Транспорт
