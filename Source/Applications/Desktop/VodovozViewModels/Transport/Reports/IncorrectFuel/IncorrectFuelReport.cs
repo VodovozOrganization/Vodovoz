@@ -13,6 +13,8 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Presentation.ViewModels.Reports;
+using Vodovoz.Extensions;
+using MoreLinq;
 
 namespace Vodovoz.ViewModels.Transport.Reports.IncorrectFuel
 {
@@ -37,7 +39,7 @@ namespace Vodovoz.ViewModels.Transport.Reports.IncorrectFuel
 			IsExcludeOfficeWorkers = isExcludeOfficeWorkers;
 		}
 
-		public IEnumerable<IncorrectFuelReportRow> IncorrectFuelReportRows { get; private set; } = new List<IncorrectFuelReportRow>();
+		public IEnumerable<IncorrectFuelReportRow> Rows { get; private set; } = new List<IncorrectFuelReportRow>();
 
 		public string TemplatePath => throw new NotImplementedException();
 
@@ -53,22 +55,31 @@ namespace Vodovoz.ViewModels.Transport.Reports.IncorrectFuel
 		{
 			var query =
 				from transaction in uow.Session.Query<FuelTransaction>()
+
 				join fc in uow.Session.Query<FuelCard>() on transaction.CardId equals fc.CardId into fuelCards
 				from fuelCard in fuelCards.DefaultIfEmpty()
+
 				join fcv in uow.Session.Query<FuelCardVersion>() on fuelCard.Id equals fcv.FuelCard.Id into fuelCardVersions
 				from fuelCardVersion in fuelCardVersions.DefaultIfEmpty()
+
 				join c in uow.Session.Query<Car>() on fuelCardVersion.Car.Id equals c.Id into cars
 				from car in cars.DefaultIfEmpty()
+
 				join cv in uow.Session.Query<CarVersion>() on car.Id equals cv.Car.Id into carVersions
 				from carVersion in carVersions.DefaultIfEmpty()
+
 				join cm in uow.Session.Query<CarModel>() on car.CarModel.Id equals cm.Id into carModels
 				from carModel in carModels.DefaultIfEmpty()
+
 				join e in uow.Session.Query<Employee>() on car.Driver.Id equals e.Id into employees
 				from driver in employees.DefaultIfEmpty()
+
 				join ft in uow.Session.Query<FuelType>() on car.FuelType.Id equals ft.Id into fuelTypes
 				from fuelType in fuelTypes.DefaultIfEmpty()
+
 				join gp in uow.Session.Query<GazpromFuelProduct>() on transaction.ProductId equals gp.GazpromFuelProductId into gps
 				from gazpromProduct in gps.DefaultIfEmpty()
+
 				join gpg in uow.Session.Query<GazpromFuelProductsGroup>() on gazpromProduct.GazpromProductsGroupId equals gpg.Id into gpgs
 				from gazpromProductGroup in gpgs.DefaultIfEmpty()
 				where
@@ -83,21 +94,28 @@ namespace Vodovoz.ViewModels.Transport.Reports.IncorrectFuel
 					&& CarOwnTypes.Contains(carVersion.CarOwnType)
 					&& CarTypeOfUses.Contains(carModel.CarTypeOfUse)
 					&& fuelType.Id != gazpromProductGroup.FuelTypeId
+					&& (!IsExcludeOfficeWorkers || driver.Category == null || driver.Category != EmployeeCategory.office)
 				select new IncorrectFuelReportRow
 				{
 					CarRegNumber = car == null ? "" : car.RegistrationNumber,
-					CarOwnType = carVersion == null ? default : carVersion.CarOwnType,
-					CarTypeOfUse = carModel == null ? default : carModel.CarTypeOfUse,
+					CarOwnType = carVersion == null ? (CarOwnType?)default : carVersion.CarOwnType,
+					CarTypeOfUse = carModel == null ? (CarTypeOfUse?)default : carModel.CarTypeOfUse,
 					CarModel = carModel == null ? "" : carModel.Name,
-					DriverCategory = driver == null ? default : driver.Category,
+					DriverCategory = driver == null ? (EmployeeCategory?)default : driver.Category,
 					DriverName = driver == null ? default : $"{driver.LastName} {driver.Name} {driver.Patronymic}",
 					FuelCardNumber = transaction.CardNumber,
-					CarFuelType = fuelType == null ? default : fuelType.Name,
-					TransactionFuelType = default,
+					CarFuelType = fuelType == null ? "" : fuelType.Name,
+					TransactionId = transaction.Id,
+					TransactionFuelType = gazpromProductGroup.GazpromFuelProductGroupName,
+					TransactionFuelId = transaction.ProductId,
+					TransactionLitersAmount = transaction.Quantity,
 					TransactionDateTime = transaction.TransactionDate
 				};
 
-			IncorrectFuelReportRows = await query.ToListAsync(cancellationToken);
+			Rows = await query.ToListAsync(cancellationToken);
+
+			int rowNumber = 1;
+			Rows.ForEach(row => row.RowNumber = rowNumber++);
 		}
 
 		public async static Task<IncorrectFuelReport> Create(
@@ -128,15 +146,25 @@ namespace Vodovoz.ViewModels.Transport.Reports.IncorrectFuel
 
 	public class IncorrectFuelReportRow
 	{
+		public int RowNumber { get; set; }
 		public string CarRegNumber { get; set; }
 		public CarOwnType? CarOwnType { get; set; }
 		public CarTypeOfUse? CarTypeOfUse { get; set; }
 		public string CarModel { get; set; }
-		public EmployeeCategory DriverCategory { get; set; }
+		public EmployeeCategory? DriverCategory { get; set; }
 		public string DriverName { get; set; }
 		public string FuelCardNumber { get; set; }
 		public string CarFuelType { get; set; }
+		public int TransactionId { get; set; }
 		public string TransactionFuelType { get; set; }
+		public string TransactionFuelId { get; set; }
+		public decimal TransactionLitersAmount { get; set; }
 		public DateTime TransactionDateTime { get; set; }
+
+		public string CarOwnTypeString => CarOwnType?.GetEnumDisplayName();
+		public string CarTypeOfUseString => CarTypeOfUse?.GetEnumDisplayName();
+		public string DriverCategoryString => DriverCategory?.GetEnumDisplayName();
+		public string TransactionLitersAmountString => TransactionLitersAmount.ToString("F2");
+		public string TransactionDateTimeString => TransactionDateTime.ToString("dd.MM.yyyy\nHH:mm:ss");
 	}
 }
