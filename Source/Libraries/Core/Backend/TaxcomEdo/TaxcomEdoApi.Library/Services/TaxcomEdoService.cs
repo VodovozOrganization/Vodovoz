@@ -221,7 +221,7 @@ namespace TaxcomEdoApi.Library.Services
 					new AdditionalParameter
 					{
 						Name = "Покупатель.НаименованиеЭкономическогоСубъектаСоставителя",
-						Value = "ООО \"ЭкоСовКод\""
+						Value = organization
 					},
 					new AdditionalParameter
 					{
