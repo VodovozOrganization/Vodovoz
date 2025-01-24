@@ -124,16 +124,24 @@ namespace TaxcomEdoApi.Library.Converters
 
 			if(product.TrueMarkCodes.Any())
 			{
+				var codesCount = product.TrueMarkCodes.Count();
+				var identificationInfo = new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov
+				{
+					ItemsElementName = new ItemsChoiceType[codesCount],
+					Items = new string[codesCount]
+				};
+				var i = 0;
+
+				foreach(var identificationCode in product.TrueMarkCodes)
+				{
+					identificationInfo.ItemsElementName[i] = ItemsChoiceType.KIZ;
+					identificationInfo.Items[i] = identificationCode;
+					i++;
+				}
+				
 				updProduct.DopSvedTov.NomSredIdentTov = new[]
 				{
-					new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov
-					{
-						ItemsElementName = new[]
-						{
-							ItemsChoiceType.KIZ
-						},
-						Items = product.TrueMarkCodes.ToArray()
-					}
+					identificationInfo
 				};
 			}
 			

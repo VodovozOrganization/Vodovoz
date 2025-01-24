@@ -175,7 +175,7 @@ namespace Edo.Docflow.Factories
 					IncludeVat = includeVat,
 					ValueAddedTax = nomenclature.VatNumericValue,
 					DiscountMoney = 0,
-					TrueMarkCodes = gtinGroup.Value.Select(x => x.RawCode),
+					TrueMarkCodes = gtinGroup.Value.Select(x => x.ConvertToIdentificationCode())
 				};
 
 				products.Add(product);
