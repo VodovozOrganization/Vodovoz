@@ -1,4 +1,5 @@
-﻿using NHibernate.Linq;
+﻿using MoreLinq;
+using NHibernate.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
@@ -12,9 +13,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Presentation.ViewModels.Reports;
 using Vodovoz.Extensions;
-using MoreLinq;
+using Vodovoz.Presentation.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.Transport.Reports.IncorrectFuel
 {
@@ -41,7 +41,10 @@ namespace Vodovoz.ViewModels.Transport.Reports.IncorrectFuel
 
 		public IEnumerable<IncorrectFuelReportRow> Rows { get; private set; } = new List<IncorrectFuelReportRow>();
 
-		public string TemplatePath => throw new NotImplementedException();
+		public string TemplatePath => @".\Reports\Transport\IncorrectFuelReport.xlsx";
+
+		public string Title =>
+			$"Отчет по заправкам некорректным типом топлива с {StartDate:dd.MM.yyyy} по {EndDate:dd.MM.yyyy}";
 
 		public DateTime StartDate { get; }
 		public DateTime EndDate { get; }
