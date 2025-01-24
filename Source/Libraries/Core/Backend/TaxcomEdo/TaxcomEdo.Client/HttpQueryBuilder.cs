@@ -24,9 +24,13 @@ namespace TaxcomEdo.Client
 				{
 					_queryBuilder.Append(_parameterSeparator);
 				}
+
+				if(_queryBuilder.Length == 0)
+				{
+					_queryBuilder.Append(_parameterIdentifier);
+				}
 				
 				_queryBuilder
-					.Append(_parameterIdentifier)
 					.Append(parameterName)
 					.Append(_parameterEquals);
 

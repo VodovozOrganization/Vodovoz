@@ -188,6 +188,12 @@ namespace EdoDocumentFlowUpdater
 			EdoDocFlowDocument mainDocument,
 			CancellationToken cancellationToken)
 		{
+			if(mainDocument is null)
+			{
+				_logger.LogWarning("Документооборот {DocflowId} без главного документа", docflow.Id);
+				return;
+			}
+
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent
 			{
 				DocFlowId = docflow.Id,

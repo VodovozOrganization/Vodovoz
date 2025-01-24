@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -39,7 +40,7 @@ namespace TaxcomEdo.Contracts.Documents.Events
 		/// <returns></returns>
 		public string ToXmlString()
 		{
-			using(var stringWriter = new StringWriter())
+			using(var stringWriter = new StringWriterWithEncoding(Encoding.UTF8))
 			{
 				new XmlSerializer(typeof(SendCustomerInformationEvent))
 					.Serialize(stringWriter, this, new XmlSerializerNamespaces(new []

@@ -29,6 +29,7 @@ namespace Edo.Docflow.Taxcom
 
 		public async Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event)
 		{
+			//"258c49f9-0bfd-4968-b0c1-69ec6822747a"
 			var now = DateTime.Now;
 			
 			var taxcomDocflow = new TaxcomDocflow
@@ -152,9 +153,14 @@ namespace Edo.Docflow.Taxcom
 
 			if(taxcomDocflow is null)
 			{
+				_logger.LogWarning("Не нашли отправку с таким документом {ExternalIdentifier}", @event.MainDocumentId);
 				return;
 			}
 
+			_logger.LogInformation(
+				"Принимаем документооборот {DocflowId} по документу {DocumentId}",
+				taxcomDocflow.DocflowId,
+				taxcomDocflow.MainDocumentId);
 			var result = await _taxcomApiClient.AcceptIngoingDocflow(@event.DocFlowId, @event.Organization, cancellationToken);
 
 			if(!result)

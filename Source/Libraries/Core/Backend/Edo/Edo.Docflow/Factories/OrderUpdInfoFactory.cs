@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -44,6 +44,7 @@ namespace Edo.Docflow.Factories
 
 			var document = new UniversalTransferDocumentInfo
 			{
+				DocumentId = Guid.NewGuid(),
 				Number = order.Id,
 				Sum = products.Sum(x => x.Sum),
 				Date = order.DeliveryDate.Value,
