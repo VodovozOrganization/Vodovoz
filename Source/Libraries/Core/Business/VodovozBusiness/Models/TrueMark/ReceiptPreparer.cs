@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using MoreLinq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
+using Vodovoz.Models.CashReceipts;
 using VodovozBusiness.Models.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
@@ -34,6 +35,7 @@ namespace Vodovoz.Models.TrueMark
 		private readonly ICashReceiptFactory _cashReceiptFactory;
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
 		private readonly OurCodesChecker _ourCodesChecker;
+		private readonly ITag1260Checker _tag1260Checker;
 		private readonly int _receiptId;
 		private IList<CashReceipt> _cashReceiptsToSave = new List<CashReceipt>();
 		private bool _disposed;
@@ -48,6 +50,7 @@ namespace Vodovoz.Models.TrueMark
 			ICashReceiptFactory cashReceiptFactory,
 			IGenericRepository<Nomenclature> nomenclatureRepository,
 			OurCodesChecker ourCodesChecker,
+			ITag1260Checker tag1260Checker,
 			int receiptId)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -59,12 +62,14 @@ namespace Vodovoz.Models.TrueMark
 			_cashReceiptFactory = cashReceiptFactory ?? throw new ArgumentNullException(nameof(cashReceiptFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_ourCodesChecker = ourCodesChecker ?? throw new ArgumentNullException(nameof(ourCodesChecker));
+			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
+
 			if(receiptId <= 0)
 			{
 				throw new ArgumentException("Должен быть указан существующий Id чека.", nameof(receiptId));
 			}
 			_receiptId = receiptId;
-			_uow = _uowFactory.CreateWithoutRoot();			
+			_uow = _uowFactory.CreateWithoutRoot();
 		}
 
 		public async Task PrepareAsync(CancellationToken cancellationToken)
@@ -110,6 +115,7 @@ namespace Vodovoz.Models.TrueMark
 			PrepareDefectiveCodes(receipt);
 
 			var receiptNeeded = _cashReceiptRepository.CashReceiptNeeded(_uow, receipt.Order.Id);
+
 			if(receiptNeeded && !receipt.ManualSent)
 			{
 				await PrepareForFirstReceipt(receipt, cancellationToken);
@@ -192,6 +198,8 @@ namespace Vodovoz.Models.TrueMark
 			var validCodes = codes.Where(x => x.IsValid).ToList();
 			var checkResults = await _codeChecker.CheckCodesAsync(validCodes, cancellationToken);
 
+			await _tag1260Checker.UpdateInfoForTag1260Async(receipt, _uow, cancellationToken);
+
 			foreach(var checkResult in checkResults)
 			{
 				var code = checkResult.Code;
@@ -214,7 +222,16 @@ namespace Vodovoz.Models.TrueMark
 						checkResult.Code?.SourceCode?.GTIN);
 				}
 
-				if(checkResult.Introduced && isOurOrganizationOwner && isOurGtin)
+				var isTag1260Valid = checkResult.Code?.SourceCode?.IsTag1260Valid ?? false;
+
+				if(!isTag1260Valid)
+				{
+					_logger.LogInformation("У проверенного кода {serialNumber} отсутствует разрешительный режим по тэгу 1260. Код исключается из обработки.",
+						code?.SourceCode?.SerialNumber,
+						checkResult.Code?.SourceCode?.GTIN);
+				}
+
+				if(checkResult.Introduced && isOurOrganizationOwner && isOurGtin && isTag1260Valid)
 				{
 					if(code.ResultCode != null && !code.ResultCode.Equals(code.SourceCode))
 					{
@@ -230,7 +247,7 @@ namespace Vodovoz.Models.TrueMark
 						_codesPool.PutCode(code.ResultCode.Id);
 					}
 
-					code.ResultCode = GetCodeFromPool(code.OrderItem.Nomenclature.Gtin);
+					code.ResultCode = GetCodeFromPool(code.OrderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id);
 				}
 			}
 
@@ -263,7 +280,7 @@ namespace Vodovoz.Models.TrueMark
 						{
 							_codesPool.PutCode(invalidCodes[i].ResultCode.Id);
 						}
-						invalidCodes[i].ResultCode = GetCodeFromPool(invalidCodes[i].OrderItem.Nomenclature.Gtin);
+						invalidCodes[i].ResultCode = GetCodeFromPool(invalidCodes[i].OrderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id);
 					}
 					else
 					{
@@ -283,7 +300,7 @@ namespace Vodovoz.Models.TrueMark
 					{
 						_codesPool.PutCode(invalidCode.ResultCode.Id);
 					}
-					invalidCode.ResultCode = GetCodeFromPool(invalidCode.OrderItem.Nomenclature.Gtin);
+					invalidCode.ResultCode = GetCodeFromPool(invalidCode.OrderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id);
 				}
 			}
 		}
@@ -320,7 +337,7 @@ namespace Vodovoz.Models.TrueMark
 					continue;
 				}
 
-				defectiveCode.ResultCode = GetCodeFromPool(defectiveCode.OrderItem.Nomenclature.Gtin);
+				defectiveCode.ResultCode = GetCodeFromPool(defectiveCode.OrderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id);
 
 				_uow.Save(defectiveCode);
 			}
@@ -332,7 +349,7 @@ namespace Vodovoz.Models.TrueMark
 				receipt.Order.OrderItems
 					.Where(x => x.Nomenclature.IsAccountableInTrueMark && x.Sum > 0)
 					.ToList();
-			
+
 			var markedOrderItemsCount = markedOrderItemsWithPositiveSum.Sum(x => x.Count);
 			var codesToSkip = (CashReceipt.MaxMarkCodesInReceipt * receipt.InnerNumber ?? 0) - CashReceipt.MaxMarkCodesInReceipt;
 
@@ -452,10 +469,18 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		private TrueMarkWaterIdentificationCode GetCodeFromPool(string gtin)
+		private TrueMarkWaterIdentificationCode GetCodeFromPool(string gtin, int? organizationId)
 		{
 			var codeId = _codesPool.TakeCode(gtin);
-			return _uow.GetById<TrueMarkWaterIdentificationCode>(codeId);
+
+			var code = _uow.GetById<TrueMarkWaterIdentificationCode>(codeId);
+
+			var codesToCheck = new TrueMarkWaterIdentificationCode[] { code };
+
+			// Фиксируем снова проверку кода уже от нужной организации
+			_tag1260Checker.UpdateInfoForTag1260Async(codesToCheck, _uow, organizationId ?? 1, default).GetAwaiter().GetResult();
+
+			return code;
 		}
 
 		private bool CheckNeedCreateMoreReceiptsForOrder(Order order, out decimal countReceiptsNeeded)
@@ -464,7 +489,7 @@ namespace Vodovoz.Models.TrueMark
 				order.OrderItems
 					.Where(x => x.Nomenclature.IsAccountableInTrueMark && x.Sum > 0)
 					.Sum(x => x.Count);
-			
+
 			countReceiptsNeeded = Math.Ceiling(countMarkedNomenclaturesWithPositiveSum / CashReceipt.MaxMarkCodesInReceipt);
 			var countReceiptsForOrder = _cashReceiptRepository.GetCashReceiptsCountForOrder(_uow, order.Id);
 
@@ -625,7 +650,7 @@ namespace Vodovoz.Models.TrueMark
 				CashReceipt = receipt,
 				OrderItem = orderItem,
 				IsUnscannedSourceCode = true,
-				ResultCode = GetCodeFromPool(orderItem.Nomenclature.Gtin)
+				ResultCode = GetCodeFromPool(orderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id)
 			};
 
 			receipt.ScannedCodes.Add(newCode);

@@ -1,11 +1,10 @@
-﻿using System;
-using QS.DomainModel.Entity;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
 
-namespace Vodovoz.Core.Domain.TrueMark
+namespace Vodovoz.Core.Domain.Edo
 {
 	[
 		Appellative(
@@ -22,6 +21,8 @@ namespace Vodovoz.Core.Domain.TrueMark
 		private string _gtin;
 		private string _serialNumber;
 		private string _checkCode;
+		private bool _isTagValid;
+		private Tag1260CodeCheckResult _tag1260CodeCheckResult;
 
 		[Display(Name = "Необработанный код")]
 		public virtual string RawCode
@@ -56,6 +57,20 @@ namespace Vodovoz.Core.Domain.TrueMark
 		{
 			get => _checkCode;
 			set => SetField(ref _checkCode, value);
+		}
+		
+		[Display(Name = "Код валиден для тэга 1260")]
+		public virtual bool IsTag1260Valid 
+		{ 
+			get => _isTagValid;
+			set => SetField(ref _isTagValid, value);
+		}
+		
+		[Display(Name = "Результаты проверки кода для тэга 1260")]
+		public virtual Tag1260CodeCheckResult Tag1260CodeCheckResult
+		{
+			get => _tag1260CodeCheckResult;
+			set => SetField(ref _tag1260CodeCheckResult, value);
 		}
 
 		public virtual string IdentificationCode => $"01{GTIN}21{SerialNumber}";

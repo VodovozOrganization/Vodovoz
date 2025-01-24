@@ -39,9 +39,12 @@ namespace Vodovoz.Dialogs.Fuel
 			ytreeFuelPriceVersions.ItemsDataSource = ViewModel.Entity.ObservableFuelPriceVersions;
 			ytreeFuelPriceVersions.Binding.AddBinding(ViewModel, vm => vm.SelectedFuelPriceVersion, w => w.SelectedRow).InitializeFromSource();
 
-			yentryProductGroupId.Binding
-				.AddBinding(ViewModel.Entity, e => e.ProductGroupId, w => w.Text)
-				.InitializeFromSource();
+			ytreeviewGazpromProductGroups.ColumnsConfig = FluentColumnsConfig<GazpromFuelProductsGroup>.Create()
+				.AddColumn("Наименование").HeaderAlignment(0.5f).AddTextRenderer(x => x.GazpromFuelProductGroupName).XAlign(0.5f)
+				.AddColumn("Код").MinWidth(120).HeaderAlignment(0.5f).AddTextRenderer(x => x.GazpromFuelProductGroupId).XAlign(0.5f)
+				.AddColumn("")
+				.Finish();
+			ytreeviewGazpromProductGroups.ItemsDataSource = ViewModel.FuelProductGroups;
 
 			ytreeviewProductsInGroup.ColumnsConfig = FluentColumnsConfig<FuelProduct>.Create()
 				.AddColumn("Наименование").HeaderAlignment(0.5f).AddTextRenderer(x => x.Description).XAlign(0.5f)

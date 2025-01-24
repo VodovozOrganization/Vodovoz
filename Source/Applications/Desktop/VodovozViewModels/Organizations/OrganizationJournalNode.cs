@@ -1,7 +1,7 @@
 ﻿using QS.Project.Journal;
 using Vodovoz.Domain.Organizations;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.ViewModels.Organizations
 {
 	public class OrganizationJournalNode : JournalEntityNodeBase<Organization>
 	{

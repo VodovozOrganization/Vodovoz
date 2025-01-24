@@ -18,7 +18,7 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yEntry entryName;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryOrganizationForOnlinePayments;
+		private global::QS.Views.Control.EntityEntry entryOrganization;
 
 		private global::Gamma.GtkWidgets.yLabel lblName;
 
@@ -95,13 +95,11 @@ namespace Vodovoz.Views.Orders
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.entryOrganizationForOnlinePayments = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryOrganizationForOnlinePayments.Events = ((global::Gdk.EventMask)(256));
-			this.entryOrganizationForOnlinePayments.Name = "entryOrganizationForOnlinePayments";
-			this.entryOrganizationForOnlinePayments.CanEditReference = false;
-			this.entryOrganizationForOnlinePayments.CanOpenWithoutTabParent = false;
-			this.tableMain.Add(this.entryOrganizationForOnlinePayments);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableMain[this.entryOrganizationForOnlinePayments]));
+			this.entryOrganization = new global::QS.Views.Control.EntityEntry();
+			this.entryOrganization.Events = ((global::Gdk.EventMask)(256));
+			this.entryOrganization.Name = "entryOrganization";
+			this.tableMain.Add(this.entryOrganization);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableMain[this.entryOrganization]));
 			w6.TopAttach = ((uint)(1));
 			w6.BottomAttach = ((uint)(2));
 			w6.LeftAttach = ((uint)(1));
