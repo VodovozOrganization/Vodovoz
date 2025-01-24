@@ -1148,8 +1148,6 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFuelReportActivated(object sender, EventArgs e)
 	{
-		OnIncorrectFuelReportActivated(sender, e);
-
 		var dlg = NavigationManager.OpenTdiTab<ReportViewDlg>(
 			null,
 			options: OpenPageOptions.IgnoreHash,
@@ -1368,7 +1366,7 @@ public partial class MainWindow
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	protected void OnIncorrectFuelReportActivated(object sender, EventArgs e)
+	protected void OnActionIncorrectFuelReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<IncorrectFuelReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
