@@ -30,6 +30,9 @@ using IDriverComplaintServiceV5 = DriverAPI.Library.V5.Services.IDriverComplaint
 using DriverComplaintServiceV5 = DriverAPI.Library.V5.Services.DriverComplaintService;
 using IFastPaymentServiceV5 = DriverAPI.Library.V5.Services.IFastPaymentService;
 using FastPaymentServiceV5 = DriverAPI.Library.V5.Services.FastPaymentService;
+using VodovozBusiness.Services.TrueMark;
+using Vodovoz.Models.TrueMark;
+using TrueMarkApi.Client;
 
 namespace DriverAPI.Library
 {
@@ -61,6 +64,7 @@ namespace DriverAPI.Library
 				.AddScoped<IActionTimeHelper, ActionTimeHelper>();
 
 			services.AddVersion5();
+			services.AddVersion6();
 
 			services.AddScoped<IGlobalSettings, GlobalSettings>()
 				.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
@@ -92,6 +96,11 @@ namespace DriverAPI.Library
 				.AddScoped<IFastPaymentServiceV5, FastPaymentServiceV5>();
 		}
 
+		/// <summary>
+		/// Добавление сервисов для версии 5
+		/// </summary>
+		/// <param name="services">Коллекция сервисов</param>
+		/// <returns>Обновленная коллекция сервисов</returns>
 		public static IServiceCollection AddVersion6(this IServiceCollection services)
 		{
 			// DAL обертки
@@ -102,7 +111,23 @@ namespace DriverAPI.Library
 				.AddScoped<IEmployeeService, EmployeeService>()
 				.AddScoped<ISmsPaymentService, SmsPaymentService>()
 				.AddScoped<IDriverComplaintService, DriverComplaintService>()
-				.AddScoped<IFastPaymentService, FastPaymentService>();
+				.AddScoped<IFastPaymentService, FastPaymentService>()
+				.AddTrueMarkCodesCheckDependencies();
+		}
+
+		/// <summary>
+		/// Добавление сервисов проверки кодов в ЧЗ
+		/// </summary>
+		/// <param name="services">Коллекция сервисов</param>
+		/// <returns>Обновленная коллекция сервисов</returns>
+		public static IServiceCollection AddTrueMarkCodesCheckDependencies(this IServiceCollection services)
+		{
+			return services
+				.AddScoped<TrueMarkWaterCodeParser>()
+				.AddScoped<TrueMarkCodesChecker>()
+				.AddScoped<TrueMarkApiClientFactory>()
+				.AddScoped(sp => sp.GetRequiredService<TrueMarkApiClientFactory>().GetClient())
+				.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>();
 		}
 	}
 }
