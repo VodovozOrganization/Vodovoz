@@ -5,7 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Mime;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Presentation.WebApi.Caching;
 using Vodovoz.Settings.Logistics;
 
 namespace DriverAPI.Controllers.V5
@@ -41,12 +44,21 @@ namespace DriverAPI.Controllers.V5
 		[AllowAnonymous]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompanyNumberResponse))]
-		public IActionResult GetCompanyPhoneNumber()
+		public async Task<IActionResult> GetCompanyPhoneNumber(
+			[FromServices]IRequestCacheService<CompanyNumberResponse> requestCacheService,
+			CancellationToken cancellationToken)
 		{
-			return Ok(new CompanyNumberResponse()
+			if(await requestCacheService.GetCachedResponse(HttpContext.Request.Path, cancellationToken) is not CompanyNumberResponse numberResponse)
 			{
-				Number = _driverApiSettings.CompanyPhoneNumber
-			});
+				numberResponse = new CompanyNumberResponse
+				{
+					Number = _driverApiSettings.CompanyPhoneNumber
+				};
+
+				await requestCacheService.CacheResponse(HttpContext.Request.Path, numberResponse, TimeSpan.FromMinutes(5), cancellationToken);
+			}
+
+			return Ok(numberResponse);
 		}
 	}
 }

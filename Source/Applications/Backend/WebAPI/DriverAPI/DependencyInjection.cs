@@ -6,18 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services.Interactive;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories.Complaints;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Infrastructure.WebApi.Caching.Redis;
 
 namespace DriverAPI
 {
@@ -49,6 +41,7 @@ namespace DriverAPI
 				.AddScoped<IInteractiveService, ConsoleInteractiveService>()
 
 				.AddDriverApiLibrary(configuration)
+				.AddCaching(configuration)
 
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
