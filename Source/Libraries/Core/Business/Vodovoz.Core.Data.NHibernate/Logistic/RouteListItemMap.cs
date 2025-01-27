@@ -13,6 +13,8 @@ namespace Vodovoz.Core.Data.NHibernate.Logistic
 			Version(x => x.Version).Column("version");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
+
+			HasMany(x => x.TrueMarkCodes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_item_id");
 		}
 	}
 }
