@@ -2056,6 +2056,8 @@
     <Compile Include="gtk-gui\Vodovoz.Organizations.OrganizationView.cs" />
     <Compile Include="Organizations\OrganizationJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Organizations.OrganizationJournalFilterView.cs" />
+    <Compile Include="Views\Reports\ChangingFormOfPaymentbyDriversReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingFormOfPaymentbyDriversReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
