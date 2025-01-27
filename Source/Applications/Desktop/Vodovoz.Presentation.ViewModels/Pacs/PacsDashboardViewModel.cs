@@ -87,7 +87,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 				SetField(ref _showDisconnectedOperators, value);
 				if(value)
 				{
-					_pacsDashboardModel.LoadOperatorsFromDateTime(DateTime.MinValue);
+					_pacsDashboardModel.LoadOperatorsFromDateTime(DateTime.Today.AddDays(-7));
 				}
 				else
 				{
@@ -96,7 +96,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 			}
 		}
 
-		public string OperatorsOnWorkshiftTitle => ShowDisconnectedOperators ? "Все" : "Подключенные";
+		public string OperatorsOnWorkshiftTitle => ShowDisconnectedOperators ? "Подключавшиеся в течении недели" : "Подключенные";
 
 		public GenericObservableList<DashboardOperatorOnBreakViewModel> OperatorsOnBreak { get; }
 		public GenericObservableList<DashboardOperatorViewModel> OperatorsOnWorkshift { get; }
