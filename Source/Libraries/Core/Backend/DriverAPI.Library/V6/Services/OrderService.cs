@@ -8,7 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -23,6 +26,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Services.TrueMark;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -44,6 +48,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 		private readonly IOrderSettings _orderSettings;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -59,7 +64,8 @@ namespace DriverAPI.Library.V6.Services
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			QrPaymentConverter qrPaymentConverter,
 			IFastPaymentService fastPaymentModel,
-			IOrderSettings orderSettings)
+			IOrderSettings orderSettings,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -75,6 +81,7 @@ namespace DriverAPI.Library.V6.Services
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
 
 		/// <summary>
@@ -329,7 +336,7 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
 			}
 
-			SaveScannedCodes(actionTime, completeOrderInfo);
+			ProcessScannedCodes(actionTime, completeOrderInfo, routeListAddress);
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
 
@@ -405,7 +412,7 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
 			}
 
-			SaveScannedCodes(actionTime, completeOrderInfo);
+			ProcessScannedCodes(actionTime, completeOrderInfo, routeListAddress);
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
 
@@ -524,9 +531,40 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private void SaveScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo)
+		private void ProcessScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
 		{
+			if(routeListAddress.Order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			{
+				ProcessOwnUseOrderScannedCodes(actionTime, completeOrderInfo, routeListAddress);
+			}
+		}
 
+		private void ProcessOwnUseOrderScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo, RouteListItemEntity routeListAddress)
+		{
+			var scannedCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.BottleCodes).ToList();
+
+			routeListAddress.UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason;
+
+			foreach(var scannedCode in scannedCodes)
+			{
+				var trueMarkWaterIdentificationCode =
+					_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
+
+				if(routeListAddress.TrueMarkCodes.Any(x => x.SourceCode.Id == trueMarkWaterIdentificationCode.Id))
+				{
+					continue;
+				}
+
+				var productCode = new RouteListItemTrueMarkProductCode
+				{
+					CreationTime = actionTime,
+					SourceCodeStatus = SourceProductCodeStatus.New,
+					SourceCode = trueMarkWaterIdentificationCode,
+					RouteListItem = routeListAddress
+				};
+
+				routeListAddress.TrueMarkCodes.Add(productCode);
+			}
 		}
 
 		private void CreateComplaintIfNeeded(IDriverComplaintInfo driverComplaintInfo, Order order, Employee driver, DateTime actionTime)
