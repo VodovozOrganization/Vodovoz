@@ -1,6 +1,5 @@
 ﻿using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Requests;
-using DriverApi.Contracts.V6.Requests;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Services;
 using Microsoft.AspNetCore.Authorization;
