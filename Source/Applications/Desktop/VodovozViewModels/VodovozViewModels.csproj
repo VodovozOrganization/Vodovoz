@@ -426,6 +426,7 @@
     <Compile Include="TempAdapters\IReportExporter.cs" />
     <Compile Include="TempAdapters\PacsViewModelOpener.cs" />
     <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReport.cs" />
+    <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportRow.cs" />
     <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
