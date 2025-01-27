@@ -79,7 +79,9 @@
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.WebApi.Caching.Redis\Vodovoz.Infrastructure.WebApi.Caching.Redis.csproj" />
     <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
+    <ProjectReference Include="..\Vodovoz.Presentation.WebApi.Caching\Vodovoz.Presentation.WebApi.Caching.csproj" />
     <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
   </ItemGroup>
 

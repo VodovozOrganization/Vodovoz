@@ -14,9 +14,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
+using Vodovoz.Presentation.WebApi.Caching;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 using IApiRouteListService = DriverAPI.Library.V5.Services.IRouteListService;
 using IRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 
@@ -78,37 +81,67 @@ namespace DriverAPI.Controllers.V5
 		/// <summary>
 		/// Получения детализированнной информации о маршрутных листах и связанных заказах
 		/// </summary>
+		/// <param name="requestCacheService"></param>
 		/// <param name="routeListsIds">Список номеров маршрутных листов</param>
+		/// <param name="cancellationToken"></param>
 		/// <returns>GetRouteListsDetailsResponseModel</returns>
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetRouteListsDetailsResponse))]
-		public IActionResult GetRouteListsDetails([FromBody] int[] routeListsIds)
+		public async Task<IActionResult> GetRouteListsDetailsAsync(
+			[FromServices] IIdempotencyRequestCacheService<GetRouteListsDetailsResponse> requestCacheService,
+			[FromBody] int[] routeListsIds,
+			CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Запрос МЛ-ов с деталями: {@RouteListIds} пользователем {Username} User token: {AccessToken}",
 				routeListsIds,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
 
-			var routeLists = _apiRouteListService.GetRouteLists(routeListsIds);
-			var ordersIds = routeLists
-				.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
-				.SelectMany(x => x.IncompletedRouteList.RouteListAddresses.Select(x => x.OrderId));
+			Guid requestId;
+			DateTime actionTimeUtc;
 
-			var orders = _orderService.Get(ordersIds.ToArray());
-
-			var resortedOrders = new List<OrderDto>();
-
-			foreach(var orderId in ordersIds)
+			if(Request.Headers.TryGetValue(IdempotencyHeadersNames.IdempotencyKey, out var idempotencyKey)
+				&& Request.Headers.TryGetValue(IdempotencyHeadersNames.ActionTimeUtc, out var actionTimeUtcString))
 			{
-				resortedOrders.Add(orders.Where(o => o.OrderId == orderId).First());
+				requestId = Guid.Parse(idempotencyKey);
+				actionTimeUtc = DateTime.Parse(actionTimeUtcString);
+			}
+			else
+			{
+				return Problem("Не передан идентификатор запроса");
 			}
 
-			return Ok(new GetRouteListsDetailsResponse()
+			if(await requestCacheService.GetCachedResponse(HttpContext.Request.Path, requestId, cancellationToken) is not ResponseInfo<GetRouteListsDetailsResponse> responseInfo)
 			{
-				RouteLists = routeLists,
-				Orders = resortedOrders
-			});
+				var routeLists = _apiRouteListService.GetRouteLists(routeListsIds);
+				var ordersIds = routeLists
+					.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
+					.SelectMany(x => x.IncompletedRouteList.RouteListAddresses.Select(x => x.OrderId));
+
+				var orders = _orderService.Get(ordersIds.ToArray());
+
+				var resortedOrders = new List<OrderDto>();
+
+				foreach(var orderId in ordersIds)
+				{
+					resortedOrders.Add(orders.Where(o => o.OrderId == orderId).First());
+				}
+
+				responseInfo = new ResponseInfo<GetRouteListsDetailsResponse>
+				{
+					Response = new GetRouteListsDetailsResponse()
+					{
+						RouteLists = routeLists,
+						Orders = resortedOrders
+					},
+					StatusCode = StatusCodes.Status200OK
+				};
+
+				await requestCacheService.CacheResponse(HttpContext.Request.Path, requestId, responseInfo, TimeSpan.FromMinutes(1), cancellationToken);
+			}
+
+			return Ok(responseInfo.Response);
 		}
 
 		/// <summary>
@@ -163,10 +196,25 @@ namespace DriverAPI.Controllers.V5
 		public async Task<IActionResult> RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequest requestDto)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
+
 			_logger.LogInformation("Запрос возврата в путь адреса МЛ {RoutelistAddressId} пользователем {Username} User token: {AccessToken}",
 				requestDto.RoutelistAddressId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				tokenStr);
+
+			Guid requestId;
+			DateTime actionTimeUtc;
+
+			if(Request.Headers.TryGetValue(IdempotencyHeadersNames.IdempotencyKey, out var idempotencyKey)
+				&& Request.Headers.TryGetValue(IdempotencyHeadersNames.ActionTimeUtc, out var actionTimeUtcString))
+			{
+				requestId = Guid.Parse(idempotencyKey);
+				actionTimeUtc = DateTime.Parse(actionTimeUtcString);
+			}
+			else
+			{
+				return Problem("Не передан идентификатор запроса");
+			}
 
 			var recievedTime = DateTime.Now;
 			var resultMessage = "OK";
