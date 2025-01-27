@@ -14,10 +14,14 @@ namespace Vodovoz.Core.Domain.Logistics
 	public class RouteListItemEntity : PropertyChangedBase, IDomainObject
 	{
 		private DateTime _version;
+		private string _unscannedCodesReason;
 		private IObservableList<RouteListItemTrueMarkProductCode> _trueMarkCodes = new ObservableList<RouteListItemTrueMarkProductCode>();
 
 		public virtual int Id { get; set; }
 
+		/// <summary>
+		/// Версия
+		/// </summary>
 		[Display(Name = "Версия")]
 		public virtual DateTime Version
 		{
@@ -25,6 +29,19 @@ namespace Vodovoz.Core.Domain.Logistics
 			set => SetField(ref _version, value);
 		}
 
+		/// <summary>
+		/// Причина не отсканированных кодов
+		/// </summary>
+		[Display(Name = "Причина не отсканированных кодов")]
+		public virtual string UnscannedCodesReason
+		{
+			get => _unscannedCodesReason;
+			set => SetField(ref _unscannedCodesReason, value);
+		}
+
+		/// <summary>
+		/// Коды ЧЗ товаров
+		/// </summary>
 		[Display(Name = "Коды ЧЗ товаров")]
 		public virtual IObservableList<RouteListItemTrueMarkProductCode> TrueMarkCodes
 		{
