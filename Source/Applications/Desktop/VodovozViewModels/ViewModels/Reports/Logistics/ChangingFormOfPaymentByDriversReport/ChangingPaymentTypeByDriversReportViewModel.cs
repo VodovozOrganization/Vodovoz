@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -33,7 +34,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IGuiDispatcher _guiDispatcher;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private bool _canGenerateReport = true;
+		private bool _canCancelGenerateReport;
 		private const string _templatePath = @".\Reports\Logistic\ChangingPaymentTypeByDriversReport.xlsx";
 
 		public ChangingPaymentTypeByDriversReportViewModel(
@@ -45,7 +48,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 			INavigationManager navigation,
 			ICommonServices commonServices,
 			IFileDialogService fileDialogService,
-			IGuiDispatcher guiDispatcher)
+			IGuiDispatcher guiDispatcher,
+			IGenericRepository<GeoGroup> geogroupRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			Title = "Отчет по изменению формы оплаты водителями";
@@ -59,14 +63,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
 			CanGenerateReport = true;
 
 			CreateReportCommand = new AsyncCommand(guiDispatcher, CreateReportAsync, () => CanGenerateReport);
 			CreateReportCommand.CanExecuteChangedWith(this, x => x.CanGenerateReport);
 
+			AbortCreateCommand = new DelegateCommand(AbortCreate, () => CanCancelGenerateReport);
+			AbortCreateCommand.CanExecuteChangedWith(this, x => x.CanCancelGenerateReport);
+
 			SaveReportCommand = new DelegateCommand(SaveReport);
 			ShowHelpInfoCommand = new DelegateCommand(ShowHelpInfo);
+
+			var usedGeoGroups = new[] { geographicGroupSettings.NorthGeographicGroupId, geographicGroupSettings.SouthGeographicGroupId };
+			AllUsedGeoGroups = geogroupRepository.Get(UoW, x => usedGeoGroups.Contains(x.Id));
 		}
 
 		private void ShowHelpInfo()
@@ -76,6 +87,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 				"Отчет отображает изменения формы оплаты водителем с наличной формы оплаты на любую другую до закрытия заказа.\n" +
 				"В отчёт попадают данные за последние два месяца."
 			);
+		}
+		private void AbortCreate()
+		{
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				CanCancelGenerateReport = false;
+			});
+
+			CreateReportCommand.Abort();
 		}
 
 		private int? GetSubdivisionIdBySelectedGeoGroup()
@@ -106,45 +126,71 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 			_guiDispatcher.RunInGuiTread(() =>
 			{
 				CanGenerateReport = false;
+				CanCancelGenerateReport = true;
 			});
 
-			Report = new ChangingPaymentTypeByDriversReport
-			{
-				StartDate = StartDate,
-				EndDate = EndDate,
-				SelectedGeoGroupName = SelectedGeoGroup?.Name ?? "Все",
-				Rows = await GenerateReportRows(cancellationToken),
-			};
+			var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(Title + " - генерация отчета");
 
-			OnPropertyChanged(() => ReportRows);
+			try
+			{
+				Report = new ChangingPaymentTypeByDriversReport
+				{
+					StartDate = StartDate,
+					EndDate = EndDate,
+					SelectedGeoGroupName = SelectedGeoGroup?.Name ?? "Все",
+					Rows = await GenerateReportRowsAsync(unitOfWork, cancellationToken),
+				};
+
+				OnPropertyChanged(() => ReportRows);
+
+			}
+			catch(OperationCanceledException)
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Формирование отчета было прервано");
+				});
+			}
+			finally
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					CanGenerateReport = true;
+					CanCancelGenerateReport = false;
+				});
+
+				unitOfWork?.Session?.Clear();
+				unitOfWork?.Dispose();
+			}
 
 			_guiDispatcher.RunInGuiTread(() =>
 			{
 				CanGenerateReport = true;
+				CanCancelGenerateReport = false;
 			});
 		}
 
-		private async Task<List<ChangingPaymentTypeByDriversReportRow>> GenerateReportRows(CancellationToken cancellationToken)
+		private async Task<List<ChangingPaymentTypeByDriversReportRow>> GenerateReportRowsAsync(IUnitOfWork unitOfWork, CancellationToken cancellationToken)
 		{
 			var driverSubdivisionId = GetSubdivisionIdBySelectedGeoGroup();
 
 			var rows = await (
-				from hc in UoW.Session.Query<FieldChange>()
-				join hce in UoW.Session.Query<ChangedEntity>()
+				from hc in unitOfWork.Session.Query<FieldChange>()
+				join hce in unitOfWork.Session.Query<ChangedEntity>()
 					on hc.Entity.Id equals hce.Id
-				join hcs in UoW.Session.Query<ChangeSet>()
+				join hcs in unitOfWork.Session.Query<ChangeSet>()
 					on hce.ChangeSet.Id equals hcs.Id
-				join o in UoW.Session.Query<Order>()
+				join o in unitOfWork.Session.Query<Order>()
 					on hce.EntityId equals o.Id
-				join rla in UoW.Session.Query<RouteListItem>()
+				join rla in unitOfWork.Session.Query<RouteListItem>()
 						on o.Id equals rla.Order.Id
-				join rl in UoW.Session.Query<RouteList>()
+				join rl in unitOfWork.Session.Query<RouteList>()
 						on rla.RouteList.Id equals rl.Id
-				join e in UoW.Session.Query<Employee>()
+				join e in unitOfWork.Session.Query<Employee>()
 					on rl.Driver.Id equals e.Id
 
 				let sum = (
-					from oi in UoW.Session.Query<OrderItem>()
+					from oi in unitOfWork.Session.Query<OrderItem>()
 					where
 						oi.Order.Id == o.Id
 					select (oi.ActualCount ?? oi.Count) * oi.Price - oi.DiscountMoney
@@ -160,6 +206,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 					&& hce.ChangeTime >= StartDate
 					&& hce.ChangeTime <= EndDate.AddDays(1).AddMilliseconds(-1)
 					&& (driverSubdivisionId == null || driverSubdivisionId == e.Subdivision.Id)
+					&& rla.Status != RouteListItemStatus.Transfered
 
 				select new ChangingPaymentTypeByDriversReportRow
 				{
@@ -193,6 +240,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 		}
 
 		public AsyncCommand CreateReportCommand { get; set; }
+		public DelegateCommand AbortCreateCommand { get; }
 		public DelegateCommand SaveReportCommand { get; set; }
 		public DelegateCommand ShowHelpInfoCommand { get; private set; }
 
@@ -201,12 +249,19 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 		public DateTime EndDate { get; set; }
 		public List<ChangingPaymentTypeByDriversReportRow> ReportRows => Report.Rows;
 		public bool IsGroupByDriver { get; private set; }
+		public IEnumerable<GeoGroup> AllUsedGeoGroups { get; set; }
 		public GeoGroup SelectedGeoGroup { get; private set; }
 
 		public bool CanGenerateReport
 		{
 			get => _canGenerateReport;
 			set => SetField(ref _canGenerateReport, value);
+		}
+
+		public bool CanCancelGenerateReport
+		{
+			get => _canCancelGenerateReport;
+			set => SetField(ref _canCancelGenerateReport, value);
 		}
 
 		public void SaveReport()

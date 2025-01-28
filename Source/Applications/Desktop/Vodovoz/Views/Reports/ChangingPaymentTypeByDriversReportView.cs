@@ -25,13 +25,20 @@ namespace Vodovoz.Views.Reports
 				.AddBinding(ViewModel, vm => vm.IsGroupByDriver, w => w.Active)
 				.InitializeFromSource();
 
-			cmbGeoGroup.ItemsList = ViewModel.UoW.GetAll<GeoGroup>().ToList();
-
+			cmbGeoGroup.ItemsList = ViewModel.AllUsedGeoGroups;
 			cmbGeoGroup.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedGeoGroup, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			ybuttonCreateReport.BindCommand(ViewModel.CreateReportCommand);
+			ybuttonCreateReport.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanGenerateReport, w => w.Visible)
+				.InitializeFromSource();
+
+			ybuttonAbortCreateReport.BindCommand(ViewModel.AbortCreateCommand);
+			ybuttonAbortCreateReport.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanCancelGenerateReport, w => w.Visible)
+				.InitializeFromSource();
 			ybuttonSave.BindCommand(ViewModel.SaveReportCommand);
 
 			ytreeviewReport.ColumnsConfig = FluentColumnsConfig<ChangingPaymentTypeByDriversReportRow>.Create()
