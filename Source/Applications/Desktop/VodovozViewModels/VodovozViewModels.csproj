@@ -842,6 +842,9 @@
     <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReport.cs" />
     <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReportRow.cs" />
     <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\ChangingFormOfPaymentByDriversReport\ChangingPaymentTypeByDriversReport.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\ChangingFormOfPaymentByDriversReport\ChangingPaymentTypeByDriversReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\ChangingFormOfPaymentByDriversReport\ChangingPaymentTypeByDriversReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Logistics\CompletedDriversWarehousesEventsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportNode.cs" />

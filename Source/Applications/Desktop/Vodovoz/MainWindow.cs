@@ -391,8 +391,4 @@ public partial class MainWindow : Gtk.Window
     protected void OnServiceDeliveryRulesActivated(object sender, EventArgs e)
     {
     }
-
-    protected void OnChangingFormOfPaymentbyDriversReportActionActivated(object sender, EventArgs e)
-    {
-    }
 }
