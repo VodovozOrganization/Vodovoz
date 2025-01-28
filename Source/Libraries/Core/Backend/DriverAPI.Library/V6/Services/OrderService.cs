@@ -1,5 +1,6 @@
 ﻿using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
+using DriverAPI.Library.Errors;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.FastPayments;
-using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -336,7 +336,13 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
 			}
 
-			ProcessScannedCodes(actionTime, completeOrderInfo, routeListAddress);
+			var trueMarkCodesProcessResult =
+				ProcessScannedCodes(actionTime, completeOrderInfo, routeListAddress);
+
+			if(trueMarkCodesProcessResult.IsFailure)
+			{
+				return trueMarkCodesProcessResult;
+			}
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
 
@@ -412,7 +418,13 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
 			}
 
-			ProcessScannedCodes(actionTime, completeOrderInfo, routeListAddress);
+			var trueMarkCodesProcessResult =
+				ProcessScannedCodes(actionTime, completeOrderInfo, routeListAddress);
+
+			if(trueMarkCodesProcessResult.IsFailure)
+			{
+				return trueMarkCodesProcessResult;
+			}
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
 
@@ -531,18 +543,21 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private void ProcessScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
+		private Result ProcessScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
 		{
 			if(routeListAddress.Order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 			{
-				ProcessOwnUseOrderScannedCodes(actionTime, completeOrderInfo, routeListAddress);
+				return ProcessOwnUseOrderScannedCodes(actionTime, completeOrderInfo, routeListAddress);
 			}
+
+			return ProcessResaleOrderScannedCodes(completeOrderInfo, routeListAddress);
 		}
 
-		private void ProcessOwnUseOrderScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo, RouteListItemEntity routeListAddress)
+		private Result ProcessOwnUseOrderScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
 		{
 			var scannedCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.BottleCodes).ToList();
 
+			routeListAddress.TrueMarkCodes.Clear();
 			routeListAddress.UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason;
 
 			foreach(var scannedCode in scannedCodes)
@@ -565,6 +580,49 @@ namespace DriverAPI.Library.V6.Services
 
 				routeListAddress.TrueMarkCodes.Add(productCode);
 			}
+
+			return Result.Success();
+		}
+
+		private Result ProcessResaleOrderScannedCodes(IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
+		{
+			var processResult = IsScannedCodesAndSavedCodesAreEqual(completeOrderInfo, routeListAddress);
+
+			if(processResult.IsFailure)
+			{
+				return processResult;
+			}
+
+			var isAllTrueMarkCodesAdded =
+				_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(_uow, routeListAddress.Order.Id);
+
+			if(!isAllTrueMarkCodesAdded)
+			{
+				return Result.Failure(TrueMarkCodesProcessingErrors.NotAllCodesAdded);
+			}
+
+			return Result.Success();
+		}
+
+		private Result IsScannedCodesAndSavedCodesAreEqual(IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
+		{
+			var scannedCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.BottleCodes).ToList();
+			var savedCodes = _orderRepository.GetAddedRouteListItemTrueMarkProductCodesByOrderId(_uow, routeListAddress.Order.Id);
+
+			if(scannedCodes.Count != savedCodes.Count)
+			{
+				return Result.Failure(TrueMarkCodesProcessingErrors.AddedAndSavedCodesCountNotEquals);
+			}
+
+			foreach(var code in savedCodes)
+			{
+				if(!scannedCodes.Contains(code.SourceCode.RawCode))
+				{
+					return Result.Failure(TrueMarkCodesProcessingErrors.AddedAndSavedCodesNotEquals);
+				}
+			}
+
+			return Result.Success();
 		}
 
 		private void CreateComplaintIfNeeded(IDriverComplaintInfo driverComplaintInfo, Order order, Employee driver, DateTime actionTime)
