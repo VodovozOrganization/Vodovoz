@@ -12,8 +12,6 @@ using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Data.Orders;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain;
@@ -38,6 +36,8 @@ using Order = Vodovoz.Domain.Orders.Order;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using VodovozBusiness.Services.TrueMark;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -1969,6 +1969,43 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				};
 
 			return discounts;
+		}
+
+		public IList<RouteListItemTrueMarkProductCode> GetAddedRouteListItemTrueMarkProductCodesByOrderId(IUnitOfWork uow, int orderId)
+		{
+			var productCodes =
+				from routeListItem in uow.Session.Query<RouteListItem>()
+				join productCode in uow.Session.Query<RouteListItemTrueMarkProductCode>() on routeListItem.Id equals productCode.RouteListItem.Id
+				where routeListItem.Order.Id == orderId
+				select productCode;
+
+			return productCodes.ToList();
+		}
+
+		public bool IsAllRouteListItemTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId)
+		{
+			var accountableInTrueMarkOrderItems = GetIsAccountableInTrueMarkOrderItems(uow, orderId);
+
+			var addedTrueMarkCodes = GetAddedRouteListItemTrueMarkProductCodesByOrderId(uow, orderId)
+				.Where(x => x.SourceCodeStatus == SourceProductCodeStatus.Accepted)
+				.Select(x => x.ResultCode)
+				.GroupBy(x => x.GTIN)
+				.ToDictionary(x => x.Key, x => x);
+
+			foreach(var orderItem in accountableInTrueMarkOrderItems)
+			{
+				var addedCodesCount =
+					addedTrueMarkCodes.TryGetValue(orderItem.Nomenclature.Gtin, out var addedCodes)
+					? addedCodes.Count()
+					: 0;
+
+				if(addedCodesCount < orderItem.Count)
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 	}
 }
