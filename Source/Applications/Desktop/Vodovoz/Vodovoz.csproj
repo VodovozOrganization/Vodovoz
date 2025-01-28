@@ -2058,6 +2058,8 @@
     <Compile Include="gtk-gui\Vodovoz.Organizations.OrganizationView.cs" />
     <Compile Include="Organizations\OrganizationJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Organizations.OrganizationJournalFilterView.cs" />
+    <Compile Include="Views\Reports\IncorrectFuelReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncorrectFuelReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
