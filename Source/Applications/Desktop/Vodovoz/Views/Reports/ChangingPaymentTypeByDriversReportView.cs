@@ -1,8 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
-using System.Linq;
-using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByDriversReport;
 namespace Vodovoz.Views.Reports
 {
@@ -17,8 +15,8 @@ namespace Vodovoz.Views.Reports
 		private void Configure()
 		{
 			rangeDate.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.StartDate, w => w.StartDate)
-				.AddBinding(vm => vm.EndDate, w => w.EndDate)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
 			ycheckbuttonGroupByDriver.Binding

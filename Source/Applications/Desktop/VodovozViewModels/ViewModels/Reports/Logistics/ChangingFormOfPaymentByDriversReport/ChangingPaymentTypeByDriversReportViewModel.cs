@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using ClosedXML.Report;
 using MassTransit;
 using NHibernate.Linq;
 using QS.Commands;
@@ -21,6 +20,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Presentation.ViewModels.Extensions;
+using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Organizations;
 
@@ -34,10 +35,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IGuiDispatcher _guiDispatcher;
+		private readonly IDialogSettingsFactory _dialogSettingsFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private bool _canGenerateReport = true;
 		private bool _canCancelGenerateReport;
-		private const string _templatePath = @".\Reports\Logistic\ChangingPaymentTypeByDriversReport.xlsx";
 
 		public ChangingPaymentTypeByDriversReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -49,7 +50,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 			ICommonServices commonServices,
 			IFileDialogService fileDialogService,
 			IGuiDispatcher guiDispatcher,
-			IGenericRepository<GeoGroup> geogroupRepository)
+			IGenericRepository<GeoGroup> geogroupRepository,
+			IDialogSettingsFactory dialogSettingsFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			Title = "Отчет по изменению формы оплаты водителями";
@@ -63,6 +65,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_dialogSettingsFactory = dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
 			CanGenerateReport = true;
@@ -113,16 +116,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 			return null;
 		}
 
-		private void ExportReport(string path)
-		{
-			var template = new XLTemplate(_templatePath);
-			template.AddVariable(Report);
-			template.Generate();
-			template.SaveAs(path);
-		}
-
 		private async Task CreateReportAsync(CancellationToken cancellationToken)
 		{
+			if(StartDate is null || EndDate is null)
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не указаны даты");
+				});
+
+				return;
+			}
+
 			_guiDispatcher.RunInGuiTread(() =>
 			{
 				CanGenerateReport = false;
@@ -135,8 +140,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 			{
 				Report = new ChangingPaymentTypeByDriversReport
 				{
-					StartDate = StartDate,
-					EndDate = EndDate,
+					StartDate = StartDate.Value,
+					EndDate = EndDate.Value,
 					SelectedGeoGroupName = SelectedGeoGroup?.Name ?? "Все",
 					Rows = await GenerateReportRowsAsync(unitOfWork, cancellationToken),
 				};
@@ -203,8 +208,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 					&& hce.EntityClassName == nameof(Order)
 					&& hcs.User.Id == _driverApiSettings.DriverApiUserId
 					&& hce.ChangeTime < o.TimeDelivered
-					&& hce.ChangeTime >= StartDate
-					&& hce.ChangeTime <= EndDate.AddDays(1).AddMilliseconds(-1)
+					&& hce.ChangeTime >= StartDate.Value
+					&& hce.ChangeTime <= EndDate.Value.AddDays(1).AddMilliseconds(-1)
 					&& (driverSubdivisionId == null || driverSubdivisionId == e.Subdivision.Id)
 					&& rla.Status != RouteListItemStatus.Transfered
 
@@ -239,14 +244,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 			return rowsWithDriverTitles;
 		}
 
-		public AsyncCommand CreateReportCommand { get; set; }
+		public AsyncCommand CreateReportCommand { get; }
 		public DelegateCommand AbortCreateCommand { get; }
-		public DelegateCommand SaveReportCommand { get; set; }
-		public DelegateCommand ShowHelpInfoCommand { get; private set; }
+		public DelegateCommand SaveReportCommand { get; }
+		public DelegateCommand ShowHelpInfoCommand { get; }
 
 		public ChangingPaymentTypeByDriversReport Report { get; set; } = new ChangingPaymentTypeByDriversReport();
-		public DateTime StartDate { get; set; }
-		public DateTime EndDate { get; set; }
+		public DateTime? StartDate { get; set; }
+		public DateTime? EndDate { get; set; }
 		public List<ChangingPaymentTypeByDriversReportRow> ReportRows => Report.Rows;
 		public bool IsGroupByDriver { get; private set; }
 		public IEnumerable<GeoGroup> AllUsedGeoGroups { get; set; }
@@ -266,18 +271,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 
 		public void SaveReport()
 		{
-			var dialogSettings = new DialogSettings()
-			{
-				Title = "Сохранить",
-				DefaultFileExtention = ".xlsx",
-				FileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
-			};
+			var dialogSettings = _dialogSettingsFactory.CreateForClosedXmlReport(Report);
 
-			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			var saveDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
 
-			if(Report != null && result.Successful)
+			if(saveDialogResult.Successful)
 			{
-				ExportReport(result.Path);
+				Report.RenderTemplate().Export(saveDialogResult.Path);
 			}
 		}
 	}
