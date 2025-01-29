@@ -1,4 +1,6 @@
-﻿namespace DriverApi.Contracts.V6
+﻿using System.Collections.Generic;
+
+namespace DriverApi.Contracts.V6
 {
 	/// <summary>
 	/// Товар на продажу
@@ -69,5 +71,15 @@
 		/// Требуется дополнительный контроль водителя
 		/// </summary>
 		public bool IsNeedAdditionalControl { get; set; }
+
+		/// <summary>
+		/// GTIN товара
+		/// </summary>
+		public string Gtin { get; set; }
+
+		/// <summary>
+		/// Коды маркировки ЧЗ
+		/// </summary>
+		public IEnumerable<TrueMarkCodeDto> Codes { get; set; }
 	}
 }

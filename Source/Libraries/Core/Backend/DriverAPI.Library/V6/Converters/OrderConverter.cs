@@ -4,9 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace DriverAPI.Library.V6.Converters
@@ -49,13 +50,13 @@ namespace DriverAPI.Library.V6.Converters
 		/// Метод конвертации в DTO
 		/// </summary>
 		/// <param name="vodovozOrder">Заказ ДВ</param>
-		/// <param name="addedToRouteListTime">Время добавления в маршрутный лист</param>
+		/// <param name="routeListItem">Адрес маршрутного листа</param>
 		/// <param name="smsPaymentStatus">Статус оплаты по смс</param>
 		/// <param name="qrPaymentDtoStatus">Статус оплаты по QR-коду</param>
 		/// <returns></returns>
 		public OrderDto ConvertToAPIOrder(
 			Order vodovozOrder,
-			DateTime addedToRouteListTime,
+			RouteListItem routeListItem,
 			SmsPaymentStatus? smsPaymentStatus,
 			FastPaymentStatus? qrPaymentDtoStatus)
 		{
@@ -75,12 +76,12 @@ namespace DriverAPI.Library.V6.Converters
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderSum = vodovozOrder.OrderSum,
-				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems),
+				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems, routeListItem),
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,
 				OrderReceptionItems = pairOfSplitedLists.orderReceptionItems,
 				IsFastDelivery = vodovozOrder.IsFastDelivery,
 				ContactlessDelivery = vodovozOrder.ContactlessDelivery,
-				AddedToRouteListTime = addedToRouteListTime.ToString("dd.MM.yyyyTHH:mm:ss"),
+				AddedToRouteListTime = routeListItem.CreationDate.ToString("dd.MM.yyyyTHH:mm:ss"),
 				CallBeforeArrivalMinutes = vodovozOrder.CallBeforeArrivalMinutes,
 				Trifle = vodovozOrder.Trifle ?? 0,
 				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType),
@@ -96,7 +97,7 @@ namespace DriverAPI.Library.V6.Converters
 				{
 					sb.AppendLine(vodovozOrder.Comment.TrimEnd('\r', '\n'));
 				}
-				
+
 				sb.AppendLine(Order.DontArriveBeforeIntervalString);
 				apiOrder.OrderComment = sb.ToString();
 			}
@@ -202,19 +203,19 @@ namespace DriverAPI.Library.V6.Converters
 			return (deliveryItems, receptionItems);
 		}
 
-		private IEnumerable<OrderSaleItemDto> PrepareSaleItemsList(IEnumerable<OrderItem> orderItems)
+		private IEnumerable<OrderSaleItemDto> PrepareSaleItemsList(IEnumerable<OrderItem> orderItems, RouteListItem routeListItem)
 		{
 			var result = new List<OrderSaleItemDto>();
 
 			foreach(var saleItem in orderItems)
 			{
-				result.Add(ConvertToAPIOrderSaleItem(saleItem));
+				result.Add(ConvertToAPIOrderSaleItem(saleItem, routeListItem));
 			}
 
 			return result;
 		}
 
-		private OrderSaleItemDto ConvertToAPIOrderSaleItem(OrderItem saleItem)
+		private OrderSaleItemDto ConvertToAPIOrderSaleItem(OrderItem saleItem, RouteListItem routeListItem)
 		{
 			var result = new OrderSaleItemDto
 			{
@@ -229,7 +230,9 @@ namespace DriverAPI.Library.V6.Converters
 				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
 				DiscountReason = saleItem.DiscountReason?.Name,
 				CapColor = saleItem.Nomenclature.BottleCapColor,
-				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false
+				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false,
+				Gtin = saleItem.Nomenclature.Gtin,
+				Codes = GetOrderItemCodes(saleItem, routeListItem)
 			};
 
 			if(saleItem.Nomenclature.TareVolume != null)
@@ -255,6 +258,39 @@ namespace DriverAPI.Library.V6.Converters
 			}
 
 			return result;
+		}
+
+		private IEnumerable<TrueMarkCodeDto> GetOrderItemCodes(OrderItem saleItem, RouteListItem routeListItem)
+		{
+			var isTrueMarkCodesCanBeAdded =
+				saleItem.Nomenclature?.IsAccountableInTrueMark == true
+				&& string.IsNullOrWhiteSpace(saleItem.Nomenclature?.Gtin)
+				&& saleItem.Count > 0;
+
+			if(!isTrueMarkCodesCanBeAdded)
+			{
+				return Enumerable.Empty<TrueMarkCodeDto>();
+			}
+
+			var sequenceNumber = 0;
+
+			var codes =
+				routeListItem.TrueMarkCodes
+				.Select(x => x.ResultCode)
+				.Where(c => c.GTIN == saleItem.Nomenclature.Gtin)
+				.Select(x => ConvertToApiTrueMarkCode(x, sequenceNumber++))
+				.ToList();
+
+			return codes;
+		}
+
+		private TrueMarkCodeDto ConvertToApiTrueMarkCode(TrueMarkWaterIdentificationCode trueMarkCode, int sequenceNumber)
+		{
+			return new TrueMarkCodeDto
+			{
+				SequenceNumber = sequenceNumber,
+				Code = trueMarkCode.RawCode
+			};
 		}
 
 		private OrderDeliveryItemDto ConvertToAPIOrderDeliveryItem(OrderEquipment saleItem)

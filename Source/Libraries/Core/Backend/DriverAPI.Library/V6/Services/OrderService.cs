@@ -107,7 +107,7 @@ namespace DriverAPI.Library.V6.Services
 
 			var order = _orderConverter.ConvertToAPIOrder(
 				vodovozOrder,
-				routeListItem.CreationDate,
+				routeListItem,
 				_aPISmsPaymentModel.GetOrderSmsPaymentStatus(orderId),
 				_fastPaymentModel.GetOrderFastPaymentStatus(orderId, vodovozOrder.OnlineOrder));
 
@@ -138,7 +138,7 @@ namespace DriverAPI.Library.V6.Services
 				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderSmsPaymentStatus(vodovozOrder.Id);
 				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id, vodovozOrder.OnlineOrder);
 				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
-				var order = _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem.CreationDate, smsPaymentStatus, qrPaymentStatus);
+				var order = _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem, smsPaymentStatus, qrPaymentStatus);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder).Value;
 				result.Add(order);
 			}
