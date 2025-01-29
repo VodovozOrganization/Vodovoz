@@ -2,8 +2,13 @@
 using QS.DomainModel.Entity;
 using QS.Views;
 using System;
+using System.Collections.Generic;
+using Autofac;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Settings;
+using Vodovoz.ViewModels.Widgets;
+using Vodovoz.Views.Common;
 
 namespace Vodovoz.Views.Settings
 {
@@ -116,7 +121,38 @@ namespace Vodovoz.Views.Settings
 			complaintSubdivisionsView.ViewModel = ViewModel.ComplaintsSubdivisionSettingsViewModel;
 			#endregion Вкладка Рекламации
 
-			#region Вкладка Заказы
+			ConfigureOrdersSettings();
+
+			#region Вкладка Склад
+			warehousesForPricesAndStocksIntegrationsView.ViewModel = ViewModel.WarehousesForPricesAndStocksIntegrationViewModel;
+
+			yentryCarLoadDocumentInfoString.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CarLoadDocumentInfoString, w => w.Text)
+				.AddBinding(vm => vm.CanSaveCarLoadDocumentInfoString, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
+			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
+			#endregion Вкладка Склад
+
+			#region Вкладка Бухгалтерия
+
+			ConfigureAccountingSettings();
+
+			#endregion Вкладка Бухгалтерия
+		}
+
+		#region Вкладка заказы
+
+		private void ConfigureOrdersSettings()
+		{
+			ConfigureOrdersGeneralSettings();
+			ConfigureOrdersOrganizationSettings();
+		}
+
+		private void ConfigureOrdersGeneralSettings()
+		{
 			roboatssettingsview1.ViewModel = ViewModel.RoboatsSettingsViewModel;
 
 			alternativePriceSubdivisionsView.ViewModel = ViewModel.AlternativePricesSubdivisionSettingsViewModel;
@@ -140,29 +176,8 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
 
 			ConfigureEmployeesFixedPrices();
-
-			#endregion Вкладка Заказы
-
-			#region Вкладка Склад
-			warehousesForPricesAndStocksIntegrationsView.ViewModel = ViewModel.WarehousesForPricesAndStocksIntegrationViewModel;
-
-			yentryCarLoadDocumentInfoString.Binding
-				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CarLoadDocumentInfoString, w => w.Text)
-				.AddBinding(vm => vm.CanSaveCarLoadDocumentInfoString, w => w.Sensitive)
-				.InitializeFromSource();
-
-			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
-			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
-			#endregion Вкладка Склад
-
-			#region Вкладка Бухгалтерия
-
-			ConfigureAccountingSettings();
-
-			#endregion Вкладка Бухгалтерия
 		}
-
+		
 		private void ConfigureEmployeesFixedPrices()
 		{
 			//Чтобы помещалось 4 строчки без полосы прокрутки
@@ -222,6 +237,23 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.CanRemoveFixedPrice, w => w.Sensitive)
 				.InitializeFromSource();
 		}
+		
+		private void ConfigureOrdersOrganizationSettings()
+		{
+			var viewModel = new AddOrRemoveIDomainObjectViewModel(ViewModel.EntityJournalOpener);
+			viewModel.Configure(
+				true,
+				"Подразделения авторов заказа:",
+				ViewModel,
+				new List<INamedDomainObject>());
+
+			var view = new AddOrRemoveIDomainObjectView(viewModel);
+			
+			vboxOrdersSettings.Add(view);
+			view.Show();
+		}
+
+		#endregion
 
 		private void OnNomenclaturesSelectionChanged(object sender, EventArgs e)
 		{

@@ -166,6 +166,8 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 using VodovozInfrastructure;
 using Vodovoz.Application.Options;
 using Vodovoz.Options;
+using Vodovoz.ViewModels.Journals.Mappings;
+using Vodovoz.ViewModels.Services;
 
 namespace Vodovoz
 {
@@ -728,6 +730,8 @@ namespace Vodovoz
 
 						.AddPacs()
 						.AddWaterDeliveryDesktop()
+						.AddSingleton<EntityToJournalMappings>()
+						.AddScoped<EntityJournalOpener>()
 						;
 
 					services.AddStaticHistoryTracker();

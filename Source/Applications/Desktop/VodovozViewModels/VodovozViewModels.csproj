@@ -94,6 +94,9 @@
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalNode.cs" />
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarEventTypeFilterViewModel.cs" />
+    <Compile Include="Journals\Mappings\EntityToJournalMapping.cs" />
+    <Compile Include="Journals\Mappings\EntityToJournalMappings.cs" />
+    <Compile Include="Journals\Mappings\Subdivisions\SubdivisionToJournalMapping.cs" />
     <Compile Include="Options\ConfigureGeoCoderApiOptions.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.AddressDataNode.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.cs" />
@@ -405,6 +408,7 @@
     <Compile Include="ReportsParameters\Wages\DriverWagesReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\ForwarderWageReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\WagesOperationsReportViewModel.cs" />
+    <Compile Include="Services\EntityJournalOpener.cs" />
     <Compile Include="Store\RegradingOfGoodsDocumentItemsViewModel.cs" />
     <Compile Include="Store\RegradingOfGoodsDocumentViewModel.cs" />
     <Compile Include="Store\RegradingOfGoodsTemplateItemsViewModel.cs" />
@@ -983,6 +987,7 @@
     <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
     <Compile Include="TempAdapters\SearchHelper.cs" />
     <Compile Include="TempAdapters\SearchParameter.cs" />
+    <Compile Include="Widgets\AddOrRemoveIDomainObjectViewModel.cs" />
     <Compile Include="Widgets\Cars\CarVersions\AddNewVersionEventArgs.cs" />
     <Compile Include="Widgets\Cars\CarVersions\ChangeStartDateEventArgs.cs" />
     <Compile Include="Widgets\Cars\CarVersions\EditCarOwnerEventArgs.cs" />

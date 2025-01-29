@@ -12,6 +12,7 @@ using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.ViewModels.Accounting.Payments;
+using Vodovoz.ViewModels.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
@@ -77,10 +78,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			RoboatsSettingsViewModel roboatsSettingsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope,
-			INavigationManager navigation) : base(commonServices?.InteractiveService, navigation)
+			INavigationManager navigation,
+			EntityJournalOpener entityJournalOpener) : base(commonServices?.InteractiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			RoboatsSettingsViewModel = roboatsSettingsViewModel ?? throw new ArgumentNullException(nameof(roboatsSettingsViewModel));
+			EntityJournalOpener = entityJournalOpener ?? throw new ArgumentNullException(nameof(entityJournalOpener));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
@@ -640,6 +643,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		}
 
 		#endregion Бухгалтерия
+		
+		public EntityJournalOpener EntityJournalOpener { get; }
 
 		private void InitializeSettingsViewModels()
 		{
