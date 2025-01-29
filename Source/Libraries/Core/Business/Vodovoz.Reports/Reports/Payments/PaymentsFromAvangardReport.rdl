@@ -1115,7 +1115,7 @@ FROM
             fp.pay_type as pay_type
         From orders o_online
                  JOIN payments_from_avangard p_avangard on p_avangard.order_num = o_online.online_order
-                 	and p_avangard.paid_date &gt;= DATE_ADD(o_online.delivery_date, INTERVAL -7 DAY) and p_avangard.paid_date &lt;= DATE_ADD(o_online.delivery_date, INTERVAL 7 DAY)
+                 	and p_avangard.paid_date &gt;= DATE_ADD(o_online.delivery_date, INTERVAL -2 MONTH) and p_avangard.paid_date &lt;= DATE_ADD(o_online.delivery_date, INTERVAL 2 MONTH)
                  JOIN fast_payments fp on fp.external_id = p_avangard.order_num  and fp.payment_status = 'Performed'
     ) as p on p.order_id = o.id
         LEFT JOIN
