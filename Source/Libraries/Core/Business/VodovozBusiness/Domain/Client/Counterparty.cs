@@ -37,7 +37,6 @@ namespace Vodovoz.Domain.Client
 
 		private bool _roboatsExclude;
 		private bool _isForSalesDepartment;
-		private ReasonForLeaving _reasonForLeaving;
 		private bool _isPaperlessWorkflow;
 		private bool _isNotSendDocumentsByEdo;
 		private bool _canSendUpdInAdvance;
@@ -743,13 +742,6 @@ namespace Vodovoz.Domain.Client
 		#endregion ОсобаяПечать
 
 		#region ЭДО и Честный знак
-
-		[Display(Name = "Причина выбытия")]
-		public virtual ReasonForLeaving ReasonForLeaving
-		{
-			get => _reasonForLeaving;
-			set => SetField(ref _reasonForLeaving, value);
-		}
 
 		[Display(Name = "Статус регистрации в Честном Знаке")]
 		public virtual RegistrationInChestnyZnakStatus RegistrationInChestnyZnakStatus
