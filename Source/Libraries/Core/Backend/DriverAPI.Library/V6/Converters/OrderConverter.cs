@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
@@ -83,7 +84,8 @@ namespace DriverAPI.Library.V6.Converters
 				CallBeforeArrivalMinutes = vodovozOrder.CallBeforeArrivalMinutes,
 				Trifle = vodovozOrder.Trifle ?? 0,
 				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType),
-				WaitUntilTime = vodovozOrder.WaitUntilTime
+				WaitUntilTime = vodovozOrder.WaitUntilTime,
+				OrderType = GetOrderType(vodovozOrder)
 			};
 
 			if(vodovozOrder.DontArriveBeforeInterval)
@@ -104,6 +106,21 @@ namespace DriverAPI.Library.V6.Converters
 			}
 
 			return apiOrder;
+		}
+
+		private OrderReasonForLeavingDtoType GetOrderType(Order vodovozOrder)
+		{
+			if(vodovozOrder.IsNeedIndividualSetOnLoad)
+			{
+				return OrderReasonForLeavingDtoType.Distributing;
+			}
+
+			if(vodovozOrder.IsOrderForResale)
+			{
+				return OrderReasonForLeavingDtoType.ForResale;
+			}
+
+			return OrderReasonForLeavingDtoType.ForPersonal;
 		}
 
 		private IEnumerable<PhoneDto> CreatePhoneList(Order vodovozOrder)

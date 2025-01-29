@@ -613,10 +613,20 @@ namespace Vodovoz.Core.Domain.Orders
 
 		public virtual bool IsLoadedFrom1C => !string.IsNullOrEmpty(Code1c);
 
+		/// <summary>
+		/// Проверка, является ли клиент по заказу сетевым покупателем
+		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
+		/// </summary>
 		public virtual bool IsNeedIndividualSetOnLoad =>
 			PaymentType == PaymentType.Cashless
 			&& Client?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
+
+		/// <summary>
+		/// Проверка, является ли целю покупки заказа - для перепродажи
+		/// </summary>
+		public virtual bool IsOrderForResale =>
+			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
 
 		/// <summary>
 		/// Документооборот по ЭДО с клиентом по заказу осуществляется по новой схеме

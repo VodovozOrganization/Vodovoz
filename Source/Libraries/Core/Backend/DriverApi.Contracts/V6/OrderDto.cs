@@ -127,5 +127,10 @@ namespace DriverApi.Contracts.V6
 		/// Ожидание до
 		/// </summary>
 		public TimeSpan? WaitUntilTime { get; set; }
+
+		/// <summary>
+		/// Тип заказа в зависимости от цели приобретения воды клиентом
+		/// </summary>
+		public OrderReasonForLeavingDtoType OrderType { get; set; }
 	}
 }
