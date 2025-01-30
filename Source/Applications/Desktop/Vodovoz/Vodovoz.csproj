@@ -429,6 +429,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
+    <Compile Include="JournalColumnsConfigs\AccountJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
@@ -2061,6 +2062,8 @@
     <Compile Include="gtk-gui\Vodovoz.Organizations.OrganizationView.cs" />
     <Compile Include="Organizations\OrganizationJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Organizations.OrganizationJournalFilterView.cs" />
+    <Compile Include="Organizations\AccountJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Organizations.AccountJournalFilterView.cs" />
     <Compile Include="Views\Reports\IncorrectFuelReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncorrectFuelReportView.cs" />
     <Compile Include="Dialogs\Cash\Payments\OutgoingPaymentCreateView.cs" />

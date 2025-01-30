@@ -1,5 +1,6 @@
-using Autofac;
+﻿using Autofac;
 using NHibernate.Transform;
+using QS.DomainModel.Entity;
 using QS.Project.Filter;
 using QS.Project.Journal;
 using QS.ViewModels.Control.EEVM;
@@ -39,6 +40,7 @@ namespace Vodovoz.Filters.ViewModels
 		private ClientCameFrom _clientCameFrom;
 		private bool _clientCameFromIsEmpty;
 		private object _selectedCameFrom;
+		private CounterpartyType? _restrictCounterpartyType;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
 
@@ -74,6 +76,19 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _counterpartyType;
 			set => SetField(ref _counterpartyType, value);
+		}
+
+		[PropertyChangedAlso(nameof(CanChangeCounterpartyType))]
+		public virtual CounterpartyType? RestrictCounterpartyType
+		{
+			get => _restrictCounterpartyType;
+			set
+			{
+				if(SetField(ref _restrictCounterpartyType, value))
+				{
+					CounterpartyType = value;
+				}
+			}
 		}
 
 		public virtual bool RestrictIncludeArchive
@@ -216,6 +231,8 @@ namespace Vodovoz.Filters.ViewModels
 			get => _clientCameFromIsEmpty;
 			set => UpdateFilterField(ref _clientCameFromIsEmpty, value);
 		}
+
+		public bool CanChangeCounterpartyType => RestrictCounterpartyType is null;
 
 		private void UnsubscribeOnCheckChanged()
 		{

@@ -40,6 +40,7 @@ namespace Vodovoz.Domain.Cash
 					_id = value;
 
 					UpdateFileInformations();
+					UpdateComments();
 				}
 			}
 		}
@@ -52,7 +53,7 @@ namespace Vodovoz.Domain.Cash
 		public virtual PayoutRequestState PayoutRequestState
 		{
 			get => _payoutRequestState;
-			set => SetField(ref _payoutRequestState, value);
+			protected set => SetField(ref _payoutRequestState, value);
 		}
 
 		[Display(Name = "Возможность не пересогласовывать выплаты")]
@@ -172,6 +173,7 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		protected abstract void UpdateFileInformations();
+		protected abstract void UpdateComments();
 
 		public abstract void ChangeState(PayoutRequestState newState);
 	}

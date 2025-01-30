@@ -27,6 +27,7 @@ namespace Vodovoz.ViewModels.Cash
 			FinancialResponsibilityCenterNode resultAlias = null;
 
 			return uow.Session.QueryOver<FinancialResponsibilityCenter>()
+				.Where(GetSearchCriterion<FinancialResponsibilityCenter>(frc => frc.Name))
 				.SelectList(list =>
 					list.Select(x => x.Id).WithAlias(() => resultAlias.Id)
 						.Select(x => x.Name).WithAlias(() => resultAlias.Name)
