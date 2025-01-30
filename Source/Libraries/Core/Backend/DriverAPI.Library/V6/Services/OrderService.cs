@@ -1,6 +1,5 @@
 ﻿using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
-using DriverAPI.Library.Errors;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
 using Microsoft.Extensions.Logging;
@@ -8,9 +7,11 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -27,6 +28,7 @@ using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.TrueMark;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -399,7 +401,7 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
 			}
 
-			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
+			if(routeList.Driver.Id != driver.Id)
 			{
 				_logger.LogWarning("Сотрудник {EmployeeId} попытался изменить заказ {OrderId} водителя {DriverId}",
 					driver.Id, orderId, routeList.Driver.Id);
@@ -593,15 +595,7 @@ namespace DriverAPI.Library.V6.Services
 				return processResult;
 			}
 
-			var isAllTrueMarkCodesAdded =
-				_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(_uow, routeListAddress.Order.Id);
-
-			if(!isAllTrueMarkCodesAdded)
-			{
-				return Result.Failure(TrueMarkCodesProcessingErrors.NotAllCodesAdded);
-			}
-
-			return Result.Success();
+			return IsAllRouteListItemTrueMarkProductCodesAddedToOrder(_uow, routeListAddress.Order.Id);
 		}
 
 		private Result IsScannedCodesAndSavedCodesAreEqual(IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
@@ -611,15 +605,28 @@ namespace DriverAPI.Library.V6.Services
 
 			if(scannedCodes.Count != savedCodes.Count)
 			{
-				return Result.Failure(TrueMarkCodesProcessingErrors.AddedAndSavedCodesCountNotEquals);
+				return Result.Failure(TrueMarkCodeErrors.AddedAndSavedCodesCountNotEquals);
 			}
 
 			foreach(var code in savedCodes)
 			{
 				if(!scannedCodes.Contains(code.SourceCode.RawCode))
 				{
-					return Result.Failure(TrueMarkCodesProcessingErrors.AddedAndSavedCodesNotEquals);
+					return Result.Failure(TrueMarkCodeErrors.AddedAndSavedCodesNotEquals);
 				}
+			}
+
+			return Result.Success();
+		}
+
+		private Result IsAllRouteListItemTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId)
+		{
+			var isAllTrueMarkCodesAdded =
+				_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(_uow, orderId);
+
+			if(!isAllTrueMarkCodesAdded)
+			{
+				return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
 			}
 
 			return Result.Success();
@@ -674,6 +681,339 @@ namespace DriverAPI.Library.V6.Services
 		private bool CanReceiveQRCodeForPayment(Order order)
 		{
 			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
+		}
+
+		public async Task<Result> AddTrueMarkCode(
+			DateTime actionTime,
+			Employee driver,
+			int orderId,
+			int orderSaleItemId,
+			string scannedCode,
+			CancellationToken cancellationToken)
+		{
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
+			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
+
+			if(vodovozOrder is null)
+			{
+				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
+				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+			}
+
+			if(vodovozOrderItem is null)
+			{
+				_logger.LogWarning("Строка заказа не найдена: {OrderItemId}", orderSaleItemId);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderItem.NotFound);
+			}
+
+			if(routeList is null)
+			{
+				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+			}
+
+			if(routeListAddress is null)
+			{
+				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+			}
+
+			if(routeList.Driver.Id != driver.Id)
+			{
+				_logger.LogWarning("Сотрудник {EmployeeId} попытался завершить заказ {OrderId} водителя {DriverId}",
+					driver.Id, orderId, routeList.Driver.Id);
+				return Result.Failure(Errors.Security.Authorization.OrderAccessDenied);
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute)
+			{
+				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+			}
+
+			var trueMarkWaterIdentificationCode =
+				_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
+
+			var codeCheckingResult = await IsTrueMarkCodeCanBeAddedToRouteListItem(
+				trueMarkWaterIdentificationCode,
+				routeListAddress,
+				vodovozOrder,
+				vodovozOrderItem,
+				cancellationToken);
+
+			if(codeCheckingResult.IsFailure)
+			{
+				return codeCheckingResult;
+			}
+
+			var productCode = new RouteListItemTrueMarkProductCode
+			{
+				CreationTime = actionTime,
+				SourceCodeStatus = SourceProductCodeStatus.Accepted,
+				SourceCode = trueMarkWaterIdentificationCode,
+				RouteListItem = routeListAddress
+			};
+
+			routeListAddress.TrueMarkCodes.Add(productCode);
+
+			if(!cancellationToken.IsCancellationRequested)
+			{
+				_uow.Commit();
+			}
+
+			return Result.Success();
+		}
+
+		public async Task<Result> ChangeTrueMarkCode(
+			DateTime actionTime,
+			Employee driver,
+			int orderId,
+			int orderSaleItemId,
+			string oldScannedCode,
+			string newScannedCode,
+			CancellationToken cancellationToken)
+		{
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
+			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
+
+			if(vodovozOrder is null)
+			{
+				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
+				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+			}
+
+			if(vodovozOrderItem is null)
+			{
+				_logger.LogWarning("Строка заказа не найдена: {OrderItemId}", orderSaleItemId);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderItem.NotFound);
+			}
+
+			if(routeList is null)
+			{
+				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+			}
+
+			if(routeListAddress is null)
+			{
+				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+			}
+
+			if(routeList.Driver.Id != driver.Id)
+			{
+				_logger.LogWarning("Сотрудник {EmployeeId} попытался завершить заказ {OrderId} водителя {DriverId}",
+					driver.Id, orderId, routeList.Driver.Id);
+				return Result.Failure(Errors.Security.Authorization.OrderAccessDenied);
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute)
+			{
+				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+			}
+
+			var oldTrueMarkWaterIdentificationCode =
+				_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, oldScannedCode);
+
+			var newTrueMarkWaterIdentificationCode =
+				_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, newScannedCode);
+
+			if(oldTrueMarkWaterIdentificationCode.GTIN != newTrueMarkWaterIdentificationCode.GTIN)
+			{
+				var error = TrueMarkCodeErrors.CreateTrueMarkCodesGtinsNotEqual(oldScannedCode, newScannedCode);
+				return Result.Failure(error);
+			}
+
+			var oldProductCode =
+				routeListAddress.TrueMarkCodes
+				.Where(x => x.SourceCode.Id == oldTrueMarkWaterIdentificationCode.Id)
+				.FirstOrDefault();
+
+			if(oldProductCode is null)
+			{
+				var error = TrueMarkCodeErrors.TrueMarkCodeForRouteListItemNotFound;
+				return Result.Failure(error);
+			}
+
+			var codeCheckingResult = await IsTrueMarkCodeCanBeAddedToRouteListItem(
+				newTrueMarkWaterIdentificationCode,
+				routeListAddress,
+				vodovozOrder,
+				vodovozOrderItem,
+				cancellationToken);
+
+			if(codeCheckingResult.IsFailure)
+			{
+				return codeCheckingResult;
+			}
+
+			var productCode = new RouteListItemTrueMarkProductCode
+			{
+				CreationTime = actionTime,
+				SourceCodeStatus = SourceProductCodeStatus.Accepted,
+				SourceCode = newTrueMarkWaterIdentificationCode,
+				ResultCode = newTrueMarkWaterIdentificationCode,
+				RouteListItem = routeListAddress
+			};
+
+			routeListAddress.TrueMarkCodes.Remove(oldProductCode);
+			routeListAddress.TrueMarkCodes.Add(productCode);
+
+			if(!cancellationToken.IsCancellationRequested)
+			{
+				_uow.Commit();
+			}
+
+			return Result.Success();
+		}
+
+		public async Task<Result> RemoveTrueMarkCode(
+			Employee driver,
+			int orderId,
+			int orderSaleItemId,
+			string scannedCode,
+			CancellationToken cancellationToken)
+		{
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
+			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
+
+			if(vodovozOrder is null)
+			{
+				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
+				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+			}
+
+			if(vodovozOrderItem is null)
+			{
+				_logger.LogWarning("Строка заказа не найдена: {OrderItemId}", orderSaleItemId);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderItem.NotFound);
+			}
+
+			if(routeList is null)
+			{
+				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+			}
+
+			if(routeListAddress is null)
+			{
+				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+			}
+
+			if(routeList.Driver.Id != driver.Id)
+			{
+				_logger.LogWarning("Сотрудник {EmployeeId} попытался завершить заказ {OrderId} водителя {DriverId}",
+					driver.Id, orderId, routeList.Driver.Id);
+				return Result.Failure(Errors.Security.Authorization.OrderAccessDenied);
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute)
+			{
+				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+			}
+
+			var trueMarkWaterIdentificationCode =
+				_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
+
+			var productCode =
+				routeListAddress.TrueMarkCodes
+				.Where(x => x.SourceCode.Id == trueMarkWaterIdentificationCode.Id)
+				.FirstOrDefault();
+
+			if(productCode is null)
+			{
+				var error = TrueMarkCodeErrors.TrueMarkCodeForRouteListItemNotFound;
+				return Result.Failure(error);
+			}
+
+			routeListAddress.TrueMarkCodes.Remove(productCode);
+
+			if(!cancellationToken.IsCancellationRequested)
+			{
+				_uow.Commit();
+			}
+
+			return Result.Success();
+		}
+
+		private async Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			RouteListItem routeListAddress,
+			Order order,
+			OrderItem orderItem,
+			CancellationToken cancellationToken)
+		{
+			if(trueMarkWaterIdentificationCode.IsInvalid)
+			{
+				var error = TrueMarkCodeErrors.CreateTrueMarkCodeStringIsNotValid(trueMarkWaterIdentificationCode.RawCode);
+				return Result.Failure(error);
+			}
+
+			if(trueMarkWaterIdentificationCode.GTIN != orderItem.Nomenclature.Gtin)
+			{
+				var error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(trueMarkWaterIdentificationCode.RawCode);
+				return Result.Failure(error);
+			}
+
+			var addedCodesHavingRequiredGtin = routeListAddress.TrueMarkCodes
+				.Where(x => x.SourceCode.GTIN == trueMarkWaterIdentificationCode.GTIN)
+				.ToList();
+
+			var bottlesInOrderHavingRequiredGtin = order.OrderItems
+				.Where(x => x.Nomenclature.Gtin == trueMarkWaterIdentificationCode.GTIN)
+				.Select(x => x.Count)
+				.Sum();
+
+			if(addedCodesHavingRequiredGtin.Count >= bottlesInOrderHavingRequiredGtin)
+			{
+				var error = TrueMarkCodeErrors.AllCodesAlreadyAdded;
+				return Result.Failure(error);
+			}
+
+			var codeCheckingProcessResult =
+				_trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(trueMarkWaterIdentificationCode);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				return codeCheckingProcessResult;
+			}
+
+			codeCheckingProcessResult =
+				await _trueMarkWaterCodeService.IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterIdentificationCode, cancellationToken);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				return codeCheckingProcessResult;
+			}
+
+			return Result.Success();
 		}
 	}
 }

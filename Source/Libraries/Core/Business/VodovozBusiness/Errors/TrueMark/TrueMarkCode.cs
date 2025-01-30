@@ -92,5 +92,43 @@
 				typeof(TrueMarkCode),
 				nameof(TrueMarkApiRequestError),
 				$"{message}");
+
+		/// <summary>
+		/// Количество переданных кодов ЧЗ для заказ не равно количеству ранее сохраненных кодов
+		/// </summary>
+		public static Error AddedAndSavedCodesCountNotEquals =>
+			new Error(typeof(TrueMarkCode),
+				nameof(AddedAndSavedCodesCountNotEquals),
+				"Количество переданных кодов ЧЗ для заказ не равно количеству ранее сохраненных кодов");
+
+		/// <summary>
+		/// Переданные коды ЧЗ для заказа отличаются от ранее сохраненных кодов
+		/// </summary>
+		public static Error AddedAndSavedCodesNotEquals =>
+			new Error(typeof(TrueMarkCode),
+				nameof(AddedAndSavedCodesNotEquals),
+				"Переданные коды ЧЗ для заказа отличаются от ранее сохраненных кодов");
+
+		/// <summary>
+		/// Не все коды ЧЗ для заказа были добавлены
+		/// </summary>
+		public static Error NotAllCodesAdded =>
+			new Error(typeof(TrueMarkCode),
+				nameof(NotAllCodesAdded),
+				"Не все коды ЧЗ для заказа были добавлены");
+
+		/// <summary>
+		/// Нужное количество кодов ЧЗ для заказа уже было добавлено
+		/// </summary>
+		public static Error AllCodesAlreadyAdded =>
+			new Error(typeof(TrueMarkCode),
+				nameof(AllCodesAlreadyAdded),
+				"Нужное количество кодов ЧЗ для заказа уже было добавлено");
+
+		public static Error TrueMarkCodeForRouteListItemNotFound =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeForRouteListItemNotFound),
+				"Код ЧЗ не найден среди добавленных к адресу доставки");
 	}
 }
