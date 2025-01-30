@@ -1,10 +1,7 @@
 ﻿using Gamma.GtkWidgets;
-using Gamma.Widgets;
 using Gtk;
-using QS.ViewModels;
 using QS.Views.GtkUI;
 using QS.Widgets;
-using QS.Widgets.GtkUI;
 using System;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Clients;
@@ -48,7 +45,9 @@ namespace Vodovoz.Filters.GtkViews
 
 			yenumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			yenumCounterpartyType.Binding
-				.AddBinding(ViewModel, vm => vm.CounterpartyType, w => w.SelectedItemOrNull)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CounterpartyType, w => w.SelectedItemOrNull)
+				.AddBinding(vm => vm.CanChangeCounterpartyType, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yenumReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);

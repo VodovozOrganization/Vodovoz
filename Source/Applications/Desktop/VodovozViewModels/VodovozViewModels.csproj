@@ -115,6 +115,10 @@
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.RowsCreating.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.PromosetNode.cs" />
+    <Compile Include="Organizations\AccountJournalFilterViewModel.cs" />
+    <Compile Include="Organizations\AccountJournalNode.cs" />
+    <Compile Include="Organizations\AccountJournalViewModel.cs" />
+    <Compile Include="Organizations\AccountViewModel.cs" />
     <Compile Include="Organizations\OrganizationJournalFilterViewModel.cs" />
     <Compile Include="Organizations\OrganizationJournalNode.cs" />
     <Compile Include="Organizations\OrganizationJournalViewModel.cs" />
@@ -441,6 +445,7 @@
     <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
+    <Compile Include="ViewModels\Cash\RepeatIntervalTypes.cs" />
     <Compile Include="ViewModels\Contacts\EmailsViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyMatchingNode.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointMatchingNode.cs" />
