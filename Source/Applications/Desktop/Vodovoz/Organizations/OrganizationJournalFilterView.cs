@@ -1,12 +1,15 @@
-﻿using System;
+﻿using System.ComponentModel;
+using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Organizations;
+
 namespace Vodovoz.Organizations
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrganizationJournalFilterView : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class OrganizationJournalFilterView : FilterViewBase<OrganizationJournalFilterViewModel>
 	{
-		public OrganizationJournalFilterView()
+		public OrganizationJournalFilterView(OrganizationJournalFilterViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 		}
 	}
 }

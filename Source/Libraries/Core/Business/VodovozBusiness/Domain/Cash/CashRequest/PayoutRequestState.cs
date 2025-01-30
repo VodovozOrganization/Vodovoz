@@ -32,6 +32,19 @@ namespace Vodovoz.Domain.Cash
 		AgreedBySubdivisionChief, // после согласования руководителем
 
 		/// <summary>
+		/// Согласована Центроми финансовой ответственности
+		/// На рассмотрении у финансиста
+		/// </summary>
+		[Display (Name = "Согласована ЦФО")]
+		AgreedByFinancialResponsibilityCenter,
+
+		/// <summary>
+		/// Передана на согласование исполнительным директором`
+		/// </summary>
+		[Display(Name = "Передана на согласование исполнительным директором")]
+		WaitingForAgreedByExecutiveDirector,
+
+		/// <summary>
 		/// Согласована исполнительным директором
 		/// </summary>
 		[Display(Name = "Согласована исполнительным директором")]
@@ -39,12 +52,15 @@ namespace Vodovoz.Domain.Cash
 
 		/// <summary>
 		/// Передана на выдачу
+		/// Согласовано в реестр
+		/// Готова к оплате
 		/// </summary>
 		[Display(Name = "Передана на выдачу")]
 		GivenForTake,
 
 		/// <summary>
 		/// Частично закрыта
+		/// Оплачена частично
 		/// </summary>
 		[Display(Name = "Частично закрыта")]
 		PartiallyClosed, // содержит не выданные суммы
