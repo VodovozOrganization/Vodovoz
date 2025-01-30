@@ -111,12 +111,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddFuncBinding(ViewModel, vm => !vm.IsOnlyCarsWithoutCarOwner, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entityentryCarOwner.ViewModel =
-				new LegacyEEVMBuilderFactory<CarJournalFilterViewModel>(ViewModel.Journal, ViewModel, ViewModel.Journal.UoW, ViewModel.Journal.NavigationManager, ViewModel.Journal.LifetimeScope)
-				.ForProperty(x => x.CarOwner)
-				.UseTdiEntityDialog()
-				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-				.Finish();
+			entityentryCarOwner.ViewModel = ViewModel.OrganizationViewModel;
 		}
 
 		public override void Destroy()

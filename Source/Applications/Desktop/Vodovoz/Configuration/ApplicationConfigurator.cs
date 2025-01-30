@@ -43,6 +43,7 @@ using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
@@ -91,7 +92,7 @@ namespace Vodovoz.Configuration
 					.DefaultTableView().SearchColumn("Фамилия", x => x.Surname).SearchColumn("Имя", x => x.Name)
 					.SearchColumn("Отчество", x => x.Patronymic).End(),
 				OrmObjectMapping<Order>.Create().Dialog<OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
-				OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString())
+				OrmObjectMapping<Organization>.Create().Dialog<OrganizationViewModel>().DefaultTableView().Column("Код", x => x.Id.ToString())
 					.SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView()
 					.SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),

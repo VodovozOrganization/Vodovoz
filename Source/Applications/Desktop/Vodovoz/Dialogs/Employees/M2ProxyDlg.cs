@@ -4,9 +4,8 @@ using Gtk;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
-using QS.Validation;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +14,10 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -82,10 +82,21 @@ namespace Vodovoz.Dialogs.Employees
 			};
 			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			var orgFactory = _lifetimeScope.Resolve<IOrganizationJournalFactory>();
-			evmeOrganization.SetEntityAutocompleteSelectorFactory(orgFactory.CreateOrganizationAutocompleteSelectorFactory());
-			evmeOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
-			evmeOrganization.Changed += (sender, e) => UpdateStates();
+
+			var organizationViewModel = new LegacyEEVMBuilderFactory<M2ProxyDocument>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope)
+				.ForProperty(x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
+
+			organizationViewModel.Changed += (sender, e) => UpdateStates();
+
+			entryOrganization.ViewModel = organizationViewModel;
 
 			FillForOrder();
 
@@ -199,7 +210,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			bool isNewDoc = !(Entity.Id > 0);
 			evmeOrder.Sensitive = yDPDatesRange.Sensitive = evmeEmployee.Sensitive = evmeSupplier.Sensitive = yETicketNr.Sensitive
-				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = evmeOrganization.Sensitive = isNewDoc;
+				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = entryOrganization.Sensitive = isNewDoc;
 
 			if(Entity.Organization == null || !isNewDoc) {
 				return;

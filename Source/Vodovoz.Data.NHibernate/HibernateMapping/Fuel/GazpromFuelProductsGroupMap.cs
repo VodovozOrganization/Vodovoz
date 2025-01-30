@@ -7,13 +7,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel
 	{
 		public GazpromFuelProductsGroupMap()
 		{
-			Table("gazprom_fuel_categories");
+			Table("gazprom_fuel_product_groups");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.FuelTypeId).Column("fuel_type_id");
-			Map(x => x.GazpromFuelProductGroupId).Column("gazprom_category_id");
-			Map(x => x.GazpromFuelProductGroupName).Column("gazprom_category_name");
+			Map(x => x.GazpromFuelProductGroupId).Column("gazprom_product_group_id");
+			Map(x => x.GazpromFuelProductGroupName).Column("gazprom_product_group_name");
 			Map(x => x.IsArchived).Column("is_archived");
 		}
 	}
