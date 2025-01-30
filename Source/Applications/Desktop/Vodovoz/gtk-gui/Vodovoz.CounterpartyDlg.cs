@@ -703,6 +703,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.radioInfo);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.radioInfo]));
 			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.radioContacts = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Контакты"));
 			this.radioContacts.CanFocus = true;
@@ -713,6 +715,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.radioContacts);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.radioContacts]));
 			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.radioDetails = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Реквизиты"));
 			this.radioDetails.CanFocus = true;
@@ -723,6 +727,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.radioDetails);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.radioDetails]));
 			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.radiobuttonProxies = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Доверенности"));
 			this.radiobuttonProxies.CanFocus = true;
@@ -733,6 +739,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.radiobuttonProxies);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.radiobuttonProxies]));
 			w13.Position = 3;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.radioContracts = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Договор"));
 			this.radioContracts.CanFocus = true;
@@ -743,6 +751,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.radioContracts);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.radioContracts]));
 			w14.Position = 4;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.radioDocuments = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Документы"));
 			this.radioDocuments.CanFocus = true;
@@ -753,6 +763,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.radioDocuments);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.radioDocuments]));
 			w15.Position = 5;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.radioSpecialDocFields = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Данные для документов"));
 			this.radioSpecialDocFields.CanFocus = true;
@@ -763,6 +775,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.radioSpecialDocFields);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.radioSpecialDocFields]));
 			w16.Position = 6;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.radioDeliveryPoint = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Точки доставки"));
 			this.radioDeliveryPoint.CanFocus = true;
@@ -773,6 +787,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.radioDeliveryPoint);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.radioDeliveryPoint]));
 			w17.Position = 7;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.radioTags = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Теги"));
 			this.radioTags.CanFocus = true;
@@ -783,6 +799,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.radioTags);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.radioTags]));
 			w18.Position = 8;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.rbnPrices = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Цены"));
 			this.rbnPrices.CanFocus = true;
@@ -793,6 +811,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.rbnPrices);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.rbnPrices]));
 			w19.Position = 9;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.rbnEmails = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Письма"));
 			this.rbnEmails.CanFocus = true;
@@ -803,6 +823,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.rbnEmails);
 			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.rbnEmails]));
 			w20.Position = 10;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.rbnEdo = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Настройки ЭДО и Честного знака"));
 			this.rbnEdo.CanFocus = true;
@@ -813,6 +835,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.rbnEdo);
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.rbnEdo]));
 			w21.Position = 11;
+			w21.Expand = false;
+			w21.Fill = false;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
 			this.rbnEdoDocuments = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Документы по ЭДО"));
 			this.rbnEdoDocuments.CanFocus = true;
@@ -823,6 +847,8 @@ namespace Vodovoz
 			this.hbxRadioButtons.Add(this.rbnEdoDocuments);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.rbnEdoDocuments]));
 			w22.Position = 12;
+			w22.Expand = false;
+			w22.Fill = false;
 			w9.Add(this.hbxRadioButtons);
 			this.scrolledwindow12.Add(w9);
 			this.vbox2.Add(this.scrolledwindow12);
