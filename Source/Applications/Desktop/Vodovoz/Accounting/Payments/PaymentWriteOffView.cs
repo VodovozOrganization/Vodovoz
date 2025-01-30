@@ -60,17 +60,6 @@ namespace Vodovoz.Accounting.Payments
 
 			entityentryCounterparty.ViewModel = ViewModel.CounterpartyViewModel;
 
-			var organizationViewModel = new LegacyEEVMBuilderFactory<PaymentWriteOffViewModel>(ViewModel, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.Organization)
-				.UseTdiDialog<OrganizationDlg>()
-				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-				.Finish();
-
-			organizationViewModel.CanViewEntity = false;
-			organizationViewModel.IsEditable = ViewModel.IsNew;
-
-			ViewModel.OrganizationViewModel = organizationViewModel;
-
 			entityentryOrganization.ViewModel = ViewModel.OrganizationViewModel;
 
 			entityentryFinancialExpenseCategory.ViewModel = ViewModel.FinancialExpenseCategoryViewModel;
