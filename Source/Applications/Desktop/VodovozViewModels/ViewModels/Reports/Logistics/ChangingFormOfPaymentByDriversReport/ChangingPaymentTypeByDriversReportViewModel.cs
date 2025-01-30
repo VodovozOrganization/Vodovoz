@@ -156,6 +156,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Формирование отчета было прервано");
 				});
 			}
+			catch(Exception e)
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error, e.Message);
+				});
+			}
 			finally
 			{
 				_guiDispatcher.RunInGuiTread(() =>
@@ -237,7 +244,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 
 			foreach(var g in groupedByDriverRows)
 			{
-				rowsWithDriverTitles.Add(new ChangingPaymentTypeByDriversReportRow { DriverName = g.Key, IsTitle = true });
+				var totalChangesCount = g.Value.Count();
+				var orderChangesCount = g.Value.Select(x => x.OrderId).Distinct().Count();
+
+				rowsWithDriverTitles.Add(
+					new ChangingPaymentTypeByDriversReportRow
+					{
+						DriverName = $"{g.Key} (итого изменений: {totalChangesCount}, заказов: {orderChangesCount}) ",
+						IsTitle = true
+					});
+
 				rowsWithDriverTitles.AddRange(g.Value);
 			}
 
