@@ -338,9 +338,9 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			ycheckIsAccountableInChestniyZnak.Binding.AddBinding(ViewModel.Entity, e => e.IsAccountableInTrueMark, w => w.Active)
 				.InitializeFromSource();
-			validatedGtin.ValidationMode = ValidationType.numeric;
-			validatedGtin.MaxLength = 14;
-			validatedGtin.Binding.AddBinding(ViewModel.Entity, e => e.Gtin, w => w.Text).InitializeFromSource();
+			//validatedGtin.ValidationMode = ValidationType.numeric;
+			//validatedGtin.MaxLength = 14;
+			//validatedGtin.Binding.AddBinding(ViewModel.Entity, e => e.Gtin, w => w.Text).InitializeFromSource();
 
 			chkInventoryAccounting.Binding
 				.AddBinding(ViewModel.Entity, e => e.HasInventoryAccounting, w => w.Active)
