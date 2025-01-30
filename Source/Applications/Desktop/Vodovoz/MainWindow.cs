@@ -381,9 +381,9 @@ public partial class MainWindow : Gtk.Window
 	protected override void OnDestroyed()
 	{
 		/*if(_messageBusControl != null)
-		{
-			_messageBusControl.Start();
-		}*/
+        {
+            _messageBusControl.Start();
+        }*/
 
 		base.OnDestroyed();
 	}

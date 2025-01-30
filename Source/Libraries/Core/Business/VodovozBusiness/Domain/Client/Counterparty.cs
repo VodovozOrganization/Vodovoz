@@ -712,6 +712,7 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _cargoReceiverSource, value);
 		}
 
+		[Display(Name = "Расчетный счет для счета на олпату")]
 		public virtual Account OurOrganizationAccountForBills
 		{
 			get => _ourOrganizationAccountForBills;

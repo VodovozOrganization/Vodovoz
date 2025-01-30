@@ -22,5 +22,8 @@ namespace Vodovoz.Settings.Database.Organizations
 		public int AuditDepartmentSubdivisionId => _settingsController.GetValue<int>("subdivision_audit_department_id");
 		public int CashSubdivisionBCId => _settingsController.GetValue<int>("Subdivision.CashSubdivisionBCId");
 		public int CashSubdivisionBCSofiyaId => _settingsController.GetValue<int>("Subdivision.CashSubdivisionBCSofiyaId");
+
+		public int LogisticSubdivisionSofiiskayaId => _settingsController.GetValue<int>("LogisticSubdivisionSofiiskayaId");
+		public int LogisticSubdivisionBugriId => _settingsController.GetValue<int>("LogisticSubdivisionBugriId");
 	}
 }
