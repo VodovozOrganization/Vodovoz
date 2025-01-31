@@ -557,7 +557,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				roles.Add(PayoutRequestUserRole.Coordinator);
 			}
 
-			if(CheckRole(Vodovoz.Permissions.Cash.RoleCashier, userId))
+			if(CheckRole(Vodovoz.Permissions.Cash.PresetPermissionsRoles.Cashier, userId))
 			{
 				roles.Add(PayoutRequestUserRole.Cashier);
 			}
