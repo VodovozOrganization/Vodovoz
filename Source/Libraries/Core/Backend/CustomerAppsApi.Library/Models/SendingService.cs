@@ -59,7 +59,7 @@ namespace CustomerAppsApi.Library.Models
 
 			if(counterparty is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClient.UnknownCounterparty);
+				return Vodovoz.Errors.Common.CustomerAppsApiClient.UnknownCounterparty;
 			}
 
 			var externalCounterparty = _externalCounterpartyRepository.GetExternalCounterparty(
@@ -67,7 +67,7 @@ namespace CustomerAppsApi.Library.Models
 			
 			if(externalCounterparty is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClient.UnknownUser);
+				return Vodovoz.Errors.Common.CustomerAppsApiClient.UnknownUser;
 			}
 			
 			Employee employee = null;
@@ -87,7 +87,7 @@ namespace CustomerAppsApi.Library.Models
 
 			if(employee is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClient.UnsupportedSource);
+				return Vodovoz.Errors.Common.CustomerAppsApiClient.UnsupportedSource;
 			}
 
 			CreateAuthorizationCodeEmail(
