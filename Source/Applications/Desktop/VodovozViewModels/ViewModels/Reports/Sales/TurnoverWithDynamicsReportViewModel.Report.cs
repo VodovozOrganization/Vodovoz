@@ -4,13 +4,11 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Gamma.Utilities;
 using MoreLinq;
-using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Presentation.ViewModels.Reports;
 using Vodovoz.Reports.Editing.Modifiers;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -49,6 +47,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				ShowLastSale = showLastSale;
 				ShowResidueForNomenclaturesWithoutSales = showResidueForNomenclaturesWithoutSales;
 				ShowContacts = showContacts;
+				ShowResiduesAtCreatedAt = ShowLastSale && GroupingBy.LastOrDefault() == GroupingType.Nomenclature;
 				_warehouseNomenclatureBalanceCallback = warehouseNomenclatureBalanceCallback;
 				Slices = DateTimeSliceFactory.CreateSlices(slicingType, startDate, endDate).ToList();
 				CreatedAt = DateTime.Now;
@@ -96,7 +95,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			public bool ShowResidueForNomenclaturesWithoutSales { get; }
 
 			public bool ShowContacts { get; }
-
+			public bool ShowResiduesAtCreatedAt { get; }
 			public DateTime CreatedAt { get; }
 			#endregion
 
