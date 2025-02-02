@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -58,7 +59,8 @@ namespace DriverAPI.Library.V6.Converters
 			Order vodovozOrder,
 			RouteListItem routeListItem,
 			SmsPaymentStatus? smsPaymentStatus,
-			FastPaymentStatus? qrPaymentDtoStatus)
+			FastPaymentStatus? qrPaymentDtoStatus,
+			IEnumerable<TrueMarkProductCodeOrderItem> productCodesByOrderItems)
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
@@ -76,7 +78,7 @@ namespace DriverAPI.Library.V6.Converters
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderSum = vodovozOrder.OrderSum,
-				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems, routeListItem),
+				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems, routeListItem, productCodesByOrderItems),
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,
 				OrderReceptionItems = pairOfSplitedLists.orderReceptionItems,
 				IsFastDelivery = vodovozOrder.IsFastDelivery,
@@ -203,19 +205,25 @@ namespace DriverAPI.Library.V6.Converters
 			return (deliveryItems, receptionItems);
 		}
 
-		private IEnumerable<OrderSaleItemDto> PrepareSaleItemsList(IEnumerable<OrderItem> orderItems, RouteListItem routeListItem)
+		private IEnumerable<OrderSaleItemDto> PrepareSaleItemsList(
+			IEnumerable<OrderItem> orderItems,
+			RouteListItem routeListItem,
+			IEnumerable<TrueMarkProductCodeOrderItem> productCodesByOrderItems)
 		{
 			var result = new List<OrderSaleItemDto>();
 
 			foreach(var saleItem in orderItems)
 			{
-				result.Add(ConvertToAPIOrderSaleItem(saleItem, routeListItem));
+				result.Add(ConvertToAPIOrderSaleItem(saleItem, routeListItem, productCodesByOrderItems));
 			}
 
 			return result;
 		}
 
-		private OrderSaleItemDto ConvertToAPIOrderSaleItem(OrderItem saleItem, RouteListItem routeListItem)
+		private OrderSaleItemDto ConvertToAPIOrderSaleItem(
+			OrderItem saleItem,
+			RouteListItem routeListItem,
+			IEnumerable<TrueMarkProductCodeOrderItem> productCodesByOrderItems)
 		{
 			var result = new OrderSaleItemDto
 			{
@@ -232,7 +240,7 @@ namespace DriverAPI.Library.V6.Converters
 				CapColor = saleItem.Nomenclature.BottleCapColor,
 				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false,
 				Gtin = saleItem.Nomenclature.Gtin,
-				Codes = GetOrderItemCodes(saleItem, routeListItem)
+				Codes = GetOrderItemCodes(saleItem, routeListItem, productCodesByOrderItems)
 			};
 
 			if(saleItem.Nomenclature.TareVolume != null)
@@ -260,25 +268,48 @@ namespace DriverAPI.Library.V6.Converters
 			return result;
 		}
 
-		private IEnumerable<TrueMarkCodeDto> GetOrderItemCodes(OrderItem saleItem, RouteListItem routeListItem)
+		private IEnumerable<TrueMarkCodeDto> GetOrderItemCodes(
+			OrderItem saleItem,
+			RouteListItem routeListItem,
+			IEnumerable<TrueMarkProductCodeOrderItem> productCodesByOrderItems)
 		{
-			var isTrueMarkCodesCanBeAdded =
-				saleItem.Nomenclature?.IsAccountableInTrueMark == true
-				&& string.IsNullOrWhiteSpace(saleItem.Nomenclature?.Gtin)
-				&& saleItem.Count > 0;
+			var codes = Enumerable.Empty<TrueMarkCodeDto>();
 
-			if(!isTrueMarkCodesCanBeAdded)
+			if(!saleItem.IsTrueMarkCodesMustBeAdded)
 			{
-				return Enumerable.Empty<TrueMarkCodeDto>();
+				return codes;
 			}
 
 			var sequenceNumber = 0;
 
-			var codes =
+			if(saleItem.IsTrueMarkCodesMustBeAddedInWarehouse)
+			{
+				codes =
+					routeListItem.TrueMarkCodes
+					.Select(x => x.ResultCode)
+					.Where(c => c.GTIN == saleItem.Nomenclature.Gtin)
+					.Select(x => ConvertToApiTrueMarkCode(x, sequenceNumber++))
+					.ToList();
+
+				return codes;
+			}
+
+			if(productCodesByOrderItems is null || !productCodesByOrderItems.Any())
+			{
+				return codes;
+			}
+
+			var orderItemCodesIds = productCodesByOrderItems
+				.Where(x => x.OrderItemId == saleItem.Id)
+				.Select(x => x.TrueMarkProductCodeId);
+
+			var orderItemCodes =
 				routeListItem.TrueMarkCodes
-				.Select(x => x.ResultCode)
-				.Where(c => c.GTIN == saleItem.Nomenclature.Gtin)
-				.Select(x => ConvertToApiTrueMarkCode(x, sequenceNumber++))
+				.Where(x => orderItemCodesIds.Contains(x.Id));
+
+			codes =
+				orderItemCodes
+				.Select(x => ConvertToApiTrueMarkCode(x.SourceCode, sequenceNumber++))
 				.ToList();
 
 			return codes;
@@ -314,6 +345,22 @@ namespace DriverAPI.Library.V6.Converters
 				Quantity = saleItem.ActualCount ?? saleItem.Count
 			};
 
+			return result;
+		}
+
+		public NomenclatureTrueMarkCodesDto ConvertOrderItemTrueMarkCodesDataToDto(
+			OrderItem saleItem,
+			RouteListItem routeListItem,
+			IEnumerable<TrueMarkProductCodeOrderItem> productCodesByOrderItems)
+		{
+			var result = new NomenclatureTrueMarkCodesDto
+			{
+				OrderSaleItemId = saleItem.Id,
+				Name = saleItem.Nomenclature.Name,
+				Gtin = saleItem.Nomenclature.Gtin,
+				Quantity = saleItem.ActualCount ?? saleItem.Count,
+				Codes = GetOrderItemCodes(saleItem, routeListItem, productCodesByOrderItems)
+			};
 			return result;
 		}
 	}

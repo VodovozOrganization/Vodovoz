@@ -2009,13 +2009,25 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return true;
 		}
 
-		public IList<TrueMarkProductCodeOrderItem> AddedToOrderItemCodes(IUnitOfWork uow, int orderItemId)
+		public IList<TrueMarkProductCodeOrderItem> GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(IUnitOfWork uow, int orderItemId)
 		{
-			var codes = uow.Session.Query<TrueMarkProductCodeOrderItem>()
+			var codesOrderItems = uow.Session.Query<TrueMarkProductCodeOrderItem>()
 				.Where(x => x.OrderItemId == orderItemId)
 				.ToList();
 
-			return codes;
+			return codesOrderItems;
+		}
+
+		public IList<TrueMarkProductCodeOrderItem> GetTrueMarkCodesAddedByDriverToOrderByOrderId(IUnitOfWork uow, int orderId)
+		{
+			var codesOrderItems = 
+				from order in uow.Session.Query<Order>()
+				join orderItem in uow.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
+				join codeOrderItem in uow.Session.Query<TrueMarkProductCodeOrderItem>() on orderItem.Id equals codeOrderItem.OrderItemId
+				where order.Id == orderId
+				select codeOrderItem;
+
+			return codesOrderItems.ToList();
 		}
 	}
 }

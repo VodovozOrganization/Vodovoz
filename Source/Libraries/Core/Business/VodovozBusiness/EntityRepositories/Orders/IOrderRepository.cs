@@ -195,11 +195,19 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool IsAllRouteListItemTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
-		/// Получить все добавленные коды ЧЗ для указанной строки заказа
+		/// Получить все добавленные водителем коды ЧЗ для указанной строки заказа
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="orderItemId">Номер строки заказа</param>
-		/// <returns>Кол-во добавленных кодов ЧЗ</returns>
-		IList<TrueMarkProductCodeOrderItem> AddedToOrderItemCodes(IUnitOfWork uow, int orderItemId);
+		/// <returns>Список с данными номера кода и номера строки заказа</returns>
+		IList<TrueMarkProductCodeOrderItem> GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(IUnitOfWork uow, int orderItemId);
+
+		/// <summary>
+		/// Получить все добавленные водителем коды ЧЗ для указанного заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns>Список с данными номера кода и номера строки заказа</returns>
+		IList<TrueMarkProductCodeOrderItem> GetTrueMarkCodesAddedByDriverToOrderByOrderId(IUnitOfWork uow, int orderId);
 	}
 }

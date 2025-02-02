@@ -79,6 +79,13 @@ namespace Vodovoz.Core.Domain.Goods
 			set => SetField(ref _attachedFileInformations, value);
 		}
 
+		/// <summary>
+		/// Проверка на то, что номенклатура подлежит учету в Честном Знаке и имеет GTIN
+		/// </summary>
+		public virtual bool IsAccountableInTrueMarkAndHasGtin =>
+			IsAccountableInTrueMark
+			&& !string.IsNullOrWhiteSpace(Gtin);
+
 		public virtual void AddFileInformation(string fileName)
 		{
 			if(AttachedFileInformations.Any(a => a.FileName == fileName))
