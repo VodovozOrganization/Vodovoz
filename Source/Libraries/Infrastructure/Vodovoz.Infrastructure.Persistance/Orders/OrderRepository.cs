@@ -37,7 +37,6 @@ using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using VodovozBusiness.Services.TrueMark;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -1984,7 +1983,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		public bool IsAllRouteListItemTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId)
 		{
-			var accountableInTrueMarkOrderItems = GetIsAccountableInTrueMarkOrderItems(uow, orderId);
+			var accountableInTrueMarkGtinItemsCount = GetIsAccountableInTrueMarkOrderItems(uow, orderId)
+				.GroupBy(x => x.Nomenclature.Gtin)
+				.ToDictionary(x => x.Key, x => x.Sum(item => item.Count));
 
 			var addedTrueMarkCodes = GetAddedRouteListItemTrueMarkProductCodesByOrderId(uow, orderId)
 				.Where(x => x.SourceCodeStatus == SourceProductCodeStatus.Accepted)
@@ -1992,20 +1993,29 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.GroupBy(x => x.GTIN)
 				.ToDictionary(x => x.Key, x => x);
 
-			foreach(var orderItem in accountableInTrueMarkOrderItems)
+			foreach(var gtinItemCount in accountableInTrueMarkGtinItemsCount)
 			{
 				var addedCodesCount =
-					addedTrueMarkCodes.TryGetValue(orderItem.Nomenclature.Gtin, out var addedCodes)
+					addedTrueMarkCodes.TryGetValue(gtinItemCount.Key, out var addedCodes)
 					? addedCodes.Count()
 					: 0;
 
-				if(addedCodesCount < orderItem.Count)
+				if(addedCodesCount < gtinItemCount.Value)
 				{
 					return false;
 				}
 			}
 
 			return true;
+		}
+
+		public IList<TrueMarkProductCodeOrderItem> AddedToOrderItemCodes(IUnitOfWork uow, int orderItemId)
+		{
+			var codes = uow.Session.Query<TrueMarkProductCodeOrderItem>()
+				.Where(x => x.OrderItemId == orderItemId)
+				.ToList();
+
+			return codes;
 		}
 	}
 }

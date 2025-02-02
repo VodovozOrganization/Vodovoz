@@ -549,7 +549,10 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private Result ProcessScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
+		private Result ProcessScannedCodes(
+			DateTime actionTime,
+			IDriverOrderShipmentInfo completeOrderInfo,
+			RouteListItem routeListAddress)
 		{
 			if(routeListAddress.Order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 			{
@@ -559,33 +562,34 @@ namespace DriverAPI.Library.V6.Services
 			return ProcessResaleOrderScannedCodes(completeOrderInfo, routeListAddress);
 		}
 
-		private Result ProcessOwnUseOrderScannedCodes(DateTime actionTime, IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
+		private Result ProcessOwnUseOrderScannedCodes(
+			DateTime actionTime,
+			IDriverOrderShipmentInfo completeOrderInfo,
+			RouteListItem routeListAddress)
 		{
 			var scannedCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.BottleCodes).ToList();
 
-			routeListAddress.TrueMarkCodes.Clear();
 			routeListAddress.UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason;
 
-			foreach(var scannedCode in scannedCodes)
+			foreach(var scannedItem in completeOrderInfo.ScannedItems)
 			{
-				var trueMarkWaterIdentificationCode =
-					_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
-
-				if(routeListAddress.TrueMarkCodes.Any(x => x.SourceCode.RawCode == trueMarkWaterIdentificationCode.RawCode))
+				foreach(var scannedCode in scannedCodes)
 				{
-					continue;
+					var trueMarkWaterIdentificationCode =
+						_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
+
+					if(routeListAddress.TrueMarkCodes.Any(x => x.SourceCode.RawCode == trueMarkWaterIdentificationCode.RawCode))
+					{
+						continue;
+					}
+
+					AddTrueMarkCodeToRouteListItem(
+						routeListAddress,
+						scannedItem.OrderSaleItemId,
+						trueMarkWaterIdentificationCode,
+						SourceProductCodeStatus.New);
 				}
-
-				var productCode = new RouteListItemTrueMarkProductCode
-				{
-					CreationTime = actionTime,
-					SourceCodeStatus = SourceProductCodeStatus.New,
-					SourceCode = trueMarkWaterIdentificationCode,
-					RouteListItem = routeListAddress
-				};
-
-				routeListAddress.TrueMarkCodes.Add(productCode);
-			}
+			}			
 
 			return Result.Success();
 		}
@@ -599,7 +603,7 @@ namespace DriverAPI.Library.V6.Services
 				return processResult;
 			}
 
-			return IsAllRouteListItemTrueMarkProductCodesAddedToOrder(_uow, routeListAddress.Order.Id);
+			return IsAllRouteListItemTrueMarkProductCodesAddedToOrder(routeListAddress.Order.Id);
 		}
 
 		private Result IsScannedCodesAndSavedCodesAreEqual(IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
@@ -623,7 +627,7 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private Result IsAllRouteListItemTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId)
+		private Result IsAllRouteListItemTrueMarkProductCodesAddedToOrder(int orderId)
 		{
 			var isAllTrueMarkCodesAdded =
 				_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(_uow, orderId);
@@ -765,16 +769,12 @@ namespace DriverAPI.Library.V6.Services
 				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, error);
 			}
 
-			var productCode = new RouteListItemTrueMarkProductCode
-			{
-				CreationTime = actionTime,
-				SourceCodeStatus = SourceProductCodeStatus.Accepted,
-				SourceCode = trueMarkWaterIdentificationCode,
-				ResultCode = trueMarkWaterIdentificationCode,
-				RouteListItem = routeListAddress
-			};
+			AddTrueMarkCodeToRouteListItem(
+				routeListAddress,
+				vodovozOrderItem.Id,
+				trueMarkWaterIdentificationCode,
+				SourceProductCodeStatus.Accepted);
 
-			routeListAddress.TrueMarkCodes.Add(productCode);
 			_uow.Save(routeListAddress);
 
 			if(!cancellationToken.IsCancellationRequested)
@@ -1012,20 +1012,21 @@ namespace DriverAPI.Library.V6.Services
 				.Where(x => x.SourceCode.GTIN == trueMarkWaterIdentificationCode.GTIN)
 				.ToList();
 
-			var bottlesInOrderHavingRequiredGtin = order.OrderItems
-				.Where(x => x.Nomenclature.Gtin == trueMarkWaterIdentificationCode.GTIN)
-				.Select(x => x.Count)
-				.Sum();
+			var orderItemBottlesCount = order.OrderItems
+				.Where(x => x.Id == orderItem.Id)
+				.FirstOrDefault()?.Count ?? 0;
 
-			if(addedCodesHavingRequiredGtin.Select(x => x.SourceCode).Any(x => x.RawCode ==  trueMarkWaterIdentificationCode.RawCode))
+			var addedToOrderItemCodesCount = _orderRepository.AddedToOrderItemCodes(_uow, orderItem.Id).Count;
+
+			if(addedToOrderItemCodesCount >= orderItemBottlesCount)
 			{
-				var error = TrueMarkCodeErrors.TrueMarkCodeIsAlreadyUsed;
+				var error = TrueMarkCodeErrors.AllCodesAlreadyAdded;
 				return Result.Failure(error);
 			}
 
-			if(addedCodesHavingRequiredGtin.Count >= bottlesInOrderHavingRequiredGtin)
+			if(addedCodesHavingRequiredGtin.Select(x => x.SourceCode).Any(x => x.RawCode == trueMarkWaterIdentificationCode.RawCode))
 			{
-				var error = TrueMarkCodeErrors.AllCodesAlreadyAdded;
+				var error = TrueMarkCodeErrors.TrueMarkCodeIsAlreadyUsed;
 				return Result.Failure(error);
 			}
 
@@ -1047,6 +1048,41 @@ namespace DriverAPI.Library.V6.Services
 
 			return Result.Success();
 		}
+
+		private void AddTrueMarkCodeToRouteListItem(
+			RouteListItem routeListAddress,
+			int vodovozOrderItemId,
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			SourceProductCodeStatus status)
+		{
+			var productCode = CreateRouteListItemTrueMarkProductCode(
+				routeListAddress,
+				trueMarkWaterIdentificationCode,
+				status);
+
+			routeListAddress.TrueMarkCodes.Add(productCode);
+			_uow.Save(productCode);
+
+			var trueMarkCodeOrderItem = new TrueMarkProductCodeOrderItem
+			{
+				TrueMarkProductCodeId = productCode.Id,
+				OrderItemId = vodovozOrderItemId
+			};
+			_uow.Save(trueMarkCodeOrderItem);
+		}
+
+		private RouteListItemTrueMarkProductCode CreateRouteListItemTrueMarkProductCode(
+			RouteListItem routeListAddress,
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			SourceProductCodeStatus status) =>
+			new()
+			{
+				CreationTime = DateTime.Now,
+				SourceCodeStatus = status,
+				SourceCode = trueMarkWaterIdentificationCode,
+				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkWaterIdentificationCode : default,
+				RouteListItem = routeListAddress
+			};
 
 		private RequestProcessingResult<TrueMarkCodeProcessingResultResponse> GetTrueMarkCodeProcessingFailureResponse(
 			OrderItem orderItem,
