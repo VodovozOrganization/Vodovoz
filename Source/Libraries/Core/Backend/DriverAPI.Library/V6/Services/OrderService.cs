@@ -28,6 +28,10 @@ using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.TrueMark;
+using OrderErrors = Vodovoz.Errors.Orders.Order;
+using OrderItemErrors = Vodovoz.Errors.Orders.OrderItem;
+using RouteListErrors = Vodovoz.Errors.Logistics.RouteList;
+using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteList.RouteListItem;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace DriverAPI.Library.V6.Services
@@ -97,14 +101,14 @@ namespace DriverAPI.Library.V6.Services
 
 			if(vodovozOrder is null)
 			{
-				return Result.Failure<OrderDto>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure<OrderDto>(OrderErrors.NotFound);
 			}
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
 
 			if(routeListItem is null)
 			{
-				return Result.Failure<OrderDto>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+				return Result.Failure<OrderDto>(RouteListItemErrors.NotFoundAssociatedWithOrder);
 			}
 
 			var order = _orderConverter.ConvertToAPIOrder(
@@ -159,7 +163,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(vodovozOrder is null)
 			{
-				return Result.Failure<IEnumerable<PaymentDtoType>>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure<IEnumerable<PaymentDtoType>>(OrderErrors.NotFound);
 			}
 
 			return Result.Success(GetAvailableToChangePaymentTypes(vodovozOrder));
@@ -220,7 +224,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(vodovozOrder is null)
 			{
-				return Result.Failure<OrderAdditionalInfoDto>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure<OrderAdditionalInfoDto>(OrderErrors.NotFound);
 			}
 
 			return GetAdditionalInfo(vodovozOrder);
@@ -263,7 +267,7 @@ namespace DriverAPI.Library.V6.Services
 					orderId,
 					OrderStatus.OnTheWay.GetEnumDisplayName());
 
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotInOnTheWayStatus);
+				return Result.Failure(OrderErrors.NotInOnTheWayStatus);
 			}
 
 			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
@@ -304,19 +308,19 @@ namespace DriverAPI.Library.V6.Services
 			if(vodovozOrder is null)
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(OrderErrors.NotFound);
 			}
 
 			if(routeList is null)
 			{
 				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				return Result.Failure(RouteListErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeListAddress is null)
 			{
 				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+				return Result.Failure(RouteListItemErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeList.Driver.Id != driver.Id)
@@ -329,13 +333,13 @@ namespace DriverAPI.Library.V6.Services
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
 				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
 				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(RouteListItemErrors.NotEnRouteState);
 			}
 
 			var trueMarkCodesProcessResult =
@@ -386,19 +390,19 @@ namespace DriverAPI.Library.V6.Services
 			if(vodovozOrder is null)
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(OrderErrors.NotFound);
 			}
 
 			if(routeList is null)
 			{
 				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				return Result.Failure(RouteListErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeListAddress is null)
 			{
 				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+				return Result.Failure(RouteListItemErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeList.Driver.Id != driver.Id)
@@ -411,13 +415,13 @@ namespace DriverAPI.Library.V6.Services
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
 				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
 				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(RouteListItemErrors.NotEnRouteState);
 			}
 
 			var trueMarkCodesProcessResult =
@@ -459,27 +463,27 @@ namespace DriverAPI.Library.V6.Services
 
 			if(vodovozOrder is null)
 			{
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure<PayByQrResponse>(OrderErrors.NotFound);
 			}
 
 			if(routeList is null)
 			{
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				return Result.Failure<PayByQrResponse>(RouteListErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeListAddress is null)
 			{
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+				return Result.Failure<PayByQrResponse>(RouteListItemErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(RouteListItemErrors.NotEnRouteState);
 			}
 
 			if(routeList.Driver.Id != driverId)
@@ -521,7 +525,7 @@ namespace DriverAPI.Library.V6.Services
 			if(vodovozOrder is null)
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(OrderErrors.NotFound);
 			}
 
 			if(!vodovozOrder.IsBottleStock)
@@ -683,7 +687,7 @@ namespace DriverAPI.Library.V6.Services
 			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
 
-		public async Task<Result> AddTrueMarkCode(
+		public async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> AddTrueMarkCode(
 			DateTime actionTime,
 			Employee driver,
 			int orderId,
@@ -698,45 +702,51 @@ namespace DriverAPI.Library.V6.Services
 
 			if(vodovozOrder is null)
 			{
-				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				var errorMessage = $"Заказ не найден: {orderId}";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, OrderErrors.NotFound, errorMessage);
 			}
 
 			if(vodovozOrderItem is null)
 			{
-				_logger.LogWarning("Строка заказа не найдена: {OrderItemId}", orderSaleItemId);
-				return Result.Failure(Vodovoz.Errors.Orders.OrderItem.NotFound);
+				var errorMessage = $"Строка заказа не найдена: {orderSaleItemId}";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, OrderItemErrors.NotFound, errorMessage);
 			}
 
 			if(routeList is null)
 			{
-				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				var errorMessage = $"МЛ для заказа: {orderId} не найден";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListErrors.NotFoundAssociatedWithOrder, errorMessage);
 			}
 
 			if(routeListAddress is null)
 			{
-				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+				var errorMessage = $"Адрес МЛ для заказа: {orderId} не найден";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListItemErrors.NotFoundAssociatedWithOrder, errorMessage);
 			}
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				_logger.LogWarning("Сотрудник {EmployeeId} попытался завершить заказ {OrderId} водителя {DriverId}",
-					driver.Id, orderId, routeList.Driver.Id);
-				return Result.Failure(Errors.Security.Authorization.OrderAccessDenied);
+				var errorMessage = $"Сотрудник {driver.Id} попытался завершить заказ {orderId} водителя {routeList.Driver.Id}";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, Errors.Security.Authorization.OrderAccessDenied, errorMessage);
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				var errorMessage = $"Нельзя завершить заказ: {orderId}, МЛ не в пути";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListErrors.NotEnRouteState, errorMessage);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				var errorMessage = $"Нельзя завершить заказ: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListItemErrors.NotEnRouteState, errorMessage);
 			}
 
 			var trueMarkWaterIdentificationCode =
@@ -751,7 +761,8 @@ namespace DriverAPI.Library.V6.Services
 
 			if(codeCheckingResult.IsFailure)
 			{
-				return codeCheckingResult;
+				var error = codeCheckingResult.Errors.FirstOrDefault();
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, error);
 			}
 
 			var productCode = new RouteListItemTrueMarkProductCode
@@ -759,20 +770,22 @@ namespace DriverAPI.Library.V6.Services
 				CreationTime = actionTime,
 				SourceCodeStatus = SourceProductCodeStatus.Accepted,
 				SourceCode = trueMarkWaterIdentificationCode,
+				ResultCode = trueMarkWaterIdentificationCode,
 				RouteListItem = routeListAddress
 			};
 
 			routeListAddress.TrueMarkCodes.Add(productCode);
+			_uow.Save(routeListAddress);
 
 			if(!cancellationToken.IsCancellationRequested)
 			{
 				_uow.Commit();
 			}
 
-			return Result.Success();
+			return GetTrueMarkCodeProcessingSuccessResponse(vodovozOrderItem);
 		}
 
-		public async Task<Result> ChangeTrueMarkCode(
+		public async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> ChangeTrueMarkCode(
 			DateTime actionTime,
 			Employee driver,
 			int orderId,
@@ -788,45 +801,51 @@ namespace DriverAPI.Library.V6.Services
 
 			if(vodovozOrder is null)
 			{
-				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				var errorMessage = $"Заказ не найден: {orderId}";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, OrderErrors.NotFound, errorMessage);
 			}
 
 			if(vodovozOrderItem is null)
 			{
-				_logger.LogWarning("Строка заказа не найдена: {OrderItemId}", orderSaleItemId);
-				return Result.Failure(Vodovoz.Errors.Orders.OrderItem.NotFound);
+				var errorMessage = $"Строка заказа не найдена: {orderSaleItemId}";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, OrderItemErrors.NotFound, errorMessage);
 			}
 
 			if(routeList is null)
 			{
-				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				var errorMessage = $"МЛ для заказа: {orderId} не найден";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListErrors.NotFoundAssociatedWithOrder, errorMessage);
 			}
 
 			if(routeListAddress is null)
 			{
-				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+				var errorMessage = $"Адрес МЛ для заказа: {orderId} не найден";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListItemErrors.NotFoundAssociatedWithOrder, errorMessage);
 			}
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				_logger.LogWarning("Сотрудник {EmployeeId} попытался завершить заказ {OrderId} водителя {DriverId}",
-					driver.Id, orderId, routeList.Driver.Id);
-				return Result.Failure(Errors.Security.Authorization.OrderAccessDenied);
+				var errorMessage = $"Сотрудник {driver.Id} попытался завершить заказ {orderId} водителя {routeList.Driver.Id}";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, Errors.Security.Authorization.OrderAccessDenied, errorMessage);
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				var errorMessage = $"Нельзя завершить заказ: {orderId}, МЛ не в пути";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListErrors.NotEnRouteState, errorMessage);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				var errorMessage = $"Нельзя завершить заказ: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListItemErrors.NotEnRouteState, errorMessage);
 			}
 
 			var oldTrueMarkWaterIdentificationCode =
@@ -838,7 +857,7 @@ namespace DriverAPI.Library.V6.Services
 			if(oldTrueMarkWaterIdentificationCode.GTIN != newTrueMarkWaterIdentificationCode.GTIN)
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkCodesGtinsNotEqual(oldScannedCode, newScannedCode);
-				return Result.Failure(error);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, error);
 			}
 
 			var oldProductCode =
@@ -849,7 +868,7 @@ namespace DriverAPI.Library.V6.Services
 			if(oldProductCode is null)
 			{
 				var error = TrueMarkCodeErrors.TrueMarkCodeForRouteListItemNotFound;
-				return Result.Failure(error);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, error);
 			}
 
 			var codeCheckingResult = await IsTrueMarkCodeCanBeAddedToRouteListItem(
@@ -861,7 +880,8 @@ namespace DriverAPI.Library.V6.Services
 
 			if(codeCheckingResult.IsFailure)
 			{
-				return codeCheckingResult;
+				var error = codeCheckingResult.Errors.FirstOrDefault();
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, error);
 			}
 
 			var productCode = new RouteListItemTrueMarkProductCode
@@ -881,10 +901,10 @@ namespace DriverAPI.Library.V6.Services
 				_uow.Commit();
 			}
 
-			return Result.Success();
+			return GetTrueMarkCodeProcessingSuccessResponse(vodovozOrderItem);
 		}
 
-		public async Task<Result> RemoveTrueMarkCode(
+		public async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> RemoveTrueMarkCode(
 			Employee driver,
 			int orderId,
 			int orderSaleItemId,
@@ -898,45 +918,51 @@ namespace DriverAPI.Library.V6.Services
 
 			if(vodovozOrder is null)
 			{
-				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				var errorMessage = $"Заказ не найден: {orderId}";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, OrderErrors.NotFound, errorMessage);
 			}
 
 			if(vodovozOrderItem is null)
 			{
-				_logger.LogWarning("Строка заказа не найдена: {OrderItemId}", orderSaleItemId);
-				return Result.Failure(Vodovoz.Errors.Orders.OrderItem.NotFound);
+				var errorMessage = $"Строка заказа не найдена: {orderSaleItemId}";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, OrderItemErrors.NotFound, errorMessage);
 			}
 
 			if(routeList is null)
 			{
-				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				var errorMessage = $"МЛ для заказа: {orderId} не найден";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListErrors.NotFoundAssociatedWithOrder, errorMessage);
 			}
 
 			if(routeListAddress is null)
 			{
-				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+				var errorMessage = $"Адрес МЛ для заказа: {orderId} не найден";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListItemErrors.NotFoundAssociatedWithOrder, errorMessage);
 			}
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				_logger.LogWarning("Сотрудник {EmployeeId} попытался завершить заказ {OrderId} водителя {DriverId}",
-					driver.Id, orderId, routeList.Driver.Id);
-				return Result.Failure(Errors.Security.Authorization.OrderAccessDenied);
+				var errorMessage = $"Сотрудник {driver.Id} попытался завершить заказ {orderId} водителя {routeList.Driver.Id}";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, Errors.Security.Authorization.OrderAccessDenied, errorMessage);
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				var errorMessage = $"Нельзя завершить заказ: {orderId}, МЛ не в пути";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListErrors.NotEnRouteState, errorMessage);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				var errorMessage = $"Нельзя завершить заказ: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
+				_logger.LogWarning(errorMessage);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, RouteListItemErrors.NotEnRouteState, errorMessage);
 			}
 
 			var trueMarkWaterIdentificationCode =
@@ -950,7 +976,7 @@ namespace DriverAPI.Library.V6.Services
 			if(productCode is null)
 			{
 				var error = TrueMarkCodeErrors.TrueMarkCodeForRouteListItemNotFound;
-				return Result.Failure(error);
+				return GetTrueMarkCodeProcessingFailureResponse(vodovozOrderItem, error);
 			}
 
 			routeListAddress.TrueMarkCodes.Remove(productCode);
@@ -960,7 +986,7 @@ namespace DriverAPI.Library.V6.Services
 				_uow.Commit();
 			}
 
-			return Result.Success();
+			return GetTrueMarkCodeProcessingSuccessResponse(vodovozOrderItem);
 		}
 
 		private async Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(
@@ -991,6 +1017,12 @@ namespace DriverAPI.Library.V6.Services
 				.Select(x => x.Count)
 				.Sum();
 
+			if(addedCodesHavingRequiredGtin.Select(x => x.SourceCode).Any(x => x.RawCode ==  trueMarkWaterIdentificationCode.RawCode))
+			{
+				var error = TrueMarkCodeErrors.TrueMarkCodeIsAlreadyUsed;
+				return Result.Failure(error);
+			}
+
 			if(addedCodesHavingRequiredGtin.Count >= bottlesInOrderHavingRequiredGtin)
 			{
 				var error = TrueMarkCodeErrors.AllCodesAlreadyAdded;
@@ -1014,6 +1046,32 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			return Result.Success();
+		}
+
+		private RequestProcessingResult<TrueMarkCodeProcessingResultResponse> GetTrueMarkCodeProcessingFailureResponse(
+			OrderItem orderItem,
+			Error error,
+			string errorMessage = default)
+		{
+			var response = new TrueMarkCodeProcessingResultResponse
+			{
+				Result = RequestProcessingResultTypeDto.Error,
+				Error = string.IsNullOrWhiteSpace(errorMessage) ? error.Message : errorMessage
+			};
+
+			var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
+
+			return RequestProcessingResult.CreateFailure(result, response);
+		}
+
+		private RequestProcessingResult<TrueMarkCodeProcessingResultResponse> GetTrueMarkCodeProcessingSuccessResponse(OrderItem orderItem)
+		{
+			var response = new TrueMarkCodeProcessingResultResponse
+			{
+				Result = RequestProcessingResultTypeDto.Success
+			};
+
+			return RequestProcessingResult.CreateSuccess(Result.Success(response));
 		}
 	}
 }
