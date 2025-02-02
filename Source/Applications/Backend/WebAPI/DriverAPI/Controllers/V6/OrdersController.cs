@@ -1,5 +1,6 @@
 ﻿using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
+using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -12,9 +13,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
+using Vodovoz.Errors;
+using OrderErrors = Vodovoz.Errors.Orders.Order;
+using OrderItemErrors = Vodovoz.Errors.Orders.OrderItem;
+using RouteListErrors = Vodovoz.Errors.Logistics.RouteList;
+using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteList.RouteListItem;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace DriverAPI.Controllers.V6
 {
@@ -383,6 +391,103 @@ namespace DriverAPI.Controllers.V6
 					recievedTime,
 					resultMessage);
 			}
+		}
+
+		/// <summary>
+		/// Добавление кода ЧЗ для заказа (адреса в МЛ)
+		/// </summary>
+		/// <param name="addOrderCodeRequestModel"><see cref="AddOrderCodeRequest"/></param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns></returns>
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
+		public async Task<IActionResult> AddOrderCode([FromBody] AddOrderCodeRequest addOrderCodeRequestModel, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("(Добавление кода ЧЗ к заказу: {OrderId}) пользователем {Username} | User token: {AccessToken}",
+				addOrderCodeRequestModel.OrderId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
+
+			var recievedTime = DateTime.Now;
+
+			var user = await _userManager.GetUserAsync(User);
+			var driver = _employeeService.GetByAPILogin(user.UserName);
+
+			var resultMessage = "OK";
+
+			try
+			{
+				var requestProcessingResult =
+					await _orderService.AddTrueMarkCode(
+						recievedTime,
+						driver,
+						addOrderCodeRequestModel.OrderId,
+						addOrderCodeRequestModel.OrderSaleItemId,
+						addOrderCodeRequestModel.Code,
+						cancellationToken);
+
+				return MapRequestProcessingResult(
+					requestProcessingResult,
+					result => GetStatusCode(result));
+			}
+			catch(Exception ex)
+			{
+				var errorMessage =
+					$"При добавлении кода ЧЗ в строку заказ произошла ошибка. " +
+					$"OrderId: {addOrderCodeRequestModel.OrderId}, " +
+					$"OrderItemId: {addOrderCodeRequestModel.OrderSaleItemId}, " +
+					$"ExceptionMessage: {ex.Message}";
+
+				_logger.LogError(ex, errorMessage);
+
+				return Problem(errorMessage);
+			}
+			finally
+			{
+				_driverMobileAppActionRecordService.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, DateTime.Now, recievedTime, resultMessage);
+			}
+		}
+
+		private IActionResult MapRequestProcessingResult<TValue>(
+			RequestProcessingResult<TValue> processingResult,
+			Func<Result, int?> statusCodeSelectorFunc)
+		{
+			if(processingResult.Result.IsSuccess)
+			{
+				HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status200OK;
+				return new ObjectResult(processingResult.Result.Value);
+			}
+
+			HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status400BadRequest;
+			return new ObjectResult(processingResult.FailureData);
+		}
+
+		private int GetStatusCode(Result result)
+		{
+			if(result.IsSuccess)
+			{
+				return StatusCodes.Status200OK;
+			}
+
+			var firstError = result.Errors.FirstOrDefault();
+
+			if(firstError != null
+				&& (firstError.Code == OrderErrors.NotFound
+					|| firstError.Code == RouteListErrors.NotFound
+					|| firstError.Code == RouteListItemErrors.NotFound
+					|| firstError.Code == TrueMarkCodeErrors.TrueMarkCodeForRouteListItemNotFound))
+			{
+				return StatusCodes.Status404NotFound;
+			}
+
+			if(firstError != null && firstError == Library.Errors.Security.Authorization.OrderAccessDenied)
+			{
+				return StatusCodes.Status403Forbidden;
+			}
+
+			return StatusCodes.Status400BadRequest;
 		}
 	}
 }
