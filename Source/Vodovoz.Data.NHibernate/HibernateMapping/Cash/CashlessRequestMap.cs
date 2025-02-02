@@ -33,8 +33,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Cash
 				.Inverse()
 				.KeyColumn("cashless_request_id");
 
-			//HasMany(clr => clr.Payments)
-			//	.Cascade.AllDeleteOrphan();
+			HasMany(clr => clr.Payments)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.KeyColumn("cashless_request_id");
 		}
 	}
 }
