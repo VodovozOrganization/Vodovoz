@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -54,7 +55,8 @@ namespace Vodovoz.Domain.Payments
 		private Payment _refundedPayment;
 		private UserBase _currentEditorUser;
 		private IList<PaymentItem> _paymentItems = new List<PaymentItem>();
-		GenericObservableList<PaymentItem> _observableItems;
+		private GenericObservableList<PaymentItem> _observableItems;
+		private CashlessRequest _cashlessRequest;
 
 		public Payment() { }
 
@@ -312,6 +314,13 @@ namespace Vodovoz.Domain.Payments
 		}
 
 		public virtual string NumOrders { get; set; }
+
+		[Display(Name = "Заявка на оплату по безналу")]
+		public virtual CashlessRequest CashlessRequest
+		{
+			get => _cashlessRequest;
+			set => SetField(ref _cashlessRequest, value);
+		}
 
 		public virtual bool IsRefundPayment => RefundedPayment != null;
 
