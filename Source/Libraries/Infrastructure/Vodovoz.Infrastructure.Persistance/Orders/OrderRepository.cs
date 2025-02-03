@@ -1226,8 +1226,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			PaymentItem paymentItemAlias = null;
 
 			var payments = uow.Session.QueryOver(() => paymentAlias)
-				.JoinAlias(() => paymentAlias.PaymentItems, () => paymentItemAlias)
+				.JoinAlias(p => p.PaymentItems, () => paymentItemAlias)
 				.Where(() => paymentItemAlias.Order.Id == orderId)
+				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
 				.TransformUsing(Transformers.DistinctRootEntity)
 				.List<Payment>();
 
