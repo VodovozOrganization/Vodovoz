@@ -450,6 +450,108 @@ namespace DriverAPI.Controllers.V6
 			}
 		}
 
+		/// <summary>
+		/// Замена кода ЧЗ для заказа (адреса в МЛ)
+		/// </summary>
+		/// <param name="changeOrderCodeRequest"><see cref="ChangeOrderCodeRequest"/></param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns></returns>
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
+		public async Task<IActionResult> ChangeOrderCode([FromBody] ChangeOrderCodeRequest changeOrderCodeRequest, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("(Замена кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken}",
+				changeOrderCodeRequest.OrderId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
+
+			var recievedTime = DateTime.Now;
+
+			var user = await _userManager.GetUserAsync(User);
+			var driver = _employeeService.GetByAPILogin(user.UserName);
+
+			try
+			{
+				var requestProcessingResult =
+					await _orderService.ChangeTrueMarkCode(
+						recievedTime,
+						driver,
+						changeOrderCodeRequest.OrderId,
+						changeOrderCodeRequest.OrderSaleItemId,
+						changeOrderCodeRequest.OldCode,
+						changeOrderCodeRequest.NewCode,
+						cancellationToken);
+
+				return MapRequestProcessingResult(
+					requestProcessingResult,
+					result => GetStatusCode(result));
+			}
+			catch(Exception ex)
+			{
+				var errorMessage =
+					$"При замене кода ЧЗ в строке заказа произошла ошибка. " +
+					$"OrderId: {changeOrderCodeRequest.OrderId}, " +
+					$"OrderItemId: {changeOrderCodeRequest.OrderSaleItemId}, " +
+					$"ExceptionMessage: {ex.Message}";
+
+				_logger.LogError(ex, errorMessage);
+
+				return Problem(errorMessage);
+			}
+		}
+
+		/// <summary>
+		/// Удаление кода ЧЗ для заказа (адреса в МЛ)
+		/// </summary>
+		/// <param name="deleteOrderCodeRequest"><see cref="DeleteOrderCodeRequest"/></param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns></returns>
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
+		public async Task<IActionResult> DeleteOrderCode([FromBody] DeleteOrderCodeRequest deleteOrderCodeRequest, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("(Удаление кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken}",
+				deleteOrderCodeRequest.OrderId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
+
+			var recievedTime = DateTime.Now;
+
+			var user = await _userManager.GetUserAsync(User);
+			var driver = _employeeService.GetByAPILogin(user.UserName);
+
+			try
+			{
+				var requestProcessingResult =
+					await _orderService.RemoveTrueMarkCode(
+						driver,
+						deleteOrderCodeRequest.OrderId,
+						deleteOrderCodeRequest.OrderSaleItemId,
+						deleteOrderCodeRequest.DeletedCode,
+						cancellationToken);
+
+				return MapRequestProcessingResult(
+					requestProcessingResult,
+					result => GetStatusCode(result));
+			}
+			catch(Exception ex)
+			{
+				var errorMessage =
+					$"При замене кода ЧЗ в строке заказа произошла ошибка. " +
+					$"OrderId: {deleteOrderCodeRequest.OrderId}, " +
+					$"OrderItemId: {deleteOrderCodeRequest.OrderSaleItemId}, " +
+					$"ExceptionMessage: {ex.Message}";
+
+				_logger.LogError(ex, errorMessage);
+
+				return Problem(errorMessage);
+			}
+		}
+
 		private IActionResult MapRequestProcessingResult<TValue>(
 			RequestProcessingResult<TValue> processingResult,
 			Func<Result, int?> statusCodeSelectorFunc)
