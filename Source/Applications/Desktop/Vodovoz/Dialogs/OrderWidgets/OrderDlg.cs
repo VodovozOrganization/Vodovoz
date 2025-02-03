@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -90,7 +90,6 @@ using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Infrastructure.Persistance.Orders;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.JournalViewModels;
@@ -129,14 +128,13 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Utils;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using LogLevel = NLog.LogLevel;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
-using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz
 {
@@ -159,7 +157,7 @@ namespace Vodovoz
 		private readonly ITdiCompatibilityNavigation _navigationManager = Startup.MainWin.NavigationManager;
 
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger _logger = LogManager.GetCurrentClassLogger();
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource;
 
 		private readonly INomenclatureSettings _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
@@ -180,7 +178,7 @@ namespace Vodovoz
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		private Order templateOrder;
+		private Order _templateOrder;
 
 		private SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
 
@@ -189,9 +187,9 @@ namespace Vodovoz
 		private int _fastDeliveryNomenclatureId;
 		private int _advancedPaymentNomenclatureId;
 
-		private IOrganizationProvider organizationProvider;
-		private ICounterpartyContractRepository counterpartyContractRepository;
-		private ICounterpartyContractFactory counterpartyContractFactory;
+		private IOrganizationProvider _organizationProvider;
+		private ICounterpartyContractRepository _counterpartyContractRepository;
+		private ICounterpartyContractFactory _counterpartyContractFactory;
 		private IOrderSettings _orderSettings;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
@@ -225,7 +223,7 @@ namespace Vodovoz
 
 		private readonly IPaymentItemsRepository _paymentItemsRepository = ScopeProvider.Scope.Resolve<IPaymentItemsRepository>();
 		private readonly IPaymentsRepository _paymentsRepository = ScopeProvider.Scope.Resolve<IPaymentsRepository>();
-		private readonly DateTime date = new DateTime(2020, 11, 09, 11, 0, 0);
+		private readonly DateTime _date = new DateTime(2020, 11, 09, 11, 0, 0);
 
 		private readonly bool _canSetOurOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
@@ -244,7 +242,7 @@ namespace Vodovoz
 		private readonly bool _canCreateOrderInAdvance =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance");
 
-		private bool isEditOrderClicked;
+		private bool _isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
 		private Employee _currentEmployee;
@@ -276,7 +274,7 @@ namespace Vodovoz
 		private bool _allowLoadSelfDelivery;
 		private bool _acceptCashlessPaidSelfDelivery;
 		private bool _canEditGoodsInRouteList;
-		private bool _isStatusForEditGoodsInRouteList => _orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
+		public bool IsStatusForEditGoodsInRouteList => _orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
 		private UndeliveryViewModel _undeliveryViewModel;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
@@ -285,12 +283,10 @@ namespace Vodovoz
 
 		private bool _justCreated = false;
 
-		private INomenclatureRepository nomenclatureRepository;
-
 		private Result _lastSaveResult;
 
 		private readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
-		private bool _isWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
+		public bool IsWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
 			&& _generalSettingsSettings.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
 
@@ -313,7 +309,8 @@ namespace Vodovoz
 
 		#region Работа с боковыми панелями
 
-		public int? WidthRequest => 420;
+		public new int? WidthRequest => 420;
+
 		public PanelViewType[] InfoWidgets
 		{
 			get
@@ -345,29 +342,29 @@ namespace Vodovoz
 
 		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? _emailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
 
-		private ICallTaskWorker callTaskWorker;
+		private ICallTaskWorker _callTaskWorker;
 
 		public virtual ICallTaskWorker CallTaskWorker
 		{
 			get
 			{
-				if(callTaskWorker == null)
+				if(_callTaskWorker == null)
 				{
-					callTaskWorker = ScopeProvider.Scope.Resolve<ICallTaskWorker>();
+					_callTaskWorker = ScopeProvider.Scope.Resolve<ICallTaskWorker>();
 				}
 
-				return callTaskWorker;
+				return _callTaskWorker;
 			}
-			set { callTaskWorker = value; }
+			set { _callTaskWorker = value; }
 		}
 
 		public bool? IsForRetail
 		{
-			get => isForRetail;
-			set { isForRetail = value; }
+			get => _isForRetail;
+			set => _isForRetail = value;
 		}
 
-		private bool? isForRetail = null;
+		private bool? _isForRetail = null;
 
 		public bool? IsForSalesDepartment;
 
@@ -490,9 +487,9 @@ namespace Vodovoz
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 				var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
 				var cashReceiptRepository = ScopeProvider.Scope.Resolve<ICashReceiptRepository>();
-				counterpartyContractRepository = ScopeProvider.Scope.Resolve<ICounterpartyContractRepository>();
-				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
-				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+				_counterpartyContractRepository = ScopeProvider.Scope.Resolve<ICounterpartyContractRepository>();
+				_counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, _counterpartyContractRepository);
+				Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
 				CheckForStopDelivery();
 				AddCommentsFromDeliveryPoint();
@@ -611,11 +608,11 @@ namespace Vodovoz
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
-			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
+			_organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			_orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
 			var cashReceiptRepository = ScopeProvider.Scope.Resolve<ICashReceiptRepository>();
-			counterpartyContractRepository = ScopeProvider.Scope.Resolve<ICounterpartyContractRepository>();
-			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
+			_counterpartyContractRepository = ScopeProvider.Scope.Resolve<ICounterpartyContractRepository>();
+			_counterpartyContractFactory = new CounterpartyContractFactory(_organizationProvider, _counterpartyContractRepository);
 			_dailyNumberController = new OrderDailyNumberController(_orderRepository, ServicesConfig.UnitOfWorkFactory);
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
@@ -642,10 +639,12 @@ namespace Vodovoz
 				labelPreviousOrder.Visible = false;
 			}
 
-			hboxStatusButtons.Visible = _orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
-										|| Entity.OrderStatus == OrderStatus.Canceled
-										|| Entity.OrderStatus == OrderStatus.Closed
-										|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
+			hboxStatusButtons.Visible = _orderRepository
+				.GetStatusesForOrderCancelation()
+				.Contains(Entity.OrderStatus)
+				|| Entity.OrderStatus == OrderStatus.Canceled
+				|| Entity.OrderStatus == OrderStatus.Closed
+				|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
 
 			orderEquipmentItemsView.Configure(UoWGeneric, Entity, _flyerRepository);
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
@@ -964,7 +963,7 @@ namespace Vodovoz
 				}
 
 				UpdateOrderAddressTypeUI();
-				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+				Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 				UpdateOrderItemsPrices();
 				SetLogisticsRequirementsCheckboxes();
 
@@ -1008,7 +1007,7 @@ namespace Vodovoz
 				}
 			}
 
-			OrderItemEquipmentCountHasChanges = false;
+			_orderItemEquipmentCountHasChanges = false;
 			ShowOrderColumnInDocumentsList();
 
 			SetSensitivityOfPaymentType();
@@ -1139,7 +1138,7 @@ namespace Vodovoz
 
 		public void UpdateClientDefaultParam()
 		{
-			Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
+			Entity.UpdateClientDefaultParam(UoW, _counterpartyContractRepository, _organizationProvider, _counterpartyContractFactory);
 		}
 
 		private void OnClientBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
@@ -1430,6 +1429,7 @@ namespace Vodovoz
 						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
 					}
 				}
+
 				if(e.PropertyName == nameof(LogisticsRequirements.DocumentsRequired))
 				{
 					var requirementComment = "Наличие паспорта/документов у водителя\n";
@@ -1442,6 +1442,7 @@ namespace Vodovoz
 						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
 					}
 				}
+
 				if(e.PropertyName == nameof(LogisticsRequirements.RussianDriverRequired))
 				{
 					var requirementComment = "Требуется русский водитель\n";
@@ -1454,6 +1455,7 @@ namespace Vodovoz
 						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
 					}
 				}
+
 				if(e.PropertyName == nameof(LogisticsRequirements.PassRequired))
 				{
 					var requirementComment = "Требуется пропуск\n";
@@ -1466,6 +1468,7 @@ namespace Vodovoz
 						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
 					}
 				}
+
 				if(e.PropertyName == nameof(LogisticsRequirements.LargusRequired))
 				{
 					var requirementComment = "Только ларгус (газель не проедет)\n";
@@ -1520,6 +1523,7 @@ namespace Vodovoz
 				{
 					counterpartyLogisticsRequirements = uow.GetById<LogisticsRequirements>(Entity.Client.LogisticsRequirements.Id) ?? new LogisticsRequirements();
 				}
+
 				if(Entity.DeliveryPoint?.LogisticsRequirements?.Id > 0)
 				{
 					deliveryPointLogisticsRequirements = uow.GetById<LogisticsRequirements>(Entity.DeliveryPoint.LogisticsRequirements.Id) ?? new LogisticsRequirements();
@@ -1659,23 +1663,23 @@ namespace Vodovoz
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
 		{
-			Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+			Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 			UpdateOrderItemsPrices();
 		}
 
-		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
+		private readonly Label _torg12OnlyLabel = new Label("Торг12 (2шт.)");
 
 		private void OnContractChanged()
 		{
 			if(Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(enumDocumentType))
 			{
 				hboxDocumentType.Remove(enumDocumentType);
-				hboxDocumentType.Add(torg12OnlyLabel);
-				torg12OnlyLabel.Show();
+				hboxDocumentType.Add(_torg12OnlyLabel);
+				_torg12OnlyLabel.Show();
 			}
-			else if(!Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(torg12OnlyLabel))
+			else if(!Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(_torg12OnlyLabel))
 			{
-				hboxDocumentType.Remove(torg12OnlyLabel);
+				hboxDocumentType.Remove(_torg12OnlyLabel);
 				hboxDocumentType.Add(enumDocumentType);
 			}
 		}
@@ -1844,7 +1848,7 @@ namespace Vodovoz
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Counterparty));
 		}
 
-		void ControlsActionBottleAccessibility()
+		private void ControlsActionBottleAccessibility()
 		{
 			bool canAddAction = Entity.CanAddStockBottle(_orderRepository) || Entity.IsBottleStock;
 			hboxBottlesByStock.Visible = canAddAction;
@@ -2201,10 +2205,10 @@ namespace Vodovoz
 			buttonAcceptAndReturnToOrder.Clicked += OnButtonAcceptAndReturnToOrderClicked;
 		}
 
-		private MenuItem menuItemCloseOrder = null;
-		private MenuItem menuItemSelfDeliveryToLoading = null;
-		private MenuItem menuItemSelfDeliveryPaid = null;
-		private MenuItem menuItemReturnToAccepted = null;
+		private MenuItem _menuItemCloseOrder = null;
+		private MenuItem _menuItemSelfDeliveryToLoading = null;
+		private MenuItem _menuItemSelfDeliveryPaid = null;
+		private MenuItem _menuItemReturnToAccepted = null;
 
 		/// <summary>
 		/// Конфигурирование меню кнопок с дополнительными действиями заказа
@@ -2215,21 +2219,21 @@ namespace Vodovoz
 			menubuttonActions.MenuAlignment = ButtonMenuAlignment.Right;
 			Menu menu = new Menu();
 
-			menuItemCloseOrder = new MenuItem("Закрыть без доставки");
-			menuItemCloseOrder.Activated += OnButtonCloseOrderClicked;
-			menu.Add(menuItemCloseOrder);
+			_menuItemCloseOrder = new MenuItem("Закрыть без доставки");
+			_menuItemCloseOrder.Activated += OnButtonCloseOrderClicked;
+			menu.Add(_menuItemCloseOrder);
 
-			menuItemReturnToAccepted = new MenuItem("Вернуть в Принят");
-			menuItemReturnToAccepted.Activated += OnButtonReturnToAcceptedClicked;
-			menu.Add(menuItemReturnToAccepted);
+			_menuItemReturnToAccepted = new MenuItem("Вернуть в Принят");
+			_menuItemReturnToAccepted.Activated += OnButtonReturnToAcceptedClicked;
+			menu.Add(_menuItemReturnToAccepted);
 
-			menuItemSelfDeliveryToLoading = new MenuItem("Самовывоз на погрузку");
-			menuItemSelfDeliveryToLoading.Activated += OnButtonSelfDeliveryToLoadingClicked;
-			menu.Add(menuItemSelfDeliveryToLoading);
+			_menuItemSelfDeliveryToLoading = new MenuItem("Самовывоз на погрузку");
+			_menuItemSelfDeliveryToLoading.Activated += OnButtonSelfDeliveryToLoadingClicked;
+			menu.Add(_menuItemSelfDeliveryToLoading);
 
-			menuItemSelfDeliveryPaid = new MenuItem("Принять оплату самовывоза");
-			menuItemSelfDeliveryPaid.Activated += OnButtonSelfDeliveryAcceptPaidClicked;
-			menu.Add(menuItemSelfDeliveryPaid);
+			_menuItemSelfDeliveryPaid = new MenuItem("Принять оплату самовывоза");
+			_menuItemSelfDeliveryPaid.Activated += OnButtonSelfDeliveryAcceptPaidClicked;
+			menu.Add(_menuItemSelfDeliveryPaid);
 
 			menubuttonActions.Menu = menu;
 			menubuttonActions.LabelXAlign = 0.5f;
@@ -2296,35 +2300,40 @@ namespace Vodovoz
 
 		#region Сохранение, закрытие заказа
 
-		bool SaveOrderBeforeContinue<T>()
+		private bool SaveOrderBeforeContinue<T>()
 		{
 			if(UoWGeneric.IsNew)
 			{
 				if(CommonDialogs.SaveBeforeCreateSlaveEntity(EntityObject.GetType(), typeof(T)))
 				{
 					if(!Save())
+					{
 						return false;
+					}
 				}
 				else
+				{
 					return false;
+				}
 			}
 			return true;
 		}
 
-		private bool canClose = true;
+		private bool _canClose = true;
+
 		public bool CanClose()
 		{
-			if(!canClose)
+			if(!_canClose)
 			{
 				MessageDialogHelper.RunInfoDialog("Дождитесь завершения задачи и повторите");
 			}
 
-			return canClose;
+			return _canClose;
 		}
 
 		private void SetSensitivity(bool isSensitive)
 		{
-			canClose = isSensitive;
+			_canClose = isSensitive;
 			buttonSave.Sensitive = CanEditByPermission && isSensitive;
 			btnCancel.Sensitive = isSensitive;
 		}
@@ -2365,7 +2374,7 @@ namespace Vodovoz
 					Entity.UpdatePaymentStatus(uow);
 				}
 
-				if(OrderItemEquipmentCountHasChanges)
+				if(_orderItemEquipmentCountHasChanges)
 				{
 					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
 				}
@@ -2396,7 +2405,7 @@ namespace Vodovoz
 					}
 				}
 
-				logger.Info("Сохраняем заказ...");
+				_logger.Info("Сохраняем заказ...");
 
 				Entity.SaveEntity(UoW, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
 
@@ -2406,7 +2415,7 @@ namespace Vodovoz
 					// NotifyDriverAboutWaitingTimeChangedAsync();
 				}
 
-				logger.Info("Ok.");
+				_logger.Info("Ok.");
 				UpdateUIState();
 				btnCopyEntityId.Sensitive = true;
 				TabName = typeof(Order).GetCustomAttribute<DisplayNameAttribute>(true)?.DisplayName;
@@ -2419,7 +2428,7 @@ namespace Vodovoz
 			{
 				_lastSaveResult = Result.Failure(Errors.Orders.Order.Save);
 
-				logger.Log(LogLevel.Error, e);
+				_logger.Log(LogLevel.Error, e);
 
 				return false;
 			}
@@ -2465,7 +2474,7 @@ namespace Vodovoz
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			isEditOrderClicked = true;
+			_isEditOrderClicked = true;
 			EditOrder();
 		}
 
@@ -2618,9 +2627,8 @@ namespace Vodovoz
 				return fastDeliveryResult;
 			}
 
-			var edoLightsMatrixPanelView = Startup.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
 
-			var edoLightsMatrixViewModel = edoLightsMatrixPanelView is null
+			var edoLightsMatrixViewModel = !(Startup.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) is EdoLightsMatrixPanelView edoLightsMatrixPanelView)
 				? new EdoLightsMatrixViewModel()
 				: edoLightsMatrixPanelView.ViewModel.EdoLightsMatrixViewModel;
 
@@ -2664,7 +2672,7 @@ namespace Vodovoz
 
 			if(Contract == null && !Entity.IsLoadedFrom1C)
 			{
-				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+				Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 			}
 
 			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
@@ -2849,16 +2857,23 @@ namespace Vodovoz
 
 		protected void OnBtnRemExistingDocumentClicked(object sender, EventArgs e)
 		{
-			if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите удалить выделенные документы?")) return;
+			if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите удалить выделенные документы?"))
+			{
+				return;
+			}
+
 			var documents = treeDocuments.GetSelectedObjects<OrderDocument>();
 			var notDeletedDocs = Entity.RemoveAdditionalDocuments(documents);
+
 			if(notDeletedDocs != null && notDeletedDocs.Any())
 			{
 				string strDocuments = "";
+
 				foreach(OrderDocument doc in notDeletedDocs)
 				{
 					strDocuments += string.Format("\n\t{0}", doc.Name);
 				}
+
 				MessageDialogHelper.RunWarningDialog(string.Format("Документы{0}\nудалены не были, так как относятся к текущему заказу.", strDocuments));
 			}
 		}
@@ -2896,9 +2911,9 @@ namespace Vodovoz
 		/// <summary>
 		/// Открытие соответствующего документу заказа окна.
 		/// </summary>
-		void OrderDocumentsOpener()
+		private void OrderDocumentsOpener()
 		{
-			logger.Info("Открытие документа заказа");
+			_logger.Info("Открытие документа заказа");
 			
 			if(!treeDocuments.GetSelectedObjects().Any())
 			{
@@ -2972,6 +2987,7 @@ namespace Vodovoz
 							MessageDialogHelper.RunInfoDialog("Перед просмотром документа необходимо сохранить заказ");
 							return;
 						}
+
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<M2ProxyDocument>(orderM2Proxy.M2Proxy.Id),
 							() =>
@@ -3009,7 +3025,7 @@ namespace Vodovoz
 		/// <c>false</c> если все найденные сертификаты архивные, либо просрочены</returns>
 		/// <param name="canSaveFromHere"><c>true</c>Если вызывается проверка при сохранении заказа
 		/// и <c>false</c> если после проверки нужно только предупреждение</param>
-		bool CheckCertificates(bool canSaveFromHere = false)
+		private bool CheckCertificates(bool canSaveFromHere = false)
 		{
 			Entity.UpdateCertificates(out List<Nomenclature> needUpdateCertificatesFor);
 			if(needUpdateCertificatesFor.Any())
@@ -3018,11 +3034,7 @@ namespace Vodovoz
 				msg += string.Join(
 					"\t*",
 					needUpdateCertificatesFor.Select(
-						n => string.Format(
-							" - {0} (код номенклатуры: {1})",
-							n.Name,
-							n.Id
-						)
+						n => $" - {n.Name} (код номенклатуры: {n.Id})"
 					)
 				);
 				msg += "\n\nПожалуйста обновите.";
@@ -3044,37 +3056,50 @@ namespace Vodovoz
 		protected void OnToggleInformationToggled(object sender, EventArgs e)
 		{
 			if(toggleInformation.Active)
+			{
 				ntbOrderEdit.CurrentPage = 0;
+			}
 		}
 
 		protected void OnToggleTareControlToggled(object sender, EventArgs e)
 		{
 			if(toggleTareControl.Active)
+			{
 				ntbOrderEdit.CurrentPage = 1;
+			}
 		}
 
 		protected void OnToggleGoodsToggled(object sender, EventArgs e)
 		{
 			if(toggleGoods.Active)
+			{
 				ntbOrderEdit.CurrentPage = 2;
+			}
 		}
 
 		protected void OnToggleEquipmentToggled(object sender, EventArgs e)
 		{
 			if(toggleEquipment.Active)
+			{
 				ntbOrderEdit.CurrentPage = 3;
+			}
 		}
 
 		protected void OnToggleServiceToggled(object sender, EventArgs e)
 		{
 			if(toggleService.Active)
+			{
 				ntbOrderEdit.CurrentPage = 4;
+			}
 		}
 
 		protected void OnToggleDocumentsToggled(object sender, EventArgs e)
 		{
 			if(toggleDocuments.Active)
+			{
 				ntbOrderEdit.CurrentPage = 5;
+			}
+
 			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
 				.OfType<PrintableOrderDocument>()
 				.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT);
@@ -3088,7 +3113,9 @@ namespace Vodovoz
 		{
 			ITdiTab mytab = DialogHelper.FindParentTab(this);
 			if(mytab == null)
+			{
 				return;
+			}
 
 			ServiceClaimDlg dlg = new ServiceClaimDlg((treeServiceClaim.GetSelectedObjects()[0] as ServiceClaim).Id);
 			mytab.TabParent.AddSlaveTab(mytab, dlg);
@@ -3097,7 +3124,10 @@ namespace Vodovoz
 		protected void OnButtonAddServiceClaimClicked(object sender, EventArgs e)
 		{
 			if(!SaveOrderBeforeContinue<ServiceClaim>())
+			{
 				return;
+			}
+
 			var dlg = new ServiceClaimDlg(Entity);
 			TabParent.AddSlaveTab(this, dlg);
 		}
@@ -3105,7 +3135,10 @@ namespace Vodovoz
 		protected void OnButtonAddDoneServiceClicked(object sender, EventArgs e)
 		{
 			if(!SaveOrderBeforeContinue<ServiceClaim>())
+			{
 				return;
+			}
+
 			OrmReference SelectDialog = new OrmReference(
 				typeof(ServiceClaim),
 				UoWGeneric,
@@ -3123,7 +3156,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
-		void DoneServiceSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void DoneServiceSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			if(!(e.Subject is ServiceClaim selectedServiceClaim))
 			{
@@ -3135,7 +3168,7 @@ namespace Vodovoz
 			//TODO Add service nomenclature with price.
 		}
 
-		void TreeServiceClaim_Selection_Changed(object sender, EventArgs e)
+		private void TreeServiceClaim_Selection_Changed(object sender, EventArgs e)
 		{
 			buttonOpenServiceClaim.Sensitive = treeServiceClaim.Selection.CountSelectedRows() > 0;
 		}
@@ -3153,7 +3186,7 @@ namespace Vodovoz
 
 		#region Добавление номенклатур
 
-		void YCmbPromoSets_ItemSelected(object sender, ItemSelectedEventArgs e)
+		private void YCmbPromoSets_ItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			if(!(e.SelectedItem is PromotionalSet proSet))
 			{
@@ -3171,7 +3204,7 @@ namespace Vodovoz
 			}
 		}
 
-		bool CanAddNomenclaturesToOrder()
+		private bool CanAddNomenclaturesToOrder()
 		{
 			if(Entity.Client == null)
 			{
@@ -3275,7 +3308,7 @@ namespace Vodovoz
 
 		#region Промонаборы
 
-		void ActivatePromotionalSet(PromotionalSet proSet)
+		private void ActivatePromotionalSet(PromotionalSet proSet)
 		{
 			//Добавление спец. действий промонабора
 			foreach(var action in proSet.PromotionalSetActions)
@@ -3290,15 +3323,17 @@ namespace Vodovoz
 
 		#endregion
 
-		void NomenclatureSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void NomenclatureSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			TryAddNomenclature(e.Subject as Nomenclature);
 		}
 
-		void TryAddNomenclature(Nomenclature nomenclature, decimal count = 0, decimal discount = 0, DiscountReason discountReason = null)
+		private void TryAddNomenclature(Nomenclature nomenclature, decimal count = 0, decimal discount = 0, DiscountReason discountReason = null)
 		{
 			if(Entity.IsLoadedFrom1C)
+			{
 				return;
+			}
 
 			if(Entity.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
 			   && nomenclature.Category == NomenclatureCategory.master)
@@ -3322,7 +3357,7 @@ namespace Vodovoz
 			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
 		}
 
-		void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
+		private void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
 		{
 			if(Entity.IsLoadedFrom1C)
 			{
@@ -3423,7 +3458,7 @@ namespace Vodovoz
 			Entity.RemoveItem(item);
 		}
 
-		void OrderEquipmentItemsView_OnDeleteEquipment(object sender, OrderEquipment e)
+		private void OrderEquipmentItemsView_OnDeleteEquipment(object sender, OrderEquipment e)
 		{
 			if(e.OrderItem != null)
 			{
@@ -3450,7 +3485,7 @@ namespace Vodovoz
 
 		#region Создание договоров, доп соглашений
 
-		CounterpartyContract GetActualInstanceContract(CounterpartyContract anotherSessionContract)
+		private CounterpartyContract GetActualInstanceContract(CounterpartyContract anotherSessionContract)
 		{
 			return UoW.GetById<CounterpartyContract>(anotherSessionContract.Id);
 		}
@@ -3496,7 +3531,7 @@ namespace Vodovoz
 			}
 			catch(Exception ex)
 			{
-				logger.Error(ex, "Ошибка при попытке установки состояния редактирования на ячейку");
+				_logger.Error(ex, "Ошибка при попытке установки состояния редактирования на ячейку");
 				return;
 			}
 
@@ -3506,7 +3541,7 @@ namespace Vodovoz
 
 		#region Методы событий виджетов
 
-		void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
+		private void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
 		{
 			if(pickerDeliveryDate.Date < DateTime.Today && !_canCreateOrderInAdvance)
 			{
@@ -3595,20 +3630,29 @@ namespace Vodovoz
 			}
 		}
 
-		private bool IsEnumTaxVisible() => Entity.Client != null &&
-										   (!Entity.CreateDate.HasValue || Entity.CreateDate > date) &&
-										   Entity.Client.PersonType == PersonType.legal &&
-										   Entity.Client.TaxType == TaxType.None;
+		private bool IsEnumTaxVisible() =>
+			Entity.Client != null
+			&& (!Entity.CreateDate.HasValue
+				|| Entity.CreateDate > _date)
+			&& Entity.Client.PersonType == PersonType.legal
+			&& Entity.Client.TaxType == TaxType.None;
 
 		protected void OnSpinSumDifferenceValueChanged(object sender, EventArgs e)
 		{
 			string text;
 			if(spinSumDifference.Value > 0)
+			{
 				text = "Сумма <b>переплаты</b>/недоплаты:";
+			}
 			else if(spinSumDifference.Value < 0)
+			{
 				text = "Сумма переплаты/<b>недоплаты</b>:";
+			}
 			else
+			{
 				text = "Сумма переплаты/недоплаты:";
+			}
+
 			labelSumDifference.Markup = text;
 		}
 
@@ -3687,7 +3731,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var bottlesAtDeliveryPoint = _bottlesRepository.GetBottlesDebtAtDeliveryPoint(UoW, DeliveryPoint);
+			var bottlesAtDeliveryPoint = _bottlesRepository.GetBottlesDebtAtDeliveryPoint(UoW, DeliveryPoint.Id);
 			var bottlesAvgDeliveryPoint = _deliveryPointRepository.GetAvgBottlesOrdered(UoW, DeliveryPoint, 5);
 
 			if(bottlesAtDeliveryPoint > bottlesAvgDeliveryPoint)
@@ -3772,19 +3816,22 @@ namespace Vodovoz
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
 		{
-			logger.Info("Открываем печать документов заказа");
+			_logger.Info("Открываем печать документов заказа");
 			try
 			{
 				SetSensitivity(false);
 				var allList = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().ToList();
 				if(allList.Count <= 0)
+				{
 					return;
+				}
 
 				allList.OfType<ITemplateOdtDocument>().ToList().ForEach(x => x.PrepareTemplate(UoW, _docTemplateRepository));
 
 				string whatToPrint = allList.Count > 1
 					? "документов"
 					: "документа \"" + allList.First().Type.GetEnumTitle() + "\"";
+
 				if(CanEditByPermission && UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
 				{
 					UoWGeneric.Save();
@@ -4083,7 +4130,9 @@ namespace Vodovoz
 		{
 			//Скрывает журнал заказов при открытии заказа, чтобы все элементы умещались на экране
 			if(TabParent is TdiSliderTab slider)
+			{
 				slider.IsHideJournal = true;
+			}
 		}
 
 		protected void OnButtonDepositsClicked(object sender, EventArgs e)
@@ -4176,7 +4225,9 @@ namespace Vodovoz
 			if(yCmbReturnTareReasonCategories.SelectedItem is ReturnTareReasonCategory category)
 			{
 				if(!hboxReasons.Visible)
+				{
 					hboxReasons.Visible = true;
+				}
 
 				yCmbReturnTareReasons.ItemsList = category.ChildReasons;
 			}
@@ -4207,9 +4258,11 @@ namespace Vodovoz
 		public void OnTabAdded()
 		{
 			//если новый заказ и не создан из недовоза (templateOrder заполняется только из недовоза)
-			if(UoW.IsNew && templateOrder == null && Entity.Client == null)
+			if(Entity.Id == 0 && _templateOrder == null && Entity.Client == null)
+			{
 				//открыть окно выбора контрагента
 				entityVMEntryClient.OpenSelectDialog();
+			}
 		}
 
 		public virtual bool HideItemFromDirectionReasonComboInEquipment(OrderEquipment node, DirectionReason item)
@@ -4233,12 +4286,12 @@ namespace Vodovoz
 			Entity.UpdateClientSecondOrderDiscount(_discountsController);
 		}
 
-		void Entity_UpdateClientCanChange(object aList, int[] aIdx)
+		private void Entity_UpdateClientCanChange(object aList, int[] aIdx)
 		{
 			entityVMEntryClient.IsEditable = Entity.CanChangeContractor();
 		}
 
-		void Entity_ObservableOrderItems_ElementAdded(object aList, int[] aIdx)
+		private void Entity_ObservableOrderItems_ElementAdded(object aList, int[] aIdx)
 		{
 			FixPrice(aIdx[0]);
 
@@ -4262,7 +4315,7 @@ namespace Vodovoz
 			}
 		}
 
-		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
+		private void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			var items = aList as GenericObservableList<OrderItem>;
 			for(var i = 0; i < items?.Count; i++)
@@ -4284,17 +4337,17 @@ namespace Vodovoz
 			UpdateClientSecondOrderDiscount();
 		}
 
-		void ObservableOrderDocuments_ListChanged(object aList)
+		private void ObservableOrderDocuments_ListChanged(object aList)
 		{
 			ShowOrderColumnInDocumentsList();
 		}
 
-		void ObservableOrderDocuments_ElementRemoved(object aList, int[] aIdx, object aObject)
+		private void ObservableOrderDocuments_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			ShowOrderColumnInDocumentsList();
 		}
 
-		void ObservableOrderDocuments_ElementAdded(object aList, int[] aIdx)
+		private void ObservableOrderDocuments_ElementAdded(object aList, int[] aIdx)
 		{
 			ShowOrderColumnInDocumentsList();
 		}
@@ -4324,7 +4377,7 @@ namespace Vodovoz
 			item.RecalculatePrice();
 		}
 
-		void TreeItems_Selection_Changed(object sender, EventArgs e)
+		private void TreeItems_Selection_Changed(object sender, EventArgs e)
 		{
 			object[] items = treeItems.GetSelectedObjects();
 
@@ -4336,7 +4389,7 @@ namespace Vodovoz
 		/// для информирования пользователя о том, что изменения сохранятся также и в
 		/// дополнительном соглашении
 		/// </summary>
-		private bool OrderItemEquipmentCountHasChanges;
+		private bool _orderItemEquipmentCountHasChanges;
 		private bool _showBottlesDebtNotifier;
 		private PhonesJournalViewModel _phonesJournal;
 
@@ -4345,7 +4398,7 @@ namespace Vodovoz
 		/// также в доп. соглашении и списке оборудования заказа
 		/// + если меняем количество у 19л бут, то меняем видимость у hboxReturnTareReason
 		/// </summary>
-		void ObservableOrderItems_ElementChanged_ChangeCount(object aList, int[] aIdx)
+		private void ObservableOrderItems_ElementChanged_ChangeCount(object aList, int[] aIdx)
 		{
 			if(aList is GenericObservableList<OrderItem>)
 			{
@@ -4364,10 +4417,14 @@ namespace Vodovoz
 					}
 
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
+					{
 						HboxReturnTareReasonCategoriesShow();
+					}
 
 					if(oItem != null && oItem.Count > 0 && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+					{
 						OnFormOrderActions();
+					}
 
 					if(oItem == null)
 					{
@@ -4388,14 +4445,13 @@ namespace Vodovoz
 		/// При изменении количества оборудования в списке оборудования меняет его
 		/// также в доп. соглашении и списке товаров заказа
 		/// </summary>
-		void ObservableOrderEquipments_ElementChanged_ChangeCount(object aList, int[] aIdx)
+		private void ObservableOrderEquipments_ElementChanged_ChangeCount(object aList, int[] aIdx)
 		{
 			if(aList is GenericObservableList<OrderEquipment>)
 			{
 				foreach(var i in aIdx)
 				{
-					OrderEquipment oEquip = (aList as GenericObservableList<OrderEquipment>)[aIdx] as OrderEquipment;
-					if(oEquip == null || oEquip.OrderItem == null)
+					if(!((aList as GenericObservableList<OrderEquipment>)[aIdx] is OrderEquipment oEquip) || oEquip.OrderItem == null)
 					{
 						return;
 					}
@@ -4410,25 +4466,33 @@ namespace Vodovoz
 		private void ObservableOrderDepositItemsOnElementRemoved(object alist, int[] aidx, object aobject)
 		{
 			if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+			{
 				OnFormOrderActions();
+			}
 		}
 
 		private void ObservableOrderDepositItemsOnElementAdded(object alist, int[] aidx)
 		{
 			if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+			{
 				OnFormOrderActions();
+			}
 		}
 
 		private void ObservableOrderEquipmentsOnElementRemoved(object alist, int[] aidx, object aobject)
 		{
 			if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+			{
 				OnFormOrderActions();
+			}
 		}
 
 		private void ObservableOrderEquipmentsOnElementAdded(object alist, int[] aidx)
 		{
 			if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+			{
 				OnFormOrderActions();
+			}
 		}
 
 		/// <summary>
@@ -4436,7 +4500,7 @@ namespace Vodovoz
 		/// товаров заказа, в списке оборудования дополнительного соглашения и
 		/// меняет количество залогов за оборудование в списке товаров заказа
 		/// </summary>
-		void ChangeEquipmentsCount(OrderItem orderItem, int newCount)
+		private void ChangeEquipmentsCount(OrderItem orderItem, int newCount)
 		{
 			Entity.SetOrderItemCount(orderItem, newCount);
 
@@ -4476,7 +4540,7 @@ namespace Vodovoz
 			ChangeOrderEditable(val);
 
 			ChangeGoodsSensitive(val
-				|| (_isStatusForEditGoodsInRouteList && _canEditGoodsInRouteList));
+				|| (IsStatusForEditGoodsInRouteList && _canEditGoodsInRouteList));
 
 			enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C;
 
@@ -4488,7 +4552,9 @@ namespace Vodovoz
 			lblTax.Visible = enumTax.Visible = val && IsEnumTaxVisible();
 
 			if(Entity != null)
+			{
 				yCmbPromoSets.Sensitive = val;
+			}
 
 			var canChangeSelfDeliveryGeoGroup = val
 				|| (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.WaitForPayment && Entity.SelfDeliveryGeoGroup == null);
@@ -4497,7 +4563,7 @@ namespace Vodovoz
 			specialListCmbSelfDeliveryGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
 		}
 
-		void ChangeOrderEditable(bool val)
+		private void ChangeOrderEditable(bool val)
 		{
 			ChangeGoodsTabSensitiveWithoutGoods(val);
 			SetPadInfoSensitive(val);
@@ -4508,7 +4574,10 @@ namespace Vodovoz
 			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				if(Entity.Id != 0)
+				{
 					rlStatus = _orderRepository.GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
+				}
+
 				var sensitive = rlStatus.HasValue && CanEditByPermission
 					&& !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
 				textManagerComments.Editable = sensitive;
@@ -4534,13 +4603,13 @@ namespace Vodovoz
 			hbox12.Sensitive = sensitive;
 		}
 
-		void SetPadInfoSensitive(bool value)
+		private void SetPadInfoSensitive(bool value)
 		{
 			foreach(var widget in table1.Children)
 			{
 				if(widget.Name == timepickerWaitUntil.Name || widget.Name == ylabelWaitUntil.Name)
 				{
-					widget.Sensitive = _isWaitUntilActive;
+					widget.Sensitive = IsWaitUntilActive;
 				}
 				else
 				{
@@ -4563,7 +4632,7 @@ namespace Vodovoz
 				&& (Entity.DeliveryPoint != null || Entity.SelfDelivery);
 		}
 
-		void SetSensitivityOfPaymentType()
+		private void SetSensitivityOfPaymentType()
 		{
 			if(chkContractCloser.Active)
 			{
@@ -4582,7 +4651,7 @@ namespace Vodovoz
 			hboxStatusButtons.Visible = false;
 		}
 
-		void UpdateButtonState()
+		private void UpdateButtonState()
 		{
 			if(!CanEditByPermission || !_canEditOrder)
 			{
@@ -4621,22 +4690,25 @@ namespace Vodovoz
 				(_orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
 					|| (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading)) && Entity.OrderStatus != OrderStatus.NewOrder;
 
-			menuItemSelfDeliveryToLoading.Sensitive = Entity.SelfDelivery
+			_menuItemSelfDeliveryToLoading.Sensitive = Entity.SelfDelivery
 				&& Entity.OrderStatus == OrderStatus.Accepted
 				&& _allowLoadSelfDelivery;
-			menuItemSelfDeliveryPaid.Sensitive = Entity.SelfDelivery
+			_menuItemSelfDeliveryPaid.Sensitive = Entity.SelfDelivery
 				&& (Entity.PaymentType == PaymentType.Cashless || Entity.PaymentType == PaymentType.PaidOnline)
 				&& Entity.OrderStatus == OrderStatus.WaitForPayment
 				&& _acceptCashlessPaidSelfDelivery;
 
-			menuItemCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && _canCloseOrders && !Entity.SelfDelivery;
-			menuItemReturnToAccepted.Sensitive = Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted;
+			_menuItemCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && _canCloseOrders && !Entity.SelfDelivery;
+			_menuItemReturnToAccepted.Sensitive = Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted;
 		}
 
-		void UpdateProxyInfo()
+		private void UpdateProxyInfo()
 		{
-			bool canShow = Entity.Client != null && Entity.DeliveryDate.HasValue &&
-								 (Entity.Client?.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.Cashless);
+			bool canShow =
+				Entity.Client != null
+				&& Entity.DeliveryDate.HasValue
+				&& (Entity.Client?.PersonType == PersonType.legal
+					|| Entity.PaymentType == PaymentType.Cashless);
 
 			labelProxyInfo.Visible = canShow;
 
@@ -4647,7 +4719,10 @@ namespace Vodovoz
 				foreach(var proxy in proxies)
 				{
 					if(!string.IsNullOrWhiteSpace(text.Text))
+					{
 						text.Add("\n");
+					}
+
 					text.Add(string.Format("Доверенность{2} №{0} от {1:d}", proxy.Number, proxy.IssueDate,
 						proxy.DeliveryPoints == null ? "(общая)" : ""));
 					text.StartNewList(": ");
@@ -4658,9 +4733,13 @@ namespace Vodovoz
 				}
 			}
 			if(string.IsNullOrWhiteSpace(text.Text))
+			{
 				labelProxyInfo.Markup = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Нет активной доверенности</span>";
+			}
 			else
+			{
 				labelProxyInfo.LabelProp = text.Text;
+			}
 		}
 
 		private void CheckSameOrders()
@@ -4671,18 +4750,18 @@ namespace Vodovoz
 			}
 
 			var sameOrder = _orderRepository.GetOrderOnDateAndDeliveryPoint(UoW, Entity.DeliveryDate.Value, Entity.DeliveryPoint);
-			if(sameOrder != null && templateOrder == null)
+			if(sameOrder != null && _templateOrder == null)
 			{
 				MessageDialogHelper.RunWarningDialog("На выбранную дату и точку доставки уже есть созданный заказ!");
 			}
 		}
 
-		void SetDiscountEditable(bool? canEdit = null)
+		private void SetDiscountEditable(bool? canEdit = null)
 		{
 			spinDiscount.Sensitive = canEdit ?? enumDiscountUnit.SelectedItem != null && _canChangeDiscountValue && !Entity.IsBottleStock;
 		}
 
-		void SetDiscountUnitEditable() => enumDiscountUnit.Sensitive = _canChangeDiscountValue && !Entity.IsBottleStock;
+		private void SetDiscountUnitEditable() => enumDiscountUnit.Sensitive = _canChangeDiscountValue && !Entity.IsBottleStock;
 
 		/// <summary>
 		/// Переключает видимость элементов управления депозитами
@@ -4733,7 +4812,7 @@ namespace Vodovoz
 			return clientEmail != null || MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?");
 		}
 
-		void Selection_Changed(object sender, EventArgs e)
+		private void Selection_Changed(object sender, EventArgs e)
 		{
 			buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows() > 0;
 
@@ -4769,17 +4848,17 @@ namespace Vodovoz
 			UpdateOrderItemsPrices();
 		}
 
-		void ObservablePromotionalSets_ListChanged(object aList)
+		private void ObservablePromotionalSets_ListChanged(object aList)
 		{
 			ShowPromoSetsColumn();
 		}
 
-		void ObservablePromotionalSets_ElementAdded(object aList, int[] aIdx)
+		private void ObservablePromotionalSets_ElementAdded(object aList, int[] aIdx)
 		{
 			ShowPromoSetsColumn();
 		}
 
-		void ObservablePromotionalSets_ElementRemoved(object aList, int[] aIdx, object aObject)
+		private void ObservablePromotionalSets_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			ShowPromoSetsColumn();
 		}
