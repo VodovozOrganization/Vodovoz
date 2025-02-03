@@ -21,8 +21,20 @@ namespace DriverApi.Contracts.V6
 		/// Наличные деньги
 		/// </summary>
 		public decimal CashMoney { get; set; }
+
+		/// <summary>
+		/// Деньги по карте через терминал
+		/// </summary>
 		public decimal TerminalCardMoney { get; set; }
+
+		/// <summary>
+		/// Деньги через QR-код терминала
+		/// </summary>
 		public decimal TerminalQRMoney { get; set; }
+
+		/// <summary>
+		/// Количество заказов через терминал
+		/// </summary>
 		public int TerminalOrdersCount { get; set; }
 
 		/// <summary>

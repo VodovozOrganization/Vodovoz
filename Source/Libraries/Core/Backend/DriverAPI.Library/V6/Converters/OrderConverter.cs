@@ -348,6 +348,13 @@ namespace DriverAPI.Library.V6.Converters
 			return result;
 		}
 
+		/// <summary>
+		/// Конвертация данных строки заказа и кодов ЧЗ в DTO с данными по номенклатуре и кодам ЧЗ
+		/// </summary>
+		/// <param name="saleItem">Строка заказа</param>
+		/// <param name="routeListItem">Строка маршрутного листа</param>
+		/// <param name="productCodesByOrderItems">Коды ЧЗ</param>
+		/// <returns></returns>
 		public NomenclatureTrueMarkCodesDto ConvertOrderItemTrueMarkCodesDataToDto(
 			OrderItem saleItem,
 			RouteListItem routeListItem,
