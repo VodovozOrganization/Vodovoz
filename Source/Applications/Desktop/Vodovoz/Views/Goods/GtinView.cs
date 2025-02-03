@@ -17,8 +17,7 @@ namespace Vodovoz.Views.Goods
 			validatedGtin.ValidationMode = ValidationType.numeric;
 			validatedGtin.Binding.AddBinding(ViewModel.Gtin, g => g.GtinNumber, w => w.Text).InitializeFromSource();
 
-			buttonSave.BindCommand(ViewModel.CloseCommand);
-			//buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
+			buttonOk.BindCommand(ViewModel.CloseCommand);
 		}
 	}
 }

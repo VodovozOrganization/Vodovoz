@@ -1872,7 +1872,7 @@ namespace Vodovoz.Views.Goods
 			this.ybuttonEditGtins.Name = "ybuttonEditGtins";
 			this.ybuttonEditGtins.UseUnderline = true;
 			global::Gtk.Image w112 = new global::Gtk.Image();
-			w112.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-index", global::Gtk.IconSize.Menu);
+			w112.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
 			this.ybuttonEditGtins.Image = w112;
 			this.yhboxGtins.Add(this.ybuttonEditGtins);
 			global::Gtk.Box.BoxChild w113 = ((global::Gtk.Box.BoxChild)(this.yhboxGtins[this.ybuttonEditGtins]));
