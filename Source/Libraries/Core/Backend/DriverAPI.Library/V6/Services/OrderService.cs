@@ -772,6 +772,13 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListItemErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
 
+			if(vodovozOrderItem.IsTrueMarkCodesMustBeAddedInWarehouse)
+			{
+				var errorMessage = $"Коды ЧЗ сетевого заказа {orderId} должны добавляться на складеде";
+				_logger.LogWarning(errorMessage);
+				return GetFailureTrueMarkCodeProcessingResponse(TrueMarkCodeErrors.TrueMarkCodesHaveToBeAddedInWarehouse, vodovozOrderItem, routeListAddress, errorMessage);
+			}
+			
 			var codeAddingResult = await _routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItemWithCodeChecking(
 				_uow,
 				routeListAddress,

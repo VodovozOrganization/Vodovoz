@@ -130,5 +130,11 @@
 				typeof(TrueMarkCode),
 				nameof(TrueMarkCodeForRouteListItemNotFound),
 				"Код ЧЗ не найден среди добавленных к адресу доставки");
+
+		public static Error TrueMarkCodesHaveToBeAddedInWarehouse =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodesHaveToBeAddedInWarehouse),
+				"Коды ЧЗ сетевого заказа должны добавляться на складе");
 	}
 }
