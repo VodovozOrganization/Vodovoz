@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -10,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.BusinessCommon.Domain;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
@@ -1672,18 +1672,6 @@ namespace Vodovoz.Domain.Goods
 				}
 			}
 
-			if(IsAccountableInTrueMark && string.IsNullOrWhiteSpace(Gtin))
-			{
-				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
-					new[] { nameof(Gtin) });
-			}
-
-			if(Gtin?.Length < 8 || Gtin?.Length > 14)
-			{
-				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
-					new[] { nameof(Gtin) });
-			}
-
 			if(ProductGroup == null)
 			{
 				yield return new ValidationResult("Должна быть выбрана принадлежность номенклатуры к группе товаров",
@@ -1716,6 +1704,18 @@ namespace Vodovoz.Domain.Goods
 			{
 				yield return new ValidationResult("Начальное значение температуры нагрева не может быть больше конечного",
 					new[] { nameof(HeatingTemperatureFromOnline), nameof(HeatingTemperatureToOnline) });
+			}
+
+			if(IsAccountableInTrueMark && !Gtins.Any())
+			{
+				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
+					new[] { nameof(Gtins) });
+			}
+
+			if(Gtins.Any(x => x.GtinNumber.Length < 8 || x.GtinNumber.Length > 14))
+			{
+				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
+					new[] { nameof(Gtins) });
 			}
 
 			var gtinRepository = validationContext.GetRequiredService<IGenericRepository<Gtin>>();
