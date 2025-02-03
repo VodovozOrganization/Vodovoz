@@ -38,7 +38,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IGenericRepository<OrderEntity> _orderRepository;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkWaterCodeCheckService _trueMarkWaterCodeCheckService;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
 		private readonly IBus _messageBus;
@@ -51,7 +51,7 @@ namespace WarehouseApi.Library.Services
 			IGenericRepository<OrderEntity> orderRepository,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkWaterCodeCheckService trueMarkWaterCodeCheckService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
 			IBus messageBus)
@@ -63,7 +63,7 @@ namespace WarehouseApi.Library.Services
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkWaterCodeCheckService = trueMarkWaterCodeCheckService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeCheckService));
 			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
@@ -200,7 +200,7 @@ namespace WarehouseApi.Library.Services
 			string userLogin,
 			CancellationToken cancellationToken)
 		{
-			var trueMarkWaterCode = _trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
+			var trueMarkWaterCode = _trueMarkWaterCodeCheckService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
 
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
@@ -275,8 +275,8 @@ namespace WarehouseApi.Library.Services
 			string userLogin,
 			CancellationToken cancellationToken)
 		{
-			var oldTrueMarkWaterCode = _trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, oldScannedCode);
-			var newTrueMarkWaterCode = _trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, newScannedCode);
+			var oldTrueMarkWaterCode = _trueMarkWaterCodeCheckService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, oldScannedCode);
+			var newTrueMarkWaterCode = _trueMarkWaterCodeCheckService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, newScannedCode);
 
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
@@ -624,7 +624,7 @@ namespace WarehouseApi.Library.Services
 				};
 
 				var productCodes = item.TrueMarkCodes
-					.Where(x => _trueMarkWaterCodeService.SuccessfullyUsedProductCodesStatuses.Contains(x.SourceCodeStatus));
+					.Where(x => _trueMarkWaterCodeCheckService.SuccessfullyUsedProductCodesStatuses.Contains(x.SourceCodeStatus));
 
 				foreach(var code in productCodes)
 				{

@@ -39,7 +39,7 @@ namespace WarehouseApi.Library
 				.AddFirebaseCloudMessaging(configuration)
 				.ConfigureBusinessOptions(configuration)
 				.AddScoped<ICarLoadService, CarLoadService>()
-				.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
+				.AddScoped<ITrueMarkWaterCodeCheckService, TrueMarkWaterCodeCheckService>()
 				.AddScoped<IRouteListDailyNumberProvider, RouteListDailyNumberProvider>()
 				.AddScoped<CarLoadDocumentConverter>()
 				.AddScoped<TrueMarkWaterCodeParser>()

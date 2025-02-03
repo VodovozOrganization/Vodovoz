@@ -8,7 +8,7 @@ using Vodovoz.Errors;
 
 namespace VodovozBusiness.Services.TrueMark
 {
-	public interface ITrueMarkWaterCodeService
+	public interface ITrueMarkWaterCodeCheckService
 	{
 		/// <summary>
 		/// Статусы кодов ЧЗ, которые были успешно использованы
