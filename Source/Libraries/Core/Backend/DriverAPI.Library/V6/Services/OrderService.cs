@@ -311,8 +311,6 @@ namespace DriverAPI.Library.V6.Services
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
-			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null)
 			{
@@ -320,11 +318,15 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure(OrderErrors.NotFound);
 			}
 
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
+
 			if(routeList is null)
 			{
 				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
 				return Result.Failure(RouteListErrors.NotFoundAssociatedWithOrder);
 			}
+
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(routeListAddress is null)
 			{
@@ -393,8 +395,6 @@ namespace DriverAPI.Library.V6.Services
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
-			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null)
 			{
@@ -402,11 +402,15 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure(OrderErrors.NotFound);
 			}
 
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
+
 			if(routeList is null)
 			{
 				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
 				return Result.Failure(RouteListErrors.NotFoundAssociatedWithOrder);
 			}
+
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(routeListAddress is null)
 			{
@@ -467,18 +471,20 @@ namespace DriverAPI.Library.V6.Services
 		public async Task<Result<PayByQrResponse>> SendQrPaymentRequestAsync(int orderId, int driverId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
-			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null)
 			{
 				return Result.Failure<PayByQrResponse>(OrderErrors.NotFound);
 			}
 
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
+
 			if(routeList is null)
 			{
 				return Result.Failure<PayByQrResponse>(RouteListErrors.NotFoundAssociatedWithOrder);
 			}
+
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(routeListAddress is null)
 			{
@@ -710,9 +716,6 @@ namespace DriverAPI.Library.V6.Services
 			CancellationToken cancellationToken)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
-			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
-			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null)
 			{
@@ -721,6 +724,8 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(OrderErrors.NotFound, errorMessage: errorMessage);
 			}
 
+			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);
+
 			if(vodovozOrderItem is null)
 			{
 				var errorMessage = $"Строка заказа не найдена: {orderSaleItemId}";
@@ -728,12 +733,16 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(OrderItemErrors.NotFound, errorMessage: errorMessage);
 			}
 
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
+
 			if(routeList is null)
 			{
 				var errorMessage = $"МЛ для заказа: {orderId} не найден";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListErrors.NotFoundAssociatedWithOrder, errorMessage: errorMessage);
 			}
+
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(routeListAddress is null)
 			{
@@ -796,9 +805,6 @@ namespace DriverAPI.Library.V6.Services
 			CancellationToken cancellationToken)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
-			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
-			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null)
 			{
@@ -807,6 +813,8 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(OrderErrors.NotFound, errorMessage: errorMessage);
 			}
 
+			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);
+
 			if(vodovozOrderItem is null)
 			{
 				var errorMessage = $"Строка заказа не найдена: {orderSaleItemId}";
@@ -814,12 +822,16 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(OrderItemErrors.NotFound, errorMessage: errorMessage);
 			}
 
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
+
 			if(routeList is null)
 			{
 				var errorMessage = $"МЛ для заказа: {orderId} не найден";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListErrors.NotFoundAssociatedWithOrder, errorMessage: errorMessage);
 			}
+
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(routeListAddress is null)
 			{
@@ -881,9 +893,6 @@ namespace DriverAPI.Library.V6.Services
 			CancellationToken cancellationToken)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
-			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
-			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null)
 			{
@@ -892,6 +901,8 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(OrderErrors.NotFound, errorMessage: errorMessage);
 			}
 
+			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);
+
 			if(vodovozOrderItem is null)
 			{
 				var errorMessage = $"Строка заказа не найдена: {orderSaleItemId}";
@@ -899,12 +910,16 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(OrderItemErrors.NotFound, errorMessage: errorMessage);
 			}
 
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
+
 			if(routeList is null)
 			{
 				var errorMessage = $"МЛ для заказа: {orderId} не найден";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListErrors.NotFoundAssociatedWithOrder, errorMessage: errorMessage);
 			}
+
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(routeListAddress is null)
 			{
@@ -963,11 +978,11 @@ namespace DriverAPI.Library.V6.Services
 				Error = string.IsNullOrWhiteSpace(errorMessage) ? error.Message : errorMessage
 			};
 
-			var productCodesByOrderItems =
-				_orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(_uow, orderItem.Id);
-
 			if(orderItem != null && routeListAddress != null)
 			{
+				var productCodesByOrderItems =
+					_orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(_uow, orderItem.Id);
+
 				response.Nomenclature = _orderConverter.ConvertOrderItemTrueMarkCodesDataToDto(orderItem, routeListAddress, productCodesByOrderItems);
 			}
 
