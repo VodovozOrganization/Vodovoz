@@ -514,8 +514,6 @@ namespace Vodovoz
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
 
-			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
-
 			if(copying.GetCopiedOrder.PaymentType == PaymentType.PaidOnline)
 			{
 				var currentPaymentFromTypes = ySpecPaymentFrom.ItemsList.Cast<PaymentFrom>().ToList();
