@@ -583,20 +583,20 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 					: $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}" +
 						$", {(Entity.EntranceType == EntranceType.Entrance ? "парадная" : "вход")} {Entity.Entrance}";
 
-					try
-					{
-						var findedByGeoCoder = await _geoCoderApiClient.GetCoordinateAtAddressAsync(address, _cancellationTokenSource.Token);
+				try
+				{
+					var findedByGeoCoder = await _geoCoderApiClient.GetCoordinateAtAddressAsync(address, _cancellationTokenSource.Token);
 
-						if(findedByGeoCoder != null)
-						{
-							latitude = findedByGeoCoder.Latitude;
-							longitude = findedByGeoCoder.Longitude;
-						}
-					}
-					catch(Exception ex)
+					if(findedByGeoCoder != null)
 					{
-						_logger.LogError(ex, "Произошла ошибка при запросе координат");
+						latitude = findedByGeoCoder.Latitude;
+						longitude = findedByGeoCoder.Longitude;
 					}
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Произошла ошибка при запросе координат");
+				}
 			}
 			finally
 			{
