@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Fias.Client.Loaders;
 using GeoCoderApi.Client;
 using Microsoft.Extensions.Logging;
@@ -583,8 +583,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 					: $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}" +
 						$", {(Entity.EntranceType == EntranceType.Entrance ? "парадная" : "вход")} {Entity.Entrance}";
 
-				if(await _featureManager.IsEnabledAsync(FeatureFlags.GeoCoderGateway))
-				{
 					try
 					{
 						var findedByGeoCoder = await _geoCoderApiClient.GetCoordinateAtAddressAsync(address, _cancellationTokenSource.Token);
@@ -599,19 +597,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 					{
 						_logger.LogError(ex, "Произошла ошибка при запросе координат");
 					}
-				}
-				else
-				{
-					var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
-
-					if(findedByGeoCoder != null)
-					{
-						var culture = CultureInfo.CreateSpecificCulture("ru-RU");
-						culture.NumberFormat.NumberDecimalSeparator = ".";
-						latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
-						longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
-					}
-				}
 			}
 			finally
 			{
