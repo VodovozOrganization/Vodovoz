@@ -45,10 +45,13 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			CanCreateFuel = permissionFuelPriceVersionResult.CanCreate;
 			CanEditFuel = permissionFuelPriceVersionResult.CanUpdate;
 
+			FuelProductGroups = fuelRepository.GetGazpromFuelProductsGroupsByFuelTypeId(UoW, Entity.Id);
 			FuelProductsInGroup = fuelRepository.GetFuelProductsByFuelTypeId(UoW, Entity.Id);
 		}
 
-		public IEnumerable<FuelProduct> FuelProductsInGroup { get; }
+		public IEnumerable<GazpromFuelProductsGroup> FuelProductGroups { get; }
+
+		public IEnumerable<GazpromFuelProduct> FuelProductsInGroup { get; }
 
 		public bool CanEdit { get; }
 

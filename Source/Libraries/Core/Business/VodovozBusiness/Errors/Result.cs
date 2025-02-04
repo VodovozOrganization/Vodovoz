@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Runtime.CompilerServices;
 
 namespace Vodovoz.Errors
 {
@@ -86,5 +85,7 @@ namespace Vodovoz.Errors
 
 		public static Result<TValue> Failure<TValue>(IEnumerable<Error> errors) =>
 			new Result<TValue>(default, false, errors);
+
+		public static implicit operator Result(Error error) => Failure(error);
 	}
 }

@@ -13,5 +13,8 @@
 		int GetSubdivisionIdForRouteListAccept();
 		int GetParentVodovozSubdivisionId();
 		int GetSalesSubdivisionId();
+
+		int LogisticSubdivisionSofiiskayaId { get; }
+		int LogisticSubdivisionBugriId { get; }
 	}
 }

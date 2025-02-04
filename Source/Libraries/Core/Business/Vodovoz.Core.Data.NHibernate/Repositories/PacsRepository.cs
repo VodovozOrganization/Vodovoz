@@ -1,4 +1,5 @@
 ﻿using NHibernate.Criterion;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -151,6 +152,16 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 		public async Task<Call> GetCallByEntryAsync(IUnitOfWork uow, string entryId)
 		{
 			return await uow.Session.GetAsync<Call>(entryId);
+		}
+
+		public async Task<IEnumerable<CallEvent>> GetCallHistoryByCallIdAsync(string callId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				return await uow.Session.Query<CallEvent>()
+					.Where(ce => ce.CallId == callId)
+					.ToListAsync();
+			}
 		}
 	}
 }

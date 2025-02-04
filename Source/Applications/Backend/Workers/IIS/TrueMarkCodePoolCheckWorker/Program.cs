@@ -12,6 +12,7 @@ using TrueMarkCodesWorker;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using VodovozBusiness.Models.TrueMark;
@@ -19,7 +20,7 @@ using VodovozBusiness.Models.TrueMark;
 namespace TrueMarkCodePoolCheckWorker
 {
 	public class Program
-    {
+	{
 		public static async Task Main(string[] args)
 		{
 			await CreateHostBuilder(args).Build().RunAsync();
@@ -50,7 +51,17 @@ namespace TrueMarkCodePoolCheckWorker
 						.AddCore()
 						.AddInfrastructure()
 						.AddTrackedUoW()
+
+						.AddSingleton<ITrueMarkOrganizationClientSettingProvider>((sp) =>
+						{
+							var configuration = sp.GetRequiredService<IConfiguration>();
+							var trueMarkOrganizationClientSetting = new TrueMarkOrganizationClientSettingProvider(configuration.GetSection("TrueMarkOrganizationsClientSettings"));
+
+							return trueMarkOrganizationClientSetting;
+						})
+
 						.AddHostedService<CodePoolCheckWorker>()
+						.AddHttpClient()
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
@@ -92,6 +103,9 @@ namespace TrueMarkCodePoolCheckWorker
 			builder.RegisterInstance(ErrorReporter.Instance)
 				.As<IErrorReporter>()
 				.SingleInstance();
+
+			builder.RegisterType<Tag1260Checker>()
+				.As<ITag1260Checker>();
 		}
 	}
 }
