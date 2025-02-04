@@ -33,6 +33,8 @@ using FastPaymentServiceV5 = DriverAPI.Library.V5.Services.FastPaymentService;
 using VodovozBusiness.Services.TrueMark;
 using Vodovoz.Models.TrueMark;
 using TrueMarkApi.Client;
+using Edo.Transport;
+using MessageTransport;
 
 namespace DriverAPI.Library
 {
@@ -79,6 +81,13 @@ namespace DriverAPI.Library
 			services
 				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>()
 				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
+
+			services
+				.AddMessageTransportSettings()
+				.AddEdoRequestMassTransit((context, cfg) =>
+				{
+					cfg.AddEdoRequestBaseTopology(context);
+				});
 
 			return services;
 		}

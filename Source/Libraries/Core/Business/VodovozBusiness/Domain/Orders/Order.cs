@@ -1501,6 +1501,10 @@ namespace Vodovoz.Domain.Orders
 			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Kind.Id))
 			.Count() > 0;
 
+		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems =>
+			ObservableOrderItems.Any(x =>
+			x.Nomenclature.IsAccountableInTrueMark && !string.IsNullOrWhiteSpace(x.Nomenclature.Gtin) && x.Count > 0);
+
 		#endregion
 
 		#region Автосоздание договоров, при изменении подтвержденного заказа

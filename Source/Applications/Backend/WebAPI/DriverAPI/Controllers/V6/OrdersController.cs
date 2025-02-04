@@ -141,7 +141,7 @@ namespace DriverAPI.Controllers.V6
 			try
 			{
 				return MapResult(
-					_orderService.CompleteOrderDelivery(
+					await _orderService.CompleteOrderDelivery(
 						recievedTime,
 						driver,
 						completedOrderRequestModel,

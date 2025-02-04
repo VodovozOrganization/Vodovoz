@@ -101,7 +101,7 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="completeOrderInfo">Информация о завершении заказа</param>
 		/// <param name="driverComplaintInfo">Информация о жалобе водителя</param>
 		/// <returns>Результат завершения доставки заказа</returns>
-		Result CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo);
+		Task<Result> CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo);
 
 		/// <summary>
 		/// Добавить код ЧЗ
