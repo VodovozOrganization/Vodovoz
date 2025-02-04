@@ -1,4 +1,5 @@
-﻿using DriverAPI.Library.Helpers;
+﻿using DriverApi.Notifications.Client.Clients;
+using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V5.Services;
 using EventsApi.Library;
 using EventsApi.Library.Models;
@@ -65,7 +66,7 @@ namespace DriverAPI.Library
 
 			services
 				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>()
-				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
+				.AddScoped<IRouteListTransferhandByHandReciever, DriverApiNotificationsClient>();
 
 			return services;
 		}

@@ -23,13 +23,15 @@ namespace Vodovoz.Controllers
 		private readonly IDriverApiSettings _driverApiSettings;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IFastDeliveryValidator _fastDeliveryValidator;
+		private readonly IFastDeliveryOrderAddedNotificationReciever _fastDeliveryOrderAddedNotificationReciever;
 
 		public FastDeliveryHandler(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IDeliveryRepository deliveryRepository,
 			IDriverApiSettings driverApiSettings,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
-			IFastDeliveryValidator fastDeliveryValidator)
+			IFastDeliveryValidator fastDeliveryValidator,
+			IFastDeliveryOrderAddedNotificationReciever fastDeliveryOrderAddedNotificationReciever)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
@@ -37,29 +39,7 @@ namespace Vodovoz.Controllers
 			_routeListAddressKeepingDocumentController =
 				routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_fastDeliveryValidator = fastDeliveryValidator ?? throw new ArgumentNullException(nameof(fastDeliveryValidator));
-		}
-		
-		private DriverAPIHelper _driverApiHelper;
-
-		public virtual DriverAPIHelper DriverApiHelper
-		{
-			get
-			{
-				if(_driverApiHelper is null)
-				{
-					var driverApiConfig = new DriverApiHelperConfiguration
-					{
-						ApiBase = _driverApiSettings.ApiBase,
-						NotifyOfSmsPaymentStatusChangedURI = _driverApiSettings.NotifyOfSmsPaymentStatusChangedUri,
-						NotifyOfFastDeliveryOrderAddedURI = _driverApiSettings.NotifyOfFastDeliveryOrderAddedUri,
-						NotifyOfWaitingTimeChangedURI = _driverApiSettings.NotifyOfWaitingTimeChangedURI,
-						NotifyOfCashRequestForDriverIsGivenForTakeUri = _driverApiSettings.NotifyOfCashRequestForDriverIsGivenForTakeUri
-					};
-					_driverApiHelper = new DriverAPIHelper(new LoggerFactory().CreateLogger<DriverAPIHelper>(), driverApiConfig);
-				}
-
-				return _driverApiHelper;
-			}
+			_fastDeliveryOrderAddedNotificationReciever = fastDeliveryOrderAddedNotificationReciever ?? throw new ArgumentNullException(nameof(fastDeliveryOrderAddedNotificationReciever));
 		}
 		
 		public RouteList RouteListToAddFastDeliveryOrder { get; private set; }
@@ -132,7 +112,7 @@ namespace Vodovoz.Controllers
 		{
 			if(RouteListToAddFastDeliveryOrder != null && DriverApiSettings.NotificationsEnabled)
 			{
-				DriverApiHelper.NotifyOfFastDeliveryOrderAdded(orderId);
+				_fastDeliveryOrderAddedNotificationReciever.NotifyOfFastDeliveryOrderAdded(orderId);
 			}
 		}
 	}
