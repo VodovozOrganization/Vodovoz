@@ -12,6 +12,11 @@ namespace Vodovoz.Views.Common
 	[ToolboxItem(true)]
 	public partial class AddOrRemoveIDomainObjectView : WidgetViewBase<AddOrRemoveIDomainObjectViewModel>
 	{
+		public AddOrRemoveIDomainObjectView()
+		{
+			Build();
+		}
+
 		public AddOrRemoveIDomainObjectView(AddOrRemoveIDomainObjectViewModel viewModel) : base(viewModel)
 		{
 			Build();

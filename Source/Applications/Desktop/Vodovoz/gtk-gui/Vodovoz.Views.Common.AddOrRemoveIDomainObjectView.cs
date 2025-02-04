@@ -21,10 +21,10 @@ namespace Vodovoz.Views.Common
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.Presentation.Views.AddOrRemoveIDomainObjectView
+			// Widget Vodovoz.Views.Common.AddOrRemoveIDomainObjectView
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Common.AddOrRemoveIDomainObjectView";
-			// Container child Vodovoz.Presentation.Views.AddOrRemoveIDomainObjectView.Gtk.Container+ContainerChild
+			// Container child Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.Gtk.Container+ContainerChild
 			this.vboxMain = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;

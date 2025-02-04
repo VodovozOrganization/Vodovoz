@@ -240,17 +240,30 @@ namespace Vodovoz.Views.Settings
 		
 		private void ConfigureOrdersOrganizationSettings()
 		{
-			var viewModel = new AddOrRemoveIDomainObjectViewModel(ViewModel.EntityJournalOpener);
+			const string nomenclatures = "Номенклатуры: ";
+			const string productGroups = "Группы товаров: ";
+
+			CreateAddOrRemoveIDomainObjectWidget(typeof(ProductGroup), productGroups);
+			CreateAddOrRemoveIDomainObjectWidget(typeof(Nomenclature), nomenclatures);
+
+			//vboxOrdersSettings.Add(productGroupsViewForSet1);
+			//vboxOrdersSettings.Add(productGroupsViewForSet1);
+		}
+
+		private void CreateAddOrRemoveIDomainObjectWidget(Type entityType, string title)
+		{
+			/*var viewModel = new AddOrRemoveIDomainObjectViewModel(ViewModel.EntityJournalOpener);
 			viewModel.Configure(
+				entityType,
 				true,
-				"Подразделения авторов заказа:",
+				title,
 				ViewModel,
 				new List<INamedDomainObject>());
 
 			var view = new AddOrRemoveIDomainObjectView(viewModel);
-			
-			vboxOrdersSettings.Add(view);
 			view.Show();
+
+			return view;*/
 		}
 
 		#endregion

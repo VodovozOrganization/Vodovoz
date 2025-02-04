@@ -16,6 +16,7 @@ namespace Vodovoz.ViewModels.Widgets
 	/// </summary>
 	public class AddOrRemoveIDomainObjectViewModel : WidgetViewModelBase, IDisposable
 	{
+		private Type _entityType;
 		private INamedDomainObject _selectedEntity;
 		private string _title = "Неизвестно";
 		private ITdiTab _parentTab;
@@ -53,11 +54,13 @@ namespace Vodovoz.ViewModels.Widgets
 		public ICommand RemoveCommand { get; private set; }
 
 		public void Configure(
+			Type entityType,
 			bool canEdit,
 			string title,
 			ITdiTab parentTab,
 			IList<INamedDomainObject> entities)
 		{
+			_entityType = entityType;
 			Title = title;
 			SetCanEdit(canEdit);
 			_parentTab = parentTab;
