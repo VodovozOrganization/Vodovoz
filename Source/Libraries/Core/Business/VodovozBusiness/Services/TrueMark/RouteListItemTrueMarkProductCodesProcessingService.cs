@@ -113,7 +113,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			var oldCodeRemovingResult =
-				RemoveTrueMarkCodeFromRouteListItem(uow, routeListAddress, vodovozOrderItem, oldScannedCode);
+				RemoveTrueMarkCodeFromRouteListItem(uow, routeListAddress, vodovozOrderItem.Id, oldScannedCode);
 
 			if(oldCodeRemovingResult.IsFailure)
 			{
@@ -144,7 +144,7 @@ namespace VodovozBusiness.Services.TrueMark
 		public Result RemoveTrueMarkCodeFromRouteListItem(
 			IUnitOfWork uow,
 			RouteListItem routeListAddress,
-			OrderItem vodovozOrderItem,
+			int vodovozOrderItemId,
 			string scannedCode)
 		{
 			var trueMarkWaterIdentificationCode =
@@ -163,7 +163,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 			routeListAddress.TrueMarkCodes.Remove(productCode);
 
-			var productCodeOrderItem = _orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(uow, vodovozOrderItem.Id)
+			var productCodeOrderItem = _orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(uow, vodovozOrderItemId)
 				.Where(x => x.TrueMarkProductCodeId == productCode.Id)
 				.FirstOrDefault();
 

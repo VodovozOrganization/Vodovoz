@@ -2030,5 +2030,18 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			return codesOrderItems.ToList();
 		}
+
+		public bool IsAllCarLoadDocumentItemsTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId)
+		{
+			var isNotAllCodesAdded =
+				uow.Session.Query<CarLoadDocumentItem>()
+				.Where(x =>
+					x.OrderId == orderId
+					&& x.Nomenclature.IsAccountableInTrueMark
+					&& x.Nomenclature.Gtin != null)
+				.Any(x => x.TrueMarkCodes.Count < x.Amount);
+
+			return !isNotAllCodesAdded;
+		}
 	}
 }

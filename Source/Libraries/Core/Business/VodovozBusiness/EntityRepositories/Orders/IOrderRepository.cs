@@ -209,5 +209,13 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>Список с данными номера кода и номера строки заказа</returns>
 		IList<TrueMarkProductCodeOrderItem> GetTrueMarkCodesAddedByDriverToOrderByOrderId(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Проверяет, все ли коды ЧЗ добавлены к указанному заказу на складе в документе погрузки
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns>True, если все коды ЧЗ добавлены, иначе False</returns>
+		bool IsAllCarLoadDocumentItemsTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId);
 	}
 }

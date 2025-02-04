@@ -57,9 +57,9 @@ namespace VodovozBusiness.Services.TrueMark
 		/// </summary>
 		/// <param name="uow">Unit of Work</param>
 		/// <param name="routeListAddress">Строка маршрутного листа</param>
-		/// <param name="vodovozOrderItem">Строка заказа</param>
+		/// <param name="vodovozOrderItemId">Номер строки заказа</param>
 		/// <param name="scannedCode">Сканированный код</param>
 		/// <returns>Результат операции</returns>
-		Result RemoveTrueMarkCodeFromRouteListItem(IUnitOfWork uow, RouteListItem routeListAddress, OrderItem vodovozOrderItem, string scannedCode);
+		Result RemoveTrueMarkCodeFromRouteListItem(IUnitOfWork uow, RouteListItem routeListAddress, int vodovozOrderItemId, string scannedCode);
 	}
 }

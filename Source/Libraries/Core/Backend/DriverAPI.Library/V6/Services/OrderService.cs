@@ -354,7 +354,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var trueMarkCodesProcessResult =
-				ProcessScannedCodes(actionTime, completeOrderInfo, routeListAddress);
+				ProcessScannedCodes(completeOrderInfo, routeListAddress);
 
 			if(trueMarkCodesProcessResult.IsFailure)
 			{
@@ -438,7 +438,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var trueMarkCodesProcessResult =
-				ProcessScannedCodes(actionTime, completeOrderInfo, routeListAddress);
+				ProcessScannedCodes(completeOrderInfo, routeListAddress);
 
 			if(trueMarkCodesProcessResult.IsFailure)
 			{
@@ -565,20 +565,23 @@ namespace DriverAPI.Library.V6.Services
 		}
 
 		private Result ProcessScannedCodes(
-			DateTime actionTime,
 			IDriverOrderShipmentInfo completeOrderInfo,
 			RouteListItem routeListAddress)
 		{
-			if(routeListAddress.Order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			if(routeListAddress.Order.IsNeedIndividualSetOnLoad)
 			{
-				return ProcessOwnUseOrderScannedCodes(actionTime, completeOrderInfo, routeListAddress);
+				return ProcessNetworkClientOrderScannedCodes(routeListAddress);
 			}
 
-			return ProcessResaleOrderScannedCodes(completeOrderInfo, routeListAddress);
+			if(routeListAddress.Order.IsOrderForResale)
+			{
+				return ProcessResaleOrderScannedCodes(routeListAddress);
+			}
+
+			return ProcessOwnUseOrderScannedCodes(completeOrderInfo, routeListAddress);
 		}
 
 		private Result ProcessOwnUseOrderScannedCodes(
-			DateTime actionTime,
 			IDriverOrderShipmentInfo completeOrderInfo,
 			RouteListItem routeListAddress)
 		{
@@ -610,43 +613,33 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private Result ProcessResaleOrderScannedCodes(IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
+		private Result ProcessResaleOrderScannedCodes(RouteListItem routeListAddress)
 		{
-			var processResult = IsScannedCodesAndSavedCodesAreEqual(completeOrderInfo, routeListAddress);
-
-			if(processResult.IsFailure)
-			{
-				return processResult;
-			}
-
 			return IsAllRouteListItemTrueMarkProductCodesAddedToOrder(routeListAddress.Order.Id);
-		}
-
-		private Result IsScannedCodesAndSavedCodesAreEqual(IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
-		{
-			var scannedCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.BottleCodes).ToList();
-			var savedCodes = _orderRepository.GetAddedRouteListItemTrueMarkProductCodesByOrderId(_uow, routeListAddress.Order.Id);
-
-			if(scannedCodes.Count != savedCodes.Count)
-			{
-				return Result.Failure(TrueMarkCodeErrors.AddedAndSavedCodesCountNotEquals);
-			}
-
-			foreach(var code in savedCodes)
-			{
-				if(!scannedCodes.Contains(code.SourceCode.RawCode))
-				{
-					return Result.Failure(TrueMarkCodeErrors.AddedAndSavedCodesNotEquals);
-				}
-			}
-
-			return Result.Success();
 		}
 
 		private Result IsAllRouteListItemTrueMarkProductCodesAddedToOrder(int orderId)
 		{
 			var isAllTrueMarkCodesAdded =
 				_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(_uow, orderId);
+
+			if(!isAllTrueMarkCodesAdded)
+			{
+				return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
+			}
+
+			return Result.Success();
+		}
+
+		private Result ProcessNetworkClientOrderScannedCodes(RouteListItem routeListAddress)
+		{
+			return IsAllCarLoadDocumentItemTrueMarkProductCodesAddedToOrder(routeListAddress.Order.Id);
+		}
+
+		private Result IsAllCarLoadDocumentItemTrueMarkProductCodesAddedToOrder(int orderId)
+		{
+			var isAllTrueMarkCodesAdded =
+				_orderRepository.IsAllCarLoadDocumentItemsTrueMarkProductCodesAddedToOrder(_uow, orderId);
 
 			if(!isAllTrueMarkCodesAdded)
 			{
@@ -957,7 +950,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var codeRemovingResult =
-				_routeListItemTrueMarkProductCodesProcessingService.RemoveTrueMarkCodeFromRouteListItem(_uow, routeListAddress, vodovozOrderItem, scannedCode);
+				_routeListItemTrueMarkProductCodesProcessingService.RemoveTrueMarkCodeFromRouteListItem(_uow, routeListAddress, vodovozOrderItem.Id, scannedCode);
 
 			if(codeRemovingResult.IsFailure)
 			{
