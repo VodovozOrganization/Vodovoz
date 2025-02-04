@@ -2031,17 +2031,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return codesOrderItems.ToList();
 		}
 
-		public bool IsAllCarLoadDocumentItemsTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId)
+		public bool IsOrderCarLoadDocumentLoadOperationStateDone(IUnitOfWork uow, int orderId)
 		{
-			var isNotAllCodesAdded =
-				uow.Session.Query<CarLoadDocumentItem>()
-				.Where(x =>
-					x.OrderId == orderId
-					&& x.Nomenclature.IsAccountableInTrueMark
-					&& x.Nomenclature.Gtin != null)
-				.Any(x => x.TrueMarkCodes.Count < x.Amount);
+			var carLoadDocumentLoadOperationState =
+				(from carLoadDocument in uow.Session.Query<CarLoadDocument>()
+				 join CarLoadDocumentItem in uow.Session.Query<CarLoadDocumentItem>() on carLoadDocument.Id equals CarLoadDocumentItem.Document.Id
+				 where CarLoadDocumentItem.OrderId == orderId
+				 select carLoadDocument.LoadOperationState)
+				.FirstOrDefault();
 
-			return !isNotAllCodesAdded;
+			return carLoadDocumentLoadOperationState == CarLoadDocumentLoadOperationState.Done;
 		}
 	}
 }

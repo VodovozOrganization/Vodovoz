@@ -211,11 +211,11 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<TrueMarkProductCodeOrderItem> GetTrueMarkCodesAddedByDriverToOrderByOrderId(IUnitOfWork uow, int orderId);
 
 		/// <summary>
-		/// Проверяет, все ли коды ЧЗ добавлены к указанному заказу на складе в документе погрузки
+		/// Проверяет, находится ли документ погрузки для указанного заказа в статусе Погрузка завершена
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="orderId">Номер заказа</param>
-		/// <returns>True, если все коды ЧЗ добавлены, иначе False</returns>
-		bool IsAllCarLoadDocumentItemsTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId);
+		/// <returns>True, если погрузка завершена, иначе False</returns>
+		bool IsOrderCarLoadDocumentLoadOperationStateDone(IUnitOfWork uow, int orderId);
 	}
 }

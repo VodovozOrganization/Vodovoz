@@ -638,10 +638,10 @@ namespace DriverAPI.Library.V6.Services
 
 		private Result IsAllCarLoadDocumentItemTrueMarkProductCodesAddedToOrder(int orderId)
 		{
-			var isAllTrueMarkCodesAdded =
-				_orderRepository.IsAllCarLoadDocumentItemsTrueMarkProductCodesAddedToOrder(_uow, orderId);
+			var isCarLoadDocumentLoadOperationStateDone =
+				_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(_uow, orderId);
 
-			if(!isAllTrueMarkCodesAdded)
+			if(!isCarLoadDocumentLoadOperationStateDone)
 			{
 				return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
 			}
