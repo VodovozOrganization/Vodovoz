@@ -8,7 +8,7 @@ namespace DriverApi.Notifications.Client
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddDriverApiHelper(this IServiceCollection services)
+		public static IServiceCollection AddDriverApiNotificationsClient(this IServiceCollection services)
 		{
 			services
 				.AddHttpClient(nameof(DriverApiNotificationsClient), (serviceProvider, client) =>
