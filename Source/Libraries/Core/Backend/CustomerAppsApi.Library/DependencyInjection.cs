@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net.Security;
 using System.Security.Authentication;
 using CustomerAppsApi.Factories;
@@ -27,6 +27,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Validation;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
+using DriverApi.Notifications.Client;
 
 namespace CustomerAppsApi.Library
 {
@@ -69,6 +70,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IOrderModel, OrderModel>()
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
+				.AddDriverApiNotificationsClient()
 				.AddScoped<FastDeliveryHandler>()
 				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()

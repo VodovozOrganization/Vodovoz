@@ -19,6 +19,7 @@ using Vodovoz.Settings.Database.Roboats;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Persistance;
+using DriverApi.Notifications.Client;
 
 namespace RoboatsCallsWorker
 {
@@ -55,6 +56,7 @@ namespace RoboatsCallsWorker
 				.AddCore()
 				.AddTrackedUoW()
 				.AddBusiness(Configuration)
+				.AddDriverApiNotificationsClient()
 				.AddInfrastructure()
 				;
 

@@ -13,6 +13,7 @@ using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using DriverApi.Notifications.Client;
 
 namespace CustomerOrdersApi
 {
@@ -51,6 +52,7 @@ namespace CustomerOrdersApi
 				.AddCore()
 				.AddTrackedUoW()
 				.AddBusiness(Configuration)
+				.AddDriverApiNotificationsClient()
 				.AddInfrastructure()
 				.AddConfig(Configuration)
 				.AddDependenciesGroup();

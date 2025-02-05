@@ -166,6 +166,7 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 using VodovozInfrastructure;
 using Vodovoz.Application.Options;
 using Vodovoz.Options;
+using DriverApi.Notifications.Client;
 
 namespace Vodovoz
 {
@@ -711,6 +712,7 @@ namespace Vodovoz
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness(hostingContext.Configuration)
+						.AddDriverApiNotificationsClient()
 						.AddInfrastructure()
 						.AddCoreDataRepositories()
 						.AddScoped<IFuelApiService, FuelApiService>()
