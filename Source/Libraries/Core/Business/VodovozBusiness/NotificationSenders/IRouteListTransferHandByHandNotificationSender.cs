@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Vodovoz.Errors;
 
-namespace Vodovoz.NotificationRecievers
+namespace Vodovoz.NotificationSenders
 {
 	public interface IRouteListTransferHandByHandNotificationSender
 	{

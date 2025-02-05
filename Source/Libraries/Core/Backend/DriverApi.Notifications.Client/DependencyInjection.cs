@@ -1,7 +1,7 @@
 ﻿using DriverApi.Notifications.Client.Clients;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http.Headers;
-using Vodovoz.NotificationRecievers;
+using Vodovoz.NotificationSenders;
 using Vodovoz.Settings.Logistics;
 
 namespace DriverApi.Notifications.Client

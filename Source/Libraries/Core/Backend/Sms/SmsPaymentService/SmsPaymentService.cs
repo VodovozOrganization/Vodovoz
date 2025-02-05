@@ -12,7 +12,7 @@ using SmsPaymentService.PaymentControllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.NotificationRecievers;
+using Vodovoz.NotificationSenders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Order = Vodovoz.Domain.Orders.Order;

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Vodovoz.NotificationRecievers
+namespace Vodovoz.NotificationSenders
 {
 	public interface ICashRequestForDriverIsGivenForTakeNotificationSender
 	{
