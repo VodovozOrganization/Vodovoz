@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private int? _sourceRouteListId;
 		private RouteList _sourceRouteList;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly IRouteListTransferhandByHandReciever _routeListTransferhandByHandReciever;
+		private readonly IRouteListTransferHandByHandNotificationSender _routeListTransferHandByHandNotificationSender;
 
 		private readonly RouteListStatus[] _defaultSourceRouteListStatuses =
 		{
@@ -114,7 +114,7 @@ namespace Vodovoz.ViewModels.Logistic
 			DeliveryFreeBalanceViewModel targetDeliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<RouteList> sourceRouteListEEVMBuilder,
 			ViewModelEEVMBuilder<RouteList> targetRouteListEEVMBuilder,
-			IRouteListTransferhandByHandReciever routeListTransferhandByHandReciever)
+			IRouteListTransferHandByHandNotificationSender routeListTransferHandByHandNotificationSender)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_logger = logger
@@ -147,8 +147,8 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(sourceDeliveryFreeBalanceViewModel));
 			TargetRouteListDeliveryFreeBalanceViewModel = targetDeliveryFreeBalanceViewModel
 				?? throw new ArgumentNullException(nameof(targetDeliveryFreeBalanceViewModel));
-			_routeListTransferhandByHandReciever = routeListTransferhandByHandReciever
-				?? throw new ArgumentNullException(nameof(routeListTransferhandByHandReciever));
+			_routeListTransferHandByHandNotificationSender = routeListTransferHandByHandNotificationSender
+				?? throw new ArgumentNullException(nameof(routeListTransferHandByHandNotificationSender));
 
 			SourceRouteListJournalFilterViewModel.SetAndRefilterAtOnce(filter =>
 			{
@@ -833,7 +833,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				try
 				{
-					var result = _routeListTransferhandByHandReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(orderId).GetAwaiter().GetResult();
+					var result = _routeListTransferHandByHandNotificationSender.NotifyOfOrderWithGoodsTransferingIsTransfered(orderId).GetAwaiter().GetResult();
 
 					if(result.IsSuccess)
 					{

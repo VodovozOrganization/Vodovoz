@@ -13,11 +13,11 @@ using CommonErrors = Vodovoz.Errors.Common;
 namespace DriverApi.Notifications.Client.Clients
 {
 	public class DriverApiNotificationsClient :
-		ISmsPaymentStatusNotificationReciever,
-		IFastDeliveryOrderAddedNotificationReciever,
-		IWaitingTimeChangedNotificationReciever,
-		ICashRequestForDriverIsGivenForTakeNotificationReciever,
-		IRouteListTransferhandByHandReciever
+		ISmsPaymentStatusNotificationSender,
+		IFastDeliveryOrderAddedNotificationSender,
+		IWaitingTimeChangedNotificationSender,
+		ICashRequestForDriverIsGivenForTakeNotificationSender,
+		IRouteListTransferHandByHandNotificationSender
 	{
 		private readonly ILogger<DriverApiNotificationsClient> _logger;
 		private readonly IDriverApiSettings _driverApiSettings;

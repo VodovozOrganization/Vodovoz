@@ -50,7 +50,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
-						.AddDriverApiNotificationsClient()
+						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
 						.AddDependenciesGroup()
 						.AddApplicationOrderServices()

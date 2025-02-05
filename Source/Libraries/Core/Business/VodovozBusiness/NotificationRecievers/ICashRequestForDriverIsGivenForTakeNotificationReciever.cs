@@ -2,7 +2,7 @@
 
 namespace Vodovoz.NotificationRecievers
 {
-	public interface ICashRequestForDriverIsGivenForTakeNotificationReciever
+	public interface ICashRequestForDriverIsGivenForTakeNotificationSender
 	{
 		Task NotifyOfCashRequestForDriverIsGivenForTake(int cashRequestId);
 	}

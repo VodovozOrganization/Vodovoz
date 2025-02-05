@@ -8,7 +8,7 @@ namespace DriverApi.Notifications.Client
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddDriverApiNotificationsClient(this IServiceCollection services)
+		public static IServiceCollection AddDriverApiNotificationsSenders(this IServiceCollection services)
 		{
 			services
 				.AddHttpClient(nameof(DriverApiNotificationsClient), (serviceProvider, client) =>
@@ -21,11 +21,11 @@ namespace DriverApi.Notifications.Client
 				});
 
 			services
-				.AddScoped<ISmsPaymentStatusNotificationReciever, DriverApiNotificationsClient>()
-				.AddScoped<IFastDeliveryOrderAddedNotificationReciever, DriverApiNotificationsClient>()
-				.AddScoped<IWaitingTimeChangedNotificationReciever, DriverApiNotificationsClient>()
-				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationReciever, DriverApiNotificationsClient>()
-				.AddScoped<IRouteListTransferhandByHandReciever, DriverApiNotificationsClient>();
+				.AddScoped<ISmsPaymentStatusNotificationSender, DriverApiNotificationsClient>()
+				.AddScoped<IFastDeliveryOrderAddedNotificationSender, DriverApiNotificationsClient>()
+				.AddScoped<IWaitingTimeChangedNotificationSender, DriverApiNotificationsClient>()
+				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationSender, DriverApiNotificationsClient>()
+				.AddScoped<IRouteListTransferHandByHandNotificationSender, DriverApiNotificationsClient>();
 
 			return services;
 		}

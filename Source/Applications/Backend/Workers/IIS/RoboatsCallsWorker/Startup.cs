@@ -56,7 +56,7 @@ namespace RoboatsCallsWorker
 				.AddCore()
 				.AddTrackedUoW()
 				.AddBusiness(Configuration)
-				.AddDriverApiNotificationsClient()
+				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
 				;
 

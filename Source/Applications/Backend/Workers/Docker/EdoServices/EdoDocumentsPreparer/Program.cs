@@ -51,7 +51,7 @@ namespace EdoDocumentsPreparer
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
-						.AddDriverApiNotificationsClient()
+						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
 						.AddHostedService<EdoDocumentsPreparerWorker>()
 						.AddPreparerDependencyGroup()

@@ -2,7 +2,7 @@
 
 namespace Vodovoz.NotificationRecievers
 {
-	public interface IFastDeliveryOrderAddedNotificationReciever
+	public interface IFastDeliveryOrderAddedNotificationSender
 	{
 		Task NotifyOfFastDeliveryOrderAdded(int orderId);
 	}

@@ -23,7 +23,7 @@ namespace Vodovoz.Controllers
 		private readonly IDriverApiSettings _driverApiSettings;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IFastDeliveryValidator _fastDeliveryValidator;
-		private readonly IFastDeliveryOrderAddedNotificationReciever _fastDeliveryOrderAddedNotificationReciever;
+		private readonly IFastDeliveryOrderAddedNotificationSender _fastDeliveryOrderAddedNotificationSender;
 
 		public FastDeliveryHandler(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -31,7 +31,7 @@ namespace Vodovoz.Controllers
 			IDriverApiSettings driverApiSettings,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IFastDeliveryValidator fastDeliveryValidator,
-			IFastDeliveryOrderAddedNotificationReciever fastDeliveryOrderAddedNotificationReciever)
+			IFastDeliveryOrderAddedNotificationSender fastDeliveryOrderAddedNotificationSender)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
@@ -39,7 +39,7 @@ namespace Vodovoz.Controllers
 			_routeListAddressKeepingDocumentController =
 				routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_fastDeliveryValidator = fastDeliveryValidator ?? throw new ArgumentNullException(nameof(fastDeliveryValidator));
-			_fastDeliveryOrderAddedNotificationReciever = fastDeliveryOrderAddedNotificationReciever ?? throw new ArgumentNullException(nameof(fastDeliveryOrderAddedNotificationReciever));
+			_fastDeliveryOrderAddedNotificationSender = fastDeliveryOrderAddedNotificationSender ?? throw new ArgumentNullException(nameof(fastDeliveryOrderAddedNotificationSender));
 		}
 		
 		public RouteList RouteListToAddFastDeliveryOrder { get; private set; }
@@ -112,7 +112,7 @@ namespace Vodovoz.Controllers
 		{
 			if(RouteListToAddFastDeliveryOrder != null && DriverApiSettings.NotificationsEnabled)
 			{
-				_fastDeliveryOrderAddedNotificationReciever.NotifyOfFastDeliveryOrderAdded(orderId);
+				_fastDeliveryOrderAddedNotificationSender.NotifyOfFastDeliveryOrderAdded(orderId);
 			}
 		}
 	}

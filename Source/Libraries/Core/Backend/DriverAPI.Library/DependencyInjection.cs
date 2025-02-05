@@ -59,7 +59,7 @@ namespace DriverAPI.Library
 				.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
 
 			services.AddBusiness(configuration)
-				.AddDriverApiNotificationsClient()
+				.AddDriverApiNotificationsSenders()
 				.AddApplication()
 				.AddInfrastructure()
 				.AddDatabaseSettings()

@@ -79,7 +79,7 @@ namespace RoboatsService
 
 			services.AddApplication();
 			services.AddBusiness(Configuration)
-				.AddDriverApiNotificationsClient()
+				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(RoboAtsService)));
 		}

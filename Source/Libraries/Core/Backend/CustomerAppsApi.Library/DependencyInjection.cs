@@ -70,7 +70,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IOrderModel, OrderModel>()
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
-				.AddDriverApiNotificationsClient()
+				.AddDriverApiNotificationsSenders()
 				.AddScoped<FastDeliveryHandler>()
 				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()

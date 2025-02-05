@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private readonly ICashRepository _cashRepository;
 		private readonly HashSet<CashRequestSumItem> _sumsGiven = new HashSet<CashRequestSumItem>();
 		private readonly ILifetimeScope _scope;
-		private readonly ICashRequestForDriverIsGivenForTakeNotificationReciever _cashRequestForDriverIsGivenForTakeNotificationReciever;
+		private readonly ICashRequestForDriverIsGivenForTakeNotificationSender _cashRequestForDriverIsGivenForTakeNotificationSender;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private bool _needToNotifyDriverOfReadyToGiveOut = false;
 
@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ICashRepository cashRepository,
 			INavigationManager navigation,
 			ILifetimeScope scope,
-			ICashRequestForDriverIsGivenForTakeNotificationReciever cashRequestForDriverIsGivenForTakeNotificationReciever)
+			ICashRequestForDriverIsGivenForTakeNotificationSender cashRequestForDriverIsGivenForTakeNotificationSender)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(navigation is null)
@@ -64,8 +64,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IsNewEntity = uowBuilder?.IsNewEntity ?? throw new ArgumentNullException(nameof(uowBuilder));
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			_cashRequestForDriverIsGivenForTakeNotificationReciever = cashRequestForDriverIsGivenForTakeNotificationReciever
-				?? throw new ArgumentNullException(nameof(cashRequestForDriverIsGivenForTakeNotificationReciever));
+			_cashRequestForDriverIsGivenForTakeNotificationSender = cashRequestForDriverIsGivenForTakeNotificationSender
+				?? throw new ArgumentNullException(nameof(cashRequestForDriverIsGivenForTakeNotificationSender));
 			CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if(UoWGeneric.IsNew)
@@ -257,7 +257,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 					if(entityStatusIsGivenForTake)
 					{
-						_cashRequestForDriverIsGivenForTakeNotificationReciever.NotifyOfCashRequestForDriverIsGivenForTake(entityId);
+						_cashRequestForDriverIsGivenForTakeNotificationSender.NotifyOfCashRequestForDriverIsGivenForTake(entityId);
 					}
 
 					if(AfterSave(out var messageText))

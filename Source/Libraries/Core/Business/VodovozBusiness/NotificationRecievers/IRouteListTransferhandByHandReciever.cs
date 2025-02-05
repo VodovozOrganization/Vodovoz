@@ -3,7 +3,7 @@ using Vodovoz.Errors;
 
 namespace Vodovoz.NotificationRecievers
 {
-	public interface IRouteListTransferhandByHandReciever
+	public interface IRouteListTransferHandByHandNotificationSender
 	{
 		Task<Result> NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId);
 	}

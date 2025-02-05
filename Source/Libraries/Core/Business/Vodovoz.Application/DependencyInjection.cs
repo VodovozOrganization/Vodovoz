@@ -54,7 +54,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
-			.AddDriverApiNotificationsClient()
+			.AddDriverApiNotificationsSenders()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

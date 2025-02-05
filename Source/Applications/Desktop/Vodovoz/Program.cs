@@ -712,7 +712,7 @@ namespace Vodovoz
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness(hostingContext.Configuration)
-						.AddDriverApiNotificationsClient()
+						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
 						.AddCoreDataRepositories()
 						.AddScoped<IFuelApiService, FuelApiService>()

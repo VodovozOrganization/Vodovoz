@@ -2,7 +2,7 @@
 
 namespace Vodovoz.NotificationRecievers
 {
-	public interface ISmsPaymentStatusNotificationReciever
+	public interface ISmsPaymentStatusNotificationSender
 	{
 		Task NotifyOfSmsPaymentStatusChanged(int orderId);
 	}

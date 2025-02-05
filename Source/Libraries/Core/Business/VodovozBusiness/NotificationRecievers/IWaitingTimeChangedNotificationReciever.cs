@@ -2,7 +2,7 @@
 
 namespace Vodovoz.NotificationRecievers
 {
-	public interface IWaitingTimeChangedNotificationReciever
+	public interface IWaitingTimeChangedNotificationSender
 	{
 		Task NotifyOfWaitingTimeChanged(int orderId);
 	}

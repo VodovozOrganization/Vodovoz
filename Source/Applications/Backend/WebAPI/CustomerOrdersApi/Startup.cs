@@ -52,7 +52,7 @@ namespace CustomerOrdersApi
 				.AddCore()
 				.AddTrackedUoW()
 				.AddBusiness(Configuration)
-				.AddDriverApiNotificationsClient()
+				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
 				.AddConfig(Configuration)
 				.AddDependenciesGroup();

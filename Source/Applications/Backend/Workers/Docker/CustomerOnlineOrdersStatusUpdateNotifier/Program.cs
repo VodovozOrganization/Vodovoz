@@ -50,7 +50,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
-						.AddDriverApiNotificationsClient()
+						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
 
 						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()

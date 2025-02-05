@@ -24,7 +24,7 @@ namespace SmsPaymentService
 	    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IPaymentController _paymentController;
-	    private readonly ISmsPaymentStatusNotificationReciever _smsPaymentStatusNotificationReciever;
+	    private readonly ISmsPaymentStatusNotificationSender _smsPaymentStatusNotificationSender;
 	    private readonly IOrderSettings _orderSettings;
 	    private readonly SmsPaymentFileCache _smsPaymentFileCache;
 	    private readonly ISmsPaymentDTOFactory _smsPaymentDTOFactory;
@@ -34,7 +34,7 @@ namespace SmsPaymentService
 		public SmsPaymentService(
 			IUnitOfWorkFactory uowFactory,
             IPaymentController paymentController, 
-            ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever,
+            ISmsPaymentStatusNotificationSender smsPaymentStatusNotificationSender,
             IOrderSettings orderSettings,
             SmsPaymentFileCache smsPaymentFileCache,
             ISmsPaymentDTOFactory smsPaymentDTOFactory,
@@ -44,7 +44,7 @@ namespace SmsPaymentService
         {
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_paymentController = paymentController ?? throw new ArgumentNullException(nameof(paymentController));
-            _smsPaymentStatusNotificationReciever = smsPaymentStatusNotificationReciever ?? throw new ArgumentNullException(nameof(smsPaymentStatusNotificationReciever));
+            _smsPaymentStatusNotificationSender = smsPaymentStatusNotificationSender ?? throw new ArgumentNullException(nameof(smsPaymentStatusNotificationSender));
             _orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
             _smsPaymentFileCache = smsPaymentFileCache ?? throw new ArgumentNullException(nameof(smsPaymentFileCache));
             _smsPaymentDTOFactory = smsPaymentDTOFactory ?? throw new ArgumentNullException(nameof(smsPaymentDTOFactory));
@@ -269,7 +269,7 @@ namespace SmsPaymentService
             
 			try
 			{
-				_smsPaymentStatusNotificationReciever.NotifyOfSmsPaymentStatusChanged(orderId).Wait();
+				_smsPaymentStatusNotificationSender.NotifyOfSmsPaymentStatusChanged(orderId).Wait();
 			}
 			catch(Exception ex)
 			{
