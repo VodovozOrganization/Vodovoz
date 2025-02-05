@@ -151,7 +151,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				OR order_status = '{nameof(OrderStatus.UnloadingOnStock)}' OR order_status = '{nameof(OrderStatus.Closed)}' OR(order_status = '{nameof(OrderStatus.WaitForPayment)}' AND o.self_delivery AND o.pay_after_shipment))
 				AND (delivery_date =  /*DATE*/) AND !o.is_contract_closer;";
 
-			for(DateTime date = startDate; date < endDate; date = date.AddDays(1))
+			for(DateTime date = startDate; date <= endDate; date = date.AddDays(1))
 			{
 				var sqlForDate = sql.Replace("/*DATE*/", $"'{date.ToString("yyyy-MM-dd")}'");
 				sqlBuilder.AppendLine(sqlForDate);
@@ -186,7 +186,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 							WHERE route_lists.`date` = /*DATE*/ AND is_fast_delivery = 1 AND route_list_addresses.status = '{nameof(RouteListItemStatus.Completed)}'
 							GROUP BY route_list_addresses.id HAVING delay > 0) AS Delays;";
 
-			for(DateTime date = startDate; date < endDate; date = date.AddDays(1))
+			for(DateTime date = startDate; date <= endDate; date = date.AddDays(1))
 			{
 				var sqlForDate = sql.Replace("/*DATE*/", $"'{date.ToString("yyyy-MM-dd")}'");
 				sqlBuilder.AppendLine(sqlForDate);
@@ -207,7 +207,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				" WHERE old_order.delivery_date = /*DATE*/" +
 				" AND old_order.is_fast_delivery = true;";
 
-			for(DateTime date = startDate; date < endDate; date = date.AddDays(1))
+			for(DateTime date = startDate; date <= endDate; date = date.AddDays(1))
 			{
 				var sqlForDate = sql.Replace("/*DATE*/", $"'{date.ToString("yyyy-MM-dd")}'");
 				sqlBuilder.AppendLine(sqlForDate);
@@ -225,7 +225,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				" WHERE	DATE(creation_date) = /*DATE*/" +
 				" AND complaint_kind_id = 92;";
 
-			for(DateTime date = startDate; date < endDate; date = date.AddDays(1))
+			for(DateTime date = startDate; date <= endDate; date = date.AddDays(1))
 			{
 				var sqlForDate = sql.Replace("/*DATE*/", $"'{date.ToString("yyyy-MM-dd")}'");
 				sqlBuilder.AppendLine(sqlForDate);
@@ -290,7 +290,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				" UNION ALL SELECT  0 AS is_valid_is_goods_enough_total, 0 AS is_valid_last_coordinate_time_total, 0 AS is_valid_unclosed_fast_deliveries_total, (SELECT COUNT(delivery_point_id)" +
 				" FROM (SELECT cte.delivery_point_id FROM cte GROUP by cte.delivery_point_id HAVING max(cte.is_valid_distance_by_line_to_client) = 0) AS t2) AS is_valid_distance_by_line_to_client_total ) AS total; ";
 
-			for(DateTime date = startDate; date < endDate; date = date.AddDays(1))
+			for(DateTime date = startDate; date <= endDate; date = date.AddDays(1))
 			{
 				var sqlForDate = sql
 					.Replace("/*START_DATE*/", $"'{date.Add(new TimeSpan(0, 0, 0)).ToString("yyyy-MM-dd")}'")
@@ -561,8 +561,10 @@ namespace DatabaseServiceWorker.PowerBiWorker
 			var dayNum = date.Day;
 			var isWorkDay = weekDayNum < 6;
 
-			var sql = $@"INSERT INTO calendar (`date`, month_num, month_name, month_shortName, weekday_num, weekday_name, weekday_shortName, day_num, workday)
-						VALUES(""{date.ToString("yyyy-MM-dd")}"", {montNum}, ""{monthName}"", ""{monthShortName}"", {weekDayNum}, ""{weekDayName}"", ""{weekDayShortName}"", {dayNum}, {isWorkDay})";
+			var year = date.Year;
+
+			var sql = $@"INSERT INTO calendar (`date`, month_num, month_name, month_shortName, weekday_num, weekday_name, weekday_shortName, day_num, workday, year)
+						VALUES(""{date.ToString("yyyy-MM-dd")}"", {montNum}, ""{monthName}"", ""{monthShortName}"", {weekDayNum}, ""{weekDayName}"", ""{weekDayShortName}"", {dayNum}, {isWorkDay}, {year})";
 
 			return sql;
 		}

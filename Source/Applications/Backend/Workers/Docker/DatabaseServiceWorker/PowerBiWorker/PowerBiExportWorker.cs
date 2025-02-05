@@ -91,6 +91,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				var trackRepository = scope.ServiceProvider.GetRequiredService<ITrackRepository>();
 				var scheduleRestrictionRepository = scope.ServiceProvider.GetRequiredService<IScheduleRestrictionRepository>();
 				var deliveryRepository = scope.ServiceProvider.GetRequiredService<IDeliveryRepository>();
+				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 
 				_logger.LogInformation("Начало экспорта в бд PowerBi {PowerBiExportDate}", DateTime.Now);
 
@@ -98,12 +99,23 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 				if(lastWorkerStartDate.HasValue && lastWorkerStartDate >= DateTime.Today)
 				{
+					_logger.LogInformation("Сегодня уже экспортировали в бд PowerBi {PowerBiExportDate}", DateTime.Now);
+
+					await zabbixSender.SendIsHealthyAsync(stoppingToken);
+
 					return;
+
 				}
 				else
 				{
 					await SetLastWorkerStartDate(targetConnection, DateTime.Now);
 				}
+
+				await ExportTablesAsync(
+					sourceConnection,
+					targetConnection,
+					GetStartDate(_options.Value.StartDate, _options.Value.NumberOfDaysToExport),
+					stoppingToken);
 
 				// Скорее всего не понадобится, пока низвестно
 				await ExportReportsAsync(
@@ -120,14 +132,9 @@ namespace DatabaseServiceWorker.PowerBiWorker
 					deliveryRulesSettings,
 					stoppingToken);
 
-				await ExportTablesAsync(
-					sourceConnection,
-					targetConnection,
-					GetStartDate(_options.Value.StartDate, _options.Value.NumberOfDaysToExport),					
-					stoppingToken);
-
-				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+
+				_logger.LogInformation("Экспортв бд PowerBi завершён.");
 			}
 			catch(Exception e)
 			{

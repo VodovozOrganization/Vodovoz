@@ -29,6 +29,7 @@ using Vodovoz.Presentation.ViewModels.Employees.Journals;
 using Vodovoz.Presentation.ViewModels.Organisations;
 using Vodovoz.Presentation.ViewModels.Organisations.Journals;
 using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Counterparties;
@@ -57,6 +58,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Profitability;
 using Vodovoz.ViewModels.Store;
 
@@ -84,6 +86,16 @@ public partial class MainWindow
 	protected void OnSubdivisionsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<SubdivisionsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Центры финансовой ответственности
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnFinancialResponsibilityCenterJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FinancialResponsibilityCenterJournalViewModel>(null);
 	}
 
 	/// <summary>

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using FastPaymentsApi.Contracts;
@@ -72,11 +72,6 @@ namespace FastPaymentsAPI.Controllers
 		[HttpPost]
 		public async Task<QRResponseDTO> RegisterOrderForGetQR([FromBody] OrderDTO orderDto)
 		{
-			return new QRResponseDTO
-			{
-				ErrorMessage = _serviceUnavailableError
-			};
-			
 			var orderId = orderDto.OrderId;
 			_logger.LogInformation($"Поступил запрос отправки QR-кода для заказа №{orderId}");
 			
@@ -164,8 +159,6 @@ namespace FastPaymentsAPI.Controllers
 		[HttpPost]
 		public async Task<FastPaymentResponseDTO> RegisterOrder([FromBody] FastPaymentRequestDTO fastPaymentRequestDto)
 		{
-			return new FastPaymentResponseDTO(_serviceUnavailableError);
-			
 			var orderId = fastPaymentRequestDto.OrderId;
 			var phoneNumber = fastPaymentRequestDto.PhoneNumber;
 			var isQr = fastPaymentRequestDto.IsQr;
@@ -283,11 +276,6 @@ namespace FastPaymentsAPI.Controllers
 		private async Task<ResponseRegisterOnlineOrder> RegisterNewOnlineOrder(
 			RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto, RequestFromType requestType)
 		{
-			return new ResponseRegisterOnlineOrder
-			{
-				ErrorMessage = _serviceUnavailableError
-			};
-			
 			var onlineOrderId = requestRegisterOnlineOrderDto.OrderId;
 			var onlineOrderSum = requestRegisterOnlineOrderDto.OrderSum;
 

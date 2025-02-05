@@ -9,7 +9,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Store;
 using VodovozBusiness.Domain.Documents;
 
-namespace Vodovoz
+namespace Vodovoz.Store
 {
 	[ToolboxItem(true)]
 	public partial class RegradingOfGoodsDocumentItemsView : WidgetViewBase<RegradingOfGoodsDocumentItemsViewModel>

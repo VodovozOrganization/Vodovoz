@@ -19,5 +19,12 @@ namespace Vodovoz.Core.Data.Repositories
 		IEnumerable<OperatorState> GetOperatorsOnBreak(DateTime date);
 		IEnumerable<OperatorState> GetOperatorBreakStates(int operatorId, DateTime date);
 		Task<Call> GetCallByEntryAsync(IUnitOfWork uow, string entryId);
+
+		/// <summary>
+		/// Получение истории событий звонка по идентификатору звонка
+		/// </summary>
+		/// <param name="callId">Идентификатор звонка</param>
+		/// <returns></returns>
+		Task<IEnumerable<CallEvent>> GetCallHistoryByCallIdAsync(string callId);
 	}
 }

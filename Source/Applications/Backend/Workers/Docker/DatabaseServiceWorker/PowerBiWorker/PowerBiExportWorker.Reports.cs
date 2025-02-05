@@ -21,7 +21,7 @@ using Vodovoz.Settings.Nomenclature;
 namespace DatabaseServiceWorker.PowerBiWorker
 {
 	internal partial class PowerBiExportWorker
-	{		
+	{
 		private async Task ExportReportsAsync(
 			MySqlConnection connectionSource,
 			MySqlConnection connectionTarget,
@@ -41,7 +41,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 			#region GeneralInformation
 
 			var revenueDaySql = GetRevenuesSql(startDate, endDate);
-			var revenueDayList = await connectionSource.GetDataAsync<RevenueDayDto>(revenueDaySql);			
+			var revenueDayList = await connectionSource.GetDataAsync<RevenueDayDto>(revenueDaySql);
 			var deliveredSql = GetDeliveredSql(startDate, endDate);
 			var deliveredList = await connectionSource.GetDataAsync<DeliveredDto>(deliveredSql);
 
@@ -71,7 +71,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 			#region UndeliveriesInformation
 
-			var undeliveredSql = GetUndeliveredSql(startDate, endDate);			
+			var undeliveredSql = GetUndeliveredSql(startDate, endDate);
 			var undeliveredList = await connectionSource.GetDataAsync<UndeliveredDto>(undeliveredSql);
 
 			var undeliveryTransaction = connectionTarget.BeginTransaction();
@@ -96,92 +96,178 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 			#endregion
 
+			// Пока не реализована 5020 не можем корректно выгружать старые данные
+			//
+			//#region FastDeliveryInformation
+
+			//var fastDeliveryFailsSql = GetFastDeliveryFails(startDate, endDate);
+			//var fastDeliveryFailsList = await connectionSource.GetDataAsync<FastDeliveryFailDto>(fastDeliveryFailsSql,
+			//		new { product_group_id = nomenclatureSettings.PromotionalNomenclatureGroupId });
+
+			//var numberOfFastDeliverySalesSql = GetNumberOfFastDeliverySalesSql(startDate, endDate);
+			//var numberOfFastDeliverySales = await connectionSource.GetDataAsync<(DateTime date, decimal quantity)>(numberOfFastDeliverySalesSql);
+
+			//var fastDeliveryLatesSql = GetLatesSql(startDate, endDate);
+			//var fastDeliveryLateList = await connectionSource.GetDataAsync<LateDto>(fastDeliveryLatesSql,
+			//	new { interval_select_mode = generalSettings.FastDeliveryIntervalFrom.ToString() });
+
+			//var fastDeliveryUndeliveriesSql = GetFastDeliveryUndeliveriesSql(startDate, endDate);
+			//var fastDeliveryUndeliveriesList = await connectionSource.GetDataAsync<(DateTime date, decimal quantity)>(fastDeliveryUndeliveriesSql);
+
+			//var numberOfFastdeliveryComplaintsSql = GeNumberOfFastdeliveryComplaintsSql(startDate, endDate);
+			//var numberOfFastdeliveryComplaintsList = await connectionSource.GetDataAsync<(DateTime date, decimal quantity)>(numberOfFastdeliveryComplaintsSql);
+
+			//var coverageList = new List<CoverageDto>();
+
+			//using(var uow = unitOfWorkFactory.CreateWithoutRoot("PowerBiCoverageReport"))
+			//{
+			//	for(DateTime date = startDate; date < endDate; date = date.AddDays(1))
+			//	{
+			//		var fastDeliveryCoverage = await GetCoverageAsync(deliveryRulesSettings, uow, deliveryRepository, trackRepository, scheduleRestrictionRepository, date, stoppingToken);
+			//		fastDeliveryCoverage.Date = date;
+			//		coverageList.Add(fastDeliveryCoverage);
+			//	}
+			//}
+
+			//var remainingBottleList = new List<RemainingBottlesDto>();
+
+			//using(var uow = unitOfWorkFactory.CreateWithoutRoot("PowerBiCoverageReport"))
+			//{
+			//	for(DateTime date = startDate; date < endDate; date = date.AddDays(1))
+			//	{
+			//		var remainingBottle = GetRemainingBottle(uow, date);
+			//		remainingBottle.Date = date;
+			//		remainingBottleList.Add(remainingBottle);
+			//	}
+			//}
+
+			//TruncateFastDeliveryReportTables(connectionTarget, startDate);
+
+			//var fastDeliveryTransaction = connectionTarget.BeginTransaction();
+
+			//for(DateTime curDate = startDate; curDate < endDate; curDate = curDate.AddDays(1))
+			//{
+			//	var row = new
+			//	{
+			//		date = curDate,
+			//		number_of_sales = numberOfFastDeliverySales.Single(x => x.date == curDate).quantity,
+			//		number_of_late_less_5 = fastDeliveryLateList.Single(x => x.Date == curDate).LessThan5Minutes,
+			//		number_of_late_less_30 = fastDeliveryLateList.Single(x => x.Date == curDate).LessThan30Minutes,
+			//		number_of_late_more_30 = fastDeliveryLateList.Single(x => x.Date == curDate).MoreThan30Minutes,
+			//		number_of_fail_delivery = fastDeliveryUndeliveriesList.Single(x => x.date == curDate).quantity,
+			//		number_of_claim = numberOfFastdeliveryComplaintsList.Single(x => x.date == curDate).quantity,
+			//		fill = coverageList.Single(x => x.Date == curDate).Fill.ToString("F2"),
+			//		average_radius = coverageList.Single(x => x.Date == curDate).AverageRadius.ToString("F2"),
+			//		number_of_cars = coverageList.Single(x => x.Date == curDate).NumberOfCars.ToString("F2"),
+			//		not_enough_product = fastDeliveryFailsList.Single(x => x.Date == curDate).IsValidIsGoodsEnoughTotal,
+			//		lot_of_orders = fastDeliveryFailsList.Single(x => x.Date == curDate).IsValidUnclosedFastDeliveriesTotal,
+			//		not_coordinates = fastDeliveryFailsList.Single(x => x.Date == curDate).IsValidLastCoordinateTimeTotal,
+			//		long_distance = fastDeliveryFailsList.Single(x => x.Date == curDate).IsValidDistanceByLineToClientTotal,
+			//		uploaded_19 = remainingBottleList.Single(x => x.Date == curDate).Uploaded19,
+			//		sold_19 = remainingBottleList.Single(x => x.Date == curDate).Sold19,
+			//		return_19 = remainingBottleList.Single(x => x.Date == curDate).Return19,
+			//	};
+
+			//	var sql =
+			//		"INSERT INTO fast_delivery_info(`date`, number_of_sales, number_of_late_less_5, number_of_late_less_30, number_of_late_more_30, " +
+			//		"number_of_fail_delivery, number_of_claim, fill, average_radius, number_of_cars," +
+			//		"not_enough_product, lot_of_orders, not_coordinates, long_distance, uploaded_19, sold_19, return_19)" +
+			//		" VALUES(@date, @number_of_sales, @number_of_late_less_5, @number_of_late_less_30, @number_of_late_more_30, @number_of_fail_delivery, @number_of_claim, "
+			//		+ "@fill, @average_radius, @number_of_cars, @not_enough_product, @lot_of_orders, @not_coordinates, @long_distance, @uploaded_19, @sold_19, @return_19);";
+
+			//	connectionTarget.Execute(
+			//		sql,
+			//		row,
+			//	fastDeliveryTransaction);
+			//}
+
+			//fastDeliveryTransaction.Commit();
+
+			//#endregion
+
+			// Пока не реализована 5020 выгружаем за 1 деь
+
 			#region FastDeliveryInformation
 
-			var fastDeliveryFailsSql = GetFastDeliveryFails(startDate, endDate);
+			var yesterday = DateTime.Today.AddDays(-1);
+
+			var fastDeliveryFailsSql = GetFastDeliveryFails(yesterday, yesterday);
 			var fastDeliveryFailsList = await connectionSource.GetDataAsync<FastDeliveryFailDto>(fastDeliveryFailsSql,
 					new { product_group_id = nomenclatureSettings.PromotionalNomenclatureGroupId });
 
-			var numberOfFastDeliverySalesSql = GetNumberOfFastDeliverySalesSql(startDate, endDate);
+			var numberOfFastDeliverySalesSql = GetNumberOfFastDeliverySalesSql(yesterday, yesterday);
 			var numberOfFastDeliverySales = await connectionSource.GetDataAsync<(DateTime date, decimal quantity)>(numberOfFastDeliverySalesSql);
 
-			var fastDeliveryLatesSql = GetLatesSql(startDate, endDate);
+			var fastDeliveryLatesSql = GetLatesSql(yesterday, yesterday);
 			var fastDeliveryLateList = await connectionSource.GetDataAsync<LateDto>(fastDeliveryLatesSql,
 				new { interval_select_mode = generalSettings.FastDeliveryIntervalFrom.ToString() });
 
-			var fastDeliveryUndeliveriesSql = GetFastDeliveryUndeliveriesSql(startDate, endDate);
-			var fastDeliveryUndeliveriesList = await connectionSource.GetDataAsync<(DateTime date, decimal quantity)>(fastDeliveryUndeliveriesSql);
+			var fastDeliveryUndeliveriesSql = GetFastDeliveryUndeliveriesSql(yesterday, yesterday);
+			var fastDeliveryUndeliveriesList = await connectionSource.GetDataAsync<(DateTime yesterday, decimal quantity)>(fastDeliveryUndeliveriesSql);
 
-			var numberOfFastdeliveryComplaintsSql = GeNumberOfFastdeliveryComplaintsSql(startDate, endDate);
-			var numberOfFastdeliveryComplaintsList = await connectionSource.GetDataAsync<(DateTime date, decimal quantity)>(numberOfFastdeliveryComplaintsSql);
+			var numberOfFastdeliveryComplaintsSql = GeNumberOfFastdeliveryComplaintsSql(yesterday, yesterday);
+			var numberOfFastdeliveryComplaintsList = await connectionSource.GetDataAsync<(DateTime yesterday, decimal quantity)>(numberOfFastdeliveryComplaintsSql);
 
 			var coverageList = new List<CoverageDto>();
 
 			using(var uow = unitOfWorkFactory.CreateWithoutRoot("PowerBiCoverageReport"))
 			{
-				for(DateTime date = startDate; date < endDate; date = date.AddDays(1))
-				{
-					var fastDeliveryCoverage = await GetCoverageAsync(deliveryRulesSettings, uow, deliveryRepository, trackRepository, scheduleRestrictionRepository, date, stoppingToken);
-					fastDeliveryCoverage.Date = date;
-					coverageList.Add(fastDeliveryCoverage);
-				}
+				var fastDeliveryCoverage = await GetCoverageAsync(deliveryRulesSettings, uow, deliveryRepository, trackRepository, scheduleRestrictionRepository, yesterday, stoppingToken);
+				fastDeliveryCoverage.Date = yesterday;
+				coverageList.Add(fastDeliveryCoverage);
 			}
 
 			var remainingBottleList = new List<RemainingBottlesDto>();
 
 			using(var uow = unitOfWorkFactory.CreateWithoutRoot("PowerBiCoverageReport"))
 			{
-				for(DateTime date = startDate; date < endDate; date = date.AddDays(1))
-				{
-					var remainingBottle = GetRemainingBottle(uow, date);
-					remainingBottle.Date = date;
-					remainingBottleList.Add(remainingBottle);
-				}
+				var remainingBottle = GetRemainingBottle(uow, yesterday);
+				remainingBottle.Date = yesterday;
+				remainingBottleList.Add(remainingBottle);
 			}
-
-			TruncateFastDeliveryReportTables(connectionTarget, startDate);
 
 			var fastDeliveryTransaction = connectionTarget.BeginTransaction();
 
-			for(DateTime curDate = startDate; curDate < endDate; curDate = curDate.AddDays(1))
+			var lastRow = new
 			{
-				var row = new
-				{
-					date = curDate,
-					number_of_sales = numberOfFastDeliverySales.Single(x => x.date == curDate).quantity,
-					number_of_late_less_5 = fastDeliveryLateList.Single(x => x.Date == curDate).LessThan5Minutes,
-					number_of_late_less_30 = fastDeliveryLateList.Single(x => x.Date == curDate).LessThan30Minutes,
-					number_of_late_more_30 = fastDeliveryLateList.Single(x => x.Date == curDate).MoreThan30Minutes,
-					number_of_fail_delivery = fastDeliveryUndeliveriesList.Single(x => x.date == curDate).quantity,
-					number_of_claim = numberOfFastdeliveryComplaintsList.Single(x => x.date == curDate).quantity,
-					fill = coverageList.Single(x => x.Date == curDate).Fill.ToString("F2"),
-					average_radius = coverageList.Single(x => x.Date == curDate).AverageRadius.ToString("F2"),
-					number_of_cars = coverageList.Single(x => x.Date == curDate).NumberOfCars.ToString("F2"),
-					not_enough_product = fastDeliveryFailsList.Single(x => x.Date == curDate).IsValidIsGoodsEnoughTotal,
-					lot_of_orders = fastDeliveryFailsList.Single(x => x.Date == curDate).IsValidUnclosedFastDeliveriesTotal,
-					not_coordinates = fastDeliveryFailsList.Single(x => x.Date == curDate).IsValidLastCoordinateTimeTotal,
-					long_distance = fastDeliveryFailsList.Single(x => x.Date == curDate).IsValidDistanceByLineToClientTotal,
-					uploaded_19 = remainingBottleList.Single(x => x.Date == curDate).Uploaded19,
-					sold_19 = remainingBottleList.Single(x => x.Date == curDate).Sold19,
-					return_19 = remainingBottleList.Single(x => x.Date == curDate).Return19,
-				};
+				date = yesterday,
+				number_of_sales = numberOfFastDeliverySales.Single(x => x.date == yesterday).quantity,
+				number_of_late_less_5 = fastDeliveryLateList.Single(x => x.Date == yesterday).LessThan5Minutes,
+				number_of_late_less_30 = fastDeliveryLateList.Single(x => x.Date == yesterday).LessThan30Minutes,
+				number_of_late_more_30 = fastDeliveryLateList.Single(x => x.Date == yesterday).MoreThan30Minutes,
+				number_of_fail_delivery = fastDeliveryUndeliveriesList.Single(x => x.yesterday == yesterday).quantity,
+				number_of_claim = numberOfFastdeliveryComplaintsList.Single(x => x.yesterday == yesterday).quantity,
+				fill = coverageList.Single(x => x.Date == yesterday).Fill.ToString("F2"),
+				average_radius = coverageList.Single(x => x.Date == yesterday).AverageRadius.ToString("F2"),
+				number_of_cars = coverageList.Single(x => x.Date == yesterday).NumberOfCars.ToString("F2"),
+				not_enough_product = fastDeliveryFailsList.Single(x => x.Date == yesterday).IsValidIsGoodsEnoughTotal,
+				lot_of_orders = fastDeliveryFailsList.Single(x => x.Date == yesterday).IsValidUnclosedFastDeliveriesTotal,
+				not_coordinates = fastDeliveryFailsList.Single(x => x.Date == yesterday).IsValidLastCoordinateTimeTotal,
+				long_distance = fastDeliveryFailsList.Single(x => x.Date == yesterday).IsValidDistanceByLineToClientTotal,
+				uploaded_19 = remainingBottleList.Single(x => x.Date == yesterday).Uploaded19,
+				sold_19 = remainingBottleList.Single(x => x.Date == yesterday).Sold19,
+				return_19 = remainingBottleList.Single(x => x.Date == yesterday).Return19,
+			};
 
-				var sql =
-					"INSERT INTO fast_delivery_info(`date`, number_of_sales, number_of_late_less_5, number_of_late_less_30, number_of_late_more_30, " +
-					"number_of_fail_delivery, number_of_claim, fill, average_radius, number_of_cars," +
-					"not_enough_product, lot_of_orders, not_coordinates, long_distance, uploaded_19, sold_19, return_19)" +
-					" VALUES(@date, @number_of_sales, @number_of_late_less_5, @number_of_late_less_30, @number_of_late_more_30, @number_of_fail_delivery, @number_of_claim, "
-					+ "@fill, @average_radius, @number_of_cars, @not_enough_product, @lot_of_orders, @not_coordinates, @long_distance, @uploaded_19, @sold_19, @return_19);";
+			var sql =
+				"INSERT INTO fast_delivery_info(`date`, number_of_sales, number_of_late_less_5, number_of_late_less_30, number_of_late_more_30, " +
+				"number_of_fail_delivery, number_of_claim, fill, average_radius, number_of_cars," +
+				"not_enough_product, lot_of_orders, not_coordinates, long_distance, uploaded_19, sold_19, return_19)" +
+				" VALUES(@date, @number_of_sales, @number_of_late_less_5, @number_of_late_less_30, @number_of_late_more_30, @number_of_fail_delivery, @number_of_claim, "
+				+ "@fill, @average_radius, @number_of_cars, @not_enough_product, @lot_of_orders, @not_coordinates, @long_distance, @uploaded_19, @sold_19, @return_19);";
 
-				connectionTarget.Execute(
-					sql,
-					row,
-				fastDeliveryTransaction);
-			}
+			connectionTarget.Execute(
+				sql,
+				lastRow,
+			fastDeliveryTransaction);
+
 
 			fastDeliveryTransaction.Commit();
 
 			#endregion
+
+			// Остальное пока не нужно
+			return;
 
 			// Скоро не понадобится
 			#region ExcelFile
@@ -211,8 +297,8 @@ namespace DatabaseServiceWorker.PowerBiWorker
 							curDate,
 							fastDeliveryLateList.Single(x => x.Date == curDate),
 							numberOfFastDeliverySales.Single(x => x.date == curDate).quantity,
-							fastDeliveryUndeliveriesList.Single(x => x.date == curDate).quantity,
-							numberOfFastdeliveryComplaintsList.Single(x => x.date == curDate).quantity,
+							fastDeliveryUndeliveriesList.Single(x => x.yesterday == curDate).quantity,
+							numberOfFastdeliveryComplaintsList.Single(x => x.yesterday == curDate).quantity,
 							coverageList.Single(x => x.Date == curDate),
 							fastDeliveryFailsList.Single(x => x.Date == curDate),
 							remainingBottleList.Single(x => x.Date == curDate));

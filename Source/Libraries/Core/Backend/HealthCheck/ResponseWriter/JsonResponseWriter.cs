@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace VodovozHealthCheck.ResponseWriter
 {
@@ -28,11 +28,13 @@ namespace VodovozHealthCheck.ResponseWriter
 				jsonWriter.WriteString("status", healthReport.Status.ToString());
 				jsonWriter.WriteString("description", healthReport.Entries.FirstOrDefault().Value.Description);
 
+				jsonWriter.WriteStartObject("data");
+
 				foreach(var healthReportEntry in healthReport.Entries)
 				{
-					jsonWriter.WriteStartObject("data");
+					var data = healthReportEntry.Value.Data;
 
-					foreach(var item in healthReportEntry.Value.Data)
+					foreach(var item in data)
 					{
 						jsonWriter.WritePropertyName(item.Key);
 
@@ -44,9 +46,9 @@ namespace VodovozHealthCheck.ResponseWriter
 						jsonWriter.WritePropertyName("exception");
 						jsonWriter.WriteStringValue(exception.ToString());
 					}
-
-					jsonWriter.WriteEndObject();
 				}
+
+				jsonWriter.WriteEndObject();
 
 				jsonWriter.WriteEndObject();
 			}

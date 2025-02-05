@@ -14,6 +14,8 @@ namespace TaxcomEdoApi.Library.Factories
 {
 	public class EdoUpdFactory : IEdoUpdFactory
 	{
+		private const string _updPrefix = "ON_NSCHFDOPPR";
+		private const string _updMarkTag = "MARK";
 		private readonly IParticipantDocFlowConverter _participantDocFlowConverter;
 		private readonly IUpdProductConverter _updProductConverter;
 
@@ -47,7 +49,11 @@ namespace TaxcomEdoApi.Library.Factories
 			};
 
 			var uniqueId = Guid.NewGuid().ToString("D").ToUpper();
-			upd.IdFajl = $"ON_NSCHFDOPPRMARK_{upd.SvUchDokObor.IdPol}_{upd.SvUchDokObor.IdOtpr}_{orderInfoForEdo.DeliveryDate:yyyyMMdd}_{uniqueId}";
+			var hasMarkProducts = orderInfoForEdo.OrderItems.Any(x => !string.IsNullOrWhiteSpace(x.NomenclatureInfoForEdo.Gtin));
+			
+			upd.IdFajl = hasMarkProducts
+				? $"{_updPrefix}{_updMarkTag}_{upd.SvUchDokObor.IdPol}_{upd.SvUchDokObor.IdOtpr}_{orderInfoForEdo.DeliveryDate:yyyyMMdd}_{uniqueId}"
+				: $"{_updPrefix}_{upd.SvUchDokObor.IdPol}_{upd.SvUchDokObor.IdOtpr}_{orderInfoForEdo.DeliveryDate:yyyyMMdd}_{uniqueId}";
 			
 			upd.Dokument = new FajlDokument
 			{
@@ -125,7 +131,8 @@ namespace TaxcomEdoApi.Library.Factories
 
 			var tekstInfTipList = new List<TekstInfTip>();
 
-			if(orderInfoForEdo.CounterpartyInfoForEdo.ReasonForLeaving == ReasonForLeavingType.ForOwnNeeds)
+			if(hasMarkProducts
+				&& orderInfoForEdo.CounterpartyInfoForEdo.ReasonForLeaving == ReasonForLeavingType.ForOwnNeeds)
 			{
 				tekstInfTipList.Add(
 					new TekstInfTip
