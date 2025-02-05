@@ -2060,11 +2060,17 @@
     <Compile Include="gtk-gui\Vodovoz.Organizations.OrganizationJournalFilterView.cs" />
     <Compile Include="Views\Reports\IncorrectFuelReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncorrectFuelReportView.cs" />
+    <Compile Include="Dialogs\Cash\Payments\OutgoingPaymentCreateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.Payments.OutgoingPaymentCreateView.cs" />
+    <Compile Include="Dialogs\Cash\Payments\OutgoingPaymentEditView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.Payments.OutgoingPaymentEditView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Cash\Payments\" />
+    <Folder Include="Dialogs\Cash\Payments\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
