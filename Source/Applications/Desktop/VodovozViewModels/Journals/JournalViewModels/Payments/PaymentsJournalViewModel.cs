@@ -29,7 +29,6 @@ using Vodovoz.ViewModels.Accounting.Payments;
 using Vodovoz.ViewModels.Cash.Payments;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.ViewModels.Payments;
-using VodovozBusiness.Domain.Cash.Payments;
 using VodovozBusiness.Domain.Payments;
 using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;
 using BaseOrg = Vodovoz.Domain.Organizations.Organization;
@@ -433,9 +432,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		protected IQueryOver<OutgoingPayment> OutgoingPaymentsQuery(IUnitOfWork unitOfWork)
 		{
 			PaymentJournalNode resultAlias = null;
+			
 			OutgoingPayment outgoingPaymentAlias = null;
+			
 			BaseOrg organizationAlias = null;
 			Counterparty counterpartyAlias = null;
+			FinancialExpenseCategory financialExpenseCategoryAlias = null;
 
 			var paymentQuery = unitOfWork.Session.QueryOver(() => outgoingPaymentAlias)
 				.JoinEntityAlias(() => organizationAlias,
@@ -445,6 +447,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.JoinEntityAlias(() => counterpartyAlias,
 					Restrictions.EqProperty(Projections.Property(() => outgoingPaymentAlias.CounterpartyId),
 						Projections.Property(() => counterpartyAlias.Id)),
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => financialExpenseCategoryAlias,
+					Restrictions.EqProperty(Projections.Property(() => outgoingPaymentAlias.FinancialExpenseCategoryId),
+						Projections.Property(() => financialExpenseCategoryAlias.Id)),
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 			var counterpartyNameProjection = Projections.SqlFunction(
@@ -518,7 +524,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					.Select(counterpartyNameProjection).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(() => organizationAlias.FullName).WithAlias(() => resultAlias.Organization)
 					.Select(() => outgoingPaymentAlias.PaymentPurpose).WithAlias(() => resultAlias.PaymentPurpose)
-					.Select(Projections.Constant("")).WithAlias(() => resultAlias.ProfitCategory)
+					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.ProfitCategory)
 					.Select(Projections.Constant(true)).WithAlias(() => resultAlias.IsManualCreated)
 					.Select(() => typeof(OutgoingPayment)).WithAlias(() => resultAlias.EntityType)
 					)
