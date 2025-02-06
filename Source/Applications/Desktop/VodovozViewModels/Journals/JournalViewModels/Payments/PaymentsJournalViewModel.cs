@@ -635,6 +635,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				x => true,
 				x => true,
 				selectedItems => CompleteAllocation()));
+
+			CreateAddNewOutgoingPaymentAction();
 		}
 
 		protected void CreateAddActions()
@@ -794,6 +796,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				selectedItems =>
 				{
 					NavigationManager.OpenViewModel<PaymentWriteOffViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForCreate());
+				}));
+		}
+
+		private void CreateAddNewOutgoingPaymentAction()
+		{
+			NodeActionsList.Add(new JournalAction(
+				"Создать новый исходящий платеж",
+				x => _paymentPermissionResult.CanCreate,
+				x => _canCreateNewManualPayment,
+				selectedItems =>
+				{
+					NavigationManager.OpenViewModel<OutgoingPaymentCreateViewModel, IEntityUoWBuilder>(
 						this, EntityUoWBuilder.ForCreate());
 				}));
 		}
