@@ -35,8 +35,14 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(vm => vm.CanShowOrganization, w => w.Visible)
 				.InitializeFromSource();
 
-			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			yChkIsArchive.Binding.AddBinding(ViewModel, wm => wm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			txtViewOrganizationCriterion.Binding
+				.AddBinding(ViewModel.Entity, e => e.OrganizationCriterion, w => w.Buffer.Text)
+				.InitializeFromSource();
+
+			yChkIsArchive.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+				.AddBinding(ViewModel, wm => wm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 	}
 }
