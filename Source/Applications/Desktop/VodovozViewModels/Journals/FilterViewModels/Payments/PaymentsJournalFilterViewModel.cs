@@ -22,6 +22,8 @@ namespace Vodovoz.Filters.ViewModels
 		private Counterparty _counterparty;
 		private PaymentJournalSortType _sortType;
 		private Type _documentType;
+		private bool _canChangeDocumentType;
+		private bool _outgoingPaymentsWithoutCashlessRequestAssigned;
 
 		public PaymentsJournalFilterViewModel(
 			ILifetimeScope scope,
@@ -126,5 +128,34 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		public override bool IsShow { get; set; } = true;
+
+		public bool CanChangeDocumentType
+		{
+			get => _canChangeDocumentType;
+			set => SetField(ref _canChangeDocumentType, value);
+		}
+
+		public Type RestrictDocumentType
+		{
+			get => CanChangeDocumentType ? null : DocumentType;
+			set
+			{
+				if(value is null)
+				{
+					CanChangeDocumentType = true;
+				}
+				else
+				{
+					CanChangeDocumentType = false;
+					DocumentType = value;
+				}
+			}
+		}
+
+		public bool OutgoingPaymentsWithoutCashlessRequestAssigned
+		{
+			get => _outgoingPaymentsWithoutCashlessRequestAssigned;
+			set => UpdateFilterField(ref _outgoingPaymentsWithoutCashlessRequestAssigned, value);
+		}
 	}
 }

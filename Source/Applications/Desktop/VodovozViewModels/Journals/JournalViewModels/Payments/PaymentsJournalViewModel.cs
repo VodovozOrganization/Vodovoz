@@ -480,6 +480,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					paymentQuery.Where(p => p.Id == -1);
 				}
 
+				if(_filterViewModel.OutgoingPaymentsWithoutCashlessRequestAssigned)
+				{
+					paymentQuery.Where(p => p.CashlessRequestId == null);
+				}
+
 				if(_filterViewModel.Counterparty != null)
 				{
 					paymentQuery.Where(p => p.CounterpartyId == _filterViewModel.Counterparty.Id);

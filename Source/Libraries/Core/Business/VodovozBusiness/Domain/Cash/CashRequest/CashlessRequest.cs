@@ -312,6 +312,20 @@ namespace Vodovoz.Domain.Cash
 			};
 		}
 
+		public virtual void RemoveOutgoingPayment(int id)
+		{
+			OutgoingPayments.Remove(OutgoingPayments.Where(x => id == x.Id).FirstOrDefault());
+		}
+
+		public virtual void AddOutgoingPayments(IEnumerable<OutgoingPayment> outgoingPayments)
+		{
+			foreach(var payment in outgoingPayments)
+			{
+				payment.CashlessRequestId = Id;
+				OutgoingPayments.Add(payment);
+			}
+		}
+
 		#region IValidationImplementation
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -513,6 +527,6 @@ namespace Vodovoz.Domain.Cash
 			return ValidationResult.Success;
 		}
 
-		#endregion
+		#endregion IValidationImplementation
 	}
 }
