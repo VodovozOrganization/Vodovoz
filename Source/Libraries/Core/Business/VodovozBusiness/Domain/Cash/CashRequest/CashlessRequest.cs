@@ -12,6 +12,7 @@ using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Payments;
 using VodovozBusiness.Domain.Cash.CashRequest;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -28,7 +29,7 @@ namespace Vodovoz.Domain.Cash
 	{
 		private IObservableList<CashlessRequestComment> _comments = new ObservableList<CashlessRequestComment>();
 		private IObservableList<CashlessRequestFileInformation> _attachedFileInformations = new ObservableList<CashlessRequestFileInformation>();
-		private IObservableList<Payment> _payments = new ObservableList<Payment>();
+		private IObservableList<OutgoingPayment> _outgoingPayments = new ObservableList<OutgoingPayment>();
 
 		private decimal _sum;
 		private Counterparty _counterparty;
@@ -193,10 +194,10 @@ namespace Vodovoz.Domain.Cash
 		/// Платежи
 		/// </summary>
 		[Display(Name = "Платежи")]
-		public virtual IObservableList<Payment> Payments
+		public virtual IObservableList<OutgoingPayment> OutgoingPayments
 		{
-			get => _payments;
-			set => SetField(ref _payments, value);
+			get => _outgoingPayments;
+			set => SetField(ref _outgoingPayments, value);
 		}
 
 		/// <summary>

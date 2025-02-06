@@ -614,7 +614,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public bool IsRoleChooserSensitive { get; }
 
-		public decimal SumGiven => Entity.Payments.Sum(p => p.PaymentItems.Sum(pi => pi.Sum));
+		public decimal SumGiven => Entity.OutgoingPayments.Sum(p => p.Sum);
 
 		public decimal SumRemaining => Entity.Sum - SumGiven;
 
