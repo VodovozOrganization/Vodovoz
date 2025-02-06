@@ -51,25 +51,26 @@ namespace Vodovoz.Dialogs.Cash.Payments
 				.InitializeFromSource();
 
 			ylblCashlessRequestId.Binding
-				.AddBinding(ViewModel.Entity, e => e.CashlessRequestId, w => w.Text)
+				.AddBinding(ViewModel, e => e.CashlessRequestId, w => w.Text)
 				.InitializeFromSource();
 
 			ylblOrganizationName.Binding
+				.AddBinding(ViewModel, vm => vm.OrganizationName, w => w.Text)
 				.InitializeFromSource();
 
 			ylblPaymentDate.Binding
-				.AddFuncBinding(
-					ViewModel.Entity,
-					e => e.PaymentDate.ToString("d"),
+				.AddBinding(
+					ViewModel,
+					vm => vm.PaymentDate,
 					w => w.Text)
 				.InitializeFromSource();
 
 			ylblPaymentNumber.Binding
-				.AddBinding(ViewModel.Entity, e => e.PaymentNumber, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.PaymentNumber, w => w.Text)
 				.InitializeFromSource();
 
 			ylblSum.Binding
-				.AddBinding(ViewModel.Entity, e => e.Sum, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.Sum, w => w.Text)
 				.InitializeFromSource();
 
 			buttonSave.BindCommand(ViewModel.SaveCommand);
