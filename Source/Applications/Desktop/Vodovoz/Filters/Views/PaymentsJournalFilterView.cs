@@ -67,6 +67,7 @@ namespace Vodovoz.Filters.Views
 				: "Все");
 
 			slcbDocumentType.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeDocumentType, w=>w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.DocumentTypeObject, w => w.SelectedItem)
 				.InitializeFromSource();
 

@@ -1,11 +1,14 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using ReactiveUI;
 using System;
+using System.Linq;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
@@ -97,6 +100,36 @@ namespace Vodovoz.ViewModels.Cash.Payments
 
 			Entity.CreatedAt = DateTime.Now;
 			Entity.PaymentDate = PaymentDate.Value;
+
+			var cashlessRequestCandidatToAdd = UoW.Session
+				.Query<CashlessRequest>()
+				.Where(x => (x.PayoutRequestState == PayoutRequestState.PartiallyClosed
+					|| x.PayoutRequestState == PayoutRequestState.GivenForTake)
+					&& x.Counterparty.Id == Entity.CounterpartyId
+					&& x.Organization.Id == Entity.OrganizationId
+					&& x.Sum <= Entity.Sum
+					&& x.PaymentPurpose == Entity.PaymentPurpose)
+				.OrderBy(x => x.BillDate)
+				.FirstOrDefault();
+
+			if(cashlessRequestCandidatToAdd is CashlessRequest cashlessRequest)
+			{
+				if(cashlessRequest.Sum
+					- cashlessRequest.OutgoingPayments.Sum(x => x.Sum)
+					- Entity.Sum == 0)
+				{
+					cashlessRequest.ChangeState(PayoutRequestState.Closed);
+				}
+				else if(cashlessRequest.PayoutRequestState != PayoutRequestState.PartiallyClosed)
+				{
+					cashlessRequest.ChangeState(PayoutRequestState.PartiallyClosed);
+				}
+					
+				Entity.CashlessRequestId = cashlessRequest.Id;
+
+				UoW.Save(cashlessRequest);
+			}
+
 			return base.Save(close);
 		}
 	}

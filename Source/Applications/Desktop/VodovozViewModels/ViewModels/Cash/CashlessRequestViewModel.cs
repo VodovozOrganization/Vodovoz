@@ -6,6 +6,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -18,6 +19,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows.Input;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Domain.Cash;
@@ -26,16 +28,20 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
+using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using VodovozBusiness.Domain.Cash.CashRequest;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -82,6 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private string _newCommentText;
 		private AttachedFileInformationsViewModel _attachedFileInformationsViewModel;
 		private bool _canEdit;
+		private OutgoingPayment _selectedOutgoingPayment;
 
 		public CashlessRequestViewModel(
 			IUserRepository userRepository,
@@ -311,6 +318,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			CreateCalendarCommand = new DelegateCommand(CreateCalendar, () => CanCreateGiveOutSchedule && !IsSecurityServiceRole);
 
+			AddOutgoingPaymentCommand = new DelegateCommand(AddOutgoingPayment, () => CanEdit);
+
+			RemoveOutgoingPaymentCommand = new DelegateCommand(RemoveOutgoingPayment, () => CanEdit);
+
 			#endregion Commands
 
 			SelectedVatValue =
@@ -366,6 +377,28 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		}
 
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
+
+		public object SelectedOutgoingPaymentObject
+		{
+			get => SelectedOutgoingPayment;
+			set
+			{
+				if(value is OutgoingPayment outgoingPayment)
+				{
+					SelectedOutgoingPayment = outgoingPayment;
+				}
+				else
+				{
+					SelectedOutgoingPayment = null;
+				}
+			}
+		}
+
+		public OutgoingPayment SelectedOutgoingPayment
+		{
+			get => _selectedOutgoingPayment;
+			set => SetField(ref _selectedOutgoingPayment, value);
+		}
 
 		#region Inner ViewModels
 
@@ -501,6 +534,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public DelegateCommand ConveyForPayoutCommand { get; }
 
 		public DelegateCommand CreateCalendarCommand { get; }
+
+		public DelegateCommand AddOutgoingPaymentCommand { get; set; }
+		public DelegateCommand RemoveOutgoingPaymentCommand { get; set; }
 
 		#endregion Commands
 
@@ -777,6 +813,43 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			process.Exited += OnProcessExited;
 			process.Start();
+		}
+
+		private void RemoveOutgoingPayment()
+		{
+			Entity.RemoveOutgoingPayment(SelectedOutgoingPayment.Id);
+		}
+
+		private void AddOutgoingPayment()
+		{
+			NavigationManager.OpenViewModel<PaymentsJournalViewModel, Action<PaymentsJournalFilterViewModel>>(
+				this,
+				filter =>
+				{
+					filter.RestrictDocumentType = typeof(OutgoingPayment);
+					filter.OutgoingPaymentsWithoutCashlessRequestAssigned = true;
+				},
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnEntitySelectedResult += OnOutgoingPaymentToAddSelected;
+				});
+		}
+
+		private void OnOutgoingPaymentToAddSelected(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var outgoingPaymentsIds = e.SelectedNodes
+				.Cast<PaymentJournalNode>()
+				.Select(x => x.Id)
+				.ToArray();
+
+			var outgoignPaymentsToAdd = UoW.Session
+				.Query<OutgoingPayment>()
+				.Where(x => outgoingPaymentsIds.Contains(x.Id))
+				.ToArray();
+
+			Entity.AddOutgoingPayments(outgoignPaymentsToAdd);
 		}
 
 		#endregion Command Handlers
