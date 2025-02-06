@@ -50,12 +50,27 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Название должно быть заполнено", new[] { nameof(Name) });
 			}
 
+			if(Id == 0)
+			{
+				if(OrganizationForOnlinePayments is null)
+				{
+					yield return new ValidationResult("Организация для онлайн оплаты должна быть заполнена",
+						new[] { nameof(OrganizationForOnlinePayments) });
+				}
+
+				if(string.IsNullOrWhiteSpace(OrganizationCriterion))
+				{
+					yield return new ValidationResult("Условия для установки организации должны быть заполнены",
+						new[] { nameof(OrganizationCriterion) });
+				}
+			}
+
 			if(Id > 0
 				&& OrganizationForOnlinePayments != null
 				&& orderSettings.PaymentsByCardFromAvangard.Contains(Id)
 				&& !OrganizationForOnlinePayments.AvangardShopId.HasValue)
 			{
-				yield return new ValidationResult("Организация присвоена источнику Авангарда, но в базе не заполнено avangard_shop_Id",
+				yield return new ValidationResult("Организация присвоена источнику Авангарда, но в базе не заполнено avangard_shop_id",
 					new[] { nameof(OrganizationForOnlinePayments.AvangardShopId) });
 			}
 

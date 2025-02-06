@@ -1,6 +1,6 @@
 ﻿using Vodovoz.Domain.Client;
 
-namespace VodovozBusiness.Domain.Orders
+namespace VodovozBusiness.Domain.Settings
 {
 	public class DriverAppQrPaymentTypeOrganizationSettings : PaymentTypeOrganizationSettings
 	{

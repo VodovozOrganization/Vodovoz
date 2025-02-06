@@ -1,6 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Settings
 {
