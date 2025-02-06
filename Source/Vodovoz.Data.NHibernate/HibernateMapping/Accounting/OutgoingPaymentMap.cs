@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using VodovozBusiness.Domain.Cash.Payments;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Accounting
 {

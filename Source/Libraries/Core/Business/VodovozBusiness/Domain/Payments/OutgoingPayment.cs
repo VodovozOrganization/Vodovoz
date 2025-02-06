@@ -1,4 +1,5 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -7,7 +8,7 @@ using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 
-namespace VodovozBusiness.Domain.Cash.Payments
+namespace VodovozBusiness.Domain.Payments
 {
 	/// <summary>
 	/// Исходящий платеж
@@ -23,6 +24,7 @@ namespace VodovozBusiness.Domain.Cash.Payments
 		GenitivePlural = "исходящих платежей",
 		PrepositionalPlural = "исходящих платежах")]
 	[HistoryTrace]
+	[EntityPermission]
 	public class OutgoingPayment : PropertyChangedBase, IDomainObject
 	{
 		private int _id;

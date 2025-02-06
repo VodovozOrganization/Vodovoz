@@ -12,7 +12,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Organizations;
-using VodovozBusiness.Domain.Cash.Payments;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.ViewModels.Cash.Payments
 {
