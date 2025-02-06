@@ -5,6 +5,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
+using Microsoft.Extensions.Logging;
 using Pango;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -29,13 +30,18 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class CounterpartyPanelView : Bin, IPanelView
 	{
 		private readonly IOrderRepository _orderRepository;
+		private readonly ILogger<CounterpartyPanelView> _logger;
 		private readonly ICommonServices _commonServices;
 		private Counterparty _counterparty;
 		private IPermissionResult _counterpartyPermissionResult;
 		private bool _textviewcommentBufferChanged = false;
 
-		public CounterpartyPanelView(ICommonServices commonServices, IOrderRepository orderRepository)
+		public CounterpartyPanelView(
+			ILogger<CounterpartyPanelView> logger,
+			ICommonServices commonServices,
+			IOrderRepository orderRepository)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			Build();
@@ -259,6 +265,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
+			_logger.LogInformation("Нажата кнопка сохранить комментарий в {ButtonClickedDateTime}",
+				DateTime.Now.ToString("g"));
+
 			SaveComment();
 		}
 
