@@ -3,7 +3,7 @@
 namespace Vodovoz.ViewModels.Journals.Mappings.Subdivisions
 {
 	/// <summary>
-	/// Маппинг для подразделения(какой журнал открывать)
+	/// Маппинг подразделения с открываемым журналом
 	/// </summary>
 	public class SubdivisionToJournalMapping : EntityToJournalMapping<Subdivision>
 	{

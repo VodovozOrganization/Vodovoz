@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Domain.Goods;
+using Vodovoz.ViewModels.Journals.Mappings.Nomenclatures;
+using Vodovoz.ViewModels.Journals.Mappings.ProductGroups;
 using Vodovoz.ViewModels.Journals.Mappings.Subdivisions;
 
 namespace Vodovoz.ViewModels.Journals.Mappings
@@ -18,7 +21,12 @@ namespace Vodovoz.ViewModels.Journals.Mappings
 
 		private void Initialize()
 		{
-			var dictionary = new Dictionary<Type, EntityToJournalMapping> { { typeof(Subdivision), new SubdivisionToJournalMapping() } };
+			var dictionary = new Dictionary<Type, EntityToJournalMapping>
+			{
+				{ typeof(Subdivision), new SubdivisionToJournalMapping() },
+				{ typeof(ProductGroup), new ProductGroupToJournalMapping() },
+				{ typeof(Nomenclature), new NomenclatureToJournalMapping() }
+			};
 
 			Journals = dictionary;
 		}

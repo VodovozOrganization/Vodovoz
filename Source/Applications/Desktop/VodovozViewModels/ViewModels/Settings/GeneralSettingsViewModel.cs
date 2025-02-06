@@ -7,12 +7,21 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using QS.DomainModel.Entity;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.ViewModels.Accounting.Payments;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Services;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
@@ -27,6 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ILifetimeScope _lifetimeScope;
+		private readonly ViewModelEEVMBuilder<Organization> _organizationViewModelBuilder;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 
 		private string _routeListPrintedFormPhones;
@@ -79,6 +89,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigation,
+			ViewModelEEVMBuilder<Organization> organizationViewModelBuilder,
 			EntityJournalOpener entityJournalOpener) : base(commonServices?.InteractiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -86,6 +97,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			EntityJournalOpener = entityJournalOpener ?? throw new ArgumentNullException(nameof(entityJournalOpener));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_organizationViewModelBuilder =
+				organizationViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationViewModelBuilder));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carInsuranceSettings = carInsuranceSettings ?? throw new ArgumentNullException(nameof(carInsuranceSettings));
@@ -162,6 +175,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			SaveDailyFuelLimitsCommand = new DelegateCommand(SaveDailyFuelLimits, () => CanEditDailyFuelLimitsSetting);
 
 			InitializeAccountingSettingsViewModels();
+			ConfigureOrderOrganizationsSettings();
 		}
 
 		#region RouteListPrintedFormPhones
@@ -643,6 +657,273 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		}
 
 		#endregion Бухгалтерия
+
+		#region Настройка юр.лиц в заказе
+		
+		private int _orderSettingsCurrentPage;
+		public int OrderSettingsCurrentPage
+		{
+			get => _orderSettingsCurrentPage;
+			set => SetField(ref _orderSettingsCurrentPage, value);
+		}
+		
+		private bool _orderGeneralSettingsTabActive;
+		public bool OrderGeneralSettingsTabActive
+		{
+			get => _orderGeneralSettingsTabActive;
+			set
+			{
+				if(SetField(ref _orderGeneralSettingsTabActive, value) && value)
+				{
+					OrderSettingsCurrentPage = 0;
+				}
+			}
+		}
+
+		private bool _orderOrganizationSettingsTabActive;
+		public bool OrderOrganizationSettingsTabActive
+		{
+			get => _orderOrganizationSettingsTabActive;
+			set
+			{
+				if(SetField(ref _orderOrganizationSettingsTabActive, value) && value)
+				{
+					OrderSettingsCurrentPage = 1;
+				}
+			}
+		}
+
+		private Organization _organizationForSet1;
+
+		public Organization OrganizationForSet1
+		{
+			get => _organizationForSet1;
+			set => _organizationForSet1 = value;
+		}
+		
+		private Organization _organizationForSet2;
+
+		public Organization OrganizationForSet2
+		{
+			get => _organizationForSet2;
+			set => _organizationForSet2 = value;
+		}
+
+		private IUnitOfWork _uowOrderOrganizationSettings;
+		public IEnumerable<ProductGroup> ProductGroupsForSet1 { get; private set; }
+		public IEnumerable<Nomenclature> NomenclaturesForSet1 { get; private set; }
+		public IEntityEntryViewModel OrganizationForSet1ViewModel { get; private set; }
+		public IEnumerable<ProductGroup> ProductGroupsForSet2 { get; private set; }
+		public IEnumerable<Nomenclature> NomenclaturesForSet2 { get; private set; }
+		public IEntityEntryViewModel OrganizationForSet2ViewModel { get; private set; }
+		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
+		public int SelectedSetForAuthors { get; private set; }
+		public int OrganizationForSet3ViewModel { get; private set; }
+		public IEntityEntryViewModel CashOrganizationViewModel { get; private set; }
+		public IEntityEntryViewModel TerminalOrganizationViewModel { get; private set; }
+		public IEntityEntryViewModel SmsQrOrganizationViewModel { get; private set; }
+		public IEntityEntryViewModel DriverAppQrOrganizationViewModel { get; private set; }
+		public IEntityEntryViewModel BarterOrganizationViewModel { get; private set; }
+		public IEntityEntryViewModel ContractDocOrganizationViewModel { get; private set; }
+		public IEntityEntryViewModel CashlessOrganizationViewModel { get; private set; }
+
+		public IReadOnlyDictionary<short, OrganizationBasedOrderContentSettings> OrganizationsByOrderContent { get; private set; }
+		public IReadOnlyDictionary<(string Name, string Criterion), IEntityEntryViewModel> PaidOnlineOrganizationsViewModels { get; private set; }
+		public IReadOnlyCollection<PaymentTypeOrganizationSettings> PaymentTypesOrganizationSettings { get; private set; }
+
+		private void ConfigureOrderOrganizationsSettings()
+		{
+			_uowOrderOrganizationSettings = _unitOfWorkFactory.CreateWithoutRoot("Настройки юр лиц для заказа");
+			ConfigureDataForSetWidgets();
+			ConfigurePaymentTypeSettings();
+		}
+		
+		private void ConfigureDataForSetWidgets()
+		{
+			var organizationsByOrderContent =
+				_uowOrderOrganizationSettings
+					.GetAll<OrganizationBasedOrderContentSettings>()
+					.ToDictionary(x => x.OrderContentSet);
+
+			OrganizationsByOrderContent = organizationsByOrderContent;
+			
+			InitializeDataForSet1(organizationsByOrderContent);
+			InitializeDataForSet2(organizationsByOrderContent);
+			InitializeDataForSet3();
+		}
+
+		private void InitializeDataForSet1(IDictionary<short, OrganizationBasedOrderContentSettings> organizationsByOrderContent)
+		{
+			const short set = 1;
+			organizationsByOrderContent.TryGetValue(set, out var organizationSettings);
+			
+			if(organizationSettings is null)
+			{
+				organizationSettings = new OrganizationBasedOrderContentSettings
+				{
+					OrderContentSet = set
+				};
+			}
+			
+			ProductGroupsForSet1 = organizationSettings.ProductGroups;
+			NomenclaturesForSet1 = organizationSettings.Nomenclatures;
+			OrganizationForSet1 = organizationSettings.Organization;
+			
+			var organizationForSet1 =
+				_organizationViewModelBuilder
+					.ForProperty(this, x => x.OrganizationForSet1)
+					.SetViewModel(this)
+					.SetUnitOfWork(_uowOrderOrganizationSettings)
+					.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+					.UseViewModelDialog<OrganizationViewModel>()
+					.Finish();
+			
+			organizationForSet1.CanViewEntity = false;
+			OrganizationForSet1ViewModel = organizationForSet1;
+		}
+
+		private void InitializeDataForSet2(IDictionary<short, OrganizationBasedOrderContentSettings> organizationsByOrderContent)
+		{
+			const short set = 2;
+			organizationsByOrderContent.TryGetValue(set, out var organizationSettings);
+			
+			if(organizationSettings is null)
+			{
+				organizationSettings = new OrganizationBasedOrderContentSettings
+				{
+					OrderContentSet = set
+				};
+			}
+			
+			ProductGroupsForSet2 = organizationSettings.ProductGroups;
+			NomenclaturesForSet2 = organizationSettings.Nomenclatures;
+			OrganizationForSet2 = organizationSettings.Organization;
+			
+			var organizationForSet2 =
+				_organizationViewModelBuilder
+					.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+					.UseViewModelDialog<OrganizationViewModel>()
+					.ForProperty(this, x => x.OrganizationForSet2)
+					.Finish();
+			
+			organizationForSet2.CanViewEntity = false;
+			OrganizationForSet2ViewModel = organizationForSet2;
+		}
+		
+		private void InitializeDataForSet3()
+		{
+			var organizationByAuthorsSettings =
+				_uowOrderOrganizationSettings.GetAll<OrganizationByOrderAuthorSettings>().SingleOrDefault();
+
+			if(organizationByAuthorsSettings is null)
+			{
+				organizationByAuthorsSettings = new OrganizationByOrderAuthorSettings();
+			}
+			
+			AuthorsSubdivisions = organizationByAuthorsSettings.OrderAuthorsSubdivisions;
+		}
+		
+		private void ConfigurePaymentTypeSettings()
+		{
+			PaymentTypesOrganizationSettings = _uowOrderOrganizationSettings.GetAll<PaymentTypeOrganizationSettings>().ToList();
+			
+			foreach(var paymentTypeOrganizationSettings in PaymentTypesOrganizationSettings)
+			{
+				switch(paymentTypeOrganizationSettings.PaymentType)
+				{
+					case PaymentType.Cash:
+						var cashOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
+						cashOrganizationViewModel.CanViewEntity = false;
+						CashOrganizationViewModel = cashOrganizationViewModel;
+						break;
+					case PaymentType.Terminal:
+						var terminalOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
+						terminalOrganizationViewModel.CanViewEntity = false;
+						TerminalOrganizationViewModel = terminalOrganizationViewModel;
+						break;
+					case PaymentType.DriverApplicationQR:
+						var driverApplicationQrOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
+						driverApplicationQrOrganizationViewModel.CanViewEntity = false;
+						DriverAppQrOrganizationViewModel = driverApplicationQrOrganizationViewModel;
+						break;
+					case PaymentType.SmsQR:
+						var smsQrOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
+						smsQrOrganizationViewModel.CanViewEntity = false;
+						SmsQrOrganizationViewModel = smsQrOrganizationViewModel;
+						break;
+					case PaymentType.PaidOnline:
+						ConfigurePaidOnlineSettings(paymentTypeOrganizationSettings);
+						break;
+					case PaymentType.Barter:
+						var barterOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
+						barterOrganizationViewModel.CanViewEntity = false;
+						BarterOrganizationViewModel = barterOrganizationViewModel;
+						break;
+					case PaymentType.ContractDocumentation:
+						var contractDocOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
+						contractDocOrganizationViewModel.CanViewEntity = false;
+						ContractDocOrganizationViewModel = contractDocOrganizationViewModel;
+						break;
+					case PaymentType.Cashless:
+						var cashlessDocOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
+						cashlessDocOrganizationViewModel.CanViewEntity = false;
+						CashlessOrganizationViewModel = cashlessDocOrganizationViewModel;
+						break;
+				}
+			}
+		}
+
+		private EntityEntryViewModel<Organization> GetPaymentTypeOrganizationViewModel(
+			PaymentTypeOrganizationSettings paymentTypeOrganizationSettings)
+		{
+			var cashOrganizationViewModel =
+				_organizationViewModelBuilder
+					.ForProperty(paymentTypeOrganizationSettings, x => x.OrganizationForOrder)
+					.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+					.UseViewModelDialog<OrganizationViewModel>()
+					.Finish();
+			
+			return cashOrganizationViewModel;
+		}
+
+		private void ConfigurePaidOnlineSettings(PaymentTypeOrganizationSettings paymentTypeOrganizationSettings)
+		{
+			IList<PaymentFrom> paymentsFrom;
+			
+			if(paymentTypeOrganizationSettings is OnlinePaymentTypeOrganizationSettings onlinePaymentTypeOrganizationSettings)
+			{
+				paymentsFrom = onlinePaymentTypeOrganizationSettings.PaymentsFrom;
+			}
+			else
+			{
+				paymentsFrom = new List<PaymentFrom>();
+			}
+
+			var paidOnlineOrganizationsViewModels = new Dictionary<(string Name, string Criterion), IEntityEntryViewModel>();
+
+			foreach(var paymentFrom in paymentsFrom)
+			{
+				if(paymentFrom.IsArchive)
+				{
+					continue;
+				}
+				
+				var viewModel =
+					_organizationViewModelBuilder
+						.ForProperty(paymentFrom, x => x.OrganizationForOnlinePayments)
+						.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+						.UseViewModelDialog<OrganizationViewModel>()
+						.Finish();
+				
+				viewModel.CanViewEntity = false;
+				
+				paidOnlineOrganizationsViewModels.Add((paymentFrom.Name, paymentFrom.OrganizationCriterion), viewModel);
+			}
+			
+			PaidOnlineOrganizationsViewModels = paidOnlineOrganizationsViewModels;
+		}
+
+		#endregion
 		
 		public EntityJournalOpener EntityJournalOpener { get; }
 
@@ -724,6 +1005,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public override void Dispose()
 		{
 			EmployeeFixedPricesViewModel.Dispose();
+			_uowOrderOrganizationSettings.Dispose();
 			base.Dispose();
 		}
 	}

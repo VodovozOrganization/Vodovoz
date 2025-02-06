@@ -15,6 +15,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private int _id;
 		private string _name;
 		private bool _isArchive;
+		private string _organizationCriterion;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -35,6 +36,14 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
+		}
+		
+		[Display(Name = "Условия для установки организации")]
+		[IgnoreHistoryTrace]
+		public virtual string OrganizationCriterion
+		{
+			get => _organizationCriterion;
+			set => SetField(ref _organizationCriterion, value);
 		}
 	}
 }

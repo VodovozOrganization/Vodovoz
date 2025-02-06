@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.Widgets
 			RemoveCommand = new DelegateCommand(RemoveEntity);
 		}
 
-		public IList<INamedDomainObject> Entities { get; private set; }
+		public IEnumerable<INamedDomainObject> Entities { get; private set; }
 
 		public string Title
 		{
@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Widgets
 			bool canEdit,
 			string title,
 			ITdiTab parentTab,
-			IList<INamedDomainObject> entities)
+			IEnumerable<INamedDomainObject> entities)
 		{
 			_entityType = entityType;
 			Title = title;
@@ -83,7 +83,8 @@ namespace Vodovoz.ViewModels.Widgets
 			{
 				return;
 			}
-			
+
+			journal.SelectionMode = JournalSelectionMode.Multiple;
 			journal.OnSelectResult += OnEntitySelectResult;
 		}
 
@@ -100,7 +101,7 @@ namespace Vodovoz.ViewModels.Widgets
 					continue;
 				}
 				
-				Entities.Add(SelectedEntity);
+				(Entities as IList<INamedDomainObject>).Add(SelectedEntity);
 			}
 		}
 
@@ -111,7 +112,7 @@ namespace Vodovoz.ViewModels.Widgets
 				return;
 			}
 
-			Entities.Remove(SelectedEntity);
+			(Entities as IList<INamedDomainObject>).Remove(SelectedEntity);
 		}
 
 		public void Dispose()

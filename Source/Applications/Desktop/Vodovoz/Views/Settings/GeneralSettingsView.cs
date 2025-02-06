@@ -4,11 +4,17 @@ using QS.Views;
 using System;
 using System.Collections.Generic;
 using Autofac;
+using Gamma.GtkWidgets;
+using Gtk;
+using QS.ViewModels.Control.EEVM;
+using QS.Views.Control;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.Views.Common;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Views.Settings
 {
@@ -147,9 +153,24 @@ namespace Vodovoz.Views.Settings
 
 		private void ConfigureOrdersSettings()
 		{
+			ynotebook2.ShowTabs = false;
+			ynotebook2.Binding
+				.AddBinding(ViewModel, vm => vm.OrderSettingsCurrentPage, w => w.CurrentPage)
+				.InitializeFromSource();
+			
+			RadioBtnOrdersGeneralSettings.Binding
+				.AddBinding(ViewModel, vm => vm.OrderGeneralSettingsTabActive, w => w.Active)
+				.InitializeFromSource();
+			
+			RadioBtnOrganizationForOrderSettings.Binding
+				.AddBinding(ViewModel, vm => vm.OrderOrganizationSettingsTabActive, w => w.Active)
+				.InitializeFromSource();
+			
 			ConfigureOrdersGeneralSettings();
 			ConfigureOrdersOrganizationSettings();
 		}
+
+		#region Общие настройки заказа
 
 		private void ConfigureOrdersGeneralSettings()
 		{
@@ -237,34 +258,143 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.CanRemoveFixedPrice, w => w.Sensitive)
 				.InitializeFromSource();
 		}
+
+		#endregion
+
+		#region Настройка юр.лиц в заказе
 		
 		private void ConfigureOrdersOrganizationSettings()
 		{
 			const string nomenclatures = "Номенклатуры: ";
 			const string productGroups = "Группы товаров: ";
+			const string authorsSubdivisions = "Подразделения авторов заказа: ";
 
-			CreateAddOrRemoveIDomainObjectWidget(typeof(ProductGroup), productGroups);
-			CreateAddOrRemoveIDomainObjectWidget(typeof(Nomenclature), nomenclatures);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				ProductGroupsForSet1View, productGroups, typeof(ProductGroup), ViewModel.ProductGroupsForSet1);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				NomenclaturesForSet1View, nomenclatures, typeof(Nomenclature), ViewModel.NomenclaturesForSet1);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				ProductGroupsForSet2View, productGroups, typeof(ProductGroup), ViewModel.ProductGroupsForSet2);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				NomenclaturesForSet2View, nomenclatures, typeof(Nomenclature), ViewModel.NomenclaturesForSet2);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				AuthorsSubdivisionsView, authorsSubdivisions, typeof(Subdivision), ViewModel.AuthorsSubdivisions);
 
-			//vboxOrdersSettings.Add(productGroupsViewForSet1);
-			//vboxOrdersSettings.Add(productGroupsViewForSet1);
+			ConfigureOrganizationViewModels();
 		}
 
-		private void CreateAddOrRemoveIDomainObjectWidget(Type entityType, string title)
+		private void ConfigureAddOrRemoveIDomainObjectWidget(
+			AddOrRemoveIDomainObjectView view,
+			string title,
+			Type entityType,
+			IEnumerable<INamedDomainObject> entities)
 		{
-			/*var viewModel = new AddOrRemoveIDomainObjectViewModel(ViewModel.EntityJournalOpener);
+			var viewModel = new AddOrRemoveIDomainObjectViewModel(ViewModel.EntityJournalOpener);
 			viewModel.Configure(
 				entityType,
 				true,
 				title,
 				ViewModel,
-				new List<INamedDomainObject>());
+				entities);
 
-			var view = new AddOrRemoveIDomainObjectView(viewModel);
+			view.ViewModel = viewModel;
 			view.Show();
-
-			return view;*/
 		}
+		
+		private void ConfigureOrganizationViewModels()
+		{
+			entitySet1Organization.ViewModel = ViewModel.OrganizationForSet1ViewModel;
+			entitySet2Organization.ViewModel = ViewModel.OrganizationForSet2ViewModel;
+
+			ConfigurePaymentTypesWidgets();
+		}
+
+		private void ConfigurePaymentTypesWidgets()
+		{
+			entityCashOrganization.ViewModel = ViewModel.CashOrganizationViewModel;
+			entityTerminalOrganization.ViewModel = ViewModel.TerminalOrganizationViewModel;
+			entityDriverAppQrOrganization.ViewModel = ViewModel.DriverAppQrOrganizationViewModel;
+			entitySmsQrOrganization.ViewModel = ViewModel.SmsQrOrganizationViewModel;
+			entityBarterOrganization.ViewModel = ViewModel.BarterOrganizationViewModel;
+			entityContarctDocumentationOrganization.ViewModel = ViewModel.ContractDocOrganizationViewModel;
+			entityCashlessOrganization.ViewModel = ViewModel.CashlessOrganizationViewModel;
+			
+			ConfigurePaidOnlineWidgets();
+		}
+
+		private void ConfigurePaidOnlineWidgets()
+		{
+			tablePaidOnlinePaymentFromsSettings.NRows = (uint)ViewModel.PaidOnlineOrganizationsViewModels.Count + 1;
+			uint row = 1;
+			
+			foreach(var keyPairValue in ViewModel.PaidOnlineOrganizationsViewModels)
+			{
+				uint column = 0;
+				GeneratePaymentFromLabelAndAttachToTable(keyPairValue, row, column);
+
+				column++;
+				GenerateOrganizationWidgetAndAttachToTable(keyPairValue, row, column);
+				
+				column++;
+				GenerateCriterionLabelAndAttachToTable(keyPairValue, row, column);
+				row++;
+			}
+		}
+
+		private void GeneratePaymentFromLabelAndAttachToTable(
+			KeyValuePair<(string Name, string Criterion), IEntityEntryViewModel> keyPairValue,
+			uint row,
+			uint column)
+		{
+			var paymentFromNameLabel = new yLabel();
+			paymentFromNameLabel.Name = keyPairValue.Key.Name + column;
+			paymentFromNameLabel.LabelProp = keyPairValue.Key.Name;
+			paymentFromNameLabel.Show();
+
+			AttachPaymentFromWidget(paymentFromNameLabel, row, column);
+		}
+		
+		private void GenerateOrganizationWidgetAndAttachToTable(
+			KeyValuePair<(string Name, string Criterion), IEntityEntryViewModel> keyPairValue,
+			uint row,
+			uint column)
+		{
+			var organizationWidget = new EntityEntry();
+			organizationWidget.Name = keyPairValue.Key.Name + "Organization";
+			organizationWidget.ViewModel = keyPairValue.Value;
+			organizationWidget.Show();
+
+			AttachPaymentFromWidget(organizationWidget, row, column);
+		}
+
+		private void GenerateCriterionLabelAndAttachToTable(
+			KeyValuePair<(string Name, string Criterion), IEntityEntryViewModel> keyPairValue,
+			uint row,
+			uint column)
+		{
+			var criterionLabel = new yLabel();
+			criterionLabel.Name = keyPairValue.Key.Name + "OrganizationCriterion";
+			criterionLabel.LabelProp = keyPairValue.Key.Criterion;
+			criterionLabel.Show();
+
+			AttachPaymentFromWidget(criterionLabel, row, column);
+		}
+
+		private void AttachPaymentFromWidget(Widget widget, uint row, uint column)
+		{
+			tablePaidOnlinePaymentFromsSettings.Attach(
+				widget,
+				column,
+				column + 1,
+				row,
+				row + 1,
+				AttachOptions.Shrink,
+				AttachOptions.Shrink,
+				0,
+				0);
+		}
+
+		#endregion
 
 		#endregion
 

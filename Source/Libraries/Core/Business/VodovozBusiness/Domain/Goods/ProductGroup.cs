@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Goods
 		Nominative = "группа товаров")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class ProductGroup : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class ProductGroup : PropertyChangedBase, INamedDomainObject, IValidatableObject, IArchivable
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 

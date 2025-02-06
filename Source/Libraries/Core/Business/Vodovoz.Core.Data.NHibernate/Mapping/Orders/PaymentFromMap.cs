@@ -20,6 +20,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 
 			Map(x => x.IsArchive)
 				.Column("is_archive");
+			
+			Map(x => x.OrganizationCriterion)
+				.Column("organization_criterion");
 		}
 	}
 }
