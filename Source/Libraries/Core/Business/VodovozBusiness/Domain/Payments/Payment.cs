@@ -56,7 +56,6 @@ namespace Vodovoz.Domain.Payments
 		private UserBase _currentEditorUser;
 		private IList<PaymentItem> _paymentItems = new List<PaymentItem>();
 		private GenericObservableList<PaymentItem> _observableItems;
-		private CashlessRequest _cashlessRequest;
 
 		public Payment() { }
 
@@ -314,13 +313,6 @@ namespace Vodovoz.Domain.Payments
 		}
 
 		public virtual string NumOrders { get; set; }
-
-		[Display(Name = "Заявка на оплату по безналу")]
-		public virtual CashlessRequest CashlessRequest
-		{
-			get => _cashlessRequest;
-			set => SetField(ref _cashlessRequest, value);
-		}
 
 		public virtual bool IsRefundPayment => RefundedPayment != null;
 
