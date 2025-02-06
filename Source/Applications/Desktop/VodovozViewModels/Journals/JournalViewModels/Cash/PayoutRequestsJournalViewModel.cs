@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -22,10 +22,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.NotificationRecievers;
 using Vodovoz.NotificationSenders;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
-using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -39,10 +37,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	{
 		private readonly IDictionary<Type, IPermissionResult> _domainObjectsPermissions;
 		private readonly ICurrentPermissionService _currentPermissionService;
-		private readonly ICashRequestForDriverIsGivenForTakeNotificationReciever _cashRequestForDriverIsGivenForTakeNotificationReciever;
-		private readonly IUserRepository _userRepository;
 		private readonly ICashRequestForDriverIsGivenForTakeNotificationSender _cashRequestForDriverIsGivenForTakeNotificationSender;
-		private readonly ICashlessRequestFileStorageService _cashlessRequestFileStorageService;
 		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -72,10 +67,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
 			ICurrentPermissionService currentPermissionService,
-			ICashRequestForDriverIsGivenForTakeNotificationReciever cashRequestForDriverIsGivenForTakeNotificationReciever,
-			IUserRepository userRepository,
 			ICashRequestForDriverIsGivenForTakeNotificationSender cashRequestForDriverIsGivenForTakeNotificationSender,
-			ICashlessRequestFileStorageService cashlessRequestFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory, 
 			bool createSelectAction = true)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -87,12 +79,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
-			_cashRequestForDriverIsGivenForTakeNotificationReciever = cashRequestForDriverIsGivenForTakeNotificationReciever
-				?? throw new ArgumentNullException(nameof(cashRequestForDriverIsGivenForTakeNotificationReciever));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_cashRequestForDriverIsGivenForTakeNotificationSender = cashRequestForDriverIsGivenForTakeNotificationSender
 				?? throw new ArgumentNullException(nameof(cashRequestForDriverIsGivenForTakeNotificationSender));
-			_cashlessRequestFileStorageService = cashlessRequestFileStorageService ?? throw new ArgumentNullException(nameof(cashlessRequestFileStorageService));
 			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
 			_createSelectAction = createSelectAction;
 
