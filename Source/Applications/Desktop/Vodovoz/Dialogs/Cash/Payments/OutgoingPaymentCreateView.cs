@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using System;
@@ -32,6 +32,8 @@ namespace Vodovoz.Dialogs.Cash.Payments
 			dpPaymentDate.Binding
 				.AddBinding(ViewModel.Entity, e => e.PaymentDate, w => w.Date)
 				.InitializeFromSource();
+
+			dpPaymentDate.IsEditable = true;
 
 			var counterpartyViewModel = new LegacyEEVMBuilderFactory<OutgoingPaymentCreateViewModel>(ViewModel, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.Counterparty)
