@@ -221,6 +221,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			if(_filterViewModel != null)
 			{
+				if(_filterViewModel.DocumentType != null
+					&& _filterViewModel.DocumentType != typeof(Payment))
+				{
+					paymentQuery.Where(p => p.Id == -1);
+				}
+
 				if(_filterViewModel.Counterparty != null)
 				{
 					paymentQuery.Where(p => p.Counterparty.Id == _filterViewModel.Counterparty.Id);
@@ -358,6 +364,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			if(_filterViewModel != null)
 			{
+				if(_filterViewModel.DocumentType != null
+					&& _filterViewModel.DocumentType != typeof(PaymentWriteOff))
+				{
+					paymentQuery.Where(p => p.Id == -1);
+				}
+
 				if(_filterViewModel.Counterparty != null)
 				{
 					paymentQuery.Where(p => p.CounterpartyId == _filterViewModel.Counterparty.Id);
@@ -462,6 +474,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			if(_filterViewModel != null)
 			{
+				if(_filterViewModel.DocumentType != null
+					&& _filterViewModel.DocumentType != typeof(OutgoingPayment))
+				{
+					paymentQuery.Where(p => p.Id == -1);
+				}
+
 				if(_filterViewModel.Counterparty != null)
 				{
 					paymentQuery.Where(p => p.CounterpartyId == _filterViewModel.Counterparty.Id);
