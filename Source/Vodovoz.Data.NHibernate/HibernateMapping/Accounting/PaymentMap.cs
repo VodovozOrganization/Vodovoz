@@ -36,7 +36,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Accounting
 				.Cascade.AllDeleteOrphan();
 			References(x => x.RefundedPayment).Column("refunded_payment_id");
 			References(x => x.CurrentEditorUser).Column("current_editor_user_id");
-			References(x => x.CashlessRequest).Column("cashless_request_id");
 
 			HasMany(x => x.PaymentItems).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("payment_id");
 		}
