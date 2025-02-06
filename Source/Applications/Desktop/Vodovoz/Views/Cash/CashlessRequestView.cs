@@ -158,6 +158,9 @@ namespace Vodovoz.Views.Cash
 
 			InitializePayments();
 
+			ybuttonAddBill.BindCommand(ViewModel.AddOutgoingPaymentCommand);
+			ybuttonRemoveBill.BindCommand(ViewModel.RemoveOutgoingPaymentCommand);
+
 			spinBillSumGived.Sensitive = false;
 			spinBillSumGived.Binding
 				.AddBinding(ViewModel, vm => vm.SumGiven, w => w.ValueAsDecimal)
@@ -321,6 +324,10 @@ namespace Vodovoz.Views.Cash
 				.Finish();
 
 			ytreeview1.ItemsDataSource = ViewModel.Entity.OutgoingPayments;
+
+			ytreeview1.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedOutgoingPaymentObject, w => w.SelectedRow)
+				.InitializeFromSource();
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
