@@ -22,6 +22,7 @@ using Vodovoz.ViewModels.Accounting.Payments;
 using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Services;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {

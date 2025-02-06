@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
-namespace VodovozBusiness.Domain.Orders
+namespace VodovozBusiness.Domain.Settings
 {
 	public class OnlinePaymentTypeOrganizationSettings : PaymentTypeOrganizationSettings
 	{

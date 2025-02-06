@@ -1,15 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 
-namespace VodovozBusiness.Domain.Orders
+namespace VodovozBusiness.Domain.Settings
 {
 	/// <summary>
 	/// Настройки для подбора организации, основанные на составе заказа

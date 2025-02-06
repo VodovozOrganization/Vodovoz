@@ -1,8 +1,9 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using Vodovoz;
+using VodovozBusiness.Domain.Orders;
 
-namespace VodovozBusiness.Domain.Orders
+namespace VodovozBusiness.Domain.Settings
 {
 	public class OrganizationByOrderAuthorSettings : PropertyChangedBase, IDomainObject
 	{

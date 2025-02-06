@@ -8,6 +8,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Domain.Settings;
 
 namespace VodovozBusiness.Domain.Orders
 {

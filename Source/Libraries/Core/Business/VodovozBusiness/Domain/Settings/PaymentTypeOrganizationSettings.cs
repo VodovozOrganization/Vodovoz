@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 
-namespace VodovozBusiness.Domain.Orders
+namespace VodovozBusiness.Domain.Settings
 {
 	public abstract class PaymentTypeOrganizationSettings : PropertyChangedBase, IDomainObject
 	{

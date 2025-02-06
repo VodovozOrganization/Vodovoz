@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Settings;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.Infrastructure.Persistance.Settings
 {
