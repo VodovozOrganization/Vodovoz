@@ -1,12 +1,18 @@
-﻿using Autofac;
+﻿using System.Threading.Tasks;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using QS.Attachments.Domain;
+using QS.Banks.Domain;
+using QS.HistoryLog;
 using QS.Project.Core;
-using System.Threading.Tasks;
+using QS.Project.Domain;
+using QS.Project.HibernateMapping;
+using TrueMark.Library;
 using TrueMarkApi.Client;
 using TrueMarkCodesWorker;
 using Vodovoz.Core.Data.NHibernate;
@@ -16,6 +22,8 @@ using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using VodovozBusiness.Models.TrueMark;
+using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
+using DependencyInjection = Vodovoz.Data.NHibernate.DependencyInjection;
 
 namespace TrueMarkCodePoolCheckWorker
 {
@@ -39,12 +47,12 @@ namespace TrueMarkCodePoolCheckWorker
 				{
 					services
 						.AddMappingAssemblies(
-							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
-							typeof(QS.Banks.Domain.Bank).Assembly,
-							typeof(QS.HistoryLog.HistoryMain).Assembly,
-							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-							typeof(QS.Attachments.Domain.Attachment).Assembly,
+							typeof(UserBaseMap).Assembly,
+							typeof(AssemblyFinder).Assembly,
+							typeof(Bank).Assembly,
+							typeof(HistoryMain).Assembly,
+							typeof(TypeOfEntity).Assembly,
+							typeof(Attachment).Assembly,
 							typeof(EmployeeWithLoginMap).Assembly
 						)
 						.AddDatabaseConnection()
@@ -52,7 +60,7 @@ namespace TrueMarkCodePoolCheckWorker
 						.AddInfrastructure()
 						.AddTrackedUoW()
 
-						.AddSingleton<ITrueMarkOrganizationClientSettingProvider>((sp) =>
+						.AddSingleton<ITrueMarkOrganizationClientSettingProvider>(sp =>
 						{
 							var configuration = sp.GetRequiredService<IConfiguration>();
 							var trueMarkOrganizationClientSetting = new TrueMarkOrganizationClientSettingProvider(configuration.GetSection("TrueMarkOrganizationsClientSettings"));
@@ -64,7 +72,7 @@ namespace TrueMarkCodePoolCheckWorker
 						.AddHttpClient()
 						;
 
-					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+					DependencyInjection.AddStaticScopeForEntity(services);
 				});
 
 		public static void ConfigureContainer(ContainerBuilder builder)
@@ -105,7 +113,13 @@ namespace TrueMarkCodePoolCheckWorker
 				.SingleInstance();
 
 			builder.RegisterType<Tag1260Checker>()
-				.As<ITag1260Checker>();
+				.AsSelf();
+			
+			builder.RegisterType<Tag1260Saver>()
+				.AsSelf();
+			
+			builder.RegisterType<Tag1260Updater>()
+				.AsSelf();
 		}
 	}
 }
