@@ -71,10 +71,10 @@ namespace VodovozBusiness.Domain.Cash.Payments
 		/// </summary>
 		[Display(Name = "Плательщик")]
 		[HistoryIdentifier(TargetType = typeof(Organization))]
-		public virtual int? OurOrganizationId
+		public virtual int? OrganizationId
 		{
-			get => _ourOrganizationId;
-			set => SetField(ref _ourOrganizationId, value);
+			get => _organizationId;
+			set => SetField(ref _organizationId, value);
 		}
 
 		/// <summary>
