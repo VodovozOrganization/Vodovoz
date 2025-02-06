@@ -1,12 +1,30 @@
+using Autofac;
+using QS.ViewModels.Control.EEVM;
+using QS.Views.GtkUI;
 using System;
+using System.ComponentModel;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Cash.Payments;
+
 namespace Vodovoz.Dialogs.Cash.Payments
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OutgoingPaymentCreateView : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class OutgoingPaymentCreateView : TabViewBase<OutgoingPaymentCreateViewModel>
 	{
-		public OutgoingPaymentCreateView()
+		private readonly ILifetimeScope _lifetimeScope;
+
+		public OutgoingPaymentCreateView(
+			OutgoingPaymentCreateViewModel viewModel,
+			ILifetimeScope lifetimeScope)
+			: base(viewModel)
 		{
-			this.Build();
+			_lifetimeScope = lifetimeScope
+				?? throw new ArgumentNullException(nameof(lifetimeScope));
+
+			Build();
+
+			Initialize();
 		}
 
 		private void Initialize()
