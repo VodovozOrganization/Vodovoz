@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class OrderUpdData : PropertyChangedBase, IDomainObject
+	public class OrderUpdOperation : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private int _orderId;
@@ -25,8 +25,6 @@ namespace Vodovoz.Core.Domain.Edo
 		private string _specialDeliveryAddress;
 		private string _organizationName;
 		private string _organizationAddress;
-		private string _deliveryPointAddress;
-		private string _deliveryPointAddressComposite;
 		private string _organizationInn;
 		private string _organizationKpp;
 		private string _buhLastName;
@@ -42,7 +40,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _counterpartyExternalOrderId;
 		private string _paymentsInfo;
 
-		private IObservableList<OrderUpdGoods> _goods = new ObservableList<OrderUpdGoods>();
+		private IObservableList<OrderUpdOperationProduct> _goods = new ObservableList<OrderUpdOperationProduct>();
 
 		/// <summary>
 		/// Код
@@ -78,7 +76,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Номер договора клиента
 		/// </summary>
 		[Display(Name = "Номер договора клиента")]
-		public virtual int ClietnContractNumber
+		public virtual int ClientContractNumber
 		{
 			get => _clientContractNumber;
 			set => SetField(ref _clientContractNumber, value);
@@ -368,7 +366,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Товары
 		/// </summary>
 		[Display(Name = "Товары")]
-		public virtual IObservableList<OrderUpdGoods> Goods
+		public virtual IObservableList<OrderUpdOperationProduct> Goods
 		{
 			get => _goods;
 			set => SetField(ref _goods, value);
