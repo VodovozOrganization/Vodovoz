@@ -17,6 +17,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozBusiness.Domain.Cash.CashRequest;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.Views.Cash
 {
@@ -157,12 +158,12 @@ namespace Vodovoz.Views.Cash
 
 			InitializePayments();
 
-			spinBillSumGived.IsEditable = false;
+			spinBillSumGived.Sensitive = false;
 			spinBillSumGived.Binding
 				.AddBinding(ViewModel, vm => vm.SumGiven, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
-			spinBillSumRemainingToGive.IsEditable = false;
+			spinBillSumRemainingToGive.Sensitive = false;
 			spinBillSumRemainingToGive.Binding
 				.AddBinding(ViewModel, vm => vm.SumRemaining, w => w.ValueAsDecimal)
 				.InitializeFromSource();
@@ -310,16 +311,16 @@ namespace Vodovoz.Views.Cash
 
 		private void InitializePayments()
 		{
-			ytreeview1.CreateFluentColumnsConfig<Payment>()
+			ytreeview1.CreateFluentColumnsConfig<OutgoingPayment>()
 				.AddColumn("Номер")
-				.AddNumericRenderer(node => node.PaymentNum)
+				.AddNumericRenderer(node => node.PaymentNumber)
 				.AddColumn("Время")
-				.AddDateRenderer(node => node.Date)
+				.AddDateRenderer(node => node.PaymentDate)
 				.AddColumn("Сумма")
-				.AddNumericRenderer(node => node.PaymentItems.Sum(pi => pi.Sum))
+				.AddNumericRenderer(node => node.Sum)
 				.Finish();
 
-			ytreeview1.ItemsDataSource = ViewModel.Entity.Payments;
+			ytreeview1.ItemsDataSource = ViewModel.Entity.OutgoingPayments;
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
