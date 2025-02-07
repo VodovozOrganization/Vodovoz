@@ -23,12 +23,7 @@ public partial class MainWindow
 	[Obsolete("Старый диалог, заменить")]
 	protected void OnActionTypesOfEntitiesActivated(object sender, EventArgs e)
 	{
-		if(QSMain.User.Admin)
-		{
-			tdiMain.OpenTab(
-				OrmReference.GenerateHashName<TypeOfEntity>(),
-				() => new OrmReference(typeof(TypeOfEntity)));
-		}
+		NavigationManager.OpenViewModel<CashlessRequestFileTransferViewModel>(null);
 	}
 
 	/// <summary>
