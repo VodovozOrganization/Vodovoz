@@ -46,6 +46,7 @@
     <Compile Include="AboutAuthorsViewModel.cs" />
     <Compile Include="Accounting\Payments\PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel.cs" />
     <Compile Include="Accounting\Payments\PaymentWriteOffViewModel.cs" />
+    <Compile Include="AdministrationTools\CashlessRequestFileTransferViewModel.cs" />
     <Compile Include="BaseParameters\BaseParametersViewModel.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.RowsCreating.cs" />
