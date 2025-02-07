@@ -151,6 +151,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 			set => UpdateFilterField(ref _onlyOnlineNomenclatures, value);
 		}
 
+		public bool CanChangeOnlyOnlineNomenclatures{ get; set; } = true;
 
 		public bool IsSaleCategoryApplicable {
 			get {

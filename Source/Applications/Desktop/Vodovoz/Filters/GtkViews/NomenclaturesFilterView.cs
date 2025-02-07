@@ -54,6 +54,7 @@ namespace Vodovoz.Filters.GtkViews
 
 			chkOnlyOnlineNomenclatures.Binding
 				.AddBinding(ViewModel, vm => vm.OnlyOnlineNomenclatures, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanChangeOnlyOnlineNomenclatures, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 
