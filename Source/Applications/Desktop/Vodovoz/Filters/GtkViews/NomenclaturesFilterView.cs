@@ -22,7 +22,7 @@ namespace Vodovoz.Filters.GtkViews
 			lstCategory.ItemsList = ViewModel.AvailableCategories;
 			lstCategory.SetRenderTextFunc<NomenclatureCategory>(x => x.GetEnumTitle());
 			lstCategory.Binding
-			.AddBinding(ViewModel, s => s.RestrictCategory, w => w.SelectedItem)
+				.AddBinding(ViewModel, s => s.RestrictCategory, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			lstSaleCategory.ItemsList = ViewModel.AvailableSalesCategories;
