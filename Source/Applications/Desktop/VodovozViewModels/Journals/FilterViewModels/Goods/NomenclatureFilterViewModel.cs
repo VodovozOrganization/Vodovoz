@@ -17,6 +17,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 		private bool _restrictDisposbleTare;
 		private bool _restrictDilers;
 		private bool _restrictArchive;
+		private bool _onlyOnlineNomenclatures;
 		private SaleCategory[] _availableSalesCategories;
 		private IEnumerable<int> _restrictedExcludedIds;
 		private Warehouse _restrictedLoadedWarehouse;
@@ -139,6 +140,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 		{
 			get => _glassHolderType;
 			set => UpdateFilterField(ref _glassHolderType, value);
+		}
+
+		/// <summary>
+		/// Показывать только номенклатуры, отправляемые в ИПЗ(сайт и МП)
+		/// </summary>
+		public virtual bool OnlyOnlineNomenclatures
+		{
+			get => _onlyOnlineNomenclatures;
+			set => UpdateFilterField(ref _onlyOnlineNomenclatures, value);
 		}
 
 
