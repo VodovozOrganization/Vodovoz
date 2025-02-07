@@ -17,5 +17,6 @@ namespace Vodovoz.Infrastructure.FileStorage
 
 		protected override string BucketName => $"{_databaseConnectionSettings.DatabaseName.ToLower().Replace("_", "-")}-cashless-request-comment-attachments";
 
+		public string BucketNameWithPrefix => BucketName;
 	}
 }

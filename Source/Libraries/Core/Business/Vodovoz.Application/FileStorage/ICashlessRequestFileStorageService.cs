@@ -4,5 +4,6 @@ namespace Vodovoz.Application.FileStorage
 {
 	public interface ICashlessRequestFileStorageService : IEntityFileStorageService<CashlessRequest>
 	{
+		string BucketNameWithPrefix { get; }
 	}
 }
