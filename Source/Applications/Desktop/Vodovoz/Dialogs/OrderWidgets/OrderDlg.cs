@@ -3236,6 +3236,7 @@ namespace Vodovoz
 						f.AvailableCategories = new[] { NomenclatureCategory.master };
 						f.RestrictCategory = NomenclatureCategory.master;
 						f.RestrictArchive = false;
+						f.CanChangeOnlyOnlineNomenclatures = false;
 					},
 					OpenPageOptions.AsSlave,
 					vm =>
@@ -3283,6 +3284,7 @@ namespace Vodovoz
 						f.SelectSaleCategory = SaleCategory.forSale;
 						f.RestrictArchive = false;
 						f.CanChangeShowArchive = false;
+						f.CanChangeOnlyOnlineNomenclatures = false;
 					},
 					OpenPageOptions.AsSlaveIgnoreHash,
 					vm =>

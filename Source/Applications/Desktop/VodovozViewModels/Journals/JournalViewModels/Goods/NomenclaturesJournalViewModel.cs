@@ -8,8 +8,10 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
+using NHibernate.SqlCommand;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
@@ -78,6 +80,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		protected override IQueryOver<Nomenclature> ItemsQuery(IUnitOfWork uow)
 		{
 			Nomenclature nomenclatureAlias = null;
+			NomenclatureOnlineParameters nomenclatureOnlineParametersAlias = null;
 			MeasurementUnits unitAlias = null;
 			NomenclatureJournalNode resultAlias = null;
 			WarehouseBulkGoodsAccountingOperation operationAlias = null;
@@ -99,6 +102,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 			var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias);
 
+			if(!CalculateQuantityOnStock)
+			{
+				itemsQuery.JoinEntityAlias(
+					() => nomenclatureOnlineParametersAlias,
+					() => nomenclatureOnlineParametersAlias.Nomenclature.Id == nomenclatureAlias.Id,
+					JoinType.LeftOuterJoin);
+			}
+
 			//Хардкодим выборку номенклатур не для инвентарного учета
 			itemsQuery.Where(() => !nomenclatureAlias.HasInventoryAccounting);
 
@@ -115,6 +126,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
 			{
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));
+			}
+
+			if(!CalculateQuantityOnStock && _filterViewModel.OnlyOnlineNomenclatures)
+			{
+				itemsQuery.Where(() => nomenclatureOnlineParametersAlias.NomenclatureOnlineAvailability != null);
 			}
 
 			itemsQuery.Where(
@@ -140,7 +156,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				itemsQuery.Where(n => n.Category == _filterViewModel.RestrictCategory.Value);
 			}
 
-			if(_filterViewModel.SelectCategory.HasValue && _filterViewModel.SelectSaleCategory.HasValue && Nomenclature.GetCategoriesWithSaleCategory().Contains(_filterViewModel.SelectCategory.Value))
+			if(_filterViewModel.SelectCategory.HasValue
+				&& _filterViewModel.SelectSaleCategory.HasValue
+				&& Nomenclature.GetCategoriesWithSaleCategory().Contains(_filterViewModel.SelectCategory.Value))
 			{
 				itemsQuery.Where(n => n.SaleCategory == _filterViewModel.SelectSaleCategory);
 			}
