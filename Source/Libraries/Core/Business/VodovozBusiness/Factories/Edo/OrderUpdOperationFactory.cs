@@ -68,13 +68,45 @@ namespace VodovozBusiness.Factories.Edo
 				case CargoReceiverSource.FromDeliveryPoint:
 					orderUpdOperation.ConsigneeAddress = deliveryPoint != null ? deliveryPoint.ShortAddress : client.JurAddress;
 					orderUpdOperation.ConsigneeKpp = deliveryPoint?.KPP ?? client.KPP;
-					orderUpdOperation.ConsigneeSummary = string.Empty;
+					orderUpdOperation.ConsigneeSummary = string.Concat(
+						orderUpdOperation.ConsigneeName,
+						", ",
+						orderUpdOperation.ConsigneeInn,
+						"/",
+						orderUpdOperation.ConsigneeKpp,
+						", ",
+						deliveryPoint.ShortAddress);
+					break;
+				case CargoReceiverSource.Special:
+					if(!string.IsNullOrWhiteSpace(client.CargoReceiver) && client.UseSpecialDocFields)
+					{
+						orderUpdOperation.ConsigneeAddress = client.CargoReceiver;
+						orderUpdOperation.ConsigneeKpp = client.PayerSpecialKPP ?? client.KPP;
+						orderUpdOperation.ConsigneeSummary = client.CargoReceiver;
+					}
+					else
+					{
+						orderUpdOperation.ConsigneeName = orderUpdOperation.ClientName;
+						orderUpdOperation.ConsigneeAddress = client.JurAddress;
+						orderUpdOperation.ConsigneeKpp = client.KPP;
+						orderUpdOperation.ConsigneeSummary = string.Concat(
+							orderUpdOperation.ConsigneeName,
+							", ",
+							orderUpdOperation.ConsigneeAddress);
+					}
 					break;
 				default:
+					orderUpdOperation.ConsigneeName = orderUpdOperation.ClientName;
+					orderUpdOperation.ConsigneeAddress = client.JurAddress;
+					orderUpdOperation.ConsigneeKpp = client.KPP;
+					orderUpdOperation.ConsigneeSummary = string.Concat(
+						orderUpdOperation.ConsigneeName,
+						", ",
+						orderUpdOperation.ConsigneeAddress);
 					break;
 			}
-
-		orderUpdOperation.UseSpecialDocFields = default(bool);
+			
+			orderUpdOperation.UseSpecialDocFields = default(bool);
 			orderUpdOperation.SpecialCargoReceiver = default(string);
 			orderUpdOperation.SpecialCustomerName = default(string);
 			orderUpdOperation.SpecialContractNumber = default(string);
@@ -94,6 +126,7 @@ namespace VodovozBusiness.Factories.Edo
 			orderUpdOperation.LeaderLastName = default(string);
 			orderUpdOperation.LeaderName = default(string);
 			orderUpdOperation.LeaderPatronymic = default(string);
+
 			orderUpdOperation.BottlesInFact = default(string);
 			orderUpdOperation.IsSelfDelivery = default(bool);
 			orderUpdOperation.CargoReceiver = default(string);
