@@ -76,7 +76,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 			}
 
 			_workInProgress = true;
-
+			
 			using var scope = _serviceScopeFactory.CreateScope();
 			var connectionFactory = scope.ServiceProvider.GetRequiredService<IPowerBiConnectionFactory>();
 			using var sourceConnection = connectionFactory.CreateConnection(_sourceDatabaseConnectionSettings);
@@ -96,15 +96,19 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				_logger.LogInformation("Начало экспорта в бд PowerBi {PowerBiExportDate}", DateTime.Now);
 
 				var lastWorkerStartDate = await GetLastWorkerStartDateAsync(targetConnection);
+				
+				var needExport = lastWorkerStartDate.HasValue
+					&& lastWorkerStartDate.Value.Date <= DateTime.Today
+					&& lastWorkerStartDate.Value.Hour < DateTime.Now.Hour
+					&& DateTime.Now.Minute is >= 30;
 
-				if(lastWorkerStartDate.HasValue && lastWorkerStartDate >= DateTime.Today)
+				if(!needExport)
 				{
-					_logger.LogInformation("Сегодня уже экспортировали в бд PowerBi {PowerBiExportDate}", DateTime.Now);
+					_logger.LogInformation("Экспорт уже производился в текущем часе в бд PowerBi {PowerBiExportDate}", DateTime.Now);
 
 					await zabbixSender.SendIsHealthyAsync(stoppingToken);
 
 					return;
-
 				}
 				else
 				{
