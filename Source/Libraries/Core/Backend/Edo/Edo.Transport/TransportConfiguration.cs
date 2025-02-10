@@ -6,6 +6,7 @@ using System.Net.Security;
 using System.Security.Authentication;
 using Edo.Contracts.Messages.Events;
 using Vodovoz.Settings.Pacs;
+using Edo.Transport.Messages.Events;
 
 namespace Edo.Transport
 {
@@ -87,30 +88,54 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<CustomerDocumentSendEvent>(x => x.SetEntityName("edo.customer-document-send.publish"));
-			cfg.Publish<CustomerDocumentSendEvent>(x =>
+			cfg.Message<OrderDocumentSendEvent>(x => x.SetEntityName("edo.order-document-send.publish"));
+			cfg.Publish<OrderDocumentSendEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<CustomerDocumentSentEvent>(x => x.SetEntityName("edo.customer-document-sent.publish"));
-			cfg.Publish<CustomerDocumentSentEvent>(x =>
+			cfg.Message<OrderDocumentSentEvent>(x => x.SetEntityName("edo.order-document-sent.publish"));
+			cfg.Publish<OrderDocumentSentEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<CustomerDocumentAcceptedEvent>(x => x.SetEntityName("edo.customer-document-accepted.publish"));
-			cfg.Publish<CustomerDocumentAcceptedEvent>(x =>
+			cfg.Message<OrderDocumentAcceptedEvent>(x => x.SetEntityName("edo.order-document-accepted.publish"));
+			cfg.Publish<OrderDocumentAcceptedEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
-			
+
+			//cfg.Message<ReceiptSendEvent>(x => x.SetEntityName("edo.receipt-send.publish"));
+			//cfg.Publish<ReceiptSendEvent>(x =>
+			//{
+			//	x.ExchangeType = ExchangeType.Fanout;
+			//	x.Durable = true;
+			//	x.AutoDelete = false;
+			//});
+
+			//cfg.Message<ReceiptSentEvent>(x => x.SetEntityName("edo.receipt-sent.publish"));
+			//cfg.Publish<ReceiptSentEvent>(x =>
+			//{
+			//	x.ExchangeType = ExchangeType.Fanout;
+			//	x.Durable = true;
+			//	x.AutoDelete = false;
+			//});
+
+			//cfg.Message<ReceiptCompleteEvent>(x => x.SetEntityName("edo.receipt-complete.publish"));
+			//cfg.Publish<ReceiptCompleteEvent>(x =>
+			//{
+			//	x.ExchangeType = ExchangeType.Fanout;
+			//	x.Durable = true;
+			//	x.AutoDelete = false;
+			//});
+
 			AddTaxcomEdoTopology(cfg);
 		}
 

@@ -6,13 +6,12 @@ namespace Edo.TaskValidation.Validators
 	{
 		public override bool IsApplicable(EdoTask edoTask)
 		{
-			var orderEdoRequest = GetOrderEdoRequest(edoTask);
-			return orderEdoRequest != null;
+			return edoTask is OrderEdoTask;
 		}
 
 		protected virtual OrderEdoRequest GetOrderEdoRequest(EdoTask edoTask)
 		{
-			return (edoTask as DocumentEdoTask)?.CustomerEdoRequest as OrderEdoRequest;
+			return ((OrderEdoTask)edoTask).OrderEdoRequest;
 		}
 	}
 }

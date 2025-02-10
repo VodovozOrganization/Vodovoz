@@ -1,4 +1,5 @@
-﻿namespace Edo.Contracts.Messages.Events
+﻿// change namespace
+namespace Edo.Transport.Messages.Events
 {
 	public class EdoRequestCreatedEvent
 	{

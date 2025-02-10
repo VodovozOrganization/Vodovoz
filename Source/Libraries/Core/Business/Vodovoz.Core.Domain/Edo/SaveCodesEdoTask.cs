@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class SaveCodesEdoTask : CustomerEdoTask
+	public class SaveCodesEdoTask : OrderEdoTask
 	{
 		// Пока ничего не требуется, просто сохранение кодов
 	}

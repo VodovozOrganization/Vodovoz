@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Edo.Documents
+namespace Edo.Common
 {
 	public class EdoException : Exception
 	{

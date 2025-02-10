@@ -6,13 +6,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Edo.Docflow.Consumers
 {
-	public class CustomerDocumentSendConsumer : IConsumer<CustomerDocumentSendEvent>
+	public class OrderDocumentSendConsumer : IConsumer<OrderDocumentSendEvent>
 	{
-		private readonly ILogger<CustomerDocumentSendConsumer> _logger;
+		private readonly ILogger<OrderDocumentSendConsumer> _logger;
 		private readonly DocflowHandler _docflowHandler;
 
-		public CustomerDocumentSendConsumer(
-			ILogger<CustomerDocumentSendConsumer> logger,
+		public OrderDocumentSendConsumer(
+			ILogger<OrderDocumentSendConsumer> logger,
 			DocflowHandler docflowHandler
 			)
 		{
@@ -20,11 +20,11 @@ namespace Edo.Docflow.Consumers
 			_docflowHandler = docflowHandler ?? throw new ArgumentNullException(nameof(docflowHandler));
 		}
 
-		public async Task Consume(ConsumeContext<CustomerDocumentSendEvent> context)
+		public async Task Consume(ConsumeContext<OrderDocumentSendEvent> context)
 		{
 			try
 			{
-				await _docflowHandler.HandleCustomerDocument(context.Message.CustomerDocumentId, context.CancellationToken);
+				await _docflowHandler.HandleOrderDocument(context.Message.OrderDocumentId, context.CancellationToken);
 			}
 			catch(Exception ex)
 			{

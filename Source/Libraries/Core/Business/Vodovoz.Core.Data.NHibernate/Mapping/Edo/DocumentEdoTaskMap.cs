@@ -8,9 +8,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public DocumentEdoTaskMap()
 		{
-			DiscriminatorValue(nameof(EdoTaskType.CustomerDocument));
+			DiscriminatorValue(nameof(EdoTaskType.Order));
 
-			Extends(typeof(CustomerEdoTask));
+			Extends(typeof(OrderEdoTask));
 				
 			Map(x => x.FromOrganization)
 				.Column("from_organization_id");

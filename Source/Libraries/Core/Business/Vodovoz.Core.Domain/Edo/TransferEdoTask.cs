@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QS.Extensions.Observable.Collections.List;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
@@ -8,7 +9,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _documentEdoTaskId;
 		private int _fromOrganizationId;
 		private int _toOrganizationId;
-		//private ObservableList<TransferEdoRequest> _transferRequests;
+		private IObservableList<TransferEdoRequest> _transferEdoRequests = new ObservableList<TransferEdoRequest>();
 		private TransferEdoTaskStatus _transferStatus;
 		private DateTime? _transferStartTime;
 		private int? _transferOrderId;
@@ -34,12 +35,12 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _toOrganizationId, value);
 		}
 
-		//[Display(Name = "Заявки на перенос")]
-		//public virtual ObservableList<TransferEdoRequest> TransferEdoRequests
-		//{
-		//	get => _transferRequests;
-		//	set => SetField(ref _transferRequests, value);
-		//}
+		[Display(Name = "Заявки на перенос")]
+		public virtual IObservableList<TransferEdoRequest> TransferEdoRequests
+		{
+			get => _transferEdoRequests;
+			set => SetField(ref _transferEdoRequests, value);
+		}
 
 		[Display(Name = "Статус переноса")]
 		public virtual TransferEdoTaskStatus TransferStatus

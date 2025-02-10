@@ -19,7 +19,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("time")
 				.ReadOnly();
 
-			References(x => x.DocumentEdoTask)
+			References(x => x.OrderEdoTask)
 				.Column("document_edo_task_id")
 				.Cascade.All();
 

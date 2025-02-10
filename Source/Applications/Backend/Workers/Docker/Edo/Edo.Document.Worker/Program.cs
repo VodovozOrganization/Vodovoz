@@ -1,4 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Edo.Common;
 using Edo.Documents;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;

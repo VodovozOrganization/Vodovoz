@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;

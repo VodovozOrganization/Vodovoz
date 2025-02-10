@@ -4,15 +4,15 @@ using RabbitMQ.Client;
 
 namespace Edo.Documents.Consumers.Definitions
 {
-	public class CustomerDocumentAcceptedConsumerDefinition : ConsumerDefinition<CustomerDocumentAcceptedConsumer>
+	public class OrderDocumentSentConsumerDefinition : ConsumerDefinition<OrderDocumentSentConsumer>
 	{
-		public CustomerDocumentAcceptedConsumerDefinition()
+		public OrderDocumentSentConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.customer-document-accepted.consumer.documents");
+			Endpoint(x => x.Name = "edo.order-document-sent.consumer.documents");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<CustomerDocumentAcceptedConsumer> consumerConfigurator)
+			IConsumerConfigurator<OrderDocumentSentConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
 
@@ -21,7 +21,7 @@ namespace Edo.Documents.Consumers.Definitions
 				rmq.AutoDelete = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<CustomerDocumentAcceptedEvent>();
+				rmq.Bind<OrderDocumentSentEvent>();
 			}
 		}
 	}

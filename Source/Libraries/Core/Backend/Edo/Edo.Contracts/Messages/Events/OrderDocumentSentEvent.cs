@@ -1,6 +1,6 @@
 ﻿namespace Edo.Contracts.Messages.Events
 {
-	public class CustomerDocumentSentEvent
+	public class OrderDocumentSentEvent
 	{
 		public int Id { get; set; }
 	}

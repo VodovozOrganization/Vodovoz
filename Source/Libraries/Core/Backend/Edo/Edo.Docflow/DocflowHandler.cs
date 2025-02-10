@@ -66,9 +66,9 @@ namespace Edo.Docflow
 			await _messageBus.Publish(message);
 		}
 
-		public async Task HandleCustomerDocument(int customerDocumentId, CancellationToken cancellationToken)
+		public async Task HandleOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
 		{
-			var document = await _uow.Session.GetAsync<CustomerEdoDocument>(customerDocumentId, cancellationToken);
+			var document = await _uow.Session.GetAsync<OrderEdoDocument>(orderDocumentId, cancellationToken);
 
 			if(document.Status != EdoDocumentStatus.NotStarted)
 			{
@@ -76,15 +76,15 @@ namespace Edo.Docflow
 				return;
 			}
 
-			var customerTask = await _uow.Session.GetAsync<CustomerEdoTask>(document.DocumentTaskId, cancellationToken);
+			var customerTask = await _uow.Session.GetAsync<OrderEdoTask>(document.DocumentTaskId, cancellationToken);
 
 			UniversalTransferDocumentInfo updInfo;
 			OrganizationEntity sender;
 
-			switch(customerTask.CustomerEdoRequest.Type)
+			switch(customerTask.OrderEdoRequest.Type)
 			{
 				case CustomerEdoRequestType.Order:
-					var orderRequest = customerTask.CustomerEdoRequest as OrderEdoRequest;
+					var orderRequest = customerTask.OrderEdoRequest as OrderEdoRequest;
 					var order = orderRequest.Order;
 					var codes = orderRequest.ProductCodes.Select(x => x.ResultCode);
 					sender = order.Contract.Organization;
@@ -95,7 +95,7 @@ namespace Edo.Docflow
 				case CustomerEdoRequestType.OrderWithoutShipmentForPayment:
 					throw new NotImplementedException("Не реализована отправка счетов без отгрузки");
 				default:
-					throw new InvalidOperationException($"Неизвестный тип заявки {customerTask.CustomerEdoRequest.Type}");
+					throw new InvalidOperationException($"Неизвестный тип заявки {customerTask.OrderEdoRequest.Type}");
 			}
 
 			var message = new TaxcomDocflowSendEvent
@@ -123,17 +123,32 @@ namespace Edo.Docflow
 					var acceptTime = updatedEvent.StatusChangeTime ?? DateTime.Now;
 					await AcceptDocument(document, acceptTime, cancellationToken);
 					break;
-				case EdoDocFlowStatus.Unknown:
-				case EdoDocFlowStatus.Warning:
-				case EdoDocFlowStatus.Error:
 				case EdoDocFlowStatus.NotStarted:
+
+				// уточнение
+				// мапим на Problem
+				case EdoDocFlowStatus.Warning:
 				case EdoDocFlowStatus.CompletedWithDivergences:
-				case EdoDocFlowStatus.NotAccepted:
+
+				// возникла проблема при проверке на стороне такском
+				// мапим на Problem
+				case EdoDocFlowStatus.Error:
+
+				// аннулирование
+				// мапим на Problem
 				case EdoDocFlowStatus.WaitingForCancellation:
 				case EdoDocFlowStatus.Cancelled:
+
+
+				// с остальными ничего не делаем пока
+
+				// неизвестно что и зачем это
+				case EdoDocFlowStatus.NotAccepted:
+				case EdoDocFlowStatus.Unknown:
+				// наш внутренний статус, можно исключить из ЭДО
 				case EdoDocFlowStatus.PreparingToSend:
-					// с остальными ничего не делаем пока
 					break;
+
 				default:
 					throw new InvalidOperationException($"Неизвестный статус документооборота {updatedEvent.DocFlowStatus}");
 			}
@@ -152,7 +167,7 @@ namespace Edo.Docflow
 				case OutgoingEdoDocumentType.Transfer:
 					await NotifyTransferForAcceptDocument(document, cancellationToken);
 					break;
-				case OutgoingEdoDocumentType.Customer:
+				case OutgoingEdoDocumentType.Order:
 					await NotifyCustomerForAcceptDocument(document, cancellationToken);
 					break;
 				default:
@@ -172,7 +187,7 @@ namespace Edo.Docflow
 
 		private async Task NotifyCustomerForAcceptDocument(OutgoingEdoDocument document, CancellationToken cancellationToken)
 		{
-			var message = new CustomerDocumentAcceptedEvent
+			var message = new OrderDocumentAcceptedEvent
 			{
 				DocumentId = document.Id
 			};

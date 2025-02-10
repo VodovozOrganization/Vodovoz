@@ -5,7 +5,7 @@
 		/// <summary>
 		/// Задача отправки документов клиенту
 		/// </summary>
-		CustomerDocument,
+		Order,
 
 		/// <summary>
 		/// Задача перемещения ТМЦ

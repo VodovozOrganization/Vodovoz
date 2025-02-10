@@ -9,6 +9,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Edo.Contracts.Messages.Events;
 using Vodovoz.Core.Domain.Edo;
+using QS.Extensions.Observable.Collections.List;
+using Edo.TaskValidation;
+using Edo.Common;
+using TrueMarkApi.Client;
 
 namespace Edo.Transfer.Dispatcher
 {
@@ -16,17 +20,23 @@ namespace Edo.Transfer.Dispatcher
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<TransferEdoHandler> _logger;
+		private readonly EdoTaskMainValidator _validator;
+		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferDispatcher _transferDispatcher;
 		private readonly IBus _messageBus;
 
 		public TransferEdoHandler(
 			ILogger<TransferEdoHandler> logger,
 			IUnitOfWorkFactory uowFactory,
+			EdoTaskMainValidator validator,
+			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferDispatcher transferDispatcher,
 			IBus messageBus
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
+			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_transferDispatcher = transferDispatcher ?? throw new ArgumentNullException(nameof(transferDispatcher));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_uow = uowFactory.CreateWithoutRoot();
@@ -81,7 +91,7 @@ namespace Edo.Transfer.Dispatcher
 
 			if(document.AcceptTime == null)
 			{
-				_logger.LogError("Неозможно завершить трансфер, так как документ №{documentId} еще не принят.", documentId);
+				_logger.LogError("Невозможно завершить трансфер, так как документ №{documentId} еще не принят.", documentId);
 			}
 
 			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
@@ -89,6 +99,20 @@ namespace Edo.Transfer.Dispatcher
 			{
 				_logger.LogWarning("При обработке принятия документа трансфера №{documentId} обнаружено, что трансфер уже завершен.", documentId);
 				_uow.Dispose();
+				return;
+			}
+
+			// TEST
+			// проверяем все коды как ВВ
+			var trueMarkApiClient = new TrueMarkApiClient("https://test-vv-truemarkapi.dev.vod.qsolution.ru/", "test");
+			//var trueMarkApiClient = new TrueMarkApiClient("https://test-mn-truemarkapi.dev.vod.qsolution.ru/", "test");
+			var trueMarkCodeChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(transferTask);
+
+			//Проверить состояние кодов
+			var valid = await Validate(transferTask, trueMarkCodeChecker, cancellationToken);
+			if(!valid)
+			{
+				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
@@ -103,6 +127,78 @@ namespace Edo.Transfer.Dispatcher
 			{
 				var message = new TransferDoneEvent { Id = transferTask.DocumentEdoTaskId };
 				await _messageBus.Publish(message, cancellationToken);
+			}
+		}
+
+		private async Task<bool> Validate(EdoTask edoTask, EdoTaskItemTrueMarkStatusProvider itemStatusProvider, CancellationToken cancellationToken)
+		{
+			var context = new EdoTaskValidationContext();
+			context.AddService(itemStatusProvider);
+			var results = await _validator.ValidateAsync(edoTask, cancellationToken, context);
+			await UpdateValidationResults(edoTask, results, cancellationToken);
+
+			if(results.IsValid)
+			{
+				return true;
+			}
+
+			switch(results.Importance)
+			{
+				case EdoValidationImportance.Waiting:
+					edoTask.Status = EdoTaskStatus.Waiting;
+					break;
+				case EdoValidationImportance.Problem:
+					edoTask.Status = EdoTaskStatus.Problem;
+					break;
+				case null:
+					throw new InvalidOperationException($"Результаты валидации обязаны содержать {nameof(EdoValidationImportance)}, если результаты не валидны.");
+				default:
+					throw new InvalidOperationException($"Неизвестное значение важности валидации {nameof(EdoValidationImportance)}.");
+			}
+
+			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+			return false;
+		}
+
+		private async Task UpdateValidationResults(
+			EdoTask edoTask,
+			EdoValidationResults validationResults,
+			CancellationToken cancellationToken
+			)
+		{
+			foreach(var validationResult in validationResults.Results)
+			{
+				var problem = edoTask.Problems.FirstOrDefault(x => x.ValidatorName == validationResult.Validator.Name);
+				if(problem == null && validationResult.IsValid)
+				{
+					continue;
+				}
+
+				if(problem == null)
+				{
+					problem = new EdoTaskProblem
+					{
+						ValidatorName = validationResult.Validator.Name,
+						State = TaskProblemState.Active,
+						EdoTask = edoTask,
+						TaskItems = new ObservableList<EdoTaskItem>(validationResult.ProblemItems)
+					};
+				}
+
+				if(validationResult.IsValid)
+				{
+					problem.State = TaskProblemState.Solved;
+				}
+				else
+				{
+					problem.TaskItems.Clear();
+					foreach(var problemItem in validationResult.ProblemItems)
+					{
+						problem.TaskItems.Add(problemItem);
+					}
+				}
+
+				await _uow.SaveAsync(problem, cancellationToken: cancellationToken);
 			}
 		}
 

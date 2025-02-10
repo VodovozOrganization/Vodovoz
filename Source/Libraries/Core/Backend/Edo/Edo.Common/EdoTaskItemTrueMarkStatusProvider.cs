@@ -4,25 +4,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Documents
+namespace Edo.Common
 {
 	public class EdoTaskItemTrueMarkStatusProvider
 	{
 		private readonly TrueMarkApiClient _trueMarkApiClient;
 		private readonly Dictionary<string, EdoTaskItemTrueMarkStatus> _codesStatuses = new Dictionary<string, EdoTaskItemTrueMarkStatus>();
-		private readonly DocumentEdoTask _edoTask;
+		private readonly EdoTask _edoTask;
+		private readonly IEnumerable<EdoTaskItem> _codeItems;
 		private bool _codesChecked;
 
-		public EdoTaskItemTrueMarkStatusProvider(DocumentEdoTask edoTask, TrueMarkApiClient trueMarkApiClient)
+		public EdoTaskItemTrueMarkStatusProvider(EdoTask edoTask, TrueMarkApiClient trueMarkApiClient)
 		{
 			_edoTask = edoTask ?? throw new ArgumentNullException(nameof(edoTask));
 			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
+			_codeItems = GetCodeItems();
 
-			foreach(var item in _edoTask.Items)
+			foreach(var item in _codeItems)
 			{
 				_codesStatuses.Add(
 					item.ProductCode.ResultCode.IdentificationCode,
@@ -33,7 +34,7 @@ namespace Edo.Documents
 
 		public async Task<IDictionary<string, EdoTaskItemTrueMarkStatus>> GetItemsStatusesAsync(CancellationToken cancellationToken)
 		{
-			if(!_edoTask.Items.Any())
+			if(!_codeItems.Any())
 			{
 				return new Dictionary<string, EdoTaskItemTrueMarkStatus>();
 			}
@@ -57,16 +58,23 @@ namespace Edo.Documents
 
 			foreach(var instanceStatus in response.InstanceStatuses)
 			{
-				_codesStatuses[instanceStatus.IdentificationCode].Status = instanceStatus;
+				_codesStatuses[instanceStatus.IdentificationCode].ProductInstanceStatus = instanceStatus;
 			}
 
 			_codesChecked = true;
 		}
-	}
 
-	public class EdoTaskItemTrueMarkStatus
-	{
-		public EdoTaskItem EdoTaskItem { get; set; }
-		public ProductInstanceStatus Status { get; set; }
+		private IEnumerable<EdoTaskItem> GetCodeItems()
+		{
+			switch(_edoTask.TaskType)
+			{
+				case EdoTaskType.Transfer:
+					return ((TransferEdoTask)_edoTask).TransferEdoRequests.SelectMany(x => x.TransferedItems);
+				case EdoTaskType.Order:
+					return ((OrderEdoTask)_edoTask).Items;
+				default:
+					throw new NotSupportedException($"Проверка кодов для задачи {_edoTask.TaskType} не поддерживается.");
+			}
+		}
 	}
 }

@@ -3,13 +3,13 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 {
-	public class CustomerEdoTaskMap : SubclassMap<CustomerEdoTask>
+	public class OrderEdoTaskMap : SubclassMap<OrderEdoTask>
 	{
-		public CustomerEdoTaskMap()
+		public OrderEdoTaskMap()
 		{
 			Abstract();
 
-			HasOne(x => x.CustomerEdoRequest)
+			HasOne(x => x.OrderEdoRequest)
 				.PropertyRef(nameof(CustomerEdoRequest.Task))
 				.Cascade.All();
 

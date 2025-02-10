@@ -82,7 +82,7 @@ namespace Edo.Scheduler.Service
 				object message = null;
 				switch(edoTask.TaskType)
 				{
-					case EdoTaskType.CustomerDocument:
+					case EdoTaskType.Order:
 						message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
 						break;
 					case EdoTaskType.Receipt:

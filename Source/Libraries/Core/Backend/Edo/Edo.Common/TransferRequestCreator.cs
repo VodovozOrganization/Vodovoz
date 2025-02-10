@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Documents
+namespace Edo.Common
 {
 	public class TransferRequestCreator
 	{
@@ -21,17 +21,10 @@ namespace Edo.Documents
 
 		public async Task CreateTransferRequests(
 			IUnitOfWork _uow,
-			DocumentEdoTask edoTask, 
-			EdoTaskItemTrueMarkStatusProvider taskItemStatusProvider, 
+			OrderEdoTask edoTask,
+			EdoTaskItemTrueMarkStatusProvider taskItemStatusProvider,
 			CancellationToken cancellationToken)
 		{
-			var orderEdoRequest = edoTask.CustomerEdoRequest as OrderEdoRequest;
-			if(orderEdoRequest == null)
-			{
-				throw new EdoException($"Трансфер кодов недоступен для заявки типа {edoTask.TaskType}. " +
-					$"Эта проблема должна обрабатываться валидацией, необходимо проверить работу валидатора.");
-			}
-
 			if(edoTask.TransferEdoRequests.Any())
 			{
 				throw new EdoException($"Задача №{edoTask.Id} уже содержит заявки на перенос кодов. " +
@@ -41,7 +34,7 @@ namespace Edo.Documents
 			var itemStatuses = await taskItemStatusProvider.GetItemsStatusesAsync(cancellationToken);
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
-			var organizationTo = orderEdoRequest.Order.Contract.Organization;
+			var organizationTo = edoTask.OrderEdoRequest.Order.Contract.Organization;
 
 			var transferRequests = new Dictionary<string, TransferEdoRequest>();
 			foreach(var itemStatus in itemStatuses.Values)
@@ -51,25 +44,25 @@ namespace Edo.Documents
 					return;
 				}
 
-				if(itemStatus.Status == null)
+				if(itemStatus.ProductInstanceStatus == null)
 				{
 					throw new EdoException($"Строка №{itemStatus.EdoTaskItem.Id} в задаче №{itemStatus.EdoTaskItem.CustomerEdoTask.Id} " +
 						$"не была проверена в честном знаке." +
 						$"Эта проблема должна обрабатываться валидацией, необходимо проверить работу валидатора.");
 				}
 
-				var edoOrganizationFrom = edoOrganizations.FirstOrDefault(x => x.INN == itemStatus.Status.OwnerInn);
+				var edoOrganizationFrom = edoOrganizations.FirstOrDefault(x => x.INN == itemStatus.ProductInstanceStatus.OwnerInn);
 				if(edoOrganizationFrom == null)
 				{
-					throw new EdoException($"ЭДО организация с ИНН {itemStatus.Status.OwnerInn} ({itemStatus.Status.OwnerName}) не найдена." +
+					throw new EdoException($"ЭДО организация с ИНН {itemStatus.ProductInstanceStatus.OwnerInn} ({itemStatus.ProductInstanceStatus.OwnerName}) не найдена." +
 						$"Эта проблема должна обрабатываться валидацией, необходимо проверить работу валидатора.");
 				}
 
-				var transferRequest = transferRequests.GetOrAdd(itemStatus.Status.OwnerInn, (inn) => new TransferEdoRequest
+				var transferRequest = transferRequests.GetOrAdd(itemStatus.ProductInstanceStatus.OwnerInn, (inn) => new TransferEdoRequest
 				{
 					FromOrganizationId = edoOrganizationFrom.Id,
 					ToOrganizationId = organizationTo.Id,
-					DocumentEdoTask = edoTask,
+					OrderEdoTask = edoTask,
 				});
 
 				if(!transferRequest.TransferedItems.Contains(itemStatus.EdoTaskItem))

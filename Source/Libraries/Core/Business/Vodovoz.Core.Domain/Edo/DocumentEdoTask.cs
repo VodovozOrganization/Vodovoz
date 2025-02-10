@@ -3,13 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class DocumentEdoTask : CustomerEdoTask
+	public class DocumentEdoTask : OrderEdoTask
 	{
 		private int _fromOrganization;
 		private int _toCustomer;
 		private EdoDocumentType _documentType;
 		private DocumentEdoTaskStage _stage;
-		private IObservableList<TransferEdoRequest> _transferEdoRequests = new ObservableList<TransferEdoRequest>();
 
 		[Display(Name = "Код организации")]
 		public virtual int FromOrganization
@@ -37,13 +36,6 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _stage;
 			set => SetField(ref _stage, value);
-		}
-
-		[Display(Name = "Заявки на перенос")]
-		public virtual IObservableList<TransferEdoRequest> TransferEdoRequests
-		{
-			get => _transferEdoRequests;
-			set => SetField(ref _transferEdoRequests, value);
 		}
 	}
 }

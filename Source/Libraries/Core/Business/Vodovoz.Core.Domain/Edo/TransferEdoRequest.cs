@@ -9,7 +9,7 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		private int _id;
 		private DateTime _time;
-		private DocumentEdoTask _documentEdoTask;
+		private OrderEdoTask _orderEdoTask;
 		private int _fromOrganizationId;
 		private int _toOrganizationId;
 		private IObservableList<EdoTaskItem> _transferedItems = new ObservableList<EdoTaskItem>();
@@ -30,10 +30,10 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Код ЭДО задачи")]
-		public virtual DocumentEdoTask DocumentEdoTask
+		public virtual OrderEdoTask OrderEdoTask
 		{
-			get => _documentEdoTask;
-			set => SetField(ref _documentEdoTask, value);
+			get => _orderEdoTask;
+			set => SetField(ref _orderEdoTask, value);
 		}
 
 		[Display(Name = "Код организации отправителя")]

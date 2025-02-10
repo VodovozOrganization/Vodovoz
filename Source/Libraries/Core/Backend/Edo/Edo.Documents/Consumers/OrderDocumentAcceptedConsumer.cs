@@ -5,16 +5,16 @@ using Edo.Contracts.Messages.Events;
 
 namespace Edo.Documents.Consumers
 {
-	public class CustomerDocumentAcceptedConsumer : IConsumer<CustomerDocumentAcceptedEvent>
+	public class OrderDocumentAcceptedConsumer : IConsumer<OrderDocumentAcceptedEvent>
 	{
 		private readonly DocumentEdoTaskHandler _documentEdoTaskHandler;
 
-		public CustomerDocumentAcceptedConsumer(DocumentEdoTaskHandler documentEdoTaskHandler)
+		public OrderDocumentAcceptedConsumer(DocumentEdoTaskHandler documentEdoTaskHandler)
 		{
 			_documentEdoTaskHandler = documentEdoTaskHandler ?? throw new ArgumentNullException(nameof(documentEdoTaskHandler));
 		}
 
-		public async Task Consume(ConsumeContext<CustomerDocumentAcceptedEvent> context)
+		public async Task Consume(ConsumeContext<OrderDocumentAcceptedEvent> context)
 		{
 			await _documentEdoTaskHandler.HandleAccepted(context.Message.DocumentId, context.CancellationToken);
 		}

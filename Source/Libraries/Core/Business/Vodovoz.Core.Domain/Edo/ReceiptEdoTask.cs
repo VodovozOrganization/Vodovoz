@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class ReceiptEdoTask : CustomerEdoTask
+	public class ReceiptEdoTask : OrderEdoTask
 	{
 		private int _cashReceiptId;
 

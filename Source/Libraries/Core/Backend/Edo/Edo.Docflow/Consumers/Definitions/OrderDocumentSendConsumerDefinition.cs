@@ -2,17 +2,17 @@
 using MassTransit;
 using RabbitMQ.Client;
 
-namespace Edo.Documents.Consumers.Definitions
+namespace Edo.Docflow.Consumers.Definitions
 {
-	public class CustomerDocumentSentConsumerDefinition : ConsumerDefinition<CustomerDocumentSentConsumer>
+	public class OrderDocumentSendConsumerDefinition : ConsumerDefinition<OrderDocumentSendConsumer>
 	{
-		public CustomerDocumentSentConsumerDefinition()
+		public OrderDocumentSendConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.customer-document-sent.consumer.documents");
+			Endpoint(x => x.Name = "edo.order-document-send.consumer.docflow");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<CustomerDocumentSentConsumer> consumerConfigurator)
+			IConsumerConfigurator<OrderDocumentSendConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
 
@@ -21,7 +21,7 @@ namespace Edo.Documents.Consumers.Definitions
 				rmq.AutoDelete = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<CustomerDocumentSentEvent>();
+				rmq.Bind<OrderDocumentSendEvent>();
 			}
 		}
 	}

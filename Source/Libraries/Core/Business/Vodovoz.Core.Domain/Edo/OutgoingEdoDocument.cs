@@ -1,6 +1,9 @@
 ﻿using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -9,7 +12,6 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _id;
 		private DateTime _creationTime;
 		private OutgoingEdoDocumentType _type;
-		private Guid _documentId;
 		private EdoType _edoType;
 		private EdoDocumentType _documentType;
 		private EdoDocumentStatus _status;
@@ -35,13 +37,6 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _type;
 			set => SetField(ref _type, value);
-		}
-
-		[Display(Name = "Номер документа")]
-		public virtual Guid DocumentId
-		{
-			get => _documentId;
-			set => SetField(ref _documentId, value);
 		}
 
 		[Display(Name = "Тип ЭДО")]
@@ -80,29 +75,55 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 	}
 
-	public enum OutgoingEdoDocumentType
-	{
-		Transfer,
-		Customer
-	}
+	
 
-	public class TransferEdoDocument : OutgoingEdoDocument
-	{
-		private int _transferTaskId;
-		public virtual int TransferTaskId
-		{
-			get => _transferTaskId;
-			set => SetField(ref _transferTaskId, value);
-		}
-	}
+	//public class EdoReceipt : PropertyChangedBase, IDomainObject
+	//{
+	//	private int _id;
+	//	private DateTime _creationTime;
+	//	private DateTime _version;
+	//	private ReceiptEdoTask _receiptEdoTask;
 
-	public class CustomerEdoDocument : OutgoingEdoDocument
-	{
-		private int _documentTaskId;
-		public virtual int DocumentTaskId
-		{
-			get => _documentTaskId;
-			set => SetField(ref _documentTaskId, value);
-		}
-	}
+
+	//	[Display(Name = "Код")]
+	//	public virtual int Id
+	//	{
+	//		get => _id;
+	//		set => SetField(ref _id, value);
+	//	}
+
+	//	[Display(Name = "Дата создания")]
+	//	public virtual DateTime CreationTime
+	//	{
+	//		get => _creationTime;
+	//		set => SetField(ref _creationTime, value);
+	//	}
+
+	//	[Display(Name = "Версия")]
+	//	public virtual DateTime Version
+	//	{
+	//		get => _version;
+	//		set => SetField(ref _version, value);
+	//	}
+
+	//	[Display(Name = "ЭДО задача")]
+	//	public virtual ReceiptEdoTask ReceiptEdoTask
+	//	{
+	//		get => _receiptEdoTask;
+	//		set => SetField(ref _receiptEdoTask, value);
+	//	}
+
+
+
+
+
+	//	public static string GetDocumentId(int orderId, int? innerNumber)
+	//	{
+	//		return innerNumber is null ? $"vod_{orderId}" : $"vod_{orderId}_{innerNumber}";
+	//	}
+
+	//	//public virtual string DocumentId => GetDocumentId(Order.Id, InnerNumber);
+
+	//	public static int MaxMarkCodesInReceipt => 128;
+	//}
 }

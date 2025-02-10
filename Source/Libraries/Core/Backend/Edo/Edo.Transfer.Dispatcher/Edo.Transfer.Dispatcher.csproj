@@ -10,6 +10,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
+	  <ProjectReference Include="..\Edo.TaskValidation\Edo.TaskValidation.csproj" />
 	  <ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
 	  <ProjectReference Include="..\Edo.Transfer\Edo.Transfer.csproj" />
 	</ItemGroup>
