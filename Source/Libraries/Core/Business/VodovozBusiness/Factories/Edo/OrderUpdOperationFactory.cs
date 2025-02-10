@@ -10,30 +10,23 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Settings.Nomenclature;
 
 namespace VodovozBusiness.Factories.Edo
 {
 	public class OrderUpdOperationFactory
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
 		private readonly IGenericRepository<RouteListItem> _routeListAddressRepository;
 		private readonly IOrderRepository _orderRepository;
-		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public OrderUpdOperationFactory(
 			IUnitOfWork uow,
-			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
 			IGenericRepository<RouteListItem> routeListAddressRepository,
-			IOrderRepository orderRepository,
-			INomenclatureSettings nomenclatureSettings)
+			IOrderRepository orderRepository)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_routeListAddressRepository = routeListAddressRepository ?? throw new ArgumentNullException(nameof(routeListAddressRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
 		public OrderUpdOperation CreateOrderUpdOperation(Order order)
