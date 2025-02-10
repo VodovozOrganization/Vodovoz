@@ -51,7 +51,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Код номенклатуры
 		/// </summary>
 		[Display(Name = "Код номенклатуры")]
-		public int NomenclatureId
+		public virtual int NomenclatureId
 		{
 			get => _nomenclatureId;
 			set => SetField(ref _nomenclatureId, value);
@@ -70,7 +70,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Название номенклатуры
 		/// </summary>
 		[Display(Name = "Название номенклатуры")]
-		public string NomenclatureName
+		public virtual string NomenclatureName
 		{
 			get => _nomenclatureName;
 			set => SetField(ref _nomenclatureName, value);
@@ -80,7 +80,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Код единицы измерения
 		/// </summary>
 		[Display(Name = "Код единицы измерения")]
-		public string UnitCode
+		public virtual string UnitCode
 		{
 			get => _unitCode;
 			set => SetField(ref _unitCode, value);
@@ -90,7 +90,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Название единицы измерения
 		/// </summary>
 		[Display(Name = "Название единицы измерения")]
-		public string MeasurementUnitName
+		public virtual string MeasurementUnitName
 		{
 			get => _measurementUnitName;
 			set => SetField(ref _measurementUnitName, value);
@@ -100,7 +100,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Количество
 		/// </summary>
 		[Display(Name = "Количество")]
-		public decimal Count
+		public virtual decimal Count
 		{
 			get => _count;
 			set => SetField(ref _count, value);
@@ -110,7 +110,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Цена за единицу
 		/// </summary>
 		[Display(Name = "Цена за единицу")]
-		public decimal ItemPrice
+		public virtual decimal ItemPrice
 		{
 			get => _itemPrice;
 			set => SetField(ref _itemPrice, value);
@@ -120,7 +120,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Включая НДС
 		/// </summary>
 		[Display(Name = "Включая НДС")]
-		public decimal IncludeVat
+		public virtual decimal IncludeVat
 		{
 			get => _includeVat;
 			set => SetField(ref _includeVat, value);
@@ -130,7 +130,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// НДС
 		/// </summary>
 		[Display(Name = "НДС")]
-		public decimal? Vat
+		public virtual decimal? Vat
 		{
 			get => _vat;
 			set => SetField(ref _vat, value);
@@ -140,7 +140,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Скидка на товар
 		/// </summary>
 		[Display(Name = "Скидка на товар")]
-		public decimal ItemDiscount
+		public virtual decimal ItemDiscount
 		{
 			get => _itemDiscount;
 			set => SetField(ref _itemDiscount, value);
@@ -150,7 +150,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Сумма скидки на товар
 		/// </summary>
 		[Display(Name = "Сумма скидки на товар")]
-		public decimal ItemDiscountMoney
+		public virtual decimal ItemDiscountMoney
 		{
 			get => _itemDiscountMoney;
 			set => SetField(ref _itemDiscountMoney, value);

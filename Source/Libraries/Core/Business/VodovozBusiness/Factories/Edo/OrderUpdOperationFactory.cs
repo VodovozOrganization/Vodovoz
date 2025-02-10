@@ -13,23 +13,23 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace VodovozBusiness.Factories.Edo
 {
-	public class OrderUpdOperationFactory
+	public class OrderUpdOperationFactory : IOrderUpdOperationFactory, IDisposable
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IGenericRepository<RouteListItem> _routeListAddressRepository;
 		private readonly IOrderRepository _orderRepository;
 
 		public OrderUpdOperationFactory(
-			IUnitOfWork uow,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IGenericRepository<RouteListItem> routeListAddressRepository,
 			IOrderRepository orderRepository)
 		{
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_uow = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot(nameof(OrderUpdOperationFactory));
 			_routeListAddressRepository = routeListAddressRepository ?? throw new ArgumentNullException(nameof(routeListAddressRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
-		public OrderUpdOperation CreateOrderUpdOperation(Order order)
+		public OrderUpdOperation CreateOrUpdateOrderUpdOperation(Order order, OrderUpdOperation orderUpdOperation = null)
 		{
 			if(order is null)
 			{
@@ -67,7 +67,7 @@ namespace VodovozBusiness.Factories.Edo
 				&& !string.IsNullOrWhiteSpace(client.SpecialContractNumber)
 				&& client.SpecialContractDate.HasValue;
 
-			var orderUpdOperation = new OrderUpdOperation();
+			orderUpdOperation = orderUpdOperation ?? new OrderUpdOperation();
 
 			orderUpdOperation.OrderId = order.Id;
 			orderUpdOperation.OrderDeliveryDate = order.DeliveryDate.Value;
@@ -179,9 +179,16 @@ namespace VodovozBusiness.Factories.Edo
 					Vat = orderItem.ValueAddedTax,
 					ItemDiscountMoney = orderItem.DiscountMoney
 				};
+
+				orderUpdOperation.Goods.Add(product);
 			}
 
 			return orderUpdOperation;
+		}
+
+		public void Dispose()
+		{
+			_uow?.Dispose();
 		}
 	}
 }

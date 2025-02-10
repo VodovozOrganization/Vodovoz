@@ -64,6 +64,8 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
+using Vodovoz.Core.Domain.Edo;
+using VodovozBusiness.Factories.Edo;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -118,6 +120,8 @@ namespace Vodovoz.Domain.Orders
 
 		private ISelfDeliveryRepository _selfDeliveryRepository => ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>();
 
+		private IOrderUpdOperationFactory _orderUpdOperationFactory => ScopeProvider.Scope.Resolve<IOrderUpdOperationFactory>();
+
 		private readonly double _futureDeliveryDaysLimit = 30;
 
 		#region Платная доставка
@@ -143,6 +147,7 @@ namespace Vodovoz.Domain.Orders
 		private Employee _commentOPManagerChangedBy;
 		private bool? _canCreateOrderInAdvance;
 		private GeoGroup _selfDeliveryGeoGroup;
+		private OrderUpdOperation _orderUpdOperation;
 
 		public Order()
 		{
@@ -502,6 +507,16 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _selfDeliveryGeoGroup;
 			set => SetField(ref _selfDeliveryGeoGroup, value);
+		}
+
+		/// <summary>
+		/// Операция УПД по заказу
+		/// </summary>
+		[Display(Name = "Операция УПД по заказу")]
+		public virtual OrderUpdOperation OrderUpdOperation
+		{
+			get => _orderUpdOperation;
+			set => SetField(ref _orderUpdOperation, value);
 		}
 
 		#endregion
@@ -3730,6 +3745,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.UPD:
 					var updDocument = new UPDDocument();
+					OrderUpdOperation = _orderUpdOperationFactory.CreateOrUpdateOrderUpdOperation(this, OrderUpdOperation);
 					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
 						updDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
 					}
@@ -3737,6 +3753,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.SpecialUPD:
 					var specialUpdDocument = new SpecialUPDDocument();
+					OrderUpdOperation = _orderUpdOperationFactory.CreateOrUpdateOrderUpdOperation(this, OrderUpdOperation);
 					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
 						specialUpdDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
 					}

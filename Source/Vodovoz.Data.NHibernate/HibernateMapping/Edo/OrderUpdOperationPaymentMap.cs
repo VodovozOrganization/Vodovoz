@@ -15,8 +15,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Edo
 
 			Map(x => x.PaymentNum).Column("payment_num");
 			Map(x => x.PaymentDate).Column("payment_date");
-
-			References(x => x.OrderUpdOperation).Column("order_upd_operation_id");
 		}
 	}
 }

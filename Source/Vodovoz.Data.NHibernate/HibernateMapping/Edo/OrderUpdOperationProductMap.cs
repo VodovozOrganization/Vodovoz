@@ -25,8 +25,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Edo
 			Map(x => x.ItemDiscount).Column("item_discount");
 			Map(x => x.ItemDiscountMoney).Column("item_discount_money");
 			Map(x => x.IsService).Column("is_service");
-
-			References(x => x.OrderUpdOperation).Column("order_upd_operation_id");
 		}
 	}
 }
