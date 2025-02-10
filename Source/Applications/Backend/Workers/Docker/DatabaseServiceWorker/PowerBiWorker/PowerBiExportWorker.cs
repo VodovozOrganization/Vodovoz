@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using DatabaseServiceWorker.Helpers;
 using DatabaseServiceWorker.PowerBiWorker.Dto;
 using DatabaseServiceWorker.PowerWorker.Helpers;
@@ -98,8 +98,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				var lastWorkerStartDate = await GetLastWorkerStartDateAsync(targetConnection);
 				
 				var needExport = lastWorkerStartDate.HasValue
-					&& lastWorkerStartDate.Value.Date <= DateTime.Today
-					&& lastWorkerStartDate.Value.Hour < DateTime.Now.Hour
+					&& DateTime.Now - lastWorkerStartDate.Value >= TimeSpan.FromHours(1)
 					&& DateTime.Now.Minute is >= 30;
 
 				if(!needExport)

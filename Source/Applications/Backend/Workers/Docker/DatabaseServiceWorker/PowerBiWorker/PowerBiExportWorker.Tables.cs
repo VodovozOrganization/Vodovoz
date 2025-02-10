@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using DatabaseServiceWorker.Helpers;
 using MySqlConnector;
 using System;
@@ -20,8 +20,14 @@ namespace DatabaseServiceWorker.PowerBiWorker
 		{
 			#region Calendar
 
-			var calendarInsertSql = GetCalendarInsertSql();
-			connectionTarget.Execute(calendarInsertSql, commandTimeout: _timeOut);
+			var maxCalendarDateSql = GetMaxCalendarDateSelectSql();
+			var maxCalendarDateInTarget = (await connectionTarget.GetDataAsync<DateTime>(maxCalendarDateSql)).Single();
+			
+			if(maxCalendarDateInTarget < DateTime.Today.AddDays(-1))
+			{
+				var calendarInsertSql = GetCalendarInsertSql();
+				connectionTarget.Execute(calendarInsertSql, commandTimeout: _timeOut); 
+			}
 
 			#endregion Calendar
 
@@ -94,6 +100,118 @@ namespace DatabaseServiceWorker.PowerBiWorker
 			}
 
 			#endregion
+			#region DeliveryPoint
+
+			var maxDeliveryPointIdSql = GetMaxDeliveryPointIdSelectSql();
+			var maxDeliveryPointInTarget = (await connectionTarget.GetDataAsync<int>(maxDeliveryPointIdSql)).Single();
+			var maxDeliveryPointInSource = (await connectionSource.GetDataAsync<int>(maxDeliveryPointIdSql)).Single();
+
+			if(maxDeliveryPointInSource > maxDeliveryPointInTarget)
+			{
+				var deliveryPointsSql = GetDeliveryPointSelectSql();
+				var deliveryPointList = await connectionSource.GetDataAsync<dynamic>(deliveryPointsSql, new { id = maxDeliveryPointInTarget });
+
+				var deliveryPoinInsertSql = GetInsertDeliveryPointSql();
+				var deliveryPointTransaction = connectionTarget.BeginTransaction();
+				connectionTarget.Execute(deliveryPoinInsertSql, deliveryPointList, deliveryPointTransaction, _timeOut);
+				deliveryPointTransaction.Commit();
+			}
+			#endregion DeliveryPoint
+			
+			#region DeliverySchedule
+
+			var maxDeliveryScheduleIdSql = GetMaxDeliveryScheduleIdSelectSql();
+			var maxDeliveryScheduleInTarget = (await connectionTarget.GetDataAsync<int>(maxDeliveryScheduleIdSql)).Single();
+			var maxDeliveryScheduleInSource = (await connectionSource.GetDataAsync<int>(maxDeliveryScheduleIdSql)).Single();
+
+			if(maxDeliveryScheduleInSource > maxDeliveryScheduleInTarget)
+			{
+				var deliverySchedulesSql = GetDeliveryScheduleSelectSql();
+				var deliveryScheduleList = await connectionSource.GetDataAsync<dynamic>(deliverySchedulesSql, new { id = maxDeliveryScheduleInTarget });
+
+				var deliverySchedulesInsertSql = GetInsertDeliveryScheduleSql();
+				var deliverySchedulesTransaction = connectionTarget.BeginTransaction();
+				connectionTarget.Execute(deliverySchedulesInsertSql, deliveryScheduleList, deliverySchedulesTransaction, _timeOut);
+				deliverySchedulesTransaction.Commit();
+			}
+			
+			#endregion DeliverySchedule
+			
+			#region RouteListAddress
+
+			var maxRouteListAddressIdSql = GetMaxRouteListAddressIdSelectSql();
+			var maxRouteListAddressInTarget = (await connectionTarget.GetDataAsync<int>(maxRouteListAddressIdSql)).Single();
+			var maxRouteListAddressInSource = (await connectionSource.GetDataAsync<int>(maxRouteListAddressIdSql)).Single();
+
+			if(maxRouteListAddressInSource > maxRouteListAddressInTarget)
+			{
+				var routeListAddressSelectSql = GetRouteListAddressSelectSql();
+				var routeListAddressList = await connectionSource.GetDataAsync<dynamic>(routeListAddressSelectSql, new { id = maxRouteListAddressInTarget });
+
+				var routeListAddressInsertSql = GetInsertRouteListAddressSql();
+				var routeListAddressTransaction = connectionTarget.BeginTransaction();
+				connectionTarget.Execute(routeListAddressInsertSql, routeListAddressList, routeListAddressTransaction, _timeOut);
+				routeListAddressTransaction.Commit();
+			}
+			
+			#endregion RouteListAddress
+
+			#region RouteList
+
+			var maxRouteListIdSql = GetMaxRouteListIdSelectSql();
+			var maxRouteListInTarget = (await connectionTarget.GetDataAsync<int>(maxRouteListIdSql)).Single();
+			var maxRouteListInSource = (await connectionSource.GetDataAsync<int>(maxRouteListIdSql)).Single();
+
+			if(maxRouteListInSource > maxRouteListInTarget)
+			{
+				var routeListSelectSql = GetRouteListSelectSql();
+				var routeListList = await connectionSource.GetDataAsync<dynamic>(routeListSelectSql, new { id = maxRouteListInTarget });
+
+				var routeListInsertSql = GetInsertRouteListSql();
+				var routeListTransaction = connectionTarget.BeginTransaction();
+				connectionTarget.Execute(routeListInsertSql, routeListList, routeListTransaction, _timeOut);
+				routeListTransaction.Commit();
+			}
+			
+			#endregion RouteList
+			
+			#region Car
+
+			var maxCarIdSql = GetMaxCarIdSelectSql();
+			var maxCarInTarget = (await connectionTarget.GetDataAsync<int>(maxCarIdSql)).Single();
+			var maxCarInSource = (await connectionSource.GetDataAsync<int>(maxCarIdSql)).Single();
+
+			if(maxCarInSource > maxCarInTarget)
+			{
+				var carSelectSql = GetCarSelectSql();
+				var carList = await connectionSource.GetDataAsync<dynamic>(carSelectSql, new { id = maxCarInTarget });
+
+				var carInsertSql = GetInsertCarSql();
+				var carTransaction = connectionTarget.BeginTransaction();
+				connectionTarget.Execute(carInsertSql, carList, carTransaction, _timeOut);
+				carTransaction.Commit();
+			}
+			
+			#endregion Car
+			
+			#region CarModel
+
+			var maxCarModelIdSql = GetMaxCarModelIdSelectSql();
+			var maxCarModelInTarget = (await connectionTarget.GetDataAsync<int>(maxCarModelIdSql)).Single();
+			var maxCarModelInSource = (await connectionSource.GetDataAsync<int>(maxCarModelIdSql)).Single();
+
+			if(maxCarModelInSource > maxCarModelInTarget)
+			{
+				var carModelSelectSql = GetCarModelSelectSql();
+				var carModelList = await connectionSource.GetDataAsync<dynamic>(carModelSelectSql, new { id = maxCarModelInTarget });
+
+				var carModelInsertSql = GetInsertCarModelSql();
+				var carModelTransaction = connectionTarget.BeginTransaction();
+				connectionTarget.Execute(carModelInsertSql, carModelList, carModelTransaction, _timeOut);
+				carModelTransaction.Commit();
+			}
+			
+			#endregion CarModel
 
 			TruncateTables(connectionTarget, startDate);
 

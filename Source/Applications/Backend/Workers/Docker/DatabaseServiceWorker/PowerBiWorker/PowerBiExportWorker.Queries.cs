@@ -101,7 +101,8 @@ namespace DatabaseServiceWorker.PowerBiWorker
 				LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
 				LEFT JOIN route_list_addresses rla ON rla.order_id = orders.id
 				LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
-				LEFT JOIN cars c ON c.id = rl.car_id LEFT JOIN car_models cm ON cm.id = c.model_id
+				LEFT JOIN cars c ON c.id = rl.car_id
+				LEFT JOIN car_models cm ON cm.id = c.model_id
 				WHERE orders.delivery_date = /*DATE*/ AND orders.order_status NOT IN ('{nameof(OrderStatus.Canceled)}', '{nameof(OrderStatus.NewOrder)}', '{nameof(OrderStatus.WaitForPayment)}')
 				AND !orders.self_delivery
 				AND !orders.is_contract_closer AND orders.order_address_type != '{nameof(OrderAddressType.Service)}' AND delivery_schedule.id IS NOT NULL
@@ -389,6 +390,13 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 			return sql;
 		}
+		
+		private string GetMaxCalendarDateSelectSql()
+		{
+			var sql = @$"select max(date) from calendar;";
+
+			return sql;
+		}
 
 		private string GetInsertNomenclatureSql()
 		{
@@ -539,7 +547,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 		private string GetPlanPerDateInsertSql()
 		{
-			var sql = @"INSERT INTO power_bi.plan_per_day (`date`, `19l_water_count`, orders_count)
+			var sql = @"INSERT INTO plan_per_day (`date`, `19l_water_count`, orders_count)
 				VALUES(@date, @19l_water_count, @orders_count);";
 
 			return sql;
@@ -568,6 +576,214 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 			return sql;
 		}
+
+		#region DeliveryPoint
+		
+		private string GetDeliveryPointSelectSql()
+		{
+			var sql = @$"select * from delivery_points where id > @id;";
+
+			return sql;
+		}
+
+		private string GetMaxDeliveryPointIdSelectSql()
+		{
+			var sql = @$"select max(id) from delivery_points;";
+
+			return sql;
+		}
+
+		private string GetInsertDeliveryPointSql()
+		{
+			var sql = @"INSERT INTO delivery_points
+				(id, compiled_address, compiled_address_short, is_active, city, locality_old, city_district, district_id, street, street_district,
+				street_territory, building, floor, entrance_type, entrance, room_type, room, comment, minutes_to_unload, found_on_osm, is_fixed_in_osm,
+				manual_coordinates, latitude, longitude, phone, counterparty_id, delivery_schedule_id, address_addition, letter, placement, address_1c,
+				code1c, bottle_reserv, coords_lastchange_user_id, distance_from_center_meters, have_residue, always_free_delivery, default_nomenclature_id,
+				fix_price1, fix_price2, fix_price3, fix_price4, fix_price5, add_certificates_always, delivery_point_category_id, KPP, organization, 
+				minimal_order_sum_limit, maximal_order_sum_limit, lunch_time_from, lunch_time_to, is_before_interval_delivery, locality_type,
+				locality_type_short, street_type, street_type_short, city_fias_guid, street_fias_guid, building_fias_guid, comment_logist, 
+				logistics_requirements_id, online_comment, intercom)
+				VALUES(@id, @compiled_address, @compiled_address_short, @is_active, @city, @locality_old, @city_district, @district_id, @street, @street_district,
+				@street_territory, @building, @floor, @entrance_type, @entrance, @room_type, @room, @comment, @minutes_to_unload, @found_on_osm, @is_fixed_in_osm,
+				@manual_coordinates, @latitude, @longitude, @phone, @counterparty_id, @delivery_schedule_id, @address_addition, @letter, @placement, @address_1c,
+				@code1c, @bottle_reserv, @coords_lastchange_user_id, @distance_from_center_meters, @have_residue, @always_free_delivery, @default_nomenclature_id,
+				@fix_price1, @fix_price2, @fix_price3, @fix_price4, @fix_price5, @add_certificates_always, @delivery_point_category_id, @KPP, @organization, 
+				@minimal_order_sum_limit, @maximal_order_sum_limit, @lunch_time_from, @lunch_time_to, @is_before_interval_delivery, @locality_type,
+				@locality_type_short, @street_type, @street_type_short, @city_fias_guid, @street_fias_guid, @building_fias_guid, @comment_logist, 
+				@logistics_requirements_id, @online_comment, @intercom);";
+
+			return sql;
+		}
+		
+		#endregion DeliveryPoint
+		
+		#region DeliverySchedule
+		
+		private string GetDeliveryScheduleSelectSql()
+		{
+			var sql = @$"select * from delivery_schedule where id > @id;";
+
+			return sql;
+		}
+
+		private string GetMaxDeliveryScheduleIdSelectSql()
+		{
+			var sql = @$"select max(id) from delivery_schedule;";
+
+			return sql;
+		}
+
+		private string GetInsertDeliveryScheduleSql()
+		{
+			var sql = @"INSERT INTO delivery_schedule
+				(id, name, from_time, to_time, is_archive, file_id, roboats_audio_file_name)
+				VALUES(@id, @name, @from_time, @to_time, @is_archive, @file_id, @roboats_audio_file_name);";
+
+			return sql;
+		}
+		
+		#endregion DeliverySchedule
+		
+		#region RouteListAddress
+		
+		private string GetRouteListAddressSelectSql()
+		{
+			var sql = @$"select * from route_list_addresses where id > @id;";
+
+			return sql;
+		}
+
+		private string GetMaxRouteListAddressIdSelectSql()
+		{
+			var sql = @$"select max(id) from route_list_addresses;";
+
+			return sql;
+		}
+
+		private string GetInsertRouteListAddressSql()
+		{
+			var sql = @"INSERT INTO route_list_addresses
+				(id, version, route_list_id, order_id, order_in_route, driver_bottles_returned, bottles_returned, deposits_collected, total_cash,
+				extra_cash, driver_wage, driver_wage_surcharge, forwarder_wage, status, with_forwarder, status_last_update, comment, transfered_to_id,
+				need_to_reload, was_transfered, address_transfer_type, cashier_comment, cashier_comment_create_date, cashier_comment_last_update,
+				cashier_comment_author, notified_30minutes, notified_timeout, equipment_deposits_collected, plan_time_start, plan_time_end,
+				terminal_payment_number, driver_wage_calculation_methodic_id, forwarder_wage_calculation_methodic_id, late_arrival_reason_id,
+				late_arrival_reason_author_id, comment_for_fine, comment_for_fine_author_id, is_driver_foreign_district, creation_date, recieved_transfer_at)
+				VALUES(@id, @version, @route_list_id, @order_id, @order_in_route, @driver_bottles_returned, @bottles_returned, @deposits_collected, @total_cash,
+				@extra_cash, @driver_wage, @driver_wage_surcharge, @forwarder_wage, @status, @with_forwarder, @status_last_update, @comment, @transfered_to_id,
+				@need_to_reload, @was_transfered, @address_transfer_type, @cashier_comment, @cashier_comment_create_date, @cashier_comment_last_update,
+				@cashier_comment_author, @notified_30minutes, @notified_timeout, @equipment_deposits_collected, @plan_time_start, @plan_time_end,
+				@terminal_payment_number, @driver_wage_calculation_methodic_id, @forwarder_wage_calculation_methodic_id, @late_arrival_reason_id,
+				@late_arrival_reason_author_id, @comment_for_fine, @comment_for_fine_author_id, @is_driver_foreign_district, @creation_date, @recieved_transfer_at);";
+
+			return sql;
+		}
+		
+		#endregion RouteListAddress
+		
+		#region RouteList
+		
+		private string GetRouteListSelectSql()
+		{
+			var sql = @$"select * from route_lists where id > @id;";
+
+			return sql;
+		}
+
+		private string GetMaxRouteListIdSelectSql()
+		{
+			var sql = @$"select max(id) from route_lists;";
+
+			return sql;
+		}
+
+		private string GetInsertRouteListSql()
+		{
+			var sql = @"INSERT INTO route_lists
+				(id, version, `date`, driver_id, forwarder_id, car_id, logistican_id, actual_distance, confirmed_distance, status, delivery_shift_id,
+				cashier_id, closing_date, first_closing_date, closing_comment, bottles_fine_id, fuel_outlayed_operation_id, fuel_gived_document_id,
+				closing_filled, driver_wages_movement_operations_id, forwarder_wages_movement_operations_id, last_call_time, differences_confirmed,
+				is_manual_accounting, on_load_start, on_load_end, on_load_gate, on_load_time_fixed, plan_distance, print_time, recalculated_distance,
+				mileage_comment, mileage_check, normal_wage, fixed_driver_wage, fixed_forwarder_wage, closed_by_employee_id, current_warehouse,
+				closed_by_cashbox, closing_subdivision_id, not_fully_loaded, cashier_review_comment, addresses_order_was_changed_after_printed,
+				logisticians_comment, logisticians_comment_author_id, was_accepted_by_cashier, driver_terminal_condition, additional_loading_document_id,
+				fixed_shipping_price, has_fixed_shipping_price, route_list_profitability_id, delivered_at, special_conditions_accepted, special_conditions_accepted_at)
+				VALUES(@id, @version, @`date`, @driver_id, @forwarder_id, @car_id, @logistican_id, @actual_distance, @confirmed_distance, @status, @delivery_shift_id,
+				@cashier_id, @closing_date, @first_closing_date, @closing_comment, @bottles_fine_id, @fuel_outlayed_operation_id, @fuel_gived_document_id,
+				@closing_filled, @driver_wages_movement_operations_id, @forwarder_wages_movement_operations_id, @last_call_time, @differences_confirmed,
+				@is_manual_accounting, @on_load_start, @on_load_end, @on_load_gate, @on_load_time_fixed, @plan_distance, @print_time, @recalculated_distance,
+				@mileage_comment, @mileage_check, @normal_wage, @fixed_driver_wage, @fixed_forwarder_wage, @closed_by_employee_id, @current_warehouse,
+				@closed_by_cashbox, @closing_subdivision_id, @not_fully_loaded, @cashier_review_comment, @addresses_order_was_changed_after_printed,
+				@logisticians_comment, @logisticians_comment_author_id, @was_accepted_by_cashier, @driver_terminal_condition, @additional_loading_document_id,
+				@fixed_shipping_price, @has_fixed_shipping_price, @route_list_profitability_id, @delivered_at, @special_conditions_accepted, @special_conditions_accepted_at);";
+
+			return sql;
+		}
+		
+		#endregion RouteList
+		
+		#region Car
+		
+		private string GetCarModelSelectSql()
+		{
+			var sql = @$"select * from car_models where id > @id;";
+
+			return sql;
+		}
+
+		private string GetMaxCarModelIdSelectSql()
+		{
+			var sql = @$"select max(id) from car_models;";
+
+			return sql;
+		}
+
+		private string GetInsertCarModelSql()
+		{
+			var sql = @"INSERT INTO car_models
+				(id, name, manufacturer_id, is_archive, max_weight, max_volume, car_type_of_use, teсh_inspect_interval)
+				VALUES(@id, @name, @manufacturer_id, @is_archive, @max_weight, @max_volume, @car_type_of_use, @teсh_inspect_interval);";
+
+			return sql;
+		}
+		
+		#endregion Car
+		
+		#region CarModel
+		
+		private string GetCarSelectSql()
+		{
+			var sql = @$"select * from cars where id > @id;";
+
+			return sql;
+		}
+
+		private string GetMaxCarIdSelectSql()
+		{
+			var sql = @$"select max(id) from cars;";
+
+			return sql;
+		}
+
+		private string GetInsertCarSql()
+		{
+			var sql = @"INSERT INTO cars
+				(id, model, reg_number, driver_id, fuel_type_id, fuel_consumption, is_archive, photo, photo_file_name, is_company_havings,
+				max_volume, max_weight, min_bottles, max_bottles, type_of_use, is_raskat, VIN, manufacture_year, motor_number, chassis_number,
+				carcase, color, doc_series, doc_number, doc_issued_org, doc_issued_date, fuel_card_number, min_bottles_from_address, max_bottles_from_address,
+				doc_pts_num, doc_pts_series, driver_car_kind_id, car_order_number, raskat_type, model_id, archiving_date, archiving_reason,
+				left_until_tech_inspect, income_channel, is_kasko_not_relevant, tech_inspect_for_km)
+				VALUES(@id, @model, @reg_number, @driver_id, @fuel_type_id, @fuel_consumption, @is_archive, @photo, @photo_file_name, @is_company_havings,
+				@max_volume, @max_weight, @min_bottles, @max_bottles, @type_of_use, @is_raskat, @VIN, @manufacture_year, @motor_number, @chassis_number,
+				@carcase, @color, @doc_series, @doc_number, @doc_issued_org, @doc_issued_date, @fuel_card_number, @min_bottles_from_address, @max_bottles_from_address,
+				@doc_pts_num, @doc_pts_series, @driver_car_kind_id, @car_order_number, @raskat_type, @model_id, @archiving_date, @archiving_reason,
+				@left_until_tech_inspect, @income_channel, @is_kasko_not_relevant, @tech_inspect_for_km);";
+
+			return sql;
+		}
+		
+		#endregion CarModel
 
 		#endregion tables
 	}
