@@ -13,7 +13,8 @@ namespace Vodovoz.Core.Domain.Edo
 		private bool _isOrderForOwnNeeds;
 		private DateTime _orderDeliveryDate;
 
-		private int _clientContractNumber;
+		private string _clientContractDocumentName;
+		private string _clientContractNumber;
 		private DateTime _clientContractDate;
 
 		private string _clientName;
@@ -27,18 +28,12 @@ namespace Vodovoz.Core.Domain.Edo
 		private string _consigneeKpp;
 		private string _consigneeSummary;
 
-		private bool _useSpecialDocFields;
-		private string _specialCargoReceiver;
-		private string _specialCustomerName;
-		private string _specialContractNumber;
-		private string _payerSpecialKpp;
-		private string _specialGovContract;
-		private string _specialDeliveryAddress;
 		private string _organizationName;
 		private string _organizationAddress;
 		private string _organizationInn;
 		private string _organizationKpp;
 		private string _organizationTaxcomEdoAccountId;
+
 		private string _buhLastName;
 		private string _buhName;
 		private string _buhPatronymic;
@@ -47,10 +42,8 @@ namespace Vodovoz.Core.Domain.Edo
 		private string _leaderPatronymic;
 		private string _bottlesInFact;
 		private bool _isSelfDelivery;
-		private string _cargoReceiver;
-		private string _clientInnKpp;
-		private string _paymentsInfo;
 
+		private IObservableList<OrderUpdOperationPayment> _payments = new ObservableList<OrderUpdOperationPayment>();
 		private IObservableList<OrderUpdOperationProduct> _goods = new ObservableList<OrderUpdOperationProduct>();
 
 		/// <summary>
@@ -104,10 +97,20 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		/// <summary>
+		/// Наименование договора клиента
+		/// </summary>
+		[Display(Name = "Наименование договора клиента")]
+		public virtual string ClientContractDocumentName
+		{
+			get => _clientContractDocumentName;
+			set => SetField(ref _clientContractDocumentName, value);
+		}
+
+		/// <summary>
 		/// Номер договора клиента
 		/// </summary>
 		[Display(Name = "Номер договора клиента")]
-		public virtual int ClientContractNumber
+		public virtual string ClientContractNumber
 		{
 			get => _clientContractNumber;
 			set => SetField(ref _clientContractNumber, value);
@@ -212,76 +215,6 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _consigneeSummary;
 			set => SetField(ref _consigneeSummary, value);
-		}
-
-		/// <summary>
-		/// Особая печать документа
-		/// </summary>
-		[Display(Name = "Особая печать документов")]
-		public virtual bool UseSpecialDocFields
-		{
-			get => _useSpecialDocFields;
-			set => SetField(ref _useSpecialDocFields, value);
-		}
-
-		/// <summary>
-		/// Особый грузополучатель
-		/// </summary>
-		[Display(Name = "Особый грузополучатель")]
-		public virtual string SpecialCargoReceiver
-		{
-			get => _specialCargoReceiver;
-			set => SetField(ref _specialCargoReceiver, value);
-		}
-
-		/// <summary>
-		/// Наименование особого покупателя
-		/// </summary>
-		[Display(Name = "Наименование особого покупателя")]
-		public virtual string SpecialCustomerName
-		{
-			get => _specialCustomerName;
-			set => SetField(ref _specialCustomerName, value);
-		}
-
-		/// <summary>
-		/// Номер особого договора
-		/// </summary>
-		[Display(Name = "Номер особого договора")]
-		public virtual string SpecialContractNumber
-		{
-			get => _specialContractNumber;
-			set => SetField(ref _specialContractNumber, value);
-		}
-
-		/// <summary>
-		/// Особый КПП плательщика
-		/// </summary>
-		[Display(Name = "Особый КПП плательщика")]
-		public virtual string PayerSpecialKpp
-		{
-			get => _payerSpecialKpp;
-			set => SetField(ref _payerSpecialKpp, value);
-		}
-
-		/// <summary>
-		/// Идентификатор государственного контракта
-		/// </summary>
-		[Display(Name = "Идентификатор государственного контракта")]
-		public virtual string SpecialGovContract
-		{
-			get => _specialGovContract;
-			set => SetField(ref _specialGovContract, value);
-		}
-
-		/// <summary>
-		/// Особый адрес доставки
-		/// </summary>
-		[Display(Name = "Особый адрес доставки")]
-		public virtual string SpecialDeliveryAddress
-		{
-			get => _specialDeliveryAddress;
-			set => SetField(ref _specialDeliveryAddress, value);
 		}
 
 		/// <summary>
@@ -415,33 +348,13 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		/// <summary>
-		/// Грузополучатель
+		/// Платежи
 		/// </summary>
-		[Display(Name = "Грузополучатель")]
-		public virtual string CargoReceiver
+		[Display(Name = "Платежи")]
+		public virtual IObservableList<OrderUpdOperationPayment> Payments
 		{
-			get => _cargoReceiver;
-			set => SetField(ref _cargoReceiver, value);
-		}
-
-		/// <summary>
-		/// ИНН и КПП клиента
-		/// </summary>
-		[Display(Name = "ИНН и КПП клиента")]
-		public virtual string ClientInnKpp
-		{
-			get => _clientInnKpp;
-			set => SetField(ref _clientInnKpp, value);
-		}
-
-		/// <summary>
-		/// Информация о платеже
-		/// </summary>
-		[Display(Name = "Информация о платеже")]
-		public virtual string PaymentsInfo
-		{
-			get { return _paymentsInfo; }
-			set => SetField(ref _paymentsInfo, value);
+			get => _payments;
+			set => SetField(ref _payments, value);
 		}
 
 		/// <summary>

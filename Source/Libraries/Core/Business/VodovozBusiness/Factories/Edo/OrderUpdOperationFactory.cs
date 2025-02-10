@@ -1,13 +1,15 @@
-﻿using NPOI.SS.Formula.Functions;
+﻿using DateTimeHelpers;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
+using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Nomenclature;
 
 namespace VodovozBusiness.Factories.Edo
@@ -16,20 +18,31 @@ namespace VodovozBusiness.Factories.Edo
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
+		private readonly IGenericRepository<RouteListItem> _routeListAddressRepository;
+		private readonly IOrderRepository _orderRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public OrderUpdOperationFactory(
 			IUnitOfWork uow,
 			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
+			IGenericRepository<RouteListItem> routeListAddressRepository,
+			IOrderRepository orderRepository,
 			INomenclatureSettings nomenclatureSettings)
 		{
-			_uow = uow ?? throw new System.ArgumentNullException(nameof(uow));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new System.ArgumentNullException(nameof(nomenclatureRepository));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new System.ArgumentNullException(nameof(nomenclatureSettings));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_routeListAddressRepository = routeListAddressRepository ?? throw new ArgumentNullException(nameof(routeListAddressRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
-		public static OrderUpdOperation CreateOrderUpdOperation(Order order)
+		public OrderUpdOperation CreateOrderUpdOperation(Order order)
 		{
+			if(order is null)
+			{
+				throw new ArgumentNullException(nameof(order));
+			}
+
 			if(order.DeliveryDate is null)
 			{
 				throw new InvalidOperationException("Нельзя сделать УПД без даты заказа");
@@ -45,6 +58,22 @@ namespace VodovozBusiness.Factories.Edo
 			var deliveryPoint = order.DeliveryPoint;
 			var organization = contract.Organization;
 
+			var organizationAccountant = organization.OrganizationVersionOnDate(order.DeliveryDate.Value)?.Accountant;
+			var organizationLeader = organization.OrganizationVersionOnDate(order.DeliveryDate.Value)?.Leader;
+
+			var routeListAddresses = _routeListAddressRepository
+				.Get(_uow, x => x.Order.Id == order.Id)
+				.ToList();
+
+			var orderPayments = _orderRepository.GetOrderPayments(_uow, order.Id)
+				.Where(x => x.Date <= order.DeliveryDate.Value.LatestDayTime());
+
+			var isSpecialAndAllSpecialContractDataFilled =
+				client.UseSpecialDocFields
+				&& !string.IsNullOrWhiteSpace(client.SpecialContractName)
+				&& !string.IsNullOrWhiteSpace(client.SpecialContractNumber)
+				&& client.SpecialContractDate.HasValue;
+
 			var orderUpdOperation = new OrderUpdOperation();
 
 			orderUpdOperation.OrderId = order.Id;
@@ -52,8 +81,9 @@ namespace VodovozBusiness.Factories.Edo
 			orderUpdOperation.CounterpartyExternalOrderId = order.CounterpartyExternalOrderId;
 			orderUpdOperation.IsOrderForOwnNeeds = client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds;
 
-			orderUpdOperation.ClientContractNumber = default(int);
-			orderUpdOperation.ClientContractDate = default(DateTime);
+			orderUpdOperation.ClientContractDocumentName = isSpecialAndAllSpecialContractDataFilled ? client.SpecialContractName : "Договор";
+			orderUpdOperation.ClientContractNumber = isSpecialAndAllSpecialContractDataFilled ? client.SpecialContractNumber : contract.Number;
+			orderUpdOperation.ClientContractDate = isSpecialAndAllSpecialContractDataFilled ? client.SpecialContractDate.Value : contract.IssueDate;
 
 			orderUpdOperation.ClientName = client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(client.SpecialCustomer) ? client.SpecialCustomer : client.FullName;
 			orderUpdOperation.ClientAddress = client.JurAddress;
@@ -105,14 +135,6 @@ namespace VodovozBusiness.Factories.Edo
 						orderUpdOperation.ConsigneeAddress);
 					break;
 			}
-			
-			orderUpdOperation.UseSpecialDocFields = default(bool);
-			orderUpdOperation.SpecialCargoReceiver = default(string);
-			orderUpdOperation.SpecialCustomerName = default(string);
-			orderUpdOperation.SpecialContractNumber = default(string);
-			orderUpdOperation.PayerSpecialKpp = default(string);
-			orderUpdOperation.SpecialGovContract = default(string);
-			orderUpdOperation.SpecialDeliveryAddress = default(string);
 
 			orderUpdOperation.OrganizationName = organization.Name;
 			orderUpdOperation.OrganizationAddress = organization.ActiveOrganizationVersion.JurAddress;
@@ -120,26 +142,53 @@ namespace VodovozBusiness.Factories.Edo
 			orderUpdOperation.OrganizationKpp = organization.KPP;
 			orderUpdOperation.OrganizationTaxcomEdoAccountId = organization.TaxcomEdoAccountId;
 
-			orderUpdOperation.BuhLastName = default(string);
-			orderUpdOperation.BuhName = default(string);
-			orderUpdOperation.BuhPatronymic = default(string);
-			orderUpdOperation.LeaderLastName = default(string);
-			orderUpdOperation.LeaderName = default(string);
-			orderUpdOperation.LeaderPatronymic = default(string);
+			orderUpdOperation.BuhLastName = organizationAccountant?.LastName;
+			orderUpdOperation.BuhName = organizationAccountant?.Name;
+			orderUpdOperation.BuhPatronymic = organizationAccountant?.Patronymic;
+			orderUpdOperation.LeaderLastName = organizationLeader?.LastName;
+			orderUpdOperation.LeaderName = organizationLeader?.Name;
+			orderUpdOperation.LeaderPatronymic = organizationLeader?.Patronymic;
 
-			orderUpdOperation.BottlesInFact = default(string);
-			orderUpdOperation.IsSelfDelivery = default(bool);
-			orderUpdOperation.CargoReceiver = default(string);
-			orderUpdOperation.ClientInnKpp = default(string);
-			orderUpdOperation.PaymentsInfo = default(string);
+			orderUpdOperation.BottlesInFact = order.OrderStatus == OrderStatus.Closed ? routeListAddresses.Max(x => x.BottlesReturned).ToString() : "";
+			orderUpdOperation.IsSelfDelivery = order.SelfDelivery;
+
+			orderUpdOperation.Payments = new ObservableList<OrderUpdOperationPayment>();
+
+			foreach(var payment in orderPayments)
+			{
+				var orderUpdOperationPayment = new OrderUpdOperationPayment
+				{
+					PaymentNum = payment.PaymentNum.ToString(),
+					PaymentDate = payment.Date
+				};
+
+				orderUpdOperation.Payments.Add(orderUpdOperationPayment);
+			}
+
 			orderUpdOperation.Goods = new ObservableList<OrderUpdOperationProduct>();
+
+			foreach(var orderItem in order.OrderItems)
+			{
+				var nomenclature = orderItem.Nomenclature;
+
+				var product = new OrderUpdOperationProduct
+				{
+					NomenclatureId = nomenclature.Id,
+					NomenclatureName = nomenclature.Name,
+					IsService =
+						nomenclature.Category == NomenclatureCategory.master
+						|| nomenclature.Category == NomenclatureCategory.service,
+					MeasurementUnitName = nomenclature.Unit.Name,
+					OKEI = nomenclature.Unit.OKEI,
+					Count = orderItem.Count,
+					ItemPrice = orderItem.Price,
+					IncludeVat = orderItem.IncludeNDS ?? 0,
+					Vat = orderItem.ValueAddedTax,
+					ItemDiscountMoney = orderItem.DiscountMoney
+				};
+			}
 
 			return orderUpdOperation;
 		}
-
-		//var isSpecialFieldsUsedAndNotEmpty = client.UseSpecialDocFields
-		//   && !string.IsNullOrWhiteSpace(client.SpecialContractName)
-		//   && !string.IsNullOrWhiteSpace(client.SpecialContractNumber)
-		//   && client.SpecialContractDate.HasValue;
 	}
 }

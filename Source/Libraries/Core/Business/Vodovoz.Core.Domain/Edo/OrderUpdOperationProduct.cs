@@ -7,15 +7,17 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		private int _id;
 		private int _nomenclatureId;
+		private string _oKEI;
 		private string _nomenclatureName;
 		private string _unitCode;
 		private string _measurementUnitName;
-		private int _count;
+		private decimal _count;
 		private decimal _itemPrice;
 		private decimal _includeVat;
-		private decimal _vat;
+		private decimal? _vat;
 		private decimal _itemDiscount;
 		private decimal _itemDiscountMoney;
+		private bool _isService;
 
 		/// <summary>
 		/// Код
@@ -35,6 +37,15 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _nomenclatureId;
 			set => SetField(ref _nomenclatureId, value);
+		}
+
+		/// <summary>
+		/// Код ОКЕИ
+		/// </summary>
+		public virtual string OKEI
+		{
+			get => _oKEI;
+			set => SetField(ref _oKEI, value);
 		}
 
 		/// <summary>
@@ -71,7 +82,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Количество
 		/// </summary>
 		[Display(Name = "Количество")]
-		public int Count
+		public decimal Count
 		{
 			get => _count;
 			set => SetField(ref _count, value);
@@ -101,7 +112,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// НДС
 		/// </summary>
 		[Display(Name = "НДС")]
-		public decimal Vat
+		public decimal? Vat
 		{
 			get => _vat;
 			set => SetField(ref _vat, value);
@@ -125,6 +136,16 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _itemDiscountMoney;
 			set => SetField(ref _itemDiscountMoney, value);
+		}
+
+		/// <summary>
+		/// Строка заказа - услуга
+		/// </summary>
+		[Display(Name = "Строка заказа - услуга")]
+		public virtual bool IsService
+		{
+			get => _isService;
+			set => SetField(ref _isService, value);
 		}
 	}
 }
