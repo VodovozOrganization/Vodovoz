@@ -7,7 +7,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Edo
 	{
 		public OrderUpdOperationProductMap()
 		{
-			Table("order_upd_operation_product");
+			Table("order_upd_operation_products");
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
