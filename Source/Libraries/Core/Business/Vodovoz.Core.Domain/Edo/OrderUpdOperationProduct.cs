@@ -3,9 +3,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
+	/// <summary>
+	/// Товар в операции УПД по заказу
+	/// </summary>
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		Nominative = "товар в операции УПД по заказу",
+		NominativePlural = "товары в операциях УПД по заказам"
+	)]
 	public class OrderUpdOperationProduct : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
+		private OrderUpdOperation _orderUpdOperation;
 		private int _nomenclatureId;
 		private string _oKEI;
 		private string _nomenclatureName;
@@ -27,6 +35,16 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _id;
 			set => SetField(ref _id, value);
+		}
+
+		/// <summary>
+		/// Операция УПД по заказу
+		/// </summary>
+		[Display(Name = "Операция УПД по заказу")]
+		public virtual OrderUpdOperation OrderUpdOperation
+		{
+			get => _orderUpdOperation;
+			set => SetField(ref _orderUpdOperation, value);
 		}
 
 		/// <summary>

@@ -4,9 +4,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
+	/// <summary>
+	/// Платеж в операции УПД по заказу
+	/// </summary>
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		Nominative = "платеж в операции УПД по заказу",
+		NominativePlural = "платежи в операциях УПД по заказам"
+	)]
 	public class OrderUpdOperationPayment : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
+		private OrderUpdOperation _orderUpdOperation;
 		private string _paymentNum;
 		private DateTime _paymentDate;
 
@@ -18,6 +26,16 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _id;
 			set => SetField(ref _id, value);
+		}
+
+		/// <summary>
+		/// Операция УПД по заказу
+		/// </summary>
+		[Display(Name = "Операция УПД по заказу")]
+		public virtual OrderUpdOperation OrderUpdOperation
+		{
+			get => _orderUpdOperation;
+			set => SetField(ref _orderUpdOperation, value);
 		}
 
 		/// <summary>

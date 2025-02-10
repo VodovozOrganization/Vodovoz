@@ -5,6 +5,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
+	/// <summary>
+	/// Операция УПД по заказу
+	/// </summary>
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		Nominative = "операция УПД по заказу",
+		NominativePlural = "операции УПД по заказам"
+	)]
 	public class OrderUpdOperation : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
