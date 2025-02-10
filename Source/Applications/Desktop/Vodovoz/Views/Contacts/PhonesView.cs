@@ -140,10 +140,11 @@ namespace Vodovoz.Views.Contacts
 		{
 			datatablePhones.NRows = RowNum + 1;
 
-			var phoneViewModel = new PhoneViewModel(newPhone,
+			var phoneViewModel = new PhoneViewModel(
 				ServicesConfig.CommonServices,
 				ScopeProvider.Scope.Resolve<IPhoneTypeSettings>()
 			);
+			phoneViewModel.SetPhone(newPhone);
 
 			var phoneDataCombo = new yListComboBox();
 			phoneDataCombo.WidthRequest = 100;
