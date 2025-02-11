@@ -206,6 +206,7 @@ namespace Vodovoz
 				filter.SelectCategory = NomenclatureCategory.deposit;
 				filter.SelectSaleCategory = SaleCategory.forSale;
 				filter.RestrictArchive = false;
+				filter.CanChangeOnlyOnlineNomenclatures = false;
 			},
 			OpenPageOptions.AsSlave,
 			viewModel =>
