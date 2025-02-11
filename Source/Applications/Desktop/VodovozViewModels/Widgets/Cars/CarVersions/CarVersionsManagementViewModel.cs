@@ -346,7 +346,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 				var currentLatestVersion = Car.CarVersions.MaxBy(x => x.StartDate).First();
 
 				if(_editingCarVersion.Id == 0
-					&& _editingCarVersion.CarOwnerOrganization.Id == currentLatestVersion.CarOwnerOrganization?.Id
+					&& _editingCarVersion.CarOwnerOrganization?.Id == currentLatestVersion.CarOwnerOrganization?.Id
 					&& _editingCarVersion.CarOwnType == currentLatestVersion.CarOwnType)
 				{
 					throw new ArgumentException(

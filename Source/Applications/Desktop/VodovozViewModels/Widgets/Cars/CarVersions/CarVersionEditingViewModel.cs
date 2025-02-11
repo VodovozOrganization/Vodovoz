@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 
 		public bool IsVersionNewAndTypeWithOwnerOrganizationEqualsLastVersion =>
 			_carVersion.Id == 0
-			&& SelectedCarOwner.Id == LastCarVersion?.CarOwnerOrganization?.Id
+			&& SelectedCarOwner?.Id == LastCarVersion?.CarOwnerOrganization?.Id
 			&& SelectedCarOwnType == LastCarVersion?.CarOwnType;
 
 		private void SaveCarVersion()
