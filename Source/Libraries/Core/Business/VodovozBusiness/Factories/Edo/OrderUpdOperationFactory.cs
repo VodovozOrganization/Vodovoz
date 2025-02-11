@@ -1,6 +1,5 @@
 ﻿using DateTimeHelpers;
 using QS.DomainModel.UoW;
-using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
@@ -145,12 +144,13 @@ namespace VodovozBusiness.Factories.Edo
 			orderUpdOperation.BottlesInFact = order.OrderStatus == OrderStatus.Closed ? routeListAddresses.Max(x => x.BottlesReturned).ToString() : "";
 			orderUpdOperation.IsSelfDelivery = order.SelfDelivery;
 
-			orderUpdOperation.Payments = new ObservableList<OrderUpdOperationPayment>();
+			orderUpdOperation.Payments.Clear();
 
 			foreach(var payment in orderPayments)
 			{
 				var orderUpdOperationPayment = new OrderUpdOperationPayment
 				{
+					OrderUpdOperation = orderUpdOperation,
 					PaymentNum = payment.PaymentNum.ToString(),
 					PaymentDate = payment.Date
 				};
@@ -158,7 +158,7 @@ namespace VodovozBusiness.Factories.Edo
 				orderUpdOperation.Payments.Add(orderUpdOperationPayment);
 			}
 
-			orderUpdOperation.Goods = new ObservableList<OrderUpdOperationProduct>();
+			orderUpdOperation.Goods.Clear();
 
 			foreach(var orderItem in order.OrderItems)
 			{
@@ -166,6 +166,7 @@ namespace VodovozBusiness.Factories.Edo
 
 				var product = new OrderUpdOperationProduct
 				{
+					OrderUpdOperation = orderUpdOperation,
 					NomenclatureId = nomenclature.Id,
 					NomenclatureName = nomenclature.Name,
 					IsService =
