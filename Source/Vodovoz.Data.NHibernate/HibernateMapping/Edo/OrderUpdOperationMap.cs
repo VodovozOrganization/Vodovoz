@@ -19,8 +19,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Edo
 			Map(x => x.ClientContractDocumentName).Column("client_contract_document_name");
 			Map(x => x.ClientContractNumber).Column("client_contract_number");
 			Map(x => x.ClientContractDate).Column("client_contract_date");
+			Map(x => x.ClientId).Column("client_id");
 			Map(x => x.ClientName).Column("client_name");
 			Map(x => x.ClientAddress).Column("client_address");
+			Map(x => x.ClientGovContract).Column("client_gov_contract");
 			Map(x => x.ClientInn).Column("client_inn");
 			Map(x => x.ClientKpp).Column("client_kpp");
 			Map(x => x.ConsigneeName).Column("consignee_name");

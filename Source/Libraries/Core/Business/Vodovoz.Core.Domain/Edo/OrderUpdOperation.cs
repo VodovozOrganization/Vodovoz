@@ -24,8 +24,10 @@ namespace Vodovoz.Core.Domain.Edo
 		private string _clientContractNumber;
 		private DateTime _clientContractDate;
 
+		private int _clientId;
 		private string _clientName;
 		private string _clientAddress;
+		private string _clientGovContract;
 		private string _clientInn;
 		private string _clientKpp;
 
@@ -134,6 +136,16 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		/// <summary>
+		/// Номер клиента
+		/// </summary>
+		[Display(Name = "Номер клиента")]
+		public virtual int ClientId
+		{
+			get => _clientId;
+			set => SetField(ref _clientId, value);
+		}
+
+		/// <summary>
 		/// Наименование клиента
 		/// </summary>
 		[Display(Name = "Наименование клиента")]
@@ -151,6 +163,16 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _clientAddress;
 			set => SetField(ref _clientAddress, value);
+		}
+
+		/// <summary>
+		/// Идентификатор государственного контракта
+		/// </summary>
+		[Display(Name = "Идентификатор государственного контракта")]
+		public virtual string ClientGovContract
+		{
+			get => _clientGovContract;
+			set => SetField(ref _clientGovContract, value);
 		}
 
 		/// <summary>

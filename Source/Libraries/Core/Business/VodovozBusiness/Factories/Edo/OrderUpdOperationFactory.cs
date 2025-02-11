@@ -77,8 +77,10 @@ namespace VodovozBusiness.Factories.Edo
 			orderUpdOperation.ClientContractNumber = isSpecialAndAllSpecialContractDataFilled ? client.SpecialContractNumber : contract.Number;
 			orderUpdOperation.ClientContractDate = isSpecialAndAllSpecialContractDataFilled ? client.SpecialContractDate.Value : contract.IssueDate;
 
+			orderUpdOperation.ClientId = client.Id;
 			orderUpdOperation.ClientName = client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(client.SpecialCustomer) ? client.SpecialCustomer : client.FullName;
 			orderUpdOperation.ClientAddress = client.JurAddress;
+			orderUpdOperation.ClientGovContract = client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(client.GovContract) ? client.GovContract : "";
 			orderUpdOperation.ClientInn = client.INN;
 			orderUpdOperation.ClientKpp = client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(client.PayerSpecialKPP) ? client.PayerSpecialKPP : client.KPP;
 
@@ -146,16 +148,19 @@ namespace VodovozBusiness.Factories.Edo
 
 			orderUpdOperation.Payments.Clear();
 
-			foreach(var payment in orderPayments)
+			if(order.OrderPaymentStatus == OrderPaymentStatus.Paid)
 			{
-				var orderUpdOperationPayment = new OrderUpdOperationPayment
+				foreach(var payment in orderPayments)
 				{
-					OrderUpdOperation = orderUpdOperation,
-					PaymentNum = payment.PaymentNum.ToString(),
-					PaymentDate = payment.Date
-				};
+					var orderUpdOperationPayment = new OrderUpdOperationPayment
+					{
+						OrderUpdOperation = orderUpdOperation,
+						PaymentNum = payment.PaymentNum.ToString(),
+						PaymentDate = payment.Date
+					};
 
-				orderUpdOperation.Payments.Add(orderUpdOperationPayment);
+					orderUpdOperation.Payments.Add(orderUpdOperationPayment);
+				}
 			}
 
 			orderUpdOperation.Goods.Clear();
@@ -168,7 +173,7 @@ namespace VodovozBusiness.Factories.Edo
 				{
 					OrderUpdOperation = orderUpdOperation,
 					NomenclatureId = nomenclature.Id,
-					NomenclatureName = nomenclature.Name,
+					NomenclatureName = nomenclature.OfficialName,
 					IsService =
 						nomenclature.Category == NomenclatureCategory.master
 						|| nomenclature.Category == NomenclatureCategory.service,
