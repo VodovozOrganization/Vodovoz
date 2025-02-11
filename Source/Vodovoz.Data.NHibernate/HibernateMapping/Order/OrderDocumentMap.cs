@@ -124,6 +124,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		public UPDDocumentMap()
 		{
 			DiscriminatorValue("UPD");
+
+			References(x => x.OrderUpdOperation).Column("order_upd_operation_id").Cascade.AllDeleteOrphan();
 		}
 	}
 
@@ -132,6 +134,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		public SpecialUPDDocumentMap()
 		{
 			DiscriminatorValue("SpecialUPD");
+
+			References(x => x.OrderUpdOperation).Column("order_upd_operation_id").Cascade.AllDeleteOrphan();
 		}
 	}
 

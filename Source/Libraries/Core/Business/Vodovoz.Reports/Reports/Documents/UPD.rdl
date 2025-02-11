@@ -14,35 +14,25 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
-        <CommandText>SELECT 
-	IFNULL(special_nomenclature.special_id, nomenclature.id) AS id,
-	nomenclature.official_name as name,
-	measurement_units.okei AS unit_code,
-	measurement_units.name AS mu_name,
-	IFNULL(actual_count, count) AS count,
-	order_items.price AS item_price,
-	IFNULL(order_items.include_nds, 0) as include_nds,
-	order_items.discount AS item_discount,
-	order_items.discount_money AS item_discount_money,
-	CASE nomenclature.vat
-		WHEN 'No' THEN 1
-		WHEN 'Vat10' THEN 1.1
-		WHEN 'Vat18' THEN 1.18
-		WHEN 'Vat20' THEN 1.2
-	END AS vat_old,#удалить, если спустя какое-то время не будет проблем с отображением НДС
-	order_items.value_added_tax + 1 AS vat
+        <CommandText>SELECT
+	nomenclature_id,
+	okei,
+	nomenclature_name,
+	unit_code,
+	measurement_unit_name,
+	count,
+	item_price,
+	include_vat,
+	vat,
+	item_discount,
+	item_discount_money,
+	is_service,
+	order_upd_operation_id
 FROM
-    order_items
-        LEFT JOIN
-    nomenclature ON order_items.nomenclature_id = nomenclature.id
-        LEFT JOIN
-    measurement_units ON nomenclature.unit_id = measurement_units.id
-        LEFT JOIN
-    orders ON orders.id = order_items.order_id
-        LEFT JOIN
-    special_nomenclature ON special_nomenclature.counterparty_id = orders.client_id AND special_nomenclature.nomenclature_id = nomenclature.id
-WHERE
-    order_items.order_id = @order_id;</CommandText>
+	order_upd_operation_products
+JOIN order_upd_operations ouo on order_upd_operation_products.order_upd_operation_id = ouo.id 
+WHERE ouo.order_id = @order_id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -50,32 +40,36 @@ WHERE
         </QueryParameters>
       </Query>
       <Fields>
-        <Field Name="id">
-          <DataField>id</DataField>
+        <Field Name="nomenclature_id">
+          <DataField>nomenclature_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
-        <Field Name="name">
-          <DataField>name</DataField>
+        <Field Name="okei">
+          <DataField>okei</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nomenclature_name">
+          <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="unit_code">
           <DataField>unit_code</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="mu_name">
-          <DataField>mu_name</DataField>
+        <Field Name="measurement_unit_name">
+          <DataField>measurement_unit_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="count">
           <DataField>count</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="item_price">
           <DataField>item_price</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="include_nds">
-          <DataField>include_nds</DataField>
+        <Field Name="include_vat">
+          <DataField>include_vat</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="vat">
@@ -90,106 +84,57 @@ WHERE
           <DataField>item_discount_money</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="is_service">
+          <DataField>is_service</DataField>
+          <TypeName>System.UInt16</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Order">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    orders.id AS order_id,
-    orders.delivery_date AS order_date,
-    orders.counterparty_external_order_id,
-    counterparty_contract.number AS contract_number,
-    DATE_FORMAT(counterparty_contract.issue_date,
-                '%d.%m.%y') AS contract_date,
-    counterparty.full_name AS client_name,
-    counterparty.jur_address AS client_address,
-    counterparty.inn AS client_inn,
-    counterparty.kpp AS client_kpp,
-    counterparty.use_special_doc_fields,
-    counterparty.special_cargo_receiver,
-    counterparty.special_customer,
-    (
-        IF(orders.order_payment_status = 'Paid',
-            (SELECT GROUP_CONCAT(CONCAT("№ ", pfbc.payment_num, " от ", DATE_FORMAT(pfbc.payment_date, '%d.%m.%Y')) SEPARATOR ", ")
-            FROM
-                payments_from_bank_client pfbc
-            INNER JOIN
-                payment_items pitms
-            ON pfbc.id = pitms.payment_id
-            WHERE pitms.order_id = @order_id
-            AND pfbc.payment_date &lt; ADDDATE(orders.delivery_date, INTERVAL 1 DAY)),
-            "")
-    ) AS payments_info,
-    IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
-       CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
-       counterparty.special_contract_name) AS special_contract_number,
-    counterparty.payer_special_kpp,
-    counterparty.special_gov_contract,
-    counterparty.special_delivery_address,
-    CONCAT(
-            IFNULL(counterparty.inn, ''),
-            '/',
-             IFNULL(IF(counterparty.use_special_doc_fields AND @special_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp),
-               counterparty.payer_special_kpp, counterparty.kpp), '')
-        ) AS inn_kpp,
-    CASE
-        WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/',
-                                                                                  IFNULL(delivery_points.KPP, counterparty.kpp), ', ',
-                                                                                  COMPILE_ADDRESS(delivery_points.id))
-        WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver)
-            AND counterparty.use_special_doc_fields AND @special_fields THEN counterparty.special_cargo_receiver
-        ELSE CONCAT(counterparty.full_name, ', ', counterparty.jur_address) END AS cargo_receiver,
-    organizations.full_name AS org_name,
-    ov.jur_address AS org_address,
-    delivery_points.compiled_address_short AS del_point_address,
-    CONCAT_WS(
-            ', ',
-            delivery_points.city,
-            delivery_points.street,
-            delivery_points.building
-        ) AS del_point_address_composite,
-    organizations.INN AS org_inn,
-    organizations.KPP AS org_kpp,
-    buhgalter.last_name AS buh_last_name,
-    LEFT(buhgalter.name, 1) AS buh_name,
-    LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
-    leader.last_name AS leader_last_name,
-    LEFT(leader.name, 1) AS leader_name,
-    LEFT(leader.patronymic, 1) AS leader_patronymic,
-    IF(
-                orders.order_status = 'Closed',
-                MAX(route_list_addresses.bottles_returned),
-                '    '
-        ) AS bottles_in_fact,
-    orders.self_delivery AS is_self_delivery,
-    counterparty.inn,
-    counterparty.kpp 
-FROM orders
-         LEFT JOIN
-     counterparty ON orders.client_id = counterparty.id
-         LEFT JOIN
-     route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status = 'Completed'
-         LEFT JOIN
-     counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
-         LEFT JOIN
-     organizations ON organizations.id = counterparty_contract.organization_id
-         LEFT JOIN
-     organization_versions ov
-     ON
-                 organizations.id = ov.organization_id
-             AND
-                 ov.start_date &lt;= orders.bill_date
-             AND
-                 (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
-         LEFT JOIN
-     delivery_points ON orders.delivery_point_id = delivery_points.id
-         LEFT JOIN
-     employees leader ON leader.id = ov.leader_id
-         LEFT JOIN
-     employees buhgalter ON buhgalter.id = ov.accountant_id
-WHERE
-        orders.id = @order_id;</CommandText>
+	order_id,
+	counterparty_external_order_id,
+	is_order_for_own_needs,
+	order_delivery_date,
+	client_contract_document_name,
+	client_contract_number,
+	client_contract_date,
+	client_id,
+	client_name,
+	client_address,
+    client_gov_contract,
+	client_inn,
+	client_kpp,
+	consignee_name,
+	consignee_address,
+	consignee_inn,
+	consignee_kpp,
+	consignee_summary,
+	organization_name,
+	organization_address,
+	organization_inn,
+	organization_kpp,
+	organization_taxcom_edo_account_id,
+	buh_last_name,
+	LEFT(buh_name, 1)as buh_name,
+	LEFT(buh_patronymic, 1)as buh_patronymic,
+	leader_last_name,
+	LEFT(leader_name, 1)as leader_name,
+	LEFT(leader_patronymic, 1)as leader_patronymic,
+	IFNULL(bottles_in_fact, '    ') as bottles_in_fact,
+	is_self_delivery,
+    (SELECT GROUP_CONCAT(CONCAT("№ ", ouop.payment_num, " от ", DATE_FORMAT(ouop.payment_date, '%d.%m.%Y')) SEPARATOR ", ")
+    FROM order_upd_operation_payments ouop
+    JOIN order_upd_operations ouo ON ouop.order_upd_operation_id = ouo.id
+    WHERE ouo.order_delivery_date = @order_id)
+    as payments_data
+FROM
+	order_upd_operations
+WHERE	
+	order_id = @order_id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -204,17 +149,33 @@ WHERE
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
-        <Field Name="order_date">
-          <DataField>order_date</DataField>
+        <Field Name="counterparty_external_order_id">
+          <DataField>counterparty_external_order_id</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="is_order_for_own_needs">
+          <DataField>is_order_for_own_needs</DataField>
+          <TypeName>System.Int16</TypeName>
+        </Field>
+        <Field Name="order_delivery_date">
+          <DataField>order_delivery_date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="contract_number">
-          <DataField>contract_number</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="contract_date">
-          <DataField>contract_date</DataField>
+        <Field Name="client_contract_document_name">
+          <DataField>client_contract_document_name</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_contract_number">
+          <DataField>client_contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_contract_date">
+          <DataField>client_contract_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="client_id">
+          <DataField>client_id</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="client_name">
           <DataField>client_name</DataField>
@@ -222,6 +183,10 @@ WHERE
         </Field>
         <Field Name="client_address">
           <DataField>client_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_gov_contract">
+          <DataField>client_gov_contract</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="client_inn">
@@ -232,56 +197,28 @@ WHERE
           <DataField>client_kpp</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="use_special_doc_fields">
-          <DataField>use_special_doc_fields</DataField>
-          <TypeName>System.Boolean</TypeName>
-        </Field>
-        <Field Name="special_cargo_receiver">
-          <DataField>special_cargo_receiver</DataField>
+        <Field Name="consignee_summary">
+          <DataField>consignee_summary</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="special_customer">
-          <DataField>special_customer</DataField>
+        <Field Name="organization_name">
+          <DataField>organization_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="special_contract_number">
-          <DataField>special_contract_number</DataField>
+        <Field Name="organization_address">
+          <DataField>organization_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="payer_special_kpp">
-          <DataField>payer_special_kpp</DataField>
+        <Field Name="organization_inn">
+          <DataField>organization_inn</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="special_gov_contract">
-          <DataField>special_gov_contract</DataField>
+        <Field Name="organization_kpp">
+          <DataField>organization_kpp</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="special_delivery_address">
-          <DataField>special_delivery_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="org_name">
-          <DataField>org_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="org_address">
-          <DataField>org_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="del_point_address">
-          <DataField>del_point_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="del_point_address_composite">
-          <DataField>del_point_address_composite</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="org_inn">
-          <DataField>org_inn</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="org_kpp">
-          <DataField>org_kpp</DataField>
+        <Field Name="organization_taxcom_edo_account_id">
+          <DataField>organization_taxcom_edo_account_id</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="buh_last_name">
@@ -314,22 +251,10 @@ WHERE
         </Field>
         <Field Name="is_self_delivery">
           <DataField>is_self_delivery</DataField>
-          <TypeName>System.Boolean</TypeName>
+          <TypeName>System.Int16</TypeName>
         </Field>
-        <Field Name="cargo_receiver">
-          <DataField>cargo_receiver</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="inn_kpp">
-          <DataField>inn_kpp</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="counterparty_external_order_id">
-          <DataField>counterparty_external_order_id</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="payments_info">
-          <DataField>payments_info</DataField>
+        <Field Name="payments_data">
+          <DataField>payments_data</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -528,7 +453,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox37">
             <Height>12pt</Height>
             <Width>1in</Width>
-            <Value>=Fields!order_id.Value</Value>
+            <Value>={order_id}</Value>
             <ZIndex>0</ZIndex>
             <Left>97.1pt</Left>
             <Top>0.7pt</Top>
@@ -559,10 +484,10 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox39">
             <Height>11.20pt</Height>
             <Width>102.40pt</Width>
-            <Value>=Fields!order_date.Value</Value>
+            <Value>={order_delivery_date}</Value>
             <ZIndex>0</ZIndex>
-            <Left>196.9pt</Left>
-            <Top>1.4pt</Top>
+            <Left>196.90pt</Left>
+            <Top>1.40pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -657,7 +582,7 @@ WHERE o.id = @order_id
             <CustomProperties>
               <CustomProperty>
                 <Name>QrCode</Name>
-                <Value>="UPD;"+{order_id}+";"+Format({order_date}, "ddMMyyyy")</Value>
+                <Value>="UPD;"+{order_id}+";"+Format({order_delivery_date}, "ddMMyyyy")</Value>
               </CustomProperty>
             </CustomProperties>
             <Left>577.1pt</Left>
@@ -1953,7 +1878,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>=Fields!id.Value</Value>
+                      <Value>={nomenclature_id}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1995,7 +1920,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox74">
-                      <Value>=Fields!name.Value</Value>
+                      <Value>={nomenclature_name}</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2036,7 +1961,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>=Fields!unit_code.Value</Value>
+                      <Value>={okei}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2056,7 +1981,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox92">
-                      <Value>=Fields!mu_name.Value</Value>
+                      <Value>={measurement_unit_name}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2074,7 +1999,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>=Fields!count.Value</Value>
+                      <Value>={count}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2094,7 +2019,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>=({item_price} * {count} - Iif({count}&gt;0, {include_nds}, 0) - {item_discount_money}) / {count}</Value>
+                      <Value>=({item_price} * {count} - Iif({count}&gt;0, {include_vat}, 0) - {item_discount_money}) / {count}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2114,7 +2039,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>=Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds},0) - Fields!item_discount_money.Value</Value>
+                      <Value>=Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_vat},0) - Fields!item_discount_money.Value</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2178,7 +2103,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=Iif({count}&gt;0,{include_nds},0)</Value>
+                      <Value>=Iif({count}&gt;0,{include_vat},0)</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2379,7 +2304,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>=Sum(Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds},0) - Fields!item_discount_money.Value)</Value>
+                      <Value>=Sum(Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_vat},0) - Fields!item_discount_money.Value)</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2420,7 +2345,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0))</Value>
+                      <Value>=Sum(Iif({count}&gt;0,{include_vat},0))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2650,7 +2575,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox144">
             <Height>11.25pt</Height>
             <Width>151.35pt</Width>
-            <Value>=Fields!order_date.Value</Value>
+            <Value>={order_delivery_date}</Value>
             <ZIndex>0</ZIndex>
             <Left>180.7pt</Left>
             <Top>130.8pt</Top>
@@ -3260,7 +3185,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox67" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.78pt</Height>
             <Width>110.65pt</Width>
-            <Value>=Fields!leader_last_name.Value + ' ' + Fields!leader_name + '.' + Fields!leader_patronymic + '.'</Value>
+            <Value>={leader_last_name} + ' ' + {leader_name} + '.' + {leader_patronymic} + '.'</Value>
             <ZIndex>0</ZIndex>
             <Left>353.8pt</Left>
             <Top>2.4pt</Top>
@@ -3292,7 +3217,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox78" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>14.25pt</Height>
             <Width>82.83pt</Width>
-            <Value>=Fields!buh_last_name.Value + ' ' + Fields!buh_name + '.' + Fields!buh_patronymic + '.'</Value>
+            <Value>={buh_last_name} + ' ' + {buh_name} + '.' + {buh_patronymic} + '.'</Value>
             <ZIndex>0</ZIndex>
             <Left>678.2pt</Left>
             <Top>1.6pt</Top>
@@ -3452,7 +3377,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox128">
             <Height>9.75pt</Height>
             <Width>562.15pt</Width>
-            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_contract_number}) = false,{special_contract_number},Fields!contract_number.Value + ' от ' + Fields!contract_date.Value)</Value>
+            <Value>={client_contract_document_name} + ' ' + {client_contract_number} + ' от ' + Format({client_contract_date}, 'dd.MM.yyyy')</Value>
             <ZIndex>0</ZIndex>
             <Left>213.59pt</Left>
             <Top>45.70pt</Top>
@@ -3625,7 +3550,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox191">
             <Height>12pt</Height>
             <Width>1in</Width>
-            <Value>=Fields!order_id.Value</Value>
+            <Value>={order_id}</Value>
             <ZIndex>0</ZIndex>
             <Left>629.5pt</Left>
             <Top>238.1pt</Top>
@@ -3654,7 +3579,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox193">
             <Height>12pt</Height>
             <Width>1in</Width>
-            <Value>=Fields!order_date.Value</Value>
+            <Value>={order_delivery_date}</Value>
             <ZIndex>0</ZIndex>
             <Left>718.7pt</Left>
             <Top>237.9pt</Top>
@@ -3929,7 +3854,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox77">
-                      <Value>=Fields!org_name.Value</Value>
+                      <Value>={organization_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -3955,6 +3880,8 @@ WHERE o.id = @order_id
                           <Default>None</Default>
                         </BorderStyle>
                         <FontSize>8pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3993,7 +3920,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox95">
-                      <Value>=Fields!org_address.Value</Value>
+                      <Value>={organization_address}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -4057,7 +3984,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox213">
-                      <Value>=Fields!org_inn.Value + '\\' + Fields!org_kpp.Value</Value>
+                      <Value>={organization_inn} + '\\' + {organization_kpp}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -4185,7 +4112,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox217">
-                      <Value>={cargo_receiver}</Value>
+                      <Value>={consignee_summary}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -4250,7 +4177,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox219">
-                      <Value>={payments_info}</Value>
+                      <Value>={payments_data}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -4314,7 +4241,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox221">
-                      <Value>='Универсальный передаточный документ,' + ' №' + {order_id} + ' от ' + Format({order_date}, 'dd.MM.yyyy') + ' г.'</Value>
+                      <Value>='Универсальный передаточный документ,' + ' №' + {order_id} + ' от ' + Format({order_delivery_date}, 'dd.MM.yyyy') + ' г.'</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -4381,7 +4308,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox223">
-                      <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_customer}) = false, {special_customer}, {client_name})</Value>
+                      <Value>={client_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -4501,7 +4428,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox227">
-                      <Value>={inn_kpp}</Value>
+                      <Value>={client_inn} + '/' + {client_kpp}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -4606,7 +4533,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox254">
-                      <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_gov_contract}) = false, {special_gov_contract}, "")</Value>
+                      <Value>={client_gov_contract}</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
