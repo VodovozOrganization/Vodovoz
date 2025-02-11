@@ -187,10 +187,9 @@ namespace Vodovoz.Representations
 			Nomenclature nomenclatureAlias = null;
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
-			Domain.Contacts.Email emailAlias = null;
+			Email emailAlias = null;
 			CallTask taskAlias = null;
 			NomenclatureFixedPrice nomenclatureFixedPriceAlias = null;
-			NomenclaturePrice nomenclaturePriceAlias = null;
 
 			int hideSuspendedCounterpartyId = _debtorsParameters.GetSuspendedCounterpartyId;
 			int hideCancellationCounterpartyId = _debtorsParameters.GetCancellationCounterpartyId;
@@ -802,7 +801,6 @@ namespace Vodovoz.Representations
 			Email emailAlias = null;
 			Phone phoneAlias = null;
 			NomenclatureFixedPrice nomenclatureFixedPriceAlias = null;
-			NomenclaturePrice nomenclaturePriceAlias = null;
 
 			int hideSuspendedCounterpartyId = _debtorsParameters.GetSuspendedCounterpartyId;
 			int hideCancellationCounterpartyId = _debtorsParameters.GetCancellationCounterpartyId;
