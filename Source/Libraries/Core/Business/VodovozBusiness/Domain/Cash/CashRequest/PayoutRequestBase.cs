@@ -40,6 +40,7 @@ namespace Vodovoz.Domain.Cash
 					_id = value;
 
 					UpdateFileInformations();
+					UpdateComments();
 				}
 			}
 		}
@@ -52,7 +53,7 @@ namespace Vodovoz.Domain.Cash
 		public virtual PayoutRequestState PayoutRequestState
 		{
 			get => _payoutRequestState;
-			set => SetField(ref _payoutRequestState, value);
+			protected set => SetField(ref _payoutRequestState, value);
 		}
 
 		[Display(Name = "Возможность не пересогласовывать выплаты")]
@@ -172,6 +173,7 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		protected abstract void UpdateFileInformations();
+		protected abstract void UpdateComments();
 
 		public abstract void ChangeState(PayoutRequestState newState);
 	}
@@ -183,76 +185,5 @@ namespace Vodovoz.Domain.Cash
 
 		[Display(Name = "Заявка на оплату по Б/Н")]
 		CashlessRequest
-	}
-
-	public enum PayoutRequestState
-	{
-		[Display(Name = "Новая")]
-		New,
-
-		[Display(Name = "На уточнении")]
-		OnClarification, // после отправки на пересогласование
-
-		[Display(Name = "Подана")]
-		Submited, // после подтверждения
-
-		[Display(Name = "Согласована руководителем отдела")]
-		AgreedBySubdivisionChief, // после согласования руководителем
-
-		[Display(Name = "Согласована исполнительным директором")]
-		Agreed, // после согласования исполнительным директором
-
-		[Display(Name = "Передана на выдачу")]
-		GivenForTake,
-
-		[Display(Name = "Частично закрыта")]
-		PartiallyClosed, // содержит не выданные суммы
-
-		[Display(Name = "Отменена")]
-		Canceled,
-
-		[Display(Name = "Закрыта")]
-		Closed // все суммы выданы
-	}
-
-	public enum PayoutRequestUserRole
-	{
-		[Display(Name = "Заявитель")]
-		RequestCreator,
-
-		[Display(Name = "Руководитель отдела")]
-		SubdivisionChief,
-
-		[Display(Name = "Согласователь")]
-		Coordinator,
-
-		[Display(Name = "Финансист")]
-		Financier,
-
-		[Display(Name = "Кассир")]
-		Cashier,
-
-		[Display(Name = "Другие")]
-		Other,
-
-		[Display(Name = "Бухгалтер")]
-		Accountant,
-		
-		[Display(Name = "Служба безопасности")]
-		SecurityService,
-	}
-
-	public class CashRequestStateStringType : EnumStringType
-	{
-		public CashRequestStateStringType() : base(typeof(PayoutRequestState))
-		{
-		}
-	}
-
-	public class CashRequestDocTypeStringType : EnumStringType
-	{
-		public CashRequestDocTypeStringType() : base(typeof(PayoutRequestDocumentType))
-		{
-		}
 	}
 }

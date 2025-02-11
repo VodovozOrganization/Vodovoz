@@ -46,13 +46,15 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yTable ytable2;
 
-		private global::QS.Views.Control.EntityEntry entityentryAccountableSubdivision;
+		private global::QS.Widgets.GtkUI.DateRangePicker daterangepickerBillDatePlanned;
 
-		private global::Gtk.Label label1;
+		private global::QS.Views.Control.EntityEntry entityentryAccountableSubdivision;
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxSortBy;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelAccountableSubdivision;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelBillDatePlanned;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelSortOrder;
 
@@ -278,29 +280,31 @@ namespace Vodovoz.Filters.GtkViews
 			this.ytable2.RowSpacing = ((uint)(6));
 			this.ytable2.ColumnSpacing = ((uint)(6));
 			// Container child ytable2.Gtk.Table+TableChild
+			this.daterangepickerBillDatePlanned = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.daterangepickerBillDatePlanned.Events = ((global::Gdk.EventMask)(256));
+			this.daterangepickerBillDatePlanned.Name = "daterangepickerBillDatePlanned";
+			this.daterangepickerBillDatePlanned.StartDate = new global::System.DateTime(0);
+			this.daterangepickerBillDatePlanned.EndDate = new global::System.DateTime(0);
+			this.ytable2.Add(this.daterangepickerBillDatePlanned);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytable2[this.daterangepickerBillDatePlanned]));
+			w19.TopAttach = ((uint)(1));
+			w19.BottomAttach = ((uint)(2));
+			w19.LeftAttach = ((uint)(1));
+			w19.RightAttach = ((uint)(3));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable2.Gtk.Table+TableChild
 			this.entityentryAccountableSubdivision = new global::QS.Views.Control.EntityEntry();
 			this.entityentryAccountableSubdivision.Events = ((global::Gdk.EventMask)(256));
 			this.entityentryAccountableSubdivision.Name = "entityentryAccountableSubdivision";
 			this.ytable2.Add(this.entityentryAccountableSubdivision);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytable2[this.entityentryAccountableSubdivision]));
-			w19.TopAttach = ((uint)(2));
-			w19.BottomAttach = ((uint)(3));
-			w19.LeftAttach = ((uint)(1));
-			w19.RightAttach = ((uint)(3));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(0));
-			// Container child ytable2.Gtk.Table+TableChild
-			this.label1 = new global::Gtk.Label();
-			this.label1.HeightRequest = 25;
-			this.label1.Name = "label1";
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString(" ");
-			this.ytable2.Add(this.label1);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytable2[this.label1]));
-			w20.TopAttach = ((uint)(1));
-			w20.BottomAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytable2[this.entityentryAccountableSubdivision]));
+			w20.TopAttach = ((uint)(2));
+			w20.BottomAttach = ((uint)(3));
+			w20.LeftAttach = ((uint)(1));
 			w20.RightAttach = ((uint)(3));
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.yenumcomboboxSortBy = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxSortBy.Name = "yenumcomboboxSortBy";
@@ -327,32 +331,43 @@ namespace Vodovoz.Filters.GtkViews
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytable2.Gtk.Table+TableChild
+			this.ylabelBillDatePlanned = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelBillDatePlanned.Name = "ylabelBillDatePlanned";
+			this.ylabelBillDatePlanned.Xalign = 1F;
+			this.ylabelBillDatePlanned.LabelProp = global::Mono.Unix.Catalog.GetString("Дата платежа(план):");
+			this.ytable2.Add(this.ylabelBillDatePlanned);
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelBillDatePlanned]));
+			w23.TopAttach = ((uint)(1));
+			w23.BottomAttach = ((uint)(2));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable2.Gtk.Table+TableChild
 			this.ylabelSortOrder = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSortOrder.Name = "ylabelSortOrder";
 			this.ylabelSortOrder.Xalign = 1F;
 			this.ylabelSortOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Порядок сортировки:");
 			this.ytable2.Add(this.ylabelSortOrder);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelSortOrder]));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelSortOrder]));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox1.Add(this.ytable2);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ytable2]));
-			w24.Position = 4;
-			w24.Expand = false;
-			w24.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ytable2]));
+			w25.Position = 4;
+			w25.Expand = false;
+			w25.Fill = false;
 			w1.Add(this.hbox1);
 			this.GtkScrolledWindow.Add(w1);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w27.Position = 0;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w28.Position = 0;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
 			this.vbox1.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
-			w28.Position = 1;
-			w28.Expand = false;
-			w28.Fill = false;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
+			w29.Position = 1;
+			w29.Expand = false;
+			w29.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
