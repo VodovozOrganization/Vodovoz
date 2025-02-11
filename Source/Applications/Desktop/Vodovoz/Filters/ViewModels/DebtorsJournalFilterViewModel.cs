@@ -46,8 +46,8 @@ namespace Vodovoz.Filters.ViewModels
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
 		private DialogViewModelBase _journal;
 		private bool _hideExcludeFromAutoCalls = false;
-		private int? _fixPriceFrom;
-		private int? _fixPriceTo;
+		private decimal? _fixPriceFrom;
+		private decimal? _fixPriceTo;
 
 		public DebtorsJournalFilterViewModel(ILifetimeScope lifetimeScope)
 		{
@@ -179,16 +179,16 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _deliveryPointsTo, value);
 		}
 		
-		public int? FixPriceFrom
+		public decimal? FixPriceFrom
 		{
 			get => _fixPriceFrom;
-			set => UpdateFilterField(ref _fixPriceFrom, value);
+			set => SetField(ref _fixPriceFrom, value);
 		}
 
-		public int? FixPriceTo
+		public decimal? FixPriceTo
 		{
 			get => _fixPriceTo;
-			set => UpdateFilterField(ref _fixPriceTo, value);
+			set => SetField(ref _fixPriceTo, value);
 		}
 
 		public Nomenclature LastOrderNomenclature

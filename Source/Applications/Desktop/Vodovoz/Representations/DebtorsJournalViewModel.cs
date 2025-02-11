@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
@@ -22,6 +23,7 @@ using QS.Services;
 using QSReport;
 using RabbitMQ.Infrastructure;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -30,18 +32,19 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels;
 using Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport;
 using Vodovoz.Views;
+using Expression = System.Linq.Expressions.Expression;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
@@ -67,7 +70,8 @@ namespace Vodovoz.Representations
 		private Task _newTask;
 		private CancellationTokenSource _cts = new CancellationTokenSource();
 		private string _footerInfo = "Идёт загрузка данных...";
-		private readonly Nomenclature _semiozerieWater;
+		private readonly decimal _waterSemiozeriePrice;
+		private readonly int _waterSemiozerieId;
 
 		public DebtorsJournalViewModel(
 			ILogger<BulkEmailViewModel> loggerBulkEmailViewModel,
@@ -87,7 +91,8 @@ namespace Vodovoz.Representations
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
-			INomenclatureRepository nomenclatureRepository)
+			IGenericRepository<Nomenclature> nomenclatureRepository,
+			INomenclatureSettings nomenclatureSettings)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			if(unitOfWorkFactory is null)
@@ -122,7 +127,12 @@ namespace Vodovoz.Representations
 
 			_canSendBulkEmails = currentPermissionService.ValidatePresetPermission(Permissions.Email.CanSendBulkEmails);
 
-			_semiozerieWater = nomenclatureRepository.GetWaterSemiozerie(UoW);
+			_waterSemiozerieId = nomenclatureSettings.WaterSemiozerieId;
+			_waterSemiozeriePrice = nomenclatureRepository.Get(UoW, n => n.Id == _waterSemiozerieId)
+				?.FirstOrDefault()
+				?.NomenclaturePrice
+				?.FirstOrDefault(x => x.MinCount == 1)
+				?.Price ?? 0m;
 
 			filterViewModel.Journal = this;
 			JournalFilter = _filterViewModel;
@@ -171,6 +181,44 @@ namespace Vodovoz.Representations
 				FooterInfo = $"Сумма всех долгов по таре (по адресам): {result}  |  " + base.FooterInfo;
 			}
 		}
+		
+		private Expression<Func<bool>> GetFixPriceExpression(NomenclatureFixedPrice nomenclatureFixedPriceAlias, DeliveryPoint deliveryPointAlias)
+		{
+			Expression<Func<bool>> resultExpression =
+				() => deliveryPointAlias.Id == nomenclatureFixedPriceAlias.DeliveryPoint.Id
+				      && nomenclatureFixedPriceAlias.Nomenclature.Id == _waterSemiozerieId
+				      && nomenclatureFixedPriceAlias.MinCount == 1;
+
+			if(_filterViewModel.FixPriceFrom.HasValue)
+			{
+				Expression<Func<bool>> expression = () => nomenclatureFixedPriceAlias.Price >= _filterViewModel.FixPriceFrom;
+
+				resultExpression = Expression.Lambda<Func<bool>>
+				(
+					Expression.AndAlso
+					(
+						resultExpression.Body,
+						expression.Body
+					)
+				);
+			}
+
+			if(_filterViewModel.FixPriceTo.HasValue)
+			{
+				Expression<Func<bool>> expression = () => nomenclatureFixedPriceAlias.Price <= _filterViewModel.FixPriceTo;
+
+				resultExpression = Expression.Lambda<Func<bool>>
+				(
+					Expression.AndAlso
+					(
+						resultExpression.Body,
+						expression.Body
+					)
+				);
+			}
+
+			return resultExpression;
+		}
 
 		protected Func<IUnitOfWork, int> CountQueryFunction => (uow) =>
 		{
@@ -199,13 +247,8 @@ namespace Vodovoz.Representations
 			#region FixPrice
 			
 			ordersQuery.JoinEntityAlias(() => nomenclatureFixedPriceAlias,
-				() => deliveryPointAlias.Id == nomenclatureFixedPriceAlias.DeliveryPoint.Id
-				      && nomenclatureFixedPriceAlias.Nomenclature.Id == _semiozerieWater.Id
-				      && nomenclatureFixedPriceAlias.MinCount == 1,
+				GetFixPriceExpression(nomenclatureFixedPriceAlias, deliveryPointAlias),
 				JoinType.LeftOuterJoin);
-			
-			var semiozerieWaterNomenclaturePrice = _semiozerieWater.NomenclaturePrice
-				.FirstOrDefault(x => x.MinCount == 1)?.Price ?? 0m;
 			
 			#endregion FixPrice
 
@@ -465,21 +508,13 @@ namespace Vodovoz.Representations
 					ordersQuery.Where(() => !counterpartyAlias.ExcludeFromAutoCalls);
 				}
 
-				#region FixPrice
-				
-				if(_filterViewModel.FixPriceFrom != null)
+				if(_filterViewModel.FixPriceFrom != null || _filterViewModel.FixPriceTo != null)
 				{
-					ordersQuery = ordersQuery.Where(() => nomenclatureFixedPriceAlias.Price >= _filterViewModel.FixPriceFrom.Value
-					                                      || semiozerieWaterNomenclaturePrice >= _filterViewModel.FixPriceFrom.Value);
+					ordersQuery = ordersQuery.Where(() =>
+						nomenclatureFixedPriceAlias.Id != null
+						|| (_waterSemiozeriePrice >= (_filterViewModel.FixPriceFrom ?? _waterSemiozeriePrice)
+						    && _waterSemiozeriePrice <= (_filterViewModel.FixPriceTo ?? _waterSemiozeriePrice)));
 				}
-
-				if(_filterViewModel.FixPriceTo != null)
-				{
-					ordersQuery = ordersQuery.Where(() => nomenclatureFixedPriceAlias.Price <= _filterViewModel.FixPriceTo.Value
-					                                      || semiozerieWaterNomenclaturePrice <= _filterViewModel.FixPriceTo.Value);
-				}
-				
-				#endregion FixPrice
 			}
 
 			#endregion Filter
@@ -810,16 +845,11 @@ namespace Vodovoz.Representations
 			#region FixPrice
 			
 			ordersQuery.JoinEntityAlias(() => nomenclatureFixedPriceAlias,
-				() => deliveryPointAlias.Id == nomenclatureFixedPriceAlias.DeliveryPoint.Id
-				      && nomenclatureFixedPriceAlias.Nomenclature.Id == _semiozerieWater.Id
-				      && nomenclatureFixedPriceAlias.MinCount == 1,
+				GetFixPriceExpression(nomenclatureFixedPriceAlias, deliveryPointAlias),
 				JoinType.LeftOuterJoin);
-			
-			var semiozerieWaterNomenclaturePrice = _semiozerieWater.NomenclaturePrice
-				.FirstOrDefault(x => x.MinCount == 1)?.Price ?? 0m;
-			
+
 			var fixedPriceProjection = CustomProjections.Coalesce(NHibernateUtil.Decimal, 
-				Projections.Property(() => nomenclatureFixedPriceAlias.Price), Projections.Constant(semiozerieWaterNomenclaturePrice));
+				Projections.Property(() => nomenclatureFixedPriceAlias.Price), Projections.Constant(_waterSemiozeriePrice));
 			
 			#endregion FixPrice
 
@@ -1127,17 +1157,13 @@ namespace Vodovoz.Representations
 				}
 
 				#region FixPrice
-				
-				if(_filterViewModel.FixPriceFrom != null)
-				{
-					ordersQuery = ordersQuery.Where(() => nomenclatureFixedPriceAlias.Price >= _filterViewModel.FixPriceFrom.Value
-					                                      || semiozerieWaterNomenclaturePrice >= _filterViewModel.FixPriceFrom.Value);
-				}
 
-				if(_filterViewModel.FixPriceTo != null)
+				if(_filterViewModel.FixPriceFrom != null || _filterViewModel.FixPriceTo != null)
 				{
-					ordersQuery = ordersQuery.Where(() => nomenclatureFixedPriceAlias.Price <= _filterViewModel.FixPriceTo.Value
-					                                      || semiozerieWaterNomenclaturePrice <= _filterViewModel.FixPriceTo.Value);
+					ordersQuery = ordersQuery.Where(() =>
+						nomenclatureFixedPriceAlias.Id != null
+						|| (_waterSemiozeriePrice >= (_filterViewModel.FixPriceFrom ?? _waterSemiozeriePrice)
+						    && _waterSemiozeriePrice <= (_filterViewModel.FixPriceTo ?? _waterSemiozeriePrice)));
 				}
 				
 				#endregion FixPrice
