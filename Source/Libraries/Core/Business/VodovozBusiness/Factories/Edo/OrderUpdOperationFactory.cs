@@ -28,7 +28,7 @@ namespace VodovozBusiness.Factories.Edo
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
-		public OrderUpdOperation CreateOrUpdateOrderUpdOperation(Order order, OrderUpdOperation orderUpdOperation = null)
+		public OrderUpdOperation CreateOrUpdateOrderUpdOperation(Order order)
 		{
 			if(order is null)
 			{
@@ -66,7 +66,7 @@ namespace VodovozBusiness.Factories.Edo
 				&& !string.IsNullOrWhiteSpace(client.SpecialContractNumber)
 				&& client.SpecialContractDate.HasValue;
 
-			orderUpdOperation = orderUpdOperation ?? new OrderUpdOperation();
+			var orderUpdOperation = new OrderUpdOperation();
 
 			orderUpdOperation.OrderId = order.Id;
 			orderUpdOperation.OrderDeliveryDate = order.DeliveryDate.Value;

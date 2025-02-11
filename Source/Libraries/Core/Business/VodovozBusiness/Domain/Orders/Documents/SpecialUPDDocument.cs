@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Print;
 using QS.Report;
 using System;
@@ -11,6 +11,8 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -25,6 +27,17 @@ namespace Vodovoz.Domain.Orders.Documents
 
 
 		private int? _beveragesWorldOrganizationId;
+		private OrderUpdOperation _orderUpdOperation;
+
+		/// <summary>
+		/// Операция УПД по заказу
+		/// </summary>
+		[Display(Name = "Операция УПД по заказу")]
+		public virtual OrderUpdOperation OrderUpdOperation
+		{
+			get => _orderUpdOperation;
+			set => SetField(ref _orderUpdOperation, value);
+		}
 
 		private EmailTemplate GetTemplateForStandartReason(bool hasAgreeForEdo)
 		{

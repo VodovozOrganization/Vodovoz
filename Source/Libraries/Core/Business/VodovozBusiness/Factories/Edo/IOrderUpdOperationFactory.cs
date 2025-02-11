@@ -5,6 +5,6 @@ namespace VodovozBusiness.Factories.Edo
 {
 	public interface IOrderUpdOperationFactory
 	{
-		OrderUpdOperation CreateOrUpdateOrderUpdOperation(Order order, OrderUpdOperation orderUpdOperation = null);
+		OrderUpdOperation CreateOrUpdateOrderUpdOperation(Order order);
 	}
 }
