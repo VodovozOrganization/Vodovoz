@@ -132,6 +132,14 @@ namespace Vodovoz.Filters.GtkViews
 			ycheckbuttonHideExcludedFromAutoCalls.Binding
 				.AddBinding(ViewModel, vm => vm.HideExcludeFromAutoCalls, w => w.Active)
 				.InitializeFromSource();
+			
+			yvalidatedentryFixPriceFrom.Binding
+            	.AddBinding(ViewModel, x => x.FixPriceFrom, x => x.Text, new NullableIntToStringConverter())
+            	.InitializeFromSource();
+
+			yvalidatedentryFixPriceTo.Binding
+            	.AddBinding(ViewModel, x => x.FixPriceTo, x => x.Text, new NullableIntToStringConverter())
+            	.InitializeFromSource();
 		}
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
