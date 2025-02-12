@@ -1,34 +1,33 @@
-﻿using DateTimeHelpers;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Orders;
 
-namespace VodovozBusiness.Factories.Edo
+namespace Edo.Docflow.Factories
 {
 	public class OrderUpdOperationFactory : IOrderUpdOperationFactory, IDisposable
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly IGenericRepository<RouteListItem> _routeListAddressRepository;
-		private readonly IOrderRepository _orderRepository;
+		private readonly IGenericRepository<RouteListItemEntity> _routeListAddressRepository;
+		private readonly IGenericRepository<OrderEntity> _orderRepository;
 
 		public OrderUpdOperationFactory(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IGenericRepository<RouteListItem> routeListAddressRepository,
-			IOrderRepository orderRepository)
+			IGenericRepository<RouteListItemEntity> routeListAddressRepository,
+			IGenericRepository<OrderEntity> orderRepository)
 		{
 			_uow = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot(nameof(OrderUpdOperationFactory));
 			_routeListAddressRepository = routeListAddressRepository ?? throw new ArgumentNullException(nameof(routeListAddressRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
-		public OrderUpdOperation CreateOrUpdateOrderUpdOperation(Order order)
+		public OrderUpdOperation CreateOrUpdateOrderUpdOperation(OrderEntity order)
 		{
 			if(order is null)
 			{
@@ -58,7 +57,7 @@ namespace VodovozBusiness.Factories.Edo
 				.ToList();
 
 			var orderPayments = _orderRepository.GetOrderPayments(_uow, order.Id)
-				.Where(x => x.Date <= order.DeliveryDate.Value.LatestDayTime());
+				.Where(x => x.Date < order.DeliveryDate.Value.Date.AddDays(1));
 
 			var isSpecialAndAllSpecialContractDataFilled =
 				client.UseSpecialDocFields
