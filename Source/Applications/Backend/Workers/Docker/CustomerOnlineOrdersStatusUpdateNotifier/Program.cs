@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.Json;
 using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersStatusUpdateNotifier.Converters;
@@ -13,6 +13,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
+using DriverApi.Notifications.Client;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier
 {
@@ -49,6 +50,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
+						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
 
 						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
