@@ -246,6 +246,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.IsNewEdoProcessing)
 				.Column("is_new_edo_processing");
 
+			HasMany(x => x.SpecialNomenclatures).Cascade.AllDeleteOrphan().LazyLoad()
+				.KeyColumn("counterparty_id");
+
 		}
 	}
 }
