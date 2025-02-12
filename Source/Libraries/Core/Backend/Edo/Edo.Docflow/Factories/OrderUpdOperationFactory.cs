@@ -74,7 +74,7 @@ namespace Edo.Docflow.Factories
 
 			orderUpdOperation.OrderId = order.Id;
 			orderUpdOperation.OrderDeliveryDate = order.DeliveryDate.Value;
-			orderUpdOperation.CounterpartyExternalOrderId = order.CounterpartyExternalOrderId;
+			orderUpdOperation.CounterpartyExternalOrderId = order.CounterpartyExternalOrderId != null && client.UseSpecialDocFields ? order.CounterpartyExternalOrderId : default;
 			orderUpdOperation.IsOrderForOwnNeeds = client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds;
 
 			orderUpdOperation.ClientContractDocumentName = isSpecialAndAllSpecialContractDataFilled ? client.SpecialContractName : "Договор";
@@ -87,6 +87,7 @@ namespace Edo.Docflow.Factories
 			orderUpdOperation.ClientGovContract = client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(client.GovContract) ? client.GovContract : "";
 			orderUpdOperation.ClientInn = client.INN;
 			orderUpdOperation.ClientKpp = client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(client.PayerSpecialKPP) ? client.PayerSpecialKPP : client.KPP;
+			orderUpdOperation.ClientPersonalAccountIdInEdo = client.PersonalAccountIdInEdo;
 
 			orderUpdOperation.ConsigneeName = client.FullName;
 			orderUpdOperation.ConsigneeInn = client.INN;
@@ -182,12 +183,14 @@ namespace Edo.Docflow.Factories
 						nomenclature.Category == NomenclatureCategory.master
 						|| nomenclature.Category == NomenclatureCategory.service,
 					MeasurementUnitName = nomenclature.Unit.Name,
+					Gtin = nomenclature.Gtin,
 					OKEI = nomenclature.Unit.OKEI,
 					Count = orderItem.Count,
 					ItemPrice = orderItem.Price,
 					IncludeVat = orderItem.IncludeNDS ?? 0,
 					Vat = orderItem.ValueAddedTax,
-					ItemDiscountMoney = orderItem.DiscountMoney
+					ItemDiscountMoney = orderItem.DiscountMoney,
+					ValueAddedTax = orderItem.ValueAddedTax
 				};
 
 				orderUpdOperation.Goods.Add(product);
