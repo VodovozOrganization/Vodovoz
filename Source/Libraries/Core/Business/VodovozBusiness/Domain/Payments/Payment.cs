@@ -1,15 +1,14 @@
 ﻿using Gamma.Utilities;
-using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using QS.Project.Domain;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -24,35 +23,16 @@ namespace Vodovoz.Domain.Payments
 		PrepositionalPlural = "платежах")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class Payment : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class Payment : PaymentEntity, IValidatableObject
 	{
 		private const int _commentLimit = 300;
 		private const int _paymentPurposeLimit = 300;
 
-		private int _paymentNum;
-		private int? _refundPaymentFromOrderId;
-		private DateTime _date;
-		private decimal _total;
-		private string _paymentPurpose;
-		private string _comment;
-		private string _counterpartyAcc;
-		private string _counterpartyCurrentAcc;
-		private string _counterpartyInn;
-		private string _counterpartyKpp;
-		private string _counterpartyName;
-		private string _counterpartyBank;
-		private string _counterpartyBik;
-		private string _counterpartyCorrespondentAcc;
-		private bool _isManuallyCreated;
-		private PaymentState _status;
 		private CashlessMovementOperation _cashlessMovementOperation;
 		private Counterparty _counterparty;
-		private Account _counterpartyAccount;
 		private Organization _organization;
-		private Account _organizationAccount;
 		private ProfitCategory _profitCategory;
 		private Payment _refundedPayment;
-		private UserBase _currentEditorUser;
 		private IList<PaymentItem> _paymentItems = new List<PaymentItem>();
 		GenericObservableList<PaymentItem> _observableItems;
 
@@ -86,50 +66,18 @@ namespace Vodovoz.Domain.Payments
 			}
 		}
 
-		public virtual int Id { get; set; }
-
-		/// <summary>
-		/// Номер
-		/// </summary>
-		[Display(Name = "Номер")]
-		public virtual int PaymentNum
-		{
-			get => _paymentNum;
-			set => SetField(ref _paymentNum, value);
-		}
-
-		/// <summary>
-		/// Дата
-		/// </summary>
-		[Display(Name = "Дата")]
-		public virtual DateTime Date
-		{
-			get => _date;
-			set => SetField(ref _date, value);
-		}
-
-		/// <summary>
-		/// Сумма
-		/// </summary>
-		[Display(Name = "Сумма")]
-		public virtual decimal Total
-		{
-			get => _total;
-			set => SetField(ref _total, value);
-		}
-
 		/// <summary>
 		/// Строки платежа
 		/// </summary>
 		[Display(Name = "Строки платежа")]
-		public virtual IList<PaymentItem> PaymentItems
+		public virtual new IList<PaymentItem> PaymentItems
 		{
 			get => _paymentItems;
 			set => SetField(ref _paymentItems, value);
 		}
 
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<PaymentItem> ObservableItems
+		public virtual new GenericObservableList<PaymentItem> ObservableItems
 		{
 			get
 			{
@@ -148,52 +96,20 @@ namespace Vodovoz.Domain.Payments
 			set => SetField(ref _cashlessMovementOperation, value);
 		}
 
-		public virtual Counterparty Counterparty
+		public virtual new Counterparty Counterparty
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
-		}
-
-		public virtual Account CounterpartyAccount
-		{
-			get => _counterpartyAccount;
-			set => SetField(ref _counterpartyAccount, value);
 		}
 
 		/// <summary>
 		/// Организация
 		/// </summary>
 		[Display(Name = "Организация")]
-		public virtual Organization Organization
+		public virtual new Organization Organization
 		{
 			get => _organization;
 			set => SetField(ref _organization, value);
-		}
-
-		public virtual Account OrganizationAccount
-		{
-			get => _organizationAccount;
-			set => SetField(ref _organizationAccount, value);
-		}
-
-		/// <summary>
-		/// Назначение платежа
-		/// </summary>
-		[Display(Name = "Назначение платежа")]
-		public virtual string PaymentPurpose
-		{
-			get => _paymentPurpose;
-			set => SetField(ref _paymentPurpose, value);
-		}
-
-		/// <summary>
-		/// Статус платежа
-		/// </summary>
-		[Display(Name = "Статус платежа")]
-		public virtual PaymentState Status
-		{
-			get => _status;
-			set => SetField(ref _status, value);
 		}
 
 		/// <summary>
@@ -207,108 +123,13 @@ namespace Vodovoz.Domain.Payments
 		}
 
 		/// <summary>
-		/// Комментарий
-		/// </summary>
-		[Display(Name = "Комментарий")]
-		public virtual string Comment
-		{
-			get => _comment;
-			set => SetField(ref _comment, value);
-		}
-
-		/// <summary>
-		/// р/сч плательщика
-		/// </summary>
-		public virtual string CounterpartyAcc
-		{
-			get => _counterpartyAcc;
-			set => SetField(ref _counterpartyAcc, value);
-		}
-
-		/// <summary>
-		/// р/сч плательщика
-		/// </summary>
-		public virtual string CounterpartyCurrentAcc
-		{
-			get => _counterpartyCurrentAcc;
-			set => SetField(ref _counterpartyCurrentAcc, value);
-		}
-
-		public virtual string CounterpartyInn
-		{
-			get => _counterpartyInn;
-			set => SetField(ref _counterpartyInn, value);
-		}
-
-		public virtual string CounterpartyKpp
-		{
-			get => _counterpartyKpp;
-			set => SetField(ref _counterpartyKpp, value);
-		}
-
-		public virtual string CounterpartyName
-		{
-			get => _counterpartyName;
-			set => SetField(ref _counterpartyName, value);
-		}
-
-		public virtual string CounterpartyBank
-		{
-			get => _counterpartyBank;
-			set => SetField(ref _counterpartyBank, value);
-		}
-
-		public virtual string CounterpartyBik
-		{
-			get => _counterpartyBik;
-			set => SetField(ref _counterpartyBik, value);
-		}
-
-		public virtual string CounterpartyCorrespondentAcc
-		{
-			get => _counterpartyCorrespondentAcc;
-			set => SetField(ref _counterpartyCorrespondentAcc, value);
-		}
-
-		/// <summary>
 		/// Возвращаемый платеж
 		/// </summary>
 		[Display(Name = "Возвращаемый платеж")]
-		public virtual Payment RefundedPayment
+		public virtual new Payment RefundedPayment
 		{
 			get => _refundedPayment;
 			set => SetField(ref _refundedPayment, value);
-		}
-
-		/// <summary>
-		/// "Возврат платежа по заказу №"
-		/// </summary>
-		[Display(Name = "Возврат платежа по заказу №")]
-		public virtual int? RefundPaymentFromOrderId
-		{
-			get => _refundPaymentFromOrderId;
-			set => SetField(ref _refundPaymentFromOrderId, value);
-		}
-
-		/// <summary>
-		/// Платеж создан вручную?
-		/// </summary>
-		[Display(Name = "Платеж создан вручную?")]
-		public virtual bool IsManuallyCreated
-		{
-			get => _isManuallyCreated;
-			set => SetField(ref _isManuallyCreated, value);
-		}
-
-		/// <summary>
-		/// Пользователь, работающий с диалогом ручного распределения
-		/// </summary>
-		[Display(Name = "Пользователь, работающий с диалогом ручного распределения")]
-		[IgnoreHistoryTrace]
-		public virtual UserBase CurrentEditorUser
-		{
-			get => _currentEditorUser;
-			set => SetField(ref _currentEditorUser, value);
 		}
 
 		public virtual string NumOrders { get; set; }

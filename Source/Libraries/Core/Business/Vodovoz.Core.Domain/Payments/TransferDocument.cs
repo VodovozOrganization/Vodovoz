@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.Bindings;
 
-namespace Vodovoz.Domain.Payments
+namespace Vodovoz.Core.Domain.Payments
 {
 	public class TransferDocument
 	{
@@ -197,7 +197,8 @@ namespace Vodovoz.Domain.Payments
 
 		public static TransferDocumentType GetDocTypeFromString(string type)
 		{
-			switch(type) {
+			switch(type)
+			{
 				case "Банковский ордер":
 					return TransferDocumentType.BankOrder;
 				case "Платежное поручение":

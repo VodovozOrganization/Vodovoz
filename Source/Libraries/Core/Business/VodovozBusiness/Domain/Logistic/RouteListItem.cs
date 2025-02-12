@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -65,7 +65,6 @@ namespace Vodovoz.Domain.Logistic
 		private string _comment;
 		private bool _withForwarder;
 		private int _indexInRoute;
-		private int _bottlesReturned;
 		private int? _driverBottlesReturned;
 		private decimal _oldBottleDepositsCollected;
 		private decimal _oldEquipmentDepositsCollected;
@@ -105,7 +104,7 @@ namespace Vodovoz.Domain.Logistic
 		#region Свойства
 
 		[Display(Name = "Заказ")]
-		public virtual Order Order
+		public virtual new Order Order
 		{
 			get => _order;
 			set => SetField(ref _order, value);
@@ -206,13 +205,6 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _indexInRoute;
 			set => SetField(ref _indexInRoute, value);
-		}
-
-		[Display(Name = "Возвращено бутылей")]
-		public virtual int BottlesReturned
-		{
-			get => _bottlesReturned;
-			set => SetField(ref _bottlesReturned, value);
 		}
 
 		[Display(Name = "Возвращено бутылей - водитель")]

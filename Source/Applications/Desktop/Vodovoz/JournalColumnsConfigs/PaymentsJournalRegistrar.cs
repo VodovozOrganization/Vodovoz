@@ -1,11 +1,11 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.Tools;
 using WrapMode = Pango.WrapMode;
+using Vodovoz.Core.Domain.Payments;
 
 namespace Vodovoz.JournalColumnsConfigs
 {

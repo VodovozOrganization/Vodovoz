@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
 using System.Linq;
 using Vodovoz.Settings.Organizations;
+using Vodovoz.Core.Domain.Payments;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {

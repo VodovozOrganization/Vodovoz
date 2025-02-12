@@ -11,6 +11,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.Infrastructure;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Core.Domain.Payments;
 
 namespace Vodovoz.Views
 {

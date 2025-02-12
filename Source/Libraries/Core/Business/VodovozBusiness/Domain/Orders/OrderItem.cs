@@ -639,7 +639,7 @@ namespace Vodovoz.Domain.Orders
 			RecalculateVAT();
 		}
 		
-		private void RestoreOriginalDiscount()
+		public void RestoreOriginalDiscount()
 		{
 			TryRestoreOriginalDiscount();
 			CalculateAndSetDiscount(IsDiscountInMoney ? DiscountMoney : Discount);

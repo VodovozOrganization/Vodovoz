@@ -240,9 +240,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.HideDeliveryPointForBill)
 				.Column("hide_delivery_point_for_bill");
 
-			Map(x => x.IsNewEdoProcessing)
-				.Column("is_new_edo_processing");
-
 			References(x => x.WorksThroughOrganization)
 				.Column("works_through_organization_id");
 		}

@@ -1,6 +1,6 @@
 ﻿using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Payments;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;

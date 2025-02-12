@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
@@ -7,6 +8,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
 
 namespace Edo.Docflow.Factories
@@ -15,16 +17,20 @@ namespace Edo.Docflow.Factories
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IGenericRepository<RouteListItemEntity> _routeListAddressRepository;
+		private readonly IGenericRepository<PaymentEntity> _paymentsRepository;
+		private readonly IGenericRepository<PaymentItemEntity> _paymentItemsRepository;
 		private readonly IGenericRepository<OrderEntity> _orderRepository;
 
 		public OrderUpdOperationFactory(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IGenericRepository<RouteListItemEntity> routeListAddressRepository,
-			IGenericRepository<OrderEntity> orderRepository)
+			IGenericRepository<PaymentEntity> paymentsRepository,
+			IGenericRepository<PaymentItemEntity> paymentItemsRepository)
 		{
 			_uow = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot(nameof(OrderUpdOperationFactory));
 			_routeListAddressRepository = routeListAddressRepository ?? throw new ArgumentNullException(nameof(routeListAddressRepository));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
+			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 		}
 
 		public OrderUpdOperation CreateOrUpdateOrderUpdOperation(OrderEntity order)
@@ -56,8 +62,7 @@ namespace Edo.Docflow.Factories
 				.Get(_uow, x => x.Order.Id == order.Id)
 				.ToList();
 
-			var orderPayments = _orderRepository.GetOrderPayments(_uow, order.Id)
-				.Where(x => x.Date < order.DeliveryDate.Value.Date.AddDays(1));
+			var orderPayments = GetOrderPayments(order);
 
 			var isSpecialAndAllSpecialContractDataFilled =
 				client.UseSpecialDocFields
@@ -189,6 +194,21 @@ namespace Edo.Docflow.Factories
 			}
 
 			return orderUpdOperation;
+		}
+
+		private IList<PaymentEntity> GetOrderPayments(OrderEntity order)
+		{
+			var paymetItems = _paymentItemsRepository
+				.Get(_uow, x => x.Order.Id == order.Id)
+				.ToList();
+
+			var payments = _paymentsRepository
+				.Get(
+					_uow,
+					x => paymetItems.Select(y => y.Payment.Id).Contains(x.Id) && x.Date < order.DeliveryDate.Value.Date.AddDays(1))
+				.ToList();
+
+			return payments;
 		}
 
 		public void Dispose()
