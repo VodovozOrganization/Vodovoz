@@ -1072,7 +1072,6 @@
     <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Orders\FastDeliveryVerificationDetailsViewModel.cs" />
     <Compile Include="ViewModels\Reports\IncomingCallsAnalysisReportViewModel.cs" />
-    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsColorizeType.cs" />
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixViewModel.cs" />
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixColumn.cs" />
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixRow.cs" />

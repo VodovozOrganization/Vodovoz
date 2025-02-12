@@ -1,0 +1,125 @@
+﻿using DriverApi.Notifications.Client.Exceptions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Vodovoz.Errors;
+using Vodovoz.NotificationSenders;
+using Vodovoz.Settings.Logistics;
+using CommonErrors = Vodovoz.Errors.Common;
+
+namespace DriverApi.Notifications.Client.Clients
+{
+	public class DriverApiNotificationsClient :
+		ISmsPaymentStatusNotificationSender,
+		IFastDeliveryOrderAddedNotificationSender,
+		IWaitingTimeChangedNotificationSender,
+		ICashRequestForDriverIsGivenForTakeNotificationSender,
+		IRouteListTransferHandByHandNotificationSender
+	{
+		private readonly ILogger<DriverApiNotificationsClient> _logger;
+		private readonly IDriverApiSettings _driverApiSettings;
+		private readonly HttpClient _httpClient;
+
+		public DriverApiNotificationsClient(
+			ILogger<DriverApiNotificationsClient> logger,
+			IHttpClientFactory httpClientFactory,
+			IDriverApiSettings driverApiSettings)
+		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
+
+			_httpClient = (httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory)))
+				.CreateClient(nameof(DriverApiNotificationsClient));
+		}
+
+		public async Task NotifyOfSmsPaymentStatusChanged(int orderId)
+		{
+			using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfSmsPaymentStatusChangedUri, orderId))
+			{
+				if(response.IsSuccessStatusCode)
+				{
+					return;
+				}
+
+				throw new DriverApiNotificationsClientException(response.ReasonPhrase);
+			}
+		}
+
+		public async Task NotifyOfFastDeliveryOrderAdded(int orderId)
+		{
+			try
+			{
+				using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfFastDeliveryOrderAddedUri, orderId))
+				{
+					if(response.IsSuccessStatusCode)
+					{
+						return;
+					}
+
+					throw new DriverApiNotificationsClientException(response.ReasonPhrase);
+				}
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, $"Не удалось уведомить водителя о добавлении заказа {orderId} с быстрой доставкой в МЛ");
+			}
+		}
+
+		public async Task NotifyOfWaitingTimeChanged(int orderId)
+		{
+			using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfWaitingTimeChangedURI, orderId))
+			{
+				if(response.IsSuccessStatusCode)
+				{
+					return;
+				}
+
+				throw new DriverApiNotificationsClientException(response.ReasonPhrase);
+			}
+		}
+
+		public async Task NotifyOfCashRequestForDriverIsGivenForTake(int cashRequestId)
+		{
+			using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfCashRequestForDriverIsGivenForTakeUri, cashRequestId))
+			{
+				if(response.IsSuccessStatusCode)
+				{
+					return;
+				}
+
+				throw new DriverApiNotificationsClientException(response.ReasonPhrase);
+			}
+		}
+
+		public async Task<Result> NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
+		{
+			using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfOrderWithGoodsTransferingIsTransferedUri, orderId))
+			{
+				var responseBody = await response.Content.ReadAsStringAsync();
+
+				if(response.IsSuccessStatusCode && string.IsNullOrWhiteSpace(responseBody))
+				{
+					return Result.Success();
+				}
+
+				if(string.IsNullOrWhiteSpace(responseBody))
+				{
+					return Result.Failure(CommonErrors.DriverApiClient.ApiError(response.ReasonPhrase));
+				}
+				else if(response.IsSuccessStatusCode)
+				{
+					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
+					return Result.Failure(CommonErrors.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail));
+				}
+				else
+				{
+					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
+					return Result.Failure(CommonErrors.DriverApiClient.ApiError(problemDetails.Detail));
+				}
+			}
+		}
+	}
+}

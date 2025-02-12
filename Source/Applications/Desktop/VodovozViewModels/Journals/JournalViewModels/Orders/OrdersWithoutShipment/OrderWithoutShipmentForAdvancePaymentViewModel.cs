@@ -163,6 +163,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 						f.SelectCategory = defaultCategory;
 						f.SelectSaleCategory = SaleCategory.forSale;
 						f.RestrictArchive = false;
+						f.CanChangeOnlyOnlineNomenclatures = false;
 					};
 					
 					var journalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>(

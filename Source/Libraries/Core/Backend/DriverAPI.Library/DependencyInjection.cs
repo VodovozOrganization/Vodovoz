@@ -1,4 +1,5 @@
-﻿using DriverAPI.Library.Helpers;
+using DriverApi.Notifications.Client.Clients;
+using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Services;
 using EventsApi.Library;
 using EventsApi.Library.Models;
@@ -10,7 +11,7 @@ using Vodovoz.Application;
 using Vodovoz.Controllers;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.NotificationRecievers;
+using Vodovoz.NotificationSenders;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
@@ -35,6 +36,7 @@ using Vodovoz.Models.TrueMark;
 using TrueMarkApi.Client;
 using Edo.Transport;
 using MessageTransport;
+using DriverApi.Notifications.Client;
 
 namespace DriverAPI.Library
 {
@@ -72,6 +74,7 @@ namespace DriverAPI.Library
 				.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
 
 			services.AddBusiness(configuration)
+				.AddDriverApiNotificationsSenders()
 				.AddApplication()
 				.AddInfrastructure()
 				.AddDatabaseSettings()
@@ -79,8 +82,7 @@ namespace DriverAPI.Library
 				.AddFirebaseCloudMessaging(configuration);
 
 			services
-				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>()
-				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
+				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>();
 
 			services
 				.AddMessageTransportSettings()
