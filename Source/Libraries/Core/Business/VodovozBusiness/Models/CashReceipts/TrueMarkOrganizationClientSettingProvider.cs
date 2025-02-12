@@ -24,8 +24,7 @@ namespace Vodovoz.Models.CashReceipts
 			{
 				throw new ConfigurationErrorsException("Невозможно прочитать секцию конфигурации с настройками организаций.");
 			}
-
-
+			
 			foreach(var modulKassaOrganizationConfig in _trueMarkOrganizationClientConfiguration.GetChildren())
 			{
 				string stringOrganizationId = modulKassaOrganizationConfig["OrganizationId"];
