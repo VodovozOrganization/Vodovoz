@@ -623,7 +623,7 @@ namespace Vodovoz.Core.Domain.Orders
 			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
 
 		/// <summary>
-		/// Проверка, является ли целю покупки заказа - для перепродажи
+		/// Проверка, является ли целью покупки заказа - для перепродажи
 		/// </summary>
 		public virtual bool IsOrderForResale =>
 			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
