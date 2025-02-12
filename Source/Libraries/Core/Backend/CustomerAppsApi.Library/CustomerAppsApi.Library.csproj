@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
+      <ProjectReference Include="..\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
       <ProjectReference Include="..\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />
       <ProjectReference Include="..\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
       <ProjectReference Include="..\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />

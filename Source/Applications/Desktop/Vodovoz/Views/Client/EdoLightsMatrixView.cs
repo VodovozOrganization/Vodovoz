@@ -2,6 +2,7 @@
 using Gdk;
 using Gtk;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using LightsMatrixRow = Vodovoz.ViewModels.Widgets.EdoLightsMatrix.LightsMatrixRow;
@@ -48,11 +49,11 @@ namespace Vodovoz.Views.Client
 		{
 			switch(row.GetColorizeType(edoLightsMatrixPaymentType))
 			{
-				case EdoLightsColorizeType.Allowed:
+				case PossibleAccessState.Allowed:
 					return "V";
-				case EdoLightsColorizeType.Forbidden:
+				case PossibleAccessState.Forbidden:
 					return "X";
-				case EdoLightsColorizeType.Unknown:
+				case PossibleAccessState.Unknown:
 					return "?";
 			}
 
@@ -62,11 +63,11 @@ namespace Vodovoz.Views.Client
 		{
 			switch(row.GetColorizeType(edoLightsMatrixPaymentType))
 			{
-				case EdoLightsColorizeType.Allowed:
+				case PossibleAccessState.Allowed:
 					return _greenColor;
-				case EdoLightsColorizeType.Forbidden:
+				case PossibleAccessState.Forbidden:
 					return _redColor;
-				case EdoLightsColorizeType.Unknown:
+				case PossibleAccessState.Unknown:
 					return _yellowColor;
 			}
 

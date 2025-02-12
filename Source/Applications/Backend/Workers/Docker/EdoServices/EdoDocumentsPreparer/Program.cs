@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Autofac.Extensions.DependencyInjection;
 using MassTransit;
 using MessageTransport;
@@ -15,6 +15,7 @@ using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
 using VodovozHealthCheck;
+using DriverApi.Notifications.Client;
 
 namespace EdoDocumentsPreparer
 {
@@ -50,6 +51,7 @@ namespace EdoDocumentsPreparer
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
+						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
 						.AddHostedService<EdoDocumentsPreparerWorker>()
 						.AddPreparerDependencyGroup()

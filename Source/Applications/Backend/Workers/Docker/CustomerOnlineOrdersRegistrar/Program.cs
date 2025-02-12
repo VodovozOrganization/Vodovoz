@@ -16,6 +16,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using DriverApi.Notifications.Client;
 
 namespace CustomerOnlineOrdersRegistrar
 {
@@ -49,6 +50,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddCore()
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
+						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
 						.AddDependenciesGroup()
 						.AddApplicationOrderServices()

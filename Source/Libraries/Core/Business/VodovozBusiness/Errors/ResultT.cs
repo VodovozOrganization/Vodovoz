@@ -19,9 +19,11 @@ namespace Vodovoz.Errors
 			? _value
 			: throw new InvalidOperationException("The value of a failure result can't be accessed");
 
-		public static implicit operator Result<TValue>(TValue value) => Create(value);
+		public static implicit operator Result<TValue>(TValue value) => Success(value);
 
-		private static Result<TValue> Create(TValue value) =>
+		public static implicit operator Result<TValue>(Error error) => Failure<TValue>(error);
+
+		private static Result<TValue> Success(TValue value) =>
 			new Result<TValue>(value, true, Error.None);
 
 		public void Match(Action<TValue> successAction, Action<IEnumerable<Error>> errorsHandlingAction)

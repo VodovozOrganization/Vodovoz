@@ -27,6 +27,7 @@ using Vodovoz.Settings.Database.Roboats;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using DriverApi.Notifications.Client;
 
 namespace RoboatsService
 {
@@ -78,6 +79,7 @@ namespace RoboatsService
 
 			services.AddApplication();
 			services.AddBusiness(Configuration)
+				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(RoboAtsService)));
 		}
