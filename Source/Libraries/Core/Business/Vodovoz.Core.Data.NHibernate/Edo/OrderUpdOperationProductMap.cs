@@ -14,6 +14,7 @@ namespace Vodovoz.Core.Data.NHibernate.Edo
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.NomenclatureId).Column("nomenclature_id");
+			Map(x => x.Gtin).Column("gtin");
 			Map(x => x.OKEI).Column("okei");
 			Map(x => x.NomenclatureName).Column("nomenclature_name");
 			Map(x => x.UnitCode).Column("unit_code");
@@ -24,6 +25,7 @@ namespace Vodovoz.Core.Data.NHibernate.Edo
 			Map(x => x.Vat).Column("vat");
 			Map(x => x.ItemDiscount).Column("item_discount");
 			Map(x => x.ItemDiscountMoney).Column("item_discount_money");
+			Map(x => x.ValueAddedTax).Column("value_added_tax");
 			Map(x => x.IsService).Column("is_service");
 
 			References(x => x.OrderUpdOperation).Column("order_upd_operation_id");

@@ -15,6 +15,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _id;
 		private OrderUpdOperation _orderUpdOperation;
 		private int _nomenclatureId;
+		private string _gtin;
 		private string _oKEI;
 		private string _nomenclatureName;
 		private string _unitCode;
@@ -25,6 +26,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private decimal? _vat;
 		private decimal _itemDiscount;
 		private decimal _itemDiscountMoney;
+		private decimal? _valueAddedTax;
 		private bool _isService;
 
 		/// <summary>
@@ -58,8 +60,19 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		/// <summary>
+		/// GTIN номенклатуры
+		/// </summary>
+		[Display(Name = "GTIN номенклатуры")]
+		public virtual string Gtin
+		{
+			get => _gtin;
+			set => SetField(ref _gtin, value);
+		}
+
+		/// <summary>
 		/// Код ОКЕИ
 		/// </summary>
+		[Display(Name = "Код ОКЕИ")]
 		public virtual string OKEI
 		{
 			get => _oKEI;
@@ -154,6 +167,16 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _itemDiscountMoney;
 			set => SetField(ref _itemDiscountMoney, value);
+		}
+
+		/// <summary>
+		/// НДС на момент создания заказа
+		/// </summary>
+		[Display(Name = "НДС на момент создания заказа")]
+		public virtual decimal? ValueAddedTax
+		{
+			get => _valueAddedTax;
+			set => SetField(ref _valueAddedTax, value);
 		}
 
 		/// <summary>
