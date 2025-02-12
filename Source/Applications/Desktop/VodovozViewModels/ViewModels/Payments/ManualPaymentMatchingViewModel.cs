@@ -22,6 +22,7 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;

@@ -13,6 +13,10 @@ namespace Vodovoz.Core.Data.NHibernate.Logistic
 			Version(x => x.Version).Column("version");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
+
+			Map(x => x.BottlesReturned).Column("bottles_returned");
+
+			References(x => x.Order).Column("order_id").Cascade.SaveUpdate();
 		}
 	}
 }

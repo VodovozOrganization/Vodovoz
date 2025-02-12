@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
