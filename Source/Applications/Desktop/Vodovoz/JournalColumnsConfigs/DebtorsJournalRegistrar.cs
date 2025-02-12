@@ -19,6 +19,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Кол-во отгруженных в последнюю реализацию бутылей").AddNumericRenderer(node => node.LastOrderBottles)
 				.AddColumn("Долг по таре (по адресу)").AddNumericRenderer(node => node.DebtByAddress)
 				.AddColumn("Долг по таре (по клиенту)").AddNumericRenderer(node => node.DebtByClient)
+				.AddColumn("Фикс. цена").AddNumericRenderer(node => node.FixPrice)
 				.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidueExist)
 				.AddColumn("Резерв").AddNumericRenderer(node => node.Reserve)
 				.RowCells().AddSetter((CellRendererText c, DebtorJournalNode n) =>
