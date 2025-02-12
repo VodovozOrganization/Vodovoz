@@ -418,6 +418,7 @@ namespace Vodovoz.ViewWidgets
 					f.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 					f.SelectCategory = NomenclatureCategory.equipment;
 					f.SelectSaleCategory = SaleCategory.notForSale;
+					f.CanChangeOnlyOnlineNomenclatures = false;
 				},
 				OpenPageOptions.AsSlave,
 				vm =>

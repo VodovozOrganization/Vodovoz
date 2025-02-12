@@ -109,6 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 						&& nextCarEvent.CreateDate >= StartDate
 						&& nextCarEvent.CreateDate <= EndDate
 						&& nextCarEvent.CreateDate > carEvent.CreateDate
+						&& nextCarEvent.CarEventType.Id == _carEventSettings.FuelBalanceCalibrationCarEventTypeId
 					orderby nextCarEvent.CreateDate ascending
 					select nextCarEvent.CreateDate
 				).FirstOrDefault()

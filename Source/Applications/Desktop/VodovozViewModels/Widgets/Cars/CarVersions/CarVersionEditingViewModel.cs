@@ -1,8 +1,10 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using System;
@@ -17,17 +19,21 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		private CarVersion _carVersion;
 		private CarOwnType? _selectedCarOwnType;
 		private Organization _selectedCarOwner;
+		private CarVersion _lastCarVersion;
 		private bool _isWidgetVisible;
 		private DialogViewModelBase _parentDialog;
 		IList<CarOwnType> _availableCarOwnTypes;
+		private readonly ICommonServices _commonServices;
 
 		public CarVersionEditingViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope)
+			ILifetimeScope lifetimeScope,
+			ICommonServices commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(nameof(CarVersionEditingViewModel));
 
@@ -67,6 +73,12 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			set => SetField(ref _selectedCarOwner, value);
 		}
 
+		public CarVersion LastCarVersion
+		{
+			get => _lastCarVersion;
+			set => SetField(ref _lastCarVersion, value);
+		}
+
 		public bool IsWidgetVisible
 		{
 			get => _isWidgetVisible;
@@ -104,10 +116,24 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 
 		public bool CanSaveCarVersion => !CanSelectCarOwner || !(SelectedCarOwner is null);
 
+		public bool IsVersionNewAndTypeWithOwnerOrganizationEqualsLastVersion =>
+			_carVersion.Id == 0
+			&& SelectedCarOwner?.Id == LastCarVersion?.CarOwnerOrganization?.Id
+			&& SelectedCarOwnType == LastCarVersion?.CarOwnType;
+
 		private void SaveCarVersion()
 		{
 			if(!CanSaveCarVersion)
 			{
+				return;
+			}
+
+			if(IsVersionNewAndTypeWithOwnerOrganizationEqualsLastVersion)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error, 
+					"В новой версии должен отличаться либо собственник авто, либо принадлежность авто");
+
 				return;
 			}
 
@@ -124,10 +150,15 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			CancelEditingClicked?.Invoke(this, EventArgs.Empty);
 		}
 
-		public void SetWidgetProperties(CarVersion carVersion, IList<CarOwnType> availableCarOwnTypes)
+		public void SetWidgetProperties(CarVersion carVersion, IList<CarOwnType> availableCarOwnTypes, CarVersion lastCarVersion)
 		{
 			_carVersion = carVersion ?? throw new ArgumentNullException(nameof(carVersion));
 			AvailableCarOwnTypes = availableCarOwnTypes ?? throw new ArgumentNullException(nameof(availableCarOwnTypes));
+
+			if(lastCarVersion != null)
+			{
+				LastCarVersion = lastCarVersion;
+			}
 
 			SelectedCarOwnType = _carVersion.CarOwnType;
 			SelectedCarOwner = _carVersion.CarOwnerOrganization;

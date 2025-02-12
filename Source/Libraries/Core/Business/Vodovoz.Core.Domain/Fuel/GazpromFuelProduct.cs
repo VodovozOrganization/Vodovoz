@@ -10,12 +10,12 @@ namespace Vodovoz.Core.Domain.Fuel
 		NominativePlural = "топливо",
 		Nominative = "топливо"
 	)]
-	public class FuelProduct : PropertyChangedBase, IDomainObject
+	public class GazpromFuelProduct : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
-		private int _fuelTypeId;
+		private int _gazpromProductsGroupId;
 		private string _gazpromFuelProductId;
-		private string _description;
+		private string _gazpromFuelProductName;
 		private bool _isArchived;
 
 		/// <summary>
@@ -29,13 +29,13 @@ namespace Vodovoz.Core.Domain.Fuel
 		}
 
 		/// <summary>
-		/// Код типа топлива
+		/// Код группы продуктов в газпроме
 		/// </summary>
-		[Display(Name = "Код типа топлива")]
-		public virtual int FuelTypeId
+		[Display(Name = "Код группы продуктов в газпроме")]
+		public virtual int GazpromProductsGroupId
 		{
-			get => _fuelTypeId;
-			set => SetField(ref _fuelTypeId, value);
+			get => _gazpromProductsGroupId;
+			set => SetField(ref _gazpromProductsGroupId, value);
 		}
 
 		/// <summary>
@@ -49,13 +49,13 @@ namespace Vodovoz.Core.Domain.Fuel
 		}
 
 		/// <summary>
-		/// Описание
+		/// Наименование топлива в газпроме
 		/// </summary>
-		[Display(Name = "Описание")]
-		public virtual string Description
+		[Display(Name = "Наименование топлива в газпроме")]
+		public virtual string GazpromFuelProductName
 		{
-			get => _description;
-			set => SetField(ref _description, value);
+			get => _gazpromFuelProductName;
+			set => SetField(ref _gazpromFuelProductName, value);
 		}
 
 		/// <summary>

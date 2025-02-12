@@ -435,8 +435,9 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 
 			var query =
 				from transaction in uow.Session.Query<FuelTransaction>()
-				join fuelProduct in uow.Session.Query<FuelProduct>() on transaction.ProductId equals fuelProduct.GazpromFuelProductId
-				join fuelType in uow.Session.Query<FuelType>() on fuelProduct.FuelTypeId equals fuelType.Id
+				join fuelProduct in uow.Session.Query<GazpromFuelProduct>() on transaction.ProductId equals fuelProduct.GazpromFuelProductId
+				join productGroup in uow.Session.Query<GazpromFuelProductsGroup>() on fuelProduct.GazpromProductsGroupId equals productGroup.Id
+				join fuelType in uow.Session.Query<FuelType>() on productGroup.FuelTypeId equals fuelType.Id
 				where
 					transaction.TransactionDate >= startDate
 					&& transaction.TransactionDate <= endDate
@@ -469,11 +470,16 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 			return fuleTypes;
 		}
 
-		public IEnumerable<FuelProduct> GetFuelProductsByFuelTypeId(IUnitOfWork uow, int  fuelTypeId)
+		public IEnumerable<GazpromFuelProduct> GetFuelProductsByFuelTypeId(IUnitOfWork uow, int  fuelTypeId)
 		{
-			var products = uow.Session.Query<FuelProduct>()
-				.Where(x => x.FuelTypeId == fuelTypeId && !x.IsArchived)
-				.ToList();
+			var products =
+				(from product in uow.Session.Query<GazpromFuelProduct>()
+				 join productGroup in uow.Session.Query<GazpromFuelProductsGroup>() on product.GazpromProductsGroupId equals productGroup.Id
+				 where
+					productGroup.FuelTypeId == fuelTypeId
+					&& !product.IsArchived
+				 select product)
+				 .ToList();
 
 			return products;
 		}

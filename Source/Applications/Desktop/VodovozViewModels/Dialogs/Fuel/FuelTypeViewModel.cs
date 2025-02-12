@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		public IEnumerable<GazpromFuelProductsGroup> FuelProductGroups { get; }
 
-		public IEnumerable<FuelProduct> FuelProductsInGroup { get; }
+		public IEnumerable<GazpromFuelProduct> FuelProductsInGroup { get; }
 
 		public bool CanEdit { get; }
 
