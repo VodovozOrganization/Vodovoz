@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 

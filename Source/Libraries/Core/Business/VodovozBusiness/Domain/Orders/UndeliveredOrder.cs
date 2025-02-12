@@ -13,6 +13,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;

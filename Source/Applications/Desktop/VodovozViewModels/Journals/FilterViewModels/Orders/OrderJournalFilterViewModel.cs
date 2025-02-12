@@ -22,6 +22,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.Widgets.Search;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Filters.ViewModels
 {

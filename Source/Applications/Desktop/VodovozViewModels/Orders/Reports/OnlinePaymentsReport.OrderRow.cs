@@ -1,7 +1,7 @@
 ﻿using Gamma.Utilities;
 using System;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Orders.Reports
 {

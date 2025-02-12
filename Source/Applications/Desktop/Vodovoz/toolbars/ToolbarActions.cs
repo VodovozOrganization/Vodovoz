@@ -14,6 +14,7 @@ using QSReport;
 using System;
 using Vodovoz;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Orders;

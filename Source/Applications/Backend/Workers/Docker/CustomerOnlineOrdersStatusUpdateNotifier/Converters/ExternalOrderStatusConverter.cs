@@ -1,4 +1,5 @@
 ﻿using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Orders;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Converters

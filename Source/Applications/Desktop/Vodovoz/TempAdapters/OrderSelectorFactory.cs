@@ -3,6 +3,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;

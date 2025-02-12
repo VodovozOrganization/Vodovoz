@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using System;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment

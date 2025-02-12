@@ -36,6 +36,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {

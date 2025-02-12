@@ -9,7 +9,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Sms.Internal;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Models;
@@ -18,6 +17,7 @@ using Vodovoz.Settings.Roboats;
 using VodovozBusiness.Services.Orders;
 using static VodovozBusiness.Services.Orders.CreateOrderRequest;
 using VodovozBusiness.Extensions.Mapping;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace RoboatsService.Handlers
 {

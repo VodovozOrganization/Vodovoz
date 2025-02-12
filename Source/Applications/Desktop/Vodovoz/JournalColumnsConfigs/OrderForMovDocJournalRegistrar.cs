@@ -2,7 +2,7 @@
 using Gamma.Utilities;
 using Gtk;
 using QSProjectsLib;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalViewModels;

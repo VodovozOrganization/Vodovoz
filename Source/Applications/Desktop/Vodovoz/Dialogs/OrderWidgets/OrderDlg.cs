@@ -136,6 +136,7 @@ using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConver
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using LogLevel = NLog.LogLevel;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz
 {

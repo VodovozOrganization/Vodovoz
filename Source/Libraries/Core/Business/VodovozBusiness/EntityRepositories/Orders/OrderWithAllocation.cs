@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.EntityRepositories.Orders
 {

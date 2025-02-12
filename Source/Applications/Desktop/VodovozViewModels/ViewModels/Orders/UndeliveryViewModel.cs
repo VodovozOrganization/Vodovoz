@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;

@@ -10,7 +10,7 @@ using Vodovoz.Domain.Organizations;
 using QS.Commands;
 using QS.Dialog;
 using Gamma.Utilities;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Filters.ViewModels
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Gamma.Widgets.Additions;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Filters.GtkViews

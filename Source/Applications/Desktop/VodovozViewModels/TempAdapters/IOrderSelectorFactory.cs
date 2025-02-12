@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;

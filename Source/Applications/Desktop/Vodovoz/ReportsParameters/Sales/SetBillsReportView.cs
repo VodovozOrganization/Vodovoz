@@ -1,7 +1,7 @@
 ﻿using Gamma.Utilities;
 using QS.Views;
 using System.ComponentModel;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.ViewModels.ReportsParameters;
 
 namespace Vodovoz.ReportsParameters

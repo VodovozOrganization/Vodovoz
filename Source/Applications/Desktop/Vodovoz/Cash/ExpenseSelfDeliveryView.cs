@@ -1,6 +1,7 @@
 ﻿using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using System.ComponentModel;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
@@ -51,7 +52,7 @@ namespace Vodovoz.Cash
 				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(filter =>
 				{
 					filter.RestrictOnlySelfDelivery = true;
-					filter.RestrictStatus = Domain.Orders.OrderStatus.WaitForPayment;
+					filter.RestrictStatus = OrderStatus.WaitForPayment;
 					filter.RestrictHideService = true;
 				})
 				.Finish();

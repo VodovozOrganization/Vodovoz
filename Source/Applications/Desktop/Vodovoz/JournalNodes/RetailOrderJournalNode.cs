@@ -2,6 +2,7 @@
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 

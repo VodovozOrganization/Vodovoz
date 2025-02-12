@@ -21,6 +21,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;

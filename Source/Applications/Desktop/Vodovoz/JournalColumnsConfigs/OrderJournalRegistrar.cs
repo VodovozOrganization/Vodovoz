@@ -4,7 +4,7 @@ using Gtk;
 using QSProjectsLib;
 using System;
 using System.Globalization;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
