@@ -25,6 +25,7 @@ namespace Vodovoz.Core.Data.NHibernate.Edo
 			Map(x => x.ClientGovContract).Column("client_gov_contract");
 			Map(x => x.ClientInn).Column("client_inn");
 			Map(x => x.ClientKpp).Column("client_kpp");
+			Map(x => x.ClientPersonalAccountIdInEdo).Column("client_personal_account_id_in_edo");
 			Map(x => x.ConsigneeName).Column("consignee_name");
 			Map(x => x.ConsigneeAddress).Column("consignee_address");
 			Map(x => x.ConsigneeInn).Column("consignee_inn");

@@ -30,6 +30,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private string _clientGovContract;
 		private string _clientInn;
 		private string _clientKpp;
+		private string _clientPersonalAccountIdInEdo;
 
 		private string _consigneeName;
 		private string _consigneeAddress;
@@ -193,6 +194,16 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _clientKpp;
 			set => SetField(ref _clientKpp, value);
+		}
+
+		/// <summary>
+		/// Код личного кабинета клиента в ЭДО
+		/// </summary>
+		[Display(Name = "Код личного кабинета клиента в ЭДО")]
+		public virtual string ClientPersonalAccountIdInEdo
+		{
+			get => _clientPersonalAccountIdInEdo;
+			set => SetField(ref _clientPersonalAccountIdInEdo, value);
 		}
 
 		/// <summary>
