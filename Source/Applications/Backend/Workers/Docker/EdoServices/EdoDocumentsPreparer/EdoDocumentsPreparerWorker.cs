@@ -209,7 +209,7 @@ namespace EdoDocumentsPreparer
 					_logger.LogInformation("Отправляем {Document} по заказу {OrderId}",
 						document,
 						order.Id);
-					await GenerateUpdAndSendMessage(uow, bulkAccountingEdoTasks[i], order, document);
+					await GenerateUpdAndSendMessage(uow, order, document, bulkAccountingEdoTasks[i]);
 					bulkAccountingEdoTasks.RemoveAt(i);
 				}
 
@@ -239,7 +239,7 @@ namespace EdoDocumentsPreparer
 						document,
 						reSentOrder.Id);
 				
-					await GenerateUpdAndSendMessage(uow, bulkAccountingEdoTasks[i], reSentOrder, document);
+					await GenerateUpdAndSendMessage(uow, reSentOrder, document);
 				}
 			}
 			catch(Exception e)
@@ -250,9 +250,9 @@ namespace EdoDocumentsPreparer
 
 		private async Task GenerateUpdAndSendMessage(
 			IUnitOfWork uow,
-			BulkAccountingEdoTask task,
 			Order order,
-			string document)
+			string document,
+			BulkAccountingEdoTask task = null)
 		{
 			var orderPayments = _orderRepository.GetOrderPayments(uow, order.Id)
 				.Where(p => order.DeliveryDate.HasValue && p.Date < order.DeliveryDate.Value.AddDays(1))
@@ -268,8 +268,12 @@ namespace EdoDocumentsPreparer
 				.OrderUpd(order)
 				.MainDocumentId(updInfo.MainDocumentId.ToString())
 				.Build();
+
+			if(task != null)
+			{
+				edoContainer.EdoTaskId = task.Id;
+			}
 			
-			edoContainer.EdoTaskId = task.Id;
 			_logger.LogInformation("Сохраняем контейнер с {Document} {OrderId}", document, order.Id);
 			await uow.SaveAsync(edoContainer);
 			await uow.CommitAsync();
@@ -279,16 +283,16 @@ namespace EdoDocumentsPreparer
 				return;
 			}
 
-			await SendUpdMessage(uow, document, task, order, updInfo, edoContainer);
+			await SendUpdMessage(uow, document, order, updInfo, edoContainer, task);
 		}
 
 		private async Task SendUpdMessage(
 			IUnitOfWork uow,
 			string document,
-			BulkAccountingEdoTask task,
 			Order order,
 			InfoForCreatingEdoUpd updInfo,
-			EdoContainer edoContainer)
+			EdoContainer edoContainer,
+			BulkAccountingEdoTask task = null)
 		{
 			try
 			{
