@@ -150,6 +150,14 @@ namespace VodovozBusiness.Services.TrueMark
 
 				return Result.Success();
 			}
+			catch(TrueMarkException ex)
+			{
+				var error = TrueMarkCodeErrors.CreateTrueMarkApiRequestError(
+					$"Запрос к API ЧЗ для проверки кода вернул ответ с ошибкой. " +
+					$"{ex.Message}");
+				_logger.LogError(ex, error.Message);
+				return Result.Failure(error);
+			}
 			catch(Exception ex)
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkApiRequestError(
