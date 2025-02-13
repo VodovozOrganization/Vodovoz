@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application.Contacts;
 using Vodovoz.Application.Complaints;
 using Vodovoz.Application.FileStorage;
@@ -17,6 +17,7 @@ using Vodovoz.Services.Orders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
+using DriverApi.Notifications.Client;
 
 namespace Vodovoz.Application
 {
@@ -53,6 +54,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+			.AddDriverApiNotificationsSenders()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

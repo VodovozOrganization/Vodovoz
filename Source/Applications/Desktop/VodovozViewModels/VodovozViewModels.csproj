@@ -94,6 +94,7 @@
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalNode.cs" />
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarEventTypeFilterViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\GtinJournalViewModel.cs" />
     <Compile Include="Options\ConfigureGeoCoderApiOptions.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.AddressDataNode.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.cs" />
@@ -425,6 +426,9 @@
     <Compile Include="Store\Reports\WarehouseIdToNameNode.cs" />
     <Compile Include="TempAdapters\IReportExporter.cs" />
     <Compile Include="TempAdapters\PacsViewModelOpener.cs" />
+    <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReport.cs" />
+    <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportRow.cs" />
+    <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="ViewModels\Contacts\EmailsViewModel.cs" />
@@ -455,6 +459,7 @@
     <Compile Include="Journals\JournalViewModels\Orders\OrderJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Sale\DeliveryPriceRuleJournalViewModel.cs" />
     <Compile Include="ReportsParameters\Profitability\ProfitabilitySalesReportViewModel.cs" />
+    <Compile Include="ViewModels\Goods\GtinViewModel.cs" />
     <Compile Include="ViewModels\Goods\KulerSaleWebSiteNomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="ViewModels\Goods\MobileAppNomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
@@ -842,6 +847,9 @@
     <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReport.cs" />
     <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReportRow.cs" />
     <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\ChangingFormOfPaymentByDriversReport\ChangingPaymentTypeByDriversReport.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\ChangingFormOfPaymentByDriversReport\ChangingPaymentTypeByDriversReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\ChangingFormOfPaymentByDriversReport\ChangingPaymentTypeByDriversReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Logistics\CompletedDriversWarehousesEventsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportNode.cs" />
@@ -1066,7 +1074,6 @@
     <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Orders\FastDeliveryVerificationDetailsViewModel.cs" />
     <Compile Include="ViewModels\Reports\IncomingCallsAnalysisReportViewModel.cs" />
-    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsColorizeType.cs" />
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixViewModel.cs" />
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixColumn.cs" />
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixRow.cs" />
