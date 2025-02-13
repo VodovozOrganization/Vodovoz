@@ -1,28 +1,29 @@
-﻿using QS.Project.DB;
-using System;
+﻿using System;
+using QS.Project.DB;
 
-namespace DatabaseServiceWorker.PowerBiWorker.Dto
+namespace DatabaseServiceWorker.PowerBiWorker.Options
 {
-	internal sealed class PowerBiExportOptions
+	public sealed class PowerBiExportOptions
 	{
 		/// <summary>
 		/// Интервал генерации отчёта
 		/// </summary>
-		public TimeSpan Interval { get; set; }
+		public TimeSpan Interval { get; init; }
 
 		/// <summary>
 		/// Путь для экспорта отчёта
 		/// </summary>
-		public string ExportPath { get; set; }
+		public string ExportPath { get; init; }
 
 		/// <summary>
 		/// Начальная дата выборки для отчётов
 		/// </summary>
-		public DateTime StartDate { get; set; }
+		public DateTime StartDate { get; init; }
+
 		/// <summary>
 		/// Колв-во предыдущих дней для экспорта дата выборки для отчётов
 		/// </summary>
-		public int NumberOfDaysToExport { get; set; }
+		public int NumberOfDaysToExport { get; init; }
 
 		/// <summary>
 		/// Логин для доступа к сетевой папке
@@ -32,12 +33,11 @@ namespace DatabaseServiceWorker.PowerBiWorker.Dto
 		/// <summary>
 		/// Пароль для доступа к сетевой папке
 		/// </summary>
-		public string Password { get; set; }
+		public string Password { get; init; }
 
 		/// <summary>
 		/// БД PowerBi
 		/// </summary>
-		public DatabaseConnectionSettings TargetDataBase { get; set; }
-
+		public DatabaseConnectionSettings TargetDataBaseConnectionSettings { get; init; }
 	}
 }

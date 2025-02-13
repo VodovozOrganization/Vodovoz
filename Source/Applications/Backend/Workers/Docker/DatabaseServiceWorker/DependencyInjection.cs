@@ -1,5 +1,5 @@
 ﻿using DatabaseServiceWorker.Options;
-using DatabaseServiceWorker.PowerBiWorker.Dto;
+using DatabaseServiceWorker.PowerBiWorker.Options;
 using FuelControl.Library.Converters;
 using FuelControl.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
