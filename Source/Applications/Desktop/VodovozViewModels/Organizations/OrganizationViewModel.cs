@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -10,6 +11,7 @@ using QS.ViewModels.Extension;
 using System;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.Widgets.Organizations;
 
 namespace Vodovoz.ViewModels.Organizations
@@ -19,10 +21,12 @@ namespace Vodovoz.ViewModels.Organizations
 		IAskSaveOnCloseViewModel
 	{
 		private readonly ILogger<OrganizationViewModel> _logger;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory;
 
 		public OrganizationViewModel(
 			ILogger<OrganizationViewModel> logger,
+			ILifetimeScope lifetimeScope,
 			IOrganizationVersionsViewModelFactory organizationVersionsViewModelFactory,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -32,10 +36,13 @@ namespace Vodovoz.ViewModels.Organizations
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_organizationVersionsViewModelFactory = organizationVersionsViewModelFactory
 				?? throw new ArgumentNullException(nameof(organizationVersionsViewModelFactory));
 
 			OrganizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity, CanEdit);
+			PhonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			PhonesViewModel.PhonesList = Entity.Phones;
 
 			SaveCommand = new DelegateCommand(
 				() => Save(true),
@@ -49,7 +56,7 @@ namespace Vodovoz.ViewModels.Organizations
 		}
 
 		public OrganizationVersionsViewModel OrganizationVersionsViewModel { get; }
-
+		public PhonesViewModel PhonesViewModel { get; }
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
 
@@ -67,6 +74,7 @@ namespace Vodovoz.ViewModels.Organizations
 
 			try
 			{
+				PhonesViewModel.RemoveEmpty();
 				return base.Save(close);
 			}
 			catch(Exception ex)

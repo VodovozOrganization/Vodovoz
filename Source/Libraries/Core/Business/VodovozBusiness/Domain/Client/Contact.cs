@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Contacts;
 
@@ -83,8 +84,8 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
-		[Display (Name = "Телефоны")]
-		public virtual IList<Phone> Phones { get; set; }
+		[Display(Name = "Телефоны")]
+		public virtual IObservableList<Phone> Phones { get; set; } = new ObservableList<Phone>();
 
 		[Display(Name = "E-mail адреса")]
 		public virtual IList<Email> Emails { get; set; } = new List<Email>();

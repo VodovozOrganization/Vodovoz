@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		private ILifetimeScope _scope;
 
 		private bool _readOnly;
-		private GenericObservableList<Phone> _phonesList;
+		private IList<Phone> _phonesList;
 		private IList<PhoneViewModel> _phoneViewModels = new List<PhoneViewModel>();
 
 		#region Properties
@@ -34,8 +34,8 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public IList<PhoneType> PhoneTypes;
 		public DeliveryPoint DeliveryPoint { get; set; }
 		public Domain.Client.Counterparty Counterparty { get; set; }
-		
-		public virtual GenericObservableList<Phone> PhonesList
+
+		public virtual IList<Phone> PhonesList
 		{
 			get => _phonesList;
 			set => SetField(ref _phonesList, value);

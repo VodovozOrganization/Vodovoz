@@ -1,5 +1,6 @@
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
@@ -20,12 +21,12 @@ namespace Vodovoz.Domain.Organizations
 	public class Organization : OrganizationEntity
 	{
 		private OrganizationVersion _activeOrganizationVersion;
-		private IList<Phone> _phones = new List<Phone>();
+		private IObservableList<Phone> _phones = new ObservableList<Phone>();
 		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
 		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
 
 		[Display(Name = "Телефоны")]
-		public virtual new IList<Phone> Phones {
+		public virtual new IObservableList<Phone> Phones {
 			get => _phones;
 			set => SetField(ref _phones, value);
 		}

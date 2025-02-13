@@ -162,12 +162,14 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
-			PhonesViewModel = new PhonesViewModel(_phoneTypeSettings, phoneRepository, UoW, contactsParameters, _roboatsJournalsFactory, CommonServices)
-			{
-				PhonesList = Entity.ObservablePhones,
-				DeliveryPoint = Entity,
-				ReadOnly = !CanEdit
-			};
+
+			PhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(
+				new TypedParameter(typeof(IUnitOfWork), UoW),
+				new TypedParameter(typeof(RoboatsJournalsFactory), _roboatsJournalsFactory));
+
+			PhonesViewModel.PhonesList = Entity.ObservablePhones;
+			PhonesViewModel.DeliveryPoint = Entity;
+			PhonesViewModel.ReadOnly = !CanEdit;
 
 			CitiesDataLoader = citiesDataLoader ?? throw new ArgumentNullException(nameof(citiesDataLoader));
 			StreetsDataLoader = streetsDataLoader ?? throw new ArgumentNullException(nameof(streetsDataLoader));

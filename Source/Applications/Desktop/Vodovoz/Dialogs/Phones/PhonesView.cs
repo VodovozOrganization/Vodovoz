@@ -10,6 +10,7 @@ using QS.Extensions;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewWidgets.Mango;
+using System;
 
 namespace Vodovoz.Dialogs.Phones
 {
@@ -41,12 +42,12 @@ namespace Vodovoz.Dialogs.Phones
 				return;
 			}
 
-			buttonAddPhone.Clicked += (sender, e) => ViewModel.AddItemCommand.Execute();
+			buttonAddPhone.Clicked += OnAddPhoneClicked;
 			buttonAddPhone.Binding
 				.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ViewModel.PhonesList.PropertyChanged += OnPhoneListPropertyChanged;
+			//ViewModel.PhonesList.PropertyChanged += OnPhoneListPropertyChanged;
 			Redraw();
 		}
 
@@ -215,7 +216,7 @@ namespace Vodovoz.Dialogs.Phones
 			var image = new Image();
 			image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-delete", IconSize.Menu);
 			widget.Image = image;
-			widget.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute(hBox.Data["phone"] as Phone);
+			widget.Clicked += OnDeletePhoneClicked;
 			widget.Binding
 				.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive)
 				.InitializeFromSource();
@@ -226,6 +227,16 @@ namespace Vodovoz.Dialogs.Phones
 		private void OnPhoneListPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			Redraw();
+		}
+
+		private void OnAddPhoneClicked(object sender, EventArgs e)
+		{
+			ViewModel.AddItemCommand.Execute();
+		}
+
+		private void OnDeletePhoneClicked(object sender, EventArgs e)
+		{
+			ViewModel.DeleteItemCommand.Execute(new Phone()/*hBox.Data["phone"] as Phone*/);
 		}
 
 		private void Redraw()
@@ -248,7 +259,7 @@ namespace Vodovoz.Dialogs.Phones
 
 		public override void Destroy()
 		{
-			ViewModel.PhonesList.PropertyChanged -= OnPhoneListPropertyChanged;
+			//ViewModel.PhonesList.PropertyChanged -= OnPhoneListPropertyChanged;
 			base.Destroy();
 		}
 	}

@@ -146,10 +146,10 @@ namespace Vodovoz.ViewModels.Counterparties
 
 			DeliveryPointViewModel.IsEditable = CanChengeDeliveryPoint;
 
-			CounterpartyPhonesViewModel = new PhonesViewModel(_phoneTypeSettings, _phoneRepository, UoW, _contactSettings, _commonServices);
+			CounterpartyPhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
 			CounterpartyPhonesViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesViewModel = new PhonesViewModel(_phoneTypeSettings, _phoneRepository, UoW, _contactSettings, _commonServices);
+			DeliveryPointPhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
 			DeliveryPointPhonesViewModel.ReadOnly = true;
 
 			CreateReportByCounterpartyCommand = new DelegateCommand(CreateReportByCounterparty, () => CanCreateReportByCounterparty);

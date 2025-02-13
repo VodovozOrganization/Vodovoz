@@ -44,7 +44,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label8;
 
-		private global::Vodovoz.Views.Contacts.PhonesView phonesView;
+		private global::Vodovoz.Dialogs.Phones.PhonesView phonesView;
 
 		private global::Gamma.Widgets.yEntryReference referencePost;
 
@@ -271,10 +271,9 @@ namespace Vodovoz
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.phonesView = new global::Vodovoz.Views.Contacts.PhonesView();
+			this.phonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
 			this.phonesView.Events = ((global::Gdk.EventMask)(256));
 			this.phonesView.Name = "phonesView";
-			this.phonesView.IsReadOnly = false;
 			this.datatable1.Add(this.phonesView);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatable1[this.phonesView]));
 			w21.TopAttach = ((uint)(5));
@@ -306,8 +305,6 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 		}
 	}
 }
