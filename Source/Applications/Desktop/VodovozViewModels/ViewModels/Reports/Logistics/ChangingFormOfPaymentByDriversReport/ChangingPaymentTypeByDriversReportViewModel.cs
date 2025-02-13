@@ -201,7 +201,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 				join e in unitOfWork.Session.Query<Employee>()
 					on rl.Driver.Id equals e.Id
 
-				let sum = (
+				let sum = (int?)(
 					from oi in unitOfWork.Session.Query<OrderItem>()
 					where
 						oi.Order.Id == o.Id
@@ -227,7 +227,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 					DriverName = string.Join(" ", e.LastName, e.Name, e.Patronymic),
 					OriginalPaymentTypeString = hc.OldValue,
 					NewPaymentTypeString = hc.NewValue,
-					OrderSum = sum.ToString("0.00")
+					OrderSum = sum == null ? "0.00" : sum.Value.ToString("0.00")
 				}
 			).ToListAsync(cancellationToken);
 
