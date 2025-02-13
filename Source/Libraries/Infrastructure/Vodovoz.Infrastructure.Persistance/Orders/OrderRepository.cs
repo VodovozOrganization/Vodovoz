@@ -1112,11 +1112,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public IEnumerable<VodovozOrder> GetCashlessOrdersForEdoSendUpd(
 			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
 		{
-			var ordersForNewUpd = GetOrdersForFirstUpdSending(uow, startDate, organizationId, closingDocumentDeliveryScheduleId);
-			var ordersForResendUpd = GetOrdersForResendUpd(uow);
-			var result = ordersForNewUpd.Union(ordersForResendUpd);
-			
-			return result;
+			return GetOrdersForFirstUpdSending(uow, startDate, organizationId, closingDocumentDeliveryScheduleId);
 		}
 
 		public IEnumerable<int> GetNewEdoProcessOrders(IUnitOfWork uow, IEnumerable<int> orderIds)
@@ -1872,7 +1868,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
 					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
-				.Where(() => orderAlias.DeliveryDate >= startDate);
+				.Where(() => orderAlias.DeliveryDate >= startDate)
+				.And(() => !counterpartyAlias.IsNewEdoProcessing);
 
 			var orderStatusRestriction = Restrictions.Or(
 				Restrictions.And(

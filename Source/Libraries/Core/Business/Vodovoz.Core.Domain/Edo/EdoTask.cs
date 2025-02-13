@@ -9,7 +9,6 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		private int _id;
 		private DateTime _creationTime;
-		private EdoTaskType _taskType;
 		private EdoTaskStatus _status;
 		private DateTime? _startTime;
 		private DateTime? _endTime;
@@ -30,11 +29,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Тип")]
-		public virtual EdoTaskType TaskType
-		{
-			get => _taskType;
-			set => SetField(ref _taskType, value);
-		}
+		public abstract EdoTaskType TaskType { get; }
 
 		[Display(Name = "Статус")]
 		public virtual EdoTaskStatus Status
@@ -63,6 +58,5 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _problems;
 			set => SetField(ref _problems, value);
 		}
-
 	}
 }

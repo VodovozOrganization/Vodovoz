@@ -2,6 +2,6 @@
 {
 	public class BulkAccountingEdoTask : OrderEdoTask
 	{
-		// Пока ничего не требуется, просто сохранение кодов
+		public override EdoTaskType TaskType => EdoTaskType.BulkAccounting;
 	}
 }

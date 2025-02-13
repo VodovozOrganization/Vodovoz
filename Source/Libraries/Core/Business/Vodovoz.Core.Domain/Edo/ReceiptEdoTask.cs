@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -16,5 +13,7 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _cashReceiptId;
 			set => SetField(ref _cashReceiptId, value);
 		}
+
+		public override EdoTaskType TaskType => EdoTaskType.Receipt;
 	}
 }

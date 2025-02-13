@@ -63,5 +63,6 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _transferOrderId, value);
 		}
 
+		public override EdoTaskType TaskType => EdoTaskType.Transfer;
 	}
 }

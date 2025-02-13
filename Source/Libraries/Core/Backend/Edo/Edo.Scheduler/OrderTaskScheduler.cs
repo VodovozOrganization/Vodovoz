@@ -41,6 +41,13 @@ namespace Edo.Scheduler.Service
 
 		private EdoTask CreateDocumentEdoTask(OrderEdoRequest edoRequest)
 		{
+			return edoRequest.Order.Client.IsNewEdoProcessing
+				? CreateInstanceAccountingEdoTask(edoRequest)
+				: CreateBulkAccountingEdoTask(edoRequest);
+		}
+		
+		private EdoTask CreateInstanceAccountingEdoTask(OrderEdoRequest edoRequest)
+		{
 			var task = new DocumentEdoTask
 			{
 				DocumentType = edoRequest.DocumentType,

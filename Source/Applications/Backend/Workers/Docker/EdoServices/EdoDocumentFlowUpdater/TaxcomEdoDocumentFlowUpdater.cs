@@ -17,6 +17,7 @@ using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Edo;
@@ -288,7 +289,7 @@ namespace EdoDocumentFlowUpdater
 		private async Task TryUpdateEdoContainer(
 			CancellationToken cancellationToken,
 			EdoContainer container,
-			EdoDocFlow item,
+			EdoDocFlow docflow,
 			EdoDocFlowDocument mainDocument,
 			ITaxcomApiClient taxcomApiClient,
 			IUnitOfWork uow)
@@ -299,18 +300,18 @@ namespace EdoDocumentFlowUpdater
 			}
 			
 			var containerReceived =
-				item.Documents.FirstOrDefault(x => x.TransactionCode == "PostDateConfirmation") != null;
+				docflow.Documents.FirstOrDefault(x => x.TransactionCode == "PostDateConfirmation") != null;
 
-			container.DocFlowId = item.Id;
+			container.DocFlowId = docflow.Id;
 			container.Received = containerReceived;
 			container.InternalId = mainDocument.InternalId;
-			container.ErrorDescription = item.ErrorDescription;
-			container.EdoDocFlowStatus = item.Status.TryParseAsEnum<EdoDocFlowStatus>().Value;
+			container.ErrorDescription = docflow.ErrorDescription;
+			container.EdoDocFlowStatus = docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value;
 
 			if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 			{
 				var containerRawData =
-					await taxcomApiClient.GetDocFlowRawData(item.Id.Value.ToString(), cancellationToken);
+					await taxcomApiClient.GetDocFlowRawData(docflow.Id.Value.ToString(), cancellationToken);
 
 				using var ms = new MemoryStream(containerRawData.ToArray());
 
@@ -324,10 +325,55 @@ namespace EdoDocumentFlowUpdater
 					_logger.LogError("Не удалось обновить контейнер, ошибка: {Errors}", errors);
 				}
 			}
+			
+			TryUpdateEdoTask(uow, container);
 
 			_logger.LogInformation("Сохраняем изменения контейнера по заказу №{OrderId}", container.Order?.Id);
 			await uow.SaveAsync(container);
 			await uow.CommitAsync();
+		}
+
+		private void TryUpdateEdoTask(IUnitOfWork uow, EdoContainer container)
+		{
+			var task = uow
+				.GetAll<BulkAccountingEdoTask>()
+				.SingleOrDefault(x => x.Id == container.EdoTaskId);
+
+			if(task is null)
+			{
+				_logger.LogWarning(
+					"Не найдена таска для контейнера с документом {EdoDocumentId} по заказу {OrderId}, возможно это старый контейнер...",
+					container.MainDocumentId,
+					container.Order.Id);
+				return;
+			}
+
+			switch(container.EdoDocFlowStatus)
+			{
+				case EdoDocFlowStatus.Succeed:
+					task.Status = EdoTaskStatus.Completed;
+					break;
+				//что делаем при аннулировании???
+				//все зависит от наших действий, если мы работаем с одной таской, то скорее всего ничего
+				//т.к. будет создана задача на переотправку, а сама таска уже в нужном статусе, т.е. в работе
+				//иначе надо переводить ее в завершенный статус, если у нас будет создаваться новая таска на переотправку
+				case EdoDocFlowStatus.Cancelled:
+				case EdoDocFlowStatus.NotAccepted:
+				case EdoDocFlowStatus.Unknown:
+					break;
+				
+				case EdoDocFlowStatus.Error:
+				case EdoDocFlowStatus.Warning:
+				case EdoDocFlowStatus.CompletedWithDivergences:
+					task.Status = EdoTaskStatus.Problem;
+					//создать описание проблемы
+					break;
+				default:
+					task.Status = EdoTaskStatus.InProgress;
+					break;
+			}
+			
+			uow.Save(task);
 		}
 
 		private async Task CancellationDocFlows(CancellationToken cancellationToken)

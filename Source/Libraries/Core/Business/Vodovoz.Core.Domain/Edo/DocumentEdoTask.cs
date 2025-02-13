@@ -1,5 +1,4 @@
-﻿using QS.Extensions.Observable.Collections.List;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -37,5 +36,7 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _stage;
 			set => SetField(ref _stage, value);
 		}
+
+		public override EdoTaskType TaskType => EdoTaskType.Order;
 	}
 }

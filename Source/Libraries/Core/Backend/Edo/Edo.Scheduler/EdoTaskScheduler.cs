@@ -92,7 +92,7 @@ namespace Edo.Scheduler.Service
 						throw new NotImplementedException("Необходимо реализовать процесс для сохранения кодов");
 						break;
 					case EdoTaskType.BulkAccounting:
-						throw new NotImplementedException("Необходимо реализовать процесс для объемно-сортового учета");
+						//ничего отправлять пока не нужно, т.к. EdoDocumentsPreparerWorker сам подтянет сущности задач
 						break;
 					case EdoTaskType.Transfer:
 						throw new NotSupportedException("Создание задачи на трансфер из планировщика не предусмотрено");
