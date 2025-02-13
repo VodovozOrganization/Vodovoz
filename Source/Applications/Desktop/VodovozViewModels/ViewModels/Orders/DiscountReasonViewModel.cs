@@ -172,26 +172,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		public void UpdateNomenclatureCategories(SelectableNomenclatureCategoryNode selectedCategory) =>
 			Entity.UpdateNomenclatureCategories(selectedCategory);
-
-		public override bool Save(bool close)
-		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				if(_discountReasonRepository.ExistsActiveDiscountReasonWithName(
-					uow, Entity.Id, Entity.Name, out var activeDiscountReasonWithSameName))
-				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						"Уже существует основание для скидки с таким названием.\n" +
-						"Сохранение текущего основания невозможно.\n" +
-						"Существующее основание:\n" +
-						$"Код: {activeDiscountReasonWithSameName.Id}\n" +
-						$"Название: {activeDiscountReasonWithSameName.Name}");
-					return false;
-				}
-			}
-			
-			return base.Save(close);
-		}
 		
 		private void SetPermissions()
 		{

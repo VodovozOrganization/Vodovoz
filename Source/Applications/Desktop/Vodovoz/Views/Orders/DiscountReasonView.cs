@@ -214,7 +214,6 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
 				.InitializeFromSource();
 
-			timePromoCodeDuration.AutocompleteStepInMinutes = 60;
 			timePromoCodeDuration.Binding
 				.AddBinding(ViewModel.Entity, e => e.StartTimePromoCode, w => w.TimeStart)
 				.AddBinding(ViewModel.Entity, e => e.EndTimePromoCode, w => w.TimeEnd)

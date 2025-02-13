@@ -288,6 +288,8 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult($"Размер скидки в процентах больше {_percentsLimit}", new[] { nameof(Value) });
 			}
+			
+			var discountRepository = validationContext.GetRequiredService<IDiscountReasonRepository>();
 
 			if(IsPromoCode)
 			{
@@ -310,26 +312,41 @@ namespace Vodovoz.Domain.Orders
 						new[] { nameof(StartDatePromoCode) });
 				}
 
-				if(!EndTimePromoCode.HasValue)
+				if(!EndDatePromoCode.HasValue)
 				{
 					yield return new ValidationResult(
 						"Не заполнена конечная дата действия промокода",
-						new[] { nameof(EndTimePromoCode) });
+						new[] { nameof(EndDatePromoCode) });
 				}
 
-				//уточнить необходимость этой проверки
-				/*using(var uow = validationContext.GetRequiredService<IUnitOfWorkFactory>()
-					      .CreateWithoutRoot("Проверка промокода на дубли"))
+				using(var uow =
+				      validationContext.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Проверка промокода на дубли"))
 				{
-					var discountRepository = validationContext.GetRequiredService<IDiscountReasonRepository>();
 
 					if(discountRepository.ExistsPromoCodeWithName(uow, Id, PromoCodeName, out var duplicatePromoCode))
 					{
+						var archived = duplicatePromoCode.IsArchive ? "архивный" : null;
 						yield return new ValidationResult(
-							"Уже есть созданный промокод",
-							new[] { nameof(EndTimePromoCode) });
+							$"Уже есть созданный {archived} промокод {duplicatePromoCode.Id} {duplicatePromoCode.Name}",
+							new[] { nameof(PromoCodeName) });
 					}
-				}*/
+				}
+			}
+			else
+			{
+				using(var uow =
+				      validationContext.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Проверка основания скидки на дубли"))
+				{
+					if(discountRepository.ExistsActiveDiscountReasonWithName(
+						   uow, Id, Name, out var activeDiscountReasonWithSameName))
+					{
+						yield return new ValidationResult(
+							"Уже существует основание для скидки с таким названием.\n" +
+							$"Код: {activeDiscountReasonWithSameName.Id}\n" +
+							$"Название: {activeDiscountReasonWithSameName.Name}",
+							new[] { nameof(Name) });
+					}
+				}
 			}
 		}
 

@@ -16,11 +16,23 @@
 					nameof(ExpiredDateDuration),
 					"Истекший срок действия");
 
-			public static Error ExpiredTimeDuration(string startTime, string endTime) =>
-				new Error(
-					typeof(Discount),
-					nameof(ExpiredTimeDuration),
-					$"Промокод действует только с {startTime} по {endTime}");
+			public static Error ExpiredTimeDuration(string startTime, string endTime)
+			{
+				const string message = "Промокод действует только";
+
+				if(string.IsNullOrEmpty(startTime) && !string.IsNullOrEmpty(endTime))
+				{
+					return new Error(typeof(Discount), nameof(ExpiredTimeDuration), $"{message} по {endTime}");
+				}
+				
+				if(!string.IsNullOrEmpty(startTime) && string.IsNullOrEmpty(endTime))
+				{
+					return new Error(typeof(Discount), nameof(ExpiredTimeDuration), $"{message} c {startTime}");
+				}
+				
+				return new Error(typeof(Discount), nameof(ExpiredTimeDuration), $"{message} c {startTime} по {endTime}");
+			}
+				
 
 			public static Error InvalidMinimalOrderSum =>
 				new Error(
