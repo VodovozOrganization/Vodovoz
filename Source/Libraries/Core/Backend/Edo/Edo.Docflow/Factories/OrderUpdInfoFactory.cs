@@ -1,16 +1,13 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Edo.Contracts.Messages.Dto;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.TrueMark;
 
 namespace Edo.Docflow.Factories
 {
@@ -34,9 +31,12 @@ namespace Edo.Docflow.Factories
 
 		public UniversalTransferDocumentInfo CreateUniversalTransferDocumentInfo(OrderEntity order, IEnumerable<TrueMarkWaterIdentificationCode> codes)
 		{
-			var orderUpdOperation = _orderUpdOperationRepository.Get(_uow, x => x.OrderId == order.Id).FirstOrDefault();
+			using(var uow = _uowFactory.CreateWithoutRoot(nameof(OrderUpdInfoFactory)))
+			{
+				var orderUpdOperation = _orderUpdOperationRepository.Get(uow, x => x.OrderId == order.Id).FirstOrDefault();
 
-			return ConvertTransferOrderToUniversalTransferDocumentInfo(orderUpdOperation, codes);
+				return ConvertTransferOrderToUniversalTransferDocumentInfo(orderUpdOperation, codes);
+			}
 		}
 
 		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(
@@ -231,11 +231,9 @@ namespace Edo.Docflow.Factories
 
 			foreach(var updOperationProduct in orderUpdOperation.Goods)
 			{
-				var orderItemsCodes = codes.Where(x => x.GTIN == updOperationProduct.Gtin).Select(x => x.FullCode);
-
 				var orderItemsCodes =
 					codes
-						.Where(x => x.GTIN == nomenclature.Gtin)
+						.Where(x => x.GTIN == updOperationProduct.Gtin)
 						.Select(x => x.ConvertToIdentificationCode());
 
 				var product = new ProductInfo
@@ -259,10 +257,10 @@ namespace Edo.Docflow.Factories
 			return products;
 		}
 
-		private NomenclatureEntity GetNomenclatureByGtin(string gtin) =>
-			_nomenclatureRepository.Get(_uow, x => x.Gtin == gtin).FirstOrDefault();
+		private NomenclatureEntity GetNomenclatureByGtin(IUnitOfWork uow, string gtin) =>
+			_nomenclatureRepository.Get(uow, x => x.Gtin == gtin).FirstOrDefault();
 
-		private NomenclatureEntity GetNomenclatureById(int nomenclatureId) =>
-			_nomenclatureRepository.Get(_uow, x => x.Id == nomenclatureId).FirstOrDefault();
+		private NomenclatureEntity GetNomenclatureById(IUnitOfWork uow, int nomenclatureId) =>
+			_nomenclatureRepository.Get(uow, x => x.Id == nomenclatureId).FirstOrDefault();
 	}
 }
