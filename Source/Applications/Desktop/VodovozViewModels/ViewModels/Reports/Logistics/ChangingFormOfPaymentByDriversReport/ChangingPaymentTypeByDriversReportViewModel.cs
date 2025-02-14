@@ -201,7 +201,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByD
 				join e in unitOfWork.Session.Query<Employee>()
 					on rl.Driver.Id equals e.Id
 
-				let sum = (int?)(
+				let sum = (decimal?)(
 					from oi in unitOfWork.Session.Query<OrderItem>()
 					where
 						oi.Order.Id == o.Id
