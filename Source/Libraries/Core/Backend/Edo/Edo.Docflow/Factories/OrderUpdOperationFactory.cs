@@ -54,6 +54,7 @@ namespace Edo.Docflow.Factories
 			var contract = order.Contract;
 			var deliveryPoint = order.DeliveryPoint;
 			var organization = contract.Organization;
+			var specialNomenclatures = client.SpecialNomenclatures;
 
 			var organizationAccountant = organization.OrganizationVersionOnDate(order.DeliveryDate.Value)?.Accountant;
 			var organizationLeader = organization.OrganizationVersionOnDate(order.DeliveryDate.Value)?.Leader;
@@ -173,11 +174,12 @@ namespace Edo.Docflow.Factories
 			foreach(var orderItem in order.OrderItems)
 			{
 				var nomenclature = orderItem.Nomenclature;
+				var specialNomenclature = specialNomenclatures.FirstOrDefault(x => x.Nomenclature.Id == nomenclature.Id);
 
 				var product = new OrderUpdOperationProduct
 				{
 					OrderUpdOperation = orderUpdOperation,
-					NomenclatureId = nomenclature.Id,
+					NomenclatureId = specialNomenclature == null ? nomenclature.Id : specialNomenclature.SpecialId,
 					NomenclatureName = nomenclature.OfficialName,
 					IsService =
 						nomenclature.Category == NomenclatureCategory.master

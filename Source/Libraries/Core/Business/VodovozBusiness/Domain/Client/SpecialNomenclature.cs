@@ -1,32 +1,40 @@
-﻿using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
 {
-	public class SpecialNomenclature : PropertyChangedBase, IDomainObject
+	/// <summary>
+	/// Специальная номенклатура
+	/// </summary>
+	[Appellative(
+			Gender = GrammaticalGender.Masculine,
+			NominativePlural = "специальные номенклатуры",
+			Nominative = "специальная номенклатура")]
+	public class SpecialNomenclature : SpecialNomenclatureEntity
 	{
-		public virtual int Id { get; set; }
+		private Nomenclature _nomenclature;
+		private Counterparty _counterparty;
 
-		private Nomenclature nomenclature;
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get => nomenclature;
-			set => SetField(ref nomenclature, value);
+		public virtual new Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set => SetField(ref _nomenclature, value);
 		}
 
-		private int specialId;
-		[Display(Name = "Код ТМЦ")]
-		public virtual int SpecialId {
-			get => specialId;
-			set => SetField(ref specialId, value);
-		}
-
-		private Counterparty counterparty;
+		/// <summary>
+		/// Клиент
+		/// </summary>
 		[Display(Name = "Клиент")]
-		public virtual Counterparty Counterparty {
-			get => counterparty;
-			set => SetField(ref counterparty, value);
+		public virtual new Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 
 	}

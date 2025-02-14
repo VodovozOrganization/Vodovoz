@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
@@ -242,6 +242,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			References(x => x.WorksThroughOrganization)
 				.Column("works_through_organization_id");
+
+			Map(x => x.IsNewEdoProcessing)
+				.Column("is_new_edo_processing");
+
+			HasMany(x => x.SpecialNomenclatures).Cascade.AllDeleteOrphan().LazyLoad()
+				.KeyColumn("counterparty_id");
+
 		}
 	}
 }

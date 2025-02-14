@@ -107,6 +107,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private bool _sendBillByEdo;
 		private bool _excludeFromAutoCalls;
 		private bool _hideDeliveryPointForBill;
+		private IObservableList<SpecialNomenclatureEntity> _specialNomenclatures = new ObservableList<SpecialNomenclatureEntity>();
 
 		private OrganizationEntity _worksThroughOrganization;
 		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
@@ -709,6 +710,16 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _hideDeliveryPointForBill;
 			set => SetField(ref _hideDeliveryPointForBill, value);
+		}
+
+		/// <summary>
+		/// Специальная номенклатура
+		/// </summary>
+		[Display(Name = "Специальная номенклатура")]
+		public virtual IObservableList<SpecialNomenclatureEntity> SpecialNomenclatures
+		{
+			get => _specialNomenclatures;
+			set => SetField(ref _specialNomenclatures, value);
 		}
 
 		[Display(Name = "Информация о прикрепленных файлах")]
