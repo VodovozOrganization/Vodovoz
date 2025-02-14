@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -9,10 +9,8 @@ using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Settings.Nomenclature;
 
 namespace Edo.Docflow.Factories
 {
@@ -21,120 +19,124 @@ namespace Edo.Docflow.Factories
 		private const string _dateFormatString = "dd.MM.yyyy";
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
-		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IGenericRepository<OrderUpdOperation> _orderUpdOperationRepository;
 
 		public OrderUpdInfoFactory(
 			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
-			INomenclatureSettings nomenclatureSettings
+			IGenericRepository<OrderUpdOperation> orderUpdOperationRepository
 			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_orderUpdOperationRepository = orderUpdOperationRepository ?? throw new ArgumentNullException(nameof(orderUpdOperationRepository));
 		}
 
 		public UniversalTransferDocumentInfo CreateUniversalTransferDocumentInfo(OrderEntity order, IEnumerable<TrueMarkWaterIdentificationCode> codes)
 		{
-			return ConvertTransferOrderToUniversalTransferDocumentInfo(order, codes);
+			var orderUpdOperation = _orderUpdOperationRepository.Get(_uow, x => x.OrderId == order.Id).FirstOrDefault();
+
+			return ConvertTransferOrderToUniversalTransferDocumentInfo(orderUpdOperation, codes);
 		}
 
-		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(OrderEntity order, IEnumerable<TrueMarkWaterIdentificationCode> codes)
+		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(
+			OrderUpdOperation orderUpdOperation,
+			IEnumerable<TrueMarkWaterIdentificationCode> codes)
 		{
-			var products = GetProducts(order, codes);
+			if(orderUpdOperation is null)
+			{
+				throw new ArgumentNullException(nameof(orderUpdOperation));
+			}
+
+			var products = GetProducts(orderUpdOperation, codes);
 
 			var document = new UniversalTransferDocumentInfo
 			{
 				DocumentId = Guid.NewGuid(),
-				Number = order.Id,
+				Number = orderUpdOperation.OrderId,
 				Sum = products.Sum(x => x.Sum),
-				Date = order.DeliveryDate.Value,
-				Seller = GetSellerInfo(order),
-				Customer = GetCustomerInfo(order),
-				Consignee = GetConsigneeInfo(order.Client, order.DeliveryPoint),
-				DocumentConfirmingShipment = GetDocumentConfirmingShipmentInfo(order),
-				BasisShipment = GetBasisShipmentInfo(order.Client, order.Contract),
-				Payments = GetPayments(order),
+				Date = orderUpdOperation.OrderDeliveryDate,
+				Seller = GetSellerInfo(orderUpdOperation),
+				Customer = GetCustomerInfo(orderUpdOperation),
+				Consignee = GetConsigneeInfo(orderUpdOperation),
+				DocumentConfirmingShipment = GetDocumentConfirmingShipmentInfo(orderUpdOperation),
+				BasisShipment = GetBasisShipmentInfo(orderUpdOperation),
+				Payments = GetPayments(orderUpdOperation),
 				Products = products,
-				AdditionalInformation = GetAdditionalInformation(order)
+				AdditionalInformation = GetAdditionalInformation(orderUpdOperation)
 			};
 
 			return document;
 		}
 
-		private SellerInfo GetSellerInfo(OrderEntity order) =>
-			new SellerInfo { Organization = GetOrganizationInfo(order.Contract.Organization) };
+		private SellerInfo GetSellerInfo(OrderUpdOperation orderUpdOperation) =>
+			new SellerInfo { Organization = GetOrganizationInfo(orderUpdOperation) };
 
-		private CustomerInfo GetCustomerInfo(OrderEntity order) =>
-			new CustomerInfo { Organization = GetCustomerOrganizationInfo(order.Client) };
+		private CustomerInfo GetCustomerInfo(OrderUpdOperation orderUpdOperation) =>
+			new CustomerInfo { Organization = GetCustomerOrganizationInfo(orderUpdOperation) };
 
-		private ConsigneeInfo GetConsigneeInfo(CounterpartyEntity counterparty, DeliveryPointEntity deliveryPoint)
+		private ConsigneeInfo GetConsigneeInfo(OrderUpdOperation orderUpdOperation)
 		{
 			var consignee = new ConsigneeInfo
 			{
-				Organization = GetConsigneeOrganizationInfo(counterparty, deliveryPoint)
+				Organization = GetConsigneeOrganizationInfo(orderUpdOperation)
 			};
-			
-			if(!string.IsNullOrWhiteSpace(counterparty.CargoReceiver) && counterparty.UseSpecialDocFields)
-			{
-				consignee.CargoReceiver = counterparty.CargoReceiver;
-			}
-			
+
+			consignee.CargoReceiver = orderUpdOperation.ConsigneeAddress;
+
 			return consignee;
 		}
 
-		private DocumentConfirmingShipmentInfo GetDocumentConfirmingShipmentInfo(OrderEntity order) =>
+		private DocumentConfirmingShipmentInfo GetDocumentConfirmingShipmentInfo(OrderUpdOperation orderUpdOperation) =>
 			new DocumentConfirmingShipmentInfo
 			{
-				Number = order.Id.ToString(),
-				Date = order.DeliveryDate.Value.ToString(_dateFormatString)
+				Number = orderUpdOperation.OrderId.ToString(),
+				Date = orderUpdOperation.OrderDeliveryDate.ToString(_dateFormatString)
 			};
 
-		private BasisShipmentInfo GetBasisShipmentInfo(CounterpartyEntity counterparty, CounterpartyContractEntity counterpartyContract)
+		private BasisShipmentInfo GetBasisShipmentInfo(OrderUpdOperation orderUpdOperation)
 		{
-			var basis = new BasisShipmentInfo();
-
-			if(counterparty.UseSpecialDocFields
-			   && !string.IsNullOrWhiteSpace(counterparty.SpecialContractName)
-			   && !string.IsNullOrWhiteSpace(counterparty.SpecialContractNumber)
-			   && counterparty.SpecialContractDate.HasValue)
+			var basis = new BasisShipmentInfo
 			{
-				basis.Document = counterparty.SpecialContractName;
-				basis.Number = counterparty.SpecialContractNumber;
-				basis.Date = counterparty.SpecialContractDate.Value.ToString(_dateFormatString);
-				return basis;
-			}
-			
-			if(counterparty.UseSpecialDocFields && !string.IsNullOrWhiteSpace(counterparty.SpecialContractName))
-			{
-				return basis;
-			}
-
-			if(counterpartyContract != null)
-			{
-				basis.Document = "Договор";
-				basis.Number = counterpartyContract.Number;
-				basis.Date = counterpartyContract.IssueDate.ToString(_dateFormatString);
-			}
+				Document = orderUpdOperation.ClientContractDocumentName,
+				Number = orderUpdOperation.ClientContractNumber,
+				Date = orderUpdOperation.ClientContractDate.ToString(_dateFormatString)
+			};
 
 			return basis;
 		}
 
-		private IEnumerable<PaymentInfo> GetPayments(OrderEntity order) =>
-			new List<PaymentInfo>
-			{
-				new PaymentInfo
-				{
-					PaymentNum = order.Id.ToString(),
-					PaymentDate = order.DeliveryDate.Value.ToString(_dateFormatString),
-				}
-			};
+		private IEnumerable<PaymentInfo> GetPayments(OrderUpdOperation orderUpdOperation)
+		{
+			var payments = new List<PaymentInfo>();
 
-		private IEnumerable<UpdAdditionalInfo> GetAdditionalInformation(OrderEntity order)
+			foreach(var orderUpdOperationPayment in orderUpdOperation.Payments)
+			{
+				var payment = new PaymentInfo
+				{
+					PaymentNum = orderUpdOperationPayment.PaymentNum,
+					PaymentDate = orderUpdOperationPayment.PaymentDate.ToString(_dateFormatString)
+				};
+				payments.Add(payment);
+			}
+
+			if(!payments.Any())
+			{
+				payments.Add(new PaymentInfo
+				{
+					PaymentNum = orderUpdOperation.OrderId.ToString(),
+					PaymentDate = orderUpdOperation.OrderDeliveryDate.ToString(_dateFormatString),
+				});
+			}
+
+			return payments;
+		}
+
+		private IEnumerable<UpdAdditionalInfo> GetAdditionalInformation(OrderUpdOperation orderUpdOperation)
 		{
 			var additionalInformation = new List<UpdAdditionalInfo>();
-			
-			if(order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+
+			if(orderUpdOperation.IsOrderForOwnNeeds)
 			{
 				additionalInformation.Add(new UpdAdditionalInfo
 				{
@@ -143,103 +145,59 @@ namespace Edo.Docflow.Factories
 				});
 			}
 
-			if(order.CounterpartyExternalOrderId != null && order.Client.UseSpecialDocFields)
+			if(orderUpdOperation.CounterpartyExternalOrderId.HasValue)
 			{
 				additionalInformation.Add(new UpdAdditionalInfo
 				{
 					Id = "номер_заказа",
-					Value = $"N{ order.CounterpartyExternalOrderId }"
+					Value = $"N{orderUpdOperation.CounterpartyExternalOrderId}"
 				});
 			}
-			
+
 			return additionalInformation;
 		}
 
-		private OrganizationInfo GetOrganizationInfo(OrganizationEntity organization)
+		private OrganizationInfo GetOrganizationInfo(OrderUpdOperation orderUpdOperation)
 		{
 			var organizationInfo = new OrganizationInfo
 			{
-				Name = organization.Name,
+				Name = orderUpdOperation.OrganizationName,
 				Address = new AddressInfo
 				{
-					Address = organization.ActiveOrganizationVersion.JurAddress,
+					Address = orderUpdOperation.OrganizationAddress,
 				},
-				Inn = organization.INN,
-				Kpp = organization.KPP,
-				EdoAccountId = organization.TaxcomEdoAccountId,
+				Inn = orderUpdOperation.OrganizationInn,
+				Kpp = orderUpdOperation.OrganizationKpp,
+				EdoAccountId = orderUpdOperation.OrganizationTaxcomEdoAccountId,
 			};
 
 			return organizationInfo;
 		}
-		
-		private OrganizationInfo GetCustomerOrganizationInfo(CounterpartyEntity counterparty)
-		{
-			if(counterparty.PersonType == PersonType.natural)
-			{
-				throw new InvalidOperationException("Нельзя сделать УПД для физического лица");
-			}
-			
-			var clientName = counterparty.FullName;
-			var clientKpp = counterparty.KPP;
 
-			if(counterparty.UseSpecialDocFields)
-			{
-				if(!string.IsNullOrWhiteSpace(counterparty.SpecialCustomer))
-				{
-					clientName = counterparty.SpecialCustomer;
-				}
-				if(!string.IsNullOrWhiteSpace(counterparty.PayerSpecialKPP))
-				{
-					clientKpp = counterparty.PayerSpecialKPP;
-				}
-			}
-			
+		private OrganizationInfo GetCustomerOrganizationInfo(OrderUpdOperation orderUpdOperation)
+		{
 			var organizationInfo = GetCounterpartyOrganizationInfo(
-				clientName,
-				counterparty.INN,
-				clientKpp,
-				counterparty.JurAddress,
-				counterparty.PersonalAccountIdInEdo);
+				orderUpdOperation.ClientName,
+				orderUpdOperation.ClientInn,
+				orderUpdOperation.ClientKpp,
+				orderUpdOperation.ClientAddress,
+				orderUpdOperation.ClientPersonalAccountIdInEdo);
 
 			return organizationInfo;
 		}
-		
-		private OrganizationInfo GetConsigneeOrganizationInfo(CounterpartyEntity counterparty, DeliveryPointEntity deliveryPoint)
+
+		private OrganizationInfo GetConsigneeOrganizationInfo(OrderUpdOperation orderUpdOperation)
 		{
-			var address = string.Empty;
-			var kpp = string.Empty;
-			
-			switch(counterparty.CargoReceiverSource)
-			{
-				case CargoReceiverSource.FromDeliveryPoint:
-					address = deliveryPoint != null ? deliveryPoint.ShortAddress : counterparty.JurAddress;
-					kpp = deliveryPoint?.KPP ?? counterparty.KPP;
-					
-					return GetCounterpartyOrganizationInfo(
-						counterparty.FullName,
-						counterparty.INN,
-						kpp,
-						address,
-						counterparty.PersonalAccountIdInEdo);
-				case CargoReceiverSource.Special:
-					if(!string.IsNullOrWhiteSpace(counterparty.CargoReceiver) && counterparty.UseSpecialDocFields)
-					{
-						address = counterparty.CargoReceiver;
-						kpp = counterparty.PayerSpecialKPP ?? counterparty.KPP;
-						
-						return GetCounterpartyOrganizationInfo(
-							counterparty.FullName,
-							counterparty.INN,
-							kpp,
-							address,
-							counterparty.PersonalAccountIdInEdo);
-					}
-					return GetCustomerOrganizationInfo(counterparty);
-				default:
-					return GetCustomerOrganizationInfo(counterparty);
-			}
+			var organizationInfo = GetCounterpartyOrganizationInfo(
+				orderUpdOperation.ConsigneeName,
+				orderUpdOperation.ConsigneeInn,
+				orderUpdOperation.ConsigneeKpp,
+				orderUpdOperation.ConsigneeAddress,
+				orderUpdOperation.ClientPersonalAccountIdInEdo);
+
+			return organizationInfo;
 		}
-		
+
 		private OrganizationInfo GetCounterpartyOrganizationInfo(
 			string name,
 			string inn,
@@ -260,7 +218,7 @@ namespace Edo.Docflow.Factories
 			};
 		}
 
-		private IEnumerable<ProductInfo> GetProducts(OrderEntity order, IEnumerable<TrueMarkWaterIdentificationCode> codes)
+		private IEnumerable<ProductInfo> GetProducts(OrderUpdOperation orderUpdOperation, IEnumerable<TrueMarkWaterIdentificationCode> codes)
 		{
 			var products = new List<ProductInfo>();
 
@@ -271,9 +229,9 @@ namespace Edo.Docflow.Factories
 				throw new InvalidOperationException(errorMessage);
 			}
 
-			foreach(var orderItem in order.OrderItems)
+			foreach(var updOperationProduct in orderUpdOperation.Goods)
 			{
-				var nomenclature = orderItem.Nomenclature;
+				var orderItemsCodes = codes.Where(x => x.GTIN == updOperationProduct.Gtin).Select(x => x.FullCode);
 
 				var orderItemsCodes =
 					codes
@@ -282,18 +240,16 @@ namespace Edo.Docflow.Factories
 
 				var product = new ProductInfo
 				{
-					Name = nomenclature.Name,
-					IsService =
-						nomenclature.Category == NomenclatureCategory.master
-						|| nomenclature.Category == NomenclatureCategory.service,
-					UnitName = nomenclature.Unit.Name,
-					OKEI = nomenclature.Unit.OKEI,
-					Code = nomenclature.Id.ToString(),
-					Count = orderItem.Count,
-					Price = orderItem.Price,
-					IncludeVat = orderItem.IncludeNDS ?? 0,
-					ValueAddedTax = orderItem.ValueAddedTax,
-					DiscountMoney = orderItem.DiscountMoney,
+					Name = updOperationProduct.NomenclatureName,
+					IsService = updOperationProduct.IsService,
+					UnitName = updOperationProduct.MeasurementUnitName,
+					OKEI = updOperationProduct.OKEI,
+					Code = updOperationProduct.NomenclatureId.ToString(),
+					Count = updOperationProduct.Count,
+					Price = updOperationProduct.ItemPrice,
+					IncludeVat = updOperationProduct.IncludeVat,
+					ValueAddedTax = updOperationProduct.ValueAddedTax,
+					DiscountMoney = updOperationProduct.ItemDiscountMoney,
 					TrueMarkCodes = orderItemsCodes
 				};
 
@@ -302,5 +258,11 @@ namespace Edo.Docflow.Factories
 
 			return products;
 		}
+
+		private NomenclatureEntity GetNomenclatureByGtin(string gtin) =>
+			_nomenclatureRepository.Get(_uow, x => x.Gtin == gtin).FirstOrDefault();
+
+		private NomenclatureEntity GetNomenclatureById(int nomenclatureId) =>
+			_nomenclatureRepository.Get(_uow, x => x.Id == nomenclatureId).FirstOrDefault();
 	}
 }
