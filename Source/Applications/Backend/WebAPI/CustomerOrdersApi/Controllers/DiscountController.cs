@@ -28,10 +28,12 @@ namespace CustomerOrdersApi.Controllers
 			try
 			{
 				Logger.LogInformation(
-					"Поступил запрос от {Source} на применение промокода {PromoCode} для заказа {ExternalOrderId} c подписью {Signature}, проверяем...",
+					"Поступил запрос от {Source} на применение промокода {PromoCode} для заказа {ExternalOrderId}" +
+					" пользователя {ExternalClientId} c подписью {Signature}, проверяем...",
 					sourceName,
 					applyPromoCodeDto.PromoCode,
 					applyPromoCodeDto.ExternalOrderId,
+					applyPromoCodeDto.ExternalCounterpartyId,
 					applyPromoCodeDto.Signature);
 				
 				if(!_discountService.ValidateApplyingPromoCodeSignature(applyPromoCodeDto, out var generatedSignature))
@@ -52,9 +54,11 @@ namespace CustomerOrdersApi.Controllers
 			catch(Exception e)
 			{
 				Logger.LogError(e,
-					"Ошибка при применении промокода {Promocode} для заказа {ExternalOrderId} от {Source}",
+					"Ошибка при применении промокода {Promocode} для заказа {ExternalOrderId}" +
+					" пользователя {ExternalClientId} от {Source}",
 					applyPromoCodeDto.PromoCode,
 					applyPromoCodeDto.ExternalOrderId,
+					applyPromoCodeDto.ExternalCounterpartyId,
 					sourceName);
 
 				return Problem();

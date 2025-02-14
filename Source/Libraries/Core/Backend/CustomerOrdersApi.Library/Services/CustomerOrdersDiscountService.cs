@@ -47,7 +47,9 @@ namespace CustomerOrdersApi.Library.Services
 				applyPromoCodeDto.Signature,
 				new ApplyPromoCodeSignatureParams
 				{
-					OrderId = applyPromoCodeDto.ExternalOrderId.ToString(),
+					OrderId = applyPromoCodeDto.Source == Source.MobileApp
+						? applyPromoCodeDto.ErpCounterpartyId.ToString()
+						: applyPromoCodeDto.ExternalOrderId.ToString(),
 					OrderSumInKopecks = (int)(GetOnlineOrderSum(applyPromoCodeDto.OnlineOrderItems) * 100),
 					ShopId = (int)applyPromoCodeDto.Source,
 					PromoCode = applyPromoCodeDto.PromoCode,
