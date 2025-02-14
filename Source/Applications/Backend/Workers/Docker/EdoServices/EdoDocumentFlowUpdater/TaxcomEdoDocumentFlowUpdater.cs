@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Infrastructure;
 using EdoDocumentFlowUpdater.Configs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -139,7 +140,7 @@ namespace EdoDocumentFlowUpdater
 								container.Received = containerReceived;
 								container.InternalId = mainDocument.InternalId;
 								container.ErrorDescription = item.ErrorDescription;
-								container.EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status.ToString());
+								container.EdoDocFlowStatus = item.Status.TryParseAsEnum<EdoDocFlowStatus>().Value;
 
 								if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 								{
