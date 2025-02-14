@@ -1,6 +1,6 @@
 ﻿using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Logistic
 {

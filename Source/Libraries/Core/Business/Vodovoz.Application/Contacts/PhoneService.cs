@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;

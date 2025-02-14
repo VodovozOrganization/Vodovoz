@@ -10,6 +10,7 @@ using NLog;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.Infrastructure;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Views
 {

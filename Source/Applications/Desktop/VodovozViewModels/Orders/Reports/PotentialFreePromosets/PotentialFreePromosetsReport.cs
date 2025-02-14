@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Presentation.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets

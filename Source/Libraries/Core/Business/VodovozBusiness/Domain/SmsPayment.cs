@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;

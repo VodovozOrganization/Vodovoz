@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;

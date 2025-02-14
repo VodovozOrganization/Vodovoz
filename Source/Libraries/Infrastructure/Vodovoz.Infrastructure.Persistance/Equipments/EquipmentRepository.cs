@@ -2,6 +2,7 @@
 using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;

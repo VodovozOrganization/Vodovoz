@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Orders;
 
 namespace VodovozBusiness.Services.Orders

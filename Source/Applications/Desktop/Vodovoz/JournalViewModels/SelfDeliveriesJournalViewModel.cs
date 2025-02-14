@@ -21,6 +21,7 @@ using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;

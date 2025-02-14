@@ -5,7 +5,7 @@ using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Extensions;
 using Vodovoz.JournalNodes;
 

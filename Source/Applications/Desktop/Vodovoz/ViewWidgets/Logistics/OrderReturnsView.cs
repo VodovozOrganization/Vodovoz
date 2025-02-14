@@ -25,6 +25,7 @@ using Vodovoz.Application.Orders;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;

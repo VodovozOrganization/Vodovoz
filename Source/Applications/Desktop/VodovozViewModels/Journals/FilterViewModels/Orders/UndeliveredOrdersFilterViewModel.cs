@@ -6,6 +6,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;

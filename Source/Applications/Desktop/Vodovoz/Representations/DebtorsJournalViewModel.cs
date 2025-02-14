@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -23,6 +23,8 @@ using QS.Services;
 using QSReport;
 using RabbitMQ.Infrastructure;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Dialogs;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;

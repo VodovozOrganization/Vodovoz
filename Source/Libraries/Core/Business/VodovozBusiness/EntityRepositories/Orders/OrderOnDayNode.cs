@@ -1,4 +1,5 @@
 ﻿using NetTopologySuite.Geometries;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 

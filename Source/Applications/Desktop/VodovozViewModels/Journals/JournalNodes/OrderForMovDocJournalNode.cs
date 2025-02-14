@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using System;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Journals.JournalNodes

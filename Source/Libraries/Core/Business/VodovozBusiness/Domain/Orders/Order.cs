@@ -63,8 +63,8 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
-using Vodovoz.Core.Domain.Edo;
-using VodovozBusiness.Factories.Edo;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Edo.Docflow.Factories;
 
 namespace Vodovoz.Domain.Orders
 {

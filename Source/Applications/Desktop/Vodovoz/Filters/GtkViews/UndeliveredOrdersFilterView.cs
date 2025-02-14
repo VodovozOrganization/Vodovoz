@@ -1,4 +1,5 @@
 ﻿using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;

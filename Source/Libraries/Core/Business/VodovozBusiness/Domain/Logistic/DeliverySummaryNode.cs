@@ -1,5 +1,5 @@
 ﻿using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Domain.Logistic
 {

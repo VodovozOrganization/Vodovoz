@@ -3,6 +3,7 @@ using Gamma.Utilities;
 using Gtk;
 using QS.Views;
 using System;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Dialogs.Mango;
 

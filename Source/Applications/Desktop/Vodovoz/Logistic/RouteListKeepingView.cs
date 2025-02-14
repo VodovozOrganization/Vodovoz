@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -268,7 +269,7 @@ namespace Vodovoz.Logistic
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)
 				.AddColumn("Ожидает до")
 					.AddTimeRenderer(node => node.WaitUntil)
-					.AddSetter((c, n) => c.Editable = ViewModel.IsOrderWaitUntilActive && n.RouteListItem.Order.OrderStatus == Domain.Orders.OrderStatus.OnTheWay)
+					.AddSetter((c, n) => c.Editable = ViewModel.IsOrderWaitUntilActive && n.RouteListItem.Order.OrderStatus == OrderStatus.OnTheWay)
 					.WidthChars(5)
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)

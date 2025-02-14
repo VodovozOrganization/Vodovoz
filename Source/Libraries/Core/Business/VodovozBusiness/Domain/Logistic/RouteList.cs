@@ -20,6 +20,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;

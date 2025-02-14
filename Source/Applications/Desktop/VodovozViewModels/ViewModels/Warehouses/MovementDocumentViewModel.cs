@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
 using Vodovoz.Domain.Employees;

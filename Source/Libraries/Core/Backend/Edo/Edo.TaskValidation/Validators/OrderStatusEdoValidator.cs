@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Edo.TaskValidation.Validators
 {

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
@@ -12,6 +12,10 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using QS.Commands;
+using QS.Dialog;
+using Gamma.Utilities;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.Filters.ViewModels

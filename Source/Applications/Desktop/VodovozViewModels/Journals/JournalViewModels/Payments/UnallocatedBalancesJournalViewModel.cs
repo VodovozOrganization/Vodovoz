@@ -13,6 +13,7 @@ using QS.Services;
 using QS.Tdi;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;

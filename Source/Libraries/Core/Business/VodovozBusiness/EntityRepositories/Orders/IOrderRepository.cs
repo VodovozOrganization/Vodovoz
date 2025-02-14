@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;

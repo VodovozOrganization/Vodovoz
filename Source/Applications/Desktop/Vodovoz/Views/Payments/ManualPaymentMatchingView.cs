@@ -7,6 +7,7 @@ using QS.Project.Search.GtkUI;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Payments;

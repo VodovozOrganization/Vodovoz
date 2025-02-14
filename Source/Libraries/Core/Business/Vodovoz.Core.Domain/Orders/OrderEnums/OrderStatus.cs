@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Orders
+namespace Vodovoz.Core.Domain.Orders.OrderEnums
 {
 	[Appellative(
 		Nominative = "Статус заказа",
@@ -11,37 +11,37 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Отменён")]
 		Canceled,
 
-		[Display (Name = "Новый")]
+		[Display(Name = "Новый")]
 		NewOrder,
 
-		[Display (Name = "Ожидание оплаты")]
+		[Display(Name = "Ожидание оплаты")]
 		WaitForPayment,
 
-		[Display (Name = "Принят")]
+		[Display(Name = "Принят")]
 		Accepted,
 
-		[Display (Name = "В маршрутном листе")]
+		[Display(Name = "В маршрутном листе")]
 		InTravelList,
 
-		[Display (Name = "На погрузке")]
+		[Display(Name = "На погрузке")]
 		OnLoading,
 
-		[Display (Name = "В пути")]
+		[Display(Name = "В пути")]
 		OnTheWay,
 
-		[Display (Name = "Доставка отменена")]
+		[Display(Name = "Доставка отменена")]
 		DeliveryCanceled,
 
-		[Display (Name = "Доставлен")]
+		[Display(Name = "Доставлен")]
 		Shipped,
 
-		[Display (Name = "Выгрузка на складе")]
+		[Display(Name = "Выгрузка на складе")]
 		UnloadingOnStock,
 
-		[Display (Name = "Недовоз")]
+		[Display(Name = "Недовоз")]
 		NotDelivered,
 
-		[Display (Name = "Закрыт")]
+		[Display(Name = "Закрыт")]
 		Closed,
 	}
 }
