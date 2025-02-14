@@ -63,6 +63,8 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
+using Vodovoz.Core.Domain.Edo;
+using VodovozBusiness.Factories.Edo;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -116,6 +118,8 @@ namespace Vodovoz.Domain.Orders
 		private ICashRepository _cashRepository => ScopeProvider.Scope.Resolve<ICashRepository>();
 
 		private ISelfDeliveryRepository _selfDeliveryRepository => ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>();
+
+		private IOrderUpdOperationFactory _orderUpdOperationFactory => ScopeProvider.Scope.Resolve<IOrderUpdOperationFactory>();
 
 		private readonly double _futureDeliveryDaysLimit = 30;
 
@@ -3700,6 +3704,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.UPD:
 					var updDocument = new UPDDocument();
+					updDocument.OrderUpdOperation = _orderUpdOperationFactory.CreateOrUpdateOrderUpdOperation(this);
 					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
 						updDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
 					}
@@ -3707,6 +3712,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.SpecialUPD:
 					var specialUpdDocument = new SpecialUPDDocument();
+					specialUpdDocument.OrderUpdOperation = _orderUpdOperationFactory.CreateOrUpdateOrderUpdOperation(this);
 					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
 						specialUpdDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
 					}
