@@ -75,7 +75,7 @@ namespace DriverApi.Contracts.V6
 		/// <summary>
 		/// GTIN товара
 		/// </summary>
-		public string Gtin { get; set; }
+		public IEnumerable<string> Gtin { get; set; }
 
 		/// <summary>
 		/// Коды маркировки ЧЗ

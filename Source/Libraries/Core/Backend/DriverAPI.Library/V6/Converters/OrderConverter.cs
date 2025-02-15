@@ -239,7 +239,7 @@ namespace DriverAPI.Library.V6.Converters
 				DiscountReason = saleItem.DiscountReason?.Name,
 				CapColor = saleItem.Nomenclature.BottleCapColor,
 				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false,
-				Gtin = saleItem.Nomenclature.Gtin,
+				Gtin = new List<string> { saleItem.Nomenclature.Gtin },
 				Codes = GetOrderItemCodes(saleItem, routeListItem, productCodesByOrderItems)
 			};
 
@@ -364,7 +364,7 @@ namespace DriverAPI.Library.V6.Converters
 			{
 				OrderSaleItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,
-				Gtin = saleItem.Nomenclature.Gtin,
+				Gtin = new List<string> { saleItem.Nomenclature.Gtin },
 				Quantity = saleItem.ActualCount ?? saleItem.Count,
 				Codes = GetOrderItemCodes(saleItem, routeListItem, productCodesByOrderItems)
 			};
