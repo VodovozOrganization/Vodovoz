@@ -163,11 +163,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
 
-			PhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(
-				new TypedParameter(typeof(IUnitOfWork), UoW),
-				new TypedParameter(typeof(RoboatsJournalsFactory), _roboatsJournalsFactory));
-
-			PhonesViewModel.PhonesList = Entity.ObservablePhones;
+			PhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			PhonesViewModel.Initialize(Entity.ObservablePhones, this);
 			PhonesViewModel.DeliveryPoint = Entity;
 			PhonesViewModel.ReadOnly = !CanEdit;
 

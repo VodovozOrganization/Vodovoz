@@ -18,7 +18,7 @@ namespace Vodovoz.Controllers
 
 		public string PhoneAssignedExternalCounterpartyMessage =>
 			"Данный номер телефона привязан к внешнему пользователю сайта/приложения\n" +
-			"При удалении/архивации телефона будут таже удалены все связанные с пользователем данные и он потеряет доступ к сайту/МП\n";
+			"При удалении/архивации телефона будут также удалены все связанные с пользователем данные и он потеряет доступ к сайту/МП\n";
 
 		public ExternalCounterpartyController(
 			IDeleteEntityService deleteEntityService,

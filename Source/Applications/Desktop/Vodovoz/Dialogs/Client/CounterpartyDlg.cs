@@ -816,10 +816,8 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
-			_phonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>(
-				new TypedParameter(typeof(IUnitOfWork), UoW),
-				new TypedParameter(typeof(RoboatsJournalsFactory), _roboatsJournalsFactory));
-			_phonesViewModel.PhonesList = Entity.ObservablePhones;
+			_phonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			_phonesViewModel.Initialize(Entity.ObservablePhones, this);
 			_phonesViewModel.Counterparty = Entity;
 			_phonesViewModel.ReadOnly = !CanEdit;
 

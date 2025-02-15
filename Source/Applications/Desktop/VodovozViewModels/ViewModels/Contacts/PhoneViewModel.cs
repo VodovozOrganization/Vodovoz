@@ -2,37 +2,62 @@
 using QS.ViewModels;
 using System;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Settings.Contacts;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
-	public class PhoneViewModel : WidgetViewModelBase
+	public class PhoneViewModel : WidgetViewModelBase, IDisposable
 	{
-		private readonly IUnitOfWork _uow;
 		private readonly bool _canArchiveNumber;
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private readonly IExternalCounterpartyController _externalCounterpartyController;
+		private readonly ViewModelEEVMBuilder<RoboAtsCounterpartyName> _roboatsClientNameEevmBuilder;
+		private readonly ViewModelEEVMBuilder<RoboAtsCounterpartyPatronymic> _roboatsClientPatronymicEevmBuilder;
 		private readonly ICommonServices _commonServices;
 		private Phone _phone;
+		private RoboAtsCounterpartyName _selectedRoboatsCounterpartyName;
+		private RoboAtsCounterpartyPatronymic _selectedRoboatsCounterpartyPatronymic;
+		private DialogTabViewModelBase _parentViewModel;
 
 		public PhoneViewModel(
 			IUnitOfWork uow,
+			ILifetimeScope lifetimeScope,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IPhoneTypeSettings phoneTypeSettings,
-			IExternalCounterpartyController externalCounterpartyController)
+			IExternalCounterpartyController externalCounterpartyController,
+			ViewModelEEVMBuilder<RoboAtsCounterpartyName> roboatsClientNameEevmBuilder,
+			ViewModelEEVMBuilder<RoboAtsCounterpartyPatronymic> roboatsClientPatronymicEevmBuilder)
 		{
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			_phoneTypeSettings = phoneTypeSettings ?? throw new ArgumentNullException(nameof(phoneTypeSettings));
 			_externalCounterpartyController =
 				externalCounterpartyController ?? throw new ArgumentNullException(nameof(externalCounterpartyController));
+			_roboatsClientNameEevmBuilder =
+				roboatsClientNameEevmBuilder ?? throw new ArgumentNullException(nameof(roboatsClientNameEevmBuilder));
+			_roboatsClientPatronymicEevmBuilder =
+				roboatsClientPatronymicEevmBuilder ?? throw new ArgumentNullException(nameof(roboatsClientPatronymicEevmBuilder));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_canArchiveNumber = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Phone)).CanUpdate;
 		}
 		
+		public IUnitOfWork UoW { get; }
+		public ILifetimeScope LifetimeScope { get; private set; }
+		public INavigationManager NavigationManager { get; }
+
 		public PhoneType SelectedPhoneType
 		{
 			get => _phone.PhoneType;
@@ -45,13 +70,76 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			set => _phone.IsArchive = value;
 		}
 
+		public RoboAtsCounterpartyName SelectedRoboatsCounterpartyName
+		{
+			get => _selectedRoboatsCounterpartyName;
+			set => SetField(ref _selectedRoboatsCounterpartyName, value);
+		}
+
+		public RoboAtsCounterpartyPatronymic SelectedRoboatsCounterpartyPatronymic
+		{
+			get => _selectedRoboatsCounterpartyPatronymic;
+			set => SetField(ref _selectedRoboatsCounterpartyPatronymic, value);
+		}
+
 		public event Action UpdateExternalCounterpartyAction;
 
-		public Phone GetPhone() => _phone;
-		
-		public void SetPhone(Phone phone)
+		public Phone Phone
 		{
-			_phone = phone;
+			get => _phone;
+			private set => SetField(ref _phone, value);
+		}
+		
+		public ITdiTab ParentTab { get; private set; }
+		public IEntityEntryViewModel RoboatsCounterpartyNameViewModel { get; private set; }
+		public IEntityEntryViewModel RoboatsCounterpartyPatronymicViewModel { get; private set; }
+		
+		public void Initialize(Phone phone, ITdiTab parentTab = null)
+		{
+			SetPhone(phone);
+			ParentTab = parentTab;
+		}
+		
+		public void Initialize(Phone phone, DialogTabViewModelBase parentViewModel = null)
+		{
+			SetPhone(phone);
+			_parentViewModel = parentViewModel;
+			InitializeRoboatsViewModels();
+		}
+
+		private void SetPhone(Phone phone)
+		{
+			Phone = phone;
+		}
+
+		private void InitializeRoboatsViewModels()
+		{
+			if(_parentViewModel is null)
+			{
+				return;
+			}
+			
+			var nameViewModel =
+				_roboatsClientNameEevmBuilder
+					.SetUnitOfWork(UoW)
+					.SetViewModel(_parentViewModel)
+					.ForProperty(Phone, x => x.RoboAtsCounterpartyName)
+					.UseViewModelDialog<RoboAtsCounterpartyNameViewModel>()
+					.UseViewModelJournalAndAutocompleter<RoboAtsCounterpartyNameJournalViewModel>()
+					.Finish();
+			
+			RoboatsCounterpartyNameViewModel = nameViewModel;
+			
+			var patronymicViewModel =
+				_roboatsClientPatronymicEevmBuilder
+					.SetUnitOfWork(UoW)
+					.SetViewModel(_parentViewModel)
+					.ForProperty(Phone, x => x.RoboAtsCounterpartyPatronymic)
+					.UseViewModelDialog<RoboAtsCounterpartyNameViewModel>()
+					.UseViewModelJournalAndAutocompleter<RoboAtsCounterpartyNameJournalViewModel>()
+					.Finish();
+
+			RoboatsCounterpartyPatronymicViewModel = patronymicViewModel;
 		}
 
 		private void SetPhoneType(PhoneType phoneType)
@@ -72,7 +160,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
-				_externalCounterpartyController.HasActiveExternalCounterparties(_uow, _phone.Id, out var externalCounterparties);
+				_externalCounterpartyController.HasActiveExternalCounterparties(UoW, _phone.Id, out var externalCounterparties);
 
 				var question = externalCounterparties.Any()
 					? _externalCounterpartyController.PhoneAssignedExternalCounterpartyMessage + "Вы действительно хотите его заархивировать?"
@@ -83,7 +171,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 					return false;
 				}
 
-				_externalCounterpartyController.DeleteExternalCounterparties(_uow, externalCounterparties);
+				_externalCounterpartyController.DeleteExternalCounterparties(UoW, externalCounterparties);
 				PhoneIsArchive = true;
 				UpdateExternalCounterpartyAction?.Invoke();
 			}
@@ -114,6 +202,13 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			}
 
 			return true;
+		}
+
+		public void Dispose()
+		{
+			_parentViewModel = null;
+			ParentTab = null;
+			LifetimeScope = null;
 		}
 	}
 }

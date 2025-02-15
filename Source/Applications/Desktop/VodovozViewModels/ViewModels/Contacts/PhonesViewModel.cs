@@ -1,6 +1,5 @@
 ﻿using QS.Commands;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using System;
@@ -8,12 +7,12 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Autofac;
+using QS.Tdi;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Contacts;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
@@ -23,11 +22,12 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		private readonly IUnitOfWork _uow;
 		private readonly IExternalCounterpartyController _externalCounterpartyController;
 		private readonly IContactSettings _contactsSettings;
-		private ILifetimeScope _scope;
-
+		private readonly IList<PhoneViewModel> _phoneViewModels = new List<PhoneViewModel>();
+		private readonly ILifetimeScope _scope;
+		private ITdiTab _parentTab;
+		private DialogTabViewModelBase _parentViewModel;
 		private bool _readOnly;
 		private IList<Phone> _phonesList;
-		private IList<PhoneViewModel> _phoneViewModels = new List<PhoneViewModel>();
 
 		#region Properties
 
@@ -35,19 +35,23 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public DeliveryPoint DeliveryPoint { get; set; }
 		public Domain.Client.Counterparty Counterparty { get; set; }
 
-		public virtual IList<Phone> PhonesList
+		public IList<Phone> PhonesList
 		{
 			get => _phonesList;
-			set => SetField(ref _phonesList, value);
+			private set => SetField(ref _phonesList, value);
 		}
 
-		public virtual bool ReadOnly
+		public IReadOnlyList<PhoneViewModel> PhoneViewModels => (IReadOnlyList<PhoneViewModel>)_phoneViewModels;
+
+		public bool ReadOnly
 		{
 			get => _readOnly;
 			set => SetField(ref _readOnly, value);
 		}
 
 		public event Action UpdateExternalCounterpartyAction;
+		public event Action<int> DeletedPhoneAction;
+		public event Action<Phone, int> AddedPhoneAction;
 
 		public PhonesViewModel(
 			ILifetimeScope scope,
@@ -76,27 +80,6 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			CreateCommands();
 		}
 
-		public PhonesViewModel(
-			ILifetimeScope scope,
-			IPhoneRepository phoneRepository,
-			IUnitOfWork uow,
-			IContactSettings contactsSettings,
-			RoboatsJournalsFactory roboatsJournalsFactory,
-			ICommonServices commonServices,
-			IExternalCounterpartyController externalCounterpartyController)
-			: this(scope, phoneRepository, uow, contactsSettings, commonServices, externalCounterpartyController)
-		{
-			if(roboatsJournalsFactory == null)
-			{
-				throw new ArgumentNullException(nameof(roboatsJournalsFactory));
-			}
-
-			RoboAtsCounterpartyNameSelectorFactory = roboatsJournalsFactory.CreateCounterpartyNameSelectorFactory();
-			RoboAtsCounterpartyPatronymicSelectorFactory = roboatsJournalsFactory.CreateCounterpartyPatronymicSelectorFactory();
-		}
-
-		public IEntityAutocompleteSelectorFactory RoboAtsCounterpartyNameSelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory RoboAtsCounterpartyPatronymicSelectorFactory { get; }
 		public bool CanReadCounterpartyName { get; }
 		public bool CanEditCounterpartyName { get; }
 		public bool CanReadCounterpartyPatronymic { get; }
@@ -106,14 +89,96 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 
 		#region Methods
 		
-		public PhoneViewModel GetPhoneViewModel(Phone phone)
+		//Для телефонов, где не надо отображать имена и отчества для roboats
+		public void Initialize(IList<Phone> phones)
 		{
-			var viewModel = _scope.Resolve<PhoneViewModel>();
-			viewModel.SetPhone(phone);
+			SetPhones(phones);
+			InitializeViewModels();
+		}
+		
+		public void Initialize(IList<Phone> phones, ITdiTab parentTab)
+		{
+			SetPhones(phones);
+			_parentTab = parentTab;
+			InitializeViewModels();
+		}
+		
+		public void Initialize(IList<Phone> phones, DialogTabViewModelBase parentViewModel)
+		{
+			SetPhones(phones);
+			_parentViewModel = parentViewModel;
+			InitializeViewModels();
+		}
+
+		private void SetPhones(IList<Phone> phones)
+		{
+			PhonesList = phones;
+		}
+		
+		private void InitializeViewModels()
+		{
+			if(PhonesList is null && _phoneViewModels.Any())
+			{
+				RemoveViewModels();
+				return;
+			}
+
+			if(PhonesList is null)
+			{
+				return;
+			}
+
+			RemoveViewModels();
+			AddNewViewModels();
+		}
+
+		private void RemoveViewModels()
+		{
+			const int i = 0;
+				
+			while(i < _phoneViewModels.Count)
+			{
+				RemoveViewModel(_phoneViewModels[i], i);
+			}
+		}
+
+		private void AddNewViewModels()
+		{
+			for(var i = 0; i< PhonesList.Count; i++)
+			{
+				AddNewViewModel(PhonesList[i], i);
+			}
+		}
+
+		private void AddNewViewModel(Phone phone, int phoneIndex)
+		{
+			var viewModel = _scope.Resolve<PhoneViewModel>(new TypedParameter(typeof(IUnitOfWork), _uow));
+
+			if(_parentViewModel != null)
+			{
+				viewModel.Initialize(phone, _parentViewModel);
+			}
+			else
+			{
+				viewModel.Initialize(phone, _parentTab);
+			}
+			
 			viewModel.UpdateExternalCounterpartyAction += OnUpdateExternalCounterparty;
 			_phoneViewModels.Add(viewModel);
-
-			return viewModel;
+			AddedPhoneAction?.Invoke(phone, phoneIndex);
+		}
+		
+		private void RemoveViewModel(PhoneViewModel viewModel, int index)
+		{
+			if(viewModel is null)
+			{
+				return;
+			}
+					
+			viewModel.UpdateExternalCounterpartyAction -= OnUpdateExternalCounterparty;
+			viewModel.Dispose();
+			_phoneViewModels.Remove(viewModel);
+			DeletedPhoneAction?.Invoke(index);
 		}
 
 		private void OnUpdateExternalCounterparty()
@@ -126,7 +191,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		#region Commands
 
 		public DelegateCommand AddItemCommand { get; private set; }
-		public DelegateCommand<Phone> DeleteItemCommand { get; private set; }
+		public DelegateCommand<int> DeleteItemCommand { get; private set; }
 
 		private void CreateCommands()
 		{
@@ -143,13 +208,17 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 					}
 
 					PhonesList.Add(phone);
+					var phoneIndex = PhonesList.Count - 1;
+					AddNewViewModel(phone, phoneIndex);
 				},
 				() => !ReadOnly
 			);
 
-			DeleteItemCommand = new DelegateCommand<Phone>(
-				(phone) =>
+			DeleteItemCommand = new DelegateCommand<int>(
+				index =>
 				{
+					var phone = PhonesList[index];
+					
 					if(phone.Id != 0
 						&& phone.Counterparty != null
 						&& !_externalCounterpartyController.DeleteExternalCounterparties(_uow, phone.Id))
@@ -160,15 +229,8 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 					PhonesList.Remove(phone);
 					OnUpdateExternalCounterparty();
 					
-					var viewModel = _phoneViewModels.SingleOrDefault(x => x.GetPhone() == phone);
-
-					if(viewModel is null)
-					{
-						return;
-					}
-					
-					viewModel.UpdateExternalCounterpartyAction -= OnUpdateExternalCounterparty;
-					_phoneViewModels.Remove(viewModel);
+					var viewModel = _phoneViewModels[index];
+					RemoveViewModel(viewModel, index);
 				},
 				phone => !ReadOnly
 			);

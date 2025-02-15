@@ -66,7 +66,7 @@ namespace Vodovoz
 			emailsView.ViewModel = emailsViewModel;
 
 			_phonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
-			_phonesViewModel.PhonesList = UoWGeneric.Root.Phones;
+			_phonesViewModel.Initialize(UoWGeneric.Root.Phones);
 		}
 
 		public override bool Save ()

@@ -396,13 +396,12 @@ namespace Vodovoz.ViewModels.Counterparties
 			if(Entity.Counterparty != null)
 			{
 				CounterpartyDebt = _bottlesRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Counterparty).ToString();
-
-				CounterpartyPhonesViewModel.PhonesList = Entity.Counterparty.ObservablePhones;
+				CounterpartyPhonesViewModel.Initialize(Entity.Counterparty.ObservablePhones);
 			}
 			else
 			{
 				CounterpartyDebt = string.Empty;
-				CounterpartyPhonesViewModel.PhonesList = null;
+				CounterpartyPhonesViewModel.Initialize(null);
 			}
 		}
 
@@ -416,8 +415,7 @@ namespace Vodovoz.ViewModels.Counterparties
 
 				BottleReserve = Entity.DeliveryPoint.BottleReserv.ToString();
 
-				DeliveryPointPhonesViewModel.PhonesList =
-					Entity.DeliveryPoint.ObservablePhones;
+				DeliveryPointPhonesViewModel.Initialize(Entity.DeliveryPoint.ObservablePhones);
 
 				OldComments = _callTaskRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
 			}
@@ -434,7 +432,7 @@ namespace Vodovoz.ViewModels.Counterparties
 
 				BottleReserve = string.Empty;
 				OldComments = Entity.Comment;
-				DeliveryPointPhonesViewModel.PhonesList = null;
+				DeliveryPointPhonesViewModel.Initialize(null);
 			}
 		}
 

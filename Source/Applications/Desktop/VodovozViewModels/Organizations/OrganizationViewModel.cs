@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModels.Organizations
 
 			OrganizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity, CanEdit);
 			PhonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
-			PhonesViewModel.PhonesList = Entity.Phones;
+			PhonesViewModel.Initialize(Entity.Phones);
 
 			SaveCommand = new DelegateCommand(
 				() => Save(true),
