@@ -44,6 +44,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using QS.Extensions.Observable.Collections.List;
 using TISystems.TTC.CRM.BE.Serialization;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
@@ -73,6 +74,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Nodes;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
@@ -126,7 +128,6 @@ namespace Vodovoz
 		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
-		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailSettings _emailSettings;
 		private ICounterpartyJournalFactory _counterpartySelectorFactory;
@@ -150,6 +151,7 @@ namespace Vodovoz
 		private IAttachedFileInformationsViewModelFactory _attachmentsViewModelFactory;
 		private ICounterpartyFileStorageService _counterpartyFileStorageService;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
+		private IObservableList<ExternalCounterpartyNode> _externalUsers = new ObservableList<ExternalCounterpartyNode>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -310,7 +312,6 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
@@ -320,10 +321,6 @@ namespace Vodovoz
 			_attachmentsViewModelFactory = _lifetimeScope.Resolve<IAttachedFileInformationsViewModelFactory>();
 			_counterpartyFileStorageService = _lifetimeScope.Resolve<ICounterpartyFileStorageService>();
 
-			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
-			var fileDialogService = new FileDialogService();
-			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			_roboatsJournalsFactory = new RoboatsJournalsFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory(ServicesConfig.UnitOfWorkFactory);
 			_emailSettings = _lifetimeScope.Resolve<IEmailSettings>();
 
@@ -820,6 +817,7 @@ namespace Vodovoz
 			_phonesViewModel.Initialize(Entity.ObservablePhones, this);
 			_phonesViewModel.Counterparty = Entity;
 			_phonesViewModel.ReadOnly = !CanEdit;
+			_phonesViewModel.UpdateExternalCounterpartyAction += UpdateExternalUsers;
 
 			phonesView.ViewModel = _phonesViewModel;
 
@@ -879,9 +877,33 @@ namespace Vodovoz
 				.InitializeFromSource();
 			txtRingUpPhones.Editable = CanEdit;
 
-			contactsview1.CounterpartyUoW = UoWGeneric;
-			contactsview1.Visible = true;
-			contactsview1.Sensitive = CanEdit;
+			UpdateExternalUsers();
+
+			treeViewExternalUsers.ColumnsConfig = FluentColumnsConfig<ExternalCounterpartyNode>.Create()
+				.AddColumn("Откуда пользователь")
+					.AddEnumRenderer(x => x.CounterpartyFrom)
+					.Editing(false)
+				.AddColumn("Телефон")
+					.AddTextRenderer(x => x.Phone)
+				.AddColumn("Код пользователя")
+					.AddTextRenderer(x => x.ExternalCounterpartyId.ToString())
+				.AddColumn("")
+				.Finish();
+			
+			treeViewExternalUsers.ItemsDataSource = _externalUsers;
+		}
+
+		private void UpdateExternalUsers()
+		{
+			_externalUsers.Clear();
+			
+			var externalUsers =
+				_externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhones(UoW, Entity.Phones.Select(x => x.Id));
+
+			foreach(var externalUser in externalUsers)
+			{
+				_externalUsers.Add(externalUser);
+			}
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)
@@ -2679,6 +2701,8 @@ namespace Vodovoz
 				_lifetimeScope.Dispose();
 				_lifetimeScope = null;
 			}
+			_phonesViewModel.UpdateExternalCounterpartyAction -= UpdateExternalUsers;
+			
 			base.Destroy();
 		}
 	}

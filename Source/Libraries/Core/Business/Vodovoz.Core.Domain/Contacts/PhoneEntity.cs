@@ -25,6 +25,9 @@ namespace Vodovoz.Core.Domain.Contacts
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Номер телефона в формате "(XXX) XXX - XX - XX"
+		/// </summary>
 		[Display(Name = "Номер")]
 		public virtual string Number
 		{
