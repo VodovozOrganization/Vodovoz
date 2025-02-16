@@ -160,13 +160,18 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
+				if(!_canArchiveNumber)
+				{
+					return false;
+				}
+	
 				_externalCounterpartyController.HasActiveExternalCounterparties(UoW, _phone.Id, out var externalCounterparties);
 
 				var question = externalCounterparties.Any()
 					? _externalCounterpartyController.PhoneAssignedExternalCounterpartyMessage + "Вы действительно хотите его заархивировать?"
 					: "Номер будет переведен в архив и пропадет в списке активных. Продолжить?";
 				
-				if(_canArchiveNumber && !_commonServices.InteractiveService.Question(question))
+				if(!_commonServices.InteractiveService.Question(question))
 				{
 					return false;
 				}
@@ -187,6 +192,11 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
+				if(!_canArchiveNumber)
+				{
+					return false;
+				}
+				
 				var question = "Номер будет переведен в архив и пропадет в списке активных. Продолжить?";
 				
 				if(_canArchiveNumber && !_commonServices.InteractiveService.Question(question))

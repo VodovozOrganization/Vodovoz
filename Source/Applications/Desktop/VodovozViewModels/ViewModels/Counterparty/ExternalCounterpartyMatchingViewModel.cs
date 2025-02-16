@@ -527,6 +527,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				Number = new PhoneFormatter(PhoneFormat.DigitsTen).FormatString(Entity.PhoneNumber)
 			};
 			FillCounterpartyContact(phone, counterparty.FirstName, counterparty.Patronymic);
+			UoW.Save(phone);
+			
 			return phone;
 		}
 
