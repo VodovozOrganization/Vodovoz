@@ -17,6 +17,10 @@ namespace Vodovoz.Nodes
 		/// </summary>
 		public Guid ExternalCounterpartyId { get; set; }
 		/// <summary>
+		/// Id телефона
+		/// </summary>
+		public int PhoneId { get; set; }
+		/// <summary>
 		/// Номер телефона в формате "(XXX) XXX - XX - XX"
 		/// </summary>
 		public string Phone { get; set; }

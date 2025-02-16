@@ -25,8 +25,6 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		private readonly ViewModelEEVMBuilder<RoboAtsCounterpartyPatronymic> _roboatsClientPatronymicEevmBuilder;
 		private readonly ICommonServices _commonServices;
 		private Phone _phone;
-		private RoboAtsCounterpartyName _selectedRoboatsCounterpartyName;
-		private RoboAtsCounterpartyPatronymic _selectedRoboatsCounterpartyPatronymic;
 		private DialogTabViewModelBase _parentViewModel;
 
 		public PhoneViewModel(
@@ -57,6 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public IUnitOfWork UoW { get; }
 		public ILifetimeScope LifetimeScope { get; private set; }
 		public INavigationManager NavigationManager { get; }
+		public bool CanEditPhone { get; private set; } = true;
 
 		public PhoneType SelectedPhoneType
 		{
@@ -68,18 +67,6 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			get => _phone.IsArchive;
 			set => _phone.IsArchive = value;
-		}
-
-		public RoboAtsCounterpartyName SelectedRoboatsCounterpartyName
-		{
-			get => _selectedRoboatsCounterpartyName;
-			set => SetField(ref _selectedRoboatsCounterpartyName, value);
-		}
-
-		public RoboAtsCounterpartyPatronymic SelectedRoboatsCounterpartyPatronymic
-		{
-			get => _selectedRoboatsCounterpartyPatronymic;
-			set => SetField(ref _selectedRoboatsCounterpartyPatronymic, value);
 		}
 
 		public event Action UpdateExternalCounterpartyAction;
@@ -94,22 +81,23 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public IEntityEntryViewModel RoboatsCounterpartyNameViewModel { get; private set; }
 		public IEntityEntryViewModel RoboatsCounterpartyPatronymicViewModel { get; private set; }
 		
-		public void Initialize(Phone phone, ITdiTab parentTab = null)
+		public void Initialize(Phone phone, bool canEditPhone, ITdiTab parentTab = null)
 		{
-			SetPhone(phone);
+			SetPhone(phone, canEditPhone);
 			ParentTab = parentTab;
 		}
 		
-		public void Initialize(Phone phone, DialogTabViewModelBase parentViewModel = null)
+		public void Initialize(Phone phone, bool canEditPhone, DialogTabViewModelBase parentViewModel = null)
 		{
-			SetPhone(phone);
+			SetPhone(phone, canEditPhone);
 			_parentViewModel = parentViewModel;
 			InitializeRoboatsViewModels();
 		}
 
-		private void SetPhone(Phone phone)
+		private void SetPhone(Phone phone, bool canEditPhone)
 		{
 			Phone = phone;
+			CanEditPhone = canEditPhone;
 		}
 
 		private void InitializeRoboatsViewModels()

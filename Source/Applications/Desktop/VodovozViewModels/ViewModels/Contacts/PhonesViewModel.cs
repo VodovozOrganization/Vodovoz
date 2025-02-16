@@ -144,23 +144,29 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 
 		private void AddNewViewModels()
 		{
+			var externalCounterparties =
+				_externalCounterpartyController.GetActiveExternalCounterpartiesByPhones(_uow, PhonesList.Select(x => x.Id).ToArray())
+					.ToLookup(x => x.PhoneId);
+			
 			for(var i = 0; i< PhonesList.Count; i++)
 			{
-				AddNewViewModel(PhonesList[i], i);
+				var phone = PhonesList[i];
+				var canEditPhone = !externalCounterparties.Contains(phone.Id);
+				AddNewViewModel(phone, i, canEditPhone);
 			}
 		}
 
-		private void AddNewViewModel(Phone phone, int phoneIndex)
+		private void AddNewViewModel(Phone phone, int phoneIndex, bool canEditPhone = true)
 		{
 			var viewModel = _scope.Resolve<PhoneViewModel>(new TypedParameter(typeof(IUnitOfWork), _uow));
 
 			if(_parentViewModel != null)
 			{
-				viewModel.Initialize(phone, _parentViewModel);
+				viewModel.Initialize(phone, canEditPhone, _parentViewModel);
 			}
 			else
 			{
-				viewModel.Initialize(phone, _parentTab);
+				viewModel.Initialize(phone, canEditPhone, _parentTab);
 			}
 			
 			viewModel.UpdateExternalCounterpartyAction += OnUpdateExternalCounterparty;

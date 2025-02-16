@@ -68,7 +68,7 @@ namespace Vodovoz.Dialogs.Phones
 			var textPhoneLabel = new Label("+7");
 			hBox.PackFromStart(textPhoneLabel);
 
-			var phoneDataEntry = CreateWithConfigurePhoneNumberEntry(newPhone);
+			var phoneDataEntry = CreateWithConfigurePhoneNumberEntry(newPhone, phoneViewModel.CanEditPhone);
 			hBox.PackFromStart(phoneDataEntry);
 
 			var handset = CreateWithConfigureHandset(newPhone);
@@ -128,7 +128,7 @@ namespace Vodovoz.Dialogs.Phones
 			return widget;
 		}
 
-		private Widget CreateWithConfigurePhoneNumberEntry(Phone newPhone)
+		private Widget CreateWithConfigurePhoneNumberEntry(Phone newPhone, bool canEditPhone)
 		{
 			var widget = new yValidatedEntry();
 			widget.ValidationMode = ValidationType.phone;
@@ -136,7 +136,7 @@ namespace Vodovoz.Dialogs.Phones
 			widget.WidthRequest = 110;
 			widget.WidthChars = 19;
 			widget.Binding
-				.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.IsEditable)
+				.AddFuncBinding(ViewModel, e => !e.ReadOnly && canEditPhone, w => w.IsEditable)
 				.AddBinding(newPhone, e => e.Number, w => w.Text)
 				.InitializeFromSource();
 
