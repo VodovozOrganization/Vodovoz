@@ -460,7 +460,7 @@ namespace Vodovoz
 			if(_routeListItemStatusToChange == RouteListItemStatus.Completed
 				&& rli.RouteListItem.Order.IsOrderForResale && rli.RouteListItem.Order.IsOrderContainsIsAccountableInTrueMarkItems)
 			{
-				if(_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, rli.RouteListItem.Order.Id))
+				if(!_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, rli.RouteListItem.Order.Id))
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Warning,
 						"Заказ не может быть переведен в статус \"Доставлен\", " +
