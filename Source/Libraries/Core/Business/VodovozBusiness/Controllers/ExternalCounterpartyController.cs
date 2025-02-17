@@ -10,6 +10,9 @@ using Vodovoz.Nodes;
 
 namespace Vodovoz.Controllers
 {
+	/// <summary>
+	/// Работа с пользователями ИПЗ
+	/// </summary>
 	public class ExternalCounterpartyController : IExternalCounterpartyController
 	{
 		private readonly IDeleteEntityService _deleteEntityService;
@@ -31,6 +34,12 @@ namespace Vodovoz.Controllers
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 		
+		/// <summary>
+		/// Удаление пользователя ИПЗ и всей связанной информации
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="phoneId">Id телефона</param>
+		/// <returns></returns>
 		public bool DeleteExternalCounterparties(IUnitOfWork uow, int phoneId)
 		{
 			if(!HasActiveExternalCounterparties(uow, phoneId, out var externalCounterparties))
@@ -48,6 +57,11 @@ namespace Vodovoz.Controllers
 			return true;
 		}
 		
+		/// <summary>
+		/// Удаление пользователя ИПЗ и всей связанной информации
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="externalCounterparties">Список удаляемых пользователей ИПЗ</param>
 		public void DeleteExternalCounterparties(IUnitOfWork uow, IEnumerable<ExternalCounterparty> externalCounterparties)
 		{
 			foreach(var externalCounterparty in externalCounterparties)
@@ -56,6 +70,13 @@ namespace Vodovoz.Controllers
 			}
 		}
 
+		/// <summary>
+		/// Проверка наличия привязанных пользователей к номеру телефона
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="phoneId">Id телефона</param>
+		/// <param name="externalCounterparties">Возвращаемый список привязанных пользователей ИПЗ</param>
+		/// <returns></returns>
 		public bool HasActiveExternalCounterparties(
 			IUnitOfWork uow,
 			int phoneId,
@@ -65,6 +86,12 @@ namespace Vodovoz.Controllers
 			return externalCounterparties.Any();
 		}
 		
+		/// <summary>
+		/// Получение информации о привязанных пользователях ИПЗ по Id клиента
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="counterpartyId">Id клиента</param>
+		/// <returns></returns>
 		public IEnumerable<ExternalCounterpartyNode> GetActiveExternalCounterpartiesByCounterparty(
 			IUnitOfWork uow,
 			int counterpartyId)
@@ -72,6 +99,12 @@ namespace Vodovoz.Controllers
 			return _externalCounterpartyRepository.GetActiveExternalCounterpartiesByCounterparty(uow, counterpartyId);
 		}
 		
+		/// <summary>
+		/// Получение информации о привязанных пользователях ИПЗ по Id телефонов
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="phonesIds">Список Id телефонов</param>
+		/// <returns></returns>
 		public IEnumerable<ExternalCounterpartyNode> GetActiveExternalCounterpartiesByPhones(
 			IUnitOfWork uow,
 			IEnumerable<int> phonesIds)
