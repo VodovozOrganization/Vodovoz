@@ -1,12 +1,24 @@
-﻿using System;
+﻿using QS.Navigation;
+using QS.Views.GtkUI;
+using Vodovoz.ViewModels.ViewModels.Goods;
+
 namespace Vodovoz.Views.Goods
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class NonReturnReasonView : Gtk.Bin
+	public partial class NonReturnReasonView : TabViewBase<NonReturnReasonViewModel>
 	{
-		public NonReturnReasonView()
+		public NonReturnReasonView(NonReturnReasonViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			ycheckbuttonNeedForfeit.Binding.AddBinding(ViewModel.Entity, e => e.NeedForfeit, w => w.Active).InitializeFromSource();
+			
+			buttonSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
+			buttonCancel.Clicked += (sender, args) => ViewModel.CloseCommand.Execute();
 		}
 	}
 }
