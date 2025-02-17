@@ -898,7 +898,11 @@ namespace Vodovoz
 			_externalUsers.Clear();
 			
 			var externalUsers =
-				_externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhones(UoW, Entity.Phones.Select(x => x.Id));
+				_externalCounterpartyRepository.GetActiveExternalCounterpartiesByPhones(
+					UoW,
+					Entity.Phones
+						.Where(x => !x.IsArchive)
+						.Select(x => x.Id));
 
 			foreach(var externalUser in externalUsers)
 			{
