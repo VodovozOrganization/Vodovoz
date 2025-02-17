@@ -41,6 +41,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string Phones { get; set; }
 
 		public string Emails { get; set; }
-
+		
+		public decimal? FixPrice { get; set; }
 	}
 }

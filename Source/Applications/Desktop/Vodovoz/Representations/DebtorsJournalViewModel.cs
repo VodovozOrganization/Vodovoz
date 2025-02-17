@@ -1,8 +1,15 @@
-﻿using Autofac;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -15,13 +22,8 @@ using QS.Report;
 using QS.Services;
 using QSReport;
 using RabbitMQ.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Dialogs;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -35,12 +37,14 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels;
 using Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport;
 using Vodovoz.Views;
+using Expression = System.Linq.Expressions.Expression;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
@@ -66,6 +70,8 @@ namespace Vodovoz.Representations
 		private Task _newTask;
 		private CancellationTokenSource _cts = new CancellationTokenSource();
 		private string _footerInfo = "Идёт загрузка данных...";
+		private readonly decimal _waterSemiozeriePrice;
+		private readonly int _waterSemiozerieId;
 
 		public DebtorsJournalViewModel(
 			ILogger<BulkEmailViewModel> loggerBulkEmailViewModel,
@@ -84,7 +90,9 @@ namespace Vodovoz.Representations
 			IFileDialogService fileDialogService,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
-			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			IGenericRepository<Nomenclature> nomenclatureRepository,
+			INomenclatureSettings nomenclatureSettings)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			if(unitOfWorkFactory is null)
@@ -95,6 +103,11 @@ namespace Vodovoz.Representations
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
+			if(nomenclatureRepository == null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureRepository));
 			}
 
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
@@ -113,6 +126,13 @@ namespace Vodovoz.Representations
 			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			_canSendBulkEmails = currentPermissionService.ValidatePresetPermission(Permissions.Email.CanSendBulkEmails);
+
+			_waterSemiozerieId = nomenclatureSettings.WaterSemiozerieId;
+			_waterSemiozeriePrice = nomenclatureRepository.Get(UoW, n => n.Id == _waterSemiozerieId)
+				?.FirstOrDefault()
+				?.NomenclaturePrice
+				?.FirstOrDefault(x => x.MinCount == 1)
+				?.Price ?? 0m;
 
 			filterViewModel.Journal = this;
 			JournalFilter = _filterViewModel;
@@ -161,6 +181,44 @@ namespace Vodovoz.Representations
 				FooterInfo = $"Сумма всех долгов по таре (по адресам): {result}  |  " + base.FooterInfo;
 			}
 		}
+		
+		private Expression<Func<bool>> GetFixPriceExpression(NomenclatureFixedPrice nomenclatureFixedPriceAlias, DeliveryPoint deliveryPointAlias)
+		{
+			Expression<Func<bool>> resultExpression =
+				() => deliveryPointAlias.Id == nomenclatureFixedPriceAlias.DeliveryPoint.Id
+				      && nomenclatureFixedPriceAlias.Nomenclature.Id == _waterSemiozerieId
+				      && nomenclatureFixedPriceAlias.MinCount == 1;
+
+			if(_filterViewModel.FixPriceFrom.HasValue)
+			{
+				Expression<Func<bool>> expression = () => nomenclatureFixedPriceAlias.Price >= _filterViewModel.FixPriceFrom;
+
+				resultExpression = Expression.Lambda<Func<bool>>
+				(
+					Expression.AndAlso
+					(
+						resultExpression.Body,
+						expression.Body
+					)
+				);
+			}
+
+			if(_filterViewModel.FixPriceTo.HasValue)
+			{
+				Expression<Func<bool>> expression = () => nomenclatureFixedPriceAlias.Price <= _filterViewModel.FixPriceTo;
+
+				resultExpression = Expression.Lambda<Func<bool>>
+				(
+					Expression.AndAlso
+					(
+						resultExpression.Body,
+						expression.Body
+					)
+				);
+			}
+
+			return resultExpression;
+		}
 
 		protected Func<IUnitOfWork, int> CountQueryFunction => (uow) =>
 		{
@@ -185,6 +243,14 @@ namespace Vodovoz.Representations
 			int hideCancellationCounterpartyId = _debtorsParameters.GetCancellationCounterpartyId;
 
 			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
+			
+			#region FixPrice
+			
+			ordersQuery.JoinEntityAlias(() => nomenclatureFixedPriceAlias,
+				GetFixPriceExpression(nomenclatureFixedPriceAlias, deliveryPointAlias),
+				JoinType.LeftOuterJoin);
+			
+			#endregion FixPrice
 
 			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
 				.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
@@ -239,13 +305,13 @@ namespace Vodovoz.Representations
 				lastOrderAlias, counterpartyAlias, orderAlias, deliveryPointAlias, olderLastOrderIdQueryWithDate);
 
 			var lastOrderNomenclatures = QueryOver.Of(() => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, JoinType.LeftOuterJoin)
 				.Select(Projections.Property(() => nomenclatureAlias.Id))
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 				.And(() => _filterViewModel.LastOrderNomenclature.Id == nomenclatureAlias.Id);
 
 			var lastOrderDiscount = QueryOver.Of(() => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, JoinType.LeftOuterJoin)
 				.Select(Projections.Property(() => discountReasonAlias.Id))
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 				.And(() => _filterViewModel.DiscountReason.Id == discountReasonAlias.Id);
@@ -311,7 +377,7 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(taskExistQuery);
 				}
 			}
-
+			
 			#region Filter
 
 			if(_filterViewModel != null)
@@ -441,6 +507,14 @@ namespace Vodovoz.Representations
 				{
 					ordersQuery.Where(() => !counterpartyAlias.ExcludeFromAutoCalls);
 				}
+
+				if(_filterViewModel.FixPriceFrom != null || _filterViewModel.FixPriceTo != null)
+				{
+					ordersQuery = ordersQuery.Where(() =>
+						nomenclatureFixedPriceAlias.Id != null
+						|| (_waterSemiozeriePrice >= (_filterViewModel.FixPriceFrom ?? _waterSemiozeriePrice)
+						    && _waterSemiozeriePrice <= (_filterViewModel.FixPriceTo ?? _waterSemiozeriePrice)));
+				}
 			}
 
 			#endregion Filter
@@ -457,8 +531,8 @@ namespace Vodovoz.Representations
 				.JoinAlias(c => c.DeliveryPoint,
 					() => deliveryPointAlias,
 					(_filterViewModel != null && _filterViewModel.HideWithoutFixedPrices)
-						? NHibernate.SqlCommand.JoinType.InnerJoin
-						: NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+						? JoinType.InnerJoin
+						: JoinType.LeftOuterJoin)
 				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
 				.Left.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias)
 				.Select(sumProj).UnderlyingCriteria.SetTimeout(300).UniqueResult<int>();
@@ -767,6 +841,17 @@ namespace Vodovoz.Representations
 			int hideCancellationCounterpartyId = _debtorsParameters.GetCancellationCounterpartyId;
 
 			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
+			
+			#region FixPrice
+			
+			ordersQuery.JoinEntityAlias(() => nomenclatureFixedPriceAlias,
+				GetFixPriceExpression(nomenclatureFixedPriceAlias, deliveryPointAlias),
+				JoinType.LeftOuterJoin);
+
+			var fixedPriceProjection = CustomProjections.Coalesce(NHibernateUtil.Decimal, 
+				Projections.Property(() => nomenclatureFixedPriceAlias.Price), Projections.Constant(_waterSemiozeriePrice));
+			
+			#endregion FixPrice
 
 			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
 				.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
@@ -871,13 +956,13 @@ namespace Vodovoz.Representations
 				lastOrderAlias, counterpartyAlias, orderAlias, deliveryPointAlias, olderLastOrderIdQueryWithDate);
 
 			var lastOrderNomenclatures = QueryOver.Of(() => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, JoinType.LeftOuterJoin)
 				.Select(Projections.Property(() => nomenclatureAlias.Id))
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 				.And(() => _filterViewModel.LastOrderNomenclature.Id == nomenclatureAlias.Id);
 
 			var lastOrderDiscount = QueryOver.Of(() => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, JoinType.LeftOuterJoin)
 				.Select(Projections.Property(() => discountReasonAlias.Id))
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 				.And(() => _filterViewModel.DiscountReason.Id == discountReasonAlias.Id);
@@ -922,7 +1007,7 @@ namespace Vodovoz.Representations
 					Projections.Property<Order>(o => o.Client.Id)));
 
 			#endregion LastOrder
-
+			
 			if(_filterViewModel != null && _filterViewModel.EndDate != null)
 			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQueryWithDate.Take(1));
@@ -931,7 +1016,7 @@ namespace Vodovoz.Representations
 			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
 			}
-
+			
 			#region Filter
 
 			if(_filterViewModel != null)
@@ -1070,6 +1155,18 @@ namespace Vodovoz.Representations
 				{
 					ordersQuery.Where(() => !counterpartyAlias.ExcludeFromAutoCalls);
 				}
+
+				#region FixPrice
+
+				if(_filterViewModel.FixPriceFrom != null || _filterViewModel.FixPriceTo != null)
+				{
+					ordersQuery = ordersQuery.Where(() =>
+						nomenclatureFixedPriceAlias.Id != null
+						|| (_waterSemiozeriePrice >= (_filterViewModel.FixPriceFrom ?? _waterSemiozeriePrice)
+						    && _waterSemiozeriePrice <= (_filterViewModel.FixPriceTo ?? _waterSemiozeriePrice)));
+				}
+				
+				#endregion FixPrice
 			}
 
 			#endregion Filter
@@ -1099,7 +1196,9 @@ namespace Vodovoz.Representations
 					.SelectSubQuery(taskExistQuery).WithAlias(() => resultAlias.TaskId)
 					.SelectSubQuery(countDeliveryPoint).WithAlias(() => resultAlias.CountOfDeliveryPoint)
 					.Select(phoneProjection).WithAlias(() => resultAlias.Phones)
-					.SelectSubQuery(emailSubquery).WithAlias(() => resultAlias.Emails))
+					.SelectSubQuery(emailSubquery).WithAlias(() => resultAlias.Emails)
+					.Select(fixedPriceProjection).WithAlias(() => resultAlias.FixPrice)
+				)
 				.SetTimeout(300)
 				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
 
