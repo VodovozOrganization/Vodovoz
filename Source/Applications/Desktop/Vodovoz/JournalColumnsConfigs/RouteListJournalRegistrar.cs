@@ -31,6 +31,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddTextRenderer(node => node.LogisticiansComment)
 					.WrapWidth(300)
 					.WrapMode(WrapMode.WordChar)
+					.AddSetter((c, x) => c.Xpad = 50)
 				.AddColumn("Комментарий по закрытию")
 					.AddTextRenderer(node => node.ClosinComments)
 					.WrapWidth(300)
