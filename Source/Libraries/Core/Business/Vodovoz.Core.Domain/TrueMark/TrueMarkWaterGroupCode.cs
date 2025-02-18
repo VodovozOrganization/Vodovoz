@@ -1,34 +1,43 @@
 ﻿using QS.DomainModel.Entity;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Interfaces.TrueMark;
 
 namespace Vodovoz.Core.Domain.TrueMark
 {
 	/// <summary>
-	/// Код воды честного знака
+	/// Групповой код воды честного знака
 	/// </summary>
 	[Appellative(
 		Gender = GrammaticalGender.Masculine,
-		Genitive = "кода честного знака",
-		GenitivePlural = "кодов честного знака",
-		Nominative = "код честного знака",
-		NominativePlural = "код честного знака",
-		Accusative = "код честного знака",
-		AccusativePlural = "коды честного знака",
-		Prepositional = "коде честного знака",
-		PrepositionalPlural = "кодах честного знака")]
-	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode
+		Genitive = "группового кода воды честного знака",
+		GenitivePlural = "групповых кодов воды честного знака",
+		Nominative = "групповой код воды честного знака",
+		NominativePlural = "групповые коды воды честного знака",
+		Accusative = "групповой код воды честного знака",
+		AccusativePlural = "групповые коды воды честного знака",
+		Prepositional = "групповом коде воды честного знака",
+		PrepositionalPlural = "групповых кодах воды честного знака")]
+	public class TrueMarkWaterGroupCode : PropertyChangedBase, IDomainObject
 	{
-		public virtual int Id { get; set; }
+		private int _id;
 		private string _rawCode;
 		private bool _isInvalid;
 		private string _gtin;
 		private string _serialNumber;
 		private string _checkCode;
-		private Tag1260CodeCheckResult _tag1260CodeCheckResult;
-		private bool _isTagValid;
 
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
+
+		/// <summary>
+		/// Необработанный код
+		/// </summary>
 		[Display(Name = "Необработанный код")]
 		public virtual string RawCode
 		{
@@ -36,6 +45,9 @@ namespace Vodovoz.Core.Domain.TrueMark
 			set => SetField(ref _rawCode, value);
 		}
 
+		/// <summary>
+		/// Код не валидный
+		/// </summary>
 		[Display(Name = "Код не валидный")]
 		public virtual bool IsInvalid
 		{
@@ -43,6 +55,9 @@ namespace Vodovoz.Core.Domain.TrueMark
 			set => SetField(ref _isInvalid, value);
 		}
 
+		/// <summary>
+		/// Код GTIN
+		/// </summary>
 		[Display(Name = "Код GTIN")]
 		public virtual string GTIN
 		{
@@ -50,6 +65,9 @@ namespace Vodovoz.Core.Domain.TrueMark
 			set => SetField(ref _gtin, value);
 		}
 
+		/// <summary>
+		/// Серийный номер экземпляра
+		/// </summary>
 		[Display(Name = "Серийный номер экземпляра")]
 		public virtual string SerialNumber
 		{
@@ -57,25 +75,14 @@ namespace Vodovoz.Core.Domain.TrueMark
 			set => SetField(ref _serialNumber, value);
 		}
 
+		/// <summary>
+		/// Код проверки
+		/// </summary>
 		[Display(Name = "Код проверки")]
 		public virtual string CheckCode
 		{
 			get => _checkCode;
 			set => SetField(ref _checkCode, value);
-		}
-
-		[Display(Name = "Результаты проверки кода для тэга 1260")]
-		public virtual Tag1260CodeCheckResult Tag1260CodeCheckResult
-		{
-			get => _tag1260CodeCheckResult;
-			set => SetField(ref _tag1260CodeCheckResult, value);
-		}
-
-		[Display(Name = "Код валиден для тэга 1260")]
-		public virtual bool IsTag1260Valid 
-		{
-			get => _isTagValid;
-			set => SetField(ref _isTagValid, value);
 		}
 
 		public override bool Equals(object obj)
@@ -92,6 +99,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 
 		public override int GetHashCode()
 		{
+			
 			return -1155050507 + EqualityComparer<string>.Default.GetHashCode(RawCode);
 		}
 	}
