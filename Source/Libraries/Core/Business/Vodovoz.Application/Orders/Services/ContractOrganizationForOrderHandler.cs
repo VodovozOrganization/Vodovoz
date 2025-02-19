@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
+using VodovozBusiness.Domain.Orders;
 
-namespace VodovozBusiness.Domain.Orders
+namespace Vodovoz.Application.Orders.Services
 {
 	public class ContractOrganizationForOrderHandler : IGetOrganizationForOrder
 	{
@@ -17,16 +16,15 @@ namespace VodovozBusiness.Domain.Orders
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 		}
 
-		public IReadOnlyDictionary<Organization, IEnumerable<OrderItem>> GetOrganizationsForOrder(
+		public IEnumerable<OrganizationForOrderWithOrderItems> GetOrganizationsWithOrderItems(
 			Order order,
-			IUnitOfWork uow = null,
-			PaymentType? paymentType = null)
+			IUnitOfWork uow = null)
 		{
 			if(order.Id != 0 && order.Contract != null && _cashReceiptRepository.HasNeededReceipt(order.Id))
 			{
-				return new Dictionary<Organization, IEnumerable<OrderItem>>
+				return new List<OrganizationForOrderWithOrderItems>
 				{
-					{ order.Contract.Organization, null }
+					new OrganizationForOrderWithOrderItems(order.Contract.Organization, null)
 				};
 			}
 

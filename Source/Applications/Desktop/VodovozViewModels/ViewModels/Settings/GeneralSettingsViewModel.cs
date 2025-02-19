@@ -9,7 +9,9 @@ using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using QS.DomainModel.Entity;
+using QS.Validation;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -38,6 +40,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ILifetimeScope _lifetimeScope;
 		private readonly ViewModelEEVMBuilder<Organization> _organizationViewModelBuilder;
+		private readonly IValidator _validator;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 
 		private string _routeListPrintedFormPhones;
@@ -91,7 +94,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigation,
 			ViewModelEEVMBuilder<Organization> organizationViewModelBuilder,
-			EntityJournalOpener entityJournalOpener) : base(commonServices?.InteractiveService, navigation)
+			EntityJournalOpener entityJournalOpener,
+			IValidator validator) : base(commonServices?.InteractiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			RoboatsSettingsViewModel = roboatsSettingsViewModel ?? throw new ArgumentNullException(nameof(roboatsSettingsViewModel));
@@ -100,6 +104,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_organizationViewModelBuilder =
 				organizationViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationViewModelBuilder));
+			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carInsuranceSettings = carInsuranceSettings ?? throw new ArgumentNullException(nameof(carInsuranceSettings));
@@ -661,6 +666,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#region Настройка юр.лиц в заказе
 		
+		public ICommand SaveOrderOrganizationSettingsCommand { get; private set; }
+		
 		private int _orderSettingsCurrentPage;
 		public int OrderSettingsCurrentPage
 		{
@@ -709,8 +716,23 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			get => _organizationForSet2;
 			set => _organizationForSet2 = value;
 		}
+		
+		private short _selectedOrganizationBasedOrderContentSet;
+
+		public short SelectedOrganizationBasedOrderContentSet
+		{
+			get => _selectedOrganizationBasedOrderContentSet;
+			set
+			{
+				if(SetField(ref _selectedOrganizationBasedOrderContentSet, value))
+				{
+					_organizationByOrderAuthorSettings.OrganizationBasedOrderContentSettings = OrganizationsByOrderContent[value];
+				}
+			}
+		}
 
 		private IUnitOfWork _uowOrderOrganizationSettings;
+		private OrganizationByOrderAuthorSettings _organizationByOrderAuthorSettings;
 		public IEnumerable<ProductGroup> ProductGroupsForSet1 { get; private set; }
 		public IEnumerable<Nomenclature> NomenclaturesForSet1 { get; private set; }
 		public IEntityEntryViewModel OrganizationForSet1ViewModel { get; private set; }
@@ -718,6 +740,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public IEnumerable<Nomenclature> NomenclaturesForSet2 { get; private set; }
 		public IEntityEntryViewModel OrganizationForSet2ViewModel { get; private set; }
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
+		public IEnumerable<short> AuthorsSets { get; private set; }
 		public int SelectedSetForAuthors { get; private set; }
 		public int OrganizationForSet3ViewModel { get; private set; }
 		public IEntityEntryViewModel CashOrganizationViewModel { get; private set; }
@@ -735,10 +758,98 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private void ConfigureOrderOrganizationsSettings()
 		{
 			_uowOrderOrganizationSettings = _unitOfWorkFactory.CreateWithoutRoot("Настройки юр лиц для заказа");
+			InitializeOrderOrganizationsSettingsCommands();
 			ConfigureDataForSetWidgets();
 			ConfigurePaymentTypeSettings();
 		}
+
+		private void InitializeOrderOrganizationsSettingsCommands()
+		{
+			SaveOrderOrganizationSettingsCommand = new DelegateCommand(SaveOrderOrganizationsSettings);
+		}
+
+		private void SaveOrderOrganizationsSettings()
+		{
+			if(!ValidateOrderOrganizationSettings())
+			{
+				return;
+			}
+
+			SaveOrganizationBasedOrderContentSettings();
+			SavePaymentTypesOrganizationSettings();
+			SaveOrganizationByOrderAuthorSettings();
+			_uowOrderOrganizationSettings.Commit();
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Настройки по выбору организации для заказа сохранены!");
+		}
+
+		private void SaveOrganizationBasedOrderContentSettings()
+		{
+			foreach(var organizationByOrderContent in OrganizationsByOrderContent)
+			{
+				//на всякий уточнить, действительно ли мы пропускаем такие сущности и не сохраняем
+				if(!organizationByOrderContent.Value.ProductGroups.Any() && !organizationByOrderContent.Value.Nomenclatures.Any())
+				{
+					continue;
+				}
+				
+				_uowOrderOrganizationSettings.Save(organizationByOrderContent);
+			}
+		}
 		
+		private void SavePaymentTypesOrganizationSettings()
+		{
+			foreach(var paymentTypeOrganizationSettings in PaymentTypesOrganizationSettings)
+			{
+				_uowOrderOrganizationSettings.Save(paymentTypeOrganizationSettings);
+			}
+		}
+		
+		private void SaveOrganizationByOrderAuthorSettings()
+		{
+			//_uowOrderOrganizationSettings.Save(_organizationByOrderAuthorSettings);
+		}
+
+		private bool ValidateOrderOrganizationSettings()
+		{
+			if(!ValidateOrganizationsByOrderContentSettings())
+			{
+				return false;
+			}
+
+			if(!ValidatePaymentTypesOrganizationSettings())
+			{
+				return false;
+			}
+			
+			return true;
+		}
+
+		private bool ValidatePaymentTypesOrganizationSettings()
+		{
+			foreach(var paymentTypeOrganizationSettings in PaymentTypesOrganizationSettings)
+			{
+				if(!_validator.Validate(paymentTypeOrganizationSettings))
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private bool ValidateOrganizationsByOrderContentSettings()
+		{
+			foreach(var keyPairValue in OrganizationsByOrderContent)
+			{
+				if(!_validator.Validate(keyPairValue.Value))
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
 		private void ConfigureDataForSetWidgets()
 		{
 			var organizationsByOrderContent =
@@ -764,6 +875,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				{
 					OrderContentSet = set
 				};
+				
+				organizationsByOrderContent.Add(set, organizationSettings);
 			}
 			
 			ProductGroupsForSet1 = organizationSettings.ProductGroups;
@@ -794,6 +907,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				{
 					OrderContentSet = set
 				};
+				
+				organizationsByOrderContent.Add(set, organizationSettings);
 			}
 			
 			ProductGroupsForSet2 = organizationSettings.ProductGroups;
@@ -813,15 +928,23 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		
 		private void InitializeDataForSet3()
 		{
-			var organizationByAuthorsSettings =
+			AuthorsSets = OrganizationsByOrderContent.Keys.ToList();
+			
+			_organizationByOrderAuthorSettings =
 				_uowOrderOrganizationSettings.GetAll<OrganizationByOrderAuthorSettings>().SingleOrDefault();
 
-			if(organizationByAuthorsSettings is null)
+			if(_organizationByOrderAuthorSettings is null)
 			{
-				organizationByAuthorsSettings = new OrganizationByOrderAuthorSettings();
+				_organizationByOrderAuthorSettings = new OrganizationByOrderAuthorSettings();
+				SelectedOrganizationBasedOrderContentSet = 1;
+			}
+			else
+			{
+				_selectedOrganizationBasedOrderContentSet =
+					_organizationByOrderAuthorSettings.OrganizationBasedOrderContentSettings.OrderContentSet;
 			}
 			
-			AuthorsSubdivisions = organizationByAuthorsSettings.OrderAuthorsSubdivisions;
+			AuthorsSubdivisions = _organizationByOrderAuthorSettings.OrderAuthorsSubdivisions;
 		}
 		
 		private void ConfigurePaymentTypeSettings()

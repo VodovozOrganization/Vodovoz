@@ -7,6 +7,7 @@ namespace VodovozBusiness.Domain.Settings
 {
 	public class OrganizationByOrderAuthorSettings : PropertyChangedBase, IDomainObject
 	{
+		public static short DefaultSetForAuthorNotIncludedSet = 1;
 		public virtual int Id { get; set; }
 		public virtual OrganizationBasedOrderContentSettings OrganizationBasedOrderContentSettings { get; set; }
 		public virtual IObservableList<Subdivision> OrderAuthorsSubdivisions { get; set; } = new ObservableList<Subdivision>();

@@ -1,10 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Settings;
 
 namespace VodovozBusiness.Domain.Settings
 {
@@ -52,27 +56,67 @@ namespace VodovozBusiness.Domain.Settings
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var unitOfWorkFactory = (IUnitOfWorkFactory)validationContext.GetService(typeof(IUnitOfWorkFactory));
-
+			var orderOrganizationSettingsRepository = validationContext.GetRequiredService<IOrderOrganizationSettingsRepository>();
+			
 			using(var uow = unitOfWorkFactory.CreateWithoutRoot("Проверка на дубли в настройке организации для заказа"))
 			{
-				if(Id == 0)
+				var sb = new StringBuilder();
+				
+				if(Nomenclatures.Any())
 				{
-					if(NomenclaturesExists || ProductGroupsExists)
+					var duplicateNomenclatures = 
+						orderOrganizationSettingsRepository.GetSameNomenclaturesInOrganizationBasedOrderContentSettings(
+							uow, Nomenclatures.Select(x => x.Id).ToArray());
+
+					if(duplicateNomenclatures.Any())
+					{
+						sb.Clear();
+						
+						foreach(var duplicateNomenclature in duplicateNomenclatures)
+						{
+							sb.AppendLine($"{duplicateNomenclature.Id} - {duplicateNomenclature.Name}");
+						}
+						
+						yield return new ValidationResult(
+							$"В множестве {OrderContentSet} указаны пересекающиеся с другим множеством товары\n{sb}");
+					}
+				}
+				
+				if(ProductGroups.Any())
+				{
+					var duplicateProductGroups = 
+						orderOrganizationSettingsRepository.GetSameProductGroupsInOrganizationBasedOrderContentSettings(
+							uow, ProductGroups);
+
+					if(duplicateProductGroups.Any())
+					{
+						sb.Clear();
+						
+						foreach(var duplicateNomenclature in duplicateProductGroups)
+						{
+							sb.AppendLine($"{duplicateNomenclature.Id} - {duplicateNomenclature.Name}");
+						}
+						
+						yield return new ValidationResult(
+							$"В множестве {OrderContentSet} указаны пересекающиеся с другим множеством группы товаров\n{sb}");
+					}
+				}
+
+				if(Organization != null)
+				{
+					if(orderOrganizationSettingsRepository.OrganizationBasedOrderContentSettingsWithOrganizationExists(
+						   uow, Organization.Id))
+					{
+						yield return new ValidationResult($"В множестве {OrderContentSet} указана организация из другого множества");
+					}
+
+					if(!ProductGroups.Any() && !Nomenclatures.Any())
 					{
 						yield return new ValidationResult(
-							"Уже есть настройка с выбранными товарами/группами, проверьте правильность выбора");
-					}
-					
-					if(Organization != null && OrganizationExists)
-					{
-						yield return new ValidationResult("Уже есть настройка с выбранной организацией");
+							$"Если заполнена организация у множества {OrderContentSet}, то должны быть заполнены и товары/группы товаров");
 					}
 				}
 			}
 		}
-
-		private bool NomenclaturesExists => false;
-		private bool ProductGroupsExists => false;
-		private bool OrganizationExists => false;
 	}
 }

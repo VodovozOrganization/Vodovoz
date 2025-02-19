@@ -53,6 +53,14 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+			.AddScoped<OrderOrganizationManager>()
+			.AddTransient<ContractOrganizationForOrderHandler>()
+			.AddTransient<OrganizationByOrderAuthorHandler>()
+			.AddTransient<OrganizationByOrderContentForOrderHandler>()
+			.AddTransient<OrganizationByPaymentTypeForOrderHandler>()
+			.AddTransient<OrganizationForDeliveryOrderByPaymentTypeHandler>()
+			.AddTransient<OrganizationForSelfDeliveryOrderByPaymentTypeHandler>()
+			.AddTransient<OrganizationFromClientForOrderHandler>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

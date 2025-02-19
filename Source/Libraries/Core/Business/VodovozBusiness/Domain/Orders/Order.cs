@@ -60,6 +60,7 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
@@ -796,6 +797,8 @@ namespace Vodovoz.Domain.Orders
 			order.AddServiceClaimAsInitial(service);
 			return order;
 		}
+		
+		public virtual IEnumerable<OrganizationForOrderWithOrderItems> OrganizationsByOrderItems { get; protected set; }
 
 		#region IValidatableObject implementation
 
@@ -1855,10 +1858,12 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
+			OrganizationsByOrderItems = ScopeProvider.Scope.Resolve<IGetOrganizationForOrder>().GetOrganizationsWithOrderItems(this, UoW);
+
 			var counterpartyContract = organization != null
 				? contractRepository.GetCounterpartyContractByOrganization(uow, this, organization)
 				: contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
-			
+
 			if(counterpartyContract == null)
 			{
 				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate, organization);

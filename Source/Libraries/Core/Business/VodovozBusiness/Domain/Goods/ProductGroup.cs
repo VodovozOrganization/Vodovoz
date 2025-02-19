@@ -171,6 +171,60 @@ namespace Vodovoz.Domain.Goods
 			uow.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
 			isChildsFetched = true;
 		}
+		
+		/// <summary>
+		/// Является ли группа ребёнком другой группы товаров?
+		/// </summary>
+		/// <returns><c>true</c>, если является, <c>false</c> если не является.</returns>
+		/// <param name="productGroup">Головная группа</param>
+		public virtual bool IsChildOf(ProductGroup productGroup)
+		{
+			if(this == productGroup)
+			{
+				return false;
+			}
+
+			var parentGroup = Parent;
+
+			while(parentGroup != null)
+			{
+				if(parentGroup == productGroup)
+				{
+					return true;
+				}
+
+				parentGroup = parentGroup.Parent;
+			}
+
+			return false;
+		}
+		
+		/// <summary>
+		/// Является ли группа ребёнком другой группы товаров?
+		/// </summary>
+		/// <returns><c>true</c>, если является, <c>false</c> если не является.</returns>
+		/// <param name="productGroupId">Головная группа</param>
+		public virtual bool IsChildOf(int productGroupId)
+		{
+			if(Id == productGroupId)
+			{
+				return false;
+			}
+
+			var parentGroup = Parent;
+
+			while(parentGroup != null)
+			{
+				if(parentGroup.Id == productGroupId)
+				{
+					return true;
+				}
+
+				parentGroup = parentGroup.Parent;
+			}
+
+			return false;
+		}
 
 		#endregion
 

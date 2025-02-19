@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 
-namespace VodovozBusiness.Domain.Orders
+namespace Vodovoz.Application.Orders.Services
 {
 	public abstract class GetOrganizationForOrder
 	{
@@ -24,6 +24,56 @@ namespace VodovozBusiness.Domain.Orders
 		
 		protected IOrganizationSettings OrganizationSettings { get; }
 		protected IOrderSettings OrderSettings { get; }
+		
+		protected int GetOrganizationId(
+			IUnitOfWork uow,
+			int settingsOrganizationId,
+			int? onlineOrderId)
+		{
+			if(!onlineOrderId.HasValue)
+			{
+				return settingsOrganizationId;
+			}
+
+			var fastPayment = _fastPaymentRepository.GetPerformedFastPaymentByExternalId(uow, onlineOrderId.Value);
+			
+			if(fastPayment is null)
+			{
+				return settingsOrganizationId;
+			}
+
+			return fastPayment.Organization?.Id ?? settingsOrganizationId;
+		}
+		
+		protected int GetOrganizationIdForOnlinePayment(
+			IUnitOfWork uow,
+			PaymentFrom paymentFrom,
+			int defaultOrganizationId,
+			int? onlineOrderId)
+		{
+			if(paymentFrom == null)
+			{
+				return OrganizationSettings.VodovozNorthOrganizationId;
+			}
+
+			if(OrderSettings.PaymentsByCardFromAvangard.Contains(paymentFrom.Id))
+			{
+				if(!onlineOrderId.HasValue)
+				{
+					return GetPaymentFromOrganisationIdOrDefault(paymentFrom, defaultOrganizationId);
+				}
+
+				var fastPayment = _fastPaymentRepository.GetPerformedFastPaymentByExternalId(uow, onlineOrderId.Value);
+				if(fastPayment == null)
+				{
+					return GetPaymentFromOrganisationIdOrDefault(paymentFrom, defaultOrganizationId);
+				}
+
+				return fastPayment.Organization?.Id ?? OrganizationSettings.VodovozNorthOrganizationId;
+			}
+
+			return GetPaymentFromOrganisationIdOrDefault(paymentFrom, defaultOrganizationId);
+		}
 
 		protected int GetOrganizationIdForByCard(
 			IUnitOfWork uow,
@@ -62,7 +112,9 @@ namespace VodovozBusiness.Domain.Orders
 			return GetPaymentFromOrganisationIdOrDefault(paymentFrom);
 		}
 
-		private int GetPaymentFromOrganisationIdOrDefault(PaymentFrom paymentFrom) =>
-			paymentFrom.OrganizationForOnlinePayments?.Id ?? OrganizationSettings.VodovozNorthOrganizationId;
+		private int GetPaymentFromOrganisationIdOrDefault(PaymentFrom paymentFrom, int? defaultOrganizationId = null) =>
+			paymentFrom.OrganizationForOnlinePayments?.Id
+				?? defaultOrganizationId
+				?? OrganizationSettings.VodovozNorthOrganizationId;
 	}
 }

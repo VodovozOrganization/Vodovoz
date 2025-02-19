@@ -15,6 +15,7 @@ using Vodovoz.ViewModels.ViewModels.Settings;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.Views.Common;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.Views.Settings
 {
@@ -268,6 +269,8 @@ namespace Vodovoz.Views.Settings
 			const string nomenclatures = "Номенклатуры: ";
 			const string productGroups = "Группы товаров: ";
 			const string authorsSubdivisions = "Подразделения авторов заказа: ";
+			
+			btnSaveOrderOrganizationSettings.BindCommand(ViewModel.SaveOrderOrganizationSettingsCommand);
 
 			ConfigureAddOrRemoveIDomainObjectWidget(
 				ProductGroupsForSet1View, productGroups, typeof(ProductGroup), ViewModel.ProductGroupsForSet1);
@@ -279,6 +282,11 @@ namespace Vodovoz.Views.Settings
 				NomenclaturesForSet2View, nomenclatures, typeof(Nomenclature), ViewModel.NomenclaturesForSet2);
 			ConfigureAddOrRemoveIDomainObjectWidget(
 				AuthorsSubdivisionsView, authorsSubdivisions, typeof(Subdivision), ViewModel.AuthorsSubdivisions);
+
+			listCmbAuthorsSet.ItemsList = ViewModel.AuthorsSets;
+			listCmbAuthorsSet.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedOrganizationBasedOrderContentSet, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			ConfigureOrganizationViewModels();
 		}
