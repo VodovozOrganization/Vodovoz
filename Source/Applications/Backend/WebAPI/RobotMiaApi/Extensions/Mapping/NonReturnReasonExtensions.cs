@@ -20,6 +20,7 @@ namespace RobotMiaApi.Extensions.Mapping
 			{
 				Id = nonReturnReason.Id,
 				Name = nonReturnReason.Name,
+				NeedForfeit = nonReturnReason.NeedForfeit,
 			};
 
 		/// <summary>
