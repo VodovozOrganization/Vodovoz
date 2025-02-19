@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -48,12 +48,11 @@ namespace DatabaseServiceWorker.PowerBiWorker.Exporters
 				var lastWorkerStartDate = await GetLastWorkerStartDateAsync();
 
 				var needExport = lastWorkerStartDate.HasValue
-								 && DateTime.Now - lastWorkerStartDate.Value >= TimeSpan.FromHours(1)
-								 && DateTime.Now.Minute is >= 30;
+								 && lastWorkerStartDate.Value.Date < DateTime.Today;
 
 				if(!needExport)
 				{
-					_logger.LogInformation("Экспорт уже производился в текущем часе в бд PowerBi {PowerBiExportDate}", DateTime.Now);
+					_logger.LogInformation("Экспорт уже производился сегодня в бд PowerBi {PowerBiExportDate}", DateTime.Now);
 
 					return;
 				}
@@ -210,7 +209,7 @@ namespace DatabaseServiceWorker.PowerBiWorker.Exporters
 
 			await truncateTransaction.CommitAsync(cancellationToken);
 
-			_logger.LogInformation("Успешно очисти ли необходимые таблицы");
+			_logger.LogInformation("Успешно очистили необходимые таблицы");
 		}
 	}
 }
