@@ -18,5 +18,11 @@ namespace RobotMiaApi.Contracts.Responses.V1
 		/// </summary>
 		[JsonPropertyName("name")]
 		public string Name { get; set; }
+
+		/// <summary>
+		/// Необходимо начислять неустойку
+		/// </summary>
+		[JsonPropertyName("need_forfeit")]
+		public bool NeedForfeit { get; set; }
 	}
 }
