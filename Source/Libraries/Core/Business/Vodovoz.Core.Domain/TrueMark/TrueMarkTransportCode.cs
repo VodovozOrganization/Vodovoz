@@ -52,6 +52,12 @@ namespace Vodovoz.Core.Domain.TrueMark
 			set => SetField(ref _isInvalid, value);
 		}
 
+		public IEnumerable<TrueMarkTransportCode> InnerTransportCodes { get; set; }
+
+		public IEnumerable<TrueMarkWaterGroupCode> InnerGroupCodes { get; set; }
+
+		public IEnumerable<TrueMarkWaterIdentificationCode> InnerWaterCodes { get; set; }
+
 		public override bool Equals(object obj)
 		{
 			if(obj is TrueMarkWaterIdentificationCode code)

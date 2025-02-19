@@ -85,6 +85,10 @@ namespace Vodovoz.Core.Domain.TrueMark
 			set => SetField(ref _checkCode, value);
 		}
 
+		public IEnumerable<TrueMarkWaterGroupCode> InnerGroupCodes { get; set; }
+
+		public IEnumerable<TrueMarkWaterIdentificationCode> InnerWaterCodes { get; set; }
+
 		public override bool Equals(object obj)
 		{
 			if(obj is TrueMarkWaterIdentificationCode code)
