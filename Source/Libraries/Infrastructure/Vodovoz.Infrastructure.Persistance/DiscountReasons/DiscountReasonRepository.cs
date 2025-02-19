@@ -82,7 +82,21 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 
 		public bool HasBeenUsagePromoCode(IUnitOfWork uow, int counterpartyId, int discountReasonId)
 		{
-			var query = 
+			var onlineOrderItems = 
+				from onlineOrderItem in uow.Session.Query<OnlineOrderItem>()
+				join onlineOrder in uow.Session.Query<OnlineOrder>()
+					on onlineOrderItem.OnlineOrder.Id equals onlineOrder.Id
+				where onlineOrder.Counterparty.Id == counterpartyId
+				      && onlineOrderItem.DiscountReason.Id == discountReasonId
+				      && onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled
+				select onlineOrderItem;
+
+			if(onlineOrderItems.Any())
+			{
+				return true;
+			}
+			
+			var orderItems = 
 				from orderItem in uow.Session.Query<OrderItem>()
 				join order in uow.Session.Query<Vodovoz.Domain.Orders.Order>()
 					on orderItem.Order.Id equals order.Id
@@ -93,7 +107,7 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 					&& order.OrderStatus != OrderStatus.NotDelivered
 				select orderItem;
 
-			return query.Any();
+			return orderItems.Any();
 		}
 	}
 }
