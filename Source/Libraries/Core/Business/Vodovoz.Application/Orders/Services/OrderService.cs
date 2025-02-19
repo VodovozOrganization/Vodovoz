@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -341,6 +341,13 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				order.CallBeforeArrivalMinutes = 15;
 				order.IsDoNotMakeCallBeforeArrival = false;
+			}
+			
+			if(createOrderRequest.TareNonReturnReasonId != null)
+			{
+				var tareNonReturnReason = unitOfWork.GetById<NonReturnReason>(createOrderRequest.TareNonReturnReasonId.Value);
+				order.TareNonReturnReason = tareNonReturnReason;
+				order.OPComment = $"Робот Мия: {tareNonReturnReason.Name}.";
 			}
 
 			return order;

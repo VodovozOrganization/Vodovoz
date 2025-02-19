@@ -31,7 +31,8 @@ namespace RobotMiaApi.Extensions.Mapping
 			BanknoteForReturn = postOrderRequest.Trifle,
 			BottlesReturn = postOrderRequest.BottlesReturn ?? default,
 			SaleItems = postOrderRequest.SaleItems?.MapToSaleItem()
-				?? Enumerable.Empty<CreateOrderRequest.SaleItem>()
+				?? Enumerable.Empty<CreateOrderRequest.SaleItem>(),
+			TareNonReturnReasonId = postOrderRequest.TareNonReturnReasonId,
 		};
 	}
 }
