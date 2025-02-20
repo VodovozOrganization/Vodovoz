@@ -1,18 +1,17 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
-using QS.BusinessCommon.Domain;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
-using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.BusinessCommon.Domain;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Common;
-using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -20,6 +19,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Goods
@@ -34,7 +34,7 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
-		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;		
+		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
 		private bool _hasConditionAccounting;
@@ -149,6 +149,7 @@ namespace Vodovoz.Domain.Goods
 		private ProductivityComparisionSign? _heatingProductivityComparisionSign;
 		private ProductivityComparisionSign? _coolingProductivityComparisionSign;
 		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse = new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
+		private IObservableList<Gtin> _gtins = new ObservableList<Gtin>();
 
 		#region Свойства
 
@@ -734,6 +735,16 @@ namespace Vodovoz.Domain.Goods
 			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
 
 		/// <summary>
+		/// Gtin
+		/// </summary>
+		[Display(Name = "Gtin")]
+		public virtual IObservableList<Gtin> Gtins
+		{
+			get => _gtins;
+			set => SetField(ref _gtins, value);
+		}
+
+		/// <summary>
 		/// Себестоимость ТМЦ
 		/// </summary>
 		[Display(Name = "Себестоимость ТМЦ")]
@@ -793,7 +804,7 @@ namespace Vodovoz.Domain.Goods
 			get => _hasInventoryAccounting;
 			set => SetField(ref _hasInventoryAccounting, value);
 		}
-		
+
 		/// <summary>
 		/// Учет состояния ТМЦ(б/у | Нов)
 		/// </summary>
@@ -1321,7 +1332,7 @@ namespace Vodovoz.Domain.Goods
 			get => _lengthOnline;
 			set => SetField(ref _lengthOnline, value);
 		}
-		
+
 		/// <summary>
 		/// Ширина для ИПЗ
 		/// </summary>
@@ -1331,7 +1342,7 @@ namespace Vodovoz.Domain.Goods
 			get => _widthOnline;
 			set => SetField(ref _widthOnline, value);
 		}
-		
+
 		/// <summary>
 		/// Высота для ИПЗ
 		/// </summary>
@@ -1341,7 +1352,7 @@ namespace Vodovoz.Domain.Goods
 			get => _heightOnline;
 			set => SetField(ref _heightOnline, value);
 		}
-		
+
 		/// <summary>
 		/// Вес для ИПЗ
 		/// </summary>
@@ -1361,7 +1372,7 @@ namespace Vodovoz.Domain.Goods
 			get => _heatingPowerUnits;
 			set => SetField(ref _heatingPowerUnits, value);
 		}
-		
+
 		/// <summary>
 		/// Единицы измерения мощности охлаждения
 		/// </summary>
@@ -1371,7 +1382,7 @@ namespace Vodovoz.Domain.Goods
 			get => _coolingPowerUnits;
 			set => SetField(ref _coolingPowerUnits, value);
 		}
-		
+
 		/// <summary>
 		/// Единицы измерения производительности нагрева
 		/// </summary>
@@ -1381,7 +1392,7 @@ namespace Vodovoz.Domain.Goods
 			get => _heatingProductivityUnits;
 			set => SetField(ref _heatingProductivityUnits, value);
 		}
-		
+
 		/// <summary>
 		/// Единицы измерения производительности охлаждения
 		/// </summary>
@@ -1391,7 +1402,7 @@ namespace Vodovoz.Domain.Goods
 			get => _coolingProductivityUnits;
 			set => SetField(ref _coolingProductivityUnits, value);
 		}
-		
+
 		/// <summary>
 		/// Показатель производительности нагрева
 		/// </summary>
@@ -1401,7 +1412,7 @@ namespace Vodovoz.Domain.Goods
 			get => _heatingProductivityComparisionSign;
 			set => SetField(ref _heatingProductivityComparisionSign, value);
 		}
-		
+
 		/// <summary>
 		/// Показатель производительности охлаждения
 		/// </summary>
@@ -1661,18 +1672,6 @@ namespace Vodovoz.Domain.Goods
 				}
 			}
 
-			if(IsAccountableInTrueMark && string.IsNullOrWhiteSpace(Gtin))
-			{
-				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
-					new[] { nameof(Gtin) });
-			}
-
-			if(Gtin?.Length < 8 || Gtin?.Length > 14)
-			{
-				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
-					new[] { nameof(Gtin) });
-			}
-
 			if(ProductGroup == null)
 			{
 				yield return new ValidationResult("Должна быть выбрана принадлежность номенклатуры к группе товаров",
@@ -1687,24 +1686,56 @@ namespace Vodovoz.Domain.Goods
 					"Габариты на вкладке Сайты и приложения должны быть либо пустыми, либо заполнены и больше 0",
 					new[] { nameof(LengthOnline), nameof(WidthOnline), nameof(HeightOnline) });
 			}
-			
+
 			if(_weightOnline == 0)
 			{
 				yield return new ValidationResult(
 					"Вес на вкладке Сайты и приложения должен быть больше 0",
 					new[] { nameof(WeightOnline) });
 			}
-			
+
 			if(_coolingTemperatureFromOnline > _coolingTemperatureToOnline)
 			{
 				yield return new ValidationResult("Начальное значение температуры охлаждения не может быть больше конечного",
 					new[] { nameof(CoolingTemperatureFromOnline), nameof(CoolingTemperatureToOnline) });
 			}
-			
+
 			if(_heatingTemperatureFromOnline > _heatingTemperatureToOnline)
 			{
 				yield return new ValidationResult("Начальное значение температуры нагрева не может быть больше конечного",
 					new[] { nameof(HeatingTemperatureFromOnline), nameof(HeatingTemperatureToOnline) });
+			}
+
+			if(IsAccountableInTrueMark && !Gtins.Any())
+			{
+				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
+					new[] { nameof(Gtins) });
+			}
+
+			if(Gtins.Any(x => x.GtinNumber.Length < 8 || x.GtinNumber.Length > 14))
+			{
+				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
+					new[] { nameof(Gtins) });
+			}
+
+			var gtinRepository = validationContext.GetRequiredService<IGenericRepository<Gtin>>();
+			var gtinNumbers = Gtins.Select(x => x.GtinNumber);
+			var gtinDuplicates = gtinRepository.Get(UoW, x => x.Nomenclature.Id != Id && gtinNumbers.Contains(x.GtinNumber));
+
+			if(gtinDuplicates.Any())
+			{
+				yield return new ValidationResult(
+					$"Найдены дубликаты Gtin {string.Join("; ", gtinDuplicates.Select(x => $"[{x.Nomenclature.Name} : {x.GtinNumber}]"))}",
+					new[] { nameof(Gtins) });
+			}
+
+			var gtinsDuplicatesInNomenclature = Gtins.GroupBy(x => x.GtinNumber).Where(g => g.Count() > 1).Select(g => g.Key);
+
+			if(gtinsDuplicatesInNomenclature.Any())
+			{
+				yield return new ValidationResult(
+					$"Найдены дубликаты Gtin в текущей номенклатуре {string.Join(", ", gtinsDuplicatesInNomenclature.Select(x => x))}",
+					new[] { nameof(Gtins) });
 			}
 		}
 
@@ -1801,7 +1832,7 @@ namespace Vodovoz.Domain.Goods
 		public static NomenclatureCategory[] GetCategoriesForMaster()
 		{
 			return GetCategoriesForSale()
-				.Concat(new []
+				.Concat(new[]
 				{
 					NomenclatureCategory.master,
 					NomenclatureCategory.spare_parts
