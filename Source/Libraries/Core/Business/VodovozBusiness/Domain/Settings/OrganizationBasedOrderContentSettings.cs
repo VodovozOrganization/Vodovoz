@@ -15,10 +15,10 @@ namespace VodovozBusiness.Domain.Settings
 	/// <summary>
 	/// Настройки для подбора организации, основанные на составе заказа
 	/// </summary>
-	public class OrganizationBasedOrderContentSettings : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class OrganizationBasedOrderContentSettings : PropertyChangedBase, IOrganizations, IDomainObject, IValidatableObject
 	{
 		private short _orderContestSet;
-		private Organization _organization;
+		private IObservableList<Organization> _organizations = new ObservableList<Organization>();
 		
 		/// <summary>
 		/// Id
@@ -38,10 +38,10 @@ namespace VodovozBusiness.Domain.Settings
 		/// <summary>
 		/// Организация, устанавливаемая для этого множества
 		/// </summary>
-		public virtual Organization Organization
+		public virtual IObservableList<Organization> Organizations
 		{
-			get => _organization;
-			set => SetField(ref _organization, value);
+			get => _organizations;
+			set => SetField(ref _organizations, value);
 		}
 
 		/// <summary>
@@ -102,7 +102,8 @@ namespace VodovozBusiness.Domain.Settings
 					}
 				}
 
-				if(Organization != null)
+				//уточнить по пересечению организаций
+				/*if(Organization != null)
 				{
 					if(orderOrganizationSettingsRepository.OrganizationBasedOrderContentSettingsWithOrganizationExists(
 						   uow, Organization.Id))
@@ -115,7 +116,7 @@ namespace VodovozBusiness.Domain.Settings
 						yield return new ValidationResult(
 							$"Если заполнена организация у множества {OrderContentSet}, то должны быть заполнены и товары/группы товаров");
 					}
-				}
+				}*/
 			}
 		}
 	}

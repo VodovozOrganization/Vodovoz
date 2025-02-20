@@ -3,6 +3,7 @@ using QS.DomainModel.Entity;
 using QS.Views;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
@@ -266,20 +267,38 @@ namespace Vodovoz.Views.Settings
 		
 		private void ConfigureOrdersOrganizationSettings()
 		{
+			const string organizations = "Организации: ";
+			
+			btnSaveOrderOrganizationSettings.BindCommand(ViewModel.SaveOrderOrganizationSettingsCommand);
+
+			ConfigureWidgetsForSets(organizations);
+			ConfigurePaymentTypesWidgets(organizations);
+		}
+
+		private void ConfigureWidgetsForSets(string organizations)
+		{
 			const string nomenclatures = "Номенклатуры: ";
 			const string productGroups = "Группы товаров: ";
 			const string authorsSubdivisions = "Подразделения авторов заказа: ";
 			
-			btnSaveOrderOrganizationSettings.BindCommand(ViewModel.SaveOrderOrganizationSettingsCommand);
-
 			ConfigureAddOrRemoveIDomainObjectWidget(
-				ProductGroupsForSet1View, productGroups, typeof(ProductGroup), ViewModel.ProductGroupsForSet1);
+				ProductGroupsForSet1View, productGroups, typeof(ProductGroup), ViewModel.OrganizationsByOrderContent[1].ProductGroups);
 			ConfigureAddOrRemoveIDomainObjectWidget(
-				NomenclaturesForSet1View, nomenclatures, typeof(Nomenclature), ViewModel.NomenclaturesForSet1);
+				NomenclaturesForSet1View, nomenclatures, typeof(Nomenclature), ViewModel.OrganizationsByOrderContent[1].Nomenclatures);
 			ConfigureAddOrRemoveIDomainObjectWidget(
-				ProductGroupsForSet2View, productGroups, typeof(ProductGroup), ViewModel.ProductGroupsForSet2);
+				OrganizationsForSet1View,
+				organizations,
+				typeof(Domain.Organizations.Organization),
+				ViewModel.OrganizationsByOrderContent[1].Organizations);
 			ConfigureAddOrRemoveIDomainObjectWidget(
-				NomenclaturesForSet2View, nomenclatures, typeof(Nomenclature), ViewModel.NomenclaturesForSet2);
+				ProductGroupsForSet2View, productGroups, typeof(ProductGroup), ViewModel.OrganizationsByOrderContent[2].ProductGroups);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				NomenclaturesForSet2View, nomenclatures, typeof(Nomenclature), ViewModel.OrganizationsByOrderContent[2].Nomenclatures);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				OrganizationsForSet2View,
+				organizations,
+				typeof(Domain.Organizations.Organization),
+				ViewModel.OrganizationsByOrderContent[2].Organizations);
 			ConfigureAddOrRemoveIDomainObjectWidget(
 				AuthorsSubdivisionsView, authorsSubdivisions, typeof(Subdivision), ViewModel.AuthorsSubdivisions);
 
@@ -287,8 +306,6 @@ namespace Vodovoz.Views.Settings
 			listCmbAuthorsSet.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedOrganizationBasedOrderContentSet, w => w.SelectedItem)
 				.InitializeFromSource();
-
-			ConfigureOrganizationViewModels();
 		}
 
 		private void ConfigureAddOrRemoveIDomainObjectWidget(
@@ -297,6 +314,8 @@ namespace Vodovoz.Views.Settings
 			Type entityType,
 			IEnumerable<INamedDomainObject> entities)
 		{
+			view.WidthRequest = 400;
+			view.HeightRequest = 150;
 			var viewModel = new AddOrRemoveIDomainObjectViewModel(ViewModel.EntityJournalOpener);
 			viewModel.Configure(
 				entityType,
@@ -308,81 +327,123 @@ namespace Vodovoz.Views.Settings
 			view.ViewModel = viewModel;
 			view.Show();
 		}
-		
-		private void ConfigureOrganizationViewModels()
-		{
-			entitySet1Organization.ViewModel = ViewModel.OrganizationForSet1ViewModel;
-			entitySet2Organization.ViewModel = ViewModel.OrganizationForSet2ViewModel;
 
-			ConfigurePaymentTypesWidgets();
-		}
-
-		private void ConfigurePaymentTypesWidgets()
+		private void ConfigurePaymentTypesWidgets(string organizations)
 		{
-			entityCashOrganization.ViewModel = ViewModel.CashOrganizationViewModel;
-			entityTerminalOrganization.ViewModel = ViewModel.TerminalOrganizationViewModel;
-			entityDriverAppQrOrganization.ViewModel = ViewModel.DriverAppQrOrganizationViewModel;
-			entitySmsQrOrganization.ViewModel = ViewModel.SmsQrOrganizationViewModel;
-			entityBarterOrganization.ViewModel = ViewModel.BarterOrganizationViewModel;
-			entityContarctDocumentationOrganization.ViewModel = ViewModel.ContractDocOrganizationViewModel;
-			entityCashlessOrganization.ViewModel = ViewModel.CashlessOrganizationViewModel;
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				OrganizationsForCashView,
+				organizations,
+				typeof(Domain.Organizations.Organization),
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.Cash].First().Organizations);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				OrganizationsForTerminalView,
+				organizations,
+				typeof(Domain.Organizations.Organization),
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.Terminal].First().Organizations);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				OrganizationsForDriverAppView,
+				organizations,
+				typeof(Domain.Organizations.Organization),
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.DriverApplicationQR].First().Organizations);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				OrganizationsForSmsQrView,
+				organizations,
+				typeof(Domain.Organizations.Organization),
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.SmsQR].First().Organizations);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				OrganizationsForBarterView,
+				organizations,
+				typeof(Domain.Organizations.Organization),
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.Barter].First().Organizations);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				OrganizationsForContractDocView,
+				organizations,
+				typeof(Domain.Organizations.Organization),
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.ContractDocumentation].First().Organizations);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				OrganizationsForCashlessView,
+				organizations,
+				typeof(Domain.Organizations.Organization),
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.Cashless].First().Organizations);
 			
-			ConfigurePaidOnlineWidgets();
+			ConfigurePaidOnlineWidgets(ViewModel.PaymentTypesOrganizationSettings[PaymentType.PaidOnline], organizations);
 		}
 
-		private void ConfigurePaidOnlineWidgets()
+		private void ConfigurePaidOnlineWidgets(
+			IEnumerable<PaymentTypeOrganizationSettings> paymentTypesOrganizations,
+			string organizations)
 		{
-			tablePaidOnlinePaymentFromsSettings.NRows = (uint)ViewModel.PaidOnlineOrganizationsViewModels.Count + 1;
+			tablePaidOnlinePaymentFromsSettings.NRows = (uint)paymentTypesOrganizations.Count() + 1;
 			uint row = 1;
 			
-			foreach(var keyPairValue in ViewModel.PaidOnlineOrganizationsViewModels)
+			foreach(var paymentTypeOrganizations in paymentTypesOrganizations)
 			{
+				if(!(paymentTypeOrganizations is OnlinePaymentTypeOrganizationSettings onlinePaymentSettings))
+				{
+					continue;
+				}
+				
 				uint column = 0;
-				GeneratePaymentFromLabelAndAttachToTable(keyPairValue, row, column);
+				GeneratePaymentFromLabelAndAttachToTable(onlinePaymentSettings, row, column);
 
 				column++;
-				GenerateOrganizationWidgetAndAttachToTable(keyPairValue, row, column);
+				GenerateOrganizationsWidgetAndAttachToTable(onlinePaymentSettings, organizations, row, column);
 				
 				column++;
-				GenerateCriterionLabelAndAttachToTable(keyPairValue, row, column);
+				GenerateCriterionLabelAndAttachToTable(onlinePaymentSettings, row, column);
+
+				row++;
+				
+				var separator = new HSeparator();
+				tablePaidOnlinePaymentFromsSettings.Attach(separator, 0, column + 1, row, row + 1);
+				separator.Show();
+				
 				row++;
 			}
 		}
 
 		private void GeneratePaymentFromLabelAndAttachToTable(
-			KeyValuePair<(string Name, string Criterion), IEntityEntryViewModel> keyPairValue,
+			OnlinePaymentTypeOrganizationSettings onlinePaymentSettings,
 			uint row,
 			uint column)
 		{
 			var paymentFromNameLabel = new yLabel();
-			paymentFromNameLabel.Name = keyPairValue.Key.Name + column;
-			paymentFromNameLabel.LabelProp = keyPairValue.Key.Name;
+			paymentFromNameLabel.Name = "lbl" + onlinePaymentSettings.PaymentFrom.Name;
+			paymentFromNameLabel.LabelProp = onlinePaymentSettings.PaymentFrom.Name;
 			paymentFromNameLabel.Show();
 
 			AttachPaymentFromWidget(paymentFromNameLabel, row, column);
 		}
 		
-		private void GenerateOrganizationWidgetAndAttachToTable(
-			KeyValuePair<(string Name, string Criterion), IEntityEntryViewModel> keyPairValue,
+		private void GenerateOrganizationsWidgetAndAttachToTable(
+			OnlinePaymentTypeOrganizationSettings onlinePaymentSettings,
+			string organizations,
 			uint row,
 			uint column)
 		{
-			var organizationWidget = new EntityEntry();
-			organizationWidget.Name = keyPairValue.Key.Name + "Organization";
-			organizationWidget.ViewModel = keyPairValue.Value;
-			organizationWidget.Show();
+			var organizationsWidget = new AddOrRemoveIDomainObjectView();
+			organizationsWidget.Name = "orgs" + onlinePaymentSettings.PaymentFrom.Name;
+			
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				organizationsWidget,
+				organizations,
+				typeof(Domain.Organizations.Organization),
+				onlinePaymentSettings.Organizations);
+			organizationsWidget.Show();
 
-			AttachPaymentFromWidget(organizationWidget, row, column);
+			AttachPaymentFromWidget(organizationsWidget, row, column);
 		}
 
 		private void GenerateCriterionLabelAndAttachToTable(
-			KeyValuePair<(string Name, string Criterion), IEntityEntryViewModel> keyPairValue,
+			OnlinePaymentTypeOrganizationSettings onlinePaymentSettings,
 			uint row,
 			uint column)
 		{
 			var criterionLabel = new yLabel();
-			criterionLabel.Name = keyPairValue.Key.Name + "OrganizationCriterion";
-			criterionLabel.LabelProp = keyPairValue.Key.Criterion;
+			criterionLabel.Name = "criterion" + onlinePaymentSettings.PaymentFrom.Name;
+			criterionLabel.Wrap = true;
+			criterionLabel.WidthRequest = 400;
+			criterionLabel.LabelProp = onlinePaymentSettings.CriterionForOrganization;
 			criterionLabel.Show();
 
 			AttachPaymentFromWidget(criterionLabel, row, column);

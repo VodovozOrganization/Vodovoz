@@ -1,45 +1,40 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
-using DocumentFormat.OpenXml.Wordprocessing;
 using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 
 namespace VodovozBusiness.Domain.Settings
 {
-	public abstract class PaymentTypeOrganizationSettings : PropertyChangedBase, IDomainObject, IValidatableObject
+	public abstract class PaymentTypeOrganizationSettings : PropertyChangedBase, IOrganizations, IDomainObject, IValidatableObject
 	{
-		private Organization _organizationForOrder;
+		private IObservableList<Organization> _organizations = new ObservableList<Organization>();
 		
 		public virtual int Id { get; set; }
 
-		public virtual Organization OrganizationForOrder
+		public virtual IObservableList<Organization> Organizations
 		{
-			get => _organizationForOrder;
-			set => SetField(ref _organizationForOrder, value);
+			get => _organizations;
+			set => SetField(ref _organizations, value);
 		}
 		
 		public abstract PaymentType PaymentType { get; }
 
+		public override string ToString()
+		{
+			var appellativeAttribute = GetType().GetCustomAttribute<AppellativeAttribute>(true);
+			return appellativeAttribute != null ? appellativeAttribute.Nominative : "Настройка организации по типу оплаты";
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			string name = null;
-			var appellativeAttribute = GetType().GetCustomAttribute<AppellativeAttribute>(true);
-
-			if(appellativeAttribute != null)
-			{
-				name = appellativeAttribute.Nominative;
-			}
-			else
-			{
-				name = "Настройка организации по типу оплаты";
-			}
-			
-			if(OrganizationForOrder is null)
+			if(!Organizations.Any())
 			{
 				yield return new ValidationResult(
-					$"Организация у {name} должна быть заполнена", new[] { nameof(OrganizationForOrder) });
+					$"Хотя бы одна организация для {ToString()} должна быть заполнена", new[] { nameof(Organizations) });
 			}
 		}
 	}

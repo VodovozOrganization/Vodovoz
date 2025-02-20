@@ -13,7 +13,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Settings
 			
 			Map(x => x.OrderContentSet).Column("order_content_set");
 			
-			References(x => x.Organization).Column("organization_id");
+			HasManyToMany(x => x.Organizations)
+				.Table("organizations_based_order_content_settings_products")
+				.ParentKeyColumn("organizations_based_order_content_settings_id")
+				.ChildKeyColumn("organization_id")
+				.LazyLoad();
 			
 			HasManyToMany(x => x.Nomenclatures)
 				.Table("organizations_based_order_content_settings_products")

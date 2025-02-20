@@ -14,20 +14,13 @@ namespace Vodovoz.Infrastructure.Persistance.Settings
 {
 	public class OrderOrganizationSettingsRepository : IOrderOrganizationSettingsRepository
 	{
-		public OnlinePaymentTypeOrganizationSettings GetOnlinePaymentTypeOrganizationSettings(IUnitOfWork uow)
-		{
-			return
-				(from settings in uow.Session.Query<OnlinePaymentTypeOrganizationSettings>()
-					select settings).SingleOrDefault();
-		}
-		
 		public bool OrganizationBasedOrderContentSettingsWithOrganizationExists(IUnitOfWork uow, int organizationId, int? settingsId = null)
 		{
-			return
-				(from settings in uow.Session.Query<OrganizationBasedOrderContentSettings>()
+			return false;
+				/*(from settings in uow.Session.Query<OrganizationBasedOrderContentSettings>()
 					where settings.Organization.Id == organizationId
 						&& settings.Id != settingsId
-					select settings).FirstOrDefault() != null;
+					select settings).FirstOrDefault() != null;*/
 		}
 		
 		public IEnumerable<INamedDomainObject> GetSameNomenclaturesInOrganizationBasedOrderContentSettings(

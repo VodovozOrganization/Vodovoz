@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -8,27 +6,20 @@ namespace VodovozBusiness.Domain.Settings
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "Настройки для установки организации по оплачено онлайн",
-		Nominative = "Настройка для установки организации по оплачено онлайн",
+		Nominative = _nominative,
 		Prepositional = "Настройке для установки организации по оплачено онлайн",
 		PrepositionalPlural = "Настройках для установки организации по оплачено онлайн"
 	)]
 	public class OnlinePaymentTypeOrganizationSettings : PaymentTypeOrganizationSettings
 	{
-		public virtual IList<PaymentFrom> PaymentsFrom { get; set; } =  new List<PaymentFrom>();
+		private const string _nominative = "Настройка для установки организации по оплачено онлайн";
+		public virtual PaymentFrom PaymentFrom { get; set; }
+		public virtual string CriterionForOrganization { get; set; }
 		public override PaymentType PaymentType => PaymentType.PaidOnline;
 		
-		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public override string ToString()
 		{
-			foreach(var paymentFrom in PaymentsFrom)
-			{
-				if(paymentFrom.OrganizationForOnlinePayments is null)
-				{
-					yield return new ValidationResult(
-						$"Для источника оплаты {paymentFrom.Name} должна быть указана организация",
-						new[] { nameof(paymentFrom) }
-						);
-				}
-			}
+			return PaymentFrom != null ? $"{_nominative} в {PaymentFrom.Name}" : _nominative;
 		}
 	}
 }

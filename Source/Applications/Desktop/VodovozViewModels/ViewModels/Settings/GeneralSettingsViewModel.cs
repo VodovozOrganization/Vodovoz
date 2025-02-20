@@ -700,22 +700,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				}
 			}
 		}
-
-		private Organization _organizationForSet1;
-
-		public Organization OrganizationForSet1
-		{
-			get => _organizationForSet1;
-			set => _organizationForSet1 = value;
-		}
-		
-		private Organization _organizationForSet2;
-
-		public Organization OrganizationForSet2
-		{
-			get => _organizationForSet2;
-			set => _organizationForSet2 = value;
-		}
 		
 		private short _selectedOrganizationBasedOrderContentSet;
 
@@ -733,27 +717,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private IUnitOfWork _uowOrderOrganizationSettings;
 		private OrganizationByOrderAuthorSettings _organizationByOrderAuthorSettings;
-		public IEnumerable<ProductGroup> ProductGroupsForSet1 { get; private set; }
-		public IEnumerable<Nomenclature> NomenclaturesForSet1 { get; private set; }
-		public IEntityEntryViewModel OrganizationForSet1ViewModel { get; private set; }
-		public IEnumerable<ProductGroup> ProductGroupsForSet2 { get; private set; }
-		public IEnumerable<Nomenclature> NomenclaturesForSet2 { get; private set; }
-		public IEntityEntryViewModel OrganizationForSet2ViewModel { get; private set; }
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
 		public int SelectedSetForAuthors { get; private set; }
 		public int OrganizationForSet3ViewModel { get; private set; }
-		public IEntityEntryViewModel CashOrganizationViewModel { get; private set; }
-		public IEntityEntryViewModel TerminalOrganizationViewModel { get; private set; }
-		public IEntityEntryViewModel SmsQrOrganizationViewModel { get; private set; }
-		public IEntityEntryViewModel DriverAppQrOrganizationViewModel { get; private set; }
-		public IEntityEntryViewModel BarterOrganizationViewModel { get; private set; }
-		public IEntityEntryViewModel ContractDocOrganizationViewModel { get; private set; }
-		public IEntityEntryViewModel CashlessOrganizationViewModel { get; private set; }
-
 		public IReadOnlyDictionary<short, OrganizationBasedOrderContentSettings> OrganizationsByOrderContent { get; private set; }
-		public IReadOnlyDictionary<(string Name, string Criterion), IEntityEntryViewModel> PaidOnlineOrganizationsViewModels { get; private set; }
-		public IReadOnlyCollection<PaymentTypeOrganizationSettings> PaymentTypesOrganizationSettings { get; private set; }
+		public ILookup<PaymentType, PaymentTypeOrganizationSettings> PaymentTypesOrganizationSettings { get; private set; }
 
 		private void ConfigureOrderOrganizationsSettings()
 		{
@@ -878,22 +847,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				
 				organizationsByOrderContent.Add(set, organizationSettings);
 			}
-			
-			ProductGroupsForSet1 = organizationSettings.ProductGroups;
-			NomenclaturesForSet1 = organizationSettings.Nomenclatures;
-			OrganizationForSet1 = organizationSettings.Organization;
-			
-			var organizationForSet1 =
-				_organizationViewModelBuilder
-					.ForProperty(this, x => x.OrganizationForSet1)
-					.SetViewModel(this)
-					.SetUnitOfWork(_uowOrderOrganizationSettings)
-					.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-					.UseViewModelDialog<OrganizationViewModel>()
-					.Finish();
-			
-			organizationForSet1.CanViewEntity = false;
-			OrganizationForSet1ViewModel = organizationForSet1;
 		}
 
 		private void InitializeDataForSet2(IDictionary<short, OrganizationBasedOrderContentSettings> organizationsByOrderContent)
@@ -910,20 +863,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				
 				organizationsByOrderContent.Add(set, organizationSettings);
 			}
-			
-			ProductGroupsForSet2 = organizationSettings.ProductGroups;
-			NomenclaturesForSet2 = organizationSettings.Nomenclatures;
-			OrganizationForSet2 = organizationSettings.Organization;
-			
-			var organizationForSet2 =
-				_organizationViewModelBuilder
-					.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-					.UseViewModelDialog<OrganizationViewModel>()
-					.ForProperty(this, x => x.OrganizationForSet2)
-					.Finish();
-			
-			organizationForSet2.CanViewEntity = false;
-			OrganizationForSet2ViewModel = organizationForSet2;
 		}
 		
 		private void InitializeDataForSet3()
@@ -949,102 +888,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		
 		private void ConfigurePaymentTypeSettings()
 		{
-			PaymentTypesOrganizationSettings = _uowOrderOrganizationSettings.GetAll<PaymentTypeOrganizationSettings>().ToList();
-			
-			foreach(var paymentTypeOrganizationSettings in PaymentTypesOrganizationSettings)
-			{
-				switch(paymentTypeOrganizationSettings.PaymentType)
-				{
-					case PaymentType.Cash:
-						var cashOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
-						cashOrganizationViewModel.CanViewEntity = false;
-						CashOrganizationViewModel = cashOrganizationViewModel;
-						break;
-					case PaymentType.Terminal:
-						var terminalOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
-						terminalOrganizationViewModel.CanViewEntity = false;
-						TerminalOrganizationViewModel = terminalOrganizationViewModel;
-						break;
-					case PaymentType.DriverApplicationQR:
-						var driverApplicationQrOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
-						driverApplicationQrOrganizationViewModel.CanViewEntity = false;
-						DriverAppQrOrganizationViewModel = driverApplicationQrOrganizationViewModel;
-						break;
-					case PaymentType.SmsQR:
-						var smsQrOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
-						smsQrOrganizationViewModel.CanViewEntity = false;
-						SmsQrOrganizationViewModel = smsQrOrganizationViewModel;
-						break;
-					case PaymentType.PaidOnline:
-						ConfigurePaidOnlineSettings(paymentTypeOrganizationSettings);
-						break;
-					case PaymentType.Barter:
-						var barterOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
-						barterOrganizationViewModel.CanViewEntity = false;
-						BarterOrganizationViewModel = barterOrganizationViewModel;
-						break;
-					case PaymentType.ContractDocumentation:
-						var contractDocOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
-						contractDocOrganizationViewModel.CanViewEntity = false;
-						ContractDocOrganizationViewModel = contractDocOrganizationViewModel;
-						break;
-					case PaymentType.Cashless:
-						var cashlessDocOrganizationViewModel = GetPaymentTypeOrganizationViewModel(paymentTypeOrganizationSettings);
-						cashlessDocOrganizationViewModel.CanViewEntity = false;
-						CashlessOrganizationViewModel = cashlessDocOrganizationViewModel;
-						break;
-				}
-			}
-		}
-
-		private EntityEntryViewModel<Organization> GetPaymentTypeOrganizationViewModel(
-			PaymentTypeOrganizationSettings paymentTypeOrganizationSettings)
-		{
-			var cashOrganizationViewModel =
-				_organizationViewModelBuilder
-					.ForProperty(paymentTypeOrganizationSettings, x => x.OrganizationForOrder)
-					.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-					.UseViewModelDialog<OrganizationViewModel>()
-					.Finish();
-			
-			return cashOrganizationViewModel;
-		}
-
-		private void ConfigurePaidOnlineSettings(PaymentTypeOrganizationSettings paymentTypeOrganizationSettings)
-		{
-			IList<PaymentFrom> paymentsFrom;
-			
-			if(paymentTypeOrganizationSettings is OnlinePaymentTypeOrganizationSettings onlinePaymentTypeOrganizationSettings)
-			{
-				paymentsFrom = onlinePaymentTypeOrganizationSettings.PaymentsFrom;
-			}
-			else
-			{
-				paymentsFrom = new List<PaymentFrom>();
-			}
-
-			var paidOnlineOrganizationsViewModels = new Dictionary<(string Name, string Criterion), IEntityEntryViewModel>();
-
-			foreach(var paymentFrom in paymentsFrom)
-			{
-				if(paymentFrom.IsArchive)
-				{
-					continue;
-				}
-				
-				var viewModel =
-					_organizationViewModelBuilder
-						.ForProperty(paymentFrom, x => x.OrganizationForOnlinePayments)
-						.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-						.UseViewModelDialog<OrganizationViewModel>()
-						.Finish();
-				
-				viewModel.CanViewEntity = false;
-				
-				paidOnlineOrganizationsViewModels.Add((paymentFrom.Name, paymentFrom.OrganizationCriterion), viewModel);
-			}
-			
-			PaidOnlineOrganizationsViewModels = paidOnlineOrganizationsViewModels;
+			PaymentTypesOrganizationSettings = _uowOrderOrganizationSettings.GetAll<PaymentTypeOrganizationSettings>()
+				.ToLookup(x => x.PaymentType);
 		}
 
 		#endregion

@@ -17,8 +17,9 @@ namespace Vodovoz.Application.Orders.Services
 		public OrganizationForSelfDeliveryOrderByPaymentTypeHandler(
 			IOrganizationSettings organizationSettings,
 			IOrderSettings orderSettings,
-			IFastPaymentRepository fastPaymentRepository)
-			: base(organizationSettings, orderSettings, fastPaymentRepository)
+			IFastPaymentRepository fastPaymentRepository,
+			OrganizationForOrderFromSet organizationForOrderFromSet)
+			: base(organizationSettings, orderSettings, fastPaymentRepository, organizationForOrderFromSet)
 		{
 		}
 
@@ -55,13 +56,14 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				var organizationId = GetOrganizationId(
 					uow,
-					paymentTypeOrganization.OrganizationForOrder.Id,
+					paymentTypeOrganization,
+					order.Id,
 					onlineOrderId);
 				
 				return uow.GetById<Organization>(organizationId);
 			}
 
-			return paymentTypeOrganization.OrganizationForOrder;
+			return OrganizationForOrderFromSet.GetOrganizationForOrderFromSet(order.Id, paymentTypeOrganization);
 		}
 	}
 }

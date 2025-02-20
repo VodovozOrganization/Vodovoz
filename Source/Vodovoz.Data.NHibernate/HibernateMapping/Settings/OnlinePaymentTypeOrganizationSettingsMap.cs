@@ -10,10 +10,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Settings
 		{
 			DiscriminatorValue(nameof(PaymentType.PaidOnline));
 
-			HasManyToMany(x => x.PaymentsFrom)
-				.Table("payment_types_organizations_settings_payments_from")
-				.ParentKeyColumn("payment_types_organizations_settings_id")
-				.ChildKeyColumn("payment_from_id");
+			Map(x => x.CriterionForOrganization).Column("criterion_for_organization");
+
+			References(x => x.PaymentFrom).Column("payment_from_id");
 		}
 	}
 }
