@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Edo.Problems.Validation;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders;
 
-namespace Edo.TaskValidation.Validators
+namespace Edo.Problems.Validation.Sources
 {
 	public class OrderStatusEdoValidator : OrderEdoValidatorBase, IEdoTaskValidator
 	{
@@ -13,9 +14,9 @@ namespace Edo.TaskValidation.Validators
 			get => "Order.Status";
 		}
 
-		public override EdoValidationImportance Importance
+		public override EdoProblemImportance Importance
 		{
-			get => EdoValidationImportance.Waiting;
+			get => EdoProblemImportance.Waiting;
 		}
 
 		public override string Message

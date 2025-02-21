@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.TaskValidation.Validators
+namespace Edo.Problems.Validation.Sources
 {
 	public class OrderSelfdeliveryPaidEdoValidator : OrderEdoValidatorBase
 	{
@@ -12,9 +12,9 @@ namespace Edo.TaskValidation.Validators
 			get => "Order.SelfdeliveryPaid";
 		}
 
-		public override EdoValidationImportance Importance
+		public override EdoProblemImportance Importance
 		{
-			get => EdoValidationImportance.Waiting;
+			get => EdoProblemImportance.Waiting;
 		}
 
 		public override string Message

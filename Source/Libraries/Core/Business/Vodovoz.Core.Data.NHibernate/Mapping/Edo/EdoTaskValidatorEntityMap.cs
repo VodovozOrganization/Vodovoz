@@ -3,21 +3,26 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 {
-	public class EdoTaskValidatorEntityMap : ClassMap<EdoTaskValidatorEntity>
+	public class EdoTaskProblemDescriptionSourceEntityMap : ClassMap<EdoTaskProblemDescriptionSourceEntity>
 	{
-		public EdoTaskValidatorEntityMap()
+		public EdoTaskProblemDescriptionSourceEntityMap()
 		{
-			Table("edo_task_validators");
+			Table("edo_task_problem_description_sources");
+
+			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
+
+			DiscriminateSubClassesOnColumn("type");
 
 			Id(x => x.Name)
 				.Column("name")
 				.GeneratedBy.Assigned();
 
+			Map(x => x.Type)
+				.Column("type")
+				.ReadOnly();
+
 			Map(x => x.Importance)
 				.Column("importance");
-
-			Map(x => x.Message)
-				.Column("message");
 
 			Map(x => x.Description)
 				.Column("description");

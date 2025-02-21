@@ -3,15 +3,15 @@ using System;
 using Vodovoz.Core.Domain.Edo;
 using System.Threading;
 
-namespace Edo.TaskValidation
+namespace Edo.Problems.Validation
 {
-	public abstract class EdoValidatorBase : EdoTaskValidatorEntity, IEdoTaskValidator
+	public abstract class EdoTaskProblemValidatorSource : EdoTaskProblemValidatorSourceEntity, IEdoTaskValidator
 	{
 		public abstract override string Name { get; }
 		public abstract bool IsApplicable(EdoTask edoTask);
 		public abstract Task<bool> NotValidCondition(
-			EdoTask edoTask, 
-			IServiceProvider serviceProvider, 
+			EdoTask edoTask,
+			IServiceProvider serviceProvider,
 			CancellationToken cancellationToken
 		);
 
@@ -21,8 +21,8 @@ namespace Edo.TaskValidation
 		}
 
 		public virtual async Task<EdoValidationResult> ValidateAsync(
-			EdoTask edoTask, 
-			IServiceProvider serviceProvider, 
+			EdoTask edoTask,
+			IServiceProvider serviceProvider,
 			CancellationToken cancellationToken
 			)
 		{
@@ -34,10 +34,10 @@ namespace Edo.TaskValidation
 			var notValidCondition = await NotValidCondition(edoTask, serviceProvider, cancellationToken);
 			if(notValidCondition)
 			{
-				return EdoValidationResult.NotValid(edoTask, this);
+				return EdoValidationResult.NotValid(this);
 			}
 
-			return EdoValidationResult.Valid(edoTask, this);
+			return EdoValidationResult.Valid(this);
 		}
 	}
 }

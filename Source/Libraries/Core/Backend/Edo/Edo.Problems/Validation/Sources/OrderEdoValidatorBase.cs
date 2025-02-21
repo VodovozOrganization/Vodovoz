@@ -1,8 +1,9 @@
-﻿using Vodovoz.Core.Domain.Edo;
+﻿using Edo.Problems.Validation;
+using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.TaskValidation.Validators
+namespace Edo.Problems.Validation.Sources
 {
-	public abstract class OrderEdoValidatorBase : EdoValidatorBase
+	public abstract class OrderEdoValidatorBase : EdoTaskProblemValidatorSource
 	{
 		public override bool IsApplicable(EdoTask edoTask)
 		{

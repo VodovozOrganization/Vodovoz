@@ -1,4 +1,5 @@
 ﻿using Edo.Common;
+using Edo.Problems.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using System;
@@ -8,18 +9,18 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
 
-namespace Edo.TaskValidation.Validators
+namespace Edo.Problems.Validation.Sources
 {
-	public class CodeTransferedEdoValidator : EdoValidatorBase, IEdoTaskValidator
+	public class CodeTransferedEdoValidator : EdoTaskProblemValidatorSource, IEdoTaskValidator
 	{
 		public override string Name
 		{
 			get => "Transfer.CodesTransfered";
 		}
 
-		public override EdoValidationImportance Importance
+		public override EdoProblemImportance Importance
 		{
-			get => EdoValidationImportance.Waiting;
+			get => EdoProblemImportance.Waiting;
 		}
 
 		public override string Message
@@ -48,7 +49,7 @@ namespace Edo.TaskValidation.Validators
 			{
 				return false;
 			}
-			
+
 			return transferTask.TransferStatus == TransferEdoTaskStatus.InProgress;
 		}
 

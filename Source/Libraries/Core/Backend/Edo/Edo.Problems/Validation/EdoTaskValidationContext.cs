@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Edo.TaskValidation
+namespace Edo.Problems.Validation
 {
 	public class EdoTaskValidationContext : IServiceProvider
 	{
 		private readonly Dictionary<Type, object> _services = new Dictionary<Type, object>();
 		private IServiceProvider _serviceProvider;
 
-		public void AddService<T>(T service)
+		public void AddService(object service)
 		{
-			if(_services.ContainsKey(typeof(T)))
+			var type = service.GetType();
+			if(_services.ContainsKey(type))
 			{
-				_services[typeof(T)] = service;
+				_services[type] = service;
 			}
 			else
 			{
-				_services.Add(typeof(T), service);
+				_services.Add(type, service);
 			}
 		}
 
