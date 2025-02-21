@@ -14,15 +14,20 @@ namespace Edo.Common
 		private readonly TrueMarkApiClient _trueMarkApiClient;
 		private readonly Dictionary<string, EdoTaskItemTrueMarkStatus> _codesStatuses = new Dictionary<string, EdoTaskItemTrueMarkStatus>();
 		private readonly EdoTask _edoTask;
-		private readonly IEnumerable<EdoTaskItem> _codeItems;
+		private IEnumerable<EdoTaskItem> _codeItems;
 		private bool _codesChecked;
 
 		public EdoTaskItemTrueMarkStatusProvider(EdoTask edoTask, TrueMarkApiClient trueMarkApiClient)
 		{
 			_edoTask = edoTask ?? throw new ArgumentNullException(nameof(edoTask));
 			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
-			_codeItems = GetCodeItems();
+			ClearCache();
+		}
 
+		public void ClearCache()
+		{
+			_codeItems = GetCodeItems();
+			_codesStatuses.Clear();
 			foreach(var item in _codeItems)
 			{
 				_codesStatuses.Add(
@@ -30,6 +35,7 @@ namespace Edo.Common
 					new EdoTaskItemTrueMarkStatus { EdoTaskItem = item }
 				);
 			}
+			_codesChecked = false;
 		}
 
 		public async Task<IDictionary<string, EdoTaskItemTrueMarkStatus>> GetItemsStatusesAsync(CancellationToken cancellationToken)

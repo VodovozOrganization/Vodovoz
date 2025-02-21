@@ -69,7 +69,8 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			try
 			{
-				_logger.LogInformation("Проверка фискального регистратора №{cashboxId} ({cashboxName}).", _cashBox.Id, _cashBox.RetailPointName);
+				_logger.LogInformation("Проверка фискального регистратора №{cashboxId} ({cashboxName}).", 
+					_cashBox.Id, _cashBox.RetailPointName);
 				var response = await _httpClient.GetAsync(_fiscalizationStatusUrl, cancellationToken);
 				if(!response.IsSuccessStatusCode)
 				{

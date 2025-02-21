@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.TrueMark
+namespace Vodovoz.Core.Domain.Edo
 {
 	public enum FiscalDocumentStatus
 	{

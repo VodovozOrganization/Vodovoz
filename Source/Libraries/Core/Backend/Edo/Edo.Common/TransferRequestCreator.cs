@@ -46,24 +46,32 @@ namespace Edo.Common
 
 				if(itemStatus.ProductInstanceStatus == null)
 				{
-					throw new EdoException($"Строка №{itemStatus.EdoTaskItem.Id} в задаче №{itemStatus.EdoTaskItem.CustomerEdoTask.Id} " +
-						$"не была проверена в честном знаке." +
+					throw new EdoException($"Строка №{itemStatus.EdoTaskItem.Id} в задаче " +
+						$"№{itemStatus.EdoTaskItem.CustomerEdoTask.Id} не была проверена в честном знаке." +
 						$"Эта проблема должна обрабатываться валидацией, необходимо проверить работу валидатора.");
 				}
 
 				var edoOrganizationFrom = edoOrganizations.FirstOrDefault(x => x.INN == itemStatus.ProductInstanceStatus.OwnerInn);
 				if(edoOrganizationFrom == null)
 				{
-					throw new EdoException($"ЭДО организация с ИНН {itemStatus.ProductInstanceStatus.OwnerInn} ({itemStatus.ProductInstanceStatus.OwnerName}) не найдена." +
+					throw new EdoException($"ЭДО организация с ИНН {itemStatus.ProductInstanceStatus.OwnerInn} " +
+						$"({itemStatus.ProductInstanceStatus.OwnerName}) не найдена." +
 						$"Эта проблема должна обрабатываться валидацией, необходимо проверить работу валидатора.");
 				}
 
-				var transferRequest = transferRequests.GetOrAdd(itemStatus.ProductInstanceStatus.OwnerInn, (inn) => new TransferEdoRequest
+				if(edoOrganizationFrom.Id == organizationTo.Id)
 				{
-					FromOrganizationId = edoOrganizationFrom.Id,
-					ToOrganizationId = organizationTo.Id,
-					OrderEdoTask = edoTask,
-				});
+					continue;
+				}
+
+				var transferRequest = transferRequests.GetOrAdd(itemStatus.ProductInstanceStatus.OwnerInn, 
+					(inn) => new TransferEdoRequest
+					{
+						FromOrganizationId = edoOrganizationFrom.Id,
+						ToOrganizationId = organizationTo.Id,
+						OrderEdoTask = edoTask,
+					}
+				);
 
 				if(!transferRequest.TransferedItems.Contains(itemStatus.EdoTaskItem))
 				{

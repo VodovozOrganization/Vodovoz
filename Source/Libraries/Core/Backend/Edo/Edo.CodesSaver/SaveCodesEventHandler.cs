@@ -3,7 +3,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TrueMark.CodesPool;
+using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
@@ -52,6 +52,8 @@ namespace Edo.CodesSaver
 			catch(Exception ex)
 			{
 				// зарегистрировать проблему по исключению
+				// НЕТ
+				// несколько попыток, после чего сброс ошибки в раббит
 				return;
 			}
 

@@ -8,6 +8,7 @@
     <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
     <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
     <ProjectReference Include="..\..\TrueMarkApi.Client\TrueMarkApi.Client.csproj" />
+    <ProjectReference Include="..\..\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
