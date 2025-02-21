@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj"/>
+        <ProjectReference Include="..\TrueMark.Contracts\TrueMark.Contracts.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

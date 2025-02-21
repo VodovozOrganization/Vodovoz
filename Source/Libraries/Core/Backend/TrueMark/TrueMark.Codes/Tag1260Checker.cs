@@ -42,6 +42,8 @@ namespace TrueMark.Library
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 			_httpClient.DefaultRequestHeaders.Add("X-API-KEY", headerApiKey.ToString());
+			//_httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+			//_httpClient.DefaultRequestHeaders.Add("Keep-Alive", "180");
 		}
 
 		private async Task<string> GetCdnAsync(CancellationToken cancellationToken)
@@ -84,8 +86,11 @@ namespace TrueMark.Library
 			return result;
 		}
 
-		public async Task<IEnumerable<CodeCheckResponse>> CheckCodesFroTag1260Async(IEnumerable<string> sourceCodes,
-			Guid headerApiKey, CancellationToken cancellationToken)
+		public async Task<IEnumerable<CodeCheckResponse>> CheckCodesWithLimitsForTag1260Async(
+			IEnumerable<string> sourceCodes,
+			Guid headerApiKey, 
+			CancellationToken cancellationToken
+			)
 		{
 			var resultList = new List<CodeCheckResponse>();
 
@@ -137,6 +142,38 @@ namespace TrueMark.Library
 			}
 
 			return resultList;
+		}
+
+		public async Task<CodeCheckResponse> CheckCodesForTag1260Async(
+			IEnumerable<string> sourceCodes,
+			Guid headerApiKey,
+			CancellationToken cancellationToken
+			)
+		{
+			SetHttpClientHeaderApiKey(headerApiKey);
+
+			var cdn = await GetCdnAsync(cancellationToken);
+			var uri = $"{cdn}/api/v4/true-api/codes/check";
+
+			var request = new
+			{
+				codes = sourceCodes
+			};
+
+			var serializedRequest = JsonSerializer.Serialize(request);
+			var content = new StringContent(serializedRequest, Encoding.UTF8, "application/json");
+			var response = await _httpClient.PostAsync(uri, content, cancellationToken);
+
+			if(!response.IsSuccessStatusCode)
+			{
+				throw new Exception(
+					$"Не удалось проверить коды для разрешительного режима 1260. Code: {response.StatusCode}. {response.ReasonPhrase}");
+			}
+
+			var responseBody = await response.Content.ReadAsStreamAsync();
+			var result = await JsonSerializer.DeserializeAsync<CodeCheckResponse>(responseBody, _serializeOptions, cancellationToken);
+
+			return result;
 		}
 	}
 }
