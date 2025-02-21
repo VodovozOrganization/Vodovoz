@@ -647,7 +647,10 @@ namespace DriverAPI.Library.V6.Services
 			IDriverOrderShipmentInfo completeOrderInfo,
 			RouteListItem routeListAddress)
 		{
-			var scannedCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.BottleCodes).ToList();
+			var bottleCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.BottleCodes).ToList();
+			var defectiveBottleCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.DefectiveBottleCodes).ToList();
+
+			var scannedCodes = bottleCodes.Concat(defectiveBottleCodes).ToList();
 
 			routeListAddress.UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason;
 
