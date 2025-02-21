@@ -55,7 +55,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.OrganizationEdoType)
 				.Column("edo_type");
 
-			Map(x => x.EdoKey)
+			Map(x => x.CashBoxTokenFromTrueMark)
 				.Column("edo_key");
 
 			References(x => x.Stamp)

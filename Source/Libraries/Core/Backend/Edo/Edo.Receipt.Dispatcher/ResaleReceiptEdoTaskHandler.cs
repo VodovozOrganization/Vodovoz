@@ -367,10 +367,10 @@ namespace Edo.Receipt.Dispatcher
 		private async Task<bool> PrepareIndustryRequisite(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
 			var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
-			var sellerEdoKey = seller.EdoKey;
-			if(sellerEdoKey == null)
+			var cashBoxToken = seller.CashBoxTokenFromTrueMark;
+			if(cashBoxToken == null)
 			{
-				throw new InvalidOperationException($"Для организации {seller.Id} не установлен ключ для доступа к ЭДО");
+				throw new InvalidOperationException($"Для организации {seller.Id} не установлен токен кассового аппарата, полученный в ЧЗ");
 			}
 
 			bool isValid = true;
@@ -382,7 +382,7 @@ namespace Edo.Receipt.Dispatcher
 
 				var result = await _tag1260Checker.CheckCodesForTag1260Async(
 					codesToCheck1260.Keys,
-					sellerEdoKey.Value,
+					cashBoxToken.Value,
 					cancellationToken
 				);
 
