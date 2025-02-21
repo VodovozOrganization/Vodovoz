@@ -37,6 +37,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private int? _avangardShopId;
 		private string _taxcomEdoAccountId;
 		private OrganizationEdoType _organizationEdoType;
+		private Guid? _edoKey;
 
 		private OrganizationVersionEntity _activeOrganizationVersion;
 		private StoredResource _stamp;
@@ -211,6 +212,13 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _organizationEdoType;
 			set => SetField(ref _organizationEdoType, value);
+		}
+
+		[Display(Name = "Ключ для ЭДО")]
+		public virtual Guid? EdoKey
+		{
+			get => _edoKey;
+			set => SetField(ref _edoKey, value);
 		}
 
 		/// <summary>
