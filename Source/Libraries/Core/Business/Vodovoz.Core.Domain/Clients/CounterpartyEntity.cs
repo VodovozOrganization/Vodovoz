@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Client;
 using VodovozInfrastructure.Attributes;
@@ -110,6 +111,8 @@ namespace Vodovoz.Core.Domain.Clients
 
 		private OrganizationEntity _worksThroughOrganization;
 		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
+		private IObservableList<EmailEntity> _emails;
+		private IObservableList<PhoneEntity> _phones;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -717,6 +720,22 @@ namespace Vodovoz.Core.Domain.Clients
 			get => _attachedFileInformations;
 			set => SetField(ref _attachedFileInformations, value);
 		}
+
+		[Display(Name = "E-mail адреса")]
+		public virtual IObservableList<EmailEntity> Emails
+		{
+			get => _emails;
+			set => SetField(ref _emails, value);
+		}
+
+		[Display(Name = "Телефоны")]
+		public virtual IObservableList<PhoneEntity> Phones
+		{
+			get => _phones;
+			set => SetField(ref _phones, value);
+		}
+
+
 
 		public virtual void AddFileInformation(string fileName)
 		{

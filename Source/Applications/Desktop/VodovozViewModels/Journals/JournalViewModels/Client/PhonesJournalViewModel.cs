@@ -9,6 +9,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 {

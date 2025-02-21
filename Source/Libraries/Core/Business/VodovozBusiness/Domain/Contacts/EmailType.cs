@@ -111,18 +111,4 @@ namespace Vodovoz.Domain.Contacts
 		#endregion
 
 	}
-
-	public enum EmailPurpose
-	{
-		[Display(Name = "Стандартный")]
-		Default,
-		[Display(Name = "Для чеков")]
-		ForReceipts,
-		[Display(Name = "Для счетов")]
-		ForBills,
-		[Display(Name = "Рабочий")]
-		Work,
-		[Display(Name = "Личный")]
-		Personal
-	}
 }

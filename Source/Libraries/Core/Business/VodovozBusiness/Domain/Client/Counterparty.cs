@@ -174,7 +174,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Телефоны")]
-		public virtual IList<Phone> Phones
+		public virtual new IList<Phone> Phones
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
@@ -195,7 +195,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "E-mail адреса")]
-		public virtual IList<Email> Emails
+		public virtual new IList<Email> Emails
 		{
 			get => _emails;
 			set => SetField(ref _emails, value);
@@ -269,164 +269,6 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#region ОсобаяПечать
-
-		[Display(Name = "Особая печать документов")]
-		public virtual bool UseSpecialDocFields
-		{
-			get => _useSpecialDocFields;
-			set => SetField(ref _useSpecialDocFields, value);
-		}
-
-		[Display(Name = "Всегда печатать накладную")]
-		public virtual bool AlwaysPrintInvoice
-		{
-			get => _alwaysPrintInvoice;
-			set => SetField(ref _alwaysPrintInvoice, value);
-		}
-
-		#region Особое требование срок годности
-
-		[Display(Name = "Особое требование: требуется срок годности")]
-		public virtual bool SpecialExpireDatePercentCheck
-		{
-			get => _specialExpireDatePercentCheck;
-			set => SetField(ref _specialExpireDatePercentCheck, value);
-		}
-
-		[Display(Name = "Особое требование: срок годности %")]
-		public virtual decimal SpecialExpireDatePercent
-		{
-			get => _specialExpireDatePercent;
-			set => SetField(ref _specialExpireDatePercent, value);
-		}
-
-		#endregion Особое требование срок годности
-
-		[Display(Name = "Название особого договора")]
-		public virtual string SpecialContractName
-		{
-			get => _specialContractName;
-			set => SetField(ref _specialContractName, value);
-		}
-
-		[Display(Name = "Номер особого договора")]
-		public virtual string SpecialContractNumber
-		{
-			get => _specialContractNumber;
-			set => SetField(ref _specialContractNumber, value);
-		}
-
-		[Display(Name = "Дата особого договора")]
-		public virtual DateTime? SpecialContractDate
-		{
-			get => _specialContractDate;
-			set => SetField(ref _specialContractDate, value);
-		}
-
-		[Display(Name = "Особый КПП плательщика")]
-		public virtual string PayerSpecialKPP
-		{
-			get => _payerSpecialKPP;
-			set => SetField(ref _payerSpecialKPP, value);
-		}
-
-		[Display(Name = "Грузополучатель")]
-		public virtual string CargoReceiver
-		{
-			get => _cargoReceiver;
-			set => SetField(ref _cargoReceiver, value);
-		}
-
-		[Display(Name = "Особый покупатель")]
-		public virtual string SpecialCustomer
-		{
-			get => _customer;
-			set => SetField(ref _customer, value);
-		}
-
-		[Display(Name = "Идентификатор государственного контракта")]
-		public virtual string GovContract
-		{
-			get => _govContract;
-			set => SetField(ref _govContract, value);
-		}
-
-		[Display(Name = "Особый адрес доставки")]
-		public virtual string SpecialDeliveryAddress
-		{
-			get => _deliveryAddress;
-			set => SetField(ref _deliveryAddress, value);
-		}
-
-		[Display(Name = "Кол-во ТТН")]
-		public virtual int? TTNCount
-		{
-			get => _ttnCount;
-			set => SetField(ref _ttnCount, value);
-		}
-
-		[Display(Name = "Кол-во Торг-2")]
-		public virtual int? Torg2Count
-		{
-			get => _torg2Count;
-			set => SetField(ref _torg2Count, value);
-		}
-
-		[Display(Name = "Кол-во УПД(не для безнала)")]
-		public virtual int? UPDCount
-		{
-			get => _updCount;
-			set => SetField(ref _updCount, value);
-		}
-
-		[Display(Name = "Кол-во УПД")]
-		public virtual int? AllUPDCount
-		{
-			get => _updAllCount;
-			set => SetField(ref _updAllCount, value);
-		}
-
-		[Display(Name = "Кол-во Торг-12")]
-		public virtual int? Torg12Count
-		{
-			get => _torg12Count;
-			set => SetField(ref _torg12Count, value);
-		}
-
-		[Display(Name = "Кол-во отчет-фактур")]
-		public virtual int? ShetFacturaCount
-		{
-			get => _shetFacturaCount;
-			set => SetField(ref _shetFacturaCount, value);
-		}
-
-		[Display(Name = "Кол-во доверенностей вод-ль")]
-		public virtual int? CarProxyCount
-		{
-			get => _carProxyCount;
-			set => SetField(ref _carProxyCount, value);
-		}
-
-		[Display(Name = "ОКПО")]
-		public virtual string OKPO
-		{
-			get => _okpo;
-			set => SetField(ref _okpo, value);
-		}
-
-		[Display(Name = "ОКДП")]
-		public virtual string OKDP
-		{
-			get => _okdp;
-			set => SetField(ref _okdp, value);
-		}
-
-		[Display(Name = "Источник грузополучателя")]
-		public virtual CargoReceiverSource CargoReceiverSource
-		{
-			get => _cargoReceiverSource;
-			set => SetField(ref _cargoReceiverSource, value);
-		}
 
 		[Display(Name = "Расчетный счет для счета на олпату")]
 		public virtual Account OurOrganizationAccountForBills
