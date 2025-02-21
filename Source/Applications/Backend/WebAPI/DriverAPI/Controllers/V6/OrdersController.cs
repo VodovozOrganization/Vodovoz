@@ -405,10 +405,12 @@ namespace DriverAPI.Controllers.V6
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
 		public async Task<IActionResult> AddOrderCode([FromBody] AddOrderCodeRequest addOrderCodeRequestModel, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("(Добавление кода ЧЗ к заказу: {OrderId}) пользователем {Username} | User token: {AccessToken}",
+			_logger.LogInformation("(Добавление кода ЧЗ к заказу: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
 				addOrderCodeRequestModel.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization]);
+				Request.Headers[HeaderNames.Authorization],
+				HttpContext.Request.Headers["X-Idempotency-Key"],
+				HttpContext.Request.Headers["X-Action-Time-Utc"]);
 
 			var recievedTime = DateTime.Now;
 
@@ -462,10 +464,12 @@ namespace DriverAPI.Controllers.V6
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
 		public async Task<IActionResult> ChangeOrderCode([FromBody] ChangeOrderCodeRequest changeOrderCodeRequest, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("(Замена кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken}",
+			_logger.LogInformation("(Замена кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
 				changeOrderCodeRequest.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization]);
+				Request.Headers[HeaderNames.Authorization],
+				HttpContext.Request.Headers["X-Idempotency-Key"],
+				HttpContext.Request.Headers["X-Action-Time-Utc"]);
 
 			var recievedTime = DateTime.Now;
 
@@ -514,10 +518,13 @@ namespace DriverAPI.Controllers.V6
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
 		public async Task<IActionResult> DeleteOrderCode([FromBody] DeleteOrderCodeRequest deleteOrderCodeRequest, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("(Удаление кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken}",
+			_logger.LogInformation(
+				"(Удаление кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
 				deleteOrderCodeRequest.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization]);
+				Request.Headers[HeaderNames.Authorization],
+				HttpContext.Request.Headers["X-Idempotency-Key"],
+				HttpContext.Request.Headers["X-Action-Time-Utc"]);
 
 			var recievedTime = DateTime.Now;
 
