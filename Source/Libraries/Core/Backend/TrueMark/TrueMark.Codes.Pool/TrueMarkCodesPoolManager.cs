@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TrueMark.CodesPool
+namespace TrueMark.Codes.Pool
 {
 	/// <summary>
 	/// Предоставляет возможность управлять пулом кодов, такие как: <br/>

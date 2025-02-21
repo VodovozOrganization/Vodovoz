@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TrueMark.CodesPool
+namespace TrueMark.Codes.Pool
 {
 	/// <summary>
 	/// Предоставляет возможность добавлять и забирать коды из пула кодов 
@@ -29,7 +29,7 @@ namespace TrueMark.CodesPool
 			{
 				query.ExecuteUpdate();
 			}
-			catch(MySqlException ex) when (ex.Number == (int)MySqlErrorCode.DuplicateKeyEntry)
+			catch(MySqlException ex) when(ex.Number == (int)MySqlErrorCode.DuplicateKeyEntry)
 			{
 				return;
 			}
@@ -60,6 +60,10 @@ namespace TrueMark.CodesPool
 		{
 			var query = GetTakeCodeQuery(gtin);
 			var codeId = query.UniqueResult<uint>();
+			if(codeId == 0)
+			{
+				throw new EdoCodePoolException($"В пуле не найден код для gtin {gtin}");
+			}
 			return (int)codeId;
 		}
 
@@ -67,6 +71,10 @@ namespace TrueMark.CodesPool
 		{
 			var query = GetTakeCodeQuery(gtin);
 			var codeId = await query.UniqueResultAsync<uint>(cancellationToken);
+			if(codeId == 0)
+			{
+				throw new EdoCodePoolException($"В пуле не найден код для gtin {gtin}");
+			}
 			return (int)codeId;
 		}
 

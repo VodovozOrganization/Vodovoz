@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace TrueMark.CodesPool
+namespace TrueMark.Codes.Pool
 {
 	public static class DependencyInjection
 	{

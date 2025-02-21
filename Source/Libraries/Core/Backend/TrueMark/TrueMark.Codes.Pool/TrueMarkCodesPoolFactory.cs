@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 
-namespace TrueMark.CodesPool
+namespace TrueMark.Codes.Pool
 {
 	public class TrueMarkCodesPoolFactory
 	{
