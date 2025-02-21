@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -2426,7 +2426,7 @@
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj">
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj">
       <Project>{988F9F39-781B-4C5C-8409-0C2F3E38A3D6}</Project>
       <Name>TrueMark.Contracts</Name>
     </ProjectReference>

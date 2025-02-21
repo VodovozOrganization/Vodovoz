@@ -72,16 +72,8 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<TransferDoneEvent>(x => x.SetEntityName("edo.transfer-done.publish"));
-			cfg.Publish<TransferDoneEvent>(x =>
-			{
-				x.ExchangeType = ExchangeType.Fanout;
-				x.Durable = true;
-				x.AutoDelete = false;
-			});
-
-			cfg.Message<TransferDoneEvent>(x => x.SetEntityName("edo.transfer-done.publish"));
-			cfg.Publish<TransferDoneEvent>(x =>
+			cfg.Message<TransferCompleteEvent>(x => x.SetEntityName("edo.transfer-complete.publish"));
+			cfg.Publish<TransferCompleteEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;

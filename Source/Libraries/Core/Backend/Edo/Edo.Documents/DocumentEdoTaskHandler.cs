@@ -1,11 +1,9 @@
 ﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
-using Edo.TaskValidation;
+using Edo.Problems.Validation;
 using MassTransit;
 using QS.DomainModel.UoW;
-using QS.Extensions.Observable.Collections.List;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
@@ -17,7 +15,7 @@ namespace Edo.Documents
 	public class DocumentEdoTaskHandler : IDisposable
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly EdoTaskMainValidator _validator;
+		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly IBus _messageBus;
@@ -25,14 +23,14 @@ namespace Edo.Documents
 
 		public DocumentEdoTaskHandler(
 			IUnitOfWorkFactory uowFactory,
-			EdoTaskMainValidator validator,
+			EdoTaskValidator edoTaskValidator,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferRequestCreator transferRequestCreator,
 			IBus messageBus
 			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
+			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
@@ -51,12 +49,11 @@ namespace Edo.Documents
 			// TEST
 			// проверяем все коды как МН
 			var trueMarkApiClient = new TrueMarkApiClient("https://test-mn-truemarkapi.dev.vod.qsolution.ru/", "test");
-			var trueMarkCodeChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
+			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 
-			var valid = await Validate(edoTask, trueMarkCodeChecker, cancellationToken);
-			if(!valid)
+			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
+			if(!isValid)
 			{
-				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
@@ -64,7 +61,7 @@ namespace Edo.Documents
 			object message = null;
 			if(IsFormalDocument(edoTask))
 			{
-				await CreateTransferRequest(edoTask, trueMarkCodeChecker, cancellationToken);
+				await CreateTransferRequest(edoTask, trueMarkCodesChecker, cancellationToken);
 				message = new TransferRequestCreatedEvent { EdoTaskId = edoTask.Id };
 			}
 			else
@@ -128,20 +125,21 @@ namespace Edo.Documents
 		// (проверяет выполнены ли переносы и отправляет)
 		public async Task HandleTransfered(int documentEdoTaskId, CancellationToken cancellationToken)
 		{
+			stop!
+			//тут не правильно! на вход идет Id трансфера. Надо получить задачу на документ
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
 			// TEST
 			// проверяем все коды как ВВ
 			var trueMarkApiClient = new TrueMarkApiClient("https://test-vv-truemarkapi.dev.vod.qsolution.ru/", "test");
-			var trueMarkCodeChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
+			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 
-			var valid = await Validate(edoTask, trueMarkCodeChecker, cancellationToken);
-			if(!valid)
+			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
+			if(!isValid)
 			{
-				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
-			var codeStatuses = await trueMarkCodeChecker.GetItemsStatusesAsync(cancellationToken);
+			var codeStatuses = await trueMarkCodesChecker.GetItemsStatusesAsync(cancellationToken);
 			var organizationTo = edoTask.OrderEdoRequest.Order.Contract.Organization;
 
 			foreach(var codeStatus in codeStatuses.Values)
@@ -190,12 +188,11 @@ namespace Edo.Documents
 			// TEST
 			// ТУТ НЕ ВАЖНО КАКОЙ АПИ
 			var trueMarkApiClient = new TrueMarkApiClient("https://test-vv-truemarkapi.dev.vod.qsolution.ru/", "test");
-			var trueMarkCodeChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
+			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 
-			var valid = await Validate(edoTask, trueMarkCodeChecker, cancellationToken);
-			if(!valid)
+			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
+			if(!isValid)
 			{
-				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
@@ -226,12 +223,11 @@ namespace Edo.Documents
 			// TEST
 			// ТУТ НЕ ВАЖНО КАКОЙ АПИ
 			var trueMarkApiClient = new TrueMarkApiClient("https://test-vv-truemarkapi.dev.vod.qsolution.ru/", "test");
-			var trueMarkCodeChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
+			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 
-			var valid = await Validate(edoTask, trueMarkCodeChecker, cancellationToken);
-			if(!valid)
+			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
+			if(!isValid)
 			{
-				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
@@ -246,78 +242,6 @@ namespace Edo.Documents
 		private void AcceptDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
 		{
 			edoTask.Stage = DocumentEdoTaskStage.Completed;
-		}
-
-		private async Task<bool> Validate(DocumentEdoTask edoTask, EdoTaskItemTrueMarkStatusProvider itemStatusProvider, CancellationToken cancellationToken)
-		{
-			var context = new EdoTaskValidationContext();
-			context.AddService(itemStatusProvider);
-			var results = await _validator.ValidateAsync(edoTask, cancellationToken, context);
-			await UpdateValidationResults(edoTask, results, cancellationToken);
-
-			if(results.IsValid)
-			{
-				return true;
-			}
-
-			switch(results.Importance)
-			{
-				case EdoValidationImportance.Waiting:
-					edoTask.Status = EdoTaskStatus.Waiting;
-					break;
-				case EdoValidationImportance.Problem:
-					edoTask.Status = EdoTaskStatus.Problem;
-					break;
-				case null:
-					throw new InvalidOperationException($"Результаты валидации обязаны содержать {nameof(EdoValidationImportance)}, если результаты не валидны.");
-				default:
-					throw new InvalidOperationException($"Неизвестное значение важности валидации {nameof(EdoValidationImportance)}.");
-			}
-
-			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			return false;
-		}
-
-		private async Task UpdateValidationResults(
-			DocumentEdoTask edoTask,
-			EdoValidationResults validationResults,
-			CancellationToken cancellationToken
-			)
-		{
-			foreach(var validationResult in validationResults.Results)
-			{
-				var problem = edoTask.Problems.FirstOrDefault(x => x.ValidatorName == validationResult.Validator.Name);
-				if(problem == null && validationResult.IsValid)
-				{
-					continue;
-				}
-
-				if(problem == null)
-				{
-					problem = new EdoTaskProblem
-					{
-						ValidatorName = validationResult.Validator.Name,
-						State = TaskProblemState.Active,
-						EdoTask = edoTask,
-						TaskItems = new ObservableList<EdoTaskItem>(validationResult.ProblemItems)
-					};
-				}
-
-				if(validationResult.IsValid)
-				{
-					problem.State = TaskProblemState.Solved;
-				}
-				else
-				{
-					problem.TaskItems.Clear();
-					foreach(var problemItem in validationResult.ProblemItems)
-					{
-						problem.TaskItems.Add(problemItem);
-					}
-				}
-
-				await _uow.SaveAsync(problem, cancellationToken: cancellationToken);
-			}
 		}
 
 		public void Dispose()

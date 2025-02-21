@@ -1,7 +1,7 @@
 ﻿using Edo.Common;
 using Edo.Documents.Consumers;
 using Edo.Documents.Consumers.Definitions;
-using Edo.TaskValidation;
+using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +17,7 @@ namespace Edo.Documents
 				;
 
 			services.AddEdo();
-			services.AddEdoTaskValidation();
+			services.AddEdoProblemRegistation();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
