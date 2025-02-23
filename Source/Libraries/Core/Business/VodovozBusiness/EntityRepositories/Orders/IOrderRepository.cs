@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -209,6 +210,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>Список с данными номера кода и номера строки заказа</returns>
 		IList<TrueMarkProductCodeOrderItem> GetTrueMarkCodesAddedByDriverToOrderByOrderId(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получить все коды ЧЗ добавленные к заказу на складе
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns>Список кодов</returns>
+		IList<TrueMarkWaterIdentificationCode> GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(IUnitOfWork uow, int orderId);
 
 		/// <summary>
 		/// Проверяет, находится ли документ погрузки для указанного заказа в статусе Погрузка завершена

@@ -37,6 +37,7 @@ using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -2029,6 +2030,18 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				select codeOrderItem;
 
 			return codesOrderItems.ToList();
+		}
+
+		public IList<TrueMarkWaterIdentificationCode> GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(IUnitOfWork uow, int orderId)
+		{
+			var codes =
+				(from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItem>()
+				 join productCode in uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>() on carLoadDocumentItem.Id equals productCode.CarLoadDocumentItem.Id
+				 where carLoadDocumentItem.OrderId == orderId
+				 select productCode.ResultCode)
+				.ToList();
+
+			return codes;
 		}
 
 		public bool IsOrderCarLoadDocumentLoadOperationStateDone(IUnitOfWork uow, int orderId)

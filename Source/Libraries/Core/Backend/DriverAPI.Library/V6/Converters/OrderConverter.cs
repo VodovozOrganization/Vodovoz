@@ -1,4 +1,5 @@
 ﻿using DriverApi.Contracts.V6;
+using QS.DomainModel.UoW;
 using QS.Utilities.Numeric;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace DriverAPI.Library.V6.Converters
 {
@@ -18,33 +20,41 @@ namespace DriverAPI.Library.V6.Converters
 	/// </summary>
 	public class OrderConverter
 	{
+		private readonly IUnitOfWork _uow;
 		private readonly DeliveryPointConverter _deliveryPointConverter;
 		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
 		private readonly PaymentTypeConverter _paymentTypeConverter;
 		private readonly SignatureTypeConverter _signatureTypeConverter;
 		private readonly QrPaymentConverter _qrPaymentConverter;
+		private readonly IOrderRepository _orderRepository;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
+		/// <param name="uow"></param>
 		/// <param name="deliveryPointConverter"></param>
 		/// <param name="smsPaymentConverter"></param>
 		/// <param name="paymentTypeConverter"></param>
 		/// <param name="signatureTypeConverter"></param>
 		/// <param name="qrPaymentConverter"></param>
+		/// <param name="orderRepository"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public OrderConverter(
+			IUnitOfWork uow,
 			DeliveryPointConverter deliveryPointConverter,
 			SmsPaymentStatusConverter smsPaymentConverter,
 			PaymentTypeConverter paymentTypeConverter,
 			SignatureTypeConverter signatureTypeConverter,
-			QrPaymentConverter qrPaymentConverter)
+			QrPaymentConverter qrPaymentConverter,
+			IOrderRepository orderRepository)
 		{
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
 			_smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
 			_paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 			_signatureTypeConverter = signatureTypeConverter ?? throw new ArgumentNullException(nameof(signatureTypeConverter));
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
 		/// <summary>
@@ -59,8 +69,7 @@ namespace DriverAPI.Library.V6.Converters
 			Order vodovozOrder,
 			RouteListItem routeListItem,
 			SmsPaymentStatus? smsPaymentStatus,
-			FastPaymentStatus? qrPaymentDtoStatus,
-			IEnumerable<TrueMarkProductCodeOrderItem> productCodesByOrderItems)
+			FastPaymentStatus? qrPaymentDtoStatus)
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
@@ -78,7 +87,7 @@ namespace DriverAPI.Library.V6.Converters
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderSum = vodovozOrder.OrderSum,
-				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems, routeListItem, productCodesByOrderItems),
+				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems, routeListItem),
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,
 				OrderReceptionItems = pairOfSplitedLists.orderReceptionItems,
 				IsFastDelivery = vodovozOrder.IsFastDelivery,
@@ -207,14 +216,13 @@ namespace DriverAPI.Library.V6.Converters
 
 		private IEnumerable<OrderSaleItemDto> PrepareSaleItemsList(
 			IEnumerable<OrderItem> orderItems,
-			RouteListItem routeListItem,
-			IEnumerable<TrueMarkProductCodeOrderItem> productCodesByOrderItems)
+			RouteListItem routeListItem)
 		{
 			var result = new List<OrderSaleItemDto>();
 
 			foreach(var saleItem in orderItems)
 			{
-				result.Add(ConvertToAPIOrderSaleItem(saleItem, routeListItem, productCodesByOrderItems));
+				result.Add(ConvertToAPIOrderSaleItem(saleItem, routeListItem));
 			}
 
 			return result;
@@ -222,8 +230,7 @@ namespace DriverAPI.Library.V6.Converters
 
 		private OrderSaleItemDto ConvertToAPIOrderSaleItem(
 			OrderItem saleItem,
-			RouteListItem routeListItem,
-			IEnumerable<TrueMarkProductCodeOrderItem> productCodesByOrderItems)
+			RouteListItem routeListItem)
 		{
 			var result = new OrderSaleItemDto
 			{
@@ -240,7 +247,7 @@ namespace DriverAPI.Library.V6.Converters
 				CapColor = saleItem.Nomenclature.BottleCapColor,
 				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false,
 				Gtin = new List<string> { saleItem.Nomenclature.Gtin },
-				Codes = GetOrderItemCodes(saleItem, routeListItem, productCodesByOrderItems)
+				Codes = GetOrderItemCodes(saleItem, routeListItem)
 			};
 
 			if(saleItem.Nomenclature.TareVolume != null)
@@ -270,8 +277,7 @@ namespace DriverAPI.Library.V6.Converters
 
 		private IEnumerable<TrueMarkCodeDto> GetOrderItemCodes(
 			OrderItem saleItem,
-			RouteListItem routeListItem,
-			IEnumerable<TrueMarkProductCodeOrderItem> productCodesByOrderItems)
+			RouteListItem routeListItem)
 		{
 			var codes = Enumerable.Empty<TrueMarkCodeDto>();
 
@@ -282,17 +288,43 @@ namespace DriverAPI.Library.V6.Converters
 
 			var sequenceNumber = 0;
 
-			if(saleItem.IsTrueMarkCodesMustBeAddedInWarehouse)
-			{
-				codes =
-					routeListItem.TrueMarkCodes
-					.Select(x => x.ResultCode)
-					.Where(c => c.GTIN == saleItem.Nomenclature.Gtin)
-					.Select(x => ConvertToApiTrueMarkCode(x, sequenceNumber++))
-					.ToList();
+			var addedTrueMarkWaterCodes =
+				saleItem.IsTrueMarkCodesMustBeAddedInWarehouse
+				? GetCodesAddedInWarehouse(saleItem)
+				: GetCodesAddedByDriver(saleItem, routeListItem);
 
-				return codes;
-			}
+			codes = addedTrueMarkWaterCodes
+				.Select(x => ConvertToApiTrueMarkCode(x, sequenceNumber++))
+				.ToList();
+
+			return codes;
+		}
+
+		private IEnumerable<TrueMarkWaterIdentificationCode> GetCodesAddedInWarehouse(OrderItem saleItem)
+		{
+			var skipCodesCount = (int?)saleItem.Order.OrderItems
+								.Where(x => x.Nomenclature.Id == saleItem.Nomenclature.Id
+									&& x.Id < saleItem.Id)
+								.Sum(x => x.ActualCount ?? x.Count) ?? 0;
+
+			var takeCodesCount = (int)(saleItem.ActualCount ?? saleItem.Count);
+
+			var waterCodes = _orderRepository.GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(_uow, saleItem.Order.Id)
+				.Where(x => x.GTIN == saleItem.Nomenclature.Gtin);
+
+			var codes = waterCodes
+				.Skip(skipCodesCount)
+				.Take(takeCodesCount)
+				.ToList();
+
+			return codes;
+		}
+
+		private IEnumerable<TrueMarkWaterIdentificationCode> GetCodesAddedByDriver(OrderItem saleItem, RouteListItem routeListItem)
+		{
+			var codes = new List<TrueMarkWaterIdentificationCode>();
+
+			var productCodesByOrderItems = _orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(_uow, saleItem.Id);
 
 			if(productCodesByOrderItems is null || !productCodesByOrderItems.Any())
 			{
@@ -303,13 +335,9 @@ namespace DriverAPI.Library.V6.Converters
 				.Where(x => x.OrderItemId == saleItem.Id)
 				.Select(x => x.TrueMarkProductCodeId);
 
-			var orderItemCodes =
-				routeListItem.TrueMarkCodes
-				.Where(x => orderItemCodesIds.Contains(x.Id));
-
-			codes =
-				orderItemCodes
-				.Select(x => ConvertToApiTrueMarkCode(x.SourceCode, sequenceNumber++))
+			codes = routeListItem.TrueMarkCodes
+				.Where(x => orderItemCodesIds.Contains(x.Id))
+				.Select(x => x.SourceCode)
 				.ToList();
 
 			return codes;
@@ -353,12 +381,10 @@ namespace DriverAPI.Library.V6.Converters
 		/// </summary>
 		/// <param name="saleItem">Строка заказа</param>
 		/// <param name="routeListItem">Строка маршрутного листа</param>
-		/// <param name="productCodesByOrderItems">Коды ЧЗ</param>
 		/// <returns></returns>
 		public NomenclatureTrueMarkCodesDto ConvertOrderItemTrueMarkCodesDataToDto(
 			OrderItem saleItem,
-			RouteListItem routeListItem,
-			IEnumerable<TrueMarkProductCodeOrderItem> productCodesByOrderItems)
+			RouteListItem routeListItem)
 		{
 			var result = new NomenclatureTrueMarkCodesDto
 			{
@@ -366,7 +392,7 @@ namespace DriverAPI.Library.V6.Converters
 				Name = saleItem.Nomenclature.Name,
 				Gtin = new List<string> { saleItem.Nomenclature.Gtin },
 				Quantity = saleItem.ActualCount ?? saleItem.Count,
-				Codes = GetOrderItemCodes(saleItem, routeListItem, productCodesByOrderItems)
+				Codes = GetOrderItemCodes(saleItem, routeListItem)
 			};
 			return result;
 		}

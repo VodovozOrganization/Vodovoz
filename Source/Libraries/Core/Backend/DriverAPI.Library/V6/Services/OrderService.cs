@@ -12,7 +12,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.TrueMark;
@@ -28,7 +27,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
 using Vodovoz.Extensions;
-using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.TrueMark;
@@ -52,7 +50,6 @@ namespace DriverAPI.Library.V6.Services
 		private readonly ISmsPaymentService _aPISmsPaymentModel;
 		private readonly IFastPaymentsServiceAPIHelper _fastPaymentsServiceApiHelper;
 		private readonly IUnitOfWork _uow;
-		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly QrPaymentConverter _qrPaymentConverter;
 		private readonly IFastPaymentService _fastPaymentModel;
 		private readonly int _maxClosingRating = 5;
@@ -73,7 +70,6 @@ namespace DriverAPI.Library.V6.Services
 			ISmsPaymentService aPISmsPaymentModel,
 			IFastPaymentsServiceAPIHelper fastPaymentsServiceApiHelper,
 			IUnitOfWork unitOfWork,
-			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			QrPaymentConverter qrPaymentConverter,
 			IFastPaymentService fastPaymentModel,
 			IOrderSettings orderSettings,
@@ -91,7 +87,6 @@ namespace DriverAPI.Library.V6.Services
 			_aPISmsPaymentModel = aPISmsPaymentModel ?? throw new ArgumentNullException(nameof(aPISmsPaymentModel));
 			_fastPaymentsServiceApiHelper = fastPaymentsServiceApiHelper ?? throw new ArgumentNullException(nameof(fastPaymentsServiceApiHelper));
 			_uow = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
@@ -121,15 +116,11 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure<OrderDto>(RouteListItemErrors.NotFoundAssociatedWithOrder);
 			}
 
-			var productCodesByOrderItems =
-				_orderRepository.GetTrueMarkCodesAddedByDriverToOrderByOrderId(_uow, vodovozOrder.Id);
-
 			var order = _orderConverter.ConvertToAPIOrder(
 				vodovozOrder,
 				routeListItem,
 				_aPISmsPaymentModel.GetOrderSmsPaymentStatus(orderId),
-				_fastPaymentModel.GetOrderFastPaymentStatus(orderId, vodovozOrder.OnlineOrder),
-				productCodesByOrderItems);
+				_fastPaymentModel.GetOrderFastPaymentStatus(orderId, vodovozOrder.OnlineOrder));
 
 			var additionalInfo = GetAdditionalInfo(vodovozOrder);
 
@@ -155,13 +146,10 @@ namespace DriverAPI.Library.V6.Services
 
 			foreach(var vodovozOrder in vodovozOrders)
 			{
-				var productCodesByOrderItems =
-					_orderRepository.GetTrueMarkCodesAddedByDriverToOrderByOrderId(_uow, vodovozOrder.Id);
-
 				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderSmsPaymentStatus(vodovozOrder.Id);
 				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id, vodovozOrder.OnlineOrder);
 				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
-				var order = _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem, smsPaymentStatus, qrPaymentStatus, productCodesByOrderItems);
+				var order = _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem, smsPaymentStatus, qrPaymentStatus);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder).Value;
 				result.Add(order);
 			}
@@ -832,11 +820,11 @@ namespace DriverAPI.Library.V6.Services
 
 			if(vodovozOrderItem.IsTrueMarkCodesMustBeAddedInWarehouse)
 			{
-				var errorMessage = $"Коды ЧЗ сетевого заказа {orderId} должны добавляться на складеде";
+				var errorMessage = $"Коды ЧЗ сетевого заказа {orderId} должны добавляться на складе";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(TrueMarkCodeErrors.TrueMarkCodesHaveToBeAddedInWarehouse, vodovozOrderItem, routeListAddress, errorMessage);
 			}
-			
+
 			var codeAddingResult = await _routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItemWithCodeChecking(
 				_uow,
 				routeListAddress,
@@ -1045,10 +1033,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(orderItem != null && routeListAddress != null)
 			{
-				var productCodesByOrderItems =
-					_orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(_uow, orderItem.Id);
-
-				response.Nomenclature = _orderConverter.ConvertOrderItemTrueMarkCodesDataToDto(orderItem, routeListAddress, productCodesByOrderItems);
+				response.Nomenclature = _orderConverter.ConvertOrderItemTrueMarkCodesDataToDto(orderItem, routeListAddress);
 			}
 
 			var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
@@ -1065,12 +1050,9 @@ namespace DriverAPI.Library.V6.Services
 				Result = RequestProcessingResultTypeDto.Success
 			};
 
-			var productCodesByOrderItems =
-				_orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(_uow, orderItem.Id);
-
 			if(orderItem != null && routeListAddress != null)
 			{
-				response.Nomenclature = _orderConverter.ConvertOrderItemTrueMarkCodesDataToDto(orderItem, routeListAddress, productCodesByOrderItems);
+				response.Nomenclature = _orderConverter.ConvertOrderItemTrueMarkCodesDataToDto(orderItem, routeListAddress);
 			}
 
 			return RequestProcessingResult.CreateSuccess(Result.Success(response));
