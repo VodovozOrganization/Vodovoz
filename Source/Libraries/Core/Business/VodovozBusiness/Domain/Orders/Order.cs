@@ -1517,7 +1517,7 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Проверка, является ли целью покупки заказа - для перепродажи
 		/// </summary>
-		public virtual new bool IsOrderForResale =>
+		public virtual bool IsOrderForResale =>
 			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
 
 		#endregion

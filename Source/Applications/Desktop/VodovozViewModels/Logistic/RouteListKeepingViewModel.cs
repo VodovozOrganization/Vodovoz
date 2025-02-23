@@ -445,9 +445,11 @@ namespace Vodovoz
 			}
 
 			if(_routeListItemStatusToChange == RouteListItemStatus.Completed
-				&& rli.RouteListItem.Order.IsNeedIndividualSetOnLoad && rli.RouteListItem.Order.IsOrderContainsIsAccountableInTrueMarkItems)
+				&& rli.RouteListItem.Order.IsOrderContainsIsAccountableInTrueMarkItems
+				&& !_currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
 			{
-				if(_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, rli.RouteListItem.Order.Id))
+				if(rli.RouteListItem.Order.IsNeedIndividualSetOnLoad
+					&& !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, rli.RouteListItem.Order.Id))
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Warning,
 						"Заказ не может быть переведен в статус \"Доставлен\", " +
@@ -455,12 +457,10 @@ namespace Vodovoz
 
 					return;
 				}
-			}
 
-			if(_routeListItemStatusToChange == RouteListItemStatus.Completed
-				&& rli.RouteListItem.Order.IsOrderForResale && rli.RouteListItem.Order.IsOrderContainsIsAccountableInTrueMarkItems)
-			{
-				if(!_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, rli.RouteListItem.Order.Id))
+				if(rli.RouteListItem.Order.IsOrderForResale
+					&& !rli.RouteListItem.Order.IsNeedIndividualSetOnLoad
+					&& !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, rli.RouteListItem.Order.Id))
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Warning,
 						"Заказ не может быть переведен в статус \"Доставлен\", " +
@@ -469,7 +469,7 @@ namespace Vodovoz
 					return;
 				}
 			}
-
+			
 			if(RouteListItem.GetUndeliveryStatuses().Contains(_routeListItemStatusToChange))
 			{
 				if(rli.InitialRouteListItemStatusIsInUndeliveryStatuses

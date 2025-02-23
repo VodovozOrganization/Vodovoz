@@ -381,7 +381,9 @@ namespace DriverAPI.Library.V6.Services
 
 			OrderEdoRequest edoRequest = null;
 
-			if(!vodovozOrder.IsOrderForResale || !vodovozOrder.IsOrderContainsIsAccountableInTrueMarkItems)
+			if(!vodovozOrder.IsNeedIndividualSetOnLoad
+				&& vodovozOrder.IsOrderForResale
+				&& vodovozOrder.IsOrderContainsIsAccountableInTrueMarkItems)
 			{
 				edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
 			}
@@ -401,7 +403,7 @@ namespace DriverAPI.Library.V6.Services
 			var edoRequest = new OrderEdoRequest
 			{
 				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Warehouse,
+				Source = CustomerEdoRequestSource.Driver,
 				DocumentType = EdoDocumentType.UPD,
 				Order = vodovozOrder,
 			};
