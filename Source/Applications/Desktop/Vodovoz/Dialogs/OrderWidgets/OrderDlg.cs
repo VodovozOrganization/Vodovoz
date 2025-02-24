@@ -3296,15 +3296,20 @@ namespace Vodovoz
 					})
 				.ViewModel;
 
+			journalViewModel.SelectionMode = JournalSelectionMode.Multiple;
+
 			journalViewModel.OnSelectResult += (s, ea) =>
 			{
-				var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
-				if(selectedNode == null)
+				var selectedNodes = ea.SelectedObjects.Cast<NomenclatureJournalNode>().ToList();
+				if(selectedNodes == null || !selectedNodes.Any())
 				{
 					return;
 				}
 
-				TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+				foreach(var node in selectedNodes)
+				{
+					TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(node.Id));
+				}
 			};
 		}
 
