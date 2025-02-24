@@ -950,6 +950,8 @@ namespace Vodovoz
 
 			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails && CanEdit;
 			accountsView.SetAccountOwner(UoW, Entity);
+
+			ybuttonCopyAccountDetails.Clicked += OnButtonCopyAccountDetailsClicked;
 		}
 
 		private void ConfigureTabProxies()
@@ -2440,6 +2442,18 @@ namespace Vodovoz
 			};
 
 			OpenRevenueServicePage(dadataRequestDto);
+		}
+
+		protected void OnButtonCopyAccountDetailsClicked(object sender, EventArgs e)
+		{
+			var accountData = $"ИНН: {Entity.INN}\n" +
+				$"КПП: {Entity.KPP}\n" +
+				$"ЮР. адрес: {Entity.RawJurAddress}\n" +
+				$"ФИО: {Entity.SignatoryFIO}\n" +
+				$"В лице: {Entity.SignatoryPost}\n" +
+				$"На основании:  {Entity.SignatoryBaseOf}";
+
+			GetClipboard(Gdk.Selection.Clipboard).Text = accountData;
 		}
 
 		protected void OnButtonRequestByInnAndKppClicked(object sender, EventArgs e)
