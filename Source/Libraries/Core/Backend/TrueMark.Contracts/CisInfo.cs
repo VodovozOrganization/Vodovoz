@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace TrueMark.Contracts
 {
@@ -14,16 +16,16 @@ namespace TrueMark.Contracts
 		public string RequestedCis { get; set; }
 
 		/// <summary>
-		/// Тип упаковки
+		/// Уровень вложенности типа упаковки упаковки
 		/// </summary>
 		[JsonPropertyName("packageType")]
 		public string PackageType { get; set; }
 
 		/// <summary>
-		/// Уровень упаковки
+		/// Тип упаковки
 		/// </summary>
-		[JsonPropertyName("status")]
-		public string Status { get; set; }
+		[JsonPropertyName("generalPackageType")]
+		public string GeneralPackageType { get; set; }
 
 		/// <summary>
 		/// ИНН собственника товара
@@ -36,5 +38,23 @@ namespace TrueMark.Contracts
 		/// </summary>
 		[JsonPropertyName("ownerName")]
 		public string OwnerName { get; set; }
+
+		/// <summary>
+		/// Уровень упаковки
+		/// </summary>
+		[JsonPropertyName("status")]
+		public string Status { get; set; }
+
+		/// <summary>
+		/// Дочерние КИ
+		/// </summary>
+		[JsonPropertyName("child")]
+		public IEnumerable<string> Childs { get; set; } = Enumerable.Empty<string>();
+
+		/// <summary>
+		/// Родительский КИ
+		/// </summary>
+		[JsonPropertyName("parent")]
+		public string Parent { get; set; }
 	}
 }

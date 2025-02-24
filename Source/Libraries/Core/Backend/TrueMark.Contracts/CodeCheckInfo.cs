@@ -31,7 +31,7 @@ namespace TrueMark.Contracts
 		/// <summary>
 		/// Массив идентификаторов товарных групп
 		/// </summary>
-		IEnumerable<int> GroupIds { get; set; }
+		public IEnumerable<int> GroupIds { get; set; }
 
 		/// <summary>
 		/// Результат проверки криптоподписи КМ
