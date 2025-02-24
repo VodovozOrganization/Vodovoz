@@ -156,7 +156,7 @@ namespace Edo.Receipt.Sender
 					edoTask.Problems.Add(new CustomEdoTaskProblem
 					{
 						EdoTask = edoTask,
-						Exception = ex.GetType().Name,
+						//Exception = ex.GetType().Name,
 						CustomMessage = ex.Message
 					});
 				}

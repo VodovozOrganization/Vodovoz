@@ -2,7 +2,7 @@
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
-using TrueMark.CodesPool;
+using TrueMark.Codes.Pool;
 
 namespace Edo.CodesSaver
 {

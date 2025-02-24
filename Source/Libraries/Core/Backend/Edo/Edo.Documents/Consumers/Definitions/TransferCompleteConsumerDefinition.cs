@@ -1,18 +1,19 @@
 ﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
 using RabbitMQ.Client;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Documents.Consumers.Definitions
 {
-	public class TransferDoneConsumerDefinition : ConsumerDefinition<TransferDoneConsumer>
+	public class TransferCompleteConsumerDefinition : ConsumerDefinition<TransferCompleteConsumer>
 	{
-		public TransferDoneConsumerDefinition()
+		public TransferCompleteConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.transfer-done.consumer.documents");
+			Endpoint(x => x.Name = "edo.transfer-complete.consumer.documents");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<TransferDoneConsumer> consumerConfigurator)
+			IConsumerConfigurator<TransferCompleteConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
 
@@ -21,7 +22,10 @@ namespace Edo.Documents.Consumers.Definitions
 				rmq.AutoDelete = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<TransferDoneEvent>();
+				rmq.Bind<TransferCompleteEvent>(x =>
+				{
+					x.RoutingKey = TransferInitiator.Document.ToString();
+				});
 			}
 		}
 	}

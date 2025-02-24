@@ -4,4 +4,8 @@
         <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+    </ItemGroup>
+
 </Project>

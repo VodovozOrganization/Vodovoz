@@ -17,6 +17,6 @@
 
 	public class ReceiptCompleteEvent
 	{
-		public int EdoTaskId { get; set; }
+		public int ReceiptEdoTaskId { get; set; }
 	}
 }

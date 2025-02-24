@@ -25,10 +25,10 @@ namespace Edo.Common
 			EdoTaskItemTrueMarkStatusProvider taskItemStatusProvider,
 			CancellationToken cancellationToken)
 		{
-			if(edoTask.TransferEdoRequests.Any())
+			if(edoTask.TransferIterations.Any(x => x.Status == TransferEdoRequestIterationStatus.InProgress))
 			{
-				throw new EdoException($"Задача №{edoTask.Id} уже содержит заявки на перенос кодов. " +
-					$"Повторный перенос кодов не предусмотрен.");
+				throw new EdoException($"Задача №{edoTask.Id} в данный момент уже содержит выполняющийся перенос. " +
+					$"Повторный перенос кодов в данный момент невозможен.");
 			}
 
 			var itemStatuses = await taskItemStatusProvider.GetItemsStatusesAsync(cancellationToken);
@@ -69,7 +69,6 @@ namespace Edo.Common
 					{
 						FromOrganizationId = edoOrganizationFrom.Id,
 						ToOrganizationId = organizationTo.Id,
-						OrderEdoTask = edoTask,
 					}
 				);
 
@@ -79,10 +78,36 @@ namespace Edo.Common
 				}
 			}
 
+			TransferInitiator initiator;
+			switch(edoTask.TaskType)
+			{
+				case EdoTaskType.Document:
+					initiator = TransferInitiator.Document;
+					break;
+				case EdoTaskType.Receipt:
+					initiator = TransferInitiator.Receipt;
+					break;
+				default:
+					throw new NotSupportedException($"Тип задачи {edoTask.TaskType} не поддерживается.");
+			}
+
+			var documentTask = edoTask as DocumentEdoTask;
+
+
+
+			var transferIteration = new TransferEdoRequestIteration
+			{
+				OrderEdoTask = edoTask,
+				Status = TransferEdoRequestIterationStatus.InProgress,
+				Initiator = initiator,
+			};
+
 			foreach(var transferRequest in transferRequests.Values)
 			{
-				await _uow.SaveAsync(transferRequest, cancellationToken: cancellationToken);
+				transferIteration.TransferEdoRequests.Add(transferRequest);
 			}
+			
+			await _uow.SaveAsync(transferIteration, cancellationToken: cancellationToken);
 		}
 	}
 }

@@ -6,8 +6,16 @@ namespace Vodovoz.Core.Domain.Edo
 	public abstract class OrderEdoTask : EdoTask
 	{
 		private OrderEdoRequest _orderEdoRequest;
-		private IObservableList<EdoTaskItem> _items;
-		private IObservableList<TransferEdoRequest> _transferEdoRequests = new ObservableList<TransferEdoRequest>();
+
+		private IObservableList<EdoTaskItem> _items =
+			new ObservableList<EdoTaskItem>();
+
+		private IObservableList<TransferEdoRequest> _transferEdoRequests = 
+			new ObservableList<TransferEdoRequest>();
+
+		private IObservableList<TransferEdoRequestIteration> _transferIterations = 
+			new ObservableList<TransferEdoRequestIteration>();
+
 
 		[Display(Name = "Заявка ЭДО отправки клиенту")]
 		public virtual OrderEdoRequest OrderEdoRequest
@@ -29,5 +37,13 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _transferEdoRequests;
 			set => SetField(ref _transferEdoRequests, value);
 		}
+
+		[Display(Name = "Итерации переноса")]
+		public virtual IObservableList<TransferEdoRequestIteration> TransferIterations
+		{
+			get => _transferIterations;
+			set => SetField(ref _transferIterations, value);
+		}
+
 	}
 }

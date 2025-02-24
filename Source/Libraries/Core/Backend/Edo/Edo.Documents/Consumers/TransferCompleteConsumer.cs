@@ -4,26 +4,27 @@ using System.Threading.Tasks;
 using Edo.Contracts.Messages.Events;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Receipt.Dispatcher.Consumers
+namespace Edo.Documents.Consumers
 {
 	public class TransferCompleteConsumer : IConsumer<TransferCompleteEvent>
 	{
-		private readonly ReceiptEdoTaskHandler _receiptEdoTaskHandler;
+		private readonly DocumentEdoTaskHandler _documentEdoTaskHandler;
 
-		public TransferCompleteConsumer(ReceiptEdoTaskHandler receiptEdoTaskHandler)
+		public TransferCompleteConsumer(DocumentEdoTaskHandler documentEdoTaskHandler)
 		{
-			_receiptEdoTaskHandler = receiptEdoTaskHandler ?? throw new ArgumentNullException(nameof(receiptEdoTaskHandler));
+			_documentEdoTaskHandler = documentEdoTaskHandler ?? throw new ArgumentNullException(nameof(documentEdoTaskHandler));
 		}
 
 		public async Task Consume(ConsumeContext<TransferCompleteEvent> context)
 		{
-			if(context.Message.TransferInitiator != TransferInitiator.Receipt)
+			if(context.Message.TransferInitiator != TransferInitiator.Document)
 			{
 				throw new InvalidOperationException("Не правильно настроена маршрутизация для сообщения " +
 					$"{nameof(TransferCompleteEvent)}. Получено сообщение для {context.Message.TransferInitiator}, " +
-					$"а должно быть для {nameof(TransferInitiator.Receipt)}");
+					$"а должно быть для {nameof(TransferInitiator.Document)}");
 			}
-			await _receiptEdoTaskHandler.HandleTransfered(context.Message.TransferIterationId, context.CancellationToken);
+
+			await _documentEdoTaskHandler.HandleTransfered(context.Message.TransferIterationId, context.CancellationToken);
 		}
 	}
 }

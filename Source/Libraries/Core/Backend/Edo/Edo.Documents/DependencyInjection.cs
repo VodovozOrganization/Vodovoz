@@ -21,7 +21,7 @@ namespace Edo.Documents
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumer<TransferDoneConsumer, TransferDoneConsumerDefinition>();
+				cfg.AddConsumer<TransferCompleteConsumer, TransferCompleteConsumerDefinition>();
 				cfg.AddConsumer<DocumentTaskCreatedConsumer, DocumentTaskCreatedConsumerDefinition>();
 				cfg.AddConsumer<OrderDocumentSentConsumer, OrderDocumentSentConsumerDefinition>();
 				cfg.AddConsumer<OrderDocumentAcceptedConsumer, OrderDocumentAcceptedConsumerDefinition>();

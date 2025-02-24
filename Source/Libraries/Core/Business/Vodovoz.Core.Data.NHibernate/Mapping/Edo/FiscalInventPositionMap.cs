@@ -30,8 +30,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.DiscountSum)
 				.Column("discount_sum");
 
-			Map(x => x.ProductMark)
-				.Column("product_mark");
+			References(x => x.EdoTaskItem)
+				.Column("edo_task_item_id");
 
 			Map(x => x.Vat)
 				.Column("vat");

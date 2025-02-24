@@ -123,16 +123,17 @@ namespace Edo.Documents
 		// Changed to: Sending
 		// [событие от transfer]
 		// (проверяет выполнены ли переносы и отправляет)
-		public async Task HandleTransfered(int documentEdoTaskId, CancellationToken cancellationToken)
+		public async Task HandleTransfered(int transferIterationId, CancellationToken cancellationToken)
 		{
-			stop!
-			//тут не правильно! на вход идет Id трансфера. Надо получить задачу на документ
-			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
+			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
+			var edoTask = (DocumentEdoTask)transferIteration.OrderEdoTask;
+
 			// TEST
 			// проверяем все коды как ВВ
 			var trueMarkApiClient = new TrueMarkApiClient("https://test-vv-truemarkapi.dev.vod.qsolution.ru/", "test");
-			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 
+
+			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{

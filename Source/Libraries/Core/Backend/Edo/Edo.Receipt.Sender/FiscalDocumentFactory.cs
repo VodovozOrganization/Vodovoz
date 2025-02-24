@@ -89,7 +89,7 @@ namespace Edo.Receipt.Sender
 				PriceWithoutDiscount = fiscalInventPosition.Price,
 				DiscSum = fiscalInventPosition.DiscountSum,
 				VatTag = (int)fiscalInventPosition.Vat,
-				ProductMark = fiscalInventPosition.ProductMark,
+				ProductMark = fiscalInventPosition.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260,
 				IndustryRequisite = new IndustryRequisite
 				{
 					FoivId = fiscalInventPosition.RegulatoryDocument.FoivId,

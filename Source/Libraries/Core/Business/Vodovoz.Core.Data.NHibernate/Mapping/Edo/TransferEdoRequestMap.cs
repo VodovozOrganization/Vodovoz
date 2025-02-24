@@ -15,13 +15,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("id")
 				.GeneratedBy.Native();
 
-			Map(x => x.Time)
-				.Column("time")
-				.ReadOnly();
+			References(x => x.Iteration)
+				.Column("iteration_id")
+				.Cascade.AllDeleteOrphan();
 
-			References(x => x.OrderEdoTask)
-				.Column("document_edo_task_id")
-				.Cascade.All();
 
 			Map(x => x.FromOrganizationId)
 				.Column("from_organization_id");
@@ -37,7 +34,39 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			References(x => x.TransferEdoTask)
 				.Column("transfer_edo_task_id")
+				.Cascade.AllDeleteOrphan();
+		}
+	}
+
+	public class TransferEdoRequestIterationMap : ClassMap<TransferEdoRequestIteration>
+	{
+		public TransferEdoRequestIterationMap()
+		{
+			Table("edo_transfer_request_iterations");
+
+			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
+
+			Id(x => x.Id)
+				.Column("id")
+				.GeneratedBy.Native();
+
+			Map(x => x.Time)
+				.Column("time")
+				.ReadOnly();
+
+			References(x => x.OrderEdoTask)
+				.Column("document_edo_task_id")
 				.Cascade.All();
+
+			Map(x => x.Initiator)
+				.Column("initiator");
+
+			Map(x => x.Status)
+				.Column("status");
+
+			HasMany(x => x.TransferEdoRequests)
+				.KeyColumn("iteration_id")
+				.Cascade.AllDeleteOrphan();
 		}
 	}
 }

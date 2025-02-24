@@ -1,6 +1,7 @@
 ﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
 using RabbitMQ.Client;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Receipt.Dispatcher.Consumers.Definitions
 {
@@ -21,7 +22,10 @@ namespace Edo.Receipt.Dispatcher.Consumers.Definitions
 				rmq.AutoDelete = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<TransferCompleteEvent>();
+				rmq.Bind<TransferCompleteEvent>(x =>
+				{
+					x.RoutingKey = TransferInitiator.Receipt.ToString();
+				});
 			}
 		}
 	}

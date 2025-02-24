@@ -37,6 +37,6 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _stage, value);
 		}
 
-		public override EdoTaskType TaskType => EdoTaskType.Order;
+		public override EdoTaskType TaskType => EdoTaskType.Document;
 	}
 }

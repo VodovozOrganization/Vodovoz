@@ -1,6 +1,8 @@
 ﻿using Core.Infrastructure;
 using Edo.Common;
 using Edo.Contracts.Messages.Events;
+using Edo.Problems.Custom.Sources;
+using Edo.Problems;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -22,6 +24,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
+using NetTopologySuite.Operation.Valid;
 
 namespace Edo.Receipt.Dispatcher
 {
@@ -40,12 +43,14 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
 		private readonly EdoTaskValidator _edoTaskValidator;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private int _prepareReceiptAttempts = 3;
 
 		public ForOwnNeedsReceiptEdoTaskHandler(
 			ILogger<ForOwnNeedsReceiptEdoTaskHandler> logger,
 			IUnitOfWork uow,
 			EdoTaskValidator edoTaskValidator,
+			EdoProblemRegistrar edoProblemRegistrar,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferRequestCreator transferRequestCreator,
 			IEdoRepository edoRepository,
@@ -59,6 +64,7 @@ namespace Edo.Receipt.Dispatcher
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
@@ -125,24 +131,8 @@ namespace Edo.Receipt.Dispatcher
 			await _uow.CommitAsync(cancellationToken);
 		}
 
-		public async Task HandleTransferComplete(TransferEdoRequestIteration transferIteration, CancellationToken cancellationToken)
+		public async Task HandleTransferComplete(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
-			if(transferIteration.Status != TransferEdoRequestIterationStatus.Completed)
-			{
-				_logger.LogWarning($"Пришло событие завершения трансфера, но трансфер не завершен, " +
-					$"статус: {transferIteration.Status}.");
-				return;
-			}
-
-			if(transferIteration.Initiator != TransferInitiator.Receipt)
-			{
-				_logger.LogWarning($"Пришло событие завершения трансфера, но инициатор трансфера не чек, " +
-					$"инициатор: {transferIteration.Initiator}.");
-				return;
-			}
-
-
-			var receiptEdoTask = (ReceiptEdoTask)transferIteration.OrderEdoTask;
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
 			var taskValidationResult = await _localCodesValidator.ValidateAsync(
@@ -158,11 +148,20 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			// итоговая валидация и получение разрешительного режима
-			var industryRequisitePrepared = await PrepareIndustryRequisite(receiptEdoTask, cancellationToken);
-			if(!industryRequisitePrepared)
+			var industryRequisitePrepareResult = await PrepareIndustryRequisite(receiptEdoTask, cancellationToken);
+			switch(industryRequisitePrepareResult)
 			{
-				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
-				return;
+				case IndustryRequisitePrepareResult.Succeeded:
+					// Ничего не делаем, продолжаем
+					break;
+				case IndustryRequisitePrepareResult.NeedToChange:
+					await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
+					return;
+				case IndustryRequisitePrepareResult.Problem:
+					return;
+				default:
+					throw new NotSupportedException($"Неизвестный результат подготовки разрешительного " +
+						$"режима: {industryRequisitePrepareResult}");
 			}
 
 			// перевод в отправку
@@ -224,7 +223,6 @@ namespace Edo.Receipt.Dispatcher
 					continue;
 				}
 
-
 				if(!taskValidationResult.ReadyToSell)
 				{
 					// создание заявок на трансфер
@@ -237,39 +235,43 @@ namespace Edo.Receipt.Dispatcher
 					return;
 				}
 
-
 				// итоговая валидация и получение разрешительного режима
-				var industryRequisitePrepared = await PrepareIndustryRequisite(receiptEdoTask, cancellationToken);
-				if(!industryRequisitePrepared)
+				var industryRequisitePrepareResult = await PrepareIndustryRequisite(receiptEdoTask, cancellationToken);
+				switch(industryRequisitePrepareResult)
 				{
-					isValid = false;
-					continue;
+					case IndustryRequisitePrepareResult.Succeeded:
+						// Ничего не делаем, продолжаем
+						break;
+					case IndustryRequisitePrepareResult.NeedToChange:
+						isValid = false;
+						continue;
+					case IndustryRequisitePrepareResult.Problem:
+						return;
+					default:
+						throw new NotSupportedException($"Неизвестный результат подготовки разрешительного " +
+							$"режима: {industryRequisitePrepareResult}");
 				}
-
 
 				if(attempts == 0)
 				{
-					// регистрируем проблему и выходим
+					await _edoProblemRegistrar.RegisterCustomProblem<ReceiptPrepareMaxAttemptsReached>(
+						receiptEdoTask, 
+						cancellationToken);
 					return;
 				}
 
 			} while(!isValid && attempts > 0);
 
-			
-			
-			//Сверка данных
-			var order = receiptEdoTask.OrderEdoRequest.Order;
-			// сумма чеков
-			var orderSumForReceipt = order.OrderItems
+
+
+			// ЭТО ДОЛЖНО БЫТЬ В ТЕСТЕ, УДАЛИТЬ ИЗ ПРОДА
+			var orderSumForReceipt = receiptEdoTask.OrderEdoRequest.Order.OrderItems
 				.Where(x => x.Count > 0)
 				.Sum(x => x.Sum);
 			var receiptsSum = receiptEdoTask.FiscalDocuments.SelectMany(x => x.MoneyPositions).Sum(x => x.Sum);
 			if(receiptsSum != orderSumForReceipt)
 			{
-				// регистрируем проблему
-				// Ошибка алгоритма подготовки чека, сумма чека не совпадает с суммой заказа
 				throw new InvalidOperationException($"Сумма чека не совпадает с суммой заказа. Сумма заказа: {orderSumForReceipt}, сумма чека: {receiptsSum}");
-				return;
 			}
 
 
@@ -627,16 +629,29 @@ namespace Edo.Receipt.Dispatcher
 			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
 		}
 
-		private async Task<bool> PrepareIndustryRequisite(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
+		private enum IndustryRequisitePrepareResult
+		{
+			Succeeded,
+			NeedToChange,
+			Problem
+		}
+
+		private async Task<IndustryRequisitePrepareResult> PrepareIndustryRequisite(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
 			var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
 			var cashBoxToken = seller.CashBoxTokenFromTrueMark;
 			if(cashBoxToken == null)
 			{
-				throw new InvalidOperationException($"Для организации {seller.Id} не установлен токен кассового аппарата, полученный в ЧЗ");
+				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
+					receiptEdoTask,
+					cancellationToken,
+					$"Отсутствует токен для организации Id {seller.Id}");
+				return IndustryRequisitePrepareResult.Problem;
 			}
 
 			bool isValid = true;
+			var invalidTaskItems = new List<EdoTaskItem>();
+
 			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
 			{
 				var codesToCheck1260 = fiscalDocument.InventPositions
@@ -651,10 +666,14 @@ namespace Edo.Receipt.Dispatcher
 
 				if(result.Code != 0)
 				{
-					throw new InvalidOperationException($"Ошибка при итоговой проверке кодов в ЧЗ. Код ошибки: {result.Code}, сообщение: {result.Description}");
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteCheckApiError>(
+						receiptEdoTask,
+						cancellationToken,
+						$"Код ошибки: {result.Code}, сообщение: {result.Description}");
+					return IndustryRequisitePrepareResult.Problem;
 				}
 
-				foreach(var codeResult in result.Codes)
+				var invalidCodes = result.Codes.Where(codeResult =>
 				{
 					var canSell = codeResult.ErrorCode == 0
 						&& codeResult.Found
@@ -665,22 +684,90 @@ namespace Edo.Receipt.Dispatcher
 						&& codeResult.Utilised
 						&& !codeResult.IsBlocked
 						&& !codeResult.Sold;
+					return !canSell;
+				});
 
+				if(invalidCodes.Any())
+				{
+					var taskItems = invalidCodes.Select(x => codesToCheck1260[x.Cis].EdoTaskItem);
+					invalidTaskItems.AddRange(taskItems);
+					isValid = false;
+					continue;
+				}
+
+				foreach(var codeResult in result.Codes)
+				{
 					var inventPosition = codesToCheck1260[codeResult.Cis];
-					if(!canSell)
-					{
-						isValid = false;
-						inventPosition.EdoTaskItem.ProductCode.ResultCode = null;
-					}
-					else
-					{
-						inventPosition.IndustryRequisiteData = $"UUID={result.ReqId}&Time={result.ReqTimestamp}";
-					}
+					inventPosition.IndustryRequisiteData = $"UUID={result.ReqId}&Time={result.ReqTimestamp}";
 				}
 			}
 
-			return isValid;
+			if(isValid)
+			{
+				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteMissingOrganizationToken>(receiptEdoTask);
+				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteCheckApiError>(receiptEdoTask);
+				return IndustryRequisitePrepareResult.Succeeded;
+			}
+			else
+			{
+				return IndustryRequisitePrepareResult.NeedToChange;
+			}
 		}
+
+		//private async Task<bool> PrepareIndustryRequisite(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
+		//{
+		//	var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
+		//	var sellerEdoKey = seller.EdoKey;
+		//	if(sellerEdoKey == null)
+		//	{
+		//		throw new InvalidOperationException($"Для организации {seller.Id} не установлен ключ для доступа к ЭДО");
+		//	}
+
+		//	bool isValid = true;
+		//	foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
+		//	{
+		//		var codesToCheck1260 = fiscalDocument.InventPositions
+		//			.Where(x => x.EdoTaskItem.ProductCode.ResultCode != null)
+		//			.ToDictionary(x => x.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260);
+
+		//		var result = await _tag1260Checker.CheckCodesForTag1260Async(
+		//			codesToCheck1260.Keys, 
+		//			sellerEdoKey.Value, 
+		//			cancellationToken
+		//		);
+
+		//		if(result.Code != 0)
+		//		{
+		//			throw new InvalidOperationException($"Ошибка при итоговой проверке кодов в ЧЗ. Код ошибки: {result.Code}, сообщение: {result.Description}");
+		//		}
+
+		//		foreach(var codeResult in result.Codes)
+		//		{
+		//			var canSell = codeResult.ErrorCode == 0
+		//				&& codeResult.Found
+		//				&& codeResult.Valid
+		//				&& codeResult.Verified
+		//				&& codeResult.ExpireDate > DateTime.Now
+		//				&& codeResult.Realizable
+		//				&& codeResult.Utilised
+		//				&& !codeResult.IsBlocked
+		//				&& !codeResult.Sold;
+
+		//			var inventPosition = codesToCheck1260[codeResult.Cis];
+		//			if(!canSell)
+		//			{
+		//				isValid = false;
+		//				inventPosition.EdoTaskItem.ProductCode.ResultCode = null;
+		//			}
+		//			else
+		//			{
+		//				inventPosition.IndustryRequisiteData = $"UUID={result.ReqId}&Time={result.ReqTimestamp}";
+		//			}
+		//		}
+		//	}
+
+		//	return isValid;
+		//}
 
 
 		//private async Task CreateFiscalDocuments(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)

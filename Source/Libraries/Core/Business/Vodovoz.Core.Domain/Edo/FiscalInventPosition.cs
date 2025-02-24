@@ -20,7 +20,6 @@ namespace Vodovoz.Core.Domain.Edo
 		private decimal _price;
 		private decimal _discountSum;
 		private FiscalVat _vat;
-		private string _productMark;
 		private FiscalIndustryRequisiteRegulatoryDocument _regulatoryDocument;
 		private string _industryRequisiteData;
 
