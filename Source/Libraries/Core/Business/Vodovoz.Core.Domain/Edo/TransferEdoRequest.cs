@@ -5,11 +5,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
+
 	public class TransferEdoRequest : PropertyChangedBase
 	{
 		private int _id;
-		private DateTime _time;
-		private OrderEdoTask _orderEdoTask;
+		private TransferEdoRequestIteration _iteration;
+		//private DateTime _time;
+		//private OrderEdoTask _orderEdoTask;
 		private int _fromOrganizationId;
 		private int _toOrganizationId;
 		private IObservableList<EdoTaskItem> _transferedItems = new ObservableList<EdoTaskItem>();
@@ -22,18 +24,25 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _id, value);
 		}
 
-		[Display(Name = "Время")]
-		public virtual DateTime Time
-		{
-			get => _time;
-			set => SetField(ref _time, value);
-		}
+		//[Display(Name = "Время")]
+		//public virtual DateTime Time
+		//{
+		//	get => _time;
+		//	set => SetField(ref _time, value);
+		//}
 
-		[Display(Name = "Код ЭДО задачи")]
-		public virtual OrderEdoTask OrderEdoTask
+		//[Display(Name = "Код ЭДО задачи")]
+		//public virtual OrderEdoTask OrderEdoTask
+		//{
+		//	get => _orderEdoTask;
+		//	set => SetField(ref _orderEdoTask, value);
+		//}
+
+		[Display(Name = "Итерация")]
+		public virtual TransferEdoRequestIteration Iteration
 		{
-			get => _orderEdoTask;
-			set => SetField(ref _orderEdoTask, value);
+			get => _iteration;
+			set => SetField(ref _iteration, value);
 		}
 
 		[Display(Name = "Код организации отправителя")]

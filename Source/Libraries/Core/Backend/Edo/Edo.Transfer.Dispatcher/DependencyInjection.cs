@@ -1,5 +1,5 @@
 ﻿using Edo.Common;
-using Edo.TaskValidation;
+using Edo.Problems;
 using Edo.Transfer.Dispatcher.Consumers;
 using Edo.Transfer.Dispatcher.Consumers.Definitions;
 using Edo.Transport;
@@ -19,7 +19,7 @@ namespace Edo.Transfer.Dispatcher
 			services
 				.AddEdo()
 				.AddEdoTransfer()
-				.AddEdoTaskValidation()
+				.AddEdoProblemRegistation()
 				;
 
 			services.AddEdoMassTransit(configureBus: cfg =>

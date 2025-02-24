@@ -142,7 +142,7 @@ namespace Edo.Transfer
 			transferEdoTask.TransferOrderId = transferOrder.Id;
 			await uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 		}
-
+		/*
 		public void CompleteTransfer(TransferEdoTask transferTask)
 		{
 			transferTask.TransferStatus = TransferEdoTaskStatus.Completed;
@@ -177,6 +177,6 @@ namespace Edo.Transfer
 		{
 			var relatedTasks = await _transferTaskRepository.GetAllRelatedTransferTasksAsync(uow, transferTask, cancellationToken);
 			return relatedTasks.All(x => x.TransferStatus == TransferEdoTaskStatus.Completed);
-		}
+		}*/
 	}
 }

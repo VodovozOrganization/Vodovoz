@@ -105,6 +105,30 @@ namespace Edo.Transfer
 			return tasks;
 		}
 
+		public async Task<bool> IsTransferIterationCompletedAsync(
+			IUnitOfWork uow, 
+			int transferIterationId, 
+			CancellationToken cancellationToken
+			)
+		{
+			var sql = $@"
+				SELECT Count(teri.id) = 0 as is_completed
+				FROM edo_transfer_request_iterations teri
+				INNER JOIN edo_transfer_requests etr ON etr.iteration_id = teri.id
+				LEFT JOIN edo_tasks et ON et.id = etr.transfer_edo_task_id
+				WHERE (et.id IS NULL OR et.status != 'Completed')
+				AND teri.status = 'InProgress'
+				AND teri.id = :transferIterationId;
+			";
+
+			var iterationCompleted = await uow.Session.CreateSQLQuery(sql)
+					.AddEntity(typeof(TransferEdoTask))
+					.SetParameter("transferIterationId", transferIterationId)
+					.UniqueResultAsync<bool>(cancellationToken);
+
+			return iterationCompleted;
+		}
+
 		public async Task<IEnumerable<TrueMarkWaterIdentificationCode>> GetAllCodesForTransferTaskAsync(IUnitOfWork uow, TransferEdoTask transferTask, CancellationToken cancellationToken)
 		{
 			TransferEdoRequest transferEdoRequestAlias = null;

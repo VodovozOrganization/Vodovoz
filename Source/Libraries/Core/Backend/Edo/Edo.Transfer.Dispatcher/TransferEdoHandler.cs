@@ -1,4 +1,7 @@
-﻿using MassTransit;
+﻿using Edo.Common;
+using Edo.Contracts.Messages.Events;
+using Edo.Problems.Validation;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate.Util;
 using QS.DomainModel.UoW;
@@ -7,12 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Contracts.Messages.Events;
-using Vodovoz.Core.Domain.Edo;
-using QS.Extensions.Observable.Collections.List;
-using Edo.TaskValidation;
-using Edo.Common;
 using TrueMarkApi.Client;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Transfer.Dispatcher
 {
@@ -20,7 +19,8 @@ namespace Edo.Transfer.Dispatcher
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<TransferEdoHandler> _logger;
-		private readonly EdoTaskMainValidator _validator;
+		private readonly EdoTaskValidator _edoTaskValidator;
+		private readonly TransferTaskRepository _transferTaskRepository;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferDispatcher _transferDispatcher;
 		private readonly IBus _messageBus;
@@ -28,21 +28,23 @@ namespace Edo.Transfer.Dispatcher
 		public TransferEdoHandler(
 			ILogger<TransferEdoHandler> logger,
 			IUnitOfWorkFactory uowFactory,
-			EdoTaskMainValidator validator,
+			EdoTaskValidator edoTaskValidator,
+			TransferTaskRepository transferTaskRepository,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferDispatcher transferDispatcher,
 			IBus messageBus
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
+			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
+			_transferTaskRepository = transferTaskRepository ?? throw new ArgumentNullException(nameof(transferTaskRepository));
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_transferDispatcher = transferDispatcher ?? throw new ArgumentNullException(nameof(transferDispatcher));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_uow = uowFactory.CreateWithoutRoot();
 		}
 
-		public async Task HandleDocumentTask(int documentEdoTaskId, CancellationToken cancellationToken)
+		public async Task HandleNewTransfer(int documentEdoTaskId, CancellationToken cancellationToken)
 		{
 			//_uow.Session.BeginTransaction();
 			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
@@ -106,100 +108,54 @@ namespace Edo.Transfer.Dispatcher
 			// проверяем все коды как ВВ
 			var trueMarkApiClient = new TrueMarkApiClient("https://test-vv-truemarkapi.dev.vod.qsolution.ru/", "test");
 			//var trueMarkApiClient = new TrueMarkApiClient("https://test-mn-truemarkapi.dev.vod.qsolution.ru/", "test");
-			var trueMarkCodeChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(transferTask);
+			
 
-			//Проверить состояние кодов
-			var valid = await Validate(transferTask, trueMarkCodeChecker, cancellationToken);
-			if(!valid)
+			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(transferTask);
+			var isValid = await _edoTaskValidator.Validate(transferTask, cancellationToken, trueMarkCodesChecker);
+			if(!isValid)
 			{
-				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
-			_transferDispatcher.CompleteTransfer(transferTask);
+			transferTask.TransferStatus = TransferEdoTaskStatus.Completed;
+			transferTask.Status = EdoTaskStatus.Completed;
+			transferTask.EndTime = DateTime.Now;
+
 			await _uow.SaveAsync(transferTask, cancellationToken: cancellationToken);
-
-			var allComplete = await _transferDispatcher.IsAllTransfersComplete(_uow, transferTask, cancellationToken);
-
 			_uow.Commit();
 
-			if(allComplete)
-			{
-				var message = new TransferDoneEvent { Id = transferTask.DocumentEdoTaskId };
-				await _messageBus.Publish(message, cancellationToken);
-			}
+			await UpdateIterationsAndNotifyOnCompleted(transferTask, cancellationToken);
 		}
 
-		private async Task<bool> Validate(EdoTask edoTask, EdoTaskItemTrueMarkStatusProvider itemStatusProvider, CancellationToken cancellationToken)
+		private async Task UpdateIterationsAndNotifyOnCompleted(TransferEdoTask transferTask, CancellationToken cancellationToken)
 		{
-			var context = new EdoTaskValidationContext();
-			context.AddService(itemStatusProvider);
-			var results = await _validator.ValidateAsync(edoTask, cancellationToken, context);
-			await UpdateValidationResults(edoTask, results, cancellationToken);
+			var messages = new List<TransferCompleteEvent>();
 
-			if(results.IsValid)
+			var transferIterations = transferTask.TransferEdoRequests.Select(x => x.Iteration).Distinct();
+			foreach(var transferIteration in transferIterations)
 			{
-				return true;
-			}
+				var iterationCompleted = await _transferTaskRepository.IsTransferIterationCompletedAsync(
+					_uow, transferIteration.Id, cancellationToken);
 
-			switch(results.Importance)
-			{
-				case EdoValidationImportance.Waiting:
-					edoTask.Status = EdoTaskStatus.Waiting;
-					break;
-				case EdoValidationImportance.Problem:
-					edoTask.Status = EdoTaskStatus.Problem;
-					break;
-				case null:
-					throw new InvalidOperationException($"Результаты валидации обязаны содержать {nameof(EdoValidationImportance)}, если результаты не валидны.");
-				default:
-					throw new InvalidOperationException($"Неизвестное значение важности валидации {nameof(EdoValidationImportance)}.");
-			}
-
-			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			return false;
-		}
-
-		private async Task UpdateValidationResults(
-			EdoTask edoTask,
-			EdoValidationResults validationResults,
-			CancellationToken cancellationToken
-			)
-		{
-			foreach(var validationResult in validationResults.Results)
-			{
-				var problem = edoTask.Problems.FirstOrDefault(x => x.ValidatorName == validationResult.Validator.Name);
-				if(problem == null && validationResult.IsValid)
+				if(!iterationCompleted)
 				{
 					continue;
 				}
 
-				if(problem == null)
-				{
-					problem = new EdoTaskProblem
-					{
-						ValidatorName = validationResult.Validator.Name,
-						State = TaskProblemState.Active,
-						EdoTask = edoTask,
-						TaskItems = new ObservableList<EdoTaskItem>(validationResult.ProblemItems)
-					};
-				}
+				transferIteration.Status = TransferEdoRequestIterationStatus.Completed;
+				await _uow.SaveAsync(transferIteration, cancellationToken: cancellationToken);
 
-				if(validationResult.IsValid)
+				messages.Add(new TransferCompleteEvent
 				{
-					problem.State = TaskProblemState.Solved;
-				}
-				else
-				{
-					problem.TaskItems.Clear();
-					foreach(var problemItem in validationResult.ProblemItems)
-					{
-						problem.TaskItems.Add(problemItem);
-					}
-				}
-
-				await _uow.SaveAsync(problem, cancellationToken: cancellationToken);
+					TransferIterationId = transferIteration.Id,
+					TransferInitiator = transferIteration.Initiator
+				});
 			}
+
+			await _uow.CommitAsync(cancellationToken);
+
+			var notificationTasks = messages.Select(message => _messageBus.Publish(message, cancellationToken));
+			await Task.WhenAll(notificationTasks);
 		}
 
 		public void Dispose()
