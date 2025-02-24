@@ -162,6 +162,9 @@ public class ProductInstanceInfoRequestConsumer : IConsumer<Batch<ProductInstanc
 					{
 						IdentificationCode = cisesInformation.CisInfo.RequestedCis,
 						Status = cisesInformation.CisInfo.Status.ToProductInstanceStatusEnum(),
+						GeneralPackageType = Enum.TryParse<GeneralPackageType>(cisesInformation.CisInfo.GeneralPackageType, out var generalPackageType) ? generalPackageType : null,
+						PackageType = Enum.TryParse<PackageType>(cisesInformation.CisInfo.PackageType, out var packageType) ? packageType : null,
+						Childs = cisesInformation.CisInfo.Childs ?? Enumerable.Empty<string>(),
 						OwnerInn = cisesInformation.CisInfo.OwnerInn,
 						OwnerName = cisesInformation.CisInfo.OwnerName
 					}
