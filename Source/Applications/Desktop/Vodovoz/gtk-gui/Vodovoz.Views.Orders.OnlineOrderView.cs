@@ -665,6 +665,7 @@ namespace Vodovoz.Views.Orders
 			w43.Fill = false;
 			// Container child yhboxContactPhone.Gtk.Box+BoxChild
 			this.ybuttonCopyContactPhone = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonCopyContactPhone.TooltipMarkup = "Копировать номер для связи";
 			this.ybuttonCopyContactPhone.CanFocus = true;
 			this.ybuttonCopyContactPhone.Name = "ybuttonCopyContactPhone";
 			this.ybuttonCopyContactPhone.UseUnderline = true;
@@ -683,7 +684,7 @@ namespace Vodovoz.Views.Orders
 			w46.LeftAttach = ((uint)(5));
 			w46.RightAttach = ((uint)(6));
 			w46.XOptions = ((global::Gtk.AttachOptions)(4));
-			w46.YOptions = ((global::Gtk.AttachOptions)(4));
+			w46.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.yhboxOnlinePayment = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxOnlinePayment.Name = "yhboxOnlinePayment";
@@ -700,6 +701,7 @@ namespace Vodovoz.Views.Orders
 			w47.Fill = false;
 			// Container child yhboxOnlinePayment.Gtk.Box+BoxChild
 			this.ybuttonCopyOnlinePaymentNumber = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonCopyOnlinePaymentNumber.TooltipMarkup = "Копировать номер оплаты";
 			this.ybuttonCopyOnlinePaymentNumber.CanFocus = true;
 			this.ybuttonCopyOnlinePaymentNumber.Name = "ybuttonCopyOnlinePaymentNumber";
 			this.ybuttonCopyOnlinePaymentNumber.UseUnderline = true;
@@ -718,7 +720,7 @@ namespace Vodovoz.Views.Orders
 			w50.LeftAttach = ((uint)(3));
 			w50.RightAttach = ((uint)(4));
 			w50.XOptions = ((global::Gtk.AttachOptions)(4));
-			w50.YOptions = ((global::Gtk.AttachOptions)(4));
+			w50.YOptions = ((global::Gtk.AttachOptions)(0));
 			this.vboxInfo.Add(this.tableMain);
 			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vboxInfo[this.tableMain]));
 			w51.Position = 2;
