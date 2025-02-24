@@ -801,21 +801,21 @@ namespace DriverAPI.Library.V6.Services
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				var errorMessage = $"Сотрудник {driver.Id} попытался завершить заказ {orderId} водителя {routeList.Driver.Id}";
+				var errorMessage = $"Сотрудник {driver.Id} попытался добавить код в заказ {orderId} водителя {routeList.Driver.Id}";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(Errors.Security.Authorization.OrderAccessDenied, errorMessage: errorMessage);
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя завершить заказ: {orderId}, МЛ не в пути";
+				var errorMessage = $"Нельзя добавить код: {orderId}, МЛ не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя завершить заказ: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
+				var errorMessage = $"Нельзя добавить код: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListItemErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
@@ -897,21 +897,21 @@ namespace DriverAPI.Library.V6.Services
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				var errorMessage = $"Сотрудник {driver.Id} попытался завершить заказ {orderId} водителя {routeList.Driver.Id}";
+				var errorMessage = $"Сотрудник {driver.Id} попытался заменить код в заказе {orderId} водителя {routeList.Driver.Id}";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(Errors.Security.Authorization.OrderAccessDenied, errorMessage: errorMessage);
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя завершить заказ: {orderId}, МЛ не в пути";
+				var errorMessage = $"Нельзя заменить код: {orderId}, МЛ не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя завершить заказ: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
+				var errorMessage = $"Нельзя заменить код: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListItemErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
@@ -985,21 +985,21 @@ namespace DriverAPI.Library.V6.Services
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				var errorMessage = $"Сотрудник {driver.Id} попытался завершить заказ {orderId} водителя {routeList.Driver.Id}";
+				var errorMessage = $"Сотрудник {driver.Id} попытался удалить код в заказе {orderId} водителя {routeList.Driver.Id}";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(Errors.Security.Authorization.OrderAccessDenied, errorMessage: errorMessage);
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя завершить заказ: {orderId}, МЛ не в пути";
+				var errorMessage = $"Нельзя удалить код: {orderId}, МЛ не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя завершить заказ: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
+				var errorMessage = $"Нельзя удалить код: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListItemErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
