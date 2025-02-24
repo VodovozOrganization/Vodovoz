@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
@@ -125,7 +125,7 @@ namespace Vodovoz.Models.TrueMark
 
 		public string GetProductCodeForCashReceipt(ITrueMarkWaterCode trueMarkWaterCode)
 		{
-			return $"\u001d01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
+			return $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
 		}
 
 		public string GetProductCodeForTag1260(ITrueMarkWaterCode trueMarkWaterCode)
