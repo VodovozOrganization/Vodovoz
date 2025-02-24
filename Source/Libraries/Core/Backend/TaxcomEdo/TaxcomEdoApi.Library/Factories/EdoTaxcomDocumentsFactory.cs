@@ -62,9 +62,21 @@ namespace TaxcomEdoApi.Library.Factories
 				}
 			};
 
-			var uniqueId = Guid.NewGuid().ToString("D").ToUpper();
-			upd.IdFajl = $"ON_NSCHFDOPPRMARK_{upd.SvUchDokObor.IdPol}_{upd.SvUchDokObor.IdOtpr}_{orderInfoForEdo.DeliveryDate:yyyyMMdd}_{uniqueId}";
-			
+			var hasMarkGoods = orderInfoForEdo.OrderItems.Any(x => !string.IsNullOrWhiteSpace(x.NomenclatureInfoForEdo.Gtin));
+
+			var updNameBuilder =
+				EdoSellerUpdNameBuilder.Create()
+					.ReceiverId(upd.SvUchDokObor.IdPol)
+					.SenderId(upd.SvUchDokObor.IdOtpr)
+					.Date(orderInfoForEdo.DeliveryDate);
+
+			if(hasMarkGoods)
+			{
+				updNameBuilder.ControlMarkGoods();
+			}
+
+			upd.IdFajl = updNameBuilder.ToString();
+
 			upd.Dokument = new FajlDokument
 			{
 				Funkcija = FajlDokumentFunkcija.SChFDOP,
@@ -141,7 +153,8 @@ namespace TaxcomEdoApi.Library.Factories
 
 			var tekstInfTipList = new List<TekstInfTip>();
 
-			if(orderInfoForEdo.CounterpartyInfoForEdo.ReasonForLeaving == ReasonForLeavingType.ForOwnNeeds)
+			if(hasMarkGoods
+				&& orderInfoForEdo.CounterpartyInfoForEdo.ReasonForLeaving == ReasonForLeavingType.ForOwnNeeds)
 			{
 				tekstInfTipList.Add(
 					new TekstInfTip
