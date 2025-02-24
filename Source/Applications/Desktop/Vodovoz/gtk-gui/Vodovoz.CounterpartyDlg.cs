@@ -2409,7 +2409,12 @@ namespace Vodovoz
 			w166.RightAttach = ((uint)(4));
 			w166.XOptions = ((global::Gtk.AttachOptions)(4));
 			w166.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable4.Gtk.Table+TableChild
+			this.vbox10.Add(this.datatable4);
+			global::Gtk.Box.BoxChild w167 = ((global::Gtk.Box.BoxChild)(this.vbox10[this.datatable4]));
+			w167.Position = 0;
+			w167.Expand = false;
+			w167.Fill = false;
+			// Container child vbox10.Gtk.Box+BoxChild
 			this.yhboxAdditionalControls = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxAdditionalControls.Name = "yhboxAdditionalControls";
 			this.yhboxAdditionalControls.Spacing = 6;
@@ -2420,22 +2425,14 @@ namespace Vodovoz
 			this.ybuttonCopyAccountDetails.UseUnderline = true;
 			this.ybuttonCopyAccountDetails.Label = global::Mono.Unix.Catalog.GetString("Скопировать реквизиты");
 			this.yhboxAdditionalControls.Add(this.ybuttonCopyAccountDetails);
-			global::Gtk.Box.BoxChild w167 = ((global::Gtk.Box.BoxChild)(this.yhboxAdditionalControls[this.ybuttonCopyAccountDetails]));
-			w167.PackType = ((global::Gtk.PackType)(1));
-			w167.Position = 2;
-			w167.Expand = false;
-			w167.Fill = false;
-			this.datatable4.Add(this.yhboxAdditionalControls);
-			global::Gtk.Table.TableChild w168 = ((global::Gtk.Table.TableChild)(this.datatable4[this.yhboxAdditionalControls]));
-			w168.TopAttach = ((uint)(3));
-			w168.BottomAttach = ((uint)(4));
-			w168.LeftAttach = ((uint)(3));
-			w168.RightAttach = ((uint)(4));
-			w168.XOptions = ((global::Gtk.AttachOptions)(4));
-			w168.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vbox10.Add(this.datatable4);
-			global::Gtk.Box.BoxChild w169 = ((global::Gtk.Box.BoxChild)(this.vbox10[this.datatable4]));
-			w169.Position = 0;
+			global::Gtk.Box.BoxChild w168 = ((global::Gtk.Box.BoxChild)(this.yhboxAdditionalControls[this.ybuttonCopyAccountDetails]));
+			w168.PackType = ((global::Gtk.PackType)(1));
+			w168.Position = 2;
+			w168.Expand = false;
+			w168.Fill = false;
+			this.vbox10.Add(this.yhboxAdditionalControls);
+			global::Gtk.Box.BoxChild w169 = ((global::Gtk.Box.BoxChild)(this.vbox10[this.yhboxAdditionalControls]));
+			w169.Position = 1;
 			w169.Expand = false;
 			w169.Fill = false;
 			// Container child vbox10.Gtk.Box+BoxChild
@@ -2445,7 +2442,7 @@ namespace Vodovoz
 			this.accountsView.CanEdit = false;
 			this.vbox10.Add(this.accountsView);
 			global::Gtk.Box.BoxChild w170 = ((global::Gtk.Box.BoxChild)(this.vbox10[this.accountsView]));
-			w170.Position = 1;
+			w170.Position = 2;
 			w148.Add(this.vbox10);
 			this.scrolledwindowAccountInformation.Add(w148);
 			this.notebook1.Add(this.scrolledwindowAccountInformation);
