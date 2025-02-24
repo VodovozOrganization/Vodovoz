@@ -1,7 +1,7 @@
-﻿using System;
-using System.Net.Http;
+﻿using ApiClientProvider;
+using System;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
-using ApiClientProvider;
 
 namespace VodovozInfrastructure.Endpoints
 {
@@ -62,7 +62,7 @@ namespace VodovozInfrastructure.Endpoints
 
 					try
 					{
-						error = await response.Content.ReadAsAsync<ErrorMessage>();
+						error = await response.Content.ReadFromJsonAsync<ErrorMessage>();
 					}
 					catch {}
 

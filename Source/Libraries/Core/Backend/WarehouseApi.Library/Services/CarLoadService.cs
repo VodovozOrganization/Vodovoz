@@ -27,6 +27,7 @@ using WarehouseApi.Library.Common;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
+using Edo.Transport.Messages.Events;
 
 namespace WarehouseApi.Library.Services
 {

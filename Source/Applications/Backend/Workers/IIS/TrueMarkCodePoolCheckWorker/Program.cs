@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +11,7 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Project.Domain;
 using QS.Project.HibernateMapping;
+using System.Threading.Tasks;
 using TrueMark.Library;
 using TrueMarkApi.Client;
 using TrueMarkCodesWorker;

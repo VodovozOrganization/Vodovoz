@@ -49,7 +49,7 @@ namespace VodovozBusiness.Models.TrueMark
 
 			var codesToCheck = sourceCodes.Select(x => _trueMarkWaterCodeParser.GetProductCodeForTag1260(x));
 
-			var checkResult = await _tag1260Checker.CheckCodesFroTag1260Async(codesToCheck, headerKey.Value, cancellationToken);
+			var checkResult = await _tag1260Checker.CheckCodesForTag1260Async(codesToCheck, headerKey.Value, cancellationToken);
 
 			_tag1260Saver.SaveTag1260CodesCheckResult(unitOfWork, sourceCodes, checkResult);
 		}

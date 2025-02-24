@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Autofac;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Domain.Contacts

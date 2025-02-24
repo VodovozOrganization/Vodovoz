@@ -16,6 +16,4 @@ namespace TrueMark.Codes.Pool
 		{
 		}
 	}
-	{
-	}
 }

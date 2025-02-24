@@ -18,37 +18,34 @@ namespace VodovozBusiness.Models.TrueMark
 		}
 
 		public void SaveTag1260CodesCheckResult(IUnitOfWork unitOfWork, IEnumerable<TrueMarkWaterIdentificationCode> sourceCodes,
-			IEnumerable<CodeCheckResponse> codeCheckResponseList)
+			CodeCheckResponse codeCheckResponse)
 		{
-			foreach(var codeCheckResponse in codeCheckResponseList)
+			foreach(var sourceCode in sourceCodes)
 			{
-				foreach(var sourceCode in sourceCodes)
+				var codeForTag1260 = _trueMarkWaterCodeParser.GetProductCodeForTag1260(sourceCode);
+				var codeCheckInfo = codeCheckResponse.Codes.FirstOrDefault(x => x.Cis.Equals(codeForTag1260));
+
+				if(codeCheckInfo == null)
 				{
-					var codeForTag1260 = _trueMarkWaterCodeParser.GetProductCodeForTag1260(sourceCode);
-					var codeCheckInfo = codeCheckResponse.Codes.FirstOrDefault(x => x.Cis.Equals(codeForTag1260));
-
-					if(codeCheckInfo == null)
-					{
-						continue;
-					}
-
-					var tag1260CodeCheckResult = new Tag1260CodeCheckResult
-					{
-						ReqId = codeCheckResponse.ReqId,
-						ReqTimestamp = codeCheckResponse.ReqTimestamp,
-					};
-
-					sourceCode.Tag1260CodeCheckResult = tag1260CodeCheckResult;
-
-					unitOfWork.Save(sourceCode.Tag1260CodeCheckResult);
-
-					sourceCode.IsTag1260Valid =
-						codeCheckInfo.ErrorCode == 0 && codeCheckInfo.Found && codeCheckInfo.Valid && codeCheckInfo.Verified
-						&& codeCheckInfo.ExpireDate > DateTime.Now && codeCheckInfo.Realizable && codeCheckInfo.Utilised
-						&& !codeCheckInfo.IsBlocked && !codeCheckInfo.Sold;
-
-					unitOfWork.Save(sourceCode);
+					continue;
 				}
+
+				var tag1260CodeCheckResult = new Tag1260CodeCheckResult
+				{
+					ReqId = codeCheckResponse.ReqId,
+					ReqTimestamp = codeCheckResponse.ReqTimestamp,
+				};
+
+				sourceCode.Tag1260CodeCheckResult = tag1260CodeCheckResult;
+
+				unitOfWork.Save(sourceCode.Tag1260CodeCheckResult);
+
+				sourceCode.IsTag1260Valid =
+					codeCheckInfo.ErrorCode == 0 && codeCheckInfo.Found && codeCheckInfo.Valid && codeCheckInfo.Verified
+					&& codeCheckInfo.ExpireDate > DateTime.Now && codeCheckInfo.Realizable && codeCheckInfo.Utilised
+					&& !codeCheckInfo.IsBlocked && !codeCheckInfo.Sold;
+
+				unitOfWork.Save(sourceCode);
 			}
 		}
 	}
