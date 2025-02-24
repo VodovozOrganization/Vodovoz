@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -29,8 +30,17 @@ namespace Vodovoz.Core.Domain.TrueMark
 		public virtual int Id
 		{
 			get => _id;
-			set => SetField(ref _id, value);
+			set
+			{
+				if(SetField(ref _id, value))
+				{
+					UpdateChildCodes();
+				}
+			}
 		}
+
+		public virtual int? ParentTransportCodeId { get; set; }
+
 
 		/// <summary>
 		/// Необработанный код
@@ -52,11 +62,50 @@ namespace Vodovoz.Core.Domain.TrueMark
 			set => SetField(ref _isInvalid, value);
 		}
 
-		public IEnumerable<TrueMarkTransportCode> InnerTransportCodes { get; set; }
+		public IObservableList<TrueMarkTransportCode> InnerTransportCodes { get; set; }
+			= new ObservableList<TrueMarkTransportCode>();
 
-		public IEnumerable<TrueMarkWaterGroupCode> InnerGroupCodes { get; set; }
+		public IObservableList<TrueMarkWaterGroupCode> InnerGroupCodes { get; set; }
+			= new ObservableList<TrueMarkWaterGroupCode>();
 
-		public IEnumerable<TrueMarkWaterIdentificationCode> InnerWaterCodes { get; set; }
+		public IObservableList<TrueMarkWaterIdentificationCode> InnerWaterCodes { get; set; }
+			= new ObservableList<TrueMarkWaterIdentificationCode>();
+
+		public virtual void AddInnerTransportCode(TrueMarkTransportCode innerTransportCode)
+		{
+			innerTransportCode.ParentTransportCodeId = Id;
+			InnerTransportCodes.Add(innerTransportCode);
+		}
+
+		public virtual void AddInnerGroupCode(TrueMarkWaterGroupCode innerGroupCode)
+		{
+			innerGroupCode.ParentTransportCodeId = Id;
+			InnerGroupCodes.Add(innerGroupCode);
+		}
+
+		public virtual void AddInnerWaterCode(TrueMarkWaterIdentificationCode innerWaterCode)
+		{
+			innerWaterCode.ParentTransportCodeId = Id;
+			InnerWaterCodes.Add(innerWaterCode);
+		}
+
+		public virtual void UpdateChildCodes()
+		{
+			foreach(var innerTransportCode in InnerTransportCodes)
+			{
+				innerTransportCode.ParentTransportCodeId = Id;
+			}
+
+			foreach(var innerGroupCode in InnerGroupCodes)
+			{
+				innerGroupCode.ParentTransportCodeId = Id;
+			}
+
+			foreach(var innerWaterCode in InnerWaterCodes)
+			{
+				innerWaterCode.ParentTransportCodeId = Id;
+			}
+		}
 
 		public override bool Equals(object obj)
 		{

@@ -20,7 +20,6 @@ namespace Vodovoz.Core.Domain.TrueMark
 		PrepositionalPlural = "кодах честного знака")]
 	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode
 	{
-		public virtual int Id { get; set; }
 		private string _rawCode;
 		private bool _isInvalid;
 		private string _gtin;
@@ -28,6 +27,11 @@ namespace Vodovoz.Core.Domain.TrueMark
 		private string _checkCode;
 		private Tag1260CodeCheckResult _tag1260CodeCheckResult;
 		private bool _isTagValid;
+
+		public virtual int Id { get; set; }
+
+		public virtual int? ParentGroupCodeId { get; set; }
+		public virtual int? ParentTransportCodeId { get; set; }
 
 		[Display(Name = "Необработанный код")]
 		public virtual string RawCode
