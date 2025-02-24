@@ -19,13 +19,13 @@ namespace TrueMark.Contracts
 		/// Уровень вложенности типа упаковки упаковки
 		/// </summary>
 		[JsonPropertyName("packageType")]
-		public PackageType PackageType { get; set; }
+		public PackageType? PackageType { get; set; }
 
 		/// <summary>
 		/// Тип упаковки
 		/// </summary>
 		[JsonPropertyName("generalPackageType")]
-		public GeneralPackageType GeneralPackageType { get; set; }
+		public GeneralPackageType? GeneralPackageType { get; set; }
 
 		/// <summary>
 		/// Инн владельца товара
