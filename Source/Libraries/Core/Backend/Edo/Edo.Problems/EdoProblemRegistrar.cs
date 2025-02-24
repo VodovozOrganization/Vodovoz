@@ -34,17 +34,19 @@ namespace Edo.Problems
 
 		public async Task RegisterCustomProblem<TCustomSource>(
 			EdoTask edoTask,
-			CancellationToken cancellationToken
+			CancellationToken cancellationToken,
+			string customMessage = null
 			)
 			where TCustomSource : EdoTaskProblemCustomSource
 		{
-			await RegisterCustomProblem<TCustomSource>(edoTask, new List<EdoTaskItem>(), cancellationToken);
+			await RegisterCustomProblem<TCustomSource>(edoTask, new List<EdoTaskItem>(), cancellationToken, customMessage);
 		}
 
 		public async Task RegisterCustomProblem<TCustomSource>(
 			EdoTask edoTask,
 			IEnumerable<EdoTaskItem> affectedTaskItems,
-			CancellationToken cancellationToken
+			CancellationToken cancellationToken,
+			string customMessage = null
 			)
 			where TCustomSource : EdoTaskProblemCustomSource
 		{
@@ -61,6 +63,7 @@ namespace Edo.Problems
 					{
 						SourceName = source.Name,
 						EdoTask = edoTask,
+						CustomMessage = customMessage
 					};
 				}
 

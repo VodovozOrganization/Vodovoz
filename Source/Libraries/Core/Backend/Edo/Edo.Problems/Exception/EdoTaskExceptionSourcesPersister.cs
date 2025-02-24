@@ -45,7 +45,6 @@ namespace Edo.Problems.Exception
 						{
 							Name = registeredSource.Name,
 							Importance = registeredSource.Importance,
-							Exception = registeredSource.Exception,
 							Description = registeredSource.Description,
 							Recommendation = registeredSource.Recommendation
 						};
@@ -54,7 +53,6 @@ namespace Edo.Problems.Exception
 					if(!savedSource.Equals(registeredSource))
 					{
 						savedSource.Importance = registeredSource.Importance;
-						savedSource.Exception = registeredSource.Exception;
 						savedSource.Description = registeredSource.Description;
 						savedSource.Recommendation = registeredSource.Recommendation;
 					}
