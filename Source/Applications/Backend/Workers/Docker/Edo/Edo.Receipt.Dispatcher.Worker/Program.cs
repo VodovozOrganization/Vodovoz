@@ -8,6 +8,7 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
 
 namespace Edo.Receipt.Dispatcher.Worker
@@ -48,6 +49,8 @@ namespace Edo.Receipt.Dispatcher.Worker
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 					;
+
+					services.AddHostedService<InitDbConnectionOnHostStartedService>();
 				});
 	}
 }
