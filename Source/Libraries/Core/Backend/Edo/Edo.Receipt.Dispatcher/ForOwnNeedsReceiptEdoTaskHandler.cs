@@ -226,11 +226,16 @@ namespace Edo.Receipt.Dispatcher
 				if(!taskValidationResult.ReadyToSell)
 				{
 					// создание заявок на трансфер
-					await _transferRequestCreator.CreateTransferRequests(_uow, receiptEdoTask, trueMarkCodesChecker, cancellationToken);
+					var iteration = await _transferRequestCreator.CreateTransferRequests(
+						_uow, 
+						receiptEdoTask, 
+						trueMarkCodesChecker, 
+						cancellationToken
+					);
 					await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 					await _uow.CommitAsync(cancellationToken);
 
-					var receiptTransferMessage = new TransferRequestCreatedEvent { EdoTaskId = receiptEdoTask.Id };
+					var receiptTransferMessage = new TransferRequestCreatedEvent { TransferIterationId = iteration.Id };
 					await _messageBus.Publish(receiptTransferMessage);
 					return;
 				}

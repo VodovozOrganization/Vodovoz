@@ -44,31 +44,51 @@ namespace Edo.Transfer.Dispatcher
 			_uow = uowFactory.CreateWithoutRoot();
 		}
 
-		public async Task HandleNewTransfer(int documentEdoTaskId, CancellationToken cancellationToken)
+		public async Task HandleNewTransfer(int transferIterationId, CancellationToken cancellationToken)
 		{
-			//_uow.Session.BeginTransaction();
-			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
+			_uow.OpenTransaction();
 
-			var hasAssignedTransferTask = documentTask.TransferEdoRequests.Any(x => x.TransferEdoTask != null);
-			if(hasAssignedTransferTask)
+			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
+
+			if(transferIteration == null)
 			{
-				_logger.LogWarning("При первичной обработки на трансфер клиентской задачи №{documentEdoTaskId} " +
-					"обнаружены уже обработанные заявки на трансфер. Возможно задача попала на обработку второй раз.",
-					documentEdoTaskId);
+				throw new InvalidOperationException($"Итерация трансфера с Id {transferIterationId} не найдена");
 			}
 
-			var newTransferRequests = documentTask.TransferEdoRequests.Where(x => x.TransferEdoTask == null);
-			if(!newTransferRequests.Any())
+			if(transferIteration.Status != TransferEdoRequestIterationStatus.InProgress)
 			{
-				_logger.LogError("При первичной обработки на трансфер клиентской задачи №{documentEdoTaskId} " +
-					"не обнаружены новые заявки на трансфер.", documentEdoTaskId);
-				// зарегистрировать проблему
+				_logger.LogWarning("На трансфер можно принять только не завершенную интерацию");
 				return;
 			}
 
-			var requestsGroups = newTransferRequests.GroupBy(x => new TransferDirection(x.FromOrganizationId, x.ToOrganizationId));
+			var hasAssignedTransferTask = transferIteration.TransferEdoRequests.Any(x => x.TransferEdoTask != null);
+			if(hasAssignedTransferTask)
+			{
+				_logger.LogWarning("При первичной обработки на трансфер итерации Id {transferIterationId} " +
+					"обнаружены уже обработанные заявки на трансфер. Возможно задача попала на обработку второй раз.",
+					transferIterationId);
+			}
 
-			var addRequestsTasks = requestsGroups.Select(requestsGroup => _transferDispatcher.AddRequestsToTask(_uow, documentEdoTaskId, requestsGroup, cancellationToken));
+			var newTransferRequests = transferIteration.TransferEdoRequests.Where(x => x.TransferEdoTask == null);
+			if(!newTransferRequests.Any())
+			{
+				_logger.LogError("При первичной обработки на трансфер клиентской задачи Id {transferIterationId} " +
+					"не обнаружены новые заявки на трансфер.", transferIterationId);
+				return;
+			}
+
+			var requestsGroups = newTransferRequests.GroupBy(x => new TransferDirection(
+				x.FromOrganizationId, 
+				x.ToOrganizationId
+			));
+
+			var addRequestsTasks = requestsGroups.Select(requestsGroup => 
+				_transferDispatcher.AddRequestsToTask(
+					_uow, 
+					requestsGroup, 
+					cancellationToken
+				)
+			);
 
 			var transferTasks = await Task.WhenAll(addRequestsTasks);
 			var sentTasks = transferTasks.Where(x => x.TransferStatus == TransferEdoTaskStatus.InProgress);

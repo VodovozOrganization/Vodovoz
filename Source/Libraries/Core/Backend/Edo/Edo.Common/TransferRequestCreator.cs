@@ -19,7 +19,7 @@ namespace Edo.Common
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 		}
 
-		public async Task CreateTransferRequests(
+		public async Task<TransferEdoRequestIteration> CreateTransferRequests(
 			IUnitOfWork _uow,
 			OrderEdoTask edoTask,
 			EdoTaskItemTrueMarkStatusProvider taskItemStatusProvider,
@@ -41,7 +41,7 @@ namespace Edo.Common
 			{
 				if(cancellationToken.IsCancellationRequested)
 				{
-					return;
+					return null;
 				}
 
 				if(itemStatus.ProductInstanceStatus == null)
@@ -93,8 +93,6 @@ namespace Edo.Common
 
 			var documentTask = edoTask as DocumentEdoTask;
 
-
-
 			var transferIteration = new TransferEdoRequestIteration
 			{
 				OrderEdoTask = edoTask,
@@ -108,6 +106,8 @@ namespace Edo.Common
 			}
 			
 			await _uow.SaveAsync(transferIteration, cancellationToken: cancellationToken);
+
+			return transferIteration;
 		}
 	}
 }

@@ -2,6 +2,6 @@
 {
 	public class TransferRequestCreatedEvent
 	{
-		public int EdoTaskId { get; set; }
+		public int TransferIterationId { get; set; }
 	}
 }

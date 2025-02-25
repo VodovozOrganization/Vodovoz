@@ -26,7 +26,6 @@ namespace Edo.Transfer
 
 		public async Task<TransferEdoTask> AddRequestsToTask(
 			IUnitOfWork uow,
-			int documentEdoTaskId,
 			IGrouping<TransferDirection, TransferEdoRequest> requestsGroup,
 			CancellationToken cancellationToken)
 		{
@@ -45,7 +44,7 @@ namespace Edo.Transfer
 				.Build();
 
 			var result = await pipeline.ExecuteAsync(async token => {
-				return await TryAddRequestsToTask(uow, documentEdoTaskId, requestsGroup, token);
+				return await TryAddRequestsToTask(uow, requestsGroup, token);
 			}, cancellationToken);
 
 			return result;
@@ -53,7 +52,6 @@ namespace Edo.Transfer
 
 		private async Task<TransferEdoTask> TryAddRequestsToTask(
 			IUnitOfWork uow,
-			int documentEdoTaskId,
 			IGrouping<TransferDirection, TransferEdoRequest> requestsGroup,
 			CancellationToken cancellationToken)
 		{
