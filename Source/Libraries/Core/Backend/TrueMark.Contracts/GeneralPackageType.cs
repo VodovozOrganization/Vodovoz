@@ -1,9 +1,12 @@
-﻿namespace TrueMark.Contracts
+﻿using System.Text.Json.Serialization;
+
+namespace TrueMark.Contracts
 {
 	/// <summary>
 	/// Тип упаковки
 	/// </summary>
-	public enum GeneralPackageType
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum GeneralPackageType
 	{
 		/// <summary>
 		/// Транспортная упаковка

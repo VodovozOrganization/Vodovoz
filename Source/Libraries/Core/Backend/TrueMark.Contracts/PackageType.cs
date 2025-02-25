@@ -1,9 +1,12 @@
-﻿namespace TrueMark.Contracts
+﻿using System.Text.Json.Serialization;
+
+namespace TrueMark.Contracts
 {
 	/// <summary>
 	/// Уровень вложенности типа упаковки упаковки
 	/// </summary>
-	public enum PackageType
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum PackageType
 	{
 		/// <summary>
 		/// Уровень 1
