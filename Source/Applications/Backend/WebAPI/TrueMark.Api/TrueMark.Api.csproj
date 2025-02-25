@@ -14,11 +14,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\dev_true_mark_api.pubxml" />
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\prod_true_mark_api.pubxml" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="appsettings.Development.json">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</None>
