@@ -77,7 +77,7 @@ namespace Vodovoz.Core.Domain.Edo
 
 		public virtual string FullCode => $"\u001d01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
 
-		public string FormatForCheck1260 => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
+		public virtual string FormatForCheck1260 => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
 
 		/// <summary>
 		/// Получение КИ(кода идентификации) для документа по ЭДО

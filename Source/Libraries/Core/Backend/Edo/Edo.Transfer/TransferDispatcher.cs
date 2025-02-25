@@ -73,7 +73,6 @@ namespace Edo.Transfer
 				task.FromOrganizationId = direction.FromOrganizationId;
 				task.ToOrganizationId = direction.ToOrganizationId;
 				task.TransferStatus = TransferEdoTaskStatus.WaitingRequests;
-				task.DocumentEdoTaskId = documentEdoTaskId;
 			}
 
 			foreach(var request in requestsGroup)

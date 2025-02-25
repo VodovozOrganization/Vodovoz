@@ -11,6 +11,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
+			DiscriminateSubClassesOnColumn("type");
+
 			Id(x => x.Id)
 				.Column("id")
 				.GeneratedBy.Native();
@@ -18,12 +20,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.CreationTime)
 				.Column("creation_time")
 				.ReadOnly();
-
-			Map(x => x.TaskType)
-				.Column("type")
-				.ReadOnly();
-
-			DiscriminateSubClassesOnColumn("type");
 
 			Map(x => x.Status)
 				.Column("status");

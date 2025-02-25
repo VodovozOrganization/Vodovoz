@@ -9,7 +9,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		{
 			DiscriminatorValue(nameof(EdoTaskProblemDescriptionSourceType.Validator));
 
-			References(x => x.Message)
+			Map(x => x.Message)
 				.Column("message");
 		}
 	}

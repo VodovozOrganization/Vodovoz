@@ -26,7 +26,6 @@ namespace Edo.Transfer
 		private string _transferStartTimeColName;
 		private string _fromOrgColName;
 		private string _toOrgColName;
-		private string _documentTaskColName;
 
 		public TransferTaskRepository(ISessionFactory sessionFactory, IEdoTransferSettings transferSettings)
 		{
@@ -44,7 +43,6 @@ namespace Edo.Transfer
 			_taskStartTimeColName = userMetadata.GetPropertyColumnNames(nameof(TransferEdoTask.StartTime)).First();
 			_fromOrgColName = userMetadata.GetPropertyColumnNames(nameof(TransferEdoTask.FromOrganizationId)).First();
 			_toOrgColName = userMetadata.GetPropertyColumnNames(nameof(TransferEdoTask.ToOrganizationId)).First();
-			_documentTaskColName = userMetadata.GetPropertyColumnNames(nameof(TransferEdoTask.DocumentEdoTaskId)).First();
 		}
 
 		public async Task<TransferEdoTask> FindTaskAsync(IUnitOfWork uow, int fromOrg, int toOrg, CancellationToken cancellationToken)
@@ -83,24 +81,6 @@ namespace Edo.Transfer
 					.SetParameter("transferStatus", nameof(TransferEdoTaskStatus.WaitingRequests))
 					.SetParameter("transferTaskTimeout", _transferSettings.TransferTaskRequestsWaitingTimeoutMinute)
 					.ListAsync<TransferEdoTask>();
-
-			return tasks;
-		}
-
-		public async Task<IEnumerable<TransferEdoTask>> GetAllRelatedTransferTasksAsync(IUnitOfWork uow, TransferEdoTask transferTask, CancellationToken cancellationToken)
-		{
-			var sql = $@"
-				SELECT * FROM {_tableName}
-				WHERE {_documentTaskColName} = :documentEdoTaskId
-				AND id != :transferTaskId
-				FOR UPDATE NOWAIT;
-			";
-
-			var tasks = await uow.Session.CreateSQLQuery(sql)
-					.AddEntity(typeof(TransferEdoTask))
-					.SetParameter("documentEdoTaskId", transferTask.DocumentEdoTaskId)
-					.SetParameter("transferTaskId", transferTask.Id)
-					.ListAsync<TransferEdoTask>(cancellationToken);
 
 			return tasks;
 		}

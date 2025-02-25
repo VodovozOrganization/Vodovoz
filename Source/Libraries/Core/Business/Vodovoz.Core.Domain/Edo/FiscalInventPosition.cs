@@ -14,7 +14,7 @@ namespace Vodovoz.Core.Domain.Edo
 	public class FiscalInventPosition : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
-		private OrderItemEntity _orderitem;
+		private OrderItemEntity _orderItem;
 		private string _name;
 		private decimal _quantity;
 		private decimal _price;
@@ -39,8 +39,8 @@ namespace Vodovoz.Core.Domain.Edo
 		[Display(Name = "Строка заказа")]
 		public virtual OrderItemEntity OrderItem
 		{
-			get => _orderitem;
-			set => SetField(ref _orderitem, value);
+			get => _orderItem;
+			set => SetField(ref _orderItem, value);
 		}
 
 		/// <summary>

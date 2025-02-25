@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public FiscalInventPositionMap()
 		{
-			Table("fiscal_invent_positions");
+			Table("edo_fiscal_invent_positions");
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
@@ -30,11 +30,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.DiscountSum)
 				.Column("discount_sum");
 
-			References(x => x.EdoTaskItem)
-				.Column("edo_task_item_id");
-
 			Map(x => x.Vat)
 				.Column("vat");
+
+			References(x => x.EdoTaskItem)
+				.Column("edo_task_item_id");
 
 			References(x => x.RegulatoryDocument)
 				.Column("regulatory_document_id");

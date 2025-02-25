@@ -9,7 +9,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		{
 			Table("edo_task_problem_description_sources");
 
-			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
+			HibernateMapping.DefaultAccess.Property();
 
 			DiscriminateSubClassesOnColumn("type");
 

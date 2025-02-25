@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public FiscalIndustryRequisiteRegulatoryDocumentMap()
 		{
-			Table("fiscal_industry_requisite_regulatory_documents");
+			Table("edo_fiscal_industry_requisite_regulatory_documents");
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 

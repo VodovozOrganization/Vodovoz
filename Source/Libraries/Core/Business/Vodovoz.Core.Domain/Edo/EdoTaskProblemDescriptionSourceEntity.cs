@@ -16,7 +16,7 @@ namespace Vodovoz.Core.Domain.Edo
 			return Equals(obj as EdoTaskProblemDescriptionSourceEntity);
 		}
 
-		public bool Equals(EdoTaskProblemDescriptionSourceEntity other)
+		public virtual bool Equals(EdoTaskProblemDescriptionSourceEntity other)
 		{
 			return !(other is null) &&
 				   Name == other.Name &&

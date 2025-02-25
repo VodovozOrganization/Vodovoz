@@ -6,20 +6,12 @@ namespace Vodovoz.Core.Domain.Edo
 {
 	public class TransferEdoTask : EdoTask
 	{
-		private int _documentEdoTaskId;
 		private int _fromOrganizationId;
 		private int _toOrganizationId;
 		private IObservableList<TransferEdoRequest> _transferEdoRequests = new ObservableList<TransferEdoRequest>();
 		private TransferEdoTaskStatus _transferStatus;
 		private DateTime? _transferStartTime;
 		private int? _transferOrderId;
-
-		[Display(Name = "ЭДО задача по документам клиента")]
-		public virtual int DocumentEdoTaskId
-		{
-			get => _documentEdoTaskId;
-			set => SetField(ref _documentEdoTaskId, value);
-		}
 
 		[Display(Name = "Код организации отправителя")]
 		public virtual int FromOrganizationId

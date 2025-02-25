@@ -8,6 +8,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		public EdoFiscalDocumentMap()
 		{
 			Table("edo_fiscal_documents");
+
 			OptimisticLock.Version();
 
 			Version(x => x.Version)

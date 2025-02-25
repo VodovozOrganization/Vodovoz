@@ -14,7 +14,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Cascade.All();
 
 			HasMany(x => x.Items)
-				.KeyColumn("customer_edo_task_id")
+				.KeyColumn("order_edo_task_id")
+				.Cascade.AllDeleteOrphan();
+
+			HasMany(x => x.TransferIterations)
+				.KeyColumn("order_edo_task_id")
 				.Cascade.AllDeleteOrphan();
 		}
 	}

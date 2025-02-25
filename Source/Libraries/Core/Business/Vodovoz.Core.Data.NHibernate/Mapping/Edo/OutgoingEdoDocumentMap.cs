@@ -7,9 +7,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public OutgoingEdoDocumentMap()
 		{
-			Table("outgoing_edo_documents");
+			Table("edo_outgoing_documents");
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
+
+			DiscriminateSubClassesOnColumn("type");
 
 			Id(x => x.Id)
 				.Column("id")
@@ -22,8 +24,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.Type)
 				.Column("type")
 				.ReadOnly();
-
-			DiscriminateSubClassesOnColumn("type");
 
 			Map(x => x.EdoType)
 				.Column("edo_type");

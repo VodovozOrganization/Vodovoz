@@ -39,7 +39,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			Map(x => x.DocumentType)
 				.Column("document_type");
-
 		}
 	}
 }

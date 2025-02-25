@@ -25,6 +25,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("updated_time")
 				.ReadOnly();
 
+			Map(x => x.Type)
+				.Column("type")
+				.ReadOnly();
+
 			References(x => x.EdoTask)
 				.Column("edo_task_id");
 
@@ -37,7 +41,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			HasManyToMany(x => x.TaskItems)
 				.Table("edo_task_problem_items")
 				.ParentKeyColumn("edo_task_problem_id")
-				.ChildKeyColumn("customer_edo_task_item_id")
+				.ChildKeyColumn("order_edo_task_item_id")
 				.LazyLoad();
 		}
 	}

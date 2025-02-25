@@ -15,21 +15,21 @@ namespace Vodovoz.Core.Domain.Edo
         private IObservableList<TransferEdoRequest> _transferEdoRequests = new ObservableList<TransferEdoRequest>();
 
         [Display(Name = "Код")]
-        public int Id
+        public virtual int Id
         {
             get => _id;
             set => SetField(ref _id, value);
         }
 
         [Display(Name = "Время")]
-        public DateTime Time
+        public virtual DateTime Time
         {
             get => _time;
             set => SetField(ref _time, value);
         }
 
         [Display(Name = "ЭДО задача")]
-        public OrderEdoTask OrderEdoTask
+        public virtual OrderEdoTask OrderEdoTask
         {
             get => _orderEdoTask;
             set => SetField(ref _orderEdoTask, value);
@@ -43,14 +43,14 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Статус")]
-        public TransferEdoRequestIterationStatus Status
+        public virtual TransferEdoRequestIterationStatus Status
         {
             get => _status;
             set => SetField(ref _status, value);
         }
 
         [Display(Name = "Заявки на трансфер")]
-        public IObservableList<TransferEdoRequest> TransferEdoRequests
+        public virtual IObservableList<TransferEdoRequest> TransferEdoRequests
         {
             get => _transferEdoRequests;
             set => SetField(ref _transferEdoRequests, value);

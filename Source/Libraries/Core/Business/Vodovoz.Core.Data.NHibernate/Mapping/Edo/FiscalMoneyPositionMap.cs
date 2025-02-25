@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public FiscalMoneyPositionMap()
 		{
-			Table("fiscal_money_positions");
+			Table("edo_fiscal_money_positions");
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 

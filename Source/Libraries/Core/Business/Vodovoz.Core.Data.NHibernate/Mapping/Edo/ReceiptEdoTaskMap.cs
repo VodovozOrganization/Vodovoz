@@ -11,8 +11,15 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			Extends(typeof(OrderEdoTask));
 
-			//Map(x => x.CashReceiptId)
-			//	.Column("cash_receipt_id");
+			Map(x => x.ReceiptStatus)
+				.Column("receipt_status");
+
+			Map(x => x.CashboxId)
+				.Column("cashbox_id");
+
+			HasMany(x => x.FiscalDocuments)
+				.KeyColumn("receipt_edo_task_id")
+				.Cascade.AllDeleteOrphan();
 		}
 	}
 }

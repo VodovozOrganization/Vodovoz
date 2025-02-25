@@ -9,9 +9,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		{
 			DiscriminatorValue(nameof(EdoTaskType.Transfer));
 
-			Map(x => x.DocumentEdoTaskId)
-				.Column("document_edo_task_id");
-
 			Map(x => x.FromOrganizationId)
 				.Column("from_organization_id");
 
