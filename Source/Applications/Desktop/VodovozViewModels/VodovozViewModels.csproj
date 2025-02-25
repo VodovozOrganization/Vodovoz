@@ -94,6 +94,9 @@
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalNode.cs" />
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarEventTypeFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\NonReturnReasonJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\NonReturnReasonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\GtinJournalViewModel.cs" />
     <Compile Include="Options\ConfigureGeoCoderApiOptions.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.AddressDataNode.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.cs" />
@@ -458,6 +461,7 @@
     <Compile Include="Journals\JournalViewModels\Orders\OrderJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Sale\DeliveryPriceRuleJournalViewModel.cs" />
     <Compile Include="ReportsParameters\Profitability\ProfitabilitySalesReportViewModel.cs" />
+    <Compile Include="ViewModels\Goods\GtinViewModel.cs" />
     <Compile Include="ViewModels\Goods\KulerSaleWebSiteNomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="ViewModels\Goods\MobileAppNomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
@@ -472,6 +476,7 @@
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="ViewModels\Counterparty\EdoOperatorViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NonReturnReasonViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferFilterViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode.cs" />
     <Compile Include="ViewModels\Logistic\RegradingOfGoodsReasonViewModel.cs" />

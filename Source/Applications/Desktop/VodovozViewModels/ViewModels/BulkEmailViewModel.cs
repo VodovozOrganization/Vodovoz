@@ -177,7 +177,7 @@ namespace Vodovoz.ViewModels.ViewModels
 		{
 			var connectionFactory = new RabbitMQConnectionFactory(_rabbitConnectionFactoryLogger);
 			var connection = connectionFactory.CreateConnection(_configuration.MessageBrokerHost, _configuration.MessageBrokerUsername,
-				_configuration.MessageBrokerPassword, _configuration.MessageBrokerVirtualHost, _configuration.Port);
+				_configuration.MessageBrokerPassword, _configuration.MessageBrokerVirtualHost, _configuration.Port, true);
 			_rabbitMQChannel = connection.CreateModel();
 			_rabbitMQChannelProperties = _rabbitMQChannel.CreateBasicProperties();
 			_rabbitMQChannelProperties.Persistent = true;

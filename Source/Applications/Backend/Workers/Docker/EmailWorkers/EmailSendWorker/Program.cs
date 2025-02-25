@@ -50,6 +50,7 @@ namespace EmailSendWorker
 								messageTransportSettings.Password,
 								messageTransportSettings.VirtualHost,
 								messageTransportSettings.Port,
+								messageTransportSettings.UseSSL,
 								sslPolicyErrors
 							);
 					})

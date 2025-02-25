@@ -37,7 +37,7 @@ namespace RabbitMQ.Infrastructure
 				{
 					ServerName = hostname,
 					AcceptablePolicyErrors = section.GetValue<SslPolicyErrors>("AcceptablePolicyErrors", SslPolicyErrors.None),
-					Enabled = true
+					Enabled = section.GetValue("UseSsl", true)
 				},
 			};
 
@@ -82,6 +82,7 @@ namespace RabbitMQ.Infrastructure
 			string password,
 			string virtualhost,
 			int port,
+			bool useSsl,
 			SslPolicyErrors sslPolicyErrors = SslPolicyErrors.None)
 		{
 			var connectionFactory = new ConnectionFactory
@@ -96,7 +97,7 @@ namespace RabbitMQ.Infrastructure
 				{
 					ServerName = hostname,
 					AcceptablePolicyErrors = sslPolicyErrors,
-					Enabled = true
+					Enabled = useSsl
 				}
 			};
 

@@ -19,6 +19,7 @@ using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using NHibernate.Dialect.Function;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
@@ -91,16 +92,37 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				.Where(() => operationAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.Select(Projections.Sum<GoodsAccountingOperation>(o => o.Amount));
 
-			var subQueryReserved = QueryOver.Of(() => orderAlias)
-				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
-				.Where(() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(() => nomenclatureAlias.DoNotReserve == false)
-				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
-					   || orderAlias.OrderStatus == OrderStatus.InTravelList
-					   || orderAlias.OrderStatus == OrderStatus.OnLoading)
-				.Select(Projections.Sum(() => orderItemsAlias.Count));
-
 			var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias);
+
+			#region Reserved
+
+			IProjection reservedSumProjection = null;
+			
+			if(CalculateQuantityOnStock)
+			{
+				itemsQuery
+					.JoinEntityAlias(
+						() => orderItemsAlias,
+						() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id
+						      && nomenclatureAlias.DoNotReserve == false,
+						JoinType.LeftOuterJoin)
+					.JoinEntityAlias(
+						() => orderAlias,
+						() => orderAlias.Id == orderItemsAlias.Order.Id
+						      && orderAlias.OrderStatus.IsIn(
+							      new[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading }),
+						JoinType.LeftOuterJoin);
+
+				var reservedSqlFunc = Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.Decimal, "IF(?1 IS NULL, NULL, ?2)"),
+					NHibernateUtil.Decimal,
+					Projections.Property(() => orderAlias.Id),
+					Projections.Property(() => orderItemsAlias.Count));
+
+				reservedSumProjection = Projections.Sum(reservedSqlFunc);
+			}
+
+			#endregion Reserved
 
 			if(!CalculateQuantityOnStock)
 			{
@@ -194,7 +216,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 						.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 						.Select(() => nomenclatureAlias.OnlineStoreExternalId).WithAlias(() => resultAlias.OnlineStoreExternalId)
 						.SelectSubQuery(subQueryBalance).WithAlias(() => resultAlias.InStock)
-						.SelectSubQuery(subQueryReserved).WithAlias(() => resultAlias.Reserved))
+						.Select(reservedSumProjection).WithAlias(() => resultAlias.Reserved))
 					.OrderBy(x => x.Name).Asc
 					.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>());
 			}
