@@ -808,14 +808,14 @@ namespace DriverAPI.Library.V6.Services
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя добавить код: {orderId}, МЛ не в пути";
+				var errorMessage = $"Нельзя добавить код к заказу {orderId}, МЛ {routeList.Id} не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя добавить код: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
+				var errorMessage = $"Нельзя добавить код к заказу {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListItemErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
@@ -830,7 +830,6 @@ namespace DriverAPI.Library.V6.Services
 			var codeAddingResult = await _routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItemWithCodeChecking(
 				_uow,
 				routeListAddress,
-				vodovozOrder,
 				vodovozOrderItem,
 				scannedCode,
 				SourceProductCodeStatus.Accepted,
@@ -904,14 +903,14 @@ namespace DriverAPI.Library.V6.Services
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя заменить код: {orderId}, МЛ не в пути";
+				var errorMessage = $"Нельзя заменить код в заказе {orderId}, МЛ {routeList.Id} не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя заменить код: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
+				var errorMessage = $"Нельзя заменить код в заказе {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListItemErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
@@ -919,7 +918,6 @@ namespace DriverAPI.Library.V6.Services
 			var changeCodeResult = await _routeListItemTrueMarkProductCodesProcessingService.ChangeTrueMarkCodeToRouteListItemWithCodeChecking(
 				_uow,
 				routeListAddress,
-				vodovozOrder,
 				vodovozOrderItem,
 				oldScannedCode,
 				newScannedCode,
@@ -992,14 +990,14 @@ namespace DriverAPI.Library.V6.Services
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя удалить код: {orderId}, МЛ не в пути";
+				var errorMessage = $"Нельзя удалить код из заказа {orderId}, МЛ {routeList.Id} не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				var errorMessage = $"Нельзя удалить код: {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
+				var errorMessage = $"Нельзя удалить код из заказа {orderId}, адрес МЛ {routeListAddress.Id} не в пути";
 				_logger.LogWarning(errorMessage);
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListItemErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, errorMessage);
 			}

@@ -246,7 +246,7 @@ namespace DriverAPI.Library.V6.Converters
 				DiscountReason = saleItem.DiscountReason?.Name,
 				CapColor = saleItem.Nomenclature.BottleCapColor,
 				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false,
-				Gtin = new List<string> { saleItem.Nomenclature.Gtin },
+				Gtin = saleItem.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList(),
 				Codes = GetOrderItemCodes(saleItem, routeListItem)
 			};
 
@@ -309,8 +309,10 @@ namespace DriverAPI.Library.V6.Converters
 
 			var takeCodesCount = (int)(saleItem.ActualCount ?? saleItem.Count);
 
+			var nomenclatureGtins = saleItem.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList();
+
 			var waterCodes = _orderRepository.GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(_uow, saleItem.Order.Id)
-				.Where(x => x.GTIN == saleItem.Nomenclature.Gtin);
+				.Where(x => nomenclatureGtins.Contains(x.GTIN));
 
 			var codes = waterCodes
 				.Skip(skipCodesCount)
@@ -390,7 +392,7 @@ namespace DriverAPI.Library.V6.Converters
 			{
 				OrderSaleItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,
-				Gtin = new List<string> { saleItem.Nomenclature.Gtin },
+				Gtin = saleItem.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList(),
 				Quantity = saleItem.ActualCount ?? saleItem.Count,
 				Codes = GetOrderItemCodes(saleItem, routeListItem)
 			};

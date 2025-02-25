@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
@@ -29,7 +30,6 @@ namespace VodovozBusiness.Services.TrueMark
 		public async Task<Result> AddTrueMarkCodeToRouteListItemWithCodeChecking(
 			IUnitOfWork uow,
 			RouteListItem routeListAddress,
-			Order vodovozOrder,
 			OrderItem vodovozOrderItem,
 			string scannedCode,
 			SourceProductCodeStatus status,
@@ -45,7 +45,6 @@ namespace VodovozBusiness.Services.TrueMark
 				uow,
 				trueMarkWaterIdentificationCode,
 				routeListAddress,
-				vodovozOrder,
 				vodovozOrderItem,
 				cancellationToken,
 				isCheckForCodeChange);
@@ -93,25 +92,12 @@ namespace VodovozBusiness.Services.TrueMark
 		public async Task<Result> ChangeTrueMarkCodeToRouteListItemWithCodeChecking(
 			IUnitOfWork uow,
 			RouteListItem routeListAddress,
-			Order vodovozOrder,
 			OrderItem vodovozOrderItem,
 			string oldScannedCode,
 			string newScannedCode,
 			SourceProductCodeStatus status,
 			CancellationToken cancellationToken)
 		{
-			var oldTrueMarkWaterIdentificationCode =
-				_trueMarkWaterCodeCheckService.LoadOrCreateTrueMarkWaterIdentificationCode(uow, oldScannedCode);
-
-			var newTrueMarkWaterIdentificationCode =
-				_trueMarkWaterCodeCheckService.LoadOrCreateTrueMarkWaterIdentificationCode(uow, newScannedCode);
-
-			if(oldTrueMarkWaterIdentificationCode.GTIN != newTrueMarkWaterIdentificationCode.GTIN)
-			{
-				var error = TrueMarkCodeErrors.CreateTrueMarkCodesGtinsNotEqual(oldScannedCode, newScannedCode);
-				return Result.Failure(error);
-			}
-
 			var oldCodeRemovingResult =
 				RemoveTrueMarkCodeFromRouteListItem(uow, routeListAddress, vodovozOrderItem.Id, oldScannedCode);
 
@@ -125,7 +111,6 @@ namespace VodovozBusiness.Services.TrueMark
 				await AddTrueMarkCodeToRouteListItemWithCodeChecking(
 					uow,
 					routeListAddress,
-					vodovozOrder,
 					vodovozOrderItem,
 					newScannedCode,
 					status,
@@ -181,46 +166,42 @@ namespace VodovozBusiness.Services.TrueMark
 			IUnitOfWork uow,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			RouteListItem routeListAddress,
-			Order order,
 			OrderItem orderItem,
 			CancellationToken cancellationToken,
 			bool isCheckForCodeChange = false)
 		{
-			if(trueMarkWaterIdentificationCode.IsInvalid)
+			var codeCheckingProcessResult = IsTrueMarkWaterIdentificationCodeValid(trueMarkWaterIdentificationCode);
+
+			if(codeCheckingProcessResult.IsFailure)
 			{
-				var error = TrueMarkCodeErrors.CreateTrueMarkCodeStringIsNotValid(trueMarkWaterIdentificationCode.RawCode);
-				return Result.Failure(error);
+				return codeCheckingProcessResult;
 			}
 
-			if(trueMarkWaterIdentificationCode.GTIN != orderItem.Nomenclature.Gtin)
+			codeCheckingProcessResult = IsNomeclatureGtinContainsCodeGtin(trueMarkWaterIdentificationCode, orderItem.Nomenclature);
+
+			if(codeCheckingProcessResult.IsFailure)
 			{
-				var error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(trueMarkWaterIdentificationCode.RawCode);
-				return Result.Failure(error);
+				return codeCheckingProcessResult;
 			}
 
-			var addedCodesHavingRequiredGtin = routeListAddress.TrueMarkCodes
-				.Where(x => x.SourceCode.GTIN == trueMarkWaterIdentificationCode.GTIN)
-			.ToList();
-			var orderItemBottlesCount = order.OrderItems
-				.Where(x => x.Id == orderItem.Id)
-			.FirstOrDefault()?.Count ?? 0;
-
-			var addedToOrderItemCodes = _orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(uow, orderItem.Id);
-			var addedToOrderItemCodesCount = _orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(uow, orderItem.Id).Count;
-
-			if(!isCheckForCodeChange && addedToOrderItemCodesCount >= orderItemBottlesCount)
+			if(!isCheckForCodeChange)
 			{
-				var error = TrueMarkCodeErrors.AllCodesAlreadyAdded;
-				return Result.Failure(error);
+				codeCheckingProcessResult = IsNotAllTrueMarkCodesAdded(uow, orderItem);
+
+				if(codeCheckingProcessResult.IsFailure)
+				{
+					return codeCheckingProcessResult;
+				}
 			}
 
-			if(addedCodesHavingRequiredGtin.Select(x => x.SourceCode).Any(x => x.RawCode == trueMarkWaterIdentificationCode.RawCode))
+			codeCheckingProcessResult = IsCodeAlreadyAddedToRouteListItem(trueMarkWaterIdentificationCode, routeListAddress);
+
+			if(codeCheckingProcessResult.IsFailure)
 			{
-				var error = TrueMarkCodeErrors.TrueMarkCodeIsAlreadyUsed;
-				return Result.Failure(error);
+				return codeCheckingProcessResult;
 			}
 
-			var codeCheckingProcessResult =
+			codeCheckingProcessResult =
 				_trueMarkWaterCodeCheckService.IsTrueMarkWaterIdentificationCodeNotUsed(trueMarkWaterIdentificationCode);
 
 			if(codeCheckingProcessResult.IsFailure)
@@ -234,6 +215,58 @@ namespace VodovozBusiness.Services.TrueMark
 			if(codeCheckingProcessResult.IsFailure)
 			{
 				return codeCheckingProcessResult;
+			}
+
+			return Result.Success();
+		}
+
+		private static Result IsTrueMarkWaterIdentificationCodeValid(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode)
+		{
+			if(trueMarkWaterIdentificationCode.IsInvalid)
+			{
+				var error = TrueMarkCodeErrors.CreateTrueMarkCodeStringIsNotValid(trueMarkWaterIdentificationCode.RawCode);
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
+		private static Result IsCodeAlreadyAddedToRouteListItem(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, RouteListItem routeListAddress)
+		{
+			if(routeListAddress.TrueMarkCodes.Select(x => x.SourceCode).Any(x => x.RawCode == trueMarkWaterIdentificationCode.RawCode))
+			{
+				var error = TrueMarkCodeErrors.TrueMarkCodeIsAlreadyUsed;
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
+		private Result IsNotAllTrueMarkCodesAdded(IUnitOfWork uow, OrderItem orderItem)
+		{
+			var addedToOrderItemCodesCount = _orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(uow, orderItem.Id).Count;
+
+			var isAllCodesAdded = addedToOrderItemCodesCount >= (orderItem.ActualCount ?? orderItem.Count);
+
+			if(isAllCodesAdded)
+			{
+				var error = TrueMarkCodeErrors.AllCodesAlreadyAdded;
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
+		private Result IsNomeclatureGtinContainsCodeGtin(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, Nomenclature nomenclature)
+		{
+			var nomenclatureGtins = nomenclature.Gtins
+				.Select(x => x.GtinNumber)
+				.ToList();
+
+			if(!nomenclatureGtins.Contains(trueMarkWaterIdentificationCode.GTIN))
+			{
+				var error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(trueMarkWaterIdentificationCode.RawCode);
+				return Result.Failure(error);
 			}
 
 			return Result.Success();
