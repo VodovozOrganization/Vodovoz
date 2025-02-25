@@ -136,7 +136,8 @@ namespace FastPaymentsAPI.Library.Models
 				configuration.MessageBrokerUsername,
 				configuration.MessageBrokerPassword,
 				configuration.MessageBrokerVirtualHost,
-				configuration.Port);
+				configuration.Port,
+				true);
 			var channel = connection.CreateModel();
 
 			var properties = channel.CreateBasicProperties();

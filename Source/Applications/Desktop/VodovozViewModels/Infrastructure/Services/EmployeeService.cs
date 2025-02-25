@@ -146,7 +146,8 @@ namespace Vodovoz.Infrastructure.Services
 				configuration.MessageBrokerUsername,
 				configuration.MessageBrokerPassword,
 				configuration.MessageBrokerVirtualHost,
-				configuration.Port);
+				configuration.Port,
+				true);
 
 			var channel = connection.CreateModel();
 
