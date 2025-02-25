@@ -13,11 +13,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-dev.pubxml" />
-		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-prod.pubxml" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="appsettings.Development.json">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</None>
@@ -52,15 +47,6 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
-	  <None Update="Properties\PublishProfiles\registry-dev.pubxml">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-	  </None>
-	  <None Update="Properties\PublishProfiles\registry-prod.pubxml">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-	  </None>
+	  <Folder Include="Properties\PublishProfiles\" />
 	</ItemGroup>
 </Project>
