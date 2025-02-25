@@ -8,6 +8,18 @@ using ModulKassa;
 using NLog.Extensions.Logging;
 using System;
 using System.Text;
+using Autofac.Extensions.DependencyInjection;
+using MessageTransport;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using QS.Project.Core;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Infrastructure;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace Edo.Receipt.Sender.Worker
 {
@@ -30,28 +42,31 @@ namespace Edo.Receipt.Sender.Worker
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.Configure<CashboxesSetting>(hostContext.Configuration);
-					services.AddModulKassa()
+					services
+						.AddModulKassa()
 
-						//	.AddMappingAssemblies(
-						//		typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-						//		typeof(QS.Banks.Domain.Bank).Assembly,
-						//		typeof(QS.HistoryLog.HistoryMain).Assembly,
-						//		typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-						//		typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
-						//		typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
-						//	)
-						//	.AddDatabaseConnection()
-						//	.AddNHibernateConventions()
-						//	.AddCoreDataRepositories()
-						//	.AddCore()
-						//	.AddTrackedUoW()
-						//	.AddMessageTransportSettings()
-						//	.AddEdoDocflow()
+						.AddMappingAssemblies(
+							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+							typeof(QS.Banks.Domain.Bank).Assembly,
+							typeof(QS.HistoryLog.HistoryMain).Assembly,
+							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
+							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
+						)
+						.AddDatabaseConnection()
+						.AddNHibernateConventions()
+						.AddCoreDataRepositories()
+						.AddCore()
+						.AddTrackedUoW()
+						.AddMessageTransportSettings()
+						.AddEdoReceiptSender()
 
-						//	.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;
 
-					services.AddHostedService<WorkerService>();
+					services.AddHostedService<InitDbConnectionOnHostStartedService>();
+
+					//services.AddHostedService<WorkerService>();
 				});
 	}
 }

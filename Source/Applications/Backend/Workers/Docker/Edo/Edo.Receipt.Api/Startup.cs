@@ -11,7 +11,6 @@ using ModulKassa;
 using NLog.Web;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
-using static K4os.Compression.LZ4.Engine.Pubternal;
 
 namespace Edo.Receipt.Api
 {
@@ -49,7 +48,8 @@ namespace Edo.Receipt.Api
 				.AddCoreDataRepositories()
 				.AddCore()
 				.AddTrackedUoW()
-			.AddMessageTransportSettings();
+				.AddMessageTransportSettings()
+				;
 
 			services.AddReceiptCallback();
 

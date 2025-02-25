@@ -55,8 +55,6 @@ namespace Edo.Document.Worker
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;
 
-
-
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();
 				});
 	}

@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <UserSecretsId>dotnet-Edo.Receipt.Sender-102a791f-9989-4deb-a412-3e789d856c62</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..\..\..</DockerfileContext>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<UserSecretsId>dotnet-Edo.Receipt.Sender-102a791f-9989-4deb-a412-3e789d856c62</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..\..\..</DockerfileContext>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<Content Remove="appsettings.Development.json" />
@@ -33,7 +33,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\ModulKassa\ModulKassa.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Receipt.Sender\Edo.Receipt.Sender.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\ModulKassa\ModulKassa.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
 	</ItemGroup>
 
 </Project>
