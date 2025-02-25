@@ -16,6 +16,12 @@ namespace TrueMark.Contracts
 		public string IdentificationCode { get; set; }
 
 		/// <summary>
+		/// Идентификатор родительского группового кода
+		/// </summary>
+		[JsonPropertyName("parent")]
+		public string ParentId { get; set; }
+
+		/// <summary>
 		/// Уровень вложенности типа упаковки упаковки
 		/// </summary>
 		[JsonPropertyName("packageType")]
