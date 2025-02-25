@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		NuGet.Config = NuGet.Config
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrueMark.ProductInstanceInfoCheck.Worker", "Applications\Backend\Workers\TrueMark.ProductInstanceInfoCheck.Worker\TrueMark.ProductInstanceInfoCheck.Worker.csproj", "{B49E0AD6-CF17-410F-9E10-451AD10DD1E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrueMark.Gateway", "Applications\Backend\Workers\TrueMark.ProductInstanceInfoCheck.Worker\TrueMark.Gateway.csproj", "{B49E0AD6-CF17-410F-9E10-451AD10DD1E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
