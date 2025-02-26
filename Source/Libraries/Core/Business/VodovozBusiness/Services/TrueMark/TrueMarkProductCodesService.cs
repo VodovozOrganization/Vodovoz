@@ -431,10 +431,15 @@ namespace VodovozBusiness.Services.TrueMark
 
 		private async Task<Result<TrueMarkWaterGroupCode>> CreateGroupCodeAsync(TrueMarkApiClient truemarkClient, ProductInstanceStatus instanceStatus, CancellationToken cancellationToken)
 		{
+			var parsedCode = _trueMarkWaterCodeParser.Parse(instanceStatus.IdentificationCode);
+
 			var newGroupCode = new TrueMarkWaterGroupCode
 			{
 				IsInvalid = false,
-				RawCode = instanceStatus.IdentificationCode
+				RawCode = instanceStatus.IdentificationCode,
+				CheckCode = parsedCode.CheckCode,
+				GTIN = parsedCode.GTIN,
+				SerialNumber = parsedCode.SerialNumber
 			};
 
 			ProductInstancesInfoResponse innerCodesCheckResult = null;
