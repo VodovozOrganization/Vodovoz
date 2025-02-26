@@ -16,8 +16,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark
 
 			Map(x => x.RawCode).Column("raw_code");
 			Map(x => x.IsInvalid).Column("is_invalid");
+			Map(x => x.GTIN).Column("gtin");
+            Map(x => x.SerialNumber).Column("serial_number");
+            Map(x => x.CheckCode).Column("check_code");
 
-			HasMany(x => x.InnerGroupCodes)
+            HasMany(x => x.InnerGroupCodes)
 				.KeyColumn("parent_water_group_code_id")
 				.Not.LazyLoad()
 				.Inverse()
