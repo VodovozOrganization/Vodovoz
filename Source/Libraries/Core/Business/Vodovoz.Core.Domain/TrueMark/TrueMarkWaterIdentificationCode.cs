@@ -30,7 +30,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 
 		public virtual int Id { get; set; }
 
-		public virtual int? ParentGroupCodeId { get; set; }
+		public virtual int? ParentWaterGroupCodeId { get; set; }
 		public virtual int? ParentTransportCodeId { get; set; }
 
 		[Display(Name = "Необработанный код")]

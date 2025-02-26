@@ -42,7 +42,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 			}
 		}
 
-		public virtual int? ParentGroupCodeId { get; set; }
+		public virtual int? ParentWaterGroupCodeId { get; set; }
 		public virtual int? ParentTransportCodeId { get; set; }
 
 		/// <summary>
@@ -103,13 +103,13 @@ namespace Vodovoz.Core.Domain.TrueMark
 
 		public virtual void AddInnerGroupCode(TrueMarkWaterGroupCode innerGroupCode)
 		{
-			innerGroupCode.ParentGroupCodeId = Id;
+			innerGroupCode.ParentWaterGroupCodeId = Id;
 			InnerGroupCodes.Add(innerGroupCode);
 		}
 
 		public virtual void AddInnerWaterCode(TrueMarkWaterIdentificationCode innerWaterCode)
 		{
-			innerWaterCode.ParentGroupCodeId = Id;
+			innerWaterCode.ParentWaterGroupCodeId = Id;
 			InnerWaterCodes.Add(innerWaterCode);
 		}
 
@@ -117,12 +117,12 @@ namespace Vodovoz.Core.Domain.TrueMark
 		{
 			foreach(var innerGroupCode in InnerGroupCodes)
 			{
-				innerGroupCode.ParentGroupCodeId = Id;
+				innerGroupCode.ParentWaterGroupCodeId = Id;
 			}
 
 			foreach(var innerWaterCode in InnerWaterCodes)
 			{
-				innerWaterCode.ParentGroupCodeId = Id;
+				innerWaterCode.ParentWaterGroupCodeId = Id;
 			}
 		}
 

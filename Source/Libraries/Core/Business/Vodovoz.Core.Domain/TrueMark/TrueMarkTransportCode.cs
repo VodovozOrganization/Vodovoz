@@ -41,7 +41,6 @@ namespace Vodovoz.Core.Domain.TrueMark
 
 		public virtual int? ParentTransportCodeId { get; set; }
 
-
 		/// <summary>
 		/// Необработанный код
 		/// </summary>
