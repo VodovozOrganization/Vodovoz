@@ -11,6 +11,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.TrueMark;
+using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.Infrastructure.Persistance.TrueMark
 {
@@ -50,9 +51,8 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			{
 				var result =
 				(
-					from nomenclatures in unitOfWork.Session.Query<Nomenclature>()
-					where nomenclatures.Gtin != null
-					select nomenclatures.Gtin
+					from nomenclatures in unitOfWork.Session.Query<Gtin>()
+					select nomenclatures.GtinNumber
 				)
 				.Distinct()
 				.ToHashSet();

@@ -277,7 +277,7 @@ namespace Edo.Docflow.Factories
 
 				var orderItemsCodes =
 					codes
-						.Where(x => x.GTIN == nomenclature.Gtin)
+						.Where(x => nomenclature.Gtins.Any(gtin => gtin.GtinNumber == x.GTIN))
 						.Select(x => x.ConvertToIdentificationCode());
 
 				var product = new ProductInfo

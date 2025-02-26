@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,15 +14,12 @@ namespace Edo.Docflow.Factories
 	public class TransferOrderUpdInfoFactory
 	{
 		private const string _dateFormatString = "dd.MM.yyyy";
-		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public TransferOrderUpdInfoFactory(
 			IUnitOfWorkFactory uowFactory,
-			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
 			INomenclatureSettings nomenclatureSettings)
 		{
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
@@ -186,7 +183,14 @@ namespace Edo.Docflow.Factories
 
 		private NomenclatureEntity GetNomenclatureByGtin(IUnitOfWork uow, string gtin)
 		{
-			return _nomenclatureRepository.Get(uow, x => x.Gtin == gtin).FirstOrDefault();
+			GtinEntity gtinAlias = null;
+
+			var nomenclature = uow.Session.QueryOver<NomenclatureEntity>()
+				.Left.JoinAlias(x => x.Gtins, () => gtinAlias)
+				.Where(() => gtinAlias.GtinNumber == gtin)
+				.SingleOrDefault();
+
+			return nomenclature;
 		}
 	}
 }

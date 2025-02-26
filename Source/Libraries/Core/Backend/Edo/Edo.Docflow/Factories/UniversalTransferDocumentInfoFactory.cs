@@ -1,12 +1,11 @@
-﻿using QS.DomainModel.UoW;
+﻿using Edo.Contracts.Messages.Dto;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Edo.Contracts.Messages.Dto;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Settings.Nomenclature;
 
 namespace Edo.Docflow.Factories
@@ -15,16 +14,13 @@ namespace Edo.Docflow.Factories
 	{
 		private const string _dateFormatString = "dd.MM.yyyy";
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public UniversalTransferDocumentInfoFactory(
 			IUnitOfWorkFactory uowFactory,
-			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
 			INomenclatureSettings nomenclatureSettings)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
@@ -188,7 +184,14 @@ namespace Edo.Docflow.Factories
 
 		private NomenclatureEntity GetNomenclatureByGtin(IUnitOfWork uow, string gtin)
 		{
-			return _nomenclatureRepository.Get(uow, x => x.Gtin == gtin).FirstOrDefault();
+			GtinEntity gtinAlias = null;
+
+			var nomenclature = uow.Session.QueryOver<NomenclatureEntity>()
+				.Left.JoinAlias(x => x.Gtins, () => gtinAlias)
+				.Where(() => gtinAlias.GtinNumber == gtin)
+				.SingleOrDefault();
+
+			return nomenclature;
 		}
 	}
 }

@@ -1129,7 +1129,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					orderIds.Contains((int)carLoadDocumentItem.OrderId)
 					&& carLoadDocumentItem.IsIndividualSetForOrder
 					&& nomenclature.IsAccountableInTrueMark
-					&& nomenclature.Gtin != null
 					&& (orderEdoRequest != null
 						|| (client.IsNewEdoProcessing && orderEdoRequest == null && order.OrderStatus == OrderStatus.OnTheWay))
 				select (int)carLoadDocumentItem.OrderId;
@@ -1262,7 +1261,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 					.And(() => nomenclatureAlias.IsAccountableInTrueMark)
-					.And(() => nomenclatureAlias.Gtin != null)
 					.Select(Projections.Id());
 
 			if(startDate.HasValue)
@@ -1314,7 +1312,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 					.And(() => nomenclatureAlias.IsAccountableInTrueMark)
-					.And(() => nomenclatureAlias.Gtin != null)
 					.Select(Projections.Id());
 
 			if(startDate.HasValue)
@@ -1392,7 +1389,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
-				.And(() => nomenclatureAlias.Gtin != null)
 				.Select(Projections.Id());
 
 			var hasCancellationSubquery = QueryOver.Of(() => trueMarkApiDocumentAlias)
