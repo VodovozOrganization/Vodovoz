@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,10 @@ namespace VodovozBusiness.Services.TrueMark
 		/// Статусы кодов ЧЗ, которые были успешно использованы
 		/// </summary>
 		IList<SourceProductCodeStatus> SuccessfullyUsedProductCodesStatuses { get; }
+
+		Result<TrueMarkAnyCode> TryGetSavedTrueMarkCodeByScannedCode(IUnitOfWork uow, string scannedCode);
+		Task<Result<TrueMarkAnyCode>> GetTrueMarkCodeByScannedCode(IUnitOfWork uow, string scannedCode, CancellationToken cancellationToken = default);
+
 
 		/// <summary>
 		/// Проверяет, что все коды ЧЗ в обороте и содержат корректные ИНН владельца
@@ -45,6 +50,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="scannedCode">Строка отсканированного кода</param>
 		/// <returns>Код ЧЗ</returns>
+		[Obsolete("Use TryGetSavedTrueMarkCodeByScannedCode instead")]
 		TrueMarkWaterIdentificationCode LoadOrCreateTrueMarkWaterIdentificationCode(IUnitOfWork uow, string scannedCode);
 	}
 }

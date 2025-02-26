@@ -1,6 +1,6 @@
 ﻿using Gamma.ColumnConfig;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.JournalColumnsConfigs
 {

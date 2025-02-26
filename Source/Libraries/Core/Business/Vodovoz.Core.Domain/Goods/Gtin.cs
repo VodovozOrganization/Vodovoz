@@ -1,9 +1,8 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using Vodovoz.Domain.Goods;
 
-namespace VodovozBusiness.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Gtin",
@@ -14,7 +13,7 @@ namespace VodovozBusiness.Domain.Goods
 	public class Gtin : PropertyChangedBase, IDomainObject
 	{
 		private string _gtinNumber;
-		private Nomenclature _nomenclature;
+		private NomenclatureEntity _nomenclature;
 		public virtual int Id { get; set; }
 
 		public virtual string GtinNumber
@@ -23,7 +22,7 @@ namespace VodovozBusiness.Domain.Goods
 			set => SetField(ref _gtinNumber, value);
 		}
 
-		public virtual Nomenclature Nomenclature
+		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);
