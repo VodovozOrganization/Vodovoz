@@ -50,7 +50,7 @@ namespace WarehouseApi.Library.Converters
 			{
 				NomenclatureId = documentItem.Nomenclature.Id,
 				Name = documentItem.Nomenclature.Name,
-				Gtin = documentItem.Nomenclature.Gtin,
+				Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
 				Quantity = (int)documentItem.Amount,
 				Codes = GetApiTrueMarkCodes(documentItem)
 			};
