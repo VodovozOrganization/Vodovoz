@@ -113,6 +113,24 @@ namespace Vodovoz.Core.Domain.TrueMark
 			InnerWaterCodes.Add(innerWaterCode);
 		}
 
+		public IEnumerable<TrueMarkAnyCode> GetAllCodes()
+		{
+			yield return this;
+
+			foreach(var innerGroupCode in InnerGroupCodes)
+			{
+				foreach (var code in innerGroupCode.GetAllCodes())
+				{
+					yield return code;
+				}
+			}
+
+			foreach(var innerWaterCode in InnerWaterCodes)
+			{
+				yield return innerWaterCode;
+			}
+		}
+
 		public virtual void UpdateChildCodes()
 		{
 			foreach(var innerGroupCode in InnerGroupCodes)
