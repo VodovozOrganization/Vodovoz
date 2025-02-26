@@ -6,6 +6,7 @@ using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
+using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.Core.Domain.Goods
 {
@@ -22,6 +23,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private bool _isAccountableInTrueMark;
 		private string _gtin;
 		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
+		private IObservableList<Gtin> _gtins = new ObservableList<Gtin>();
 
 		public NomenclatureEntity()
 		{
@@ -70,6 +72,16 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _gtin;
 			set => SetField(ref _gtin, value);
+		}
+
+		/// <summary>
+		/// Gtin
+		/// </summary>
+		[Display(Name = "Gtin")]
+		public virtual IObservableList<Gtin> Gtins
+		{
+			get => _gtins;
+			set => SetField(ref _gtins, value);
 		}
 
 		[Display(Name = "Информация о прикрепленных файлах")]

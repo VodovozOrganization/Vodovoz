@@ -149,7 +149,6 @@ namespace Vodovoz.Domain.Goods
 		private ProductivityComparisionSign? _heatingProductivityComparisionSign;
 		private ProductivityComparisionSign? _coolingProductivityComparisionSign;
 		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse = new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
-		private IObservableList<Gtin> _gtins = new ObservableList<Gtin>();
 
 		#region Свойства
 
@@ -733,16 +732,6 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
 			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
-
-		/// <summary>
-		/// Gtin
-		/// </summary>
-		[Display(Name = "Gtin")]
-		public virtual IObservableList<Gtin> Gtins
-		{
-			get => _gtins;
-			set => SetField(ref _gtins, value);
-		}
 
 		/// <summary>
 		/// Себестоимость ТМЦ
