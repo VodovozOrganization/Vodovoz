@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
-using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				return;
 			}
 
-			NavigationManager.OpenViewModel<GtinViewModel, INavigationManager, Gtin>(this, NavigationManager, gtin, OpenPageOptions.AsSlave);
+			NavigationManager.OpenViewModel<GtinViewModel, INavigationManager, Gtin, Nomenclature>(this, NavigationManager, gtin, _nomenclature, OpenPageOptions.AsSlave);
 		}
 
 		protected virtual void Delete(IEnumerable<Gtin> nodes)
