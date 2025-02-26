@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Edo\Specifications\" />
     <Folder Include="Logistics\Cars\" />
   </ItemGroup>
 
