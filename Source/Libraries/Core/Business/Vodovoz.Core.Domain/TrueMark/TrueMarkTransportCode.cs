@@ -61,13 +61,13 @@ namespace Vodovoz.Core.Domain.TrueMark
 			set => SetField(ref _isInvalid, value);
 		}
 
-		public IObservableList<TrueMarkTransportCode> InnerTransportCodes { get; set; }
+		public virtual IObservableList<TrueMarkTransportCode> InnerTransportCodes { get; set; }
 			= new ObservableList<TrueMarkTransportCode>();
 
-		public IObservableList<TrueMarkWaterGroupCode> InnerGroupCodes { get; set; }
+		public virtual IObservableList<TrueMarkWaterGroupCode> InnerGroupCodes { get; set; }
 			= new ObservableList<TrueMarkWaterGroupCode>();
 
-		public IObservableList<TrueMarkWaterIdentificationCode> InnerWaterCodes { get; set; }
+		public virtual IObservableList<TrueMarkWaterIdentificationCode> InnerWaterCodes { get; set; }
 			= new ObservableList<TrueMarkWaterIdentificationCode>();
 
 		public virtual void AddInnerTransportCode(TrueMarkTransportCode innerTransportCode)
@@ -88,7 +88,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 			InnerWaterCodes.Add(innerWaterCode);
 		}
 
-		public IEnumerable<TrueMarkAnyCode> GetAllCodes()
+		public virtual IEnumerable<TrueMarkAnyCode> GetAllCodes()
 		{
 			yield return this;
 
