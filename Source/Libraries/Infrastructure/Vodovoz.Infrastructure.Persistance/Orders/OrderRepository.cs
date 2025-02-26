@@ -1986,7 +1986,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public bool IsAllRouteListItemTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId)
 		{
 			var accountableInTrueMarkGtinItemsCount = GetIsAccountableInTrueMarkOrderItems(uow, orderId)
-				.GroupBy(x => x.Nomenclature.Gtin)
+				.GroupBy(x => x.Nomenclature.Gtins)
 				.ToDictionary(x => x.Key, x => x.Sum(item => item.Count));
 
 			var addedTrueMarkCodes = GetAddedRouteListItemTrueMarkProductCodesByOrderId(uow, orderId)
@@ -1995,14 +1995,19 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.GroupBy(x => x.GTIN)
 				.ToDictionary(x => x.Key, x => x);
 
-			foreach(var gtinItemCount in accountableInTrueMarkGtinItemsCount)
+			foreach(var gtinsItemCount in accountableInTrueMarkGtinItemsCount)
 			{
-				var addedCodesCount =
-					addedTrueMarkCodes.TryGetValue(gtinItemCount.Key, out var addedCodes)
-					? addedCodes.Count()
-					: 0;
+				var addedCodesCount = 0;
 
-				if(addedCodesCount < gtinItemCount.Value)
+				foreach(var gtin in gtinsItemCount.Key)
+				{
+					addedCodesCount +=
+						addedTrueMarkCodes.TryGetValue(gtin.GtinNumber, out var addedCodes)
+						? addedCodes.Count()
+						: 0;
+				}
+
+				if(addedCodesCount < gtinsItemCount.Value)
 				{
 					return false;
 				}
