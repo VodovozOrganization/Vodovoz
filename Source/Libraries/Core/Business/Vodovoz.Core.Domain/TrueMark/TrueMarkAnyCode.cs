@@ -30,5 +30,17 @@ namespace Vodovoz.Core.Domain.TrueMark
 		public static implicit operator TrueMarkAnyCode(TrueMarkWaterGroupCode value) => new TrueMarkAnyCode(value);
 
 		public static implicit operator TrueMarkAnyCode(TrueMarkWaterIdentificationCode value) => new TrueMarkAnyCode(value);
+
+		public bool IsTrueMarkWaterIdentificationCode => IsT0;
+
+		public bool IsTrueMarkWaterGroupCode => IsT1;
+
+		public bool IsTrueMarkTransportCode => IsT2;
+
+		public TrueMarkTransportCode TrueMarkTransportCode => AsT0;
+
+		public TrueMarkWaterGroupCode TrueMarkWaterGroupCode => AsT1;
+
+		public TrueMarkWaterIdentificationCode TrueMarkWaterIdentificationCode => AsT2;
 	}
 }
