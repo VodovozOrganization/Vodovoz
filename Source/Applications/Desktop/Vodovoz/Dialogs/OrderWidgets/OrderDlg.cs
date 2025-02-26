@@ -2019,6 +2019,7 @@ namespace Vodovoz
 					.XAlign(0.5f)
 				.Finish();
 			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
+			treeItems.Selection.Mode = SelectionMode.Multiple;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
 			treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault().Visible = Entity.PromotionalSets.Count > 0;
 
@@ -3479,13 +3480,15 @@ namespace Vodovoz
 
 		protected void OnBtnDeleteOrderItemClicked(object sender, EventArgs e)
 		{
-			if(treeItems.GetSelectedObject() is OrderItem orderItem)
+			var selectedRows = treeItems.GetSelectedObjects<OrderItem>();
+
+			foreach(var orderItem in selectedRows)
 			{
 				RemoveOrderItem(orderItem);
 				Entity.TryToRemovePromotionalSet(orderItem);
 				//при удалении номенклатуры выделение снимается и при последующем удалении exception
 				//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
-				btnDeleteOrderItem.Sensitive = treeItems.GetSelectedObject() != null;
+				btnDeleteOrderItem.Sensitive = treeItems.GetSelectedObjects<OrderItem>().Any();
 			}
 		}
 		#endregion
