@@ -22,7 +22,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="vodovozOrderItemId">ID строки заказа</param>
 		/// <param name="trueMarkWaterIdentificationCode">Код Честного Знака</param>
 		/// <param name="status">Статус кода продукта</param>
-		void AddTrueMarkCodeToRouteListItem(IUnitOfWork uow, RouteListItem routeListAddress, int vodovozOrderItemId, TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, SourceProductCodeStatus status);
+		void AddSingleTrueMarkCodeToRouteListItem(IUnitOfWork uow, RouteListItem routeListAddress, int vodovozOrderItemId, TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, SourceProductCodeStatus status);
 
 		/// <summary>
 		/// Добавить код Честного Знака к строке маршрутного листа с предварительной проверкой кода
@@ -58,6 +58,6 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="vodovozOrderItemId">Номер строки заказа</param>
 		/// <param name="scannedCode">Сканированный код</param>
 		/// <returns>Результат операции</returns>
-		Result RemoveTrueMarkCodeFromRouteListItem(IUnitOfWork uow, RouteListItem routeListAddress, int vodovozOrderItemId, string scannedCode);
+		Task<Result> RemoveTrueMarkCodeFromRouteListItem(IUnitOfWork uow, RouteListItem routeListAddress, int vodovozOrderItemId, string scannedCode);
 	}
 }

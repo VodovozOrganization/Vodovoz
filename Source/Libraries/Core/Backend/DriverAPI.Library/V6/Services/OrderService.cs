@@ -656,7 +656,7 @@ namespace DriverAPI.Library.V6.Services
 						continue;
 					}
 
-					_routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItem(
+					_routeListItemTrueMarkProductCodesProcessingService.AddSingleTrueMarkCodeToRouteListItem(
 						_uow,
 						routeListAddress,
 						scannedItem.OrderSaleItemId,
@@ -1003,7 +1003,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var codeRemovingResult =
-				_routeListItemTrueMarkProductCodesProcessingService.RemoveTrueMarkCodeFromRouteListItem(_uow, routeListAddress, vodovozOrderItem.Id, scannedCode);
+				await _routeListItemTrueMarkProductCodesProcessingService.RemoveTrueMarkCodeFromRouteListItem(_uow, routeListAddress, vodovozOrderItem.Id, scannedCode);
 
 			if(codeRemovingResult.IsFailure)
 			{

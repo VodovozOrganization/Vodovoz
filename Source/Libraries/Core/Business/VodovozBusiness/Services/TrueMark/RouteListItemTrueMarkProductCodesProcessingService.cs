@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,11 +37,51 @@ namespace VodovozBusiness.Services.TrueMark
 			CancellationToken cancellationToken,
 			bool isCheckForCodeChange = false)
 		{
-			var trueMarkWaterIdentificationCode =
-				_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(uow, scannedCode);
+			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode);
 
-			uow.Save(trueMarkWaterIdentificationCode);
+			if(trueMarkCodeResult.IsFailure)
+			{
+				return trueMarkCodeResult;
+			}
 
+			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
+				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
+				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
+				identificationCode => new TrueMarkAnyCode[] { identificationCode });
+
+			foreach(var anyCode in trueMarkAnyCodes)
+			{
+				if(!anyCode.IsTrueMarkWaterIdentificationCode)
+				{
+					continue;
+				}
+
+				var addSingleCodeResult = await AddSingleTrueMarkCodeToRouteListItemWithCodeChecking(
+					uow,
+					routeListAddress,
+					vodovozOrderItem,
+					anyCode.TrueMarkWaterIdentificationCode,
+					status, cancellationToken,
+					isCheckForCodeChange);
+
+				if(addSingleCodeResult.IsFailure)
+				{
+					return addSingleCodeResult;
+				}
+			}
+
+			return Result.Success();
+		}
+
+		private async Task<Result> AddSingleTrueMarkCodeToRouteListItemWithCodeChecking(
+			IUnitOfWork uow,
+			RouteListItem routeListAddress,
+			OrderItem vodovozOrderItem,
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			SourceProductCodeStatus status,
+			CancellationToken cancellationToken,
+			bool isCheckForCodeChange = false)
+		{
 			var codeCheckingResult = await IsTrueMarkCodeCanBeAddedToRouteListItem(
 				uow,
 				trueMarkWaterIdentificationCode,
@@ -54,7 +95,7 @@ namespace VodovozBusiness.Services.TrueMark
 				return codeCheckingResult;
 			}
 
-			AddTrueMarkCodeToRouteListItem(
+			AddSingleTrueMarkCodeToRouteListItem(
 				uow,
 				routeListAddress,
 				vodovozOrderItem.Id,
@@ -66,7 +107,7 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		public void AddTrueMarkCodeToRouteListItem(
+		public void AddSingleTrueMarkCodeToRouteListItem(
 			IUnitOfWork uow,
 			RouteListItem routeListAddress,
 			int vodovozOrderItemId,
@@ -99,7 +140,7 @@ namespace VodovozBusiness.Services.TrueMark
 			CancellationToken cancellationToken)
 		{
 			var oldCodeRemovingResult =
-				RemoveTrueMarkCodeFromRouteListItem(uow, routeListAddress, vodovozOrderItem.Id, oldScannedCode);
+				await RemoveTrueMarkCodeFromRouteListItem(uow, routeListAddress, vodovozOrderItem.Id, oldScannedCode);
 
 			if(oldCodeRemovingResult.IsFailure)
 			{
@@ -126,15 +167,52 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		public Result RemoveTrueMarkCodeFromRouteListItem(
+		public async Task<Result> RemoveTrueMarkCodeFromRouteListItem(
 			IUnitOfWork uow,
 			RouteListItem routeListAddress,
 			int vodovozOrderItemId,
 			string scannedCode)
 		{
-			var trueMarkWaterIdentificationCode =
-				_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(uow, scannedCode);
+			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode);
 
+			if(trueMarkCodeResult.IsFailure)
+			{
+				return trueMarkCodeResult;
+			}
+
+			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
+				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
+				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
+				identificationCode => new TrueMarkAnyCode[] { identificationCode });
+
+			foreach(var anyCode in trueMarkAnyCodes)
+			{
+				if(!anyCode.IsTrueMarkWaterIdentificationCode)
+				{
+					continue;
+				}
+
+				var removeSingleCodeResult = RemoveSingleTrueMarkCodeFromRouteListItem(
+					uow,
+					routeListAddress,
+					vodovozOrderItemId,
+					anyCode.TrueMarkWaterIdentificationCode);
+
+				if(removeSingleCodeResult.IsFailure)
+				{
+					return removeSingleCodeResult;
+				}
+			}
+
+			return Result.Success();
+		}
+
+		private Result RemoveSingleTrueMarkCodeFromRouteListItem(
+			IUnitOfWork uow,
+			RouteListItem routeListAddress,
+			int vodovozOrderItemId,
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode)
+		{
 			var productCode =
 				routeListAddress.TrueMarkCodes
 				.Where(x => x.SourceCode.Id == trueMarkWaterIdentificationCode.Id)
