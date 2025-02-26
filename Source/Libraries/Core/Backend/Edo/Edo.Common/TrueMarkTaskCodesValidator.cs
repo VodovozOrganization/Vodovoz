@@ -62,7 +62,7 @@ namespace Edo.Common
 				}
 
 				// проверка на то что код в обороте
-				if(checkResult.ProductInstanceStatus.Status == ProductInstanceStatusEnum.Introduced)
+				if(checkResult.ProductInstanceStatus.Status != ProductInstanceStatusEnum.Introduced)
 				{
 					codeResult.IsIntroduced = false;
 					codeResult.IsValid = false;
@@ -70,7 +70,7 @@ namespace Edo.Common
 				}
 
 				// проверка на то что код на балансе продавца
-				if(checkResult.ProductInstanceStatus.OwnerInn == sellerInn)
+				if(checkResult.ProductInstanceStatus.OwnerInn != sellerInn)
 				{
 					// не влияет на валидность, просто дополнительная информация
 					codeResult.IsOwnedBySeller = false;
