@@ -227,6 +227,24 @@ namespace WarehouseApi.Library.Services
 				_uow.Commit();
 			}
 
+			if(trueMarkCodeResult.Value.TrueMarkTransportCode?.ParentTransportCodeId != null
+				|| trueMarkCodeResult.Value.TrueMarkWaterGroupCode?.ParentTransportCodeId != null
+				|| trueMarkCodeResult.Value.TrueMarkWaterGroupCode?.ParentWaterGroupCodeId != null
+				|| trueMarkCodeResult.Value.TrueMarkWaterIdentificationCode?.ParentTransportCodeId != null
+				|| trueMarkCodeResult.Value.TrueMarkWaterIdentificationCode?.ParentWaterGroupCodeId != null)
+			{
+				var error = new Error("Temporary.Error.TrueMarkApi", "Нельзя добавить код, участвующий в аггрегации");
+
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
+
 			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
 				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
 				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
@@ -237,9 +255,36 @@ namespace WarehouseApi.Library.Services
 
 			NomenclatureDto nomenclatureDto = null;
 
-			foreach (var anyCode in trueMarkAnyCodes)
+			var trueMarkCodes = new List<TrueMarkCodeDto>();
+
+			int index = 1;
+
+			foreach(var anyCode in trueMarkAnyCodes)
 			{
-				if(!anyCode.IsTrueMarkWaterIdentificationCode)
+				trueMarkCodes.Add(anyCode.Match(
+					transportCode => new TrueMarkCodeDto
+					{
+						SequenceNumber = index++,
+						Code = transportCode.RawCode,
+						Level = WarehouseApiTruemarkCodeLevel.transport,
+						Parent = transportCode.ParentTransportCodeId?.ToString()
+					},
+					groupCode => new TrueMarkCodeDto
+					{
+						SequenceNumber = index++,
+						Code = groupCode.RawCode,
+						Level = WarehouseApiTruemarkCodeLevel.group,
+						Parent = groupCode.ParentTransportCodeId?.ToString() ?? groupCode.ParentWaterGroupCodeId?.ToString()
+					},
+					waterCode => new TrueMarkCodeDto
+					{
+						SequenceNumber = index++,
+						Code = waterCode.RawCode,
+						Level = WarehouseApiTruemarkCodeLevel.unit,
+						Parent = waterCode.ParentTransportCodeId?.ToString() ?? waterCode.ParentWaterGroupCodeId?.ToString(),
+					}));
+
+				if (!anyCode.IsTrueMarkWaterIdentificationCode)
 				{
 					continue;
 				}
@@ -253,13 +298,15 @@ namespace WarehouseApi.Library.Services
 
 				var documentItemToEdit = addSingleCodeResult.AsT1;
 
-				if(documentItemToEdit is null)
+				if(nomenclatureDto is null)
 				{
 					nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
 				}
 
 				_uow.Save(documentItemToEdit);
 			}
+
+			nomenclatureDto.Codes = trueMarkCodes;
 
 			_uow.Commit();
 
@@ -273,7 +320,14 @@ namespace WarehouseApi.Library.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		private async Task<OneOf<RequestProcessingResult<AddOrderCodeResponse>, CarLoadDocumentItemEntity>> AddSingleCode(int orderId, int nomenclatureId, EmployeeWithLogin pickerEmployee, TrueMarkWaterIdentificationCode waterCode, IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems, List<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature, CancellationToken cancellationToken)
+		private async Task<OneOf<RequestProcessingResult<AddOrderCodeResponse>, CarLoadDocumentItemEntity>> AddSingleCode(
+			int orderId,
+			int nomenclatureId,
+			EmployeeWithLogin pickerEmployee,
+			TrueMarkWaterIdentificationCode waterCode,
+			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
+			List<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
+			CancellationToken cancellationToken)
 		{
 			var documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
 
