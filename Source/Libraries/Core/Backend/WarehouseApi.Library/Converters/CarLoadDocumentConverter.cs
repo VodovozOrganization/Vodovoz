@@ -4,7 +4,6 @@ using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Domain.Documents;
 using WarehouseApi.Contracts.Dto;
 
 namespace WarehouseApi.Library.Converters
@@ -68,7 +67,7 @@ namespace WarehouseApi.Library.Converters
 				{
 					NomenclatureId = documentItem.Nomenclature.Id,
 					Name = documentItem.Nomenclature.Name,
-					Gtin = documentItem.Nomenclature.Gtin,
+					Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
 					Quantity = (int)documentItem.Amount,
 					Codes = GetApiTrueMarkCodes(documentItem)
 				};
