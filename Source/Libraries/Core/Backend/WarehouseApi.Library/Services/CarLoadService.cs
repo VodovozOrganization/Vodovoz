@@ -405,18 +405,23 @@ namespace WarehouseApi.Library.Services
 				});
 			}
 
-			var newTrueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, newScannedCode);
+			Result<TrueMarkAnyCode> newTrueMarkCodeResult = null;
 
-			if(newTrueMarkCodeResult.IsFailure)
+			if(!string.IsNullOrWhiteSpace(newScannedCode))
 			{
-				var error = newTrueMarkCodeResult.Errors.FirstOrDefault();
-				var result = Result.Failure<ChangeOrderCodeResponse>(error);
-				return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
+				newTrueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, newScannedCode);
+
+				if(newTrueMarkCodeResult.IsFailure)
 				{
-					Nomenclature = null,
-					Result = OperationResultEnumDto.Error,
-					Error = error.Message
-				});
+					var error = newTrueMarkCodeResult.Errors.FirstOrDefault();
+					var result = Result.Failure<ChangeOrderCodeResponse>(error);
+					return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
+					{
+						Nomenclature = null,
+						Result = OperationResultEnumDto.Error,
+						Error = error.Message
+					});
+				}
 			}
 
 			if(_uow.HasChanges)
@@ -439,7 +444,8 @@ namespace WarehouseApi.Library.Services
 				});
 			}
 
-			if(newTrueMarkCodeResult.Value.Match(
+			if(newTrueMarkCodeResult != null
+				&& newTrueMarkCodeResult.Value.Match(
 				transportCode => transportCode.ParentTransportCodeId != null,
 				groupCode => groupCode.ParentTransportCodeId != null || groupCode.ParentWaterGroupCodeId != null,
 				waterCode => waterCode.ParentTransportCodeId != null || waterCode.ParentWaterGroupCodeId != null))
@@ -462,10 +468,10 @@ namespace WarehouseApi.Library.Services
 				groupCode => groupCode.GetAllCodes(),
 				identificationCode => new TrueMarkAnyCode[] { identificationCode });
 
-			IEnumerable<TrueMarkAnyCode> newTrueMarkAnyCodes = newTrueMarkCodeResult.Value.Match(
+			IEnumerable<TrueMarkAnyCode> newTrueMarkAnyCodes = newTrueMarkCodeResult?.Value.Match(
 				transportCode => transportCode.GetAllCodes(),
 				groupCode => groupCode.GetAllCodes(),
-				identificationCode => new TrueMarkAnyCode[] { identificationCode });
+				identificationCode => new TrueMarkAnyCode[] { identificationCode }) ?? Enumerable.Empty<TrueMarkAnyCode>();
 
 			foreach(var codeToRemove in oldTrueMarkAnyCodes)
 			{
