@@ -2,6 +2,8 @@
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using OneOf;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -200,13 +202,80 @@ namespace WarehouseApi.Library.Services
 			string userLogin,
 			CancellationToken cancellationToken)
 		{
-			var trueMarkWaterCode = _trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
+			// получить коды ЧЗ, если код транспортный или групповой - получить все индивидуальные и добавляем их
+
+			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
+
+			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, scannedCode);
+
+			if(trueMarkCodeResult.IsFailure)
+			{
+				var error = trueMarkCodeResult.Errors.FirstOrDefault();
+
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
+
+			if(_uow.HasChanges)
+			{
+				_uow.Commit();
+			}
+
+			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
+				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
+				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
+				identificationCode => new TrueMarkAnyCode[] { identificationCode });
 
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
-			var documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
 
-			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
+			NomenclatureDto nomenclatureDto = null;
+
+			foreach (var anyCode in trueMarkAnyCodes)
+			{
+				if(!anyCode.IsTrueMarkWaterIdentificationCode)
+				{
+					continue;
+				}
+
+				var addSingleCodeResult = await AddSingleCode(orderId, nomenclatureId, pickerEmployee, anyCode.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
+
+				if(addSingleCodeResult.IsT0)
+				{
+					return addSingleCodeResult.AsT0;
+				}
+
+				var documentItemToEdit = addSingleCodeResult.AsT1;
+
+				if(documentItemToEdit is null)
+				{
+					nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
+				}
+
+				_uow.Save(documentItemToEdit);
+			}
+
+			_uow.Commit();
+
+			var successResponse = new AddOrderCodeResponse
+			{
+				Nomenclature = nomenclatureDto,
+				Result = OperationResultEnumDto.Success,
+				Error = null
+			};
+
+			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
+		}
+
+		private async Task<OneOf<RequestProcessingResult<AddOrderCodeResponse>, CarLoadDocumentItemEntity>> AddSingleCode(int orderId, int nomenclatureId, EmployeeWithLogin pickerEmployee, TrueMarkWaterIdentificationCode waterCode, IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems, List<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature, CancellationToken cancellationToken)
+		{
+			var documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
 
 			var failureResponse = new AddOrderCodeResponse
 			{
@@ -235,7 +304,7 @@ namespace WarehouseApi.Library.Services
 			checkResult = await _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
 				orderId,
 				nomenclatureId,
-				trueMarkWaterCode,
+				waterCode,
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
 				documentItemToEdit,
@@ -252,19 +321,9 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			AddTrueMarkCodeToCarLoadDocumentItem(documentItemToEdit, trueMarkWaterCode);
+			AddTrueMarkCodeToCarLoadDocumentItem(documentItemToEdit, waterCode);
 
-			_uow.Save(documentItemToEdit);
-			_uow.Commit();
-
-			var successResponse = new AddOrderCodeResponse
-			{
-				Nomenclature = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
-				Result = OperationResultEnumDto.Success,
-				Error = null
-			};
-
-			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
+			return documentItemToEdit;
 		}
 
 		public async Task<RequestProcessingResult<ChangeOrderCodeResponse>> ChangeOrderCode(
