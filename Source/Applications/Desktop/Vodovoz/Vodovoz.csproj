@@ -434,6 +434,7 @@
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\GtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FinancialResponsibilityCenterJournalViewModelRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NonReturnReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsTemplateJournalRegistrar.cs" />
@@ -2063,6 +2064,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncorrectFuelReportView.cs" />
     <Compile Include="Views\Goods\NonReturnReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NonReturnReasonView.cs" />
+    <Compile Include="Views\Goods\GtinView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.GtinView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

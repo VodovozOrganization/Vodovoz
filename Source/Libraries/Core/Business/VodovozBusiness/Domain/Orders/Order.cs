@@ -4402,12 +4402,12 @@ namespace Vodovoz.Domain.Orders
 			{
 				if(!hasMarkedOrderItem)
 				{
-					hasMarkedOrderItem = !string.IsNullOrWhiteSpace(orderItem.Nomenclature.Gtin);
+					hasMarkedOrderItem = orderItem.Nomenclature.Gtins.Any();
 				}
 
 				if(!hasUnmarkedOrderItem)
 				{
-					hasUnmarkedOrderItem = string.IsNullOrWhiteSpace(orderItem.Nomenclature.Gtin);
+					hasUnmarkedOrderItem = !orderItem.Nomenclature.Gtins.Any();
 				}
 			}
 

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -31,6 +31,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Nodes;
+using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -38,8 +39,6 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.Goods;
 using VodovozBusiness.Services;
 using VodovozInfrastructure.StringHandlers;
-using Vodovoz.ViewModels.Goods.ProductGroups;
-using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -65,6 +64,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private bool _isScrewGlassHolderSelected;
 		private bool _activeSitesAndAppsTab;
 		private IList<NomenclatureOnlineCategory> _onlineCategories;
+		private GtinJournalViewModel _gtinsJornalViewModel;
 
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -137,6 +137,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 			ArchiveCommand = new DelegateCommand(Archive);
 			UnArchiveCommand = new DelegateCommand(UnArchive);
+			EditGtinsCommand = new DelegateCommand(EditGtins);
 
 			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory
 				.CreateAndInitialize<Nomenclature, NomenclatureFileInformation>(
@@ -189,7 +190,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
 		public bool UserCanEditConditionAccounting =>
 			!OldHasConditionAccounting && CanCreateNomenclaturesWithInventoryAccountingPermission;
-		public bool IsShowGlassHolderSelectionControls => 
+		public bool IsShowGlassHolderSelectionControls =>
 			_equipmentKindsHavingGlassHolder.Any(i => i == Entity.Kind?.Id);
 
 		public bool IsMagnetGlassHolderSelected
@@ -250,6 +251,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 		}
 
+		public string GtinsString => string.Join(", ", Entity.Gtins.Select(x => x.GtinNumber));
+
 		private void UpdateOnlineCategories()
 		{
 			OnlineCategories =
@@ -274,22 +277,22 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			{
 				return;
 			}
-			
+
 			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineSettings.KulerNomenclatureOnlineCategoryId)
 			{
 				Entity.ResetNotKulerOnlineParameters();
 			}
-			
+
 			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineSettings.PurifierNomenclatureOnlineCategoryId)
 			{
 				Entity.ResetNotPurifierOnlineParameters();
 			}
-			
+
 			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineSettings.WaterPumpNomenclatureOnlineCategoryId)
 			{
 				Entity.ResetNotWaterPumpOnlineParameters();
 			}
-			
+
 			if(Entity.NomenclatureOnlineCategory.Id == _nomenclatureOnlineSettings.CupHolderNomenclatureOnlineCategoryId)
 			{
 				Entity.ResetNotCupHolderOnlineParameters();
@@ -417,6 +420,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public DelegateCommand ArchiveCommand { get; }
 		public DelegateCommand UnArchiveCommand { get; }
+		public DelegateCommand EditGtinsCommand { get; }
+
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
 		#endregion Commands
@@ -437,7 +442,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		}
 
 		public NomenclatureMinimumBalanceByWarehouseViewModel NomenclatureMinimumBalanceByWarehouseViewModel { get; private set; }
-
 		private void SetGlassHolderCheckboxesSelection()
 		{
 			if(Entity.Category != NomenclatureCategory.equipment
@@ -526,7 +530,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 			VodovozWebSiteNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
 				CreateNomenclatureOnlinePrice(price, GoodsOnlineParameterType.ForVodovozWebSite));
-			
+
 			_needCheckOnlinePrices = true;
 		}
 
@@ -534,7 +538,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			KulerSaleWebSiteNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
 				CreateNomenclatureOnlinePrice(price, GoodsOnlineParameterType.ForKulerSaleWebSite));
-				
+
 			_needCheckOnlinePrices = true;
 		}
 
@@ -551,10 +555,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price))
 				: VodovozWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
 					.SingleOrDefault(x => x.NomenclaturePrice.Id == price.Id);
-			
+
 			MobileAppNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(mobileAppPrice);
 			VodovozWebSiteNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(vodovozWebSitePrice);
-			
+
 			UpdateNomenclatureOnlinePricesNodes();
 		}
 
@@ -567,7 +571,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					.SingleOrDefault(x => x.NomenclaturePrice.Id == alternativePrice.Id);
 
 			KulerSaleWebSiteNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(kulerSaleWebSitePrice);
-			
+
 			UpdateNomenclatureOnlinePricesNodes();
 		}
 
@@ -632,7 +636,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			return viewModel;
 		}
 
-		private void ConfigureEntityPropertyChanges() {
+		private void ConfigureEntityPropertyChanges()
+		{
 			SetPropertyChangeRelation(
 				e => e.Category,
 				() => IsWaterInNotDisposableTare,
@@ -666,7 +671,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				e => e.TareVolume,
 				() => Is19lTareVolume
 			);
-			
+
 			SetPropertyChangeRelation(
 				e => e.Id,
 				() => UserCanCreateNomenclaturesWithInventoryAccounting
@@ -676,7 +681,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				e => e.NomenclatureOnlineGroup,
 				() => IsWaterParameters
 			);
-			
+
 			SetPropertyChangeRelation(
 				e => e.NomenclatureOnlineCategory,
 				() => IsWaterCoolerParameters,
@@ -684,28 +689,33 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				() => IsPurifierParameters,
 				() => IsCupHolderParameters
 			);
-			
+
 			SetPropertyChangeRelation(
 				e => e.HasInventoryAccounting,
 				() => CanShowConditionAccounting);
 		}
 
-		public string GetUserEmployeeName() {
-			if(Entity.CreatedBy == null) {
+		public string GetUserEmployeeName()
+		{
+			if(Entity.CreatedBy == null)
+			{
 				return "";
 			}
 
 			var employee = _employeeService.GetEmployeeForUser(UoW, Entity.CreatedBy.Id);
 
-			if(employee == null) {
+			if(employee == null)
+			{
 				return Entity.CreatedBy.Name;
 			}
 
 			return employee.ShortName;
 		}
 
-		public void OnEnumCategoryChanged(object sender, EventArgs e) {
-			if(Entity.Category != NomenclatureCategory.deposit) {
+		public void OnEnumCategoryChanged(object sender, EventArgs e)
+		{
+			if(Entity.Category != NomenclatureCategory.deposit)
+			{
 				Entity.TypeOfDepositCategory = null;
 			}
 
@@ -715,7 +725,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 		}
 
-		public void OnEnumCategoryChangedByUser(object sender, EventArgs e) {
+		public void OnEnumCategoryChangedByUser(object sender, EventArgs e)
+		{
 			if(Entity.Id == 0 && IsSaleCategory)
 			{
 				Entity.SaleCategory = SaleCategory.notForSale;
@@ -753,12 +764,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
 			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
 			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
-			
+
 			MobileAppNomenclatureOnlineCatalogs = UoW.GetAll<MobileAppNomenclatureOnlineCatalog>().ToList();
 			VodovozWebSiteNomenclatureOnlineCatalogs = UoW.GetAll<VodovozWebSiteNomenclatureOnlineCatalog>().ToList();
 			KulerSaleWebSiteNomenclatureOnlineCatalogs = UoW.GetAll<KulerSaleWebSiteNomenclatureOnlineCatalog>().ToList();
 			NomenclatureOnlineGroups = UoW.GetAll<NomenclatureOnlineGroup>().ToList();
-			
+
 			UpdateOnlineCategories();
 			UpdateNomenclatureOnlinePricesNodes();
 		}
@@ -787,7 +798,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					break;
 				case GoodsOnlineParameterType.ForVodovozWebSite:
 					parameters = new VodovozWebSiteNomenclatureOnlineParameters();
-					
+
 					foreach(var nomenclaturePrice in Entity.NomenclaturePrice)
 					{
 						parameters.AddNewNomenclatureOnlinePrice(
@@ -823,16 +834,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			return true;
 		}
 
-		protected override bool BeforeSave() {
+		protected override bool BeforeSave()
+		{
 			_logger.LogInformation("Сохраняем номенклатуру...");
 			Entity.SetNomenclatureCreationInfo(_userRepository);
-			
+
 			if(PriceChanged && Entity.Id > 0)
 			{
 				_logger.LogInformation("Проверяем связанные с ней промонаборы...");
 				CheckPromoSetsWithNomenclature();
 			}
-			
+
 			return base.BeforeSave();
 		}
 
@@ -925,25 +937,25 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					throw new ArgumentOutOfRangeException(nameof(type), type, null);
 			}
 		}
-		
+
 		private void CheckPromoSetsWithNomenclature()
 		{
 			var promoSets = _nomenclatureRepository.GetPromoSetsWithNomenclature(UoW, Entity.Id);
-			
+
 			if(promoSets.Any())
 			{
 				var stringBuilder = new StringBuilder();
 				stringBuilder.Append("Изменены цены на товар, входящий в состав промонаборов:\n");
-				
+
 				foreach(var item in promoSets)
 				{
 					stringBuilder.Append($"Код: {item.Id} название: {item.Name}\n");
 				}
-				
+
 				ShowInfoMessage(stringBuilder.ToString());
 			}
 		}
-		
+
 		private void CopyPricesWithoutDiscountFromMobileAppToOtherParameters(NomenclatureOnlineParameters nomenclatureOnlineParameters)
 		{
 			for(var i = 0; i < MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices.Count; i++)
@@ -975,9 +987,28 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			Entity.IsArchive = false;
 		}
 
+		private void EditGtins()
+		{
+			_gtinsJornalViewModel = NavigationManager.OpenViewModel<GtinJournalViewModel, Nomenclature>(this, Entity, OpenPageOptions.AsSlave).ViewModel;
+
+			_gtinsJornalViewModel.TabClosed -= OnGtinsJournalClosed;
+			_gtinsJornalViewModel.TabClosed += OnGtinsJournalClosed;
+		}
+
+		private void OnGtinsJournalClosed(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(GtinsString));
+		}
+
 		public override void Dispose()
 		{
 			_lifetimeScope = null;
+
+			if(_gtinsJornalViewModel != null)
+			{
+				_gtinsJornalViewModel.TabClosed -= OnGtinsJournalClosed;
+			}
+
 			base.Dispose();
 		}
 

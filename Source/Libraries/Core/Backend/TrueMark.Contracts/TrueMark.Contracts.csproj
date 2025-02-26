@@ -9,9 +9,9 @@
 
   <PropertyGroup>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
-    <!--<PackageOutputPath>../../../../Applications/Backend/WebAPI/TrueMark.Api/Nuget/packages</PackageOutputPath>-->
-    <AssemblyVersion>1.0.0.1</AssemblyVersion>
-    <FileVersion>1.0.0.1</FileVersion>
+    <!--<PackageOutputPath>../../../../Packages</PackageOutputPath>-->
+    <AssemblyVersion>1.0.0.3</AssemblyVersion>
+    <FileVersion>1.0.0.3</FileVersion>
     <Version>$(AssemblyVersion)</Version>
   </PropertyGroup>
 

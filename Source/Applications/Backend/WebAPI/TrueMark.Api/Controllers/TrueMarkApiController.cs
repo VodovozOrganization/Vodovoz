@@ -25,7 +25,6 @@ namespace TrueMark.Api.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ApiController]
 [Route("api/[action]")]
-
 public class TrueMarkApiController : ControllerBase
 {
 	private readonly ILogger<TrueMarkApiController> _logger;
@@ -194,9 +193,9 @@ public class TrueMarkApiController : ControllerBase
 						if(indexOfFaultedTask != -1 && identificationCodesArray.Length < indexOfFaultedTask)
 						{
 							_logger.LogError(
-							requestTask.Exception,
-							"Request of code #{Code} was faulted with exception",
-							identificationCodesArray[indexOfFaultedTask]);
+								requestTask.Exception,
+								"Request of code #{Code} was faulted with exception",
+								identificationCodesArray[indexOfFaultedTask]);
 						}
 
 						errorMessage.AppendLine(requestTask.Exception.Message);
