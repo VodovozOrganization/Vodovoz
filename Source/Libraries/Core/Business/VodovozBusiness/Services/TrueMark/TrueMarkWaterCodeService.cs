@@ -335,6 +335,11 @@ namespace VodovozBusiness.Services.TrueMark
 				return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", "Не удалось получить информацию о коде"));
 			}
 
+			if(_organizationsInns is null)
+			{
+				SetOrganizationInns();
+			}
+
 			if(!_organizationsInns.Contains(instanceStatus.OwnerInn))
 			{
 				return Result.Failure<TrueMarkAnyCode>(TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(instanceStatus.OwnerInn));
