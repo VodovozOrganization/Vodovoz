@@ -474,7 +474,7 @@ namespace WarehouseApi.Library.Services
 					continue;
 				}
 
-				await RemoveSingleCode(userLogin, codeToRemove.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
+				await RemoveSingleCode(_uow, userLogin, codeToRemove.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
 			}
 
 			NomenclatureDto nomenclatureDto = null;
@@ -542,6 +542,8 @@ namespace WarehouseApi.Library.Services
 
 			_uow.Commit();
 
+			nomenclatureDto.Codes = trueMarkCodes;
+
 			var successResponse = new ChangeOrderCodeResponse
 			{
 				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
@@ -553,6 +555,7 @@ namespace WarehouseApi.Library.Services
 		}
 
 		private async Task<OneOf<RequestProcessingResult<ChangeOrderCodeResponse>, CarLoadDocumentItemEntity>> RemoveSingleCode(
+			IUnitOfWork unitOfWork,
 			string userLogin,
 			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
@@ -586,7 +589,7 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.ChangeTrueMarkCode);
 
-			RemoveTrueMarkCodeInCarLoadDocumentItem(documentItemToEdit, oldTrueMarkWaterCode);
+			RemoveTrueMarkCodeInCarLoadDocumentItem(unitOfWork, documentItemToEdit, oldTrueMarkWaterCode);
 
 			return await Task.FromResult(documentItemToEdit);
 		}
@@ -777,6 +780,7 @@ namespace WarehouseApi.Library.Services
 		}
 
 		private void RemoveTrueMarkCodeInCarLoadDocumentItem(
+			IUnitOfWork uow,
 			CarLoadDocumentItemEntity carLoadDocumentItem,
 			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode)
 		{
@@ -786,6 +790,8 @@ namespace WarehouseApi.Library.Services
 					&& x.SourceCode.SerialNumber == oldTrueMarkWaterCode.SerialNumber
 					&& x.SourceCode.CheckCode == oldTrueMarkWaterCode.CheckCode)
 				.First();
+
+			uow.Delete(codeToRemove);
 
 			carLoadDocumentItem.TrueMarkCodes.Remove(codeToRemove);
 		}
