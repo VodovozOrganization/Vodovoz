@@ -7,7 +7,7 @@ namespace Edo.Common
 	{
 		public static IServiceCollection AddEdo(this IServiceCollection services)
 		{
-			//services.AddTrueMarkApiClient();
+			services.AddTrueMarkApiClient();
 
 			services
 				.AddScoped<TransferRequestCreator>()

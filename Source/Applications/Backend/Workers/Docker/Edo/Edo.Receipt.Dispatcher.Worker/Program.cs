@@ -6,6 +6,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
+using System;
+using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
@@ -17,6 +19,7 @@ namespace Edo.Receipt.Dispatcher.Worker
 	{
 		public static void Main(string[] args)
 		{
+			Console.OutputEncoding = Encoding.UTF8;
 			CreateHostBuilder(args).Build().Run();
 		}
 

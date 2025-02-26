@@ -35,6 +35,7 @@ namespace Edo.Problems.Exception
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
+				uow.OpenTransaction();
 				var savedSources = uow.Session.QueryOver<EdoTaskProblemExceptionSourceEntity>().List();
 				foreach(var registeredSource in _registeredSources)
 				{

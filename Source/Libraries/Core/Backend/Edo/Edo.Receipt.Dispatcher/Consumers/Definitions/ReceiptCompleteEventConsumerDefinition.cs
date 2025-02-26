@@ -8,7 +8,7 @@ namespace Edo.Receipt.Dispatcher.Consumers.Definitions
 	{
 		public ReceiptCompleteEventConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.event.receipt-complete.consumer.receipt-dispatcher");
+			Endpoint(x => x.Name = "edo.receipt-complete.consumer.receipt-dispatcher");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,

@@ -25,6 +25,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
 using NetTopologySuite.Operation.Valid;
+using NHibernate;
 
 namespace Edo.Receipt.Dispatcher
 {
@@ -83,6 +84,14 @@ namespace Edo.Receipt.Dispatcher
 				throw new InvalidOperationException($"Попытка обработать чек с причиной выбытия " +
 					$"{order.Client.ReasonForLeaving} обработчиком для {ReasonForLeaving.ForOwnNeeds}.");
 			}
+
+			// предзагрузка для ускорения
+			await _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.OrderEdoRequest.Id)
+				.ListAsync();
+
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
@@ -172,7 +181,7 @@ namespace Edo.Receipt.Dispatcher
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-			var sendReceiptMessage = new ReceiptSendEvent { EdoTaskId = receiptEdoTask.Id };
+			var sendReceiptMessage = new ReceiptSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
 			await _messageBus.Publish(sendReceiptMessage);
 		}
 
@@ -289,7 +298,7 @@ namespace Edo.Receipt.Dispatcher
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-			var sendReceiptMessage = new ReceiptSendEvent { EdoTaskId = receiptEdoTask.Id };
+			var sendReceiptMessage = new ReceiptSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
 			await _messageBus.Publish(sendReceiptMessage);
 		}
 

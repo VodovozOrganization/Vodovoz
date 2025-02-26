@@ -2,17 +2,17 @@
 {
 	public class ReceiptTaskCreatedEvent
 	{
-		public int EdoTaskId { get; set; }
+		public int ReceiptEdoTaskId { get; set; }
 	}
 
 	public class ReceiptSendEvent
 	{
-		public int EdoTaskId { get; set; }
+		public int ReceiptEdoTaskId { get; set; }
 	}
 
 	public class ReceiptSentEvent
 	{
-		public int EdoTaskId { get; set; }
+		public int ReceiptEdoTaskId { get; set; }
 	}
 
 	public class ReceiptCompleteEvent

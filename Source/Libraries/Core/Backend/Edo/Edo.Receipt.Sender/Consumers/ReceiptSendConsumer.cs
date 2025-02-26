@@ -15,7 +15,7 @@ namespace Edo.Receipt.Sender.Consumers
 
 		public async Task Consume(ConsumeContext<ReceiptSendEvent> context)
 		{
-			await _receiptSender.HandleReceiptSendEvent(context.Message.EdoTaskId, context.CancellationToken);
+			await _receiptSender.HandleReceiptSendEvent(context.Message.ReceiptEdoTaskId, context.CancellationToken);
 		}
 	}
 }

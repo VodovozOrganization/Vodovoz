@@ -76,6 +76,7 @@ namespace Edo.Common
 			{
 				case EdoTaskType.Transfer:
 					return ((TransferEdoTask)_edoTask).TransferEdoRequests.SelectMany(x => x.TransferedItems);
+				case EdoTaskType.Receipt:
 				case EdoTaskType.Document:
 					return ((OrderEdoTask)_edoTask).Items;
 				default:

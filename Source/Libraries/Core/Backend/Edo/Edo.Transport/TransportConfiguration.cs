@@ -6,7 +6,6 @@ using System.Net.Security;
 using System.Security.Authentication;
 using Edo.Contracts.Messages.Events;
 using Vodovoz.Settings.Pacs;
-using Edo.Transport.Messages.Events;
 
 namespace Edo.Transport
 {
@@ -14,8 +13,7 @@ namespace Edo.Transport
 	{
 		public static void AddEdoTopology(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
 		{
-			// rename exchange: edo.customer-request-created.publish
-			cfg.Message<EdoRequestCreatedEvent>(x => x.SetEntityName("edo.event.request_created"));
+			cfg.Message<EdoRequestCreatedEvent>(x => x.SetEntityName("edo.customer-request-created.publish"));
 			cfg.Publish<EdoRequestCreatedEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
@@ -23,8 +21,7 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
-			// rename exchange: edo.docflow-updated.publish
-			cfg.Message<EdoDocflowUpdatedEvent>(x => x.SetEntityName("EdoDocflowUpdated"));
+			cfg.Message<EdoDocflowUpdatedEvent>(x => x.SetEntityName("edo.docflow-updated.publish"));
 			cfg.Publish<EdoDocflowUpdatedEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
@@ -131,6 +128,22 @@ namespace Edo.Transport
 
 			cfg.Message<SaveCodesTaskCreatedEvent>(x => x.SetEntityName("edo.codes-save-task-created.publish"));
 			cfg.Publish<SaveCodesTaskCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<ReceiptTaskCreatedEvent>(x => x.SetEntityName("edo.receipt-task-created.publish"));
+			cfg.Publish<ReceiptTaskCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<ReceiptTaskCreatedEvent>(x => x.SetEntityName("edo.receipt-task-created.publish"));
+			cfg.Publish<ReceiptTaskCreatedEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;

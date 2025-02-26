@@ -146,7 +146,7 @@ namespace Edo.Receipt.Sender
 						// может тут было бы правильно из перевести в Solved
 
 						edoTask.ReceiptStatus = EdoReceiptStatus.Sent;
-						message = new ReceiptSentEvent { EdoTaskId = edoTask.Id };
+						message = new ReceiptSentEvent { ReceiptEdoTaskId = edoTask.Id };
 					}
 				}
 				catch(CashboxException ex)

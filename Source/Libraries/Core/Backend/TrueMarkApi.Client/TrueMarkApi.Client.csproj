@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
-    <ProjectReference Include="..\TrueMark.Contracts\TrueMark.Contracts.csproj" />
     <ProjectReference Include="..\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj" />
   </ItemGroup>
 

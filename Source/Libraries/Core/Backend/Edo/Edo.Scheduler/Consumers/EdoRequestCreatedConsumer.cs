@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using Edo.Contracts.Messages.Events;
 using Microsoft.Extensions.Logging;
-using Edo.Transport.Messages.Events;
 
 namespace Edo.Docflow.Consumers
 {
