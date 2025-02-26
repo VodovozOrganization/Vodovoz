@@ -92,7 +92,7 @@ namespace Edo.Scheduler.Service
 						message = new ReceiptTaskCreatedEvent { EdoTaskId = edoTask.Id };
 						break;
 					case EdoTaskType.SaveCode:
-						throw new NotImplementedException("Необходимо реализовать процесс для сохранения кодов");
+						message = new SaveCodesTaskCreatedEvent { EdoTaskId = edoTask.Id };
 						break;
 					case EdoTaskType.BulkAccounting:
 						//ничего отправлять пока не нужно, т.к. EdoDocumentsPreparerWorker сам подтянет сущности задач

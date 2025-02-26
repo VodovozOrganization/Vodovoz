@@ -25,9 +25,9 @@ namespace Edo.Problems
 				.AddScoped<EdoTaskValidatorsProvider>()
 				.AddScoped<EdoTaskValidator>()
 				.AddScoped<EdoProblemRegistrar>()
-
-				.TryAddScoped<IUnitOfWork>(x => x.GetService<IUnitOfWorkFactory>().CreateWithoutRoot())
 			;
+
+			services.TryAddScoped<IUnitOfWork>(x => x.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			return services;
 		}

@@ -22,15 +22,7 @@ namespace Edo.CodesSaver.Consumers
 
 		public async Task Consume(ConsumeContext<SaveCodesTaskCreatedEvent> context)
 		{
-			try
-			{
-				await _saveCodesEventHandler.Handle(context.Message.EdoTaskId, context.CancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка при обработке события сохранения кодов");
-				//await context.ConsumeCompleted;
-			}
+			await _saveCodesEventHandler.Handle(context.Message.EdoTaskId, context.CancellationToken);
 		}
 	}
 }

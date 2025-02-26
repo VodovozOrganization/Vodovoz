@@ -28,35 +28,25 @@ namespace Edo.CodesSaver
 
 		public async Task Handle(int edoTaskId, CancellationToken cancellationToken)
 		{
-			_uow.OpenTransaction();
-
 			var edoTask = await _uow.Session.GetAsync<SaveCodesEdoTask>(edoTaskId);
 			if(edoTask == null)
 			{
-				// задача не найдена
 				_logger.LogWarning("ЭДО задача с id {EdoTaskId} не найдена", edoTaskId);
 				return;
 			}
 
 			if(edoTask.Status != EdoTaskStatus.New)
 			{
-				// задача уже обработана
 				_logger.LogWarning("ЭДО задача с id {EdoTaskId} уже обработана", edoTaskId);
 				return;
 			}
 
-			try
-			{
-				await SaveCodes(edoTask, cancellationToken);
-			}
-			catch(Exception ex)
-			{
-				// зарегистрировать проблему по исключению
-				// НЕТ
-				// несколько попыток, после чего сброс ошибки в раббит
-				return;
-			}
+			await SaveCodes(edoTask, cancellationToken);
+			edoTask.Status = EdoTaskStatus.Completed;
+			edoTask.StartTime = DateTime.Now;
+			edoTask.EndTime = DateTime.Now;
 
+			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 		}
 

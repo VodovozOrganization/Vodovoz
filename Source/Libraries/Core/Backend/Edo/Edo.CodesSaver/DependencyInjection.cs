@@ -1,6 +1,8 @@
 ﻿using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using QS.DomainModel.UoW;
 using System.Reflection;
 using TrueMark.Codes.Pool;
 
@@ -14,6 +16,8 @@ namespace Edo.CodesSaver
 				.AddScoped<SaveCodesEventHandler>()
 				.AddCodesPool()
 				;
+
+			services.TryAddScoped<IUnitOfWork>(x => x.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
