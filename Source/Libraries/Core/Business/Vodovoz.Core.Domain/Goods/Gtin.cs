@@ -1,9 +1,8 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using Vodovoz.Core.Domain.Goods;
 
-namespace VodovozBusiness.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Gtin",

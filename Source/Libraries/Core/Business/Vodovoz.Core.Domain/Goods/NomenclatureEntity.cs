@@ -6,7 +6,6 @@ using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
-using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.Core.Domain.Goods
 {
