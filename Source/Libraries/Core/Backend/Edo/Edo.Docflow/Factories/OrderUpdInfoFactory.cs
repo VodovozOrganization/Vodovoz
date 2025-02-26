@@ -56,7 +56,7 @@ namespace Edo.Docflow.Factories
 				BasisShipment = GetBasisShipmentInfo(order.Client, order.Contract),
 				Payments = GetPayments(order),
 				Products = products,
-				AdditionalInformation = GetAdditionalInformation(order)
+				AdditionalInformation = GetAdditionalInformation(order, products)
 			};
 
 			return document;
@@ -130,11 +130,12 @@ namespace Edo.Docflow.Factories
 				}
 			};
 
-		private IEnumerable<UpdAdditionalInfo> GetAdditionalInformation(OrderEntity order)
+		private IEnumerable<UpdAdditionalInfo> GetAdditionalInformation(OrderEntity order, IEnumerable<ProductInfo> products)
 		{
 			var additionalInformation = new List<UpdAdditionalInfo>();
 			
-			if(order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			if(products.Any(x => x.TrueMarkCodes.Any())
+				&& order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 			{
 				additionalInformation.Add(new UpdAdditionalInfo
 				{

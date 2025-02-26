@@ -165,7 +165,7 @@ namespace EdoDocumentsPreparer
 					.ToDictionary(x => x.Id);
 				
 				_logger.LogInformation(
-					"Всего задач для формирования {Document} и отправки: {ИulkAccountingEdoTasksCount}",
+					"Всего задач для формирования {Document} и отправки: {BulkAccountingEdoTasksCount}",
 					document,
 					bulkAccountingEdoTasks.Count);
 

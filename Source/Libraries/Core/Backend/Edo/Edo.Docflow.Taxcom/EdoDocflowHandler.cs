@@ -29,7 +29,6 @@ namespace Edo.Docflow.Taxcom
 
 		public async Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event)
 		{
-			//"258c49f9-0bfd-4968-b0c1-69ec6822747a"
 			var now = DateTime.Now;
 			
 			var taxcomDocflow = new TaxcomDocflow

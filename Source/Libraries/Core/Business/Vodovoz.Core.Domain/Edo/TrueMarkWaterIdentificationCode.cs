@@ -129,21 +129,24 @@ namespace Vodovoz.Core.Domain.Edo
 				if(sb[i] == lessThan)
 				{
 					sb.Remove(i, 1);
-					sb.Insert(i,"&lt;");
+					sb.Insert(i, "&lt;");
+					i += 3;
 					continue;
 				}
 				
 				if(sb[i] == greaterThan)
 				{
 					sb.Remove(i, 1);
-					sb.Insert(i,"&gt;");
+					sb.Insert(i, "&gt;");
+					i += 3;
 					continue;
 				}
 				
 				if(sb[i] == ampersand)
 				{
 					sb.Remove(i, 1);
-					sb.Insert(i,"&amp;");
+					sb.Insert(i, "&amp;");
+					i += 4;
 				}
 			}
 			
