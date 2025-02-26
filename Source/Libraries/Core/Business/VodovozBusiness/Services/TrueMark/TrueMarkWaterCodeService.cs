@@ -311,6 +311,11 @@ namespace VodovozBusiness.Services.TrueMark
 
 			var truemarkClient = _trueMarkApiClientFactory.GetClient();
 
+			if(_trueMarkWaterCodeParser.TryParse(scannedCode, out var parsedCode))
+			{
+				scannedCode = _trueMarkWaterCodeParser.GetWaterIdentificationCode(parsedCode);
+			}
+
 			try
 			{
 				productInstanceInfo = await truemarkClient.GetProductInstanceInfoAsync(new string[] { scannedCode }, cancellationToken);
