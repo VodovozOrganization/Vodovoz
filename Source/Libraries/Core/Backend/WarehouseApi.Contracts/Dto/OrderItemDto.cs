@@ -20,7 +20,7 @@ namespace WarehouseApi.Contracts.Dto
 		/// <summary>
 		/// Номер товарной продукции GTIN
 		/// </summary>
-		public string Gtin { get; set; }
+		public IEnumerable<string> Gtin { get; set; }
 
 		/// <summary>
 		/// Количество
