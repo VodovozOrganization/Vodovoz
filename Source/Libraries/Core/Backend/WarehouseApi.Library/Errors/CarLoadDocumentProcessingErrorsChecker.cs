@@ -25,7 +25,7 @@ namespace WarehouseApi.Library.Errors
 	{
 		private readonly ILogger<CarLoadDocumentProcessingErrorsChecker> _logger;
 		private readonly IUnitOfWork _uow;
-		private readonly ITrueMarkWaterCodeCheckService _trueMarkWaterCodeCheckService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeCheckService;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly ICarLoadDocumentLoadingProcessSettings _carLoadDocumentLoadingProcessSettings;
@@ -34,7 +34,7 @@ namespace WarehouseApi.Library.Errors
 		public CarLoadDocumentProcessingErrorsChecker(
 			ILogger<CarLoadDocumentProcessingErrorsChecker> logger,
 			IUnitOfWork uow,
-			ITrueMarkWaterCodeCheckService trueMarkWaterCodeCheckService,
+			ITrueMarkWaterCodeService trueMarkWaterCodeCheckService,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,

@@ -55,7 +55,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 		private readonly IOrderSettings _orderSettings;
-		private readonly ITrueMarkWaterCodeCheckService _trueMarkWaterCodeCheckService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeCheckService;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IBus _messageBus;
 
@@ -73,7 +73,7 @@ namespace DriverAPI.Library.V6.Services
 			QrPaymentConverter qrPaymentConverter,
 			IFastPaymentService fastPaymentModel,
 			IOrderSettings orderSettings,
-			ITrueMarkWaterCodeCheckService trueMarkWaterCodeCheckService,
+			ITrueMarkWaterCodeService trueMarkWaterCodeCheckService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			IBus messageBus)
 		{

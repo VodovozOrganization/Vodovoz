@@ -16,7 +16,7 @@ using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace VodovozBusiness.Services.TrueMark
 {
-	public class TrueMarkWaterCodeCheckService : ITrueMarkWaterCodeCheckService
+	public class TrueMarkWaterCodeService : ITrueMarkWaterCodeService
 	{
 		private static IList<SourceProductCodeStatus> _successfullyUsedProductCodesStatuses = new List<SourceProductCodeStatus>
 		{
@@ -24,7 +24,7 @@ namespace VodovozBusiness.Services.TrueMark
 			SourceProductCodeStatus.Changed
 		};
 
-		private readonly ILogger<TrueMarkWaterCodeCheckService> _logger;
+		private readonly ILogger<TrueMarkWaterCodeService> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
@@ -35,8 +35,8 @@ namespace VodovozBusiness.Services.TrueMark
 
 		private IList<string> _organizationsInns;
 
-		public TrueMarkWaterCodeCheckService(
-			ILogger<TrueMarkWaterCodeCheckService> logger,
+		public TrueMarkWaterCodeService(
+			ILogger<TrueMarkWaterCodeService> logger,
 			IUnitOfWork uow,
 			TrueMarkCodesChecker trueMarkCodesChecker,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,

@@ -39,7 +39,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IGenericRepository<OrderEntity> _orderRepository;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
-		private readonly ITrueMarkWaterCodeCheckService _trueMarkWaterCodeCheckService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeCheckService;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
 		private readonly IBus _messageBus;
@@ -52,7 +52,7 @@ namespace WarehouseApi.Library.Services
 			IGenericRepository<OrderEntity> orderRepository,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
-			ITrueMarkWaterCodeCheckService trueMarkWaterCodeCheckService,
+			ITrueMarkWaterCodeService trueMarkWaterCodeCheckService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
 			IBus messageBus)

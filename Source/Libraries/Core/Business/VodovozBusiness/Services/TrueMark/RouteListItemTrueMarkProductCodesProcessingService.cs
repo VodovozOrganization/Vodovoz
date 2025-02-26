@@ -17,11 +17,11 @@ namespace VodovozBusiness.Services.TrueMark
 	public class RouteListItemTrueMarkProductCodesProcessingService : IRouteListItemTrueMarkProductCodesProcessingService
 	{
 		private readonly IOrderRepository _orderRepository;
-		private readonly ITrueMarkWaterCodeCheckService _trueMarkWaterCodeCheckService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeCheckService;
 
 		public RouteListItemTrueMarkProductCodesProcessingService(
 			IOrderRepository orderRepository,
-			ITrueMarkWaterCodeCheckService trueMarkWaterCodeCheckService)
+			ITrueMarkWaterCodeService trueMarkWaterCodeCheckService)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_trueMarkWaterCodeCheckService = trueMarkWaterCodeCheckService;
