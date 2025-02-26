@@ -85,8 +85,11 @@ namespace Edo.Scheduler.Service
 					case EdoTaskType.Document:
 						message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
 						break;
+					case EdoTaskType.Withdrawal:
+						// создать сообщение для сервиса вывода из оборота
+						break;
 					case EdoTaskType.Receipt:
-						throw new NotImplementedException("Необходимо реализовать процесс для отправки чека");
+						message = new ReceiptTaskCreatedEvent { EdoTaskId = edoTask.Id };
 						break;
 					case EdoTaskType.SaveCode:
 						throw new NotImplementedException("Необходимо реализовать процесс для сохранения кодов");

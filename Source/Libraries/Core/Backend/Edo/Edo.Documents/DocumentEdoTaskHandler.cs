@@ -3,7 +3,6 @@ using Edo.Contracts.Messages.Events;
 using Edo.Problems.Validation;
 using MassTransit;
 using QS.DomainModel.UoW;
-using Renci.SshNet.Messages;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

@@ -1,5 +1,6 @@
 ﻿using QS.Extensions.Observable.Collections.List;
 using System.Linq;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Client;
 
@@ -12,7 +13,7 @@ namespace Edo.Scheduler.Service
 			switch(edoRequest.Order.PaymentType)
 			{
 				case PaymentType.Cashless:
-					return CreateDocumentEdoTask(edoRequest);
+					return CreateEdoTaskForCashless(edoRequest);
 				case PaymentType.Cash:
 				case PaymentType.Terminal:
 				case PaymentType.DriverApplicationQR:
@@ -39,7 +40,7 @@ namespace Edo.Scheduler.Service
 			}
 		}
 
-		private EdoTask CreateDocumentEdoTask(OrderEdoRequest edoRequest)
+		private EdoTask CreateEdoTaskForCashless(OrderEdoRequest edoRequest)
 		{
 			return edoRequest.Order.Client.IsNewEdoProcessing
 				? CreateInstanceAccountingEdoTask(edoRequest)
@@ -47,6 +48,23 @@ namespace Edo.Scheduler.Service
 		}
 		
 		private EdoTask CreateInstanceAccountingEdoTask(OrderEdoRequest edoRequest)
+		{
+			
+			if(edoRequest.Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+			{
+				// Если есть согласение на ЭДО
+				// создаем задачу формирования документа ЭДО
+				return CreateDocumentEdoTask(edoRequest);
+			}
+			else
+			{
+				// Иначе
+				// создаем задачу вывода из оборота через честный знак
+				return CreateWithdrawalEdoTask(edoRequest);
+			}
+		}
+
+		private EdoTask CreateDocumentEdoTask(OrderEdoRequest edoRequest)
 		{
 			var task = new DocumentEdoTask
 			{
@@ -58,7 +76,7 @@ namespace Edo.Scheduler.Service
 			};
 
 			task.Items = new ObservableList<EdoTaskItem>(
-				edoRequest.ProductCodes.Select(x => 
+				edoRequest.ProductCodes.Select(x =>
 					new EdoTaskItem
 					{
 						ProductCode = x,
@@ -70,6 +88,28 @@ namespace Edo.Scheduler.Service
 
 			return task;
 		}
+
+		private EdoTask CreateWithdrawalEdoTask(OrderEdoRequest edoRequest)
+		{
+			var task = new WithdrawalEdoTask
+			{
+				Status = EdoTaskStatus.New,
+			};
+
+			task.Items = new ObservableList<EdoTaskItem>(
+				edoRequest.ProductCodes.Select(x =>
+					new EdoTaskItem
+					{
+						ProductCode = x,
+						CustomerEdoTask = task
+					})
+			);
+
+			edoRequest.Task = task;
+
+			return task;
+		}
+
 
 		private EdoTask CreateBulkAccountingEdoTask(OrderEdoRequest edoRequest)
 		{
