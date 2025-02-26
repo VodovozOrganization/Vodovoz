@@ -55,7 +55,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 		private readonly IOrderSettings _orderSettings;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeCheckService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IBus _messageBus;
 
@@ -73,7 +73,7 @@ namespace DriverAPI.Library.V6.Services
 			QrPaymentConverter qrPaymentConverter,
 			IFastPaymentService fastPaymentModel,
 			IOrderSettings orderSettings,
-			ITrueMarkWaterCodeService trueMarkWaterCodeCheckService,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			IBus messageBus)
 		{
@@ -90,7 +90,7 @@ namespace DriverAPI.Library.V6.Services
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_trueMarkWaterCodeCheckService = trueMarkWaterCodeCheckService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeCheckService));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
@@ -649,7 +649,7 @@ namespace DriverAPI.Library.V6.Services
 				foreach(var scannedCode in scannedCodes)
 				{
 					var trueMarkWaterIdentificationCode =
-						_trueMarkWaterCodeCheckService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
+						_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
 
 					if(routeListAddress.TrueMarkCodes.Any(x => x.SourceCode.RawCode == trueMarkWaterIdentificationCode.RawCode))
 					{

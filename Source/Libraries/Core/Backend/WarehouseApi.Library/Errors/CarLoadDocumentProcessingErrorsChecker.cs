@@ -25,7 +25,7 @@ namespace WarehouseApi.Library.Errors
 	{
 		private readonly ILogger<CarLoadDocumentProcessingErrorsChecker> _logger;
 		private readonly IUnitOfWork _uow;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeCheckService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly ICarLoadDocumentLoadingProcessSettings _carLoadDocumentLoadingProcessSettings;
@@ -34,7 +34,7 @@ namespace WarehouseApi.Library.Errors
 		public CarLoadDocumentProcessingErrorsChecker(
 			ILogger<CarLoadDocumentProcessingErrorsChecker> logger,
 			IUnitOfWork uow,
-			ITrueMarkWaterCodeService trueMarkWaterCodeCheckService,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,
@@ -42,7 +42,7 @@ namespace WarehouseApi.Library.Errors
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_trueMarkWaterCodeCheckService = trueMarkWaterCodeCheckService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeCheckService));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_employeeWithLoginRepository = employeeWithLoginRepository ?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
 			_carLoadDocumentLoadingProcessSettings = carLoadDocumentLoadingProcessSettings;
@@ -492,14 +492,14 @@ namespace WarehouseApi.Library.Errors
 
 		private Result IsTrueMarkCodeNotUsed(TrueMarkWaterIdentificationCode trueMarkWaterCode)
 		{
-			return _trueMarkWaterCodeCheckService.IsTrueMarkWaterIdentificationCodeNotUsed(trueMarkWaterCode);
+			return _trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(trueMarkWaterCode);
 		}
 
 		private async Task<Result> IsTrueMarkCodeIntroducedAndHasCorrectInn(
 			TrueMarkWaterIdentificationCode trueMarkWaterCode,
 			CancellationToken cancellationToken)
 		{
-			return await _trueMarkWaterCodeCheckService.IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
+			return await _trueMarkWaterCodeService.IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
 		}
 
 		private void LogError(Error error)

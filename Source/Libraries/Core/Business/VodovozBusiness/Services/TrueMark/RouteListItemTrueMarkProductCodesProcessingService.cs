@@ -17,14 +17,14 @@ namespace VodovozBusiness.Services.TrueMark
 	public class RouteListItemTrueMarkProductCodesProcessingService : IRouteListItemTrueMarkProductCodesProcessingService
 	{
 		private readonly IOrderRepository _orderRepository;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeCheckService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 
 		public RouteListItemTrueMarkProductCodesProcessingService(
 			IOrderRepository orderRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeCheckService)
+			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_trueMarkWaterCodeCheckService = trueMarkWaterCodeCheckService;
+			_trueMarkWaterCodeService = trueMarkWaterCodeService;
 		}
 
 		public async Task<Result> AddTrueMarkCodeToRouteListItemWithCodeChecking(
@@ -37,7 +37,7 @@ namespace VodovozBusiness.Services.TrueMark
 			bool isCheckForCodeChange = false)
 		{
 			var trueMarkWaterIdentificationCode =
-				_trueMarkWaterCodeCheckService.LoadOrCreateTrueMarkWaterIdentificationCode(uow, scannedCode);
+				_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(uow, scannedCode);
 
 			uow.Save(trueMarkWaterIdentificationCode);
 
@@ -133,7 +133,7 @@ namespace VodovozBusiness.Services.TrueMark
 			string scannedCode)
 		{
 			var trueMarkWaterIdentificationCode =
-				_trueMarkWaterCodeCheckService.LoadOrCreateTrueMarkWaterIdentificationCode(uow, scannedCode);
+				_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(uow, scannedCode);
 
 			var productCode =
 				routeListAddress.TrueMarkCodes
@@ -202,7 +202,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			codeCheckingProcessResult =
-				_trueMarkWaterCodeCheckService.IsTrueMarkWaterIdentificationCodeNotUsed(trueMarkWaterIdentificationCode);
+				_trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(trueMarkWaterIdentificationCode);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -210,7 +210,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			codeCheckingProcessResult =
-				await _trueMarkWaterCodeCheckService.IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterIdentificationCode, cancellationToken);
+				await _trueMarkWaterCodeService.IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterIdentificationCode, cancellationToken);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
