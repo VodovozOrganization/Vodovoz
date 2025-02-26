@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				return;
 			}
 
-			NavigationManager.OpenViewModel<GtinViewModel, INavigationManager, Gtin>(this, NavigationManager, gtin, OpenPageOptions.AsSlave);
+			NavigationManager.OpenViewModel<GtinViewModel, INavigationManager, Gtin, Nomenclature>(this, NavigationManager, gtin, _nomenclature, OpenPageOptions.AsSlave);
 		}
 
 		protected virtual void Delete(IEnumerable<Gtin> nodes)

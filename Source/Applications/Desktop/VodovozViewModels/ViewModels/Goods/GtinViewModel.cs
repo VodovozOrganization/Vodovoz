@@ -12,12 +12,12 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 	{
 		private Nomenclature _nomenclature;
 
-		public GtinViewModel(INavigationManager navigationManager, Gtin gtin)
+		public GtinViewModel(INavigationManager navigationManager, Gtin gtin, Nomenclature nomenclature)
 			: this(navigationManager)
 		{
 			Gtin = gtin ?? throw new ArgumentNullException(nameof(gtin));
 
-			_nomenclature = Gtin.Nomenclature;
+			_nomenclature = nomenclature;
 
 			Title = $"Редактирование {gtin}";
 		}
