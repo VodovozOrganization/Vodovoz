@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Settings.Contacts;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.Domain.Contacts
 {
@@ -24,7 +25,7 @@ namespace Vodovoz.Domain.Contacts
 		private PhoneType _phoneType;
 		private Employee _employee;
 
-		public virtual PhoneType PhoneType
+		public virtual new PhoneType PhoneType
 		{
 			get => _phoneType;
 			set => SetField(ref _phoneType, value);

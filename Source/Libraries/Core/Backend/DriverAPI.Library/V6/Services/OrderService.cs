@@ -2,7 +2,7 @@
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
-using Edo.Transport.Messages.Events;
+using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;

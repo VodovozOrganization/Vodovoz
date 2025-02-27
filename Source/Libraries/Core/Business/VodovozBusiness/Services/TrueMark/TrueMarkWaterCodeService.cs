@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Edo;
 using TrueMark.Contracts;
 using TrueMark.Contracts.Responses;
 using TrueMarkApi.Client;

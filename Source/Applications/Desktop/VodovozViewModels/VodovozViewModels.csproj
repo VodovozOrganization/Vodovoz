@@ -94,6 +94,7 @@
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalNode.cs" />
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarEventTypeFilterViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\GtinJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Goods\NonReturnReasonJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\NonReturnReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\GtinJournalViewModel.cs" />

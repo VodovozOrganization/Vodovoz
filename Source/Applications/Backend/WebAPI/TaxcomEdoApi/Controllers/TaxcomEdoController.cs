@@ -1,5 +1,6 @@
 ﻿using System;
 using Core.Infrastructure;
+using Edo.Contracts.Messages.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Taxcom.Client.Api;
@@ -47,6 +48,38 @@ namespace TaxcomEdoApi.Controllers
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", orderId);
+				return Problem();
+			}
+		}
+		
+		[HttpPost]
+		public IActionResult NewCreateAndSendUpd(UniversalTransferDocumentInfo updInfo)
+		{
+			var documentId = updInfo.DocumentId;
+			_logger.LogInformation(
+				"Поступил запрос отправки УПД {UpdNumber} {DocumentId}",
+				updInfo.Number,
+				documentId);
+			
+			try
+			{
+				var container = _taxcomEdoService.CreateContainerWithUpd(updInfo);
+				
+				_logger.LogInformation(
+					"Отправляем контейнер с УПД {UpdNumber} {DocumentId}",
+					updInfo.Number,
+					documentId);
+				
+				_taxcomApi.Send(container);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка в процессе формирования УПД №{UpdNumber} {DocumentId} и ее отправки",
+					updInfo.Number,
+					documentId);
 				return Problem();
 			}
 		}
@@ -215,6 +248,28 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogError(e, "Ошибка при аннулировании документооборота {DocFlowId} с причиной {Reason}",
 					docFlowId,
 					reason);
+				return Problem();
+			}
+		}
+		
+		[HttpGet]
+		public IActionResult AcceptIngoingDocflow(string docFlowId, string organization)
+		{
+			_logger.LogInformation("Поступил запрос принятия входящего документооборота {DocFlowId}", docFlowId);
+			
+			try
+			{
+				var sendCustomerInfoEvent = _taxcomEdoService.GetSendCustomerInformationEvent(docFlowId, organization);
+				var xmlString = sendCustomerInfoEvent.ToXmlString();
+				
+				_logger.LogInformation("Сформировали файл действие для отправки титула покупателя по {DocFlowId}", docFlowId);
+				
+				_taxcomApi.SendCustomerInformationWithRawData(xmlString);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при принятии входящего документооборота {DocFlowId}", docFlowId);
 				return Problem();
 			}
 		}

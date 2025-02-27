@@ -9,7 +9,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		{
 			DiscriminatorValue(nameof(CustomerEdoRequestType.Order));
 
-			References(x => x.Order).Column("order_id");
+			References(x => x.Order)
+				.Column("order_id");
 		}
 	}
 }

@@ -41,5 +41,11 @@ namespace Vodovoz.Core.Domain.Edo
 		/// </summary>
 		[Display(Name = "Заказ без отгрузки")]
 		OrderWithoutShipment,
+
+		/// <summary>
+		/// Ручной (принудительный) запуск
+		/// </summary>
+		[Display(Name = "Вручную")]
+		Manual
 	}
 }

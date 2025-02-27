@@ -1,6 +1,9 @@
 using Autofac.Extensions.DependencyInjection;
+using Edo.Docflow.Taxcom;
 using EdoDocumentFlowUpdater.Configs;
 using EdoDocumentFlowUpdater.Options;
+using MassTransit;
+using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -8,6 +11,7 @@ using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
 using TaxcomEdo.Client;
+using TaxcomEdo.Library;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
@@ -57,7 +61,14 @@ namespace EdoDocumentFlowUpdater
 						.AddTaxcomClient()
 						
 						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoDocumentFlowUpdater))
-						.AddHostedService<TaxcomEdoDocumentFlowUpdater>();
+						.AddHostedService<TaxcomEdoDocumentFlowUpdater>()
+						
+						.AddMessageTransportSettings()
+						.AddMassTransit(busConf =>
+						{
+							busConf.ConfigureRabbitMq();
+						});
+
 				});
 	}
 }

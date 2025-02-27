@@ -1,4 +1,4 @@
-﻿using Edo.Transport.Messages.Events;
+﻿using Edo.Contracts.Messages.Events;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -15,7 +15,6 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;

@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
@@ -12,7 +13,6 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Errors;
 using Vodovoz.Settings.Database.Nomenclature;
 using Vodovoz.Settings.Nomenclature;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Service;
 using VodovozBusiness.Services;
 

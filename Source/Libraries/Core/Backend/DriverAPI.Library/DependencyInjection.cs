@@ -1,4 +1,4 @@
-using DriverApi.Notifications.Client.Clients;
+﻿using DriverApi.Notifications.Client.Clients;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Services;
 using EventsApi.Library;
@@ -86,10 +86,7 @@ namespace DriverAPI.Library
 
 			services
 				.AddMessageTransportSettings()
-				.AddEdoRequestMassTransit((context, cfg) =>
-				{
-					cfg.AddEdoRequestBaseTopology(context);
-				});
+				.AddEdoMassTransit();
 
 			return services;
 		}

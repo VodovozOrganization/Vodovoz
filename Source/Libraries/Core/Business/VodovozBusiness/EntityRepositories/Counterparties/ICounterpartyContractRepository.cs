@@ -8,7 +8,7 @@ using Vodovoz.Tools;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
-    public interface ICounterpartyContractRepository
+	public interface ICounterpartyContractRepository
     {
         CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, IErrorReporter errorReporter);
 		CounterpartyContract GetCounterpartyContractByOrganization(IUnitOfWork uow, Order order, Organization organization);

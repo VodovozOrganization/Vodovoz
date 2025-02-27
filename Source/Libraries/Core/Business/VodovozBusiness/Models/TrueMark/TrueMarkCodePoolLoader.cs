@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
