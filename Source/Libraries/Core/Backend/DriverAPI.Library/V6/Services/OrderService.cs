@@ -651,6 +651,8 @@ namespace DriverAPI.Library.V6.Services
 					var trueMarkWaterIdentificationCode =
 						_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
 
+					_uow.Save(trueMarkWaterIdentificationCode);
+
 					if(routeListAddress.TrueMarkCodes.Any(x => x.SourceCode.RawCode == trueMarkWaterIdentificationCode.RawCode))
 					{
 						continue;
