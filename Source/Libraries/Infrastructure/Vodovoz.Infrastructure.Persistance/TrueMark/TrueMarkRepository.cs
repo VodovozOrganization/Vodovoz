@@ -3,6 +3,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -27,17 +28,11 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			{
 				Organization organizationAlias = null;
 				var queryOrganization = uow.Session.QueryOver(() => organizationAlias)
+					.Where(x => x.OrganizationEdoType != OrganizationEdoType.WithoutEdo)
 					.Select(Projections.Property(() => organizationAlias.INN));
 				var organizations = queryOrganization.List<string>();
 
-				Counterparty counterpartyAlias = null;
-				var queryCounterparty = uow.Session.QueryOver(() => counterpartyAlias)
-					.Where(() => counterpartyAlias.CounterpartyType == CounterpartyType.Supplier)
-					.Select(Projections.Property(() => counterpartyAlias.INN));
-				var counterparties = queryCounterparty.List<string>();
-
-				var innList = organizations.Union(counterparties);
-				var result = innList.Distinct().ToHashSet();
+				var result = organizations.Distinct().ToHashSet();
 				return result;
 			}
 		}
