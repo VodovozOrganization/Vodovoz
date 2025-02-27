@@ -16,6 +16,12 @@ namespace TrueMark.Contracts
 		public string RequestedCis { get; set; }
 
 		/// <summary>
+		/// GTIN
+		/// </summary>
+		[JsonPropertyName("gtin")]
+		public string Gtin { get; set; }
+
+		/// <summary>
 		/// Уровень вложенности типа упаковки упаковки
 		/// </summary>
 		[JsonPropertyName("packageType")]
