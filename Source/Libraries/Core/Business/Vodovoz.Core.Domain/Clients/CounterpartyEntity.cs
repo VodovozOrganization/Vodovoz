@@ -29,7 +29,6 @@ namespace Vodovoz.Core.Domain.Clients
 	public class CounterpartyEntity : AccountOwnerBase, IDomainObject, IHasAttachedFilesInformations<CounterpartyFileInformation>
 	{
 		private int _id;
-		private ReasonForLeaving _reasonForLeaving;
 		private OrderStatusForSendingUpd _orderStatusForSendingUpd;
 		private ConsentForEdoStatus _consentForEdoStatus;
 		private bool _isNewEdoProcessing;
@@ -126,16 +125,6 @@ namespace Vodovoz.Core.Domain.Clients
 					UpdateFileInformations();
 				}
 			}
-		}
-
-		/// <summary>
-		/// Цель покупки воды (причина выбытия)
-		/// </summary>
-		[Display(Name = "Цель покупки воды (причина выбытия)")]
-		public virtual ReasonForLeaving ReasonForLeaving
-		{
-			get => _reasonForLeaving;
-			set => SetField(ref _reasonForLeaving, value);
 		}
 
 		[Display(Name = "Согласие клиента на ЭДО")]

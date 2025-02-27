@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -69,13 +70,6 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _checkCode, value);
 		}
 		
-		[Display(Name = "Код валиден для тэга 1260")]
-		public virtual bool IsTag1260Valid 
-		{ 
-			get => _isTagValid;
-			set => SetField(ref _isTagValid, value);
-		}
-		
 		[Display(Name = "Результаты проверки кода для тэга 1260")]
 		public virtual Tag1260CodeCheckResult Tag1260CodeCheckResult
 		{
@@ -99,6 +93,17 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _isTagValid;
 			set => SetField(ref _isTagValid, value);
 		}
+
+		/// <summary>
+		/// Получение КИ(кода идентификации) для документа по ЭДО
+		/// </summary>
+		/// <returns>КИ</returns>
+		public virtual string ConvertToIdentificationCode() => GetIdentificationCodeForEdoDocument();
+		/// <summary>
+		/// Получение КИГУ(кода идентификации групповой упаковки) для документа по ЭДО
+		/// </summary>
+		/// <returns>КИ</returns>
+		public virtual string ConvertToGroupPackagingIdentificationCode() => GetIdentificationCodeForEdoDocument();
 
 
 		public virtual string CashReceiptCode => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
