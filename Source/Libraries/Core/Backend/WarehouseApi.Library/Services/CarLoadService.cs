@@ -228,11 +228,14 @@ namespace WarehouseApi.Library.Services
 				_uow.Commit();
 			}
 
-			if(trueMarkCodeResult.Value.TrueMarkTransportCode?.ParentTransportCodeId != null
-				|| trueMarkCodeResult.Value.TrueMarkWaterGroupCode?.ParentTransportCodeId != null
-				|| trueMarkCodeResult.Value.TrueMarkWaterGroupCode?.ParentWaterGroupCodeId != null
-				|| trueMarkCodeResult.Value.TrueMarkWaterIdentificationCode?.ParentTransportCodeId != null
-				|| trueMarkCodeResult.Value.TrueMarkWaterIdentificationCode?.ParentWaterGroupCodeId != null)
+			if((trueMarkCodeResult.Value.IsTrueMarkTransportCode &&
+				trueMarkCodeResult.Value.TrueMarkTransportCode?.ParentTransportCodeId != null)
+				|| (trueMarkCodeResult.Value.IsTrueMarkWaterGroupCode
+					&& (trueMarkCodeResult.Value.TrueMarkWaterGroupCode?.ParentTransportCodeId != null
+					|| trueMarkCodeResult.Value.TrueMarkWaterGroupCode?.ParentWaterGroupCodeId != null))
+				|| (trueMarkCodeResult.Value.IsTrueMarkWaterIdentificationCode
+					&& (trueMarkCodeResult.Value.TrueMarkWaterIdentificationCode?.ParentTransportCodeId != null
+					|| trueMarkCodeResult.Value.TrueMarkWaterIdentificationCode?.ParentWaterGroupCodeId != null)))
 			{
 				var error = new Error("Temporary.Error.TrueMarkApi", "Нельзя добавить код, участвующий в аггрегации");
 
