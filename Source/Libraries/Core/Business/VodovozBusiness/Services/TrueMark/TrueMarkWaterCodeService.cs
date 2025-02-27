@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -174,6 +174,14 @@ namespace VodovozBusiness.Services.TrueMark
 
 				return Result.Success();
 			}
+			catch(TrueMarkException ex)
+			{
+				var error = TrueMarkCodeErrors.CreateTrueMarkApiRequestError(
+					$"Запрос к API ЧЗ для проверки кода вернул ответ с ошибкой. " +
+					$"{ex.Message}");
+				_logger.LogError(ex, error.Message);
+				return Result.Failure(error);
+			}
 			catch(Exception ex)
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkApiRequestError(
@@ -229,17 +237,17 @@ namespace VodovozBusiness.Services.TrueMark
 				.ToList();
 		}
 
-		public Result IsTrueMarkWaterIdentificationCodeNotUsed(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode)
+		public Result IsTrueMarkWaterIdentificationCodeNotUsed(
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			int exceptProductCodeId = 0)
 		{
 			if(trueMarkWaterIdentificationCode is null)
 			{
 				throw new ArgumentNullException(nameof(trueMarkWaterIdentificationCode));
 			}
 
-			var isCodeAlreadyUsed = _trueMarkProductCodeRepository.Get(
-				_uow,
-				x => x.ResultCode.Id == trueMarkWaterIdentificationCode.Id
-					&& _successfullyUsedProductCodesStatuses.Contains(x.SourceCodeStatus))
+			var isCodeAlreadyUsed =
+				_trueMarkProductCodesHavingRequiredResultCode(trueMarkWaterIdentificationCode.Id, exceptProductCodeId)
 				.Any();
 
 			if(isCodeAlreadyUsed)
@@ -250,6 +258,13 @@ namespace VodovozBusiness.Services.TrueMark
 
 			return Result.Success();
 		}
+
+		private IEnumerable<TrueMarkProductCode> _trueMarkProductCodesHavingRequiredResultCode(int resultCodeId, int exceptProductCodeId = 0) =>
+			_trueMarkProductCodeRepository.Get(
+				_uow,
+				x => x.ResultCode.Id == resultCodeId
+					&& _successfullyUsedProductCodesStatuses.Contains(x.SourceCodeStatus)
+				&& (exceptProductCodeId == 0 || x.Id != exceptProductCodeId));
 
 		public Result<TrueMarkAnyCode> TryGetSavedTrueMarkCodeByScannedCode(string scannedCode)
 			=> TryGetSavedTrueMarkCodeByScannedCode(_uow, scannedCode);

@@ -27,6 +27,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Common;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
@@ -51,6 +52,7 @@ namespace Vodovoz
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly IServiceProvider _serviceProvider;
+		private readonly IOrderRepository _orderRepository;
 		private readonly IPermissionResult _permissionResult;
 
 		private Employee _previousForwarder = null;
@@ -78,6 +80,7 @@ namespace Vodovoz
 			IGeneralSettings generalSettings,
 			IServiceProvider serviceProvider,
 			ICallTaskWorker callTaskWorker,
+			IOrderRepository orderRepository,
 			DeliveryFreeBalanceViewModel deliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverViewModelEEVMBuilder,
@@ -94,6 +97,8 @@ namespace Vodovoz
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 			CallTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+
 			DeliveryFreeBalanceViewModel = deliveryFreeBalanceViewModel ?? throw new ArgumentNullException(nameof(deliveryFreeBalanceViewModel));
 			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
 			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
@@ -439,6 +444,32 @@ namespace Vodovoz
 				return;
 			}
 
+			if(_routeListItemStatusToChange == RouteListItemStatus.Completed
+				&& rli.RouteListItem.Order.IsOrderContainsIsAccountableInTrueMarkItems
+				&& !_currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
+			{
+				if(rli.RouteListItem.Order.IsNeedIndividualSetOnLoad
+					&& !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, rli.RouteListItem.Order.Id))
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning,
+						"Заказ не может быть переведен в статус \"Доставлен\", " +
+						"т.к. данный заказ является сетевым, но документ погрузки не находится в статусе \"Погрузка завершена\"");
+
+					return;
+				}
+
+				if(rli.RouteListItem.Order.IsOrderForResale
+					&& !rli.RouteListItem.Order.IsNeedIndividualSetOnLoad
+					&& !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, rli.RouteListItem.Order.Id))
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning,
+						"Заказ не может быть переведен в статус \"Доставлен\", " +
+						"т.к. данный заказ на перепродажу, но не все коды ЧЗ были добавлены");
+
+					return;
+				}
+			}
+			
 			if(RouteListItem.GetUndeliveryStatuses().Contains(_routeListItemStatusToChange))
 			{
 				if(rli.InitialRouteListItemStatusIsInUndeliveryStatuses

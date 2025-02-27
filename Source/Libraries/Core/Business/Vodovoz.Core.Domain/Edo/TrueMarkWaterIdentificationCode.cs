@@ -19,7 +19,7 @@ namespace Vodovoz.Core.Domain.Edo
 		AccusativePlural = "коды честного знака",
 		Prepositional = "коде честного знака",
 		PrepositionalPlural = "кодах честного знака")]
-	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode
+	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode, ITrueMarkCodesProvider
 	{
 		private string _rawCode;
 		private bool _isInvalid;
@@ -93,12 +93,17 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Получение КИ(кода идентификации) для документа по ЭДО
 		/// </summary>
 		/// <returns>КИ</returns>
-		public virtual string ConvertToIdentificationCode() => GetIdentificationCodeForEdoDocument();
-		/// <summary>
-		/// Получение КИГУ(кода идентификации групповой упаковки) для документа по ЭДО
-		/// </summary>
-		/// <returns>КИ</returns>
-		public virtual string ConvertToGroupPackagingIdentificationCode() => GetIdentificationCodeForEdoDocument();
+		[Display(Name = "Код валиден для тэга 1260")]
+		public virtual bool IsTag1260Valid
+		{
+			get => _isTagValid;
+			set => SetField(ref _isTagValid, value);
+		}
+
+
+		public virtual string CashReceiptCode => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
+
+		public virtual string Tag1260Code => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
 
 		public override bool Equals(object obj)
 		{

@@ -90,7 +90,8 @@ namespace Vodovoz.Models.TrueMark
 
 			var productInstancesInfo = await _trueMarkClient.GetProductInstanceInfoAsync(productCodes.Keys, cancellationToken);
 
-			if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage) && !productInstancesInfo.InstanceStatuses.Any())
+			if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage)
+				&& (productInstancesInfo.InstanceStatuses is null || !productInstancesInfo.InstanceStatuses.Any()))
 			{
 				throw new TrueMarkException($"Не удалось получить информацию о состоянии товаров в системе Честный знак. Подробности: {productInstancesInfo.ErrorMessage}");
 			}

@@ -2,7 +2,6 @@
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -14,6 +13,7 @@ using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Nomenclature;
+using static VodovozBusiness.Services.Orders.CreateOrderRequest;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -356,7 +356,15 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal TotalCountInOrder =>
 			Nomenclature.IsWater19L
 			? Order.GetTotalWater19LCount(true, true)
-			: Count;
+		: Count;
+
+		public virtual bool IsTrueMarkCodesMustBeAdded =>
+			Nomenclature?.IsAccountableInTrueMarkAndHasGtin == true
+			&& Count > 0;
+
+		public virtual bool IsTrueMarkCodesMustBeAddedInWarehouse =>
+			IsTrueMarkCodesMustBeAdded
+			&& Order.IsNeedIndividualSetOnLoad;
 
 		#region IOrderItemWageCalculationSource implementation
 

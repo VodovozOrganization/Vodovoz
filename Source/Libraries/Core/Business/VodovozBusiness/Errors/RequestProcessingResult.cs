@@ -1,6 +1,4 @@
-﻿using Vodovoz.Errors;
-
-namespace WarehouseApi.Library.Common
+﻿namespace Vodovoz.Errors
 {
 	public class RequestProcessingResult
 	{

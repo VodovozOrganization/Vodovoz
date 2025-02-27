@@ -535,6 +535,14 @@ namespace Vodovoz.Core.Domain.Goods
 			set => SetField(ref _gtins, value);
 		}
 
+		/// <summary>
+		/// Проверка на то, что номенклатура подлежит учету в Честном Знаке и имеет GTIN
+		/// </summary>
+		public virtual bool IsAccountableInTrueMarkAndHasGtin =>
+			IsAccountableInTrueMark
+			&& !string.IsNullOrWhiteSpace(Gtin);
+		
+
 		#region Свойства товаров для магазина
 
 
