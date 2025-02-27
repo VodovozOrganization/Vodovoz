@@ -18,7 +18,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 		AccusativePlural = "коды честного знака",
 		Prepositional = "коде честного знака",
 		PrepositionalPlural = "кодах честного знака")]
-	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode
+	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode, ITrueMarkCodesProvider
 	{
 		private string _rawCode;
 		private bool _isInvalid;
@@ -76,11 +76,17 @@ namespace Vodovoz.Core.Domain.TrueMark
 		}
 
 		[Display(Name = "Код валиден для тэга 1260")]
-		public virtual bool IsTag1260Valid 
+		public virtual bool IsTag1260Valid
 		{
 			get => _isTagValid;
 			set => SetField(ref _isTagValid, value);
 		}
+
+		public virtual string IdentificationCode => $"01{GTIN}21{SerialNumber}";
+
+		public virtual string CashReceiptCode => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
+
+		public virtual string Tag1260Code => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
 
 		public override bool Equals(object obj)
 		{
