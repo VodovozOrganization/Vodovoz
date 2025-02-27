@@ -56,5 +56,11 @@ namespace TrueMark.Contracts
 		/// </summary>
 		[JsonPropertyName("child")]
 		public IEnumerable<string> Childs { get; set; } = Enumerable.Empty<string>();
+
+		/// <summary>
+		/// GTIN
+		/// </summary>
+		[JsonPropertyName("gtin")]
+		public string Gtin { get; set; }
 	}
 }
