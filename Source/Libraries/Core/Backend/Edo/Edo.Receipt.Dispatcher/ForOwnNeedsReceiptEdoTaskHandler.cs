@@ -216,8 +216,8 @@ namespace Edo.Receipt.Dispatcher
 				if(!isValid)
 				{
 					attempts--;
-					trueMarkCodesChecker.ClearCache();
 					await PrepareFiscalDocuments(receiptEdoTask, cancellationToken);
+					trueMarkCodesChecker.ClearCache();
 				}
 
 				// проверяем все коды по задаче в ЧЗ
@@ -229,6 +229,17 @@ namespace Edo.Receipt.Dispatcher
 				isValid = taskValidationResult.IsAllValid;
 				if(!isValid)
 				{
+					// очистка result кодов не валидных позиций
+					foreach(var codeResult in taskValidationResult.CodeResults)
+					{
+						if(codeResult.IsValid)
+						{
+							continue;
+						}
+
+						codeResult.EdoTaskItem.ProductCode.ResultCode = null;
+					}
+
 					continue;
 				}
 
@@ -403,7 +414,10 @@ namespace Edo.Receipt.Dispatcher
 					currentFiscalDocument.InventPositions.Add(inventPosition);
 				}
 
-				receiptEdoTask.FiscalDocuments.Add(currentFiscalDocument);
+				if(!receiptEdoTask.FiscalDocuments.Contains(currentFiscalDocument))
+				{
+					receiptEdoTask.FiscalDocuments.Add(currentFiscalDocument);
+				}
 
 				// подготавливаем данные для следующей итерации
 				documentIndex++;
@@ -411,6 +425,7 @@ namespace Edo.Receipt.Dispatcher
 					.Skip(_maxCodesInReceipt * documentIndex)
 					.Take(_maxCodesInReceipt);
 				currentFiscalDocument = CreateFiscalDocument(receiptEdoTask);
+				currentFiscalDocument.Index = documentIndex;
 				currentFiscalDocument.DocumentNumber += $"_{documentIndex}";
 			} while(currentProcessingPositions.Any());
 		}
@@ -440,8 +455,9 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
 			{
 				var markedEmptyPositions = fiscalDocument.InventPositions
+					.Where(x => x.OrderItem.Nomenclature.IsAccountableInTrueMark)
 					.Where(x => x.EdoTaskItem.ProductCode.ResultCode == null)
-					.Where(x => x.OrderItem.Nomenclature.IsAccountableInTrueMark);
+					;
 				foreach(var inventPosition in markedEmptyPositions)
 				{
 					var code = await LoadCodeFromPool(inventPosition.OrderItem.Nomenclature, cancellationToken);

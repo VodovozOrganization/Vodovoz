@@ -50,7 +50,7 @@ namespace TrueMark.Codes.Pool
 
 		private IQuery GetPutCodeQuery(int codeId)
 		{
-			var sql = $@"INSERT INTO {_poolTableName} (code_id) VALUES(:code_id);";
+			var sql = $@"INSERT INTO {_poolTableName} (code_id) VALUES(:code_id)";
 			var query = _uow.Session.CreateSQLQuery(sql)
 				.SetParameter("code_id", codeId);
 			return query;
@@ -58,27 +58,33 @@ namespace TrueMark.Codes.Pool
 
 		public virtual int TakeCode(string gtin)
 		{
-			var query = GetTakeCodeQuery(gtin);
-			var codeId = query.UniqueResult<uint>();
-			if(codeId == 0)
+			var findCodeQuery = GetFindCodeQuery(gtin);
+			var id = findCodeQuery.UniqueResult<uint>();
+			if(id == 0)
 			{
 				throw new EdoCodePoolException($"В пуле не найден код для gtin {gtin}");
 			}
+
+			var takeCodeQuery = GetTakeCodeQuery((int)id);
+			var codeId = takeCodeQuery.UniqueResult<uint>();
 			return (int)codeId;
 		}
 
 		public virtual async Task<int> TakeCode(string gtin, CancellationToken cancellationToken)
 		{
-			var query = GetTakeCodeQuery(gtin);
-			var codeId = await query.UniqueResultAsync<uint>(cancellationToken);
-			if(codeId == 0)
+			var findCodeQuery = GetFindCodeQuery(gtin);
+			var id = await findCodeQuery.UniqueResultAsync<uint>(cancellationToken);
+			if(id == 0)
 			{
 				throw new EdoCodePoolException($"В пуле не найден код для gtin {gtin}");
 			}
+
+			var takeCodeQuery = GetTakeCodeQuery((int)id);
+			var codeId = await takeCodeQuery.UniqueResultAsync<uint>(cancellationToken);
 			return (int)codeId;
 		}
 
-		private IQuery GetTakeCodeQuery(string gtin)
+		private IQuery GetFindCodeQuery(string gtin)
 		{
 			var sql = $@"
 				SELECT pool.id
@@ -88,11 +94,22 @@ namespace TrueMark.Codes.Pool
 					AND code.gtin = :gtin
 				ORDER BY pool.adding_time DESC 
 				LIMIT 1
-				FOR UPDATE SKIP LOCKED
-				;";
+				FOR UPDATE SKIP LOCKED";
 
 			var query = _uow.Session.CreateSQLQuery(sql)
 				.SetParameter("gtin", gtin);
+			return query;
+		}
+
+		private IQuery GetTakeCodeQuery(int id)
+		{
+			var sql = $@"
+				DELETE FROM {_poolTableName}
+				WHERE id = :id
+				RETURNING code_id";
+
+			var query = _uow.Session.CreateSQLQuery(sql)
+				.SetParameter("id", id);
 			return query;
 		}
 	}

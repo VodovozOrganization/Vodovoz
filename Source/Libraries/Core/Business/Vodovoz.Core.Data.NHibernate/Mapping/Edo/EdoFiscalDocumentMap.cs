@@ -27,6 +27,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			References(x => x.ReceiptEdoTask)
 				.Column("receipt_edo_task_id");
 
+			Map(x => x.Index)
+				.Column("index");
+
 			Map(x => x.Stage)
 				.Column("stage");
 

@@ -173,10 +173,11 @@ namespace Edo.Problems
 
 			IUnitOfWork uow = _taskUow;
 			var invalidResults = validationResults.Where(x => !x.IsValid);
-			var isAllValid = invalidResults.IsAny();
+			var isAllValid = !invalidResults.IsAny();
 			if(!isAllValid)
 			{
 				uow = _uowFactory.CreateWithoutRoot();
+				uow.OpenTransaction();
 			}
 
 			foreach(var validationResult in validationResults)

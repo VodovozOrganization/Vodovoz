@@ -37,7 +37,7 @@ namespace Edo.Common
 			foreach(var taskItem in edoTask.Items)
 			{
 				var code = taskItem.ProductCode.ResultCode;
-				var codeResult = new TrueMarkCodeValidationResult(code);
+				var codeResult = new TrueMarkCodeValidationResult(code, taskItem);
 
 				if(!checkResults.TryGetValue(code.IdentificationCode, out var checkResult))
 				{
