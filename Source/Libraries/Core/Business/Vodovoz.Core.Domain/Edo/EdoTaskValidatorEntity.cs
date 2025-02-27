@@ -16,7 +16,18 @@ namespace Vodovoz.Core.Domain.Edo
 			return Equals(obj as EdoTaskValidatorEntity);
 		}
 
-		public bool Equals(EdoTaskValidatorEntity other)
+		public override int GetHashCode()
+		{
+			int hashCode = -1010886112;
+			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
+			hashCode = hashCode * -1521134295 + Importance.GetHashCode();
+			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Message);
+			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Description);
+			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Recommendation);
+			return hashCode;
+		}
+
+		public virtual bool Equals(EdoTaskValidatorEntity other)
 		{
 			return !(other is null) &&
 				   Name == other.Name &&
@@ -24,17 +35,6 @@ namespace Vodovoz.Core.Domain.Edo
 				   Message == other.Message &&
 				   Description == other.Description &&
 				   Recommendation == other.Recommendation;
-		}
-
-		public override int GetHashCode()
-		{
-			int hashCode = -689312363;
-			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
-			hashCode = hashCode * -1521134295 + Importance.GetHashCode();
-			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Message);
-			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Description);
-			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Recommendation);
-			return hashCode;
 		}
 
 		public override string ToString()

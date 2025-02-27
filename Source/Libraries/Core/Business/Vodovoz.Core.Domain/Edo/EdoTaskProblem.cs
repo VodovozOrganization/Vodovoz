@@ -13,7 +13,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private DateTime _updateTime;
 		private TaskProblemState _state;
 		private string _validatorName;
-		private ObservableList<EdoTaskItem> _taskItems = new ObservableList<EdoTaskItem>();
+		private IObservableList<EdoTaskItem> _taskItems = new ObservableList<EdoTaskItem>();
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -58,7 +58,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Проблемные строки задачи")]
-		public virtual ObservableList<EdoTaskItem> TaskItems
+		public virtual IObservableList<EdoTaskItem> TaskItems
 		{
 			get => _taskItems;
 			set => SetField(ref _taskItems, value);

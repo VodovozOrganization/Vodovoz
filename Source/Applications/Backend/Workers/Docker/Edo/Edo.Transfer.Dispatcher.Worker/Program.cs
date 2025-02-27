@@ -9,7 +9,9 @@ using QS.Project.Core;
 using System;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
+using Vodovoz.Infrastructure.Persistance;
 
 namespace Edo.Transfer.Dispatcher
 {
@@ -40,10 +42,14 @@ namespace Edo.Transfer.Dispatcher
 							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
 						)
 						.AddDatabaseConnection()
+						.AddNHibernateConventions()
+						.AddCoreDataRepositories()
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoTransferDispatcher()
+
+						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();

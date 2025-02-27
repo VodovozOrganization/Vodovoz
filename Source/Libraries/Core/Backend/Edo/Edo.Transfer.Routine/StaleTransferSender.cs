@@ -1,5 +1,6 @@
 ﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
+using NLog;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -8,41 +9,39 @@ using System.Threading.Tasks;
 
 namespace Edo.Transfer.Routine
 {
-	public class StaleTransferSender : IDisposable
+	public class StaleTransferSender
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly TransferDispatcher _transferDispatcher;
 		private readonly IBus _messageBus;
-		private readonly IUnitOfWork _uow;
 
 		public StaleTransferSender(IUnitOfWorkFactory uowFactory, TransferDispatcher transferDispatcher, IBus messageBus)
 		{
-			if(uowFactory is null)
-			{
-				throw new ArgumentNullException(nameof(uowFactory));
-			}
-
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_transferDispatcher = transferDispatcher ?? throw new ArgumentNullException(nameof(transferDispatcher));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 
-			_uow = uowFactory.CreateWithoutRoot();
 		}
 
 		public async Task SendStaleTasksAsync(CancellationToken cancellationToken)
 		{
-			_uow.Session.BeginTransaction();
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
 
-			var staleTasks = await _transferDispatcher.SendStaleTasksAsync(_uow, cancellationToken);
-			var events = staleTasks.Select(x => new TransferTaskReadyToSendEvent { Id = x.Id });
+				uow.OpenTransaction();
 
-			await _uow.CommitAsync();
+				var staleTasks = await _transferDispatcher.SendStaleTasksAsync(uow, cancellationToken);
+				if(!staleTasks.Any())
+				{
+					return;
+				}
 
-			var publishTasks = events.Select(x => _messageBus.Publish(x, cancellationToken));
-			await Task.WhenAll(publishTasks);
-		}
+				await uow.CommitAsync();
 
-		public void Dispose()
-		{
-			_uow.Dispose();
+				var events = staleTasks.Select(x => new TransferTaskReadyToSendEvent { Id = x.Id });
+				var publishTasks = events.Select(x => _messageBus.Publish(x, cancellationToken));
+				await Task.WhenAll(publishTasks);
+			}
 		}
 	}
 }

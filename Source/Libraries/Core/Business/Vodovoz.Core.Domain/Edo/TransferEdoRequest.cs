@@ -12,7 +12,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private DocumentEdoTask _documentEdoTask;
 		private int _fromOrganizationId;
 		private int _toOrganizationId;
-		private ObservableList<EdoTaskItem> _transferedItems = new ObservableList<EdoTaskItem>();
+		private IObservableList<EdoTaskItem> _transferedItems = new ObservableList<EdoTaskItem>();
 		private TransferEdoTask _transferEdoTask;
 
 		[Display(Name = "Код")]
@@ -51,7 +51,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Перемещаемые коды")]
-		public virtual ObservableList<EdoTaskItem> TransferedItems
+		public virtual IObservableList<EdoTaskItem> TransferedItems
 		{
 			get => _transferedItems;
 			set => SetField(ref _transferedItems, value);

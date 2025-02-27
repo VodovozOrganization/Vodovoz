@@ -2,6 +2,6 @@
 {
 	public class TransferRequestCreatedEvent
 	{
-		public int Id { get; set; }
+		public int DocumentEdoTaskId { get; set; }
 	}
 }

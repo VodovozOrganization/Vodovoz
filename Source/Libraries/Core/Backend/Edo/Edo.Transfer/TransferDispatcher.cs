@@ -68,6 +68,8 @@ namespace Edo.Transfer
 			if(task == null)
 			{
 				task = new TransferEdoTask();
+				task.Status = EdoTaskStatus.InProgress;
+				task.StartTime = DateTime.Now;
 				task.FromOrganizationId = direction.FromOrganizationId;
 				task.ToOrganizationId = direction.ToOrganizationId;
 				task.TransferStatus = TransferEdoTaskStatus.WaitingRequests;
@@ -125,7 +127,7 @@ namespace Edo.Transfer
 			var transferedCodes = await _transferTaskRepository.GetAllCodesForTransferTaskAsync(uow, transferEdoTask, cancellationToken);
 			
 			var transferOrder = new TransferOrder();
-			transferOrder.Date = transferEdoTask.TransferStartTime;
+			transferOrder.Date = transferEdoTask.StartTime.Value;
 			transferOrder.Seller = new OrganizationEntity { Id = transferEdoTask.FromOrganizationId };
 			transferOrder.Customer = new OrganizationEntity { Id = transferEdoTask.ToOrganizationId };
 
@@ -136,17 +138,16 @@ namespace Edo.Transfer
 				transferOrderTrueMarkCode.TransferOrder = transferOrder;
 				transferOrder.TrueMarkCodes.Add(transferOrderTrueMarkCode);
 			}
-
 			await uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
+			transferEdoTask.TransferOrderId = transferOrder.Id;
+			await uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 		}
 
-		public async Task<TransferEdoTask> CompleteTransfer(IUnitOfWork uow, TransferEdoDocument transferEdoDocument, CancellationToken cancellationToken)
+		public void CompleteTransfer(TransferEdoTask transferTask)
 		{
-			var task = await uow.Session.GetAsync<TransferEdoTask>(transferEdoDocument.TransferTaskId, cancellationToken);
-			task.TransferStatus = TransferEdoTaskStatus.Completed;
-
-			await uow.SaveAsync(task, cancellationToken: cancellationToken);
-			return task;
+			transferTask.TransferStatus = TransferEdoTaskStatus.Completed;
+			transferTask.Status = EdoTaskStatus.Completed;
+			transferTask.EndTime = DateTime.Now;
 		}
 
 		public async Task<bool> IsAllTransfersComplete(IUnitOfWork uow, TransferEdoTask transferTask, CancellationToken cancellationToken)

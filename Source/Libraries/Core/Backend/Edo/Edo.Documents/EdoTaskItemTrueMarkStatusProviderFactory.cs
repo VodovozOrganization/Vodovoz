@@ -6,16 +6,14 @@ namespace Edo.Documents
 {
 	public class EdoTaskItemTrueMarkStatusProviderFactory
 	{
-		private readonly TrueMarkApiClient _trueMarkApiClient;
 
-		public EdoTaskItemTrueMarkStatusProviderFactory(TrueMarkApiClient trueMarkApiClient)
+		public EdoTaskItemTrueMarkStatusProviderFactory()
 		{
-			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
 		}
 
-		public EdoTaskItemTrueMarkStatusProvider Create(DocumentEdoTask edoTask)
+		public EdoTaskItemTrueMarkStatusProvider Create(DocumentEdoTask edoTask, TrueMarkApiClient trueMarkApiClient)
 		{
-			return new EdoTaskItemTrueMarkStatusProvider(edoTask, _trueMarkApiClient);
+			return new EdoTaskItemTrueMarkStatusProvider(edoTask, trueMarkApiClient);
 		}
 	}
 }
