@@ -2,6 +2,17 @@
 {
 	public static class TrueMarkCode
 	{
+		public static Error TrueMarkCodeParsingError =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeParsingError),
+				"Ошибка получения кода");
+
+		public static Error MissingPersistedTrueMarkCode =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(MissingPersistedTrueMarkCode),
+				"Отсутствует сохраненный код ЧЗ");
 
 		public static Error TrueMarkCodeStringIsNotValid =>
 			new Error(

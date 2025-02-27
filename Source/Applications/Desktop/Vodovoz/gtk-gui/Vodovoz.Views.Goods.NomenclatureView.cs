@@ -1726,7 +1726,7 @@ namespace Vodovoz.Views.Goods
 			this.spinPercentForMaster.ClimbRate = 1D;
 			this.spinPercentForMaster.Digits = ((uint)(1));
 			this.spinPercentForMaster.Numeric = true;
-			this.spinPercentForMaster.Value = 10D;
+			this.spinPercentForMaster.Value = 9.9D;
 			this.spinPercentForMaster.ValueAsDecimal = 0m;
 			this.spinPercentForMaster.ValueAsInt = 0;
 			this.datatable1.Add(this.spinPercentForMaster);

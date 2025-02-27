@@ -2068,6 +2068,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NonReturnReasonView.cs" />
     <Compile Include="Views\Warehouse\CodesScanCheckerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.CodesScanCheckerView.cs" />
+    <Compile Include="Views\Goods\GtinView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.GtinView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

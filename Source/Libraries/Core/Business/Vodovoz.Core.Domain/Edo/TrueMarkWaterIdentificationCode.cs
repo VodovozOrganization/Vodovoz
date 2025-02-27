@@ -6,16 +6,21 @@ using Vodovoz.Core.Domain.Interfaces.TrueMark;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	[
-		Appellative(
-			Gender = GrammaticalGender.Masculine,
-			NominativePlural = "код честного знака",
-			Nominative = "код честного знака"
-		)
-	]
+	/// <summary>
+	/// Код воды честного знака
+	/// </summary>
+	[Appellative(
+		Gender = GrammaticalGender.Masculine,
+		Genitive = "кода честного знака",
+		GenitivePlural = "кодов честного знака",
+		Nominative = "код честного знака",
+		NominativePlural = "код честного знака",
+		Accusative = "код честного знака",
+		AccusativePlural = "коды честного знака",
+		Prepositional = "коде честного знака",
+		PrepositionalPlural = "кодах честного знака")]
 	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode
 	{
-		public virtual int Id { get; set; }
 		private string _rawCode;
 		private bool _isInvalid;
 		private string _gtin;
@@ -23,6 +28,11 @@ namespace Vodovoz.Core.Domain.Edo
 		private string _checkCode;
 		private bool _isTagValid;
 		private Tag1260CodeCheckResult _tag1260CodeCheckResult;
+
+		public virtual int Id { get; set; }
+
+		public virtual int? ParentWaterGroupCodeId { get; set; }
+		public virtual int? ParentTransportCodeId { get; set; }
 
 		[Display(Name = "Необработанный код")]
 		public virtual string RawCode
@@ -92,11 +102,9 @@ namespace Vodovoz.Core.Domain.Edo
 
 		public override bool Equals(object obj)
 		{
-			if(obj is TrueMarkWaterIdentificationCode)
+			if(obj is TrueMarkWaterIdentificationCode code)
 			{
-				var code = (TrueMarkWaterIdentificationCode)obj;
-				var result = RawCode == code.RawCode;
-				return result;
+				return RawCode == code.RawCode;
 			}
 			else
 			{
