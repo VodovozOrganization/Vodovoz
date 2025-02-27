@@ -18,12 +18,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark.TrueMarkProductCodes
 				.Column("source_code_status");
 
 			References(x => x.SourceCode)
-				.Column("source_code_id")
-				.Cascade.AllDeleteOrphan();
+				.Column("source_code_id");
 
 			References(x => x.ResultCode)
-				.Column("result_code_id")
-				.Cascade.AllDeleteOrphan();
+				.Column("result_code_id");
 
 			Map(x => x.Problem)
 				.Column("problem");

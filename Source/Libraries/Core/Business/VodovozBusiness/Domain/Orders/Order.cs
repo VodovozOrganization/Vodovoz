@@ -1501,6 +1501,25 @@ namespace Vodovoz.Domain.Orders
 			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Kind.Id))
 			.Count() > 0;
 
+		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems =>
+			ObservableOrderItems.Any(x =>
+			x.Nomenclature.IsAccountableInTrueMark && !string.IsNullOrWhiteSpace(x.Nomenclature.Gtin) && x.Count > 0);
+
+		/// <summary>
+		/// Проверка, является ли клиент по заказу сетевым покупателем
+		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
+		/// </summary>
+		public virtual new bool IsNeedIndividualSetOnLoad =>
+			PaymentType == PaymentType.Cashless
+			&& Client?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
+
+		/// <summary>
+		/// Проверка, является ли целью покупки заказа - для перепродажи
+		/// </summary>
+		public virtual bool IsOrderForResale =>
+			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
+
 		#endregion
 
 		#region Автосоздание договоров, при изменении подтвержденного заказа

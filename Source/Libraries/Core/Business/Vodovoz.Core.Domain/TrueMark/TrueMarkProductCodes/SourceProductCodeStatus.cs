@@ -8,6 +8,13 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 	public enum SourceProductCodeStatus
 	{
 		/// <summary>
+		/// Новый код <br/>
+		/// Проверка кода не выполнялась
+		/// </summary>
+		[Display(Name = "Проблема")]
+		New,
+
+		/// <summary>
 		/// Есть не решаемая проблема с кодом <br/>
 		/// Дальнейшее использование кода невозможно
 		/// </summary>
