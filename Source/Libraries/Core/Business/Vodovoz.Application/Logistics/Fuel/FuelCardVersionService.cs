@@ -4,6 +4,7 @@ using System.Linq;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Services.Fuel;
+using DateTimeHelpers;
 
 namespace Vodovoz.Application.Logistics.Fuel
 {
@@ -69,6 +70,11 @@ namespace Vodovoz.Application.Logistics.Fuel
 				throw new ArgumentNullException(nameof(version));
 			}
 
+			if(!IsDateTodayOrTomorow(newStartDate))
+			{
+				return false;
+			}
+
 			if(version.Id != 0
 				|| version.StartDate == newStartDate
 				|| newStartDate >= version.EndDate
@@ -84,6 +90,11 @@ namespace Vodovoz.Application.Logistics.Fuel
 		public bool IsValidDateForNewCarVersion(DateTime dateTime, FuelCard fuelCard)
 		{
 			if(fuelCard == null)
+			{
+				return false;
+			}
+
+			if(!IsDateTodayOrTomorow(dateTime))
 			{
 				return false;
 			}
@@ -107,6 +118,10 @@ namespace Vodovoz.Application.Logistics.Fuel
 
 			return _car.FuelCardVersions.All(x => x.StartDate < dateTime);
 		}
+
+		public bool IsDateTodayOrTomorow(DateTime date) =>
+			date >= DateTime.Today
+			&& date <= DateTime.Today.AddDays(1).LatestDayTime();
 
 		private void AddNewVersion(FuelCardVersion newVersion, DateTime startDate)
 		{

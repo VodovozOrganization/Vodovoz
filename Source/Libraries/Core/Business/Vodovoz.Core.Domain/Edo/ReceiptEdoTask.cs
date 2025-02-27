@@ -1,20 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using QS.Extensions.Observable.Collections.List;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class ReceiptEdoTask : CustomerEdoTask
+	public class ReceiptEdoTask : OrderEdoTask
 	{
-		private int _cashReceiptId;
+		private EdoReceiptStatus _receiptStatus;
+		private int? _cashboxId;
+		private IObservableList<EdoFiscalDocument> _fiscalDocuments = new ObservableList<EdoFiscalDocument>();
 
-		// Допускается связь с чеком, для интеграции со старой системой чеков
-		[Display(Name = "Код чека")]
-		public virtual int CashReceiptId
+		[Display(Name = "Статус")]
+		public virtual EdoReceiptStatus ReceiptStatus
 		{
-			get => _cashReceiptId;
-			set => SetField(ref _cashReceiptId, value);
+			get => _receiptStatus;
+			set => SetField(ref _receiptStatus, value);
 		}
+
+		[Display(Name = "Код кассы")]
+		public virtual int? CashboxId
+		{
+			get => _cashboxId;
+			set => SetField(ref _cashboxId, value);
+		}
+
+		[Display(Name = "Фискальые документы")]
+		public virtual IObservableList<EdoFiscalDocument> FiscalDocuments
+		{
+			get => _fiscalDocuments;
+			set => SetField(ref _fiscalDocuments, value);
+		}
+
+		public override EdoTaskType TaskType => EdoTaskType.Receipt;
 	}
 }

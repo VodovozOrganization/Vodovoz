@@ -593,7 +593,7 @@ namespace Vodovoz.Views.Employees
 		private void ConfigureTreeEmployeeContracts()
 		{
 			ytreeviewEmployeeContract.ColumnsConfig = FluentColumnsConfig<EmployeeContract>.Create()
-				.AddColumn("Договор").AddTextRenderer(x => x.EmployeeContractTemplate.TemplateType.GetEnumTitle())
+				.AddColumn("Договор").AddTextRenderer(x => x.EmployeeContractTemplate != null ? x.EmployeeContractTemplate.TemplateType.GetEnumTitle() : "")
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
 				.AddColumn("Дата начала").AddTextRenderer(x => x.FirstDay.ToString("dd/MM/yyyy"))
 				.AddColumn("Дата конца").AddTextRenderer(x => x.LastDay.ToString("dd/MM/yyyy"))

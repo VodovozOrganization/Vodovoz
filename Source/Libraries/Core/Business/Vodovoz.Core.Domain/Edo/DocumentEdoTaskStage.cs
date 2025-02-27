@@ -6,6 +6,6 @@
 		Transfering,
 		Sending,
 		Sent,
-		Done
+		Completed
 	}
 }

@@ -33,13 +33,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Cascade.AllDeleteOrphan();
 
 			References(x => x.Task)
-				.Column("customer_task_id")
+				.Column("order_task_id")
 				.Cascade.All()
 				.Unique();
 
 			Map(x => x.DocumentType)
 				.Column("document_type");
-
 		}
 	}
 }

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -56,6 +56,7 @@ using Vodovoz.ViewModels.ReportsParameters.Selfdelivery;
 using Vodovoz.ViewModels.ReportsParameters.Service;
 using Vodovoz.ViewModels.ReportsParameters.Store;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
+using Vodovoz.ViewModels.Transport.Reports.IncorrectFuel;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
@@ -64,6 +65,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanciesReport;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByDriversReport;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
@@ -849,6 +851,16 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CarOwnershipReportViewModel));
 	}
 
+	/// <summary>
+	/// Отчет по изменению формы оплаты водителями
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnChangingFormOfPaymentbyDriversReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ChangingPaymentTypeByDriversReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
 	#endregion Логистика
 
 	#region Сотрудники
@@ -1358,6 +1370,16 @@ public partial class MainWindow
 	protected void OnActionAverageFlowDiscrepancyReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<AverageFlowDiscrepanciesReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Отчет по заправкам некорректным типом топлива
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionIncorrectFuelReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<IncorrectFuelReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Транспорт

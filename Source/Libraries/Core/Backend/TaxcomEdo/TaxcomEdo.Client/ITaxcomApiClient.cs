@@ -108,7 +108,8 @@ namespace TaxcomEdo.Client
 		/// Отправка запроса на подписание документооборота
 		/// </summary>
 		/// <param name="docflowId">Id документооборота</param>
+		/// <param name="organization">Название организации, от которой подписывается входящий документ</param>
 		/// <returns></returns>
-		Task<bool> AcceptIngoingDocflow(Guid? docflowId, CancellationToken cancellationToken = default);
+		Task<bool> AcceptIngoingDocflow(Guid? docflowId, string organization, CancellationToken cancellationToken = default);
 	}
 }

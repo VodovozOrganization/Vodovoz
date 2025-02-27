@@ -36,6 +36,10 @@ namespace Vodovoz.Views.Organization
 			enumСmbDefaultAccountFillType.Binding
 				.AddBinding(ViewModel.Entity, e => e.DefaultAccountFillType, w => w.SelectedItem)
 				.InitializeFromSource();
+
+			chkIsArchive.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+				.InitializeFromSource();
 		}
 	}
 }

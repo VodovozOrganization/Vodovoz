@@ -69,7 +69,8 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			try
 			{
-				_logger.LogInformation("Проверка фискального регистратора №{cashboxId} ({cashboxName}).", _cashBox.Id, _cashBox.RetailPointName);
+				_logger.LogInformation("Проверка фискального регистратора №{cashboxId} ({cashboxName}).", 
+					_cashBox.Id, _cashBox.RetailPointName);
 				var response = await _httpClient.GetAsync(_fiscalizationStatusUrl, cancellationToken);
 				if(!response.IsSuccessStatusCode)
 				{
@@ -78,7 +79,7 @@ namespace Vodovoz.Models.CashReceipts
 					return false;
 				}
 
-				var finscalizatorStatusResponse = await response.Content.ReadAsAsync<CashboxStatusResponse>(cancellationToken);
+				var finscalizatorStatusResponse = await response.Content.ReadAsAsync<CashboxStatusResponse>(cancellationToken: cancellationToken);
 				if(finscalizatorStatusResponse == null)
 				{
 					_logger.LogWarning("Проверка фискального регистратора №{cashboxId} не пройдена. Не удалось десериализовать ответ.", _cashBox.Id);

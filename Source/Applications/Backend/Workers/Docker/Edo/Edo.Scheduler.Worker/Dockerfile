@@ -1,4 +1,4 @@
-﻿#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 FROM mcr.microsoft.com/dotnet/runtime:5.0 AS base
 WORKDIR /app
@@ -8,8 +8,9 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Applications/Backend/Workers/Docker/Edo/Edo.Scheduler.Worker/Edo.Scheduler.Worker.csproj", "Applications/Backend/Workers/Docker/Edo/Edo.Scheduler.Worker/"]
 COPY ["Libraries/Core/Backend/Edo/Edo.Scheduler/Edo.Scheduler.csproj", "Libraries/Core/Backend/Edo/Edo.Scheduler/"]
-COPY ["Edo.Transport/Edo.Transport.csproj", "Edo.Transport/"]
+COPY ["Libraries/Core/Backend/Edo/Edo.Transport/Edo.Transport.csproj", "Libraries/Core/Backend/Edo/Edo.Transport/"]
 COPY ["Libraries/Core/Business/Vodovoz.Settings/Vodovoz.Settings.csproj", "Libraries/Core/Business/Vodovoz.Settings/"]
+COPY ["Libraries/Core/Backend/Edo/Edo.Contracts/Edo.Contracts.csproj", "Libraries/Core/Backend/Edo/Edo.Contracts/"]
 COPY ["Libraries/Core/Business/Vodovoz.Core.Data/Vodovoz.Core.Data.csproj", "Libraries/Core/Business/Vodovoz.Core.Data/"]
 COPY ["Libraries/External/QSProjects/QS.Project.Core/QS.Project.Core.csproj", "Libraries/External/QSProjects/QS.Project.Core/"]
 COPY ["Libraries/External/QSProjects/Binding/Gamma.Utilities/Gamma.Utilities.csproj", "Libraries/External/QSProjects/Binding/Gamma.Utilities/"]
@@ -34,9 +35,11 @@ COPY ["Libraries/External/QSProjects/QS.Report/QS.Report.csproj", "Libraries/Ext
 COPY ["Libraries/External/My-FyiReporting/RdlEngine/RdlEngine.csproj", "Libraries/External/My-FyiReporting/RdlEngine/"]
 COPY ["Libraries/External/My-FyiReporting/DataProviders/DataProviders.csproj", "Libraries/External/My-FyiReporting/DataProviders/"]
 COPY ["Libraries/Core/Backend/Infrastructure/ApiClientProvider/ApiClientProvider.csproj", "Libraries/Core/Backend/Infrastructure/ApiClientProvider/"]
+COPY ["Libraries/Core/Backend/Infrastructure/BackendInfrastructure/BackendInfrastructure.csproj", "Libraries/Core/Backend/Infrastructure/BackendInfrastructure/"]
 COPY ["Libraries/Core/Backend/Infrastructure/MessageTransport/MessageTransport.csproj", "Libraries/Core/Backend/Infrastructure/MessageTransport/"]
 COPY ["Libraries/Core/Business/Vodovoz.Core.Data.NHibernate/Vodovoz.Core.Data.NHibernate.csproj", "Libraries/Core/Business/Vodovoz.Core.Data.NHibernate/"]
 COPY ["Libraries/Core/Business/Vodovoz.Settings.Database/Vodovoz.Settings.Database.csproj", "Libraries/Core/Business/Vodovoz.Settings.Database/"]
+COPY ["Libraries/External/QSProjects/QS.Attachments/QS.Attachments.csproj", "Libraries/External/QSProjects/QS.Attachments/"]
 RUN dotnet restore "./Applications/Backend/Workers/Docker/Edo/Edo.Scheduler.Worker/Edo.Scheduler.Worker.csproj"
 COPY . .
 WORKDIR "/src/Applications/Backend/Workers/Docker/Edo/Edo.Scheduler.Worker"

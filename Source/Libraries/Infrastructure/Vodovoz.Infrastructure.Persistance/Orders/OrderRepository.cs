@@ -1112,11 +1112,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public IEnumerable<VodovozOrder> GetCashlessOrdersForEdoSendUpd(
 			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
 		{
-			var ordersForNewUpd = GetOrdersForFirstUpdSending(uow, startDate, organizationId, closingDocumentDeliveryScheduleId);
-			var ordersForResendUpd = GetOrdersForResendUpd(uow);
-			var result = ordersForNewUpd.Union(ordersForResendUpd);
-			
-			return result;
+			return GetOrdersForFirstUpdSending(uow, startDate, organizationId, closingDocumentDeliveryScheduleId);
 		}
 
 		public IEnumerable<int> GetNewEdoProcessOrders(IUnitOfWork uow, IEnumerable<int> orderIds)
@@ -1133,7 +1129,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					orderIds.Contains((int)carLoadDocumentItem.OrderId)
 					&& carLoadDocumentItem.IsIndividualSetForOrder
 					&& nomenclature.IsAccountableInTrueMark
-					&& nomenclature.Gtin != null
 					&& (orderEdoRequest != null
 						|| (client.IsNewEdoProcessing && orderEdoRequest == null && order.OrderStatus == OrderStatus.OnTheWay))
 				select (int)carLoadDocumentItem.OrderId;
@@ -1225,8 +1220,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			PaymentItem paymentItemAlias = null;
 
 			var payments = uow.Session.QueryOver(() => paymentAlias)
-				.JoinAlias(() => paymentAlias.PaymentItems, () => paymentItemAlias)
+				.JoinAlias(p => p.PaymentItems, () => paymentItemAlias)
 				.Where(() => paymentItemAlias.Order.Id == orderId)
+				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
 				.TransformUsing(Transformers.DistinctRootEntity)
 				.List<Payment>();
 
@@ -1265,7 +1261,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 					.And(() => nomenclatureAlias.IsAccountableInTrueMark)
-					.And(() => nomenclatureAlias.Gtin != null)
 					.Select(Projections.Id());
 
 			if(startDate.HasValue)
@@ -1317,7 +1312,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 					.And(() => nomenclatureAlias.IsAccountableInTrueMark)
-					.And(() => nomenclatureAlias.Gtin != null)
 					.Select(Projections.Id());
 
 			if(startDate.HasValue)
@@ -1395,7 +1389,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
-				.And(() => nomenclatureAlias.Gtin != null)
 				.Select(Projections.Id());
 
 			var hasCancellationSubquery = QueryOver.Of(() => trueMarkApiDocumentAlias)
@@ -1872,7 +1865,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
 					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
-				.Where(() => orderAlias.DeliveryDate >= startDate);
+				.Where(() => orderAlias.DeliveryDate >= startDate)
+				.And(() => !counterpartyAlias.IsNewEdoProcessing);
 
 			var orderStatusRestriction = Restrictions.Or(
 				Restrictions.And(

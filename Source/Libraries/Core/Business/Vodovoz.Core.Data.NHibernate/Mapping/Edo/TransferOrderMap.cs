@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public TransferOrderMap()
 		{
-			Table("transfer_orders");
+			Table("edo_transfer_orders");
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 

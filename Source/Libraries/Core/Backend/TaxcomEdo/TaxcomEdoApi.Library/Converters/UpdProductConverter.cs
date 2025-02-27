@@ -51,16 +51,16 @@ namespace TaxcomEdoApi.Library.Converters
 				},
 				
 				NomStr = row.ToString(),
-				CenaTov = orderItemInfoForEdo.PriceWithoutVat,
-				CenaTovSpecified = true,
-				KolTov = count,
-				KolTovSpecified = true,
 				NaimTov = orderItemInfoForEdo.NomenclatureInfoForEdo?.OfficialName,
+				OKEI_Tov = orderItemInfoForEdo.NomenclatureInfoForEdo.MeasurementUnitInfoForEdo.OKEI,
+				KolTov = count,
+				CenaTov = orderItemInfoForEdo.PriceWithoutVat,
+				StTovBezNDS = orderItemInfoForEdo.SumWithoutVat,
 				NalSt = GetProductTaxRate(orderItemInfoForEdo.ValueAddedTax),
 				StTovUchNal = orderItemInfoForEdo.ActualSum,
-				StTovBezNDS = orderItemInfoForEdo.SumWithoutVat,
+				CenaTovSpecified = true,
+				KolTovSpecified = true,
 				StTovBezNDSSpecified = true,
-				OKEI_Tov = orderItemInfoForEdo.NomenclatureInfoForEdo.MeasurementUnitInfoForEdo.OKEI,
 				DopSvedTov = new FajlDokumentTablSchFaktSvedTovDopSvedTov
 				{
 					NaimEdIzm = orderItemInfoForEdo.NomenclatureInfoForEdo.MeasurementUnitInfoForEdo.Name,
@@ -124,16 +124,24 @@ namespace TaxcomEdoApi.Library.Converters
 
 			if(product.TrueMarkCodes.Any())
 			{
+				var codesCount = product.TrueMarkCodes.Count();
+				var identificationInfo = new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov
+				{
+					ItemsElementName = new ItemsChoiceType[codesCount],
+					Items = new string[codesCount]
+				};
+				var i = 0;
+
+				foreach(var identificationCode in product.TrueMarkCodes)
+				{
+					identificationInfo.ItemsElementName[i] = ItemsChoiceType.KIZ;
+					identificationInfo.Items[i] = identificationCode;
+					i++;
+				}
+				
 				updProduct.DopSvedTov.NomSredIdentTov = new[]
 				{
-					new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov
-					{
-						ItemsElementName = new[]
-						{
-							ItemsChoiceType.KIZ
-						},
-						Items = product.TrueMarkCodes.ToArray()
-					}
+					identificationInfo
 				};
 			}
 			

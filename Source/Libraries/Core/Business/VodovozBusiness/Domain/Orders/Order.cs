@@ -63,6 +63,7 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
+using Vodovoz.Core.Domain.Contacts;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -4372,12 +4373,12 @@ namespace Vodovoz.Domain.Orders
 			{
 				if(!hasMarkedOrderItem)
 				{
-					hasMarkedOrderItem = !string.IsNullOrWhiteSpace(orderItem.Nomenclature.Gtin);
+					hasMarkedOrderItem = orderItem.Nomenclature.Gtins.Any();
 				}
 
 				if(!hasUnmarkedOrderItem)
 				{
-					hasUnmarkedOrderItem = string.IsNullOrWhiteSpace(orderItem.Nomenclature.Gtin);
+					hasUnmarkedOrderItem = !orderItem.Nomenclature.Gtins.Any();
 				}
 			}
 

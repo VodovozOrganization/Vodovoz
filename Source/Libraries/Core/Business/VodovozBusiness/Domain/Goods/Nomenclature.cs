@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -8,7 +9,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.BusinessCommon.Domain;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -16,7 +19,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -37,7 +40,7 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
-		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;		
+		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
 		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
 		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
 		private KulerSaleWebSiteNomenclatureOnlineCatalog _kulerSaleWebSiteNomenclatureOnlineCatalog;
@@ -57,6 +60,7 @@ namespace Vodovoz.Domain.Goods
 		private ProductGroup _productGroup;
 		private Counterparty _shipperCounterparty;
 		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse = new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
+		private IObservableList<Gtin> _gtins = new ObservableList<Gtin>();
 
 		private NomenclatureCategory _category;
 
@@ -310,6 +314,16 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
 			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
+
+		/// <summary>
+		/// Gtin
+		/// </summary>
+		[Display(Name = "Gtin")]
+		public virtual IObservableList<Gtin> Gtins
+		{
+			get => _gtins;
+			set => SetField(ref _gtins, value);
+		}
 
 		/// <summary>
 		/// Себестоимость ТМЦ
@@ -703,18 +717,6 @@ namespace Vodovoz.Domain.Goods
 				}
 			}
 
-			if(IsAccountableInTrueMark && string.IsNullOrWhiteSpace(Gtin))
-			{
-				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
-					new[] { nameof(Gtin) });
-			}
-
-			if(Gtin?.Length < 8 || Gtin?.Length > 14)
-			{
-				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
-					new[] { nameof(Gtin) });
-			}
-
 			if(ProductGroup == null)
 			{
 				yield return new ValidationResult("Должна быть выбрана принадлежность номенклатуры к группе товаров",
@@ -747,6 +749,38 @@ namespace Vodovoz.Domain.Goods
 			{
 				yield return new ValidationResult("Начальное значение температуры нагрева не может быть больше конечного",
 					new[] { nameof(HeatingTemperatureFromOnline), nameof(HeatingTemperatureToOnline) });
+			}
+
+			if(IsAccountableInTrueMark && !Gtins.Any())
+			{
+				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
+					new[] { nameof(Gtins) });
+			}
+
+			if(Gtins.Any(x => x.GtinNumber.Length < 8 || x.GtinNumber.Length > 14))
+			{
+				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
+					new[] { nameof(Gtins) });
+			}
+
+			var gtinRepository = validationContext.GetRequiredService<IGenericRepository<Gtin>>();
+			var gtinNumbers = Gtins.Select(x => x.GtinNumber);
+			var gtinDuplicates = gtinRepository.Get(UoW, x => x.Nomenclature.Id != Id && gtinNumbers.Contains(x.GtinNumber));
+
+			if(gtinDuplicates.Any())
+			{
+				yield return new ValidationResult(
+					$"Найдены дубликаты Gtin {string.Join("; ", gtinDuplicates.Select(x => $"[{x.Nomenclature.Name} : {x.GtinNumber}]"))}",
+					new[] { nameof(Gtins) });
+			}
+
+			var gtinsDuplicatesInNomenclature = Gtins.GroupBy(x => x.GtinNumber).Where(g => g.Count() > 1).Select(g => g.Key);
+
+			if(gtinsDuplicatesInNomenclature.Any())
+			{
+				yield return new ValidationResult(
+					$"Найдены дубликаты Gtin в текущей номенклатуре {string.Join(", ", gtinsDuplicatesInNomenclature.Select(x => x))}",
+					new[] { nameof(Gtins) });
 			}
 		}
 
@@ -843,7 +877,7 @@ namespace Vodovoz.Domain.Goods
 		public static NomenclatureCategory[] GetCategoriesForMaster()
 		{
 			return GetCategoriesForSale()
-				.Concat(new []
+				.Concat(new[]
 				{
 					NomenclatureCategory.master,
 					NomenclatureCategory.spare_parts

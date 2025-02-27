@@ -26,7 +26,6 @@ namespace Edo.Transfer
 		private string _transferStartTimeColName;
 		private string _fromOrgColName;
 		private string _toOrgColName;
-		private string _documentTaskColName;
 
 		public TransferTaskRepository(ISessionFactory sessionFactory, IEdoTransferSettings transferSettings)
 		{
@@ -44,7 +43,6 @@ namespace Edo.Transfer
 			_taskStartTimeColName = userMetadata.GetPropertyColumnNames(nameof(TransferEdoTask.StartTime)).First();
 			_fromOrgColName = userMetadata.GetPropertyColumnNames(nameof(TransferEdoTask.FromOrganizationId)).First();
 			_toOrgColName = userMetadata.GetPropertyColumnNames(nameof(TransferEdoTask.ToOrganizationId)).First();
-			_documentTaskColName = userMetadata.GetPropertyColumnNames(nameof(TransferEdoTask.DocumentEdoTaskId)).First();
 		}
 
 		public async Task<TransferEdoTask> FindTaskAsync(IUnitOfWork uow, int fromOrg, int toOrg, CancellationToken cancellationToken)
@@ -87,22 +85,28 @@ namespace Edo.Transfer
 			return tasks;
 		}
 
-		public async Task<IEnumerable<TransferEdoTask>> GetAllRelatedTransferTasksAsync(IUnitOfWork uow, TransferEdoTask transferTask, CancellationToken cancellationToken)
+		public async Task<bool> IsTransferIterationCompletedAsync(
+			IUnitOfWork uow, 
+			int transferIterationId, 
+			CancellationToken cancellationToken
+			)
 		{
 			var sql = $@"
-				SELECT * FROM {_tableName}
-				WHERE {_documentTaskColName} = :documentEdoTaskId
-				AND id != :transferTaskId
-				FOR UPDATE NOWAIT;
+				SELECT Count(teri.id) = 0 as is_completed
+				FROM edo_transfer_request_iterations teri
+				INNER JOIN edo_transfer_requests etr ON etr.iteration_id = teri.id
+				LEFT JOIN edo_tasks et ON et.id = etr.transfer_edo_task_id
+				WHERE (et.id IS NULL OR et.status != 'Completed')
+				AND teri.status = 'InProgress'
+				AND teri.id = :transferIterationId;
 			";
 
-			var tasks = await uow.Session.CreateSQLQuery(sql)
+			var iterationCompleted = await uow.Session.CreateSQLQuery(sql)
 					.AddEntity(typeof(TransferEdoTask))
-					.SetParameter("documentEdoTaskId", transferTask.DocumentEdoTaskId)
-					.SetParameter("transferTaskId", transferTask.Id)
-					.ListAsync<TransferEdoTask>(cancellationToken);
+					.SetParameter("transferIterationId", transferIterationId)
+					.UniqueResultAsync<bool>(cancellationToken);
 
-			return tasks;
+			return iterationCompleted;
 		}
 
 		public async Task<IEnumerable<TrueMarkWaterIdentificationCode>> GetAllCodesForTransferTaskAsync(IUnitOfWork uow, TransferEdoTask transferTask, CancellationToken cancellationToken)

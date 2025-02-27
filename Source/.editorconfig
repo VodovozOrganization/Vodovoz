@@ -1,4 +1,4 @@
-﻿# Remove the line below if you want to inherit .editorconfig settings from higher directories
+# Remove the line below if you want to inherit .editorconfig settings from higher directories
 root = true
 
 [*]
@@ -8,6 +8,8 @@ indent_style = tab
 indent_size = 4
 #trim_trailing_whitespace = true
 insert_final_newline = true
+tab_width = 4
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
 
 [*.rdl]
 indent_style = space

@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.Models.CashReceipts.DTO;
 using Vodovoz.Models.TrueMark;
@@ -105,7 +106,10 @@ namespace Vodovoz.Models.CashReceipts
 				if(orderItem.Count == 1)
 				{
 					var inventPosition = CreateInventPosition(orderItem);
-					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemsCodes.First().ResultCode);
+					var code = orderItemsCodes.First().ResultCode;
+					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
+					CreateIndustryRequisite(inventPosition, code);
+
 					fiscalDocument.InventPositions.Add(inventPosition);
 					continue;
 				}
@@ -129,7 +133,9 @@ namespace Vodovoz.Models.CashReceipts
 					}
 
 					inventPosition.Quantity = 1;
-					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemsCodes[i - 1].ResultCode);
+					var code = orderItemsCodes[i - 1].ResultCode;
+					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
+					CreateIndustryRequisite(inventPosition, code);
 					fiscalDocument.InventPositions.Add(inventPosition);
 				}
 
@@ -145,7 +151,9 @@ namespace Vodovoz.Models.CashReceipts
 				var lastInventPosition = CreateInventPosition(orderItem);
 				lastInventPosition.Quantity = 1;
 				lastInventPosition.DiscSum = residueDiscount;
-				lastInventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemCode.ResultCode);
+				var lastCode = orderItemCode.ResultCode;
+				lastInventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(lastCode);
+				CreateIndustryRequisite(lastInventPosition, lastCode);
 				fiscalDocument.InventPositions.Add(lastInventPosition);
 			}
 		}
@@ -163,7 +171,7 @@ namespace Vodovoz.Models.CashReceipts
 					$"{nameof(cashReceipt.InnerNumber)} внутренний номер чека должен быть указан," +
 					$" если маркированных позиций больше {maxCodesCount}");
 			}
-			
+
 			foreach(var orderItem in cashReceipt.Order.OrderItems)
 			{
 				if(orderItem.HasZeroCountOrSum())
@@ -178,7 +186,7 @@ namespace Vodovoz.Models.CashReceipts
 					cashReceiptSum += orderItem.Sum;
 					continue;
 				}
-				
+
 				if(unprocessedCodesCount == 0)
 				{
 					continue;
@@ -204,10 +212,11 @@ namespace Vodovoz.Models.CashReceipts
 						unprocessedCodesCount -= 1;
 						continue;
 					}
-					
+
+					var code = TryGetCodeFromScannedCodes(orderItemsCodes, orderItem);
 					var inventPosition = CreateInventPosition(orderItem);
-					inventPosition.ProductMark =
-						_codeParser.GetProductCodeForCashReceipt(TryGetCodeFromScannedCodes(orderItemsCodes, orderItem));
+					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
+					CreateIndustryRequisite(inventPosition, code);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += orderItem.Sum;
 					unprocessedCodesCount -= 1;
@@ -231,12 +240,13 @@ namespace Vodovoz.Models.CashReceipts
 					}
 
 					var discount = i == orderItemsCountWithoutLast ? lastPartDiscount : partDiscount;
-					
+
 					var inventPosition = CreateInventPosition(orderItem);
 					inventPosition.Quantity = 1;
 					inventPosition.DiscSum = discount;
-					inventPosition.ProductMark =
-						_codeParser.GetProductCodeForCashReceipt(TryGetCodeFromScannedCodes(orderItemsCodes, orderItem));
+					var code = TryGetCodeFromScannedCodes(orderItemsCodes, orderItem);
+					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
+					CreateIndustryRequisite(inventPosition, code);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += inventPosition.PriceWithoutDiscount - discount;
 					unprocessedCodesCount -= 1;
@@ -254,7 +264,7 @@ namespace Vodovoz.Models.CashReceipts
 					$"включена обязательная маркировка, но для строки заказа Id {orderItem.Id} количество кодов ({orderItemsCodes.Count}) не " +
 					$"совпадает с количеством товара ({orderItem.Count})");
 			}
-			
+
 			return orderItemsCodes.Dequeue().ResultCode;
 		}
 
@@ -272,16 +282,24 @@ namespace Vodovoz.Models.CashReceipts
 			return inventPosition;
 		}
 
+		private void CreateIndustryRequisite(InventPosition inventPosition, TrueMarkWaterIdentificationCode code)
+		{
+			inventPosition.IndustryRequisite = new IndustryRequisite
+			{
+				DocData = $"UUID={code.Tag1260CodeCheckResult.ReqId}&Time={code.Tag1260CodeCheckResult.ReqTimestamp}"
+			};
+		}
+
 		private void SetVatProperties(OrderItem orderItem, InventPosition inventPosition)
 		{
 			var organization = orderItem.Order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == Domain.Goods.VAT.No)
+			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == VAT.No)
 			{
 				inventPosition.VatTag = (int)VatTag.VatFree;
 				return;
 			}
-			
+
 			inventPosition.VatTag = (int)VatTag.Vat20;
 		}
 
@@ -293,7 +311,7 @@ namespace Vodovoz.Models.CashReceipts
 
 			AddMoneyPosition(fiscalDocument, order.PaymentType, sum);
 		}
-		
+
 		private void FillMoneyPositions(FiscalDocument fiscalDocument, PaymentType orderPaymentType, decimal cashReceiptSum)
 		{
 			AddMoneyPosition(fiscalDocument, orderPaymentType, cashReceiptSum);

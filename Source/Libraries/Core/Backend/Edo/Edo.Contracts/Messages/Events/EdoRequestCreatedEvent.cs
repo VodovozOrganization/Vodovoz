@@ -1,4 +1,5 @@
-﻿namespace Edo.Contracts.Messages.Events
+﻿
+namespace Edo.Contracts.Messages.Events
 {
 	public class EdoRequestCreatedEvent
 	{

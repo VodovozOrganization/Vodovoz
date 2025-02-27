@@ -1,6 +1,7 @@
-﻿using Edo.Documents.Consumers;
+﻿using Edo.Common;
+using Edo.Documents.Consumers;
 using Edo.Documents.Consumers.Definitions;
-using Edo.TaskValidation;
+using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,19 +14,17 @@ namespace Edo.Documents
 		{
 			services
 				.AddScoped<DocumentEdoTaskHandler>()
-				.AddScoped<TransferRequestCreator>()
-				.AddScoped<EdoTaskItemTrueMarkStatusProvider>()
-				.AddScoped<EdoTaskItemTrueMarkStatusProviderFactory>()
 				;
 
-			services.AddEdoTaskValidation();
+			services.AddEdo();
+			services.AddEdoProblemRegistation();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumer<TransferDoneConsumer, TransferDoneConsumerDefinition>();
+				cfg.AddConsumer<TransferCompleteConsumer, TransferCompleteConsumerDefinition>();
 				cfg.AddConsumer<DocumentTaskCreatedConsumer, DocumentTaskCreatedConsumerDefinition>();
-				cfg.AddConsumer<CustomerDocumentSentConsumer, CustomerDocumentSentConsumerDefinition>();
-				cfg.AddConsumer<CustomerDocumentAcceptedConsumer, CustomerDocumentAcceptedConsumerDefinition>();
+				cfg.AddConsumer<OrderDocumentSentConsumer, OrderDocumentSentConsumerDefinition>();
+				cfg.AddConsumer<OrderDocumentAcceptedConsumer, OrderDocumentAcceptedConsumerDefinition>();
 			});
 
 			return services;

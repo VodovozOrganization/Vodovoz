@@ -8,7 +8,7 @@ namespace Edo.Docflow.Consumers.Definitions
 	{
 		public EdoRequestCreatedConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.event.request_created.consumer.scheduler");
+			Endpoint(x => x.Name = "edo.customer-request-created.consumer.scheduler");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,

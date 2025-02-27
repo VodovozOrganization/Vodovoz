@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
@@ -117,6 +116,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
 		private IObservableList<NomenclaturePriceEntity> _nomenclaturePrice = new ObservableList<NomenclaturePriceEntity>();
 		private IObservableList<AlternativeNomenclaturePriceEntity> _alternativeNomenclaturePrices = new ObservableList<AlternativeNomenclaturePriceEntity>();
+		private IObservableList<GtinEntity> _gtins = new ObservableList<GtinEntity>();
 
 		public NomenclatureEntity()
 		{
@@ -223,8 +223,6 @@ namespace Vodovoz.Core.Domain.Goods
 			get => _dependsOnNomenclature;
 			set => SetField(ref _dependsOnNomenclature, value);
 		}
-
-
 
 		/// <summary>
 		/// Дата создания
@@ -525,6 +523,16 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _glassHolderType;
 			set => SetField(ref _glassHolderType, value);
+		}
+
+		/// <summary>
+		/// Gtin
+		/// </summary>
+		[Display(Name = "Gtin")]
+		public virtual IObservableList<GtinEntity> Gtins
+		{
+			get => _gtins;
+			set => SetField(ref _gtins, value);
 		}
 
 		#region Свойства товаров для магазина

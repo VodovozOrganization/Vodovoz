@@ -6,6 +6,7 @@ using System.Linq;
 using Edo.Contracts.Messages.Dto;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
@@ -44,6 +45,7 @@ namespace Edo.Docflow.Factories
 
 			var document = new UniversalTransferDocumentInfo
 			{
+				DocumentId = Guid.NewGuid(),
 				Number = order.Id,
 				Sum = products.Sum(x => x.Sum),
 				Date = order.DeliveryDate.Value,
@@ -54,7 +56,7 @@ namespace Edo.Docflow.Factories
 				BasisShipment = GetBasisShipmentInfo(order.Client, order.Contract),
 				Payments = GetPayments(order),
 				Products = products,
-				AdditionalInformation = GetAdditionalInformation(order)
+				AdditionalInformation = GetAdditionalInformation(order, products)
 			};
 
 			return document;
@@ -128,11 +130,12 @@ namespace Edo.Docflow.Factories
 				}
 			};
 
-		private IEnumerable<UpdAdditionalInfo> GetAdditionalInformation(OrderEntity order)
+		private IEnumerable<UpdAdditionalInfo> GetAdditionalInformation(OrderEntity order, IEnumerable<ProductInfo> products)
 		{
 			var additionalInformation = new List<UpdAdditionalInfo>();
 			
-			if(order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			if(products.Any(x => x.TrueMarkCodes.Any())
+				&& order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 			{
 				additionalInformation.Add(new UpdAdditionalInfo
 				{
@@ -273,7 +276,10 @@ namespace Edo.Docflow.Factories
 			{
 				var nomenclature = orderItem.Nomenclature;
 
-				var orderItemsCodes = codes.Where(x => x.GTIN == nomenclature.Gtin).Select(x => x.FullCode);
+				var orderItemsCodes =
+					codes
+						.Where(x => nomenclature.Gtins.Any(gtin => gtin.GtinNumber == x.GTIN))
+						.Select(x => x.ConvertToIdentificationCode());
 
 				var product = new ProductInfo
 				{

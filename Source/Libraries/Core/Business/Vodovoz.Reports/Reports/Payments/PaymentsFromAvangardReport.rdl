@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>209.804mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>285mm</Width>
@@ -33,8 +31,7 @@
           <PaddingBottom>0mm</PaddingBottom>
           <PaddingRight>0mm</PaddingRight>
           <TextAlign>Center</TextAlign>
-          <BackgroundColor>
-          </BackgroundColor>
+          <BackgroundColor></BackgroundColor>
         </Style>
       </Textbox>
     </ReportItems>
@@ -634,8 +631,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -643,8 +639,7 @@
                         <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
                       </Style>
@@ -981,8 +976,7 @@
         <Left>0.0pt</Left>
         <Top>133.8pt</Top>
         <Visibility>
-          <Hidden>
-          </Hidden>
+          <Hidden></Hidden>
         </Visibility>
       </Table>
       <Textbox Name="Textbox36">
@@ -1121,6 +1115,7 @@ FROM
             fp.pay_type as pay_type
         From orders o_online
                  JOIN payments_from_avangard p_avangard on p_avangard.order_num = o_online.online_order
+                 	and p_avangard.paid_date &gt;= DATE_ADD(o_online.delivery_date, INTERVAL -2 MONTH) and p_avangard.paid_date &lt;= DATE_ADD(o_online.delivery_date, INTERVAL 2 MONTH)
                  JOIN fast_payments fp on fp.external_id = p_avangard.order_num  and fp.payment_status = 'Performed'
     ) as p on p.order_id = o.id
         LEFT JOIN
@@ -1322,16 +1317,14 @@ ORDER BY pfa.paid_date DESC;</CommandText>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="endDate">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

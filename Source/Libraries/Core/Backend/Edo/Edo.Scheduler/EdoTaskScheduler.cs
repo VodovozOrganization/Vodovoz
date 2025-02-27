@@ -82,17 +82,20 @@ namespace Edo.Scheduler.Service
 				object message = null;
 				switch(edoTask.TaskType)
 				{
-					case EdoTaskType.CustomerDocument:
+					case EdoTaskType.Document:
 						message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
 						break;
+					case EdoTaskType.Withdrawal:
+						// создать сообщение для сервиса вывода из оборота
+						break;
 					case EdoTaskType.Receipt:
-						throw new NotImplementedException("Необходимо реализовать процесс для отправки чека");
+						message = new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id };
 						break;
 					case EdoTaskType.SaveCode:
-						throw new NotImplementedException("Необходимо реализовать процесс для сохранения кодов");
+						message = new SaveCodesTaskCreatedEvent { EdoTaskId = edoTask.Id };
 						break;
 					case EdoTaskType.BulkAccounting:
-						throw new NotImplementedException("Необходимо реализовать процесс для объемно-сортового учета");
+						//ничего отправлять пока не нужно, т.к. EdoDocumentsPreparerWorker сам подтянет сущности задач
 						break;
 					case EdoTaskType.Transfer:
 						throw new NotSupportedException("Создание задачи на трансфер из планировщика не предусмотрено");

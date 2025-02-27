@@ -3,7 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Contacts;
 
 namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 {
@@ -63,7 +65,10 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 		private bool _addCertificatesAlways;
 		private string _onlineComment;
 		private string _intercom;
-		
+
+		private IObservableList<PhoneEntity> _phones;
+		private IObservableList<EmailEntity> _emails;
+
 		public DeliveryPointEntity()
 		{
 			CompiledAddress = string.Empty;
@@ -420,7 +425,17 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			get => _lunchTimeTo;
 			set => SetField(ref _lunchTimeTo, value);
 		}
-		
+
+		[Display(Name = "Телефоны")]
+		public virtual IObservableList<PhoneEntity> Phones
+		{
+			get => _phones;
+			set => SetField(ref _phones, value);
+		}
+
+
+
+
 		#region Свойства для интеграции
 
 		[Display(Name = "Комментарий к ТД из ИПЗ")]

@@ -32,12 +32,12 @@ namespace TaxcomEdo.Client
 		
 		public async Task SendDataForCreateUpdByEdo(InfoForCreatingEdoUpd data, CancellationToken cancellationToken = default)
 		{
-			await SendDocument(_taxcomApiOptions.SendUpdEndpoint, data);
+			await SendDocument(_taxcomApiOptions.SendUpdOldEndpoint, data);
 		}
 		
 		public async Task<bool> SendDataForCreateUpdByEdo(UniversalTransferDocumentInfo data, CancellationToken cancellationToken = default)
 		{
-			return await SendDocument(_taxcomApiOptions.SendUpdEndpoint, data);
+			return await SendDocument(_taxcomApiOptions.SendUpdNewEndpoint, data);
 		}
 		
 		public async Task SendDataForCreateBillByEdo(InfoForCreatingEdoBill data, CancellationToken cancellationToken = default)
@@ -140,7 +140,7 @@ namespace TaxcomEdo.Client
 				.GetAsync(_taxcomApiOptions.OfferCancellationEndpoint + query, cancellationToken);
 		}
 
-		public async Task<bool> AcceptIngoingDocflow(Guid? docflowId, CancellationToken cancellationToken = default)
+		public async Task<bool> AcceptIngoingDocflow(Guid? docflowId, string organization, CancellationToken cancellationToken = default)
 		{
 			if(!docflowId.HasValue)
 			{
@@ -150,6 +150,7 @@ namespace TaxcomEdo.Client
 			var query = HttpQueryBuilder
 				.Create()
 				.AddParameter(docflowId, nameof(docflowId))
+				.AddParameter(organization, nameof(organization))
 				.ToString();
 			
 			var result = await CreateClient()

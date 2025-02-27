@@ -9,10 +9,11 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		private int _id;
 		private DateTime _creationTime;
-		private EdoTask _edoTask;
 		private DateTime _updateTime;
+		private EdoTaskProblemDescriptionSourceType _type;
+		private EdoTask _edoTask;
+		private string _sourceName;
 		private TaskProblemState _state;
-		private string _validatorName;
 		private IObservableList<EdoTaskItem> _taskItems = new ObservableList<EdoTaskItem>();
 
 		[Display(Name = "Код")]
@@ -36,11 +37,25 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _updateTime, value);
 		}
 
+		[Display(Name = "Тип")]
+		public virtual EdoTaskProblemDescriptionSourceType Type
+		{
+			get => _type;
+			set => SetField(ref _type, value);
+		}
+
 		[Display(Name = "Задача")]
 		public virtual EdoTask EdoTask
 		{
 			get => _edoTask;
 			set => SetField(ref _edoTask, value);
+		}
+
+		[Display(Name = "Источник")]
+		public virtual string SourceName
+		{
+			get => _sourceName;
+			set => SetField(ref _sourceName, value);
 		}
 
 		[Display(Name = "Состояние")]
@@ -50,19 +65,11 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _state, value);
 		}
 
-		[Display(Name = "Валидатор")]
-		public virtual string ValidatorName
-		{
-			get => _validatorName;
-			set => SetField(ref _validatorName, value);
-		}
-
 		[Display(Name = "Проблемные строки задачи")]
 		public virtual IObservableList<EdoTaskItem> TaskItems
 		{
 			get => _taskItems;
 			set => SetField(ref _taskItems, value);
 		}
-
 	}
 }

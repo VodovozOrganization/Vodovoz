@@ -49,6 +49,7 @@ using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
@@ -64,8 +65,6 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
@@ -120,12 +119,7 @@ namespace Vodovoz
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
 		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
-		private readonly IUserRepository _userRepository = ScopeProvider.Scope.Resolve<IUserRepository>();
-		private readonly IBottlesRepository _bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
-		private readonly IDepositRepository _depositRepository = ScopeProvider.Scope.Resolve<IDepositRepository>();
-		private readonly IMoneyRepository _moneyRepository = ScopeProvider.Scope.Resolve<IMoneyRepository>();
 		private readonly ICounterpartyRepository _counterpartyRepository = ScopeProvider.Scope.Resolve<ICounterpartyRepository>();
-		private readonly IOrderRepository _orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
 		private readonly IPhoneRepository _phoneRepository = ScopeProvider.Scope.Resolve<IPhoneRepository>();
 		private readonly IEmailRepository _emailRepository = ScopeProvider.Scope.Resolve<IEmailRepository>();
 		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
@@ -957,6 +951,8 @@ namespace Vodovoz
 
 			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails && CanEdit;
 			accountsView.SetAccountOwner(UoW, Entity);
+
+			ybuttonCopyAccountDetails.Clicked += OnButtonCopyAccountDetailsClicked;
 		}
 
 		private void ConfigureTabProxies()
@@ -2447,6 +2443,18 @@ namespace Vodovoz
 			};
 
 			OpenRevenueServicePage(dadataRequestDto);
+		}
+
+		protected void OnButtonCopyAccountDetailsClicked(object sender, EventArgs e)
+		{
+			var accountData = $"ИНН: {Entity.INN}\n" +
+				$"КПП: {Entity.KPP}\n" +
+				$"ЮР. адрес: {Entity.RawJurAddress}\n" +
+				$"ФИО: {Entity.SignatoryFIO}\n" +
+				$"В лице: {Entity.SignatoryPost}\n" +
+				$"На основании:  {Entity.SignatoryBaseOf}";
+
+			GetClipboard(Gdk.Selection.Clipboard).Text = accountData;
 		}
 
 		protected void OnButtonRequestByInnAndKppClicked(object sender, EventArgs e)

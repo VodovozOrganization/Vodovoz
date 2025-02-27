@@ -1,4 +1,4 @@
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -7,6 +7,7 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System;
@@ -14,11 +15,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
+using VodovozBusiness.Domain.Goods;
 using Order = Vodovoz.Domain.Orders.Order;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
@@ -64,6 +67,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 			TrueMarkDocument trueMarkApiDocumentAlias = null;
 			EdoContainer edoContainerAlias = null;
 			EdoUpdReportRow resultAlias = null;
+			Gtin gtinAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 			var edoDocFlowStatuses = new[] { EdoDocFlowStatus.Succeed, EdoDocFlowStatus.CompletedWithDivergences };
@@ -82,6 +86,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 				.Select(Projections.Max(() => trueMarkApiDocumentAlias.CreationDate))
 				.Take(1);
 
+			var gtinsProjection = CustomProjections.GroupConcat(
+				() => gtinAlias.GtinNumber,
+				separator: ", "
+			);
+
+			var gtinsSubquery = QueryOver.Of(() => gtinAlias)
+				.Where(() => gtinAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.Select(gtinsProjection);
+
 			var query = UoW.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
@@ -95,7 +108,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 			switch(ReportType)
 			{
 				case EdoUpdReportType.Successfull:
-					reportTypeRestriction =Restrictions.Disjunction()
+					reportTypeRestriction = Restrictions.Disjunction()
 						.Add(() => trueMarkApiDocumentAlias.IsSuccess)
 						.Add(Restrictions.On(() => edoContainerAlias.EdoDocFlowStatus).IsIn(edoDocFlowStatuses));//);
 					break;
@@ -126,7 +139,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 				.And(() => orderAlias.DeliveryDate >= DateFrom && orderAlias.DeliveryDate <= DateTo)
 				.And(() => counterpartyAlias.PersonType == PersonType.legal)
 				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
-				.And(() => nomenclatureAlias.Gtin != null)
+				.And(Restrictions.IsNotNull(Projections.SubQuery(gtinsSubquery)))
 				.And(() => counterpartyContractAlias.Organization.Id == Organization.Id)
 				.And(() => counterpartyAlias.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
 						   || orderAlias.OrderStatus != OrderStatus.OnTheWay)
@@ -145,7 +158,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.UpdDate)
-					.Select(() => nomenclatureAlias.Gtin).WithAlias(() => resultAlias.Gtin)
+					.SelectSubQuery(gtinsSubquery).WithAlias(() => resultAlias.Gtin)
 					.Select(() => orderItemAlias.Price).WithAlias(() => resultAlias.Price)
 					.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.Count)
 					.Select(() => orderItemAlias.DiscountMoney).WithAlias(() => resultAlias.DiscountMoney)

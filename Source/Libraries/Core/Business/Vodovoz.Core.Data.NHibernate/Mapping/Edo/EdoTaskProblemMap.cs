@@ -11,6 +11,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
+			DiscriminateSubClassesOnColumn("type");
+
 			Id(x => x.Id)
 				.Column("id")
 				.GeneratedBy.Native();
@@ -23,19 +25,23 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("updated_time")
 				.ReadOnly();
 
+			Map(x => x.Type)
+				.Column("type")
+				.ReadOnly();
+
 			References(x => x.EdoTask)
 				.Column("edo_task_id");
+
+			Map(x => x.SourceName)
+				.Column("source_name");
 
 			Map(x => x.State)
 				.Column("state");
 
-			Map(x => x.ValidatorName)
-				.Column("validator_name");
-
 			HasManyToMany(x => x.TaskItems)
 				.Table("edo_task_problem_items")
 				.ParentKeyColumn("edo_task_problem_id")
-				.ChildKeyColumn("customer_edo_task_item_id")
+				.ChildKeyColumn("order_edo_task_item_id")
 				.LazyLoad();
 		}
 	}

@@ -4,7 +4,7 @@
 $registry = "docker.vod.qsolution.ru:5100"
 $projectFile = "Edo.Transfer.Dispatcher.Worker.csproj"
 $imageName = "edo.transfer.dispatcher"
-$tagName = "develop"
+$tagName = "dev"
 $containerName = "$imageName.$tagName"
 
 Write-Host -ForegroundColor DarkCyan ("What needs to be done?")

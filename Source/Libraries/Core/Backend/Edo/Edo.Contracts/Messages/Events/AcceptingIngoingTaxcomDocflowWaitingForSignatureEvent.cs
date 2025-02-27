@@ -20,5 +20,9 @@ namespace Edo.Contracts.Messages.Events
 		/// Id документооборота
 		/// </summary>
 		public Guid? DocFlowId { get; set; }
+		/// <summary>
+		/// Название организации
+		/// </summary>
+		public string Organization { get; set; }
 	}
 }

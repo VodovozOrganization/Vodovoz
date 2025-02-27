@@ -152,10 +152,15 @@ namespace Edo.Docflow.Taxcom
 
 			if(taxcomDocflow is null)
 			{
+				_logger.LogWarning("Не нашли отправку с таким документом {ExternalIdentifier}", @event.MainDocumentId);
 				return;
 			}
 
-			var result = await _taxcomApiClient.AcceptIngoingDocflow(@event.DocFlowId, cancellationToken);
+			_logger.LogInformation(
+				"Принимаем документооборот {DocflowId} по документу {DocumentId}",
+				taxcomDocflow.DocflowId,
+				taxcomDocflow.MainDocumentId);
+			var result = await _taxcomApiClient.AcceptIngoingDocflow(@event.DocFlowId, @event.Organization, cancellationToken);
 
 			if(!result)
 			{

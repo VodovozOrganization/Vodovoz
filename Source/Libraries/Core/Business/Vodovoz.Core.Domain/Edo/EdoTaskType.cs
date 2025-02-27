@@ -5,7 +5,7 @@
 		/// <summary>
 		/// Задача отправки документов клиенту
 		/// </summary>
-		CustomerDocument,
+		Document,
 
 		/// <summary>
 		/// Задача перемещения ТМЦ
@@ -25,6 +25,11 @@
 		/// <summary>
 		/// Задача объемно-сортового учета
 		/// </summary>
-		BulkAccounting
+		BulkAccounting,
+
+		/// <summary>
+		/// Вывод из оборота
+		/// </summary>
+		Withdrawal
 	}
 }

@@ -37,6 +37,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private int? _avangardShopId;
 		private string _taxcomEdoAccountId;
 		private OrganizationEdoType _organizationEdoType;
+		private Guid? _cashBoxTokenFromTrueMark;
 
 		private OrganizationVersionEntity _activeOrganizationVersion;
 		private StoredResource _stamp;
@@ -211,6 +212,17 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _organizationEdoType;
 			set => SetField(ref _organizationEdoType, value);
+		}
+
+		/// <summary>
+		/// Токен кассового аппарата, полученный в ЧЗ
+		/// нужен для отправки в заголовках запросов для проверки разрешительного режима
+		/// </summary>
+		[Display(Name = "Токен кассового аппарата, полученный в ЧЗ")]
+		public virtual Guid? CashBoxTokenFromTrueMark
+		{
+			get => _cashBoxTokenFromTrueMark;
+			set => SetField(ref _cashBoxTokenFromTrueMark, value);
 		}
 
 		/// <summary>

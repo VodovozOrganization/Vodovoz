@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public EdoTaskItemMap()
 		{
-			Table("customer_edo_task_items");
+			Table("edo_order_task_items");
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
@@ -16,7 +16,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.GeneratedBy.Native();
 
 			References(x => x.CustomerEdoTask)
-				.Column("customer_edo_task_id");
+				.Column("order_edo_task_id");
 
 			References(x => x.ProductCode)
 				.Column("product_code_id");

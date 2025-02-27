@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.TrueMark

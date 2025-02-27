@@ -9,10 +9,17 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		{
 			DiscriminatorValue(nameof(EdoTaskType.Receipt));
 
-			Extends(typeof(CustomerEdoTask));
+			Extends(typeof(OrderEdoTask));
 
-			Map(x => x.CashReceiptId)
-				.Column("cash_receipt_id");
+			Map(x => x.ReceiptStatus)
+				.Column("receipt_status");
+
+			Map(x => x.CashboxId)
+				.Column("cashbox_id");
+
+			HasMany(x => x.FiscalDocuments)
+				.KeyColumn("receipt_edo_task_id")
+				.Cascade.AllDeleteOrphan();
 		}
 	}
 }

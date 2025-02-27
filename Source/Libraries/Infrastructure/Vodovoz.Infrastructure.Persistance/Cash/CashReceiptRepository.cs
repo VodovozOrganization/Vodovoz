@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;

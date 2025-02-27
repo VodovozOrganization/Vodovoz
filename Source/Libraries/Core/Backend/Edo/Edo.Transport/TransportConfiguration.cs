@@ -13,8 +13,7 @@ namespace Edo.Transport
 	{
 		public static void AddEdoTopology(this IRabbitMqBusFactoryConfigurator cfg, IBusRegistrationContext context)
 		{
-			// rename exchange: edo.customer-request-created.publish
-			cfg.Message<EdoRequestCreatedEvent>(x => x.SetEntityName("edo.event.request_created"));
+			cfg.Message<EdoRequestCreatedEvent>(x => x.SetEntityName("edo.customer-request-created.publish"));
 			cfg.Publish<EdoRequestCreatedEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
@@ -22,8 +21,7 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
-			// rename exchange: edo.docflow-updated.publish
-			cfg.Message<EdoDocflowUpdatedEvent>(x => x.SetEntityName("EdoDocflowUpdated"));
+			cfg.Message<EdoDocflowUpdatedEvent>(x => x.SetEntityName("edo.docflow-updated.publish"));
 			cfg.Publish<EdoDocflowUpdatedEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
@@ -71,46 +69,87 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<TransferDoneEvent>(x => x.SetEntityName("edo.transfer-done.publish"));
-			cfg.Publish<TransferDoneEvent>(x =>
+			cfg.Message<TransferCompleteEvent>(x => x.SetEntityName("edo.transfer-complete.publish"));
+			cfg.Send<TransferCompleteEvent>(x => x.UseRoutingKeyFormatter(c => c.Message.TransferInitiator.ToString()));
+			cfg.Publish<TransferCompleteEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Direct;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<OrderDocumentSendEvent>(x => x.SetEntityName("edo.order-document-send.publish"));
+			cfg.Publish<OrderDocumentSendEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<TransferDoneEvent>(x => x.SetEntityName("edo.transfer-done.publish"));
-			cfg.Publish<TransferDoneEvent>(x =>
+			cfg.Message<OrderDocumentSentEvent>(x => x.SetEntityName("edo.order-document-sent.publish"));
+			cfg.Publish<OrderDocumentSentEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<CustomerDocumentSendEvent>(x => x.SetEntityName("edo.customer-document-send.publish"));
-			cfg.Publish<CustomerDocumentSendEvent>(x =>
+			cfg.Message<OrderDocumentAcceptedEvent>(x => x.SetEntityName("edo.order-document-accepted.publish"));
+			cfg.Publish<OrderDocumentAcceptedEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<CustomerDocumentSentEvent>(x => x.SetEntityName("edo.customer-document-sent.publish"));
-			cfg.Publish<CustomerDocumentSentEvent>(x =>
+			cfg.Message<ReceiptSendEvent>(x => x.SetEntityName("edo.receipt-send.publish"));
+			cfg.Publish<ReceiptSendEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<CustomerDocumentAcceptedEvent>(x => x.SetEntityName("edo.customer-document-accepted.publish"));
-			cfg.Publish<CustomerDocumentAcceptedEvent>(x =>
+			cfg.Message<ReceiptSentEvent>(x => x.SetEntityName("edo.receipt-sent.publish"));
+			cfg.Publish<ReceiptSentEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
-			
+
+			cfg.Message<ReceiptCompleteEvent>(x => x.SetEntityName("edo.receipt-complete.publish"));
+			cfg.Publish<ReceiptCompleteEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<SaveCodesTaskCreatedEvent>(x => x.SetEntityName("edo.codes-save-task-created.publish"));
+			cfg.Publish<SaveCodesTaskCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<ReceiptTaskCreatedEvent>(x => x.SetEntityName("edo.receipt-task-created.publish"));
+			cfg.Publish<ReceiptTaskCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<ReceiptTaskCreatedEvent>(x => x.SetEntityName("edo.receipt-task-created.publish"));
+			cfg.Publish<ReceiptTaskCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
 			AddTaxcomEdoTopology(cfg);
 		}
 

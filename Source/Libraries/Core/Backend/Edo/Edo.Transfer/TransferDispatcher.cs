@@ -26,7 +26,6 @@ namespace Edo.Transfer
 
 		public async Task<TransferEdoTask> AddRequestsToTask(
 			IUnitOfWork uow,
-			int documentEdoTaskId,
 			IGrouping<TransferDirection, TransferEdoRequest> requestsGroup,
 			CancellationToken cancellationToken)
 		{
@@ -45,7 +44,7 @@ namespace Edo.Transfer
 				.Build();
 
 			var result = await pipeline.ExecuteAsync(async token => {
-				return await TryAddRequestsToTask(uow, documentEdoTaskId, requestsGroup, token);
+				return await TryAddRequestsToTask(uow, requestsGroup, token);
 			}, cancellationToken);
 
 			return result;
@@ -53,7 +52,6 @@ namespace Edo.Transfer
 
 		private async Task<TransferEdoTask> TryAddRequestsToTask(
 			IUnitOfWork uow,
-			int documentEdoTaskId,
 			IGrouping<TransferDirection, TransferEdoRequest> requestsGroup,
 			CancellationToken cancellationToken)
 		{
@@ -73,7 +71,6 @@ namespace Edo.Transfer
 				task.FromOrganizationId = direction.FromOrganizationId;
 				task.ToOrganizationId = direction.ToOrganizationId;
 				task.TransferStatus = TransferEdoTaskStatus.WaitingRequests;
-				task.DocumentEdoTaskId = documentEdoTaskId;
 			}
 
 			foreach(var request in requestsGroup)
@@ -142,7 +139,7 @@ namespace Edo.Transfer
 			transferEdoTask.TransferOrderId = transferOrder.Id;
 			await uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 		}
-
+		/*
 		public void CompleteTransfer(TransferEdoTask transferTask)
 		{
 			transferTask.TransferStatus = TransferEdoTaskStatus.Completed;
@@ -177,6 +174,6 @@ namespace Edo.Transfer
 		{
 			var relatedTasks = await _transferTaskRepository.GetAllRelatedTransferTasksAsync(uow, transferTask, cancellationToken);
 			return relatedTasks.All(x => x.TransferStatus == TransferEdoTaskStatus.Completed);
-		}
+		}*/
 	}
 }

@@ -24,7 +24,7 @@ namespace Edo.Transfer.Dispatcher.Consumers
 		{
 			try
 			{
-				await _transferEdoHandler.HandleDocumentTask(context.Message.DocumentEdoTaskId, context.CancellationToken);
+				await _transferEdoHandler.HandleNewTransfer(context.Message.TransferIterationId, context.CancellationToken);
 			}
 			catch(Exception ex)
 			{

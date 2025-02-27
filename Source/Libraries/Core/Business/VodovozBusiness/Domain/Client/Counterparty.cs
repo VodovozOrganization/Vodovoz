@@ -174,7 +174,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Телефоны")]
-		public virtual IList<Phone> Phones
+		public virtual new IList<Phone> Phones
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
@@ -195,7 +195,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "E-mail адреса")]
-		public virtual IList<Email> Emails
+		public virtual new IList<Email> Emails
 		{
 			get => _emails;
 			set => SetField(ref _emails, value);
@@ -270,6 +270,7 @@ namespace Vodovoz.Domain.Client
 
 		#region ОсобаяПечать
 
+		[Display(Name = "Расчетный счет для счета на олпату")]
 		public virtual Account OurOrganizationAccountForBills
 		{
 			get => _ourOrganizationAccountForBills;

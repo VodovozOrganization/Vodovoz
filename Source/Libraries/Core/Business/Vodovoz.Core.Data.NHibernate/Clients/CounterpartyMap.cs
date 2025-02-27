@@ -245,6 +245,18 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			References(x => x.WorksThroughOrganization)
 				.Column("works_through_organization_id");
+
+			HasMany(x => x.Emails)
+				.Cascade.AllDeleteOrphan()
+				.LazyLoad()
+				.KeyColumn("counterparty_id");
+
+			HasMany(x => x.Phones)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad()
+				.KeyColumn("counterparty_id");
+
 		}
 	}
 }

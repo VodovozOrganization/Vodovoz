@@ -43,7 +43,6 @@ namespace Edo.Transfer.Sender
 
 			transferDocument = new TransferEdoDocument
 			{
-				DocumentId = Guid.NewGuid(),
 				TransferTaskId = transferTaskId,
 				DocumentType = EdoDocumentType.UPD,
 				EdoType = EdoType.Taxcom,

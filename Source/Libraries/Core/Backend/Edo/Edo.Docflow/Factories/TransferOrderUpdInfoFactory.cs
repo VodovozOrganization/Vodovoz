@@ -14,15 +14,12 @@ namespace Edo.Docflow.Factories
 	public class TransferOrderUpdInfoFactory
 	{
 		private const string _dateFormatString = "dd.MM.yyyy";
-		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public TransferOrderUpdInfoFactory(
 			IUnitOfWorkFactory uowFactory,
-			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
 			INomenclatureSettings nomenclatureSettings)
 		{
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
@@ -62,6 +59,7 @@ namespace Edo.Docflow.Factories
 
 			var document = new UniversalTransferDocumentInfo
 			{
+				DocumentId = Guid.NewGuid(),
 				Number = transferOrder.Id,
 				Sum = products.Sum(x => x.Sum),
 				Date = transferOrder.Date,
@@ -174,7 +172,7 @@ namespace Edo.Docflow.Factories
 					IncludeVat = includeVat,
 					ValueAddedTax = nomenclature.VatNumericValue,
 					DiscountMoney = 0,
-					TrueMarkCodes = gtinGroup.Value.Select(x => x.RawCode),
+					TrueMarkCodes = gtinGroup.Value.Select(x => x.ConvertToIdentificationCode())
 				};
 
 				products.Add(product);
@@ -185,7 +183,14 @@ namespace Edo.Docflow.Factories
 
 		private NomenclatureEntity GetNomenclatureByGtin(IUnitOfWork uow, string gtin)
 		{
-			return _nomenclatureRepository.Get(uow, x => x.Gtin == gtin).FirstOrDefault();
+			GtinEntity gtinAlias = null;
+
+			var nomenclature = uow.Session.QueryOver<NomenclatureEntity>()
+				.Left.JoinAlias(x => x.Gtins, () => gtinAlias)
+				.Where(() => gtinAlias.GtinNumber == gtin)
+				.SingleOrDefault();
+
+			return nomenclature;
 		}
 	}
 }
