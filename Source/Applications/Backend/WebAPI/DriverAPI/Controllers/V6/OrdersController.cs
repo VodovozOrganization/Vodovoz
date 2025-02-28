@@ -110,12 +110,13 @@ namespace DriverAPI.Controllers.V6
 		/// Завершение доставки заказа
 		/// </summary>
 		/// <param name="completedOrderRequestModel"><see cref="CompletedOrderRequest"/></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequest completedOrderRequestModel)
+		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequest completedOrderRequestModel, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				completedOrderRequestModel.OrderId,
@@ -145,7 +146,8 @@ namespace DriverAPI.Controllers.V6
 						recievedTime,
 						driver,
 						completedOrderRequestModel,
-						completedOrderRequestModel),
+						completedOrderRequestModel,
+						cancellationToken),
 					result =>
 					{
 						if(result.IsSuccess)
@@ -196,12 +198,13 @@ namespace DriverAPI.Controllers.V6
 		/// Создание рекламации по координатам точки доставки заказа
 		/// </summary>
 		/// <param name="completedOrderRequestModel"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> UpdateOrderShipmentInfoAsync([FromBody] UpdateOrderShipmentInfoRequest completedOrderRequestModel)
+		public async Task<IActionResult> UpdateOrderShipmentInfoAsync([FromBody] UpdateOrderShipmentInfoRequest completedOrderRequestModel, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("(Создание рекламации по координатам точки доставки заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				completedOrderRequestModel.OrderId,
@@ -223,10 +226,11 @@ namespace DriverAPI.Controllers.V6
 			}
 
 			return MapResult(
-				_orderService.UpdateOrderShipmentInfo(
+				await _orderService.UpdateOrderShipmentInfo(
 				recievedTime,
 				driver,
-				completedOrderRequestModel),
+				completedOrderRequestModel,
+				cancellationToken),
 				result =>
 				{
 					if(result.IsSuccess)

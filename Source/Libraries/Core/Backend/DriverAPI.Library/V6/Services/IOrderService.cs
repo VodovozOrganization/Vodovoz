@@ -68,8 +68,9 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="actionTime">Время действия</param>
 		/// <param name="driver">Водитель</param>
 		/// <param name="completeOrderInfo">Информация о завершении заказа</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Результат обновления информации о доставке</returns>
-		Result UpdateOrderShipmentInfo(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo);
+		Task<Result> UpdateOrderShipmentInfo(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Получить дополнительную информацию о заказе
@@ -100,8 +101,10 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="driver">Водитель</param>
 		/// <param name="completeOrderInfo">Информация о завершении заказа</param>
 		/// <param name="driverComplaintInfo">Информация о жалобе водителя</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Результат завершения доставки заказа</returns>
-		Task<Result> CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo);
+		Task<Result> CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo,
+			IDriverComplaintInfo driverComplaintInfo, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Добавить код ЧЗ

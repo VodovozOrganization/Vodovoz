@@ -302,7 +302,12 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		public async Task<Result> CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo)
+		public async Task<Result> CompleteOrderDelivery(
+			DateTime actionTime,
+			Employee driver,
+			IDriverOrderShipmentInfo completeOrderInfo,
+			IDriverComplaintInfo driverComplaintInfo,
+			CancellationToken cancellationToken)
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
@@ -349,7 +354,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var trueMarkCodesProcessResult =
-				ProcessScannedCodes(completeOrderInfo, routeListAddress);
+				await ProcessScannedCodes(completeOrderInfo, routeListAddress, cancellationToken);
 
 			if(trueMarkCodesProcessResult.IsFailure)
 			{
@@ -387,7 +392,10 @@ namespace DriverAPI.Library.V6.Services
 				edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
 			}
 
-			_uow.Commit();
+			if(!cancellationToken.IsCancellationRequested)
+			{
+				_uow.Commit();
+			}
 
 			if(edoRequest != null)
 			{
@@ -439,10 +447,11 @@ namespace DriverAPI.Library.V6.Services
 			}
 		}
 
-		public Result UpdateOrderShipmentInfo(
+		public async Task<Result> UpdateOrderShipmentInfo(
 			DateTime actionTime,
 			Employee driver,
-			IDriverOrderShipmentInfo completeOrderInfo)
+			IDriverOrderShipmentInfo completeOrderInfo,
+			CancellationToken cancellationToken)
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
@@ -489,7 +498,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var trueMarkCodesProcessResult =
-				ProcessScannedCodes(completeOrderInfo, routeListAddress);
+				await ProcessScannedCodes(completeOrderInfo, routeListAddress, cancellationToken);
 
 			if(trueMarkCodesProcessResult.IsFailure)
 			{
@@ -514,7 +523,10 @@ namespace DriverAPI.Library.V6.Services
 			_uow.Save(routeListAddress);
 			_uow.Save(routeList);
 
-			_uow.Commit();
+			if(!cancellationToken.IsCancellationRequested)
+			{
+				_uow.Commit();
+			}
 
 			return Result.Success();
 		}
@@ -615,9 +627,10 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private Result ProcessScannedCodes(
+		private async Task<Result> ProcessScannedCodes(
 			IDriverOrderShipmentInfo completeOrderInfo,
-			RouteListItem routeListAddress)
+			RouteListItem routeListAddress,
+			CancellationToken cancellationToken)
 		{
 			if(routeListAddress.Order.IsNeedIndividualSetOnLoad)
 			{
@@ -629,12 +642,13 @@ namespace DriverAPI.Library.V6.Services
 				return ProcessResaleOrderScannedCodes(routeListAddress);
 			}
 
-			return ProcessOwnUseOrderScannedCodes(completeOrderInfo, routeListAddress);
+			return await ProcessOwnUseOrderScannedCodes(completeOrderInfo, routeListAddress, cancellationToken);
 		}
 
-		private Result ProcessOwnUseOrderScannedCodes(
+		private async Task<Result> ProcessOwnUseOrderScannedCodes(
 			IDriverOrderShipmentInfo completeOrderInfo,
-			RouteListItem routeListAddress)
+			RouteListItem routeListAddress,
+			CancellationToken cancellationToken)
 		{
 			var bottleCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.BottleCodes).ToList();
 			var defectiveBottleCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.DefectiveBottleCodes).ToList();
@@ -645,6 +659,8 @@ namespace DriverAPI.Library.V6.Services
 
 			foreach(var scannedItem in completeOrderInfo.ScannedItems)
 			{
+				var codesAddingResult = await _trueMarkWaterCodeService.GetTrueMarkCodesByScannedCodes(_uow, scannedCodes, cancellationToken);
+
 				foreach(var scannedCode in scannedCodes)
 				{
 					var trueMarkWaterIdentificationCode =
@@ -1004,7 +1020,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var codeRemovingResult =
-				await _routeListItemTrueMarkProductCodesProcessingService.RemoveTrueMarkCodeFromRouteListItem(_uow, routeListAddress, vodovozOrderItem.Id, scannedCode);
+				await _routeListItemTrueMarkProductCodesProcessingService.RemoveTrueMarkCodeFromRouteListItem(_uow, routeListAddress, vodovozOrderItem.Id, scannedCode, cancellationToken);
 
 			if(codeRemovingResult.IsFailure)
 			{
