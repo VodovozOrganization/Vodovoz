@@ -212,7 +212,8 @@ namespace Vodovoz.ViewModels.Employees
 
 		private IEntityEntryViewModel BuildRouteListEntityViewModel()
 		{
-			var routeListEntryViewModelBuilder = new CommonEEVMBuilderFactory<Fine>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+			var routeListEntryViewModelBuilder = new CommonEEVMBuilderFactory<FineViewModel>(
+				this, this, UoW, NavigationManager, _lifetimeScope);
 
 			var viewModel = routeListEntryViewModelBuilder
 				.ForProperty(x => x.RouteList)

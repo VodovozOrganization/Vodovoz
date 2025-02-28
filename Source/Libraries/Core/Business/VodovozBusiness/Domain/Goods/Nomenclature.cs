@@ -32,34 +32,35 @@ namespace Vodovoz.Domain.Goods
 		private decimal _width;
 		private decimal _height;
 
-		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
-		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
-		private IList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new List<NomenclatureInnerDeliveryPrice>();
-		private IList<AlternativeNomenclaturePrice> _alternativeNomenclaturePrices = new List<AlternativeNomenclaturePrice>();
+		private IObservableList<NomenclaturePrice> _nomenclaturePrice = new ObservableList<NomenclaturePrice>();
+		private IObservableList<NomenclaturePurchasePrice> _purchasePrices = new ObservableList<NomenclaturePurchasePrice>();
+		private IObservableList<NomenclatureCostPrice> _costPrices = new ObservableList<NomenclatureCostPrice>();
+		private IObservableList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new ObservableList<NomenclatureInnerDeliveryPrice>();
+		private IObservableList<AlternativeNomenclaturePrice> _alternativeNomenclaturePrices =
+			new ObservableList<AlternativeNomenclaturePrice>();
 		private GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
-		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
-		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
 		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
 		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
 		private KulerSaleWebSiteNomenclatureOnlineCatalog _kulerSaleWebSiteNomenclatureOnlineCatalog;
 		private NomenclatureOnlineGroup _nomenclatureOnlineGroup;
 		private NomenclatureOnlineCategory _nomenclatureOnlineCategory;
-		private IList<NomenclatureOnlineParameters> _nomenclatureOnlineParameters = new List<NomenclatureOnlineParameters>();
+		private IObservableList<NomenclatureOnlineParameters> _nomenclatureOnlineParameters =
+			new ObservableList<NomenclatureOnlineParameters>();
 		private Folder1c _folder1;
 		private User _createdBy;
 		private EquipmentColors _equipmentColor;
 		private EquipmentKind _kind;
 		private Manufacturer _manufacturer;
 		private RouteColumn _routeListColumn;
-		private IList<NomenclaturePrice> _nomenclaturePrice = new List<NomenclaturePrice>();
 		private FuelType _fuelType;
 		private Nomenclature _dependsOnNomenclature;
 		private OnlineStore _onlineStore;
 		private ProductGroup _productGroup;
 		private Counterparty _shipperCounterparty;
-		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse = new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
+		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse =
+			new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
 		private IObservableList<Gtin> _gtins = new ObservableList<Gtin>();
 
 		private NomenclatureCategory _category;
@@ -182,7 +183,7 @@ namespace Vodovoz.Domain.Goods
 		/// Цены
 		/// </summary>
 		[Display(Name = "Цены")]
-		public virtual new IList<NomenclaturePrice> NomenclaturePrice
+		public virtual new IObservableList<NomenclaturePrice> NomenclaturePrice
 		{
 			get => _nomenclaturePrice;
 			set => SetField(ref _nomenclaturePrice, value);
@@ -192,7 +193,7 @@ namespace Vodovoz.Domain.Goods
 		/// Альтернативные цены
 		/// </summary>
 		[Display(Name = "Альтернативные цены")]
-		public virtual new IList<AlternativeNomenclaturePrice> AlternativeNomenclaturePrices
+		public virtual new IObservableList<AlternativeNomenclaturePrice> AlternativeNomenclaturePrices
 		{
 			get => _alternativeNomenclaturePrices;
 			set => SetField(ref _alternativeNomenclaturePrices, value);
@@ -296,7 +297,7 @@ namespace Vodovoz.Domain.Goods
 		/// <summary>
 		/// Параметры номенклатуры для ИПЗ
 		/// </summary>
-		public virtual IList<NomenclatureOnlineParameters> NomenclatureOnlineParameters
+		public virtual IObservableList<NomenclatureOnlineParameters> NomenclatureOnlineParameters
 		{
 			get => _nomenclatureOnlineParameters;
 			set => SetField(ref _nomenclatureOnlineParameters, value);
@@ -306,7 +307,7 @@ namespace Vodovoz.Domain.Goods
 		/// Цены закупки ТМЦ
 		/// </summary>
 		[Display(Name = "Цены закупки ТМЦ")]
-		public virtual IList<NomenclaturePurchasePrice> PurchasePrices
+		public virtual IObservableList<NomenclaturePurchasePrice> PurchasePrices
 		{
 			get => _purchasePrices;
 			set => SetField(ref _purchasePrices, value);
@@ -329,7 +330,7 @@ namespace Vodovoz.Domain.Goods
 		/// Себестоимость ТМЦ
 		/// </summary>
 		[Display(Name = "Себестоимость ТМЦ")]
-		public virtual IList<NomenclatureCostPrice> CostPrices
+		public virtual IObservableList<NomenclatureCostPrice> CostPrices
 		{
 			get => _costPrices;
 			set => SetField(ref _costPrices, value);
@@ -339,25 +340,11 @@ namespace Vodovoz.Domain.Goods
 		public virtual GenericObservableList<NomenclatureCostPrice> ObservableCostPrices =>
 			_observableCostPrices ?? (_observableCostPrices = new GenericObservableList<NomenclatureCostPrice>(CostPrices));
 
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<NomenclaturePrice> ObservableNomenclaturePrices
-		{
-			get => _observableNomenclaturePrices ?? (_observableNomenclaturePrices = new GenericObservableList<NomenclaturePrice>(NomenclaturePrice));
-			set => _observableNomenclaturePrices = value;
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<AlternativeNomenclaturePrice> ObservableAlternativeNomenclaturePrices
-		{
-			get => _observableAlternativeNomenclaturePrices ?? (_observableAlternativeNomenclaturePrices = new GenericObservableList<AlternativeNomenclaturePrice>(AlternativeNomenclaturePrices));
-			set => _observableAlternativeNomenclaturePrices = value;
-		}
-
 		/// <summary>
 		/// Стоимости доставки ТМЦ на склад
 		/// </summary>
 		[Display(Name = "Стоимости доставки ТМЦ на склад")]
-		public virtual IList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
+		public virtual IObservableList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
 		{
 			get => _innerDeliveryPrices;
 			set => SetField(ref _innerDeliveryPrices, value);
@@ -556,6 +543,30 @@ namespace Vodovoz.Domain.Goods
 				.FirstOrDefault();
 
 			return purchasePrice;
+		}
+		
+		public override decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
+		{
+			if(itemsCount < 1)
+			{
+				itemsCount = 1;
+			}
+
+			decimal price = 0m;
+			if(DependsOnNomenclature != null)
+			{
+				price = DependsOnNomenclature.GetPrice(itemsCount, useAlternativePrice);
+			}
+			else
+			{
+				var nomPrice = (useAlternativePrice
+						? AlternativeNomenclaturePrices.Cast<NomenclaturePriceGeneralBase>()
+						: NomenclaturePrice.Cast<NomenclaturePriceGeneralBase>())
+					.OrderByDescending(p => p.MinCount)
+					.FirstOrDefault(p => p.MinCount <= itemsCount);
+				price = nomPrice?.Price ?? 0;
+			}
+			return price;
 		}
 
 		#endregion Методы

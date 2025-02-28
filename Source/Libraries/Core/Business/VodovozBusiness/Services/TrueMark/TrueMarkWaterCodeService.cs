@@ -32,7 +32,7 @@ namespace VodovozBusiness.Services.TrueMark
 		private readonly IUnitOfWork _uow;
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
-		private readonly TrueMarkApiClientFactory _trueMarkApiClientFactory;
+		private readonly ITrueMarkApiClientFactory _trueMarkApiClientFactory;
 		private readonly IGenericRepository<TrueMarkWaterIdentificationCode> _trueMarkWaterIdentificationCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _trueMarkProductCodeRepository;
 		private readonly IGenericRepository<TrueMarkWaterGroupCode> _trueMarkWaterGroupCodeRepository;
@@ -47,7 +47,7 @@ namespace VodovozBusiness.Services.TrueMark
 			IUnitOfWork uow,
 			TrueMarkCodesChecker trueMarkCodesChecker,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
-			TrueMarkApiClientFactory trueMarkApiClientFactory,
+			ITrueMarkApiClientFactory trueMarkApiClientFactory,
 			IGenericRepository<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodeRepository,
 			IGenericRepository<TrueMarkProductCode> trueMarkProductCodeRepository,
 			IGenericRepository<TrueMarkWaterGroupCode> trueMarkWaterGroupCodeRepository,
@@ -446,7 +446,88 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", "Не удалось получить информацию о коде"));
 		}
 
-		private async Task<Result<TrueMarkTransportCode>> CreateTransportCodeAsync(TrueMarkApiClient truemarkClient, ProductInstanceStatus instanceStatus, CancellationToken cancellationToken)
+		public TrueMarkAnyCode GetParentGroupCode(IUnitOfWork unitOfWork, TrueMarkAnyCode trueMarkAnyCode)
+		{
+			if(trueMarkAnyCode == null)
+			{
+				throw new ArgumentNullException(nameof(trueMarkAnyCode), "Передано пустое значение в параметр кода");
+			}
+
+			return trueMarkAnyCode.Match(
+				transportCode =>
+				{
+					if(transportCode.ParentTransportCodeId != null)
+					{
+						return GetParentGroupCode(
+							unitOfWork,
+							_trueMarkTransportCodeRepository
+								.Get(
+									unitOfWork,
+									x => x.Id == transportCode.ParentTransportCodeId,
+									1)
+								.FirstOrDefault());
+					}
+
+					return transportCode;
+				},
+				groupCode =>
+				{
+					if(groupCode.ParentTransportCodeId != null)
+					{
+						return GetParentGroupCode(
+							unitOfWork,
+							_trueMarkTransportCodeRepository
+								.Get(
+									unitOfWork,
+									x => x.Id == groupCode.ParentTransportCodeId,
+									1)
+								.FirstOrDefault());
+					}
+
+					if(groupCode.ParentWaterGroupCodeId != null)
+					{
+						return GetParentGroupCode(
+							unitOfWork,
+							_trueMarkWaterGroupCodeRepository
+								.Get(
+									unitOfWork,
+									x => x.Id == groupCode.ParentWaterGroupCodeId,
+									1)
+								.FirstOrDefault());
+					}
+
+					return groupCode;
+				},
+				waterCode =>
+				{
+					if(waterCode.ParentWaterGroupCodeId != null)
+					{
+						return GetParentGroupCode(unitOfWork,
+							_trueMarkWaterGroupCodeRepository
+								.Get(
+									unitOfWork,
+									x => x.Id == waterCode.ParentWaterGroupCodeId,
+									1)
+								.FirstOrDefault());
+					}
+
+					if(waterCode.ParentTransportCodeId != null)
+					{
+						return GetParentGroupCode(
+							unitOfWork,
+							_trueMarkTransportCodeRepository
+								.Get(
+									unitOfWork,
+									x => x.Id == waterCode.ParentTransportCodeId,
+									1)
+								.FirstOrDefault());
+					}
+
+					return waterCode;
+				});
+		}
+
+		private async Task<Result<TrueMarkTransportCode>> CreateTransportCodeAsync(ITrueMarkApiClient truemarkClient, ProductInstanceStatus instanceStatus, CancellationToken cancellationToken)
 		{
 			var newTransportCode = new TrueMarkTransportCode
 			{
@@ -510,7 +591,7 @@ namespace VodovozBusiness.Services.TrueMark
 			return newTransportCode;
 		}
 
-		private async Task<Result<TrueMarkWaterGroupCode>> CreateGroupCodeAsync(TrueMarkWaterCode parsedCode, TrueMarkApiClient truemarkClient, ProductInstanceStatus instanceStatus, CancellationToken cancellationToken)
+		private async Task<Result<TrueMarkWaterGroupCode>> CreateGroupCodeAsync(TrueMarkWaterCode parsedCode, ITrueMarkApiClient truemarkClient, ProductInstanceStatus instanceStatus, CancellationToken cancellationToken)
 		{
 			var newGroupCode = new TrueMarkWaterGroupCode
 			{
@@ -566,7 +647,7 @@ namespace VodovozBusiness.Services.TrueMark
 			return newGroupCode;
 		}
 
-		private async Task<Result<TrueMarkWaterGroupCode>> CreateGroupCodeAsync(TrueMarkApiClient truemarkClient, ProductInstanceStatus instanceStatus, CancellationToken cancellationToken)
+		private async Task<Result<TrueMarkWaterGroupCode>> CreateGroupCodeAsync(ITrueMarkApiClient truemarkClient, ProductInstanceStatus instanceStatus, CancellationToken cancellationToken)
 		{
 			var identificationCode = instanceStatus.IdentificationCode;
 
