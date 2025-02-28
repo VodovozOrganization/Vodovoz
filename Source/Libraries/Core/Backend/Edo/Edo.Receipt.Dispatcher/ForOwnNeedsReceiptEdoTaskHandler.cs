@@ -539,6 +539,10 @@ namespace Edo.Receipt.Dispatcher
 				// записываем сколько было добавлено позиций в последнем документе
 				// чтобы дополнить документ до максимального кол-ва позиций в обработке индивидуальных кодов
 				lastGroupFiscalInventPositionsCount = currentProcessingGroupPositions.Count();
+				if(lastGroupFiscalInventPositionsCount == 0)
+				{
+					break;
+				}
 
 				foreach(var processingGroupPosition in currentProcessingGroupPositions)
 				{
@@ -571,6 +575,11 @@ namespace Edo.Receipt.Dispatcher
 
 			do
 			{
+				if(!currentProcessingPositions.Any())
+				{
+					break;
+				}
+
 				// заполняем товарами с кодами текущий документ
 				foreach(var processingPosition in currentProcessingPositions)
 				{
