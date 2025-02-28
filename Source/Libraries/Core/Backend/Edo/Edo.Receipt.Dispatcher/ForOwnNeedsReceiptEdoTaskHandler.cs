@@ -234,6 +234,7 @@ namespace Edo.Receipt.Dispatcher
 				isValid = taskValidationResult.IsAllValid;
 				if(!isValid)
 				{
+					var hasGroupInvalidCodes = false;
 					// очистка result кодов не валидных позиций
 					foreach(var codeResult in taskValidationResult.CodeResults)
 					{
@@ -242,7 +243,49 @@ namespace Edo.Receipt.Dispatcher
 							continue;
 						}
 
-						codeResult.EdoTaskItem.ProductCode.ResultCode = null;
+						// определить что TaskItem принадлежит групповому коду
+						if(codeResult.EdoTaskItem.ProductCode.ResultCode.ParentTransportCodeId != null)
+						{
+							hasGroupInvalidCodes = true;
+
+							// так же надо зачистить все части этого группового кода
+							var groupCode = GetParentGroupCode(codeResult.EdoTaskItem.ProductCode.ResultCode.ParentTransportCodeId.Value);
+							foreach(var individualCode in groupCode.GetAllCodes().Where(x => x.IsTrueMarkWaterIdentificationCode))
+							{
+								var foundInvalidGroupIdentificationCode = receiptEdoTask.Items
+									.FirstOrDefault(x => x.ProductCode.SourceCode == individualCode.TrueMarkWaterIdentificationCode);
+								foundInvalidGroupIdentificationCode.ProductCode.SourceCode = null;
+								foundInvalidGroupIdentificationCode.ProductCode.ResultCode = null;
+							}
+							
+							// надо передать информацию о том что код не валиден, и надо переформировать позиции в чеке
+
+
+							// обнуляем GroupCode, чтобы знать что там был не валидный групповой код,
+							// это будет необходимо когда будем обновлять позиции в чеке
+							// не групповые позициии всегда имеют ссылку на EdoTaskItem, поэтому путаницы быть не должно
+							//foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
+							//{
+							//	var foundGroupPosition = fiscalDocument.InventPositions
+							//		.FirstOrDefault(x => x.GroupCode == groupCode);
+							//	if(foundGroupPosition != null)
+							//	{
+							//		foundGroupPosition.GroupCode = null;
+							//		break;
+							//	}
+							//}
+						}
+						else
+						{
+							codeResult.EdoTaskItem.ProductCode.ResultCode = null;
+						}
+					}
+
+					if(hasGroupInvalidCodes)
+					{
+						// если нашелся групповой код, который не валиден, то лучше полностью переформировать
+						// фискальные документы, потому групповой код влияет на кол-во позиций в чеке
+						receiptEdoTask.FiscalDocuments.Clear();
 					}
 
 					continue;
@@ -295,14 +338,14 @@ namespace Edo.Receipt.Dispatcher
 
 
 			// ЭТО ДОЛЖНО БЫТЬ В ТЕСТЕ, УДАЛИТЬ ИЗ ПРОДА
-			var orderSumForReceipt = receiptEdoTask.OrderEdoRequest.Order.OrderItems
-				.Where(x => x.Count > 0)
-				.Sum(x => x.Sum);
-			var receiptsSum = receiptEdoTask.FiscalDocuments.SelectMany(x => x.MoneyPositions).Sum(x => x.Sum);
-			if(receiptsSum != orderSumForReceipt)
-			{
-				throw new InvalidOperationException($"Сумма чека не совпадает с суммой заказа. Сумма заказа: {orderSumForReceipt}, сумма чека: {receiptsSum}");
-			}
+			//var orderSumForReceipt = receiptEdoTask.OrderEdoRequest.Order.OrderItems
+			//	.Where(x => x.Count > 0)
+			//	.Sum(x => x.Sum);
+			//var receiptsSum = receiptEdoTask.FiscalDocuments.SelectMany(x => x.MoneyPositions).Sum(x => x.Sum);
+			//if(receiptsSum != orderSumForReceipt)
+			//{
+			//	throw new InvalidOperationException($"Сумма чека не совпадает с суммой заказа. Сумма заказа: {orderSumForReceipt}, сумма чека: {receiptsSum}");
+			//}
 
 
 
@@ -657,44 +700,44 @@ namespace Edo.Receipt.Dispatcher
 		}
 
 
-		private IEnumerable<TrueMarkAnyCode> FindGroupCodes(ReceiptEdoTask receiptEdoTask)
-		{
-			var result = new List<TrueMarkAnyCode>();
+		//private IEnumerable<TrueMarkAnyCode> FindGroupCodes(ReceiptEdoTask receiptEdoTask)
+		//{
+		//	var result = new List<TrueMarkAnyCode>();
 
-			var unprocessedWithResultCode = receiptEdoTask.Items
-				.Where(x => x.ProductCode.ResultCode != null)
-				.ToList();
+		//	var unprocessedWithResultCode = receiptEdoTask.Items
+		//		.Where(x => x.ProductCode.ResultCode != null)
+		//		.ToList();
 
-			while(unprocessedWithResultCode.Any())
-			{
-				var unprocessedItem = unprocessedWithResultCode.First();
-				if(unprocessedItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
-				{
-					var groupCode = GetParentGroupCode(unprocessedItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value);
-					var allCodes = groupCode.GetAllCodes();
-					var identificationCodes = allCodes
-						.Where(x => x.IsTrueMarkWaterIdentificationCode)
-						.Select(x => x.TrueMarkWaterIdentificationCode);
+		//	while(unprocessedWithResultCode.Any())
+		//	{
+		//		var unprocessedItem = unprocessedWithResultCode.First();
+		//		if(unprocessedItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
+		//		{
+		//			var groupCode = GetParentGroupCode(unprocessedItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value);
+		//			var allCodes = groupCode.GetAllCodes();
+		//			var identificationCodes = allCodes
+		//				.Where(x => x.IsTrueMarkWaterIdentificationCode)
+		//				.Select(x => x.TrueMarkWaterIdentificationCode);
 
-					foreach(var identificationCode in identificationCodes)
-					{
-						var taskItemToRemove = unprocessedWithResultCode.FirstOrDefault(x => x.ProductCode.ResultCode.Id == identificationCode.Id);
-						unprocessedWithResultCode.Remove(taskItemToRemove);
-					}
+		//			foreach(var identificationCode in identificationCodes)
+		//			{
+		//				var taskItemToRemove = unprocessedWithResultCode.FirstOrDefault(x => x.ProductCode.ResultCode.Id == identificationCode.Id);
+		//				unprocessedWithResultCode.Remove(taskItemToRemove);
+		//			}
 
-					result.Add(groupCode);
-				}
-				else
-				{
-					unprocessedWithResultCode.Remove(unprocessedItem);
-					result.Add(unprocessedItem.ProductCode.ResultCode);
-				}
-			}
+		//			result.Add(groupCode);
+		//		}
+		//		else
+		//		{
+		//			unprocessedWithResultCode.Remove(unprocessedItem);
+		//			result.Add(unprocessedItem.ProductCode.ResultCode);
+		//		}
+		//	}
 
-			// добавить обработку остальных кодов у которых нет ResultCode
+		//	// добавить обработку остальных кодов у которых нет ResultCode
 			
-			return result;
-		}
+		//	return result;
+		//}
 
 
 
@@ -708,7 +751,7 @@ namespace Edo.Receipt.Dispatcher
 		private void UpdateReceiptMoneyPositions(EdoFiscalDocument currentFiscalDocument)
 		{
 			var receiptSum = currentFiscalDocument.InventPositions
-								.Sum(x => x.OrderItem.Price * x.Quantity - x.DiscountSum);
+				.Sum(x =>  x.Price * x.Quantity - x.DiscountSum);
 
 			var moneyPosition = new FiscalMoneyPosition
 			{
@@ -729,10 +772,35 @@ namespace Edo.Receipt.Dispatcher
 
 			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
 			{
+				// в первую очередь надо найти групповые позиции которым нужно обновить коды
+				// чтобы обновить групповой код, нужно позицию разбить на индивидуальные позиции
+				// и заполниь их кодами из пула, при этом создав новые EdoTaskItem
+
+				//var markedEmptyGroupPositions = fiscalDocument.InventPositions
+				//	.Where(x => x.OrderItem.Nomenclature.IsAccountableInTrueMark)
+				//	// Если EdoTaskItem == null, значит это групповая позиция
+				//	.Where(x => x.EdoTaskItem == null)
+				//	// Если GroupCode == null, значит что групповой код был не валиден в ЧЗ
+				//	.Where(x => x.GroupCode == null)
+				//	;
+
+				//foreach(var emptyGroupPosition in markedEmptyGroupPositions)
+				//{
+				//	fiscalDocument.InventPositions.Remove(emptyGroupPosition);
+
+				//	receiptEdoTask.
+				//	emptyGroupPosition.GroupCode
+
+				//}
+
+
+				// потом обновить по старому все остальные :
+
 				var markedEmptyPositions = fiscalDocument.InventPositions
 					.Where(x => x.OrderItem.Nomenclature.IsAccountableInTrueMark)
 					.Where(x => x.EdoTaskItem.ProductCode.ResultCode == null)
 					;
+
 				foreach(var inventPosition in markedEmptyPositions)
 				{
 					var code = await LoadCodeFromPool(inventPosition.OrderItem.Nomenclature, cancellationToken);

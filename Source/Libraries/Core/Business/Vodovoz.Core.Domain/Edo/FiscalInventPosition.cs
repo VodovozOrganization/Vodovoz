@@ -25,7 +25,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private string _industryRequisiteData;
 
 		// он используется для назначения индивидуального кода на позицию товара в чеке
-		private EdoTaskItem _individualEdoTaskItem;
+		private EdoTaskItem _edoTaskItem;
 
 		// он используется для назначения группового кода на позицию товара в чеке
 		private TrueMarkWaterGroupCode _groupCode;
@@ -114,8 +114,8 @@ namespace Vodovoz.Core.Domain.Edo
 		[Display(Name = "Строка задачи с индивидуальным кодом")]
 		public virtual EdoTaskItem EdoTaskItem
 		{
-			get => _individualEdoTaskItem;
-			set => SetField(ref _individualEdoTaskItem, value);
+			get => _edoTaskItem;
+			set => SetField(ref _edoTaskItem, value);
 		}
 
 		[Display(Name = "Групповой код")]
@@ -124,7 +124,6 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _groupCode;
 			set => SetField(ref _groupCode, value);
 		}
-
 
 		/// <summary>
 		/// Регламентирующий документ
@@ -145,7 +144,5 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _industryRequisiteData;
 			set => SetField(ref _industryRequisiteData, value);
 		}
-
-
 	}
 }
