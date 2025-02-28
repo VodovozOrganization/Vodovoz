@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -53,5 +53,6 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <returns>Код ЧЗ</returns>
 		[Obsolete("Use TryGetSavedTrueMarkCodeByScannedCode instead")]
 		TrueMarkWaterIdentificationCode LoadOrCreateTrueMarkWaterIdentificationCode(IUnitOfWork uow, string scannedCode);
+		TrueMarkAnyCode GetParentGroupCode(IUnitOfWork unitOfWork, TrueMarkAnyCode trueMarkAnyCode);
 	}
 }
