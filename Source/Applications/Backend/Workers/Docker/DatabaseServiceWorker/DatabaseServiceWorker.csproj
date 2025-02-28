@@ -28,7 +28,6 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
-    <PackageReference Include="Polly" Version="7.2.3" />
     <PackageReference Include="SharpCifs.Std" Version="0.2.13" />
   </ItemGroup>
   <ItemGroup>

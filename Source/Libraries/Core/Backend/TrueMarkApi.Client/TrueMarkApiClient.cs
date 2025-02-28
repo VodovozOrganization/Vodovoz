@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Polly;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -12,7 +13,7 @@ using TrueMark.Contracts.Responses;
 
 namespace TrueMarkApi.Client
 {
-	public class TrueMarkApiClient
+	public class TrueMarkApiClient : ITrueMarkApiClient
 	{
 		private static HttpClient _httpClient;
 
@@ -42,11 +43,22 @@ namespace TrueMarkApi.Client
 			string content = JsonSerializer.Serialize(identificationCodes.ToArray());
 			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-			var response = await _httpClient.PostAsync("api/RequestProductInstanceInfo", httpContent, cancellationToken);
-			var responseBody = await response.Content.ReadAsStreamAsync();
-			var responseResult = await JsonSerializer.DeserializeAsync<ProductInstancesInfoResponse>(responseBody, cancellationToken: cancellationToken);
+			var retryPolicy = Policy
+				.Handle<HttpRequestException>()
+				.Or<TimeoutException>()
+				.WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
-			return responseResult;
+			var result = await retryPolicy.ExecuteAndCaptureAsync(
+				async (innerCancellationToken) =>
+				{
+					var response = await _httpClient.PostAsync("api/RequestProductInstanceInfo", httpContent, innerCancellationToken);
+					var responseBody = await response.Content.ReadAsStreamAsync();
+					var responseResult = await JsonSerializer.DeserializeAsync<ProductInstancesInfoResponse>(responseBody, cancellationToken: innerCancellationToken);
+					return responseResult;
+				},
+				cancellationToken);
+
+			return result.Result;
 		}
 	}
 }

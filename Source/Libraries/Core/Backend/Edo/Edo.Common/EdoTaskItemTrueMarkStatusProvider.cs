@@ -11,13 +11,13 @@ namespace Edo.Common
 {
 	public class EdoTaskItemTrueMarkStatusProvider
 	{
-		private readonly TrueMarkApiClient _trueMarkApiClient;
+		private readonly ITrueMarkApiClient _trueMarkApiClient;
 		private readonly Dictionary<string, EdoTaskItemTrueMarkStatus> _codesStatuses = new Dictionary<string, EdoTaskItemTrueMarkStatus>();
 		private readonly EdoTask _edoTask;
 		private IEnumerable<EdoTaskItem> _codeItems;
 		private bool _codesChecked;
 
-		public EdoTaskItemTrueMarkStatusProvider(EdoTask edoTask, TrueMarkApiClient trueMarkApiClient)
+		public EdoTaskItemTrueMarkStatusProvider(EdoTask edoTask, ITrueMarkApiClient trueMarkApiClient)
 		{
 			_edoTask = edoTask ?? throw new ArgumentNullException(nameof(edoTask));
 			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
