@@ -221,10 +221,8 @@ namespace WarehouseApi.Library.Services
 				});
 			}
 
-			if(_uow.HasChanges)
-			{
-				_uow.Commit();
-			}
+			_uow.Commit();
+			_uow.Session.BeginTransaction();
 
 			if((trueMarkCodeResult.Value.IsTrueMarkTransportCode &&
 				trueMarkCodeResult.Value.TrueMarkTransportCode?.ParentTransportCodeId != null)
@@ -425,10 +423,8 @@ namespace WarehouseApi.Library.Services
 				}
 			}
 
-			if(_uow.HasChanges)
-			{
-				_uow.Commit();
-			}
+			_uow.Commit();
+			_uow.Session.BeginTransaction();
 
 			if(oldTrueMarkCodeResult.Value.Match(
 				transportCode => transportCode.ParentTransportCodeId != null,
@@ -764,36 +760,6 @@ namespace WarehouseApi.Library.Services
 			_uow.Save(productCode);
 
 			carLoadDocumentItem.TrueMarkCodes.Add(productCode);
-		}
-
-		private void ChangeTrueMarkCodeInCarLoadDocumentItem(
-			CarLoadDocumentItemEntity carLoadDocumentItem,
-			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode,
-			TrueMarkWaterIdentificationCode newTrueMarkWaterCode)
-		{
-			if(newTrueMarkWaterCode.Id == 0)
-			{
-				_uow.Save(newTrueMarkWaterCode);
-			}
-
-			var codeToRemove = carLoadDocumentItem.TrueMarkCodes
-				.Where(x =>
-					x.SourceCode.GTIN == oldTrueMarkWaterCode.GTIN
-					&& x.SourceCode.SerialNumber == oldTrueMarkWaterCode.SerialNumber
-					&& x.SourceCode.CheckCode == oldTrueMarkWaterCode.CheckCode)
-				.First();
-
-			var codeToAdd = new CarLoadDocumentItemTrueMarkProductCode
-			{
-				SourceCode = newTrueMarkWaterCode,
-				ResultCode = newTrueMarkWaterCode,
-				Problem = ProductCodeProblem.None,
-				SourceCodeStatus = SourceProductCodeStatus.Accepted,
-				CarLoadDocumentItem = carLoadDocumentItem
-			};
-
-			carLoadDocumentItem.TrueMarkCodes.Remove(codeToRemove);
-			carLoadDocumentItem.TrueMarkCodes.Add(codeToAdd);
 		}
 
 		private Result RemoveTrueMarkCodeInCarLoadDocumentItem(
