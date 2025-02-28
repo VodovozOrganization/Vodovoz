@@ -6,10 +6,14 @@ using Edo.Problems.Validation;
 using Edo.Receipt.Dispatcher;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Operation.Valid;
+using NHibernate.Util;
 using NSubstitute;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -42,70 +46,36 @@ namespace Receipt.Dispatcher.Tests
 		}
 
 		[Fact]
-		public async Task Test1Async()
+		public async Task CreateMarkedFiscalDocuments_ShouldCreate_Equal_Count_Of_FiscalInventPositions_As_OrderItems_Count()
 		{
 			// Arrange
 
-			var order = new OrderEntity
-			{
-				Id = 1
-			};
-
-			var orderItem = new OrderItemEntityFixture()
-			{
-				Nomenclature = new NomenclatureEntity
+			var receiptEdoTask = CreateTestReceiptEdoTaskForTest(
+				new (IEnumerable<int> gtinIds, bool isAccountableInTrueMark)[]
 				{
-					IsAccountableInTrueMark = true,
-					Gtins = new ObservableList<GtinEntity>()
+					(new []{ 1, 2 }, true),
+					(new [] { 3,4 }, true),
+					(Array.Empty<int>(), false)
 				},
-			};
-
-			orderItem.Nomenclature.Gtins.Add(new GtinEntity
-			{
-				Id = 1,
-				GtinNumber = "Gtin#Test#1",
-				Nomenclature = orderItem.Nomenclature,
-			});
-
-			orderItem.SetCount(2m);
-			orderItem.SetPrice(10m);
-			orderItem.SetDiscount(1m);
-			orderItem.Order = order;
-
-			order.OrderItems.Add(orderItem);
-			order.Contract = new CounterpartyContractEntity();
-
-			var receiptEdoTask = new ReceiptEdoTask
-			{
-				OrderEdoRequest = new OrderEdoRequest
+				new[]
 				{
-					Order = order
+					(1, 5m, 2m, 1m),
+					(1, 5m, 2m, 1m),
+					(3, 1m, 2m, 1m)
 				},
-			};
-
-			var sourceCode = new TrueMarkWaterIdentificationCode
-			{
-				Id = 1,
-				GTIN = "Gtin#Test#1",
-				SerialNumber = "Gtin#Test.Serial#1",
-				CheckCode = "Gtin#Test.CheckCode#1",
-				IsInvalid = false
-			};
-
-			receiptEdoTask.Items.Add(new EdoTaskItem
-			{
-				Id = 1,
-				ProductCode = new CarLoadDocumentItemTrueMarkProductCode
+				new[]
 				{
-					Id = 1,
-					CarLoadDocumentItem = new CarLoadDocumentItemEntity
-					{
-						Id = 1,
-						OrderId = order.Id
-					},
-					SourceCode = sourceCode
-				}
-			});
+					true, true, true, true, true, true, true, true, true, true, true, true,
+				},
+				new (int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				{
+					(null, true, new []{1, 2, 3, 4, 5, 6}),
+					(null, true, new []{7, 8, 9, 10, 11, 12})
+				},
+				new[]
+				{
+					1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+				});
 
 			var mainFiscalDocument = new EdoFiscalDocument();
 
@@ -116,6 +86,200 @@ namespace Receipt.Dispatcher.Tests
 			// Assert
 
 			
+		}
+
+
+		private ReceiptEdoTask CreateTestReceiptEdoTaskForTest(
+			IEnumerable<(IEnumerable<int> gtinIds, bool isAccountableInTrueMark)> nomenclaturesParameters,
+			IEnumerable<(int nomenclatureId, decimal count, decimal price, decimal discount)> orderItemsParameters,
+			IEnumerable<bool> waterIdentificationCodesParameters,
+			IEnumerable<(int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)> waterGroupCodesParameters,
+			IEnumerable<int> edoTaskItemIdentificationCodesParameters)
+		{
+			var orderItemAutoIncrementId = 1;
+			var nomenclatureAutoIncrementId = 1;
+			var gtinAutoIncrementId = 1;
+			var carLoadDocumentItemAutoIncrementId = 1;
+			var edoTaskItemAutoIncrementId = 1;
+			var carLoadDocumentItemTrueMarkProductCodeAutoIncrementId = 1;
+			var waterIdentificationCodeAutoIncrementId = 1;
+			var waterGroupCodeAutoIncrementId = 1;
+
+			var gtins = new List<GtinEntity>();
+
+			var maxGtinId = nomenclaturesParameters.Max(x => x .gtinIds.Any() ? x.gtinIds.Max() : 0);
+
+			for(var i = 1; i < maxGtinId; i++)
+			{
+				gtins.Add(CreateGtin(gtinAutoIncrementId++));
+			}
+
+			var nomenclatures = new List<NomenclatureEntity>();
+
+			foreach(var (gtinIds, isAccountableInTrueMark) in nomenclaturesParameters)
+			{
+				nomenclatures.Add(CreateNomenclature(nomenclatureAutoIncrementId++, isAccountableInTrueMark, gtins.Where(x => gtinIds.Contains(x.Id))));
+			}
+
+			var orderItems = new List<OrderItemEntity>();
+
+			foreach(var (nomenclatureId, count, price, discount) in orderItemsParameters)
+			{
+				orderItems.Add(CreateOrderItem(orderItemAutoIncrementId++, nomenclatures[nomenclatureId - 1], count, price, discount));
+			}
+
+			var order = CreateOrderForTest(orderItems);
+
+			var receiptEdoTask = new ReceiptEdoTask
+			{
+				OrderEdoRequest = new OrderEdoRequest
+				{
+					Order = order
+				},
+			};
+
+			var trueMarkWaterIdentificationCodes = new List<TrueMarkWaterIdentificationCode>();
+
+			foreach(var waterIdentificationCodesParameter in waterIdentificationCodesParameters)
+			{
+				trueMarkWaterIdentificationCodes.Add(CreateTrueMarkWaterIdentificationCode(waterIdentificationCodeAutoIncrementId++, waterIdentificationCodesParameter));
+			}
+
+			foreach(var waterIdentificationCodeId in edoTaskItemIdentificationCodesParameters)
+			{
+				receiptEdoTask.Items.Add(CreateEdoTaskItem(
+					edoTaskItemAutoIncrementId++,
+					carLoadDocumentItemTrueMarkProductCodeAutoIncrementId++,
+					carLoadDocumentItemAutoIncrementId++,
+					order.Id,
+					trueMarkWaterIdentificationCodes[waterIdentificationCodeId - 1]));
+			}
+
+			var trueMarkWaterGroupCodes = new List<TrueMarkWaterGroupCode>();
+
+			foreach((int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds) in waterGroupCodesParameters.OrderBy(x => x.parentWaterCodeId))
+			{
+				var groupCode = new TrueMarkWaterGroupCode
+				{
+					Id = waterGroupCodeAutoIncrementId++,
+					IsInvalid = isInValid,
+				};
+
+				if(parentWaterCodeId != null)
+				{
+					trueMarkWaterGroupCodes[parentWaterCodeId.Value - 1].AddInnerGroupCode(groupCode);
+				}
+
+				foreach(var childId in childWaterCodeIds)
+				{
+					groupCode.AddInnerWaterCode(trueMarkWaterIdentificationCodes[childId - 1]);
+				}
+
+				trueMarkWaterGroupCodes.Add(groupCode);
+			}
+
+			return receiptEdoTask;
+		}
+
+		private EdoTaskItem CreateEdoTaskItem(
+			int edoTaskItemAutoIncrementId,
+			int carLoadDocumentItemTrueMarkProductCodeAutoIncrementId,
+			int carLoadDocumentItemAutoIncrementId,
+			int orderId,
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode)
+		{
+			var sourceCode = trueMarkWaterIdentificationCode;
+
+			return new EdoTaskItem
+			{
+				Id = edoTaskItemAutoIncrementId,
+				ProductCode = new CarLoadDocumentItemTrueMarkProductCode
+				{
+					Id = carLoadDocumentItemTrueMarkProductCodeAutoIncrementId,
+					CarLoadDocumentItem = new CarLoadDocumentItemEntity
+					{
+						Id = carLoadDocumentItemAutoIncrementId,
+						OrderId = orderId
+					},
+					SourceCode = sourceCode
+				}
+			};
+		}
+
+		private GtinEntity CreateGtin(int id)
+		{
+			return new GtinEntity
+			{
+				Id = id,
+				GtinNumber = CreateNewGtinCode(id)
+			};
+		}
+
+		private TrueMarkWaterIdentificationCode CreateTrueMarkWaterIdentificationCode(int id, bool isInvalid)
+		{
+			return new TrueMarkWaterIdentificationCode
+			{
+				Id = id,
+				GTIN = CreateNewGtinCode(id),
+				SerialNumber = CreateNewGtinSerial(id),
+				CheckCode = CreateNewGtinCheckCode(id),
+				IsInvalid = isInvalid
+			};
+		}
+
+		private string CreateNewGtinCode(int id) => $"Gtin#Test#{id}";
+		private string CreateNewGtinSerial(int id) => $"Gtin#Test.Serial#{id}";
+		private string CreateNewGtinCheckCode(int id) => $"Gtin#Test.CheckCode#{id}";
+
+		private OrderEntity CreateOrderForTest(IEnumerable<OrderItemEntity> orderItems)
+		{
+			var order = new OrderEntity
+			{
+				Id = 1,
+				Contract = new CounterpartyContractEntity()
+			};
+
+			foreach(var orderItem in orderItems)
+			{
+				orderItem.Order = order;
+
+				order.OrderItems.Add(orderItem);
+			}
+
+			return order;
+		}
+
+		private NomenclatureEntity CreateNomenclature(int id, bool isAccountableInTrueMark, IEnumerable<GtinEntity> gtins)
+		{
+			var nomenclature = new NomenclatureEntity
+			{
+				Id = id,
+				IsAccountableInTrueMark = isAccountableInTrueMark,
+				Gtins = new ObservableList<GtinEntity>()
+			};
+
+			foreach(var gtin in gtins)
+			{
+				gtin.Nomenclature = nomenclature;
+				nomenclature.Gtins.Add(gtin);
+			}
+
+			return nomenclature;
+		}
+
+		private OrderItemEntity CreateOrderItem(int id, NomenclatureEntity nomenclature, decimal count, decimal price, decimal discount)
+		{
+			var orderItem = new OrderItemEntityFixture()
+			{
+				Id = id,
+				Nomenclature = nomenclature
+			};
+
+			orderItem.SetCount(count);
+			orderItem.SetPrice(price);
+			orderItem.SetDiscount(discount);
+
+			return orderItem;
 		}
 
 		private ForOwnNeedsReceiptEdoTaskHandler CreateForOwnNeedsReceiptEdoTaskHandlerFixture(IGenericRepository<TrueMarkWaterGroupCode> waterGroupCodeRepository)
