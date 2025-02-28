@@ -551,7 +551,10 @@ namespace WarehouseApi.Library.Services
 
 			_uow.Commit();
 
-			nomenclatureDto.Codes = trueMarkCodes;
+			if(nomenclatureDto != null)
+			{
+				nomenclatureDto.Codes = trueMarkCodes;
+			}
 
 			var successResponse = new ChangeOrderCodeResponse
 			{
@@ -598,7 +601,14 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.ChangeTrueMarkCode);
 
-			RemoveTrueMarkCodeInCarLoadDocumentItem(unitOfWork, documentItemToEdit, oldTrueMarkWaterCode);
+			var resultOfRemoving = RemoveTrueMarkCodeInCarLoadDocumentItem(unitOfWork, documentItemToEdit, oldTrueMarkWaterCode);
+
+			if(resultOfRemoving.IsFailure)
+			{
+				return RequestProcessingResult.CreateFailure(
+					Result.Failure<ChangeOrderCodeResponse>(resultOfRemoving.Errors),
+					failureResponse);
+			}
 
 			return await Task.FromResult(documentItemToEdit);
 		}
@@ -788,7 +798,7 @@ namespace WarehouseApi.Library.Services
 			carLoadDocumentItem.TrueMarkCodes.Add(codeToAdd);
 		}
 
-		private void RemoveTrueMarkCodeInCarLoadDocumentItem(
+		private Result RemoveTrueMarkCodeInCarLoadDocumentItem(
 			IUnitOfWork uow,
 			CarLoadDocumentItemEntity carLoadDocumentItem,
 			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode)
@@ -798,11 +808,18 @@ namespace WarehouseApi.Library.Services
 					x.SourceCode.GTIN == oldTrueMarkWaterCode.GTIN
 					&& x.SourceCode.SerialNumber == oldTrueMarkWaterCode.SerialNumber
 					&& x.SourceCode.CheckCode == oldTrueMarkWaterCode.CheckCode)
-				.First();
+				.FirstOrDefault();
+
+			if(codeToRemove is null)
+			{
+				return Result.Failure(new Error("Temporary.TrueMark.NoCodeToRemove", "Код запрашиваемый для удаления - отсутствует"));
+			}
+
+			carLoadDocumentItem.TrueMarkCodes.Remove(codeToRemove);
 
 			uow.Delete(codeToRemove);
 
-			carLoadDocumentItem.TrueMarkCodes.Remove(codeToRemove);
+			return Result.Success();
 		}
 
 		private void CreateAndSaveCarLoadDocumentLoadingProcessAction(
