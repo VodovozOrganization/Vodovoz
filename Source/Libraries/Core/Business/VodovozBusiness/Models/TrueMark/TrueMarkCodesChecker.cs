@@ -18,12 +18,12 @@ namespace Vodovoz.Models.TrueMark
 
 		private readonly ILogger<TrueMarkCodesChecker> _logger;
 		private readonly TrueMarkWaterCodeParser _codeParser;
-		private readonly TrueMarkApiClient _trueMarkClient;
+		private readonly ITrueMarkApiClient _trueMarkClient;
 
 		public TrueMarkCodesChecker(
 			ILogger<TrueMarkCodesChecker> logger,
 			TrueMarkWaterCodeParser codeParser,
-			TrueMarkApiClient trueMarkClient)
+			ITrueMarkApiClient trueMarkClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_codeParser = codeParser ?? throw new ArgumentNullException(nameof(codeParser));

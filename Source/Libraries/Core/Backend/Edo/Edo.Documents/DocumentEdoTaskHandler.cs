@@ -7,7 +7,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
-using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Documents
@@ -49,11 +48,6 @@ namespace Edo.Documents
 		public async Task HandleNew(int documentEdoTaskId, CancellationToken cancellationToken)
 		{
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
-
-
-			// TEST
-			// проверяем все коды как МН
-			var trueMarkApiClient = new TrueMarkApiClient("https://test-mn-truemarkapi.dev.vod.qsolution.ru/", "test");
 
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
@@ -180,11 +174,6 @@ namespace Edo.Documents
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
 			var edoTask = (DocumentEdoTask)transferIteration.OrderEdoTask;
 
-			// TEST
-			// проверяем все коды как ВВ
-			var trueMarkApiClient = new TrueMarkApiClient("https://test-vv-truemarkapi.dev.vod.qsolution.ru/", "test");
-
-
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
@@ -238,11 +227,8 @@ namespace Edo.Documents
 		public async Task HandleSent(int documentEdoTaskId, CancellationToken cancellationToken)
 		{
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
-			// TEST
-			// ТУТ НЕ ВАЖНО КАКОЙ АПИ
-			var trueMarkApiClient = new TrueMarkApiClient("https://test-vv-truemarkapi.dev.vod.qsolution.ru/", "test");
-			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 
+			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
@@ -273,11 +259,7 @@ namespace Edo.Documents
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken);
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
 
-			// TEST
-			// ТУТ НЕ ВАЖНО КАКОЙ АПИ
-			var trueMarkApiClient = new TrueMarkApiClient("https://test-vv-truemarkapi.dev.vod.qsolution.ru/", "test");
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
-
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
