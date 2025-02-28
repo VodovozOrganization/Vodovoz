@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Problems;
 using Edo.Problems.Custom;
 using Edo.Problems.Exception;
@@ -6,13 +6,11 @@ using Edo.Problems.Validation;
 using Edo.Receipt.Dispatcher;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using NetTopologySuite.Operation.Valid;
 using NHibernate.Util;
 using NSubstitute;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -51,27 +49,32 @@ namespace Receipt.Dispatcher.Tests
 			// Arrange
 
 			var receiptEdoTask = CreateTestReceiptEdoTaskForTest(
+				// Nomenclatures
 				new (IEnumerable<int> gtinIds, bool isAccountableInTrueMark)[]
 				{
-					(new []{ 1, 2 }, true),
+					(new [] { 1, 2 }, true),
 					(new [] { 3,4 }, true),
 					(Array.Empty<int>(), false)
 				},
+				// OrderItems
 				new[]
 				{
 					(1, 5m, 2m, 1m),
 					(1, 5m, 2m, 1m),
 					(3, 1m, 2m, 1m)
 				},
+				// Identification Codes
 				new[]
 				{
-					true, true, true, true, true, true, true, true, true, true, true, true,
+					false, false, false, false, false, false, false, false, false, false, false, false,
 				},
+				// Group Codes
 				new (int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
 				{
-					(null, true, new []{1, 2, 3, 4, 5, 6}),
-					(null, true, new []{7, 8, 9, 10, 11, 12})
+					(null, false, new []{1, 2, 3, 4, 5, 6}),
+					(null, false, new []{7, 8, 9, 10, 11, 12})
 				},
+				// CarLoad Document Items for IdentificationCodes
 				new[]
 				{
 					1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
@@ -172,10 +175,18 @@ namespace Receipt.Dispatcher.Tests
 
 				foreach(var childId in childWaterCodeIds)
 				{
-					groupCode.AddInnerWaterCode(trueMarkWaterIdentificationCodes[childId - 1]);
+					var currentWaterIdentificationCode = trueMarkWaterIdentificationCodes[childId - 1];
+
+					if(groupCode.GTIN == null)
+					{
+						groupCode.GTIN = currentWaterIdentificationCode.GTIN;
+					}
+
+					groupCode.AddInnerWaterCode(currentWaterIdentificationCode);
 				}
 
 				trueMarkWaterGroupCodes.Add(groupCode);
+				_waterGroupCodeRepository.Data.Add(groupCode);
 			}
 
 			return receiptEdoTask;
