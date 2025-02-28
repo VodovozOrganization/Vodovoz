@@ -340,7 +340,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 			else
 			{
-				await CreateMarkedFiscalDocuments(receiptEdoTask, order, mainFiscalDocument, cancellationToken);
+				await CreateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, cancellationToken);
 			}
 
 			//создать или обновить сумму в чеках
@@ -388,11 +388,11 @@ namespace Edo.Receipt.Dispatcher
 
 		public async Task CreateMarkedFiscalDocuments(
 			ReceiptEdoTask receiptEdoTask, 
-			OrderEntity order, 
 			EdoFiscalDocument mainFiscalDocument, 
 			CancellationToken cancellationToken
 			)
 		{
+			var order = receiptEdoTask.OrderEdoRequest.Order;
 			var markedOrderItems = order.OrderItems
 				.Where(x => x.Price != 0m)
 				.Where(x => x.Count > 0m)
