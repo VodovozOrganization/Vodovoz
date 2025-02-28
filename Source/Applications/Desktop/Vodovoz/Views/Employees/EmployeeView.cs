@@ -13,6 +13,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gtk;
 using QS.ViewModels.Control.EEVM;
+using QSWidgetLib;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -21,7 +22,6 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Core.Domain.Employees;
-using QSWidgetLib;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Views.Employees
@@ -192,7 +192,7 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 
 			phonesView.ViewModel = ViewModel.PhonesViewModel;
-			phonesView.ViewModel.PhonesList = new GenericObservableList<Phone>(ViewModel.Entity.Phones);
+			phonesView.ViewModel.Initialize(ViewModel.Entity.Phones);
 			phonesView.Sensitive = ViewModel.CanEditEmployee;
 
 			entryAddressCurrent.Binding

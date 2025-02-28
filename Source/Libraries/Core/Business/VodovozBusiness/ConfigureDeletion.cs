@@ -559,6 +559,13 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<BulkEmailEventReason>();
 
+			DeleteConfig.AddHibernateDeleteInfo<ExternalCounterparty>()
+				.AddDeleteDependence<ExternalCounterpartyMatching>(x => x.AssignedExternalCounterparty)
+				.AddDeleteDependence<ExternalCounterpartyAssignNotification>(x => x.ExternalCounterparty);
+
+			DeleteConfig.AddHibernateDeleteInfo<ExternalCounterpartyMatching>();
+			DeleteConfig.AddHibernateDeleteInfo<ExternalCounterpartyAssignNotification>();
+
 			#endregion
 
 			#region Logistics

@@ -54,7 +54,7 @@ namespace Vodovoz.Organizations
 
 		private global::Gtk.Label label9;
 
-		private global::Vodovoz.Views.Contacts.PhonesView phonesview1;
+		private global::Vodovoz.Dialogs.Phones.PhonesView phonesView;
 
 		private global::QS.Widgets.ValidatedEntry validatedentryEmail;
 
@@ -342,12 +342,11 @@ namespace Vodovoz.Organizations
 			w24.XOptions = ((global::Gtk.AttachOptions)(4));
 			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.phonesview1 = new global::Vodovoz.Views.Contacts.PhonesView();
-			this.phonesview1.Events = ((global::Gdk.EventMask)(256));
-			this.phonesview1.Name = "phonesview1";
-			this.phonesview1.IsReadOnly = false;
-			this.datatableMain.Add(this.phonesview1);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.phonesview1]));
+			this.phonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
+			this.phonesView.Events = ((global::Gdk.EventMask)(256));
+			this.phonesView.Name = "phonesView";
+			this.datatableMain.Add(this.phonesView);
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.phonesView]));
 			w25.TopAttach = ((uint)(2));
 			w25.BottomAttach = ((uint)(3));
 			w25.LeftAttach = ((uint)(1));
