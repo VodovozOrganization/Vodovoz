@@ -409,7 +409,8 @@ namespace Edo.Receipt.Dispatcher
 			var groupCodesWithTaskItems = TakeGroupCodesWithTaskItems(unprocessedCodes);
 
 			var groupFiscalInventPositions = new List<FiscalInventPosition>();
-			foreach(var groupCodeWithTaskItems in groupCodesWithTaskItems)
+
+			foreach(var groupCodeWithTaskItems in groupCodesWithTaskItems.ToList())
 			{
 				var groupCode = groupCodeWithTaskItems.Key;
 				var affectedTaskItems = groupCodeWithTaskItems.Value;
@@ -426,8 +427,8 @@ namespace Edo.Receipt.Dispatcher
 				// группируем распределнные товары заказа обратно по одному orderItem
 				// чтобы мы могли назначить групповой код на определенный orderItem, в котором 
 				// имеется достаточное кол-во товаров для группового кода
-				var grouppedByOrderItem = availableOrderItems.GroupBy(x => x.OrderItem.Id);
-				foreach(var expandedOrderItemsForOrderItem in grouppedByOrderItem)
+				var groupedByOrderItem = availableOrderItems.GroupBy(x => x.OrderItem.Id);
+				foreach(var expandedOrderItemsForOrderItem in groupedByOrderItem)
 				{
 					var orderItem = expandedOrderItemsForOrderItem.First().OrderItem;
 
@@ -469,19 +470,104 @@ namespace Edo.Receipt.Dispatcher
 					inventPosition.GroupCode = groupCode;
 
 					groupFiscalInventPositions.Add(inventPosition);
+
+					// убираем назначенный групповой код из списка, чтобы потом увидеть не назначенные остатки
+					// и обработать их отдельно, другим способом
+					groupCodesWithTaskItems.Remove(groupCode);
 					break;
 				}
 			}
 
-			// НУЖНО РАСПРЕДЕЛИТЬ ГРУППОВЫЕ ПОЗИЦИИ НА ДОКУМЕНТЫ
+			// оставшиемся группы распределяем на любые товары в заказе 
+			// без жесткой привязки к конкретному OrderItem
+			// но в InventPosition будет указан только первый OrderItem
 
+			foreach(var remainGroupCodeItem in groupCodesWithTaskItems)
+			{
+				var groupCode = remainGroupCodeItem.Key;
+				var affectedTaskItems = remainGroupCodeItem.Value;
+
+				var individualCodesInGroupCount = affectedTaskItems.Count();
+
+				// знаем кол-во кодов в группе
+				// теперь нужно создать позицию в чек на соответствующее кол-во
+
+				// найти товары в заказе подходящие по GTIN группового кода
+				var availableOrderItems = expandedMarkedItems
+					.Where(x => x.OrderItem.Nomenclature.Gtins.Any(g => g.GtinNumber == groupCode.GTIN));
+
+				if(availableOrderItems.Count() < individualCodesInGroupCount)
+				{
+					_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе.",
+						groupCode.Id, groupCode.GTIN);
+					break;
+				}
+
+				foreach(var availableOrderItem in availableOrderItems.ToList())
+				{
+					var inventPosition = CreateInventPosition(availableOrderItem.OrderItem);
+					// делаем инкремент потомучто expandedOrderItem соответствует одной единице товара в OrderItem
+					inventPosition.Quantity++;
+					// добавляем пропроциональную скидку для одной еденицы товара, которая была ранее рассчитана
+					// при распределении товаров заказа на их кол-во в каждом товаре
+					inventPosition.DiscountSum += availableOrderItem.DiscountPerSingleItem;
+					// исключаем обработанный товар из первоначального списка распределенных товаров
+					// чтобы при обработке следующей группы, этот товар не попал под обработку, потому
+					// что мы его уже назначили на определенную группу и забрали от него сумму пропорциональной скидки
+					expandedMarkedItems.Remove(availableOrderItem);
+
+					inventPosition.EdoTaskItem = null;
+					inventPosition.GroupCode = groupCode;
+					groupFiscalInventPositions.Add(inventPosition);
+
+					individualCodesInGroupCount--;
+
+					if(individualCodesInGroupCount == 0)
+					{
+						break;
+					}
+				}
+			}
+
+			// РАСПРЕДЕЛЕНИЕ ГРУППОВЫХ InventPosition НА ФИСКАЛЬНЫЕ ДОКУМЕНТЫ
+			var documentIndex = mainFiscalDocument.Index;
+			var currentFiscalDocument = mainFiscalDocument;
+			var currentProcessingGroupPositions = groupFiscalInventPositions.Skip(0).Take(_maxCodesInReceipt);
+			var lastGroupFiscalInventPositionsCount = 0;
+			do
+			{
+				// записываем сколько было добавлено позиций в последнем документе
+				// чтобы дополнить документ до максимального кол-ва позиций в обработке индивидуальных кодов
+				lastGroupFiscalInventPositionsCount = currentProcessingGroupPositions.Count();
+
+				foreach(var processingGroupPosition in currentProcessingGroupPositions)
+				{
+					currentFiscalDocument.InventPositions.Add(processingGroupPosition);
+				}
+
+				if(!receiptEdoTask.FiscalDocuments.Contains(currentFiscalDocument))
+				{
+					receiptEdoTask.FiscalDocuments.Add(currentFiscalDocument);
+				}
+
+				// подготавливаем данные для следующей итерации
+				documentIndex++;
+				currentProcessingGroupPositions = groupFiscalInventPositions
+					.Skip(_maxCodesInReceipt * documentIndex)
+					.Take(_maxCodesInReceipt);
+				currentFiscalDocument = CreateFiscalDocument(receiptEdoTask);
+				currentFiscalDocument.Index = documentIndex;
+				currentFiscalDocument.DocumentNumber += $"_{documentIndex}";
+			} while(groupFiscalInventPositions.Any());
 
 
 			// ОБРАБОТКА ИНДИВИДУАЛЬНЫХ КОДОВ
 
-			var documentIndex = mainFiscalDocument.Index;
-			var currentFiscalDocument = mainFiscalDocument;
-			var currentProcessingPositions = expandedMarkedItems.Skip(0).Take(_maxCodesInReceipt);
+			var currentProcessingPositions = expandedMarkedItems
+				.Skip(0)
+				// выбираем то кол-во позиций которое не хватает до максимального
+				// кол-ва позиций в текущем фискальном документе
+				.Take(_maxCodesInReceipt - lastGroupFiscalInventPositionsCount);
 
 			do
 			{
@@ -514,8 +600,6 @@ namespace Edo.Receipt.Dispatcher
 				currentFiscalDocument.DocumentNumber += $"_{documentIndex}";
 			} while(currentProcessingPositions.Any());
 		}
-
-
 
 
 
