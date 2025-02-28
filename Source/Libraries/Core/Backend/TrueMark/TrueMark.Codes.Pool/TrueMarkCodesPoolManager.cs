@@ -17,7 +17,7 @@ namespace TrueMark.Codes.Pool
 	/// </summary>
 	public class TrueMarkCodesPoolManager
 	{
-		private const string _poolTableName = "true_mark_codes_pool";
+		private const string _poolTableName = "true_mark_codes_pool_new";
 
 		private readonly IUnitOfWorkFactory _uowFactory;
 
