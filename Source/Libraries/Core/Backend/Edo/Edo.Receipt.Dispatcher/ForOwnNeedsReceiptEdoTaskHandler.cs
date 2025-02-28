@@ -386,7 +386,7 @@ namespace Edo.Receipt.Dispatcher
 			return fiscalDocument;
 		}
 
-		private async Task CreateMarkedFiscalDocuments(
+		public async Task CreateMarkedFiscalDocuments(
 			ReceiptEdoTask receiptEdoTask, 
 			OrderEntity order, 
 			EdoFiscalDocument mainFiscalDocument, 
