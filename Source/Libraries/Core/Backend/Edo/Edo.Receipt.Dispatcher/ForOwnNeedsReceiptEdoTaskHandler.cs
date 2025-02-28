@@ -546,9 +546,13 @@ namespace Edo.Receipt.Dispatcher
 					break;
 				}
 
-				foreach(var availableOrderItem in availableOrderItems.ToList())
+				var firstsAvailableOrderItem = availableOrderItems.First();
+				var inventPosition = CreateInventPosition(firstsAvailableOrderItem.OrderItem);
+				inventPosition.Quantity = 0;
+
+				var availableOrderItemsList = availableOrderItems.ToList();
+				foreach(var availableOrderItem in availableOrderItemsList)
 				{
-					var inventPosition = CreateInventPosition(availableOrderItem.OrderItem);
 					// делаем инкремент потомучто expandedOrderItem соответствует одной единице товара в OrderItem
 					inventPosition.Quantity++;
 					// добавляем пропроциональную скидку для одной еденицы товара, которая была ранее рассчитана
