@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Problems;
 using Edo.Problems.Custom;
 using Edo.Problems.Exception;
@@ -57,11 +57,11 @@ namespace Receipt.Dispatcher.Tests
 					(Array.Empty<int>(), false)
 				},
 				// OrderItems
-				new[]
+				new (int nomenclatureId, decimal count, decimal price, decimal discount)[]
 				{
-					(1, 7m, 2m, 1m),
-					(1, 7m, 2m, 1m),
-					(3, 1m, 2m, 1m)
+					(1, 7m, 20m, 5m),
+					(1, 7m, 20m, 5m),
+					(3, 1m, 20m, 5m)
 				},
 				// Identification Codes
 				new (bool isInValid, int gtinId)[]
@@ -72,12 +72,12 @@ namespace Receipt.Dispatcher.Tests
 					(false, 1),
 					(false, 1),
 					(false, 1),
-					(false, 1),
-					(false, 1),
-					(false, 1),
-					(false, 1),
-					(false, 1),
-					(false, 1),
+					(false, 2),
+					(false, 2),
+					(false, 2),
+					(false, 2),
+					(false, 2),
+					(false, 2),
 				},
 				// Group Codes
 				new (int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
@@ -121,7 +121,7 @@ namespace Receipt.Dispatcher.Tests
 
 			var gtins = new List<GtinEntity>();
 
-			var maxGtinId = nomenclaturesParameters.Max(x => x .gtinIds.Any() ? x.gtinIds.Max() : 0);
+			var maxGtinId = nomenclaturesParameters.Max(x => x.gtinIds.Any() ? x.gtinIds.Max() : 0);
 
 			for(var i = 1; i < maxGtinId; i++)
 			{
