@@ -32,7 +32,7 @@ namespace VodovozBusiness.Services.TrueMark
 		private readonly IUnitOfWork _uow;
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
-		private readonly TrueMarkApiClientFactory _trueMarkApiClientFactory;
+		private readonly ITrueMarkApiClientFactory _trueMarkApiClientFactory;
 		private readonly IGenericRepository<TrueMarkWaterIdentificationCode> _trueMarkWaterIdentificationCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _trueMarkProductCodeRepository;
 		private readonly IGenericRepository<TrueMarkWaterGroupCode> _trueMarkWaterGroupCodeRepository;
@@ -47,7 +47,7 @@ namespace VodovozBusiness.Services.TrueMark
 			IUnitOfWork uow,
 			TrueMarkCodesChecker trueMarkCodesChecker,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
-			TrueMarkApiClientFactory trueMarkApiClientFactory,
+			ITrueMarkApiClientFactory trueMarkApiClientFactory,
 			IGenericRepository<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodeRepository,
 			IGenericRepository<TrueMarkProductCode> trueMarkProductCodeRepository,
 			IGenericRepository<TrueMarkWaterGroupCode> trueMarkWaterGroupCodeRepository,

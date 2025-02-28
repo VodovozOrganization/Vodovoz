@@ -3,7 +3,7 @@ using Vodovoz.Settings.Edo;
 
 namespace TrueMarkApi.Client
 {
-	public class TrueMarkApiClientFactory
+	public class TrueMarkApiClientFactory : ITrueMarkApiClientFactory
 	{
 		private readonly IEdoSettings _edoSettings;
 
