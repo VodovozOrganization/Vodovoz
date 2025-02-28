@@ -59,6 +59,6 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="vodovozOrderItemId">Номер строки заказа</param>
 		/// <param name="scannedCode">Сканированный код</param>
 		/// <returns>Результат операции</returns>
-		Task<Result> RemoveTrueMarkCodeFromRouteListItem(IUnitOfWork uow, RouteListItem routeListAddress, int vodovozOrderItemId, string scannedCode);
+		Task<Result> RemoveTrueMarkCodeFromRouteListItem(IUnitOfWork uow, RouteListItem routeListAddress, int vodovozOrderItemId, string scannedCode, CancellationToken cancellationToken);
 	}
 }

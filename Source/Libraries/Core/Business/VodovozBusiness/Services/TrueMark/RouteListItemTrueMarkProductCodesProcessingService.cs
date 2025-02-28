@@ -38,7 +38,7 @@ namespace VodovozBusiness.Services.TrueMark
 			CancellationToken cancellationToken,
 			bool isCheckForCodeChange = false)
 		{
-			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode);
+			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode, cancellationToken);
 
 			if(trueMarkCodeResult.IsFailure)
 			{
@@ -141,7 +141,7 @@ namespace VodovozBusiness.Services.TrueMark
 			CancellationToken cancellationToken)
 		{
 			var oldCodeRemovingResult =
-				await RemoveTrueMarkCodeFromRouteListItem(uow, routeListAddress, vodovozOrderItem.Id, oldScannedCode);
+				await RemoveTrueMarkCodeFromRouteListItem(uow, routeListAddress, vodovozOrderItem.Id, oldScannedCode, cancellationToken);
 
 			if(oldCodeRemovingResult.IsFailure)
 			{
@@ -172,9 +172,10 @@ namespace VodovozBusiness.Services.TrueMark
 			IUnitOfWork uow,
 			RouteListItem routeListAddress,
 			int vodovozOrderItemId,
-			string scannedCode)
+			string scannedCode,
+			CancellationToken cancellationToken)
 		{
-			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode);
+			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode, cancellationToken);
 
 			if(trueMarkCodeResult.IsFailure)
 			{

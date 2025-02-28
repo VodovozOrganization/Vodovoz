@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
+using TrueMark.Contracts.Responses;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
@@ -115,6 +115,65 @@ namespace Vodovoz.Models.TrueMark
 			}
 
 			return result;
+		}
+
+		public async Task<IEnumerable<ProductInstancesInfoResponse>> GetProductInstancesInfoResponses(
+			IEnumerable<string> codes,
+			CancellationToken cancellationToken)
+		{
+			var responses = new List<ProductInstancesInfoResponse>();
+
+			var codesCount = codes.Count();
+			var toSkip = 0;
+
+			while(codesCount > toSkip)
+			{
+				var codesToCheck = codes.Skip(toSkip).Take(100);
+				toSkip += 100;
+
+				_logger.LogInformation("Отправка на проверку {codesToCheckCount}/{codesCount} кодов.", codesToCheck.Count(), codesCount);
+
+				await Task.Delay(_checkDelayMs);
+
+				try
+				{
+					var checkResult = await GetProductInstancesInfoResponse(codesToCheck, cancellationToken);
+
+					if(checkResult is null)
+					{
+						continue;
+					}
+
+					responses.Add(checkResult);
+				}
+				catch(TrueMarkException ex)
+				{
+					_logger.LogError(ex, "Ошибка при получении информации о состоянии товаров в системе Честный знак.");
+
+					continue;
+				}
+				catch(Exception ex)
+				{
+					throw;
+				}
+			}
+
+			return responses;
+		}
+
+		private async Task<ProductInstancesInfoResponse> GetProductInstancesInfoResponse(
+			IEnumerable<string> codes,
+			CancellationToken cancellationToken)
+		{
+			var productInstancesInfo = await _trueMarkClient.GetProductInstanceInfoAsync(codes, cancellationToken);
+
+			if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage)
+				&& (productInstancesInfo.InstanceStatuses is null || !productInstancesInfo.InstanceStatuses.Any()))
+			{
+				throw new TrueMarkException($"Не удалось получить информацию о состоянии товаров в системе Честный знак. Подробности: {productInstancesInfo.ErrorMessage}");
+			}
+
+			return productInstancesInfo;
 		}
 	}
 }
