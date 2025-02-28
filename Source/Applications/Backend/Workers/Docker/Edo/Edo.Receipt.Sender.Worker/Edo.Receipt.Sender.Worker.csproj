@@ -4,7 +4,7 @@
 		<TargetFramework>net5.0</TargetFramework>
 		<UserSecretsId>dotnet-Edo.Receipt.Sender-102a791f-9989-4deb-a412-3e789d856c62</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<DockerfileContext>..\..\..\..\..</DockerfileContext>
+		<DockerfileContext>..\..\..\..\..\..</DockerfileContext>
 	</PropertyGroup>
 
 	<ItemGroup>
