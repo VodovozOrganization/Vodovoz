@@ -16,6 +16,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewWidgets.Mango;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.Views.Contacts
 {

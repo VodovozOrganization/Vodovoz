@@ -25,7 +25,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -64,6 +63,7 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
+using Vodovoz.Core.Domain.Contacts;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -217,7 +217,7 @@ namespace Vodovoz.Domain.Orders
 		private DeliveryPoint deliveryPoint;
 
 		[Display(Name = "Точка доставки")]
-		public virtual DeliveryPoint DeliveryPoint {
+		public virtual new DeliveryPoint DeliveryPoint {
 			get => deliveryPoint;
 			set {
 				var oldDeliveryPoint = deliveryPoint;
@@ -370,7 +370,7 @@ namespace Vodovoz.Domain.Orders
 		private CounterpartyContract contract;
 
 		[Display(Name = "Договор")]
-		public virtual CounterpartyContract Contract {
+		public virtual new CounterpartyContract Contract {
 			get => contract;
 			set => SetField(ref contract, value, () => Contract);
 		}
@@ -781,7 +781,26 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsOrderCashlessAndPaid =>
 			PaymentType == PaymentType.Cashless
 			&& (OrderPaymentStatus == OrderPaymentStatus.Paid || OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid);
+		
+		/// <summary>
+		/// Полная сумма заказа
+		/// </summary>
+		public override decimal OrderSum => OrderPositiveSum - OrderNegativeSum;
 
+		/// <summary>
+		/// Вся положительная сумма заказа
+		/// </summary>
+		public override decimal OrderPositiveSum => OrderItems.Sum(item => item.ActualSum);
+
+		/// <summary>
+		/// Вся положительная изначальная сумма заказа
+		/// </summary>
+		public override decimal OrderPositiveOriginalSum => OrderItems.Sum(item => item.Sum);
+
+		/// <summary>
+		/// Вся отрицательная сумма заказа
+		/// </summary>
+		public override decimal OrderNegativeSum => OrderDepositItems.Sum(dep => dep.ActualSum);
 
 		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author)
 		{
@@ -1413,54 +1432,6 @@ namespace Vodovoz.Domain.Orders
 			protected set {; }
 		}
 
-		/// <summary>
-		/// Полная сумма заказа
-		/// </summary>
-		[PropertyChangedAlso(nameof(OrderCashSum))]
-		public virtual decimal OrderSum => OrderPositiveSum - OrderNegativeSum;
-
-		/// <summary>
-		/// Вся положительная сумма заказа
-		/// </summary>
-		public virtual decimal OrderPositiveSum {
-			get {
-				decimal sum = 0;
-				foreach(OrderItem item in ObservableOrderItems) {
-					sum += item.ActualSum;
-				}
-				return sum;
-			}
-		}
-
-		/// <summary>
-		/// Вся положительная изначальная сумма заказа
-		/// </summary>
-		public virtual decimal OrderPositiveOriginalSum
-		{
-			get
-			{
-				decimal sum = 0;
-				foreach(OrderItem item in ObservableOrderItems)
-				{
-					sum += item.Sum;
-				}
-				return sum;
-			}
-		}
-
-		/// <summary>
-		/// Вся отрицательная сумма заказа
-		/// </summary>
-		public virtual decimal OrderNegativeSum {
-			get {
-				decimal sum = 0;
-				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
-					sum += dep.ActualSum;
-				}
-				return sum;
-			}
-		}
-
 		public virtual decimal BottleDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.ActualSum);
 		public virtual decimal EquipmentDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.ActualSum);
 
@@ -1500,6 +1471,25 @@ namespace Vodovoz.Domain.Orders
 			.Concat(OrderEquipments.Where(x => x.Nomenclature.Kind != null).Select(x => x.Nomenclature))
 			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Kind.Id))
 			.Count() > 0;
+
+		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems =>
+			ObservableOrderItems.Any(x =>
+			x.Nomenclature.IsAccountableInTrueMark && !string.IsNullOrWhiteSpace(x.Nomenclature.Gtin) && x.Count > 0);
+
+		/// <summary>
+		/// Проверка, является ли клиент по заказу сетевым покупателем
+		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
+		/// </summary>
+		public virtual new bool IsNeedIndividualSetOnLoad =>
+			PaymentType == PaymentType.Cashless
+			&& Client?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
+
+		/// <summary>
+		/// Проверка, является ли целью покупки заказа - для перепродажи
+		/// </summary>
+		public virtual bool IsOrderForResale =>
+			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
 
 		#endregion
 
@@ -4430,11 +4420,13 @@ namespace Vodovoz.Domain.Orders
 		private void ObservableOrderDepositItems_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(OrderSum));
+			OnPropertyChanged(nameof(OrderCashSum));
 		}
 
 		protected internal virtual void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(OrderSum));
+			OnPropertyChanged(nameof(OrderCashSum));
 			UpdateDocuments();
 		}
 

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Web;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;

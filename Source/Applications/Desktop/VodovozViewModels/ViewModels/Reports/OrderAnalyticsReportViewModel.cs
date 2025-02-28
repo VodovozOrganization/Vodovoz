@@ -29,7 +29,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Reports
 {

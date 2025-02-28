@@ -1,12 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Encodings.Web;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Settings.Edo;
 using VodovozBusiness.Models.TrueMark;
@@ -21,7 +19,7 @@ namespace Vodovoz.Models.TrueMark
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IEdoSettings _edoSettings;
 		private readonly OurCodesChecker _ourCodesChecker;
-		private readonly ITag1260Checker _tag1260Checker;
+		private readonly Tag1260Updater _tag1260Updater;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
 		public TrueMarkCodePoolChecker(
@@ -31,7 +29,7 @@ namespace Vodovoz.Models.TrueMark
 			ITrueMarkRepository trueMarkRepository,
 			IEdoSettings edoSettings,
 			OurCodesChecker ourCodesChecker,
-			ITag1260Checker tag1260Checker,
+			Tag1260Updater tag1260Updater,
 			IUnitOfWorkFactory unitOfWorkFactory
 		)
 		{
@@ -41,7 +39,7 @@ namespace Vodovoz.Models.TrueMark
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_edoSettings = edoSettings;
 			_ourCodesChecker = ourCodesChecker ?? throw new ArgumentNullException(nameof(ourCodesChecker));
-			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
+			_tag1260Updater = tag1260Updater ?? throw new ArgumentNullException(nameof(tag1260Updater));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
@@ -90,7 +88,8 @@ namespace Vodovoz.Models.TrueMark
 				var codesToCheck = selectedCodes.Skip(toSkip).Take(100);
 				toSkip += 100;
 
-				_logger.LogInformation("Отправка на проверку {codesToCheckCount}/{selectedCodesCount} кодов.", codesToCheck.Count(), selectedCodeIds.Count);
+				_logger.LogInformation("Отправка на проверку {codesToCheckCount}/{selectedCodesCount} кодов.", codesToCheck.Count(),
+					selectedCodeIds.Count);
 
 				await Task.Delay(2000);
 
@@ -100,7 +99,7 @@ namespace Vodovoz.Models.TrueMark
 					// Проверяется от нужной организации ещё раз в месте использования.
 					var organizationId = 1;
 
-					await _tag1260Checker.UpdateInfoForTag1260Async(codesToCheck, unitOfWorkTag1260, organizationId, cancellationToken);
+					await _tag1260Updater.UpdateTag1260Info(unitOfWorkTag1260, codesToCheck, organizationId, cancellationToken);
 
 					unitOfWorkTag1260.Commit();
 				}
@@ -127,7 +126,9 @@ namespace Vodovoz.Models.TrueMark
 			if(codeIdsToPromote.Any())
 			{
 				var extraSecondsPromotion = _edoSettings.CodePoolPromoteWithExtraSeconds;
-				_logger.LogInformation("Продвижение {promotedCodesCount} проверенных кодов на верх пула на дополнительыне {extraSecondsPromotion} секунд сверх текущего времени.", codeIdsToPromote.Count, extraSecondsPromotion);
+				_logger.LogInformation(
+					"Продвижение {promotedCodesCount} проверенных кодов на верх пула на дополнительыне {extraSecondsPromotion} секунд сверх текущего времени.",
+					codeIdsToPromote.Count, extraSecondsPromotion);
 				_trueMarkCodesPool.PromoteCodes(codeIdsToPromote, extraSecondsPromotion);
 			}
 

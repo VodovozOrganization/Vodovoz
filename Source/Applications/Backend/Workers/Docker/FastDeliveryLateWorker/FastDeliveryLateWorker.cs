@@ -42,7 +42,7 @@ namespace FastDeliveryLateWorker
 		protected override void OnStartService()
 		{
 			_logger.LogInformation(
-				"Воркер {Worker} запущен в: {StartTime}",
+				"Воркер {Worker} запущен в: {TransferStartTime}",
 				nameof(FastDeliveryLateWorker),
 				DateTimeOffset.Now);
 

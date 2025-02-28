@@ -1,4 +1,4 @@
-﻿using QS.Banks.Domain;
+using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -606,13 +606,9 @@ public partial class MainWindow
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	[Obsolete("Старый диалог, заменить")]
 	protected void OnActionNonReturnReasonsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<NonReturnReason>(),
-			() => new OrmReference(typeof(NonReturnReason))
-		);
+		NavigationManager.OpenViewModel<NonReturnReasonJournalViewModel>(null);
 	}
 
 	/// <summary>

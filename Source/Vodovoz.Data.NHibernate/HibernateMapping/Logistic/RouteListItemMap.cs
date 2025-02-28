@@ -41,6 +41,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 			Map(x => x.PlanTimeEnd).Column("plan_time_end").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.CommentForFine).Column("comment_for_fine");
 			Map(x => x.IsDriverForeignDistrict).Column("is_driver_foreign_district");
+			Map(x => x.UnscannedCodesReason).Column("unscanned_codes_reason");
 
 			Map(x => x.CreationDate).Column("creation_date")
 				.Insert().Not.Update().Access.ReadOnlyPropertyThroughCamelCaseField(Prefix.Underscore);
@@ -54,6 +55,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 			References(x => x.LateArrivalReason).Column("late_arrival_reason_id");
 			References(x => x.LateArrivalReasonAuthor).Column("late_arrival_reason_author_id");
 			References(x => x.CommentForFineAuthor).Column("comment_for_fine_author_id");
+
+			HasMany(x => x.TrueMarkCodes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_item_id");
 
 			HasManyToMany(x => x.Fines)
 				.Table("fines_to_route_list_addresses")

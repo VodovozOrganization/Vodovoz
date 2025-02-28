@@ -60,8 +60,8 @@ namespace TaxcomEdoApi.Library.Converters
 					return ConvertCounterpartyToUchastnikTip(client);
 			}
 		}
-		
-		public UchastnikTip ConvertOrganizationToUchastnikTip(OrganizationInfoForEdo org, DateTime? deliveryDate)
+
+		public UchastnikTip ConvertOrganizationToUchastnikTip(OrganizationInfoForEdo org)
 		{
 			return new UchastnikTip
 			{

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 using Vodovoz.Converters;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Nodes;
 
 namespace CustomerAppsApi.Library.Dto.Goods

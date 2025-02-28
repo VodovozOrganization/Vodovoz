@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Microsoft.Extensions.Logging;
@@ -192,6 +192,17 @@ namespace Vodovoz.Views.Orders
 				.InitializeFromSource();
 
 			lblSum.Text = ViewModel.Entity.OnlineOrderSum.ToString("N2");
+
+			ybuttonCopyOnlinePaymentNumber.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowOnlinePayment, w => w.Visible)
+				.InitializeFromSource();
+
+			ybuttonCopyContactPhone.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowContactPhone, w => w.Visible)
+				.InitializeFromSource();
+
+			ybuttonCopyOnlinePaymentNumber.Clicked += OnCopyOnlinePaymentNumberClicked;
+			ybuttonCopyContactPhone.Clicked += OnCopyContactPhoneClicked;
 		}
 
 		private void ConfigureItemsWidgets()
@@ -507,6 +518,16 @@ namespace Vodovoz.Views.Orders
 			}
 			
 			ViewModel.OrderCreatingState = false;
+		}
+
+		private void OnCopyContactPhoneClicked(object sender, EventArgs e)
+		{
+			GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.Entity.ContactPhone ?? string.Empty;
+		}
+
+		private void OnCopyOnlinePaymentNumberClicked(object sender, EventArgs e)
+		{
+			GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.OnlinePayment ?? string.Empty;
 		}
 	}
 }
