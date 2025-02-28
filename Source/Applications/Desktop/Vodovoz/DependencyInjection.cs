@@ -23,6 +23,7 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.Presentation.Views;
+using Edo.Transport;
 
 namespace Vodovoz
 {
@@ -70,6 +71,7 @@ namespace Vodovoz
 				(context, rabbitCfg) =>
 				{
 					rabbitCfg.AddPacsBaseTopology(context);
+					rabbitCfg.AddEdoTopology(context);
 				},
 				(busCfg) =>
 				{

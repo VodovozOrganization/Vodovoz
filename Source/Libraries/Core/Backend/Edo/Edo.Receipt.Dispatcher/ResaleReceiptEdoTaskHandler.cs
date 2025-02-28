@@ -118,21 +118,6 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 
-			// Это надо заменить тестами! регистрировать проблему для этого не надо
-			//Сверка данных
-			// сумма чеков
-			var orderSumForReceipt = order.OrderItems
-				.Where(x => x.Count > 0)
-				.Sum(x => x.Sum);
-			var receiptsSum = receiptEdoTask.FiscalDocuments.SelectMany(x => x.MoneyPositions).Sum(x => x.Sum);
-			if(receiptsSum != orderSumForReceipt)
-			{
-				// регистрируем проблему
-				// Ошибка алгоритма подготовки чека, сумма чека не совпадает с суммой заказа
-				throw new InvalidOperationException($"Сумма чека не совпадает с суммой заказа. Сумма заказа: {orderSumForReceipt}, сумма чека: {receiptsSum}");
-				return;
-			}
-
 			// перевод в отправку
 			receiptEdoTask.Status = EdoTaskStatus.InProgress;
 			receiptEdoTask.ReceiptStatus = EdoReceiptStatus.Sending;

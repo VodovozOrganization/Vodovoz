@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Transfer.Dispatcher
@@ -124,11 +123,6 @@ namespace Edo.Transfer.Dispatcher
 				return;
 			}
 
-			// TEST
-			// проверяем все коды как ВВ
-			var trueMarkApiClient = new TrueMarkApiClient("https://test-vv-truemarkapi.dev.vod.qsolution.ru/", "test");
-			//var trueMarkApiClient = new TrueMarkApiClient("https://test-mn-truemarkapi.dev.vod.qsolution.ru/", "test");
-			
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(transferTask);
 			var isValid = await _edoTaskValidator.Validate(transferTask, cancellationToken, trueMarkCodesChecker);
