@@ -8,7 +8,7 @@ namespace Edo.Common
 	{
 		private readonly TrueMarkApiClient _trueMarkApiClient;
 
-		public EdoTaskItemTrueMarkStatusProviderFactory(TrueMarkApiClientFactory trueMarkApiClientFactory)
+		public EdoTaskItemTrueMarkStatusProviderFactory(ITrueMarkApiClientFactory trueMarkApiClientFactory)
 		{
 			if(trueMarkApiClientFactory is null)
 			{
