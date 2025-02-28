@@ -101,11 +101,11 @@ namespace CashReceiptPrepareWorker
 				.InstancePerLifetimeScope();
 
 			builder.RegisterType<TrueMarkApiClientFactory>()
-				.AsSelf()
+				.As<ITrueMarkApiClientFactory>()
 				.InstancePerLifetimeScope();
 
-			builder.Register<TrueMarkApiClient>((context, instance) => context.Resolve<TrueMarkApiClientFactory>().GetClient())
-				.AsSelf()
+			builder.Register((context, instance) => context.Resolve<ITrueMarkApiClientFactory>().GetClient())
+				.As<ITrueMarkApiClient>()
 				.InstancePerLifetimeScope();
 
 			builder.RegisterType<TrueMarkTransactionalCodesPool>()

@@ -133,8 +133,8 @@ namespace DriverAPI.Library
 			return services
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<TrueMarkCodesChecker>()
-				.AddScoped<TrueMarkApiClientFactory>()
-				.AddScoped(sp => sp.GetRequiredService<TrueMarkApiClientFactory>().GetClient())
+				.AddScoped<ITrueMarkApiClientFactory, TrueMarkApiClientFactory>()
+				.AddScoped(sp => sp.GetRequiredService<ITrueMarkApiClientFactory>().GetClient())
 				.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>();
 		}
