@@ -818,11 +818,12 @@ namespace Edo.Receipt.Dispatcher
 			//}
 
 			// затем у кого заполнен Source код без проблем
+
 			var sourceCodes = unprocessedCodes
 				.Where(x => x.ProductCode.Problem == ProductCodeProblem.None)
 				.Where(x => x.ProductCode.ResultCode == null)
 				.Where(x => x.ProductCode.SourceCode != null)
-				.Where(x => x.ProductCode.SourceCode.IsInvalid = false);
+				.Where(x => x.ProductCode.SourceCode.IsInvalid == false);
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				matchEdoTaskItem = sourceCodes
