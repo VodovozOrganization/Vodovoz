@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -22,6 +23,13 @@ namespace Vodovoz.Core.Domain.Edo
 		private FiscalVat _vat;
 		private FiscalIndustryRequisiteRegulatoryDocument _regulatoryDocument;
 		private string _industryRequisiteData;
+
+		// он используется для назначения индивидуального кода на позицию товара в чеке
+		private EdoTaskItem _individualEdoTaskItem;
+
+		// он используется для назначения группового кода на позицию товара в чеке
+		private TrueMarkWaterGroupCode _groupCode;
+
 
 		/// <summary>
 		/// Код
@@ -103,12 +111,18 @@ namespace Vodovoz.Core.Domain.Edo
 		//	set => SetField(ref _productMark, value);
 		//}
 
-		private EdoTaskItem _edoTaskItem;
-		[Display(Name = "Строка задачи с кодом")]
+		[Display(Name = "Строка задачи с индивидуальным кодом")]
 		public virtual EdoTaskItem EdoTaskItem
 		{
-			get => _edoTaskItem;
-			set => SetField(ref _edoTaskItem, value);
+			get => _individualEdoTaskItem;
+			set => SetField(ref _individualEdoTaskItem, value);
+		}
+
+		[Display(Name = "Групповой код")]
+		public virtual TrueMarkWaterGroupCode GroupCode
+		{
+			get => _groupCode;
+			set => SetField(ref _groupCode, value);
 		}
 
 
