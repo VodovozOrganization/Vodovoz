@@ -2,7 +2,7 @@
 
 namespace Receipt.Dispatcher.Tests
 {
-    public class OrderItemEntityFixture : OrderItemEntity
+	public class OrderItemEntityFixture : OrderItemEntity
 	{
 		public OrderItemEntityFixture()
 		{
@@ -11,6 +11,6 @@ namespace Receipt.Dispatcher.Tests
 
 		public void SetCount(decimal count) => Count = count;
 		public void SetPrice(decimal price) => Price = price;
-		public void SetDiscount(decimal discount) => Discount = discount;
+		public void SetMoneyDiscount(decimal discountMoney) => DiscountMoney = discountMoney;
 	}
 }

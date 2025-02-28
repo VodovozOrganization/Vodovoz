@@ -288,7 +288,7 @@ namespace Receipt.Dispatcher.Tests
 
 			orderItem.SetCount(count);
 			orderItem.SetPrice(price);
-			orderItem.SetDiscount(discount);
+			orderItem.SetMoneyDiscount(discount);
 
 			return orderItem;
 		}
