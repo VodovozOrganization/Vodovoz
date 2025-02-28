@@ -269,7 +269,13 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			return await IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
+			if(trueMarkWaterCode.ParentTransportCodeId == null
+				&& trueMarkWaterCode.ParentTransportCodeId == null)
+			{
+				return await IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
+			}
+
+			return Result.Success();
 		}
 
 		public async Task<Result> IsTrueMarkCodeCanBeChanged(
