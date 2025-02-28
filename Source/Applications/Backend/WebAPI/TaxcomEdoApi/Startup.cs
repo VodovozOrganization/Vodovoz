@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using CustomerAppsApi.HealthChecks;
 using VodovozHealthCheck;
 
@@ -43,7 +45,12 @@ namespace TaxcomEdoApi
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 			services.AddControllers()
-				.AddXmlSerializerFormatters();
+				.AddXmlSerializerFormatters()
+				.AddJsonOptions(options =>
+				{
+					options.JsonSerializerOptions.Converters.Add(
+						new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+				});
 
 			services.AddSwaggerGen(c =>
 			{

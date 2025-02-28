@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Logistic;

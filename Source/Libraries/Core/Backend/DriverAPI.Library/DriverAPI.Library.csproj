@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
@@ -16,7 +16,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\..\Edo.Transport\Edo.Transport.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
@@ -27,6 +26,7 @@
 		<ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
 		<ProjectReference Include="..\DriverApi.Contracts\DriverApi.Contracts.csproj" />
 		<ProjectReference Include="..\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
+		<ProjectReference Include="..\Edo\Edo.Transport\Edo.Transport.csproj" />
 		<ProjectReference Include="..\EventsApi.Library\EventsApi.Library.csproj" />
 		<ProjectReference Include="..\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
 		<ProjectReference Include="..\Infrastructure\MessageTransport\MessageTransport.csproj" />

@@ -94,7 +94,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
+		public virtual new Nomenclature Nomenclature
 		{
 			get => _nomenclature;
 			protected set => SetField(ref _nomenclature, value);

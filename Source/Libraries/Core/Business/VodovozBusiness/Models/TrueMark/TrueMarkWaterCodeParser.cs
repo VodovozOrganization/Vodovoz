@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Errors;
@@ -154,16 +155,19 @@ namespace Vodovoz.Models.TrueMark
 		/// <summary>
 		/// Формирует код идентификации из составных частей полного кода.
 		/// </summary>
+		[Obsolete("Используйте свойство IdentificationCode в коде")]
 		public string GetWaterIdentificationCode(ITrueMarkWaterCode trueMarkWaterCode)
 		{
 			return $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}";
 		}
 
+		[Obsolete("Используйте свойство CashReceiptCode в коде")]
 		public string GetProductCodeForCashReceipt(ITrueMarkWaterCode trueMarkWaterCode)
 		{
 			return $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
 		}
 
+		[Obsolete("Используйте свойство Tag1260Code в коде")]
 		public string GetProductCodeForTag1260(ITrueMarkWaterCode trueMarkWaterCode)
 		{			
 			return $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";

@@ -6,6 +6,7 @@ using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -87,10 +88,11 @@ namespace Vodovoz.Core.Domain.Orders
 		private PaymentFromEntity _paymentByCardFrom;
 		private PaymentType _paymentType;
 		private CounterpartyEntity _client;
+		private DeliveryPointEntity _deliveryPoint;
+		private CounterpartyContractEntity _contract;
 
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
-
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -604,6 +606,21 @@ namespace Vodovoz.Core.Domain.Orders
 			protected set => SetField(ref _client, value);
 		}
 
+		[Display(Name = "Точка доставки")]
+		public virtual DeliveryPointEntity DeliveryPoint
+		{
+			get => _deliveryPoint;
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _deliveryPoint, value);
+		}
+
+		[Display(Name = "Договор")]
+		public virtual CounterpartyContractEntity Contract
+		{
+			get => _contract;
+			set => SetField(ref _contract, value);
+		}
+
 		#region Вычисляемые свойства
 
 		public virtual bool IsUndeliveredStatus =>
@@ -627,6 +644,59 @@ namespace Vodovoz.Core.Domain.Orders
 		/// </summary>
 		public virtual bool IsClientWorksWithNewEdoProcessing =>
 			Client?.IsNewEdoProcessing ?? false;
+			
+		/// <summary>
+		/// Полная сумма заказа
+		/// </summary>
+		public virtual decimal OrderSum => OrderPositiveSum - OrderNegativeSum;
+
+		/// <summary>
+		/// Вся положительная сумма заказа
+		/// </summary>
+		public virtual decimal OrderPositiveSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderItemEntity item in OrderItems)
+				{
+					sum += item.ActualSum;
+				}
+				return sum;
+			}
+		}
+
+		/// <summary>
+		/// Вся положительная изначальная сумма заказа
+		/// </summary>
+		public virtual decimal OrderPositiveOriginalSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderItemEntity item in OrderItems)
+				{
+					sum += item.Sum;
+				}
+				return sum;
+			}
+		}
+
+		/// <summary>
+		/// Вся отрицательная сумма заказа
+		/// </summary>
+		public virtual decimal OrderNegativeSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderDepositItemEntity dep in OrderDepositItems)
+				{
+					sum += dep.ActualSum;
+				}
+				return sum;
+			}
+		}
 
 		#endregion Вычисляемые свойства
 

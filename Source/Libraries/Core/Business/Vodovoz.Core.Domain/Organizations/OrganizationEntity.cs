@@ -3,6 +3,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -35,12 +36,14 @@ namespace Vodovoz.Core.Domain.Organizations
 		private bool _withoutVAT;
 		private int? _avangardShopId;
 		private string _taxcomEdoAccountId;
+		private OrganizationEdoType _organizationEdoType;
+		private Guid? _cashBoxTokenFromTrueMark;
 
 		private OrganizationVersionEntity _activeOrganizationVersion;
 		private StoredResource _stamp;
 
-		private ObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
-		private ObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
+		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
+		private IObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
 
 		public OrganizationEntity()
 		{
@@ -198,17 +201,35 @@ namespace Vodovoz.Core.Domain.Organizations
 		/// Телефоны
 		/// </summary>
 		[Display(Name = "Телефоны")]
-		public virtual ObservableList<PhoneEntity> Phones
+		public virtual IObservableList<PhoneEntity> Phones
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
+		}
+
+		[Display(Name = "Тип участия в ЭДО")]
+		public virtual OrganizationEdoType OrganizationEdoType
+		{
+			get => _organizationEdoType;
+			set => SetField(ref _organizationEdoType, value);
+		}
+
+		/// <summary>
+		/// Токен кассового аппарата, полученный в ЧЗ
+		/// нужен для отправки в заголовках запросов для проверки разрешительного режима
+		/// </summary>
+		[Display(Name = "Токен кассового аппарата, полученный в ЧЗ")]
+		public virtual Guid? CashBoxTokenFromTrueMark
+		{
+			get => _cashBoxTokenFromTrueMark;
+			set => SetField(ref _cashBoxTokenFromTrueMark, value);
 		}
 
 		/// <summary>
 		/// Версии
 		/// </summary>
 		[Display(Name = "Версии")]
-		public virtual ObservableList<OrganizationVersionEntity> OrganizationVersions
+		public virtual IObservableList<OrganizationVersionEntity> OrganizationVersions
 		{
 			get => _organizationVersions;
 			set => SetField(ref _organizationVersions, value);
@@ -312,6 +333,14 @@ namespace Vodovoz.Core.Domain.Organizations
 			.Where(g => g.Key != null && g.Count() > 1)
 			.Select(g => g.Key)
 			.ToList();
+
+		public virtual OrganizationVersionEntity OrganizationVersionOnDate(DateTime dateTime) =>
+			OrganizationVersions.LastOrDefault(x =>
+				x.StartDate <= dateTime && (x.EndDate == null || x.EndDate >= dateTime));
+
+		[Display(Name = "Активная версия")]
+		public virtual OrganizationVersionEntity ActiveOrganizationVersion =>
+			_activeOrganizationVersion ?? OrganizationVersionOnDate(DateTime.Now);
 	}
 }
 

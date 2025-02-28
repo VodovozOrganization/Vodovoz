@@ -1,6 +1,6 @@
-﻿using Vodovoz.Domain.Contacts;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels;
+using Vodovoz.Core.Domain.Contacts;
 
 namespace Vodovoz.Views.Contacts
 {

@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Models.CashReceipts.DTO
 {

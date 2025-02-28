@@ -9,6 +9,7 @@ using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Contracts.Documents;
@@ -18,6 +19,7 @@ using Vodovoz.Application.Documents;
 using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -150,97 +152,168 @@ namespace EdoDocumentsPreparer
 						organizationId,
 						_deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
 
-				var newEdoProcessOrders = _orderRepository.GetNewEdoProcessOrders(uow, orders.Select(o => o.Id));
+				var bulkAccountingEdoTasks =
+					uow.GetAll<BulkAccountingEdoTask>()
+						.Where(x => x.Status == EdoTaskStatus.New)
+						.ToList();
 
 				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен
-				//Исключаем заказы клиентов рабоающих по новой схеме отправки ЭДО по которым уже сформирована заявка на ЭДО,
-				//либо заявка не сформирована, но заказ еще не доставлен. Если заявка не сформирована и заказ будет доставлен,
-				//то ЭДО отправиться по старой схеме
-				var filteredOrders = orders
-					.Where(o => (o.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute || o.OrderStatus != OrderStatus.OnTheWay)
-						&& !newEdoProcessOrders.Contains(o.Id))
+				var filteredOrdersDictionary = orders
+					.Where(o => o.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute || o.OrderStatus != OrderStatus.OnTheWay)
 					.Where(o => o.OrderDocuments.Any(
 						x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD))
-					.ToList();
+					.ToDictionary(x => x.Id);
+				
+				_logger.LogInformation(
+					"Всего задач для формирования {Document} и отправки: {BulkAccountingEdoTasksCount}",
+					document,
+					bulkAccountingEdoTasks.Count);
 
 				_logger.LogInformation(
 					"Всего заказов для формирования {Document} и отправки: {FilteredOrdersCount}",
 					document,
-					filteredOrders.Count);
+					filteredOrdersDictionary.Count);
 
-				foreach(var order in filteredOrders)
+				var i = 0;
+
+				_logger.LogInformation("Обрабатываем новые отправки по таскам");
+				while(i < bulkAccountingEdoTasks.Count)
 				{
-					try
+					var orderEntity = bulkAccountingEdoTasks[i].OrderEdoRequest.Order;
+
+					if(!filteredOrdersDictionary.TryGetValue(orderEntity.Id, out var order))
 					{
-						var orderPayments = _orderRepository.GetOrderPayments(uow, order.Id)
-							.Where(p => order.DeliveryDate.HasValue && p.Date < order.DeliveryDate.Value.AddDays(1))
-							.Distinct();
+						_logger.LogWarning(
+							"Пришла задача на формирование УПД по заказу {OrderId}, который не должен отправляться для объемного учета",
+							orderEntity.Id);
 
-						var updInfo = InfoForCreatingEdoUpd.Create(
-							_orderConverter.ConvertOrderToOrderInfoForEdo(order),
-							_paymentConverter.ConvertPaymentToPaymentInfoForEdo(orderPayments));
-
-						var edoContainer = EdoContainerBuilder
-							.Create()
-							.Empty()
-							.OrderUpd(order)
-							.MainDocumentId(updInfo.MainDocumentId.ToString())
-							.Build();
-
-						var actions = uow
-							.GetAll<OrderEdoTrueMarkDocumentsActions>()
-							.Where(x => x.Order.Id == edoContainer.Order.Id && x.IsNeedToResendEdoUpd)
-							.ToArray();
-
-						foreach(var action in actions)
-						{
-							action.IsNeedToResendEdoUpd = false;
-							await uow.SaveAsync(action);
-						}
-
-						_logger.LogInformation("Сохраняем контейнер с {Document} {OrderId}", document, order.Id);
-						await uow.SaveAsync(edoContainer);
+						bulkAccountingEdoTasks[i].Status = EdoTaskStatus.Problem;
+						//создать описание проблемы
+						await uow.SaveAsync(bulkAccountingEdoTasks[i]);
 						await uow.CommitAsync();
-
-						if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, document))
-						{
-							continue;
-						}
-
-						try
-						{
-							_logger.LogInformation("Отправляем данные по {Document} {OrderId} в очередь", document, order.Id);
-							await _publishEndpoint.Publish(updInfo);
-						}
-						catch(Exception e)
-						{
-							_logger.LogError(
-								e,
-								"Не удалось отправить данные по {Document} {OrderId} в очередь",
-								document,
-								order.Id);
-
-							await TrySaveContainerByErrorState(
-								uow,
-								edoContainer,
-								order.Id,
-								document,
-								"Возникла ошибка при попытке отправки документа в очередь");
-						}
+						bulkAccountingEdoTasks.RemoveAt(i);
+						continue;
 					}
-					catch(Exception e)
+
+					var actionsForNew = uow
+						.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == orderEntity.Id && x.IsNeedToResendEdoUpd)
+						.ToArray();
+
+					foreach(var action in actionsForNew)
 					{
-						_logger.LogError(
-							e,
-							"Ошибка в процессе формирования {Document} №{OrderId} и ее отправки",
-							document,
-							order.Id);
+						action.IsNeedToResendEdoUpd = false;
+						await uow.SaveAsync(action);
 					}
+
+					_logger.LogInformation("Отправляем {Document} по заказу {OrderId}",
+						document,
+						order.Id);
+					await GenerateUpdAndSendMessage(uow, order, document, bulkAccountingEdoTasks[i]);
+					bulkAccountingEdoTasks.RemoveAt(i);
+				}
+
+				_logger.LogInformation("Обрабатываем запросы на переотправку без тасок");
+				
+				var actionsWithoutTasks = uow
+					.GetAll<OrderEdoTrueMarkDocumentsActions>()
+					.Where(x => x.IsNeedToResendEdoUpd && x.Created > DateTime.Today)
+					.ToLookup(x => x.Order.Id);
+
+				foreach(var grouped in actionsWithoutTasks)
+				{
+					Order reSentOrder = null;
+					foreach(var action in grouped)
+					{
+						reSentOrder = action.Order;
+						action.IsNeedToResendEdoUpd = false;
+						await uow.SaveAsync(action);
+					}
+
+					if(reSentOrder is null)
+					{
+						continue;
+					}
+					
+					_logger.LogInformation("Отправляем {Document} по заказу {OrderId}",
+						document,
+						reSentOrder.Id);
+				
+					await GenerateUpdAndSendMessage(uow, reSentOrder, document);
 				}
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования {Document}", document);
+			}
+		}
+
+		private async Task GenerateUpdAndSendMessage(
+			IUnitOfWork uow,
+			Order order,
+			string document,
+			BulkAccountingEdoTask task = null)
+		{
+			var orderPayments = _orderRepository.GetOrderPayments(uow, order.Id)
+				.Where(p => order.DeliveryDate.HasValue && p.Date < order.DeliveryDate.Value.AddDays(1))
+				.Distinct();
+					
+			var updInfo = InfoForCreatingEdoUpd.Create(
+				_orderConverter.ConvertOrderToOrderInfoForEdo(order),
+				_paymentConverter.ConvertPaymentToPaymentInfoForEdo(orderPayments));
+					
+			var edoContainer = EdoContainerBuilder
+				.Create()
+				.Empty()
+				.OrderUpd(order)
+				.MainDocumentId(updInfo.MainDocumentId.ToString())
+				.Build();
+
+			if(task != null)
+			{
+				edoContainer.EdoTaskId = task.Id;
+			}
+			
+			_logger.LogInformation("Сохраняем контейнер с {Document} {OrderId}", document, order.Id);
+			await uow.SaveAsync(edoContainer);
+			await uow.CommitAsync();
+
+			if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, document, task))
+			{
+				return;
+			}
+
+			await SendUpdMessage(uow, document, order, updInfo, edoContainer, task);
+		}
+
+		private async Task SendUpdMessage(
+			IUnitOfWork uow,
+			string document,
+			Order order,
+			InfoForCreatingEdoUpd updInfo,
+			EdoContainer edoContainer,
+			BulkAccountingEdoTask task = null)
+		{
+			try
+			{
+				_logger.LogInformation("Отправляем данные по {Document} {OrderId} в очередь", document, order.Id);
+				await _publishEndpoint.Publish(updInfo);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Не удалось отправить данные по {Document} {OrderId} в очередь",
+					document,
+					order.Id);
+
+				await TrySaveContainerByErrorState(
+					uow,
+					edoContainer,
+					order.Id,
+					document,
+					"Возникла ошибка при попытке отправки документа в очередь",
+					task);
 			}
 		}
 
@@ -483,14 +556,19 @@ namespace EdoDocumentsPreparer
 			return infoForCreatingBillWithoutShipmentEdo;
 		}
 
-		private async Task<bool> CheckCounterpartyConsentForEdo(IUnitOfWork uow, EdoContainer edoContainer, int documentId, string document)
+		private async Task<bool> CheckCounterpartyConsentForEdo(
+			IUnitOfWork uow,
+			EdoContainer edoContainer,
+			int documentId,
+			string document,
+			BulkAccountingEdoTask task = null)
 		{
 			if(edoContainer.Counterparty != null
 			   && (string.IsNullOrWhiteSpace(edoContainer.Counterparty.PersonalAccountIdInEdo)
 				   || edoContainer.Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree))
 			{
 				await TrySaveContainerByErrorState(
-					uow, edoContainer, documentId, document, "У клиента не заполнен номер кабинета или нет согласия на ЭДО");
+					uow, edoContainer, documentId, document, "У клиента не заполнен номер кабинета или нет согласия на ЭДО", task);
 				return false;
 			}
 
@@ -502,13 +580,21 @@ namespace EdoDocumentsPreparer
 			EdoContainer edoContainer,
 			int documentId,
 			string document,
-			string errorMessage)
+			string errorMessage,
+			BulkAccountingEdoTask task = null)
 		{
 			try
 			{
 				edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.Error;
 				edoContainer.ErrorDescription = errorMessage;
 
+				if(task != null)
+				{
+					//сделать описание проблемы
+					task.Status = EdoTaskStatus.Problem;
+					await uow.SaveAsync(task);
+				}
+				
 				await uow.SaveAsync(edoContainer);
 				await uow.CommitAsync();
 			}

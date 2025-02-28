@@ -57,7 +57,6 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 				where
 					documentItem.OrderId == orderId
 					&& nomenclature.IsAccountableInTrueMark
-					&& nomenclature.Gtin != null
 				select documentItem;
 
 			return await documentItems.ToListAsync();
