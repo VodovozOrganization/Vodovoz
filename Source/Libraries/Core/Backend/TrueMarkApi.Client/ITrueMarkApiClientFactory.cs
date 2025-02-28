@@ -2,6 +2,6 @@
 {
 	public interface ITrueMarkApiClientFactory
 	{
-		TrueMarkApiClient GetClient();
+		ITrueMarkApiClient GetClient();
 	}
 }

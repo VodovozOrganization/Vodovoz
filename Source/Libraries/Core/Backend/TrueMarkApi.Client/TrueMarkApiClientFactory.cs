@@ -12,7 +12,7 @@ namespace TrueMarkApi.Client
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 		}
 
-		public TrueMarkApiClient GetClient()
+		public ITrueMarkApiClient GetClient()
 		{
 			return new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
 		}
