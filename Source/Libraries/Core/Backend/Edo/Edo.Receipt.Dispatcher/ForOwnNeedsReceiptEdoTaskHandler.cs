@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems.Custom.Sources;
@@ -678,25 +678,44 @@ namespace Edo.Receipt.Dispatcher
 
 		private IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>> TakeGroupCodesWithTaskItems(List<EdoTaskItem> unprocessedTaskItems)
 		{
-			var result = new List<TrueMarkAnyCode>();
-
 			// нашли все индивидуальные коды, которые содержатся в группах
 			var codesThatContainedInGroup = unprocessedTaskItems
 				.Where(x => x.ProductCode.SourceCode != null)
 				.Where(x => x.ProductCode.SourceCode.IsInvalid == false)
 				.Where(x => x.ProductCode.SourceCode.ParentWaterGroupCodeId != null)
+				.ToList()
 				;
 
 			// исключили из обрабатываемого списка все коды, которые содержатся в группах
 			// они не подходят для индивидуальной обработки, потому что не имеют CheckCode
 			unprocessedTaskItems.RemoveAll(x => codesThatContainedInGroup.Contains(x));
 
-			// нашли все групповые коды
-			var groupCodes = codesThatContainedInGroup
-				.GroupBy(x => GetParentGroupCode(x.ProductCode.SourceCode.ParentWaterGroupCodeId.Value))
-				.ToDictionary(x => x.Key, x => (IEnumerable<EdoTaskItem>)x);
+			var groupped = codesThatContainedInGroup
+				.GroupBy(x => x.ProductCode.SourceCode.ParentWaterGroupCodeId);
 
-			return groupCodes;
+			var parentCodesIds = groupped
+				.Select(x => x.Key)
+				.Distinct();
+
+			var parentCodes = parentCodesIds
+				.Select(x => GetParentGroupCode(x.Value))
+				.Distinct();
+
+			var result = new Dictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>();
+
+			foreach(var parentCode in parentCodes)
+			{
+				result.Add(parentCode, codesThatContainedInGroup
+					.Where(ctcig => parentCode
+						.GetAllCodes()
+						.Where(x => x.IsTrueMarkWaterIdentificationCode)
+						.Select(x => x.TrueMarkWaterIdentificationCode)
+						.Any(x => x.Id == ctcig.ProductCode.SourceCode.Id)));
+			}
+
+			// нашли все групповые коды
+
+			return result;
 		}
 
 
