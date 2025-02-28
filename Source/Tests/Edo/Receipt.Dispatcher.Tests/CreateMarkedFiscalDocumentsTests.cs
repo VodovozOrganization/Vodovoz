@@ -53,20 +53,31 @@ namespace Receipt.Dispatcher.Tests
 				new (IEnumerable<int> gtinIds, bool isAccountableInTrueMark)[]
 				{
 					(new [] { 1, 2 }, true),
-					(new [] { 3,4 }, true),
+					(new [] { 3, 4 }, true),
 					(Array.Empty<int>(), false)
 				},
 				// OrderItems
 				new[]
 				{
-					(1, 5m, 2m, 1m),
-					(1, 5m, 2m, 1m),
+					(1, 7m, 2m, 1m),
+					(1, 7m, 2m, 1m),
 					(3, 1m, 2m, 1m)
 				},
 				// Identification Codes
-				new[]
+				new (bool isInValid, int gtinId)[]
 				{
-					false, false, false, false, false, false, false, false, false, false, false, false,
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
 				},
 				// Group Codes
 				new (int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
@@ -95,7 +106,7 @@ namespace Receipt.Dispatcher.Tests
 		private ReceiptEdoTask CreateTestReceiptEdoTaskForTest(
 			IEnumerable<(IEnumerable<int> gtinIds, bool isAccountableInTrueMark)> nomenclaturesParameters,
 			IEnumerable<(int nomenclatureId, decimal count, decimal price, decimal discount)> orderItemsParameters,
-			IEnumerable<bool> waterIdentificationCodesParameters,
+			IEnumerable<(bool isValid, int gtinId)> waterIdentificationCodesParameters,
 			IEnumerable<(int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)> waterGroupCodesParameters,
 			IEnumerable<int> edoTaskItemIdentificationCodesParameters)
 		{
@@ -143,9 +154,9 @@ namespace Receipt.Dispatcher.Tests
 
 			var trueMarkWaterIdentificationCodes = new List<TrueMarkWaterIdentificationCode>();
 
-			foreach(var waterIdentificationCodesParameter in waterIdentificationCodesParameters)
+			foreach((var isValid, var gtinId) in waterIdentificationCodesParameters)
 			{
-				trueMarkWaterIdentificationCodes.Add(CreateTrueMarkWaterIdentificationCode(waterIdentificationCodeAutoIncrementId++, waterIdentificationCodesParameter));
+				trueMarkWaterIdentificationCodes.Add(CreateTrueMarkWaterIdentificationCode(waterIdentificationCodeAutoIncrementId++, CreateNewGtinCode(gtinId), isValid));
 			}
 
 			foreach(var waterIdentificationCodeId in edoTaskItemIdentificationCodesParameters)
@@ -226,12 +237,12 @@ namespace Receipt.Dispatcher.Tests
 			};
 		}
 
-		private TrueMarkWaterIdentificationCode CreateTrueMarkWaterIdentificationCode(int id, bool isInvalid)
+		private TrueMarkWaterIdentificationCode CreateTrueMarkWaterIdentificationCode(int id, string gtin, bool isInvalid)
 		{
 			return new TrueMarkWaterIdentificationCode
 			{
 				Id = id,
-				GTIN = CreateNewGtinCode(id),
+				GTIN = gtin,
 				SerialNumber = CreateNewGtinSerial(id),
 				CheckCode = CreateNewGtinCheckCode(id),
 				IsInvalid = isInvalid
