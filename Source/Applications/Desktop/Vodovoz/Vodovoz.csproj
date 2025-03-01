@@ -2154,9 +2154,6 @@
     <PackageReference Include="NLog.Web">
       <Version>5.2.1</Version>
     </PackageReference>
-    <PackageReference Include="OneOf">
-      <Version>3.0.243</Version>
-    </PackageReference>
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="RabbitMQ.Client">
       <Version>6.4.0</Version>
