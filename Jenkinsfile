@@ -445,7 +445,7 @@ def PublishBuild(projectPath){
 
 def DockerPublishBuild(projectPath){
 	def workspacePath = GetWorkspacePath()
-	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
+	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} -restore:True /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
 }
 
 def Build(config){
