@@ -66,7 +66,7 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 		private string _onlineComment;
 		private string _intercom;
 
-		private IObservableList<PhoneEntity> _phones;
+		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<EmailEntity> _emails;
 
 		public DeliveryPointEntity()
@@ -432,9 +432,6 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			get => _phones;
 			set => SetField(ref _phones, value);
 		}
-
-
-
 
 		#region Свойства для интеграции
 
