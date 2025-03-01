@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Contacts;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Contacts
 {

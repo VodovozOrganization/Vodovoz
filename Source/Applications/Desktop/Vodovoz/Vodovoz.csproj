@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -104,9 +104,6 @@
     <Reference Include="TISystems.TTC.CRM.BE, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
-    </Reference>
-    <Reference Include="GammaBinding">
-      <HintPath>..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -436,6 +433,7 @@
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\GtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FinancialResponsibilityCenterJournalViewModelRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\NonReturnReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ServiceDistrictsSetJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelCardJournalRegistrar.cs" />
@@ -2063,6 +2061,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncorrectFuelReportView.cs" />
     <Compile Include="Views\Goods\GtinView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.GtinView.cs" />
+    <Compile Include="Views\Goods\NonReturnReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NonReturnReasonView.cs" />
+    <Compile Include="Views\Warehouse\CodesScanCheckerView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.CodesScanCheckerView.cs" />
+    <Compile Include="Views\Goods\GtinView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.GtinView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2374,6 +2378,10 @@
       <Project>{6950e38b-66b7-4224-aa53-0bf28d4d4a8b}</Project>
       <Name>DriverApi.Notifications.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj">
+      <Project>{c17807ce-71ac-4101-901e-657cef7892eb}</Project>
+      <Name>Edo.Transport</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
       <Project>{329bffc8-9feb-45cf-b2ad-91d5b6a7c376}</Project>
       <Name>Mailjet.Api.Abstractions</Name>
@@ -2426,7 +2434,7 @@
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj">
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj">
       <Project>{988F9F39-781B-4C5C-8409-0C2F3E38A3D6}</Project>
       <Name>TrueMark.Contracts</Name>
     </ProjectReference>

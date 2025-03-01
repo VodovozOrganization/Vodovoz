@@ -5,6 +5,7 @@ using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.ViewModel
 {

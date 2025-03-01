@@ -29,6 +29,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -1394,7 +1395,7 @@ namespace Vodovoz.Views.Logistic
 					viewModel.SelectionMode = JournalSelectionMode.Single;
 					viewModel.OnSelectResult += (o, args) =>
 					{
-						var car = ViewModel.UoW.GetById<Car>(args.SelectedObjects.Cast<Car>().First().Id);
+						var car = ViewModel.UoW.GetById<Car>(args.GetSelectedObjects<CarJournalNode>().First().Id);
 						ViewModel.SelectCarForDriver(driver, car);
 					};
 				});

@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -21,6 +22,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Domain.Contacts;
 using VodovozBusiness.Services.Orders;
 
 namespace VodovozBusinessTests.Domain.Orders

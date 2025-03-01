@@ -3,6 +3,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -36,6 +37,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private int? _avangardShopId;
 		private string _taxcomEdoAccountId;
 		private OrganizationEdoType _organizationEdoType;
+		private Guid? _cashBoxTokenFromTrueMark;
 
 		private OrganizationVersionEntity _activeOrganizationVersion;
 		private StoredResource _stamp;
@@ -213,6 +215,17 @@ namespace Vodovoz.Core.Domain.Organizations
 		}
 
 		/// <summary>
+		/// Токен кассового аппарата, полученный в ЧЗ
+		/// нужен для отправки в заголовках запросов для проверки разрешительного режима
+		/// </summary>
+		[Display(Name = "Токен кассового аппарата, полученный в ЧЗ")]
+		public virtual Guid? CashBoxTokenFromTrueMark
+		{
+			get => _cashBoxTokenFromTrueMark;
+			set => SetField(ref _cashBoxTokenFromTrueMark, value);
+		}
+
+		/// <summary>
 		/// Версии
 		/// </summary>
 		[Display(Name = "Версии")]
@@ -320,6 +333,14 @@ namespace Vodovoz.Core.Domain.Organizations
 			.Where(g => g.Key != null && g.Count() > 1)
 			.Select(g => g.Key)
 			.ToList();
+
+		public virtual OrganizationVersionEntity OrganizationVersionOnDate(DateTime dateTime) =>
+			OrganizationVersions.LastOrDefault(x =>
+				x.StartDate <= dateTime && (x.EndDate == null || x.EndDate >= dateTime));
+
+		[Display(Name = "Активная версия")]
+		public virtual OrganizationVersionEntity ActiveOrganizationVersion =>
+			_activeOrganizationVersion ?? OrganizationVersionOnDate(DateTime.Now);
 	}
 }
 

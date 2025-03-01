@@ -5,6 +5,7 @@ using QS.ViewModels.Control.EEVM;
 using QSProjectsLib;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;

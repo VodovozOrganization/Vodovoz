@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Contracts.Messages.Dto;
 using TaxcomEdo.Client.Configs;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
@@ -31,7 +32,12 @@ namespace TaxcomEdo.Client
 		
 		public async Task SendDataForCreateUpdByEdo(InfoForCreatingEdoUpd data, CancellationToken cancellationToken = default)
 		{
-			await SendDocument(_taxcomApiOptions.SendUpdEndpoint, data);
+			await SendDocument(_taxcomApiOptions.SendUpdOldEndpoint, data);
+		}
+		
+		public async Task<bool> SendDataForCreateUpdByEdo(UniversalTransferDocumentInfo data, CancellationToken cancellationToken = default)
+		{
+			return await SendDocument(_taxcomApiOptions.SendUpdNewEndpoint, data);
 		}
 		
 		public async Task SendDataForCreateBillByEdo(InfoForCreatingEdoBill data, CancellationToken cancellationToken = default)
@@ -124,12 +130,39 @@ namespace TaxcomEdo.Client
 
 		public async Task SendOfferCancellation(string docFlowId, string reason, CancellationToken cancellationToken = default)
 		{
-			await CreateClient().GetAsync(_taxcomApiOptions.OfferCancellationEndpoint, cancellationToken);
+			var query = HttpQueryBuilder
+				.Create()
+				.AddParameter(docFlowId, nameof(docFlowId))
+				.AddParameter(reason, nameof(reason))
+				.ToString();
+			
+			await CreateClient()
+				.GetAsync(_taxcomApiOptions.OfferCancellationEndpoint + query, cancellationToken);
 		}
 
-		private async Task SendDocument<T>(string endPoint, T data)
+		public async Task<bool> AcceptIngoingDocflow(Guid? docflowId, string organization, CancellationToken cancellationToken = default)
 		{
-			await CreateClient().PostAsJsonAsync(endPoint, data);
+			if(!docflowId.HasValue)
+			{
+				return false;
+			}
+			
+			var query = HttpQueryBuilder
+				.Create()
+				.AddParameter(docflowId, nameof(docflowId))
+				.AddParameter(organization, nameof(organization))
+				.ToString();
+			
+			var result = await CreateClient()
+				.GetAsync(_taxcomApiOptions.AcceptIngoingDocflowEndpoint + query, cancellationToken);
+			
+			return result.IsSuccessStatusCode;
+		}
+
+		private async Task<bool> SendDocument<T>(string endPoint, T data)
+		{
+			var result = await CreateClient().PostAsJsonAsync(endPoint, data);
+			return result.IsSuccessStatusCode;
 		}
 
 		private HttpClient CreateClient()

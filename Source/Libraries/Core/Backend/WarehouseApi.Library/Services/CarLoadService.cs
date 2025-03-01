@@ -1,4 +1,4 @@
-﻿using Edo.Transport.Messages.Events;
+﻿using Edo.Contracts.Messages.Events;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -15,15 +15,14 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
 using Vodovoz.Models;
+using Vodovoz.Models.TrueMark;
 using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Responses;
-using WarehouseApi.Library.Common;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
@@ -480,7 +479,12 @@ namespace WarehouseApi.Library.Services
 
 		private void AddTrueMarkCodeToCarLoadDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterIdentificationCode trueMarkWaterCode)
 		{
-			carLoadDocumentItem.TrueMarkCodes.Add(new CarLoadDocumentItemTrueMarkProductCode
+			if(trueMarkWaterCode.Id == 0)
+			{
+				_uow.Save(trueMarkWaterCode);
+			}
+
+			var productCode = new CarLoadDocumentItemTrueMarkProductCode
 			{
 				CreationTime = DateTime.Now,
 				SourceCode = trueMarkWaterCode,
@@ -488,7 +492,11 @@ namespace WarehouseApi.Library.Services
 				Problem = ProductCodeProblem.None,
 				SourceCodeStatus = SourceProductCodeStatus.Accepted,
 				CarLoadDocumentItem = carLoadDocumentItem
-			});
+			};
+
+			_uow.Save(productCode);
+
+			carLoadDocumentItem.TrueMarkCodes.Add(productCode);
 		}
 
 		private void ChangeTrueMarkCodeInCarLoadDocumentItem(
@@ -496,6 +504,11 @@ namespace WarehouseApi.Library.Services
 			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode,
 			TrueMarkWaterIdentificationCode newTrueMarkWaterCode)
 		{
+			if(newTrueMarkWaterCode.Id == 0)
+			{
+				_uow.Save(newTrueMarkWaterCode);
+			}
+
 			var codeToRemove = carLoadDocumentItem.TrueMarkCodes
 				.Where(x =>
 					x.SourceCode.GTIN == oldTrueMarkWaterCode.GTIN

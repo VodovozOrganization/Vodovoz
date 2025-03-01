@@ -1,4 +1,5 @@
-﻿using Vodovoz.Core.Domain.TrueMark;
+﻿using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
 {

@@ -2,7 +2,6 @@
 using QS.Extensions.Observable.Collections.List;
 using System;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Domain.Edo
@@ -21,6 +20,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private CustomerEdoRequestType _type;
 		private CustomerEdoRequestSource _source;
 		private IObservableList<TrueMarkProductCode> _productCodes = new ObservableList<TrueMarkProductCode>();
+		private OrderEdoTask _task;
 		private EdoDocumentType _documentType;
 
 		/// <summary>
@@ -73,6 +73,12 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _productCodes, value);
 		}
 
+		[Display(Name = "Задача ЭДО")]
+		public virtual OrderEdoTask Task
+		{
+			get => _task;
+			set => SetField(ref _task, value);
+		}
 
 		/// <summary>
 		/// Тип документа

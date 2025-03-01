@@ -31,6 +31,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
 		private Type _type;
+		private int? _edoTaskId;
 
 		public virtual int Id { get; set; }
 
@@ -129,6 +130,12 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			get => _type;
 			set => SetField(ref _type, value);
+		}
+
+		public virtual int? EdoTaskId
+		{
+			get => _edoTaskId;
+			set => SetField(ref _edoTaskId, value);
 		}
 
 		[Display(Name = "Отправленные документы")]

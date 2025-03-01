@@ -3,6 +3,7 @@ using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using VodovozBusiness.Domain.Goods;
 
@@ -12,12 +13,12 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 	{
 		private Nomenclature _nomenclature;
 
-		public GtinViewModel(INavigationManager navigationManager, Gtin gtin)
+		public GtinViewModel(INavigationManager navigationManager, Gtin gtin, Nomenclature nomenclature)
 			: this(navigationManager)
 		{
 			Gtin = gtin ?? throw new ArgumentNullException(nameof(gtin));
 
-			_nomenclature = Gtin.Nomenclature;
+			_nomenclature = nomenclature;
 
 			Title = $"Редактирование {gtin}";
 		}

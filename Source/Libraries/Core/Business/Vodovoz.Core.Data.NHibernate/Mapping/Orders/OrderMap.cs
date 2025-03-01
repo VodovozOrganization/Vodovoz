@@ -214,6 +214,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			References(x => x.Client)
 				.Column("client_id");
 
+			References(x => x.Contract)
+				.Column("counterparty_contract_id")
+				.Cascade.SaveUpdate();
+
 			HasMany(x => x.OrderItems)
 				.KeyColumn("order_id")
 				.Cascade.AllDeleteOrphan()

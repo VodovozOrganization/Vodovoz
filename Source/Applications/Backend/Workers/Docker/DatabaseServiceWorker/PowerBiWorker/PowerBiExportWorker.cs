@@ -32,7 +32,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 		protected override void OnStartService()
 		{
 			_logger.LogInformation(
-				"Воркер {Worker} запущен в: {StartTime}",
+				"Воркер {Worker} запущен в: {TransferStartTime}",
 				nameof(PowerBiExportWorker),
 				DateTimeOffset.Now);
 

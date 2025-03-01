@@ -8,6 +8,7 @@ using System;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.Errors;
 using CashReceiptErrors = Vodovoz.Errors.CashReceipts.CashReceipt;
+using RequestProcessingResult = CashReceiptApi.RequestProcessingResult;
 
 namespace Vodovoz.Models.TrueMark
 {

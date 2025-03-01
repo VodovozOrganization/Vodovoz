@@ -95,6 +95,9 @@
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarEventTypeFilterViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\GtinJournalViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\NonReturnReasonJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\NonReturnReasonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\GtinJournalViewModel.cs" />
     <Compile Include="Options\ConfigureGeoCoderApiOptions.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.AddressDataNode.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.cs" />
@@ -474,6 +477,7 @@
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="ViewModels\Counterparty\EdoOperatorViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NonReturnReasonViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferFilterViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode.cs" />
     <Compile Include="ViewModels\Logistic\RegradingOfGoodsReasonViewModel.cs" />
@@ -1299,9 +1303,6 @@
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NLog" Version="5.1.2" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
-    <PackageReference Include="OneOf">
-      <Version>3.0.243</Version>
-    </PackageReference>
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />

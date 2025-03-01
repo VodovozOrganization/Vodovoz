@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
 namespace VodovozBusiness.Domain.Goods
@@ -11,27 +12,14 @@ namespace VodovozBusiness.Domain.Goods
 	[EntityPermission]
 	[HistoryTrace]
 
-	public class Gtin : PropertyChangedBase, IDomainObject
+	public class Gtin : GtinEntity
 	{
-		private string _gtinNumber;
 		private Nomenclature _nomenclature;
-		public virtual int Id { get; set; }
 
-		public virtual string GtinNumber
-		{
-			get => _gtinNumber;
-			set => SetField(ref _gtinNumber, value);
-		}
-
-		public virtual Nomenclature Nomenclature
+		public virtual new Nomenclature Nomenclature
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);
-		}
-
-		public override string ToString()
-		{
-			return $"Gtin №{Id}: {GtinNumber}";
 		}
 	}
 }

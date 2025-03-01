@@ -49,6 +49,7 @@ using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
@@ -136,7 +137,7 @@ namespace Vodovoz
 		private double _emailLastScrollPosition;
 		private EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
 		private IContactListService _contactListService;
-		private TrueMarkApiClient _trueMarkApiClient;
+		private ITrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings;
@@ -950,6 +951,8 @@ namespace Vodovoz
 
 			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails && CanEdit;
 			accountsView.SetAccountOwner(UoW, Entity);
+
+			ybuttonCopyAccountDetails.Clicked += OnButtonCopyAccountDetailsClicked;
 		}
 
 		private void ConfigureTabProxies()
@@ -2440,6 +2443,18 @@ namespace Vodovoz
 			};
 
 			OpenRevenueServicePage(dadataRequestDto);
+		}
+
+		protected void OnButtonCopyAccountDetailsClicked(object sender, EventArgs e)
+		{
+			var accountData = $"ИНН: {Entity.INN}\n" +
+				$"КПП: {Entity.KPP}\n" +
+				$"ЮР. адрес: {Entity.RawJurAddress}\n" +
+				$"ФИО: {Entity.SignatoryFIO}\n" +
+				$"В лице: {Entity.SignatoryPost}\n" +
+				$"На основании:  {Entity.SignatoryBaseOf}";
+
+			GetClipboard(Gdk.Selection.Clipboard).Text = accountData;
 		}
 
 		protected void OnButtonRequestByInnAndKppClicked(object sender, EventArgs e)

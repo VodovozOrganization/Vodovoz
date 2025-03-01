@@ -28,6 +28,7 @@
     <PackageReference Include="K4os.Compression.LZ4" Version="1.3.5" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.3.5" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.8" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="NetTopologySuite" Version="2.4.0" />
@@ -151,6 +152,8 @@
       <Project>{C2085920-3B31-4406-8074-470A26BA26AA}</Project>
       <Name>TrueMarkApi.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\TrueMark\TrueMark.Codes\TrueMark.Codes.csproj" />
+    <ProjectReference Include="..\..\Backend\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj">
       <Project>{056ba782-edef-4e8e-abb1-01fd3502a8f0}</Project>

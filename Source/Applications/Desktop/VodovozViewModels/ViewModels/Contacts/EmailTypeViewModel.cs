@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 

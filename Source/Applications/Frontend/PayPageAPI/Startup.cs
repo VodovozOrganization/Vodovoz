@@ -9,12 +9,11 @@ using NLog.Web;
 using PayPageAPI.Controllers;
 using PayPageAPI.HealthChecks;
 using PayPageAPI.Models;
+using QS.BusinessCommon.HMap;
 using QS.DomainModel.UoW;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure.Persistance;
 using VodovozHealthCheck;
 
@@ -48,7 +47,8 @@ namespace PayPageAPI
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(EmployeeWithLoginMap).Assembly
+					typeof(EmployeeWithLoginMap).Assembly,
+					typeof(MeasurementUnitsMap).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
