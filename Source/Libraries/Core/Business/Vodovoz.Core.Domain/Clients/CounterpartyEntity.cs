@@ -111,8 +111,8 @@ namespace Vodovoz.Core.Domain.Clients
 
 		private OrganizationEntity _worksThroughOrganization;
 		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
-		private IObservableList<EmailEntity> _emails;
-		private IObservableList<PhoneEntity> _phones;
+		private IObservableList<EmailEntity> _emails = new ObservableList<EmailEntity>();
+		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -734,8 +734,6 @@ namespace Vodovoz.Core.Domain.Clients
 			get => _phones;
 			set => SetField(ref _phones, value);
 		}
-
-
 
 		public virtual void AddFileInformation(string fileName)
 		{
