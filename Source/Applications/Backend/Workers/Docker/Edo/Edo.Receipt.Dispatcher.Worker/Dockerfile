@@ -1,4 +1,4 @@
-﻿#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 FROM mcr.microsoft.com/dotnet/runtime:5.0 AS base
 WORKDIR /app
@@ -6,11 +6,8 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Applications/Backend/Workers/Docker/Edo/Edo.Docflow.Worker/Edo.Docflow.Worker.csproj", "Applications/Backend/Workers/Docker/Edo/Edo.Docflow.Worker/"]
-COPY ["Libraries/Core/Backend/Edo/Edo.Docflow/Edo.Docflow.csproj", "Libraries/Core/Backend/Edo/Edo.Docflow/"]
-COPY ["Libraries/Core/Backend/Edo/Edo.Transport/Edo.Transport.csproj", "Libraries/Core/Backend/Edo/Edo.Transport/"]
-COPY ["Libraries/Core/Business/Vodovoz.Settings/Vodovoz.Settings.csproj", "Libraries/Core/Business/Vodovoz.Settings/"]
-COPY ["Libraries/Core/Backend/Edo/Edo.Contracts/Edo.Contracts.csproj", "Libraries/Core/Backend/Edo/Edo.Contracts/"]
+COPY ["Applications/Backend/Workers/Docker/Edo/Edo.Receipt.Dispatcher.Worker/Edo.Receipt.Dispatcher.Worker.csproj", "Applications/Backend/Workers/Docker/Edo/Edo.Receipt.Dispatcher.Worker/"]
+COPY ["Libraries/Core/Backend/Edo/Edo.Receipt.Dispatcher/Edo.Receipt.Dispatcher.csproj", "Libraries/Core/Backend/Edo/Edo.Receipt.Dispatcher/"]
 COPY ["Libraries/Core/Business/Vodovoz.Core.Domain/Vodovoz.Core.Domain.csproj", "Libraries/Core/Business/Vodovoz.Core.Domain/"]
 COPY ["Libraries/External/GMap.NET/GMap.NET.Core/GMap.NET.Core.csproj", "Libraries/External/GMap.NET/GMap.NET.Core/"]
 COPY ["Libraries/External/Gtk.DataBindings/System.Data.Bindings/System.Data.Bindings.csproj", "Libraries/External/Gtk.DataBindings/System.Data.Bindings/"]
@@ -34,21 +31,31 @@ COPY ["Libraries/External/QSProjects/QS.Report/QS.Report.csproj", "Libraries/Ext
 COPY ["Libraries/External/My-FyiReporting/RdlEngine/RdlEngine.csproj", "Libraries/External/My-FyiReporting/RdlEngine/"]
 COPY ["Libraries/External/My-FyiReporting/DataProviders/DataProviders.csproj", "Libraries/External/My-FyiReporting/DataProviders/"]
 COPY ["Libraries/Core/Backend/Infrastructure/ApiClientProvider/ApiClientProvider.csproj", "Libraries/Core/Backend/Infrastructure/ApiClientProvider/"]
-COPY ["Libraries/Core/Backend/Infrastructure/BackendInfrastructure/BackendInfrastructure.csproj", "Libraries/Core/Backend/Infrastructure/BackendInfrastructure/"]
-COPY ["Libraries/Core/Backend/Infrastructure/MessageTransport/MessageTransport.csproj", "Libraries/Core/Backend/Infrastructure/MessageTransport/"]
-COPY ["Libraries/Core/Business/Vodovoz.Core.Data.NHibernate/Vodovoz.Core.Data.NHibernate.csproj", "Libraries/Core/Business/Vodovoz.Core.Data.NHibernate/"]
+COPY ["Libraries/Core/Business/Vodovoz.Settings/Vodovoz.Settings.csproj", "Libraries/Core/Business/Vodovoz.Settings/"]
+COPY ["Libraries/Core/Backend/ModulKassa/ModulKassa.csproj", "Libraries/Core/Backend/ModulKassa/"]
+COPY ["Libraries/Core/Backend/TrueMarkApi.Client/TrueMarkApi.Client.csproj", "Libraries/Core/Backend/TrueMarkApi.Client/"]
+COPY ["Libraries/Core/Backend/TrueMark/TrueMark.Contracts/TrueMark.Contracts.csproj", "Libraries/Core/Backend/TrueMark/TrueMark.Contracts/"]
+COPY ["Libraries/Core/Backend/TrueMark/TrueMark.Codes.Pool/TrueMark.Codes.Pool.csproj", "Libraries/Core/Backend/TrueMark/TrueMark.Codes.Pool/"]
+COPY ["Libraries/Core/Backend/TrueMark/TrueMark.Codes/TrueMark.Codes.csproj", "Libraries/Core/Backend/TrueMark/TrueMark.Codes/"]
+COPY ["Libraries/Core/Backend/Edo/Edo.Common/Edo.Common.csproj", "Libraries/Core/Backend/Edo/Edo.Common/"]
 COPY ["Libraries/Core/Business/Vodovoz.Core.Data/Vodovoz.Core.Data.csproj", "Libraries/Core/Business/Vodovoz.Core.Data/"]
+COPY ["Libraries/Core/Backend/Edo/Edo.Problems/Edo.Problems.csproj", "Libraries/Core/Backend/Edo/Edo.Problems/"]
+COPY ["Libraries/Core/Backend/Edo/Edo.Transport/Edo.Transport.csproj", "Libraries/Core/Backend/Edo/Edo.Transport/"]
+COPY ["Libraries/Core/Backend/Edo/Edo.Contracts/Edo.Contracts.csproj", "Libraries/Core/Backend/Edo/Edo.Contracts/"]
+COPY ["Libraries/Core/Backend/Infrastructure/BackendInfrastructure/BackendInfrastructure.csproj", "Libraries/Core/Backend/Infrastructure/BackendInfrastructure/"]
+COPY ["Libraries/Core/Business/Vodovoz.Core.Data.NHibernate/Vodovoz.Core.Data.NHibernate.csproj", "Libraries/Core/Business/Vodovoz.Core.Data.NHibernate/"]
 COPY ["Libraries/Core/Business/Vodovoz.Settings.Database/Vodovoz.Settings.Database.csproj", "Libraries/Core/Business/Vodovoz.Settings.Database/"]
-RUN dotnet restore "./Applications/Backend/Workers/Docker/Edo/Edo.Docflow.Worker/Edo.Docflow.Worker.csproj"
+COPY ["Libraries/Core/Backend/Infrastructure/MessageTransport/MessageTransport.csproj", "Libraries/Core/Backend/Infrastructure/MessageTransport/"]
+RUN dotnet restore "./Applications/Backend/Workers/Docker/Edo/Edo.Receipt.Dispatcher.Worker/Edo.Receipt.Dispatcher.Worker.csproj"
 COPY . .
-WORKDIR "/src/Applications/Backend/Workers/Docker/Edo/Edo.Docflow.Worker"
-RUN dotnet build "./Edo.Docflow.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/Applications/Backend/Workers/Docker/Edo/Edo.Receipt.Dispatcher.Worker"
+RUN dotnet build "./Edo.Receipt.Dispatcher.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Edo.Docflow.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./Edo.Receipt.Dispatcher.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Edo.Docflow.Worker.dll"]
+ENTRYPOINT ["dotnet", "Edo.Receipt.Dispatcher.Worker.dll"]

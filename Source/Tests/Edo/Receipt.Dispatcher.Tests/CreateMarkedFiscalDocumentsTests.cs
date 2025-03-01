@@ -44,7 +44,7 @@ namespace Receipt.Dispatcher.Tests
 		}
 
 		[Fact]
-		public async Task CreateMarkedFiscalDocuments_ShouldCreate_Equal_Count_Of_FiscalInventPositions_As_OrderItems_Count()
+		public async Task CreateMarkedFiscalDocuments_Should_Create_Equal_Count_Of_FiscalInventPositions_As_OrderItems_Count_And_Have_Correct_Price_For_TrueMarkAccountableItems()
 		{
 			// Arrange
 
@@ -57,11 +57,11 @@ namespace Receipt.Dispatcher.Tests
 					(Array.Empty<int>(), false)
 				},
 				// OrderItems
-				new[]
+				new (int nomenclatureId, decimal count, decimal price, decimal discount)[]
 				{
-					(1, 7m, 2m, 1m),
-					(1, 7m, 2m, 1m),
-					(3, 1m, 2m, 1m)
+					(1, 7m, 20m, 5m),
+					(1, 7m, 20m, 5m),
+					(3, 1m, 20m, 5m)
 				},
 				// Identification Codes
 				new (bool isInValid, int gtinId)[]
@@ -72,12 +72,12 @@ namespace Receipt.Dispatcher.Tests
 					(false, 1),
 					(false, 1),
 					(false, 1),
-					(false, 1),
-					(false, 1),
-					(false, 1),
-					(false, 1),
-					(false, 1),
-					(false, 1),
+					(false, 2),
+					(false, 2),
+					(false, 2),
+					(false, 2),
+					(false, 2),
+					(false, 2),
 				},
 				// Group Codes
 				new (int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
@@ -99,9 +99,94 @@ namespace Receipt.Dispatcher.Tests
 
 			// Assert
 
-			
+			Assert.Equal(receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Quantity)),
+				receiptEdoTask.OrderEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
+
+			Assert.Equal(
+				receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum)),
+				receiptEdoTask.OrderEdoRequest.Order.OrderItems
+					.Where(x => 
+						x.Nomenclature.IsAccountableInTrueMark
+						&& x.Count > 0)
+					.Sum(x => x.Sum));
 		}
 
+		// Проверка, что если не получается распределить группы - все возьмется из пула
+		[Fact]
+		public async Task CreateMarkedFiscalDocuments_Should_Create_Equal_Count_Of_FiscalInventPositions_As_OrderItems_Count_And_Have_Correct_Price_For_TrueMarkAccountableItems_And_Use_Codes_From_Pool()
+		{
+			// Arrange
+
+			var receiptEdoTask = CreateTestReceiptEdoTaskForTest(
+				// Nomenclatures
+				new (IEnumerable<int> gtinIds, bool isAccountableInTrueMark)[]
+				{
+					(new [] { 1, 2 }, true),
+					(new [] { 3, 4 }, true),
+					(Array.Empty<int>(), false)
+				},
+				// OrderItems
+				new[]
+				{
+					(1, 5m, 2m, 1m),
+					(1, 5m, 2m, 1m),
+					(3, 1m, 2m, 1m)
+				},
+				// Identification Codes
+				new (bool isInValid, int gtinId)[]
+				{
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 1),
+					(false, 2),
+					(false, 2),
+					(false, 2),
+					(false, 2),
+					(false, 2),
+					(false, 2),
+				},
+				// Group Codes
+				new (int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				{
+					(null, false, new []{1, 2, 3, 4, 5, 6}),
+					(null, false, new []{7, 8, 9, 10, 11, 12})
+				},
+				// CarLoad Document Items for IdentificationCodes
+				new[]
+				{
+					1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+				});
+
+			var mainFiscalDocument = new EdoFiscalDocument();
+
+			// Act
+
+			await _forOwnNeedsReceiptEdoTaskHandler.CreateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, default);
+
+			// Assert
+
+			Assert.Equal(receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Quantity)),
+				receiptEdoTask.OrderEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
+
+			Assert.Equal(
+				receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum)),
+				receiptEdoTask.OrderEdoRequest.Order.OrderItems
+					.Where(x =>
+						x.Nomenclature.IsAccountableInTrueMark
+						&& x.Count > 0)
+					.Sum(x => x.Sum));
+
+			Assert.All(
+				receiptEdoTask.Items
+					.Where(x=>x.ProductCode.SourceCode != null)
+					.Select(x => x.ProductCode.SourceCode.GTIN),
+				x => Assert
+					.DoesNotContain(x, receiptEdoTask.FiscalDocuments
+					.SelectMany(x => x.InventPositions.Select(x=>x.EdoTaskItem.ProductCode.ResultCode.GTIN))));
+		}
 
 		private ReceiptEdoTask CreateTestReceiptEdoTaskForTest(
 			IEnumerable<(IEnumerable<int> gtinIds, bool isAccountableInTrueMark)> nomenclaturesParameters,
@@ -121,7 +206,7 @@ namespace Receipt.Dispatcher.Tests
 
 			var gtins = new List<GtinEntity>();
 
-			var maxGtinId = nomenclaturesParameters.Max(x => x .gtinIds.Any() ? x.gtinIds.Max() : 0);
+			var maxGtinId = nomenclaturesParameters.Max(x => x.gtinIds.Any() ? x.gtinIds.Max() : 0);
 
 			for(var i = 1; i < maxGtinId; i++)
 			{

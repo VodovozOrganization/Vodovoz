@@ -56,7 +56,8 @@ namespace LogisticsEventsApi
 					typeof(QS.Banks.Domain.Bank).Assembly,
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-					typeof(EmployeeWithLoginMap).Assembly
+					typeof(EmployeeWithLoginMap).Assembly,
+					typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
