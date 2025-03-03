@@ -152,10 +152,12 @@ namespace EdoDocumentsPreparer
 						organizationId,
 						_deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
 
-				var bulkAccountingEdoTasks =
+				//Пока комментим функционал по таскам и возвращаем в строй старую логику.
+				//До запуска обновленного водительского
+				/*var bulkAccountingEdoTasks =
 					uow.GetAll<BulkAccountingEdoTask>()
 						.Where(x => x.Status == EdoTaskStatus.New)
-						.ToList();
+						.ToList();*/
 
 				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен
 				var filteredOrdersDictionary = orders
@@ -164,17 +166,17 @@ namespace EdoDocumentsPreparer
 						x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD))
 					.ToDictionary(x => x.Id);
 				
-				_logger.LogInformation(
+				/*_logger.LogInformation(
 					"Всего задач для формирования {Document} и отправки: {BulkAccountingEdoTasksCount}",
 					document,
-					bulkAccountingEdoTasks.Count);
+					bulkAccountingEdoTasks.Count);*/
 
 				_logger.LogInformation(
 					"Всего заказов для формирования {Document} и отправки: {FilteredOrdersCount}",
 					document,
 					filteredOrdersDictionary.Count);
 
-				var i = 0;
+				/*var i = 0;
 
 				_logger.LogInformation("Обрабатываем новые отправки по таскам");
 				while(i < bulkAccountingEdoTasks.Count)
@@ -211,6 +213,25 @@ namespace EdoDocumentsPreparer
 						order.Id);
 					await GenerateUpdAndSendMessage(uow, order, document, bulkAccountingEdoTasks[i]);
 					bulkAccountingEdoTasks.RemoveAt(i);
+				}*/
+
+				foreach(var keyPairValue in filteredOrdersDictionary)
+				{
+					var actionsForNew = uow
+						.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == keyPairValue.Key && x.IsNeedToResendEdoUpd)
+						.ToArray();
+
+					foreach(var action in actionsForNew)
+					{
+						action.IsNeedToResendEdoUpd = false;
+						await uow.SaveAsync(action);
+					}
+
+					_logger.LogInformation("Отправляем {Document} по заказу {OrderId}",
+						document,
+						keyPairValue.Key);
+					await GenerateUpdAndSendMessage(uow, keyPairValue.Value, document);
 				}
 
 				_logger.LogInformation("Обрабатываем запросы на переотправку без тасок");

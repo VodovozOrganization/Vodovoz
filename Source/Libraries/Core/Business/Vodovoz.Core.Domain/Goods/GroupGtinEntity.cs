@@ -6,16 +6,16 @@ using System.ComponentModel.DataAnnotations;
 namespace Vodovoz.Core.Domain.Goods
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-			NominativePlural = "Gtin",
-			Nominative = "Gtin")]
+		NominativePlural = "Групповые Gtin",
+		Nominative = "Групповой Gtin")]
 	[EntityPermission]
 	[HistoryTrace]
-
-	public class GtinEntity : PropertyChangedBase, IDomainObject
+	public class GroupGtinEntity : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private string _gtinNumber;
 		private NomenclatureEntity _nomenclature;
+		private int _codesCount;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -34,6 +34,12 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);
+		}
+
+		public virtual int CodesCount
+		{
+			get => _codesCount;
+			set => SetField(ref _codesCount, value);
 		}
 
 		public override string ToString()
