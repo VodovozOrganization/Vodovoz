@@ -21,7 +21,6 @@ namespace Edo.Receipt.Dispatcher
 				.AddScoped<ReceiptEdoTaskHandler>()
 				.AddScoped<ResaleReceiptEdoTaskHandler>()
 				.AddScoped<ForOwnNeedsReceiptEdoTaskHandler>()
-				.AddScoped<TrueMarkTaskCodesValidator>()
 				.AddScoped<Tag1260Checker>()
 				;
 
