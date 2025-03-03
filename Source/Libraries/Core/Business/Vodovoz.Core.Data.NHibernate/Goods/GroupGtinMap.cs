@@ -9,6 +9,8 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 		{
 			Table("group_gtins");
 
+			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
+
 			Id(x => x.Id)
 				.Column("id")
 				.GeneratedBy.Native();

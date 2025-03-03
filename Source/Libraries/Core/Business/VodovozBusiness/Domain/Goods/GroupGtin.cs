@@ -7,12 +7,12 @@ using Vodovoz.Domain.Goods;
 namespace VodovozBusiness.Domain.Goods
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Gtin",
-		Nominative = "Gtin")]
+		NominativePlural = "Групповые Gtin",
+		Nominative = "Групповой Gtin")]
 	[EntityPermission]
 	[HistoryTrace]
 
-	public class Gtin : GtinEntity
+	public class GroupGtin : GroupGtinEntity
 	{
 		private Nomenclature _nomenclature;
 
