@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -714,7 +714,7 @@ namespace VodovozBusiness.Services.TrueMark
 		{
 			var identificationCode = productInstanceStatus.IdentificationCode;
 
-			var rawCode = "\u00e8" + identificationCode + "\u00e8";
+			var rawCode = "\\u001d" + identificationCode + "\\u001d";
 
 			var serialNumber = identificationCode
 				.Replace(productInstanceStatus.Gtin, "")
