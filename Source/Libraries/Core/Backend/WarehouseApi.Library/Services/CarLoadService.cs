@@ -26,6 +26,7 @@ using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 
 namespace WarehouseApi.Library.Services
@@ -159,6 +160,60 @@ namespace WarehouseApi.Library.Services
 			{
 				Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems)
 			};
+
+			foreach(var documentOrderItem in documentOrderItems)
+			{
+				foreach(var trueMarkProductCode in documentOrderItem.TrueMarkCodes)
+				{
+					if(trueMarkProductCode.ResultCode != null)
+					{
+						if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId != null
+							|| trueMarkProductCode.ResultCode.ParentTransportCodeId != null)
+						{
+							var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
+
+							var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.IdentificationCode));
+
+							var trueMarkCodes = new List<TrueMarkCodeDto>();
+
+							var allCodes = parentCode.Match(
+								transportCode => transportCode.GetAllCodes(),
+								groupCode => groupCode.GetAllCodes(),
+								waterCode => new TrueMarkAnyCode[] { waterCode });
+
+							var index = 0;
+
+							foreach(var anyCode in allCodes)
+							{
+								trueMarkCodes.Add(anyCode.Match(
+								transportCode => new TrueMarkCodeDto
+								{
+									SequenceNumber = index++,
+									Code = transportCode.RawCode,
+									Level = WarehouseApiTruemarkCodeLevel.transport,
+									Parent = transportCode.ParentTransportCodeId?.ToString()
+								},
+								groupCode => new TrueMarkCodeDto
+								{
+									SequenceNumber = index++,
+									Code = groupCode.RawCode,
+									Level = WarehouseApiTruemarkCodeLevel.group,
+									Parent = groupCode.ParentTransportCodeId?.ToString() ?? groupCode.ParentWaterGroupCodeId?.ToString()
+								},
+								waterCode => new TrueMarkCodeDto
+								{
+									SequenceNumber = index++,
+									Code = waterCode.RawCode,
+									Level = WarehouseApiTruemarkCodeLevel.unit,
+									Parent = waterCode.ParentTransportCodeId?.ToString() ?? waterCode.ParentWaterGroupCodeId?.ToString(),
+								}));
+							}
+
+							codeToAddInfo.Codes = trueMarkCodes;
+						}
+					}
+				}
+			}
 
 			var checkResult = _documentErrorsChecker.IsOrderNeedIndividualSetOnLoad(orderId);
 
