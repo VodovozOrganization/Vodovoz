@@ -480,6 +480,29 @@ namespace WarehouseApi.Library.Services
 				await RemoveSingleCode(_uow, userLogin, codeToRemove.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
 			}
 
+			foreach(var oldCodeToRemoveFromDatabase in oldTrueMarkAnyCodes)
+			{
+				oldCodeToRemoveFromDatabase.Match(
+					transportCode =>
+					{
+						_uow.Delete(transportCode);
+						return true;
+					},
+					groupCode =>
+					{
+						_uow.Delete(groupCode);
+						return true;
+					},
+					waterCode =>
+					{
+						_uow.Delete(waterCode);
+						return true;
+					});
+			}
+
+			_uow.Commit();
+			_uow.Session.BeginTransaction();
+
 			NomenclatureDto nomenclatureDto = null;
 
 			var trueMarkCodes = new List<TrueMarkCodeDto>();
