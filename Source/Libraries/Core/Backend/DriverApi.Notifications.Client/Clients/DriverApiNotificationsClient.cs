@@ -109,15 +109,15 @@ namespace DriverApi.Notifications.Client.Clients
 				{
 					return Result.Failure(CommonErrors.DriverApiClient.ApiError(response.ReasonPhrase));
 				}
-				else if(response.IsSuccessStatusCode)
+
+				try
 				{
 					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
 					return Result.Failure(CommonErrors.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail));
 				}
-				else
+				catch(Exception ex)
 				{
-					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
-					return Result.Failure(CommonErrors.DriverApiClient.ApiError(problemDetails.Detail));
+					return Result.Failure(CommonErrors.DriverApiClient.ApiError(ex.Message));
 				}
 			}
 		}
