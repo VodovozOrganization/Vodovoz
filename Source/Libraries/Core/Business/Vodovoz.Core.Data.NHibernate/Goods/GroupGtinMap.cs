@@ -3,11 +3,11 @@ using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Core.Data.NHibernate.Goods
 {
-	public class GtinMap : ClassMap<GtinEntity>
+	public class GroupGtinMap : ClassMap<GroupGtinEntity>
 	{
-		public GtinMap()
+		public GroupGtinMap()
 		{
-			Table("gtins");
+			Table("group_gtins");
 
 			Id(x => x.Id)
 				.Column("id")
@@ -15,6 +15,9 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 
 			Map(x => x.GtinNumber)
 				.Column("gtin");
+
+			Map(x => x.CodesCount)
+				.Column("codes_count");
 
 			References(x => x.Nomenclature)
 				.Column("nomenclature_id");

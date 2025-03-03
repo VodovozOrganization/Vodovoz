@@ -22,4 +22,22 @@ namespace VodovozBusiness.Domain.Goods
 			set => SetField(ref _nomenclature, value);
 		}
 	}
+
+
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "Групповые Gtin",
+		Nominative = "Групповой Gtin")]
+	[EntityPermission]
+	[HistoryTrace]
+
+	public class GroupGtin : GroupGtinEntity
+	{
+		private Nomenclature _nomenclature;
+
+		public virtual new Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set => SetField(ref _nomenclature, value);
+		}
+	}
 }
