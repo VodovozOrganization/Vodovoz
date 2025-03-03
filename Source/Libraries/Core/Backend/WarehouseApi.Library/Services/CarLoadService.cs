@@ -248,7 +248,7 @@ namespace WarehouseApi.Library.Services
 			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
 				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
 				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
-				identificationCode => new TrueMarkAnyCode[] { identificationCode });
+				waterCode => new TrueMarkAnyCode[] { waterCode });
 
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
@@ -463,12 +463,12 @@ namespace WarehouseApi.Library.Services
 			IEnumerable<TrueMarkAnyCode> oldTrueMarkAnyCodes = oldTrueMarkCodeResult.Value.Match(
 				transportCode => transportCode.GetAllCodes(),
 				groupCode => groupCode.GetAllCodes(),
-				identificationCode => new TrueMarkAnyCode[] { identificationCode });
+				waterCode => new TrueMarkAnyCode[] { waterCode });
 
 			IEnumerable<TrueMarkAnyCode> newTrueMarkAnyCodes = newTrueMarkCodeResult?.Value.Match(
 				transportCode => transportCode.GetAllCodes(),
 				groupCode => groupCode.GetAllCodes(),
-				identificationCode => new TrueMarkAnyCode[] { identificationCode }) ?? Enumerable.Empty<TrueMarkAnyCode>();
+				waterCode => new TrueMarkAnyCode[] { waterCode }) ?? Enumerable.Empty<TrueMarkAnyCode>();
 
 			foreach(var codeToRemove in oldTrueMarkAnyCodes)
 			{
