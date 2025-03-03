@@ -13,6 +13,8 @@ namespace Edo.Common
 				.AddScoped<TransferRequestCreator>()
 				.AddScoped<EdoTaskItemTrueMarkStatusProvider>()
 				.AddScoped<EdoTaskItemTrueMarkStatusProviderFactory>()
+
+				.AddScoped<TrueMarkTaskCodesValidator>()
 				;
 
 			return services;
