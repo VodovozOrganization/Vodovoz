@@ -164,7 +164,7 @@ namespace DriverAPI.Controllers.V6
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, $"При замене кода ЧЗ в строке заказа произошла ошибка. " +
+				_logger.LogError(ex, "При замене кода ЧЗ в строке заказа произошла ошибка. " +
 					"OrderId: {OrderId}, " +
 					"OrderItemId: {OrderSaleItemId}, " +
 					"ExceptionMessage: {ExceptionMessage}",
@@ -220,7 +220,7 @@ namespace DriverAPI.Controllers.V6
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, $"При замене кода ЧЗ в строке заказа произошла ошибка. " +
+				_logger.LogError(ex, "При замене кода ЧЗ в строке заказа произошла ошибка. " +
 					"OrderId: {OrderId}, " +
 					"OrderItemId: {OrderSaleItemId}, " +
 					"ExceptionMessage: {ExceptionMessage}",
