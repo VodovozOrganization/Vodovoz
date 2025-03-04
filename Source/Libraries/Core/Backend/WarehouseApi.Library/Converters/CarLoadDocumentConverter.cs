@@ -50,6 +50,7 @@ namespace WarehouseApi.Library.Converters
 				NomenclatureId = documentItem.Nomenclature.Id,
 				Name = documentItem.Nomenclature.Name,
 				Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
+				GroupGtins = Enumerable.Empty<GroupGtinDto>(), // Должно быть заполнено из номенклатуры
 				Quantity = (int)documentItem.Amount,
 				Codes = GetApiTrueMarkCodes(documentItem)
 			};
@@ -68,6 +69,7 @@ namespace WarehouseApi.Library.Converters
 					NomenclatureId = documentItem.Nomenclature.Id,
 					Name = documentItem.Nomenclature.Name,
 					Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
+					GroupGtins = Enumerable.Empty<GroupGtinDto>(), // Нужно добавить заполнение
 					Quantity = (int)documentItem.Amount,
 					Codes = GetApiTrueMarkCodes(documentItem)
 				};

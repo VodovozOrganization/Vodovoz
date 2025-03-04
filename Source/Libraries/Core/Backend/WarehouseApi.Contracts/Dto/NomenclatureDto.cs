@@ -23,6 +23,11 @@ namespace WarehouseApi.Contracts.Dto
 		public IEnumerable<string> Gtin { get; set; }
 
 		/// <summary>
+		/// Номера группы товарной продукции GTIN
+		/// </summary>
+		public IEnumerable<GroupGtinDto> GroupGtins { get; set; }
+
+		/// <summary>
 		/// Количество
 		/// </summary>
 		public int Quantity { get; set; }
