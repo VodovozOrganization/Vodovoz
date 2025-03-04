@@ -1,12 +1,29 @@
-﻿using System;
+﻿using QS.Views.Dialog;
+using QSWidgetLib;
+using Vodovoz.ViewModels.ViewModels.Goods;
+
 namespace Vodovoz.Views.Goods
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class GroupGtinView : Gtk.Bin
+	public partial class GroupGtinView : DialogViewBase<GroupGtinViewModel>
 	{
-		public GroupGtinView()
+		public GroupGtinView(GroupGtinViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			validatedGtin.ValidationMode = ValidationType.numeric;
+			validatedGtin.Binding
+				.AddBinding(ViewModel.GroupGtin, g => g.GtinNumber, w => w.Text)
+				.InitializeFromSource();
+
+			yspinbuttonCount.Binding
+				.AddBinding(ViewModel.GroupGtin, g => g.CodesCount, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			buttonOk.BindCommand(ViewModel.CloseCommand);
 		}
 	}
 }

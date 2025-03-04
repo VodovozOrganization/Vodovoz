@@ -431,6 +431,7 @@
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\GroupGtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\GtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FinancialResponsibilityCenterJournalViewModelRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NonReturnReasonJournalRegistrar.cs" />

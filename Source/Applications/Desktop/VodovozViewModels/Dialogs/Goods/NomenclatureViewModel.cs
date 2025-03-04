@@ -65,6 +65,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private bool _activeSitesAndAppsTab;
 		private IList<NomenclatureOnlineCategory> _onlineCategories;
 		private GtinJournalViewModel _gtinsJornalViewModel;
+		private GroupGtinJournalViewModel _groupGtinsJornalViewModel;
 
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -138,6 +139,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			ArchiveCommand = new DelegateCommand(Archive);
 			UnArchiveCommand = new DelegateCommand(UnArchive);
 			EditGtinsCommand = new DelegateCommand(EditGtins);
+			EditGroupGtinsCommand = new DelegateCommand(EditGroupGtins);
 
 			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory
 				.CreateAndInitialize<Nomenclature, NomenclatureFileInformation>(
@@ -421,6 +423,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public DelegateCommand ArchiveCommand { get; }
 		public DelegateCommand UnArchiveCommand { get; }
 		public DelegateCommand EditGtinsCommand { get; }
+		public DelegateCommand EditGroupGtinsCommand { get; }
 
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
@@ -995,9 +998,23 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_gtinsJornalViewModel.TabClosed += OnGtinsJournalClosed;
 		}
 
+		private void EditGroupGtins()
+		{
+			_groupGtinsJornalViewModel = NavigationManager.OpenViewModel<GroupGtinJournalViewModel>(this, OpenPageOptions.AsSlave).ViewModel;
+			_groupGtinsJornalViewModel.Nomenclature = Entity;
+
+			_groupGtinsJornalViewModel.TabClosed -= OnGroupGtinsJournalClosed;
+			_groupGtinsJornalViewModel.TabClosed += OnGroupGtinsJournalClosed;
+		}
+
 		private void OnGtinsJournalClosed(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(GtinsString));
+		}
+
+		private void OnGroupGtinsJournalClosed(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(Entity.GroupGtins));
 		}
 
 		public override void Dispose()
@@ -1007,6 +1024,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			if(_gtinsJornalViewModel != null)
 			{
 				_gtinsJornalViewModel.TabClosed -= OnGtinsJournalClosed;
+			}
+
+			if(_groupGtinsJornalViewModel != null)
+			{
+				_groupGtinsJornalViewModel.TabClosed -= OnGroupGtinsJournalClosed;
 			}
 
 			base.Dispose();
