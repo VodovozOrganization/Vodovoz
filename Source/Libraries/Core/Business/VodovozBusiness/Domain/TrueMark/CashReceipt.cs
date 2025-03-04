@@ -178,6 +178,6 @@ namespace Vodovoz.Domain.TrueMark
 
 		public virtual string DocumentId => GetDocumentId(Order.Id, InnerNumber);
 
-		public static int MaxMarkCodesInReceipt => 128;
+		public static int MaxMarkCodesInReceipt => 100;
 	}
 }
