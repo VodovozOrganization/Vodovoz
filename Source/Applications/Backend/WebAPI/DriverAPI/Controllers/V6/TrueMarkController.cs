@@ -51,10 +51,14 @@ namespace DriverAPI.Controllers.V6
 			IDriverMobileAppActionRecordService driverMobileAppActionRecordService)
 			: base(logger)
 		{
-			_userManager = userManager;
-			_employeeService = employeeService;
-			_orderService = orderService;
-			_driverMobileAppActionRecordService = driverMobileAppActionRecordService;
+			_userManager = userManager
+				?? throw new ArgumentNullException(nameof(userManager));
+			_employeeService = employeeService
+				?? throw new ArgumentNullException(nameof(employeeService));
+			_orderService = orderService
+				?? throw new ArgumentNullException(nameof(orderService));
+			_driverMobileAppActionRecordService = driverMobileAppActionRecordService
+				?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordService));
 		}
 
 		/// <summary>
