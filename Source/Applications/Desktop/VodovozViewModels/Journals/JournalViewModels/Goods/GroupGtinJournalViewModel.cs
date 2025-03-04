@@ -42,12 +42,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			get => _nomenclature;
 			set
 			{
-				if(_nomenclature != null)
-				{
-					throw new InvalidOperationException("Номенклатура уже установлена");
-				}
-
 				SetField(ref _nomenclature, value);
+
+				Title = Title = $"Журнал групповых GTIN \"{_nomenclature.Name}\"";
+
 				Refresh();
 			}
 		}
