@@ -20,6 +20,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Nodes;
+using static Vodovoz.ViewModels.AdministrationTools.RevenueServiceMassCounterpartyUpdateToolViewModel;
 using Menu = Gtk.Menu;
 using MenuItem = Gtk.MenuItem;
 
@@ -342,6 +343,16 @@ namespace Vodovoz.Views.Goods
 			yentryGtins.Binding
 				.AddBinding(ViewModel, vm => vm.GtinsString, w => w.Text)
 				.InitializeFromSource();
+
+			ybuttonEditGroupGtins.BindCommand(ViewModel.EditGroupGtinsCommand);
+
+			ytreeviewGroupGtins.CreateFluentColumnsConfig<GroupGtinEntity>()
+				.AddColumn("Gtin").AddTextRenderer(x => x.GtinNumber)
+				.AddColumn("Штук в упаковке").AddNumericRenderer(x => x.CodesCount)
+				.AddColumn("")
+				.Finish();
+
+			ytreeviewGroupGtins.ItemsDataSource = ViewModel.Entity.GroupGtins;
 
 			chkInventoryAccounting.Binding
 				.AddBinding(ViewModel.Entity, e => e.HasInventoryAccounting, w => w.Active)

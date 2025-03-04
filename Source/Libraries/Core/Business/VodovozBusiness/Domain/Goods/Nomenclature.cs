@@ -62,6 +62,7 @@ namespace Vodovoz.Domain.Goods
 		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse =
 			new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
 		private IObservableList<Gtin> _gtins = new ObservableList<Gtin>();
+		private IObservableList<GroupGtin> _groupGtins = new ObservableList<GroupGtin>();
 
 		private NomenclatureCategory _category;
 
@@ -324,6 +325,16 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _gtins;
 			set => SetField(ref _gtins, value);
+		}
+
+		/// <summary>
+		/// Gtin группы
+		/// </summary>
+		[Display(Name = "Gtin группы")]
+		public virtual new IObservableList<GroupGtin> GroupGtins
+		{
+			get => _groupGtins;
+			set => SetField(ref _groupGtins, value);
 		}
 
 		/// <summary>
@@ -775,7 +786,11 @@ namespace Vodovoz.Domain.Goods
 			}
 
 			var gtinRepository = validationContext.GetRequiredService<IGenericRepository<Gtin>>();
+			var groupGtinRepository = validationContext.GetRequiredService<IGenericRepository<GroupGtin>>();
+
 			var gtinNumbers = Gtins.Select(x => x.GtinNumber);
+			var groupGtinNumbers = GroupGtins.Select(x => x.GtinNumber);
+
 			var gtinDuplicates = gtinRepository.Get(UoW, x => x.Nomenclature.Id != Id && gtinNumbers.Contains(x.GtinNumber));
 
 			if(gtinDuplicates.Any())
@@ -791,6 +806,59 @@ namespace Vodovoz.Domain.Goods
 			{
 				yield return new ValidationResult(
 					$"Найдены дубликаты Gtin в текущей номенклатуре {string.Join(", ", gtinsDuplicatesInNomenclature.Select(x => x))}",
+					new[] { nameof(Gtins) });
+			}
+
+			//Gtin не должен повторяться в номерах групповых Gtin в любой номенклатуре
+			var gtinDuplicatesInGroupGtins = groupGtinRepository.Get(UoW, x => gtinNumbers.Contains(x.GtinNumber));
+			if(gtinDuplicatesInGroupGtins.Any())
+			{
+				yield return new ValidationResult(
+					$"Найдены номенклатуры, у которых групповой Gtin равен Gtin текущей номенклатуры " +
+					$"{string.Join("; ", gtinDuplicatesInGroupGtins.Select(x => $"[{x.Nomenclature.Name} : {x.GtinNumber}]"))}",
+					new[] { nameof(Gtins) });
+			}
+
+			if(GroupGtins.Any(x => x.GtinNumber.Length < 8 || x.GtinNumber.Length > 14))
+			{
+				yield return new ValidationResult("Длина GTIN группы должна быть от 8 до 14 символов",
+					new[] { nameof(GroupGtins) });
+			}
+
+			if(GroupGtins.Any(x => x.CodesCount == 0))
+			{
+				yield return new ValidationResult("Установленное количество кодов в групповых GTIN должно быть больше 0",
+					new[] { nameof(GroupGtins) });
+			}
+
+			//В текущей номенклатуре не должно быть одинаковых групповых Gtin
+			var groupGtinsDuplicatesInNomenclature =
+				GroupGtins.GroupBy(x => new { x.GtinNumber }).Where(g => g.Count() > 1).Select(g => g.Key);
+
+			if(groupGtinsDuplicatesInNomenclature.Any())
+			{
+				yield return new ValidationResult(
+					$"Найдены дубликаты групповых Gtin в текущей номенклатуре " +
+					$"{string.Join(", ", groupGtinsDuplicatesInNomenclature.Select(x => $"{x.GtinNumber}"))}",
+					new[] { nameof(Gtins) });
+			}
+
+			//Номера групповых Gtin не должны повторяться в других номенклатурах
+			var groupGtinDuplicates = groupGtinRepository.Get(UoW, x => x.Nomenclature.Id != Id && groupGtinNumbers.Contains(x.GtinNumber));
+			if(groupGtinDuplicates.Any())
+			{
+				yield return new ValidationResult(
+					$"Найдены дубликаты групповых Gtin {string.Join("; ", groupGtinDuplicates.Select(x => $"[{x.Nomenclature.Name} : {x.GtinNumber}]"))}",
+					new[] { nameof(Gtins) });
+			}
+
+			//Номера групповых Gtin не должны повторяться в номерах Gtin в любой номенклатуре
+			var groupGtinDuplicatesInGtins = gtinRepository.Get(UoW, x => groupGtinNumbers.Contains(x.GtinNumber));
+			if(groupGtinDuplicatesInGtins.Any())
+			{
+				yield return new ValidationResult(
+					$"Найдены номенклатуры, имеющие Gtin равные групповым Gtin текущей номенклатуры " +
+					$"{string.Join(", ", groupGtinDuplicatesInGtins.Select(x => $"{x.Nomenclature.Name} : {x.GtinNumber}"))}",
 					new[] { nameof(Gtins) });
 			}
 		}
