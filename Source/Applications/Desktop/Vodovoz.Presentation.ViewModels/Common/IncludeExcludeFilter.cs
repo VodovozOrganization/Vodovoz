@@ -69,6 +69,11 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				if(currentExcludedElement != null)
 				{
 					currentExcludedElement.Exclude = false;
+
+					if(ExcludedElements.Contains(currentExcludedElement))
+					{
+						ExcludedElements.Remove(currentExcludedElement);
+					}
 				}
 			}
 
@@ -84,6 +89,11 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				if(currentIncludedElement != null)
 				{
 					currentIncludedElement.Include = false;
+
+					if(IncludedElements.Contains(currentIncludedElement))
+					{
+						IncludedElements.Remove(currentIncludedElement);
+					}
 				}
 			}
 
