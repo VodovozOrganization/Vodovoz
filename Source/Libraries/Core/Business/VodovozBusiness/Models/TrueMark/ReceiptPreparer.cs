@@ -186,69 +186,74 @@ namespace Vodovoz.Models.TrueMark
 			var codes = receipt.ScannedCodes.Where(x => !x.IsDefectiveSourceCode);
 
 			var validCodes = codes.Where(x => x.IsValid).ToList();
-			var checkResults = await _codeChecker.CheckCodesAsync(validCodes, cancellationToken);
 
-			var sourceTag1260Codes = validCodes.Select(x => x.SourceCode);
-			var organizationId = receipt.Order.Contract?.Organization?.Id;
-
-			if(organizationId is null)
+			if(validCodes.Any())
 			{
-				throw new TrueMarkException(
-					$"Невозможно обработать коды по чеку {receipt.Id}. Отсутствует организация в договоре заказа из чека");
-			}
+				var checkResults = await _codeChecker.CheckCodesAsync(validCodes, cancellationToken);
 
-			await _tag1260Updater.UpdateTag1260Info(_uow, sourceTag1260Codes, organizationId.Value, cancellationToken);
+				var sourceTag1260Codes = validCodes.Select(x => x.SourceCode);
+				var organizationId = receipt.Order.Contract?.Organization?.Id;
 
-			foreach(var checkResult in checkResults)
-			{
-				var code = checkResult.Code;
-
-				var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(checkResult.OwnerInn);
-
-				if(!isOurOrganizationOwner)
+				if(organizationId is null)
 				{
-					_logger.LogInformation(
-						"У проверенного кода {serialNumber} владелец не наша организация {organizationINN}. Код исключается из обработки.",
-						code?.SourceCode?.SerialNumber,
-						checkResult.OwnerInn);
+					throw new TrueMarkException(
+						$"Невозможно обработать коды по чеку {receipt.Id}. Отсутствует организация в договоре заказа из чека");
 				}
 
-				var isOurGtin = _ourCodesChecker.IsOurGtinOwner(checkResult.Code?.SourceCode?.GTIN);
+				await _tag1260Updater.UpdateTag1260Info(_uow, sourceTag1260Codes, organizationId.Value, cancellationToken);
 
-				if(!isOurGtin)
+				foreach(var checkResult in checkResults)
 				{
-					_logger.LogInformation("У проверенного кода {serialNumber} владелец не наш GTIN {GTIN}. Код исключается из обработки.",
-						code?.SourceCode?.SerialNumber,
-						checkResult.Code?.SourceCode?.GTIN);
-				}
+					var code = checkResult.Code;
 
-				var isTag1260Valid = checkResult.Code?.SourceCode?.IsTag1260Valid ?? false;
+					var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(checkResult.OwnerInn);
 
-				if(!isTag1260Valid)
-				{
-					_logger.LogInformation(
-						"У проверенного кода {serialNumber} отсутствует разрешительный режим по тэгу 1260. Код исключается из обработки.",
-						code?.SourceCode?.SerialNumber,
-						checkResult.Code?.SourceCode?.GTIN);
-				}
-
-				if(checkResult.Introduced && isOurOrganizationOwner && isOurGtin && isTag1260Valid)
-				{
-					if(code.ResultCode != null && !code.ResultCode.Equals(code.SourceCode))
+					if(!isOurOrganizationOwner)
 					{
-						_codesPool.PutCode(code.ResultCode.Id);
+						_logger.LogInformation(
+							"У проверенного кода {serialNumber} владелец не наша организация {organizationINN}. Код исключается из обработки.",
+							code?.SourceCode?.SerialNumber,
+							checkResult.OwnerInn);
 					}
 
-					code.ResultCode = code.SourceCode;
-				}
-				else
-				{
-					if(code.ResultCode != null)
+					var isOurGtin = _ourCodesChecker.IsOurGtinOwner(checkResult.Code?.SourceCode?.GTIN);
+
+					if(!isOurGtin)
 					{
-						_codesPool.PutCode(code.ResultCode.Id);
+						_logger.LogInformation(
+							"У проверенного кода {serialNumber} владелец не наш GTIN {GTIN}. Код исключается из обработки.",
+							code?.SourceCode?.SerialNumber,
+							checkResult.Code?.SourceCode?.GTIN);
 					}
 
-					code.ResultCode = GetCodeFromPool(code.OrderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id);
+					var isTag1260Valid = checkResult.Code?.SourceCode?.IsTag1260Valid ?? false;
+
+					if(!isTag1260Valid)
+					{
+						_logger.LogInformation(
+							"У проверенного кода {serialNumber} отсутствует разрешительный режим по тэгу 1260. Код исключается из обработки.",
+							code?.SourceCode?.SerialNumber,
+							checkResult.Code?.SourceCode?.GTIN);
+					}
+
+					if(checkResult.Introduced && isOurOrganizationOwner && isOurGtin && isTag1260Valid)
+					{
+						if(code.ResultCode != null && !code.ResultCode.Equals(code.SourceCode))
+						{
+							_codesPool.PutCode(code.ResultCode.Id);
+						}
+
+						code.ResultCode = code.SourceCode;
+					}
+					else
+					{
+						if(code.ResultCode != null)
+						{
+							_codesPool.PutCode(code.ResultCode.Id);
+						}
+
+						code.ResultCode = GetCodeFromPool(code.OrderItem.Nomenclature.Gtin, receipt.Order?.Contract?.Organization?.Id);
+					}
 				}
 			}
 
@@ -265,6 +270,11 @@ namespace Vodovoz.Models.TrueMark
 
 		private void ProcessingInvalidCodes(CashReceipt receipt, IEnumerable<CashReceiptProductCode> codes, int validCodesCount)
 		{
+			if(!codes.Any())
+			{
+				return;
+			}
+			
 			var invalidCodes = codes.Where(x => !x.IsValid).ToList();
 			var receiptCodesCount = validCodesCount + invalidCodes.Count;
 			var startNumber = CashReceipt.MaxMarkCodesInReceipt - validCodesCount;
