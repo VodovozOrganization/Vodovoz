@@ -186,27 +186,27 @@ namespace WarehouseApi.Library.Services
 							foreach(var anyCode in allCodes)
 							{
 								trueMarkCodes.Add(anyCode.Match(
-								transportCode => new TrueMarkCodeDto
-								{
-									SequenceNumber = index++,
-									Code = transportCode.RawCode,
-									Level = WarehouseApiTruemarkCodeLevel.transport,
-									Parent = transportCode.ParentTransportCodeId?.ToString()
-								},
-								groupCode => new TrueMarkCodeDto
-								{
-									SequenceNumber = index++,
-									Code = groupCode.RawCode,
-									Level = WarehouseApiTruemarkCodeLevel.group,
-									Parent = groupCode.ParentTransportCodeId?.ToString() ?? groupCode.ParentWaterGroupCodeId?.ToString()
-								},
-								waterCode => new TrueMarkCodeDto
-								{
-									SequenceNumber = index++,
-									Code = waterCode.RawCode,
-									Level = WarehouseApiTruemarkCodeLevel.unit,
-									Parent = waterCode.ParentTransportCodeId?.ToString() ?? waterCode.ParentWaterGroupCodeId?.ToString(),
-								}));
+									transportCode => new TrueMarkCodeDto
+									{
+										SequenceNumber = index++,
+										Code = transportCode.RawCode,
+										Level = WarehouseApiTruemarkCodeLevel.transport,
+										Parent = transportCode.ParentTransportCodeId?.ToString()
+									},
+									groupCode => new TrueMarkCodeDto
+									{
+										SequenceNumber = index++,
+										Code = groupCode.RawCode,
+										Level = WarehouseApiTruemarkCodeLevel.group,
+										Parent = groupCode.ParentTransportCodeId?.ToString() ?? groupCode.ParentWaterGroupCodeId?.ToString()
+									},
+									waterCode => new TrueMarkCodeDto
+									{
+										SequenceNumber = index++,
+										Code = waterCode.RawCode,
+										Level = WarehouseApiTruemarkCodeLevel.unit,
+										Parent = waterCode.ParentTransportCodeId?.ToString() ?? waterCode.ParentWaterGroupCodeId?.ToString(),
+									}));
 							}
 
 							codeToAddInfo.Codes = trueMarkCodes;
