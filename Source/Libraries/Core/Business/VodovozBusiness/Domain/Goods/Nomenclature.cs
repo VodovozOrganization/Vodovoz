@@ -809,9 +809,8 @@ namespace Vodovoz.Domain.Goods
 					new[] { nameof(Gtins) });
 			}
 
-			var gtinDuplicatesInGroupGtins = groupGtinRepository.Get(UoW, x => gtinNumbers.Contains(x.GtinNumber));
-
 			//Gtin не должен повторяться в номерах групповых Gtin в любой номенклатуре
+			var gtinDuplicatesInGroupGtins = groupGtinRepository.Get(UoW, x => gtinNumbers.Contains(x.GtinNumber));
 			if(gtinDuplicatesInGroupGtins.Any())
 			{
 				yield return new ValidationResult(
@@ -826,10 +825,10 @@ namespace Vodovoz.Domain.Goods
 					new[] { nameof(GroupGtins) });
 			}
 
+			//В текущей номенклатуре не должно быть одинаковых пар Gtin и количества кодов
 			var groupGtinsDuplicatesInNomenclature =
 				GroupGtins.GroupBy(x => new { x.GtinNumber, x.CodesCount }).Where(g => g.Count() > 1).Select(g => g.Key);
 
-			//В текущей номенклатуре не должно быть одинаковых пар Gtin и количества кодов
 			if(groupGtinsDuplicatesInNomenclature.Any())
 			{
 				yield return new ValidationResult(
