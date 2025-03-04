@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Errors;
-using Vodovoz.Presentation.WebApi.Common;
 using OrderErrors = Vodovoz.Errors.Orders.Order;
 using RouteListErrors = Vodovoz.Errors.Logistics.RouteList;
 using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteList.RouteListItem;
@@ -44,7 +43,7 @@ namespace DriverAPI.Controllers.V6
 		/// <param name="orderService"></param>
 		/// <param name="driverMobileAppActionRecordService"></param>
 		public TrueMarkController(
-			ILogger<ApiControllerBase> logger,
+			ILogger<TrueMarkController> logger,
 			UserManager<IdentityUser> userManager,
 			IEmployeeService employeeService,
 			IOrderService orderService,
@@ -104,15 +103,18 @@ namespace DriverAPI.Controllers.V6
 			}
 			catch(Exception ex)
 			{
-				var errorMessage =
-					$"При добавлении кода ЧЗ в строку заказ произошла ошибка. " +
+				_logger.LogError(ex, "При добавлении кода ЧЗ в строку заказ произошла ошибка. " +
+					"OrderId: {OrderId}, " +
+					"OrderItemId: {OrderSaleItemId}, " +
+					"ExceptionMessage: {ExceptionMessage}",
+					 addOrderCodeRequestModel.OrderId,
+					 addOrderCodeRequestModel.OrderSaleItemId,
+					 ex.Message);
+
+				return Problem($"При добавлении кода ЧЗ в строку заказ произошла ошибка. " +
 					$"OrderId: {addOrderCodeRequestModel.OrderId}, " +
 					$"OrderItemId: {addOrderCodeRequestModel.OrderSaleItemId}, " +
-					$"ExceptionMessage: {ex.Message}";
-
-				_logger.LogError(ex, errorMessage);
-
-				return Problem(errorMessage);
+					$"ExceptionMessage: {ex.Message}");
 			}
 			finally
 			{
@@ -162,15 +164,18 @@ namespace DriverAPI.Controllers.V6
 			}
 			catch(Exception ex)
 			{
-				var errorMessage =
-					$"При замене кода ЧЗ в строке заказа произошла ошибка. " +
+				_logger.LogError(ex, $"При замене кода ЧЗ в строке заказа произошла ошибка. " +
+					"OrderId: {OrderId}, " +
+					"OrderItemId: {OrderSaleItemId}, " +
+					"ExceptionMessage: {ExceptionMessage}",
+					changeOrderCodeRequest.OrderId,
+					changeOrderCodeRequest.OrderSaleItemId,
+					ex.Message);
+
+				return Problem($"При замене кода ЧЗ в строке заказа произошла ошибка. " +
 					$"OrderId: {changeOrderCodeRequest.OrderId}, " +
 					$"OrderItemId: {changeOrderCodeRequest.OrderSaleItemId}, " +
-					$"ExceptionMessage: {ex.Message}";
-
-				_logger.LogError(ex, errorMessage);
-
-				return Problem(errorMessage);
+					$"ExceptionMessage: {ex.Message}");
 			}
 		}
 
@@ -215,15 +220,18 @@ namespace DriverAPI.Controllers.V6
 			}
 			catch(Exception ex)
 			{
-				var errorMessage =
-					$"При замене кода ЧЗ в строке заказа произошла ошибка. " +
+				_logger.LogError(ex, $"При замене кода ЧЗ в строке заказа произошла ошибка. " +
+					"OrderId: {OrderId}, " +
+					"OrderItemId: {OrderSaleItemId}, " +
+					"ExceptionMessage: {ExceptionMessage}",
+					deleteOrderCodeRequest.OrderId,
+					deleteOrderCodeRequest.OrderSaleItemId,
+					ex.Message);
+
+				return Problem($"При замене кода ЧЗ в строке заказа произошла ошибка. " +
 					$"OrderId: {deleteOrderCodeRequest.OrderId}, " +
 					$"OrderItemId: {deleteOrderCodeRequest.OrderSaleItemId}, " +
-					$"ExceptionMessage: {ex.Message}";
-
-				_logger.LogError(ex, errorMessage);
-
-				return Problem(errorMessage);
+					$"ExceptionMessage: {ex.Message}");
 			}
 		}
 
@@ -241,7 +249,7 @@ namespace DriverAPI.Controllers.V6
 			return new ObjectResult(processingResult.FailureData);
 		}
 
-		private int GetStatusCode(Result result)
+		private static int GetStatusCode(Result result)
 		{
 			if(result.IsSuccess)
 			{
