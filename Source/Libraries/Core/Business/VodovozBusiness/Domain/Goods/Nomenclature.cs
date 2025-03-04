@@ -825,15 +825,21 @@ namespace Vodovoz.Domain.Goods
 					new[] { nameof(GroupGtins) });
 			}
 
-			//В текущей номенклатуре не должно быть одинаковых пар Gtin и количества кодов
+			if(GroupGtins.Any(x => x.CodesCount == 0))
+			{
+				yield return new ValidationResult("Установленное количество кодов в групповых GTIN должно быть больше 0",
+					new[] { nameof(GroupGtins) });
+			}
+
+			//В текущей номенклатуре не должно быть одинаковых групповых Gtin
 			var groupGtinsDuplicatesInNomenclature =
-				GroupGtins.GroupBy(x => new { x.GtinNumber, x.CodesCount }).Where(g => g.Count() > 1).Select(g => g.Key);
+				GroupGtins.GroupBy(x => new { x.GtinNumber }).Where(g => g.Count() > 1).Select(g => g.Key);
 
 			if(groupGtinsDuplicatesInNomenclature.Any())
 			{
 				yield return new ValidationResult(
 					$"Найдены дубликаты групповых Gtin в текущей номенклатуре " +
-					$"{string.Join(", ", groupGtinsDuplicatesInNomenclature.Select(x => $"{x.GtinNumber} : {x.CodesCount}"))}",
+					$"{string.Join(", ", groupGtinsDuplicatesInNomenclature.Select(x => $"{x.GtinNumber}"))}",
 					new[] { nameof(Gtins) });
 			}
 
@@ -851,7 +857,8 @@ namespace Vodovoz.Domain.Goods
 			if(groupGtinDuplicatesInGtins.Any())
 			{
 				yield return new ValidationResult(
-					$"Найдены номенклатуры, имеющие Gtin равные групповым Gtin текущей номенклатуры {string.Join(", ", groupGtinDuplicatesInGtins.Select(x => x))}",
+					$"Найдены номенклатуры, имеющие Gtin равные групповым Gtin текущей номенклатуры " +
+					$"{string.Join(", ", groupGtinDuplicatesInGtins.Select(x => $"{x.Nomenclature.Name} : {x.GtinNumber}"))}",
 					new[] { nameof(Gtins) });
 			}
 		}
