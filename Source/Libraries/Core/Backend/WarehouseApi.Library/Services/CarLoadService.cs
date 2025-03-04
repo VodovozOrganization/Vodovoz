@@ -172,7 +172,7 @@ namespace WarehouseApi.Library.Services
 						{
 							var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
 
-							var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.IdentificationCode));
+							var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
 
 							var trueMarkCodes = new List<TrueMarkCodeDto>();
 
@@ -186,26 +186,71 @@ namespace WarehouseApi.Library.Services
 							foreach(var anyCode in allCodes)
 							{
 								trueMarkCodes.Add(anyCode.Match(
-									transportCode => new TrueMarkCodeDto
+									transportCode =>
 									{
-										SequenceNumber = index++,
-										Code = transportCode.RawCode,
-										Level = WarehouseApiTruemarkCodeLevel.transport,
-										Parent = transportCode.ParentTransportCodeId?.ToString()
+										string parentRawCode = null;
+
+										if(transportCode.ParentTransportCodeId != null)
+										{
+											parentRawCode = allCodes.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == transportCode.ParentTransportCodeId)
+												?.TrueMarkTransportCode.RawCode;
+										}
+
+										return new TrueMarkCodeDto
+										{
+											SequenceNumber = index++,
+											Code = transportCode.RawCode,
+											Level = WarehouseApiTruemarkCodeLevel.transport,
+											Parent = parentRawCode
+										};
 									},
-									groupCode => new TrueMarkCodeDto
+									groupCode =>
 									{
-										SequenceNumber = index++,
-										Code = groupCode.RawCode,
-										Level = WarehouseApiTruemarkCodeLevel.group,
-										Parent = groupCode.ParentTransportCodeId?.ToString() ?? groupCode.ParentWaterGroupCodeId?.ToString()
+										string parentRawCode = null;
+
+										if(groupCode.ParentTransportCodeId != null)
+										{
+											parentRawCode = allCodes.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == groupCode.ParentTransportCodeId)
+												?.TrueMarkTransportCode.RawCode;
+										}
+
+										if(groupCode.ParentWaterGroupCodeId != null)
+										{
+											parentRawCode = allCodes.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode && x.TrueMarkWaterGroupCode.Id == groupCode.ParentWaterGroupCodeId)
+												?.TrueMarkWaterGroupCode.RawCode;
+										}
+
+										return new TrueMarkCodeDto
+										{
+											SequenceNumber = index++,
+											Code = groupCode.RawCode,
+											Level = WarehouseApiTruemarkCodeLevel.group,
+											Parent = parentRawCode
+										};
 									},
-									waterCode => new TrueMarkCodeDto
+									waterCode =>
 									{
-										SequenceNumber = index++,
-										Code = waterCode.RawCode,
-										Level = WarehouseApiTruemarkCodeLevel.unit,
-										Parent = waterCode.ParentTransportCodeId?.ToString() ?? waterCode.ParentWaterGroupCodeId?.ToString(),
+										string parentRawCode = null;
+
+										if(waterCode.ParentTransportCodeId != null)
+										{
+											parentRawCode = allCodes.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == waterCode.ParentTransportCodeId)
+												?.TrueMarkTransportCode.RawCode;
+										}
+
+										if(waterCode.ParentWaterGroupCodeId != null)
+										{
+											parentRawCode = allCodes.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode && x.TrueMarkWaterGroupCode.Id == waterCode.ParentWaterGroupCodeId)
+												?.TrueMarkWaterGroupCode.RawCode;
+										}
+
+										return new TrueMarkCodeDto
+										{
+											SequenceNumber = index++,
+											Code = waterCode.RawCode,
+											Level = WarehouseApiTruemarkCodeLevel.unit,
+											Parent = parentRawCode,
+										};
 									}));
 							}
 
@@ -339,7 +384,7 @@ namespace WarehouseApi.Library.Services
 						Parent = waterCode.ParentTransportCodeId?.ToString() ?? waterCode.ParentWaterGroupCodeId?.ToString(),
 					}));
 
-				if (!anyCode.IsTrueMarkWaterIdentificationCode)
+				if(!anyCode.IsTrueMarkWaterIdentificationCode)
 				{
 					continue;
 				}
@@ -527,7 +572,7 @@ namespace WarehouseApi.Library.Services
 
 			foreach(var codeToRemove in oldTrueMarkAnyCodes)
 			{
-				if (!codeToRemove.IsTrueMarkWaterIdentificationCode)
+				if(!codeToRemove.IsTrueMarkWaterIdentificationCode)
 				{
 					continue;
 				}
@@ -566,54 +611,104 @@ namespace WarehouseApi.Library.Services
 
 			CarLoadDocumentItemEntity documentItemToEdit = null;
 
-			foreach (var codeToAdd in newTrueMarkAnyCodes)
+			foreach(var codeToAdd in newTrueMarkAnyCodes)
 			{
 				trueMarkCodes.Add(codeToAdd.Match(
-					transportCode => new TrueMarkCodeDto
+					transportCode =>
 					{
-						SequenceNumber = index++,
-						Code = transportCode.RawCode,
-						Level = WarehouseApiTruemarkCodeLevel.transport,
-						Parent = transportCode.ParentTransportCodeId?.ToString()
+						string parentCode = null;
+
+						if(transportCode.ParentTransportCodeId != null)
+						{
+							parentCode = newTrueMarkAnyCodes
+								.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == transportCode.ParentTransportCodeId)
+								?.TrueMarkTransportCode.RawCode;
+						}
+
+						return new TrueMarkCodeDto
+						{
+							SequenceNumber = index++,
+							Code = transportCode.RawCode,
+							Level = WarehouseApiTruemarkCodeLevel.transport,
+							Parent = parentCode,
+						};
 					},
-					groupCode => new TrueMarkCodeDto
+					groupCode =>
 					{
-						SequenceNumber = index++,
-						Code = groupCode.RawCode,
-						Level = WarehouseApiTruemarkCodeLevel.group,
-						Parent = groupCode.ParentTransportCodeId?.ToString() ?? groupCode.ParentWaterGroupCodeId?.ToString()
+						string parentCode = null;
+
+						if(groupCode.ParentTransportCodeId != null)
+						{
+							parentCode = newTrueMarkAnyCodes
+								.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == groupCode.ParentTransportCodeId)
+								?.TrueMarkTransportCode.RawCode;
+						}
+
+						if(groupCode.ParentWaterGroupCodeId != null)
+						{
+							parentCode = newTrueMarkAnyCodes
+								.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode && x.TrueMarkWaterGroupCode.Id == groupCode.ParentTransportCodeId)
+								?.TrueMarkWaterGroupCode.RawCode;
+						}
+
+						return new TrueMarkCodeDto
+						{
+							SequenceNumber = index++,
+							Code = groupCode.RawCode,
+							Level = WarehouseApiTruemarkCodeLevel.group,
+							Parent = parentCode
+						};
 					},
-					waterCode => new TrueMarkCodeDto
+					waterCode =>
 					{
-						SequenceNumber = index++,
-						Code = waterCode.RawCode,
-						Level = WarehouseApiTruemarkCodeLevel.unit,
-						Parent = waterCode.ParentTransportCodeId?.ToString() ?? waterCode.ParentWaterGroupCodeId?.ToString(),
+						string parentCode = null;
+
+						if(waterCode.ParentTransportCodeId != null)
+						{
+							parentCode = newTrueMarkAnyCodes
+								.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == waterCode.ParentTransportCodeId)
+								?.TrueMarkTransportCode.RawCode;
+						}
+
+						if(waterCode.ParentWaterGroupCodeId != null)
+						{
+							parentCode = newTrueMarkAnyCodes
+								.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode && x.TrueMarkWaterGroupCode.Id == waterCode.ParentTransportCodeId)
+								?.TrueMarkWaterGroupCode.RawCode;
+						}
+
+						return new TrueMarkCodeDto
+						{
+							SequenceNumber = index++,
+							Code = waterCode.RawCode,
+							Level = WarehouseApiTruemarkCodeLevel.unit,
+							Parent = parentCode,
+						};
 					}));
 
-				if (!codeToAdd.IsTrueMarkWaterIdentificationCode)
+				if(!codeToAdd.IsTrueMarkWaterIdentificationCode)
 				{
 					continue;
 				}
 
 				var addSingleCodeResult = await AddSingleCode(orderId, nomenclatureId, pickerEmployee, codeToAdd.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
 
-				if (addSingleCodeResult.IsT0)
+				if(addSingleCodeResult.IsT0)
 				{
 					var otherFailureResult = addSingleCodeResult.AsT0;
 					return RequestProcessingResult.CreateFailure(
 						Result.Failure<ChangeOrderCodeResponse>(otherFailureResult.Result.Errors),
 						new ChangeOrderCodeResponse
 						{
-							 Nomenclature = otherFailureResult.FailureData.Nomenclature,
-							 Result = otherFailureResult.FailureData.Result,
-							 Error = otherFailureResult.FailureData.Error,
+							Nomenclature = otherFailureResult.FailureData.Nomenclature,
+							Result = otherFailureResult.FailureData.Result,
+							Error = otherFailureResult.FailureData.Error,
 						});
 				}
 
 				documentItemToEdit = addSingleCodeResult.AsT1;
 
-				if (nomenclatureDto is null)
+				if(nomenclatureDto is null)
 				{
 					nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
 				}
@@ -657,7 +752,7 @@ namespace WarehouseApi.Library.Services
 
 			var checkResult = _documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee);
 
-			if (checkResult.IsFailure)
+			if(checkResult.IsFailure)
 			{
 				var error = checkResult.Errors.FirstOrDefault();
 
