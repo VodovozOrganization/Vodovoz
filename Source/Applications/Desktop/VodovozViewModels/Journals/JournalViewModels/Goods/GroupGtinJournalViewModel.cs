@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			{
 				SetField(ref _nomenclature, value);
 
-				Title = Title = $"Журнал групповых GTIN \"{_nomenclature.Name}\"";
+				Title = $"Журнал групповых GTIN \"{_nomenclature.Name}\"";
 
 				Refresh();
 			}
