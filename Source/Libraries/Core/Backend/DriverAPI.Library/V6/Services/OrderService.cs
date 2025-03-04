@@ -381,8 +381,7 @@ namespace DriverAPI.Library.V6.Services
 			OrderEdoRequest edoRequest = null;
 
 			if(!vodovozOrder.IsNeedIndividualSetOnLoad
-				&& vodovozOrder.IsOrderForResale
-				&& vodovozOrder.IsOrderContainsIsAccountableInTrueMarkItems)
+				&& vodovozOrder.PaymentType == PaymentType.Cashless)
 			{
 				edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
 			}
