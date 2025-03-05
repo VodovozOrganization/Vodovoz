@@ -46,7 +46,12 @@ namespace Edo.Docflow
 		public async Task HandleTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(transferDocumentId, cancellationToken);
-			if(document.Status != EdoDocumentStatus.NotStarted)
+			if(document.Status.IsIn(
+				EdoDocumentStatus.InProgress,
+				EdoDocumentStatus.CompletedWithDivergences,
+				EdoDocumentStatus.NotStarted,
+				EdoDocumentStatus.Succeed
+				))
 			{
 				_logger.LogError("Документ {documentId} уже в работе, повторно отправить нельзя.");
 				return;
@@ -70,7 +75,13 @@ namespace Edo.Docflow
 		{
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(orderDocumentId, cancellationToken);
 
-			if(document.Status != EdoDocumentStatus.NotStarted)
+			
+			if(document.Status.IsIn(
+				EdoDocumentStatus.InProgress, 
+				EdoDocumentStatus.CompletedWithDivergences, 
+				EdoDocumentStatus.NotStarted,
+				EdoDocumentStatus.Succeed
+				))
 			{
 				_logger.LogError("Документ {documentId} уже в работе, повторно отправить нельзя.");
 				return;
