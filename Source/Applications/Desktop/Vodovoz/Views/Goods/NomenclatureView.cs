@@ -354,6 +354,8 @@ namespace Vodovoz.Views.Goods
 
 			ytreeviewGroupGtins.ItemsDataSource = ViewModel.Entity.GroupGtins;
 
+			GtkScrolledWindowGroupGtins.HeightRequest = 80;
+
 			chkInventoryAccounting.Binding
 				.AddBinding(ViewModel.Entity, e => e.HasInventoryAccounting, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.UserCanCreateNomenclaturesWithInventoryAccounting, w => w.Sensitive)
