@@ -102,7 +102,6 @@ namespace Edo.Transfer
 			";
 
 			var iterationCompleted = await uow.Session.CreateSQLQuery(sql)
-					.AddEntity(typeof(TransferEdoTask))
 					.SetParameter("transferIterationId", transferIterationId)
 					.UniqueResultAsync<bool>(cancellationToken);
 
