@@ -102,6 +102,7 @@ namespace Edo.Common
 
 			foreach(var transferRequest in transferRequests.Values)
 			{
+				transferRequest.Iteration = transferIteration;
 				transferIteration.TransferEdoRequests.Add(transferRequest);
 			}
 			
