@@ -172,7 +172,7 @@ namespace Edo.Documents
 		public async Task HandleTransfered(int transferIterationId, CancellationToken cancellationToken)
 		{
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
-			var edoTask = (DocumentEdoTask)transferIteration.OrderEdoTask;
+			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
