@@ -380,8 +380,7 @@ namespace DriverAPI.Library.V6.Services
 
 			OrderEdoRequest edoRequest = null;
 
-			if(!vodovozOrder.IsNeedIndividualSetOnLoad
-				&& vodovozOrder.PaymentType == PaymentType.Cashless)
+			if(!vodovozOrder.IsNeedIndividualSetOnLoad)
 			{
 				edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
 			}
