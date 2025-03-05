@@ -712,7 +712,7 @@ UNION ALL
 #Суммарная информация по выданному и заправленному топливу
 SELECT
     'Сотрудники компании' AS car_type,
-    (SELECT SUM(IFNULL(fwdi.liters, 0))
+    IFNULL((SELECT SUM(IFNULL(fwdi.liters, 0))
 		FROM
 		    fuel_writeoff_documents fwd
 		    LEFT JOIN
@@ -727,11 +727,11 @@ SELECT
 		    fwd.date &gt;= @start_date
 		  	AND fwd.date &lt; @end_date
 		    AND ((0 IN (@include_car_models) OR (cm.id IN (@include_car_models))) AND (cm.id IS NULL OR NOT (cm.id IN (@exclude_car_models))))
-    ) as lites_by_fuel_write_off_document,
-    (SELECT fuel_limit_liters_gived FROM fuel_documents_summary_office) AS fuel_limit_liters_gived,
-    (SELECT payed_for_fuel FROM fuel_documents_summary_office) AS payed_for_fuel,
-    (SELECT cashless_payed_for_fuel FROM fuel_documents_summary_office) AS cashless_payed_for_fuel,
-	(SELECT fuel_received_quantity FROM fuel_documents_summary_office) as fuel_received_quantity,
+    ),0) as lites_by_fuel_write_off_document,
+    IFNULL((SELECT fuel_limit_liters_gived FROM fuel_documents_summary_office),0) AS fuel_limit_liters_gived,
+    IFNULL((SELECT payed_for_fuel FROM fuel_documents_summary_office),0) AS payed_for_fuel,
+    IFNULL((SELECT cashless_payed_for_fuel FROM fuel_documents_summary_office),0) AS cashless_payed_for_fuel,
+	IFNULL((SELECT fuel_received_quantity FROM fuel_documents_summary_office),0) as fuel_received_quantity,
     IFNULL(
     	(SELECT SUM(quantity) FROM fuel_transactions_info WHERE driver_category != 'driver'),
     	0) as fuel_received_total_quantity,
