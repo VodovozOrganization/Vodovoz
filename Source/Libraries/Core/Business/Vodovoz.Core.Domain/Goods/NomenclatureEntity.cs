@@ -117,6 +117,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private IObservableList<NomenclaturePriceEntity> _nomenclaturePrice = new ObservableList<NomenclaturePriceEntity>();
 		private IObservableList<AlternativeNomenclaturePriceEntity> _alternativeNomenclaturePrices = new ObservableList<AlternativeNomenclaturePriceEntity>();
 		private IObservableList<GtinEntity> _gtins = new ObservableList<GtinEntity>();
+		private IObservableList<GroupGtinEntity> _groupGtins = new ObservableList<GroupGtinEntity>();
 
 		public NomenclatureEntity()
 		{
@@ -533,6 +534,16 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _gtins;
 			set => SetField(ref _gtins, value);
+		}
+
+		/// <summary>
+		/// Gtin группы
+		/// </summary>
+		[Display(Name = "Gtin группы")]
+		public virtual IObservableList<GroupGtinEntity> GroupGtins
+		{
+			get => _groupGtins;
+			set => SetField(ref _groupGtins, value);
 		}
 
 		/// <summary>
