@@ -447,19 +447,11 @@ namespace Edo.Receipt.Dispatcher
 			}
 		}
 
-		private IDictionary<int, List<TrueMarkProductCode>> GetProductCodesHavingRequiredResultCodeIds(IEnumerable<int> resultCodeIds)
-		{
-			var allCodes = _productCodeRepository
-				.Get(_uow, x => x.Id > 0, 0)
-				.ToList();
-
-			var codes = _productCodeRepository
-				.Get(_uow, x => resultCodeIds.Contains(x.ResultCode.Id), 0)
-				.GroupBy(x => x.ResultCode.Id)
-				.ToDictionary(x => x.Key, x => x.ToList());
-
-			return codes;
-		}
+		private IDictionary<int, List<TrueMarkProductCode>> GetProductCodesHavingRequiredResultCodeIds(IEnumerable<int> resultCodeIds) =>
+			_productCodeRepository
+			.Get(_uow, x => resultCodeIds.Contains(x.ResultCode.Id))
+			.GroupBy(x => x.ResultCode.Id)
+			.ToDictionary(x => x.Key, x => x.ToList());
 
 		public EdoFiscalDocument UpdateUnmarkedFiscalDocument(ReceiptEdoTask receiptEdoTask)
 		{
