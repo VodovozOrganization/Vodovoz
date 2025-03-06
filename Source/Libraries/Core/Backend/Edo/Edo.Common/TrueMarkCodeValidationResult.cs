@@ -14,6 +14,11 @@ namespace Edo.Common
 			EdoTaskItem = edoTaskItem ?? throw new ArgumentNullException(nameof(edoTaskItem));
 		}
 
+		public TrueMarkCodeValidationResult(TrueMarkWaterIdentificationCode code)
+		{
+			Code = code ?? throw new ArgumentNullException(nameof(code));
+		}
+
 		public bool IsValid { get; set; } = true;
 		public bool ReadyToSell { get; set; } = true;
 		public TrueMarkWaterIdentificationCode Code { get; set; }
