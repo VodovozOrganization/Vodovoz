@@ -279,7 +279,7 @@ namespace VodovozBusiness.Services.TrueMark
 			RouteListItem routeListAddress,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			SourceProductCodeStatus status,
-			ProductCodeProblem problem = ProductCodeProblem.None) =>
+			ProductCodeProblem problem) =>
 			new RouteListItemTrueMarkProductCode()
 			{
 				CreationTime = DateTime.Now,
