@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using TrueMark.Library;
@@ -35,12 +36,14 @@ namespace Receipt.Dispatcher.Tests
 	public class CreateMarkedFiscalDocumentsTests
 	{
 		private GenericRepositoryFixture<TrueMarkWaterGroupCode> _waterGroupCodeRepository;
+		private GenericRepositoryFixture<TrueMarkProductCode> _productCodeRepository;
 		private ForOwnNeedsReceiptEdoTaskHandler _forOwnNeedsReceiptEdoTaskHandler;
 
 		public CreateMarkedFiscalDocumentsTests()
 		{
 			_waterGroupCodeRepository = new GenericRepositoryFixture<TrueMarkWaterGroupCode>();
-			_forOwnNeedsReceiptEdoTaskHandler = CreateForOwnNeedsReceiptEdoTaskHandlerFixture(_waterGroupCodeRepository);
+			_productCodeRepository = new GenericRepositoryFixture<TrueMarkProductCode>();
+			_forOwnNeedsReceiptEdoTaskHandler = CreateForOwnNeedsReceiptEdoTaskHandlerFixture(_waterGroupCodeRepository, _productCodeRepository);
 		}
 
 		[Fact]
@@ -389,7 +392,9 @@ namespace Receipt.Dispatcher.Tests
 			return orderItem;
 		}
 
-		private ForOwnNeedsReceiptEdoTaskHandler CreateForOwnNeedsReceiptEdoTaskHandlerFixture(IGenericRepository<TrueMarkWaterGroupCode> waterGroupCodeRepository)
+		private ForOwnNeedsReceiptEdoTaskHandler CreateForOwnNeedsReceiptEdoTaskHandlerFixture(
+			IGenericRepository<TrueMarkWaterGroupCode> waterGroupCodeRepository,
+			IGenericRepository<TrueMarkProductCode> productCodeRepository)
 		{
 			var logger = Substitute.For<ILogger<ForOwnNeedsReceiptEdoTaskHandler>>();
 			var unitOfWork = Substitute.For<IUnitOfWork>();
@@ -419,6 +424,7 @@ namespace Receipt.Dispatcher.Tests
 				trueMarkCodesPool,
 				tag1260Checker,
 				waterGroupCodeRepository,
+				productCodeRepository,
 				bus);
 		}
 

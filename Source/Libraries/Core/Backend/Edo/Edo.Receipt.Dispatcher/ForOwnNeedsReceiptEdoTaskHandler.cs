@@ -421,7 +421,7 @@ namespace Edo.Receipt.Dispatcher
 				{
 					existingProductCodesByIds.TryGetValue(productCode.ResultCode.Id, out var productCodesByResultCodeId);
 
-					if(productCodesByResultCodeId?.Any(x => x.Id != productCode.Id) == false)
+					if(productCodesByResultCodeId?.Any(x => x.Id != productCode.Id) != true)
 					{
 						return;
 					}
