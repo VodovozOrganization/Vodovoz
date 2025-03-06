@@ -406,7 +406,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 		}
 
-		private void CheckProductCodesForDuplicatesAndUpdateIfNeed(IEnumerable<TrueMarkProductCode> productCodes)
+		public void CheckProductCodesForDuplicatesAndUpdateIfNeed(IEnumerable<TrueMarkProductCode> productCodes)
 		{
 			var sourceAndResultCodesIds = productCodes.Select(x => x.SourceCode.Id)
 				.Concat(productCodes.Select(x => x.ResultCode.Id))
@@ -423,7 +423,7 @@ namespace Edo.Receipt.Dispatcher
 
 					if(productCodesByResultCodeId?.Any(x => x.Id != productCode.Id) != true)
 					{
-						return;
+						continue;
 					}
 
 					productCode.ResultCode = null;
@@ -444,10 +444,16 @@ namespace Edo.Receipt.Dispatcher
 
 		private IDictionary<int, List<TrueMarkProductCode>> GetProductCodesHavingRequiredResultCodeIds(IEnumerable<int> resultCodeIds)
 		{
-			return _productCodeRepository
-				.Get(_uow, x => resultCodeIds.Contains(x.ResultCode.Id))
+			var allCodes = _productCodeRepository
+				.Get(_uow, x => x.Id > 0, 0)
+				.ToList();
+
+			var codes = _productCodeRepository
+				.Get(_uow, x => resultCodeIds.Contains(x.ResultCode.Id), 0)
 				.GroupBy(x => x.ResultCode.Id)
 				.ToDictionary(x => x.Key, x => x.ToList());
+
+			return codes;
 		}
 
 		public EdoFiscalDocument UpdateUnmarkedFiscalDocument(ReceiptEdoTask receiptEdoTask)
