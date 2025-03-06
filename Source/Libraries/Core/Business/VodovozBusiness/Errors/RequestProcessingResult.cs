@@ -1,5 +1,8 @@
-﻿namespace Vodovoz.Errors
+﻿using System;
+
+namespace Vodovoz.Errors
 {
+	[Obsolete("Грубо нарушает принцип паттерна Result, не использовать")]
 	public class RequestProcessingResult
 	{
 		protected internal RequestProcessingResult() { }
