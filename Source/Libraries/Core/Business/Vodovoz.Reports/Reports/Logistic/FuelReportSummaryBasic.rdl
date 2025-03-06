@@ -577,12 +577,13 @@ fuel_transactions.transaction_date &gt;= @start_date AND fuel_transactions.trans
 AND ((0 IN (@include_car_models) OR (car_models.id IN (@include_car_models)))AND (car_models.id IS NULL OR NOT (car_models.id IN (@exclude_car_models))))
 GROUP BY car_models.car_type_of_use, car_versions.car_own_type, employees.category, fuel_transactions.product_id),
 
-fuel_documents_transactions_data AS (
-SELECT
+fuel_documents AS (
+	SELECT
 		cv.car_own_type as car_own_type,
 		cm.car_type_of_use as car_type_of_use,
+		if(e.category = 'office', 1, 0) as is_office_worker,
 	    0 as lites_by_fuel_write_off_document,
-	    fuel_documents.gived_fuel_limits_amount AS fuel_limit_liters_gived,
+	    IFNULL(fuel_documents.gived_fuel_limits_amount,0) AS fuel_limit_liters_gived,
 	    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
 	    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
 	    0 as fuel_received_quantity,
@@ -592,6 +593,7 @@ SELECT
 	FROM fuel_documents
 	LEFT JOIN fuel_operations AS gived_operation ON fuel_documents.fuel_operation_id = gived_operation.id
 	LEFT JOIN cars ON fuel_documents.car_id = cars.id
+	LEFT JOIN employees e ON gived_operation.driver_id = e.id
 	INNER JOIN car_models cm ON cars.model_id = cm.id
 	INNER JOIN
 	    car_versions cv ON cars.id = cv.car_id
@@ -604,10 +606,20 @@ SELECT
 	 			(0 IN (@include_car_models) OR (cm.id IN (@include_car_models)))
 					AND (cm.id IS NULL OR NOT (cm.id IN (@exclude_car_models)))
 			)
+),
+
+fuel_documents_transactions_data_drivers AS (
+	SELECT
+		* 
+	FROM
+		fuel_documents 
+	WHERE 
+		fuel_documents.is_office_worker = 0
 	UNION ALL 
 	SELECT 
 		fuel_transactions_info.car_own_type,
 		fuel_transactions_info.car_type_of_use,
+		0 as is_office_worker,
 		0 as lites_by_fuel_write_off_document,
     	0 AS fuel_limit_liters_gived,
     	0 AS payed_for_fuel,
@@ -619,9 +631,21 @@ SELECT
 	FROM fuel_transactions_info
 	WHERE 
 		fuel_transactions_info.driver_category IS NULL OR NOT fuel_transactions_info.driver_category = 'office'
+),
+
+fuel_documents_summary_office AS (
+	SELECT
+	    SUM(fuel_limit_liters_gived) AS fuel_limit_liters_gived,
+	    SUM(payed_for_fuel) AS payed_for_fuel,
+	    SUM(cashless_payed_for_fuel) AS cashless_payed_for_fuel,
+		SUM(fuel_received_quantity) as fuel_received_quantity
+	FROM
+		fuel_documents 
+	WHERE 
+		fuel_documents.is_office_worker = 1
 )
 
-SELECT * FROM
+SELECT * FROM 
 
 (SELECT
     CASE
@@ -644,7 +668,7 @@ SELECT * FROM
     '' as gazprom_product_name,
     1 as is_summary_info
 FROM
-fuel_documents_transactions_data
+fuel_documents_transactions_data_drivers
 GROUP BY
     car_own_type,
     (car_type_of_use = 'GAZelle' AND car_own_type = 'Company'),
@@ -672,7 +696,7 @@ SELECT
     gazprom_product_name as gazprom_product_name,
     0 as is_summary_info
 FROM
-fuel_documents_transactions_data
+fuel_documents_transactions_data_drivers
 GROUP BY
     car_own_type,
     (car_type_of_use = 'GAZelle' AND car_own_type = 'Company'),
@@ -685,9 +709,10 @@ ORDER BY
 
 UNION ALL
 
+#Суммарная информация по выданному и заправленному топливу
 SELECT
     'Сотрудники компании' AS car_type,
-    (SELECT SUM(IFNULL(fwdi.liters, 0))
+    IFNULL((SELECT SUM(IFNULL(fwdi.liters, 0))
 		FROM
 		    fuel_writeoff_documents fwd
 		    LEFT JOIN
@@ -702,17 +727,17 @@ SELECT
 		    fwd.date &gt;= @start_date
 		  	AND fwd.date &lt; @end_date
 		    AND ((0 IN (@include_car_models) OR (cm.id IN (@include_car_models))) AND (cm.id IS NULL OR NOT (cm.id IN (@exclude_car_models))))
-    ) as lites_by_fuel_write_off_document,
-    0 AS fuel_limit_liters_gived,
-    0 AS payed_for_fuel,
-    0 AS cashless_payed_for_fuel,
-	0 as fuel_received_quantity,
+    ),0) as lites_by_fuel_write_off_document,
+    IFNULL((SELECT fuel_limit_liters_gived FROM fuel_documents_summary_office),0) AS fuel_limit_liters_gived,
+    IFNULL((SELECT payed_for_fuel FROM fuel_documents_summary_office),0) AS payed_for_fuel,
+    IFNULL((SELECT cashless_payed_for_fuel FROM fuel_documents_summary_office),0) AS cashless_payed_for_fuel,
+	IFNULL((SELECT fuel_received_quantity FROM fuel_documents_summary_office),0) as fuel_received_quantity,
     IFNULL(
-    	(SELECT SUM(quantity) FROM fuel_transactions_info WHERE driver_category = 'office'),
+    	(SELECT SUM(quantity) FROM fuel_transactions_info WHERE driver_category != 'driver'),
     	0) as fuel_received_total_quantity,
 	0 as fuel_received_sum,
     IFNULL(
-    	(SELECT SUM(total_sum) FROM fuel_transactions_info WHERE driver_category = 'office'),
+    	(SELECT SUM(total_sum) FROM fuel_transactions_info WHERE driver_category != 'driver'),
     	0) as fuel_received_total_sum,
 	0 as gazprom_product_id,
     0 as gazprom_product_name,
@@ -720,6 +745,7 @@ SELECT
 
 UNION ALL
 
+#Детализация по заправленному топливу
 SELECT	
 	'Сотрудники компании' AS car_type,
     0 as lites_by_fuel_write_off_document,
@@ -737,7 +763,7 @@ FROM
 	fuel_transactions_info fti
 WHERE fti.driver_category = 'office'
 GROUP BY
-	fti.gazprom_product_id
+	fti.gazprom_product_id 
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
