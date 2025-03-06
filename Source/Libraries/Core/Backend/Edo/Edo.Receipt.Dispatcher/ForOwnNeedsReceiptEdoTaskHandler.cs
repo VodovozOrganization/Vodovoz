@@ -376,11 +376,7 @@ namespace Edo.Receipt.Dispatcher
 			var order = receiptEdoTask.OrderEdoRequest.Order;
 
 			//получаем продуктовые коды, но только те, в которые не входят консолидированные идентификационные коды
-			var receiptEdoTaskProductCodesWithoutConsolidated = receiptEdoTask.Items
-				.Select(x => x.ProductCode)
-				.Where(x => (x.ResultCode == null || (x.ResultCode.ParentWaterGroupCodeId == null && x.ResultCode.ParentWaterGroupCodeId == null))
-					&& (x.SourceCode.ParentWaterGroupCodeId == null && x.SourceCode.ParentWaterGroupCodeId == null))
-				.ToList();
+			var receiptEdoTaskProductCodesWithoutConsolidated = GetProductCodesWithoutConsolidatedIdentificationCodes(receiptEdoTask.Items);
 
 			//проверяем продуктовые коды на дубликаты, если дубли найдены, то меняем статус, проблему и устанавливаем кол-во дублей
 			CheckProductCodesForDuplicatesAndUpdateIfNeed(receiptEdoTaskProductCodesWithoutConsolidated);
@@ -404,6 +400,15 @@ namespace Edo.Receipt.Dispatcher
 			{
 				UpdateReceiptMoneyPositions(fiscalDocument);
 			}
+		}
+
+		public List<TrueMarkProductCode> GetProductCodesWithoutConsolidatedIdentificationCodes(IEnumerable<EdoTaskItem> edoTaskItems)
+		{
+			return edoTaskItems
+				.Select(x => x.ProductCode)
+				.Where(x => (x.ResultCode == null || (x.ResultCode.ParentWaterGroupCodeId == null && x.ResultCode.ParentWaterGroupCodeId == null))
+					&& (x.SourceCode.ParentWaterGroupCodeId == null && x.SourceCode.ParentWaterGroupCodeId == null))
+				.ToList();
 		}
 
 		public void CheckProductCodesForDuplicatesAndUpdateIfNeed(IEnumerable<TrueMarkProductCode> productCodes)
