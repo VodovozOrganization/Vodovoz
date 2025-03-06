@@ -1,9 +1,12 @@
-﻿using GeoCoderApi.Client.Extensions;
+using Edo.Common;
+using GeoCoderApi.Client.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using TrueMarkApi.Client;
 using Vodovoz.Application.BankStatements;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Options;
+using Vodovoz.Models.TrueMark;
 
 namespace Vodovoz.ViewModels
 {
@@ -14,6 +17,10 @@ namespace Vodovoz.ViewModels
 				.AddScoped<BankStatementHandler>()
 				.AddScoped<BankStatementParser>()
 				.AddGeoCoderClient()
+				.AddScoped<ITrueMarkApiClientFactory, TrueMarkApiClientFactory>()
+				.AddScoped(sp => sp.GetRequiredService<ITrueMarkApiClientFactory>().GetClient())
+				.AddScoped<ITrueMarkCodesValidator, TrueMarkTaskCodesValidator>()
+				.AddScoped<TrueMarkCodesChecker>()
 				.ConfigureOptions<ConfigureGeoCoderApiOptions>();
 	}
 }

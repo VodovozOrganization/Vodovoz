@@ -1,53 +1,66 @@
-﻿using Autofac;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using Gtk;
+using NLog;
+using QS.Dialog;
+using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
-using System;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Extensions;
+using Vodovoz.Factories;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
-using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan;
+using VodovozBusiness.Services.TrueMark;
 
 namespace Vodovoz
 {
-	public partial class SelfDeliveryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<SelfDeliveryDocument>
+	public partial class SelfDeliveryDocumentDlg : EntityDialogBase<SelfDeliveryDocument>
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private IEmployeeRepository _employeeRepository;
 		private IStockRepository _stockRepository;
 		private IBottlesRepository _bottlesRepository;
 		private IStoreDocumentHelper _storeDocumentHelper;
 		private INomenclatureRepository _nomenclatureRepository;
+		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
+		private ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
+		private CodesScanViewModel _codesScanViewModel;
+		private ValidationContext _validationContext;
 
 		private GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
@@ -55,10 +68,9 @@ namespace Vodovoz
 
 		public SelfDeliveryDocumentDlg()
 		{
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
 			ResolveDependencies();
 			Build();
-
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
 
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
@@ -87,9 +99,9 @@ namespace Vodovoz
 
 		public SelfDeliveryDocumentDlg(int id)
 		{
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
 			ResolveDependencies();
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
 			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
@@ -112,6 +124,14 @@ namespace Vodovoz
 			_bottlesRepository = _lifetimeScope.Resolve<IBottlesRepository>();
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
+			_trueMarkWaterCodeService = _lifetimeScope.Resolve<ITrueMarkWaterCodeService>
+				(new TypedParameter(typeof(IUnitOfWork), UoW)); 
+		}
+		
+		private void ConfigureValidationContext(IValidationContextFactory validationContextFactory)
+		{
+			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
+			_validationContext.ServiceContainer.AddService(typeof(IUnitOfWork), UoW);
 		}
 
 		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
@@ -170,7 +190,7 @@ namespace Vodovoz
 			IColumnsConfig goodsColumnsConfig = FluentColumnsConfig<GoodsReceptionVMNode>.Create()
 				.AddColumn("Номенклатура").AddTextRenderer(node => node.Name)
 				.AddColumn("Кол-во").AddNumericRenderer(node => node.Amount)
-				.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
+				.Adjustment(new Adjustment(0, 0, 9999, 1, 100, 0))
 				.Editing(true)
 				.AddColumn("Ожидаемое кол-во").AddNumericRenderer(node => node.ExpectedAmount)
 				.AddColumn("Категория").AddTextRenderer(node => node.Category.GetEnumTitle())
@@ -241,6 +261,35 @@ namespace Vodovoz
 
 			spnTareToReturn.ValueChanged += (sender, e) => HasChanges = true;
 			GoodsReceptionList.ListContentChanged += (sender, e) => HasChanges = true;
+			
+			ybuttonScanCodes.Clicked +=	OnYbuttonScanCodesOnClicked;
+
+			ConfigureValidationContext(_validationContextFactory);
+		}
+
+		private void OnYbuttonScanCodesOnClicked(object sender, EventArgs e)
+		{
+			if(Entity?.Order?.Client is null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Не выбран контрагент.");
+
+				return;
+			}
+
+			var allowedReasonsForLeaving = new[] { ReasonForLeaving.ForOwnNeeds, ReasonForLeaving.Resale };
+
+			if(!allowedReasonsForLeaving.Contains(Entity.Order.Client.ReasonForLeaving))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error,
+					$"У контрагента выбрана неподходящая причина выбытия. Допустимы только:" +
+					$"{string.Join(", ", allowedReasonsForLeaving.Select(x => x.GetEnumDisplayName()))}");
+
+				return;
+			}
+			
+			_codesScanViewModel = NavigationManager
+				.OpenViewModel<CodesScanViewModel, IUnitOfWork, SelfDeliveryDocument, ITrueMarkWaterCodeService>(
+					null, UoW, Entity, _trueMarkWaterCodeService).ViewModel;
 		}
 
 		private void FillTrees()
@@ -277,7 +326,14 @@ namespace Vodovoz
 				return false;
 
 			var validator = ServicesConfig.ValidationService;
-			if(!validator.Validate(Entity))
+			if(!validator.Validate(Entity, _validationContext))
+			{
+				return false;
+			}
+
+			if(Entity.Order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
+			   && (!_codesScanViewModel?.IsAllCodesScanned ?? false)
+			   && !_interactiveService.Question("Не все коды отсканированы. Уверены, что хотите сохранить отпуск самовывоза?"))
 			{
 				return false;
 			}
@@ -304,6 +360,12 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 			}
 
+			var edoRequest = _codesScanViewModel?.CreateEdoRequest(UoW, Entity.Order);
+			if(edoRequest != null)
+			{
+				_codesScanViewModel.SendEdoRequestCreatedEvent(edoRequest);
+			}
+			
 			logger.Info("Сохраняем документ самовывоза...");
 			UoWGeneric.Save();
 			//FIXME Необходимо проверить правильность этого кода, так как если заказ именялся то уведомление на его придет и без кода.
@@ -427,6 +489,8 @@ namespace Vodovoz
 			_nomenclatureRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
+			_codesScanViewModel = null;
+			ybuttonScanCodes.Clicked -=	OnYbuttonScanCodesOnClicked;
 			base.Destroy();
 		}
 	}

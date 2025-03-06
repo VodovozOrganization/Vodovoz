@@ -88,7 +88,7 @@ namespace Vodovoz.Views.Documents
 			this.ybuttonOk.Name = "ybuttonOk";
 			this.ybuttonOk.UseUnderline = true;
 			this.ybuttonOk.FocusOnClick = false;
-			this.ybuttonOk.Label = global::Mono.Unix.Catalog.GetString("Ok");
+			this.ybuttonOk.Label = global::Mono.Unix.Catalog.GetString("Завершить сканирование");
 			this.yhboxButtons.Add(this.ybuttonOk);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonOk]));
 			w7.Position = 0;

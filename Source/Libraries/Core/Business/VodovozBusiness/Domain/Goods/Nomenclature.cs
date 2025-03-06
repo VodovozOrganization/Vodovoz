@@ -62,6 +62,7 @@ namespace Vodovoz.Domain.Goods
 		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse =
 			new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
 		private IObservableList<Gtin> _gtins = new ObservableList<Gtin>();
+		private IObservableList<GroupGtin> _groupGtins = new ObservableList<GroupGtin>();
 
 		private NomenclatureCategory _category;
 
@@ -324,6 +325,16 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _gtins;
 			set => SetField(ref _gtins, value);
+		}
+
+		/// <summary>
+		/// Gtin группы
+		/// </summary>
+		[Display(Name = "Gtin группы")]
+		public virtual new IObservableList<GroupGtin> GroupGtins
+		{
+			get => _groupGtins;
+			set => SetField(ref _groupGtins, value);
 		}
 
 		/// <summary>
