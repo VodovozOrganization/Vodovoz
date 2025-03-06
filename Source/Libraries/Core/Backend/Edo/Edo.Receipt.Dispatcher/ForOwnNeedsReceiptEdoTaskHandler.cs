@@ -409,7 +409,7 @@ namespace Edo.Receipt.Dispatcher
 		public void CheckProductCodesForDuplicatesAndUpdateIfNeed(IEnumerable<TrueMarkProductCode> productCodes)
 		{
 			var sourceAndResultCodesIds = productCodes.Select(x => x.SourceCode.Id)
-				.Concat(productCodes.Select(x => x.ResultCode.Id))
+				.Concat(productCodes.Where(x => x.ResultCode != null).Select(x => x.ResultCode.Id))
 				.Distinct()
 				.ToList();
 
