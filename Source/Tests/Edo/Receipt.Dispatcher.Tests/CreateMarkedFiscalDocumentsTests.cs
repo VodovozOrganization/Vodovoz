@@ -495,9 +495,9 @@ namespace Receipt.Dispatcher.Tests
 			// Arrange
 			var productCodes = new List<TrueMarkProductCode>
 			{
-				new RouteListItemTrueMarkProductCode { Id = 1, SourceCode = new TrueMarkWaterIdentificationCode { Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11} },
-				new RouteListItemTrueMarkProductCode { Id = 2, SourceCode = new TrueMarkWaterIdentificationCode { Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 12} },
-				new RouteListItemTrueMarkProductCode { Id = 3, SourceCode = new TrueMarkWaterIdentificationCode { Id = 13 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11} },
+				new RouteListItemTrueMarkProductCode { Id = 1, SourceCode = new TrueMarkWaterIdentificationCode { Id = 11 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11 } },
+				new RouteListItemTrueMarkProductCode { Id = 2, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 11 } },
+				new RouteListItemTrueMarkProductCode { Id = 3, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 12 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11 } }
 			};
 
 			var mockWaterGroupCodeRepository = Substitute.For<IGenericRepository<TrueMarkWaterGroupCode>>();
@@ -507,9 +507,9 @@ namespace Receipt.Dispatcher.Tests
 				.Get(Arg.Any<IUnitOfWork>(), Arg.Any<Expression<Func<TrueMarkProductCode, bool>>>(), Arg.Any<int>())
 				.Returns(new List<TrueMarkProductCode>()
 				{
-					new RouteListItemTrueMarkProductCode { Id = 4, SourceCode = new TrueMarkWaterIdentificationCode { Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11} },
-					new RouteListItemTrueMarkProductCode { Id = 5, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 10}, ResultCode = new TrueMarkWaterIdentificationCode{Id = 12}},
-					new RouteListItemTrueMarkProductCode { Id = 6, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 13}, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11}},
+					new RouteListItemTrueMarkProductCode { Id = 11, SourceCode = new TrueMarkWaterIdentificationCode { Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{ Id = 11 } },
+					new RouteListItemTrueMarkProductCode { Id = 12, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{ Id = 12 } },
+					new RouteListItemTrueMarkProductCode { Id = 13, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 13 }, ResultCode = new TrueMarkWaterIdentificationCode{ Id = 11 } }
 				});
 
 
@@ -521,16 +521,18 @@ namespace Receipt.Dispatcher.Tests
 			// Assert
 			Assert.Equal(SourceProductCodeStatus.Problem, productCodes[0].SourceCodeStatus);
 			Assert.Equal(ProductCodeProblem.Duplicate, productCodes[0].Problem);
-			Assert.Equal(1, productCodes[0].DuplicatesCount);
+			Assert.Equal(2, productCodes[0].DuplicatesCount);
 			Assert.Null(productCodes[0].ResultCode);
 
-			Assert.Null(productCodes[1].ResultCode);
-			Assert.Equal(1, productCodes[1].DuplicatesCount);
 			Assert.Equal(SourceProductCodeStatus.Problem, productCodes[1].SourceCodeStatus);
+			Assert.Equal(ProductCodeProblem.Duplicate, productCodes[1].Problem);
+			Assert.Equal(2, productCodes[1].DuplicatesCount);
+			Assert.Null(productCodes[1].ResultCode);
 
-			Assert.Null(productCodes[2].ResultCode);
-			Assert.Equal(1, productCodes[2].DuplicatesCount);
 			Assert.Equal(SourceProductCodeStatus.Problem, productCodes[2].SourceCodeStatus);
+			Assert.Equal(ProductCodeProblem.Duplicate, productCodes[2].Problem);
+			Assert.Equal(1, productCodes[2].DuplicatesCount);
+			Assert.Null(productCodes[2].ResultCode);
 		}
 
 		[Fact]
@@ -540,7 +542,8 @@ namespace Receipt.Dispatcher.Tests
 			var productCodes = new List<TrueMarkProductCode>
 			{
 				new RouteListItemTrueMarkProductCode { Id = 1, SourceCode = new TrueMarkWaterIdentificationCode { Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11} },
-				new RouteListItemTrueMarkProductCode { Id = 2, SourceCode = new TrueMarkWaterIdentificationCode { Id = 12 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 13} },
+				new RouteListItemTrueMarkProductCode { Id = 2, SourceCode = new TrueMarkWaterIdentificationCode { Id = 12 } },
+				new RouteListItemTrueMarkProductCode { Id = 3, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 13 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 13 } },
 			};
 
 			var mockWaterGroupCodeRepository = Substitute.For<IGenericRepository<TrueMarkWaterGroupCode>>();
@@ -548,7 +551,12 @@ namespace Receipt.Dispatcher.Tests
 
 			mockProductCodeRepository
 				.Get(Arg.Any<IUnitOfWork>(), Arg.Any<Expression<Func<TrueMarkProductCode, bool>>>(), Arg.Any<int>())
-				.Returns(new List<TrueMarkProductCode>());
+				.Returns(new List<TrueMarkProductCode>()
+				{
+					new RouteListItemTrueMarkProductCode { Id = 1, SourceCode = new TrueMarkWaterIdentificationCode { Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11} },
+					new RouteListItemTrueMarkProductCode { Id = 12, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{ Id = 14 } },
+					new RouteListItemTrueMarkProductCode { Id = 13, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 13 }, ResultCode = new TrueMarkWaterIdentificationCode{ Id = 15 } }
+				});
 
 			var handler = CreateForOwnNeedsReceiptEdoTaskHandlerFixture(mockWaterGroupCodeRepository, mockProductCodeRepository);
 
@@ -556,8 +564,69 @@ namespace Receipt.Dispatcher.Tests
 			handler.CheckProductCodesForDuplicatesAndUpdateIfNeed(productCodes);
 
 			// Assert
+			Assert.Equal(SourceProductCodeStatus.New, productCodes[0].SourceCodeStatus);
+			Assert.Equal(ProductCodeProblem.None, productCodes[0].Problem);
+			Assert.Equal(0, productCodes[0].DuplicatesCount);
+			Assert.NotNull(productCodes[0].ResultCode);
+
+			Assert.Equal(SourceProductCodeStatus.New, productCodes[1].SourceCodeStatus);
+			Assert.Equal(ProductCodeProblem.None, productCodes[1].Problem);
 			Assert.Equal(0, productCodes[1].DuplicatesCount);
-			Assert.Equal(13, productCodes[1].ResultCode.Id);
+			Assert.Null(productCodes[1].ResultCode);
+
+			Assert.Equal(SourceProductCodeStatus.New, productCodes[2].SourceCodeStatus);
+			Assert.Equal(ProductCodeProblem.None, productCodes[2].Problem);
+			Assert.Equal(0, productCodes[2].DuplicatesCount);
+			Assert.NotNull(productCodes[2].ResultCode);
+		}
+
+		[Fact]
+		public void GetProductCodesWithoutConsolidatedIdentificationCodes_ShouldReturnProductCodes_WhichNotContainsConsolidatedIdentificationCodes()
+		{
+			// Arrange
+			var edoTaskItems = new List<EdoTaskItem>
+			{
+				new()
+				{
+					ProductCode = new RouteListItemTrueMarkProductCode
+					{
+						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = 1 },
+						ResultCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = 2 }
+					}
+				},
+				new()
+				{
+					ProductCode = new RouteListItemTrueMarkProductCode
+					{
+						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null },
+						ResultCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null }
+					}
+				},
+				new()
+				{
+					ProductCode = new RouteListItemTrueMarkProductCode
+					{
+						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null },
+						ResultCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = 3 }
+					}
+				},
+				new()
+				{
+					ProductCode = new RouteListItemTrueMarkProductCode
+					{
+						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null },
+						ResultCode = null
+					}
+				},
+			};
+
+			// Act
+			var result = _forOwnNeedsReceiptEdoTaskHandler.GetProductCodesWithoutConsolidatedIdentificationCodes(edoTaskItems);
+
+			// Assert
+			Assert.Equal(2, result.Count);
+			Assert.Contains(result, x => x.Id == edoTaskItems[1].ProductCode.Id);
+			Assert.Contains(result, x => x.Id == edoTaskItems[3].ProductCode.Id);
 		}
 	}
 }
