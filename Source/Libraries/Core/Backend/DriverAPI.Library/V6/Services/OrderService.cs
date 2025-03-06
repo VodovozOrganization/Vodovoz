@@ -653,6 +653,7 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
+		[Obsolete("При добавлении поддержки групповых и транспортных кодов заменить устаревший вариант получения кода ЧЗ")]
 		private void AddProductCodeToRouteListItem(
 			RouteListItem routeListAddress,
 			ITrueMarkOrderItemScannedInfo scannedItem,
@@ -665,7 +666,10 @@ namespace DriverAPI.Library.V6.Services
 
 			_uow.Save(trueMarkWaterIdentificationCode);
 
-			if(routeListAddress.TrueMarkCodes.Any(x => x.SourceCode.RawCode == trueMarkWaterIdentificationCode.RawCode))
+			if(routeListAddress.TrueMarkCodes.Any(x =>
+				x.SourceCode.GTIN == trueMarkWaterIdentificationCode.GTIN
+				&& x.SourceCode.SerialNumber == trueMarkWaterIdentificationCode.SerialNumber
+				&& x.SourceCode.CheckCode == trueMarkWaterIdentificationCode.CheckCode))
 			{
 				return;
 			}
