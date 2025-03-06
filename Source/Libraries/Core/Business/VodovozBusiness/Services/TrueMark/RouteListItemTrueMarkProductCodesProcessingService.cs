@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -60,7 +59,8 @@ namespace VodovozBusiness.Services.TrueMark
 				routeListAddress,
 				vodovozOrderItem.Id,
 				trueMarkWaterIdentificationCode,
-				status);
+				status,
+				ProductCodeProblem.None);
 
 			uow.Save(routeListAddress);
 
@@ -72,12 +72,14 @@ namespace VodovozBusiness.Services.TrueMark
 			RouteListItem routeListAddress,
 			int vodovozOrderItemId,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
-			SourceProductCodeStatus status)
+			SourceProductCodeStatus status,
+			ProductCodeProblem problem)
 		{
 			var productCode = CreateRouteListItemTrueMarkProductCode(
 				routeListAddress,
 				trueMarkWaterIdentificationCode,
-				status);
+				status,
+				problem);
 
 			routeListAddress.TrueMarkCodes.Add(productCode);
 			uow.Save(productCode);
@@ -276,14 +278,16 @@ namespace VodovozBusiness.Services.TrueMark
 		private RouteListItemTrueMarkProductCode CreateRouteListItemTrueMarkProductCode(
 			RouteListItem routeListAddress,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
-			SourceProductCodeStatus status) =>
+			SourceProductCodeStatus status,
+			ProductCodeProblem problem = ProductCodeProblem.None) =>
 			new RouteListItemTrueMarkProductCode()
 			{
 				CreationTime = DateTime.Now,
 				SourceCodeStatus = status,
 				SourceCode = trueMarkWaterIdentificationCode,
 				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkWaterIdentificationCode : default,
-				RouteListItem = routeListAddress
+				RouteListItem = routeListAddress,
+				Problem = problem
 			};
 	}
 }
