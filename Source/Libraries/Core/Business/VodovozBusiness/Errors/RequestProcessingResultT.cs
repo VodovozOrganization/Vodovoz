@@ -2,6 +2,7 @@
 
 namespace Vodovoz.Errors
 {
+	[Obsolete("Грубо нарушает принцип паттерна Result, не использовать")]
 	public class RequestProcessingResult<TValue> : RequestProcessingResult
 	{
 		private readonly Result<TValue> _result;
