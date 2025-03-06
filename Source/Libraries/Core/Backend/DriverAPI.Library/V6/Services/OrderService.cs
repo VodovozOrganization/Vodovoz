@@ -635,37 +635,52 @@ namespace DriverAPI.Library.V6.Services
 			IDriverOrderShipmentInfo completeOrderInfo,
 			RouteListItem routeListAddress)
 		{
-			var bottleCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.BottleCodes).ToList();
-			var defectiveBottleCodes = completeOrderInfo.ScannedItems.SelectMany(x => x.DefectiveBottleCodes).ToList();
-
-			var scannedCodes = bottleCodes.Concat(defectiveBottleCodes).ToList();
-
 			routeListAddress.UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason;
 
 			foreach(var scannedItem in completeOrderInfo.ScannedItems)
 			{
-				foreach(var scannedCode in scannedCodes)
+				foreach(var scannedCode in scannedItem.BottleCodes)
 				{
-					var trueMarkWaterIdentificationCode =
-						_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
+					AddProductCodeToRouteListItem(routeListAddress, scannedItem, scannedCode, SourceProductCodeStatus.New, ProductCodeProblem.None);
+				}
 
-					_uow.Save(trueMarkWaterIdentificationCode);
-
-					if(routeListAddress.TrueMarkCodes.Any(x => x.SourceCode.RawCode == trueMarkWaterIdentificationCode.RawCode))
-					{
-						continue;
-					}
-
-					_routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItem(
-						_uow,
-						routeListAddress,
-						scannedItem.OrderSaleItemId,
-						trueMarkWaterIdentificationCode,
-						SourceProductCodeStatus.New);
+				foreach(var defectiveBottleCode in scannedItem.DefectiveBottleCodes)
+				{
+					AddProductCodeToRouteListItem(routeListAddress, scannedItem, defectiveBottleCode, SourceProductCodeStatus.Problem, ProductCodeProblem.Defect);
 				}
 			}
 
 			return Result.Success();
+		}
+
+		[Obsolete("При добавлении поддержки групповых и транспортных кодов заменить устаревший вариант получения кода ЧЗ")]
+		private void AddProductCodeToRouteListItem(
+			RouteListItem routeListAddress,
+			ITrueMarkOrderItemScannedInfo scannedItem,
+			string scannedCode,
+			SourceProductCodeStatus status,
+			ProductCodeProblem problem)
+		{
+			var trueMarkWaterIdentificationCode =
+				_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(_uow, scannedCode);
+
+			_uow.Save(trueMarkWaterIdentificationCode);
+
+			if(routeListAddress.TrueMarkCodes.Any(x =>
+				x.SourceCode.GTIN == trueMarkWaterIdentificationCode.GTIN
+				&& x.SourceCode.SerialNumber == trueMarkWaterIdentificationCode.SerialNumber
+				&& x.SourceCode.CheckCode == trueMarkWaterIdentificationCode.CheckCode))
+			{
+				return;
+			}
+
+			_routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItem(
+				_uow,
+				routeListAddress,
+				scannedItem.OrderSaleItemId,
+				trueMarkWaterIdentificationCode,
+				status,
+				problem);
 		}
 
 		private Result ProcessResaleOrderScannedCodes(RouteListItem routeListAddress)
