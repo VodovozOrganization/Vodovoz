@@ -3,7 +3,7 @@
 	public partial class CodesScanViewModel
 	{
 		/// <summary>
-		/// Gtin номенклытуры
+		/// Gtin номенклатуры
 		/// </summary>
 		public class GtinFromNomenclatureDto
 		{

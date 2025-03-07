@@ -88,7 +88,7 @@ namespace Edo.Common
 				if(!checkResults.TryGetValue(code.IdentificationCode, out var checkResult))
 				{
 					throw new InvalidOperationException($"Не найден код {code.IdentificationCode} " +
-					                                    $"из задачи {edoTask.Id} в результатах проверки из ЧЗ.");
+					    $"из задачи {edoTask.Id} в результатах проверки из ЧЗ.");
 				}
 				
 				var codeResult = new TrueMarkCodeValidationResult(code, taskItem);

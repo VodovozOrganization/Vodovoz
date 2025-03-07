@@ -27,10 +27,6 @@ namespace Vodovoz.Views.Documents
 
 		private void ConfigureView()
 		{
-			ylabelCode.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.ProgressInfo, w => w.Text)
-				.InitializeFromSource();
-
 			yentryCode.FocusOutEvent += OnYentryCodeOnFocusOutEvent;
 
 			yentryCode.TextInserted += OnYentryCodeOnTextInserted;
@@ -42,13 +38,13 @@ namespace Vodovoz.Views.Documents
 						? $"{n.RowNumber} ╗"
 						: n.Parent != null
 							? "╠"
-							: $"{n.RowNumber}. ")
+							: $"{n.RowNumber}.   ")
 				.XAlign(1)
 				.AddColumn("Код")
 				.AddTextRenderer(n => n.CodeNumber)
 				.AddSetter((c, n) =>
 					c.CellBackgroundGdk = n.Children.Any() ? _colorAggregate : _colorBase)
-				.AddColumn("Наименование")
+				.AddColumn("Номенклатура")
 				.AddTextRenderer(n => n.NomenclatureName)
 				.WrapMode(WrapMode.Word).WrapWidth(400)
 				.AddColumn("Наличие в заказе")
@@ -74,6 +70,22 @@ namespace Vodovoz.Views.Documents
 				new RecursiveTreeModel<CodesScanViewModel.CodeScanRow>(ViewModel.CodeScanRows, x => x.Parent,
 					x => x.Children);
 
+			ytreeviewProgress.ColumnsConfig = FluentColumnsConfig<CodesScanViewModel.CodesScanProgressRow>.Create()
+				.AddColumn("GTIN")
+				.AddTextRenderer(n => n.Gtin)
+				.AddColumn("Номенклатура")
+				.AddTextRenderer(n => n.NomenclatureName)
+				.WrapMode(WrapMode.Word).WrapWidth(400)
+				.AddColumn("Осталось отсканировать")
+				.AddNumericRenderer(n => n.LeftToScan)
+				.AddSetter((c, n) => c.CellBackgroundGdk = n.LeftToScan == 0 ?  _colorGreen : _colorBase)
+				.AddColumn("В самовывозе")
+				.AddNumericRenderer(n => n.InSelfDelivery)
+				.AddColumn("")
+				.Finish();
+
+			ytreeviewProgress.ItemsDataSource = ViewModel.CodesScanProgressRows;
+			
 			ybuttonOk.Binding.AddBinding(ViewModel, vm => vm.IsAllCodesScanned, w => w.Sensitive).InitializeFromSource();
 			ybuttonOk.BindCommand(ViewModel.CloseCommand);
 
@@ -86,6 +98,7 @@ namespace Vodovoz.Views.Documents
 			{
 				treeViewCodes.YTreeModel?.EmitModelChanged();
 				treeViewCodes.ExpandAll();
+				ytreeviewProgress.YTreeModel?.EmitModelChanged();
 			}
 			catch(Exception e)
 			{
