@@ -10,6 +10,7 @@ indent_size = 4
 insert_final_newline = true
 tab_width = 4
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
+dotnet_diagnostic.CA2254.severity = warning
 
 [*.rdl]
 indent_style = space

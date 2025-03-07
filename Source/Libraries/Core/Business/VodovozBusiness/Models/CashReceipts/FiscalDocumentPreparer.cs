@@ -90,10 +90,7 @@ namespace Vodovoz.Models.CashReceipts
 					.Where(x => x.OrderItem.Id == orderItem.Id)
 					.ToList();
 
-				if(orderItemsCodes.Any(x => string.IsNullOrWhiteSpace(x.ResultCode.RawCode)))
-				{
-					throw new TrueMarkException(_notValidRawCode);
-				}
+				CheckCodes(orderItemsCodes);
 
 				if(orderItemsCodes.Count < orderItem.Count)
 				{
@@ -200,10 +197,7 @@ namespace Vodovoz.Models.CashReceipts
 				var orderItemsCodes =
 					new Queue<CashReceiptProductCode>(cashReceipt.ScannedCodes.Where(x => x.OrderItem.Id == orderItem.Id));
 
-				if(orderItemsCodes.Any(x => string.IsNullOrWhiteSpace(x.ResultCode.RawCode)))
-				{
-					throw new TrueMarkException(_notValidRawCode);
-				}
+				CheckCodes(orderItemsCodes);
 
 				if(orderItem.Count == 1)
 				{
@@ -250,6 +244,27 @@ namespace Vodovoz.Models.CashReceipts
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += inventPosition.PriceWithoutDiscount - discount;
 					unprocessedCodesCount -= 1;
+				}
+			}
+		}
+
+		private void CheckCodes(IEnumerable<CashReceiptProductCode> productCodes)
+		{
+			foreach(var productCode in productCodes)
+			{
+				if(string.IsNullOrWhiteSpace(productCode.ResultCode.RawCode))
+				{
+					throw new TrueMarkException(_notValidRawCode);
+				}
+				
+				if(productCode.IsDuplicateSourceCode)
+				{
+					throw new TrueMarkException("В чеке содержатся использованные коды");
+				}
+				
+				if(!productCode.ResultCode.IsTag1260Valid)
+				{
+					throw new TrueMarkException("В чеке содержатся коды, не прошедшие разрешительный режим(тэг 1260)");
 				}
 			}
 		}

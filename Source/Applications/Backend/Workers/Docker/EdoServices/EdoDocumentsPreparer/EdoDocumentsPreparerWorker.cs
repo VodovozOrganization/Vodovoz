@@ -152,12 +152,10 @@ namespace EdoDocumentsPreparer
 						organizationId,
 						_deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
 
-				//Пока комментим функционал по таскам и возвращаем в строй старую логику.
-				//До запуска обновленного водительского
-				/*var bulkAccountingEdoTasks =
+				var bulkAccountingEdoTasks =
 					uow.GetAll<BulkAccountingEdoTask>()
 						.Where(x => x.Status == EdoTaskStatus.New)
-						.ToList();*/
+						.ToList();
 
 				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен
 				var filteredOrdersDictionary = orders
@@ -166,17 +164,17 @@ namespace EdoDocumentsPreparer
 						x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD))
 					.ToDictionary(x => x.Id);
 				
-				/*_logger.LogInformation(
+				_logger.LogInformation(
 					"Всего задач для формирования {Document} и отправки: {BulkAccountingEdoTasksCount}",
 					document,
-					bulkAccountingEdoTasks.Count);*/
+					bulkAccountingEdoTasks.Count);
 
 				_logger.LogInformation(
 					"Всего заказов для формирования {Document} и отправки: {FilteredOrdersCount}",
 					document,
 					filteredOrdersDictionary.Count);
 
-				/*var i = 0;
+				var i = 0;
 
 				_logger.LogInformation("Обрабатываем новые отправки по таскам");
 				while(i < bulkAccountingEdoTasks.Count)
@@ -213,7 +211,12 @@ namespace EdoDocumentsPreparer
 						order.Id);
 					await GenerateUpdAndSendMessage(uow, order, document, bulkAccountingEdoTasks[i]);
 					bulkAccountingEdoTasks.RemoveAt(i);
-				}*/
+					filteredOrdersDictionary.Remove(orderEntity.Id);
+				}
+				
+				_logger.LogInformation("Обрабатываем оставшиеся заказы для формирования {Document} без тасок. Всего {FilteredOrdersCount}",
+					document,
+					filteredOrdersDictionary.Count);
 
 				foreach(var keyPairValue in filteredOrdersDictionary)
 				{
