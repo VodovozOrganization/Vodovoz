@@ -174,6 +174,11 @@ namespace WarehouseApi.Library.Services
 
 							var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
 
+							if(codeToAddInfo is null)
+							{
+								continue;
+							}
+
 							var trueMarkCodes = new List<TrueMarkCodeDto>();
 
 							var allCodes = parentCode.Match(
