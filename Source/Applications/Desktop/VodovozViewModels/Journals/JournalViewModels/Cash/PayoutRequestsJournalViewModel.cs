@@ -503,14 +503,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			if(FilterViewModel != null)
 			{
-				if(FilterViewModel.StartDate.HasValue)
+				var startDate = FilterViewModel.StartDate;
+				var endDate = FilterViewModel.EndDate;
+				
+				if(startDate.HasValue)
 				{
-					result.Where(() => cashRequestAlias.Date >= FilterViewModel.StartDate.Value.Date);
+					result.Where(() => cashRequestAlias.Date >= startDate.Value.Date);
 				}
 
-				if(FilterViewModel.EndDate.HasValue)
+				if(endDate.HasValue)
 				{
-					result.Where(() => cashRequestAlias.Date < FilterViewModel.EndDate.Value.Date.AddDays(1));
+					result.Where(() => cashRequestAlias.Date < endDate.Value.Date.AddDays(1));
 				}
 
 				if(FilterViewModel.Author != null)
