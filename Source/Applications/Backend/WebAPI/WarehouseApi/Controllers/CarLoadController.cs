@@ -77,7 +77,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -106,7 +106,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -140,7 +140,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -181,7 +181,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -213,7 +213,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -232,7 +232,7 @@ namespace WarehouseApi.Controllers
 			return new ObjectResult(processingResult.FailureData);
 		}
 
-		private IActionResult GetProblemResult(string exceptionMessage = null)
+		private static IActionResult GetProblemResult(string exceptionMessage = null)
 		{
 			var response = new WarehouseApiResponseBase
 			{
@@ -246,7 +246,7 @@ namespace WarehouseApi.Controllers
 			};
 		}
 
-		private int GetStatusCode(Result result)
+		private static int GetStatusCode(Result result)
 		{
 			if(result.IsSuccess)
 			{

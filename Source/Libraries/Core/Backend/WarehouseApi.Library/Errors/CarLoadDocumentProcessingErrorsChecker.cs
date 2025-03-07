@@ -262,14 +262,20 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtin);
+			result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtins.Select(x => x.GtinNumber));
 
 			if(result.IsFailure)
 			{
 				return result;
 			}
 
-			return await IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
+			if(trueMarkWaterCode.ParentTransportCodeId == null
+				&& trueMarkWaterCode.ParentTransportCodeId == null)
+			{
+				return await IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
+			}
+
+			return Result.Success();
 		}
 
 		public async Task<Result> IsTrueMarkCodeCanBeChanged(
@@ -455,7 +461,7 @@ namespace WarehouseApi.Library.Errors
 
 		private Result IsTrueMarkCodeNotUsedAndHasRequiredGtin(
 			TrueMarkWaterIdentificationCode trueMarkWaterCode,
-			string nomenclatureGtin)
+			IEnumerable<string> nomenclatureGtins)
 		{
 			var result = IsTrueMarkCodeNotUsed(trueMarkWaterCode);
 
@@ -464,12 +470,12 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			return IsTrueMarkCodeGtinsEqualsNomenclatureGtin(trueMarkWaterCode, nomenclatureGtin);
+			return IsTrueMarkCodeGtinsEqualsNomenclatureGtin(trueMarkWaterCode, nomenclatureGtins);
 		}
 
-		private Result IsTrueMarkCodeGtinsEqualsNomenclatureGtin(TrueMarkWaterIdentificationCode trueMarkWaterCode, string nomenclatureGtin)
+		private Result IsTrueMarkCodeGtinsEqualsNomenclatureGtin(TrueMarkWaterIdentificationCode trueMarkWaterCode, IEnumerable<string> nomenclatureGtins)
 		{
-			if(trueMarkWaterCode.GTIN != nomenclatureGtin)
+			if(!nomenclatureGtins.Contains(trueMarkWaterCode.GTIN))
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(trueMarkWaterCode.RawCode);
 				LogError(error);

@@ -28,7 +28,6 @@ namespace WarehouseApi.Contracts.Requests
 		/// <summary>
 		/// Новый код маркировки ЧЗ
 		/// </summary>
-		[Required]
 		public string NewCode { get; set; }
 	}
 }
