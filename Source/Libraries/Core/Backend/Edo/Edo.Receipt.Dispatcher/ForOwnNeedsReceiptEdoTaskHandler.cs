@@ -44,6 +44,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly Tag1260Checker _tag1260Checker;
 		private readonly IGenericRepository<TrueMarkWaterGroupCode> _waterGroupCodeRepository;
+		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
 		private readonly EdoTaskValidator _edoTaskValidator;
@@ -63,6 +64,7 @@ namespace Edo.Receipt.Dispatcher
 			TrueMarkCodesPool trueMarkCodesPool,
 			Tag1260Checker tag1260Checker,
 			IGenericRepository<TrueMarkWaterGroupCode> waterGroupCodeRepository,
+			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			IBus messageBus
 			)
 		{
@@ -78,6 +80,7 @@ namespace Edo.Receipt.Dispatcher
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
 			_waterGroupCodeRepository = waterGroupCodeRepository ?? throw new ArgumentNullException(nameof(waterGroupCodeRepository));
+			_productCodeRepository = productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -372,6 +375,12 @@ namespace Edo.Receipt.Dispatcher
 		{
 			var order = receiptEdoTask.OrderEdoRequest.Order;
 
+			//получаем продуктовые коды, но только те, в которые не входят консолидированные идентификационные коды
+			var receiptEdoTaskProductCodesWithoutConsolidated = GetProductCodesWithoutConsolidatedIdentificationCodes(receiptEdoTask.Items);
+
+			//проверяем продуктовые коды на дубликаты, если дубли найдены, то меняем статус, проблему и устанавливаем кол-во дублей
+			CheckProductCodesForDuplicatesAndUpdateIfNeed(receiptEdoTaskProductCodesWithoutConsolidated);
+
 			//создать или обновить немаркированные позиции
 			var mainFiscalDocument = UpdateUnmarkedFiscalDocument(receiptEdoTask);
 
@@ -392,6 +401,57 @@ namespace Edo.Receipt.Dispatcher
 				UpdateReceiptMoneyPositions(fiscalDocument);
 			}
 		}
+
+		public List<TrueMarkProductCode> GetProductCodesWithoutConsolidatedIdentificationCodes(IEnumerable<EdoTaskItem> edoTaskItems)
+		{
+			return edoTaskItems
+				.Select(x => x.ProductCode)
+				.Where(x => (x.ResultCode == null || (x.ResultCode.ParentWaterGroupCodeId == null && x.ResultCode.ParentTransportCodeId == null))
+					&& (x.SourceCode.ParentWaterGroupCodeId == null && x.SourceCode.ParentTransportCodeId == null))
+				.ToList();
+		}
+
+		public void CheckProductCodesForDuplicatesAndUpdateIfNeed(IEnumerable<TrueMarkProductCode> productCodes)
+		{
+			var sourceAndResultCodesIds = productCodes.Select(x => x.SourceCode.Id)
+				.Concat(productCodes.Where(x => x.ResultCode != null).Select(x => x.ResultCode.Id))
+				.Distinct()
+				.ToList();
+
+			var existingProductCodesByIds = GetProductCodesHavingRequiredResultCodeIds(sourceAndResultCodesIds);
+
+			foreach(var productCode in productCodes)
+			{
+				if(productCode.ResultCode != null)
+				{
+					existingProductCodesByIds.TryGetValue(productCode.ResultCode.Id, out var productCodesByResultCodeId);
+
+					if(productCodesByResultCodeId?.Any(x => x.Id != productCode.Id) != true)
+					{
+						continue;
+					}
+
+					productCode.ResultCode = null;
+				}
+
+				existingProductCodesByIds.TryGetValue(productCode.SourceCode.Id, out var productCodesBySourceCodeId);
+
+				var duplicatesCount = productCodesBySourceCodeId?.Count(x => x.Id != productCode.Id) ?? 0;
+
+				if(duplicatesCount > 0)
+				{
+					productCode.SourceCodeStatus = SourceProductCodeStatus.Problem;
+					productCode.Problem = ProductCodeProblem.Duplicate;
+					productCode.DuplicatesCount = duplicatesCount;
+				}
+			}
+		}
+
+		private IDictionary<int, List<TrueMarkProductCode>> GetProductCodesHavingRequiredResultCodeIds(IEnumerable<int> resultCodeIds) =>
+			_productCodeRepository
+			.Get(_uow, x => resultCodeIds.Contains(x.ResultCode.Id))
+			.GroupBy(x => x.ResultCode.Id)
+			.ToDictionary(x => x.Key, x => x.ToList());
 
 		public EdoFiscalDocument UpdateUnmarkedFiscalDocument(ReceiptEdoTask receiptEdoTask)
 		{
