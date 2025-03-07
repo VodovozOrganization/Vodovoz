@@ -510,11 +510,14 @@ namespace WarehouseApi.Library.Services
 				oldCodeToRemoveFromDatabase.Match(
 					transportCode =>
 					{
+						transportCode.InnerTransportCodes.Clear();
+						transportCode.InnerGroupCodes.Clear();
 						_uow.Delete(transportCode);
 						return true;
 					},
 					groupCode =>
 					{
+						groupCode.InnerGroupCodes.Clear();
 						_uow.Delete(groupCode);
 						return true;
 					},
@@ -525,8 +528,15 @@ namespace WarehouseApi.Library.Services
 					});
 			}
 
-			_uow.Commit();
-			_uow.Session.BeginTransaction();
+			try
+			{
+				_uow.Commit();
+				_uow.Session.BeginTransaction();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+			}
 
 			NomenclatureDto nomenclatureDto = null;
 
