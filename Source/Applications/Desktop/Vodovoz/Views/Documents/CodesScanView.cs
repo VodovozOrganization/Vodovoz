@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Documents
 		{
 			yentryCode.FocusOutEvent += OnYentryCodeOnFocusOutEvent;
 
-			yentryCode.TextInserted += OnYentryCodeOnTextInserted;
+			yentryCode.Activated += OnYentryCodeOnActivated;
 
 			treeViewCodes.ColumnsConfig = FluentColumnsConfig<CodesScanViewModel.CodeScanRow>.Create()
 				.AddColumn("№")
@@ -38,7 +38,7 @@ namespace Vodovoz.Views.Documents
 						? $"{n.RowNumber} ╗"
 						: n.Parent != null
 							? "╠"
-							: $"{n.RowNumber}.   ")
+							: $"{n.RowNumber}.  ")
 				.XAlign(1)
 				.AddColumn("Код")
 				.AddTextRenderer(n => n.CodeNumber)
@@ -78,46 +78,32 @@ namespace Vodovoz.Views.Documents
 				.WrapMode(WrapMode.Word).WrapWidth(400)
 				.AddColumn("Осталось отсканировать")
 				.AddNumericRenderer(n => n.LeftToScan)
-				.AddSetter((c, n) => c.CellBackgroundGdk = n.LeftToScan == 0 ?  _colorGreen : _colorBase)
+				.AddSetter((c, n) => c.CellBackgroundGdk = n.LeftToScan == 0 ? _colorGreen : _colorBase)
 				.AddColumn("В самовывозе")
 				.AddNumericRenderer(n => n.InSelfDelivery)
 				.AddColumn("")
 				.Finish();
 
 			ytreeviewProgress.ItemsDataSource = ViewModel.CodesScanProgressRows;
-			
+
 			ybuttonOk.Binding.AddBinding(ViewModel, vm => vm.IsAllCodesScanned, w => w.Sensitive).InitializeFromSource();
 			ybuttonOk.BindCommand(ViewModel.CloseCommand);
 
 			ViewModel.RefreshScanningNomenclaturesAction = OnRefreshScanningNomenclatures;
 		}
 
-		private void OnRefreshScanningNomenclatures()
+		private void OnYentryCodeOnActivated(object sender, EventArgs args)
 		{
-				treeViewCodes.YTreeModel?.EmitModelChanged();
-				treeViewCodes.ExpandAll();
-				ytreeviewProgress.YTreeModel?.EmitModelChanged();
+			ViewModel.CheckCode(yentryCode.Text);
+			
+			yentryCode.Text = string.Empty;
 		}
 
-
-		private void OnYentryCodeOnTextInserted(object o, TextInsertedArgs args)
+		private void OnRefreshScanningNomenclatures()
 		{
-			yentryCode.TextInserted -= OnYentryCodeOnTextInserted;
-
-			if(args.Text.Length < 20 || args.Text.Length > 55)
-			{
-				yentryCode.Text = string.Empty;
-				yentryCode.TextInserted += OnYentryCodeOnTextInserted;
-				return;
-			}
-
-			yentryCode.Text = args.Text;
-
-			yentryCode.TextInserted += OnYentryCodeOnTextInserted;
-
-			ViewModel.CheckCode(args.Text);
-
-			yentryCode.Text = string.Empty;
+			treeViewCodes.YTreeModel?.EmitModelChanged();
+			treeViewCodes.ExpandAll();
+			ytreeviewProgress.YTreeModel?.EmitModelChanged();
 		}
 
 		private void OnYentryCodeOnFocusOutEvent(object o, FocusOutEventArgs args)
@@ -128,7 +114,7 @@ namespace Vodovoz.Views.Documents
 		public override void Destroy()
 		{
 			yentryCode.FocusOutEvent -= OnYentryCodeOnFocusOutEvent;
-			yentryCode.TextInserted -= OnYentryCodeOnTextInserted;
+			yentryCode.Activated -= OnYentryCodeOnActivated;
 
 			base.Destroy();
 		}

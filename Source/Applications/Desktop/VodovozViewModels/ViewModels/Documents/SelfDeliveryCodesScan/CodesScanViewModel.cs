@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -176,7 +176,14 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		private void ProcessCheckCodes(string rawCode, CancellationToken cancellationToken)
 		{
-			var code = ReplaceCodeSpecSymbols(rawCode);
+			_trueMarkWaterCodeParser.TryParse(rawCode, out var parsedCode);
+			
+			if(parsedCode == null)
+			{
+				parsedCode =_trueMarkWaterCodeParser.ParseCodeFromSelfDelivery(rawCode);
+			}
+			
+			var code = ReplaceCodeSpecSymbols(parsedCode?.SourceCode ?? rawCode);
 
 			lock(CodeScanRows)
 			{
@@ -199,13 +206,11 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				}
 			}
 
-			var isParsed = _trueMarkWaterCodeParser.TryParse(code, out var parseCode);
-
 			string gtin = null;
 
-			if(isParsed)
+			if(parsedCode != null)
 			{
-				gtin = parseCode.GTIN;
+				gtin = parsedCode.GTIN;
 
 				var gtinHasInOrder = _nomenclatureGtinsInOrder.Contains(gtin);
 
@@ -310,7 +315,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					.ToList(),
 				waterCode => new List<TrueMarkWaterIdentificationCode> { waterCode }
 			);
-		
+
 		private void ValidateInTrueMark(List<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
 		{
 			var trueMarkValidationResults = _trueMarkValidator
