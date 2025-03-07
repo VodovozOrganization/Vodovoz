@@ -126,10 +126,11 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 					.Left.JoinAlias(() => _orderAlias.OrderItems, () => _orderItemAlias)
 					.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
 					.Where(GetMissingCashReceiptRestriction())
-					.Where(GetPaymentTypeRestriction())
-					.Where(GetSelfdeliveryRestriction())
-					.Where(GetPositiveSumRestriction())
-					.Where(GetDeliveryDateRestriction())
+					.And(GetPaymentTypeRestriction())
+					.And(GetSelfdeliveryRestriction())
+					.And(GetPositiveSumRestriction())
+					.And(GetDeliveryDateRestriction())
+					.And(() => !_counterpartyAlias.IsNewEdoProcessing)
 					;
 
 				var result =
@@ -158,7 +159,8 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 					.And(GetPositiveSumRestriction())
 					.And(GetDeliveryDateRestriction())
 					.And(GetOrderStatusRestriction())
-					.And(() => !_orderAlias.SelfDelivery);
+					.And(() => !_orderAlias.SelfDelivery)
+					.And(() => !_counterpartyAlias.IsNewEdoProcessing);
 
 				var result =
 					query.SelectList(list => list
