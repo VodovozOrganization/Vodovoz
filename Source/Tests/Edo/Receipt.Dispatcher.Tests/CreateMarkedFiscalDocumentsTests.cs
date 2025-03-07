@@ -598,15 +598,15 @@ namespace Receipt.Dispatcher.Tests
 				{
 					ProductCode = new RouteListItemTrueMarkProductCode
 					{
-						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null },
-						ResultCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null }
+						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null, ParentTransportCodeId = null },
+						ResultCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null, ParentTransportCodeId = null }
 					}
 				},
 				new()
 				{
 					ProductCode = new RouteListItemTrueMarkProductCode
 					{
-						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null },
+						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null, ParentTransportCodeId = null },
 						ResultCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = 3 }
 					}
 				},
@@ -614,8 +614,24 @@ namespace Receipt.Dispatcher.Tests
 				{
 					ProductCode = new RouteListItemTrueMarkProductCode
 					{
-						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null },
+						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null, ParentTransportCodeId = null },
 						ResultCode = null
+					}
+				},
+				new()
+				{
+					ProductCode = new RouteListItemTrueMarkProductCode
+					{
+						SourceCode = new TrueMarkWaterIdentificationCode { ParentTransportCodeId = 3 },
+						ResultCode = null
+					}
+				},
+				new()
+				{
+					ProductCode = new RouteListItemTrueMarkProductCode
+					{
+						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null, ParentTransportCodeId = null },
+						ResultCode = new TrueMarkWaterIdentificationCode { ParentTransportCodeId = 3 }
 					}
 				},
 			};

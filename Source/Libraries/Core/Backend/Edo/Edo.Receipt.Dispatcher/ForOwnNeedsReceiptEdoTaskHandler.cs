@@ -406,8 +406,8 @@ namespace Edo.Receipt.Dispatcher
 		{
 			return edoTaskItems
 				.Select(x => x.ProductCode)
-				.Where(x => (x.ResultCode == null || (x.ResultCode.ParentWaterGroupCodeId == null && x.ResultCode.ParentWaterGroupCodeId == null))
-					&& (x.SourceCode.ParentWaterGroupCodeId == null && x.SourceCode.ParentWaterGroupCodeId == null))
+				.Where(x => (x.ResultCode == null || (x.ResultCode.ParentWaterGroupCodeId == null && x.ResultCode.ParentTransportCodeId == null))
+					&& (x.SourceCode.ParentWaterGroupCodeId == null && x.SourceCode.ParentTransportCodeId == null))
 				.ToList();
 		}
 
