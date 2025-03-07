@@ -136,7 +136,7 @@ namespace Vodovoz
 			this.ybuttonScanCodes.UseUnderline = true;
 			this.ybuttonScanCodes.Label = global::Mono.Unix.Catalog.GetString("Сканирование кодов");
 			global::Gtk.Image w7 = new global::Gtk.Image();
-			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "stock_certificate", global::Gtk.IconSize.Menu);
+			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-copy", global::Gtk.IconSize.Button);
 			this.ybuttonScanCodes.Image = w7;
 			this.hbox5.Add(this.ybuttonScanCodes);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ybuttonScanCodes]));

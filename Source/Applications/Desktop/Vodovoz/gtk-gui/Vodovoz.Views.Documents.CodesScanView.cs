@@ -4,13 +4,21 @@ namespace Vodovoz.Views.Documents
 {
 	public partial class CodesScanView
 	{
-		private global::Gamma.GtkWidgets.yVBox yvbox1;
+		private global::Gamma.GtkWidgets.yVBox yvboxMain;
 
-		private global::Gamma.GtkWidgets.yHBox yhboxCodeInput;
+		private global::Gamma.GtkWidgets.yHBox yhboxInputCode;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelCode;
 
 		private global::Gamma.GtkWidgets.yEntry yentryCode;
+
+		private global::Gtk.VPaned vpanedTables;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxProgress;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewProgress;
 
 		private global::Gamma.GtkWidgets.yHBox yhboxCodes;
 
@@ -29,39 +37,63 @@ namespace Vodovoz.Views.Documents
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Documents.CodesScanView";
 			// Container child Vodovoz.Views.Documents.CodesScanView.Gtk.Container+ContainerChild
-			this.yvbox1 = new global::Gamma.GtkWidgets.yVBox();
-			this.yvbox1.Name = "yvbox1";
-			this.yvbox1.Spacing = 6;
-			// Container child yvbox1.Gtk.Box+BoxChild
-			this.yhboxCodeInput = new global::Gamma.GtkWidgets.yHBox();
-			this.yhboxCodeInput.Name = "yhboxCodeInput";
-			this.yhboxCodeInput.Spacing = 6;
-			// Container child yhboxCodeInput.Gtk.Box+BoxChild
+			this.yvboxMain = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxMain.Name = "yvboxMain";
+			this.yvboxMain.Spacing = 6;
+			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yhboxInputCode = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxInputCode.Name = "yhboxInputCode";
+			this.yhboxInputCode.Spacing = 6;
+			// Container child yhboxInputCode.Gtk.Box+BoxChild
 			this.ylabelCode = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCode.Name = "ylabelCode";
-			this.ylabelCode.LabelProp = global::Mono.Unix.Catalog.GetString("Отсканированный код:");
-			this.yhboxCodeInput.Add(this.ylabelCode);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yhboxCodeInput[this.ylabelCode]));
+			this.ylabelCode.Xalign = 1F;
+			this.ylabelCode.LabelProp = global::Mono.Unix.Catalog.GetString("Код:");
+			this.yhboxInputCode.Add(this.ylabelCode);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yhboxInputCode[this.ylabelCode]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
-			// Container child yhboxCodeInput.Gtk.Box+BoxChild
+			// Container child yhboxInputCode.Gtk.Box+BoxChild
 			this.yentryCode = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryCode.CanFocus = true;
 			this.yentryCode.Name = "yentryCode";
 			this.yentryCode.IsEditable = true;
 			this.yentryCode.InvisibleChar = '•';
-			this.yhboxCodeInput.Add(this.yentryCode);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxCodeInput[this.yentryCode]));
+			this.yhboxInputCode.Add(this.yentryCode);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxInputCode[this.yentryCode]));
 			w2.Position = 1;
-			w2.Expand = false;
-			w2.Fill = false;
-			this.yvbox1.Add(this.yhboxCodeInput);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.yhboxCodeInput]));
+			this.yvboxMain.Add(this.yhboxInputCode);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxInputCode]));
 			w3.Position = 0;
 			w3.Expand = false;
 			w3.Fill = false;
-			// Container child yvbox1.Gtk.Box+BoxChild
+			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.vpanedTables = new global::Gtk.VPaned();
+			this.vpanedTables.CanFocus = true;
+			this.vpanedTables.Name = "vpanedTables";
+			this.vpanedTables.Position = 150;
+			// Container child vpanedTables.Gtk.Paned+PanedChild
+			this.yhboxProgress = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxProgress.HeightRequest = 150;
+			this.yhboxProgress.Name = "yhboxProgress";
+			this.yhboxProgress.Spacing = 6;
+			// Container child yhboxProgress.Gtk.Box+BoxChild
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.ytreeviewProgress = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewProgress.CanFocus = true;
+			this.ytreeviewProgress.Name = "ytreeviewProgress";
+			this.GtkScrolledWindow1.Add(this.ytreeviewProgress);
+			this.yhboxProgress.Add(this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhboxProgress[this.GtkScrolledWindow1]));
+			w5.Position = 0;
+			this.vpanedTables.Add(this.yhboxProgress);
+			global::Gtk.Paned.PanedChild w6 = ((global::Gtk.Paned.PanedChild)(this.vpanedTables[this.yhboxProgress]));
+			w6.Resize = false;
+			// Container child vpanedTables.Gtk.Paned+PanedChild
 			this.yhboxCodes = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxCodes.Name = "yhboxCodes";
 			this.yhboxCodes.Spacing = 6;
@@ -74,12 +106,13 @@ namespace Vodovoz.Views.Documents
 			this.treeViewCodes.Name = "treeViewCodes";
 			this.GtkScrolledWindow.Add(this.treeViewCodes);
 			this.yhboxCodes.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhboxCodes[this.GtkScrolledWindow]));
-			w5.Position = 0;
-			this.yvbox1.Add(this.yhboxCodes);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.yhboxCodes]));
-			w6.Position = 1;
-			// Container child yvbox1.Gtk.Box+BoxChild
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhboxCodes[this.GtkScrolledWindow]));
+			w8.Position = 0;
+			this.vpanedTables.Add(this.yhboxCodes);
+			this.yvboxMain.Add(this.vpanedTables);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.vpanedTables]));
+			w10.Position = 1;
+			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yhboxButtons = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxButtons.Name = "yhboxButtons";
 			this.yhboxButtons.Spacing = 6;
@@ -90,16 +123,16 @@ namespace Vodovoz.Views.Documents
 			this.ybuttonOk.FocusOnClick = false;
 			this.ybuttonOk.Label = global::Mono.Unix.Catalog.GetString("Завершить сканирование");
 			this.yhboxButtons.Add(this.ybuttonOk);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonOk]));
-			w7.Position = 0;
-			w7.Expand = false;
-			w7.Fill = false;
-			this.yvbox1.Add(this.yhboxButtons);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.yhboxButtons]));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
-			this.Add(this.yvbox1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonOk]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
+			this.yvboxMain.Add(this.yhboxButtons);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
+			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

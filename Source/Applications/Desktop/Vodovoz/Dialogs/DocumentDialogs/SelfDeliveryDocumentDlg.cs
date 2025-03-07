@@ -68,9 +68,9 @@ namespace Vodovoz
 
 		public SelfDeliveryDocumentDlg()
 		{
+			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
 			ResolveDependencies();
-			Build();
 
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
@@ -99,9 +99,10 @@ namespace Vodovoz
 
 		public SelfDeliveryDocumentDlg(int id)
 		{
+			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
 			ResolveDependencies();
-			Build();
+
 			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
