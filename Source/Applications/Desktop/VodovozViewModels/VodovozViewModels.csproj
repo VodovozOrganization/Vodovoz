@@ -1153,10 +1153,6 @@
       <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMarkApi.Client\TrueMarkApi.Client.csproj">
-      <Project>{c2085920-3b31-4406-8074-470a26ba26aa}</Project>
-      <Name>TrueMarkApi.Client</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj">
       <Project>{5D521F22-C232-438D-B547-5D6486754737}</Project>
       <Name>Vodovoz.Core.Application</Name>

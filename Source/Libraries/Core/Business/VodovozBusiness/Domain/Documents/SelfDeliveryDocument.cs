@@ -119,7 +119,7 @@ namespace Vodovoz.Domain.Documents
 		{
 			if(!(validationContext.GetService(typeof(IUnitOfWork)) is IUnitOfWork unitOfWork))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий {nameof(unitOfWork)}");
+				throw new ArgumentNullException(nameof(unitOfWork));
 			}
 			
 			foreach(var item in Items) {

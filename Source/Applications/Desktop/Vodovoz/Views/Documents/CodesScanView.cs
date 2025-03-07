@@ -94,17 +94,9 @@ namespace Vodovoz.Views.Documents
 
 		private void OnRefreshScanningNomenclatures()
 		{
-			try
-			{
 				treeViewCodes.YTreeModel?.EmitModelChanged();
 				treeViewCodes.ExpandAll();
 				ytreeviewProgress.YTreeModel?.EmitModelChanged();
-			}
-			catch(Exception e)
-			{
-				Console.WriteLine(e);
-				throw;
-			}
 		}
 
 

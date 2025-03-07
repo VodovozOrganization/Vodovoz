@@ -100,21 +100,25 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			_organizationInn = _selfDeliveryDocument.Order.Contract.Organization.INN;
 
-			_allGtins = _gtinRepository.Get(_unitOfWork).Select(x =>
-					new GtinFromNomenclatureDto
-					{
-						GtinNumber = x.GtinNumber,
-						NomenclatureName = x.Nomenclature.Name,
-					})
+			_allGtins = _gtinRepository.GetValue(
+					_unitOfWork,
+					x =>
+						new GtinFromNomenclatureDto
+						{
+							GtinNumber = x.GtinNumber,
+							NomenclatureName = x.Nomenclature.Name,
+						})
 				.ToList();
 
-			_allGroupGtins = _groupGtinrepository.Get(_unitOfWork).Select(x =>
-					new GtinFromNomenclatureDto
-					{
-						GtinNumber = x.GtinNumber,
-						NomenclatureName = x.Nomenclature.Name,
-						CodesCount = x.CodesCount
-					})
+			_allGroupGtins = _groupGtinrepository.GetValue(
+					_unitOfWork,
+					x =>
+						new GtinFromNomenclatureDto
+						{
+							GtinNumber = x.GtinNumber,
+							NomenclatureName = x.Nomenclature.Name,
+							CodesCount = x.CodesCount
+						})
 				.ToList();
 
 			var gtinsInOrder = _selfDeliveryDocument.Items
@@ -153,6 +157,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						CodeNumber = code.SourceCode.RawCode,
 						NomenclatureName = nomenclature,
 						IsTrueMarkValid = true,
+						HasInOrder = true
 					};
 
 					CodeScanRows.Add(codesScanViewModelNode);
@@ -293,34 +298,19 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			return _nomenclatureGtinsInOrder.Contains(gtin);
 		}
 
-		private List<TrueMarkWaterIdentificationCode> GetAllIdentificationCodes(TrueMarkAnyCode anyCode)
-		{
-			List<TrueMarkWaterIdentificationCode> unitCodes = null;
-
-			if(anyCode.IsTrueMarkTransportCode)
-			{
-				unitCodes = anyCode.TrueMarkTransportCode.GetAllCodes()
+		private List<TrueMarkWaterIdentificationCode> GetAllIdentificationCodes(TrueMarkAnyCode anyCode) =>
+			anyCode.Match(
+				transportCode => transportCode.GetAllCodes()
 					.Where(x => x.IsTrueMarkWaterIdentificationCode)
 					.Select(x => x.TrueMarkWaterIdentificationCode)
-					.ToList();
-			}
-
-			if(anyCode.IsTrueMarkWaterGroupCode)
-			{
-				unitCodes = anyCode.TrueMarkWaterGroupCode.GetAllCodes()
+					.ToList(),
+				groupCode => groupCode.GetAllCodes()
 					.Where(x => x.IsTrueMarkWaterIdentificationCode)
 					.Select(x => x.TrueMarkWaterIdentificationCode)
-					.ToList();
-			}
-
-			if(anyCode.IsTrueMarkWaterIdentificationCode)
-			{
-				unitCodes = new List<TrueMarkWaterIdentificationCode> { anyCode.TrueMarkWaterIdentificationCode };
-			}
-
-			return unitCodes;
-		}
-
+					.ToList(),
+				waterCode => new List<TrueMarkWaterIdentificationCode> { waterCode }
+			);
+		
 		private void ValidateInTrueMark(List<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
 		{
 			var trueMarkValidationResults = _trueMarkValidator
