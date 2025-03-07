@@ -11,7 +11,7 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 		/// Новый код <br/>
 		/// Проверка кода не выполнялась
 		/// </summary>
-		[Display(Name = "Проблема")]
+		[Display(Name = "Новый код")]
 		New,
 
 		/// <summary>

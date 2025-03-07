@@ -12,6 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			References(x => x.Order).Not.LazyLoad().Column("order_id");
+
 			Map(x => x.CreateDate).Column("start_date");
 			Map(x => x.UpdateDate).Column("update_date").ReadOnly();
 			Map(x => x.Status).Column("status");
@@ -27,6 +28,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.WithoutMarks).Column("without_marks");
 			Map(x => x.InnerNumber).Column("inner_number");
 			Map(x => x.CashboxId).Column("cashbox_id");
+			Map(x => x.EdoTaskId).Column("edo_task_id");
 
 			HasMany(x => x.ScannedCodes).Cascade.AllDeleteOrphan().Not.LazyLoad().Inverse()
 				.KeyColumn("cash_receipt_id");

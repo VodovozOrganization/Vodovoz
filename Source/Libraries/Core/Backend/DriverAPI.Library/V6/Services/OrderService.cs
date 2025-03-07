@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Transport;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
@@ -56,7 +57,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IOrderSettings _orderSettings;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
-		private readonly IBus _messageBus;
+		private readonly MessageService _edoMessageService;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -74,7 +75,7 @@ namespace DriverAPI.Library.V6.Services
 			IOrderSettings orderSettings,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
-			IBus messageBus)
+			MessageService edoMessageService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -91,7 +92,7 @@ namespace DriverAPI.Library.V6.Services
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_edoMessageService = edoMessageService ?? throw new ArgumentNullException(nameof(edoMessageService));
 		}
 
 		/// <summary>
@@ -418,24 +419,7 @@ namespace DriverAPI.Library.V6.Services
 
 		private async Task PublishEdoRequestCreatedEvent(int requestId)
 		{
-			_logger.LogInformation(
-				"Отправляем событие создания новой заявки на отправку документов ЭДО.  Id заявки: {TaskId}.",
-				requestId);
-
-			try
-			{
-				await _messageBus.Publish(new EdoRequestCreatedEvent { Id = requestId });
-
-				_logger.LogInformation("Событие создания новой заявки на отправку документов ЭДО отправлено успешно");
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(
-					ex,
-					"Ошибка при отправке события создания новой заявки на отправку документов ЭДО. Id задачи: {TaskId}. Exception: {ExceptionMessage}",
-					requestId,
-					ex.Message);
-			}
+			await _edoMessageService.PublishEdoRequestCreatedEvent(requestId);
 		}
 
 		public Result UpdateOrderShipmentInfo(
@@ -614,9 +598,7 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private Result ProcessScannedCodes(
-			IDriverOrderShipmentInfo completeOrderInfo,
-			RouteListItem routeListAddress)
+		private Result ProcessScannedCodes(IDriverOrderShipmentInfo completeOrderInfo, RouteListItem routeListAddress)
 		{
 			if(routeListAddress.Order.IsNeedIndividualSetOnLoad)
 			{

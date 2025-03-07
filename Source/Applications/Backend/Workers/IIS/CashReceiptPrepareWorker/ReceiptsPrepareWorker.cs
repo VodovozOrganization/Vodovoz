@@ -39,14 +39,28 @@ namespace CashReceiptPrepareWorker
 
 			try
 			{
-				_logger.LogInformation("Вызов обработки чеков");
-				await _receiptsHandler.HandleReceiptsAsync(stoppingToken);
+				if(!_edoSettings.NewEdoProcessing)
+				{
+					_logger.LogInformation("Вызов обработки чеков");
+					await _receiptsHandler.HandleReceiptsAsync(stoppingToken);
 
-				_logger.LogInformation("Вызов создания чеков для самовывозов");
-				await _receiptsHandler.CreateSelfDeliveryReceiptsAsync(stoppingToken);
+					_logger.LogInformation("Вызов создания чеков для самовывозов");
+					await _receiptsHandler.CreateSelfDeliveryReceiptsAsync(stoppingToken);
 				
-				_logger.LogInformation("Вызов создания чеков для обычных заказов");
-				await _receiptsHandler.CreateDeliveryOrderReceiptsAsync(stoppingToken);
+					_logger.LogInformation("Вызов создания чеков для обычных заказов");
+					await _receiptsHandler.CreateDeliveryOrderReceiptsAsync(stoppingToken);
+				}
+				else
+				{
+					_logger.LogInformation("Вызов обработки чеков");
+					await _receiptsHandler.HandleReceiptsAsync(stoppingToken);
+
+					_logger.LogInformation("Вызов обработки тасок чеков для самовывозов");
+					await _receiptsHandler.HandleSelfDeliveryReceiptTasks(stoppingToken);
+				
+					_logger.LogInformation("Вызов создания тасок для обычных заказов");
+					await _receiptsHandler.HandleDeliveryReceiptTasks(stoppingToken);
+				}
 			}
 			catch(Exception ex)
 			{

@@ -167,6 +167,7 @@ using VodovozInfrastructure;
 using Vodovoz.Application.Options;
 using Vodovoz.Options;
 using DriverApi.Notifications.Client;
+using Edo.Transport;
 
 namespace Vodovoz
 {
@@ -729,6 +730,7 @@ namespace Vodovoz
 						.AddTransient<EntityModelFactory>()
 
 						.AddPacs()
+						.AddScoped<MessageService>()
 						.AddWaterDeliveryDesktop()
 						;
 

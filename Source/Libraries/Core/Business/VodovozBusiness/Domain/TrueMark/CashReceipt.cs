@@ -33,6 +33,7 @@ namespace Vodovoz.Domain.TrueMark
 		private bool _withoutMarks;
 		private int? _innerNumber;
 		private int? _сashboxId;
+		private int? _edoTaskId;
 		private IList<CashReceiptProductCode> _scannedCodes = new List<CashReceiptProductCode>();
 		private GenericObservableList<CashReceiptProductCode> _observableScannedCodes;
 
@@ -155,6 +156,13 @@ namespace Vodovoz.Domain.TrueMark
 		{
 			get => _scannedCodes;
 			set => SetField(ref _scannedCodes, value);
+		}
+		
+		[Display(Name = "Id задачи на создание чека")]
+		public virtual int? EdoTaskId
+		{
+			get => _edoTaskId;
+			set => SetField(ref _edoTaskId, value);
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
