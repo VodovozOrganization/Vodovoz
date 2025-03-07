@@ -135,7 +135,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 
 		public override bool Equals(object obj)
 		{
-			if(obj is TrueMarkWaterIdentificationCode code)
+			if(obj is TrueMarkTransportCode code)
 			{
 				return RawCode == code.RawCode;
 			}
