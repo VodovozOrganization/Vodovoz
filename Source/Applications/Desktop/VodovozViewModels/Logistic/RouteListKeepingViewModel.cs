@@ -72,14 +72,14 @@ namespace Vodovoz
 		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _forwarderViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _logisticianViewModelEEVMBuilder;
+		private readonly IDictionary<int, (bool Pushed, OrderEdoRequest Request)> _createdOrderEdoRequests =
+			new Dictionary<int, (bool Pushed, OrderEdoRequest Request)>();
 		private readonly IEdoSettings _edoSettings;
 		private readonly MessageService _edoMessageService;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
 		private UndeliveryViewModel _undeliveryViewModel;
-		private IDictionary<int, (bool Pushed, OrderEdoRequest Request)> _orderEdoRequestsDictionary =
-			new Dictionary<int, (bool Pushed, OrderEdoRequest Request)>();
 
 		public RouteListKeepingViewModel(
 			ILogger<RouteListKeepingViewModel> logger,
@@ -471,15 +471,6 @@ namespace Vodovoz
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
 				return;
 			}
-
-			if(_edoSettings.NewEdoProcessing)
-			{
-				if(!HasEdoRequest(rli.RouteListItem.Order.Id))
-				{
-					var request = CreateOrderRequest(rli, rli.RouteListItem.TrueMarkCodes);
-					UpdateEdoRequests(request, _routeListItemStatusToChange);
-				}
-			}
 			
 			if(RouteListItem.GetUndeliveryStatuses().Contains(_routeListItemStatusToChange))
 			{
@@ -530,6 +521,23 @@ namespace Vodovoz
 			}
 
 			rli.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
+			TryUpdateCreatedEdoRequests(rli, _routeListItemStatusToChange);
+		}
+
+		private void TryUpdateCreatedEdoRequests(RouteListKeepingItemNode rli, RouteListItemStatus addressStatus)
+		{
+			if(!_edoSettings.NewEdoProcessing)
+			{
+				return;
+			}
+
+			if(HasEdoRequest(rli.RouteListItem.Order.Id))
+			{
+				return;
+			}
+
+			var request = CreateOrderRequest(rli, rli.RouteListItem.TrueMarkCodes);
+			UpdateCreatedEdoRequests(request, addressStatus);
 		}
 
 		private bool CanCompleteAddressByNewEdoProcess(RouteListKeepingItemNode rli, out string message)
@@ -572,6 +580,7 @@ namespace Vodovoz
 				.FirstOrDefault();
 
 			address.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
+			TryUpdateCreatedEdoRequests(address, _routeListItemStatusToChange);
 			UoW.Save(address.RouteListItem);
 		}
 
@@ -619,6 +628,12 @@ namespace Vodovoz
 				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 
 				UoW.Save(Entity.RouteListProfitability);
+				
+				foreach(var keyPairValue in _createdOrderEdoRequests)
+				{
+					UoW.Save(keyPairValue.Value.Request);
+				}
+
 				UoW.Commit();
 
 				var changedList = Items
@@ -665,11 +680,11 @@ namespace Vodovoz
 
 		protected override void AfterSave()
 		{
-			if(_orderEdoRequestsDictionary.Any())
+			if(_createdOrderEdoRequests.Any())
 			{
 				Task.Run(async() =>
 				{
-					foreach(var keyPairValue in _orderEdoRequestsDictionary)
+					foreach(var keyPairValue in _createdOrderEdoRequests)
 					{
 						var value = keyPairValue.Value;
 
@@ -750,17 +765,7 @@ namespace Vodovoz
 				}
 				
 				Entity.ChangeAddressStatusAndCreateTask(UoW, item.RouteListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
-
-				if(!_edoSettings.NewEdoProcessing)
-				{
-					continue;
-				}
-				
-				if(!HasEdoRequest(item.RouteListItem.Order.Id))
-				{
-					var request = CreateOrderRequest(item, item.RouteListItem.TrueMarkCodes);
-					UpdateEdoRequests(request);
-				}
+				TryUpdateCreatedEdoRequests(item, RouteListItemStatus.Completed);
 			}
 
 			if(cantSetCompleteMessages.Length > 0)
@@ -769,21 +774,21 @@ namespace Vodovoz
 			}
 		}
 		
-		private void UpdateEdoRequests(
+		private void UpdateCreatedEdoRequests(
 			OrderEdoRequest request,
 			RouteListItemStatus addressStatus = RouteListItemStatus.Completed)
 		{
-			var hasRequest = _orderEdoRequestsDictionary.ContainsKey(request.Order.Id);
+			var hasRequest = _createdOrderEdoRequests.ContainsKey(request.Order.Id);
 			
 			switch (hasRequest)
 			{
 				case true when addressStatus != RouteListItemStatus.Completed:
-					_orderEdoRequestsDictionary.Remove(request.Order.Id);
+					_createdOrderEdoRequests.Remove(request.Order.Id);
 					return;
 				case true:
 					return;
 				default:
-					_orderEdoRequestsDictionary.Add(request.Order.Id, (false, request));
+					_createdOrderEdoRequests.Add(request.Order.Id, (false, request));
 					break;
 			}
 		}

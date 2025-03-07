@@ -7,6 +7,6 @@ namespace Vodovoz.Factories
 	public interface ICashReceiptFactory
 	{
 		CashReceipt CreateNewCashReceipt(Order order);
-		CashReceipt CreateNewCashReceipt(Order order, BulkAccountingEdoTask task);
+		CashReceipt CreateNewCashReceipt(Order order, int? taskId);
 	}
 }

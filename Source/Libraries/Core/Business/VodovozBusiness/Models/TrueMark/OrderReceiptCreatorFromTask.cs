@@ -78,7 +78,7 @@ namespace VodovozBusiness.Models.TrueMark
 				catch(Exception ex)
 				{
 					RollbackPool();
-					RegisterException(order, task, ex);
+					RegisterException(order, task?.Id, ex);
 					Logger.LogError(ex, "Ошибка создания чека для заказа {OrderId}.", orderId);
 				}
 			}
@@ -86,12 +86,12 @@ namespace VodovozBusiness.Models.TrueMark
 			RollbackPool();
 		}
 
-		private void RegisterException(Order order, BulkAccountingEdoTask task, Exception ex)
+		private void RegisterException(Order order, int? taskId, Exception ex)
 		{
 			Logger.LogError(ex, $"Ошибка обработки заказа честного знака для заказа {order.Id}.");
 			using(var uow = UowFactory.CreateWithoutRoot())
 			{
-				var cashReceipt = CashReceiptFactory.CreateNewCashReceipt(order, task);
+				var cashReceipt = CashReceiptFactory.CreateNewCashReceipt(order, taskId);
 				cashReceipt.Status = CashReceiptStatus.CodeError;
 				cashReceipt.ErrorDescription = ex.Message;
 				uow.Save(cashReceipt);
@@ -109,7 +109,7 @@ namespace VodovozBusiness.Models.TrueMark
 			var codesInReceipt = 0;
 			CashReceiptsToSave = new List<CashReceipt>();
 			var taskCodes = task.Items.Select(x => x.ProductCode).ToList();
-			var receipt = CreateCashReceiptForBigOrder(order, task, receiptNumber);
+			var receipt = CreateCashReceiptForBigOrder(order, task.Id, receiptNumber);
 			var positiveSumItems = order.OrderItems.Where(x => x.Sum > 0);
 
 			foreach(var orderItem in positiveSumItems)
@@ -133,7 +133,7 @@ namespace VodovozBusiness.Models.TrueMark
 					if(unprocessedCodes != 0)
 					{
 						receiptNumber++;
-						receipt = CreateCashReceiptForBigOrder(order, task, receiptNumber);
+						receipt = CreateCashReceiptForBigOrder(order, task.Id, receiptNumber);
 						codesInReceipt = 0;
 					}
 				}
@@ -144,7 +144,7 @@ namespace VodovozBusiness.Models.TrueMark
 
 		protected virtual void CreateCashReceipt(IUnitOfWork uow, Order order, BulkAccountingEdoTask task)
 		{
-			var receipt = CashReceiptFactory.CreateNewCashReceipt(order, task);
+			var receipt = CashReceiptFactory.CreateNewCashReceipt(order, task.Id);
 			var positiveSumItems = order.OrderItems.Where(x => x.Sum > 0);
 			var taskCodes = task.Items.Select(x => x.ProductCode).ToList();
 			
@@ -235,9 +235,9 @@ namespace VodovozBusiness.Models.TrueMark
 		
 		protected Order GetOrder(IUnitOfWork uow, int orderId) => uow.GetById<Order>(orderId);
 
-		protected CashReceipt CreateCashReceiptForBigOrder(Order order, BulkAccountingEdoTask task, int receiptNumber)
+		protected CashReceipt CreateCashReceiptForBigOrder(Order order, int? taskId, int receiptNumber)
 		{
-			var receipt = CashReceiptFactory.CreateNewCashReceipt(order, task);
+			var receipt = CashReceiptFactory.CreateNewCashReceipt(order, taskId);
 			receipt.InnerNumber = receiptNumber;
 			CashReceiptsToSave.Add(receipt);
 			return receipt;

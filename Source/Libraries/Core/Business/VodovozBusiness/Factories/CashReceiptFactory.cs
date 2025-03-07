@@ -9,10 +9,10 @@ namespace Vodovoz.Factories
 	{
 		public CashReceipt CreateNewCashReceipt(Order order) => CreateCashReceipt(order);
 
-		public CashReceipt CreateNewCashReceipt(Order order, BulkAccountingEdoTask task)
+		public CashReceipt CreateNewCashReceipt(Order order, int? taskId)
 		{
 			var receipt = CreateCashReceipt(order);
-			receipt.EdoTask = task;
+			receipt.EdoTaskId = taskId;
 			
 			return receipt;
 		}
