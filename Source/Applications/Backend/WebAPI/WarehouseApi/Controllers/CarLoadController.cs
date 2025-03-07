@@ -77,7 +77,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -106,7 +106,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -140,7 +140,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -181,7 +181,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -213,7 +213,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
