@@ -525,7 +525,7 @@ namespace Edo.Receipt.Dispatcher
 
 				// найти товары в заказе подходящие по GTIN группового кода
 				var availableOrderItems = expandedMarkedItems
-					.Where(x => x.OrderItem.Nomenclature.Gtins.Any(g => g.GtinNumber == groupCode.GTIN));
+					.Where(x => x.OrderItem.Nomenclature.GroupGtins.Any(g => g.GtinNumber == groupCode.GTIN));
 
 				// группируем распределнные товары заказа обратно по одному orderItem
 				// чтобы мы могли назначить групповой код на определенный orderItem, в котором 

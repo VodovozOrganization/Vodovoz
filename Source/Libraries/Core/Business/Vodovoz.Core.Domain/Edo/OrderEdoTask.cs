@@ -1,4 +1,5 @@
-﻿using QS.Extensions.Observable.Collections.List;
+﻿using FluentNHibernate.Data;
+using QS.Extensions.Observable.Collections.List;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
@@ -45,5 +46,12 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _transferIterations, value);
 		}
 
+		/// <summary>
+		/// Необходимо чтобы Nhibernate мог привести  Proxy базового класса (OrderEdoTask)
+		/// к конкретному классу наследнику
+		public virtual T As<T>() where T : OrderEdoTask
+		{
+			return this as T;
+		}
 	}
 }
