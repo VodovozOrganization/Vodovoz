@@ -585,56 +585,55 @@ namespace Edo.Receipt.Dispatcher
 			// без жесткой привязки к конкретному OrderItem
 			// но в InventPosition будет указан только первый OrderItem
 
-			//foreach(var remainGroupCodeItem in groupCodesWithTaskItems)
-			//{
-			//	var groupCode = remainGroupCodeItem.Key;
-			//	var affectedTaskItems = remainGroupCodeItem.Value;
+			foreach(var remainGroupCodeItem in groupCodesWithTaskItems)
+			{
+				var groupCode = remainGroupCodeItem.Key;
+				var individualCodesInGroupCount = remainGroupCodeItem.Value.Count();
 
-			//	var individualCodesInGroupCount = affectedTaskItems.Count();
+				// знаем кол-во кодов в группе
+				// теперь нужно создать позицию в чек на соответствующее кол-во
 
-			//	// знаем кол-во кодов в группе
-			//	// теперь нужно создать позицию в чек на соответствующее кол-во
+				// найти товары в заказе подходящие по GTIN группового кода
+				var orderItemsForInventoryPosition = expandedMarkedItems
+					.Where(x => x.OrderItem.Nomenclature.Gtins.Any(g => g.GtinNumber == groupCode.GTIN))
+					.Take(individualCodesInGroupCount)
+					.ToList();
 
-			//	// найти товары в заказе подходящие по GTIN группового кода
-			//	var availableOrderItems = expandedMarkedItems
-			//		.Where(x => x.OrderItem.Nomenclature.Gtins.Any(g => g.GtinNumber == groupCode.GTIN));
+				if(orderItemsForInventoryPosition.Count < individualCodesInGroupCount)
+				{
+					_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе.",
+						groupCode.Id, groupCode.GTIN);
 
-			//	if(availableOrderItems.Count() < individualCodesInGroupCount)
-			//	{
-			//		_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе.",
-			//			groupCode.Id, groupCode.GTIN);
-			//		break;
-			//	}
+					continue;
+				}
 
-			//	var firstsAvailableOrderItem = availableOrderItems.First();
-			//	var inventPosition = CreateInventPosition(firstsAvailableOrderItem.OrderItem);
-			//	inventPosition.Quantity = 0;
+				var orderItemsForInventoryPositionPricesSum =
+					orderItemsForInventoryPosition.Sum(x => x.OrderItem.Price);
 
-			//	var availableOrderItemsList = availableOrderItems.ToList();
-			//	foreach(var availableOrderItem in availableOrderItemsList)
-			//	{
-			//		// делаем инкремент потомучто expandedOrderItem соответствует одной единице товара в OrderItem
-			//		inventPosition.Quantity++;
-			//		// добавляем пропроциональную скидку для одной еденицы товара, которая была ранее рассчитана
-			//		// при распределении товаров заказа на их кол-во в каждом товаре
-			//		inventPosition.DiscountSum += availableOrderItem.DiscountPerSingleItem;
-			//		// исключаем обработанный товар из первоначального списка распределенных товаров
-			//		// чтобы при обработке следующей группы, этот товар не попал под обработку, потому
-			//		// что мы его уже назначили на определенную группу и забрали от него сумму пропорциональной скидки
-			//		expandedMarkedItems.Remove(availableOrderItem);
+				var orderItemsForInventoryPositionDiscountsSum =
+					orderItemsForInventoryPosition.Sum(x => x.DiscountPerSingleItem);
 
-			//		inventPosition.EdoTaskItem = null;
-			//		inventPosition.GroupCode = groupCode;
-			//		groupFiscalInventPositions.Add(inventPosition);
+				var firstsAvailableOrderItem = orderItemsForInventoryPosition.First();
 
-			//		individualCodesInGroupCount--;
+				var inventPosition = CreateInventPosition(firstsAvailableOrderItem.OrderItem);
+				inventPosition.Quantity = orderItemsForInventoryPosition.Count;
+				inventPosition.EdoTaskItem = null;
+				inventPosition.GroupCode = groupCode;
+				//Округляем цену за единицу до копееек в большую стороную. Далее при необходимости увеличим сумму скидки
+				inventPosition.Price = Math.Ceiling(100 * orderItemsForInventoryPositionPricesSum / individualCodesInGroupCount) / 100;
+				inventPosition.DiscountSum =
+					orderItemsForInventoryPositionDiscountsSum + (inventPosition.Price * inventPosition.Quantity - orderItemsForInventoryPositionPricesSum);
 
-			//		if(individualCodesInGroupCount == 0)
-			//		{
-			//			break;
-			//		}
-			//	}
-			//}
+				groupFiscalInventPositions.Add(inventPosition);
+
+				foreach(var orderItemInInventoyPosition in orderItemsForInventoryPosition)
+				{
+					// исключаем обработанный товар из первоначального списка распределенных товаров
+					// чтобы при обработке следующей группы, этот товар не попал под обработку, потому
+					// что мы его уже назначили на определенную группу и забрали от него сумму пропорциональной скидки
+					expandedMarkedItems.Remove(orderItemInInventoyPosition);
+				}
+			}
 
 			// РАСПРЕДЕЛЕНИЕ ГРУППОВЫХ InventPosition НА ФИСКАЛЬНЫЕ ДОКУМЕНТЫ
 			var documentIndex = mainFiscalDocument.Index;
