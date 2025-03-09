@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark;
@@ -15,7 +16,7 @@ namespace Vodovoz.Core.Domain.Edo
 	public class FiscalInventPosition : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
-		private OrderItemEntity _orderItem;
+		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
 		private string _name;
 		private decimal _quantity;
 		private decimal _price;
@@ -42,13 +43,13 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		/// <summary>
-		/// Строка заказа
+		/// Строки заказа
 		/// </summary>
-		[Display(Name = "Строка заказа")]
-		public virtual OrderItemEntity OrderItem
+		[Display(Name = "Строки заказа")]
+		public virtual IObservableList<OrderItemEntity> OrderItems
 		{
-			get => _orderItem;
-			set => SetField(ref _orderItem, value);
+			get => _orderItems;
+			set => SetField(ref _orderItems, value);
 		}
 
 		/// <summary>
