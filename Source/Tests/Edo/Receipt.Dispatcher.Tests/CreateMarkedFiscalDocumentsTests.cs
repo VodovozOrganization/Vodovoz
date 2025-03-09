@@ -51,11 +51,11 @@ namespace Receipt.Dispatcher.Tests
 
 			var receiptEdoTask = CreateTestReceiptEdoTaskForTest(
 				// Nomenclatures
-				new (IEnumerable<int> gtinIds, bool isAccountableInTrueMark)[]
+				new (IEnumerable<int> gtinIds, IEnumerable<int> groupGtinIds, bool isAccountableInTrueMark)[]
 				{
-					(new [] { 1, 2 }, true),
-					(new [] { 3, 4 }, true),
-					(Array.Empty<int>(), false)
+					(new [] { 1, 2 }, new [] { 1, 2 }, true),
+					(new [] { 3, 4 }, new [] { 3, 4 }, true),
+					(Array.Empty<int>(), Array.Empty<int>(), false)
 				},
 				// OrderItems
 				new (int nomenclatureId, decimal count, decimal price, decimal discount)[]
@@ -81,10 +81,10 @@ namespace Receipt.Dispatcher.Tests
 					(false, 2),
 				},
 				// Group Codes
-				new (int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
 				{
-					(null, false, new []{1, 2, 3, 4, 5, 6}),
-					(null, false, new []{7, 8, 9, 10, 11, 12})
+					(null, 1, false, new []{1, 2, 3, 4, 5, 6}),
+					(null, 2, false, new []{7, 8, 9, 10, 11, 12})
 				},
 				// CarLoad Document Items for IdentificationCodes
 				new[]
@@ -123,10 +123,10 @@ namespace Receipt.Dispatcher.Tests
 
 			var receiptEdoTask = CreateTestReceiptEdoTaskForTest(
 				// Nomenclatures
-				new (IEnumerable<int> gtinIds, bool isAccountableInTrueMark)[]
+				new (IEnumerable<int> gtinIds, IEnumerable<int> groupGtinIds, bool isAccountableInTrueMark)[]
 				{
-					(new [] { 1, 2 }, true),
-					(Array.Empty<int>(), false)
+					(new [] { 1, 2 }, new [] { 1, 2 }, true),
+					(Array.Empty<int>(), Array.Empty<int>(), false)
 				},
 				// OrderItems
 				new (int nomenclatureId, decimal count, decimal price, decimal discount)[]
@@ -150,11 +150,11 @@ namespace Receipt.Dispatcher.Tests
 					(false, 1),
 				},
 				// Group Codes
-				new (int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
 				{
-					(null, false, new []{ 1, 2, 3 }),
-					(null, false, new []{ 4, 5, 6 }),
-					(null, false, new []{ 7, 8, 9 })
+					(null, 1, false, new []{ 1, 2, 3 }),
+					(null, 1, false, new []{ 4, 5, 6 }),
+					(null, 1, false, new []{ 7, 8, 9 })
 				},
 				// Edo Task Item Identification Codes
 				new[]
@@ -169,17 +169,11 @@ namespace Receipt.Dispatcher.Tests
 			await _forOwnNeedsReceiptEdoTaskHandler.CreateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, default);
 
 			// Assert
+			//Ожидаем 4 строки чека: 3 с групповыми кодами, 1 с индивидуальным
+			Assert.Equal(4, receiptEdoTask.FiscalDocuments.SelectMany(x => x.InventPositions).Count());
 
 			Assert.Equal(receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Quantity)),
 				receiptEdoTask.OrderEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
-
-			var covered = receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum));
-
-			var startProce = receiptEdoTask.OrderEdoRequest.Order.OrderItems
-					.Where(x =>
-						x.Nomenclature.IsAccountableInTrueMark
-						&& x.Count > 0)
-					.Sum(x => x.Sum);
 
 			Assert.Equal(
 				receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum)),
@@ -198,11 +192,11 @@ namespace Receipt.Dispatcher.Tests
 
 			var receiptEdoTask = CreateTestReceiptEdoTaskForTest(
 				// Nomenclatures
-				new (IEnumerable<int> gtinIds, bool isAccountableInTrueMark)[]
+				new (IEnumerable<int> gtinIds, IEnumerable<int> groupGtinIds, bool isAccountableInTrueMark)[]
 				{
-					(new [] { 1, 2 }, true),
-					(new [] { 3, 4 }, true),
-					(Array.Empty<int>(), false)
+					(new [] { 1, 2 }, new [] { 1, 2 }, true),
+					(new [] { 3, 4 }, new [] { 3, 4 }, true),
+					(Array.Empty<int>(), Array.Empty<int>(), false)
 				},
 				// OrderItems
 				new[]
@@ -228,9 +222,9 @@ namespace Receipt.Dispatcher.Tests
 					(false, 2),
 				},
 				// Group Codes
-				new (int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
 				{
-					(null, false, new []{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }),
+					(null, 1, false, new []{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }),
 				},
 				// CarLoad Document Items for IdentificationCodes
 				new[]
@@ -267,15 +261,16 @@ namespace Receipt.Dispatcher.Tests
 		}
 
 		private ReceiptEdoTask CreateTestReceiptEdoTaskForTest(
-			IEnumerable<(IEnumerable<int> gtinIds, bool isAccountableInTrueMark)> nomenclaturesParameters,
+			IEnumerable<(IEnumerable<int> gtinIds, IEnumerable<int> groupGtinIds, bool isAccountableInTrueMark)> nomenclaturesParameters,
 			IEnumerable<(int nomenclatureId, decimal count, decimal price, decimal discount)> orderItemsParameters,
 			IEnumerable<(bool isValid, int gtinId)> waterIdentificationCodesParameters,
-			IEnumerable<(int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds)> waterGroupCodesParameters,
+			IEnumerable<(int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)> waterGroupCodesParameters,
 			IEnumerable<int> edoTaskItemIdentificationCodesParameters)
 		{
 			var orderItemAutoIncrementId = 1;
 			var nomenclatureAutoIncrementId = 1;
 			var gtinAutoIncrementId = 1;
+			var groupGtinAutoIncrementId = 1;
 			var carLoadDocumentItemAutoIncrementId = 1;
 			var edoTaskItemAutoIncrementId = 1;
 			var carLoadDocumentItemTrueMarkProductCodeAutoIncrementId = 1;
@@ -291,11 +286,24 @@ namespace Receipt.Dispatcher.Tests
 				gtins.Add(CreateGtin(gtinAutoIncrementId++));
 			}
 
+			var groupGtins = new List<GroupGtinEntity>();
+
+			var maxGroupGtinId = nomenclaturesParameters.Max(x => x.groupGtinIds.Any() ? x.groupGtinIds.Max() : 0);
+
+			for(var i = 1; i < maxGroupGtinId; i++)
+			{
+				groupGtins.Add(CreateGroupGtin(groupGtinAutoIncrementId++));
+			}
+
 			var nomenclatures = new List<NomenclatureEntity>();
 
-			foreach(var (gtinIds, isAccountableInTrueMark) in nomenclaturesParameters)
+			foreach(var (gtinIds, groupGtinIds, isAccountableInTrueMark) in nomenclaturesParameters)
 			{
-				nomenclatures.Add(CreateNomenclature(nomenclatureAutoIncrementId++, isAccountableInTrueMark, gtins.Where(x => gtinIds.Contains(x.Id))));
+				nomenclatures.Add(CreateNomenclature(
+					nomenclatureAutoIncrementId++,
+					isAccountableInTrueMark,
+					gtins.Where(x => gtinIds.Contains(x.Id)),
+					groupGtins.Where(x => groupGtinIds.Contains(x.Id))));
 			}
 
 			var orderItems = new List<OrderItemEntity>();
@@ -336,12 +344,13 @@ namespace Receipt.Dispatcher.Tests
 
 			var groupCodesCounter = 1;
 
-			foreach((int? parentWaterCodeId, bool isInValid, IEnumerable<int> childWaterCodeIds) in waterGroupCodesParameters.OrderBy(x => x.parentWaterCodeId))
+			foreach((int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds) in waterGroupCodesParameters.OrderBy(x => x.parentWaterCodeId))
 			{
 				var groupCode = new TrueMarkWaterGroupCode
 				{
 					Id = waterGroupCodeAutoIncrementId++,
 					IsInvalid = isInValid,
+					GTIN = CreateNewGroupGtinCode(groupGtinId),
 				};
 
 				if(parentWaterCodeId != null)
@@ -404,6 +413,15 @@ namespace Receipt.Dispatcher.Tests
 			};
 		}
 
+		private GroupGtinEntity CreateGroupGtin(int id)
+		{
+			return new GroupGtinEntity
+			{
+				Id = id,
+				GtinNumber = CreateNewGroupGtinCode(id)
+			};
+		}
+
 		private TrueMarkWaterIdentificationCode CreateTrueMarkWaterIdentificationCode(int id, string gtin, bool isInvalid)
 		{
 			return new TrueMarkWaterIdentificationCode
@@ -417,6 +435,7 @@ namespace Receipt.Dispatcher.Tests
 		}
 
 		private string CreateNewGtinCode(int id) => $"Gtin#Test#{id}";
+		private string CreateNewGroupGtinCode(int id) => $"GroupGtin#Test#{id}";
 		private string CreateNewGtinSerial(int id) => $"Gtin#Test.Serial#{id}";
 		private string CreateNewGtinCheckCode(int id) => $"Gtin#Test.CheckCode#{id}";
 
@@ -438,19 +457,26 @@ namespace Receipt.Dispatcher.Tests
 			return order;
 		}
 
-		private NomenclatureEntity CreateNomenclature(int id, bool isAccountableInTrueMark, IEnumerable<GtinEntity> gtins)
+		private NomenclatureEntity CreateNomenclature(int id, bool isAccountableInTrueMark, IEnumerable<GtinEntity> gtins, IEnumerable<GroupGtinEntity> groupGtins)
 		{
 			var nomenclature = new NomenclatureEntity
 			{
 				Id = id,
 				IsAccountableInTrueMark = isAccountableInTrueMark,
-				Gtins = new ObservableList<GtinEntity>()
+				Gtins = new ObservableList<GtinEntity>(),
+				GroupGtins = new ObservableList<GroupGtinEntity>()
 			};
 
 			foreach(var gtin in gtins)
 			{
 				gtin.Nomenclature = nomenclature;
 				nomenclature.Gtins.Add(gtin);
+			}
+
+			foreach(var groupGtin in groupGtins)
+			{
+				groupGtin.Nomenclature = nomenclature;
+				nomenclature.GroupGtins.Add(groupGtin);
 			}
 
 			return nomenclature;
