@@ -28,6 +28,7 @@ using NetTopologySuite.Operation.Valid;
 using NHibernate;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.Repositories;
+using QS.Extensions.Observable.Collections.List;
 
 namespace Edo.Receipt.Dispatcher
 {
@@ -474,7 +475,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var unmarkedOrderItem in unmarkedOrderItems)
 			{
 				var inventPosition = fiscalDocument.InventPositions
-					.FirstOrDefault(x => x.OrderItem.Id == unmarkedOrderItem.Id);
+					.FirstOrDefault(x => x.OrderItems.First().Id == unmarkedOrderItem.Id);
 
 				if(inventPosition == null)
 				{
@@ -613,14 +614,13 @@ namespace Edo.Receipt.Dispatcher
 				var orderItemsForInventoryPositionDiscountsSum =
 					orderItemsForInventoryPosition.Sum(x => x.DiscountPerSingleItem);
 
-				var firstsAvailableOrderItem = orderItemsForInventoryPosition.First();
+				//Округляем цену за единицу до копееек в большую стороную. Далее при необходимости увеличим сумму скидки
+				var pricePerItem = Math.Ceiling(100 * orderItemsForInventoryPositionPricesSum / individualCodesInGroupCount) / 100;
 
-				var inventPosition = CreateInventPosition(firstsAvailableOrderItem.OrderItem);
+				var inventPosition = CreateInventPosition(orderItemsForInventoryPosition.Select(x => x.OrderItem), pricePerItem);
 				inventPosition.Quantity = orderItemsForInventoryPosition.Count;
 				inventPosition.EdoTaskItem = null;
 				inventPosition.GroupCode = groupCode;
-				//Округляем цену за единицу до копееек в большую стороную. Далее при необходимости увеличим сумму скидки
-				inventPosition.Price = Math.Ceiling(100 * orderItemsForInventoryPositionPricesSum / individualCodesInGroupCount) / 100;
 				inventPosition.DiscountSum =
 					orderItemsForInventoryPositionDiscountsSum + (inventPosition.Price * inventPosition.Quantity - orderItemsForInventoryPositionPricesSum);
 
@@ -669,7 +669,6 @@ namespace Edo.Receipt.Dispatcher
 				currentFiscalDocument.Index = documentIndex;
 				currentFiscalDocument.DocumentNumber += $"_{documentIndex}";
 			} while(groupFiscalInventPositions.Any());
-
 
 			// ОБРАБОТКА ИНДИВИДУАЛЬНЫХ КОДОВ
 
@@ -879,13 +878,15 @@ namespace Edo.Receipt.Dispatcher
 				// потом обновить по старому все остальные :
 
 				var markedEmptyPositions = fiscalDocument.InventPositions
-					.Where(x => x.OrderItem.Nomenclature.IsAccountableInTrueMark)
+					.Where(x => x.OrderItems.Any(oi => oi.Nomenclature.IsAccountableInTrueMark))
 					.Where(x => x.EdoTaskItem.ProductCode.ResultCode == null)
 					;
 
 				foreach(var inventPosition in markedEmptyPositions)
 				{
-					var code = await LoadCodeFromPool(inventPosition.OrderItem.Nomenclature, cancellationToken);
+					var nomenclature = inventPosition.OrderItems.First().Nomenclature;
+
+					var code = await LoadCodeFromPool(nomenclature, cancellationToken);
 					inventPosition.EdoTaskItem.ProductCode.ResultCode = code;
 				}
 			}
@@ -946,7 +947,7 @@ namespace Edo.Receipt.Dispatcher
 
 			var inventPosition = CreateInventPosition(orderItem);
 			inventPosition.Quantity = 1;
-			inventPosition.OrderItem = orderItem;
+			inventPosition.OrderItems = new ObservableList<OrderItemEntity> { orderItem };
 
 			// Пытаемся найти совпадающий по Gtin код:
 
@@ -1418,16 +1419,34 @@ namespace Edo.Receipt.Dispatcher
 
 		private FiscalInventPosition CreateInventPosition(OrderItemEntity orderItem)
 		{
+			return CreateInventPosition(new List<OrderItemEntity> { orderItem }, Math.Round(orderItem.Price, 2));
+		}
+		
+		private FiscalInventPosition CreateInventPosition(IEnumerable<OrderItemEntity> orderItems, decimal pricePerItem)
+		{
+			if(orderItems.Select(x => x.Order.Id).Distinct().Count() > 1)
+			{
+				throw new InvalidOperationException("Нельзя создать товар в чеке для строк разных заказов");
+			}
+
+			if(orderItems.Select(x => x.Nomenclature.Id).Distinct().Count() > 1)
+			{
+				throw new InvalidOperationException("Нельзя создать товар в чеке для строк заказа с разной номенклатурой");
+			}
+
+			var nomenclature = orderItems.First().Nomenclature;
+			var order = orderItems.First().Order;
+
 			var inventPosition = new FiscalInventPosition
 			{
-				Name = orderItem.Nomenclature.OfficialName,
-				Price = Math.Round(orderItem.Price, 2),
-				OrderItem = orderItem
+				Name = nomenclature.OfficialName,
+				Price = pricePerItem,
+				OrderItems = new ObservableList<OrderItemEntity>(orderItems)
 			};
 
-			var organization = orderItem.Order.Contract?.Organization;
+			var organization = order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == VAT.No)
+			if(organization is null || organization.WithoutVAT || nomenclature.VAT == VAT.No)
 			{
 				inventPosition.Vat = FiscalVat.VatFree;
 			}
