@@ -36,14 +36,16 @@ namespace Edo.Docflow.Factories
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
-		public UniversalTransferDocumentInfo CreateUniversalTransferDocumentInfo(OrderEntity order, EdoUpdDocument edoUpdDocument)
+		public UniversalTransferDocumentInfo CreateUniversalTransferDocumentInfo(DocumentEdoTask documentEdoTask)
 		{
-			return ConvertTransferOrderToUniversalTransferDocumentInfo(order, edoUpdDocument);
+			return ConvertTransferOrderToUniversalTransferDocumentInfo(documentEdoTask);
 		}
 
-		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(OrderEntity order, EdoUpdDocument edoUpdDocument)
+		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(DocumentEdoTask documentEdoTask)
 		{
-			var products = GetProducts(edoUpdDocument);
+			var order = documentEdoTask.OrderEdoRequest.Order;
+
+			var products = GetProducts(documentEdoTask);
 
 			var document = new UniversalTransferDocumentInfo
 			{
@@ -263,11 +265,13 @@ namespace Edo.Docflow.Factories
 			};
 		}
 
-		private IEnumerable<ProductInfo> GetProducts(EdoUpdDocument edoUpdDocument)
+		private IEnumerable<ProductInfo> GetProducts(DocumentEdoTask documentEdoTask)
 		{
+			var inventPositions = documentEdoTask.UpdInventPositions;
+
 			var products = new List<ProductInfo>();
 
-			foreach(var inventPosition in edoUpdDocument.InventPositions)
+			foreach(var inventPosition in inventPositions)
 			{
 				var orderItem = inventPosition.AssignedOrderItem;
 				var nomenclature = orderItem.Nomenclature;
@@ -318,6 +322,11 @@ namespace Edo.Docflow.Factories
 					throw new InvalidOperationException("Должен быть обязательно заполнен код в позиции УПД документа");
 				}
 
+				if(orderItem.Count != inventPosition.Codes.Sum(x => x.Quantity))
+				{
+					throw new InvalidOperationException("Количество товара в позиции УПД не совпадает с количеством кодов");
+				}
+
 				var product = new ProductInfo
 				{
 					Name = nomenclature.Name,
@@ -335,31 +344,6 @@ namespace Edo.Docflow.Factories
 
 				products.Add(product);
 			}
-
-			//foreach(var remainingPosition in edoUpdDocument.RemainingPositions)
-			//{
-			//	var orderItem = remainingPosition.AssignedOrderItems.First();
-			//	var nomenclature = remainingPosition.AssignedOrderItems.First().Nomenclature;
-			//	var isService = nomenclature.Category == NomenclatureCategory.master
-			//		|| nomenclature.Category == NomenclatureCategory.service;
-
-			//	var product = new ProductInfo
-			//	{
-			//		Name = nomenclature.Name,
-			//		IsService = isService,
-			//		UnitName = nomenclature.Unit.Name,
-			//		OKEI = nomenclature.Unit.OKEI,
-			//		Code = nomenclature.Id.ToString(),
-			//		Count = remainingPosition.Quantity,
-			//		Price = remainingPosition.Price,
-			//		IncludeVat = orderItem.IncludeNDS ?? 0,
-			//		ValueAddedTax = orderItem.ValueAddedTax,
-			//		DiscountMoney = remainingPosition.Discount,
-			//		TrueMarkCodes = codesInfo
-			//	};
-
-			//	products.Add(product);
-			//}
 
 			return products;
 		}
