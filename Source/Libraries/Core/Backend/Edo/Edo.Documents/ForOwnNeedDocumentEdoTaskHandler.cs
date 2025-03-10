@@ -418,7 +418,11 @@ namespace Edo.Documents
 				}
 			}
 
-			documentEdoTask.UpdInventPositions = updInventPositions;
+			documentEdoTask.UpdInventPositions.Clear();
+			foreach(var updInventPosition in updInventPositions)
+			{
+				documentEdoTask.UpdInventPositions.Add(updInventPosition);
+			}
 		}
 
 

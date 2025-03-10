@@ -9,7 +9,7 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		private int _id;
 		private OrderItemEntity _assignedOrderItem;
-		private List<EdoUpdInventPositionCode> _codes;
+		private IList<EdoUpdInventPositionCode> _codes = new List<EdoUpdInventPositionCode>();
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -26,7 +26,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Коды")]
-		public virtual List<EdoUpdInventPositionCode> Codes
+		public virtual IList<EdoUpdInventPositionCode> Codes
 		{
 			get => _codes;
 			set => SetField(ref _codes, value);

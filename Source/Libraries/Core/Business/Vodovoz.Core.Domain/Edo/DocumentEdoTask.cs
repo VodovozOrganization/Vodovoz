@@ -9,7 +9,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _toCustomer;
 		private EdoDocumentType _documentType;
 		private DocumentEdoTaskStage _stage;
-		private List<EdoUpdInventPosition> _updInventPositions;
+		private IList<EdoUpdInventPosition> _updInventPositions = new List<EdoUpdInventPosition>();
 
 		[Display(Name = "Код организации")]
 		public virtual int FromOrganization
@@ -40,7 +40,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Строка УПД документа")]
-		public virtual List<EdoUpdInventPosition> UpdInventPositions
+		public virtual IList<EdoUpdInventPosition> UpdInventPositions
 		{
 			get => _updInventPositions;
 			set => SetField(ref _updInventPositions, value);

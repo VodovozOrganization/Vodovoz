@@ -259,7 +259,11 @@ namespace Edo.Documents
 				updInventPositions.Add(inventPosition);
 			}
 
-			documentEdoTask.UpdInventPositions = updInventPositions;
+			documentEdoTask.UpdInventPositions.Clear();
+			foreach(var updInventPosition in updInventPositions)
+			{
+				documentEdoTask.UpdInventPositions.Add(updInventPosition);
+			}
 		}
 
 		private IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>> TakeGroupCodesWithTaskItems(List<EdoTaskItem> unprocessedTaskItems)
