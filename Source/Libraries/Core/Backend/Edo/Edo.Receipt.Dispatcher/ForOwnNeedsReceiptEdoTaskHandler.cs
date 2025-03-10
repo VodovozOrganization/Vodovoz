@@ -1117,6 +1117,15 @@ namespace Edo.Receipt.Dispatcher
 				return IndustryRequisitePrepareResult.Problem;
 			}
 
+			var regulatoryDocument = _uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
+			if(regulatoryDocument == null)
+			{
+				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
+					receiptEdoTask,
+					cancellationToken);
+				return IndustryRequisitePrepareResult.Problem;
+			}
+
 			bool isValid = true;
 			var invalidTaskItems = new List<EdoTaskItem>();
 
@@ -1167,12 +1176,15 @@ namespace Edo.Receipt.Dispatcher
 				{
 					var inventPosition = codesToCheck1260[codeResult.Cis];
 					inventPosition.IndustryRequisiteData = $"UUID={result.ReqId}&Time={result.ReqTimestamp}";
+					inventPosition.RegulatoryDocument = regulatoryDocument;
+					await _uow.SaveAsync(inventPosition, cancellationToken: cancellationToken);
 				}
 			}
 
 			if(isValid)
 			{
 				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteMissingOrganizationToken>(receiptEdoTask);
+				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(receiptEdoTask);
 				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteCheckApiError>(receiptEdoTask);
 				return IndustryRequisitePrepareResult.Succeeded;
 			}

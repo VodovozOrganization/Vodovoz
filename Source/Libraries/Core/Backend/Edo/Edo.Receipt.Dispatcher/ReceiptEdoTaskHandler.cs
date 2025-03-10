@@ -62,7 +62,7 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
-			var receiptEdoTask = (ReceiptEdoTask)transferIteration.OrderEdoTask;
+			var receiptEdoTask = transferIteration.OrderEdoTask.As<ReceiptEdoTask>();
 			if(receiptEdoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
 			{
 				await _resaleReceiptEdoTaskHandler.HandleTransferComplete(receiptEdoTask, cancellationToken);
