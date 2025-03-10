@@ -229,7 +229,7 @@ namespace Edo.Transfer
 			IEnumerable<GroupGtinEntity> groupGtins
 			)
 		{
-			var nomenclature = edoTask.UpdDocument.InventPositions
+			var nomenclature = edoTask.UpdInventPositions
 				.Where(x => x.Codes.Any(c => c.GroupCode == groupCode))
 				.Select(x => x.AssignedOrderItem.Nomenclature)
 				.FirstOrDefault();
@@ -250,7 +250,7 @@ namespace Edo.Transfer
 			IEnumerable<GtinEntity> gtins
 			)
 		{
-			var nomenclature = edoTask.UpdDocument.InventPositions
+			var nomenclature = edoTask.UpdInventPositions
 				.Where(x => x.Codes.Any(c => c.IndividualCode == individualCode))
 				.Select(x => x.AssignedOrderItem.Nomenclature)
 				.FirstOrDefault();

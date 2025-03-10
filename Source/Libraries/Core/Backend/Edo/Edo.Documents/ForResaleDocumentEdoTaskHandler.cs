@@ -154,7 +154,7 @@ namespace Edo.Documents
 			var unprocessedCodes = documentEdoTask.Items.ToList();
 			var groupCodesWithTaskItems = TakeGroupCodesWithTaskItems(unprocessedCodes);
 
-			var updDocument = new EdoUpdDocument();
+			var updInventPositions = new List<EdoUpdInventPosition>();
 
 			foreach(var orderItem in order.OrderItems)
 			{
@@ -255,9 +255,11 @@ namespace Edo.Documents
 				var inventPosition = new EdoUpdInventPosition();
 				inventPosition.AssignedOrderItem = orderItem;
 				inventPosition.Codes = codeItemsToAssign;
+
+				updInventPositions.Add(inventPosition);
 			}
 
-			documentEdoTask.UpdDocument = updDocument;
+			documentEdoTask.UpdInventPositions = updInventPositions;
 		}
 
 		private IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>> TakeGroupCodesWithTaskItems(List<EdoTaskItem> unprocessedTaskItems)
