@@ -9,6 +9,8 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -19,7 +21,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 
@@ -117,6 +118,11 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(!(validationContext.GetService(typeof(IUnitOfWork)) is IUnitOfWork unitOfWork))
+			{
+				throw new ArgumentNullException(nameof(unitOfWork));
+			}
+			
 			foreach(var item in Items) {
 				if(item.Amount > item.AmountInStock)
 					yield return new ValidationResult(string.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
@@ -124,6 +130,34 @@ namespace Vodovoz.Domain.Documents
 				if(item.Amount <= 0) {
 					yield return new ValidationResult(string.Format("Введено не положительное количество <{0}>", item.Nomenclature.Name),
 						new[] { this.GetPropertyName(o => o.Items) });
+				}
+
+				if(Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
+				   && item.Nomenclature.IsAccountableInTrueMark
+				   && item.Amount > item.TrueMarkProductCodes.Count)
+				{
+					yield return new ValidationResult($"Для перепродажи должны быть отсканированы все коды.",
+						new[] { nameof(item) });
+				}
+
+				var hasOtherSelfDeliveryDocumentsWithThisOrder = unitOfWork
+					.GetAll<SelfDeliveryDocument>()
+					.Any(x => x.Order.Id == Order.Id && x.Id != Id);
+
+				if(hasOtherSelfDeliveryDocumentsWithThisOrder)
+				{
+					yield return new ValidationResult($"Уже есть документ с заказом {Order.Id}",
+						new[] { nameof(item) });
+				}
+				
+				var hasOrderEdoRequest = unitOfWork
+					.GetAll<OrderEdoRequest>()
+					.Any(x => x.Order.Id == Order.Id && x.Id != Id);
+
+				if(hasOrderEdoRequest)
+				{
+					yield return new ValidationResult($"Нельзя изменять документ самовывоза, по которому уже есть заявка на отправку документов заказа по ЭДО.",
+						new[] { nameof(item) });
 				}
 			}
 		}

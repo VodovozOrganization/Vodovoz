@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -2064,10 +2064,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.GtinView.cs" />
     <Compile Include="Views\Goods\NonReturnReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NonReturnReasonView.cs" />
-    <Compile Include="Views\Warehouse\CodesScanCheckerView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.CodesScanCheckerView.cs" />
     <Compile Include="Views\Goods\GtinView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.GtinView.cs" />
+    <Compile Include="Views\Documents\CodesScanView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Documents.CodesScanView.cs" />
     <Compile Include="Views\Goods\GroupGtinView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.GroupGtinView.cs" />
   </ItemGroup>
@@ -2075,6 +2075,7 @@
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\Documents\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2377,6 +2378,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj">
       <Project>{6950e38b-66b7-4224-aa53-0bf28d4d4a8b}</Project>
       <Name>DriverApi.Notifications.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Common\Edo.Common.csproj">
+      <Project>{b657cbf6-c803-4249-894b-87e8e6e94a62}</Project>
+      <Name>Edo.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj">
       <Project>{c17807ce-71ac-4101-901e-657cef7892eb}</Project>

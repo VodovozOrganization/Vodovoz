@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using Gdk;
 using Gamma.GtkWidgets;
+using Gtk;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Infrastructure;
 
@@ -20,7 +22,9 @@ namespace Vodovoz
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("В заказе").AddTextRenderer(x => GetItemsCount(x))
 				.AddColumn("Уже отгружено").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountUnloaded))
-				.AddColumn("Количество").AddNumericRenderer(x => x.Amount).Editing()
+				.AddColumn("Количество").AddNumericRenderer(x => x.Amount)
+				.EditedEvent(OnAmountEdited)
+				.Editing(x => x.Document?.Order?.Client?.ReasonForLeaving != ReasonForLeaving.Resale || !x.Nomenclature.IsAccountableInTrueMark)
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
 				.AddSetter((w, x) => w.ForegroundGdk = CalculateAmountColor(x))
@@ -28,6 +32,37 @@ namespace Vodovoz
 				.Finish();
 
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+		}
+
+		private void OnAmountEdited(object o, EditedArgs args)
+		{
+			var node = ytreeviewItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+
+			if(!(node is SelfDeliveryDocumentItem item))
+			{
+				return;
+			}
+
+			var isAccountableInTrueMark = item.Nomenclature.IsAccountableInTrueMark;
+
+			if(!isAccountableInTrueMark)
+			{
+				return;
+			}
+
+			var reasonForLeaving = DocumentUoW?.Root?.Order?.Client?.ReasonForLeaving;
+
+			if(reasonForLeaving != ReasonForLeaving.ForOwnNeeds)
+			{
+				return;
+			}
+
+			int.TryParse(args.NewText, out var newValue);
+
+			if(newValue < item.TrueMarkProductCodes.Count || newValue > item.OrderItem.Count)
+			{
+				args.Args[1] = $"{item.Amount:N0}";
+			}
 		}
 
 		void YtreeviewItems_Selection_Changed(object sender, EventArgs e)
