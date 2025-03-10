@@ -183,7 +183,9 @@ namespace TaxcomEdoApi.Library.Converters
 
 			foreach(var code in codes)
 			{
-				identificationInfo.ItemsElementName[i] = code.IsGroup ? ItemsChoiceType.NomUpak : ItemsChoiceType.KIZ;
+				identificationInfo.ItemsElementName[i] = code.Type == ProductCodeType.Group 
+					? ItemsChoiceType.NomUpak 
+					: ItemsChoiceType.KIZ;
 				identificationInfo.Items[i] = code.IndividualOrGroupCode;
 				i++;
 			}

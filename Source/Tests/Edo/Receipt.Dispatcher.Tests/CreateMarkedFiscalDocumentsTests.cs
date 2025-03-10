@@ -407,6 +407,7 @@ namespace Receipt.Dispatcher.Tests
 			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository);
 			var trueMarkCodesPool = CreateTrueMarkCodesPoolFixture(unitOfWork);
 			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
+			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
 			var bus = Substitute.For<IBus>();
 
 			return new ForOwnNeedsReceiptEdoTaskHandler(
@@ -421,7 +422,7 @@ namespace Receipt.Dispatcher.Tests
 				localCodesValidator,
 				trueMarkCodesPool,
 				tag1260Checker,
-				waterGroupCodeRepository,
+				trueMarkCodeRepository,
 				productCodeRepository ?? Substitute.For<IGenericRepository<TrueMarkProductCode>>(),
 				bus);
 		}

@@ -2,7 +2,6 @@
 using Edo.Contracts.Messages.Events;
 using MassTransit;
 using QS.DomainModel.UoW;
-using Renci.SshNet.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +75,7 @@ namespace Edo.Documents
 					attempts--;
 				}
 
-				if(documentEdoTask.UpdDocument == null)
+				if(!documentEdoTask.UpdInventPositions.Any())
 				{
 					await CreateUpdDocument(documentEdoTask, trueMarkCodesChecker, cancellationToken);
 				}
@@ -123,7 +122,7 @@ namespace Edo.Documents
 
 					if(hasGroupInvalidCodes)
 					{
-						documentEdoTask.UpdDocument = null;
+						documentEdoTask.UpdInventPositions.Clear();
 					}
 				}
 			} while(!isAllValid && attempts > 0);
@@ -144,8 +143,6 @@ namespace Edo.Documents
 			}
 			else
 			{
-				documentEdoTask.UpdDocument.InventPositions.First().AssignedOrderItem
-
 				// создать трансфер
 				var iteration = await _transferRequestCreator.CreateTransferRequests(
 					_uow,
@@ -219,7 +216,7 @@ namespace Edo.Documents
 			// результатом должен быть документ УПД
 			// в котором созданы инвентарные позиции в кол-ве равном строкам товаров в заказе
 			// к каждой инвентарной позиции привязаны коды в кол-ве равном кол-ву товаров в заказе
-			var updDocument = new EdoUpdDocument();
+			var updInventPositions = new List<EdoUpdInventPosition>();
 			foreach(var orderItem in order.OrderItems)
 			{
 				// Процесс создания инвентарной позиции УПД
@@ -408,7 +405,7 @@ namespace Edo.Documents
 					throw new InvalidOperationException("Сумма назначенных кодов не совпадает с кол-вом товаров");
 				}
 
-				updDocument.InventPositions.Append(inventPosition);
+				updInventPositions.Add(inventPosition);
 			}
 
 			if(unprocessedCodes.Any())
@@ -421,7 +418,7 @@ namespace Edo.Documents
 				}
 			}
 
-			documentEdoTask.UpdDocument = updDocument;
+			documentEdoTask.UpdInventPositions = updInventPositions;
 		}
 
 
