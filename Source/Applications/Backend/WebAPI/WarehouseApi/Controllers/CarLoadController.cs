@@ -100,6 +100,18 @@ namespace WarehouseApi.Controllers
 			{
 				var requestProcessingResult = await _carLoadService.GetOrder(orderId);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					foreach(var item in requestProcessingResult.Result.Value.Order.Items)
+					{
+						var maxIndex = item.Codes.Count();
+						for(int i = 0; i < maxIndex; i++)
+						{
+							item.Codes.ElementAt(i).SequenceNumber = i;
+						}
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
@@ -133,6 +145,15 @@ namespace WarehouseApi.Controllers
 			{
 				var requestProcessingResult =
 					await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName, cancellationToken);
+
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature.Codes.Count();
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
@@ -174,6 +195,15 @@ namespace WarehouseApi.Controllers
 						requestData.NewCode,
 						user.UserName,
 						cancellationToken);
+
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature.Codes.Count();
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,

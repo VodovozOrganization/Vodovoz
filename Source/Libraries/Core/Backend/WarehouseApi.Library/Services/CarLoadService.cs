@@ -178,6 +178,11 @@ namespace WarehouseApi.Library.Services
 
 					var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
 
+					if(codeToAddInfo.Codes.Any(x => x.Parent != null && x.Code == trueMarkProductCode.ResultCode.RawCode))
+					{
+						continue;
+					}
+
 					var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
 
 					if(codeToAddInfo is null)
@@ -192,18 +197,18 @@ namespace WarehouseApi.Library.Services
 						groupCode => groupCode.GetAllCodes(),
 						waterCode => new TrueMarkAnyCode[] { waterCode });
 
-					var index = 0;
-
 					foreach(var anyCode in allCodes)
 					{
 						trueMarkCodes.Add(
 							anyCode.Match(
-								PopulateTransportCode(allCodes, ref index),
-								PopulateGroupCode(allCodes, ref index),
-								PopulateWaterCode(allCodes, ref index)));
+								PopulateTransportCode(allCodes),
+								PopulateGroupCode(allCodes),
+								PopulateWaterCode(allCodes)));
 					}
 
-					codeToAddInfo.Codes = codeToAddInfo.Codes.Concat(trueMarkCodes);
+					codeToAddInfo.Codes = codeToAddInfo.Codes
+						.Where(code => !trueMarkCodes.Any(x => x.Code == code.Code))
+						.Concat(trueMarkCodes);
 				}
 			}
 
@@ -304,14 +309,12 @@ namespace WarehouseApi.Library.Services
 
 			var trueMarkCodes = new List<TrueMarkCodeDto>();
 
-			int index = 1;
-
 			foreach(var anyCode in trueMarkAnyCodes)
 			{
 				trueMarkCodes.Add(anyCode.Match(
-					PopulateTransportCode(trueMarkAnyCodes, ref index),
-					PopulateGroupCode(trueMarkAnyCodes, ref index),
-					PopulateWaterCode(trueMarkAnyCodes, ref index)));
+					PopulateTransportCode(trueMarkAnyCodes),
+					PopulateGroupCode(trueMarkAnyCodes),
+					PopulateWaterCode(trueMarkAnyCodes)));
 
 				if(!anyCode.IsTrueMarkWaterIdentificationCode)
 				{
@@ -551,16 +554,14 @@ namespace WarehouseApi.Library.Services
 
 			var trueMarkCodes = new List<TrueMarkCodeDto>();
 
-			int index = 1;
-
 			CarLoadDocumentItemEntity documentItemToEdit = null;
 
 			foreach(var codeToAdd in newTrueMarkAnyCodes)
 			{
 				trueMarkCodes.Add(codeToAdd.Match(
-					PopulateTransportCode(newTrueMarkAnyCodes, ref index),
-					PopulateGroupCode(newTrueMarkAnyCodes, ref index),
-					PopulateWaterCode(newTrueMarkAnyCodes, ref index)));
+					PopulateTransportCode(newTrueMarkAnyCodes),
+					PopulateGroupCode(newTrueMarkAnyCodes),
+					PopulateWaterCode(newTrueMarkAnyCodes)));
 
 				if(!codeToAdd.IsTrueMarkWaterIdentificationCode)
 				{
@@ -994,11 +995,8 @@ namespace WarehouseApi.Library.Services
 			ExternalApplicationType applicationType = ExternalApplicationType.WarehouseApp) =>
 			_employeeWithLoginRepository.GetEmployeeWithLogin(_uow, userLogin, applicationType);
 
-		private static Func<TrueMarkWaterIdentificationCode, TrueMarkCodeDto> PopulateWaterCode(IEnumerable<TrueMarkAnyCode> allCodes, ref int index)
+		private static Func<TrueMarkWaterIdentificationCode, TrueMarkCodeDto> PopulateWaterCode(IEnumerable<TrueMarkAnyCode> allCodes)
 		{
-			var currentIndex = index;
-			index++;
-
 			return waterCode =>
 			{
 				string parentRawCode = null;
@@ -1021,7 +1019,6 @@ namespace WarehouseApi.Library.Services
 
 				return new TrueMarkCodeDto
 				{
-					SequenceNumber = currentIndex,
 					Code = waterCode.RawCode,
 					Level = WarehouseApiTruemarkCodeLevel.unit,
 					Parent = parentRawCode,
@@ -1029,11 +1026,8 @@ namespace WarehouseApi.Library.Services
 			};
 		}
 
-		private static Func<TrueMarkWaterGroupCode, TrueMarkCodeDto> PopulateGroupCode(IEnumerable<TrueMarkAnyCode> allCodes, ref int index)
+		private static Func<TrueMarkWaterGroupCode, TrueMarkCodeDto> PopulateGroupCode(IEnumerable<TrueMarkAnyCode> allCodes)
 		{
-			var currentIndex = index;
-			index++;
-
 			return groupCode =>
 			{
 				string parentRawCode = null;
@@ -1056,7 +1050,6 @@ namespace WarehouseApi.Library.Services
 
 				return new TrueMarkCodeDto
 				{
-					SequenceNumber = currentIndex,
 					Code = groupCode.RawCode,
 					Level = WarehouseApiTruemarkCodeLevel.group,
 					Parent = parentRawCode
@@ -1064,11 +1057,8 @@ namespace WarehouseApi.Library.Services
 			};
 		}
 
-		private static Func<TrueMarkTransportCode, TrueMarkCodeDto> PopulateTransportCode(IEnumerable<TrueMarkAnyCode> allCodes, ref int index)
+		private static Func<TrueMarkTransportCode, TrueMarkCodeDto> PopulateTransportCode(IEnumerable<TrueMarkAnyCode> allCodes)
 		{
-			var currentIndex = index;
-			index++;
-
 			return transportCode =>
 			{
 				string parentRawCode = null;
@@ -1083,7 +1073,6 @@ namespace WarehouseApi.Library.Services
 
 				return new TrueMarkCodeDto
 				{
-					SequenceNumber = currentIndex,
 					Code = transportCode.RawCode,
 					Level = WarehouseApiTruemarkCodeLevel.transport,
 					Parent = parentRawCode
