@@ -34,10 +34,8 @@ namespace Edo.Scheduler.Service
 			{
 				return CreateReceiptTask(edoRequest);
 			}
-			else
-			{
-				return CreateSaveCodeTask(edoRequest);
-			}
+			
+			return CreateSaveCodeTask(edoRequest);
 		}
 
 		private EdoTask CreateEdoTaskForCashless(OrderEdoRequest edoRequest)
@@ -125,11 +123,18 @@ namespace Edo.Scheduler.Service
 
 		private EdoTask CreateReceiptTask(OrderEdoRequest edoRequest)
 		{
-			var task = new ReceiptEdoTask
+			OrderEdoTask task = null;
+			
+			if(edoRequest.Order.Client.IsNewEdoProcessing)
 			{
-				Status = EdoTaskStatus.New
-			};
+				task = new ReceiptEdoTask();
+			}
+			else
+			{
+				task = new BulkAccountingEdoTask();
+			}
 
+			task.Status = EdoTaskStatus.New;
 			task.Items = new ObservableList<EdoTaskItem>(
 				edoRequest.ProductCodes.Select(x =>
 					new EdoTaskItem

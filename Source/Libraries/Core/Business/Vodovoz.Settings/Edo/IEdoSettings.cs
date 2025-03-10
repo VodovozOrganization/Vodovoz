@@ -16,6 +16,7 @@
 		int EdoCheckPeriodDays { get; }
 		int TaxcomManualInvitationFileId { get; }
 		int TrueMarkCodesHandleInterval { get; }
+		bool NewEdoProcessing { get; }
 		int CodePoolCheckCodesDepth { get; }
 		int CodePoolCheckIntervalMinutes { get; }
 		int CodePoolPromoteWithExtraSeconds { get; }
