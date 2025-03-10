@@ -7,8 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Settings.Edo;
 
 namespace Edo.Transfer
@@ -16,11 +19,17 @@ namespace Edo.Transfer
 	public class TransferDispatcher
 	{
 		private readonly TransferTaskRepository _transferTaskRepository;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IEdoTransferSettings _edoTransferSettings;
 
-		public TransferDispatcher(TransferTaskRepository transferTaskRepository, IEdoTransferSettings edoTransferSettings)
+		public TransferDispatcher(
+			TransferTaskRepository transferTaskRepository,
+			ITrueMarkCodeRepository trueMarkCodeRepository,
+			IEdoTransferSettings edoTransferSettings
+			)
 		{
 			_transferTaskRepository = transferTaskRepository ?? throw new ArgumentNullException(nameof(transferTaskRepository));
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_edoTransferSettings = edoTransferSettings ?? throw new ArgumentNullException(nameof(edoTransferSettings));
 		}
 
@@ -122,23 +131,227 @@ namespace Edo.Transfer
 		private async Task CreateTransferOrder(IUnitOfWork uow, TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
 		{
 			var transferedCodes = await _transferTaskRepository.GetAllCodesForTransferTaskAsync(uow, transferEdoTask, cancellationToken);
-			
+			var groupGtins = await uow.Session.QueryOver<GroupGtinEntity>()
+					.ListAsync(cancellationToken);
+			var gtins = await uow.Session.QueryOver<GtinEntity>()
+					.ListAsync(cancellationToken);
+
 			var transferOrder = new TransferOrder();
 			transferOrder.Date = transferEdoTask.StartTime.Value;
 			transferOrder.Seller = new OrganizationEntity { Id = transferEdoTask.FromOrganizationId };
 			transferOrder.Customer = new OrganizationEntity { Id = transferEdoTask.ToOrganizationId };
 
-			foreach(var transferedCode in transferedCodes)
+			foreach(var transferEdoRequest in transferEdoTask.TransferEdoRequests)
 			{
-				var transferOrderTrueMarkCode = new TransferOrderTrueMarkCode();
-				transferOrderTrueMarkCode.TrueMarkCode = transferedCode;
-				transferOrderTrueMarkCode.TransferOrder = transferOrder;
-				transferOrder.TrueMarkCodes.Add(transferOrderTrueMarkCode);
+				foreach(var transferedItem in transferEdoRequest.TransferedItems)
+				{
+					TransferOrderTrueMarkCode transferOrderTrueMarkCode = null;
+					switch(transferEdoRequest.Iteration.OrderEdoTask.TaskType)
+					{
+						case EdoTaskType.Document:
+							var documentEdoTask = transferEdoRequest.Iteration.OrderEdoTask.As<DocumentEdoTask>();
+							transferOrderTrueMarkCode = CreateTransferCodeItem(
+								uow, 
+								documentEdoTask, 
+								transferedItem,
+								groupGtins,
+								gtins
+							);
+							break;
+						case EdoTaskType.Receipt:
+							var receiptEdoTask = transferEdoRequest.Iteration.OrderEdoTask.As<ReceiptEdoTask>();
+							transferOrderTrueMarkCode = CreateTransferCodeItem(
+								uow,
+								receiptEdoTask,
+								transferedItem,
+								groupGtins,
+								gtins
+							);
+							break;
+						default:
+							throw new NotSupportedException($"Тип задачи " +
+								$"{transferEdoRequest.Iteration.OrderEdoTask.TaskType} не поддерживается.");
+					}
+
+					transferOrderTrueMarkCode.TransferOrder = transferOrder;
+					transferOrder.Items.Add(transferOrderTrueMarkCode);
+				}
 			}
+
 			await uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
 			transferEdoTask.TransferOrderId = transferOrder.Id;
-			await uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 		}
+
+		private TransferOrderTrueMarkCode CreateTransferCodeItem(
+			IUnitOfWork uow,
+			DocumentEdoTask edoTask,
+			EdoTaskItem edoTaskItem,
+			IEnumerable<GroupGtinEntity> groupGtins,
+			IEnumerable<GtinEntity> gtins
+			)
+		{
+			TransferOrderTrueMarkCode transferOrderTrueMarkCode = null;
+
+			if(edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
+			{
+				var groupCode = _trueMarkCodeRepository.GetParentGroupCode(
+					uow, 
+					edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value
+				);
+
+				var groupCodeNomenclature = GetNomenclatureForTaskItem(edoTask, groupCode, groupGtins);
+				var quantity = groupCode.GetAllCodes()
+					.Where(x => x.IsTrueMarkWaterIdentificationCode)
+					.Count();
+
+				transferOrderTrueMarkCode = new TransferOrderTrueMarkCode();
+				transferOrderTrueMarkCode.GroupCode = groupCode;
+				transferOrderTrueMarkCode.Nomenclature = groupCodeNomenclature;
+				transferOrderTrueMarkCode.Quantity = quantity;
+
+				return transferOrderTrueMarkCode;
+			}
+
+			var individualCode = edoTaskItem.ProductCode.ResultCode;
+			var nomenclature = GetNomenclatureForTaskItem(edoTask, individualCode, gtins);
+
+			transferOrderTrueMarkCode = new TransferOrderTrueMarkCode();
+			transferOrderTrueMarkCode.IndividualCode = individualCode;
+			transferOrderTrueMarkCode.Nomenclature = nomenclature;
+			transferOrderTrueMarkCode.Quantity = 1;
+
+			return transferOrderTrueMarkCode;
+		}
+
+		private NomenclatureEntity GetNomenclatureForTaskItem(
+			DocumentEdoTask edoTask, 
+			TrueMarkWaterGroupCode groupCode,
+			IEnumerable<GroupGtinEntity> groupGtins
+			)
+		{
+			var nomenclature = edoTask.UpdDocument.InventPositions
+				.Where(x => x.Codes.Any(c => c.GroupCode == groupCode))
+				.Select(x => x.AssignedOrderItem.Nomenclature)
+				.FirstOrDefault();
+
+			if(nomenclature == null)
+			{
+				nomenclature = groupGtins.Where(x => x.GtinNumber == groupCode.GTIN)
+					.Select(x => x.Nomenclature)
+					.SingleOrDefault();
+			}
+
+			return nomenclature;
+		}
+
+		private NomenclatureEntity GetNomenclatureForTaskItem(
+			DocumentEdoTask edoTask,
+			TrueMarkWaterIdentificationCode individualCode,
+			IEnumerable<GtinEntity> gtins
+			)
+		{
+			var nomenclature = edoTask.UpdDocument.InventPositions
+				.Where(x => x.Codes.Any(c => c.IndividualCode == individualCode))
+				.Select(x => x.AssignedOrderItem.Nomenclature)
+				.FirstOrDefault();
+
+			if(nomenclature == null)
+			{
+				nomenclature = gtins.Where(x => x.GtinNumber == individualCode.GTIN)
+					.Select(x => x.Nomenclature)
+					.SingleOrDefault();
+			}
+
+			return nomenclature;
+		}
+
+		private TransferOrderTrueMarkCode CreateTransferCodeItem(
+			IUnitOfWork uow,
+			ReceiptEdoTask edoTask,
+			EdoTaskItem edoTaskItem,
+			IEnumerable<GroupGtinEntity> groupGtins,
+			IEnumerable<GtinEntity> gtins
+			)
+		{
+			TransferOrderTrueMarkCode transferOrderTrueMarkCode = null;
+
+			if(edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
+			{
+				var groupCode = _trueMarkCodeRepository.GetParentGroupCode(
+					uow,
+					edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value
+				);
+
+				var groupCodeNomenclature = GetNomenclatureForTaskItem(edoTask, groupCode, groupGtins);
+				var quantity = groupCode.GetAllCodes()
+					.Where(x => x.IsTrueMarkWaterIdentificationCode)
+					.Count();
+
+				transferOrderTrueMarkCode = new TransferOrderTrueMarkCode();
+				transferOrderTrueMarkCode.GroupCode = groupCode;
+				transferOrderTrueMarkCode.Nomenclature = groupCodeNomenclature;
+				transferOrderTrueMarkCode.Quantity = quantity;
+
+				return transferOrderTrueMarkCode;
+			}
+
+			var individualCode = edoTaskItem.ProductCode.ResultCode;
+			var nomenclature = GetNomenclatureForTaskItem(edoTask, edoTaskItem, gtins);
+
+			transferOrderTrueMarkCode = new TransferOrderTrueMarkCode();
+			transferOrderTrueMarkCode.IndividualCode = individualCode;
+			transferOrderTrueMarkCode.Nomenclature = nomenclature;
+			transferOrderTrueMarkCode.Quantity = 1;
+
+			return transferOrderTrueMarkCode;
+
+		}
+
+		private NomenclatureEntity GetNomenclatureForTaskItem(
+			ReceiptEdoTask edoTask,
+			TrueMarkWaterGroupCode groupCode,
+			IEnumerable<GroupGtinEntity> groupGtins
+			)
+		{
+			var nomenclature = edoTask.FiscalDocuments
+				.SelectMany(x => x.InventPositions)
+				.Where(x => x.GroupCode == groupCode)
+				.Select(x => x.OrderItem.Nomenclature)
+				.FirstOrDefault();
+
+			if(nomenclature == null)
+			{
+				nomenclature = groupGtins.Where(x => x.GtinNumber == groupCode.GTIN)
+					.Select(x => x.Nomenclature)
+					.SingleOrDefault();
+			}
+
+			return nomenclature;
+		}
+
+		private NomenclatureEntity GetNomenclatureForTaskItem(
+			ReceiptEdoTask edoTask,
+			EdoTaskItem edoTaskItem,
+			IEnumerable<GtinEntity> gtins
+			)
+		{
+			var nomenclature = edoTask.FiscalDocuments
+				.SelectMany(x => x.InventPositions)
+				.Where(x => x.EdoTaskItem == edoTaskItem)
+				.Select(x => x.OrderItem.Nomenclature)
+				.FirstOrDefault();
+
+			if(nomenclature == null)
+			{
+				var individualCode = edoTaskItem.ProductCode.ResultCode; 
+				nomenclature = gtins.Where(x => x.GtinNumber == individualCode.GTIN)
+					.Select(x => x.Nomenclature)
+					.SingleOrDefault();
+			}
+
+			return nomenclature;
+		}
+
 		/*
 		public void CompleteTransfer(TransferEdoTask transferTask)
 		{
