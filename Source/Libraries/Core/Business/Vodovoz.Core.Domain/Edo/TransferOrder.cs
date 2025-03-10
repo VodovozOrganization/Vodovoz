@@ -19,7 +19,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private DateTime _date = DateTime.Now;
 		private OrganizationEntity _seller;
 		private OrganizationEntity _customer;
-		private IObservableList<TransferOrderTrueMarkCode> _items;
+		private IObservableList<TransferOrderTrueMarkCode> _items = new ObservableList<TransferOrderTrueMarkCode>();
 
 		/// <summary>
 		/// Код

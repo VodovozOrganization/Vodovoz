@@ -40,7 +40,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("industry_requisite_data");
 
 			HasManyToMany(x => x.OrderItems)
-				.Table("edo_fiscal_invent_position_order_items")
+				.Table("edo_fiscal_invent_positions_order_items")
 				.ParentKeyColumn("edo_fiscal_invent_position_id")
 				.ChildKeyColumn("order_item_id")
 				.LazyLoad();

@@ -88,16 +88,21 @@ namespace Edo.Transfer
 				await uow.SaveAsync(request, cancellationToken: cancellationToken);
 			}
 
-			await TrySendTransfer(uow, task, cancellationToken);
+			await TrySendTransfer(uow, task, requestsGroup, cancellationToken);
 
 			return task;
 		}
 
-		private async Task TrySendTransfer(IUnitOfWork uow, TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
+		private async Task TrySendTransfer(
+			IUnitOfWork uow, 
+			TransferEdoTask transferEdoTask, 
+			IEnumerable<TransferEdoRequest> currentTransferEdoRequests,
+			CancellationToken cancellationToken)
 		{
-			var transferRequests = await uow.Session.QueryOver<TransferEdoRequest>()
+			var transferRequestsFromDb = await uow.Session.QueryOver<TransferEdoRequest>()
 				.Where(x => x.TransferEdoTask.Id == transferEdoTask.Id)
 				.ListAsync();
+			var transferRequests = transferRequestsFromDb.Union(currentTransferEdoRequests);
 
 			var codesCountInTask = transferRequests.Sum(x => x.TransferedItems.Count);
 

@@ -48,7 +48,6 @@ namespace Edo.Docflow
 			if(document.Status.IsIn(
 				EdoDocumentStatus.InProgress,
 				EdoDocumentStatus.CompletedWithDivergences,
-				EdoDocumentStatus.NotStarted,
 				EdoDocumentStatus.Succeed
 				))
 			{
