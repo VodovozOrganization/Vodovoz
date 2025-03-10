@@ -13,5 +13,11 @@
 		/// Необходим для разрешительного режима в чеках
 		/// </summary>
 		int IndustryRequisiteRegulatoryDocumentId { get; }
+
+
+		/// <summary>
+		/// Максимальное количество кодов ЧЗ в одном чеке
+		/// </summary>
+		int MaxCodesInReceiptCount { get; }
 	}
 }

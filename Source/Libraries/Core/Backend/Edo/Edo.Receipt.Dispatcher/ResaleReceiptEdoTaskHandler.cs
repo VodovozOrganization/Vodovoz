@@ -19,13 +19,12 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Settings.Edo;
 
 namespace Edo.Receipt.Dispatcher
 {
 	public class ResaleReceiptEdoTaskHandler
 	{
-		private const int _maxCodesInReceipt = 128;
-
 		private readonly ILogger<ResaleReceiptEdoTaskHandler> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly EdoTaskValidator _edoTaskValidator;
@@ -35,7 +34,9 @@ namespace Edo.Receipt.Dispatcher
 		private readonly TrueMarkTaskCodesValidator _localCodesValidator;
 		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
 		private readonly Tag1260Checker _tag1260Checker;
+		private readonly IEdoReceiptSettings _edoReceiptSettings;
 		private readonly IBus _messageBus;
+		private readonly int _maxCodesInReceipt;
 
 		public ResaleReceiptEdoTaskHandler(
 			ILogger<ResaleReceiptEdoTaskHandler> logger,
@@ -47,6 +48,7 @@ namespace Edo.Receipt.Dispatcher
 			TrueMarkTaskCodesValidator localCodesValidator,
 			TrueMarkTaskCodesValidator trueMarkTaskCodesValidator,
 			Tag1260Checker tag1260Checker,
+			IEdoReceiptSettings edoReceiptSettings,
 			IBus messageBus
 			)
 		{
@@ -59,7 +61,10 @@ namespace Edo.Receipt.Dispatcher
 			_localCodesValidator = localCodesValidator ?? throw new ArgumentNullException(nameof(localCodesValidator));
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
+			_edoReceiptSettings = edoReceiptSettings ?? throw new ArgumentNullException(nameof(edoReceiptSettings));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+
+			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
 		}
 
 		public async Task HandleResaleReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
