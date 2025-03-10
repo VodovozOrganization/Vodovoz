@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 {
@@ -11,7 +11,7 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 		/// Новый код <br/>
 		/// Проверка кода не выполнялась
 		/// </summary>
-		[Display(Name = "Новый код")]
+		[Display(Name = "Новый")]
 		New,
 
 		/// <summary>
