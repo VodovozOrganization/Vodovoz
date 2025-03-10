@@ -33,8 +33,6 @@ namespace Edo.Receipt.Dispatcher
 {
 	public class ForOwnNeedsReceiptEdoTaskHandler
 	{
-		private const int _maxCodesInReceipt = 128;
-
 		private readonly ILogger<ForOwnNeedsReceiptEdoTaskHandler> _logger;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferRequestCreator _transferRequestCreator;
@@ -49,6 +47,8 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IUnitOfWork _uow;
 		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly int _maxCodesInReceipt;
+
 		private int _prepareReceiptAttempts = 3;
 
 		public ForOwnNeedsReceiptEdoTaskHandler(
@@ -82,6 +82,8 @@ namespace Edo.Receipt.Dispatcher
 			_waterGroupCodeRepository = waterGroupCodeRepository ?? throw new ArgumentNullException(nameof(waterGroupCodeRepository));
 			_productCodeRepository = productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+
+			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
 		}
 
 		public async Task HandleForOwnNeedsReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
