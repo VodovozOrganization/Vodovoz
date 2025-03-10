@@ -177,12 +177,12 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private void ProcessCheckCodes(string rawCode, CancellationToken cancellationToken)
 		{
 			_trueMarkWaterCodeParser.TryParse(rawCode, out var parsedCode);
-			
+
 			if(parsedCode == null)
 			{
-				parsedCode =_trueMarkWaterCodeParser.ParseCodeFromSelfDelivery(rawCode);
+				parsedCode = _trueMarkWaterCodeParser.ParseCodeFromSelfDelivery(rawCode);
 			}
-			
+
 			var code = ReplaceCodeSpecSymbols(parsedCode?.SourceCode ?? rawCode);
 
 			lock(CodeScanRows)
@@ -287,16 +287,13 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			{
 				CodeScanRows.Sort((a, b) => b.RowNumber.CompareTo(a.RowNumber));
 			}
-			
+
 			lock(_selfDeliveryDocument)
 			{
-				OnPropertyChanged(() => IsAllCodesScanned);	
+				OnPropertyChanged(() => IsAllCodesScanned);
 			}
 
-			_guiDispatcher.RunInGuiTread(() =>
-				{
-					RefreshScanningNomenclaturesAction?.Invoke();
-				}
+			_guiDispatcher.RunInGuiTread(() => { RefreshScanningNomenclaturesAction?.Invoke(); }
 			);
 		}
 
@@ -472,33 +469,41 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		private void UpdateCodeScanRowsByAnyCode(TrueMarkAnyCode anyCode)
 		{
-			List<TrueMarkAnyCode> childrenCodesList = null;
-			string rawCode = null;
-			string nomenclatureName = null;
-			bool? hasInOrder = null;
+			var codeInfo =
+				anyCode
+					.Match<(List<TrueMarkWaterIdentificationCode> childrenCodesList, string rawCode, string nomenclatureName, bool?
+						hasInOrder)>(
+						transportCode =>
+						{
+							return
+								(transportCode.GetAllCodes()
+										.Where(x => x.IsTrueMarkWaterIdentificationCode)
+										.Select(x => x.TrueMarkWaterIdentificationCode)
+										.ToList(),
+									transportCode.RawCode,
+									"Транспортный код",
+									null);
+						},
+						groupCode =>
+						{
+							var groupNomenclatureName = GetNomenclatureNameByGtin(groupCode.GTIN);
 
-			if(anyCode.IsTrueMarkTransportCode)
-			{
-				childrenCodesList = anyCode.TrueMarkTransportCode.GetAllCodes().Where(x => x.IsTrueMarkWaterIdentificationCode).ToList();
-				rawCode = anyCode.TrueMarkTransportCode.RawCode;
-				nomenclatureName = "Транспортный код";
-			}
+							return
+								(groupCode.GetAllCodes()
+										.Where(x => x.IsTrueMarkWaterIdentificationCode)
+										.Select(x => x.TrueMarkWaterIdentificationCode)
+										.ToList(),
+									groupCode.RawCode,
+									string.IsNullOrWhiteSpace(groupNomenclatureName) ? "Групповой код" : groupNomenclatureName,
+									null);
+						},
+						waterCode => (
+							new List<TrueMarkWaterIdentificationCode> { waterCode },
+							waterCode.RawCode,
+							GetNomenclatureNameByGtin(waterCode.GTIN),
+							GetGtinHasInOrder(waterCode.GTIN)));
 
-			if(anyCode.IsTrueMarkWaterGroupCode)
-			{
-				childrenCodesList = anyCode.TrueMarkWaterGroupCode.GetAllCodes().Where(x => x.IsTrueMarkWaterIdentificationCode).ToList();
-				rawCode = anyCode.TrueMarkWaterGroupCode.RawCode;
-				var groupNomenclatureName = GetNomenclatureNameByGtin(anyCode.TrueMarkWaterGroupCode.GTIN);
-
-				nomenclatureName = string.IsNullOrWhiteSpace(groupNomenclatureName) ? "Групповой код" : groupNomenclatureName;
-			}
-
-			if(anyCode.IsTrueMarkWaterIdentificationCode)
-			{
-				rawCode = anyCode.TrueMarkWaterIdentificationCode.RawCode;
-				nomenclatureName = GetNomenclatureNameByGtin(anyCode.TrueMarkWaterIdentificationCode.GTIN);
-				hasInOrder = GetGtinHasInOrder(anyCode.TrueMarkWaterIdentificationCode.GTIN);
-			}
+			(List<TrueMarkWaterIdentificationCode> childrenCodesList, string rawCode, string nomenclatureName, bool? hasInOrder) = codeInfo;
 
 			lock(CodeScanRows)
 			{
@@ -527,16 +532,16 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				{
 					parentNode.Children.Clear();
 
-					foreach(var childrenCode in childrenCodesList)
+					foreach(var trueMarkWaterIdentificationCode in childrenCodesList)
 					{
-						hasInOrder = GetGtinHasInOrder(childrenCode.TrueMarkWaterIdentificationCode.GTIN);
+						hasInOrder = GetGtinHasInOrder(trueMarkWaterIdentificationCode.GTIN);
 
-						var childNode = CodeScanRows.FirstOrDefault(x => 
-							x.CodeNumber == childrenCode.TrueMarkWaterIdentificationCode.RawCode) 
-						    ?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
+						var childNode = CodeScanRows.FirstOrDefault(x =>
+							                x.CodeNumber == trueMarkWaterIdentificationCode.RawCode)
+						                ?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
 
-						childNode.CodeNumber = childrenCode.TrueMarkWaterIdentificationCode.RawCode;
-						childNode.NomenclatureName = GetNomenclatureNameByGtin(childrenCode.TrueMarkWaterIdentificationCode.GTIN);
+						childNode.CodeNumber = trueMarkWaterIdentificationCode.RawCode;
+						childNode.NomenclatureName = GetNomenclatureNameByGtin(trueMarkWaterIdentificationCode.GTIN);
 						childNode.Parent = parentNode;
 						childNode.HasInOrder = hasInOrder;
 
