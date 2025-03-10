@@ -27,6 +27,11 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
+using NetTopologySuite.Operation.Valid;
+using NHibernate;
+using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.Repositories;
+using QS.Extensions.Observable.Collections.List;
 
 namespace Edo.Receipt.Dispatcher
 {
@@ -477,7 +482,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var unmarkedOrderItem in unmarkedOrderItems)
 			{
 				var inventPosition = fiscalDocument.InventPositions
-					.FirstOrDefault(x => x.OrderItem.Id == unmarkedOrderItem.Id);
+					.FirstOrDefault(x => x.OrderItems.First().Id == unmarkedOrderItem.Id);
 
 				if(inventPosition == null)
 				{
@@ -588,56 +593,54 @@ namespace Edo.Receipt.Dispatcher
 			// без жесткой привязки к конкретному OrderItem
 			// но в InventPosition будет указан только первый OrderItem
 
-			//foreach(var remainGroupCodeItem in groupCodesWithTaskItems)
-			//{
-			//	var groupCode = remainGroupCodeItem.Key;
-			//	var affectedTaskItems = remainGroupCodeItem.Value;
+			foreach(var remainGroupCodeItem in groupCodesWithTaskItems)
+			{
+				var groupCode = remainGroupCodeItem.Key;
+				var individualCodesInGroupCount = remainGroupCodeItem.Value.Count();
 
-			//	var individualCodesInGroupCount = affectedTaskItems.Count();
+				// знаем кол-во кодов в группе
+				// теперь нужно создать позицию в чек на соответствующее кол-во
 
-			//	// знаем кол-во кодов в группе
-			//	// теперь нужно создать позицию в чек на соответствующее кол-во
+				// найти товары в заказе подходящие по GTIN группового кода
+				var orderItemsForInventoryPosition = expandedMarkedItems
+					.Where(x => x.OrderItem.Nomenclature.GroupGtins.Any(g => g.GtinNumber == groupCode.GTIN))
+					.Take(individualCodesInGroupCount)
+					.ToList();
 
-			//	// найти товары в заказе подходящие по GTIN группового кода
-			//	var availableOrderItems = expandedMarkedItems
-			//		.Where(x => x.OrderItem.Nomenclature.Gtins.Any(g => g.GtinNumber == groupCode.GTIN));
+				if(orderItemsForInventoryPosition.Count < individualCodesInGroupCount)
+				{
+					_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе.",
+						groupCode.Id, groupCode.GTIN);
 
-			//	if(availableOrderItems.Count() < individualCodesInGroupCount)
-			//	{
-			//		_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе.",
-			//			groupCode.Id, groupCode.GTIN);
-			//		break;
-			//	}
+					continue;
+				}
 
-			//	var firstsAvailableOrderItem = availableOrderItems.First();
-			//	var inventPosition = CreateInventPosition(firstsAvailableOrderItem.OrderItem);
-			//	inventPosition.Quantity = 0;
+				var orderItemsForInventoryPositionPricesSum =
+					orderItemsForInventoryPosition.Sum(x => x.OrderItem.Price);
 
-			//	var availableOrderItemsList = availableOrderItems.ToList();
-			//	foreach(var availableOrderItem in availableOrderItemsList)
-			//	{
-			//		// делаем инкремент потомучто expandedOrderItem соответствует одной единице товара в OrderItem
-			//		inventPosition.Quantity++;
-			//		// добавляем пропроциональную скидку для одной еденицы товара, которая была ранее рассчитана
-			//		// при распределении товаров заказа на их кол-во в каждом товаре
-			//		inventPosition.DiscountSum += availableOrderItem.DiscountPerSingleItem;
-			//		// исключаем обработанный товар из первоначального списка распределенных товаров
-			//		// чтобы при обработке следующей группы, этот товар не попал под обработку, потому
-			//		// что мы его уже назначили на определенную группу и забрали от него сумму пропорциональной скидки
-			//		expandedMarkedItems.Remove(availableOrderItem);
+				var orderItemsForInventoryPositionDiscountsSum =
+					orderItemsForInventoryPosition.Sum(x => x.DiscountPerSingleItem);
 
-			//		inventPosition.EdoTaskItem = null;
-			//		inventPosition.GroupCode = groupCode;
-			//		groupFiscalInventPositions.Add(inventPosition);
+				//Округляем цену за единицу до копееек в большую стороную. Далее при необходимости увеличим сумму скидки
+				var pricePerItem = Math.Ceiling(100 * orderItemsForInventoryPositionPricesSum / individualCodesInGroupCount) / 100;
 
-			//		individualCodesInGroupCount--;
+				var inventPosition = CreateInventPosition(orderItemsForInventoryPosition.Select(x => x.OrderItem), pricePerItem);
+				inventPosition.Quantity = orderItemsForInventoryPosition.Count;
+				inventPosition.EdoTaskItem = null;
+				inventPosition.GroupCode = groupCode;
+				inventPosition.DiscountSum =
+					orderItemsForInventoryPositionDiscountsSum + (inventPosition.Price * inventPosition.Quantity - orderItemsForInventoryPositionPricesSum);
 
-			//		if(individualCodesInGroupCount == 0)
-			//		{
-			//			break;
-			//		}
-			//	}
-			//}
+				groupFiscalInventPositions.Add(inventPosition);
+
+				foreach(var orderItemInInventoyPosition in orderItemsForInventoryPosition)
+				{
+					// исключаем обработанный товар из первоначального списка распределенных товаров
+					// чтобы при обработке следующей группы, этот товар не попал под обработку, потому
+					// что мы его уже назначили на определенную группу и забрали от него сумму пропорциональной скидки
+					expandedMarkedItems.Remove(orderItemInInventoyPosition);
+				}
+			}
 
 			// РАСПРЕДЕЛЕНИЕ ГРУППОВЫХ InventPosition НА ФИСКАЛЬНЫЕ ДОКУМЕНТЫ
 			var documentIndex = mainFiscalDocument.Index;
@@ -673,7 +676,6 @@ namespace Edo.Receipt.Dispatcher
 				currentFiscalDocument.Index = documentIndex;
 				currentFiscalDocument.DocumentNumber += $"_{documentIndex}";
 			} while(groupFiscalInventPositions.Any());
-
 
 			// ОБРАБОТКА ИНДИВИДУАЛЬНЫХ КОДОВ
 
@@ -871,13 +873,15 @@ namespace Edo.Receipt.Dispatcher
 				// потом обновить по старому все остальные :
 
 				var markedEmptyPositions = fiscalDocument.InventPositions
-					.Where(x => x.OrderItem.Nomenclature.IsAccountableInTrueMark)
+					.Where(x => x.OrderItems.Any(oi => oi.Nomenclature.IsAccountableInTrueMark))
 					.Where(x => x.EdoTaskItem.ProductCode.ResultCode == null)
 					;
 
 				foreach(var inventPosition in markedEmptyPositions)
 				{
-					var code = await LoadCodeFromPool(inventPosition.OrderItem.Nomenclature, cancellationToken);
+					var nomenclature = inventPosition.OrderItems.First().Nomenclature;
+
+					var code = await LoadCodeFromPool(nomenclature, cancellationToken);
 					inventPosition.EdoTaskItem.ProductCode.ResultCode = code;
 				}
 			}
@@ -938,7 +942,7 @@ namespace Edo.Receipt.Dispatcher
 
 			var inventPosition = CreateInventPosition(orderItem);
 			inventPosition.Quantity = 1;
-			inventPosition.OrderItem = orderItem;
+			inventPosition.OrderItems = new ObservableList<OrderItemEntity> { orderItem };
 
 			// Пытаемся найти совпадающий по Gtin код:
 
@@ -1410,16 +1414,34 @@ namespace Edo.Receipt.Dispatcher
 
 		private FiscalInventPosition CreateInventPosition(OrderItemEntity orderItem)
 		{
+			return CreateInventPosition(new List<OrderItemEntity> { orderItem }, Math.Round(orderItem.Price, 2));
+		}
+		
+		private FiscalInventPosition CreateInventPosition(IEnumerable<OrderItemEntity> orderItems, decimal pricePerItem)
+		{
+			if(orderItems.Select(x => x.Order.Id).Distinct().Count() > 1)
+			{
+				throw new InvalidOperationException("Нельзя создать товар в чеке для строк разных заказов");
+			}
+
+			if(orderItems.Select(x => x.Nomenclature.Id).Distinct().Count() > 1)
+			{
+				throw new InvalidOperationException("Нельзя создать товар в чеке для строк заказа с разной номенклатурой");
+			}
+
+			var nomenclature = orderItems.First().Nomenclature;
+			var order = orderItems.First().Order;
+
 			var inventPosition = new FiscalInventPosition
 			{
-				Name = orderItem.Nomenclature.OfficialName,
-				Price = Math.Round(orderItem.Price, 2),
-				OrderItem = orderItem
+				Name = nomenclature.OfficialName,
+				Price = pricePerItem,
+				OrderItems = new ObservableList<OrderItemEntity>(orderItems)
 			};
 
-			var organization = orderItem.Order.Contract?.Organization;
+			var organization = order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == VAT.No)
+			if(organization is null || organization.WithoutVAT || nomenclature.VAT == VAT.No)
 			{
 				inventPosition.Vat = FiscalVat.VatFree;
 			}
