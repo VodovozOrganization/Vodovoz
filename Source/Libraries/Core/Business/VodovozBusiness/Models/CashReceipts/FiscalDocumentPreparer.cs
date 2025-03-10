@@ -257,11 +257,6 @@ namespace Vodovoz.Models.CashReceipts
 					throw new TrueMarkException(_notValidRawCode);
 				}
 				
-				if(productCode.IsDuplicateSourceCode)
-				{
-					throw new TrueMarkException("В чеке содержатся использованные коды");
-				}
-				
 				if(!productCode.ResultCode.IsTag1260Valid)
 				{
 					throw new TrueMarkException("В чеке содержатся коды, не прошедшие разрешительный режим(тэг 1260)");

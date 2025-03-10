@@ -195,6 +195,8 @@ namespace Edo.Transport
 				});
 			});
 
+			services.AddScoped<MessageService>();
+
 			return services;
 		}
 
