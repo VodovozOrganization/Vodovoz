@@ -2,7 +2,7 @@
 {
 	public class ProductCodeInfo
 	{
-		public ProductCodeType Type { get; set; }
+		public bool IsGroup { get; set; }
 		public string IndividualOrGroupCode { get; set; }
 		public string TransportCode { get; set; }
 	}

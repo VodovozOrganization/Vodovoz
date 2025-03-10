@@ -286,7 +286,7 @@ namespace Edo.Docflow.Factories
 						var codeValue = code.GroupCode.IdentificationCode;
 						var codeInfo = new ProductCodeInfo
 						{
-							Type = ProductCodeType.Group,
+							IsGroup = true,
 							IndividualOrGroupCode = codeValue
 						};
 
@@ -305,7 +305,7 @@ namespace Edo.Docflow.Factories
 						var codeValue = code.IndividualCode.IdentificationCode;
 						var codeInfo = new ProductCodeInfo
 						{
-							Type = ProductCodeType.Individual,
+							IsGroup = false,
 							IndividualOrGroupCode = codeValue
 						};
 

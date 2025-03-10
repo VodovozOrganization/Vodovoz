@@ -160,13 +160,13 @@ namespace Edo.Docflow.Factories
 					if(code.GroupCode != null)
 					{
 						productCode.IndividualOrGroupCode = code.GroupCode.IdentificationCode;
-						productCode.Type = ProductCodeType.Group;
+						productCode.IsGroup = true;
 						transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.GroupCode);
 					}
 					else
 					{
 						productCode.IndividualOrGroupCode = code.IndividualCode.IdentificationCode;
-						productCode.Type = ProductCodeType.Individual;
+						productCode.IsGroup = false;
 						transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.IndividualCode);
 					}
 
