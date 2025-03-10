@@ -165,41 +165,45 @@ namespace WarehouseApi.Library.Services
 			{
 				foreach(var trueMarkProductCode in documentOrderItem.TrueMarkCodes)
 				{
-					if(trueMarkProductCode.ResultCode != null)
+					if(trueMarkProductCode.ResultCode == null)
 					{
-						if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId != null
-							|| trueMarkProductCode.ResultCode.ParentTransportCodeId != null)
-						{
-							var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
-
-							var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
-
-							if(codeToAddInfo is null)
-							{
-								continue;
-							}
-
-							var trueMarkCodes = new List<TrueMarkCodeDto>();
-
-							var allCodes = parentCode.Match(
-								transportCode => transportCode.GetAllCodes(),
-								groupCode => groupCode.GetAllCodes(),
-								waterCode => new TrueMarkAnyCode[] { waterCode });
-
-							var index = 0;
-
-							foreach(var anyCode in allCodes)
-							{
-								trueMarkCodes.Add(
-									anyCode.Match(
-										PopulateTransportCode(allCodes, ref index),
-										PopulateGroupCode(allCodes, ref index),
-										PopulateWaterCode(allCodes, ref index)));
-							}
-
-							codeToAddInfo.Codes = trueMarkCodes;
-						}
+						continue;
 					}
+
+					if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId == null
+						&& trueMarkProductCode.ResultCode.ParentTransportCodeId == null)
+					{
+						continue;
+					}
+
+					var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
+
+					var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
+
+					if(codeToAddInfo is null)
+					{
+						continue;
+					}
+
+					var trueMarkCodes = new List<TrueMarkCodeDto>();
+
+					var allCodes = parentCode.Match(
+						transportCode => transportCode.GetAllCodes(),
+						groupCode => groupCode.GetAllCodes(),
+						waterCode => new TrueMarkAnyCode[] { waterCode });
+
+					var index = 0;
+
+					foreach(var anyCode in allCodes)
+					{
+						trueMarkCodes.Add(
+							anyCode.Match(
+								PopulateTransportCode(allCodes, ref index),
+								PopulateGroupCode(allCodes, ref index),
+								PopulateWaterCode(allCodes, ref index)));
+					}
+
+					codeToAddInfo.Codes = codeToAddInfo.Codes.Concat(trueMarkCodes);
 				}
 			}
 
@@ -498,7 +502,9 @@ namespace WarehouseApi.Library.Services
 				groupCode => groupCode.GetAllCodes(),
 				waterCode => new TrueMarkAnyCode[] { waterCode }) ?? Enumerable.Empty<TrueMarkAnyCode>();
 
-			foreach(var codeToRemove in oldTrueMarkAnyCodes)
+			var oldTrueMarkAnyCodesList = oldTrueMarkAnyCodes.ToList();
+
+			foreach(var codeToRemove in oldTrueMarkAnyCodesList)
 			{
 				if(!codeToRemove.IsTrueMarkWaterIdentificationCode)
 				{
@@ -508,7 +514,7 @@ namespace WarehouseApi.Library.Services
 				await RemoveSingleCode(_uow, userLogin, codeToRemove.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
 			}
 
-			foreach(var oldCodeToRemoveFromDatabase in oldTrueMarkAnyCodes)
+			foreach(var oldCodeToRemoveFromDatabase in oldTrueMarkAnyCodesList)
 			{
 				oldCodeToRemoveFromDatabase.Match(
 					transportCode =>
