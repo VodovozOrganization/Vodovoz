@@ -7,8 +7,10 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate.Exceptions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -318,7 +320,7 @@ namespace Edo.Receipt.Dispatcher
 		private void CreateReceiptMoneyPositions(EdoFiscalDocument currentFiscalDocument)
 		{
 			var receiptSum = currentFiscalDocument.InventPositions
-								.Sum(x => x.OrderItem.Price * x.Quantity - x.DiscountSum);
+								.Sum(x => x.OrderItems.First().Price * x.Quantity - x.DiscountSum);
 
 			var moneyPosition = new FiscalMoneyPosition
 			{
@@ -394,7 +396,7 @@ namespace Edo.Receipt.Dispatcher
 			{
 				Name = orderItem.Nomenclature.OfficialName,
 				Price = Math.Round(orderItem.Price, 2),
-				OrderItem = orderItem
+				OrderItems = new ObservableList<OrderItemEntity> { orderItem }
 			};
 
 			var organization = orderItem.Order.Contract?.Organization;
