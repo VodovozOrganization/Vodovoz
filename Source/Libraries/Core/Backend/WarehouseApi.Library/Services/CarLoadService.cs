@@ -331,9 +331,12 @@ namespace WarehouseApi.Library.Services
 				_uow.Save(documentItemToEdit);
 			}
 
-			nomenclatureDto.Codes = trueMarkCodes;
-
 			_uow.Commit();
+
+			if(nomenclatureDto != null)
+			{
+				nomenclatureDto.Codes = trueMarkCodes;
+			}
 
 			var successResponse = new AddOrderCodeResponse
 			{
