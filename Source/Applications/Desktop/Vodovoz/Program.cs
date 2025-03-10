@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -168,6 +168,8 @@ using Vodovoz.Application.Options;
 using Vodovoz.Options;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
+using Edo.Common;
+using TrueMarkApi.Client;
 
 namespace Vodovoz
 {
@@ -292,6 +294,9 @@ namespace Vodovoz
 
 					builder.RegisterType<RouteListDailyNumberProvider>()
 						.As<IRouteListDailyNumberProvider>();
+
+					# region TrueMark
+
 					builder.RegisterType<TrueMarkCodesPool>()
 						.AsSelf()
 						.InstancePerLifetimeScope();
@@ -300,10 +305,20 @@ namespace Vodovoz
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
+					builder.RegisterType<TrueMarkCodesChecker>()
+						.AsSelf()
+						.InstancePerLifetimeScope();
+
+					builder.RegisterType<TrueMarkTaskCodesValidator>()
+						.As<ITrueMarkCodesValidator>()
+						.InstancePerLifetimeScope();
+
 					builder.RegisterType<TrueMarkWaterCodeParser>()
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
+					#endregion TrueMark
+					
 					builder.RegisterType<ReceiptManualController>()
 						.AsSelf()
 						.InstancePerLifetimeScope();

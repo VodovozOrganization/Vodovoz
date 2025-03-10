@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -195,6 +195,42 @@ namespace Vodovoz.Models.TrueMark
 			if(gtinGroup == null || serialGroup == null || checkGroup == null)
 			{
 				throw new InvalidOperationException($"Ошибка определения составных частей кода (GTIN, серийного номера и кода проверки). Возможно код имеет не известный формат. Код ({cleanCode}).");
+			}
+
+			string gtin = gtinGroup.Value;
+			string serialNumber = serialGroup.Value;
+			string checkCode = checkGroup.Value;
+			string sourceCode = $"\\u001d01{gtin}21{serialNumber}\\u001d93{checkCode}";
+
+			var result = new TrueMarkWaterCode
+			{
+				SourceCode = sourceCode,
+				GTIN = gtin,
+				SerialNumber = serialNumber,
+				CheckCode = checkCode
+			};
+
+			return result;
+		}
+		
+		public TrueMarkWaterCode ParseCodeFromSelfDelivery(string code)
+		{
+			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>.{{14}})21(?<{_serialGroupName}>.{{13}}))93(?<{_checkGroupName}>.{{4}})";
+			_regex = new Regex(pattern);
+
+			var match = _regex.Match(code);
+			if(!match.Success)
+			{
+				return null;
+			}
+
+			Group gtinGroup = match.Groups[_gtinGroupName];
+			Group serialGroup = match.Groups[_serialGroupName];
+			Group checkGroup = match.Groups[_checkGroupName];
+
+			if(gtinGroup == null || serialGroup == null || checkGroup == null)
+			{
+				return null;
 			}
 
 			string gtin = gtinGroup.Value;
