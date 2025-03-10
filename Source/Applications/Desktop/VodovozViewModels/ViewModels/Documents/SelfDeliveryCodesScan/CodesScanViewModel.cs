@@ -498,7 +498,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 									null);
 						},
 						waterCode => (
-							new List<TrueMarkWaterIdentificationCode> { waterCode },
+							null,
 							waterCode.RawCode,
 							GetNomenclatureNameByGtin(waterCode.GTIN),
 							GetGtinHasInOrder(waterCode.GTIN)));
