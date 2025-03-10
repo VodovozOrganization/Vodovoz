@@ -17,5 +17,10 @@
 		/// Минимальное количество кодов для начала трансфера
 		/// </summary>
 		int MinCodesCountForStartTransfer { get; }
+
+		/// <summary>
+		/// Процент добавочной цены к себестоимости для трансфера
+		/// </summary>
+		int AdditionalPurchasePricePrecentForTransfer { get; }
 	}
 }

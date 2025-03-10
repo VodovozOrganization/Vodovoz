@@ -11,6 +11,16 @@ namespace Edo.Problems.Custom.Sources
 		public override EdoProblemImportance Importance => EdoProblemImportance.Problem;
 	}
 
+	public class IndustryRequisiteRegualtoryDocumentIsMissing : EdoTaskProblemCustomSource
+	{
+		public override string Name => "Custom.IndustryRequisiteRegualtoryDocumentIsMissing";
+		public override string Message => "Не найден регламентирующий документ отраслевого стандарта, " +
+			"для установки разрешительного режима";
+		public override string Description => "Проверяет указана ли ссылка на документ в параметрах базы";
+		public override string Recommendation => "Необходима настройка параметров базы. Обратитесь за технической поддержкой.";
+		public override EdoProblemImportance Importance => EdoProblemImportance.Problem;
+	}
+
 	public class IndustryRequisiteCheckApiError : EdoTaskProblemCustomSource
 	{
 		public override string Name => "Custom.IndustryRequisiteCheckApiError";

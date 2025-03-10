@@ -2,6 +2,7 @@
 using QS.Extensions.Observable.Collections.List;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Core.Domain.Edo
@@ -18,7 +19,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private DateTime _date = DateTime.Now;
 		private OrganizationEntity _seller;
 		private OrganizationEntity _customer;
-		private IObservableList<TransferOrderTrueMarkCode> _trueMarkCodes = new ObservableList<TransferOrderTrueMarkCode>();
+		private IObservableList<TransferOrderTrueMarkCode> _items = new ObservableList<TransferOrderTrueMarkCode>();
 
 		/// <summary>
 		/// Код
@@ -60,14 +61,11 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _customer, value);
 		}
 
-		/// <summary>
-		/// Коды ЧЗ
-		/// </summary>
-		[Display(Name = "Коды ЧЗ")]
-		public virtual IObservableList<TransferOrderTrueMarkCode> TrueMarkCodes
+		[Display(Name = "Description")]
+		public virtual IObservableList<TransferOrderTrueMarkCode> Items
 		{
-			get => _trueMarkCodes;
-			set => SetField(ref _trueMarkCodes, value);
+			get => _items;
+			set => SetField(ref _items, value);
 		}
 	}
 }

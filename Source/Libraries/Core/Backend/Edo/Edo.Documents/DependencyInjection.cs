@@ -5,6 +5,7 @@ using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
+using TrueMark.Codes.Pool;
 
 namespace Edo.Documents
 {
@@ -14,9 +15,12 @@ namespace Edo.Documents
 		{
 			services
 				.AddScoped<DocumentEdoTaskHandler>()
+				.AddScoped<ForOwnNeedDocumentEdoTaskHandler>()
+				.AddScoped<ForResaleDocumentEdoTaskHandler>()
 				;
 
 			services.AddEdo();
+			services.AddCodesPool();
 			services.AddEdoProblemRegistation();
 
 			services.AddEdoMassTransit(configureBus: cfg =>

@@ -15,9 +15,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("id")
 				.GeneratedBy.Native();
 
-			References(x => x.OrderItem)
-				.Column("order_item_id");
-
 			Map(x => x.Name)
 				.Column("name");
 
@@ -41,6 +38,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			Map(x => x.IndustryRequisiteData)
 				.Column("industry_requisite_data");
+
+			HasManyToMany(x => x.OrderItems)
+				.Table("edo_fiscal_invent_positions_order_items")
+				.ParentKeyColumn("edo_fiscal_invent_position_id")
+				.ChildKeyColumn("order_item_id")
+				.LazyLoad();
 		}
 	}
 }

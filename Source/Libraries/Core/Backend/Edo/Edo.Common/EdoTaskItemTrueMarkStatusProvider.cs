@@ -77,8 +77,9 @@ namespace Edo.Common
 				case EdoTaskType.Transfer:
 					return ((TransferEdoTask)_edoTask).TransferEdoRequests.SelectMany(x => x.TransferedItems);
 				case EdoTaskType.Receipt:
+					return ((ReceiptEdoTask)_edoTask).Items;
 				case EdoTaskType.Document:
-					return ((OrderEdoTask)_edoTask).Items;
+					return ((DocumentEdoTask)_edoTask).Items;
 				default:
 					throw new NotSupportedException($"Проверка кодов для задачи {_edoTask.TaskType} не поддерживается.");
 			}

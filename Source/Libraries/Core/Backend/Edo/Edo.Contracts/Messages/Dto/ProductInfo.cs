@@ -51,7 +51,7 @@ namespace Edo.Contracts.Messages.Dto
 		/// <summary>
 		/// Коды маркировки для Честного знака
 		/// </summary>
-		public IEnumerable<string> TrueMarkCodes { get; set; }
+		public IEnumerable<ProductCodeInfo> TrueMarkCodes { get; set; }
 
 		public decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);
 		public decimal SumWithoutVat => Math.Round(Price * Count - IncludeVat - DiscountMoney, 2);

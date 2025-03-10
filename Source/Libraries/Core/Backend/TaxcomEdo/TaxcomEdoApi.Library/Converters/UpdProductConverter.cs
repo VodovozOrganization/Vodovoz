@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Core.Infrastructure;
 using Edo.Contracts.Messages.Dto;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdo.Contracts.Goods;
@@ -119,30 +120,38 @@ namespace TaxcomEdoApi.Library.Converters
 				{
 					NaimEdIzm = product.UnitName,
 					KodTov = product.Code
-				}
+				},
+				
 			};
 
 			if(product.TrueMarkCodes.Any())
 			{
-				var codesCount = product.TrueMarkCodes.Count();
-				var identificationInfo = new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov
-				{
-					ItemsElementName = new ItemsChoiceType[codesCount],
-					Items = new string[codesCount]
-				};
-				var i = 0;
+				var codesWithoutTransport = product.TrueMarkCodes
+					.Where(x => x.TransportCode.IsNullOrWhiteSpace());
 
-				foreach(var identificationCode in product.TrueMarkCodes)
+				var codesPerTransport = product.TrueMarkCodes
+					.Where(x => !x.TransportCode.IsNullOrWhiteSpace())
+					.GroupBy(x => x.TransportCode);
+
+				var sredIdentTovList = new List<FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov>();
+
+				if(codesWithoutTransport.Any())
 				{
-					identificationInfo.ItemsElementName[i] = ItemsChoiceType.KIZ;
-					identificationInfo.Items[i] = identificationCode;
-					i++;
+					var sredIdentTov = CreateSredIdentTov(codesWithoutTransport);
+					sredIdentTovList.Add(sredIdentTov);
 				}
-				
-				updProduct.DopSvedTov.NomSredIdentTov = new[]
+
+				foreach(var codesPerTransportItem in codesPerTransport)
 				{
-					identificationInfo
-				};
+					if(codesPerTransportItem.Any())
+					{
+						var transportCode = codesPerTransportItem.Key;
+						var sredIdentTov = CreateSredIdentTov(codesWithoutTransport, transportCode);
+						sredIdentTovList.Add(sredIdentTov);
+					}
+				}
+
+				updProduct.DopSvedTov.NomSredIdentTov = sredIdentTovList.ToArray();
 			}
 			
 			updProduct.SumNal = new SumNDSTip
@@ -151,6 +160,35 @@ namespace TaxcomEdoApi.Library.Converters
 			};
 
 			return updProduct;
+		}
+
+		private FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov CreateSredIdentTov(
+			IEnumerable<ProductCodeInfo> codes, 
+			string transportCode = null
+			)
+		{
+			var codesCount = codes.Count();
+			var identificationInfo = new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov
+			{
+				ItemsElementName = new ItemsChoiceType[codesCount],
+				Items = new string[codesCount]
+			};
+
+			if(!transportCode.IsNullOrWhiteSpace())
+			{
+				identificationInfo.IdentTransUpak = transportCode;
+			}
+
+			var i = 0;
+
+			foreach(var code in codes)
+			{
+				identificationInfo.ItemsElementName[i] = code.IsGroup ? ItemsChoiceType.NomUpak : ItemsChoiceType.KIZ;
+				identificationInfo.Items[i] = code.IndividualOrGroupCode;
+				i++;
+			}
+
+			return identificationInfo;
 		}
 
 		private string GetProductCode(IEnumerable<SpecialNomenclatureInfoForEdo> counterpartySpecialNomenclatures, int nomenclatureId)

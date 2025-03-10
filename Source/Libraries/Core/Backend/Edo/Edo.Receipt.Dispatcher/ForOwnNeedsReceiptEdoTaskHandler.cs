@@ -1,14 +1,16 @@
 ﻿using Core.Infrastructure;
 using Edo.Common;
 using Edo.Contracts.Messages.Events;
-using Edo.Problems.Custom.Sources;
 using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Exceptions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,19 +24,15 @@ using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
-using NetTopologySuite.Operation.Valid;
-using NHibernate;
-using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Core.Domain.Repositories;
 
 namespace Edo.Receipt.Dispatcher
 {
 	public class ForOwnNeedsReceiptEdoTaskHandler
 	{
-		private const int _maxCodesInReceipt = 128;
-
 		private readonly ILogger<ForOwnNeedsReceiptEdoTaskHandler> _logger;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferRequestCreator _transferRequestCreator;
@@ -43,12 +41,14 @@ namespace Edo.Receipt.Dispatcher
 		private readonly TrueMarkTaskCodesValidator _localCodesValidator;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly Tag1260Checker _tag1260Checker;
-		private readonly IGenericRepository<TrueMarkWaterGroupCode> _waterGroupCodeRepository;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
 		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly int _maxCodesInReceipt;
+
 		private int _prepareReceiptAttempts = 3;
 
 		public ForOwnNeedsReceiptEdoTaskHandler(
@@ -63,7 +63,7 @@ namespace Edo.Receipt.Dispatcher
 			TrueMarkTaskCodesValidator localCodesValidator,
 			TrueMarkCodesPool trueMarkCodesPool,
 			Tag1260Checker tag1260Checker,
-			IGenericRepository<TrueMarkWaterGroupCode> waterGroupCodeRepository,
+			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			IBus messageBus
 			)
@@ -79,9 +79,11 @@ namespace Edo.Receipt.Dispatcher
 			_localCodesValidator = localCodesValidator ?? throw new ArgumentNullException(nameof(localCodesValidator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
-			_waterGroupCodeRepository = waterGroupCodeRepository ?? throw new ArgumentNullException(nameof(waterGroupCodeRepository));
 			_productCodeRepository = productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+
+			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
 		}
 
 		public async Task HandleForOwnNeedsReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
@@ -246,13 +248,18 @@ namespace Edo.Receipt.Dispatcher
 							continue;
 						}
 
+						if(codeResult.EdoTaskItem.ProductCode.ResultCode == null)
+						{
+							continue;
+						}
+
 						// определить что TaskItem принадлежит групповому коду
-						if(codeResult.EdoTaskItem.ProductCode.ResultCode.ParentTransportCodeId != null)
+						if(codeResult.EdoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
 						{
 							hasGroupInvalidCodes = true;
 
 							// так же надо зачистить все части этого группового кода
-							var groupCode = GetParentGroupCode(codeResult.EdoTaskItem.ProductCode.ResultCode.ParentTransportCodeId.Value);
+							var groupCode = _trueMarkCodeRepository.GetParentGroupCode(_uow, codeResult.EdoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value);
 							foreach(var individualCode in groupCode.GetAllCodes().Where(x => x.IsTrueMarkWaterIdentificationCode))
 							{
 								var foundInvalidGroupIdentificationCode = receiptEdoTask.Items
@@ -287,7 +294,7 @@ namespace Edo.Receipt.Dispatcher
 					if(hasGroupInvalidCodes)
 					{
 						// если нашелся групповой код, который не валиден, то лучше полностью переформировать
-						// фискальные документы, потому групповой код влияет на кол-во позиций в чеке
+						// фискальные документы, потому что групповой код влияет на кол-во позиций в чеке
 						receiptEdoTask.FiscalDocuments.Clear();
 					}
 
@@ -406,8 +413,9 @@ namespace Edo.Receipt.Dispatcher
 		{
 			return edoTaskItems
 				.Select(x => x.ProductCode)
-				.Where(x => (x.ResultCode == null || (x.ResultCode.ParentWaterGroupCodeId == null && x.ResultCode.ParentTransportCodeId == null))
-					&& (x.SourceCode.ParentWaterGroupCodeId == null && x.SourceCode.ParentTransportCodeId == null))
+				.Where(x => x.ResultCode == null)
+				.Where(x => x.SourceCode != null)
+				.Where(x => x.SourceCode.ParentWaterGroupCodeId == null)
 				.ToList();
 		}
 
@@ -447,11 +455,13 @@ namespace Edo.Receipt.Dispatcher
 			}
 		}
 
-		private IDictionary<int, List<TrueMarkProductCode>> GetProductCodesHavingRequiredResultCodeIds(IEnumerable<int> resultCodeIds) =>
-			_productCodeRepository
-			.Get(_uow, x => resultCodeIds.Contains(x.ResultCode.Id))
-			.GroupBy(x => x.ResultCode.Id)
-			.ToDictionary(x => x.Key, x => x.ToList());
+		private IDictionary<int, List<TrueMarkProductCode>> GetProductCodesHavingRequiredResultCodeIds(IEnumerable<int> resultCodeIds)
+		{
+			return _productCodeRepository
+				.Get(_uow, x => resultCodeIds.Contains(x.ResultCode.Id))
+				.GroupBy(x => x.ResultCode.Id)
+				.ToDictionary(x => x.Key, x => x.ToList());
+		}
 
 		public EdoFiscalDocument UpdateUnmarkedFiscalDocument(ReceiptEdoTask receiptEdoTask)
 		{
@@ -474,7 +484,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var unmarkedOrderItem in unmarkedOrderItems)
 			{
 				var inventPosition = fiscalDocument.InventPositions
-					.FirstOrDefault(x => x.OrderItem.Id == unmarkedOrderItem.Id);
+					.FirstOrDefault(x => x.OrderItems.First().Id == unmarkedOrderItem.Id);
 
 				if(inventPosition == null)
 				{
@@ -525,7 +535,7 @@ namespace Edo.Receipt.Dispatcher
 
 				// найти товары в заказе подходящие по GTIN группового кода
 				var availableOrderItems = expandedMarkedItems
-					.Where(x => x.OrderItem.Nomenclature.Gtins.Any(g => g.GtinNumber == groupCode.GTIN));
+					.Where(x => x.OrderItem.Nomenclature.GroupGtins.Any(g => g.GtinNumber == groupCode.GTIN));
 
 				// группируем распределнные товары заказа обратно по одному orderItem
 				// чтобы мы могли назначить групповой код на определенный orderItem, в котором 
@@ -585,56 +595,54 @@ namespace Edo.Receipt.Dispatcher
 			// без жесткой привязки к конкретному OrderItem
 			// но в InventPosition будет указан только первый OrderItem
 
-			//foreach(var remainGroupCodeItem in groupCodesWithTaskItems)
-			//{
-			//	var groupCode = remainGroupCodeItem.Key;
-			//	var affectedTaskItems = remainGroupCodeItem.Value;
+			foreach(var remainGroupCodeItem in groupCodesWithTaskItems)
+			{
+				var groupCode = remainGroupCodeItem.Key;
+				var individualCodesInGroupCount = remainGroupCodeItem.Value.Count();
 
-			//	var individualCodesInGroupCount = affectedTaskItems.Count();
+				// знаем кол-во кодов в группе
+				// теперь нужно создать позицию в чек на соответствующее кол-во
 
-			//	// знаем кол-во кодов в группе
-			//	// теперь нужно создать позицию в чек на соответствующее кол-во
+				// найти товары в заказе подходящие по GTIN группового кода
+				var orderItemsForInventoryPosition = expandedMarkedItems
+					.Where(x => x.OrderItem.Nomenclature.GroupGtins.Any(g => g.GtinNumber == groupCode.GTIN))
+					.Take(individualCodesInGroupCount)
+					.ToList();
 
-			//	// найти товары в заказе подходящие по GTIN группового кода
-			//	var availableOrderItems = expandedMarkedItems
-			//		.Where(x => x.OrderItem.Nomenclature.Gtins.Any(g => g.GtinNumber == groupCode.GTIN));
+				if(orderItemsForInventoryPosition.Count < individualCodesInGroupCount)
+				{
+					_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе.",
+						groupCode.Id, groupCode.GTIN);
 
-			//	if(availableOrderItems.Count() < individualCodesInGroupCount)
-			//	{
-			//		_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе.",
-			//			groupCode.Id, groupCode.GTIN);
-			//		break;
-			//	}
+					continue;
+				}
 
-			//	var firstsAvailableOrderItem = availableOrderItems.First();
-			//	var inventPosition = CreateInventPosition(firstsAvailableOrderItem.OrderItem);
-			//	inventPosition.Quantity = 0;
+				var orderItemsForInventoryPositionPricesSum =
+					orderItemsForInventoryPosition.Sum(x => x.OrderItem.Price);
 
-			//	var availableOrderItemsList = availableOrderItems.ToList();
-			//	foreach(var availableOrderItem in availableOrderItemsList)
-			//	{
-			//		// делаем инкремент потомучто expandedOrderItem соответствует одной единице товара в OrderItem
-			//		inventPosition.Quantity++;
-			//		// добавляем пропроциональную скидку для одной еденицы товара, которая была ранее рассчитана
-			//		// при распределении товаров заказа на их кол-во в каждом товаре
-			//		inventPosition.DiscountSum += availableOrderItem.DiscountPerSingleItem;
-			//		// исключаем обработанный товар из первоначального списка распределенных товаров
-			//		// чтобы при обработке следующей группы, этот товар не попал под обработку, потому
-			//		// что мы его уже назначили на определенную группу и забрали от него сумму пропорциональной скидки
-			//		expandedMarkedItems.Remove(availableOrderItem);
+				var orderItemsForInventoryPositionDiscountsSum =
+					orderItemsForInventoryPosition.Sum(x => x.DiscountPerSingleItem);
 
-			//		inventPosition.EdoTaskItem = null;
-			//		inventPosition.GroupCode = groupCode;
-			//		groupFiscalInventPositions.Add(inventPosition);
+				//Округляем цену за единицу до копееек в большую стороную. Далее при необходимости увеличим сумму скидки
+				var pricePerItem = Math.Ceiling(100 * orderItemsForInventoryPositionPricesSum / individualCodesInGroupCount) / 100;
 
-			//		individualCodesInGroupCount--;
+				var inventPosition = CreateInventPosition(orderItemsForInventoryPosition.Select(x => x.OrderItem), pricePerItem);
+				inventPosition.Quantity = orderItemsForInventoryPosition.Count;
+				inventPosition.EdoTaskItem = null;
+				inventPosition.GroupCode = groupCode;
+				inventPosition.DiscountSum =
+					orderItemsForInventoryPositionDiscountsSum + (inventPosition.Price * inventPosition.Quantity - orderItemsForInventoryPositionPricesSum);
 
-			//		if(individualCodesInGroupCount == 0)
-			//		{
-			//			break;
-			//		}
-			//	}
-			//}
+				groupFiscalInventPositions.Add(inventPosition);
+
+				foreach(var orderItemInInventoyPosition in orderItemsForInventoryPosition)
+				{
+					// исключаем обработанный товар из первоначального списка распределенных товаров
+					// чтобы при обработке следующей группы, этот товар не попал под обработку, потому
+					// что мы его уже назначили на определенную группу и забрали от него сумму пропорциональной скидки
+					expandedMarkedItems.Remove(orderItemInInventoyPosition);
+				}
+			}
 
 			// РАСПРЕДЕЛЕНИЕ ГРУППОВЫХ InventPosition НА ФИСКАЛЬНЫЕ ДОКУМЕНТЫ
 			var documentIndex = mainFiscalDocument.Index;
@@ -661,24 +669,29 @@ namespace Edo.Receipt.Dispatcher
 					receiptEdoTask.FiscalDocuments.Add(currentFiscalDocument);
 				}
 
-				// подготавливаем данные для следующей итерации
-				documentIndex++;
 				currentProcessingGroupPositions = groupFiscalInventPositions
-					.Skip(_maxCodesInReceipt * documentIndex)
-					.Take(_maxCodesInReceipt);
-				currentFiscalDocument = CreateFiscalDocument(receiptEdoTask);
-				currentFiscalDocument.Index = documentIndex;
-				currentFiscalDocument.DocumentNumber += $"_{documentIndex}";
-			} while(groupFiscalInventPositions.Any());
-
+						.Skip(_maxCodesInReceipt * documentIndex + 1)
+						.Take(_maxCodesInReceipt);
+				// подготавливаем данные для следующей итерации
+				if(currentProcessingGroupPositions.Any())
+				{
+					documentIndex++;
+					currentFiscalDocument = CreateFiscalDocument(receiptEdoTask);
+					currentFiscalDocument.Index = documentIndex;
+					currentFiscalDocument.DocumentNumber += $"_{documentIndex}";
+				}
+			} while(currentProcessingGroupPositions.Any());
 
 			// ОБРАБОТКА ИНДИВИДУАЛЬНЫХ КОДОВ
 
-			var currentProcessingPositions = expandedMarkedItems
-				.Skip(0)
+
+			var processedPositions = expandedMarkedItems.ToList();
+
+			var currentProcessingPositions = processedPositions
 				// выбираем то кол-во позиций которое не хватает до максимального
 				// кол-ва позиций в текущем фискальном документе
-				.Take(_maxCodesInReceipt - lastGroupFiscalInventPositionsCount);
+				.Take(_maxCodesInReceipt - lastGroupFiscalInventPositionsCount)
+				.ToList();
 
 			do
 			{
@@ -699,6 +712,8 @@ namespace Edo.Receipt.Dispatcher
 					inventPosition.DiscountSum = processingPosition.DiscountPerSingleItem;
 
 					currentFiscalDocument.InventPositions.Add(inventPosition);
+					processedPositions.Remove(processingPosition);
+
 				}
 
 				if(!receiptEdoTask.FiscalDocuments.Contains(currentFiscalDocument))
@@ -707,13 +722,16 @@ namespace Edo.Receipt.Dispatcher
 				}
 
 				// подготавливаем данные для следующей итерации
-				documentIndex++;
-				currentProcessingPositions = expandedMarkedItems
-					.Skip(_maxCodesInReceipt * documentIndex)
-					.Take(_maxCodesInReceipt);
-				currentFiscalDocument = CreateFiscalDocument(receiptEdoTask);
-				currentFiscalDocument.Index = documentIndex;
-				currentFiscalDocument.DocumentNumber += $"_{documentIndex}";
+				currentProcessingPositions = processedPositions
+					.Take(_maxCodesInReceipt)
+					.ToList();
+				if(currentProcessingPositions.Any())
+				{
+					documentIndex++;
+					currentFiscalDocument = CreateFiscalDocument(receiptEdoTask);
+					currentFiscalDocument.Index = documentIndex;
+					currentFiscalDocument.DocumentNumber += $"_{documentIndex}";
+				}
 			} while(currentProcessingPositions.Any());
 		}
 
@@ -726,19 +744,7 @@ namespace Edo.Receipt.Dispatcher
 		//	public List<TrueMarkWaterIdentificationCode> ChildCodes { get; set; } = new List<TrueMarkWaterIdentificationCode>();
 		//}
 
-		private TrueMarkWaterGroupCode GetParentGroupCode(int id)
-		{
-			var groupCode = _waterGroupCodeRepository
-				.Get(_uow, x => x.Id == id, 1)
-				.FirstOrDefault();
-
-			if(groupCode.ParentWaterGroupCodeId != null)
-			{
-				return GetParentGroupCode(groupCode.ParentWaterGroupCodeId.Value);
-			}
-
-			return groupCode;
-		}
+		
 
 		private IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>> TakeGroupCodesWithTaskItems(List<EdoTaskItem> unprocessedTaskItems)
 		{
@@ -762,7 +768,7 @@ namespace Edo.Receipt.Dispatcher
 				.Distinct();
 
 			var parentCodes = parentCodesIds
-				.Select(x => GetParentGroupCode(x.Value))
+				.Select(x => _trueMarkCodeRepository.GetParentGroupCode(_uow, x.Value))
 				.Distinct();
 
 			var result = new Dictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>();
@@ -880,13 +886,15 @@ namespace Edo.Receipt.Dispatcher
 				// потом обновить по старому все остальные :
 
 				var markedEmptyPositions = fiscalDocument.InventPositions
-					.Where(x => x.OrderItem.Nomenclature.IsAccountableInTrueMark)
+					.Where(x => x.OrderItems.Any(oi => oi.Nomenclature.IsAccountableInTrueMark))
 					.Where(x => x.EdoTaskItem.ProductCode.ResultCode == null)
 					;
 
 				foreach(var inventPosition in markedEmptyPositions)
 				{
-					var code = await LoadCodeFromPool(inventPosition.OrderItem.Nomenclature, cancellationToken);
+					var nomenclature = inventPosition.OrderItems.First().Nomenclature;
+
+					var code = await LoadCodeFromPool(nomenclature, cancellationToken);
 					inventPosition.EdoTaskItem.ProductCode.ResultCode = code;
 				}
 			}
@@ -947,26 +955,26 @@ namespace Edo.Receipt.Dispatcher
 
 			var inventPosition = CreateInventPosition(orderItem);
 			inventPosition.Quantity = 1;
-			inventPosition.OrderItem = orderItem;
+			inventPosition.OrderItems = new ObservableList<OrderItemEntity> { orderItem };
 
 			// Пытаемся найти совпадающий по Gtin код:
 
 			// сначала у кого заполнен Result код
-			//var resultCodes = unprocessedCodes
-			//	.Where(x => x.ProductCode.Problem == ProductCodeProblem.None)
-			//	.Where(x => x.ProductCode.ResultCode != null);
-			//foreach(var gtin in orderItem.Nomenclature.Gtins)
-			//{
-			//	matchEdoTaskItem = resultCodes
-			//		.Where(x => x.ProductCode.ResultCode.GTIN == gtin.GtinNumber)
-			//		.FirstOrDefault();
-			//	if(matchEdoTaskItem != null)
-			//	{
-			//		inventPosition.EdoTaskItem = matchEdoTaskItem;
-			//		unprocessedCodes.Remove(matchEdoTaskItem);
-			//		return inventPosition;
-			//	}
-			//}
+			var resultCodes = unprocessedCodes
+				.Where(x => x.ProductCode.Problem == ProductCodeProblem.None)
+				.Where(x => x.ProductCode.ResultCode != null);
+			foreach(var gtin in orderItem.Nomenclature.Gtins)
+			{
+				matchEdoTaskItem = resultCodes
+					.Where(x => x.ProductCode.ResultCode.GTIN == gtin.GtinNumber)
+					.FirstOrDefault();
+				if(matchEdoTaskItem != null)
+				{
+					inventPosition.EdoTaskItem = matchEdoTaskItem;
+					unprocessedCodes.Remove(matchEdoTaskItem);
+					return inventPosition;
+				}
+			}
 
 			// затем у кого заполнен Source код без проблем
 
@@ -1008,7 +1016,8 @@ namespace Edo.Receipt.Dispatcher
 				{
 					// запись кода из пула в result
 					codeIdFromPool = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
-					matchEdoTaskItem.ProductCode.ResultCode = new TrueMarkWaterIdentificationCode { Id = codeIdFromPool };
+					var identificationCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeIdFromPool, cancellationToken);
+					matchEdoTaskItem.ProductCode.ResultCode = identificationCode;
 					matchEdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 					await _uow.SaveAsync(matchEdoTaskItem, cancellationToken: cancellationToken);
 
@@ -1030,7 +1039,8 @@ namespace Edo.Receipt.Dispatcher
 				{
 					// запись кода из пула в result
 					codeIdFromPool = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
-					matchEdoTaskItem.ProductCode.ResultCode = new TrueMarkWaterIdentificationCode { Id = codeIdFromPool };
+					var identificationCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeIdFromPool, cancellationToken);
+					matchEdoTaskItem.ProductCode.ResultCode = identificationCode;
 					matchEdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 					await _uow.SaveAsync(matchEdoTaskItem, cancellationToken: cancellationToken);
 
@@ -1051,6 +1061,7 @@ namespace Edo.Receipt.Dispatcher
 				ResultCode = code
 			};
 
+			await _uow.SaveAsync(newProductCode, cancellationToken: cancellationToken);
 			matchEdoTaskItem = new EdoTaskItem
 			{
 				CustomerEdoTask = receiptEdoTask,
@@ -1106,6 +1117,15 @@ namespace Edo.Receipt.Dispatcher
 				return IndustryRequisitePrepareResult.Problem;
 			}
 
+			var regulatoryDocument = _uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
+			if(regulatoryDocument == null)
+			{
+				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
+					receiptEdoTask,
+					cancellationToken);
+				return IndustryRequisitePrepareResult.Problem;
+			}
+
 			bool isValid = true;
 			var invalidTaskItems = new List<EdoTaskItem>();
 
@@ -1156,12 +1176,15 @@ namespace Edo.Receipt.Dispatcher
 				{
 					var inventPosition = codesToCheck1260[codeResult.Cis];
 					inventPosition.IndustryRequisiteData = $"UUID={result.ReqId}&Time={result.ReqTimestamp}";
+					inventPosition.RegulatoryDocument = regulatoryDocument;
+					await _uow.SaveAsync(inventPosition, cancellationToken: cancellationToken);
 				}
 			}
 
 			if(isValid)
 			{
 				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteMissingOrganizationToken>(receiptEdoTask);
+				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(receiptEdoTask);
 				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteCheckApiError>(receiptEdoTask);
 				return IndustryRequisitePrepareResult.Succeeded;
 			}
@@ -1419,16 +1442,34 @@ namespace Edo.Receipt.Dispatcher
 
 		private FiscalInventPosition CreateInventPosition(OrderItemEntity orderItem)
 		{
+			return CreateInventPosition(new List<OrderItemEntity> { orderItem }, Math.Round(orderItem.Price, 2));
+		}
+		
+		private FiscalInventPosition CreateInventPosition(IEnumerable<OrderItemEntity> orderItems, decimal pricePerItem)
+		{
+			if(orderItems.Select(x => x.Order.Id).Distinct().Count() > 1)
+			{
+				throw new InvalidOperationException("Нельзя создать товар в чеке для строк разных заказов");
+			}
+
+			if(orderItems.Select(x => x.Nomenclature.Id).Distinct().Count() > 1)
+			{
+				throw new InvalidOperationException("Нельзя создать товар в чеке для строк заказа с разной номенклатурой");
+			}
+
+			var nomenclature = orderItems.First().Nomenclature;
+			var order = orderItems.First().Order;
+
 			var inventPosition = new FiscalInventPosition
 			{
-				Name = orderItem.Nomenclature.OfficialName,
-				Price = Math.Round(orderItem.Price, 2),
-				OrderItem = orderItem
+				Name = nomenclature.OfficialName,
+				Price = pricePerItem,
+				OrderItems = new ObservableList<OrderItemEntity>(orderItems)
 			};
 
-			var organization = orderItem.Order.Contract?.Organization;
+			var organization = order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == VAT.No)
+			if(organization is null || organization.WithoutVAT || nomenclature.VAT == VAT.No)
 			{
 				inventPosition.Vat = FiscalVat.VatFree;
 			}

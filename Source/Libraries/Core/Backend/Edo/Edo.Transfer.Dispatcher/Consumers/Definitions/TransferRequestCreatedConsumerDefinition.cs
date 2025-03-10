@@ -18,7 +18,6 @@ namespace Edo.Transfer.Dispatcher.Consumers.Definitions
 
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
-				rmq.AutoDelete = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
 				rmq.Bind<TransferRequestCreatedEvent>();

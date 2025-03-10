@@ -1,4 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
+using NHibernate;
+using System;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
@@ -28,7 +30,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("receipt_edo_task_id");
 
 			Map(x => x.Index)
-				.Column("index");
+				.Column("document_index");
 
 			Map(x => x.Stage)
 				.Column("stage");
