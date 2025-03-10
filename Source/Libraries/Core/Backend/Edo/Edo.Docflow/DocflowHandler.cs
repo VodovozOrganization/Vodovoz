@@ -74,7 +74,6 @@ namespace Edo.Docflow
 		public async Task HandleOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(orderDocumentId, cancellationToken);
-
 			
 			if(document.Status.IsIn(
 				EdoDocumentStatus.InProgress, 
@@ -87,26 +86,24 @@ namespace Edo.Docflow
 				return;
 			}
 
-			var customerTask = await _uow.Session.GetAsync<OrderEdoTask>(document.DocumentTaskId, cancellationToken);
+			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
 
 			UniversalTransferDocumentInfo updInfo;
 			OrganizationEntity sender;
 
-			switch(customerTask.OrderEdoRequest.Type)
+			switch(documentTask.OrderEdoRequest.Type)
 			{
 				case CustomerEdoRequestType.Order:
-					var orderRequest = customerTask.OrderEdoRequest as OrderEdoRequest;
-					var order = orderRequest.Order;
-					var codes = orderRequest.ProductCodes.Select(x => x.ResultCode);
+					var order = documentTask.OrderEdoRequest.Order;
 					sender = order.Contract.Organization;
-					updInfo = _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(order, codes);
+					updInfo = _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 				case CustomerEdoRequestType.OrderWithoutShipmentForDebt:
 				case CustomerEdoRequestType.OrderWithoutShipmentForPayment:
 					throw new NotImplementedException("Не реализована отправка счетов без отгрузки");
 				default:
-					throw new InvalidOperationException($"Неизвестный тип заявки {customerTask.OrderEdoRequest.Type}");
+					throw new InvalidOperationException($"Неизвестный тип заявки {documentTask.OrderEdoRequest.Type}");
 			}
 
 			var message = new TaxcomDocflowSendEvent
@@ -127,7 +124,7 @@ namespace Edo.Docflow
 			switch(docflowStatus)
 			{
 				case EdoDocFlowStatus.InProgress:
-					// Тут сделать обработку успшеной отправки
+					// Тут сделать обработку успешной отправки
 					// проверять по документам такском а не по статусу InProgress
 					break;
 				case EdoDocFlowStatus.Succeed:
