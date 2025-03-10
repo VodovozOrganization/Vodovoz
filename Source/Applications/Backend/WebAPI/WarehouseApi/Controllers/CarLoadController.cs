@@ -148,7 +148,7 @@ namespace WarehouseApi.Controllers
 
 				if(requestProcessingResult.Result.IsSuccess)
 				{
-					var maxIndex = requestProcessingResult.Result.Value.Nomenclature.Codes.Count();
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
 					for(int i = 0; i < maxIndex; i++)
 					{
 						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
@@ -198,7 +198,7 @@ namespace WarehouseApi.Controllers
 
 				if(requestProcessingResult.Result.IsSuccess)
 				{
-					var maxIndex = requestProcessingResult.Result.Value.Nomenclature.Codes.Count();
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
 					for(int i = 0; i < maxIndex; i++)
 					{
 						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
