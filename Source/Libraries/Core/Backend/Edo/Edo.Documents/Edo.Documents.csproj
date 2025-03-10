@@ -10,6 +10,7 @@
 	</ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj" />
     <ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
     <ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
     <ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
