@@ -1,12 +1,14 @@
-﻿using QS.DomainModel.UoW;
+﻿using Edo.Contracts.Messages.Dto;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Edo.Contracts.Messages.Dto;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Settings.Edo;
 using Vodovoz.Settings.Nomenclature;
 
 namespace Edo.Docflow.Factories
@@ -14,12 +16,18 @@ namespace Edo.Docflow.Factories
 	public class TransferOrderUpdInfoFactory
 	{
 		private const string _dateFormatString = "dd.MM.yyyy";
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
+		private readonly IEdoTransferSettings _edoTransferSettings;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public TransferOrderUpdInfoFactory(
 			IUnitOfWorkFactory uowFactory,
+			ITrueMarkCodeRepository trueMarkCodeRepository,
+			IEdoTransferSettings edoTransferSettings,
 			INomenclatureSettings nomenclatureSettings)
 		{
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
+			_edoTransferSettings = edoTransferSettings ?? throw new ArgumentNullException(nameof(edoTransferSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
@@ -132,32 +140,55 @@ namespace Edo.Docflow.Factories
 		private IEnumerable<ProductInfo> GetProducts(IUnitOfWork uow, TransferOrder transferOrder)
 		{
 			var products = new List<ProductInfo>();
-			var codes = transferOrder.TrueMarkCodes.Select(x => x.TrueMarkCode);
 
-			var codesWithoutGtins = codes.Where(x => string.IsNullOrWhiteSpace(x.GTIN));
-			if(codesWithoutGtins.Any())
+			var itemsByNomenclature = transferOrder.Items.GroupBy(x => x.Nomenclature);
+
+			foreach(var codesByNomenclature in itemsByNomenclature)
 			{
-				var errorMessage = $"Среди переданных кодов имеются коды с незаполненным значением GTIN. Id: {string.Join(", ", codesWithoutGtins)}";
-				throw new InvalidOperationException(errorMessage);
-			}
+				var nomenclature = codesByNomenclature.Key;
 
-			var gtinGroups = codes
-				.GroupBy(x => x.GTIN)
-				.ToDictionary(x => x.Key, x => x.ToList());
+				var quantity = codesByNomenclature.Sum(x => x.Quantity);
 
-			foreach(var gtinGroup in gtinGroups)
-			{
-				var nomenclature = GetNomenclatureByGtin(uow, gtinGroup.Key);
+				var productCodes = new List<ProductCodeInfo>();
 
-				if(nomenclature is null)
+				foreach(var code in codesByNomenclature)
 				{
-					var errorMessage = $"Номенклатура с указаннымм значением GTIN не найдена. GTIN: {gtinGroup.Key}";
-					throw new InvalidOperationException(errorMessage);
+					var productCode = new ProductCodeInfo();
+
+					TrueMarkTransportCode transportCode = null;
+
+					if(code.GroupCode != null)
+					{
+						productCode.IndividualOrGroupCode = code.GroupCode.IdentificationCode;
+						productCode.Type = ProductCodeType.Group;
+						transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.GroupCode);
+					}
+					else
+					{
+						productCode.IndividualOrGroupCode = code.IndividualCode.IdentificationCode;
+						productCode.Type = ProductCodeType.Individual;
+						transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.IndividualCode);
+					}
+
+					if(transportCode != null)
+					{
+						productCode.TransportCode = transportCode.RawCode;
+					}
+
+					productCodes.Add(productCode);
 				}
 
-				var productCount = gtinGroup.Value.Count;
+				var price = nomenclature.GetPurchasePriceOnDate(DateTime.Now);
+				if(price == 0m)
+				{
+					price = nomenclature.GetPrice(quantity);
+				}
+				else
+				{
+					var additionalPercent = _edoTransferSettings.AdditionalPurchasePricePrecentForTransfer;
+					price *= 1 + additionalPercent / 100;
+				}
 
-				var price = nomenclature.GetPrice(productCount);
 				var includeVat = Math.Round(price * nomenclature.VatNumericValue / (1 + nomenclature.VatNumericValue), 2);
 
 				var product = new ProductInfo
@@ -167,12 +198,12 @@ namespace Edo.Docflow.Factories
 					UnitName = nomenclature.Unit.Name,
 					OKEI = nomenclature.Unit.OKEI,
 					Code = nomenclature.Id.ToString(),
-					Count = productCount,
-					Price = nomenclature.GetPrice(productCount),
+					Count = quantity,
+					Price = price,
 					IncludeVat = includeVat,
 					ValueAddedTax = nomenclature.VatNumericValue,
 					DiscountMoney = 0,
-					TrueMarkCodes = gtinGroup.Value.Select(x => x.IdentificationCode)
+					TrueMarkCodes = productCodes
 				};
 
 				products.Add(product);
@@ -188,7 +219,7 @@ namespace Edo.Docflow.Factories
 			var nomenclature = uow.Session.QueryOver<NomenclatureEntity>()
 				.Left.JoinAlias(x => x.Gtins, () => gtinAlias)
 				.Where(() => gtinAlias.GtinNumber == gtin)
-				.SingleOrDefault();
+				.List().FirstOrDefault();
 
 			return nomenclature;
 		}
