@@ -1,9 +1,9 @@
-﻿using Core.Infrastructure;
+﻿using Edo.Contracts.Messages.Dto;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Edo.Contracts.Messages.Dto;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Edo;
@@ -11,7 +11,6 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Settings.Nomenclature;
 
 namespace Edo.Docflow.Factories
@@ -21,27 +20,30 @@ namespace Edo.Docflow.Factories
 		private const string _dateFormatString = "dd.MM.yyyy";
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public OrderUpdInfoFactory(
 			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
+			ITrueMarkCodeRepository trueMarkCodeRepository,
 			INomenclatureSettings nomenclatureSettings
 			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
-		public UniversalTransferDocumentInfo CreateUniversalTransferDocumentInfo(OrderEntity order, IEnumerable<TrueMarkWaterIdentificationCode> codes)
+		public UniversalTransferDocumentInfo CreateUniversalTransferDocumentInfo(OrderEntity order, EdoUpdDocument edoUpdDocument)
 		{
-			return ConvertTransferOrderToUniversalTransferDocumentInfo(order, codes);
+			return ConvertTransferOrderToUniversalTransferDocumentInfo(order, edoUpdDocument);
 		}
 
-		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(OrderEntity order, IEnumerable<TrueMarkWaterIdentificationCode> codes)
+		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(OrderEntity order, EdoUpdDocument edoUpdDocument)
 		{
-			var products = GetProducts(order, codes);
+			var products = GetProducts(edoUpdDocument);
 
 			var document = new UniversalTransferDocumentInfo
 			{
@@ -261,32 +263,65 @@ namespace Edo.Docflow.Factories
 			};
 		}
 
-		private IEnumerable<ProductInfo> GetProducts(OrderEntity order, IEnumerable<TrueMarkWaterIdentificationCode> codes)
+		private IEnumerable<ProductInfo> GetProducts(EdoUpdDocument edoUpdDocument)
 		{
 			var products = new List<ProductInfo>();
 
-			var hasCodesWithoutGtins = codes.Any(x => x.GTIN.IsNullOrWhiteSpace());
-			if(hasCodesWithoutGtins)
+			foreach(var inventPosition in edoUpdDocument.InventPositions)
 			{
-				var errorMessage = $"Среди переданных кодов имеются коды с незаполненным значением GTIN. Id: {string.Join(", ", hasCodesWithoutGtins)}";
-				throw new InvalidOperationException(errorMessage);
-			}
-
-			foreach(var orderItem in order.OrderItems)
-			{
+				var orderItem = inventPosition.AssignedOrderItem;
 				var nomenclature = orderItem.Nomenclature;
+				var isService = nomenclature.Category == NomenclatureCategory.master
+					|| nomenclature.Category == NomenclatureCategory.service;
 
-				var orderItemsCodes =
-					codes
-						.Where(x => nomenclature.Gtins.Any(gtin => gtin.GtinNumber == x.GTIN))
-						.Select(x => x.IdentificationCode);
+				var codesInfo = new List<ProductCodeInfo>();
+				foreach(var code in inventPosition.Codes)
+				{
+					if(code.GroupCode != null)
+					{
+						var codeValue = code.GroupCode.IdentificationCode;
+						var codeInfo = new ProductCodeInfo
+						{
+							Type = ProductCodeType.Group,
+							IndividualOrGroupCode = codeValue
+						};
+
+						var transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.GroupCode);
+						if(transportCode != null)
+						{
+							codeInfo.TransportCode = transportCode.RawCode;
+						}
+
+						codesInfo.Add(codeInfo);
+						continue;
+					}
+
+					if(code.IndividualCode != null)
+					{
+						var codeValue = code.IndividualCode.IdentificationCode;
+						var codeInfo = new ProductCodeInfo
+						{
+							Type = ProductCodeType.Individual,
+							IndividualOrGroupCode = codeValue
+						};
+
+						var transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.IndividualCode);
+						if(transportCode != null)
+						{
+							codeInfo.TransportCode = transportCode.RawCode;
+						}
+
+						codesInfo.Add(codeInfo);
+						continue;
+					}
+
+					throw new InvalidOperationException("Должен быть обязательно заполнен код в позиции УПД документа");
+				}
 
 				var product = new ProductInfo
 				{
 					Name = nomenclature.Name,
-					IsService =
-						nomenclature.Category == NomenclatureCategory.master
-						|| nomenclature.Category == NomenclatureCategory.service,
+					IsService = isService,
 					UnitName = nomenclature.Unit.Name,
 					OKEI = nomenclature.Unit.OKEI,
 					Code = nomenclature.Id.ToString(),
@@ -295,11 +330,36 @@ namespace Edo.Docflow.Factories
 					IncludeVat = orderItem.IncludeNDS ?? 0,
 					ValueAddedTax = orderItem.ValueAddedTax,
 					DiscountMoney = orderItem.DiscountMoney,
-					TrueMarkCodes = orderItemsCodes
+					TrueMarkCodes = codesInfo
 				};
 
 				products.Add(product);
 			}
+
+			//foreach(var remainingPosition in edoUpdDocument.RemainingPositions)
+			//{
+			//	var orderItem = remainingPosition.AssignedOrderItems.First();
+			//	var nomenclature = remainingPosition.AssignedOrderItems.First().Nomenclature;
+			//	var isService = nomenclature.Category == NomenclatureCategory.master
+			//		|| nomenclature.Category == NomenclatureCategory.service;
+
+			//	var product = new ProductInfo
+			//	{
+			//		Name = nomenclature.Name,
+			//		IsService = isService,
+			//		UnitName = nomenclature.Unit.Name,
+			//		OKEI = nomenclature.Unit.OKEI,
+			//		Code = nomenclature.Id.ToString(),
+			//		Count = remainingPosition.Quantity,
+			//		Price = remainingPosition.Price,
+			//		IncludeVat = orderItem.IncludeNDS ?? 0,
+			//		ValueAddedTax = orderItem.ValueAddedTax,
+			//		DiscountMoney = remainingPosition.Discount,
+			//		TrueMarkCodes = codesInfo
+			//	};
+
+			//	products.Add(product);
+			//}
 
 			return products;
 		}
