@@ -23,6 +23,7 @@ using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
@@ -447,11 +448,13 @@ namespace Edo.Receipt.Dispatcher
 			}
 		}
 
-		private IDictionary<int, List<TrueMarkProductCode>> GetProductCodesHavingRequiredResultCodeIds(IEnumerable<int> resultCodeIds) =>
-			_productCodeRepository
-			.Get(_uow, x => resultCodeIds.Contains(x.ResultCode.Id))
-			.GroupBy(x => x.ResultCode.Id)
-			.ToDictionary(x => x.Key, x => x.ToList());
+		private IDictionary<int, List<TrueMarkProductCode>> GetProductCodesHavingRequiredResultCodeIds(IEnumerable<int> resultCodeIds)
+		{
+			return _productCodeRepository
+				.Get(_uow, x => resultCodeIds.Contains(x.ResultCode.Id))
+				.GroupBy(x => x.ResultCode.Id)
+				.ToDictionary(x => x.Key, x => x.ToList());
+		}
 
 		public EdoFiscalDocument UpdateUnmarkedFiscalDocument(ReceiptEdoTask receiptEdoTask)
 		{

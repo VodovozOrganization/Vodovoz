@@ -351,42 +351,5 @@ namespace Edo.Transfer
 
 			return nomenclature;
 		}
-
-		/*
-		public void CompleteTransfer(TransferEdoTask transferTask)
-		{
-			transferTask.TransferStatus = TransferEdoTaskStatus.Completed;
-			transferTask.Status = EdoTaskStatus.Completed;
-			transferTask.EndTime = DateTime.Now;
-		}
-
-		public async Task<bool> IsAllTransfersComplete(IUnitOfWork uow, TransferEdoTask transferTask, CancellationToken cancellationToken)
-		{
-			var shouldHandle = new PredicateBuilder()
-				.HandleInner<MySqlException>(x => x.Number == (int)MySqlErrorCode.LockWaitTimeout)
-				.HandleInner<MySqlException>(x => x.Number == (int)MySqlErrorCode.DuplicateKeyEntry)
-				.HandleInner<MySqlException>(x => x.Number == (int)MySqlErrorCode.LockDeadlock);
-
-			var options = new RetryStrategyOptions();
-			options.MaxRetryAttempts = 5;
-			options.ShouldHandle = shouldHandle;
-			options.Delay = TimeSpan.FromSeconds(2);
-
-			var pipeline = new ResiliencePipelineBuilder()
-				.AddRetry(options)
-				.Build();
-
-			var result = await pipeline.ExecuteAsync(async token => {
-				return await TryGetAllTransfersComplete(uow, transferTask, token);
-			}, cancellationToken);
-
-			return result;
-		}
-
-		public async Task<bool> TryGetAllTransfersComplete(IUnitOfWork uow, TransferEdoTask transferTask, CancellationToken cancellationToken)
-		{
-			var relatedTasks = await _transferTaskRepository.GetAllRelatedTransferTasksAsync(uow, transferTask, cancellationToken);
-			return relatedTasks.All(x => x.TransferStatus == TransferEdoTaskStatus.Completed);
-		}*/
 	}
 }
