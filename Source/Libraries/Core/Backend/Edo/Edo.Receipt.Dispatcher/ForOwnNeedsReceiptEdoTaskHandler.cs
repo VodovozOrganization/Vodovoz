@@ -10,6 +10,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Exceptions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,11 +28,6 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
-using NetTopologySuite.Operation.Valid;
-using NHibernate;
-using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Core.Domain.Repositories;
-using QS.Extensions.Observable.Collections.List;
 
 namespace Edo.Receipt.Dispatcher
 {

@@ -316,7 +316,7 @@ namespace Edo.Transfer
 			var nomenclature = edoTask.FiscalDocuments
 				.SelectMany(x => x.InventPositions)
 				.Where(x => x.GroupCode == groupCode)
-				.Select(x => x.OrderItem.Nomenclature)
+				.Select(x => x.OrderItems.FirstOrDefault().Nomenclature)
 				.FirstOrDefault();
 
 			if(nomenclature == null)
@@ -338,7 +338,7 @@ namespace Edo.Transfer
 			var nomenclature = edoTask.FiscalDocuments
 				.SelectMany(x => x.InventPositions)
 				.Where(x => x.EdoTaskItem == edoTaskItem)
-				.Select(x => x.OrderItem.Nomenclature)
+				.Select(x => x.OrderItems.FirstOrDefault().Nomenclature)
 				.FirstOrDefault();
 
 			if(nomenclature == null)
