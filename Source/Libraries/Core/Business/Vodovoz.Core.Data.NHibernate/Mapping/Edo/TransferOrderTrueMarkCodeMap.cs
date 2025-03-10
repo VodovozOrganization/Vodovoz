@@ -18,8 +18,17 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			References(x => x.TransferOrder)
 				.Column("transfer_order_id");
 
-			References(x => x.TrueMarkCode)
-				.Column("true_mark_code_id");
+			References(x => x.Nomenclature)
+				.Column("nomenclature_id");
+
+			Map(x => x.Quantity)
+				.Column("quantity");
+
+			References(x => x.IndividualCode)
+				.Column("individual_code_id");
+
+			References(x => x.GroupCode)
+				.Column("group_code_id");
 		}
 	}
 }
