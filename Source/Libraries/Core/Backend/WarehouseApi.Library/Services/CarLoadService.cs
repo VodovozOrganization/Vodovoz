@@ -602,7 +602,7 @@ namespace WarehouseApi.Library.Services
 
 			var successResponse = new ChangeOrderCodeResponse
 			{
-				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
+				Nomenclature = nomenclatureDto,
 				Result = OperationResultEnumDto.Success,
 				Error = null
 			};
