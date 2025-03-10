@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using MoreLinq;
 using QS.Commands;
@@ -786,6 +786,7 @@ namespace Vodovoz
 					_createdOrderEdoRequests.Remove(request.Order.Id);
 					return;
 				case true:
+				case false when addressStatus != RouteListItemStatus.Completed:
 					return;
 				default:
 					_createdOrderEdoRequests.Add(request.Order.Id, (false, request));
