@@ -308,16 +308,8 @@ namespace Vodovoz
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
-					builder.RegisterType<TrueMarkApiClientFactory>()
-						.As<ITrueMarkApiClientFactory>()
-						.SingleInstance();
-
 					builder.RegisterType<TrueMarkTaskCodesValidator>()
 						.As<ITrueMarkCodesValidator>()
-						.InstancePerLifetimeScope();
-
-					builder.Register(context => context.Resolve<ITrueMarkApiClientFactory>().GetClient())
-						.As<ITrueMarkApiClient>()
 						.InstancePerLifetimeScope();
 
 					builder.RegisterType<TrueMarkWaterCodeParser>()
