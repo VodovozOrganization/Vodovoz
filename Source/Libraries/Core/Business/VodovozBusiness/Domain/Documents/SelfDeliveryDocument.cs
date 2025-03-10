@@ -10,6 +10,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -139,13 +140,23 @@ namespace Vodovoz.Domain.Documents
 						new[] { nameof(item) });
 				}
 
-				var otherSelfDeliveryDocumentsWithThisOrder = unitOfWork.GetAll<SelfDeliveryDocument>()
-					.Where(x => x.Order.Id == Order.Id && x.Id != Id)
-					.ToList();
+				var hasOtherSelfDeliveryDocumentsWithThisOrder = unitOfWork
+					.GetAll<SelfDeliveryDocument>()
+					.Any(x => x.Order.Id == Order.Id && x.Id != Id);
 
-				if(otherSelfDeliveryDocumentsWithThisOrder.Any())
+				if(hasOtherSelfDeliveryDocumentsWithThisOrder)
 				{
 					yield return new ValidationResult($"Уже есть документ с заказом {Order.Id}",
+						new[] { nameof(item) });
+				}
+				
+				var hasOrderEdoRequest = unitOfWork
+					.GetAll<OrderEdoRequest>()
+					.Any(x => x.Order.Id == Order.Id && x.Id != Id);
+
+				if(hasOrderEdoRequest)
+				{
+					yield return new ValidationResult($"Нельзя изменять документ самовывоза, по которому уже есть заявка на отправку документов заказа по ЭДО.",
 						new[] { nameof(item) });
 				}
 			}

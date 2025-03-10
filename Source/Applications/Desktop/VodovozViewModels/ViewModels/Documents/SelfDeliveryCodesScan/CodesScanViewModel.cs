@@ -287,9 +287,16 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			{
 				CodeScanRows.Sort((a, b) => b.RowNumber.CompareTo(a.RowNumber));
 			}
+			
+			lock(_selfDeliveryDocument)
+			{
+				OnPropertyChanged(() => IsAllCodesScanned);	
+			}
 
 			_guiDispatcher.RunInGuiTread(() =>
-				RefreshScanningNomenclaturesAction?.Invoke()
+				{
+					RefreshScanningNomenclaturesAction?.Invoke();
+				}
 			);
 		}
 
