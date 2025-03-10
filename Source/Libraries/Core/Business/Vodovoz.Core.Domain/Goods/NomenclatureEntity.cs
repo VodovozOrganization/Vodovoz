@@ -118,6 +118,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private IObservableList<AlternativeNomenclaturePriceEntity> _alternativeNomenclaturePrices = new ObservableList<AlternativeNomenclaturePriceEntity>();
 		private IObservableList<GtinEntity> _gtins = new ObservableList<GtinEntity>();
 		private IObservableList<GroupGtinEntity> _groupGtins = new ObservableList<GroupGtinEntity>();
+		private IObservableList<NomenclaturePurchasePrice> _purchasePrices = new ObservableList<NomenclaturePurchasePrice>();
 
 		public NomenclatureEntity()
 		{
@@ -544,6 +545,16 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _groupGtins;
 			set => SetField(ref _groupGtins, value);
+		}
+
+		/// <summary>
+		/// Цены закупки ТМЦ
+		/// </summary>
+		[Display(Name = "Цены закупки ТМЦ")]
+		public virtual IObservableList<NomenclaturePurchasePrice> PurchasePrices
+		{
+			get => _purchasePrices;
+			set => SetField(ref _purchasePrices, value);
 		}
 
 		/// <summary>
@@ -1173,6 +1184,17 @@ namespace Vodovoz.Core.Domain.Goods
 				price = nomPrice?.Price ?? 0;
 			}
 			return price;
+		}
+
+		public virtual decimal GetPurchasePriceOnDate(DateTime date)
+		{
+			var purchasePrice =
+				PurchasePrices
+				.Where(p => p.StartDate <= date && (p.EndDate == null || p.EndDate >= date))
+				.Select(p => p.PurchasePrice)
+				.FirstOrDefault();
+
+			return purchasePrice;
 		}
 	}
 }
