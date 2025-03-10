@@ -24,6 +24,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.Presentation.Views;
 using Edo.Transport;
+using TrueMarkApi.Client;
 
 namespace Vodovoz
 {
@@ -32,7 +33,8 @@ namespace Vodovoz
 		public static IServiceCollection AddWaterDeliveryDesktop(this IServiceCollection services) =>
 			services.AddVodovozViewModels()
 				.AddPresentationViews()
-				.AddDocumentPrinter();
+				.AddDocumentPrinter()
+				.AddTrueMarkApiClient();
 
 		public static IServiceCollection AddPermissionValidation(this IServiceCollection services)
 		{
