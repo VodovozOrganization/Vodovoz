@@ -18,7 +18,6 @@ namespace Edo.Receipt.Sender.Consumers.Definitions
 
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
-				rmq.AutoDelete = true;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
 				rmq.Bind<ReceiptSendEvent>();

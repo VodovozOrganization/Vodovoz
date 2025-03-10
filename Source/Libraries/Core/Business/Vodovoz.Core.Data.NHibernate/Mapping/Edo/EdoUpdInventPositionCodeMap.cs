@@ -3,23 +3,17 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 {
-	public class TransferOrderTrueMarkCodeMap : ClassMap<TransferOrderTrueMarkCode>
+	public class EdoUpdInventPositionCodeMap : ClassMap<EdoUpdInventPositionCode>
 	{
-		public TransferOrderTrueMarkCodeMap()
+		public EdoUpdInventPositionCodeMap()
 		{
-			Table("edo_transfer_order_codes");
+			Table("edo_upd_invent_position_codes");
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
 			Id(x => x.Id)
 				.Column("id")
 				.GeneratedBy.Native();
-
-			References(x => x.TransferOrder)
-				.Column("transfer_order_id");
-
-			References(x => x.Nomenclature)
-				.Column("nomenclature_id");
 
 			Map(x => x.Quantity)
 				.Column("quantity");

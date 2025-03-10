@@ -22,6 +22,10 @@ namespace Vodovoz.Core.Domain.Edo
 		[Display(Name = "Завершен с различиями")]
 		CompletedWithDivergences,
 		[Display(Name = "Не принят")]
-		NotAccepted
+		NotAccepted,
+		[Display(Name = "Аннулирован")]
+		Cancelled,
+		[Display(Name = "Ожидает аннулирования")]
+		WaitingForCancellation
 	}
 }

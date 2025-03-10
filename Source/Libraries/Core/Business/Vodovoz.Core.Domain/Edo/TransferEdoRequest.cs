@@ -10,8 +10,6 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		private int _id;
 		private TransferEdoRequestIteration _iteration;
-		//private DateTime _time;
-		//private OrderEdoTask _orderEdoTask;
 		private int _fromOrganizationId;
 		private int _toOrganizationId;
 		private IObservableList<EdoTaskItem> _transferedItems = new ObservableList<EdoTaskItem>();
@@ -23,20 +21,6 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _id;
 			set => SetField(ref _id, value);
 		}
-
-		//[Display(Name = "Время")]
-		//public virtual DateTime Time
-		//{
-		//	get => _time;
-		//	set => SetField(ref _time, value);
-		//}
-
-		//[Display(Name = "Код ЭДО задачи")]
-		//public virtual OrderEdoTask OrderEdoTask
-		//{
-		//	get => _orderEdoTask;
-		//	set => SetField(ref _orderEdoTask, value);
-		//}
 
 		[Display(Name = "Итерация")]
 		public virtual TransferEdoRequestIteration Iteration

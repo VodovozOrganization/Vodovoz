@@ -102,11 +102,10 @@ namespace Edo.Transfer
 			";
 
 			var iterationCompleted = await uow.Session.CreateSQLQuery(sql)
-					.AddEntity(typeof(TransferEdoTask))
 					.SetParameter("transferIterationId", transferIterationId)
-					.UniqueResultAsync<bool>(cancellationToken);
+					.UniqueResultAsync<int>(cancellationToken);
 
-			return iterationCompleted;
+			return iterationCompleted == 1;
 		}
 
 		public async Task<IEnumerable<TrueMarkWaterIdentificationCode>> GetAllCodesForTransferTaskAsync(IUnitOfWork uow, TransferEdoTask transferTask, CancellationToken cancellationToken)

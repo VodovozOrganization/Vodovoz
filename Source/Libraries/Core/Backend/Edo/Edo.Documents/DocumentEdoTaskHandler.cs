@@ -7,22 +7,26 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Documents
 {
 	public class DocumentEdoTaskHandler : IDisposable
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IUnitOfWork _uow;
+		private readonly ForOwnNeedDocumentEdoTaskHandler _forOwnNeedDocumentEdoTaskHandler;
+		private readonly ForResaleDocumentEdoTaskHandler _forResaleDocumentEdoTaskHandler;
 		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly IBus _messageBus;
-		private readonly IUnitOfWork _uow;
 
 		public DocumentEdoTaskHandler(
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWork uow,
+			ForOwnNeedDocumentEdoTaskHandler forOwnNeedDocumentEdoTaskHandler,
+			ForResaleDocumentEdoTaskHandler forResaleDocumentEdoTaskHandler,
 			EdoTaskValidator edoTaskValidator,
 			TrueMarkTaskCodesValidator trueMarkTaskCodesValidator,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
@@ -30,13 +34,14 @@ namespace Edo.Documents
 			IBus messageBus
 			)
 		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_forOwnNeedDocumentEdoTaskHandler = forOwnNeedDocumentEdoTaskHandler ?? throw new ArgumentNullException(nameof(forOwnNeedDocumentEdoTaskHandler));
+			_forResaleDocumentEdoTaskHandler = forResaleDocumentEdoTaskHandler ?? throw new ArgumentNullException(nameof(forResaleDocumentEdoTaskHandler));
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-			_uow = uowFactory.CreateWithoutRoot();
 		}
 
 		// handle new
@@ -48,7 +53,6 @@ namespace Edo.Documents
 		public async Task HandleNew(int documentEdoTaskId, CancellationToken cancellationToken)
 		{
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
-
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
@@ -72,44 +76,23 @@ namespace Edo.Documents
 			EdoTaskItemTrueMarkStatusProvider trueMarkCodesChecker,
 			CancellationToken cancellationToken)
 		{
-			var taskValidationResult = await _trueMarkTaskCodesValidator.ValidateAsync(
+			var reasonForLeaving = edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving;
+			if(reasonForLeaving == ReasonForLeaving.Resale)
+			{
+				await _forResaleDocumentEdoTaskHandler.HandleNewForResaleFormalDocument(
 					edoTask,
 					trueMarkCodesChecker,
 					cancellationToken
 				);
-
-			if(!taskValidationResult.IsAllValid)
-			{
-				throw new InvalidOperationException("Не все коды в задаче прошли проверку в честном знаке.");
-			}
-
-			var transferRequired = !taskValidationResult.ReadyToSell;
-
-			object message = null;
-			if(transferRequired)
-			{
-				var iteration = await _transferRequestCreator.CreateTransferRequests(
-					_uow,
-					edoTask,
-					trueMarkCodesChecker,
-					cancellationToken
-				);
-				edoTask.Status = EdoTaskStatus.InProgress;
-				edoTask.Stage = DocumentEdoTaskStage.Transfering;
-				message = new TransferRequestCreatedEvent { TransferIterationId = iteration.Id };
 			}
 			else
 			{
-				var customerDocument = await SendDocument(edoTask, cancellationToken);
-				edoTask.Status = EdoTaskStatus.InProgress;
-				edoTask.Stage = DocumentEdoTaskStage.Sending;
-				message = new OrderDocumentSendEvent { OrderDocumentId = customerDocument.Id };
+				await _forOwnNeedDocumentEdoTaskHandler.HandleNewForOwnNeedsFormalDocument(
+					edoTask,
+					trueMarkCodesChecker,
+					cancellationToken
+				);
 			}
-
-			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
-
-			await _messageBus.Publish(message, cancellationToken);
 		}
 
 		private async Task HandleInformalDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
@@ -138,14 +121,6 @@ namespace Edo.Documents
 			}
 		}
 
-		private async Task CreateTransferRequest(
-			DocumentEdoTask edoTask, 
-			EdoTaskItemTrueMarkStatusProvider trueMarkCodeChecker, 
-			CancellationToken cancellationToken)
-		{
-			
-		}
-
 		private async Task<OrderEdoDocument> SendDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
 		{
 			edoTask.Stage = DocumentEdoTaskStage.Sending;
@@ -172,50 +147,27 @@ namespace Edo.Documents
 		public async Task HandleTransfered(int transferIterationId, CancellationToken cancellationToken)
 		{
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
-			var edoTask = (DocumentEdoTask)transferIteration.OrderEdoTask;
+			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
-			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
-			if(!isValid)
+
+			var reasonForLeaving = edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving;
+			if(reasonForLeaving == ReasonForLeaving.Resale)
 			{
-				return;
+				await _forResaleDocumentEdoTaskHandler.HandleTransferedForResaleFormalDocument(
+					edoTask,
+					trueMarkCodesChecker,
+					cancellationToken
+				);
 			}
-
-			var codeStatuses = await trueMarkCodesChecker.GetItemsStatusesAsync(cancellationToken);
-			var organizationTo = edoTask.OrderEdoRequest.Order.Contract.Organization;
-
-			foreach(var codeStatus in codeStatuses.Values)
+			else
 			{
-				if(codeStatus.ProductInstanceStatus == null)
-				{
-					throw new EdoException($"Коды в задаче №{edoTask.Id} не были проверены в честном знаке после перемещения. " +
-						$"Эта проблема должна обрабатываться валидацией, необходимо проверить работу валидатора.");
-				}
-
-				if(codeStatus.ProductInstanceStatus.Status == null || codeStatus.ProductInstanceStatus.Status.Value != ProductInstanceStatusEnum.Introduced)
-				{
-					throw new EdoException($"Все коды в задаче №{edoTask.Id} должны иметь статус {ProductInstanceStatusEnum.Introduced}. " +
-						$"Эта проблема должна обрабатываться валидацией, необходимо проверить работу валидатора.");
-				}
-
-				if(codeStatus.ProductInstanceStatus.OwnerInn != organizationTo.INN)
-				{
-					throw new EdoException($"Все коды в задаче №{edoTask.Id} должны быть на балансе организации из клиенской заявки. " +
-						$"Эта проблема должна обрабатываться валидацией, необходимо проверить работу валидатора.");
-				}
+				await _forOwnNeedDocumentEdoTaskHandler.HandleTransferedForOwnNeedsFormalDocument(
+					edoTask,
+					trueMarkCodesChecker,
+					cancellationToken
+				);
 			}
-
-			// Проверка через ЧЗ всех кодов, с отметкой о прохождении проверки
-
-			var customerDocument = await SendDocument(edoTask, cancellationToken);
-			var message = new OrderDocumentSendEvent { OrderDocumentId = customerDocument.Id };
-
-			edoTask.Status = EdoTaskStatus.InProgress;
-
-			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
-
-			await _messageBus.Publish(message, cancellationToken);
 		}
 
 		// handle sent

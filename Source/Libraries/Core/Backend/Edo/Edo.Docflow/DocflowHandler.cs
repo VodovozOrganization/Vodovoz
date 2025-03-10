@@ -1,14 +1,13 @@
-﻿using Edo.Docflow.Factories;
+﻿using Core.Infrastructure;
+using Edo.Contracts.Messages.Dto;
+using Edo.Contracts.Messages.Events;
+using Edo.Docflow.Factories;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Core.Infrastructure;
-using Edo.Contracts.Messages.Dto;
-using Edo.Contracts.Messages.Events;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
@@ -46,7 +45,11 @@ namespace Edo.Docflow
 		public async Task HandleTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(transferDocumentId, cancellationToken);
-			if(document.Status != EdoDocumentStatus.NotStarted)
+			if(document.Status.IsIn(
+				EdoDocumentStatus.InProgress,
+				EdoDocumentStatus.CompletedWithDivergences,
+				EdoDocumentStatus.Succeed
+				))
 			{
 				_logger.LogError("Документ {documentId} уже в работе, повторно отправить нельзя.");
 				return;
@@ -69,33 +72,35 @@ namespace Edo.Docflow
 		public async Task HandleOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(orderDocumentId, cancellationToken);
-
-			if(document.Status != EdoDocumentStatus.NotStarted)
+			
+			if(document.Status.IsIn(
+				EdoDocumentStatus.InProgress, 
+				EdoDocumentStatus.CompletedWithDivergences, 
+				EdoDocumentStatus.Succeed
+				))
 			{
 				_logger.LogError("Документ {documentId} уже в работе, повторно отправить нельзя.");
 				return;
 			}
 
-			var customerTask = await _uow.Session.GetAsync<OrderEdoTask>(document.DocumentTaskId, cancellationToken);
+			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
 
 			UniversalTransferDocumentInfo updInfo;
 			OrganizationEntity sender;
 
-			switch(customerTask.OrderEdoRequest.Type)
+			switch(documentTask.OrderEdoRequest.Type)
 			{
 				case CustomerEdoRequestType.Order:
-					var orderRequest = customerTask.OrderEdoRequest as OrderEdoRequest;
-					var order = orderRequest.Order;
-					var codes = orderRequest.ProductCodes.Select(x => x.ResultCode);
+					var order = documentTask.OrderEdoRequest.Order;
 					sender = order.Contract.Organization;
-					updInfo = _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(order, codes);
+					updInfo = _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 				case CustomerEdoRequestType.OrderWithoutShipmentForDebt:
 				case CustomerEdoRequestType.OrderWithoutShipmentForPayment:
 					throw new NotImplementedException("Не реализована отправка счетов без отгрузки");
 				default:
-					throw new InvalidOperationException($"Неизвестный тип заявки {customerTask.OrderEdoRequest.Type}");
+					throw new InvalidOperationException($"Неизвестный тип заявки {documentTask.OrderEdoRequest.Type}");
 			}
 
 			var message = new TaxcomDocflowSendEvent
@@ -116,7 +121,7 @@ namespace Edo.Docflow
 			switch(docflowStatus)
 			{
 				case EdoDocFlowStatus.InProgress:
-					// Тут сделать обработку успшеной отправки
+					// Тут сделать обработку успешной отправки
 					// проверять по документам такском а не по статусу InProgress
 					break;
 				case EdoDocFlowStatus.Succeed:

@@ -19,5 +19,23 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public int MinCodesCountForStartTransfer => _settingsController
 			.GetIntValue("edo.transfer.min_codes_count_for_start_transfer");
+
+		public int AdditionalPurchasePricePrecentForTransfer
+		{
+			get
+			{
+				var percentFromBase = _settingsController.GetIntValue("edo.transfer.additional_purchase_price_percent");
+				if(percentFromBase > 100)
+				{
+					return 100;
+				}
+
+				if(percentFromBase < 0)
+				{
+					return 0;
+				}
+				return percentFromBase;
+			}
+		}
 	}
 }

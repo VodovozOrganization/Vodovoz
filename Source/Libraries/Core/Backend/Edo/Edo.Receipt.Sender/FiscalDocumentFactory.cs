@@ -66,7 +66,7 @@ namespace Edo.Receipt.Sender
 		private string GetResponseUrl(EdoFiscalDocument edoFiscalDocument)
 		{
 			var documentGuid = GetDocumentGuid(edoFiscalDocument);
-			var completeReceiptUrl = $"/{documentGuid}/completed";
+			var completeReceiptUrl = $"callback/complete/{documentGuid}";
 			var uriBuilder = new UriBuilder(_edoReceiptSettings.EdoReceiptApiUrl)
 			{
 				Path = completeReceiptUrl
