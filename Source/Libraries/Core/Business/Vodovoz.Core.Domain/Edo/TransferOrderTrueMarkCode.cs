@@ -1,5 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -13,7 +15,10 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		private int _id;
 		private TransferOrder _transferOrder;
-		private TrueMarkWaterIdentificationCode _trueMarkCode;
+		private NomenclatureEntity _nomenclature;
+		private int _quantity;
+		private TrueMarkWaterIdentificationCode _individualCode;
+		private TrueMarkWaterGroupCode _groupCode;
 
 		/// <summary>
 		/// Код
@@ -35,14 +40,32 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _transferOrder, value);
 		}
 
-		/// <summary>
-		/// Код ЧЗ
-		/// </summary>
-		[Display(Name = "Код ЧЗ")]
-		public virtual TrueMarkWaterIdentificationCode TrueMarkCode
+		[Display(Name = "Номенклатура")]
+		public virtual NomenclatureEntity Nomenclature
 		{
-			get => _trueMarkCode;
-			set => SetField(ref _trueMarkCode, value);
+			get => _nomenclature;
+			set => SetField(ref _nomenclature, value);
+		}
+
+		[Display(Name = "Количество")]
+		public virtual int Quantity
+		{
+			get => _quantity;
+			set => SetField(ref _quantity, value);
+		}
+
+		[Display(Name = "Индивидуальный код")]
+		public virtual TrueMarkWaterIdentificationCode IndividualCode
+		{
+			get => _individualCode;
+			set => SetField(ref _individualCode, value);
+		}
+
+		[Display(Name = "Групповой код")]
+		public virtual TrueMarkWaterGroupCode GroupCode
+		{
+			get => _groupCode;
+			set => SetField(ref _groupCode, value);
 		}
 	}
 }

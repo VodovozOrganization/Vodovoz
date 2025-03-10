@@ -22,6 +22,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			Map(x => x.Stage)
 				.Column("document_task_stage");
+
+			HasMany(x => x.UpdInventPositions)
+				.KeyColumn("document_edo_task_id")
+				.Cascade.AllDeleteOrphan();
 		}
 	}
 }

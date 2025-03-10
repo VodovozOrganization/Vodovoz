@@ -1,6 +1,7 @@
 ﻿using QS.Services;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Models

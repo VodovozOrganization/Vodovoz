@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.BusinessCommon.Domain;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
@@ -33,7 +32,6 @@ namespace Vodovoz.Domain.Goods
 		private decimal _height;
 
 		private IObservableList<NomenclaturePrice> _nomenclaturePrice = new ObservableList<NomenclaturePrice>();
-		private IObservableList<NomenclaturePurchasePrice> _purchasePrices = new ObservableList<NomenclaturePurchasePrice>();
 		private IObservableList<NomenclatureCostPrice> _costPrices = new ObservableList<NomenclatureCostPrice>();
 		private IObservableList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new ObservableList<NomenclatureInnerDeliveryPrice>();
 		private IObservableList<AlternativeNomenclaturePrice> _alternativeNomenclaturePrices =
@@ -304,16 +302,6 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _nomenclatureOnlineParameters, value);
 		}
 
-		/// <summary>
-		/// Цены закупки ТМЦ
-		/// </summary>
-		[Display(Name = "Цены закупки ТМЦ")]
-		public virtual IObservableList<NomenclaturePurchasePrice> PurchasePrices
-		{
-			get => _purchasePrices;
-			set => SetField(ref _purchasePrices, value);
-		}
-
 		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
 			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
 
@@ -543,17 +531,6 @@ namespace Vodovoz.Domain.Goods
 				parent = parent.Parent;
 			}
 			return false;
-		}
-
-		public virtual decimal GetPurchasePriceOnDate(DateTime date)
-		{
-			var purchasePrice =
-				PurchasePrices
-				.Where(p => p.StartDate <= date && (p.EndDate == null || p.EndDate >= date))
-				.Select(p => p.PurchasePrice)
-				.FirstOrDefault();
-
-			return purchasePrice;
 		}
 		
 		public override decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)

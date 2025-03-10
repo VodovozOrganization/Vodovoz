@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	[Appellative(
 		Gender = GrammaticalGender.Masculine,
@@ -19,15 +19,24 @@ namespace Vodovoz.Domain.Goods
 	public class NomenclaturePurchasePrice : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private const decimal _purchasePriceMax = 999999;
-		private Nomenclature _nomenclature;
+		private int _id;
+		private NomenclatureEntity _nomenclature;
 		private DateTime _startDate;
 		private DateTime? _endDate;
 		private decimal _purchasePrice;
 
-		public virtual int Id { get; set; }
+		/// <summary>
+		/// Код
+		/// </summary>
+		[Display(Name = "Код")]
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
 
-		[Display(Name = "Дата начала")]
-		public virtual Nomenclature Nomenclature
+		[Display(Name = "Номенклатура")]
+		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);

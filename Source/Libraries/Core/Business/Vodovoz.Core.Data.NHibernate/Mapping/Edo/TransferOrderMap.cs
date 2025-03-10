@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			References(x => x.Customer)
 				.Column("customer_organization_id");
 
-			HasMany(x => x.TrueMarkCodes)
+			HasMany(x => x.Items)
 				.Cascade.AllDeleteOrphan()
 				.Inverse()
 				.KeyColumn("transfer_order_id");

@@ -7,8 +7,10 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate.Exceptions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,13 +21,12 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Settings.Edo;
 
 namespace Edo.Receipt.Dispatcher
 {
 	public class ResaleReceiptEdoTaskHandler
 	{
-		private const int _maxCodesInReceipt = 128;
-
 		private readonly ILogger<ResaleReceiptEdoTaskHandler> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly EdoTaskValidator _edoTaskValidator;
@@ -35,7 +36,9 @@ namespace Edo.Receipt.Dispatcher
 		private readonly TrueMarkTaskCodesValidator _localCodesValidator;
 		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
 		private readonly Tag1260Checker _tag1260Checker;
+		private readonly IEdoReceiptSettings _edoReceiptSettings;
 		private readonly IBus _messageBus;
+		private readonly int _maxCodesInReceipt;
 
 		public ResaleReceiptEdoTaskHandler(
 			ILogger<ResaleReceiptEdoTaskHandler> logger,
@@ -47,6 +50,7 @@ namespace Edo.Receipt.Dispatcher
 			TrueMarkTaskCodesValidator localCodesValidator,
 			TrueMarkTaskCodesValidator trueMarkTaskCodesValidator,
 			Tag1260Checker tag1260Checker,
+			IEdoReceiptSettings edoReceiptSettings,
 			IBus messageBus
 			)
 		{
@@ -59,7 +63,10 @@ namespace Edo.Receipt.Dispatcher
 			_localCodesValidator = localCodesValidator ?? throw new ArgumentNullException(nameof(localCodesValidator));
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
+			_edoReceiptSettings = edoReceiptSettings ?? throw new ArgumentNullException(nameof(edoReceiptSettings));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+
+			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
 		}
 
 		public async Task HandleResaleReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
@@ -313,7 +320,7 @@ namespace Edo.Receipt.Dispatcher
 		private void CreateReceiptMoneyPositions(EdoFiscalDocument currentFiscalDocument)
 		{
 			var receiptSum = currentFiscalDocument.InventPositions
-								.Sum(x => x.OrderItem.Price * x.Quantity - x.DiscountSum);
+								.Sum(x => x.OrderItems.First().Price * x.Quantity - x.DiscountSum);
 
 			var moneyPosition = new FiscalMoneyPosition
 			{
@@ -389,7 +396,7 @@ namespace Edo.Receipt.Dispatcher
 			{
 				Name = orderItem.Nomenclature.OfficialName,
 				Price = Math.Round(orderItem.Price, 2),
-				OrderItem = orderItem
+				OrderItems = new ObservableList<OrderItemEntity> { orderItem }
 			};
 
 			var organization = orderItem.Order.Contract?.Organization;
