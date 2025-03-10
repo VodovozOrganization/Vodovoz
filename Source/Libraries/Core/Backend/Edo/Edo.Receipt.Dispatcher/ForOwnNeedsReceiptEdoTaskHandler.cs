@@ -1,11 +1,12 @@
 ﻿using Core.Infrastructure;
 using Edo.Common;
 using Edo.Contracts.Messages.Events;
-using Edo.Problems.Custom.Sources;
 using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Exceptions;
 using QS.DomainModel.UoW;
@@ -22,12 +23,9 @@ using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
-using NetTopologySuite.Operation.Valid;
-using NHibernate;
-using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Core.Domain.Repositories;
 
 namespace Edo.Receipt.Dispatcher
 {
@@ -41,7 +39,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly TrueMarkTaskCodesValidator _localCodesValidator;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly Tag1260Checker _tag1260Checker;
-		private readonly IGenericRepository<TrueMarkWaterGroupCode> _waterGroupCodeRepository;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
@@ -63,7 +61,7 @@ namespace Edo.Receipt.Dispatcher
 			TrueMarkTaskCodesValidator localCodesValidator,
 			TrueMarkCodesPool trueMarkCodesPool,
 			Tag1260Checker tag1260Checker,
-			IGenericRepository<TrueMarkWaterGroupCode> waterGroupCodeRepository,
+			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			IBus messageBus
 			)
@@ -79,8 +77,8 @@ namespace Edo.Receipt.Dispatcher
 			_localCodesValidator = localCodesValidator ?? throw new ArgumentNullException(nameof(localCodesValidator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
-			_waterGroupCodeRepository = waterGroupCodeRepository ?? throw new ArgumentNullException(nameof(waterGroupCodeRepository));
 			_productCodeRepository = productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
@@ -254,7 +252,7 @@ namespace Edo.Receipt.Dispatcher
 							hasGroupInvalidCodes = true;
 
 							// так же надо зачистить все части этого группового кода
-							var groupCode = GetParentGroupCode(codeResult.EdoTaskItem.ProductCode.ResultCode.ParentTransportCodeId.Value);
+							var groupCode = _trueMarkCodeRepository.GetParentGroupCode(_uow, codeResult.EdoTaskItem.ProductCode.ResultCode.ParentTransportCodeId.Value);
 							foreach(var individualCode in groupCode.GetAllCodes().Where(x => x.IsTrueMarkWaterIdentificationCode))
 							{
 								var foundInvalidGroupIdentificationCode = receiptEdoTask.Items
@@ -289,7 +287,7 @@ namespace Edo.Receipt.Dispatcher
 					if(hasGroupInvalidCodes)
 					{
 						// если нашелся групповой код, который не валиден, то лучше полностью переформировать
-						// фискальные документы, потому групповой код влияет на кол-во позиций в чеке
+						// фискальные документы, потому что групповой код влияет на кол-во позиций в чеке
 						receiptEdoTask.FiscalDocuments.Clear();
 					}
 
@@ -728,19 +726,7 @@ namespace Edo.Receipt.Dispatcher
 		//	public List<TrueMarkWaterIdentificationCode> ChildCodes { get; set; } = new List<TrueMarkWaterIdentificationCode>();
 		//}
 
-		private TrueMarkWaterGroupCode GetParentGroupCode(int id)
-		{
-			var groupCode = _waterGroupCodeRepository
-				.Get(_uow, x => x.Id == id, 1)
-				.FirstOrDefault();
-
-			if(groupCode.ParentWaterGroupCodeId != null)
-			{
-				return GetParentGroupCode(groupCode.ParentWaterGroupCodeId.Value);
-			}
-
-			return groupCode;
-		}
+		
 
 		private IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>> TakeGroupCodesWithTaskItems(List<EdoTaskItem> unprocessedTaskItems)
 		{
@@ -764,7 +750,7 @@ namespace Edo.Receipt.Dispatcher
 				.Distinct();
 
 			var parentCodes = parentCodesIds
-				.Select(x => GetParentGroupCode(x.Value))
+				.Select(x => _trueMarkCodeRepository.GetParentGroupCode(_uow, x.Value))
 				.Distinct();
 
 			var result = new Dictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>();
