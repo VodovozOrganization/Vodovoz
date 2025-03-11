@@ -253,8 +253,6 @@ namespace WarehouseApi.Library.Services
 			string userLogin,
 			CancellationToken cancellationToken)
 		{
-			// получить коды ЧЗ, если код транспортный или групповой - получить все индивидуальные и добавляем их
-
 			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
 
 			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, scannedCode);
