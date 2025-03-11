@@ -150,6 +150,14 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
+			cfg.Message<WithdrawalRequestCreatedEvent>(x => x.SetEntityName("edo.withdrawal_request_created_event.publish"));
+			cfg.Publish<WithdrawalRequestCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
 			AddTaxcomEdoTopology(cfg);
 		}
 
