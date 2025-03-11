@@ -3,6 +3,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Cash.Payments;
@@ -34,7 +35,7 @@ namespace Vodovoz.Dialogs.Cash.Payments
 				.UseTdiDialog<CounterpartyDlg>()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(filter =>
 				{
-					filter.CounterpartyType = Domain.Client.CounterpartyType.Supplier;
+					filter.CounterpartyType = CounterpartyType.Supplier;
 				})
 				.Finish();
 
