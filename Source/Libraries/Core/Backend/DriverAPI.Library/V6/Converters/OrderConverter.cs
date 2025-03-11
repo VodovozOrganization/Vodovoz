@@ -304,6 +304,14 @@ namespace DriverAPI.Library.V6.Converters
 
 			foreach(var trueMarkWaterCode in addedTrueMarkWaterCodes)
 			{
+				if(trueMarkCodes.Any(x => x.Match(
+					transportCode => transportCode.RawCode == trueMarkWaterCode.RawCode,
+					groupCode => groupCode.RawCode == trueMarkWaterCode.RawCode,
+					waterCode => waterCode.RawCode == trueMarkWaterCode.RawCode)))
+				{
+					continue;
+				}
+
 				if(trueMarkWaterCode.ParentWaterGroupCodeId == null
 					&& trueMarkWaterCode.ParentTransportCodeId == null)
 				{
