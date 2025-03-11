@@ -97,6 +97,15 @@ namespace DriverAPI.Controllers.V6
 						addOrderCodeRequestModel.Code,
 						cancellationToken);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
@@ -158,6 +167,15 @@ namespace DriverAPI.Controllers.V6
 						changeOrderCodeRequest.NewCode,
 						cancellationToken);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
@@ -213,6 +231,15 @@ namespace DriverAPI.Controllers.V6
 						deleteOrderCodeRequest.OrderSaleItemId,
 						deleteOrderCodeRequest.DeletedCode,
 						cancellationToken);
+
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
