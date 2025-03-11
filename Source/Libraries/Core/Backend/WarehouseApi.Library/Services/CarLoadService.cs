@@ -26,7 +26,6 @@ using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 
 namespace WarehouseApi.Library.Services
