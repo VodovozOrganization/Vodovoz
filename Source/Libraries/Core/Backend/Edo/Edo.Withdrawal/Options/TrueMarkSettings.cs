@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Edo.Withdrawal.Options
 {
+	/// <summary>
+	/// Настройки Честного знака
+	/// </summary>
 	public class TrueMarkSettings
 	{
 		/// <summary>

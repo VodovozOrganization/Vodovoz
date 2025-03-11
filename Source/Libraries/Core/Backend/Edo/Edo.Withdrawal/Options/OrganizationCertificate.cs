@@ -1,5 +1,8 @@
 ﻿namespace Edo.Withdrawal.Options
 {
+	/// <summary>
+	/// Сертификат организации
+	/// </summary>
 	public class OrganizationCertificate
 	{
 		/// <summary>
