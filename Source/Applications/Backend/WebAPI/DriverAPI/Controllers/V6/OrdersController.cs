@@ -213,7 +213,7 @@ namespace DriverAPI.Controllers.V6
 			}
 
 			return MapResult(
-				_orderService.UpdateOrderShipmentInfo(
+				await _orderService.UpdateOrderShipmentInfoAsync(
 				recievedTime,
 				driver,
 				completedOrderRequestModel),

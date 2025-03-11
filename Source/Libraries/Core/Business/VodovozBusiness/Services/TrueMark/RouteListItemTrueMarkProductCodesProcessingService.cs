@@ -1,9 +1,11 @@
 ﻿using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -36,33 +38,78 @@ namespace VodovozBusiness.Services.TrueMark
 			CancellationToken cancellationToken,
 			bool isCheckForCodeChange = false)
 		{
-			var trueMarkWaterIdentificationCode =
-				_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(uow, scannedCode);
+			var trueMarkCodeResult =
+				await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode, cancellationToken);
 
-			uow.Save(trueMarkWaterIdentificationCode);
+			uow.Commit();
+			uow.Session.BeginTransaction();
 
-			var codeCheckingResult = await IsTrueMarkCodeCanBeAddedToRouteListItem(
-				uow,
-				trueMarkWaterIdentificationCode,
-				routeListAddress,
-				vodovozOrderItem,
-				cancellationToken,
-				isCheckForCodeChange);
-
-			if(codeCheckingResult.IsFailure)
+			if(trueMarkCodeResult.IsFailure)
 			{
-				return codeCheckingResult;
+				return Result.Failure(trueMarkCodeResult.Errors);
 			}
 
-			AddTrueMarkCodeToRouteListItem(
-				uow,
-				routeListAddress,
-				vodovozOrderItem.Id,
-				trueMarkWaterIdentificationCode,
-				status,
-				ProductCodeProblem.None);
+			var aggregationValidationResult = ValidateTrueMarkCodeIsInAggregationCode(trueMarkCodeResult.Value);
+
+			if(aggregationValidationResult.IsFailure)
+			{
+				return Result.Failure(aggregationValidationResult.Errors);
+			}
+
+			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
+				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
+				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
+				waterCode => new TrueMarkAnyCode[] { waterCode });
+
+			foreach(var trueMarkAnyCode in trueMarkAnyCodes)
+			{
+				if(!trueMarkAnyCode.IsTrueMarkWaterIdentificationCode)
+				{
+					continue;
+				}
+
+				var codeCheckingResult = await IsTrueMarkCodeCanBeAddedToRouteListItem(
+					uow,
+					trueMarkAnyCode.TrueMarkWaterIdentificationCode,
+					routeListAddress,
+					vodovozOrderItem,
+					cancellationToken,
+					isCheckForCodeChange);
+
+				if(codeCheckingResult.IsFailure)
+				{
+					return codeCheckingResult;
+				}
+
+				AddTrueMarkCodeToRouteListItem(
+					uow,
+					routeListAddress,
+					vodovozOrderItem.Id,
+					trueMarkAnyCode.TrueMarkWaterIdentificationCode,
+					status,
+					ProductCodeProblem.None);
+			}
 
 			uow.Save(routeListAddress);
+
+			return Result.Success();
+		}
+
+		public Result ValidateTrueMarkCodeIsInAggregationCode(TrueMarkAnyCode trueMarkCodeResult)
+		{
+			if((trueMarkCodeResult.IsTrueMarkTransportCode
+					&& trueMarkCodeResult.TrueMarkTransportCode?.ParentTransportCodeId != null)
+				|| (trueMarkCodeResult.IsTrueMarkWaterGroupCode
+					&& (trueMarkCodeResult.TrueMarkWaterGroupCode?.ParentTransportCodeId != null
+						|| trueMarkCodeResult.TrueMarkWaterGroupCode?.ParentWaterGroupCodeId != null))
+				|| (trueMarkCodeResult.IsTrueMarkWaterIdentificationCode
+					&& (trueMarkCodeResult.TrueMarkWaterIdentificationCode?.ParentTransportCodeId != null
+						|| trueMarkCodeResult.TrueMarkWaterIdentificationCode?.ParentWaterGroupCodeId != null)))
+			{
+				var error = new Error("Temporary.Error.TrueMarkApi", "Нельзя добавить код, участвующий в аггрегации");
+
+				return Result.Failure(error);
+			}
 
 			return Result.Success();
 		}
@@ -92,80 +139,7 @@ namespace VodovozBusiness.Services.TrueMark
 			uow.Save(trueMarkCodeOrderItem);
 		}
 
-		public async Task<Result> ChangeTrueMarkCodeToRouteListItemWithCodeChecking(
-			IUnitOfWork uow,
-			RouteListItem routeListAddress,
-			OrderItem vodovozOrderItem,
-			string oldScannedCode,
-			string newScannedCode,
-			SourceProductCodeStatus status,
-			CancellationToken cancellationToken)
-		{
-			var oldCodeRemovingResult =
-				RemoveTrueMarkCodeFromRouteListItem(uow, routeListAddress, vodovozOrderItem.Id, oldScannedCode);
-
-			if(oldCodeRemovingResult.IsFailure)
-			{
-				var error = oldCodeRemovingResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
-			}
-
-			var newCodeAddingResult =
-				await AddTrueMarkCodeToRouteListItemWithCodeChecking(
-					uow,
-					routeListAddress,
-					vodovozOrderItem,
-					newScannedCode,
-					status,
-					cancellationToken,
-					true);
-
-			if(newCodeAddingResult.IsFailure)
-			{
-				var error = newCodeAddingResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
-			}
-
-			return Result.Success();
-		}
-
-		public Result RemoveTrueMarkCodeFromRouteListItem(
-			IUnitOfWork uow,
-			RouteListItem routeListAddress,
-			int vodovozOrderItemId,
-			string scannedCode)
-		{
-			var trueMarkWaterIdentificationCode =
-				_trueMarkWaterCodeService.LoadOrCreateTrueMarkWaterIdentificationCode(uow, scannedCode);
-
-			var productCode =
-				routeListAddress.TrueMarkCodes
-				.Where(x => x.SourceCode.Id == trueMarkWaterIdentificationCode.Id)
-				.FirstOrDefault();
-
-			if(productCode is null)
-			{
-				var error = TrueMarkCodeErrors.TrueMarkCodeForRouteListItemNotFound;
-				return Result.Failure(error);
-			}
-
-			routeListAddress.TrueMarkCodes.Remove(productCode);
-
-			var productCodeOrderItem = _orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(uow, vodovozOrderItemId)
-				.Where(x => x.TrueMarkProductCodeId == productCode.Id)
-				.FirstOrDefault();
-
-			if(productCodeOrderItem != null)
-			{
-				uow.Delete(productCodeOrderItem);
-			}
-
-			uow.Save(routeListAddress);
-
-			return Result.Success();
-		}
-
-		private async Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(
+		public async Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(
 			IUnitOfWork uow,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			RouteListItem routeListAddress,
