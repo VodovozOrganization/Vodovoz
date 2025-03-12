@@ -158,7 +158,7 @@ namespace VodovozBusiness.Domain.Payments
 			set => SetField(ref _comment, value);
 		}
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var validationResultFactory = validationContext.GetRequiredService<IValidationResultFactory<OutgoingPayment>>();
 
