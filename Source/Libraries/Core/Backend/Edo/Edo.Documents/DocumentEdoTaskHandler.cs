@@ -1,5 +1,7 @@
 ﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
+using Edo.Problems.Custom.Sources;
+using Edo.Problems;
 using Edo.Problems.Validation;
 using MassTransit;
 using QS.DomainModel.UoW;
@@ -9,11 +11,13 @@ using System.Threading.Tasks;
 using TrueMark.Contracts;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Microsoft.Extensions.Logging;
 
 namespace Edo.Documents
 {
 	public class DocumentEdoTaskHandler : IDisposable
 	{
+		private readonly ILogger<DocumentEdoTaskHandler> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly ForOwnNeedDocumentEdoTaskHandler _forOwnNeedDocumentEdoTaskHandler;
 		private readonly ForResaleDocumentEdoTaskHandler _forResaleDocumentEdoTaskHandler;
@@ -21,9 +25,11 @@ namespace Edo.Documents
 		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferRequestCreator _transferRequestCreator;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 
 		public DocumentEdoTaskHandler(
+			ILogger<DocumentEdoTaskHandler> logger,
 			IUnitOfWork uow,
 			ForOwnNeedDocumentEdoTaskHandler forOwnNeedDocumentEdoTaskHandler,
 			ForResaleDocumentEdoTaskHandler forResaleDocumentEdoTaskHandler,
@@ -31,9 +37,11 @@ namespace Edo.Documents
 			TrueMarkTaskCodesValidator trueMarkTaskCodesValidator,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferRequestCreator transferRequestCreator,
+			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_forOwnNeedDocumentEdoTaskHandler = forOwnNeedDocumentEdoTaskHandler ?? throw new ArgumentNullException(nameof(forOwnNeedDocumentEdoTaskHandler));
 			_forResaleDocumentEdoTaskHandler = forResaleDocumentEdoTaskHandler ?? throw new ArgumentNullException(nameof(forResaleDocumentEdoTaskHandler));
@@ -41,6 +49,7 @@ namespace Edo.Documents
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -229,6 +238,40 @@ namespace Edo.Documents
 		private void AcceptDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
 		{
 			edoTask.Stage = DocumentEdoTaskStage.Completed;
+		}
+
+		public async Task HandleCancelled(int documentId, CancellationToken cancellationToken)
+		{
+			_uow.OpenTransaction();
+
+			var document = await _uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken);
+
+			if(document == null)
+			{
+				_logger.LogError("При обработке отмены документа №{documentId} не найден документ.", documentId);
+			}
+
+			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
+
+			await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
+				documentTask, cancellationToken, "Документооборот был отменен");
+		}
+
+		public async Task HandleProblem(int documentId, CancellationToken cancellationToken)
+		{
+			_uow.OpenTransaction();
+
+			var document = await _uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken);
+
+			if(document == null)
+			{
+				_logger.LogError("При обработке отмены документа №{documentId} не найден документ.", documentId);
+			}
+
+			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
+
+			await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
+				documentTask, cancellationToken, "Возникла проблема с документооборотом, не завершился на стороне ЭДО провайдера");
 		}
 
 		public void Dispose()

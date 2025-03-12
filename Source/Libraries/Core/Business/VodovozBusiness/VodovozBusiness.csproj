@@ -148,6 +148,7 @@
       <Project>{C2085920-3B31-4406-8074-470A26BA26AA}</Project>
       <Name>TrueMarkApi.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj" />
     <ProjectReference Include="..\..\Backend\TrueMark\TrueMark.Codes\TrueMark.Codes.csproj" />
     <ProjectReference Include="..\..\Backend\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />

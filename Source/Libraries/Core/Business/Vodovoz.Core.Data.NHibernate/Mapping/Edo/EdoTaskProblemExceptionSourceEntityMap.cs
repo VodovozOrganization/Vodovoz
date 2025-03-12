@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public EdoTaskProblemExceptionSourceEntityMap()
 		{
-			DiscriminatorValue(nameof(EdoTaskProblemDescriptionSourceType.Exception));
+			DiscriminatorValue(nameof(EdoTaskProblemType.Exception));
 		}
 	}
 }
