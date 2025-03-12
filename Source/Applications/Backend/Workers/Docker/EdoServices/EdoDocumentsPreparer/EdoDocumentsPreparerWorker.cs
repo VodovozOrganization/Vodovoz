@@ -190,7 +190,9 @@ namespace EdoDocumentsPreparer
 
 						var container = uow
 							.GetAll<EdoContainer>()
-							.LastOrDefault(x => x.Order.Id == orderEntity.Id && x.Type == Type.Upd);
+							.Where(x => x.Order.Id == orderEntity.Id && x.Type == Type.Upd)
+							.OrderByDescending(x => x.Id)
+							.FirstOrDefault();
 
 						if(container != null)
 						{
