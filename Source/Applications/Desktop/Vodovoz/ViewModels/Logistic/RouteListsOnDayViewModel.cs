@@ -50,7 +50,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-	public class RouteListsOnDayViewModel : TabViewModelBase
+	public partial class RouteListsOnDayViewModel : TabViewModelBase
 	{
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IAtWorkRepository _atWorkRepository;
@@ -213,13 +213,9 @@ namespace Vodovoz.ViewModels.Logistic
 					continue;
 				}
 
-				if(node.IsFastDelivery)
+				if(node.OrderAddressType == OrderAddressType.Delivery)
 				{
-					query.Where(x => !x.IsFastDelivery);
-				}
-				else if(node.OrderAddressType == OrderAddressType.Delivery)
-				{
-					var isFastDeliveryChecked = OrderAddressTypes.SingleOrDefault(x => x.IsFastDelivery && x.Selected) != null;
+					var isFastDeliveryChecked = OrderAddressTypes.SingleOrDefault(x => x.Selected) != null;
 					if(isFastDeliveryChecked)
 					{
 						query.Where(x => x.IsFastDelivery);
@@ -791,12 +787,18 @@ namespace Vodovoz.ViewModels.Logistic
 		#endregion
 
 		public IEnumerable<OrderAddressTypeNode> OrderAddressTypes { get; } = new[] {
-			new OrderAddressTypeNode(isFastDelivery:true),
 			new OrderAddressTypeNode(OrderAddressType.Delivery),
 			new OrderAddressTypeNode(OrderAddressType.Service),
 			new OrderAddressTypeNode(OrderAddressType.ChainStore),
 			new OrderAddressTypeNode(OrderAddressType.StorageLogistics)
 		};
+
+		public IEnumerable<FilterEnumParameterNode<AddressAdditionalParameterType>> AddressAdditionalParameters { get; } =
+			new List<FilterEnumParameterNode<AddressAdditionalParameterType>>
+			{
+				new FilterEnumParameterNode<AddressAdditionalParameterType>(AddressAdditionalParameterType.FastDelivery),
+				new FilterEnumParameterNode<AddressAdditionalParameterType>(AddressAdditionalParameterType.CodesScanInWarehouseRequired),
+			};
 
 		public IList<DeliveryShiftNode> DeliveryShiftNodes { get; set; }
 
@@ -1646,9 +1648,10 @@ namespace Vodovoz.ViewModels.Logistic
 				ShowCompleted = ShowCompleted,
 				MinBottles19L = MinBottles19L,
 				MaxBottles19L = MaxBottles19L,
-				FastDeliveryEnabled = OrderAddressTypes.Any(x => x.IsFastDelivery && x.Selected),
+				FastDeliveryEnabled = AddressAdditionalParameters.Any(x => x.IsSelected && x.Parameter == AddressAdditionalParameterType.FastDelivery),
+				IsCodesScanInWarehouseRequired = AddressAdditionalParameters.Any(x => x.IsSelected && x.Parameter == AddressAdditionalParameterType.CodesScanInWarehouseRequired),
 				OrderAddressTypes = OrderAddressTypes
-					.Where(x => !x.IsFastDelivery && x.Selected)
+					.Where(x => x.Selected)
 					.Select(x => x.OrderAddressType),
 				ClosingDocumentDeliveryScheduleId = _closingDocumentDeliveryScheduleId
 			};
