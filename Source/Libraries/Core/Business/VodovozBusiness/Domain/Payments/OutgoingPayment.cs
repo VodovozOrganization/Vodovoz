@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using DateTimeHelpers;
+using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -161,6 +162,14 @@ namespace VodovozBusiness.Domain.Payments
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var validationResultFactory = validationContext.GetRequiredService<IValidationResultFactory<OutgoingPayment>>();
+
+			var minimalDate = DateTime.Today.AddDays(-31);
+			var maximalDate = DateTime.Today.AddDays(31);
+
+			if(minimalDate > PaymentDate || maximalDate.LatestDayTime() < PaymentDate)
+			{
+				yield return validationResultFactory.CreateForDateNotInRange(nameof(PaymentDate), minimalDate, maximalDate, PaymentDate);
+			}
 
 			if(OrganizationId is null)
 			{
