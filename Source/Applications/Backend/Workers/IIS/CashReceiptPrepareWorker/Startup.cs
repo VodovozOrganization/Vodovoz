@@ -126,11 +126,17 @@ namespace CashReceiptPrepareWorker
 
 			builder.RegisterType<Tag1260Checker>()
 				.AsSelf();
-			
+
 			builder.RegisterType<Tag1260Saver>()
 				.AsSelf();
-			
+
 			builder.RegisterType<Tag1260Updater>()
+				.AsSelf();
+
+			builder.RegisterType<SelfDeliveryReceiptCreatorFromTask>()
+				.AsSelf();
+
+			builder.RegisterType<DeliveryOrderReceiptCreatorFromTask>()
 				.AsSelf();
 
 			builder.Register((context) => new TrueMarkOrganizationClientSettingProvider(GetTrueMarkOrganizationsClientSetting()))
