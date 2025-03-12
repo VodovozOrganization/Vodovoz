@@ -309,7 +309,7 @@ namespace Vodovoz.Dialogs.Cash.Payments
 			w24.XOptions = ((global::Gtk.AttachOptions)(4));
 			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ysbSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.ysbSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000000D, 1D);
 			this.ysbSum.CanFocus = true;
 			this.ysbSum.Name = "ysbSum";
 			this.ysbSum.Adjustment.PageIncrement = 10D;
