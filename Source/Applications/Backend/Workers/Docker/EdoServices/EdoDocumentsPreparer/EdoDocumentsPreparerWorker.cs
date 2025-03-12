@@ -30,6 +30,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Converters;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace EdoDocumentsPreparer
 {
@@ -187,8 +188,42 @@ namespace EdoDocumentsPreparer
 							"Пришла задача на формирование УПД по заказу {OrderId}, который не должен отправляться для объемного учета",
 							orderEntity.Id);
 
-						bulkAccountingEdoTasks[i].Status = EdoTaskStatus.Problem;
-						//создать описание проблемы
+						var container = uow
+							.GetAll<EdoContainer>()
+							.LastOrDefault(x => x.Order.Id == orderEntity.Id && x.Type == Type.Upd);
+
+						if(container != null)
+						{
+							switch(container.EdoDocFlowStatus)
+							{
+								case EdoDocFlowStatus.Succeed:
+									bulkAccountingEdoTasks[i].Status = EdoTaskStatus.Completed;
+									break;
+								case EdoDocFlowStatus.Cancelled:
+								case EdoDocFlowStatus.NotAccepted:
+								case EdoDocFlowStatus.Unknown:
+								case EdoDocFlowStatus.WaitingForCancellation:
+									break;
+								case EdoDocFlowStatus.Error:
+								case EdoDocFlowStatus.Warning:
+								case EdoDocFlowStatus.CompletedWithDivergences:
+									bulkAccountingEdoTasks[i].Status = EdoTaskStatus.Problem;
+									//создать описание проблемы
+									break;
+								default:
+									bulkAccountingEdoTasks[i].Status = EdoTaskStatus.InProgress;
+									break;
+							}
+
+							container.EdoTaskId = bulkAccountingEdoTasks[i].Id;
+							await uow.SaveAsync(container);
+						}
+						else
+						{
+							bulkAccountingEdoTasks[i].Status = EdoTaskStatus.Problem;
+							//создать описание проблемы
+						}
+
 						await uow.SaveAsync(bulkAccountingEdoTasks[i]);
 						await uow.CommitAsync();
 						bulkAccountingEdoTasks.RemoveAt(i);
