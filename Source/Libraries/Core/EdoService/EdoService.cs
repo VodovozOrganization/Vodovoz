@@ -94,6 +94,8 @@ namespace EdoService.Library
 				edoDocumentsAction.IsNeedToResendEdoBill = true;
 			}
 
+			edoDocumentsAction.Created = DateTime.Now;
+
 			return edoDocumentsAction;
 		}
 
