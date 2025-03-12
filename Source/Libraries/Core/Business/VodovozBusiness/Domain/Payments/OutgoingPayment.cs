@@ -1,8 +1,13 @@
-﻿using QS.DomainModel.Entity;
+﻿using Gamma.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using Vodovoz.Core.Domain.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
@@ -25,7 +30,7 @@ namespace VodovozBusiness.Domain.Payments
 		PrepositionalPlural = "исходящих платежах")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class OutgoingPayment : PropertyChangedBase, IDomainObject
+	public class OutgoingPayment : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private int _id;
 		private DateTime _createdAt;
@@ -151,6 +156,26 @@ namespace VodovozBusiness.Domain.Payments
 		{
 			get => _comment;
 			set => SetField(ref _comment, value);
+		}
+
+		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			var validationResultFactory = validationContext.GetRequiredService<IValidationResultFactory<OutgoingPayment>>();
+
+			if(OrganizationId is null)
+			{
+				yield return validationResultFactory.CreateForNullProperty(nameof(OrganizationId));
+			}
+
+			if(CounterpartyId is null)
+			{
+				yield return validationResultFactory.CreateForNullProperty(nameof(CounterpartyId));
+			}
+
+			if(FinancialExpenseCategoryId is null)
+			{
+				yield return validationResultFactory.CreateForNullProperty(nameof(FinancialExpenseCategoryId));
+			}
 		}
 	}
 }
