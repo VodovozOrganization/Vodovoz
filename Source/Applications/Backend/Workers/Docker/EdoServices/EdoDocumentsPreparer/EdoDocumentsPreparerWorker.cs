@@ -194,6 +194,10 @@ namespace EdoDocumentsPreparer
 
 						if(container != null)
 						{
+							_logger.LogWarning(
+								"Контейнер с УПД по заказу {OrderId} уже отправлялся, обновляем информацию",
+								orderEntity.Id);
+
 							switch(container.EdoDocFlowStatus)
 							{
 								case EdoDocFlowStatus.Succeed:
