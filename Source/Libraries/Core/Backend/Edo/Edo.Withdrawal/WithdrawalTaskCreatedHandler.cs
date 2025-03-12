@@ -26,7 +26,25 @@ namespace Edo.Withdrawal
 
 		public async Task HandleWithdrawal(int withdrawalEdoTaskId, CancellationToken cancellationToken)
 		{
+			_uow.OpenTransaction();
+
 			var withdrawalEdoTask = await _uow.Session.GetAsync<WithdrawalEdoTask>(withdrawalEdoTaskId, cancellationToken);
+
+			if(withdrawalEdoTask is null)
+			{
+				throw new InvalidOperationException($"Задача {nameof(WithdrawalEdoTask)} с Id {withdrawalEdoTaskId} не найдена");
+			}
+
+			if(withdrawalEdoTask.Status == EdoTaskStatus.Completed)
+			{
+				throw new InvalidOperationException($"Задача {nameof(WithdrawalEdoTask)} с Id {withdrawalEdoTaskId} уже завершена");
+			}
+
+			withdrawalEdoTask.Status = EdoTaskStatus.Completed;
+			withdrawalEdoTask.EndTime = DateTime.Now;
+
+			await _uow.SaveAsync(withdrawalEdoTask, cancellationToken: cancellationToken);
+			_uow.Commit();
 		}
 
 		public void Dispose()
