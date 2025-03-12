@@ -1,5 +1,7 @@
 ﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -22,6 +24,7 @@ namespace Edo.Transfer.Dispatcher
 		private readonly TransferTaskRepository _transferTaskRepository;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferDispatcher _transferDispatcher;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 
 		public TransferEdoHandler(
@@ -31,6 +34,7 @@ namespace Edo.Transfer.Dispatcher
 			TransferTaskRepository transferTaskRepository,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferDispatcher transferDispatcher,
+			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
 		{
@@ -39,6 +43,7 @@ namespace Edo.Transfer.Dispatcher
 			_transferTaskRepository = transferTaskRepository ?? throw new ArgumentNullException(nameof(transferTaskRepository));
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_transferDispatcher = transferDispatcher ?? throw new ArgumentNullException(nameof(transferDispatcher));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_uow = uowFactory.CreateWithoutRoot();
 		}
@@ -170,6 +175,40 @@ namespace Edo.Transfer.Dispatcher
 
 			var notificationTasks = messages.Select(message => _messageBus.Publish(message, cancellationToken));
 			await Task.WhenAll(notificationTasks);
+		}
+
+		public async Task HandleTransferDocumentCancelled(int documentId, CancellationToken cancellationToken)
+		{
+			_uow.OpenTransaction();
+
+			var document = await _uow.Session.GetAsync<TransferEdoDocument>(documentId, cancellationToken);
+
+			if(document == null)
+			{
+				_logger.LogError("При обработке отмены документа №{documentId} не найден документ.", documentId);
+			}
+
+			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
+
+			await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
+				transferTask, cancellationToken, "Документооборот был отменен");
+		}
+
+		public async Task HandleTransferDocumentProblem(int documentId, CancellationToken cancellationToken)
+		{
+			_uow.OpenTransaction();
+
+			var document = await _uow.Session.GetAsync<TransferEdoDocument>(documentId, cancellationToken);
+
+			if(document == null)
+			{
+				_logger.LogError("При обработке отмены документа №{documentId} не найден документ.", documentId);
+			}
+
+			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
+
+			await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
+				transferTask, cancellationToken, "Возникла проблема с документооборотом, не завершился на стороне ЭДО провайдера");
 		}
 
 		public void Dispose()
