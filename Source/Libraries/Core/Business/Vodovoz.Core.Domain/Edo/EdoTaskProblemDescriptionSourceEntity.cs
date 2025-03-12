@@ -6,7 +6,7 @@ namespace Vodovoz.Core.Domain.Edo
 	public class EdoTaskProblemDescriptionSourceEntity : IEquatable<EdoTaskProblemDescriptionSourceEntity>
 	{
 		public virtual string Name { get; set; }
-		public virtual EdoTaskProblemDescriptionSourceType Type { get; set; }
+		public virtual EdoTaskProblemType Type { get; set; }
 		public virtual EdoProblemImportance Importance { get; set; }
 		public virtual string Description { get; set; }
 		public virtual string Recommendation { get; set; }
