@@ -4,15 +4,15 @@ using RabbitMQ.Client;
 
 namespace Edo.Withdrawal.Consumers.Definitions
 {
-	public class WithdrawalRequestCreatedConsumerDefinition : ConsumerDefinition<WithdrawalRequestCreatedConsumer>
+	public class WithdrawalTaskCreatedConsumerDefinition : ConsumerDefinition<WithdrawalTaskCreatedConsumer>
 	{
-		public WithdrawalRequestCreatedConsumerDefinition()
+		public WithdrawalTaskCreatedConsumerDefinition()
 		{
 			Endpoint(x => x.Name = "edo.withdrawal_task_created_event.consumer.withdrawal");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<WithdrawalRequestCreatedConsumer> consumerConfigurator)
+			IConsumerConfigurator<WithdrawalTaskCreatedConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
 
@@ -20,7 +20,7 @@ namespace Edo.Withdrawal.Consumers.Definitions
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<EdoRequestCreatedEvent>();
+				rmq.Bind<WithdrawalTaskCreatedEvent>();
 			}
 		}
 	}

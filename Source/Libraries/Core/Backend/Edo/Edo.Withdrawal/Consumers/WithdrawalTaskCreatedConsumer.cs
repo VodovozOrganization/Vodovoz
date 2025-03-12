@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Edo.Withdrawal.Consumers
 {
-	public class WithdrawalRequestCreatedConsumer : IConsumer<WithdrawalTaskCreatedEvent>
+	public class WithdrawalTaskCreatedConsumer : IConsumer<WithdrawalTaskCreatedEvent>
 	{
-		private readonly ILogger<WithdrawalRequestCreatedConsumer> _logger;
+		private readonly ILogger<WithdrawalTaskCreatedConsumer> _logger;
 
-		public WithdrawalRequestCreatedConsumer(
-			ILogger<WithdrawalRequestCreatedConsumer> logger)
+		public WithdrawalTaskCreatedConsumer(
+			ILogger<WithdrawalTaskCreatedConsumer> logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
@@ -24,7 +24,7 @@ namespace Edo.Withdrawal.Consumers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Error while processing WithdrawalRequestCreatedEvent");
+				_logger.LogError(ex, "Error while processing WithdrawalTaskCreatedEvent");
 				await Task.CompletedTask;
 			}
 		}
