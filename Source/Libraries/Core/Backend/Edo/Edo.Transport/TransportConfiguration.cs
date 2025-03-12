@@ -61,6 +61,22 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
+			cfg.Message<TransferDocumentCancelledEvent>(x => x.SetEntityName("edo.transfer-document-cancelled.publish"));
+			cfg.Publish<TransferDocumentCancelledEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<TransferDocumentProblemEvent>(x => x.SetEntityName("edo.transfer-document-problem.publish"));
+			cfg.Publish<TransferDocumentProblemEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
 			cfg.Message<TransferDocumentSendEvent>(x => x.SetEntityName("edo.transfer-document-send.publish"));
 			cfg.Publish<TransferDocumentSendEvent>(x =>
 			{
@@ -96,6 +112,22 @@ namespace Edo.Transport
 
 			cfg.Message<OrderDocumentAcceptedEvent>(x => x.SetEntityName("edo.order-document-accepted.publish"));
 			cfg.Publish<OrderDocumentAcceptedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<OrderDocumentCancelledEvent>(x => x.SetEntityName("edo.order-document-cancelled.publish"));
+			cfg.Publish<OrderDocumentCancelledEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<OrderDocumentProblemEvent>(x => x.SetEntityName("edo.order-document-problem.publish"));
+			cfg.Publish<OrderDocumentProblemEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;

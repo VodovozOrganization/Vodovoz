@@ -23,7 +23,7 @@ namespace Edo.Docflow
 		private readonly IUnitOfWork _uow;
 
 		public DocflowHandler(
-			ILogger<DocflowHandler> logger, 
+			ILogger<DocflowHandler> logger,
 			IUnitOfWorkFactory uowFactory,
 			TransferOrderUpdInfoFactory transferOrderUpdInfoFactory,
 			OrderUpdInfoFactory orderUpdInfoFactory,
@@ -57,7 +57,7 @@ namespace Edo.Docflow
 
 			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
 			var transferOrder = await _uow.Session.GetAsync<TransferOrder>(transferTask.TransferOrderId, cancellationToken);
-			
+
 			var updInfo = _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(_uow, transferOrder);
 
 			var message = new TaxcomDocflowSendEvent
@@ -72,10 +72,10 @@ namespace Edo.Docflow
 		public async Task HandleOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(orderDocumentId, cancellationToken);
-			
+
 			if(document.Status.IsIn(
-				EdoDocumentStatus.InProgress, 
-				EdoDocumentStatus.CompletedWithDivergences, 
+				EdoDocumentStatus.InProgress,
+				EdoDocumentStatus.CompletedWithDivergences,
 				EdoDocumentStatus.Succeed
 				))
 			{
@@ -118,6 +118,8 @@ namespace Edo.Docflow
 			var document = await _uow.Session.GetAsync<OutgoingEdoDocument>(documentId, cancellationToken);
 			var docflowStatus = updatedEvent.DocFlowStatus.TryParseAsEnum<EdoDocFlowStatus>();
 
+			object message = null;
+
 			switch(docflowStatus)
 			{
 				case EdoDocFlowStatus.InProgress:
@@ -126,23 +128,80 @@ namespace Edo.Docflow
 					break;
 				case EdoDocFlowStatus.Succeed:
 					var acceptTime = updatedEvent.StatusChangeTime ?? DateTime.Now;
-					await AcceptDocument(document, acceptTime, cancellationToken);
+					document.Status = EdoDocumentStatus.Succeed;
+					document.AcceptTime = acceptTime;
+					switch(document.Type)
+					{
+						case OutgoingEdoDocumentType.Transfer:
+							message = new TransferDocumentAcceptedEvent { DocumentId = document.Id };
+							break;
+						case OutgoingEdoDocumentType.Order:
+							message = new OrderDocumentAcceptedEvent { DocumentId = document.Id };
+							break;
+						default:
+							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
+					}
 					break;
 				case EdoDocFlowStatus.NotStarted:
 
 				// уточнение
 				// мапим на Problem
 				case EdoDocFlowStatus.Warning:
+					document.Status = EdoDocumentStatus.Warning;
+					switch(document.Type)
+					{
+						case OutgoingEdoDocumentType.Transfer:
+							message = new TransferDocumentProblemEvent { DocumentId = document.Id };
+							break;
+						case OutgoingEdoDocumentType.Order:
+							message = new OrderDocumentProblemEvent { DocumentId = document.Id };
+							break;
+						default:
+							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
+					}
+					break;
+
 				case EdoDocFlowStatus.CompletedWithDivergences:
+					document.Status = EdoDocumentStatus.CompletedWithDivergences;
+					switch(document.Type)
+					{
+						case OutgoingEdoDocumentType.Transfer:
+							message = new TransferDocumentProblemEvent { DocumentId = document.Id };
+							break;
+						case OutgoingEdoDocumentType.Order:
+							message = new OrderDocumentProblemEvent { DocumentId = document.Id };
+							break;
+						default:
+							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
+					}
+					break;
 
 				// возникла проблема при проверке на стороне такском
 				// мапим на Problem
 				case EdoDocFlowStatus.Error:
+					document.Status = EdoDocumentStatus.Error;
+					break;
 
 				// аннулирование
 				// мапим на Problem
 				case EdoDocFlowStatus.WaitingForCancellation:
+					document.Status = EdoDocumentStatus.WaitingForCancellation;
+					break;
+
 				case EdoDocFlowStatus.Cancelled:
+					document.Status = EdoDocumentStatus.Cancelled;
+					switch(document.Type)
+					{
+						case OutgoingEdoDocumentType.Transfer:
+							message = new TransferDocumentCancelledEvent { DocumentId = document.Id };
+							break;
+						case OutgoingEdoDocumentType.Order:
+							message = new OrderDocumentCancelledEvent { DocumentId = document.Id };
+							break;
+						default:
+							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
+					}
+					break;
 
 
 				// с остальными ничего не делаем пока
@@ -157,47 +216,14 @@ namespace Edo.Docflow
 				default:
 					throw new InvalidOperationException($"Неизвестный статус документооборота {updatedEvent.DocFlowStatus}");
 			}
-		}
-
-		private async Task AcceptDocument(OutgoingEdoDocument document, DateTime acceptTime, CancellationToken cancellationToken)
-		{
-			document.Status = EdoDocumentStatus.Succeed;
-			document.AcceptTime = acceptTime;
 
 			await _uow.SaveAsync(document, cancellationToken: cancellationToken);
 			await _uow.CommitAsync();
 
-			switch(document.Type)
+			if(message != null)
 			{
-				case OutgoingEdoDocumentType.Transfer:
-					await NotifyTransferForAcceptDocument(document, cancellationToken);
-					break;
-				case OutgoingEdoDocumentType.Order:
-					await NotifyCustomerForAcceptDocument(document, cancellationToken);
-					break;
-				default:
-					throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
+				await _messageBus.Publish(message, cancellationToken);
 			}
-		}
-
-		private async Task NotifyTransferForAcceptDocument(OutgoingEdoDocument document, CancellationToken cancellationToken)
-		{
-			var message = new TransferDocumentAcceptedEvent
-			{
-				DocumentId = document.Id
-			};
-
-			await _messageBus.Publish(message, cancellationToken);
-		}
-
-		private async Task NotifyCustomerForAcceptDocument(OutgoingEdoDocument document, CancellationToken cancellationToken)
-		{
-			var message = new OrderDocumentAcceptedEvent
-			{
-				DocumentId = document.Id
-			};
-
-			await _messageBus.Publish(message, cancellationToken);
 		}
 
 		public void Dispose()

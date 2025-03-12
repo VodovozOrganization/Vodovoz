@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -2075,7 +2075,6 @@
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\Documents\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2438,6 +2437,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj">
+      <Project>{88eea039-f3d5-4069-a160-939fdf186ab4}</Project>
+      <Name>TrueMark.Codes.Pool</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj">
       <Project>{988F9F39-781B-4C5C-8409-0C2F3E38A3D6}</Project>

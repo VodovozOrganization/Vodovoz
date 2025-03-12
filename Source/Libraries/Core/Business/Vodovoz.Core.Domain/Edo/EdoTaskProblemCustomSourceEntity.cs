@@ -2,8 +2,8 @@
 {
 	public class EdoTaskProblemCustomSourceEntity : EdoTaskProblemDescriptionSourceEntity
 	{
-		public override EdoTaskProblemDescriptionSourceType Type => 
-			EdoTaskProblemDescriptionSourceType.Custom;
+		public override EdoTaskProblemType Type =>
+			EdoTaskProblemType.Custom;
 
 		public virtual string Message { get; set; }
 	}

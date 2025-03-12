@@ -2,8 +2,8 @@
 {
 	public class EdoTaskProblemValidatorSourceEntity : EdoTaskProblemDescriptionSourceEntity
 	{
-		public override EdoTaskProblemDescriptionSourceType Type =>
-			EdoTaskProblemDescriptionSourceType.Validator;
+		public override EdoTaskProblemType Type =>
+			EdoTaskProblemType.Validation;
 
 		public virtual string Message { get; set; }
 	}
