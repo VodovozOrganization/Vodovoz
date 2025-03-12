@@ -1289,6 +1289,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					)
 				)
 				.And(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
+				.And(() => !counterpartyAlias.IsNewEdoProcessing)
 				.TransformUsing(Transformers.RootEntity)
 				.List();
 			return result;
@@ -1341,6 +1342,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					)
 				)
 				.And(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
+				.And(() => !counterpartyAlias.IsNewEdoProcessing)
 				.TransformUsing(Transformers.RootEntity)
 				.List();
 
@@ -1428,6 +1430,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Where(() => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id)
 				.Where(() => orderAlias.DeliveryDate > startDate)
 				.Where(() => orderEdoTrueMarkDocumentsActionsAlias.IsNeedToCancelTrueMarkDocument == null || !orderEdoTrueMarkDocumentsActionsAlias.IsNeedToCancelTrueMarkDocument)
+				.Where(() => !counterpartyAlias.IsNewEdoProcessing)
 				.Select(o => o.Id);
 
 			var result = uow.Session.QueryOver(() => trueMarkApiDocumentAlias)
