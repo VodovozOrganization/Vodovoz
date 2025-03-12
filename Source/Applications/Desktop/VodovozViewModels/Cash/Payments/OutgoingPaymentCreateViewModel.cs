@@ -21,6 +21,7 @@ namespace Vodovoz.ViewModels.Cash.Payments
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private Organization _ourOrganization;
 		private Counterparty _counterparty;
+		private DateTime? _paymentDate;
 
 		public OutgoingPaymentCreateViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -55,6 +56,12 @@ namespace Vodovoz.ViewModels.Cash.Payments
 			CancelCommand = new DelegateCommand(() => Close(PermissionResult.CanCreate && HasChanges, CloseSource.Cancel));
 		}
 
+		public DateTime? PaymentDate
+		{
+			get => _paymentDate;
+			set => SetField(ref _paymentDate, value);
+		}
+
 		public IEntityEntryViewModel CounterpartyViewModel { get; set; }
 		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
 		public IEntityEntryViewModel OurOrganizationViewModel { get; }
@@ -80,9 +87,20 @@ namespace Vodovoz.ViewModels.Cash.Payments
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
 
+		protected override bool BeforeSave()
+		{
+			if(!PaymentDate.HasValue)
+			{
+				CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error, "Необходимо заполнить дату платежа перед сохранением");
+				return false;
+			}
+			return base.BeforeSave();
+		}
+
 		public override bool Save(bool close)
 		{
 			Entity.CreatedAt = DateTime.Now;
+			Entity.PaymentDate = PaymentDate.Value;
 			return base.Save(close);
 		}
 	}
