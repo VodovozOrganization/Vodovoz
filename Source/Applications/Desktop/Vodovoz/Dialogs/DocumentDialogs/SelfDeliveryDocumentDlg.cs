@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -332,8 +332,10 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(Entity.Order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
-			   && (!_codesScanViewModel?.IsAllCodesScanned ?? false)
+			var reasonsForLeavingForScan = new[] { ReasonForLeaving.ForOwnNeeds, ReasonForLeaving.Resale };
+
+			if(reasonsForLeavingForScan.Contains(Entity.Order.Client.ReasonForLeaving)
+			   && (!(_codesScanViewModel?.IsAllCodesScanned ?? false))
 			   && !_interactiveService.Question("Не все коды отсканированы. Уверены, что хотите сохранить отпуск самовывоза?"))
 			{
 				return false;
