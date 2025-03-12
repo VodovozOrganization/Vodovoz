@@ -31,7 +31,7 @@ namespace Vodovoz.Dialogs.Cash.Payments
 		private void Initialize()
 		{
 			dpPaymentDate.Binding
-				.AddBinding(ViewModel.Entity, e => e.PaymentDate, w => w.Date)
+				.AddBinding(ViewModel, vm => vm.PaymentDate, w => w.DateOrNull)
 				.InitializeFromSource();
 
 			dpPaymentDate.IsEditable = true;
