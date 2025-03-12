@@ -1,9 +1,10 @@
 ﻿using Edo.Transport;
+using Edo.Withdrawal.Consumers;
+using Edo.Withdrawal.Consumers.Definitions;
 using Edo.Withdrawal.Options;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace Edo.Withdrawal
 {
@@ -13,10 +14,12 @@ namespace Edo.Withdrawal
 		{
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumers(Assembly.GetExecutingAssembly());
+				cfg.AddConsumer<WithdrawalTaskCreatedConsumer, WithdrawalTaskCreatedConsumerDefinition>();
 			});
 
-			services.ConfigureBusinessOptions(configuration);
+			services
+				.AddScoped<WithdrawalTaskCreatedHandler>()
+				.ConfigureBusinessOptions(configuration);
 
 			return services;
 		}
