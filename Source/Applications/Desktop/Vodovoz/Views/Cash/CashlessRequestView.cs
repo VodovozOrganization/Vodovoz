@@ -11,7 +11,7 @@ using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.Domain.Payments;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
@@ -91,7 +91,7 @@ namespace Vodovoz.Views.Cash
 				.UseTdiDialog<CounterpartyDlg>()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(filter =>
 				{
-					filter.RestrictCounterpartyType = Domain.Client.CounterpartyType.Supplier;
+					filter.RestrictCounterpartyType = CounterpartyType.Supplier;
 				})
 				.Finish();
 
