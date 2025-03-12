@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -1615,6 +1615,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				}
 
 				mainQuery.Where(additionalParametersRestriction);
+			}
+
+			if(orderOnDayFilters.IsCodesScanInWarehouseRequired)
+			{
+				mainQuery
+					.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+					.Where(() =>
+						clientAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+						&& clientAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute);
 			}
 
 			mainQuery.WhereRestrictionOn(() => orderAlias.OrderAddressType)
