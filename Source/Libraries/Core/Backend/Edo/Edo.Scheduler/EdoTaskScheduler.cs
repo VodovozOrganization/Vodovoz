@@ -86,7 +86,7 @@ namespace Edo.Scheduler.Service
 						message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
 						break;
 					case EdoTaskType.Withdrawal:
-						// создать сообщение для сервиса вывода из оборота
+						message = new WithdrawalTaskCreatedEvent { Id = edoTask.Id };
 						break;
 					case EdoTaskType.Receipt:
 						message = new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id };

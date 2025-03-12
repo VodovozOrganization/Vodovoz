@@ -8,7 +8,7 @@ namespace Edo.Withdrawal.Consumers.Definitions
 	{
 		public WithdrawalRequestCreatedConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.withdrawal_request_created_event.consumer.withdrawal");
+			Endpoint(x => x.Name = "edo.withdrawal_task_created_event.consumer.withdrawal");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,

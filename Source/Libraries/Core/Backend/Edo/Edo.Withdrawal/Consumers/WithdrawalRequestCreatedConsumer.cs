@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace Edo.Withdrawal.Consumers
 {
-	public class WithdrawalRequestCreatedConsumer : IConsumer<WithdrawalRequestCreatedEvent>
+	public class WithdrawalRequestCreatedConsumer : IConsumer<WithdrawalTaskCreatedEvent>
 	{
 		private readonly ILogger<WithdrawalRequestCreatedConsumer> _logger;
 
 		public WithdrawalRequestCreatedConsumer(
 			ILogger<WithdrawalRequestCreatedConsumer> logger)
 		{
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public async Task Consume(ConsumeContext<WithdrawalRequestCreatedEvent> context)
+		public async Task Consume(ConsumeContext<WithdrawalTaskCreatedEvent> context)
 		{
 			try
 			{

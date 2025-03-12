@@ -150,8 +150,8 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<WithdrawalRequestCreatedEvent>(x => x.SetEntityName("edo.withdrawal_request_created_event.publish"));
-			cfg.Publish<WithdrawalRequestCreatedEvent>(x =>
+			cfg.Message<WithdrawalTaskCreatedEvent>(x => x.SetEntityName("edo.withdrawal_task_created_event.publish"));
+			cfg.Publish<WithdrawalTaskCreatedEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
