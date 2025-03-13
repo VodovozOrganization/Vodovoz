@@ -1594,18 +1594,24 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.WhereRestrictionOn(() => districtAlias.GeographicGroup.Id).IsIn(orderOnDayFilters.GeographicGroupIds);
 			}
 
-			if(orderOnDayFilters.FastDeliveryEnabled)
+			if(orderOnDayFilters.FastDeliveryEnabled || orderOnDayFilters.IsCodesScanInWarehouseRequired)
 			{
-				mainQuery.Where(() => orderAlias.IsFastDelivery);
-			}
+				var additionalParametersRestriction = Restrictions.Disjunction();
 
-			if(orderOnDayFilters.IsCodesScanInWarehouseRequired)
-			{
-				mainQuery
-					.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
-					.Where(() =>
-						clientAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-						&& clientAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute);
+				if(orderOnDayFilters.FastDeliveryEnabled)
+				{
+					additionalParametersRestriction.Add(() => orderAlias.IsFastDelivery);
+				}
+
+				if(orderOnDayFilters.IsCodesScanInWarehouseRequired)
+				{
+					additionalParametersRestriction.Add(Restrictions.Conjunction()
+						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
+						.Add(() => clientAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+						.Add(() => clientAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute));
+				}
+
+				mainQuery.Where(additionalParametersRestriction);
 			}
 
 			mainQuery.WhereRestrictionOn(() => orderAlias.OrderAddressType)

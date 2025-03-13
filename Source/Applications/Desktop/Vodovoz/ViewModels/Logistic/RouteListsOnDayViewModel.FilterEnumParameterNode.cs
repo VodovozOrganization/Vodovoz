@@ -11,9 +11,9 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			private bool _isSelected;
 
-			public FilterEnumParameterNode(TEnum parameter)
+			public FilterEnumParameterNode(TEnum value)
 			{
-				Parameter = parameter;
+				Value = value;
 			}
 
 			public virtual bool IsSelected
@@ -22,8 +22,8 @@ namespace Vodovoz.ViewModels.Logistic
 				set => SetField(ref _isSelected, value);
 			}
 
-			public TEnum Parameter { get; }
-			public string Title => Parameter.GetEnumDisplayName();
+			public TEnum Value { get; }
+			public string Title => Value.GetEnumDisplayName();
 		}
 	}
 }

@@ -32,23 +32,4 @@ namespace Vodovoz.ViewModels.Logistic
 			AddressType = addressType;
 		}
 	}
-	
-	public class OrderAddressTypeNode : PropertyChangedBase
-	{
-		private bool selected;
-		public virtual bool Selected 
-		{
-			get => selected;
-			set => SetField(ref selected, value);
-		}
-
-		public OrderAddressType OrderAddressType { get; }
-
-		public string Title => OrderAddressType.GetEnumTitle();
-
-		public OrderAddressTypeNode(OrderAddressType orderAddressType)
-		{
-			OrderAddressType = orderAddressType;
-		}
-	}
 }

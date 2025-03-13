@@ -23,6 +23,7 @@ using System.Text;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -46,6 +47,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
+using static Vodovoz.ViewModels.Logistic.RouteListsOnDayViewModel;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -202,34 +204,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 			CreateCommands();
 			LoadAddressesTypesDefaults();
-		}
-
-		private void AddAddressTypeFilter(IQueryOver<Order, Order> query)
-		{
-			foreach(var node in OrderAddressTypes)
-			{
-				if(node.Selected)
-				{
-					continue;
-				}
-
-				if(node.OrderAddressType == OrderAddressType.Delivery)
-				{
-					var isFastDeliveryChecked = OrderAddressTypes.SingleOrDefault(x => x.Selected) != null;
-					if(isFastDeliveryChecked)
-					{
-						query.Where(x => x.IsFastDelivery);
-					}
-					else
-					{
-						query.Where(x => x.OrderAddressType != node.OrderAddressType);
-					}
-				}
-				else
-				{
-					query.Where(x => x.OrderAddressType != node.OrderAddressType);
-				}
-			}
 		}
 
 		public bool ExcludeTrucks
@@ -786,12 +760,17 @@ namespace Vodovoz.ViewModels.Logistic
 
 		#endregion
 
-		public IEnumerable<OrderAddressTypeNode> OrderAddressTypes { get; } = new[] {
-			new OrderAddressTypeNode(OrderAddressType.Delivery),
-			new OrderAddressTypeNode(OrderAddressType.Service),
-			new OrderAddressTypeNode(OrderAddressType.ChainStore),
-			new OrderAddressTypeNode(OrderAddressType.StorageLogistics)
-		};
+		public IEnumerable<FilterEnumParameterNode<OrderAddressType>> OrderAddressTypes { get; } =
+			new List<FilterEnumParameterNode<OrderAddressType>>
+			{
+				new FilterEnumParameterNode<OrderAddressType>(OrderAddressType.Delivery),
+				new FilterEnumParameterNode<OrderAddressType>(OrderAddressType.Service),
+				new FilterEnumParameterNode<OrderAddressType>(OrderAddressType.ChainStore),
+				new FilterEnumParameterNode<OrderAddressType>(OrderAddressType.StorageLogistics)
+			};
+
+		private IEnumerable<OrderAddressType> _selectedFilterOrderAddressTypes =>
+			OrderAddressTypes.Where(x => x.IsSelected).Select(x => x.Value);
 
 		public IEnumerable<FilterEnumParameterNode<AddressAdditionalParameterType>> AddressAdditionalParameters { get; } =
 			new List<FilterEnumParameterNode<AddressAdditionalParameterType>>
@@ -799,6 +778,12 @@ namespace Vodovoz.ViewModels.Logistic
 				new FilterEnumParameterNode<AddressAdditionalParameterType>(AddressAdditionalParameterType.FastDelivery),
 				new FilterEnumParameterNode<AddressAdditionalParameterType>(AddressAdditionalParameterType.CodesScanInWarehouseRequired),
 			};
+
+		private bool _isFastDeliveryFilterParameterSelected =>
+			AddressAdditionalParameters.Any(x => x.IsSelected && x.Value == AddressAdditionalParameterType.FastDelivery);
+
+		private bool _isCodesScanInWarehouseRequiredFilterParameterSelected =>
+			AddressAdditionalParameters.Any(x => x.IsSelected && x.Value == AddressAdditionalParameterType.CodesScanInWarehouseRequired);
 
 		public IList<DeliveryShiftNode> DeliveryShiftNodes { get; set; }
 
@@ -808,16 +793,16 @@ namespace Vodovoz.ViewModels.Logistic
 
 			foreach(var addressTypeNode in OrderAddressTypes)
 			{
-				switch(addressTypeNode.OrderAddressType)
+				switch(addressTypeNode.Value)
 				{
 					case OrderAddressType.Delivery:
-						addressTypeNode.Selected = currentUserSettings.LogisticDeliveryOrders;
+						addressTypeNode.IsSelected = currentUserSettings.LogisticDeliveryOrders;
 						break;
 					case OrderAddressType.Service:
-						addressTypeNode.Selected = currentUserSettings.LogisticServiceOrders;
+						addressTypeNode.IsSelected = currentUserSettings.LogisticServiceOrders;
 						break;
 					case OrderAddressType.ChainStore:
-						addressTypeNode.Selected = currentUserSettings.LogisticChainStoreOrders;
+						addressTypeNode.IsSelected = currentUserSettings.LogisticChainStoreOrders;
 						break;
 				}
 			}
@@ -1648,17 +1633,15 @@ namespace Vodovoz.ViewModels.Logistic
 				ShowCompleted = ShowCompleted,
 				MinBottles19L = MinBottles19L,
 				MaxBottles19L = MaxBottles19L,
-				FastDeliveryEnabled = AddressAdditionalParameters.Any(x => x.IsSelected && x.Parameter == AddressAdditionalParameterType.FastDelivery),
-				IsCodesScanInWarehouseRequired = AddressAdditionalParameters.Any(x => x.IsSelected && x.Parameter == AddressAdditionalParameterType.CodesScanInWarehouseRequired),
-				OrderAddressTypes = OrderAddressTypes
-					.Where(x => x.Selected)
-					.Select(x => x.OrderAddressType),
+				FastDeliveryEnabled = _isFastDeliveryFilterParameterSelected,
+				IsCodesScanInWarehouseRequired = _isCodesScanInWarehouseRequiredFilterParameterSelected,
+				OrderAddressTypes = _selectedFilterOrderAddressTypes,
 				ClosingDocumentDeliveryScheduleId = _closingDocumentDeliveryScheduleId
 			};
 
 			OrdersOnDay = OrderRepository.GetOrdersOnDay(UoW, orderOnDayFilter);
 
-			if(OrderAddressTypes.Any(x => x.Selected))
+			if(OrderAddressTypes.Any(x => x.IsSelected))
 			{
 				UndeliveredOrder undeliveredOrderAlias = null;
 				Order orderAlias = null;
@@ -1852,9 +1835,33 @@ namespace Vodovoz.ViewModels.Logistic
 				.Where(o => !o.IsContractCloser)
 				.And(o => o.OrderAddressType != OrderAddressType.Service);
 
-			if(OrderAddressTypes.Any(x => x.Selected))
+			if(_selectedFilterOrderAddressTypes.Any())
 			{
-				AddAddressTypeFilter(baseQuery);
+				baseQuery.WhereRestrictionOn(() => orderBaseAlias.OrderAddressType)
+					.IsIn(_selectedFilterOrderAddressTypes.ToList());
+
+				if(AddressAdditionalParameters.Any(x => x.IsSelected))
+				{
+					var additionalParametersRestriction = Restrictions.Disjunction();
+
+					if(_isFastDeliveryFilterParameterSelected)
+					{
+						additionalParametersRestriction.Add(() => orderBaseAlias.IsFastDelivery);
+					}
+
+					if(_isCodesScanInWarehouseRequiredFilterParameterSelected)
+					{
+						baseQuery
+							.JoinAlias(() => orderBaseAlias.Client, () => counterpartyAlias);
+
+						additionalParametersRestriction.Add(Restrictions.Conjunction()
+							.Add(() => orderBaseAlias.PaymentType == PaymentType.Cashless)
+							.Add(() => counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+							.Add(() => counterpartyAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute));
+					}
+
+					baseQuery.Where(additionalParametersRestriction);
+				}
 
 				var selectedGeographicGroup = GeographicGroupNodes
 					.Where(x => x.Selected)

@@ -198,8 +198,8 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewOnDayDrivers.Selection.Changed += (sender, e) => ViewModel.SelectedDrivers = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().ToArray();
 			ytreeviewOnDayDrivers.Binding.AddBinding(ViewModel, vm => vm.ObservableDriversOnDay, w => w.ItemsDataSource).InitializeFromSource();
 
-			ytreeviewAddressesTypes.ColumnsConfig = FluentColumnsConfig<OrderAddressTypeNode>.Create()
-				.AddColumn("").AddToggleRenderer(x => x.Selected)
+			ytreeviewAddressesTypes.ColumnsConfig = FluentColumnsConfig<FilterEnumParameterNode<OrderAddressType>>.Create()
+				.AddColumn("").AddToggleRenderer(x => x.IsSelected)
 				.AddColumn("Тип адресов").AddTextRenderer(x => x.Title)
 				.Finish();
 			ytreeviewAddressesTypes.ItemsDataSource = ViewModel.OrderAddressTypes;
