@@ -3,6 +3,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using Org.BouncyCastle.Asn1.Oiw;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -12,8 +13,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.Extensions;
@@ -50,75 +54,117 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 
 		public static ProductCodesScanningReport Generate(IUnitOfWork unitOfWork, DateTime createDateFrom, DateTime createDateTo)
 		{
-			CashReceipt cashReceiptAlias = null;
-			CashReceiptProductCode cashReceiptProductCodeAlias = null;
-			RouteListItem routeListItemAlias = null;
-			RouteList routeListAlias = null;
-			Employee driverAlias = null;
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCodeAlias = null;
-			Subdivision subdivisionAlias = null;
-			GeoGroup geoGroupAlias = null;
-			ScannedCodeInfo resultAlias = null;
+			//CashReceipt cashReceiptAlias = null;
+			//CashReceiptProductCode cashReceiptProductCodeAlias = null;
+			//RouteListItem routeListItemAlias = null;
+			//RouteList routeListAlias = null;
+			//Employee driverAlias = null;
+			//TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCodeAlias = null;
+			//Subdivision subdivisionAlias = null;
+			//GeoGroup geoGroupAlias = null;
+			//ScannedCodeInfo resultAlias = null;
 
-			var driverFioProjection = CustomProjections.Concat_WS(
-				" ",
-				Projections.Property(() => driverAlias.LastName),
-				Projections.Property(() => driverAlias.Name),
-				Projections.Property(() => driverAlias.Patronymic)
-			);
+			//var driverFioProjection = CustomProjections.Concat_WS(
+			//	" ",
+			//	Projections.Property(() => driverAlias.LastName),
+			//	Projections.Property(() => driverAlias.Name),
+			//	Projections.Property(() => driverAlias.Patronymic)
+			//);
 
-			var isProductCodeSingleDuplicatedProjection = Projections.Conditional(
-				Restrictions.Conjunction()
-					.Add(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode)
-					.Add(() => cashReceiptProductCodeAlias.DuplicatesCount <= 1),
-				Projections.Constant(true),
-				Projections.Constant(false)
-				);
+			//var isProductCodeSingleDuplicatedProjection = Projections.Conditional(
+			//	Restrictions.Conjunction()
+			//		.Add(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode)
+			//		.Add(() => cashReceiptProductCodeAlias.DuplicatesCount <= 1),
+			//	Projections.Constant(true),
+			//	Projections.Constant(false)
+			//	);
 
-			var isProductCodeMultiplyDuplicatedProjection = Projections.Conditional(
-				Restrictions.Conjunction()
-					.Add(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode)
-					.Add(() => cashReceiptProductCodeAlias.DuplicatesCount > 1),
-				Projections.Constant(true),
-				Projections.Constant(false)
-				);
+			//var isProductCodeMultiplyDuplicatedProjection = Projections.Conditional(
+			//	Restrictions.Conjunction()
+			//		.Add(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode)
+			//		.Add(() => cashReceiptProductCodeAlias.DuplicatesCount > 1),
+			//	Projections.Constant(true),
+			//	Projections.Constant(false)
+			//	);
 
-			var isInvalidSourceCodeProjection = Projections.Conditional(
-				Restrictions.Conjunction()
-					.Add(() => trueMarkWaterIdentificationCodeAlias != null)
-					.Add(() => trueMarkWaterIdentificationCodeAlias.IsInvalid),
-				Projections.Constant(true),
-				Projections.Constant(false)
-				);
+			//var isInvalidSourceCodeProjection = Projections.Conditional(
+			//	Restrictions.Conjunction()
+			//		.Add(() => trueMarkWaterIdentificationCodeAlias != null)
+			//		.Add(() => trueMarkWaterIdentificationCodeAlias.IsInvalid),
+			//	Projections.Constant(true),
+			//	Projections.Constant(false)
+			//	);
 
-			var codesScannedByDrivers = unitOfWork.Session.QueryOver(() => cashReceiptAlias)
-				.JoinEntityAlias(() => cashReceiptProductCodeAlias, () => cashReceiptProductCodeAlias.CashReceipt.Id == cashReceiptAlias.Id, JoinType.InnerJoin)
-				.Left.JoinAlias(() => cashReceiptProductCodeAlias.SourceCode, () => trueMarkWaterIdentificationCodeAlias)
-				.JoinEntityAlias(() => routeListItemAlias, () => cashReceiptAlias.Order.Id == routeListItemAlias.Order.Id, JoinType.InnerJoin)
-				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
-				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
-				.Left.JoinAlias(() => driverAlias.Subdivision, () => subdivisionAlias)
-				.Left.JoinAlias(() => subdivisionAlias.GeographicGroup, () => geoGroupAlias)
-				.Where(() => cashReceiptAlias.CreateDate >= createDateFrom
-					&& cashReceiptAlias.CreateDate < createDateTo.AddDays(1)
-					&& !cashReceiptAlias.WithoutMarks)
-				.SelectList(list => list
-					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
-					.Select(driverFioProjection).WithAlias(() => resultAlias.DriverFIO)
-					.Select(() => driverAlias.DriverOfCarOwnType).WithAlias(() => resultAlias.CarOwnType)
-					.Select(() => geoGroupAlias.Name).WithAlias(() => resultAlias.DriverSubdivisionGeoGroup)
-					.Select(() => cashReceiptProductCodeAlias.SourceCode.Id).WithAlias(() => resultAlias.SourceCodeId)
-					.Select(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateSourceCode)
-					.Select(isProductCodeSingleDuplicatedProjection).WithAlias(() => resultAlias.IsProductCodeSingleDuplicated)
-					.Select(isProductCodeMultiplyDuplicatedProjection).WithAlias(() => resultAlias.IsProductCodeMultiplyDuplicated)
-					.Select(() => cashReceiptProductCodeAlias.IsUnscannedSourceCode).WithAlias(() => resultAlias.IsUnscannedSourceCode)
-					.Select(() => cashReceiptProductCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsDefectiveSourceCode)
-					.Select(() => trueMarkWaterIdentificationCodeAlias.IsInvalid).WithAlias(() => resultAlias.IsInvalidSourceCode))
-				.TransformUsing(Transformers.AliasToBean<ScannedCodeInfo>())
-				.List<ScannedCodeInfo>()
-				.ToList();
+			//var codesScannedByDrivers = unitOfWork.Session.QueryOver(() => cashReceiptAlias)
+			//	.JoinEntityAlias(() => cashReceiptProductCodeAlias, () => cashReceiptProductCodeAlias.CashReceipt.Id == cashReceiptAlias.Id, JoinType.InnerJoin)
+			//	.Left.JoinAlias(() => cashReceiptProductCodeAlias.SourceCode, () => trueMarkWaterIdentificationCodeAlias)
+			//	.JoinEntityAlias(() => routeListItemAlias, () => cashReceiptAlias.Order.Id == routeListItemAlias.Order.Id, JoinType.InnerJoin)
+			//	.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+			//	.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+			//	.Left.JoinAlias(() => driverAlias.Subdivision, () => subdivisionAlias)
+			//	.Left.JoinAlias(() => subdivisionAlias.GeographicGroup, () => geoGroupAlias)
+			//	.Where(() => cashReceiptAlias.CreateDate >= createDateFrom
+			//		&& cashReceiptAlias.CreateDate < createDateTo.AddDays(1)
+			//		&& !cashReceiptAlias.WithoutMarks)
+			//	.SelectList(list => list
+			//		.Select(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
+			//		.Select(driverFioProjection).WithAlias(() => resultAlias.DriverFIO)
+			//		.Select(() => driverAlias.DriverOfCarOwnType).WithAlias(() => resultAlias.CarOwnType)
+			//		.Select(() => geoGroupAlias.Name).WithAlias(() => resultAlias.DriverSubdivisionGeoGroup)
+			//		.Select(() => cashReceiptProductCodeAlias.SourceCode.Id).WithAlias(() => resultAlias.SourceCodeId)
+			//		.Select(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateSourceCode)
+			//		.Select(isProductCodeSingleDuplicatedProjection).WithAlias(() => resultAlias.IsProductCodeSingleDuplicated)
+			//		.Select(isProductCodeMultiplyDuplicatedProjection).WithAlias(() => resultAlias.IsProductCodeMultiplyDuplicated)
+			//		.Select(() => cashReceiptProductCodeAlias.IsUnscannedSourceCode).WithAlias(() => resultAlias.IsUnscannedSourceCode)
+			//		.Select(() => cashReceiptProductCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsDefectiveSourceCode)
+			//		.Select(() => trueMarkWaterIdentificationCodeAlias.IsInvalid).WithAlias(() => resultAlias.IsInvalidSourceCode))
+			//	.TransformUsing(Transformers.AliasToBean<ScannedCodeInfo>())
+			//	.List<ScannedCodeInfo>()
+			//	.ToList();
 
-			var groupedByDriverCodes = codesScannedByDrivers
+			var allCodes =
+				from routeList in unitOfWork.Session.Query<RouteList>()
+				join routeListItem in unitOfWork.Session.Query<RouteListItem>() on routeList.Id equals routeListItem.RouteList.Id
+				join driver in unitOfWork.Session.Query<Employee>() on routeList.Driver.Id equals driver.Id
+				join sd in unitOfWork.Session.Query<Subdivision>() on driver.Subdivision.Id equals sd.Id into subdivisions
+				from subdivision in subdivisions.DefaultIfEmpty()
+				join gg in unitOfWork.Session.Query<GeoGroup>() on subdivision.GeographicGroup.Id equals gg.Id into geoGroups
+				from geoGroup in geoGroups.DefaultIfEmpty()
+
+				let markedProducts = unitOfWork.Session.Query<OrderItem>()
+					.Where(oi => oi.Order.Id == routeListItem.Order.Id)
+					.Where(oi => oi.Nomenclature.IsAccountableInTrueMark)
+					.Select(oi => oi.Count)
+					.ToList()
+
+				let orderCodes = unitOfWork.Session.Query<RouteListItemTrueMarkProductCode>()
+					.Where(pc => pc.RouteListItem.Id == routeListItem.Id)
+					.ToList()
+
+				where
+					routeList.Date >= createDateFrom && routeList.Date < createDateTo.AddDays(1)
+					&& routeListItem.Status == RouteListItemStatus.Completed
+
+				select new ScannedCodeInfo
+				{
+					DriverId = driver.Id,
+					DriverFIO = driver.FullName,
+					CarOwnType = driver.DriverOfCarOwnType,
+					DriverSubdivisionGeoGroup = geoGroup.Name,
+					MarkedProdictsCount = markedProducts.FirstOrDefault(),
+					ScannedCodes = orderCodes,
+					//ScannedCodesCount = orderCodes.Count,
+					//UnscannedCodesCount = orderCodes.Count(pc => pc.Problem == ProductCodeProblem.Unscanned),
+					//SingleDuplicatedCodesCount = orderCodes.Count(pc => pc.Problem == ProductCodeProblem.Duplicate && pc.DuplicatesCount == 1),
+					//MultiplyDuplicatedCodesCount = orderCodes.Count(pc => pc.Problem == ProductCodeProblem.Duplicate && pc.DuplicatesCount > 1),
+					//DefectiveCodesCount = orderCodes.Count(pc => pc.Problem == ProductCodeProblem.Defect),
+					//InvalidCodesCount = 0
+				};
+
+			var ccc = allCodes.ToList();
+
+
+			var groupedByDriverCodes = allCodes
 				.GroupBy(c => new { c.DriverId, c.DriverFIO, c.CarOwnType, c.DriverSubdivisionGeoGroup })
 				.ToDictionary(g => g.Key, g => g.ToList());
 
@@ -135,14 +181,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 				var row = new Row();
 
 				row.DriverFIO = driver;
-				row.CarOwnTypeString = carOwnType.GetEnumDisplayName();
+				row.CarOwnTypeString = carOwnType == null ? string.Empty : carOwnType.Value.GetEnumDisplayName();
 				row.DriverSubdivisionGeoGroup = driverSubdivisionGeoGroup;
 				row.TotalCodesCount = codes.Count;
-				row.SuccessfullyScannedCodesCount = GetSuccessfullyScannedCodesCount(codes);
-				row.UnscannedCodesCount = GetUnscannedCodesCount(codes);
-				row.SingleDuplicatedCodesCount = GetSingleDuplicatedCodesCount(codes);
-				row.MultiplyDuplicatedCodesCount = GetMultiplyDuplicatedCodesCount(codes);
-				row.InvalidCodesCount = GetInvalidCodesCount(codes);
+				row.SuccessfullyScannedCodesCount = 0;
+				row.UnscannedCodesCount = 0;
+				row.SingleDuplicatedCodesCount = 0;
+				row.MultiplyDuplicatedCodesCount = 0;
+				row.InvalidCodesCount = 0;
 
 				rows.Add(row);
 				counter++;
@@ -152,33 +198,33 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			return new ProductCodesScanningReport(createDateFrom, createDateTo, rows);
 		}
 
-		private static int GetSuccessfullyScannedCodesCount(List<ScannedCodeInfo> codes) =>
-			codes
-			.Where(c => !c.IsDuplicateSourceCode
-				&& !c.IsUnscannedSourceCode
-				&& !c.IsInvalidSourceCode
-				&& c.SourceCodeId != null)
-			.Count();
+		//private static int GetSuccessfullyScannedCodesCount(List<ScannedCodeInfo> codes) =>
+		//	codes
+		//	.Where(c => !c.IsDuplicateSourceCode
+		//		&& !c.IsUnscannedSourceCode
+		//		&& !c.IsInvalidSourceCode
+		//		&& c.SourceCodeId != null)
+		//	.Count();
 
-		private static int GetUnscannedCodesCount(List<ScannedCodeInfo> codes) =>
-			codes
-			.Where(c => c.IsUnscannedSourceCode)
-			.Count();
+		//private static int GetUnscannedCodesCount(List<ScannedCodeInfo> codes) =>
+		//	codes
+		//	.Where(c => c.IsUnscannedSourceCode)
+		//	.Count();
 
-		private static int GetSingleDuplicatedCodesCount(List<ScannedCodeInfo> codes) =>
-			codes
-			.Where(c => c.IsProductCodeSingleDuplicated && !c.IsInvalidSourceCode)
-			.Count();
+		//private static int GetSingleDuplicatedCodesCount(List<ScannedCodeInfo> codes) =>
+		//	codes
+		//	.Where(c => c.IsProductCodeSingleDuplicated && !c.IsInvalidSourceCode)
+		//	.Count();
 
-		private static int GetMultiplyDuplicatedCodesCount(List<ScannedCodeInfo> codes) =>
-			codes
-			.Where(c => c.IsProductCodeMultiplyDuplicated && !c.IsInvalidSourceCode)
-			.Count();
+		//private static int GetMultiplyDuplicatedCodesCount(List<ScannedCodeInfo> codes) =>
+		//	codes
+		//	.Where(c => c.IsProductCodeMultiplyDuplicated && !c.IsInvalidSourceCode)
+		//	.Count();
 
-		private static int GetInvalidCodesCount(List<ScannedCodeInfo> codes) =>
-			codes
-			.Where(c => c.IsInvalidSourceCode)
-			.Count();
+		//private static int GetInvalidCodesCount(List<ScannedCodeInfo> codes) =>
+		//	codes
+		//	.Where(c => c.IsInvalidSourceCode)
+		//	.Count();
 
 		#region Export report to Excel
 
