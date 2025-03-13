@@ -22,7 +22,7 @@ namespace Pacs.Server.Operators
 		private readonly IGlobalBreakController _globalBreakController;
 		private readonly IOperatorBreakAvailabilityService _operatorBreakAvailabilityService;
 		private readonly IPacsRepository _pacsRepository;
-		private readonly IPhoneController _phoneController;
+		private readonly IOperatorPhoneService _phoneController;
 		private readonly IOperatorRepository _operatorRepository;
 
 		private readonly ConcurrentDictionary<int, OperatorServerStateMachine> _operatorControllers;
@@ -35,7 +35,7 @@ namespace Pacs.Server.Operators
 			IGlobalBreakController globalBreakController,
 			IOperatorBreakAvailabilityService operatorBreakAvailabilityService,
 			IPacsRepository pacsRepository,
-			IPhoneController phoneController,
+			IOperatorPhoneService phoneController,
 			IOperatorRepository operatorRepository)
 		{
 			_logger = logger
