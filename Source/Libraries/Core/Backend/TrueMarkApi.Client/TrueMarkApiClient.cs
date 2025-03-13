@@ -1,5 +1,4 @@
-﻿using Polly;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -8,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Polly;
 using TrueMark.Contracts;
 using TrueMark.Contracts.Responses;
 
@@ -15,50 +15,72 @@ namespace TrueMarkApi.Client
 {
 	public class TrueMarkApiClient : ITrueMarkApiClient
 	{
-		private static HttpClient _httpClient;
+		private readonly IHttpClientFactory _httpClientFactory;
+		private readonly string _trueMarkApiBaseUrl;
+		private readonly string _trueMarkApiToken;
 
-		public TrueMarkApiClient(string trueMarkApiBaseUrl, string trueMarkApiToken)
+		public TrueMarkApiClient(IHttpClientFactory httpClientFactory, string trueMarkApiBaseUrl, string trueMarkApiToken)
 		{
-			_httpClient = new HttpClient()
-			{
-				BaseAddress = new Uri(trueMarkApiBaseUrl)
-			};
-			_httpClient.DefaultRequestHeaders.Accept.Clear();
-			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", trueMarkApiToken);
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+			_trueMarkApiBaseUrl = trueMarkApiBaseUrl ?? throw new ArgumentNullException(nameof(trueMarkApiBaseUrl));
+			_trueMarkApiToken = trueMarkApiToken ?? throw new ArgumentNullException(nameof(trueMarkApiToken));
 		}
 
-		public async Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn, CancellationToken cancellationToken)
+		private HttpClient GetHttpClient()
+		{
+			var httpClient = _httpClientFactory.CreateClient(nameof(TrueMarkApiClient));
+			httpClient.BaseAddress = new Uri(_trueMarkApiBaseUrl);
+			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _trueMarkApiToken);
+
+			return httpClient;
+		}
+
+		public async Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn,
+			CancellationToken cancellationToken)
 		{
 			var urlWithParams = $"{url}?inn={inn}";
-			var response = await _httpClient.GetAsync(urlWithParams, cancellationToken);
-			var responseBody = await response.Content.ReadAsStreamAsync();
-			var responseResult = await JsonSerializer.DeserializeAsync<TrueMarkRegistrationResultDto>(responseBody, cancellationToken: cancellationToken);
 
-			return responseResult;
+			using(var httpClient = GetHttpClient())
+			{
+				var response = await httpClient.GetAsync(urlWithParams, cancellationToken);
+				var responseBody = await response.Content.ReadAsStreamAsync();
+				var responseResult =
+					await JsonSerializer.DeserializeAsync<TrueMarkRegistrationResultDto>(responseBody,
+						cancellationToken: cancellationToken);
+
+				return responseResult;
+			}
 		}
 
-		public async Task<ProductInstancesInfoResponse> GetProductInstanceInfoAsync(IEnumerable<string> identificationCodes, CancellationToken cancellationToken)
+		public async Task<ProductInstancesInfoResponse> GetProductInstanceInfoAsync(IEnumerable<string> identificationCodes,
+			CancellationToken cancellationToken)
 		{
-			string content = JsonSerializer.Serialize(identificationCodes.ToArray());
-			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+			var content = JsonSerializer.Serialize(identificationCodes.ToArray());
+			var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
 			var retryPolicy = Policy
 				.Handle<HttpRequestException>()
 				.Or<TimeoutException>()
 				.WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
-			var result = await retryPolicy.ExecuteAndCaptureAsync(
-				async (innerCancellationToken) =>
-				{
-					var response = await _httpClient.PostAsync("api/RequestProductInstanceInfo", httpContent, innerCancellationToken);
-					var responseBody = await response.Content.ReadAsStreamAsync();
-					var responseResult = await JsonSerializer.DeserializeAsync<ProductInstancesInfoResponse>(responseBody, cancellationToken: innerCancellationToken);
-					return responseResult;
-				},
-				cancellationToken);
+			using(var httpClient = GetHttpClient())
+			{
+				var result = await retryPolicy.ExecuteAndCaptureAsync(
+					async (innerCancellationToken) =>
+					{
+						var response = await httpClient.PostAsync("api/RequestProductInstanceInfo", httpContent, innerCancellationToken);
+						var responseBody = await response.Content.ReadAsStreamAsync();
+						var responseResult =
+							await JsonSerializer.DeserializeAsync<ProductInstancesInfoResponse>(responseBody,
+								cancellationToken: innerCancellationToken);
+						
+						return responseResult;
+					},
+					cancellationToken);
 
-			return result.Result;
+				return result.Result;
+			}
 		}
 	}
 }
