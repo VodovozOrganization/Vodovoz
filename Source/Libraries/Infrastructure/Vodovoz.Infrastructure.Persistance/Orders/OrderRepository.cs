@@ -1596,7 +1596,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			if(orderOnDayFilters.FastDeliveryEnabled || orderOnDayFilters.IsCodesScanInWarehouseRequired)
 			{
-				var additionalParametersRestriction = Restrictions.Disjunction();
+				var additionalParametersRestriction = Restrictions.Conjunction();
 
 				if(orderOnDayFilters.FastDeliveryEnabled)
 				{

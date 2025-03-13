@@ -1842,7 +1842,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 				if(AddressAdditionalParameters.Any(x => x.IsSelected))
 				{
-					var additionalParametersRestriction = Restrictions.Disjunction();
+					var additionalParametersRestriction = Restrictions.Conjunction();
 
 					if(_isFastDeliveryFilterParameterSelected)
 					{
