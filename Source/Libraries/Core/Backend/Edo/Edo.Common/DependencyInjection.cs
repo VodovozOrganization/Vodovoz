@@ -8,12 +8,11 @@ namespace Edo.Common
 		public static IServiceCollection AddEdo(this IServiceCollection services)
 		{
 			services.AddTrueMarkApiClient();
-
+			
 			services
 				.AddScoped<TransferRequestCreator>()
 				.AddScoped<EdoTaskItemTrueMarkStatusProvider>()
 				.AddScoped<EdoTaskItemTrueMarkStatusProviderFactory>()
-
 				.AddScoped<TrueMarkTaskCodesValidator>()
 				;
 

@@ -42,6 +42,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
@@ -156,6 +157,7 @@ namespace Vodovoz
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
 		private Organization _vodovozOrganization;
+		private IHttpClientFactory _httpClientFactory;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -320,6 +322,7 @@ namespace Vodovoz
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
 			_attachmentsViewModelFactory = _lifetimeScope.Resolve<IAttachedFileInformationsViewModelFactory>();
 			_counterpartyFileStorageService = _lifetimeScope.Resolve<ICounterpartyFileStorageService>();
+			_httpClientFactory = _lifetimeScope.Resolve<IHttpClientFactory>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -1372,7 +1375,7 @@ namespace Vodovoz
 			IAuthorizationService taxcomAuthorizationService = new TaxcomAuthorizationService(_edoSettings);
 			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings, new ContactStateConverter());
 
-			_trueMarkApiClient = new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
+			_trueMarkApiClient = new TrueMarkApiClient(_httpClientFactory, _edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
 		}
 
 		private void ConfigureTabEdoContainers()

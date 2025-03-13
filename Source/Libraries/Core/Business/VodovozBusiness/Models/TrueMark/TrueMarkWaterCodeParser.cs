@@ -35,30 +35,25 @@ namespace Vodovoz.Models.TrueMark
 	/// </summary>
 	public class TrueMarkWaterCodeParser
 	{
-		private Regex _regex;
-		private Regex _altRegex;
 		private string _specialCodeName = "SpecialCodeOne";
 		private string _gtinGroupName = "GTIN";
 		private string _serialGroupName = "SerialNumber";
 		private string _checkGroupName = "CheckCode";
 		private static readonly string _restrictedChar = "\\u001d";
 
-		public TrueMarkWaterCodeParser()
-		{
-			var pattern = $"^(?<{_specialCodeName}>(\\\\u00e8)|(\\\\u001d)|([\\u00e8,\\u001d]{{1}}))(?<IdentificationCode>01(?<{_gtinGroupName}>[^{_restrictedChar}]{{14}})21(?<{_serialGroupName}>[^{_restrictedChar}]{{13}}))((\\\\u001d)|([\\u001d]{{1}}))93(?<{_checkGroupName}>[^{_restrictedChar}]{{4}})$";
-			_regex = new Regex(pattern);
-
-			var altPattern = "^(?<IdentificationCode>\\(01\\)(?<GTIN>.{14})\\(21\\)(?<SerialNumber>.{13}))\\(93\\)(?<CheckCode>.{4})$";
-			_altRegex = new Regex(altPattern);
-		}
-
 		/// <inheritdoc cref="TrueMarkWaterCodeParser"/>
 		public TrueMarkWaterCode Parse(string rawCode)
 		{
-			var match = _regex.Match(rawCode);
+			var pattern = $"^(?<{_specialCodeName}>(\\\\u00e8)|(\\\\u001d)|([\\u00e8,\\u001d]{{1}}))(?<IdentificationCode>01(?<{_gtinGroupName}>[^{_restrictedChar}]{{14}})21(?<{_serialGroupName}>[^{_restrictedChar}]{{13}}))((\\\\u001d)|([\\u001d]{{1}}))93(?<{_checkGroupName}>[^{_restrictedChar}]{{4}})$";
+			var regex = new Regex(pattern);
+			var match = regex.Match(rawCode);
+			
 			if(!match.Success)
 			{
-				match = _altRegex.Match(rawCode);
+				var altPattern = "^(?<IdentificationCode>\\(01\\)(?<GTIN>.{14})\\(21\\)(?<SerialNumber>.{13}))\\(93\\)(?<CheckCode>.{4})$";
+				var altRegex = new Regex(altPattern);
+				match = altRegex.Match(rawCode);
+				
 				if(!match.Success)
 				{
 					throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({rawCode}).");
@@ -180,9 +175,9 @@ namespace Vodovoz.Models.TrueMark
 			.Replace("_x001d_", _restrictedChar);
 
 			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>[^{_restrictedChar}]{{14}})21(?<{_serialGroupName}>[^{_restrictedChar}]{{13}}))((\|ГС\|)|(\\u001d)|()|())93(?<{_checkGroupName}>[^{_restrictedChar}]{{4}})";
-			_regex = new Regex(pattern);
+			var regex = new Regex(pattern);
 
-			var match = _regex.Match(cleanCode);
+			var match = regex.Match(cleanCode);
 			if(!match.Success)
 			{
 				throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({cleanCode}).");
@@ -216,9 +211,9 @@ namespace Vodovoz.Models.TrueMark
 		public TrueMarkWaterCode ParseCodeFromSelfDelivery(string code)
 		{
 			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>.{{14}})21(?<{_serialGroupName}>.{{13}}))93(?<{_checkGroupName}>.{{4}})";
-			_regex = new Regex(pattern);
+			var regex = new Regex(pattern);
 
-			var match = _regex.Match(code);
+			var match = regex.Match(code);
 			if(!match.Success)
 			{
 				return null;
