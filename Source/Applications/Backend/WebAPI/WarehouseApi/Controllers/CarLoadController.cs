@@ -77,7 +77,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -100,13 +100,25 @@ namespace WarehouseApi.Controllers
 			{
 				var requestProcessingResult = await _carLoadService.GetOrder(orderId);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					foreach(var item in requestProcessingResult.Result.Value.Order.Items)
+					{
+						var maxIndex = item.Codes.Count();
+						for(int i = 0; i < maxIndex; i++)
+						{
+							item.Codes.ElementAt(i).SequenceNumber = i;
+						}
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -134,13 +146,22 @@ namespace WarehouseApi.Controllers
 				var requestProcessingResult =
 					await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName, cancellationToken);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -175,13 +196,22 @@ namespace WarehouseApi.Controllers
 						user.UserName,
 						cancellationToken);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -213,7 +243,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -232,7 +262,7 @@ namespace WarehouseApi.Controllers
 			return new ObjectResult(processingResult.FailureData);
 		}
 
-		private IActionResult GetProblemResult(string exceptionMessage = null)
+		private static IActionResult GetProblemResult(string exceptionMessage = null)
 		{
 			var response = new WarehouseApiResponseBase
 			{
@@ -246,7 +276,7 @@ namespace WarehouseApi.Controllers
 			};
 		}
 
-		private int GetStatusCode(Result result)
+		private static int GetStatusCode(Result result)
 		{
 			if(result.IsSuccess)
 			{

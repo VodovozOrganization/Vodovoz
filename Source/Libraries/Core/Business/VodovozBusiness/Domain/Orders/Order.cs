@@ -4132,6 +4132,7 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				edoDocumentsActions.IsNeedToResendEdoUpd = true;
+				edoDocumentsActions.Created = DateTime.Now;
 
 				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkDocument>()
 					.Where(x => x.Order.Id == Id)

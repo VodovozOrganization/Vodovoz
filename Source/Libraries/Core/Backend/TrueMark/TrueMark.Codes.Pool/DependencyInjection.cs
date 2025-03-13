@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using QS.DomainModel.UoW;
 
 namespace TrueMark.Codes.Pool
 {
@@ -11,6 +13,8 @@ namespace TrueMark.Codes.Pool
 				.AddScoped<TrueMarkCodesPoolManager>()
 				.AddScoped<TrueMarkCodesPoolFactory>()
 				;
+
+			services.TryAddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			return services;
 		}

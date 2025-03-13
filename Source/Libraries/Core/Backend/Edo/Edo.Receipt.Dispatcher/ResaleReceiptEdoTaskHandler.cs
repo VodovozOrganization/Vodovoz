@@ -160,7 +160,10 @@ namespace Edo.Receipt.Dispatcher
 					receiptEdoTask,
 					trueMarkCodesChecker,
 					cancellationToken
-				); 
+				);
+
+				receiptEdoTask.ReceiptStatus = EdoReceiptStatus.Transfering;
+
 				await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 				await _uow.CommitAsync(cancellationToken);
 

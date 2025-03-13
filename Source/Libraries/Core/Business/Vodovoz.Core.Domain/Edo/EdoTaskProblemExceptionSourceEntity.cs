@@ -2,7 +2,7 @@
 {
 	public class EdoTaskProblemExceptionSourceEntity : EdoTaskProblemDescriptionSourceEntity
 	{
-		public override EdoTaskProblemDescriptionSourceType Type =>
-			EdoTaskProblemDescriptionSourceType.Exception;
+		public override EdoTaskProblemType Type =>
+			EdoTaskProblemType.Exception;
 	}
 }

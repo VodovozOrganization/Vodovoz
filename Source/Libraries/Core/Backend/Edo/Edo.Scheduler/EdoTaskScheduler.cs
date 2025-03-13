@@ -103,7 +103,10 @@ namespace Edo.Scheduler.Service
 						throw new InvalidOperationException($"Неизвестный тип задачи {edoTask.TaskType}");
 				}
 
-				await _messageBus.Publish(message, cancellationToken);
+				if(message != null)
+				{
+					await _messageBus.Publish(message, cancellationToken);
+				}
 			}
 		}
 	}

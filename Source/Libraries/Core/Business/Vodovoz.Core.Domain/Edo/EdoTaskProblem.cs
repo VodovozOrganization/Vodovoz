@@ -10,7 +10,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _id;
 		private DateTime _creationTime;
 		private DateTime _updateTime;
-		private EdoTaskProblemDescriptionSourceType _type;
+		private EdoTaskProblemType _type;
 		private EdoTask _edoTask;
 		private string _sourceName;
 		private TaskProblemState _state;
@@ -38,7 +38,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Тип")]
-		public virtual EdoTaskProblemDescriptionSourceType Type
+		public virtual EdoTaskProblemType Type
 		{
 			get => _type;
 			set => SetField(ref _type, value);

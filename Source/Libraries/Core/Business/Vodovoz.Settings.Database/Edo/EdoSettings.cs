@@ -36,5 +36,7 @@ namespace Vodovoz.Settings.Database.Edo
 			.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
 			.Select(x => int.Parse(x.Trim(' ')))
 			.ToArray();
+
+		public bool CodePoolLoaderToNewPool => _settingsController.GetBoolValue("CodePoolLoaderToNewPool");
 	}
 }

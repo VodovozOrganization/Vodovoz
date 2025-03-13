@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public EdoTaskProblemCustomSourceEntityMap()
 		{
-			DiscriminatorValue(nameof(EdoTaskProblemDescriptionSourceType.Custom));
+			DiscriminatorValue(nameof(EdoTaskProblemType.Custom));
 
 			Map(x => x.Message)
 				.Column("message");

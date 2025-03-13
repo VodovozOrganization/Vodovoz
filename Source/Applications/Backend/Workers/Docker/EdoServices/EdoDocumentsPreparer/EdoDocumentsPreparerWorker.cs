@@ -1,4 +1,4 @@
-using EdoDocumentsPreparer.Factories;
+﻿using EdoDocumentsPreparer.Factories;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -21,6 +21,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -30,6 +31,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Converters;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace EdoDocumentsPreparer
 {
@@ -154,7 +156,8 @@ namespace EdoDocumentsPreparer
 
 				var bulkAccountingEdoTasks =
 					uow.GetAll<BulkAccountingEdoTask>()
-						.Where(x => x.Status == EdoTaskStatus.New)
+						.Where(x => x.Status == EdoTaskStatus.New
+							&& x.OrderEdoRequest.Order.PaymentType == PaymentType.Cashless)
 						.ToList();
 
 				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен
@@ -187,8 +190,48 @@ namespace EdoDocumentsPreparer
 							"Пришла задача на формирование УПД по заказу {OrderId}, который не должен отправляться для объемного учета",
 							orderEntity.Id);
 
-						bulkAccountingEdoTasks[i].Status = EdoTaskStatus.Problem;
-						//создать описание проблемы
+						var container = uow
+							.GetAll<EdoContainer>()
+							.Where(x => x.Order.Id == orderEntity.Id && x.Type == Type.Upd)
+							.OrderByDescending(x => x.Id)
+							.FirstOrDefault();
+
+						if(container != null)
+						{
+							_logger.LogWarning(
+								"Контейнер с УПД по заказу {OrderId} уже отправлялся, обновляем информацию",
+								orderEntity.Id);
+
+							switch(container.EdoDocFlowStatus)
+							{
+								case EdoDocFlowStatus.Succeed:
+									bulkAccountingEdoTasks[i].Status = EdoTaskStatus.Completed;
+									break;
+								case EdoDocFlowStatus.Cancelled:
+								case EdoDocFlowStatus.NotAccepted:
+								case EdoDocFlowStatus.Unknown:
+								case EdoDocFlowStatus.WaitingForCancellation:
+									break;
+								case EdoDocFlowStatus.Error:
+								case EdoDocFlowStatus.Warning:
+								case EdoDocFlowStatus.CompletedWithDivergences:
+									bulkAccountingEdoTasks[i].Status = EdoTaskStatus.Problem;
+									//создать описание проблемы
+									break;
+								default:
+									bulkAccountingEdoTasks[i].Status = EdoTaskStatus.InProgress;
+									break;
+							}
+
+							container.EdoTaskId = bulkAccountingEdoTasks[i].Id;
+							await uow.SaveAsync(container);
+						}
+						else
+						{
+							bulkAccountingEdoTasks[i].Status = EdoTaskStatus.Problem;
+							//создать описание проблемы
+						}
+
 						await uow.SaveAsync(bulkAccountingEdoTasks[i]);
 						await uow.CommitAsync();
 						bulkAccountingEdoTasks.RemoveAt(i);

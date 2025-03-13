@@ -1,7 +1,6 @@
 ﻿using Edo.Problems.Custom;
 using Edo.Problems.Exception;
 using Edo.Problems.Validation;
-using FluentNHibernate.Conventions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -173,11 +172,12 @@ namespace Edo.Problems
 
 			IUnitOfWork uow = _taskUow;
 			var invalidResults = validationResults.Where(x => !x.IsValid);
-			var isAllValid = !invalidResults.IsAny();
+			var isAllValid = !invalidResults.Any();
 			if(!isAllValid)
 			{
 				uow = _uowFactory.CreateWithoutRoot();
 				uow.OpenTransaction();
+				edoTask = await uow.Session.GetAsync<EdoTask>(edoTask.Id, cancellationToken);
 			}
 
 			foreach(var validationResult in validationResults)
@@ -232,6 +232,7 @@ namespace Edo.Problems
 					edoTask.Status = EdoTaskStatus.Waiting;
 				}
 
+				await uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
 				uow.Dispose();
 

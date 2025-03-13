@@ -21,5 +21,6 @@
 		int CodePoolCheckIntervalMinutes { get; }
 		int CodePoolPromoteWithExtraSeconds { get; }
 		int[] OrganizationsHavingAccountsInTrueMark { get; }
+		bool CodePoolLoaderToNewPool { get; }
 	}
 }

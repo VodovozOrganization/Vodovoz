@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -170,6 +170,7 @@ using DriverApi.Notifications.Client;
 using Edo.Transport;
 using Edo.Common;
 using TrueMarkApi.Client;
+using TrueMark.Codes.Pool;
 
 namespace Vodovoz
 {
@@ -297,7 +298,7 @@ namespace Vodovoz
 
 					# region TrueMark
 
-					builder.RegisterType<TrueMarkCodesPool>()
+					builder.RegisterType<Models.TrueMark.TrueMarkCodesPool>()
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
@@ -734,7 +735,8 @@ namespace Vodovoz
 						.AddScoped<IFuelApiService, FuelApiService>()
 						.AddScoped<IFuelCardVersionService, FuelCardVersionService>()
 						.AddFuelControl(hostingContext)
-
+						.AddCodesPool()
+						
 						//Messages
 						.AddSingleton<MessagesHostedService>()
 						.AddSingleton<IMessageTransportInitializer>(ctx => ctx.GetRequiredService<MessagesHostedService>())

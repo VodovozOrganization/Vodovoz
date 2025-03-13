@@ -10,7 +10,7 @@ namespace Vodovoz.Permissions
 			/// Пользователь может установить статус Выполнен даже если не все коды ЧЗ были добавлены
 			/// </summary>
 			[Display(
-				Name = "Пользователь может установить статус Выполнен для адреса МЛ даже если не все коды ЧЗ были добавлены")]
+				Name = "Пользователь может установить статус Выполнен даже если не все коды ЧЗ были добавлены")]
 			public static string CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded => "can_set_completed_status_when_not_all_true_mark_codes_added";
 		}
 	}
