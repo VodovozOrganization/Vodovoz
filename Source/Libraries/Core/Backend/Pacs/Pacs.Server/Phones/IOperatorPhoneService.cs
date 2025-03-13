@@ -1,6 +1,6 @@
 ﻿namespace Pacs.Server.Phones
 {
-	public interface IPhoneController
+	public interface IOperatorPhoneService
 	{
 		/// <summary>
 		/// Проверяет известен ли номер в системе

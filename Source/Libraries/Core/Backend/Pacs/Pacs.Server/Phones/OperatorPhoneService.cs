@@ -7,15 +7,15 @@ using System.Linq;
 
 namespace Pacs.Server.Phones
 {
-	public class PhoneController : IPhoneController
+	public class OperatorPhoneService : IOperatorPhoneService
 	{
-		private readonly ILogger<PhoneController> _logger;
+		private readonly ILogger<OperatorPhoneService> _logger;
 		private readonly IPhoneRepository _pacsPhoneRepository;
 
 		private Dictionary<string, int> _phones;
 		private Dictionary<int, string> _operatorPhones;
 
-		public PhoneController(ILogger<PhoneController> logger, IPhoneRepository pacsPhoneRepository)
+		public OperatorPhoneService(ILogger<OperatorPhoneService> logger, IPhoneRepository pacsPhoneRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_pacsPhoneRepository = pacsPhoneRepository ?? throw new ArgumentNullException(nameof(pacsPhoneRepository));
