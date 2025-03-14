@@ -157,7 +157,6 @@ namespace Vodovoz
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
 		private Organization _vodovozOrganization;
-		private IHttpClientFactory _httpClientFactory;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -322,7 +321,6 @@ namespace Vodovoz
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
 			_attachmentsViewModelFactory = _lifetimeScope.Resolve<IAttachedFileInformationsViewModelFactory>();
 			_counterpartyFileStorageService = _lifetimeScope.Resolve<ICounterpartyFileStorageService>();
-			_httpClientFactory = _lifetimeScope.Resolve<IHttpClientFactory>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();

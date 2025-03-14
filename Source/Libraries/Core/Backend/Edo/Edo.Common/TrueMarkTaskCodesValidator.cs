@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Core.Infrastructure;
 using TrueMark.Contracts;
+using TrueMarkApi.Client;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
@@ -13,10 +14,12 @@ namespace Edo.Common
 	public class TrueMarkTaskCodesValidator : ITrueMarkCodesValidator
 	{
 		private readonly IEdoRepository _edoRepository;
+		private ITrueMarkApiClient _trueMarkApiClient;
 
-		public TrueMarkTaskCodesValidator(IEdoRepository edoRepository)
+		public TrueMarkTaskCodesValidator(IEdoRepository edoRepository, ITrueMarkApiClient trueMarkApiClient)
 		{
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
+			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
 		}
 
 		private TrueMarkCodeValidationResult CreateCodeValidationResult(
@@ -28,8 +31,6 @@ namespace Edo.Common
 		{
 			var codeValidationResult = new TrueMarkCodeValidationResult();
 			
-			codeValidationResult.IdentificationCode = productInstanceStatus.IdentificationCode;
-
 			// проверка на наш GTIN
 			if(productInstanceStatus.Gtin.IsNotIn(ourGtinNumbers))
 			{
@@ -121,9 +122,36 @@ namespace Edo.Common
 			}
 			
 			return codeResults;
-			
+		}
+		
+		public async Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<TrueMarkWaterIdentificationCode> codes, string organizationInn, CancellationToken cancellationToken)
+		{
+			var gtins = await _edoRepository.GetGtinsAsync(cancellationToken);
+			var gtinNumbers = gtins.Select(x => x.GtinNumber);
 
+			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
+			var ourOrganizationInns = edoOrganizations.Select(x => x.INN);
+
+			var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(codes.Select(x=>x.IdentificationCode), cancellationToken);
 			
+			if(productInstancesInfo is null)
+			{
+				return new TrueMarkTaskValidationResult(null);
+			}
+			
+			var codeResults = new List<TrueMarkCodeValidationResult>();
+			
+			foreach(var productInstanceStatus in productInstancesInfo.InstanceStatuses)
+			{
+				var code = codes.Where(x=>x.IdentificationCode == productInstanceStatus.IdentificationCode).First();
+				
+				var codeResult = CreateCodeValidationResult(productInstanceStatus, gtinNumbers,ourOrganizationInns, organizationInn);
+				codeResult.Code = code;
+		
+				codeResults.Add(codeResult);
+			}
+		
+			return new TrueMarkTaskValidationResult(codeResults);
 		}
 	}
 }

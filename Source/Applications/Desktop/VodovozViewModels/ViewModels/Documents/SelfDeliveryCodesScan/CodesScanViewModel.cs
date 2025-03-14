@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using MassTransit;
@@ -34,6 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IGenericRepository<GroupGtin> _groupGtinrepository;
 		private readonly IGenericRepository<Gtin> _gtinRepository;
+		private readonly ITrueMarkCodesValidator _trueMarkValidator;
 		private readonly IBus _messageBus;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly ILogger<CodesScanViewModel> _logger;
@@ -53,6 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IGenericRepository<GroupGtin> groupGtinrepository,
 			IGenericRepository<Gtin> gtinRepository,
+			ITrueMarkCodesValidator trueMarkValidator,
 			IBus messageBus,
 			IGuiDispatcher guiDispatcher
 		)
@@ -65,6 +68,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_groupGtinrepository = groupGtinrepository ?? throw new ArgumentNullException(nameof(groupGtinrepository));
 			_gtinRepository = gtinRepository ?? throw new ArgumentNullException(nameof(gtinRepository));
+			_trueMarkValidator = trueMarkValidator ?? throw new ArgumentNullException(nameof(trueMarkValidator));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
@@ -101,40 +105,43 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			CloseCommand = new DelegateCommand(CloseScanning, () => IsAllCodesScanned);
 			CloseCommand.CanExecuteChangedWith(this, vm => vm.IsAllCodesScanned);
 
-			_organizationInn = _selfDeliveryDocument.Order.Contract.Organization.INN;
+			lock(_unitOfWork)
+			{
+				_organizationInn = _selfDeliveryDocument.Order.Contract.Organization.INN;
 
-			_allGtins = _gtinRepository.GetValue(
-					_unitOfWork,
-					x =>
-						new GtinFromNomenclatureDto
-						{
-							GtinNumber = x.GtinNumber,
-							NomenclatureName = x.Nomenclature.Name,
-						})
-				.ToList();
+				_allGtins = _gtinRepository.GetValue(
+						_unitOfWork,
+						x =>
+							new GtinFromNomenclatureDto
+							{
+								GtinNumber = x.GtinNumber,
+								NomenclatureName = x.Nomenclature.Name,
+							})
+					.ToList();
 
-			_allGroupGtins = _groupGtinrepository.GetValue(
-					_unitOfWork,
-					x =>
-						new GtinFromNomenclatureDto
-						{
-							GtinNumber = x.GtinNumber,
-							NomenclatureName = x.Nomenclature.Name,
-							CodesCount = x.CodesCount
-						})
-				.ToList();
+				_allGroupGtins = _groupGtinrepository.GetValue(
+						_unitOfWork,
+						x =>
+							new GtinFromNomenclatureDto
+							{
+								GtinNumber = x.GtinNumber,
+								NomenclatureName = x.Nomenclature.Name,
+								CodesCount = x.CodesCount
+							})
+					.ToList();
 
-			var gtinsInOrder = _selfDeliveryDocument.Items
-				.SelectMany(i => i.Nomenclature.Gtins)
-				.Select(g => g.GtinNumber)
-				.ToList();
+				var gtinsInOrder = _selfDeliveryDocument.Items
+					.SelectMany(i => i.Nomenclature.Gtins)
+					.Select(g => g.GtinNumber)
+					.ToList();
 
-			var groupGtinsInOrder = _selfDeliveryDocument.Items
-				.SelectMany(i => i.Nomenclature.GroupGtins)
-				.Select(g => g.GtinNumber)
-				.ToList();
+				var groupGtinsInOrder = _selfDeliveryDocument.Items
+					.SelectMany(i => i.Nomenclature.GroupGtins)
+					.Select(g => g.GtinNumber)
+					.ToList();
 
-			_gtinsInOrder = gtinsInOrder.Union(groupGtinsInOrder).ToList();
+				_gtinsInOrder = gtinsInOrder.Union(groupGtinsInOrder).ToList();
+			}
 
 			RecursiveConfig = new RecursiveConfig<CodeScanRow>(x => x.Parent, x => x.Children);
 
@@ -313,7 +320,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						"Id потока: {TaskCurrentId} : Отправляем запрос на обработку кода {RawCode} в {TrueMarkWaterCodeParser)}",
 						Task.CurrentId, rawCode, nameof(_trueMarkWaterCodeParser));
 
-					result = _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_unitOfWork, code, _organizationInn, cancellationToken)
+					result = _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_unitOfWork, code, cancellationToken)
 						.GetAwaiter()
 						.GetResult();
 
@@ -339,7 +346,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					return;
 				}
 
-				UpdateCodeScanRowsByAnyCode(result.Value);
+				UpdateCodeScanRowsByAnyCode(result.Value, cancellationToken);
 			}
 			catch(Exception ex)
 			{
@@ -351,6 +358,80 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				UpdateCodeScanRows(code, gtin, additionalInformation: additionalInformation);
 
 				AddCodeToRecheck(rawCode);
+			}
+		}
+		
+		private void ValidateInTrueMark(List<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation(
+				"Id потока: {TaskCurrentId} : Отправляем запрос на валидацию кодов {Codes} в {TrueMarkValidator)}",
+				Task.CurrentId, string.Join(", ", codes), nameof(_trueMarkValidator));
+			
+			var trueMarkValidationResults = _trueMarkValidator
+				.ValidateAsync(codes, _organizationInn, cancellationToken)
+				.GetAwaiter()
+				.GetResult()
+				.CodeResults
+				.ToList();
+			
+			_logger.LogInformation(
+				"Id потока: {TaskCurrentId} : Получили ответ по валидации кодов {Codes} в {TrueMarkValidator)}",
+				Task.CurrentId, string.Join(", ", codes), nameof(_trueMarkValidator));
+
+			var additionalInformation = new List<string>();
+
+			if(!trueMarkValidationResults.Any())
+			{
+				additionalInformation.Add("Не получен результат валидации в ЧЗ");
+
+				UpdateCodeScanRows(string.Join(", ", codes.Select(x => x.RawCode)), null, false, additionalInformation);
+
+				return;
+			}
+
+			foreach(var code in codes)
+			{
+				additionalInformation.Clear();
+
+				var validationResult =
+					trueMarkValidationResults.FirstOrDefault(x => x.Code?.RawCode == code.RawCode);
+
+				if(validationResult is null)
+				{
+					additionalInformation.Add("Не получен результат валидации в ЧЗ для кода");
+
+					UpdateCodeScanRows(code.RawCode, code.GTIN, false, additionalInformation);
+					
+					_codesToRecheck.Add(code.RawCode);
+
+					continue;
+				}
+
+				if(!validationResult.IsIntroduced)
+				{
+					additionalInformation.Add("Код не в обороте");
+				}
+
+				if(!validationResult.IsOurGtin)
+				{
+					additionalInformation.Add("Это не наш код");
+				}
+
+				if(!validationResult.IsOwnedByOurOrganization)
+				{
+					additionalInformation.Add("Не мы являемся владельцем товара");
+				}
+
+				if(!validationResult.IsIntroduced || !validationResult.IsOurGtin || !validationResult.IsOwnedByOurOrganization)
+				{
+					UpdateCodeScanRows(code.RawCode, code.GTIN, false, additionalInformation);
+
+					continue;
+				}
+				
+				DistributeCodeOnNextSelfDeliveryItem(code);
+
+				UpdateCodeScanRows(code.RawCode, code.GTIN, true, additionalInformation);
 			}
 		}
 
@@ -472,7 +553,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 		}
 
-		private void UpdateCodeScanRowsByAnyCode(TrueMarkAnyCode anyCode)
+		private void UpdateCodeScanRowsByAnyCode(TrueMarkAnyCode anyCode, CancellationToken cancellationToken)
 		{
 			var codeInfo =
 				anyCode
@@ -529,15 +610,10 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				else
 				{
 					var rootAdditionalInformations = new List<string>();
-					bool? rootIsTrueMarkValid = null;
 					string rootGtin = null;
 
 					if(anyCode.IsTrueMarkWaterIdentificationCode)
 					{
-						rootAdditionalInformations =
-							GetAdditionalInformation(anyCode.TrueMarkWaterIdentificationCode.TrueMarkCodeValidationResult);
-						rootIsTrueMarkValid =
-							IsValidByTrueMarkCodeValidationResult(anyCode.TrueMarkWaterIdentificationCode.TrueMarkCodeValidationResult);
 						rootGtin = anyCode.TrueMarkWaterIdentificationCode.GTIN;
 					}
 
@@ -545,9 +621,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					rootNode.NomenclatureName = nomenclatureName;
 					rootNode.HasInOrder = hasInOrder;
 					rootNode.AdditionalInformation = string.Join(", ", rootAdditionalInformations);
-					rootNode.IsTrueMarkValid = rootIsTrueMarkValid;
 
-					UpdateCodeScanRows(rawCode, rootGtin, rootIsTrueMarkValid, rootAdditionalInformations);
+					UpdateCodeScanRows(rawCode, rootGtin, additionalInformation: rootAdditionalInformations);
 				}
 
 				if(childrenCodesList != null)
@@ -562,35 +637,19 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 							                x.CodeNumber == trueMarkWaterIdentificationCode.RawCode)
 						                ?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
 
-						var additionalInformations = GetAdditionalInformation(trueMarkWaterIdentificationCode.TrueMarkCodeValidationResult);
-
 						childNode.CodeNumber = trueMarkWaterIdentificationCode.RawCode;
 						childNode.NomenclatureName = GetNomenclatureNameByGtin(trueMarkWaterIdentificationCode.GTIN);
 						childNode.Parent = rootNode;
 						childNode.HasInOrder = hasInOrder;
-						childNode.IsTrueMarkValid =
-							IsValidByTrueMarkCodeValidationResult(trueMarkWaterIdentificationCode.TrueMarkCodeValidationResult);
-						childNode.AdditionalInformation = string.Join(", ", additionalInformations);
-
-						if(childNode.IsTrueMarkValid ?? false)
-						{
-							DistributeCodeOnNextSelfDeliveryItem(trueMarkWaterIdentificationCode);
-						}
 
 						rootNode.Children.Add(childNode);
-
-						UpdateCodeScanRows(trueMarkWaterIdentificationCode.RawCode, trueMarkWaterIdentificationCode.GTIN,
-							childNode.IsTrueMarkValid, new List<string> { childNode.AdditionalInformation });
 					}
 				}
-				else
-				{
-					if(rootNode.IsTrueMarkValid ?? false)
-					{
-						DistributeCodeOnNextSelfDeliveryItem(anyCode.TrueMarkWaterIdentificationCode);
-					}
-				}
+				
+				var toValidation =  childrenCodesList?? new List<TrueMarkWaterIdentificationCode>{anyCode.TrueMarkWaterIdentificationCode};
 
+				ValidateInTrueMark(toValidation, cancellationToken);
+				
 				RefreshCodeScanRows();
 			}
 		}
@@ -643,18 +702,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 
 			return additionalInformation;
-		}
-
-		private bool? IsValidByTrueMarkCodeValidationResult(TrueMarkCodeValidationResult trueMarkCodeValidationResult)
-		{
-			if(trueMarkCodeValidationResult is null)
-			{
-				return null;
-			}
-
-			return trueMarkCodeValidationResult.IsIntroduced
-			       && trueMarkCodeValidationResult.IsOurGtin
-			       && trueMarkCodeValidationResult.IsOwnedByOurOrganization;
 		}
 
 		private SelfDeliveryDocumentItem GetNextNotScannedDocumentItem(TrueMarkWaterIdentificationCode code)
