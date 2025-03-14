@@ -21,6 +21,7 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _isSortingDescByUnAllocatedSum;
 		private Counterparty _counterparty;
 		private PaymentJournalSortType _sortType;
+		private Type _documentType;
 
 		public PaymentsJournalFilterViewModel(
 			ILifetimeScope scope,
@@ -100,6 +101,28 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _sortType;
 			set => UpdateFilterField(ref _sortType, value);
+		}
+
+		public object DocumentTypeObject
+		{
+			get => DocumentType;
+			set
+			{
+				if(value is Type type)
+				{
+					DocumentType = type;
+				}
+				else
+				{
+					DocumentType = null;
+				}
+			}
+		}
+
+		public Type DocumentType
+		{
+			get => _documentType;
+			set => UpdateFilterField(ref _documentType, value);
 		}
 
 		public override bool IsShow { get; set; } = true;
