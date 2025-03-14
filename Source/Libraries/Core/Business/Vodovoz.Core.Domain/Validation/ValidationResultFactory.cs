@@ -34,6 +34,15 @@ namespace Vodovoz.Core.Domain.Validation
 			return new ValidationResult($"Указанная в свойстве {propertyDisplayName} дата {date:g} находится вне диапазона {minimalDate:g} - {maximalDate:g}", new[] { propertyDisplayName });
 		}
 
+		public ValidationResult CreateForLeZero(string propertyName)
+		{
+			var propertyDisplayName = GetPropertyDisplayName(propertyName);
+
+			_logger.LogWarning($"Ошибка валидации: Значение свойства {propertyDisplayName} должно быть больше нуля");
+
+			return new ValidationResult($"Значение свойства {propertyDisplayName} должно быть больше нуля", new[] { propertyDisplayName });
+		}
+
 		private string GetPropertyDisplayName(string propertyName)
 		{
 			if(TryGetPropertyDisplayName(propertyName, out var propertyDisplayName))

@@ -185,6 +185,11 @@ namespace VodovozBusiness.Domain.Payments
 			{
 				yield return validationResultFactory.CreateForNullProperty(nameof(FinancialExpenseCategoryId));
 			}
+
+			if(PaymentNumber <= 0)
+			{
+				yield return validationResultFactory.CreateForLeZero(nameof(PaymentNumber));
+			}
 		}
 	}
 }
