@@ -87,18 +87,14 @@ namespace Vodovoz.ViewModels.Cash.Payments
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
 
-		protected override bool BeforeSave()
+		public override bool Save(bool close)
 		{
 			if(!PaymentDate.HasValue)
 			{
 				CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error, "Необходимо заполнить дату платежа перед сохранением");
 				return false;
 			}
-			return base.BeforeSave();
-		}
 
-		public override bool Save(bool close)
-		{
 			Entity.CreatedAt = DateTime.Now;
 			Entity.PaymentDate = PaymentDate.Value;
 			return base.Save(close);
