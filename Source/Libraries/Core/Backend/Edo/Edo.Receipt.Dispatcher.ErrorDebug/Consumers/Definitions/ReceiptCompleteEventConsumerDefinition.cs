@@ -8,7 +8,7 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions
 	{
 		public ReceiptCompleteEventConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.receipt-complete.consumer.receipt-dispatcher");
+			Endpoint(x => x.Name = "edo.receipt-complete.consumer.receipt-dispatcher_error");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,

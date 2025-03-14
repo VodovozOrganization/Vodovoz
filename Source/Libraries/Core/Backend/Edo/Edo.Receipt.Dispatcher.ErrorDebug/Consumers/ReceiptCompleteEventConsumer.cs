@@ -22,6 +22,13 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers
 
 		public async Task Consume(ConsumeContext<ReceiptCompleteEvent> context)
 		{
+			// сообщение, вызвавшее ошибку
+			//var message = context.Message.Message;
+			var message = context.Message;
+
+			// исключение, вызвавшее ошибку
+			//var exception = context.Message.Exceptions.FirstOrDefault();
+
 			try
 			{
 				await _receiptEdoTaskHandler.HandleCompleted(context.Message.ReceiptEdoTaskId, context.CancellationToken);

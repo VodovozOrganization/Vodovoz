@@ -8,7 +8,7 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions
 	{
 		public ReceiptTaskCreatedEventConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.receipt-task-created.consumer.receipt-dispatcher");
+			Endpoint(x => x.Name = "edo.receipt-task-created.consumer.receipt-dispatcher_error");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
