@@ -5,7 +5,7 @@
 		public int ReceiptEdoTaskId { get; set; }
 	}
 
-	public class ReceiptSendEvent
+	public class ReceiptReadyToSendEvent
 	{
 		public int ReceiptEdoTaskId { get; set; }
 	}

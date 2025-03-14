@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using Edo.Contracts.Messages.Events;
+using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -61,10 +62,6 @@ namespace Edo.Receipt.Callback.Controllers
 				return;
 			}
 
-			var qrParts = qr.Split("&");
-			var fiscalDocNumber = qrParts.First(x => x.StartsWith("i")).Substring(2).TrimStart('0');
-			var fiscalDocMark = qrParts.First(x => x.StartsWith("fp")).Substring(3).TrimStart('0');
-
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var document = uow.Session.QueryOver<EdoFiscalDocument>()
@@ -78,15 +75,28 @@ namespace Edo.Receipt.Callback.Controllers
 					return;
 				}
 
+				if(document.Status == FiscalDocumentStatus.Completed)
+				{
+					_logger.LogWarning("Чек с GUID {receiptGuid} уже завершен.", receiptGuid);
+					HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+					return;
+				}
+
 				var updated = await TryUpdateReceiptInfoFromCashbox(document, cancellationToken);
 				if(!updated)
 				{
 					_logger.LogWarning("Не удалось получить подробную информацию о чеке из кассы, " +
 						"поэтому записываем только имеющиеся номер и марку документа из события завершения чека.");
 
+					var qrParts = qr.Split("&");
+					var fiscalDocNumber = qrParts.First(x => x.StartsWith("i")).Substring(2).TrimStart('0');
+					var fiscalDocMark = qrParts.First(x => x.StartsWith("fp")).Substring(3).TrimStart('0');
+
 					document.FiscalNumber = fiscalDocNumber;
 					document.FiscalMark = fiscalDocMark;
+
 					document.Status = FiscalDocumentStatus.Completed;
+					document.Stage = FiscalDocumentStage.Completed;
 					document.StatusChangeTime = DateTime.Now;
 				}
 
@@ -94,7 +104,7 @@ namespace Edo.Receipt.Callback.Controllers
 				await uow.CommitAsync(cancellationToken);
 
 				// сюда надо уведомление о завершении в диспетчер или проверку всех ФД на месте
-
+				
 				HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
 			}
 		}
@@ -126,6 +136,8 @@ namespace Edo.Receipt.Callback.Controllers
 			document.Status = ReceiptConverters.ConvertFiscalDocumentStatus(checkResult.FiscalDocumentInfo.Status);
 			document.StatusChangeTime = DateTime.Parse(checkResult.FiscalDocumentInfo.TimeStatusChangedString);
 			document.FiscalTime = DateTime.Parse(checkResult.FiscalDocumentInfo.FiscalInfo.Date);
+
+			document.Stage = FiscalDocumentStage.Completed;
 
 			return true;
 		}

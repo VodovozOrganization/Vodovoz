@@ -29,7 +29,7 @@ namespace Edo.Transfer.Dispatcher
 
 		public TransferEdoHandler(
 			ILogger<TransferEdoHandler> logger,
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWork uow,
 			EdoTaskValidator edoTaskValidator,
 			TransferTaskRepository transferTaskRepository,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
@@ -39,13 +39,13 @@ namespace Edo.Transfer.Dispatcher
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
 			_transferTaskRepository = transferTaskRepository ?? throw new ArgumentNullException(nameof(transferTaskRepository));
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_transferDispatcher = transferDispatcher ?? throw new ArgumentNullException(nameof(transferDispatcher));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-			_uow = uowFactory.CreateWithoutRoot();
 		}
 
 		public async Task HandleNewTransfer(int transferIterationId, CancellationToken cancellationToken)

@@ -28,11 +28,12 @@ namespace Edo.Common
 		{
 			_codeItems = GetCodeItems();
 			_codesStatuses.Clear();
-			foreach(var item in _codeItems)
+			var preparedCodes = _codeItems.Where(x => x.ProductCode.ResultCode != null);
+			foreach(var preparedCode in preparedCodes)
 			{
 				_codesStatuses.Add(
-					item.ProductCode.ResultCode.IdentificationCode,
-					new EdoTaskItemTrueMarkStatus { EdoTaskItem = item }
+					preparedCode.ProductCode.ResultCode.IdentificationCode,
+					new EdoTaskItemTrueMarkStatus { EdoTaskItem = preparedCode }
 				);
 			}
 			_codesChecked = false;
