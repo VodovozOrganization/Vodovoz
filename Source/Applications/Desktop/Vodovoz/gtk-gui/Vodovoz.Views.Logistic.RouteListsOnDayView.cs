@@ -178,7 +178,7 @@ namespace Vodovoz.Views.Logistic
 			this.buttonAutoCreate.CanFocus = true;
 			this.buttonAutoCreate.Name = "buttonAutoCreate";
 			this.buttonAutoCreate.UseUnderline = true;
-			this.buttonAutoCreate.Label = global::Mono.Unix.Catalog.GetString("Создать маршруты");
+			this.buttonAutoCreate.Label = global::Mono.Unix.Catalog.GetString("  Создать\nмаршруты");
 			this.table1.Add(this.buttonAutoCreate);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonAutoCreate]));
 			w1.LeftAttach = ((uint)(6));
