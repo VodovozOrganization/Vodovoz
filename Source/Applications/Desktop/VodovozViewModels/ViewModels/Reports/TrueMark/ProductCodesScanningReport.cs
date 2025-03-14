@@ -87,12 +87,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 					DriverSubdivisionGeoGroup = geoGroup.Name,
 					OrderId = order.Id,
 					MarkedProdictsInOrderCount = markedProductsInOrderCount,
-					ScannedCodeData = new ScannedCodeData
+					ScannedCodeData = scannedCode == null ? default : new ScannedCodeData
 					{
-						Problem = scannedCode == null ? ProductCodeProblem.Unscanned : scannedCode.Problem,
-						DuplicatesCount = scannedCode == null ? default : scannedCode.DuplicatesCount,
-						IsInvalid = identificationCode == null ? default : identificationCode.IsInvalid,
-						UnscannedCodesCount = scannedCode == null ? markedProductsInOrderCount : scannedCode.Problem == ProductCodeProblem.Unscanned ? 1 : 0
+						Problem = scannedCode.Problem,
+						DuplicatesCount = scannedCode.DuplicatesCount,
+						IsInvalid = identificationCode == null ? false : identificationCode.IsInvalid
 					}
 				};
 
@@ -114,7 +113,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 				var carOwnType = driverCodesData.Key.CarOwnType;
 				var driverSubdivisionGeoGroup = driverCodesData.Key.DriverSubdivisionGeoGroup;
 
-				var allCodes = driverCodesData.Value
+				var codes = driverCodesData.Value
+					.Where(x => x.ScannedCodeData != null)
 					.Select(x => x.ScannedCodeData)
 					.ToList();
 
@@ -122,17 +122,39 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 					.GroupBy(x => new { x.OrderId, x.MarkedProdictsInOrderCount })
 					.ToDictionary(g => g.Key, g => g.ToList());
 
+				var markedProductsInOrdersCount = codesByOrders.Select(x => x.Key.MarkedProdictsInOrderCount).Sum();
+
+				var scannedCodesCount = codes.Count;
+				var unscannedCodesCount = markedProductsInOrdersCount - scannedCodesCount;
+
+				var successfullyScanedCodesProblems = new[] { ProductCodeProblem.None, ProductCodeProblem.Unscanned, ProductCodeProblem.Defect };
+
+				var validCodes = codes.Where(x => !x.IsInvalid).ToList();
+				var inValidCodes = codes.Where(x => x.IsInvalid).ToList();
+
 				var row = new Row();
 
 				row.DriverFIO = driver;
 				row.CarOwnTypeString = carOwnType == null ? string.Empty : carOwnType.Value.GetEnumDisplayName();
 				row.DriverSubdivisionGeoGroup = driverSubdivisionGeoGroup;
-				row.TotalCodesCount = codesByOrders.Select(x => x.Key.MarkedProdictsInOrderCount).Sum();
-				row.SuccessfullyScannedCodesCount = allCodes.Count(x => x.Problem == ProductCodeProblem.None && !x.IsInvalid);
-				row.UnscannedCodesCount = allCodes.Where(x => x.Problem == ProductCodeProblem.Unscanned && !x.IsInvalid).Sum(x => x.UnscannedCodesCount);
-				row.SingleDuplicatedCodesCount = allCodes.Count(x => x.Problem == ProductCodeProblem.Duplicate && x.DuplicatesCount <= 1 && !x.IsInvalid);
-				row.MultiplyDuplicatedCodesCount = allCodes.Count(x => x.Problem == ProductCodeProblem.Duplicate && x.DuplicatesCount > 1 && !x.IsInvalid);
-				row.InvalidCodesCount = allCodes.Count(x => x.IsInvalid);
+
+				row.TotalCodesCount = markedProductsInOrdersCount;
+
+				row.SuccessfullyScannedCodesCount =
+					validCodes
+					.Count(x => successfullyScanedCodesProblems.Contains(x.Problem));
+
+				row.UnscannedCodesCount = unscannedCodesCount >= 0 ? unscannedCodesCount : 0;
+
+				row.SingleDuplicatedCodesCount =
+					validCodes
+					.Count(x => x.Problem == ProductCodeProblem.Duplicate && x.DuplicatesCount <= 1);
+
+				row.MultiplyDuplicatedCodesCount =
+					validCodes
+					.Count(x => x.Problem == ProductCodeProblem.Duplicate && x.DuplicatesCount > 1);
+
+				row.InvalidCodesCount = inValidCodes.Count();
 
 				rows.Add(row);
 				counter++;

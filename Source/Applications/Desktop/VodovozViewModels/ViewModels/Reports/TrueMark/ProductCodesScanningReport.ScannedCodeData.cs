@@ -9,7 +9,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			public ProductCodeProblem Problem { get; set; }
 			public int DuplicatesCount { get; set; }
 			public bool IsInvalid { get; set; }
-			public int UnscannedCodesCount { get; set; }
 		}
 	}
 }
