@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using NHibernate.Util;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 
 namespace Pacs.Server.Phones
@@ -12,15 +12,13 @@ namespace Pacs.Server.Phones
 		private readonly ILogger<OperatorPhoneService> _logger;
 		private readonly IPhoneRepository _pacsPhoneRepository;
 
-		private Dictionary<string, int> _phones;
-		private Dictionary<int, string> _operatorPhones;
+		private readonly ConcurrentDictionary<string, int> _phones = new ConcurrentDictionary<string, int>();
+		private readonly ConcurrentDictionary<int, string> _operatorPhones = new ConcurrentDictionary<int, string>();
 
 		public OperatorPhoneService(ILogger<OperatorPhoneService> logger, IPhoneRepository pacsPhoneRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_pacsPhoneRepository = pacsPhoneRepository ?? throw new ArgumentNullException(nameof(pacsPhoneRepository));
-			_phones = new Dictionary<string, int>();
-			_operatorPhones = new Dictionary<int, string>();
 
 			LoadAssignments();
 		}
@@ -28,19 +26,41 @@ namespace Pacs.Server.Phones
 		private void LoadAssignments()
 		{
 			var assignments = _pacsPhoneRepository.GetPhoneAssignments();
+
 			foreach(var assignment in assignments)
 			{
-				_phones.Add(assignment.Phone, assignment.OperatorId);
+				if(!_phones.TryGetValue(assignment.Phone, out var operatorId))
+				{
+					_phones.TryAdd(assignment.Phone, assignment.OperatorId);
+				}
+				else if(operatorId != assignment.OperatorId)
+				{
+					_phones.TryUpdate(assignment.Phone, assignment.OperatorId, operatorId);
+				}
+
 				if(assignment.OperatorId != 0)
 				{
-					_operatorPhones.Add(assignment.OperatorId, assignment.Phone);
+					if(!_operatorPhones.TryGetValue(assignment.OperatorId, out var phoneNumber))
+					{
+						_operatorPhones.TryAdd(assignment.OperatorId, assignment.Phone);
+					}
+					else if(phoneNumber != assignment.Phone)
+					{
+						_operatorPhones.TryUpdate(assignment.OperatorId, assignment.Phone, phoneNumber);
+					}
 				}
 			}
 
 			_logger.LogInformation("Загружены привязки номеров. Используемых номеров: {AssignmentPhonesCount}", _operatorPhones.Count);
-			if(_operatorPhones.Any())
+
+			if(!_operatorPhones.Any())
 			{
-				_logger.LogInformation(string.Join("\n", _operatorPhones.Select(x => $"Оператор: {x.Key}, Тел.: {x.Value}")));
+				return;
+			}
+
+			foreach(var operatorAssignment in _operatorPhones)
+			{
+				_logger.LogInformation("Загружена привязка оператора: {OperatorId}, к телефону: {PhoneNumber}", operatorAssignment.Key, operatorAssignment.Value);
 			}
 		}
 
@@ -48,24 +68,34 @@ namespace Pacs.Server.Phones
 		{
 			_logger.LogInformation("Обновление телефонов");
 			var assignments = _pacsPhoneRepository.GetPhoneAssignments();
+
 			foreach(var assignment in assignments)
 			{
 				if(_phones.ContainsKey(assignment.Phone))
 				{
 					continue;
 				}
+
 				_logger.LogInformation("Добавление телефона {phone}", assignment.Phone);
-				_phones.Add(assignment.Phone, assignment.OperatorId);
+
+				if(!_phones.TryGetValue(assignment.Phone, out var operatorId))
+				{
+					_phones.TryAdd(assignment.Phone, assignment.OperatorId);
+				}
+				else if(operatorId != assignment.OperatorId)
+				{
+					_phones.TryUpdate(assignment.Phone, assignment.OperatorId, operatorId);
+				}
 			}
 		}
 
 		public bool ValidatePhone(string phone)
 		{
-			var unknownPhone = _phones.ContainsKey(phone);
-			if(!unknownPhone)
+			if(!_phones.ContainsKey(phone))
 			{
 				UpdatePhones();
 			}
+
 			return _phones.ContainsKey(phone);
 		}
 
@@ -76,9 +106,12 @@ namespace Pacs.Server.Phones
 				return false;
 			}
 
-			if(_phones[phone] == 0)
+			if(_phones.TryGetValue(phone, out var currentAssignedOperatorId))
 			{
-				return true;
+				if(currentAssignedOperatorId == 0)
+				{
+					return true;
+				}
 			}
 
 			return !_operatorPhones.ContainsKey(operatorId);
@@ -86,69 +119,64 @@ namespace Pacs.Server.Phones
 
 		public void AssignPhone(string phone, int operatorId)
 		{
-			lock(_operatorPhones)
-			{
-				Assign(phone, operatorId);
-			}
-		}
-
-		public void ReleasePhone(string phone)
-		{
-			lock(_operatorPhones)
-			{
-				Release(phone);
-			}
-		}
-
-		private void Assign(string phone, int operatorId)
-		{
-			if(!_phones.ContainsKey(phone))
+			if(!_phones.TryGetValue(phone, out var currentOperatorId))
 			{
 				throw new PacsPhoneException($"Неизвестный номер телефона {phone}");
 			}
 
-			var currentOperator = _phones[phone];
-			if(currentOperator != 0)
+			if(currentOperatorId != 0)
 			{
 				throw new PacsPhoneException($"Телефонный номер {phone} уже использует другой оператор");
 			}
 
-			_phones[phone] = operatorId;
-
-			if(_operatorPhones.ContainsKey(operatorId))
+			if(!_phones.TryUpdate(phone, operatorId, currentOperatorId))
 			{
-				_operatorPhones[operatorId] = phone;
+				throw new PacsPhoneException($"Телефонный номер {phone} уже использует другой оператор");
+			}
+
+			if(_operatorPhones.TryGetValue(operatorId, out var currentOperatorPhone))
+			{
+				_operatorPhones.TryUpdate(operatorId, phone, currentOperatorPhone);
 			}
 			else
 			{
-				_operatorPhones.Add(operatorId, phone);
+				if(!_operatorPhones.TryAdd(operatorId, phone))
+				{
+					throw new PacsPhoneException($"Не удалось зарезервировать телефон {phone} попробуйте еще раз");
+				}
 			}
 
 			_logger.LogInformation("Телефон {Phone} привязан к оператору {OperatorId}", phone, operatorId);
 		}
 
-		private void Release(string phone)
+		public void ReleasePhone(string phone)
 		{
 			if(phone.IsNullOrWhiteSpace())
 			{
 				return;
 			}
 
-			if(!_phones.ContainsKey(phone))
+			if(!_phones.TryGetValue(phone, out var currentOperatorId))
 			{
 				throw new PacsPhoneException($"Неизвестный номер телефона {phone}");
 			}
 
-			var currentOperator = _phones[phone];
-			if(currentOperator == 0)
+			if(currentOperatorId == 0)
 			{
 				return;
 			}
 
-			_operatorPhones[currentOperator] = null;
-			_phones[phone] = 0;
+			if(!_operatorPhones.TryRemove(currentOperatorId, out var _))
+			{
+				_logger.LogWarning("Ошибка при удалении резервации оператора к телефону {OperatorId}", currentOperatorId);
+			}
 
-			_logger.LogInformation("Телефон {Phone} отвязан от оператора {OperatorId}", phone, currentOperator);
+			if(!_phones.TryUpdate(phone, 0, currentOperatorId))
+			{
+				_logger.LogWarning("Ошибка при удалении резервации телефона к оператору {OperatorId}", currentOperatorId);
+			}
+
+			_logger.LogInformation("Телефон {Phone} отвязан от оператора {OperatorId}", phone, currentOperatorId);
 		}
 	}
 }
