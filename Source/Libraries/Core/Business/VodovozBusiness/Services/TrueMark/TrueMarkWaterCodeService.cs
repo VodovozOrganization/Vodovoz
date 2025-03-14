@@ -651,7 +651,7 @@ namespace VodovozBusiness.Services.TrueMark
 		{
 			var identificationCode = instanceStatus.IdentificationCode;
 
-			var rawCode = "\u00e8" + identificationCode + "\u00e8";
+			var rawCode = "\\u001d" + identificationCode + "\\u001d";
 
 			var serialNumber = identificationCode
 				.Replace(instanceStatus.Gtin, "")

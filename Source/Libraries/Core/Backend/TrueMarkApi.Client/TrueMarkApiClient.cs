@@ -17,12 +17,18 @@ namespace TrueMarkApi.Client
 	{
 		private static HttpClient _httpClient;
 
-		public TrueMarkApiClient(string trueMarkApiBaseUrl, string trueMarkApiToken)
+		public TrueMarkApiClient(HttpClient httpClient, string trueMarkApiBaseUrl, string trueMarkApiToken)
 		{
-			_httpClient = new HttpClient()
+			var needInitialize = _httpClient is null;
+			
+			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+
+			if(_httpClient.BaseAddress != null)
 			{
-				BaseAddress = new Uri(trueMarkApiBaseUrl)
-			};
+				return;
+			}
+
+			_httpClient.BaseAddress = new Uri(trueMarkApiBaseUrl);
 			_httpClient.DefaultRequestHeaders.Accept.Clear();
 			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", trueMarkApiToken);

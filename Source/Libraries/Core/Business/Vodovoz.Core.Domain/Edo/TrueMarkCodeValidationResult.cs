@@ -1,10 +1,11 @@
 ﻿using System;
-using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Common
+namespace Vodovoz.Core.Domain.Edo
 {
 	public class TrueMarkCodeValidationResult
 	{
+		private readonly TrueMarkWaterIdentificationCode _code;
+
 		public TrueMarkCodeValidationResult(
 			TrueMarkWaterIdentificationCode code,
 			EdoTaskItem edoTaskItem
@@ -14,10 +15,7 @@ namespace Edo.Common
 			EdoTaskItem = edoTaskItem ?? throw new ArgumentNullException(nameof(edoTaskItem));
 		}
 
-		public TrueMarkCodeValidationResult(TrueMarkWaterIdentificationCode code)
-		{
-			Code = code ?? throw new ArgumentNullException(nameof(code));
-		}
+		public TrueMarkCodeValidationResult() { }
 
 		public bool IsValid { get; set; } = true;
 		public bool ReadyToSell { get; set; } = true;
