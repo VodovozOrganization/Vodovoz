@@ -8,5 +8,6 @@ namespace Vodovoz.Core.Domain.Validation
 	{
 		ValidationResult CreateForDateNotInRange(string propertyName, DateTime minimalDate, DateTime maximalDate, DateTime? date);
 		ValidationResult CreateForNullProperty(string propertyName);
+		ValidationResult CreateForLeZero(string propertyName);
 	}
 }
