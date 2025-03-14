@@ -512,7 +512,7 @@ namespace Receipt.Dispatcher.Tests
 			var edoTaskTrueMarkCodeCheckerFactory = CreateEdoTaskItemTrueMarkStatusProviderFactoryFixture(trueMarkClientFactoryFixture);
 			var transferRequestCreator = CreateTransferRequestCreatorFixture(edoRepository);
 			var edoReceiptSettings = Substitute.For<IEdoReceiptSettings>();
-			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository);
+			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, trueMarkClientFactoryFixture.GetClient());
 			var trueMarkCodesPool = CreateTrueMarkCodesPoolFixture(unitOfWork);
 			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
@@ -583,9 +583,9 @@ namespace Receipt.Dispatcher.Tests
 			return new TransferRequestCreator(edoRepository);
 		}
 
-		private TrueMarkTaskCodesValidator CreateTrueMarkTaskCodesValidatorFixture(IEdoRepository edoRepository)
+		private TrueMarkTaskCodesValidator CreateTrueMarkTaskCodesValidatorFixture(IEdoRepository edoRepository, ITrueMarkApiClient trueMarkApiClient)
 		{
-			return new TrueMarkTaskCodesValidator(edoRepository);
+			return new TrueMarkTaskCodesValidator(edoRepository, trueMarkApiClient);
 		}
 
 		private TrueMarkCodesPool CreateTrueMarkCodesPoolFixture(IUnitOfWork unitOfWork)

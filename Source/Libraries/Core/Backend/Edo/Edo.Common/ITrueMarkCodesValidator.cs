@@ -14,5 +14,7 @@ namespace Edo.Common
 			IEnumerable<ProductInstanceStatus> productInstanceStatuses,
 			string organizationInn,
 			CancellationToken cancellationToken);
+		
+		Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<TrueMarkWaterIdentificationCode> codes, string organizationInn, CancellationToken cancellationToken);
 	}
 }

@@ -186,7 +186,5 @@ namespace Vodovoz.Core.Domain.Edo
 
 			return sb.ToString();
 		}
-		
-		public virtual TrueMarkCodeValidationResult TrueMarkCodeValidationResult { get; set; }
 	}
 }
