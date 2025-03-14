@@ -1540,10 +1540,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			District districtAlias = null;
 			GeoGroup geographicGroupAlias = null;
 			VodovozOrder orderAlias = null;
+			Counterparty clientAlias = null;
 
 			var mainQuery = QueryOver.Of(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => orderAlias.DeliverySchedule, () => deliveryScheduleAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => clientAlias)
 				.Where(() => orderAlias.DeliveryDate == orderOnDayFilters.DateForRouting.Date)
 				.Where(() => !orderAlias.SelfDelivery)
 				.Where(() => orderAlias.DeliveryPoint != null)
@@ -1595,9 +1597,24 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.WhereRestrictionOn(() => districtAlias.GeographicGroup.Id).IsIn(orderOnDayFilters.GeographicGroupIds);
 			}
 
-			if(!orderOnDayFilters.FastDeliveryEnabled)
+			if(orderOnDayFilters.FastDeliveryEnabled || orderOnDayFilters.IsCodesScanInWarehouseRequired)
 			{
-				mainQuery.Where(() => !orderAlias.IsFastDelivery);
+				var additionalParametersRestriction = Restrictions.Conjunction();
+
+				if(orderOnDayFilters.FastDeliveryEnabled)
+				{
+					additionalParametersRestriction.Add(() => orderAlias.IsFastDelivery);
+				}
+
+				if(orderOnDayFilters.IsCodesScanInWarehouseRequired)
+				{
+					additionalParametersRestriction.Add(Restrictions.Conjunction()
+						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
+						.Add(() => clientAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+						.Add(() => clientAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute));
+				}
+
+				mainQuery.Where(additionalParametersRestriction);
 			}
 
 			mainQuery.WhereRestrictionOn(() => orderAlias.OrderAddressType)

@@ -9,6 +9,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		public DateTime DateForRouting { get; set; }
 		public bool ShowCompleted { get; set; }
 		public bool FastDeliveryEnabled { get; set; }
+		public bool IsCodesScanInWarehouseRequired { get; set; }
 		public IEnumerable<OrderAddressType> OrderAddressTypes { get; set; }
 		public int ClosingDocumentDeliveryScheduleId { get; set; }
 		public int[] GeographicGroupIds { get; set; }
