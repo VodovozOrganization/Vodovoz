@@ -224,186 +224,184 @@ namespace Edo.Documents
 
 				var codeItemsToAssign = new List<EdoUpdInventPositionCode>();
 
-				var assignedQuantity = 0;
-				while(assignedQuantity < orderItem.Count)
+				if(orderItem.Nomenclature.IsAccountableInTrueMark)
 				{
-					// Необходимо найти коды для номенклатуры на все кол-во
-					// и привязать их к инвентарной позиции УПД
-
-					var availableQuantity = orderItem.Count - assignedQuantity;
-
-					// сначала ищем и назначем из групповых кодов
-
-					var availableGroupGtins = orderItem.Nomenclature.GroupGtins
-						.Where(x => x.CodesCount <= availableQuantity)
-						.OrderByDescending(x => x.CodesCount);
-
-					TrueMarkWaterGroupCode groupCode = null;
-					foreach(var availableGtin in availableGroupGtins)
+					var assignedQuantity = 0;
+					while(assignedQuantity < orderItem.Count)
 					{
-						groupCode = groupCodesWithTaskItems.Keys.FirstOrDefault(x => x.GTIN == availableGtin.GtinNumber);
-						if(groupCode == null)
+						// Необходимо найти коды для номенклатуры на все кол-во
+						// и привязать их к инвентарной позиции УПД
+
+						var availableQuantity = orderItem.Count - assignedQuantity;
+
+						// сначала ищем и назначем из групповых кодов
+
+						var availableGroupGtins = orderItem.Nomenclature.GroupGtins
+							.Where(x => x.CodesCount <= availableQuantity)
+							.OrderByDescending(x => x.CodesCount);
+
+						TrueMarkWaterGroupCode groupCode = null;
+						foreach(var availableGtin in availableGroupGtins)
 						{
-							continue;
-						}
-
-						// установка в ResultCode всем ProductCode в группе
-						var groupTaskItems = groupCodesWithTaskItems[groupCode];
-						foreach(var groupTaskItem in groupTaskItems)
-						{
-							groupTaskItem.ProductCode.ResultCode = groupTaskItem.ProductCode.SourceCode;
-							groupTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;
-						}
-
-						groupCodesWithTaskItems.Remove(groupCode);
-						break;
-					}
-
-					if(groupCode != null)
-					{
-						var codesInGroup = groupCode.GetAllCodes()
-									.Where(x => x.IsTrueMarkWaterIdentificationCode)
-									.Count();
-
-						var codeItem = new EdoUpdInventPositionCode
-						{
-							GroupCode = groupCode,
-							Quantity = codesInGroup
-						};
-						codeItemsToAssign.Add(codeItem);
-
-						assignedQuantity += codesInGroup;
-						continue;
-					}
-
-
-
-					// затем, если ничего не смогли взять из групповых, то ищем и назначаем из индивидуальных
-					// в которыех есть заполенный SourceCode, т.е. исключаем неотсканированные позиции задачи
-					var validUnprocessedCodes = unprocessedCodes
-						.Where(x => x.ProductCode.SourceCode != null)
-						.ToList();
-
-					TrueMarkWaterIdentificationCode individualCode = null;
-					var availableGtins = orderItem.Nomenclature.Gtins.Select(x => x.GtinNumber);
-					foreach(var availableGtin in availableGtins)
-					{
-						var availableCode = validUnprocessedCodes.FirstOrDefault(x => x.ProductCode.SourceCode.GTIN == availableGtin);
-						if(availableCode == null)
-						{
-							continue;
-						}
-
-						// ResultCode будет заполнен, если проиходит повторное создание документов
-						// индивидуальные коды при этом будут обновлены после валидации
-						if(availableCode.ProductCode.ResultCode == null)
-						{
-							if(availableCode.ProductCode.Problem == ProductCodeProblem.None)
+							groupCode = groupCodesWithTaskItems.Keys.FirstOrDefault(x => x.GTIN == availableGtin.GtinNumber);
+							if(groupCode == null)
 							{
-								availableCode.ProductCode.ResultCode = availableCode.ProductCode.SourceCode;
-								availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;
+								continue;
 							}
-							else
+
+							// установка в ResultCode всем ProductCode в группе
+							var groupTaskItems = groupCodesWithTaskItems[groupCode];
+							foreach(var groupTaskItem in groupTaskItems)
 							{
+								groupTaskItem.ProductCode.ResultCode = groupTaskItem.ProductCode.SourceCode;
+								groupTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;
+							}
+
+							groupCodesWithTaskItems.Remove(groupCode);
+							break;
+						}
+
+						if(groupCode != null)
+						{
+							var codesInGroup = groupCode.GetAllCodes()
+										.Where(x => x.IsTrueMarkWaterIdentificationCode)
+										.Count();
+
+							var codeItem = new EdoUpdInventPositionCode
+							{
+								GroupCode = groupCode,
+								Quantity = codesInGroup
+							};
+							codeItemsToAssign.Add(codeItem);
+
+							assignedQuantity += codesInGroup;
+							continue;
+						}
+
+
+
+						// затем, если ничего не смогли взять из групповых, то ищем и назначаем из индивидуальных
+						// в которыех есть заполенный SourceCode, т.е. исключаем неотсканированные позиции задачи
+						var validUnprocessedCodes = unprocessedCodes
+							.Where(x => x.ProductCode.SourceCode != null)
+							.ToList();
+
+						TrueMarkWaterIdentificationCode individualCode = null;
+						var availableGtins = orderItem.Nomenclature.Gtins.Select(x => x.GtinNumber);
+						foreach(var availableGtin in availableGtins)
+						{
+							var availableCode = validUnprocessedCodes.FirstOrDefault(x => x.ProductCode.SourceCode.GTIN == availableGtin);
+							if(availableCode == null)
+							{
+								continue;
+							}
+
+							// ResultCode будет заполнен, если проиходит повторное создание документов
+							// индивидуальные коды при этом будут обновлены после валидации
+							if(availableCode.ProductCode.ResultCode == null)
+							{
+								if(availableCode.ProductCode.Problem == ProductCodeProblem.None)
+								{
+									availableCode.ProductCode.ResultCode = availableCode.ProductCode.SourceCode;
+									availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;
+								}
+								else
+								{
+									var fromPoolCodeId = await _trueMarkCodesPool.TakeCode(availableGtin, cancellationToken);
+									var newCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(fromPoolCodeId);
+									availableCode.ProductCode.ResultCode = newCode;
+									availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
+								}
+							}
+
+							individualCode = availableCode.ProductCode.ResultCode;
+							validUnprocessedCodes.Remove(availableCode);
+							unprocessedCodes.Remove(availableCode);
+							break;
+						}
+
+						if(individualCode != null)
+						{
+							var codeItem = new EdoUpdInventPositionCode
+							{
+								IndividualCode = individualCode,
+								Quantity = 1
+							};
+
+							codeItemsToAssign.Add(codeItem);
+							assignedQuantity++;
+							continue;
+						}
+
+
+
+						// затем, если ничего не смогли взять из индивидуальных, то берем неотсканированную позицию
+						// заполняем ее из пула и используем в назначении
+						var unscannedCodes = unprocessedCodes
+							.Where(x => x.ProductCode.SourceCode == null)
+							.ToList();
+
+						var unscannedCode = unscannedCodes.FirstOrDefault();
+						if(unscannedCode != null)
+						{
+							// ResultCode будет заполнен, если проиходит повторное создание документов
+							// индивидуальные коды при этом будут обновлены после валидации
+							if(unscannedCode.ProductCode.ResultCode == null)
+							{
+								var availableGtin = orderItem.Nomenclature.Gtins.First().GtinNumber;
 								var fromPoolCodeId = await _trueMarkCodesPool.TakeCode(availableGtin, cancellationToken);
 								var newCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(fromPoolCodeId);
-								availableCode.ProductCode.ResultCode = newCode;
-								availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
+								unscannedCode.ProductCode.ResultCode = newCode;
+								unscannedCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 							}
+
+							unprocessedCodes.Remove(unscannedCode);
+
+							var codeItem = new EdoUpdInventPositionCode
+							{
+								IndividualCode = unscannedCode.ProductCode.ResultCode,
+								Quantity = 1
+							};
+
+							codeItemsToAssign.Add(codeItem);
+							assignedQuantity++;
+							continue;
 						}
 
-						individualCode = availableCode.ProductCode.ResultCode;
-						validUnprocessedCodes.Remove(availableCode);
-						unprocessedCodes.Remove(availableCode);
-						break;
-					}
 
-					if(individualCode != null)
-					{
-						var codeItem = new EdoUpdInventPositionCode
+
+						// если не отсканированных нет, но назначить код все еще есть необходимость
+						// то создаем новый taskItem и назначаем код из пула в него и в инвентарную позицию УПД
+						var forNewAvailableGtin = orderItem.Nomenclature.Gtins.First().GtinNumber;
+						var forNewFromPoolCodeId = await _trueMarkCodesPool.TakeCode(forNewAvailableGtin, cancellationToken);
+						var forNewCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(forNewFromPoolCodeId);
+						var newTaskItem = new EdoTaskItem
 						{
-							IndividualCode = individualCode,
+							ProductCode = new AutoTrueMarkProductCode
+							{
+								ResultCode = forNewCode,
+								SourceCode = forNewCode,
+								SourceCodeStatus = SourceProductCodeStatus.Accepted,
+								Problem = ProductCodeProblem.None
+							},
+							CustomerEdoTask = documentEdoTask
+						};
+						documentEdoTask.Items.Add(newTaskItem);
+
+						var forNewCodeItem = new EdoUpdInventPositionCode
+						{
+							IndividualCode = newTaskItem.ProductCode.ResultCode,
 							Quantity = 1
 						};
 
-						codeItemsToAssign.Add(codeItem);
+						codeItemsToAssign.Add(forNewCodeItem);
 						assignedQuantity++;
-						continue;
 					}
-
-
-
-					// затем, если ничего не смогли взять из индивидуальных, то берем неотсканированную позицию
-					// заполняем ее из пула и используем в назначении
-					var unscannedCodes = unprocessedCodes
-						.Where(x => x.ProductCode.SourceCode == null)
-						.ToList();
-
-					var unscannedCode = unscannedCodes.FirstOrDefault();
-					if(unscannedCode != null)
-					{
-						// ResultCode будет заполнен, если проиходит повторное создание документов
-						// индивидуальные коды при этом будут обновлены после валидации
-						if(unscannedCode.ProductCode.ResultCode == null)
-						{
-							var availableGtin = orderItem.Nomenclature.Gtins.First().GtinNumber;
-							var fromPoolCodeId = await _trueMarkCodesPool.TakeCode(availableGtin, cancellationToken);
-							var newCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(fromPoolCodeId);
-							unscannedCode.ProductCode.ResultCode = newCode;
-							unscannedCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
-						}
-
-						unprocessedCodes.Remove(unscannedCode);
-
-						var codeItem = new EdoUpdInventPositionCode
-						{
-							IndividualCode = unscannedCode.ProductCode.ResultCode,
-							Quantity = 1
-						};
-
-						codeItemsToAssign.Add(codeItem);
-						assignedQuantity++;
-						continue;
-					}
-
-
-
-					// если не отсканированных нет, но назначить код все еще есть необходимость
-					// то создаем новый taskItem и назначаем код из пула в него и в инвентарную позицию УПД
-					var forNewAvailableGtin = orderItem.Nomenclature.Gtins.First().GtinNumber;
-					var forNewFromPoolCodeId = await _trueMarkCodesPool.TakeCode(forNewAvailableGtin, cancellationToken);
-					var forNewCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(forNewFromPoolCodeId);
-					var newTaskItem = new EdoTaskItem
-					{
-						ProductCode = new AutoTrueMarkProductCode
-						{
-							ResultCode = forNewCode,
-							SourceCode = forNewCode,
-							SourceCodeStatus = SourceProductCodeStatus.Accepted,
-							Problem = ProductCodeProblem.None
-						},
-						CustomerEdoTask = documentEdoTask
-					};
-					documentEdoTask.Items.Add(newTaskItem);
-
-					var forNewCodeItem = new EdoUpdInventPositionCode
-					{
-						IndividualCode = newTaskItem.ProductCode.ResultCode,
-						Quantity = 1
-					};
-
-					codeItemsToAssign.Add(forNewCodeItem);
-					assignedQuantity++;
 				}
 
 				var inventPosition = new EdoUpdInventPosition();
 				inventPosition.AssignedOrderItem = orderItem;
 				inventPosition.Codes = codeItemsToAssign;
-
-				if(orderItem.Count != inventPosition.Codes.Sum(x => x.Quantity))
-				{
-					throw new InvalidOperationException("Сумма назначенных кодов не совпадает с кол-вом товаров");
-				}
 
 				updInventPositions.Add(inventPosition);
 			}

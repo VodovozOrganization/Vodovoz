@@ -86,15 +86,17 @@ namespace Edo.Transfer.Dispatcher
 				x.ToOrganizationId
 			));
 
-			var addRequestsTasks = requestsGroups.Select(requestsGroup => 
-				_transferDispatcher.AddRequestsToTask(
-					_uow, 
-					requestsGroup, 
+			var transferTasks = new List<TransferEdoTask>();
+			foreach(var requestsGroup in requestsGroups)
+			{
+				var transferTask = await _transferDispatcher.AddRequestsToTask(
+					_uow,
+					requestsGroup,
 					cancellationToken
-				)
-			);
+				);
+				transferTasks.Add(transferTask);
+			}
 
-			var transferTasks = await Task.WhenAll(addRequestsTasks);
 			var sentTasks = transferTasks.Where(x => x.TransferStatus == TransferEdoTaskStatus.InProgress);
 			await _uow.CommitAsync(cancellationToken);
 
