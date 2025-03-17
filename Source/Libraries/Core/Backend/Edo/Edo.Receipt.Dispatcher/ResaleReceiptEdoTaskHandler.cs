@@ -133,7 +133,7 @@ namespace Edo.Receipt.Dispatcher
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-			var sendReceiptMessage = new ReceiptSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
+			var sendReceiptMessage = new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
 			await _messageBus.Publish(sendReceiptMessage);
 		}
 
@@ -187,7 +187,7 @@ namespace Edo.Receipt.Dispatcher
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-			var sendReceiptMessage = new ReceiptSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
+			var sendReceiptMessage = new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
 			await _messageBus.Publish(sendReceiptMessage);
 		}
 

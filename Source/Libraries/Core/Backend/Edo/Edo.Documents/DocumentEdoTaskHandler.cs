@@ -12,6 +12,8 @@ using TrueMark.Contracts;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using NHibernate;
 
 namespace Edo.Documents
 {
@@ -62,6 +64,19 @@ namespace Edo.Documents
 		public async Task HandleNew(int documentEdoTaskId, CancellationToken cancellationToken)
 		{
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
+
+			if(edoTask == null)
+			{
+				_logger.LogInformation("Задача Id {documentEdoTaskId} не найдена", documentEdoTaskId);
+				return;
+			}
+
+			// предзагрузка для ускорения
+			await _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
+				.ListAsync();
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);

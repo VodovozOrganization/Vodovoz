@@ -119,6 +119,7 @@ namespace Edo.Receipt.Sender
 							continue;
 						}
 
+						edoFiscalDocument.Stage = FiscalDocumentStage.Sent;
 						edoFiscalDocument.Status = ReceiptConverters.ConvertFiscalDocumentStatus(result.FiscalDocumentInfo.Status);
 						edoFiscalDocument.StatusChangeTime = DateTime.Parse(result.FiscalDocumentInfo.TimeStatusChangedString);
 						if(result.FiscalDocumentInfo.FiscalInfo != null)
@@ -171,7 +172,5 @@ namespace Edo.Receipt.Sender
 				}
 			}
 		}
-
-		
 	}
 }
