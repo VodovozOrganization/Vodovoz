@@ -36,7 +36,6 @@ namespace Vodovoz.Domain.Goods
 		private IObservableList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new ObservableList<NomenclatureInnerDeliveryPrice>();
 		private IObservableList<AlternativeNomenclaturePrice> _alternativeNomenclaturePrices =
 			new ObservableList<AlternativeNomenclaturePrice>();
-		private GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
@@ -301,9 +300,6 @@ namespace Vodovoz.Domain.Goods
 			get => _nomenclatureOnlineParameters;
 			set => SetField(ref _nomenclatureOnlineParameters, value);
 		}
-
-		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
-			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
 
 		/// <summary>
 		/// Gtin
