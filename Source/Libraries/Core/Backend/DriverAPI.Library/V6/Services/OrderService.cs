@@ -1222,8 +1222,11 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			uow.Commit();
-
-			nomenclatureDto.Codes = trueMarkCodes;
+			
+			if(nomenclatureDto != null)
+			{
+				nomenclatureDto.Codes = trueMarkCodes;
+			}
 
 			var successResponse = new TrueMarkCodeProcessingResultResponse
 			{
