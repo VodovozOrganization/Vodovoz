@@ -355,8 +355,7 @@ stage('Publish'){
 		"RoboatsService" : { PublishWeb("RoboatsService") },
 		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
-		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
-		"PushNotificationsWorker" : { PublishWeb("PushNotificationsWorker") }
+		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") }
 	)
 }
 
