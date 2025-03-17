@@ -308,6 +308,12 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 				.Cascade.AllDeleteOrphan()
 				.LazyLoad()
 				.KeyColumn("nomenclature_id");
+			
+			HasMany(x => x.PurchasePrices)
+				.KeyColumn("nomenclature_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad();
 
 			HasMany(x => x.Gtins)
 				.KeyColumn("nomenclature_id")
