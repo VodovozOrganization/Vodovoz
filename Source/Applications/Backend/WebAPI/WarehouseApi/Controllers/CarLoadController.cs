@@ -258,6 +258,13 @@ namespace WarehouseApi.Controllers
 				return new ObjectResult(processingResult.Result.Value);
 			}
 
+			if(processingResult.FailureData == null)
+			{
+				var errorResult = GetProblemResult(string.Join(", ", processingResult.Result.Errors.Select(x => x.Message)));
+				HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status400BadRequest;
+				return new ObjectResult(errorResult);
+			}
+
 			HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status400BadRequest;
 			return new ObjectResult(processingResult.FailureData);
 		}
