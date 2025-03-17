@@ -8,7 +8,7 @@ namespace Edo.Receipt.Sender.Consumers.Definitions
 	{
 		public ReceiptSendConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.receipt-send.consumer.receipt-sender");
+			Endpoint(x => x.Name = "edo.receipt-ready-to-send.consumer.receipt-sender");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
@@ -20,7 +20,7 @@ namespace Edo.Receipt.Sender.Consumers.Definitions
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<ReceiptSendEvent>();
+				rmq.Bind<ReceiptReadyToSendEvent>();
 			}
 		}
 	}

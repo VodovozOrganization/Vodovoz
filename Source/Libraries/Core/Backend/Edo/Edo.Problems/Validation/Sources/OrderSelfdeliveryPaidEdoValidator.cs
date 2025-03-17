@@ -41,6 +41,19 @@ namespace Edo.Problems.Validation.Sources
 			return $"Самовывоз №{orderEdoRequest.Order.Id} должен быть оплачен";
 		}
 
+		public override bool IsApplicable(EdoTask edoTask)
+		{
+			var isOrder = base.IsApplicable(edoTask);
+			if(!isOrder)
+			{
+				return isOrder;
+			}
+			var orderEdoTask = (OrderEdoTask)edoTask;
+			var orderEdoRequest = orderEdoTask.OrderEdoRequest;
+			var isSelfdelivery = orderEdoRequest.Order.SelfDelivery;
+			return isOrder && isSelfdelivery;
+		}
+
 		public override Task<bool> NotValidCondition(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
 			var orderEdoRequest = GetOrderEdoRequest(edoTask);

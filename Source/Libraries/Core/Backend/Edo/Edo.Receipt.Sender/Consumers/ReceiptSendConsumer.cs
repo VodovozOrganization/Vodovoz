@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Edo.Receipt.Sender.Consumers
 {
-	public class ReceiptSendConsumer : IConsumer<ReceiptSendEvent>
+	public class ReceiptSendConsumer : IConsumer<ReceiptReadyToSendEvent>
 	{
 		private readonly ReceiptSender _receiptSender;
 
@@ -13,7 +13,7 @@ namespace Edo.Receipt.Sender.Consumers
 			_receiptSender = receiptSender ?? throw new System.ArgumentNullException(nameof(receiptSender));
 		}
 
-		public async Task Consume(ConsumeContext<ReceiptSendEvent> context)
+		public async Task Consume(ConsumeContext<ReceiptReadyToSendEvent> context)
 		{
 			await _receiptSender.HandleReceiptSendEvent(context.Message.ReceiptEdoTaskId, context.CancellationToken);
 		}
