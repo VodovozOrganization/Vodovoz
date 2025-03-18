@@ -322,11 +322,6 @@ namespace Edo.Docflow.Factories
 					throw new InvalidOperationException("Должен быть обязательно заполнен код в позиции УПД документа");
 				}
 
-				if(orderItem.Count != inventPosition.Codes.Sum(x => x.Quantity))
-				{
-					throw new InvalidOperationException("Количество товара в позиции УПД не совпадает с количеством кодов");
-				}
-
 				var product = new ProductInfo
 				{
 					Name = nomenclature.Name,

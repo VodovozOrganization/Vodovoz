@@ -594,7 +594,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			{
 				Time = DateTime.Now,
 				Source = CustomerEdoRequestSource.Selfdelivery,
-				DocumentType = EdoDocumentType.Bill,
 				Order = order
 			};
 
@@ -608,9 +607,9 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			return edoRequest;
 		}
 
-		public void SendEdoRequestCreatedEvent(OrderEdoRequest orderEdoRequest)
+		public async Task SendEdoRequestCreatedEvent(OrderEdoRequest orderEdoRequest)
 		{
-			_messageBus.Publish(new EdoRequestCreatedEvent { Id = orderEdoRequest.Id });
+			await _messageBus.Publish(new EdoRequestCreatedEvent { Id = orderEdoRequest.Id });
 		}
 
 		public void Dispose()

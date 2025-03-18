@@ -5,6 +5,8 @@ using Edo.Transfer.Dispatcher.Consumers.Definitions;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using QS.DomainModel.UoW;
 
 namespace Edo.Transfer.Dispatcher
 {
@@ -20,6 +22,7 @@ namespace Edo.Transfer.Dispatcher
 				.AddEdo()
 				.AddEdoTransfer()
 				.AddEdoProblemRegistation()
+				.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				;
 
 			services.AddEdoMassTransit(configureBus: cfg =>

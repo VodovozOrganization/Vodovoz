@@ -54,7 +54,11 @@ namespace Edo.Scheduler.Service
 						$"{nameof(CustomerEdoRequest)} {requestId}");
 				}
 
-				EdoTask edoTask = null;
+				EdoTask edoTask = request.Task;
+				if(edoTask != null)
+				{
+					throw new InvalidOperationException($"На заявку id {requestId} уже создана задача id {edoTask.Id}");
+				}
 
 				switch(request.Type)
 				{

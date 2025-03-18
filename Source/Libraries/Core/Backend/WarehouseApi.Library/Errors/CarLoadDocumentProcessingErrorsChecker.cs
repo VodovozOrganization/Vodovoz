@@ -7,11 +7,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
@@ -367,16 +369,35 @@ namespace WarehouseApi.Library.Errors
 
 			if(order is null)
 			{
-				var error = CarLoadDocumentErrors.CreateOrderNotFound(orderId);
-				LogError(error);
-				return Result.Failure(error);
+				_logger.LogWarning("Заказ {OrderId} не найден", orderId);
+				return CarLoadDocumentErrors.CreateOrderNotFound(orderId);
 			}
 
 			if(!order.IsNeedIndividualSetOnLoad)
 			{
-				var error = CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoad(orderId);
-				LogError(error);
-				return Result.Failure(error);
+				if(order.PaymentType != PaymentType.Cashless)
+				{
+					_logger.LogWarning("В заказе {OrderId} тип оплаты не безналичный, сканирование не требуется", orderId);
+					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadPaymentIsNotCashless(orderId);
+				}
+
+				if(order.Client is null)
+				{
+					_logger.LogWarning("В заказе {OrderId} не указан контрагент", orderId);
+					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadClientIsNotSet(orderId);
+				}
+
+				if(order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+				{
+					_logger.LogWarning("В заказе {OrderId} у клиента нет согласия на отрпавки документов по ЭДО, сканирование не требуется", orderId);
+					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadConsentForEdoIsNotAgree(orderId);
+				}
+
+				if(order.Client.OrderStatusForSendingUpd != OrderStatusForSendingUpd.EnRoute)
+				{
+					_logger.LogWarning("Заказе {OrderId} не в статусе в пути для ЭДО", orderId);
+					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadOrderIsNotEnRoute(orderId);
+				}
 			}
 
 			return Result.Success();

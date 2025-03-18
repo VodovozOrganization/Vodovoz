@@ -191,7 +191,7 @@ namespace Edo.Receipt.Dispatcher
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-			var sendReceiptMessage = new ReceiptSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
+			var sendReceiptMessage = new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
 			await _messageBus.Publish(sendReceiptMessage);
 		}
 
@@ -231,6 +231,7 @@ namespace Edo.Receipt.Dispatcher
 				}
 
 				// проверяем все коды по задаче в ЧЗ
+				trueMarkCodesChecker.ClearCache();
 				taskValidationResult = await _localCodesValidator.ValidateAsync(
 					receiptEdoTask, 
 					trueMarkCodesChecker, 
@@ -310,6 +311,9 @@ namespace Edo.Receipt.Dispatcher
 						trueMarkCodesChecker, 
 						cancellationToken
 					);
+
+					receiptEdoTask.ReceiptStatus = EdoReceiptStatus.Transfering;
+
 					await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 					await _uow.CommitAsync(cancellationToken);
 
@@ -367,7 +371,7 @@ namespace Edo.Receipt.Dispatcher
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-			var sendReceiptMessage = new ReceiptSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
+			var sendReceiptMessage = new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
 			await _messageBus.Publish(sendReceiptMessage);
 		}
 
@@ -733,6 +737,17 @@ namespace Edo.Receipt.Dispatcher
 					currentFiscalDocument.DocumentNumber += $"_{documentIndex}";
 				}
 			} while(currentProcessingPositions.Any());
+
+			// Сохранение остатков в пул
+			foreach(var unprocessedCode in unprocessedCodes)
+			{
+				if(unprocessedCode.ProductCode.SourceCode != null)
+				{
+					await _trueMarkCodesPool.PutCodeAsync(unprocessedCode.ProductCode.SourceCode.Id, cancellationToken);
+				}
+				receiptEdoTask.Items.Remove(unprocessedCode);
+				await _uow.Session.DeleteAsync(unprocessedCode, cancellationToken);
+			}
 		}
 
 

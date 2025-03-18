@@ -364,13 +364,22 @@ namespace Vodovoz
 			}
 
 			var edoRequest = _codesScanViewModel?.CreateEdoRequest(UoW, Entity.Order);
-			if(edoRequest != null)
-			{
-				_codesScanViewModel.SendEdoRequestCreatedEvent(edoRequest);
-			}
 			
 			logger.Info("Сохраняем документ самовывоза...");
 			UoWGeneric.Save();
+
+			try
+			{
+				if(edoRequest != null)
+				{
+					_codesScanViewModel.SendEdoRequestCreatedEvent(edoRequest).GetAwaiter().GetResult();
+				}
+			}
+			catch(Exception e)
+			{
+				logger.Error("Произошла ошибка при попытке отправки события создания заявки ЭДО {EdoSendError}", e);
+			}
+			
 			//FIXME Необходимо проверить правильность этого кода, так как если заказ именялся то уведомление на его придет и без кода.
 			//А если в каком то месте нужно получать уведомления об изменениях текущего объекта, то логично чтобы этот объект на него и подписался.
 			//OrmMain.NotifyObjectUpdated(new object[] { Entity.Order });

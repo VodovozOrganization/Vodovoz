@@ -134,8 +134,8 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<ReceiptSendEvent>(x => x.SetEntityName("edo.receipt-send.publish"));
-			cfg.Publish<ReceiptSendEvent>(x =>
+			cfg.Message<ReceiptReadyToSendEvent>(x => x.SetEntityName("edo.receipt-ready-to-send.publish"));
+			cfg.Publish<ReceiptReadyToSendEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
