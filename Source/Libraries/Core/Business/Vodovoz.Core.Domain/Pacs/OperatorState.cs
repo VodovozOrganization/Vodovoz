@@ -21,7 +21,23 @@ namespace Vodovoz.Core.Domain.Pacs
 		public virtual int? BreakChangedByAdminId { get; set; }
 		public virtual string BreakAdminReason { get; set; }
 
-		public static OperatorState Copy(OperatorState operatorState)
+		public OperatorState Copy()
+		{
+			return new OperatorState
+			{
+				OperatorId = OperatorId,
+				Session = Session,
+				Started = Started,
+				Ended = Ended,
+				Trigger = Trigger,
+				State = State,
+				PhoneNumber = PhoneNumber,
+				DisconnectionType = DisconnectionType,
+				WorkShift = WorkShift
+			};
+		}
+
+		public static OperatorState CopyFrom(OperatorState operatorState)
 		{
 			return new OperatorState
 			{
@@ -34,6 +50,16 @@ namespace Vodovoz.Core.Domain.Pacs
 				PhoneNumber = operatorState.PhoneNumber,
 				DisconnectionType = operatorState.DisconnectionType,
 				WorkShift = operatorState.WorkShift
+			};
+		}
+
+		public static OperatorState CreateNewForOperator(int operatorId)
+		{
+			return new OperatorState
+			{
+				Started = DateTime.Now,
+				OperatorId = operatorId,
+				State = OperatorStateType.New,
 			};
 		}
 	}
