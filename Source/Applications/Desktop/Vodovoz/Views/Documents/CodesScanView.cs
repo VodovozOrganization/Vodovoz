@@ -18,6 +18,7 @@ namespace Vodovoz.Views.Documents
 		private readonly Color _colorLightRed = GdkColors.DangerBase;
 		private readonly Color _colorBase = GdkColors.PrimaryBase;
 		private readonly Color _colorAggregate = GdkColors.InsensitiveBase;
+		private readonly Color _colorCurrencCodeInProcess = GdkColors.LightYellow2;
 
 		public CodesScanView(CodesScanViewModel viewModel) : base(viewModel)
 		{
@@ -62,6 +63,8 @@ namespace Vodovoz.Views.Documents
 						n.IsTrueMarkValid.HasValue ? n.IsTrueMarkValid.Value ? _colorGreen : _colorLightRed : _colorBase)
 				.AddColumn("Доп.информация")
 				.AddTextRenderer(n => n.AdditionalInformation)
+				.AddSetter((c, n) =>
+					c.CellBackgroundGdk = n.CodeNumber == ViewModel.CurrentCodeInProcess ? _colorCurrencCodeInProcess : _colorBase)
 				.WrapMode(WrapMode.Word).WrapWidth(400)
 				.AddColumn("")
 				.Finish();

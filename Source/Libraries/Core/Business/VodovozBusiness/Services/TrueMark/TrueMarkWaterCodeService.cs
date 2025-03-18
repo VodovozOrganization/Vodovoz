@@ -382,9 +382,8 @@ namespace VodovozBusiness.Services.TrueMark
 				return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", "Ошибка при запросе к API TrueMark"));
 			}
 
-			if(productInstanceInfo == null
-				|| !productInstanceInfo.InstanceStatuses.Any()
-				|| !string.IsNullOrWhiteSpace(productInstanceInfo.ErrorMessage))
+			if((!productInstanceInfo.InstanceStatuses?.Any() ?? true)
+			   || !string.IsNullOrWhiteSpace(productInstanceInfo.ErrorMessage))
 			{
 				return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", productInstanceInfo?.ErrorMessage ?? "Не удалось получить информацию о коде"));
 			}

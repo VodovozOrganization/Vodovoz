@@ -457,6 +457,7 @@
     <Compile Include="Journals\JournalViewModels\Nomenclatures\InventoryNomenclaturesJournalViewModel.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeScanRow.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodesScanProgressDto.cs" />
+    <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeToCheck.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.GtinFromNomenclatureDto.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
