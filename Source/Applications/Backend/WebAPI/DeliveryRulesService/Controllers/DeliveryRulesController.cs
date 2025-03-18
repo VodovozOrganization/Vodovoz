@@ -1,4 +1,4 @@
-﻿using DeliveryRulesService.Cache;
+using DeliveryRulesService.Cache;
 using DeliveryRulesService.Constants;
 using DeliveryRulesService.DTO;
 using Microsoft.AspNetCore.Mvc;
@@ -181,7 +181,7 @@ namespace DeliveryRulesService.Controllers
 			{
 				return ExecuteGetExtendedRulesByDistrict(latitude, longitude);
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				var errorResult = new ExtendedDeliveryRulesDto();
 				errorResult.SetErrorState();
