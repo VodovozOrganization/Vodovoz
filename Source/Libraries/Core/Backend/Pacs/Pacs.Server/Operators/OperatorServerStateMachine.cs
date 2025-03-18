@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Pacs.Core;
 using Pacs.Server.Breaks;
@@ -18,7 +18,7 @@ using Timer = System.Timers.Timer;
 
 namespace Pacs.Server.Operators
 {
-	public partial class OperatorServerStateMachine : IDisposable
+	public class OperatorServerStateMachine
 	{
 		private readonly ILogger<OperatorServerStateMachine> _logger;
 		private readonly IPacsSettings _pacsSettings;
@@ -642,10 +642,5 @@ namespace Pacs.Server.Operators
 		}
 
 		#endregion
-
-		public void Dispose()
-		{
-			_timer?.Dispose();
-		}
 	}
 }
