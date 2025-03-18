@@ -1,4 +1,4 @@
-﻿using DeliveryRulesService.Cache;
+using DeliveryRulesService.Cache;
 using DeliveryRulesService.HealthChecks;
 using DeliveryRulesService.Workers;
 using Fias.Client;
@@ -9,9 +9,6 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
 using Vodovoz.Tools;

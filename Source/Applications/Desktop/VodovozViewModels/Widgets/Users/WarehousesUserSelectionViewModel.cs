@@ -1,4 +1,4 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModels.Widgets.Users
 			return warehouses;
 		}
 
-		private bool IsWarehouseAlreadyAdded(int warehouseId) => 
+		private bool IsWarehouseAlreadyAdded(int warehouseId) =>
 			ObservableWarehouses
 			.Where(w => w.WarehouseId == warehouseId)
 			.Any();
@@ -111,10 +111,10 @@ namespace Vodovoz.ViewModels.Widgets.Users
 						return;
 					}
 
-					var newWarehouseNode = new WarehouseNode 
-					{  
-						WarehouseId = addWarehouseId, 
-						WarehouseName = addWarehouseName 
+					WarehouseNode newWarehouseNode = new WarehouseNode
+					{
+						WarehouseId = addWarehouseId,
+						WarehouseName = addWarehouseName
 					};
 
 					ObservableWarehouses.Add(newWarehouseNode);
