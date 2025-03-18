@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,6 +8,7 @@ using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -30,38 +32,43 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private readonly SelfDeliveryDocument _selfDeliveryDocument;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
-		private readonly ITrueMarkCodesValidator _trueMarkValidator;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IGenericRepository<GroupGtin> _groupGtinrepository;
 		private readonly IGenericRepository<Gtin> _gtinRepository;
+		private readonly ITrueMarkCodesValidator _trueMarkValidator;
 		private readonly IBus _messageBus;
 		private readonly IGuiDispatcher _guiDispatcher;
+		private readonly ILogger<CodesScanViewModel> _logger;
 		private string _organizationInn;
 		private List<GtinFromNomenclatureDto> _allGtins;
 		private List<GtinFromNomenclatureDto> _allGroupGtins;
-		private List<string> _nomenclatureGtinsInOrder;
-		private HashSet<CancellationTokenSource> _cancellationTokenSource = new HashSet<CancellationTokenSource>();
+		private List<string> _gtinsInOrder;
+		private BlockingCollection<CodeToCheck> _codesToCheck = new BlockingCollection<CodeToCheck>();
+		private CancellationTokenSource _cancelationTokenSource;
 
 		public CodesScanViewModel(
+			ILogger<CodesScanViewModel> logger,
 			INavigationManager navigationManager,
 			SelfDeliveryDocument selfDeliveryDocument,
 			IUnitOfWork unitOfWork,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
-			ITrueMarkCodesValidator trueMarkValidator,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IGenericRepository<GroupGtin> groupGtinrepository,
 			IGenericRepository<Gtin> gtinRepository,
+			ITrueMarkCodesValidator trueMarkValidator,
 			IBus messageBus,
-			IGuiDispatcher guiDispatcher)
+			IGuiDispatcher guiDispatcher
+		)
 			: base(navigationManager)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_selfDeliveryDocument = selfDeliveryDocument ?? throw new ArgumentNullException(nameof(selfDeliveryDocument));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
-			_trueMarkValidator = trueMarkValidator ?? throw new ArgumentNullException(nameof(trueMarkValidator));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_groupGtinrepository = groupGtinrepository ?? throw new ArgumentNullException(nameof(groupGtinrepository));
 			_gtinRepository = gtinRepository ?? throw new ArgumentNullException(nameof(gtinRepository));
+			_trueMarkValidator = trueMarkValidator ?? throw new ArgumentNullException(nameof(trueMarkValidator));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
@@ -70,9 +77,9 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			Initialize();
 		}
 
-		public List<CodeScanRow> CodeScanRows { get; set; } = new List<CodeScanRow>();
+		public List<CodeScanRow> CodeScanRows { get; } = new List<CodeScanRow>();
 
-		public List<CodesScanProgressRow> CodesScanProgressRows { get; set; } = new List<CodesScanProgressRow>();
+		public List<CodesScanProgressRow> CodesScanProgressRows { get; } = new List<CodesScanProgressRow>();
 
 		public DelegateCommand CloseCommand { get; set; }
 
@@ -84,12 +91,9 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		{
 			get
 			{
-				lock(_selfDeliveryDocument)
-				{
-					return _selfDeliveryDocument.Items?
-						.Where(x => x.Nomenclature.IsAccountableInTrueMark)
-						.All(x => x.Amount == x.TrueMarkProductCodes.Count) ?? false;
-				}
+				return _selfDeliveryDocument.Items?
+					.Where(x => x.Nomenclature.IsAccountableInTrueMark)
+					.All(x => x.Amount == x.TrueMarkProductCodes.Count) ?? false;
 			}
 		}
 
@@ -131,11 +135,69 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				.Select(g => g.GtinNumber)
 				.ToList();
 
-			_nomenclatureGtinsInOrder = gtinsInOrder.Union(groupGtinsInOrder).ToList();
+			_gtinsInOrder = gtinsInOrder.Union(groupGtinsInOrder).ToList();
 
 			RecursiveConfig = new RecursiveConfig<CodeScanRow>(x => x.Parent, x => x.Children);
 
 			FillAlreadyScannedNomenclatures();
+
+			StartUpdater();
+		}
+
+		private void StartUpdater()
+		{
+			_cancelationTokenSource = new CancellationTokenSource();
+
+			Task.Run(
+				async () =>
+				{
+					_logger.LogInformation("Id потока: {TaskCurrentId} : Запускам поток слежения за процессом сканирования",
+						Task.CurrentId);
+
+					await DoUpdate(_cancelationTokenSource.Token);
+
+					_logger.LogInformation("Id потока: {TaskCurrentId} : Завершен поток слежения за процессом сканирования",
+						Task.CurrentId);
+				}, _cancelationTokenSource.Token);
+		}
+
+		private async Task DoUpdate(CancellationToken cancellationToken)
+		{
+			bool scanningInProcess = true;
+
+			while(scanningInProcess && !cancellationToken.IsCancellationRequested)
+			{
+				scanningInProcess = !IsAllCodesScanned;
+
+				var toCheckCodes = new List<CodeToCheck>();
+
+				while(_codesToCheck.TryTake(out var code))
+				{
+					toCheckCodes.Add(code);
+				}
+
+				foreach(var toCheckCode in toCheckCodes)
+				{
+					_logger.LogInformation("Id потока: {TaskCurrentId} : Запускам повторную обработку кода {ToRecheckCode} из Updater-а",
+						Task.CurrentId, toCheckCode);
+
+					if(toCheckCode.NeedRecheck)
+					{
+						Thread.Sleep(3000);
+					}
+					else
+					{
+						Thread.Sleep(500);
+					}
+
+					await HandleCheckCodeAsync(toCheckCode, cancellationToken);
+
+					_logger.LogInformation("Id потока: {TaskCurrentId} : Завершена повторная обработка кода {ToRecheckCode} из Updater-а",
+						Task.CurrentId, toCheckCode);
+
+					CurrentCodeInProcess = null;
+				}
+			}
 		}
 
 		private void CloseScanning()
@@ -174,84 +236,41 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 		}
 
-		private void ProcessCheckCodes(string rawCode, CancellationToken cancellationToken)
+		private async Task HandleCheckCodeAsync(CodeToCheck codeToCheck, CancellationToken cancellationToken)
 		{
-			_trueMarkWaterCodeParser.TryParse(rawCode, out var parsedCode);
+			_logger.LogInformation("Id потока: {TaskCurrentId} : Обработка кода {RawCode}", Task.CurrentId, codeToCheck);
 
-			if(parsedCode == null)
+			var code = ParseRawCode(codeToCheck.Code, out var parsedCode);
+			var gtin = parsedCode?.GTIN;
+
+			CurrentCodeInProcess = code;
+
+			if(codeToCheck.NeedRecheck)
 			{
-				parsedCode = _trueMarkWaterCodeParser.ParseCodeFromSelfDelivery(rawCode);
-			}
-
-			var code = ReplaceCodeSpecSymbols(parsedCode?.SourceCode ?? rawCode);
-
-			lock(CodeScanRows)
-			{
-				var alreadyScannedNode = CodeScanRows.FirstOrDefault(x => x?.CodeNumber == code);
-
-				//Поднятие вновь отсканированного кода наверх
-
-				if(alreadyScannedNode != null)
-				{
-					for(var i = alreadyScannedNode.RowNumber + 1; i <= CodeScanRows.Count; i++)
-					{
-						CodeScanRows.First(x => x.RowNumber == i).RowNumber--;
-					}
-
-					alreadyScannedNode.RowNumber = CodeScanRows.Count;
-
-					RefreshCodeScanRows();
-
-					return;
-				}
-			}
-
-			string gtin = null;
-
-			if(parsedCode != null)
-			{
-				gtin = parsedCode.GTIN;
-
-				var gtinHasInOrder = _nomenclatureGtinsInOrder.Contains(gtin);
-
-				var groupGtin = _allGroupGtins.FirstOrDefault(x => x.GtinNumber == gtin);
-
-				if(groupGtin == null)
-				{
-					if(!gtinHasInOrder)
-					{
-						var additionalInformation = new List<string>
-							{ $"Номенклатура {GetNomenclatureNameByGtin(gtin)} с данным Gtin {gtin} отсутствует в заказе" };
-
-						UpdateCodeScanRows(code, gtin, additionalInformation: additionalInformation);
-
-						return;
-					}
-
-					UpdateCodeScanRows(code, gtin);
-				}
-				else
-				{
-					UpdateCodeScanRows(code, gtin,
-						additionalInformation: new List<string>
-							{ $"Наша группа {groupGtin.CodesCount} шт.: {groupGtin.NomenclatureName}" });
-				}
+				UpdateCodeScanRows(code, gtin,
+					additionalInformation: new List<string> { $"Повторная обработка кода после ошибки: {codeToCheck.Error}" });
+				Thread.Sleep(3000);
 			}
 			else
 			{
-				UpdateCodeScanRows(code, "В обработке");
+				UpdateCodeScanRows(code, gtin, additionalInformation: new List<string> { $"Обработка кода" });
 			}
 
 			try
 			{
-				Result<TrueMarkAnyCode> result = null;
+				Result<TrueMarkAnyCode> result;
 
-				lock(_unitOfWork)
-				{
-					result = _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_unitOfWork, code, cancellationToken)
-						.GetAwaiter()
-						.GetResult();
-				}
+				cancellationToken.ThrowIfCancellationRequested();
+
+				_logger.LogInformation(
+					"Id потока: {TaskCurrentId} : Отправляем запрос на обработку кода {RawCode} в {TrueMarkWaterCodeParser)}",
+					Task.CurrentId, codeToCheck, nameof(_trueMarkWaterCodeParser));
+
+				result = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_unitOfWork, code, cancellationToken);
+
+				_logger.LogInformation(
+					"Id потока: {TaskCurrentId} : Получили результат обработки кода {RawCode} в {TrueMarkWaterCodeParser}",
+					Task.CurrentId, codeToCheck, nameof(_trueMarkWaterCodeParser));
 
 				var additionalInformation = new List<string>();
 
@@ -261,73 +280,46 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 					UpdateCodeScanRows(code, gtin, false, additionalInformation: additionalInformation);
 
+					_logger.LogInformation(
+						"Id потока: {TaskCurrentId} : Обработки кода {RawCode} в {TrueMarkWaterCodeParser} завершилась с ошибками: {Errors}",
+						Task.CurrentId, codeToCheck, nameof(_trueMarkWaterCodeParser), string.Join(", ", additionalInformation));
+
+					AddCodeToCheck(codeToCheck.Code, true, string.Join(", ", additionalInformation));
+
 					return;
 				}
 
-				List<TrueMarkWaterIdentificationCode> unitCodes;
-
-				unitCodes = GetAllIdentificationCodes(result.Value);
-
-				UpdateCodeScanRowsByAnyCode(result.Value);
-
-				ValidateInTrueMark(unitCodes, cancellationToken);
+				await UpdateCodeScanRowsByAnyCode(result.Value, cancellationToken);
 			}
-			finally
+			catch(Exception ex)
 			{
-				lock(CodeScanRows)
-				{
-					RefreshCodeScanRows();
-				}
+				_logger.LogError(
+					"Id потока: {TaskCurrentId} : Возникло исключение при обработке кода {RawCode} в {TrueMarkWaterCodeParser} : {Exception}",
+					codeToCheck, Task.CurrentId, codeToCheck, nameof(_trueMarkWaterCodeParser), ex);
+
+				var additionalInformation = new List<string> { ex.ToString() };
+				UpdateCodeScanRows(code, gtin, additionalInformation: additionalInformation);
+
+				AddCodeToCheck(codeToCheck.Code, true, ex.Message);
 			}
 		}
 
-		private void RefreshCodeScanRows()
+		public string CurrentCodeInProcess { get; private set; }
+
+		private async Task ValidateInTrueMarkAsync(List<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
 		{
-			lock(CodeScanRows)
-			{
-				CodeScanRows.Sort((a, b) => b.RowNumber.CompareTo(a.RowNumber));
-			}
+			_logger.LogInformation(
+				"Id потока: {TaskCurrentId} : Отправляем запрос на валидацию кодов {Codes} в {TrueMarkValidator)}",
+				Task.CurrentId, string.Join(", ", codes), nameof(_trueMarkValidator));
 
-			lock(_selfDeliveryDocument)
-			{
-				OnPropertyChanged(() => IsAllCodesScanned);
-			}
-
-			_guiDispatcher.RunInGuiTread(() => { RefreshScanningNomenclaturesAction?.Invoke(); }
-			);
-		}
-
-		private bool? GetGtinHasInOrder(string gtin)
-		{
-			if(gtin is null)
-			{
-				return null;
-			}
-
-			return _nomenclatureGtinsInOrder.Contains(gtin);
-		}
-
-		private List<TrueMarkWaterIdentificationCode> GetAllIdentificationCodes(TrueMarkAnyCode anyCode) =>
-			anyCode.Match(
-				transportCode => transportCode.GetAllCodes()
-					.Where(x => x.IsTrueMarkWaterIdentificationCode)
-					.Select(x => x.TrueMarkWaterIdentificationCode)
-					.ToList(),
-				groupCode => groupCode.GetAllCodes()
-					.Where(x => x.IsTrueMarkWaterIdentificationCode)
-					.Select(x => x.TrueMarkWaterIdentificationCode)
-					.ToList(),
-				waterCode => new List<TrueMarkWaterIdentificationCode> { waterCode }
-			);
-
-		private void ValidateInTrueMark(List<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
-		{
-			var trueMarkValidationResults = _trueMarkValidator
-				.ValidateAsync(codes, _organizationInn, cancellationToken)
-				.GetAwaiter()
-				.GetResult()
+			var trueMarkValidationResults = (await _trueMarkValidator
+					.ValidateAsync(codes, _organizationInn, cancellationToken))
 				.CodeResults
 				.ToList();
+
+			_logger.LogInformation(
+				"Id потока: {TaskCurrentId} : Получили ответ по валидации кодов {Codes} в {TrueMarkValidator)}",
+				Task.CurrentId, string.Join(", ", codes), nameof(_trueMarkValidator));
 
 			var additionalInformation = new List<string>();
 
@@ -345,13 +337,15 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				additionalInformation.Clear();
 
 				var validationResult =
-					trueMarkValidationResults.FirstOrDefault(x => (x.Code as TrueMarkWaterIdentificationCode)?.RawCode == code.RawCode);
+					trueMarkValidationResults.FirstOrDefault(x => x.Code?.RawCode == code.RawCode);
 
 				if(validationResult is null)
 				{
 					additionalInformation.Add("Не получен результат валидации в ЧЗ для кода");
 
 					UpdateCodeScanRows(code.RawCode, code.GTIN, false, additionalInformation);
+
+					AddCodeToCheck(code.RawCode, true, string.Join(", ", additionalInformation));
 
 					continue;
 				}
@@ -378,40 +372,78 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					continue;
 				}
 
+				await DistributeCodeOnNextSelfDeliveryItemAsync(code, cancellationToken);
+
 				UpdateCodeScanRows(code.RawCode, code.GTIN, true, additionalInformation);
-
-				var nextSelfDeliveryItemToDistributeByGtin = GetNextNotScannedItem(code.GTIN);
-				if(nextSelfDeliveryItemToDistributeByGtin != null)
-				{
-					AddCodeToSelfDeliveryDocumentItem(nextSelfDeliveryItemToDistributeByGtin, code);
-
-					lock(CodesScanProgressRows)
-					{
-						CodesScanProgressRows.First(x => x.Gtin == code.GTIN && x.LeftToScan > 0).LeftToScan--;
-					}
-				}
 			}
 		}
 
-		private void AddCodeToSelfDeliveryDocumentItem(
-			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode)
+		private void AddCodeToCheck(string rawCode, bool needToRecheck = false, string error = null)
 		{
-			lock(_unitOfWork)
+			_codesToCheck.TryAdd(new CodeToCheck
 			{
-				var productCode = new SelfDeliveryDocumentItemTrueMarkProductCode
-				{
-					CreationTime = DateTime.Now,
-					SourceCode = trueMarkWaterIdentificationCode,
-					Problem = ProductCodeProblem.None,
-					SourceCodeStatus = SourceProductCodeStatus.Accepted,
-					SelfDeliveryDocumentItem = selfDeliveryDocumentItem
-				};
+				Code = rawCode,
+				NeedRecheck = needToRecheck,
+				Error = error
+			});
+		}
 
-				_unitOfWork.Save(productCode);
+		private string ParseRawCode(string rawCode, out TrueMarkWaterCode result)
+		{
+			_trueMarkWaterCodeParser.TryParse(rawCode, out var parsedCode);
 
-				selfDeliveryDocumentItem.TrueMarkProductCodes.Add(productCode);
+			if(parsedCode == null)
+			{
+				parsedCode = _trueMarkWaterCodeParser.ParseCodeFromSelfDelivery(rawCode);
 			}
+
+			result = parsedCode;
+
+			return parsedCode?.SourceCode ?? ReplaceCodeSpecSymbols(rawCode);
+		}
+
+		private void RefreshCodeScanRows()
+		{
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				lock(CodeScanRows)
+				{
+					CodeScanRows.Sort((a, b) => b.RowNumber.CompareTo(a.RowNumber));
+
+					RefreshScanningNomenclaturesAction?.Invoke();
+
+					OnPropertyChanged(() => IsAllCodesScanned);
+				}
+			});
+		}
+
+		private bool? IsOrderContainsGtin(string gtin)
+		{
+			if(gtin is null)
+			{
+				return null;
+			}
+
+			return _gtinsInOrder.Contains(gtin);
+		}
+
+		private async Task AddCodeToSelfDeliveryDocumentItemAsync(
+			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			CancellationToken cancellationToken)
+		{
+			var productCode = new SelfDeliveryDocumentItemTrueMarkProductCode
+			{
+				CreationTime = DateTime.Now,
+				SourceCode = trueMarkWaterIdentificationCode,
+				Problem = ProductCodeProblem.None,
+				SourceCodeStatus = SourceProductCodeStatus.Accepted,
+				SelfDeliveryDocumentItem = selfDeliveryDocumentItem
+			};
+
+			await _unitOfWork.SaveAsync(productCode, cancellationToken: cancellationToken);
+
+			selfDeliveryDocumentItem.TrueMarkProductCodes.Add(productCode);
 		}
 
 		private string ReplaceCodeSpecSymbols(string code) => code.Replace("", "\\u001d");
@@ -427,47 +459,44 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				additionalInformation = new List<string>();
 			}
 
-			var hasInOrder = GetGtinHasInOrder(gtin);
+			var hasInOrder = IsOrderContainsGtin(gtin);
 			var nomenclatureName = GetNomenclatureNameByGtin(gtin);
 
-			lock(CodeScanRows)
+			var existsCodeScanRow = CodeScanRows.FirstOrDefault(x => x.CodeNumber == code);
+
+			if(existsCodeScanRow is null)
 			{
-				var existsCodeScanRow = CodeScanRows.FirstOrDefault(x => x.CodeNumber == code);
-
-				if(existsCodeScanRow is null)
-				{
-					existsCodeScanRow = CodeScanRows
-						.SelectMany(x => x.Children)
-						.FirstOrDefault(x => x.CodeNumber == code);
-				}
-
-				if(existsCodeScanRow is null)
-				{
-					var codeScanRow = new CodeScanRow
-					{
-						RowNumber = CodeScanRows.Count + 1,
-						CodeNumber = code,
-						IsTrueMarkValid = isValid,
-						HasInOrder = hasInOrder,
-						NomenclatureName = nomenclatureName,
-						AdditionalInformation = string.Join(", ", additionalInformation)
-					};
-
-					CodeScanRows.Add(codeScanRow);
-				}
-				else
-				{
-					existsCodeScanRow.NomenclatureName = nomenclatureName;
-					existsCodeScanRow.IsTrueMarkValid = isValid;
-					existsCodeScanRow.HasInOrder = hasInOrder;
-					existsCodeScanRow.AdditionalInformation = string.Join(", ", additionalInformation);
-				}
-
-				RefreshCodeScanRows();
+				existsCodeScanRow = CodeScanRows
+					.SelectMany(x => x.Children)
+					.FirstOrDefault(x => x.CodeNumber == code);
 			}
+
+			if(existsCodeScanRow is null)
+			{
+				var codeScanRow = new CodeScanRow
+				{
+					RowNumber = CodeScanRows.Count + 1,
+					CodeNumber = code,
+					IsTrueMarkValid = isValid,
+					HasInOrder = hasInOrder,
+					NomenclatureName = nomenclatureName,
+					AdditionalInformation = string.Join(", ", additionalInformation),
+				};
+
+				CodeScanRows.Add(codeScanRow);
+			}
+			else
+			{
+				existsCodeScanRow.NomenclatureName = nomenclatureName;
+				existsCodeScanRow.IsTrueMarkValid = isValid;
+				existsCodeScanRow.HasInOrder = hasInOrder;
+				existsCodeScanRow.AdditionalInformation = string.Join(", ", additionalInformation);
+			}
+
+			RefreshCodeScanRows();
 		}
 
-		private void UpdateCodeScanRowsByAnyCode(TrueMarkAnyCode anyCode)
+		private async Task UpdateCodeScanRowsByAnyCode(TrueMarkAnyCode anyCode, CancellationToken cancellationToken)
 		{
 			var codeInfo =
 				anyCode
@@ -480,7 +509,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 										.Where(x => x.IsTrueMarkWaterIdentificationCode)
 										.Select(x => x.TrueMarkWaterIdentificationCode)
 										.ToList(),
-									transportCode.RawCode,
+									ReplaceCodeSpecSymbols(transportCode.RawCode),
 									"Транспортный код",
 									null);
 						},
@@ -493,90 +522,190 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 										.Where(x => x.IsTrueMarkWaterIdentificationCode)
 										.Select(x => x.TrueMarkWaterIdentificationCode)
 										.ToList(),
-									groupCode.RawCode,
+									ReplaceCodeSpecSymbols(groupCode.RawCode),
 									string.IsNullOrWhiteSpace(groupNomenclatureName) ? "Групповой код" : groupNomenclatureName,
 									null);
 						},
 						waterCode => (
 							null,
-							waterCode.RawCode,
+							ReplaceCodeSpecSymbols(waterCode.FullCode),
 							GetNomenclatureNameByGtin(waterCode.GTIN),
-							GetGtinHasInOrder(waterCode.GTIN)));
+							IsOrderContainsGtin(waterCode.GTIN)));
 
-			(List<TrueMarkWaterIdentificationCode> childrenCodesList, string rawCode, string nomenclatureName, bool? hasInOrder) = codeInfo;
+			(var childrenCodesList, var rawCode, var nomenclatureName, bool? hasInOrder) = codeInfo;
 
-			lock(CodeScanRows)
+			List<TrueMarkWaterIdentificationCode> toValidation;
+
+			var rootNode = CodeScanRows.FirstOrDefault(x => x.CodeNumber == rawCode);
+
+			string rootGtin = null;
+
+			if(anyCode.IsTrueMarkWaterIdentificationCode)
 			{
-				var parentNode = CodeScanRows.FirstOrDefault(x => ReplaceCodeSpecSymbols(x.CodeNumber) == rawCode);
+				rootGtin = anyCode.TrueMarkWaterIdentificationCode.GTIN;
+			}
 
-				if(parentNode is null)
+			UpdateCodeScanRows(rawCode, rootGtin, additionalInformation: new List<string> { rootNode.AdditionalInformation });
+
+			if(childrenCodesList != null)
+			{
+				rootNode.Children.Clear();
+
+				foreach(var trueMarkWaterIdentificationCode in childrenCodesList)
 				{
-					parentNode = new CodeScanRow
-					{
-						RowNumber = CodeScanRows.Count + 1,
-						CodeNumber = rawCode,
-						NomenclatureName = nomenclatureName,
-						HasInOrder = hasInOrder
-					};
+					hasInOrder = IsOrderContainsGtin(trueMarkWaterIdentificationCode.GTIN);
 
-					CodeScanRows.Add(parentNode);
+					var childNode = CodeScanRows.FirstOrDefault(x =>
+						                x.CodeNumber == trueMarkWaterIdentificationCode.RawCode)
+					                ?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
+
+					childNode.CodeNumber = trueMarkWaterIdentificationCode.RawCode;
+					childNode.NomenclatureName = GetNomenclatureNameByGtin(trueMarkWaterIdentificationCode.GTIN);
+					childNode.Parent = rootNode;
+					childNode.HasInOrder = hasInOrder;
+
+					rootNode.Children.Add(childNode);
+				}
+			}
+
+			toValidation = childrenCodesList?.ToList() ?? new List<TrueMarkWaterIdentificationCode>
+				{ anyCode.TrueMarkWaterIdentificationCode };
+
+			await ValidateInTrueMarkAsync(toValidation, cancellationToken);
+
+			if(!anyCode.IsTrueMarkWaterIdentificationCode)
+			{
+				UpdateCodeScanRows(rawCode, rootGtin, additionalInformation: new List<string> { "Агрегатный код" });
+			}
+
+			RefreshCodeScanRows();
+		}
+
+		private async Task DistributeCodeOnNextSelfDeliveryItemAsync(TrueMarkWaterIdentificationCode code,
+			CancellationToken cancellationToken)
+		{
+			SelfDeliveryDocumentItem nextSelfDeliveryItemToDistributeByGtin;
+
+			nextSelfDeliveryItemToDistributeByGtin = GetNextNotScannedDocumentItem(code);
+
+			if(nextSelfDeliveryItemToDistributeByGtin == null)
+			{
+				return;
+			}
+
+			await AddCodeToSelfDeliveryDocumentItemAsync(nextSelfDeliveryItemToDistributeByGtin, code, cancellationToken);
+
+			var nomenclatureName = nextSelfDeliveryItemToDistributeByGtin.Nomenclature.Name;
+
+			CodesScanProgressRows.First(x => x.NomenclatureName == nomenclatureName && x.LeftToScan > 0).LeftToScan--;
+		}
+
+		private List<string> GetAdditionalInformation(TrueMarkCodeValidationResult trueMarkCodeValidationResult)
+		{
+			var additionalInformation = new List<string>();
+
+			if(trueMarkCodeValidationResult == null)
+			{
+				additionalInformation.Add("Не получен результат валидации в ЧЗ");
+
+				AddCodeToCheck(trueMarkCodeValidationResult.Code.RawCode, true, string.Join(", ", additionalInformation));
+
+				return additionalInformation;
+			}
+
+			if(!trueMarkCodeValidationResult.IsIntroduced)
+			{
+				additionalInformation.Add("Код не в обороте");
+			}
+
+			if(!trueMarkCodeValidationResult.IsOurGtin)
+			{
+				additionalInformation.Add("Это не наш код");
+			}
+
+			if(!trueMarkCodeValidationResult.IsOwnedByOurOrganization)
+			{
+				additionalInformation.Add("Не мы являемся владельцем товара");
+			}
+
+			return additionalInformation;
+		}
+
+		private SelfDeliveryDocumentItem GetNextNotScannedDocumentItem(TrueMarkWaterIdentificationCode code)
+		{
+			var documentItem = _selfDeliveryDocument.Items?
+				.Where(x => x.Nomenclature.IsAccountableInTrueMark)
+				.FirstOrDefault(s =>
+					s.Nomenclature.Gtins.Select(g => g.GtinNumber).Contains(code.GTIN)
+					&& s.TrueMarkProductCodes.Count < s.Amount
+					&& s.TrueMarkProductCodes.All(c => c.SourceCode.Id != code.Id));
+
+			return documentItem;
+		}
+
+		public void CheckCode(string rawCode)
+		{
+			var code = ParseRawCode(rawCode, out var parsedCode);
+			var gtin = parsedCode?.GTIN;
+
+			var alreadyScannedNode = CodeScanRows.FirstOrDefault(x => x?.CodeNumber == code);
+
+			//Поднятие вновь отсканированного кода наверх
+			if(alreadyScannedNode != null)
+			{
+				for(var i = alreadyScannedNode.RowNumber + 1; i <= CodeScanRows.Count; i++)
+				{
+					CodeScanRows.First(x => x.RowNumber == i).RowNumber--;
+				}
+
+				alreadyScannedNode.RowNumber = CodeScanRows.Count;
+
+				RefreshCodeScanRows();
+
+				return;
+			}
+
+			var inProcessMessage = new List<string> { "В очереди на обработку" };
+
+			if(parsedCode != null)
+			{
+				_logger.LogInformation("Id потока: {TaskCurrentId} : Код {RawCode} успешно распарсен", Task.CurrentId, rawCode);
+
+				gtin = parsedCode.GTIN;
+
+				var isGtinInOrder = _gtinsInOrder.Contains(gtin);
+
+				var groupGtin = _allGroupGtins.FirstOrDefault(x => x.GtinNumber == gtin);
+
+				if(groupGtin == null)
+				{
+					if(!isGtinInOrder)
+					{
+						var additionalInformation = new List<string>
+							{ $"Номенклатура {GetNomenclatureNameByGtin(gtin)} с данным Gtin {gtin} отсутствует в заказе." };
+
+						UpdateCodeScanRows(code, gtin, additionalInformation: additionalInformation);
+
+						return;
+					}
+
+					UpdateCodeScanRows(code, gtin, additionalInformation: inProcessMessage);
 				}
 				else
 				{
-					parentNode.CodeNumber = rawCode;
-					parentNode.NomenclatureName = nomenclatureName;
-					parentNode.HasInOrder = hasInOrder;
+					UpdateCodeScanRows(code, gtin,
+						additionalInformation: new List<string>
+							{ $"В очереди на обработку: наша группа {groupGtin.CodesCount} шт.: {groupGtin.NomenclatureName}" });
 				}
-
-				if(childrenCodesList != null)
-				{
-					parentNode.Children.Clear();
-
-					foreach(var trueMarkWaterIdentificationCode in childrenCodesList)
-					{
-						hasInOrder = GetGtinHasInOrder(trueMarkWaterIdentificationCode.GTIN);
-
-						var childNode = CodeScanRows.FirstOrDefault(x =>
-							                x.CodeNumber == trueMarkWaterIdentificationCode.RawCode)
-						                ?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
-
-						childNode.CodeNumber = trueMarkWaterIdentificationCode.RawCode;
-						childNode.NomenclatureName = GetNomenclatureNameByGtin(trueMarkWaterIdentificationCode.GTIN);
-						childNode.Parent = parentNode;
-						childNode.HasInOrder = hasInOrder;
-
-						parentNode.Children.Add(childNode);
-					}
-				}
-
-				RefreshCodeScanRows();
 			}
-		}
-
-		private SelfDeliveryDocumentItem GetNextNotScannedItem(string parsedCodeGtin)
-		{
-			lock(_selfDeliveryDocument)
+			else
 			{
-				var documentItem = _selfDeliveryDocument.Items?
-					.Where(x => x.Nomenclature.IsAccountableInTrueMark)
-					.FirstOrDefault(s =>
-						s.Nomenclature.Gtins.Select(g => g.GtinNumber).Contains(parsedCodeGtin)
-						&& s.TrueMarkProductCodes.Count < s.Amount);
+				_logger.LogInformation("Id потока: {TaskCurrentId} : Код {RawCode} не удалось распарсить.", Task.CurrentId, rawCode);
 
-				return documentItem;
-			}
-		}
-
-		public void CheckCode(string code)
-		{
-			var cancellationTokenSource = new CancellationTokenSource();
-
-			lock(_cancellationTokenSource)
-			{
-				_cancellationTokenSource.Add(cancellationTokenSource);
+				UpdateCodeScanRows(code, null, additionalInformation: inProcessMessage);
 			}
 
-			Task.Run(() => ProcessCheckCodes(code, cancellationTokenSource.Token), cancellationTokenSource.Token);
+			AddCodeToCheck(rawCode);
 		}
 
 		public OrderEdoRequest CreateEdoRequest(IUnitOfWork unitOfWork, Order order)
@@ -614,13 +743,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		public void Dispose()
 		{
-			lock(_cancellationTokenSource)
-			{
-				foreach(var cancellationTokenSource in _cancellationTokenSource)
-				{
-					cancellationTokenSource.Cancel();
-				}
-			}
+			_cancelationTokenSource?.Cancel();
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Common
 {

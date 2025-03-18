@@ -327,6 +327,7 @@ namespace Vodovoz
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory(ServicesConfig.UnitOfWorkFactory);
 			_emailSettings = _lifetimeScope.Resolve<IEmailSettings>();
+			_trueMarkApiClient = _lifetimeScope.Resolve<ITrueMarkApiClient>();
 
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
@@ -1371,8 +1372,6 @@ namespace Vodovoz
 
 			IAuthorizationService taxcomAuthorizationService = new TaxcomAuthorizationService(_edoSettings);
 			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings, new ContactStateConverter());
-
-			_trueMarkApiClient = new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
 		}
 
 		private void ConfigureTabEdoContainers()

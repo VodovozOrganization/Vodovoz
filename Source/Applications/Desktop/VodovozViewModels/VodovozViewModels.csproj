@@ -457,6 +457,7 @@
     <Compile Include="Journals\JournalViewModels\Nomenclatures\InventoryNomenclaturesJournalViewModel.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeScanRow.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodesScanProgressDto.cs" />
+    <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeToCheck.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.GtinFromNomenclatureDto.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
@@ -1157,6 +1158,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
       <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj">
+      <Project>{988f9f39-781b-4c5c-8409-0c2f3e38a3d6}</Project>
+      <Name>TrueMark.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj">
       <Project>{5D521F22-C232-438D-B547-5D6486754737}</Project>
