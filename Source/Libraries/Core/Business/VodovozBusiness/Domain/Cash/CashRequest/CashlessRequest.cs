@@ -63,6 +63,19 @@ namespace Vodovoz.Domain.Cash
 			PayoutRequestState.Canceled
 		};
 
+		public override int Id
+		{
+			get => base.Id;
+			protected set
+			{
+				if(base.Id != value)
+				{
+					base.Id = value;
+					UpdateOutgoundPayments();
+				}
+			}
+		}
+
 		public override string Title => $"Заявка на оплату по Б/Н №{Id} от {Date:d}";
 
 		public override PayoutRequestDocumentType PayoutRequestDocumentType => PayoutRequestDocumentType.CashlessRequest;
@@ -323,6 +336,14 @@ namespace Vodovoz.Domain.Cash
 			{
 				payment.CashlessRequestId = Id;
 				OutgoingPayments.Add(payment);
+			}
+		}
+
+		public virtual void UpdateOutgoundPayments()
+		{
+			foreach(var outgoingPayment in OutgoingPayments)
+			{
+				outgoingPayment.CashlessRequestId = Id;
 			}
 		}
 
