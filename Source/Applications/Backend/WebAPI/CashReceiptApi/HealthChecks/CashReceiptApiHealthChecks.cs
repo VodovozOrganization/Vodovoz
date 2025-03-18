@@ -1,4 +1,4 @@
-﻿using CashReceiptApi.Options;
+using CashReceiptApi.Options;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Web;
 using Microsoft.Extensions.Logging;
@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using System;
 using System.Net.Http;
-using System.Threading.Tasks;
 using Vodovoz.Settings.CashReceipt;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;

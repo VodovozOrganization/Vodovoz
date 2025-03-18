@@ -1,4 +1,4 @@
-﻿using AspNetCoreRateLimit;
+using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -91,7 +91,7 @@ namespace PayPageAPI
 		{
 			app.UseIpRateLimiting();
 			
-			if (env.IsDevelopment())
+			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 			}

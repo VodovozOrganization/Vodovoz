@@ -1,6 +1,6 @@
-﻿using System;
 using Gamma.Utilities;
 using QS.Utilities;
+using System;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Organizations;

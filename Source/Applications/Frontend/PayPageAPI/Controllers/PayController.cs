@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using PayPageAPI.Models;
 using System;
 using System.Diagnostics;
-using PayPageAPI.Models;
 
 namespace PayPageAPI.Controllers
 {

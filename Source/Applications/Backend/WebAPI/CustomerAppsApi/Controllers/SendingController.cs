@@ -1,9 +1,9 @@
-﻿using System;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace CustomerAppsApi.Controllers
 {
