@@ -17,7 +17,6 @@ namespace Pacs.Server
 		{
 			services
 				.AddScoped<IOperatorPhoneService, OperatorPhoneService>()
-				.AddScoped<IOperatorRepository, OperatorRepository>()
 				.AddScoped<IOperatorStateService, OperatorStateService>()
 				.AddScoped<IOperatorNotifier, OperatorNotifier>()
 				.AddScoped<IBreakAvailabilityNotifier, BreakAvailabilityNotifier>()
