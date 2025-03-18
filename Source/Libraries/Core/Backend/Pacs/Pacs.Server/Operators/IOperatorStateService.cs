@@ -61,13 +61,6 @@ namespace Pacs.Server.Operators
 		Task<OperatorResult> EndWorkShift(int operatorId, string reason);
 
 		/// <summary>
-		/// Поддержание состояния подключения
-		/// </summary>
-		/// <param name="operatorId">Идентификатор оператора</param>
-		/// <returns></returns>
-		Task KeepAlive(int operatorId);
-
-		/// <summary>
 		/// Начало перерыва администратором
 		/// </summary>
 		/// <param name="operatorId">Идентификатор оператора</param>

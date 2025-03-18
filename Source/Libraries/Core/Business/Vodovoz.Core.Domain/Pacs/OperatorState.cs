@@ -21,19 +21,41 @@ namespace Vodovoz.Core.Domain.Pacs
 		public virtual int? BreakChangedByAdminId { get; set; }
 		public virtual string BreakAdminReason { get; set; }
 
-		public static OperatorState Copy(OperatorState operatorState)
+		public virtual OperatorState Copy()
+		{
+			return new OperatorState
+			{
+				OperatorId = OperatorId,
+				Session = Session,
+				Trigger = Trigger,
+				State = State,
+				PhoneNumber = PhoneNumber,
+				DisconnectionType = DisconnectionType,
+				WorkShift = WorkShift
+			};
+		}
+
+		public static OperatorState CopyFrom(OperatorState operatorState)
 		{
 			return new OperatorState
 			{
 				OperatorId = operatorState.OperatorId,
 				Session = operatorState.Session,
-				Started = operatorState.Started,
-				Ended = operatorState.Ended,
 				Trigger = operatorState.Trigger,
 				State = operatorState.State,
 				PhoneNumber = operatorState.PhoneNumber,
 				DisconnectionType = operatorState.DisconnectionType,
 				WorkShift = operatorState.WorkShift
+			};
+		}
+
+		public static OperatorState CreateNewForOperator(int operatorId)
+		{
+			return new OperatorState
+			{
+				Started = DateTime.Now,
+				OperatorId = operatorId,
+				State = OperatorStateType.New,
 			};
 		}
 	}

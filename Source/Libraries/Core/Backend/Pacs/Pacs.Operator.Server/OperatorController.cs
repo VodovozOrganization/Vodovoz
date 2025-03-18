@@ -46,15 +46,6 @@ namespace Pacs.Operators.Server
 		}
 
 		[HttpPost]
-		[Route("keep_alive")]
-		public async Task KeepAlive([FromBody] KeepAlive command)
-		{
-			_logger.LogTrace("Поддержание подключения оператора {OperatorId}", command.OperatorId);
-
-			await _operatorStateService.KeepAlive(command.OperatorId);
-		}
-
-		[HttpPost]
 		[Route("startworkshift")]
 		public async Task<OperatorResult> StartWorkShift([FromBody] StartWorkShift command)
 		{
