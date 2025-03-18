@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain;
 using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation

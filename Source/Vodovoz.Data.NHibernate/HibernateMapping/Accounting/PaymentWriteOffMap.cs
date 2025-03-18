@@ -1,9 +1,9 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Accounting
 {
-	class PaymentWriteOffMap : ClassMap<PaymentWriteOff>
+	public class PaymentWriteOffMap : ClassMap<PaymentWriteOff>
 	{
 		public PaymentWriteOffMap()
 		{

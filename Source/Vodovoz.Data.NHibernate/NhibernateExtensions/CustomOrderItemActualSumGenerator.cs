@@ -12,7 +12,7 @@ namespace Vodovoz.Data.NHibernate.NhibernateExtensions
 	{
 		public CustomOrderItemActualSumGenerator()
 		{
-			SupportedProperties = new MemberInfo[]{ ReflectHelper.GetProperty<OrderItem, decimal>(x => x.ActualSum) };
+			SupportedProperties = new MemberInfo[] { ReflectHelper.GetProperty<OrderItem, decimal>(x => x.ActualSum) };
 		}
 
 		public override HqlTreeNode BuildHql(
@@ -21,13 +21,13 @@ namespace Vodovoz.Data.NHibernate.NhibernateExtensions
 			HqlTreeBuilder treeBuilder,
 			IHqlExpressionVisitor visitor)
 		{
-			var orderItemPrice = visitor.Visit(expression).AsExpression();
+			HqlExpression orderItemPrice = visitor.Visit(expression).AsExpression();
 
-			var orderItemActualCount = visitor.Visit(expression).AsExpression();
+			HqlExpression orderItemActualCount = visitor.Visit(expression).AsExpression();
 
-			var orderItemCount = visitor.Visit(expression).AsExpression();
+			HqlExpression orderItemCount = visitor.Visit(expression).AsExpression();
 
-			var orderItemDiscountMoney = visitor.Visit(expression).AsExpression();
+			HqlExpression orderItemDiscountMoney = visitor.Visit(expression).AsExpression();
 
 			return treeBuilder.MethodCall(
 				"ROUND",
