@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using DeliveryRulesService.Constants;
-using Vodovoz.Domain.Sale;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace DeliveryRulesService.DTO
 {

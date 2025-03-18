@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModels.Widgets.Users
 			return warehouses;
 		}
 
-		private bool IsWarehouseAlreadyAdded(int warehouseId) => 
+		private bool IsWarehouseAlreadyAdded(int warehouseId) =>
 			ObservableWarehouses
 			.Where(w => w.WarehouseId == warehouseId)
 			.Any();
@@ -111,10 +111,10 @@ namespace Vodovoz.ViewModels.Widgets.Users
 						return;
 					}
 
-					var newWarehouseNode = new WarehouseNode 
-					{  
-						WarehouseId = addWarehouseId, 
-						WarehouseName = addWarehouseName 
+					var newWarehouseNode = new WarehouseNode
+					{
+						WarehouseId = addWarehouseId,
+						WarehouseName = addWarehouseName
 					};
 
 					ObservableWarehouses.Add(newWarehouseNode);

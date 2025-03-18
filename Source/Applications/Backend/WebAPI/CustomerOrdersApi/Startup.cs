@@ -1,4 +1,5 @@
-﻿using CustomerOrdersApi.Library;
+using CustomerOrdersApi.Library;
+using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
 using Microsoft.AspNetCore.Builder;
@@ -13,7 +14,6 @@ using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
-using DriverApi.Notifications.Client;
 
 namespace CustomerOrdersApi
 {

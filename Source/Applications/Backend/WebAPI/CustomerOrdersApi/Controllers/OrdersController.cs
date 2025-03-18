@@ -1,11 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Services;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace CustomerOrdersApi.Controllers
 {
