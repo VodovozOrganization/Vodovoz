@@ -1,4 +1,4 @@
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -111,7 +111,7 @@ namespace Vodovoz.ViewModels.Widgets.Users
 						return;
 					}
 
-					WarehouseNode newWarehouseNode = new WarehouseNode
+					var newWarehouseNode = new WarehouseNode
 					{
 						WarehouseId = addWarehouseId,
 						WarehouseName = addWarehouseName

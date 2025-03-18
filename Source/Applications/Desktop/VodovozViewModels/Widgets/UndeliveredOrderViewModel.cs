@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -425,9 +425,10 @@ namespace Vodovoz.ViewModels.Widgets
 		public bool CanChangeProblemSource => CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Order.UndeliveredOrder.CanChangeUndeliveryProblemSource, CommonServices.UserService.CurrentUserId);
 		public IEntityAutocompleteSelectorFactory OrderSelector { get; set; }
 		public string Info => Entity.GetOldOrderInfo(_orderRepository);
-		public bool RouteListDoesNotExist => Entity.OldOrder != null && (Entity.OldOrderStatus == OrderStatus.NewOrder
-																		 || Entity.OldOrderStatus == OrderStatus.Accepted
-																		 || Entity.OldOrderStatus == OrderStatus.WaitForPayment);
+		public bool RouteListDoesNotExist => Entity.OldOrder != null
+			&& (Entity.OldOrderStatus == OrderStatus.NewOrder
+				|| Entity.OldOrderStatus == OrderStatus.Accepted
+				|| Entity.OldOrderStatus == OrderStatus.WaitForPayment);
 		public string NewResultText
 		{
 			get => _newResultText;
