@@ -54,5 +54,15 @@ namespace Vodovoz.Infrastructure.Persistance
 			return unitOfWork.Session.Query<TEntity>()
 				.Where(predicate);
 		}
+
+		public TEntity GetFirstOrDefault(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate)
+		{
+			return GetQueriable(unitOfWork, predicate).FirstOrDefault();
+		}
+
+		public TEntity GetLastOrDefault(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate)
+		{
+			return GetQueriable(unitOfWork, predicate).LastOrDefault();
+		}
 	}
 }
