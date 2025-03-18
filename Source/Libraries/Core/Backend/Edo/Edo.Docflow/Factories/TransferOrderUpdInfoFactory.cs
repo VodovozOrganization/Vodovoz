@@ -193,7 +193,7 @@ namespace Edo.Docflow.Factories
 
 				var product = new ProductInfo
 				{
-					Name = nomenclature.Name,
+					Name = nomenclature.OfficialName,
 					IsService = nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId,
 					UnitName = nomenclature.Unit.Name,
 					OKEI = nomenclature.Unit.OKEI,
