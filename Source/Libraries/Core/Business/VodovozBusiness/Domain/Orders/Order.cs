@@ -798,7 +798,7 @@ namespace Vodovoz.Domain.Orders
 			return order;
 		}
 		
-		public virtual IEnumerable<OrganizationForOrderWithOrderItems> OrganizationsByOrderItems { get; protected set; }
+		public virtual IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> OrganizationsByOrderItems { get; protected set; }
 
 		#region IValidatableObject implementation
 
@@ -1408,6 +1408,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal TotalVolume =>
 			OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Volume);
 
+		public virtual decimal DepositsSum => OrderDepositItems.Sum(x => x.ActualSum);
+
 
 		[Display(Name = "Наличных к получению")]
 		public virtual decimal OrderCashSum
@@ -1858,11 +1860,18 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			OrganizationsByOrderItems = ScopeProvider.Scope.Resolve<IGetOrganizationForOrder>().GetOrganizationsWithOrderItems(this, UoW);
+			OrganizationsByOrderItems =
+				ScopeProvider.Scope.Resolve<IGetOrganizationForOrder>()
+					.GetOrganizationsWithOrderItems(DateTime.Now.TimeOfDay, this, UoW);
 
-			var counterpartyContract = organization != null
-				? contractRepository.GetCounterpartyContractByOrganization(uow, this, organization)
-				: contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
+			if(organization is null)
+			{
+				organization = OrganizationsByOrderItems.FirstOrDefault().Organization;
+			}
+
+			//TODO перепроверить условие
+			var counterpartyContract = contractRepository.GetCounterpartyContractByOrganization(uow, this, organization);
+				//: contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
 
 			if(counterpartyContract == null)
 			{

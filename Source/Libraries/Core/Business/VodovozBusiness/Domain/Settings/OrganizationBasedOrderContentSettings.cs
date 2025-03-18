@@ -17,7 +17,7 @@ namespace VodovozBusiness.Domain.Settings
 	/// </summary>
 	public class OrganizationBasedOrderContentSettings : PropertyChangedBase, IOrganizations, IDomainObject, IValidatableObject
 	{
-		private short _orderContestSet;
+		private short _orderContentSet;
 		private IObservableList<Organization> _organizations = new ObservableList<Organization>();
 		
 		/// <summary>
@@ -49,13 +49,13 @@ namespace VodovozBusiness.Domain.Settings
 		/// </summary>
 		public virtual short OrderContentSet
 		{
-			get => _orderContestSet;
-			set => SetField(ref _orderContestSet, value);
+			get => _orderContentSet;
+			set => SetField(ref _orderContentSet, value);
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var unitOfWorkFactory = (IUnitOfWorkFactory)validationContext.GetService(typeof(IUnitOfWorkFactory));
+			var unitOfWorkFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
 			var orderOrganizationSettingsRepository = validationContext.GetRequiredService<IOrderOrganizationSettingsRepository>();
 			
 			using(var uow = unitOfWorkFactory.CreateWithoutRoot("Проверка на дубли в настройке организации для заказа"))
@@ -66,7 +66,7 @@ namespace VodovozBusiness.Domain.Settings
 				{
 					var duplicateNomenclatures = 
 						orderOrganizationSettingsRepository.GetSameNomenclaturesInOrganizationBasedOrderContentSettings(
-							uow, Nomenclatures.Select(x => x.Id).ToArray());
+							uow, Nomenclatures.Select(x => x.Id).ToArray(), Id);
 
 					if(duplicateNomenclatures.Any())
 					{
@@ -86,7 +86,7 @@ namespace VodovozBusiness.Domain.Settings
 				{
 					var duplicateProductGroups = 
 						orderOrganizationSettingsRepository.GetSameProductGroupsInOrganizationBasedOrderContentSettings(
-							uow, ProductGroups);
+							uow, ProductGroups, Id);
 
 					if(duplicateProductGroups.Any())
 					{

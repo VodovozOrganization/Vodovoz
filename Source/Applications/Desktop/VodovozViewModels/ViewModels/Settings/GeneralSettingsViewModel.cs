@@ -715,7 +715,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			}
 		}
 
-		private IUnitOfWork _uowOrderOrganizationSettings;
+		public IUnitOfWork UowOrderOrganizationSettings { get; private set; }
 		private OrganizationByOrderAuthorSettings _organizationByOrderAuthorSettings;
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
@@ -726,7 +726,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void ConfigureOrderOrganizationsSettings()
 		{
-			_uowOrderOrganizationSettings = _unitOfWorkFactory.CreateWithoutRoot("Настройки юр лиц для заказа");
+			UowOrderOrganizationSettings = _unitOfWorkFactory.CreateWithoutRoot("Настройки юр лиц для заказа");
 			InitializeOrderOrganizationsSettingsCommands();
 			ConfigureDataForSetWidgets();
 			ConfigurePaymentTypeSettings();
@@ -747,29 +747,34 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			SaveOrganizationBasedOrderContentSettings();
 			SavePaymentTypesOrganizationSettings();
 			SaveOrganizationByOrderAuthorSettings();
-			_uowOrderOrganizationSettings.Commit();
+			UowOrderOrganizationSettings.Commit();
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Настройки по выбору организации для заказа сохранены!");
 		}
 
 		private void SaveOrganizationBasedOrderContentSettings()
 		{
-			foreach(var organizationByOrderContent in OrganizationsByOrderContent)
+			foreach(var keyPairValue in OrganizationsByOrderContent)
 			{
+				var organizationByOrderContent = keyPairValue.Value;
+				
 				//на всякий уточнить, действительно ли мы пропускаем такие сущности и не сохраняем
-				if(!organizationByOrderContent.Value.ProductGroups.Any() && !organizationByOrderContent.Value.Nomenclatures.Any())
+				if(!organizationByOrderContent.ProductGroups.Any() && !organizationByOrderContent.Nomenclatures.Any())
 				{
 					continue;
 				}
 				
-				_uowOrderOrganizationSettings.Save(organizationByOrderContent);
+				UowOrderOrganizationSettings.Save(organizationByOrderContent);
 			}
 		}
 		
 		private void SavePaymentTypesOrganizationSettings()
 		{
-			foreach(var paymentTypeOrganizationSettings in PaymentTypesOrganizationSettings)
+			foreach(var groupSettings in PaymentTypesOrganizationSettings)
 			{
-				_uowOrderOrganizationSettings.Save(paymentTypeOrganizationSettings);
+				foreach(var paymentTypeOrganizationSettings in groupSettings)
+				{
+					UowOrderOrganizationSettings.Save(paymentTypeOrganizationSettings);
+				}
 			}
 		}
 		
@@ -822,7 +827,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private void ConfigureDataForSetWidgets()
 		{
 			var organizationsByOrderContent =
-				_uowOrderOrganizationSettings
+				UowOrderOrganizationSettings
 					.GetAll<OrganizationBasedOrderContentSettings>()
 					.ToDictionary(x => x.OrderContentSet);
 
@@ -870,7 +875,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			AuthorsSets = OrganizationsByOrderContent.Keys.ToList();
 			
 			_organizationByOrderAuthorSettings =
-				_uowOrderOrganizationSettings.GetAll<OrganizationByOrderAuthorSettings>().SingleOrDefault();
+				UowOrderOrganizationSettings.GetAll<OrganizationByOrderAuthorSettings>().SingleOrDefault();
 
 			if(_organizationByOrderAuthorSettings is null)
 			{
@@ -888,7 +893,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		
 		private void ConfigurePaymentTypeSettings()
 		{
-			PaymentTypesOrganizationSettings = _uowOrderOrganizationSettings.GetAll<PaymentTypeOrganizationSettings>()
+			PaymentTypesOrganizationSettings = UowOrderOrganizationSettings.GetAll<PaymentTypeOrganizationSettings>()
 				.ToLookup(x => x.PaymentType);
 		}
 
@@ -974,7 +979,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public override void Dispose()
 		{
 			EmployeeFixedPricesViewModel.Dispose();
-			_uowOrderOrganizationSettings.Dispose();
+			UowOrderOrganizationSettings.Dispose();
 			base.Dispose();
 		}
 	}

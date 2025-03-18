@@ -3,6 +3,9 @@ using Vodovoz.Domain.Client;
 
 namespace VodovozBusiness.Domain.Settings
 {
+	/// <summary>
+	/// Настройки для установки организации по оплате через SMS (QR-код)
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "Настройки для установки организации по оплате через SMS (QR-код)",
 		Nominative = "Настройка для установки организации по оплате через SMS (QR-код)",

@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data.Bindings;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Windows.Input;
 using QS.Commands;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Tdi;
 using QS.ViewModels;
@@ -14,13 +18,15 @@ namespace Vodovoz.ViewModels.Widgets
 	/// <summary>
 	/// Вью модель для работы со списком Сущностей, поддерживающих <c>INamedDomainObject</c>
 	/// </summary>
-	public class AddOrRemoveIDomainObjectViewModel : WidgetViewModelBase, IDisposable
+	public class AddOrRemoveIDomainObjectViewModel : UoWWidgetViewModelBase, IDisposable
 	{
+		private readonly EntityJournalOpener _journalOpener;
+
 		private Type _entityType;
 		private INamedDomainObject _selectedEntity;
 		private string _title = "Неизвестно";
 		private ITdiTab _parentTab;
-		private EntityJournalOpener _journalOpener;
+		private DialogTabViewModelBase _parentViewModel;
 
 		public AddOrRemoveIDomainObjectViewModel(EntityJournalOpener journalOpener)
 		{
@@ -57,6 +63,7 @@ namespace Vodovoz.ViewModels.Widgets
 			Type entityType,
 			bool canEdit,
 			string title,
+			IUnitOfWork uow,
 			ITdiTab parentTab,
 			IEnumerable<INamedDomainObject> entities)
 		{
@@ -65,6 +72,25 @@ namespace Vodovoz.ViewModels.Widgets
 			SetCanEdit(canEdit);
 			_parentTab = parentTab;
 			Entities = entities;
+			UoW = uow;
+			
+			InitializeCommands();
+		}
+		
+		public void Configure(
+			Type entityType,
+			bool canEdit,
+			string title,
+			IUnitOfWork uow,
+			DialogTabViewModelBase parentViewModel,
+			IEnumerable<INamedDomainObject> entities)
+		{
+			_entityType = entityType;
+			Title = title;
+			SetCanEdit(canEdit);
+			_parentViewModel = parentViewModel;
+			Entities = entities;
+			UoW = uow;
 			
 			InitializeCommands();
 		}
@@ -77,7 +103,10 @@ namespace Vodovoz.ViewModels.Widgets
 
 		private void AddEntity()
 		{
-			var viewModel = _journalOpener.OpenJournalViewModel(typeof(Subdivision), _parentTab).ViewModel;
+			var viewModel =
+				_parentTab != null
+					? _journalOpener.OpenJournalViewModelFromTdiTab(_entityType, _parentTab).ViewModel
+					: _journalOpener.OpenJournalViewModelFromDialogViewModel(_entityType, _parentViewModel).ViewModel;
 
 			if(!(viewModel is JournalViewModelBase journal))
 			{
@@ -96,12 +125,14 @@ namespace Vodovoz.ViewModels.Widgets
 
 			foreach(var addingEntity in addingEntities)
 			{
-				if(Entities.Contains(addingEntity))
+				var entity = UoW.GetById(_entityType, DomainHelper.GetId(addingEntity));
+				
+				if(Entities.Contains(entity))
 				{
 					continue;
 				}
 				
-				(Entities as IList<INamedDomainObject>).Add(SelectedEntity);
+				(Entities as IList).Add(entity);
 			}
 		}
 
@@ -112,7 +143,7 @@ namespace Vodovoz.ViewModels.Widgets
 				return;
 			}
 
-			(Entities as IList<INamedDomainObject>).Remove(SelectedEntity);
+			(Entities as IList).Remove(SelectedEntity);
 		}
 
 		public void Dispose()

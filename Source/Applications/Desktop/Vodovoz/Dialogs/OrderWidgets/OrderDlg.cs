@@ -41,6 +41,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms.VisualStyles;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
@@ -52,6 +53,7 @@ using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -128,6 +130,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Utils;
@@ -560,6 +563,42 @@ namespace Vodovoz
 			}
 
 			Entity.UpdateDocuments();
+			CheckForStopDelivery();
+			UpdateOrderAddressTypeWithUI();
+			AddCommentsFromDeliveryPoint();
+			SetLogisticsRequirementsCheckboxes();
+		}
+		
+		public void CopyOrderForSplittingByOrganizations(
+			int orderId,
+			int partOrder,
+			OrganizationForOrderWithGoodsAndEquipmentsAndDeposits organizationForOrderWithGoodsAndEquipmentsAndDeposits)
+		{
+			var copyingOrder = new PartitionedOrder(
+				UoW,
+				UoW.GetById<Order>(orderId),
+				Entity,
+				_nomenclatureSettings,
+				_flyerRepository);
+			
+			copyingOrder
+				.CopyFields()
+				.CopyStockBottle();
+
+			if(partOrder == 1)
+			{
+				copyingOrder.ClearGoodsAndEquipmentsAndDeposits();
+			}
+			
+			copyingOrder
+				.CopyPromotionalSets(organizationForOrderWithGoodsAndEquipmentsAndDeposits.OrderItems)
+				.CopyOrderItems(organizationForOrderWithGoodsAndEquipmentsAndDeposits.OrderItems, true)
+				.CopyOrderEquipments(organizationForOrderWithGoodsAndEquipmentsAndDeposits.OrderEquipments)
+				.CopyOrderDepositItems(organizationForOrderWithGoodsAndEquipmentsAndDeposits.OrderDepositItems)
+				.CopyAttachedDocuments();
+
+			Entity.UpdateDocuments();
+			Entity.ForceUpdateContract(organizationForOrderWithGoodsAndEquipmentsAndDeposits.Organization);
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 			AddCommentsFromDeliveryPoint();
@@ -2351,6 +2390,16 @@ namespace Vodovoz
 			{
 				SetSensitivity(false);
 
+				/*if(Entity.OrganizationsByOrderItems.Count() > 1)
+				{
+					//вывести сообщение о том, что заказ необходимо разбить на несколько
+					if(!MessageDialogHelper.RunQuestionDialog(
+						"Заказ должен быть разбит на несколько. Продолжаем?"))
+					{
+						return false;
+					}
+				}*/
+
 				if(_orderRepository.GetStatusesForFreeBalanceOperations().Contains(Entity.OrderStatus))
 				{
 					CreateDeliveryFreeBalanceOperations();
@@ -2490,18 +2539,6 @@ namespace Vodovoz
 
 		private Result AcceptOrder()
 		{
-			if(Entity.OrganizationsByOrderItems.Count() > 1)
-			{
-				MessageDialogHelper.RunInfoDialog($"Получили больше одной организации для заказа {Entity.OrganizationsByOrderItems.Count()}");
-				//выводим диалоговое окно с оповещением, что заказ содержит товары, продаваемые от нескольких организаций
-				//если соглашаются, то выводим карточку с разделением заказов
-				
-				//возможно нужно такую же проверку и разделение делать при попытке перевода в состояние Ожидание оплаты
-				
-				//также необходимо доработать диалог изменения заказа на кассе, т.к. они там могут добавить товар или оборудование,
-				//которое будет относиться к другой организации
-			}
-			
 			if(!Save())
 			{
 				return _lastSaveResult;
@@ -2570,6 +2607,56 @@ namespace Vodovoz
 			if(validationResult.IsFailure)
 			{
 				return Result.Failure(validationResult.Errors);
+			}
+
+			var orderPartsByOrganizations =
+				_lifetimeScope.Resolve<OrderOrganizationManager>().GetOrderPartsByOrganizations(DateTime.Now.TimeOfDay, Entity, UoW);
+			
+			var i = 0;
+			ITdiTab masterTab = null;
+
+			if(!orderPartsByOrganizations.CanSplitOrderWithDeposits && Entity.ObservableOrderDepositItems.Any())
+			{
+				MessageDialogHelper.RunWarningDialog("Данный заказ содержит возврат залогов." +
+					" И т.к. он содержит позиции, продаваемые от разных организаций," +
+					" то сумма каждого отдельного заказа меньше возвращаемого залога, что не позволяет разбить его вместе с залогом");
+				
+				return Result.Failure(Errors.Orders.Order.AcceptException);
+			}
+
+			if(orderPartsByOrganizations.OrderParts.Count() == 1)
+			{
+				var set = orderPartsByOrganizations.OrderParts.First();
+
+				if(set.OrderItems != null && set.OrderItems.Any() && set.OrderItems.Count() != Entity.OrderItems.Count)
+				{
+					throw new InvalidOperationException(
+						"Неправильное разбиение заказа. Несоответствие количества товаров в разбиении и начальном заказе");
+				}
+			}
+			else if(orderPartsByOrganizations.OrderParts.Count() > 1)
+			{
+				//нужно разбить заказ
+				foreach(var o in orderPartsByOrganizations.OrderParts)
+				{
+					var orderId = Entity.Id;
+					
+					var newTab = i == 0
+						? _navigationManager.OpenTdiTab<OrderDlg, int>(null, orderId, OpenPageOptions.IgnoreHash).TdiTab
+						: _navigationManager.OpenTdiTabOnTdi<OrderDlg>(masterTab, OpenPageOptions.AsSlave).TdiTab;
+					
+					(newTab as OrderDlg).CopyOrderForSplittingByOrganizations(orderId, i + 1, o);
+					
+					if(i == 0)
+					{
+						masterTab = newTab;
+					}
+
+					i++;
+				}
+
+				OnCloseTab(false);
+				return Result.Failure(Errors.Orders.Order.AcceptException);
 			}
 
 			if(!CheckCertificates(canSaveFromHere: true))
@@ -2764,9 +2851,9 @@ namespace Vodovoz
 
 		private void ProcessSmsNotification()
 		{
-			var uowFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
-			var smsNotifierSettings = ScopeProvider.Scope.Resolve<ISmsNotifierSettings>();
-			SmsNotifier smsNotifier = new SmsNotifier(uowFactory, smsNotifierSettings);
+			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			var smsNotifierSettings = _lifetimeScope.Resolve<ISmsNotifierSettings>();
+			var smsNotifier = new SmsNotifier(uowFactory, smsNotifierSettings);
 			smsNotifier.NotifyIfNewClient(Entity);
 		}
 
@@ -2774,10 +2861,8 @@ namespace Vodovoz
 		{
 			Entity.CheckAndSetOrderIsService();
 
-			ILifetimeScope autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
-			var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-
-			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
+			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			var validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
 			{
 				{ "NewStatus", OrderStatus.Accepted },
 				{ "uowFactory", uowFactory }
@@ -2785,7 +2870,6 @@ namespace Vodovoz
 
 			if(!Validate(validationContext))
 			{
-				autofacScope.Dispose();
 				return Result.Failure(Errors.Orders.Order.Validation);
 			}
 
@@ -2795,7 +2879,6 @@ namespace Vodovoz
 			}
 
 			OnFormOrderActions();
-			autofacScope.Dispose();
 			return Result.Success();
 		}
 

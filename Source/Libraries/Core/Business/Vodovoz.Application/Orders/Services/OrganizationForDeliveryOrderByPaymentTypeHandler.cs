@@ -13,36 +13,51 @@ using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	public class OrganizationForDeliveryOrderByPaymentTypeHandler : GetOrganizationForOrder, IGetOrganizationForOrder
+	/// <summary>
+	/// Обработчик для подбора организации для доставляемого заказа
+	/// </summary>
+	public class OrganizationForDeliveryOrderByPaymentTypeHandler : OrganizationForOrderByDelivery, IGetOrganizationForOrder
 	{
 		public OrganizationForDeliveryOrderByPaymentTypeHandler(
 			IOrganizationSettings organizationSettings,
 			IOrderSettings orderSettings,
 			IFastPaymentRepository fastPaymentRepository,
-			OrganizationForOrderFromSet organizationForOrderFromSet)
+			IOrganizationForOrderFromSet organizationForOrderFromSet)
 		: base(organizationSettings, orderSettings, fastPaymentRepository, organizationForOrderFromSet)
 		{
 		}
 
-		public IEnumerable<OrganizationForOrderWithOrderItems> GetOrganizationsWithOrderItems(
+		public IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			TimeSpan requestTime,
 			Order order,
 			IUnitOfWork uow)
 		{
-			return new List<OrganizationForOrderWithOrderItems>
+			return new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>
 			{
-				new OrganizationForOrderWithOrderItems(GetOrganizationForOrder(order, uow))
+				new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(GetOrganizationForOrder(requestTime, order, uow))
 			};
 		}
-		
+
+		/// <summary>
+		/// Подбор организации в зависимости от типа оплаты заказа
+		/// </summary>
+		/// <param name="requestTime">Время запроса</param>
+		/// <param name="order">Заказ, для которого подбирается организация</param>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="paymentType">Тип оплаты заказа</param>
+		/// <returns>Организация</returns>
+		/// <exception cref="NotSupportedException">Не поддерживается переданный тип оплаты</exception>
 		public Organization GetOrganizationForOrder(
+			TimeSpan requestTime,
 			Order order,
 			IUnitOfWork uow = null,
 			PaymentType? paymentType = null)
 		{
 			var onlineOrderId = order.OnlineOrder;
+			paymentType = order.PaymentType;
 
-			var organizationsByPaymentType = uow.GetAll<PaymentTypeOrganizationSettings>();
-			var paymentTypeOrganization = organizationsByPaymentType.FirstOrDefault(o => o.PaymentType == paymentType);
+			var organizationsByPaymentType = uow.GetAll<PaymentTypeOrganizationSettings>().ToList();
+			var paymentTypeOrganization = organizationsByPaymentType.FirstOrDefault(settings => settings.PaymentType == paymentType);
 
 			if(paymentTypeOrganization is null)
 			{
@@ -57,13 +72,13 @@ namespace Vodovoz.Application.Orders.Services
 				var organizationId = GetOrganizationId(
 					uow,
 					paymentTypeOrganization,
-					order.Id,
+					requestTime,
 					onlineOrderId);
 				
 				return uow.GetById<Organization>(organizationId);
 			}
 
-			return OrganizationForOrderFromSet.GetOrganizationForOrderFromSet(order.Id, paymentTypeOrganization);
+			return OrganizationForOrderFromSet.GetOrganizationForOrderFromSet(requestTime, paymentTypeOrganization);
 		}
 	}
 }

@@ -7,7 +7,10 @@ using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	public class OrganizationByPaymentTypeForOrderHandler : IGetOrganizationForOrder
+	/// <summary>
+	/// Обработчик для подбора организации по типу оплаты
+	/// </summary>
+	public class OrganizationByPaymentTypeForOrderHandler : OrganizationForOrderHandler
 	{
 		private readonly OrganizationForDeliveryOrderByPaymentTypeHandler _organizationForDeliveryOrderByPaymentTypeHandler;
 		private readonly OrganizationForSelfDeliveryOrderByPaymentTypeHandler _organizationForSelfDeliveryOrderByPaymentTypeHandler;
@@ -23,27 +26,43 @@ namespace Vodovoz.Application.Orders.Services
 				organizationForSelfDeliveryOrderByPaymentTypeHandler
 				?? throw new ArgumentNullException(nameof(organizationForSelfDeliveryOrderByPaymentTypeHandler));
 		}
-		
-		public IEnumerable<OrganizationForOrderWithOrderItems> GetOrganizationsWithOrderItems(
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="requestTime">Время запроса</param>
+		/// <param name="order"></param>
+		/// <param name="uow"></param>
+		/// <returns></returns>
+		public override IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			TimeSpan requestTime,
 			Order order,
 			IUnitOfWork uow)
 		{
-			return new List<OrganizationForOrderWithOrderItems>
+			return new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>
 			{
-				new OrganizationForOrderWithOrderItems(GetOrganizationForOrder(order, uow))
+				new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(GetOrganizationForOrder(requestTime, order, uow))
 			};
 		}
-		
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="requestTime">Время запроса</param>
+		/// <param name="order"></param>
+		/// <param name="uow"></param>
+		/// <returns></returns>
 		public Organization GetOrganizationForOrder(
+			TimeSpan requestTime,
 			Order order,
 			IUnitOfWork uow)
 		{
 			if(order.SelfDelivery || order.DeliveryPoint is null)
 			{
-				return _organizationForSelfDeliveryOrderByPaymentTypeHandler.GetOrganizationForOrder(order, uow);
+				return _organizationForSelfDeliveryOrderByPaymentTypeHandler.GetOrganizationForOrder(requestTime, order, uow);
 			}
 
-			return _organizationForDeliveryOrderByPaymentTypeHandler.GetOrganizationForOrder(order, uow);
+			return _organizationForDeliveryOrderByPaymentTypeHandler.GetOrganizationForOrder(requestTime, order, uow);
 		}
 	}
 }

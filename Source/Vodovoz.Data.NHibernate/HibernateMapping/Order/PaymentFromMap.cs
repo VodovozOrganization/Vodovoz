@@ -13,9 +13,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 
 			Map(x => x.Name).Column("name");
 			Map(x => x.IsArchive).Column("is_archive");
-			Map(x => x.OrganizationCriterion).Column("organization_criterion");
+			//Map(x => x.OrganizationCriterion).Column("organization_criterion");
 
-			References(x => x.OrganizationForOnlinePayments).Column("organization_for_avangard_payments_id");
+			//References(x => x.OrganizationForOnlinePayments).Column("organization_for_avangard_payments_id");
 		}
 	}
 }

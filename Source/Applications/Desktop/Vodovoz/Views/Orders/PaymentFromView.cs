@@ -1,6 +1,7 @@
 ﻿using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.Views.Common;
 
 namespace Vodovoz.Views.Orders
 {
@@ -26,17 +27,13 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			lblOrganizationForOnlinePayments.Visible = ViewModel.CanShowOrganization;
-
-			entryOrganization.ViewModel = ViewModel.OrganizationViewModel;
-			entryOrganization.Binding
-				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanEdit, w => w.ViewModel.IsEditable)
-				.AddBinding(vm => vm.CanShowOrganization, w => w.Visible)
-				.InitializeFromSource();
+			var organizationsWidget = new AddOrRemoveIDomainObjectView();
+			organizationsWidget.ViewModel = ViewModel.OrganizationsViewModel;
+			organizationsWidget.Show();
+			tableMain.Attach(organizationsWidget, 0, 1, 4, 5);
 
 			txtViewOrganizationCriterion.Binding
-				.AddBinding(ViewModel.Entity, e => e.OrganizationCriterion, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.OrganizationsCriterion, w => w.Buffer.Text)
 				.InitializeFromSource();
 
 			yChkIsArchive.Binding

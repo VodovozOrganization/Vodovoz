@@ -15,7 +15,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Settings
 			HasManyToMany(x => x.Organizations)
 				.Table("payment_types_orgs_settings_organizations")
 				.ParentKeyColumn("payment_types_organizations_settings_id")
-				.ChildKeyColumn("organization_id");
+				.ChildKeyColumn("organization_id")
+				.Not.LazyLoad();
 		}
 	}
 }

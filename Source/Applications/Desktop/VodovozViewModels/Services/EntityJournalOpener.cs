@@ -4,6 +4,7 @@ using System.Linq;
 using Autofac;
 using QS.Dialog;
 using QS.Navigation;
+using QS.Project.Journal;
 using QS.Tdi;
 using QS.ViewModels.Dialog;
 using Vodovoz.ViewModels.Journals.Mappings;
@@ -38,16 +39,16 @@ namespace Vodovoz.ViewModels.Services
 		/// <param name="openPageOptions">Тип открытия вкладки</param>
 		/// <returns></returns>
 		/// <exception cref="InvalidOperationException">Ошибка, если метод в навигаторе не найден</exception>
-		public IPage OpenJournalViewModel(
+		public IPage OpenJournalViewModelFromTdiTab(
 			Type entityType,
 			ITdiTab parentTab,
 			OpenPageOptions openPageOptions = OpenPageOptions.AsSlave)
 		{
-			var baseType = typeof(DialogViewModelBase);
-			var journalType = GetJournalType(entityType);
+			var baseType = typeof(JournalViewModelBase);
+			var entityJournalMap = GetEntityJournalMap(entityType);
 			const string methodName = "OpenViewModelOnTdi";
 
-			if(journalType.IsSubclassOf(baseType))
+			if(entityJournalMap.JournalType.IsSubclassOf(baseType))
 			{
 				var genericMethods = typeof(ITdiCompatibilityNavigation).GetMethods()
 					.Where(x => x.Name == methodName)
@@ -69,8 +70,8 @@ namespace Vodovoz.ViewModels.Services
 					throw new InvalidOperationException($"Can't find {methodName} on type {entityType.FullName}");
 				}
 					
-				return (IPage)initialMethod.MakeGenericMethod(journalType)
-					.Invoke(_navigation, new object[] { parentTab, openPageOptions, null, null });
+				return (IPage)initialMethod.MakeGenericMethod(entityJournalMap.JournalType)
+					.Invoke(_navigation, new [] { parentTab, openPageOptions, entityJournalMap.GetJournalConfigureAction(), null });
 			}
 
 			_interactiveService.ShowMessage(ImportanceLevel.Error, $"Не настроено открытие журналов не наследуюмых от { baseType }");
@@ -85,16 +86,16 @@ namespace Vodovoz.ViewModels.Services
 		/// <param name="openPageOptions">Тип открытия вкладки</param>
 		/// <returns></returns>
 		/// <exception cref="InvalidOperationException">Ошибка, если метод в навигаторе не найден</exception>
-		public IPage OpenJournalViewModel(
+		public IPage OpenJournalViewModelFromDialogViewModel(
 			Type entityType,
 			DialogViewModelBase parentViewModel,
 			OpenPageOptions openPageOptions = OpenPageOptions.AsSlave)
 		{
-			var baseType = typeof(DialogViewModelBase);
-			var journalType = GetJournalType(entityType);
+			var baseType = typeof(JournalViewModelBase);
+			var entityJournalMap = GetEntityJournalMap(entityType);
 			const string methodName = "OpenViewModel";
 
-			if(journalType.IsSubclassOf(baseType))
+			if(entityJournalMap.JournalType.IsSubclassOf(baseType))
 			{
 				var genericMethods = typeof(ITdiCompatibilityNavigation).GetMethods()
 					.Where(x => x.Name == methodName)
@@ -116,22 +117,22 @@ namespace Vodovoz.ViewModels.Services
 					throw new InvalidOperationException($"Can't find {methodName} on type {entityType.FullName}");
 				}
 				
-				return (IPage)initialMethod.MakeGenericMethod(journalType)
-					.Invoke(_navigation, new object[] { parentViewModel, openPageOptions, null, null });
+				return (IPage)initialMethod.MakeGenericMethod(entityJournalMap.JournalType)
+					.Invoke(_navigation, new [] { parentViewModel, openPageOptions, entityJournalMap.GetJournalConfigureAction(), null });
 			}
 			
 			_interactiveService.ShowMessage(ImportanceLevel.Error, $"Не настроено открытие журналов не наследуюмых от { baseType }");
 			return null;
 		}
 
-		private Type GetJournalType(Type entityType)
+		private EntityToJournalMapping GetEntityJournalMap(Type entityType)
 		{
 			if(_entityToJournalMappings.Journals.TryGetValue(entityType, out var entityToJournalMap))
 			{
-				return entityToJournalMap.JournalType;
+				return entityToJournalMap;
 			}
 			
-			throw new KeyNotFoundException($"Не зарегистрирован открываемый журнал для {entityType}");
+			throw new KeyNotFoundException($"Не зарегистрирован открываемый журнал в {nameof(EntityToJournalMappings)} для {entityType}");
 		}
 	}
 }

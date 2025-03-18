@@ -173,7 +173,7 @@ namespace Vodovoz.Domain.Goods
 		}
 		
 		/// <summary>
-		/// Является ли группа ребёнком другой группы товаров?
+		/// Является ли группа подгруппой другой группы товаров?
 		/// </summary>
 		/// <returns><c>true</c>, если является, <c>false</c> если не является.</returns>
 		/// <param name="productGroup">Головная группа</param>
@@ -200,10 +200,10 @@ namespace Vodovoz.Domain.Goods
 		}
 		
 		/// <summary>
-		/// Является ли группа ребёнком другой группы товаров?
+		/// Является ли группа подгруппой другой группы товаров?
 		/// </summary>
 		/// <returns><c>true</c>, если является, <c>false</c> если не является.</returns>
-		/// <param name="productGroupId">Головная группа</param>
+		/// <param name="productGroupId">Id головной группы</param>
 		public virtual bool IsChildOf(int productGroupId)
 		{
 			if(Id == productGroupId)

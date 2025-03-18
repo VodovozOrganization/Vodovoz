@@ -5,79 +5,78 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
+using System.Linq;
+using DynamicData;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Settings;
 using Vodovoz.ViewModels.Organizations;
+using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.ViewModels.Orders
 {
 	public class PaymentFromViewModel : EntityTabViewModelBase<PaymentFrom>, IAskSaveOnCloseViewModel
 	{
-		private readonly IOrderOrganizationSettingsRepository _orderOrganizationSettingsRepository;
-		private bool _newPaymentFromAddedToSettings;
+		private string _organizationsCriterion;
 
 		public PaymentFromViewModel(
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			IOrderOrganizationSettingsRepository orderOrganizationSettingsRepository,
-			ViewModelEEVMBuilder<Organization> organizationViewModelEEVMBuilder)
+			AddOrRemoveIDomainObjectViewModel addOrRemoveIDomainObjectViewModel)
 			: base(uoWBuilder, uowFactory, commonServices)
 		{
-			if(organizationViewModelEEVMBuilder is null)
-			{
-				throw new ArgumentNullException(nameof(organizationViewModelEEVMBuilder));
-			}
+			OrganizationsViewModel =
+				addOrRemoveIDomainObjectViewModel ?? throw new ArgumentNullException(nameof(addOrRemoveIDomainObjectViewModel));
 
-			_orderOrganizationSettingsRepository =
-				orderOrganizationSettingsRepository ?? throw new ArgumentNullException(nameof(orderOrganizationSettingsRepository));
-
-			CanShowOrganization = true;
-
-			OrganizationViewModel = organizationViewModelEEVMBuilder
-				.SetUnitOfWork(UoW)
-				.SetViewModel(this)
-				.ForProperty(Entity, x => x.OrganizationForOnlinePayments)
-				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-				.UseViewModelDialog<OrganizationViewModel>()
-				.Finish();
-
+			CanShowOrganizations = Entity.Id == 0;
+			InitializePaymentTypeOrganizationSettings();
 			SetDefaultOrganizationCriterion();
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
 		public bool AskSaveOnClose => CanEdit;
-		public bool CanShowOrganization { get; }
-		public IEntityEntryViewModel OrganizationViewModel { get; }
+		public bool CanShowOrganizations { get; }
+		public AddOrRemoveIDomainObjectViewModel OrganizationsViewModel { get; }
 
-		protected override bool BeforeSave()
+		public string OrganizationsCriterion
 		{
-			if(Entity.Id == 0 && !_newPaymentFromAddedToSettings)
+			get => _organizationsCriterion;
+			set => SetField(ref _organizationsCriterion, value);
+		}
+		
+		private void InitializePaymentTypeOrganizationSettings()
+		{
+			var onlinePaymentTypeOrganizationSettings =
+				UoW.GetAll<OnlinePaymentTypeOrganizationSettings>()
+					.FirstOrDefault(s =>
+						s.PaymentFrom.Id == Entity.Id);
+
+			if(onlinePaymentTypeOrganizationSettings is null)
 			{
-				var onlinePaymentTypeOrganizationSettings =
-					_orderOrganizationSettingsRepository.GetOnlinePaymentTypeOrganizationSettings(UoW);
-
-				if(onlinePaymentTypeOrganizationSettings is null)
+				onlinePaymentTypeOrganizationSettings = new OnlinePaymentTypeOrganizationSettings
 				{
-					ShowErrorMessage(
-						"В базе нет настроек для установки организации заказа для типа оплаты Оплачено онлайн. Сохранение не возможно");
-					return false;
-				}
+					PaymentFrom = Entity
+				};
 				
-				onlinePaymentTypeOrganizationSettings.PaymentsFrom.Add(Entity);
-				_newPaymentFromAddedToSettings = true;
+				UoW.Save(onlinePaymentTypeOrganizationSettings);
 			}
-
-			return true;
+			
+			OrganizationsViewModel.Configure(
+				typeof(Organization),
+				CanEdit,
+				"Организации для подбора в заказе: ",
+				UoW,
+				this,
+				onlinePaymentTypeOrganizationSettings.Organizations);
 		}
 
 		private void SetDefaultOrganizationCriterion()
 		{
-			if(Entity.Id == 0)
-			{
-				Entity.OrganizationCriterion = "Должны быть сохранены настройки для обмена с Модуль-кассой";
-			}
+			OrganizationsCriterion = "Должны быть сохранены настройки для обмена с Модуль-кассой";
 		}
 	}
 }

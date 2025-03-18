@@ -1,0 +1,319 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Flyers;
+using Vodovoz.Settings.Nomenclature;
+
+namespace Vodovoz.Models.Orders
+{
+	public class PartitionedOrder
+	{
+		private readonly IUnitOfWork _uow;
+		private readonly Order _copiedOrder;
+		private readonly Order _resultOrder;
+		private readonly int _paidDeliveryNomenclatureId;
+		private readonly IList<int> _flyersNomenclaturesIds;
+		private readonly int _fastDeliveryNomenclatureId;
+		private readonly int _masterCallNomenclatureId;
+		private bool _needCopyStockBottleDiscount;
+
+		public PartitionedOrder(
+			IUnitOfWork uow,
+			Order copiedOrder,
+			Order resultOrder,
+			INomenclatureSettings nomenclatureSettings,
+			IFlyerRepository flyerRepository)
+		{
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_copiedOrder = copiedOrder ?? throw new ArgumentNullException(nameof(copiedOrder));
+			_resultOrder = resultOrder ?? throw new ArgumentNullException(nameof(resultOrder));
+			
+			if(nomenclatureSettings is null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
+			}
+			
+			if(flyerRepository is null)
+			{
+				throw new ArgumentNullException(nameof(flyerRepository));
+			}
+
+			_paidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
+			_fastDeliveryNomenclatureId = nomenclatureSettings.FastDeliveryNomenclatureId;
+			_masterCallNomenclatureId = nomenclatureSettings.MasterCallNomenclatureId;
+			_flyersNomenclaturesIds = flyerRepository.GetAllFlyersNomenclaturesIds(_uow);
+		}
+		
+		/// <summary>
+		/// Копирование основных полей заказа
+		/// </summary>
+		public PartitionedOrder CopyFields()
+		{
+			_resultOrder.Client = _copiedOrder.Client;
+			_resultOrder.SelfDelivery = _copiedOrder.SelfDelivery;
+			_resultOrder.DeliveryPoint = _copiedOrder.DeliveryPoint;
+			_resultOrder.PaymentType = _copiedOrder.PaymentType;
+			_resultOrder.Author = _copiedOrder.Author;
+			_resultOrder.Comment = _copiedOrder.Comment;
+			_resultOrder.CommentLogist = _copiedOrder.CommentLogist;
+			_resultOrder.TareNonReturnReason = _copiedOrder.TareNonReturnReason;
+			_resultOrder.BillDate = _copiedOrder.BillDate;
+			_resultOrder.BottlesReturn = _copiedOrder.BottlesReturn;
+			_resultOrder.CollectBottles = _copiedOrder.CollectBottles;
+			_resultOrder.CommentManager = _copiedOrder.CommentManager;
+			_resultOrder.DocumentType = _copiedOrder.DocumentType;
+			_resultOrder.InformationOnTara = _copiedOrder.InformationOnTara;
+			_resultOrder.ReturnedTare = _copiedOrder.ReturnedTare;
+			_resultOrder.SignatureType = _copiedOrder.SignatureType;
+			_resultOrder.Trifle = _copiedOrder.Trifle;
+			_resultOrder.OrderAddressType = _copiedOrder.OrderAddressType;
+			_resultOrder.ReturnTareReasonCategory = _copiedOrder.ReturnTareReasonCategory;
+			_resultOrder.ReturnTareReason = _copiedOrder.ReturnTareReason;
+			_resultOrder.ContactPhone = _copiedOrder.ContactPhone;
+			_resultOrder.LogisticsRequirements = _copiedOrder.LogisticsRequirements;
+			_resultOrder.IsSecondOrder = _copiedOrder.IsSecondOrder;
+
+			return this;
+		}
+		
+		/// <summary>
+		/// Копирование полей, связанных с акцией бутыль
+		/// </summary>
+		public PartitionedOrder CopyStockBottle()
+		{
+			_resultOrder.IsBottleStock = _copiedOrder.IsBottleStock;
+			_resultOrder.BottlesByStockCount = _copiedOrder.BottlesByStockCount;
+			_needCopyStockBottleDiscount = true;
+
+			return this;
+		}
+		
+		/// <summary>
+		/// Копирует документы, которые были добавлены из других заказов.
+		/// Документы которые должны быть добавлены для текущего заказа, формируются автоматически!
+		/// </summary>
+		public PartitionedOrder CopyAttachedDocuments()
+		{
+			var attachedDocuments = _copiedOrder.OrderDocuments
+				.Where(x => x.AttachedToOrder != null)
+				.Where(x => x.Order.Id != _copiedOrder.Id);
+
+			_resultOrder.AddAdditionalDocuments(attachedDocuments);
+
+			return this;
+		}
+		
+		/// <summary>
+		/// Очистка товаров, оборудования и залогов
+		/// </summary>
+		/// <exception cref="NotImplementedException"></exception>
+		public void ClearGoodsAndEquipmentsAndDeposits()
+		{
+			_resultOrder.ObservablePromotionalSets.Clear();
+			_resultOrder.ObservableOrderItems.Clear();
+			_resultOrder.ObservableOrderEquipments.Clear();
+			_resultOrder.ObservableOrderDepositItems.Clear();
+		}
+		
+		/// <summary>
+		/// Копирование товаров (<see cref="OrderItem"/>) заказа и связанного с ним оборудования (<see cref="OrderEquipment"/>)
+		/// </summary>
+		/// <param name="withDiscounts">true - копируем со скидками false - не переносим скидки</param>
+		/// <param name="copyingItems">Копируемые товары заказа</param>
+		public PartitionedOrder CopyOrderItems(IEnumerable<OrderItem> copyingItems, bool withDiscounts = false)
+		{
+			var orderItems = copyingItems
+				.Where(x => x.PromoSet == null)
+				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId)
+				.Where(x => x.Nomenclature.Id != _fastDeliveryNomenclatureId)
+				.Where(x => x.Nomenclature.Id != _masterCallNomenclatureId);
+
+			foreach(var orderItem in orderItems)
+			{
+				CopyOrderItem(orderItem, withDiscounts);
+			}
+
+			_resultOrder.RecalculateItemsPrice();
+
+			return this;
+		}
+
+		/// <summary>
+		/// Копирование оборудования для части заказа <see cref="OrderEquipment"/>
+		/// </summary>
+		public PartitionedOrder CopyOrderEquipments(IEnumerable<OrderEquipment> orderEquipments)
+		{
+			if(orderEquipments is null)
+			{
+				return this;
+			}
+
+			orderEquipments = orderEquipments.Where(x => !_flyersNomenclaturesIds.Contains(x.Nomenclature.Id));
+			AddOrderEquipments(orderEquipments);
+
+			return this;
+		}
+
+		/// <summary>
+		/// Копирование возвратов залогов (<see cref="OrderDepositItem"/>)
+		/// </summary>
+		public PartitionedOrder CopyOrderDepositItems(IEnumerable<OrderDepositItem> orderDepositItems)
+		{
+			if(orderDepositItems is null)
+			{
+				return this;
+			}
+			
+			AddDepositItems(orderDepositItems);
+
+			return this;
+		}
+
+		/// <summary>
+		/// Копирование данных об оплате по карте
+		/// </summary>
+		public PartitionedOrder CopyPaymentByCardDataIfPossible()
+		{
+			if(_copiedOrder.PaymentType != PaymentType.PaidOnline)
+			{
+				return this;
+			}
+
+			_resultOrder.OnlineOrder = _copiedOrder.OnlineOrder;
+			_resultOrder.PaymentByCardFrom = _copiedOrder.PaymentByCardFrom;
+
+			return this;
+		}
+
+		/// <summary>
+		/// Копирование данных об оплате по QR коду из приложения водителя или СМС
+		/// </summary>
+		public PartitionedOrder CopyPaymentByQrDataIfPossible()
+		{
+			if(_copiedOrder.PaymentType != PaymentType.DriverApplicationQR
+				&& _copiedOrder.PaymentType != PaymentType.SmsQR)
+			{
+				return this;
+			}
+
+			_resultOrder.OnlineOrder = _copiedOrder.OnlineOrder;
+
+			return this;
+		}
+		
+		/// <summary>
+		/// Копирование промонаборов <see cref="PromotionalSet"/> и связанных с ними товаров <see cref="OrderItem"/>
+		/// <param name="copyingItems">Копируемые товары заказа</param>
+		/// </summary>
+		public PartitionedOrder CopyPromotionalSets(IEnumerable<OrderItem> copyingItems)
+		{
+			var promoSets =
+				(from copyingItem in copyingItems
+					where copyingItem.PromoSet != null
+					select copyingItem.PromoSet)
+				.ToList();
+
+			foreach(var promoSet in promoSets)
+			{
+				_resultOrder.ObservablePromotionalSets.Add(promoSet);
+			}
+
+			var orderItems = _copiedOrder.OrderItems
+				.Where(x => x.PromoSet != null)
+				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId);
+
+			foreach(var promosetOrderItem in orderItems)
+			{
+				CopyOrderItem(promosetOrderItem, true);
+			}
+
+			return this;
+		}
+
+		public Order GetResult()
+		{
+			_resultOrder.UpdateDocuments();
+			return _resultOrder;
+		}
+
+		private void CopyOrderItem(
+			OrderItem orderItem,
+			bool withDiscounts = false)
+		{
+			var newOrderItem = OrderItem.CreateForSale(_resultOrder, orderItem.Nomenclature, orderItem.Count, orderItem.Price);
+			
+			newOrderItem.PromoSet = orderItem.PromoSet;
+			newOrderItem.IsAlternativePrice = orderItem.IsAlternativePrice;
+			newOrderItem.IncludeNDS = orderItem.IncludeNDS;
+			
+			if(withDiscounts)
+			{
+				CopyingDiscounts(orderItem, newOrderItem, _needCopyStockBottleDiscount);
+			}
+
+			_resultOrder.AddOrderItem(newOrderItem);
+		}
+
+		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo, bool withStockBottleDiscount)
+		{
+			var isPromoset = orderItemFrom.PromoSet != null;
+
+			if(orderItemFrom.DiscountMoney > 0 && orderItemFrom.Discount > 0 && (orderItemFrom.DiscountReason != null || isPromoset))
+			{
+				orderItemTo.SetDiscount(orderItemFrom.IsDiscountInMoney, orderItemFrom.Discount, orderItemFrom.DiscountMoney, orderItemFrom.DiscountReason);
+			}
+			else if(orderItemFrom.OriginalDiscountMoney > 0 && orderItemFrom.OriginalDiscount > 0 && (orderItemFrom.OriginalDiscountReason != null || isPromoset))
+			{
+				orderItemTo.SetDiscount(orderItemFrom.IsDiscountInMoney, orderItemFrom.OriginalDiscount.Value, orderItemFrom.OriginalDiscountMoney.Value, orderItemFrom.OriginalDiscountReason);
+			}
+
+			if(withStockBottleDiscount)
+			{
+				orderItemTo.DiscountByStock = orderItemFrom.DiscountByStock;
+			}
+		}
+
+		private void AddOrderEquipments(IEnumerable<OrderEquipment> orderEquipments)
+		{
+			foreach(var orderEquipment in orderEquipments)
+			{
+				var newOrderEquipment = new OrderEquipment
+				{
+					Order = _resultOrder,
+					Direction = orderEquipment.Direction,
+					DirectionReason = orderEquipment.DirectionReason,
+					OrderItem = orderEquipment.OrderItem,
+					Equipment = orderEquipment.Equipment,
+					OwnType = orderEquipment.OwnType,
+					Nomenclature = orderEquipment.Nomenclature,
+					Reason = orderEquipment.Reason,
+					Confirmed = orderEquipment.Confirmed,
+					ConfirmedComment = orderEquipment.ConfirmedComment,
+					Count = orderEquipment.Count
+				};
+				
+				_resultOrder.ObservableOrderEquipments.Add(newOrderEquipment);
+			}
+		}
+		
+		private void AddDepositItems(IEnumerable<OrderDepositItem> orderDepositItems)
+		{
+			foreach(var depositItem in orderDepositItems)
+			{
+				var newDepositItem = new OrderDepositItem
+				{
+					Order = _resultOrder,
+					Count = depositItem.Count,
+					Deposit = depositItem.Deposit,
+					DepositType = depositItem.DepositType,
+					EquipmentNomenclature = depositItem.EquipmentNomenclature
+				};
+
+				_resultOrder.ObservableOrderDepositItems.Add(newDepositItem);
+			}
+		}
+	}
+}

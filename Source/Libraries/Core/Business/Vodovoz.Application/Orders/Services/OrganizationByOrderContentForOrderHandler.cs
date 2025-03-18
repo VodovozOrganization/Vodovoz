@@ -9,28 +9,43 @@ using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	public class OrganizationByOrderContentForOrderHandler : IGetOrganizationForOrder
+	/// <summary>
+	/// Обработчик для подбора организации исходя из товаров заказа
+	/// </summary>
+	public class OrganizationByOrderContentForOrderHandler : OrganizationForOrderHandler
 	{
 		private readonly OrganizationByOrderAuthorHandler _organizationByOrderAuthorHandler;
 		private readonly OrganizationByPaymentTypeForOrderHandler _organizationByPaymentTypeForOrderHandler;
-		
+		private readonly IOrganizationForOrderFromSet _organizationForOrderFromSet;
+
 		public OrganizationByOrderContentForOrderHandler(
 			OrganizationByOrderAuthorHandler organizationByOrderAuthorHandler,
-			OrganizationByPaymentTypeForOrderHandler organizationByPaymentTypeForOrderHandler)
+			OrganizationByPaymentTypeForOrderHandler organizationByPaymentTypeForOrderHandler,
+			IOrganizationForOrderFromSet organizationForOrderFromSet)
 		{
 			_organizationByOrderAuthorHandler =
 				organizationByOrderAuthorHandler ?? throw new ArgumentNullException(nameof(organizationByOrderAuthorHandler));
 			_organizationByPaymentTypeForOrderHandler =
 				organizationByPaymentTypeForOrderHandler
 				?? throw new ArgumentNullException(nameof(organizationByPaymentTypeForOrderHandler));
+			_organizationForOrderFromSet =
+				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 		}
-		
-		public IEnumerable<OrganizationForOrderWithOrderItems> GetOrganizationsWithOrderItems(
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="requestTime">Время запроса</param>
+		/// <param name="order"></param>
+		/// <param name="uow"></param>
+		/// <returns></returns>
+		public override IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			TimeSpan requestTime,
 			Order order,
 			IUnitOfWork uow = null)
 		{
-			var result = new List<OrganizationForOrderWithOrderItems>();
-			var setsOrganizations = new Dictionary<short, OrganizationForOrderWithOrderItems>();
+			var result = new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>();
+			var setsOrganizations = new Dictionary<short, OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>();
 			
 			var organizationsBasedOrderContent = uow.GetAll<OrganizationBasedOrderContentSettings>().ToArray();
 
@@ -41,6 +56,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			var processingOrderItems = order.OrderItems.ToList();
+			var processingEquipments = order.OrderEquipments.ToList();
 			
 			/*	1 - заполнено первое множество
 				1.1 - с организацией
@@ -61,13 +77,29 @@ namespace Vodovoz.Application.Orders.Services
 				
 				var i = 0;
 				var orderItemsForOrganization = new List<OrderItem>();
+				var orderEquipmentsForOrganization = new List<OrderEquipment>();
 
 				while(i < processingOrderItems.Count)
 				{
 					if(OrderItemBelongsSet(processingOrderItems[i], set))
 					{
 						orderItemsForOrganization.Add(processingOrderItems[i]);
+						
+						var dependentEquipments = processingEquipments.Where(
+							x =>
+								x.OrderItem.Id == processingOrderItems[i].Id
+								|| x.OrderRentDepositItem.Id == processingOrderItems[i].Id
+								|| x.OrderRentServiceItem.Id == processingOrderItems[i].Id)
+							.ToList();
+
+						foreach(var dependentEquipment in dependentEquipments)
+						{
+							orderEquipmentsForOrganization.Add(dependentEquipment);
+							processingEquipments.Remove(dependentEquipment);
+						}
+						
 						processingOrderItems.RemoveAt(i);
+						continue;
 					}
 
 					i++;
@@ -78,18 +110,29 @@ namespace Vodovoz.Application.Orders.Services
 					continue;
 				}
 
+				if(set.OrderContentSet == 1 && processingEquipments.Any())
+				{
+					orderEquipmentsForOrganization.AddRange(processingEquipments.Where(
+						x => x.OrderItem == null
+						&& x.OrderRentDepositItem == null
+						&& x.OrderRentServiceItem == null));
+				}
+
 				var org =
-					set.Organization ?? _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(order, uow);
+					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(DateTime.Now.TimeOfDay, set)
+					?? _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(requestTime, order, uow);
 				
-				setsOrganizations.Add(set.OrderContentSet, new OrganizationForOrderWithOrderItems(org, orderItemsForOrganization));
+				setsOrganizations.Add(
+					set.OrderContentSet,
+					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(org, orderItemsForOrganization, orderEquipmentsForOrganization));
 			}
 
 			if(!processingOrderItems.Any())
 			{
 				if(!setsOrganizations.Any())
 				{
-					var org = _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(order, uow);
-					result.Add(new OrganizationForOrderWithOrderItems(org, null));
+					var org = _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(requestTime, order, uow);
+					result.Add(new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(org, null));
 					return result;
 				}
 
@@ -97,8 +140,15 @@ namespace Vodovoz.Application.Orders.Services
 				return result;
 			}
 
-			return _organizationByOrderAuthorHandler.GetOrganizationsWithOrderItems(
-				setsOrganizations, order, processingOrderItems, uow);
+			var authorsResult = _organizationByOrderAuthorHandler.GetOrganizationsWithOrderItems(
+				requestTime, setsOrganizations, order, processingOrderItems, uow);
+
+			if(authorsResult.Any())
+			{
+				return authorsResult;
+			}
+			
+			return base.GetOrganizationsWithOrderItems(requestTime, order, uow);
 			
 			//TODO это должно вызываться в менеджере последним из обработчиков
 			/*var orgByPaymentType = _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(order, uow, paymentType);
@@ -136,15 +186,15 @@ namespace Vodovoz.Application.Orders.Services
 			return false;
 		}
 
-		private bool ContainsProductGroup(ProductGroup itemProductGroup, IEnumerable<ProductGroup> productGroups) =>
+		private bool ContainsProductGroup(ProductGroup itemProductGroup, IEnumerable<ProductGroup> settingsProductGroups) =>
 			itemProductGroup != null
-			&& productGroups.Any(discountProductGroup => ContainsProductGroup(itemProductGroup, discountProductGroup));
+			&& settingsProductGroups.Any(settingsProductGroup => ContainsProductGroup(itemProductGroup, settingsProductGroup));
 		
-		private bool ContainsProductGroup(ProductGroup itemProductGroup, ProductGroup productGroup)
+		private bool ContainsProductGroup(ProductGroup itemProductGroup, ProductGroup settingsProductGroup)
 		{
 			while(true)
 			{
-				if(itemProductGroup.Id == productGroup.Id)
+				if(itemProductGroup.Id == settingsProductGroup.Id)
 				{
 					return true;
 				}

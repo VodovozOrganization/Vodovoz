@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 
@@ -6,7 +7,8 @@ namespace VodovozBusiness.Domain.Orders
 {
 	public interface IGetOrganizationForOrder
 	{
-		IEnumerable<OrganizationForOrderWithOrderItems> GetOrganizationsWithOrderItems(
+		IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			TimeSpan requestTime,
 			Order order,
 			IUnitOfWork uow = null);
 	}

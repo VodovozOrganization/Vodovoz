@@ -5,6 +5,9 @@ using VodovozBusiness.Domain.Orders;
 
 namespace VodovozBusiness.Domain.Settings
 {
+	/// <summary>
+	/// Настройки для подбора организации по авторам заказа
+	/// </summary>
 	public class OrganizationByOrderAuthorSettings : PropertyChangedBase, IDomainObject
 	{
 		public static short DefaultSetForAuthorNotIncludedSet = 1;

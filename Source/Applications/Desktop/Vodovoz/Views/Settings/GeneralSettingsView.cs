@@ -321,6 +321,7 @@ namespace Vodovoz.Views.Settings
 				entityType,
 				true,
 				title,
+				ViewModel.UowOrderOrganizationSettings,
 				ViewModel,
 				entities);
 

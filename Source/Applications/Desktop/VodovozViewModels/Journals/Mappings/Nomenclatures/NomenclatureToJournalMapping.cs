@@ -6,11 +6,8 @@ namespace Vodovoz.ViewModels.Journals.Mappings.Nomenclatures
 	/// <summary>
 	/// Маппинг номенклатуры с открываемым журналом
 	/// </summary>
-	public class NomenclatureToJournalMapping : EntityToJournalMapping<Nomenclature>
+	public class NomenclatureToJournalMapping : EntityToJournalMapping<Nomenclature, NomenclaturesJournalViewModel>
 	{
-		public NomenclatureToJournalMapping()
-		{
-			Journal(typeof(NomenclaturesJournalViewModel));
-		}
+		
 	}
 }

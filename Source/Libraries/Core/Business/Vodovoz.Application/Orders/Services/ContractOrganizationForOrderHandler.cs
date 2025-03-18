@@ -7,7 +7,10 @@ using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	public class ContractOrganizationForOrderHandler : IGetOrganizationForOrder
+	/// <summary>
+	/// Обработчик для подбора организации из текущего контракта
+	/// </summary>
+	public class ContractOrganizationForOrderHandler : OrganizationForOrderHandler
 	{
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 
@@ -16,19 +19,27 @@ namespace Vodovoz.Application.Orders.Services
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 		}
 
-		public IEnumerable<OrganizationForOrderWithOrderItems> GetOrganizationsWithOrderItems(
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="requestTime">Время запроса</param>
+		/// <param name="order">Обрабатываемый заказ</param>
+		/// <param name="uow">UnitOfWork</param>
+		/// <returns></returns>
+		public override IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			TimeSpan requestTime,
 			Order order,
 			IUnitOfWork uow = null)
 		{
 			if(order.Id != 0 && order.Contract != null && _cashReceiptRepository.HasNeededReceipt(order.Id))
 			{
-				return new List<OrganizationForOrderWithOrderItems>
+				return new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>
 				{
-					new OrganizationForOrderWithOrderItems(order.Contract.Organization, null)
+					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(order.Contract.Organization, null)
 				};
 			}
 
-			return null;
+			return base.GetOrganizationsWithOrderItems(requestTime, order, uow);
 		}
 	}
 }

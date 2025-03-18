@@ -30,7 +30,8 @@ namespace Vodovoz.Infrastructure.Persistance.Settings
 			NamedDomainObjectNode resultAlias = null;
 
 			var query = uow.Session.QueryOver<OrganizationBasedOrderContentSettings>()
-				.WhereRestrictionOn(s => s.Nomenclatures).IsInG(nomenclatureIds)
+				.JoinAlias(settings => settings.Nomenclatures, () => nomenclatureAlias)
+				.WhereRestrictionOn(() => nomenclatureAlias.Id).IsInG(nomenclatureIds)
 				.And(s => s.Id != settingsId)
 				.SelectList(list => list
 					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)

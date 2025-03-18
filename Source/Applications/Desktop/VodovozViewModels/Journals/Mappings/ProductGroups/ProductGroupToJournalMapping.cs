@@ -6,11 +6,8 @@ namespace Vodovoz.ViewModels.Journals.Mappings.ProductGroups
 	/// <summary>
 	/// Маппинг группы товаров с открываемым журналом
 	/// </summary>
-	public class ProductGroupToJournalMapping : EntityToJournalMapping<ProductGroup>
+	public class ProductGroupToJournalMapping : EntityToJournalMapping<ProductGroup, ProductGroupsJournalViewModel>
 	{
-		public ProductGroupToJournalMapping()
-		{
-			Journal(typeof(ProductGroupsJournalViewModel));
-		}
+		
 	}
 }

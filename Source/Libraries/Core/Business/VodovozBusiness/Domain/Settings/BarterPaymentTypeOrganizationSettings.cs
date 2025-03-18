@@ -3,6 +3,9 @@ using Vodovoz.Domain.Client;
 
 namespace VodovozBusiness.Domain.Settings
 {
+	/// <summary>
+	/// Настройки для установки организации по бартеру
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "Настройки для установки организации по бартеру",
 		Nominative = "Настройка для установки организации по бартеру",

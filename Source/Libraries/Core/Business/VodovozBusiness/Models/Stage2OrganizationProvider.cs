@@ -238,6 +238,6 @@ namespace Vodovoz.Models
 		}
 
 		private int GetPaymentFromOrganisationIdOrDefault(PaymentFrom paymentFrom) =>
-			paymentFrom.OrganizationForOnlinePayments?.Id ?? _organizationSettings.VodovozNorthOrganizationId;
+			/*paymentFrom.OrganizationForOnlinePayments?.Id ??*/ _organizationSettings.VodovozNorthOrganizationId;
 	}
 }

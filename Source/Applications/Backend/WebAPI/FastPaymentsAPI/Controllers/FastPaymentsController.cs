@@ -105,8 +105,8 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				var requestType = RequestFromType.FromDesktopOrDriverAppByQr;
-				var organization = _fastPaymentService.GetOrganization(requestType);
+				var requestType = RequestFromType.FromDriverAppByQr;
+				var organization = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType);
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
 				try
@@ -199,8 +199,8 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				var requestType = isQr ? RequestFromType.FromDesktopOrDriverAppByQr : RequestFromType.FromDesktopByCard;
-				var organization = _fastPaymentService.GetOrganization(requestType);
+				var requestType = isQr ? RequestFromType.FromDesktopByQr : RequestFromType.FromDesktopByCard;
+				var organization = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType);
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
 				try
@@ -325,7 +325,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				var organization = _fastPaymentService.GetOrganization(requestType);
+				var organization = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType);
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				var callBackUrl = requestRegisterOnlineOrderDto.CallbackUrl;
 

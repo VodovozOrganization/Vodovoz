@@ -1,18 +1,30 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	public class OrganizationFromClientForOrderHandler : IGetOrganizationForOrder
+	/// <summary>
+	/// Обработчик для подбора организации через которую работает клиент
+	/// </summary>
+	public class OrganizationFromClientForOrderHandler : OrganizationForOrderHandler
 	{
-		public IEnumerable<OrganizationForOrderWithOrderItems> GetOrganizationsWithOrderItems(
+		public override IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			TimeSpan requestTime,
 			Order order,
 			IUnitOfWork uow = null)
-			=> new List<OrganizationForOrderWithOrderItems>
+		{
+			if(order.Client?.WorksThroughOrganization != null)
 			{
-				new OrganizationForOrderWithOrderItems(order.Client.WorksThroughOrganization)
-			};
+				return new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>
+				{
+					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(order.Client.WorksThroughOrganization)
+				};
+			}
+			
+			return base.GetOrganizationsWithOrderItems(requestTime, order, uow);
+		}
 	}
 }

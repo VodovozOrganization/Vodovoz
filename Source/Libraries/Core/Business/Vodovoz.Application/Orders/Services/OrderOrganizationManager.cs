@@ -7,6 +7,9 @@ using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
+	/// <summary>
+	/// Основной обработчик для подбора организаций для заказа
+	/// </summary>
 	public class OrderOrganizationManager : IGetOrganizationForOrder
 	{
 		private readonly OrderOurOrganizationForOrderHandler _orderOurOrganization;
@@ -14,8 +17,6 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly ContractOrganizationForOrderHandler _contractOrganization;
 		private readonly OrganizationByOrderContentForOrderHandler _organizationByOrderContentForOrderHandler;
 		private readonly OrganizationByPaymentTypeForOrderHandler _organizationByPaymentTypeForOrderHandler;
-
-		private readonly Queue<IGetOrganizationForOrder> _handlers = new Queue<IGetOrganizationForOrder>();
 
 		public OrderOrganizationManager(
 			OrderOurOrganizationForOrderHandler orderOurOrganization,
@@ -38,14 +39,54 @@ namespace Vodovoz.Application.Orders.Services
 
 		private void Initialize()
 		{
-			AddHandler(_orderOurOrganization);
-			AddHandler(_organizationFromClient);
-			AddHandler(_contractOrganization);
-			AddHandler(_organizationByOrderContentForOrderHandler);
-			AddHandler(_organizationByPaymentTypeForOrderHandler);
+			_orderOurOrganization.SetNextHandler(_organizationFromClient);
+			_organizationFromClient.SetNextHandler(_contractOrganization);
+			_contractOrganization.SetNextHandler(_organizationByOrderContentForOrderHandler);
+			_organizationByOrderContentForOrderHandler.SetNextHandler(_organizationByPaymentTypeForOrderHandler);
 		}
-		
-		public IEnumerable<OrganizationForOrderWithOrderItems> GetOrganizationsWithOrderItems(
+
+		public OrderForOrderWithGoodsEquipmentsAndDeposits GetOrderPartsByOrganizations(
+			TimeSpan requestTime,
+			Order order,
+			IUnitOfWork uow = null)
+		{
+			var orderParts = GetOrganizationsWithOrderItems(requestTime, order, uow);
+			var canSplitOrderWithDeposits = true;
+
+			if(order.OrderDepositItems.Any())
+			{
+				foreach(var orderPart in orderParts)
+				{
+					if(order.DepositsSum > orderPart.GoodsSum)
+					{
+						canSplitOrderWithDeposits = false;
+					}
+					else
+					{
+						canSplitOrderWithDeposits = true;
+						orderPart.OrderDepositItems = order.OrderDepositItems;
+						break;
+					}
+				}
+			}
+
+			return new OrderForOrderWithGoodsEquipmentsAndDeposits
+			{
+				CanSplitOrderWithDeposits = canSplitOrderWithDeposits,
+				OrderParts = orderParts
+			};
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="requestTime">Время запроса</param>
+		/// <param name="order">Обрабатываемый заказ</param>
+		/// <param name="uow">unit Of Work</param>
+		/// <returns>Список организаций с товарами</returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		public IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			TimeSpan requestTime,
 			Order order,
 			IUnitOfWork uow = null)
 		{
@@ -53,35 +94,8 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				throw new ArgumentNullException(nameof(order));
 			}
-			
-			IEnumerable<OrganizationForOrderWithOrderItems> organizationsWithGoods = null;
-			
-			while(organizationsWithGoods is null || !organizationsWithGoods.Any())
-			{
-				if(_handlers.Any())
-				{
-					organizationsWithGoods =
-						_handlers
-							.Dequeue()
-							.GetOrganizationsWithOrderItems(order, uow);
-				}
-				else
-				{
-					break;
-				}
-			}
 
-			return organizationsWithGoods;
-		}
-
-		public void AddHandler(IGetOrganizationForOrder handler)
-		{
-			_handlers.Enqueue(handler);
+			return _orderOurOrganization.GetOrganizationsWithOrderItems(requestTime, order, uow);
 		}
 	}
-	
-	/*public interface IManager : IGetOrganizationForOrder
-	{
-		void AddHandler(IGetOrganizationForOrder handler);
-	}*/
 }

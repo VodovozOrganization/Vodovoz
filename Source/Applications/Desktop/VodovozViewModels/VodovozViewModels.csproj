@@ -97,6 +97,7 @@
     <Compile Include="Journals\Mappings\EntityToJournalMapping.cs" />
     <Compile Include="Journals\Mappings\EntityToJournalMappings.cs" />
     <Compile Include="Journals\Mappings\Nomenclatures\NomenclatureToJournalMapping.cs" />
+    <Compile Include="Journals\Mappings\Organizations\OrganizationToJournalMapping.cs" />
     <Compile Include="Journals\Mappings\ProductGroups\ProductGroupToJournalMapping.cs" />
     <Compile Include="Journals\Mappings\Subdivisions\SubdivisionToJournalMapping.cs" />
     <Compile Include="Options\ConfigureGeoCoderApiOptions.cs" />

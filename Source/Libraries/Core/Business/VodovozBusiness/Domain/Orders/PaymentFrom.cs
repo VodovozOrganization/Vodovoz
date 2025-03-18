@@ -21,14 +21,14 @@ namespace Vodovoz.Domain.Orders
 	[EntityPermission]
 	public class PaymentFrom : PaymentFromEntity, IValidatableObject
 	{
-		private Organization _organizationForOnlinePayments;
+		/*private Organization _organizationForOnlinePayments;
 
 		[Display(Name = "Организация для онлайн оплаты")]
 		public virtual Organization OrganizationForOnlinePayments
 		{
 			get => _organizationForOnlinePayments;
 			set => SetField(ref _organizationForOnlinePayments, value);
-		}
+		}*/
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
@@ -50,7 +50,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Название должно быть заполнено", new[] { nameof(Name) });
 			}
 
-			if(Id == 0)
+			/*if(Id == 0)
 			{
 				if(OrganizationForOnlinePayments is null)
 				{
@@ -72,7 +72,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult("Организация присвоена источнику Авангарда, но в базе не заполнено avangard_shop_id",
 					new[] { nameof(OrganizationForOnlinePayments.AvangardShopId) });
-			}
+			}*/
 
 			using(var uow = uowFactory.CreateWithoutRoot())
 			{

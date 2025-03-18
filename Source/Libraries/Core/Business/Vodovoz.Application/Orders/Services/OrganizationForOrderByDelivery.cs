@@ -7,15 +7,18 @@ using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	public abstract class GetOrganizationForOrder
+	/// <summary>
+	/// Базовый класс для подбора организации по типу доставки
+	/// </summary>
+	public abstract class OrganizationForOrderByDelivery
 	{
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 
-		protected GetOrganizationForOrder(
+		protected OrganizationForOrderByDelivery(
 			IOrganizationSettings organizationSettings,
 			IOrderSettings orderSettings,
 			IFastPaymentRepository fastPaymentRepository,
-			OrganizationForOrderFromSet organizationForOrderFromSet)
+			IOrganizationForOrderFromSet organizationForOrderFromSet)
 		{
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			OrganizationForOrderFromSet =
@@ -26,32 +29,32 @@ namespace Vodovoz.Application.Orders.Services
 		
 		protected IOrganizationSettings OrganizationSettings { get; }
 		protected IOrderSettings OrderSettings { get; }
-		protected OrganizationForOrderFromSet OrganizationForOrderFromSet { get; }
+		protected IOrganizationForOrderFromSet OrganizationForOrderFromSet { get; }
 
 		protected int GetOrganizationId(
 			IUnitOfWork uow,
 			IOrganizations settingsOrganizations,
-			int orderId,
+			TimeSpan requestTime,
 			int? onlineOrderId)
 		{
 			if(!onlineOrderId.HasValue)
 			{
-				return GetOrganizationIdFromSet(settingsOrganizations, orderId);
+				return GetOrganizationIdFromSet(settingsOrganizations, requestTime);
 			}
 
 			var fastPayment = _fastPaymentRepository.GetPerformedFastPaymentByExternalId(uow, onlineOrderId.Value);
 			
 			if(fastPayment is null)
 			{
-				return GetOrganizationIdFromSet(settingsOrganizations, orderId);
+				return GetOrganizationIdFromSet(settingsOrganizations, requestTime);
 			}
 
-			return fastPayment.Organization?.Id ?? GetOrganizationIdFromSet(settingsOrganizations, orderId);
+			return fastPayment.Organization?.Id ?? GetOrganizationIdFromSet(settingsOrganizations, requestTime);
 		}
 
-		private int GetOrganizationIdFromSet(IOrganizations settingsOrganizations, int orderId)
+		private int GetOrganizationIdFromSet(IOrganizations settingsOrganizations, TimeSpan requestTime)
 		{
-			return OrganizationForOrderFromSet.GetOrganizationForOrderFromSet(orderId, settingsOrganizations).Id;
+			return OrganizationForOrderFromSet.GetOrganizationForOrderFromSet(requestTime, settingsOrganizations).Id;
 		}
 	}
 }

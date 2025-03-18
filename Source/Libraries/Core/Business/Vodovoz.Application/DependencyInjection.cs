@@ -14,6 +14,8 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
@@ -54,6 +56,9 @@ namespace Vodovoz.Application
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 			.AddScoped<OrderOrganizationManager>()
+			.AddScoped<IGetOrganizationForOrder, OrderOrganizationManager>()
+			.AddTransient<IOrganizationForOrderFromSet, OrganizationForOrderFromSet>()
+			.AddTransient<OrderOurOrganizationForOrderHandler>()
 			.AddTransient<ContractOrganizationForOrderHandler>()
 			.AddTransient<OrganizationByOrderAuthorHandler>()
 			.AddTransient<OrganizationByOrderContentForOrderHandler>()

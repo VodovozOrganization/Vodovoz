@@ -6,20 +6,24 @@
 	public enum RequestFromType
 	{
 		/// <summary>
-		/// ДВ или водительское приложение по Qr
+		/// ДВ по Qr
 		/// </summary>
-		FromDesktopOrDriverAppByQr = 10,
+		FromDesktopByQr,
+		/// <summary>
+		/// Водительское приложение по Qr
+		/// </summary>
+		FromDriverAppByQr,
 		/// <summary>
 		/// Сайт по Qr
 		/// </summary>
-		FromSiteByQr = 11,
+		FromSiteByQr,
 		/// <summary>
 		/// ДВ по карте
 		/// </summary>
-		FromDesktopByCard = 12,
+		FromDesktopByCard,
 		/// <summary>
 		/// МП по Qr
 		/// </summary>
-		FromMobileAppByQr = 13
+		FromMobileAppByQr
 	}
 }

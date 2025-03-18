@@ -8,6 +8,9 @@ using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.Application.Orders.Services
 {
+	/// <summary>
+	/// Обработчик для подбора организации по авторам заказа
+	/// </summary>
 	public class OrganizationByOrderAuthorHandler
 	{
 		private readonly OrganizationByPaymentTypeForOrderHandler _organizationByPaymentTypeForOrderHandler;
@@ -19,31 +22,39 @@ namespace Vodovoz.Application.Orders.Services
 				organizationByPaymentTypeForOrderHandler
 				?? throw new ArgumentNullException(nameof(organizationByPaymentTypeForOrderHandler));
 		}
-		
-		public IEnumerable<OrganizationForOrderWithOrderItems> GetOrganizationsWithOrderItems(
-			Dictionary<short, OrganizationForOrderWithOrderItems> setsOrganizations,
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="requestTime">Время запроса</param>
+		/// <param name="setsOrganizations"></param>
+		/// <param name="order"></param>
+		/// <param name="processingOrderItems"></param>
+		/// <param name="uow"></param>
+		/// <returns></returns>
+		public IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			TimeSpan requestTime,
+			Dictionary<short, OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> setsOrganizations,
 			Order order,
 			IEnumerable<OrderItem> processingOrderItems,
 			IUnitOfWork uow)
 		{
-			var result = new List<OrganizationForOrderWithOrderItems>();
+			var result = new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>();
 			var organizationByOrderAuthorSettings = uow.GetAll<OrganizationByOrderAuthorSettings>().SingleOrDefault();
 
 			if(organizationByOrderAuthorSettings is null)
 			{
-				return result;
+				//TODO проверить условие
+				return setsOrganizations.Values;
 			}
 
 			if(ContainsSubdivision(order.Author.Subdivision, organizationByOrderAuthorSettings.OrderAuthorsSubdivisions))
 			{
 				if(setsOrganizations.TryGetValue(
-					   organizationByOrderAuthorSettings.OrganizationBasedOrderContentSettings.OrderContentSet, out var setSettings))
+					organizationByOrderAuthorSettings.OrganizationBasedOrderContentSettings.OrderContentSet, out var setSettings))
 				{
-					var list = setSettings.OrderItems as List<OrderItem>;
-					list.AddRange(processingOrderItems);
-						
-					result.AddRange(setsOrganizations.Values);
-					return result;
+					UpdateOrganizationOrderItems(processingOrderItems, setSettings);
+					return setsOrganizations.Values;
 				}
 
 				//подумать, что делаем если каким-то образом там нет такого множества
@@ -53,37 +64,40 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(setsOrganizations.TryGetValue(OrganizationByOrderAuthorSettings.DefaultSetForAuthorNotIncludedSet, out var defaultSetSettings))
 			{
-				var list = defaultSetSettings.OrderItems as List<OrderItem>;
-				list.AddRange(processingOrderItems);
-					
-				result.AddRange(setsOrganizations.Values);
+				UpdateOrganizationOrderItems(processingOrderItems, defaultSetSettings);
 				return result;
 			}
 
-			var org = _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(order, uow);
-				
+			var org = _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(requestTime, order, uow);
+	
 			foreach(var orgWithOrderItems in setsOrganizations.Values)
 			{
 				if(orgWithOrderItems.Organization.Id != org.Id)
 				{
 					continue;
 				}
-
-				var list = orgWithOrderItems.OrderItems as List<OrderItem>;
-				list.AddRange(processingOrderItems);
-					
-				result.AddRange(setsOrganizations.Values);
-				return result;
-			}
 				
+				UpdateOrganizationOrderItems(processingOrderItems, orgWithOrderItems);
+				return setsOrganizations.Values;
+			}
+			
+			//TODO проверить условие
 			result.AddRange(setsOrganizations.Values);
-			result.Add(new OrganizationForOrderWithOrderItems(org, processingOrderItems));
+			result.Add(new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(org, processingOrderItems));
 
 			return result;
 		}
-		
+
 		private bool ContainsSubdivision(Subdivision authorSubdivision, IEnumerable<Subdivision> setSubdivisions) => 
 			authorSubdivision != null
 			&& setSubdivisions.Any(authorSubdivision.IsChildOf);
+		
+		private void UpdateOrganizationOrderItems(
+			IEnumerable<OrderItem> processingOrderItems,
+			OrganizationForOrderWithGoodsAndEquipmentsAndDeposits setSettings)
+		{
+			var list = setSettings.OrderItems as List<OrderItem>;
+			list.AddRange(processingOrderItems);
+		}
 	}
 }
