@@ -8,7 +8,7 @@ namespace TrueMarkApi.Client
 		{
 			services
 				.AddScoped<ITrueMarkApiClientFactory, TrueMarkApiClientFactory>()
-				.AddScoped<ITrueMarkApiClient>(sp=>sp.GetRequiredService<ITrueMarkApiClientFactory>().GetClient())
+				.AddScoped<ITrueMarkApiClient>(sp => sp.GetRequiredService<ITrueMarkApiClientFactory>().GetClient())
 				;
 
 			return services;
