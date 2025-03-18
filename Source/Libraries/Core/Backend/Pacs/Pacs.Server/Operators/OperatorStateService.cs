@@ -18,20 +18,16 @@ namespace Pacs.Server.Operators
 	public class OperatorStateService : IOperatorStateService
 	{
 		private readonly ILogger<OperatorStateService> _logger;
-		private readonly IOperatorServerStateMachineFactory _operatorStateMachineFactory;
 		private readonly IGlobalBreakController _globalBreakController;
 		private readonly IOperatorBreakAvailabilityService _operatorBreakAvailabilityService;
 		private readonly IPacsRepository _pacsRepository;
 		private readonly IOperatorPhoneService _operatorPhoneService;
 		private readonly IOperatorRepository _operatorRepository;
 
-		private readonly ConcurrentDictionary<int, OperatorServerStateMachine> _operatorControllers;
-
 		private readonly TimeSpan _warmUpOperatorStatesFromNodTimeSpan = TimeSpan.FromHours(-15);
 
 		public OperatorStateService(
 			ILogger<OperatorStateService> logger,
-			IOperatorServerStateMachineFactory operatorStateMachineFactory,
 			IGlobalBreakController globalBreakController,
 			IOperatorBreakAvailabilityService operatorBreakAvailabilityService,
 			IPacsRepository pacsRepository,
@@ -40,8 +36,6 @@ namespace Pacs.Server.Operators
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
-			_operatorStateMachineFactory = operatorStateMachineFactory
-				?? throw new ArgumentNullException(nameof(operatorStateMachineFactory));
 			_globalBreakController = globalBreakController
 				?? throw new ArgumentNullException(nameof(globalBreakController));
 			_operatorBreakAvailabilityService = operatorBreakAvailabilityService
@@ -52,10 +46,6 @@ namespace Pacs.Server.Operators
 				?? throw new ArgumentNullException(nameof(phoneController));
 			_operatorRepository = operatorRepository
 				?? throw new ArgumentNullException(nameof(operatorRepository));
-
-			_operatorControllers = new ConcurrentDictionary<int, OperatorServerStateMachine>();
-
-			WarmUpOperatorStates();
 		}
 
 		public async Task<OperatorResult> ChangePhone(int operatorId, string phoneNumber)

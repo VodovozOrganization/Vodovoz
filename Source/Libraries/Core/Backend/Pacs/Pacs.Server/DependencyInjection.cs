@@ -16,17 +16,14 @@ namespace Pacs.Server
 		public static IServiceCollection AddPacsOperatorServices(this IServiceCollection services)
 		{
 			services
-				.AddSingleton<IOperatorPhoneService, OperatorPhoneService>()
-				.AddSingleton<IOperatorRepository, OperatorRepository>()
-				.AddSingleton<IOperatorServerStateMachineFactory, OperatorServerStateMachineFactory>()
-				.AddSingleton<IOperatorStateService, OperatorStateService>()
-				.AddSingleton<IOperatorNotifier, OperatorNotifier>()
-				.AddSingleton<IPhoneRepository, PhoneRepository>()
-				.AddSingleton<IBreakAvailabilityNotifier, BreakAvailabilityNotifier>()
-				.AddSingleton<IPacsRepository, PacsRepository>()
-				.AddSingleton<IGlobalBreakController, GlobalBreakController>()
-				.AddSingleton<IOperatorBreakAvailabilityService, OperatorBreakAvailabilityService>();
-				;
+				.AddScoped<IOperatorPhoneService, OperatorPhoneService>()
+				.AddScoped<IOperatorRepository, OperatorRepository>()
+				.AddScoped<IOperatorStateService, OperatorStateService>()
+				.AddScoped<IOperatorNotifier, OperatorNotifier>()
+				.AddScoped<IBreakAvailabilityNotifier, BreakAvailabilityNotifier>()
+				.AddScoped<IPacsRepository, PacsRepository>()
+				.AddScoped<IGlobalBreakController, GlobalBreakController>()
+				.AddScoped<IOperatorBreakAvailabilityService, OperatorBreakAvailabilityService>();
 
 			services.AddPacsMassTransit(
 				(context, rabbitCfg) =>
