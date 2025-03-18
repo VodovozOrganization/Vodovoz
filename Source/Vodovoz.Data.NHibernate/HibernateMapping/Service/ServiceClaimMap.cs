@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Service;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Service

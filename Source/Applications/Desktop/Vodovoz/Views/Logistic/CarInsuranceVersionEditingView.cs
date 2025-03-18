@@ -2,6 +2,7 @@
 using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using System.ComponentModel;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
@@ -56,7 +57,7 @@ namespace Vodovoz.Views.Logistic
 				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>((filter) =>
 				{
-					filter.CounterpartyType = Domain.Client.CounterpartyType.Supplier;
+					filter.CounterpartyType = CounterpartyType.Supplier;
 				})
 				.Finish();
 		}

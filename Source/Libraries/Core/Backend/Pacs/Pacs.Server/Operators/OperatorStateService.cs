@@ -22,7 +22,7 @@ namespace Pacs.Server.Operators
 		private readonly IGlobalBreakController _globalBreakController;
 		private readonly IOperatorBreakAvailabilityService _operatorBreakAvailabilityService;
 		private readonly IPacsRepository _pacsRepository;
-		private readonly IPhoneController _phoneController;
+		private readonly IOperatorPhoneService _operatorPhoneService;
 		private readonly IOperatorRepository _operatorRepository;
 
 		private readonly ConcurrentDictionary<int, OperatorServerStateMachine> _operatorControllers;
@@ -35,7 +35,7 @@ namespace Pacs.Server.Operators
 			IGlobalBreakController globalBreakController,
 			IOperatorBreakAvailabilityService operatorBreakAvailabilityService,
 			IPacsRepository pacsRepository,
-			IPhoneController phoneController,
+			IOperatorPhoneService phoneController,
 			IOperatorRepository operatorRepository)
 		{
 			_logger = logger
@@ -48,7 +48,7 @@ namespace Pacs.Server.Operators
 				?? throw new ArgumentNullException(nameof(operatorBreakAvailabilityService));
 			_pacsRepository = pacsRepository
 				?? throw new ArgumentNullException(nameof(pacsRepository));
-			_phoneController = phoneController
+			_operatorPhoneService = phoneController
 				?? throw new ArgumentNullException(nameof(phoneController));
 			_operatorRepository = operatorRepository
 				?? throw new ArgumentNullException(nameof(operatorRepository));
@@ -71,16 +71,15 @@ namespace Pacs.Server.Operators
 
 				await CheckConnection(operatorStateMachine);
 
-				if(!_phoneController.ValidatePhone(phoneNumber))
+				if(!_operatorPhoneService.ValidatePhone(phoneNumber))
 				{
 					return new OperatorResult(GetResultContent(operatorStateMachine), $"Неизвестный номер телефона {phoneNumber}");
 				}
 
-				if(!_phoneController.CanAssign(phoneNumber, operatorId))
+				if(!_operatorPhoneService.CanAssign(phoneNumber, operatorId))
 				{
 					return new OperatorResult(GetResultContent(operatorStateMachine), $"Номер телефона {phoneNumber}, уже используется другим оператором");
 				}
-
 
 				if(!operatorStateMachine.CanChangedBy(OperatorTrigger.ChangePhone))
 				{
@@ -218,12 +217,12 @@ namespace Pacs.Server.Operators
 
 				await CheckConnection(operatorStateMachine);
 
-				if(!_phoneController.ValidatePhone(phoneNumber))
+				if(!_operatorPhoneService.ValidatePhone(phoneNumber))
 				{
 					return new OperatorResult(GetResultContent(operatorStateMachine), $"Неизвестный номер телефона {phoneNumber}");
 				}
 
-				if(!_phoneController.CanAssign(phoneNumber, operatorId))
+				if(!_operatorPhoneService.CanAssign(phoneNumber, operatorId))
 				{
 					return new OperatorResult(GetResultContent(operatorStateMachine), $"Номер телефона {phoneNumber}, уже используется другим оператором");
 				}

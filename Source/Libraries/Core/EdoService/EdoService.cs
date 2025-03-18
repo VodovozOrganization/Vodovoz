@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -51,6 +52,17 @@ namespace EdoService.Library
 					{
 						edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
 					}
+
+					var edoTask =
+						uow
+							.GetAll<BulkAccountingEdoTask>()
+							.FirstOrDefault(x => x.OrderEdoRequest.Order.Id == entity.Id);
+					
+					if(edoTask != null)
+					{
+						edoTask.Status = EdoTaskStatus.New;
+						uow.Save(edoTask);
+					}
 				}
 
 				uow.Save(edoDocumentsActions);
@@ -81,6 +93,8 @@ namespace EdoService.Library
 			{
 				edoDocumentsAction.IsNeedToResendEdoBill = true;
 			}
+
+			edoDocumentsAction.Created = DateTime.Now;
 
 			return edoDocumentsAction;
 		}

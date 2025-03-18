@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace DeliveryRulesService.DTO
@@ -7,9 +7,11 @@ namespace DeliveryRulesService.DTO
 	{
 		private DeliveryRulesResponseStatus statusEnum;
 		[JsonIgnore]
-		public DeliveryRulesResponseStatus StatusEnum {
+		public DeliveryRulesResponseStatus StatusEnum
+		{
 			get => statusEnum;
-			set {
+			set
+			{
 				statusEnum = value;
 				Status = statusEnum.ToString();
 			}

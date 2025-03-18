@@ -1,7 +1,8 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DatabaseServiceWorker.PowerBiWorker;
-using DatabaseServiceWorker.PowerWorker.Helpers;
+using DatabaseServiceWorker.PowerBiWorker.Exporters;
+using DatabaseServiceWorker.PowerBiWorker.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -51,7 +52,8 @@ namespace DatabaseServiceWorker
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 							typeof(QS.Attachments.Domain.Attachment).Assembly,
-							typeof(EmployeeWithLoginMap).Assembly
+							typeof(EmployeeWithLoginMap).Assembly,
+							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
 						)
 						.AddDatabaseConnection()
 						.AddCore()
@@ -60,15 +62,15 @@ namespace DatabaseServiceWorker
 
 						.AddHostedService<MonitoringArchivingWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(MonitoringArchivingWorker))
-
+						
 						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(ClearFastDeliveryAvailabilityHistoryWorker))
 						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
-
+						
 						.AddHostedService<TechInspectWorker>()
 						.ConfigureTechInspectWorker(hostContext)
 						.ConfigureZabbixSenderFromDataBase(nameof(TechInspectWorker))
-
+						
 						.AddHostedService<FuelTransactionsControlWorker>()
 						.AddFuelTransactionsControlWorker(hostContext)
 						.ConfigureZabbixSenderFromDataBase(nameof(FuelTransactionsControlWorker))
@@ -77,6 +79,7 @@ namespace DatabaseServiceWorker
 						.ConfigurePowerBiExportWorker(hostContext)
 						.ConfigureZabbixSenderFromDataBase(nameof(PowerBiExportWorker))
 						.AddScoped<IPowerBiConnectionFactory, PowerBiConnectionFactory>()
+						.AddScoped<IPowerBiExporter, PowerBiExporter>()
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

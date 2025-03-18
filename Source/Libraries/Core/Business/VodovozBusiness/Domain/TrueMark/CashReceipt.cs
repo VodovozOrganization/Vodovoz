@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.TrueMark
@@ -32,6 +33,7 @@ namespace Vodovoz.Domain.TrueMark
 		private bool _withoutMarks;
 		private int? _innerNumber;
 		private int? _сashboxId;
+		private int? _edoTaskId;
 		private IList<CashReceiptProductCode> _scannedCodes = new List<CashReceiptProductCode>();
 		private GenericObservableList<CashReceiptProductCode> _observableScannedCodes;
 
@@ -155,6 +157,13 @@ namespace Vodovoz.Domain.TrueMark
 			get => _scannedCodes;
 			set => SetField(ref _scannedCodes, value);
 		}
+		
+		[Display(Name = "Id задачи на создание чека")]
+		public virtual int? EdoTaskId
+		{
+			get => _edoTaskId;
+			set => SetField(ref _edoTaskId, value);
+		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<CashReceiptProductCode> ObservableScannedCodes
@@ -177,6 +186,6 @@ namespace Vodovoz.Domain.TrueMark
 
 		public virtual string DocumentId => GetDocumentId(Order.Id, InnerNumber);
 
-		public static int MaxMarkCodesInReceipt => 128;
+		public static int MaxMarkCodesInReceipt => 100;
 	}
 }

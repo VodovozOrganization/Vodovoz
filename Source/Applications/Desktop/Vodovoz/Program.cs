@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using EdoService.Library;
@@ -166,6 +166,11 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 using VodovozInfrastructure;
 using Vodovoz.Application.Options;
 using Vodovoz.Options;
+using DriverApi.Notifications.Client;
+using Edo.Transport;
+using Edo.Common;
+using TrueMarkApi.Client;
+using TrueMark.Codes.Pool;
 using Vodovoz.ViewModels.Journals.Mappings;
 using Vodovoz.ViewModels.Services;
 
@@ -292,7 +297,10 @@ namespace Vodovoz
 
 					builder.RegisterType<RouteListDailyNumberProvider>()
 						.As<IRouteListDailyNumberProvider>();
-					builder.RegisterType<TrueMarkCodesPool>()
+
+					# region TrueMark
+
+					builder.RegisterType<Models.TrueMark.TrueMarkCodesPool>()
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
@@ -300,10 +308,20 @@ namespace Vodovoz
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
+					builder.RegisterType<TrueMarkCodesChecker>()
+						.AsSelf()
+						.InstancePerLifetimeScope();
+
+					builder.RegisterType<TrueMarkTaskCodesValidator>()
+						.As<ITrueMarkCodesValidator>()
+						.InstancePerLifetimeScope();
+
 					builder.RegisterType<TrueMarkWaterCodeParser>()
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
+					#endregion TrueMark
+					
 					builder.RegisterType<ReceiptManualController>()
 						.AsSelf()
 						.InstancePerLifetimeScope();
@@ -713,12 +731,14 @@ namespace Vodovoz
 						.AddSingleton<ViewModelWidgetsRegistrar>()
 						.AddApplication()
 						.AddBusiness(hostingContext.Configuration)
+						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
 						.AddCoreDataRepositories()
 						.AddScoped<IFuelApiService, FuelApiService>()
 						.AddScoped<IFuelCardVersionService, FuelCardVersionService>()
 						.AddFuelControl(hostingContext)
-
+						.AddCodesPool()
+						
 						//Messages
 						.AddSingleton<MessagesHostedService>()
 						.AddSingleton<IMessageTransportInitializer>(ctx => ctx.GetRequiredService<MessagesHostedService>())
@@ -729,6 +749,7 @@ namespace Vodovoz
 						.AddTransient<EntityModelFactory>()
 
 						.AddPacs()
+						.AddScoped<MessageService>()
 						.AddWaterDeliveryDesktop()
 						.AddSingleton<EntityToJournalMappings>()
 						.AddScoped<EntityJournalOpener>()

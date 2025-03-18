@@ -25,7 +25,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.NotificationRecievers;
+using Vodovoz.NotificationSenders;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private readonly IDictionary<Type, IPermissionResult> _domainObjectsPermissions;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IUserRepository _userRepository;
-		private readonly ICashRequestForDriverIsGivenForTakeNotificationReciever _cashRequestForDriverIsGivenForTakeNotificationReciever;
+		private readonly ICashRequestForDriverIsGivenForTakeNotificationSender _cashRequestForDriverIsGivenForTakeNotificationSender;
 		private readonly ICashlessRequestFileStorageService _cashlessRequestFileStorageService;
 		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -79,7 +79,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			ILifetimeScope scope,
 			ICurrentPermissionService currentPermissionService,
 			IUserRepository userRepository,
-			ICashRequestForDriverIsGivenForTakeNotificationReciever cashRequestForDriverIsGivenForTakeNotificationReciever,
+			ICashRequestForDriverIsGivenForTakeNotificationSender cashRequestForDriverIsGivenForTakeNotificationSender,
 			ICashlessRequestFileStorageService cashlessRequestFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory, 
 			bool createSelectAction = true)
@@ -95,8 +95,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_cashRequestForDriverIsGivenForTakeNotificationReciever = cashRequestForDriverIsGivenForTakeNotificationReciever
-				?? throw new ArgumentNullException(nameof(cashRequestForDriverIsGivenForTakeNotificationReciever));
+			_cashRequestForDriverIsGivenForTakeNotificationSender = cashRequestForDriverIsGivenForTakeNotificationSender
+				?? throw new ArgumentNullException(nameof(cashRequestForDriverIsGivenForTakeNotificationSender));
 			_cashlessRequestFileStorageService = cashlessRequestFileStorageService ?? throw new ArgumentNullException(nameof(cashlessRequestFileStorageService));
 			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
 			_createSelectAction = createSelectAction;
@@ -479,7 +479,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_cashRepository,
 				NavigationManager,
 				_scope,
-				_cashRequestForDriverIsGivenForTakeNotificationReciever
+				_cashRequestForDriverIsGivenForTakeNotificationSender
 			);
 		}
 
@@ -503,14 +503,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			if(FilterViewModel != null)
 			{
-				if(FilterViewModel.StartDate.HasValue)
+				var startDate = FilterViewModel.StartDate;
+				var endDate = FilterViewModel.EndDate;
+				
+				if(startDate.HasValue)
 				{
-					result.Where(() => cashRequestAlias.Date >= FilterViewModel.StartDate.Value.Date);
+					result.Where(() => cashRequestAlias.Date >= startDate.Value.Date);
 				}
 
-				if(FilterViewModel.EndDate.HasValue)
+				if(endDate.HasValue)
 				{
-					result.Where(() => cashRequestAlias.Date < FilterViewModel.EndDate.Value.Date.AddDays(1));
+					result.Where(() => cashRequestAlias.Date < endDate.Value.Date.AddDays(1));
 				}
 
 				if(FilterViewModel.Author != null)

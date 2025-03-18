@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -88,10 +90,7 @@ namespace Vodovoz.Models.CashReceipts
 					.Where(x => x.OrderItem.Id == orderItem.Id)
 					.ToList();
 
-				if(orderItemsCodes.Any(x => string.IsNullOrWhiteSpace(x.ResultCode.RawCode)))
-				{
-					throw new TrueMarkException(_notValidRawCode);
-				}
+				CheckCodes(orderItemsCodes);
 
 				if(orderItemsCodes.Count < orderItem.Count)
 				{
@@ -198,10 +197,7 @@ namespace Vodovoz.Models.CashReceipts
 				var orderItemsCodes =
 					new Queue<CashReceiptProductCode>(cashReceipt.ScannedCodes.Where(x => x.OrderItem.Id == orderItem.Id));
 
-				if(orderItemsCodes.Any(x => string.IsNullOrWhiteSpace(x.ResultCode.RawCode)))
-				{
-					throw new TrueMarkException(_notValidRawCode);
-				}
+				CheckCodes(orderItemsCodes);
 
 				if(orderItem.Count == 1)
 				{
@@ -252,6 +248,22 @@ namespace Vodovoz.Models.CashReceipts
 			}
 		}
 
+		private void CheckCodes(IEnumerable<CashReceiptProductCode> productCodes)
+		{
+			foreach(var productCode in productCodes)
+			{
+				if(string.IsNullOrWhiteSpace(productCode.ResultCode.RawCode))
+				{
+					throw new TrueMarkException(_notValidRawCode);
+				}
+				
+				if(!productCode.ResultCode.IsTag1260Valid)
+				{
+					throw new TrueMarkException("В чеке содержатся коды, не прошедшие разрешительный режим(тэг 1260)");
+				}
+			}
+		}
+
 		private TrueMarkWaterIdentificationCode TryGetCodeFromScannedCodes(
 			Queue<CashReceiptProductCode> orderItemsCodes, OrderItem orderItem)
 		{
@@ -292,7 +304,7 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			var organization = orderItem.Order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == Domain.Goods.VAT.No)
+			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == VAT.No)
 			{
 				inventPosition.VatTag = (int)VatTag.VatFree;
 				return;

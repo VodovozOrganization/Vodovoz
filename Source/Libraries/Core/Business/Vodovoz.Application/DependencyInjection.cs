@@ -19,6 +19,7 @@ using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
+using DriverApi.Notifications.Client;
 
 namespace Vodovoz.Application
 {
@@ -55,6 +56,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+			.AddDriverApiNotificationsSenders()
 			.AddScoped<OrderOrganizationManager>()
 			.AddScoped<IGetOrganizationForOrder, OrderOrganizationManager>()
 			.AddTransient<IOrganizationForOrderFromSet, OrganizationForOrderFromSet>()

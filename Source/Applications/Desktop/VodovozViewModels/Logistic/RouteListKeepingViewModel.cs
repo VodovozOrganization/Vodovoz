@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using MoreLinq;
 using QS.Commands;
@@ -18,8 +18,15 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Edo.Transport;
+using Microsoft.Extensions.Logging;
+using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -27,7 +34,9 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Edo;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -38,11 +47,14 @@ using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.Services.TrueMark;
+using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Vodovoz
 {
 	public partial class RouteListKeepingViewModel : EntityTabViewModelBase<RouteList>, ITDICloseControlTab, IAskSaveOnCloseViewModel
 	{
+		private readonly ILogger<RouteListKeepingViewModel> _logger;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -51,6 +63,7 @@ namespace Vodovoz
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly IServiceProvider _serviceProvider;
+		private readonly IOrderRepository _orderRepository;
 		private readonly IPermissionResult _permissionResult;
 
 		private Employee _previousForwarder = null;
@@ -59,12 +72,17 @@ namespace Vodovoz
 		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _forwarderViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _logisticianViewModelEEVMBuilder;
+		private readonly IDictionary<int, (bool Pushed, OrderEdoRequest Request)> _createdOrderEdoRequests =
+			new Dictionary<int, (bool Pushed, OrderEdoRequest Request)>();
+		private readonly IEdoSettings _edoSettings;
+		private readonly MessageService _edoMessageService;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
 		private UndeliveryViewModel _undeliveryViewModel;
 
 		public RouteListKeepingViewModel(
+			ILogger<RouteListKeepingViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -78,13 +96,17 @@ namespace Vodovoz
 			IGeneralSettings generalSettings,
 			IServiceProvider serviceProvider,
 			ICallTaskWorker callTaskWorker,
+			IOrderRepository orderRepository,
 			DeliveryFreeBalanceViewModel deliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> forwarderViewModelEEVMBuilder,
-			ViewModelEEVMBuilder<Employee> logisticianViewModelEEVMBuilder)
+			ViewModelEEVMBuilder<Employee> logisticianViewModelEEVMBuilder,
+			IEdoSettings edoSettings,
+			MessageService messageService)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -94,11 +116,16 @@ namespace Vodovoz
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 			CallTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+
 			DeliveryFreeBalanceViewModel = deliveryFreeBalanceViewModel ?? throw new ArgumentNullException(nameof(deliveryFreeBalanceViewModel));
 			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
 			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
 			_forwarderViewModelEEVMBuilder = forwarderViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(forwarderViewModelEEVMBuilder));
 			_logisticianViewModelEEVMBuilder = logisticianViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(logisticianViewModelEEVMBuilder));
+			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
+			_edoMessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -439,6 +466,12 @@ namespace Vodovoz
 				return;
 			}
 
+			if(!CanCompleteAddressByNewEdoProcess(rli, out var message))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
+				return;
+			}
+			
 			if(RouteListItem.GetUndeliveryStatuses().Contains(_routeListItemStatusToChange))
 			{
 				if(rli.InitialRouteListItemStatusIsInUndeliveryStatuses
@@ -488,6 +521,56 @@ namespace Vodovoz
 			}
 
 			rli.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
+			TryUpdateCreatedEdoRequests(rli, _routeListItemStatusToChange);
+		}
+
+		private void TryUpdateCreatedEdoRequests(RouteListKeepingItemNode rli, RouteListItemStatus addressStatus)
+		{
+			if(!_edoSettings.NewEdoProcessing)
+			{
+				return;
+			}
+
+			if(HasEdoRequest(rli.RouteListItem.Order.Id))
+			{
+				return;
+			}
+
+			var request = CreateOrderRequest(rli, rli.RouteListItem.TrueMarkCodes);
+			UpdateCreatedEdoRequests(request, addressStatus);
+		}
+
+		private bool CanCompleteAddressByNewEdoProcess(RouteListKeepingItemNode rli, out string message)
+		{
+			message = null;
+			var order = rli.RouteListItem.Order;
+			
+			if(_routeListItemStatusToChange == RouteListItemStatus.Completed
+			   && order.IsOrderContainsIsAccountableInTrueMarkItems
+			   && !_currentPermissionService.ValidatePresetPermission(
+				   Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
+			{
+				if(order.IsNeedIndividualSetOnLoad
+				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id))
+				{
+					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
+						"т.к. данный заказ является сетевым, но документ погрузки не находится в статусе \"Погрузка завершена\"";
+
+					return false;
+				}
+
+				if(order.IsOrderForResale
+				   && !order.IsNeedIndividualSetOnLoad
+				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
+				{
+					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
+					          "т.к. данный заказ на перепродажу, но не все коды ЧЗ были добавлены";
+
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		private void OnUndeliveryViewModelSaved(object sender, Application.Orders.UndeliveryOnOrderCloseEventArgs e)
@@ -497,6 +580,7 @@ namespace Vodovoz
 				.FirstOrDefault();
 
 			address.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
+			TryUpdateCreatedEdoRequests(address, _routeListItemStatusToChange);
 			UoW.Save(address.RouteListItem);
 		}
 
@@ -544,6 +628,12 @@ namespace Vodovoz
 				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 
 				UoW.Save(Entity.RouteListProfitability);
+				
+				foreach(var keyPairValue in _createdOrderEdoRequests)
+				{
+					UoW.Save(keyPairValue.Value.Request);
+				}
+
 				UoW.Commit();
 
 				var changedList = Items
@@ -571,6 +661,43 @@ namespace Vodovoz
 			}
 			
 			return base.BeforeSave();
+		}
+
+		public override bool Save(bool close)
+		{
+			if(!base.Save(false))
+			{
+				return false;
+			}
+
+			if(close)
+			{
+				Close(false, CloseSource.Save);
+			}
+
+			return true;
+		}
+
+		protected override void AfterSave()
+		{
+			if(_createdOrderEdoRequests.Any())
+			{
+				Task.Run(async() =>
+				{
+					foreach(var keyPairValue in _createdOrderEdoRequests)
+					{
+						var value = keyPairValue.Value;
+
+						if(value.Pushed)
+						{
+							continue;
+						}
+						
+						await _edoMessageService.PublishEdoRequestCreatedEvent(value.Request.Id);
+						value.Pushed = true;
+					}
+				});
+			}
 		}
 
 		#endregion
@@ -622,15 +749,70 @@ namespace Vodovoz
 
 		protected void SetStatusCompleteHandler()
 		{
-			foreach(RouteListKeepingItemNode item in SelectedRouteListAddresses)
+			var cantSetCompleteMessages = new StringBuilder();
+			
+			foreach(var item in SelectedRouteListAddresses)
 			{
 				if(item.Status == RouteListItemStatus.Transfered)
 				{
 					continue;
 				}
 
+				if(!CanCompleteAddressByNewEdoProcess(item, out var message))
+				{
+					cantSetCompleteMessages.AppendLine(message);
+					continue;
+				}
+				
 				Entity.ChangeAddressStatusAndCreateTask(UoW, item.RouteListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
+				TryUpdateCreatedEdoRequests(item, RouteListItemStatus.Completed);
 			}
+
+			if(cantSetCompleteMessages.Length > 0)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, cantSetCompleteMessages.ToString());
+			}
+		}
+		
+		private void UpdateCreatedEdoRequests(
+			OrderEdoRequest request,
+			RouteListItemStatus addressStatus = RouteListItemStatus.Completed)
+		{
+			var hasRequest = _createdOrderEdoRequests.ContainsKey(request.Order.Id);
+			
+			switch (hasRequest)
+			{
+				case true when addressStatus != RouteListItemStatus.Completed:
+					_createdOrderEdoRequests.Remove(request.Order.Id);
+					return;
+				case true:
+				case false when addressStatus != RouteListItemStatus.Completed:
+					return;
+				default:
+					_createdOrderEdoRequests.Add(request.Order.Id, (false, request));
+					break;
+			}
+		}
+
+		private static OrderEdoRequest CreateOrderRequest(
+			RouteListKeepingItemNode item,
+			IObservableList<RouteListItemTrueMarkProductCode> codes)
+		{
+			return new OrderEdoRequest
+			{
+				Order = item.RouteListItem.Order,
+				Source = CustomerEdoRequestSource.Manual,
+				Time = DateTime.Now,
+				DocumentType = EdoDocumentType.UPD,
+				Type = CustomerEdoRequestType.Order,
+				ProductCodes = new ObservableList<TrueMarkProductCode>(codes)
+			};
+		}
+
+		private bool HasEdoRequest(int orderId)
+		{
+			return UoW.GetAll<OrderEdoRequest>()
+				.FirstOrDefault(x => x.Order.Id == orderId) != null;
 		}
 
 		protected void CreateFineCommandHandler()

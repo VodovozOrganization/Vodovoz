@@ -7,10 +7,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
@@ -261,14 +264,20 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtin);
+			result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtins.Select(x => x.GtinNumber));
 
 			if(result.IsFailure)
 			{
 				return result;
 			}
 
-			return await IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
+			if(trueMarkWaterCode.ParentTransportCodeId == null
+				&& trueMarkWaterCode.ParentTransportCodeId == null)
+			{
+				return await IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
+			}
+
+			return Result.Success();
 		}
 
 		public async Task<Result> IsTrueMarkCodeCanBeChanged(
@@ -360,16 +369,35 @@ namespace WarehouseApi.Library.Errors
 
 			if(order is null)
 			{
-				var error = CarLoadDocumentErrors.CreateOrderNotFound(orderId);
-				LogError(error);
-				return Result.Failure(error);
+				_logger.LogWarning("Заказ {OrderId} не найден", orderId);
+				return CarLoadDocumentErrors.CreateOrderNotFound(orderId);
 			}
 
 			if(!order.IsNeedIndividualSetOnLoad)
 			{
-				var error = CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoad(orderId);
-				LogError(error);
-				return Result.Failure(error);
+				if(order.PaymentType != PaymentType.Cashless)
+				{
+					_logger.LogWarning("В заказе {OrderId} тип оплаты не безналичный, сканирование не требуется", orderId);
+					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadPaymentIsNotCashless(orderId);
+				}
+
+				if(order.Client is null)
+				{
+					_logger.LogWarning("В заказе {OrderId} не указан контрагент", orderId);
+					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadClientIsNotSet(orderId);
+				}
+
+				if(order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+				{
+					_logger.LogWarning("В заказе {OrderId} у клиента нет согласия на отрпавки документов по ЭДО, сканирование не требуется", orderId);
+					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadConsentForEdoIsNotAgree(orderId);
+				}
+
+				if(order.Client.OrderStatusForSendingUpd != OrderStatusForSendingUpd.EnRoute)
+				{
+					_logger.LogWarning("Заказе {OrderId} не в статусе в пути для ЭДО", orderId);
+					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadOrderIsNotEnRoute(orderId);
+				}
 			}
 
 			return Result.Success();
@@ -454,7 +482,7 @@ namespace WarehouseApi.Library.Errors
 
 		private Result IsTrueMarkCodeNotUsedAndHasRequiredGtin(
 			TrueMarkWaterIdentificationCode trueMarkWaterCode,
-			string nomenclatureGtin)
+			IEnumerable<string> nomenclatureGtins)
 		{
 			var result = IsTrueMarkCodeNotUsed(trueMarkWaterCode);
 
@@ -463,12 +491,12 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			return IsTrueMarkCodeGtinsEqualsNomenclatureGtin(trueMarkWaterCode, nomenclatureGtin);
+			return IsTrueMarkCodeGtinsEqualsNomenclatureGtin(trueMarkWaterCode, nomenclatureGtins);
 		}
 
-		private Result IsTrueMarkCodeGtinsEqualsNomenclatureGtin(TrueMarkWaterIdentificationCode trueMarkWaterCode, string nomenclatureGtin)
+		private Result IsTrueMarkCodeGtinsEqualsNomenclatureGtin(TrueMarkWaterIdentificationCode trueMarkWaterCode, IEnumerable<string> nomenclatureGtins)
 		{
-			if(trueMarkWaterCode.GTIN != nomenclatureGtin)
+			if(!nomenclatureGtins.Contains(trueMarkWaterCode.GTIN))
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(trueMarkWaterCode.RawCode);
 				LogError(error);

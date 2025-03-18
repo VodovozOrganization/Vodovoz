@@ -92,6 +92,16 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.Widgets.ySpecComboBox ycomboboxReason;
 
+		private global::Gamma.GtkWidgets.yHBox yhboxPrice;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFixPriceFrom;
+
+		private global::Gamma.Widgets.yValidatedEntry yvalidatedentryFixPriceFrom;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFixPriceTo;
+
+		private global::Gamma.Widgets.yValidatedEntry yvalidatedentryFixPriceTo;
+
 		private global::Gamma.GtkWidgets.yLabel ylabelOneOrder;
 
 		private global::Gtk.VSeparator vseparator1;
@@ -594,30 +604,81 @@ namespace Vodovoz.Filters.GtkViews
 			w42.XOptions = ((global::Gtk.AttachOptions)(4));
 			w42.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
+			this.yhboxPrice = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxPrice.Name = "yhboxPrice";
+			this.yhboxPrice.Spacing = 6;
+			// Container child yhboxPrice.Gtk.Box+BoxChild
+			this.ylabelFixPriceFrom = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFixPriceFrom.Name = "ylabelFixPriceFrom";
+			this.ylabelFixPriceFrom.LabelProp = global::Mono.Unix.Catalog.GetString("Фикс цена От");
+			this.yhboxPrice.Add(this.ylabelFixPriceFrom);
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.yhboxPrice[this.ylabelFixPriceFrom]));
+			w43.Position = 0;
+			w43.Expand = false;
+			w43.Fill = false;
+			// Container child yhboxPrice.Gtk.Box+BoxChild
+			this.yvalidatedentryFixPriceFrom = new global::Gamma.Widgets.yValidatedEntry();
+			this.yvalidatedentryFixPriceFrom.CanFocus = true;
+			this.yvalidatedentryFixPriceFrom.Name = "yvalidatedentryFixPriceFrom";
+			this.yvalidatedentryFixPriceFrom.IsEditable = true;
+			this.yvalidatedentryFixPriceFrom.InvisibleChar = '•';
+			this.yhboxPrice.Add(this.yvalidatedentryFixPriceFrom);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.yhboxPrice[this.yvalidatedentryFixPriceFrom]));
+			w44.Position = 1;
+			w44.Expand = false;
+			w44.Fill = false;
+			// Container child yhboxPrice.Gtk.Box+BoxChild
+			this.ylabelFixPriceTo = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFixPriceTo.Name = "ylabelFixPriceTo";
+			this.ylabelFixPriceTo.LabelProp = global::Mono.Unix.Catalog.GetString("до");
+			this.yhboxPrice.Add(this.ylabelFixPriceTo);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.yhboxPrice[this.ylabelFixPriceTo]));
+			w45.Position = 2;
+			w45.Expand = false;
+			w45.Fill = false;
+			// Container child yhboxPrice.Gtk.Box+BoxChild
+			this.yvalidatedentryFixPriceTo = new global::Gamma.Widgets.yValidatedEntry();
+			this.yvalidatedentryFixPriceTo.CanFocus = true;
+			this.yvalidatedentryFixPriceTo.Name = "yvalidatedentryFixPriceTo";
+			this.yvalidatedentryFixPriceTo.IsEditable = true;
+			this.yvalidatedentryFixPriceTo.InvisibleChar = '•';
+			this.yhboxPrice.Add(this.yvalidatedentryFixPriceTo);
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.yhboxPrice[this.yvalidatedentryFixPriceTo]));
+			w46.Position = 3;
+			w46.Expand = false;
+			w46.Fill = false;
+			this.table2.Add(this.yhboxPrice);
+			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.table2[this.yhboxPrice]));
+			w47.TopAttach = ((uint)(4));
+			w47.BottomAttach = ((uint)(5));
+			w47.LeftAttach = ((uint)(2));
+			w47.RightAttach = ((uint)(5));
+			w47.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
 			this.ylabelOneOrder = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOneOrder.Name = "ylabelOneOrder";
 			this.ylabelOneOrder.Xalign = 0F;
 			this.ylabelOneOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Клиенты с одним заказом");
 			this.table2.Add(this.ylabelOneOrder);
-			global::Gtk.Table.TableChild w43 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabelOneOrder]));
-			w43.LeftAttach = ((uint)(3));
-			w43.RightAttach = ((uint)(4));
-			w43.XOptions = ((global::Gtk.AttachOptions)(4));
-			w43.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabelOneOrder]));
+			w48.LeftAttach = ((uint)(3));
+			w48.RightAttach = ((uint)(4));
+			w48.XOptions = ((global::Gtk.AttachOptions)(4));
+			w48.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox2.Add(this.table2);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.table2]));
-			w44.Position = 2;
-			w44.Expand = false;
-			w44.Fill = false;
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.table2]));
+			w49.Position = 2;
+			w49.Expand = false;
+			w49.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.vseparator1 = new global::Gtk.VSeparator();
 			this.vseparator1.Name = "vseparator1";
 			this.hbox2.Add(this.vseparator1);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator1]));
-			w45.PackType = ((global::Gtk.PackType)(1));
-			w45.Position = 3;
-			w45.Expand = false;
-			w45.Fill = false;
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator1]));
+			w50.PackType = ((global::Gtk.PackType)(1));
+			w50.Position = 3;
+			w50.Expand = false;
+			w50.Fill = false;
 			this.Add(this.hbox2);
 			if ((this.Child != null))
 			{

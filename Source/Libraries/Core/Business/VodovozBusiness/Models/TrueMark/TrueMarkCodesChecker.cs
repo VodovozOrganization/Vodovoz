@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.TrueMark;
 
@@ -17,12 +18,12 @@ namespace Vodovoz.Models.TrueMark
 
 		private readonly ILogger<TrueMarkCodesChecker> _logger;
 		private readonly TrueMarkWaterCodeParser _codeParser;
-		private readonly TrueMarkApiClient _trueMarkClient;
+		private readonly ITrueMarkApiClient _trueMarkClient;
 
 		public TrueMarkCodesChecker(
 			ILogger<TrueMarkCodesChecker> logger,
 			TrueMarkWaterCodeParser codeParser,
-			TrueMarkApiClient trueMarkClient)
+			ITrueMarkApiClient trueMarkClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_codeParser = codeParser ?? throw new ArgumentNullException(nameof(codeParser));
@@ -89,7 +90,8 @@ namespace Vodovoz.Models.TrueMark
 
 			var productInstancesInfo = await _trueMarkClient.GetProductInstanceInfoAsync(productCodes.Keys, cancellationToken);
 
-			if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage) && !productInstancesInfo.InstanceStatuses.Any())
+			if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage)
+				&& (productInstancesInfo.InstanceStatuses is null || !productInstancesInfo.InstanceStatuses.Any()))
 			{
 				throw new TrueMarkException($"Не удалось получить информацию о состоянии товаров в системе Честный знак. Подробности: {productInstancesInfo.ErrorMessage}");
 			}

@@ -39,37 +39,33 @@ namespace CashReceiptApi.HealthChecks
 
 			try
 			{
-				using(var httpClient = new HttpClient(handler))
+				using var httpClient = new HttpClient(handler);
+
+				httpClient.DefaultRequestHeaders.Add("ApiKey", _cashReceiptSettings.CashReceiptApiKey);
+
+				var options = new GrpcChannelOptions();
+				options.HttpClient = httpClient;
+
+				using var channel = GrpcChannel.ForAddress(_cashReceiptSettings.CashReceiptApiUrl, options);
+
+				var grpcChannel = channel;
+				var client =
+					new CashReceiptApiHealthCheck.CashReceiptServiceGrpc.CashReceiptServiceGrpcClient(channel);
+
+				var request = new CashReceiptApiHealthCheck.RefreshReceiptRequest
 				{
-					httpClient.DefaultRequestHeaders.Add("ApiKey", _cashReceiptSettings.CashReceiptApiKey);
+					CashReceiptId = _serviceOptions.Value.HealthCheckCashReceiptId
+				};
 
-					var options = new GrpcChannelOptions();
-					options.HttpClient = httpClient;
+				var response = client.RefreshFiscalDocument(request);
 
-					using(var channel = GrpcChannel.ForAddress(_cashReceiptSettings.CashReceiptApiUrl, options))
-					{
-						var grpcChannel = channel;
-						var client =
-							new CashReceiptApiHealthCheck.CashReceiptServiceGrpc.CashReceiptServiceGrpcClient(channel);
+				_logger.LogInformation("Проверка здоровья выполнена успешно");
 
-						var request = new CashReceiptApiHealthCheck.RefreshReceiptRequest
-						{
-							CashReceiptId = _serviceOptions.Value.HealthCheckCashReceiptId
-						};
-
-						var response = client.RefreshFiscalDocument(request);
-
-						_logger.LogInformation("Проверка здоровья выполнена успешно");
-
-						return new VodovozHealthResultDto { IsHealthy = response.IsSuccess };
-					}
-				}
+				return await Task.FromResult(new VodovozHealthResultDto { IsHealthy = response.IsSuccess });
 			}
 			catch(Exception ex)
 			{
-				var errorMessage = "Непредвиденная ошибка при проверке доступности службы";
-
-				_logger.LogCritical(ex, errorMessage);
+				_logger.LogCritical(ex, "Непредвиденная ошибка при проверке доступности службы");
 
 				return new VodovozHealthResultDto { IsHealthy = false };
 			}

@@ -52,16 +52,24 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.TaxcomEdoAccountId)
 				.Column("taxcom_edo_account_id");
 
+			Map(x => x.OrganizationEdoType)
+				.Column("edo_type");
+
+			Map(x => x.CashBoxTokenFromTrueMark)
+				.Column("edo_key");
+
 			References(x => x.Stamp)
 				.Column("stamp_id");
 
 			References(x => x.DefaultAccount)
-				.Column("default_account_id");
+				.Column("default_account_id")
+				.Access.CamelCaseField(Prefix.None);
 
 			HasMany(x => x.Accounts)
 				.Cascade.AllDeleteOrphan()
 				.LazyLoad()
-				.KeyColumn("org_id");
+				.KeyColumn("org_id")
+				.Access.CamelCaseField(Prefix.None);
 
 			HasMany(x => x.Phones)
 				.Cascade.AllDeleteOrphan()

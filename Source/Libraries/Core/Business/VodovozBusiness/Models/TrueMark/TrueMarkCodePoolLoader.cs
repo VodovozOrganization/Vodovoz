@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Settings.Edo;
+using NewPool = TrueMark.Codes.Pool.TrueMarkCodesPool;
 
 namespace Vodovoz.Models.TrueMark
 {
@@ -15,16 +18,44 @@ namespace Vodovoz.Models.TrueMark
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly TrueMarkWaterCodeParser _trueMarkCodeParser;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly NewPool _newTrueMarkCodesPool;
+		private readonly IInteractiveMessage _interactiveMessage;
+		private readonly IEdoSettings _edoSettings;
+		private readonly bool _usingNewPool;
 
-		public TrueMarkCodePoolLoader(IUnitOfWorkFactory uowFactory, TrueMarkWaterCodeParser trueMarkCodeParser, TrueMarkCodesPool trueMarkCodesPool)
+		public TrueMarkCodePoolLoader(
+			IUnitOfWorkFactory uowFactory, 
+			TrueMarkWaterCodeParser trueMarkCodeParser,
+			TrueMarkCodesPool trueMarkCodesPool,
+			NewPool newTrueMarkCodesPool,
+			IInteractiveMessage interactiveMessage,
+			IEdoSettings edoSettings
+			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_trueMarkCodeParser = trueMarkCodeParser ?? throw new ArgumentNullException(nameof(trueMarkCodeParser));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
+			_newTrueMarkCodesPool = newTrueMarkCodesPool ?? throw new ArgumentNullException(nameof(newTrueMarkCodesPool));
+			_interactiveMessage = interactiveMessage ?? throw new ArgumentNullException(nameof(interactiveMessage));
+			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
+			_usingNewPool = _edoSettings.CodePoolLoaderToNewPool;
 		}
 
 		public CodeLoadingResult LoadFromFile(string path)
 		{
+			if(_usingNewPool)
+			{
+				_interactiveMessage.ShowMessage(ImportanceLevel.Info, 
+					"Используется загрузка в НОВЫЙ пул кодов, рассчитанный на работу " +
+					"с поэкземплярным учетом кодов честного знака");
+			}
+			else
+			{
+				_interactiveMessage.ShowMessage(ImportanceLevel.Info,
+					"Используется загрузка в СТАРЫЙ пул кодов, рассчитанный на работу " +
+					"с объемно-сортовым учетом кодов честного знака");
+			}
+
 			var extension = Path.GetExtension(path);
 			switch(extension)
 			{
@@ -166,7 +197,15 @@ namespace Vodovoz.Models.TrueMark
 				}
 			}
 
-			_trueMarkCodesPool.PutCode(codeEntity.Id);
+			if(_usingNewPool)
+			{
+				_newTrueMarkCodesPool.PutCode(codeEntity.Id);
+			}
+			else
+			{
+				_trueMarkCodesPool.PutCode(codeEntity.Id);
+			}
+
 			return true;
 		}
 

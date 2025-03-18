@@ -46,6 +46,7 @@ using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -2058,6 +2059,7 @@ namespace Vodovoz
 					.XAlign(0.5f)
 				.Finish();
 			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
+			treeItems.Selection.Mode = SelectionMode.Multiple;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
 			treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault().Visible = Entity.PromotionalSets.Count > 0;
 
@@ -3331,6 +3333,7 @@ namespace Vodovoz
 						f.AvailableCategories = new[] { NomenclatureCategory.master };
 						f.RestrictCategory = NomenclatureCategory.master;
 						f.RestrictArchive = false;
+						f.CanChangeOnlyOnlineNomenclatures = false;
 					},
 					OpenPageOptions.AsSlave,
 					vm =>
@@ -3378,6 +3381,7 @@ namespace Vodovoz
 						f.SelectSaleCategory = SaleCategory.forSale;
 						f.RestrictArchive = false;
 						f.CanChangeShowArchive = false;
+						f.CanChangeOnlyOnlineNomenclatures = false;
 					},
 					OpenPageOptions.AsSlaveIgnoreHash,
 					vm =>
@@ -3389,15 +3393,20 @@ namespace Vodovoz
 					})
 				.ViewModel;
 
+			journalViewModel.SelectionMode = JournalSelectionMode.Multiple;
+
 			journalViewModel.OnSelectResult += (s, ea) =>
 			{
-				var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
-				if(selectedNode == null)
+				var selectedNodes = ea.SelectedObjects.Cast<NomenclatureJournalNode>().ToList();
+				if(selectedNodes == null || !selectedNodes.Any())
 				{
 					return;
 				}
 
-				TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+				foreach(var node in selectedNodes)
+				{
+					TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(node.Id));
+				}
 			};
 		}
 
@@ -3567,13 +3576,15 @@ namespace Vodovoz
 
 		protected void OnBtnDeleteOrderItemClicked(object sender, EventArgs e)
 		{
-			if(treeItems.GetSelectedObject() is OrderItem orderItem)
+			var selectedRows = treeItems.GetSelectedObjects<OrderItem>();
+
+			foreach(var orderItem in selectedRows)
 			{
 				RemoveOrderItem(orderItem);
 				Entity.TryToRemovePromotionalSet(orderItem);
 				//при удалении номенклатуры выделение снимается и при последующем удалении exception
 				//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
-				btnDeleteOrderItem.Sensitive = treeItems.GetSelectedObject() != null;
+				btnDeleteOrderItem.Sensitive = treeItems.GetSelectedObjects<OrderItem>().Any();
 			}
 		}
 		#endregion

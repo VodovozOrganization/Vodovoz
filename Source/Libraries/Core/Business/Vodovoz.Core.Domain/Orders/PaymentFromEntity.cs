@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
@@ -15,6 +15,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private int _id;
 		private string _name;
 		private bool _isArchive;
+		private bool _receiptRequired;
 		//private string _organizationCriterion;
 
 		[Display(Name = "Код")]
@@ -36,6 +37,13 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
+		}
+
+		[Display(Name = "Требуется чек")]
+		public virtual bool ReceiptRequired
+		{
+			get => _receiptRequired;
+			set => SetField(ref _receiptRequired, value);
 		}
 		
 		/*[Display(Name = "Условия для установки организации")]
