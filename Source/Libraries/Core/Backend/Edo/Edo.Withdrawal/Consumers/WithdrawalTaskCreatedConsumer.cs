@@ -21,15 +21,9 @@ namespace Edo.Withdrawal.Consumers
 
 		public async Task Consume(ConsumeContext<WithdrawalTaskCreatedEvent> context)
 		{
-			try
-			{
-				await _withdrawalTaskCreatedHandler.HandleWithdrawal(context.Message.Id, context.CancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Error while processing WithdrawalTaskCreatedEvent");
-				await Task.CompletedTask;
-			}
+			_logger.LogInformation($"Consuming {nameof(WithdrawalTaskCreatedEvent)} with Id {context.Message.Id}");
+
+			await _withdrawalTaskCreatedHandler.HandleWithdrawal(context.Message.Id, context.CancellationToken);
 		}
 	}
 }
