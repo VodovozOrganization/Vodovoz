@@ -1,34 +1,34 @@
-﻿namespace Pacs.Server.Phones
+﻿using System.Collections.Generic;
+
+namespace Pacs.Server.Phones
 {
+	/// <summary>
+	/// Сервис для работы с телефонами операторов
+	/// </summary>
 	public interface IOperatorPhoneService
 	{
 		/// <summary>
-		/// Проверяет известен ли номер в системе
+		/// Возвращает идентификатор оператора, которому назначен телефон
 		/// </summary>
-		bool ValidatePhone(string phone);
-
-		/// <summary>
-		/// Проверяет можно ли назначить номер телефона оператору
-		/// </summary>
-		/// <param name="phone">Номер телефона который необходимо проверить</param>
-		/// <param name="operatorId">Id оператора на которого проверяется назначение телефона</param>
+		/// <param name="phone">Внутренний номер телефона</param>
 		/// <returns></returns>
-		bool CanAssign(string phone, int operatorId);
-
+		int? GetAssignedOperator(string phone);
 		/// <summary>
-		/// Назначает номер телефона оператору
+		/// Возвращает телефон, назначенный оператору
 		/// </summary>
-		/// <param name="phone">Номер телефона который необходимо назначить</param>
-		/// <param name="operatorId">Id оператора на которого необходимо назначить телефон</param>
-		/// <exception cref="PacsPhoneException">Если телефон не известен 
-		/// или уже назначен другому оператору</exception>
-		void AssignPhone(string phone, int operatorId);
-
+		/// <param name="operatorId">Идентификатор оператора</param>
+		/// <returns></returns>
+		string GetAssignedPhone(int operatorId);
 		/// <summary>
-		/// Снимает назначение номера телефона от оператора
+		/// Возвращает все назначения телефонов
 		/// </summary>
-		/// <param name="phone">Номер телефона который необходимо снять</param>
-		/// <exception cref="PacsPhoneException">Если телефон не известен</exception>
-		void ReleasePhone(string phone);
+		/// <returns></returns>
+		IEnumerable<PhoneAssignment> GetPhoneAssignments();
+		/// <summary>
+		/// Проверяет существует ли телефон
+		/// </summary>
+		/// <param name="phone">Внутренний номер телефона</param>
+		/// <returns></returns>
+		bool PhoneExists(string phone);
 	}
 }
