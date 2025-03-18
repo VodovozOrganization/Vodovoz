@@ -40,6 +40,16 @@ namespace Receipt.Dispatcher.Tests
 			return Data.Where(expressionSpecification.IsSatisfiedBy);
 		}
 
+		public TEntity GetFirstOrDefault(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate)
+		{
+			return Data.FirstOrDefault(predicate.Compile());
+		}
+
+		public TEntity GetLastOrDefault(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate)
+		{
+			return Data.LastOrDefault(predicate.Compile());
+		}
+
 		public IEnumerable<TType> GetValue<TType>(IUnitOfWork unitOfWork, Expression<Func<TEntity, TType>> selector, Expression<Func<TEntity, bool>> predicate = null, int limit = 0)
 		{
 			if(limit != 0)
