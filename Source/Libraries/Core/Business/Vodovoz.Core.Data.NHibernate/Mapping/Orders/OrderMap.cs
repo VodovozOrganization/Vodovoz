@@ -214,6 +214,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			References(x => x.Client)
 				.Column("client_id");
 
+			References(x => x.DeliveryPoint)
+				.Column("delivery_point_id");
+
 			References(x => x.Contract)
 				.Column("counterparty_contract_id")
 				.Cascade.SaveUpdate();
