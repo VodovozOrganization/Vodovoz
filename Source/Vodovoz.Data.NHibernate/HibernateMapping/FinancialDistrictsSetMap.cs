@@ -1,6 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping
 {
