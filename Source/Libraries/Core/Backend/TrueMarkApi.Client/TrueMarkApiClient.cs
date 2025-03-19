@@ -19,8 +19,6 @@ namespace TrueMarkApi.Client
 
 		public TrueMarkApiClient(HttpClient httpClient, string trueMarkApiBaseUrl, string trueMarkApiToken)
 		{
-			var needInitialize = _httpClient is null;
-			
 			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
 			if(_httpClient.BaseAddress != null)

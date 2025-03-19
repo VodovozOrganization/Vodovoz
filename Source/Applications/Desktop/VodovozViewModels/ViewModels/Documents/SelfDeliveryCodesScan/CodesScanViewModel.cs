@@ -43,7 +43,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private List<GtinFromNomenclatureDto> _allGtins;
 		private List<GtinFromNomenclatureDto> _allGroupGtins;
 		private List<string> _gtinsInOrder;
-		private BlockingCollection<CodeToCheck> _codesToCheck = new BlockingCollection<CodeToCheck>();
+		private readonly BlockingCollection<CodeToCheck> _newCodesToCheck = new BlockingCollection<CodeToCheck>();
+		private readonly BlockingCollection<CodeToCheck> _oldCodesToRechek = new BlockingCollection<CodeToCheck>();
 		private CancellationTokenSource _cancelationTokenSource;
 
 		public CodesScanViewModel(
@@ -86,6 +87,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		public IRecursiveConfig RecursiveConfig { get; set; }
 
 		public Action RefreshScanningNomenclaturesAction { get; set; }
+
+		public string CurrentCodeInProcess { get; private set; }
 
 		public bool IsAllCodesScanned
 		{
@@ -148,17 +151,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		{
 			_cancelationTokenSource = new CancellationTokenSource();
 
-			Task.Run(
-				async () =>
-				{
-					_logger.LogInformation("Id потока: {TaskCurrentId} : Запускам поток слежения за процессом сканирования",
-						Task.CurrentId);
-
-					await DoUpdate(_cancelationTokenSource.Token);
-
-					_logger.LogInformation("Id потока: {TaskCurrentId} : Завершен поток слежения за процессом сканирования",
-						Task.CurrentId);
-				}, _cancelationTokenSource.Token);
+			Task.Run(async () => await DoUpdate(_cancelationTokenSource.Token), _cancelationTokenSource.Token);
 		}
 
 		private async Task DoUpdate(CancellationToken cancellationToken)
@@ -169,34 +162,56 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			{
 				scanningInProcess = !IsAllCodesScanned;
 
-				var toCheckCodes = new List<CodeToCheck>();
+				await CheckNewCodes(cancellationToken);
 
-				while(_codesToCheck.TryTake(out var code))
+				await RecheckOldCodes(cancellationToken);
+				
+				Thread.Sleep(100);
+			}
+		}
+
+		private async Task RecheckOldCodes(CancellationToken cancellationToken)
+		{
+			var needCheckNewCode = false;
+			
+			while(!needCheckNewCode && _oldCodesToRechek.TryTake(out var code) && !cancellationToken.IsCancellationRequested)
+			{
+				var toTime = DateTime.UtcNow + TimeSpan.FromSeconds(10);
+
+				while(DateTime.UtcNow < toTime && !cancellationToken.IsCancellationRequested)
 				{
-					toCheckCodes.Add(code);
-				}
-
-				foreach(var toCheckCode in toCheckCodes)
-				{
-					_logger.LogInformation("Id потока: {TaskCurrentId} : Запускам повторную обработку кода {ToRecheckCode} из Updater-а",
-						Task.CurrentId, toCheckCode);
-
-					if(toCheckCode.NeedRecheck)
+					if(_newCodesToCheck.Any())
 					{
-						Thread.Sleep(3000);
+						needCheckNewCode = true;
+						break;
 					}
-					else
-					{
-						Thread.Sleep(500);
-					}
-
-					await HandleCheckCodeAsync(toCheckCode, cancellationToken);
-
-					_logger.LogInformation("Id потока: {TaskCurrentId} : Завершена повторная обработка кода {ToRecheckCode} из Updater-а",
-						Task.CurrentId, toCheckCode);
-
-					CurrentCodeInProcess = null;
+						
+					Thread.Sleep(100);
 				}
+				
+				_logger.LogInformation("Запускам обработку кода c ошибкой {ToRecheckCode} из Updater-а", code.RawCode);
+
+				await HandleCheckCodeAsync(code, cancellationToken);
+
+				CurrentCodeInProcess = null;
+
+				_logger.LogInformation("Завершена обработка кода с ошибкой {ToRecheckCode} из Updater-а", code.RawCode);
+			}
+		}
+
+		private async Task CheckNewCodes(CancellationToken cancellationToken)
+		{
+			while(_newCodesToCheck.TryTake(out var code) && !cancellationToken.IsCancellationRequested)
+			{
+				_logger.LogInformation("Запускам обработку нового кода {ToRecheckCode} из Updater-а", code.RawCode);
+
+				await HandleCheckCodeAsync(code, cancellationToken);
+
+				CurrentCodeInProcess = null;
+
+				_logger.LogInformation("Завершена обработка нового кода {ToRecheckCode} из Updater-а", code.RawCode);
+
+				Thread.Sleep(100);
 			}
 		}
 
@@ -238,23 +253,17 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		private async Task HandleCheckCodeAsync(CodeToCheck codeToCheck, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Id потока: {TaskCurrentId} : Обработка кода {RawCode}", Task.CurrentId, codeToCheck);
+			_logger.LogInformation("Обработка кода {RawCode}", codeToCheck.RawCode);
 
-			var code = ParseRawCode(codeToCheck.Code, out var parsedCode);
+			var code = ParseRawCode(codeToCheck.RawCode, out var parsedCode);
 			var gtin = parsedCode?.GTIN;
 
 			CurrentCodeInProcess = code;
 
-			if(codeToCheck.NeedRecheck)
-			{
-				UpdateCodeScanRows(code, gtin,
-					additionalInformation: new List<string> { $"Повторная обработка кода после ошибки: {codeToCheck.Error}" });
-				Thread.Sleep(3000);
-			}
-			else
-			{
-				UpdateCodeScanRows(code, gtin, additionalInformation: new List<string> { $"Обработка кода" });
-			}
+			UpdateCodeScanRows(code, gtin,
+				additionalInformation: codeToCheck.NeedRecheck
+					? new List<string> { "Повторная обработка кода после ошибки: {CheckError}", codeToCheck.Error }
+					: new List<string> { $"Обработка кода" });
 
 			try
 			{
@@ -263,14 +272,14 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				cancellationToken.ThrowIfCancellationRequested();
 
 				_logger.LogInformation(
-					"Id потока: {TaskCurrentId} : Отправляем запрос на обработку кода {RawCode} в {TrueMarkWaterCodeParser)}",
-					Task.CurrentId, codeToCheck, nameof(_trueMarkWaterCodeParser));
+					"Отправляем запрос на обработку кода {RawCode} в {TrueMarkWaterCodeParser)}",
+					codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser));
 
 				result = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_unitOfWork, code, cancellationToken);
 
 				_logger.LogInformation(
-					"Id потока: {TaskCurrentId} : Получили результат обработки кода {RawCode} в {TrueMarkWaterCodeParser}",
-					Task.CurrentId, codeToCheck, nameof(_trueMarkWaterCodeParser));
+					"Получили результат обработки кода {RawCode} в {TrueMarkWaterCodeParser}",
+					codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser));
 
 				var additionalInformation = new List<string>();
 
@@ -281,10 +290,10 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					UpdateCodeScanRows(code, gtin, false, additionalInformation: additionalInformation);
 
 					_logger.LogInformation(
-						"Id потока: {TaskCurrentId} : Обработки кода {RawCode} в {TrueMarkWaterCodeParser} завершилась с ошибками: {Errors}",
-						Task.CurrentId, codeToCheck, nameof(_trueMarkWaterCodeParser), string.Join(", ", additionalInformation));
+						"Обработки кода {RawCode} в {TrueMarkWaterCodeParser} завершилась с ошибками: {Errors}",
+						codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser), string.Join(", ", additionalInformation));
 
-					AddCodeToCheck(codeToCheck.Code, true, string.Join(", ", additionalInformation));
+					AddOldCodeToRecheck(codeToCheck.RawCode, string.Join(", ", additionalInformation));
 
 					return;
 				}
@@ -294,23 +303,21 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			catch(Exception ex)
 			{
 				_logger.LogError(
-					"Id потока: {TaskCurrentId} : Возникло исключение при обработке кода {RawCode} в {TrueMarkWaterCodeParser} : {Exception}",
-					codeToCheck, Task.CurrentId, codeToCheck, nameof(_trueMarkWaterCodeParser), ex);
+					"Возникло исключение при обработке кода {RawCode} в {TrueMarkWaterCodeParser} : {Exception}",
+					codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser), ex);
 
-				var additionalInformation = new List<string> { ex.ToString() };
+				var additionalInformation = new List<string> { ex.Message };
 				UpdateCodeScanRows(code, gtin, additionalInformation: additionalInformation);
 
-				AddCodeToCheck(codeToCheck.Code, true, ex.Message);
+				AddOldCodeToRecheck(codeToCheck.RawCode, ex.Message);
 			}
 		}
-
-		public string CurrentCodeInProcess { get; private set; }
 
 		private async Task ValidateInTrueMarkAsync(List<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
-				"Id потока: {TaskCurrentId} : Отправляем запрос на валидацию кодов {Codes} в {TrueMarkValidator)}",
-				Task.CurrentId, string.Join(", ", codes), nameof(_trueMarkValidator));
+				"Отправляем запрос на валидацию кодов {Codes} в {TrueMarkValidator)}",
+				string.Join(", ", codes.Select(x => x.RawCode)), nameof(_trueMarkValidator));
 
 			var trueMarkValidationResults = (await _trueMarkValidator
 					.ValidateAsync(codes, _organizationInn, cancellationToken))
@@ -318,8 +325,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				.ToList();
 
 			_logger.LogInformation(
-				"Id потока: {TaskCurrentId} : Получили ответ по валидации кодов {Codes} в {TrueMarkValidator)}",
-				Task.CurrentId, string.Join(", ", codes), nameof(_trueMarkValidator));
+				"Получили ответ по валидации кодов {Codes} в {TrueMarkValidator)}",
+				string.Join(", ", codes.Select(x => x.RawCode)), nameof(_trueMarkValidator));
 
 			var additionalInformation = new List<string>();
 
@@ -345,7 +352,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 					UpdateCodeScanRows(code.RawCode, code.GTIN, false, additionalInformation);
 
-					AddCodeToCheck(code.RawCode, true, string.Join(", ", additionalInformation));
+					AddOldCodeToRecheck(code.RawCode, string.Join(", ", additionalInformation));
 
 					continue;
 				}
@@ -378,12 +385,22 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 		}
 
-		private void AddCodeToCheck(string rawCode, bool needToRecheck = false, string error = null)
+		private void AddNewCodeToCheck(string rawCode, string error = null)
 		{
-			_codesToCheck.TryAdd(new CodeToCheck
+			_newCodesToCheck.TryAdd(new CodeToCheck
 			{
-				Code = rawCode,
-				NeedRecheck = needToRecheck,
+				RawCode = rawCode,
+				NeedRecheck = false,
+				Error = error
+			});
+		}
+
+		private void AddOldCodeToRecheck(string rawCode, string error = null)
+		{
+			_oldCodesToRechek.TryAdd(new CodeToCheck
+			{
+				RawCode = rawCode,
+				NeedRecheck = true,
 				Error = error
 			});
 		}
@@ -608,7 +625,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			{
 				additionalInformation.Add("Не получен результат валидации в ЧЗ");
 
-				AddCodeToCheck(trueMarkCodeValidationResult.Code.RawCode, true, string.Join(", ", additionalInformation));
+				AddOldCodeToRecheck(trueMarkCodeValidationResult.Code.RawCode, string.Join(", ", additionalInformation));
 
 				return additionalInformation;
 			}
@@ -645,6 +662,11 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		public void CheckCode(string rawCode)
 		{
+			if(rawCode.Length < 20)
+			{
+				return;
+			}
+
 			var code = ParseRawCode(rawCode, out var parsedCode);
 			var gtin = parsedCode?.GTIN;
 
@@ -669,7 +691,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			if(parsedCode != null)
 			{
-				_logger.LogInformation("Id потока: {TaskCurrentId} : Код {RawCode} успешно распарсен", Task.CurrentId, rawCode);
+				_logger.LogInformation("Код {RawCode} успешно распарсен", rawCode);
 
 				gtin = parsedCode.GTIN;
 
@@ -700,12 +722,12 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 			else
 			{
-				_logger.LogInformation("Id потока: {TaskCurrentId} : Код {RawCode} не удалось распарсить.", Task.CurrentId, rawCode);
+				_logger.LogInformation("Код {RawCode} не удалось распарсить.", rawCode);
 
 				UpdateCodeScanRows(code, null, additionalInformation: inProcessMessage);
 			}
 
-			AddCodeToCheck(rawCode);
+			AddNewCodeToCheck(rawCode);
 		}
 
 		public OrderEdoRequest CreateEdoRequest(IUnitOfWork unitOfWork, Order order)
