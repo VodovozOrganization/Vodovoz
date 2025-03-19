@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -247,7 +247,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			var isCodeAlreadyUsed =
-				_trueMarkProductCodesHavingRequiredResultCode(trueMarkWaterIdentificationCode.Id, exceptProductCodeId)
+				TrueMarkProductCodesHavingRequiredResultCode(trueMarkWaterIdentificationCode.Id, exceptProductCodeId)
 				.Any();
 
 			if(isCodeAlreadyUsed)
@@ -259,7 +259,7 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private IEnumerable<TrueMarkProductCode> _trueMarkProductCodesHavingRequiredResultCode(int resultCodeId, int exceptProductCodeId = 0) =>
+		private IEnumerable<TrueMarkProductCode> TrueMarkProductCodesHavingRequiredResultCode(int resultCodeId, int exceptProductCodeId = 0) =>
 			_trueMarkProductCodeRepository.Get(
 				_uow,
 				x => x.ResultCode.Id == resultCodeId
