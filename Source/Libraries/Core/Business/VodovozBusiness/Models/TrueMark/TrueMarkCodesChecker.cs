@@ -82,7 +82,7 @@ namespace Vodovoz.Models.TrueMark
 			return result;
 		}
 
-		private async Task<IEnumerable<TrueMarkCheckResult>> Check(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
+		public async Task<IEnumerable<TrueMarkCheckResult>> Check(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
 		{
 			var result = new List<TrueMarkCheckResult>();
 
