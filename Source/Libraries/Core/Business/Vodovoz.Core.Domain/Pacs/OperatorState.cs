@@ -27,8 +27,6 @@ namespace Vodovoz.Core.Domain.Pacs
 			{
 				OperatorId = OperatorId,
 				Session = Session,
-				Started = Started,
-				Ended = Ended,
 				Trigger = Trigger,
 				State = State,
 				PhoneNumber = PhoneNumber,
@@ -43,8 +41,6 @@ namespace Vodovoz.Core.Domain.Pacs
 			{
 				OperatorId = operatorState.OperatorId,
 				Session = operatorState.Session,
-				Started = operatorState.Started,
-				Ended = operatorState.Ended,
 				Trigger = operatorState.Trigger,
 				State = operatorState.State,
 				PhoneNumber = operatorState.PhoneNumber,
