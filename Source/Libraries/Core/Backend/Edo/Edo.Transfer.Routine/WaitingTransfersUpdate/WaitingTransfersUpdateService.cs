@@ -14,16 +14,16 @@ namespace Edo.Transfer.Routine.WaitingTransfersUpdate
 	public class WaitingTransfersUpdateService
 	{
 		private readonly ILogger<WaitingTransfersUpdateService> _logger;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IUnitOfWork _uow;
 		private readonly TransferEdoHandler _transferEdoHandler;
 
 		public WaitingTransfersUpdateService(
 			ILogger<WaitingTransfersUpdateService> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWork uow,
 			TransferEdoHandler transferEdoHandler)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new System.ArgumentNullException(nameof(unitOfWorkFactory));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_transferEdoHandler = transferEdoHandler ?? throw new System.ArgumentNullException(nameof(transferEdoHandler));
 		}
 
@@ -61,19 +61,16 @@ namespace Edo.Transfer.Routine.WaitingTransfersUpdate
 
 		private async Task<IEnumerable<int>> GetWaitingTransfersDocumentsIds()
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				var documentIds =
-					await (from task in uow.Session.Query<TransferEdoTask>()
-						   join document in uow.Session.Query<TransferEdoDocument>() on task.Id equals document.TransferTaskId
+			var documentIds =
+					await (from task in _uow.Session.Query<TransferEdoTask>()
+						   join document in _uow.Session.Query<TransferEdoDocument>() on task.Id equals document.TransferTaskId
 						   where
 						   task.Status == EdoTaskStatus.Waiting
 						   && document.Status == EdoDocumentStatus.Succeed
 						   select document.Id)
 					.ToListAsync();
 
-				return documentIds;
-			}
+			return documentIds;
 		}
 	}
 }

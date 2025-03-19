@@ -1,9 +1,13 @@
-﻿using Edo.Transfer.Routine;
+﻿using Edo.Common;
+using Edo.Problems;
+using Edo.Transfer.Routine;
 using Edo.Transfer.Routine.Options;
 using Edo.Transfer.Routine.WaitingTransfersUpdate;
 using Edo.Transport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using QS.DomainModel.UoW;
 
 namespace Edo.Transfer.Dispatcher
 {
@@ -17,7 +21,7 @@ namespace Edo.Transfer.Dispatcher
 
 			services.AddEdoTransfer();
 
-			services.AddHostedService<TransferTimeoutWorker>();
+			//services.AddHostedService<TransferTimeoutWorker>();
 
 			services.AddEdoMassTransit();
 
@@ -32,8 +36,12 @@ namespace Edo.Transfer.Dispatcher
 				configuration.GetSection(nameof(WaitingTransfersUpdateSettings)).Bind(options));
 
 			services
+				.AddEdo()
+				.AddEdoProblemRegistation()
+				.AddHttpClient()
 				.AddScoped<TransferEdoHandler>()
-				.AddScoped<WaitingTransfersUpdateService>();
+				.AddScoped<WaitingTransfersUpdateService>()
+				.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			services.AddHostedService<WaitingTransfersUpdateWorker>();
 
