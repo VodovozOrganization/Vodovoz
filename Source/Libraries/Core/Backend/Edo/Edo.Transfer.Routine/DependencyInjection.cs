@@ -1,5 +1,6 @@
 ﻿using Edo.Transfer.Routine;
 using Edo.Transfer.Routine.Options;
+using Edo.Transfer.Routine.WaitingTransfersUpdate;
 using Edo.Transport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +31,9 @@ namespace Edo.Transfer.Dispatcher
 			services.Configure<WaitingTransfersUpdateSettings>(options =>
 				configuration.GetSection(nameof(WaitingTransfersUpdateSettings)).Bind(options));
 
-			services.AddScoped<TransferEdoHandler>();
+			services
+				.AddScoped<TransferEdoHandler>()
+				.AddScoped<WaitingTransfersUpdateService>();
 
 			services.AddHostedService<WaitingTransfersUpdateWorker>();
 
