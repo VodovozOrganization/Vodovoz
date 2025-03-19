@@ -484,7 +484,7 @@ namespace Vodovoz.Domain.Orders
 					var sb = new StringBuilder();
 					foreach(var d in drivers)
 					{
-						sb.AppendLine($"{WebUtility.HtmlEncode(d.ShortName)} ← ");
+						sb.Append($"{WebUtility.HtmlEncode(d.ShortName)} ← ");
 					}
 
 					info.AppendLine($"<b>Водитель:</b> {sb.ToString().Trim(new char[] { ' ', '←' })}");
@@ -496,7 +496,7 @@ namespace Vodovoz.Domain.Orders
 
 					foreach(var l in routeLists)
 					{
-						rls.AppendLine($"{l.Id} ← ");
+						rls.Append($"{l.Id} ← ");
 					}
 
 					info.AppendLine($"<b>Маршрутный лист:</b> {rls.ToString().Trim(new char[] { ' ', '←' })}");
