@@ -31,17 +31,32 @@ namespace Edo.Transfer.Routine.WaitingTransfersUpdate
 		{
 			var documentIds = await GetWaitingTransfersDocumentsIds();
 
+			_logger.LogInformation("Получено {DocumentIdsCount} документов для обработки", documentIds.Count());
+
+			var errorsCount = 0;
+
 			foreach(var documentId in documentIds)
 			{
 				try
 				{
+					_logger.LogInformation("Обработка документа трансфера с Id {DocumentId}", documentId);
+
 					await _transferEdoHandler.HandleTransferDocumentAcceptance(documentId, cancellationToken);
+
+					_logger.LogInformation("Документ трансфера с Id {DocumentId} успешно обработан", documentId);
 				}
 				catch(Exception ex)
 				{
 					_logger.LogError(ex, "Ошибка при обработке документа трансфера с Id {DocumentId}", documentId);
+
+					errorsCount++;
 				}
 			}
+
+			_logger.LogInformation(
+				"Обработка завершена. Обработано {DocumentIdsCount} документов. Ошибок: {ErrorsCount}",
+				documentIds.Count(),
+				errorsCount);
 		}
 
 		private async Task<IEnumerable<int>> GetWaitingTransfersDocumentsIds()
@@ -61,3 +76,4 @@ namespace Edo.Transfer.Routine.WaitingTransfersUpdate
 			}
 		}
 	}
+}
