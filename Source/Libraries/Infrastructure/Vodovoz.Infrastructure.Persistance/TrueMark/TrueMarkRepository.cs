@@ -1,11 +1,12 @@
-using MoreLinq;
+﻿using MoreLinq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Clients;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Domain.Client;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 using VodovozBusiness.Domain.Goods;
@@ -27,17 +28,11 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			{
 				Organization organizationAlias = null;
 				var queryOrganization = uow.Session.QueryOver(() => organizationAlias)
+					.Where(() => organizationAlias.OrganizationEdoType != OrganizationEdoType.WithoutEdo)
 					.Select(Projections.Property(() => organizationAlias.INN));
 				var organizations = queryOrganization.List<string>();
 
-				Counterparty counterpartyAlias = null;
-				var queryCounterparty = uow.Session.QueryOver(() => counterpartyAlias)
-					.Where(() => counterpartyAlias.CounterpartyType == CounterpartyType.Supplier)
-					.Select(Projections.Property(() => counterpartyAlias.INN));
-				var counterparties = queryCounterparty.List<string>();
-
-				var innList = organizations.Union(counterparties);
-				var result = innList.Distinct().ToHashSet();
+				var result = organizations.Distinct().ToHashSet();
 				return result;
 			}
 		}
@@ -58,13 +53,13 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			}
 		}
 
-		public IEnumerable<TrueMarkWaterIdentificationCode> LoadWaterCodes(List<int> codeIds)
+		public async Task<IEnumerable<TrueMarkWaterIdentificationCode>> LoadWaterCodes(List<int> codeIds, CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var result = uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+				var result = await uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
 					.WhereRestrictionOn(x => x.Id).IsIn(codeIds)
-					.List();
+					.ListAsync(cancellationToken);
 				return result;
 			}
 		}

@@ -11,7 +11,9 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Project.Domain;
 using QS.Project.HibernateMapping;
+using System;
 using System.Threading.Tasks;
+using TrueMark.Codes.Pool;
 using TrueMark.Library;
 using TrueMarkApi.Client;
 using TrueMarkCodesWorker;
@@ -31,6 +33,7 @@ namespace TrueMarkCodePoolCheckWorker
 	{
 		public static async Task Main(string[] args)
 		{
+			Console.OutputEncoding = System.Text.Encoding.UTF8;
 			await CreateHostBuilder(args).Build().RunAsync();
 		}
 
@@ -38,7 +41,6 @@ namespace TrueMarkCodePoolCheckWorker
 			Host.CreateDefaultBuilder(args)
 				.ConfigureLogging((hostBuilderContext, loggingBuilder) =>
 				{
-					loggingBuilder.ClearProviders();
 					loggingBuilder.AddNLog();
 					loggingBuilder.AddConfiguration(hostBuilderContext.Configuration.GetSection("NLog"));
 				})
@@ -56,7 +58,10 @@ namespace TrueMarkCodePoolCheckWorker
 							typeof(EmployeeWithLoginMap).Assembly
 						)
 						.AddDatabaseConnection()
+						.AddNHibernateConventions()
+						.AddCoreDataRepositories()
 						.AddCore()
+						.AddTrackedUoW()
 						.AddInfrastructure()
 						.AddTrackedUoW()
 
@@ -67,6 +72,8 @@ namespace TrueMarkCodePoolCheckWorker
 
 							return trueMarkOrganizationClientSetting;
 						})
+
+						.AddCodesPool()
 
 						.AddHostedService<CodePoolCheckWorker>()
 						.AddHttpClient()
@@ -98,10 +105,6 @@ namespace TrueMarkCodePoolCheckWorker
 
 			builder.Register((context, instance) => context.Resolve<ITrueMarkApiClientFactory>().GetClient())
 				.As<ITrueMarkApiClient>()
-				.InstancePerLifetimeScope();
-
-			builder.RegisterType<TrueMarkCodesPool>()
-				.AsSelf()
 				.InstancePerLifetimeScope();
 
 			builder.RegisterType<TrueMarkWaterCodeParser>()
