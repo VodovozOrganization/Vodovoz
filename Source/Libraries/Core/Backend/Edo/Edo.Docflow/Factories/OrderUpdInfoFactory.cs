@@ -87,12 +87,40 @@ namespace Edo.Docflow.Factories
 			return consignee;
 		}
 
-		private DocumentConfirmingShipmentInfo GetDocumentConfirmingShipmentInfo(OrderEntity order) =>
-			new DocumentConfirmingShipmentInfo
+		private DocumentConfirmingShipmentInfo GetDocumentConfirmingShipmentInfo(OrderEntity order)
+		{
+			var documentConfirmingShipmentInfo = new DocumentConfirmingShipmentInfo();
+
+			if(order.Client.UseSpecialDocFields
+				&& !string.IsNullOrWhiteSpace(order.Client.SpecialContractName)
+				&& !string.IsNullOrWhiteSpace(order.Client.SpecialContractNumber)
+				&& order.Client.SpecialContractDate.HasValue)
 			{
-				Number = order.Id.ToString(),
-				Date = order.DeliveryDate.Value.ToString(_dateFormatString)
-			};
+				documentConfirmingShipmentInfo.Document = order.Client.SpecialContractName;
+				documentConfirmingShipmentInfo.Number = order.Client.SpecialContractNumber;
+				documentConfirmingShipmentInfo.Date = $"{order.Client.SpecialContractDate.Value:dd.MM.yyyy}";
+				return documentConfirmingShipmentInfo;
+			}
+
+			if(order.Client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(order.Client.SpecialContractName))
+			{
+				documentConfirmingShipmentInfo.Document = "Без документа-основания";
+				return documentConfirmingShipmentInfo;
+			}
+
+			if(order.Contract != null)
+			{
+				documentConfirmingShipmentInfo.Document = "Договор";
+				documentConfirmingShipmentInfo.Number = order.Contract.Number;
+				documentConfirmingShipmentInfo.Date = $"{order.Contract.IssueDate:dd.MM.yyyy}";
+			}
+			else
+			{
+				documentConfirmingShipmentInfo.Document = "Без документа-основания";
+			}
+
+			return documentConfirmingShipmentInfo;
+		}
 
 		private BasisShipmentInfo GetBasisShipmentInfo(CounterpartyEntity counterparty, CounterpartyContractEntity counterpartyContract)
 		{
