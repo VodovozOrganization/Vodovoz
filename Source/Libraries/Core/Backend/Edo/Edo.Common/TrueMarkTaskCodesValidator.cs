@@ -134,9 +134,9 @@ namespace Edo.Common
 
 			var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(codes.Select(x=>x.IdentificationCode), cancellationToken);
 			
-			if(productInstancesInfo is null)
+			if(productInstancesInfo?.InstanceStatuses is null)
 			{
-				return new TrueMarkTaskValidationResult(null);
+				throw new Exception(productInstancesInfo?.ErrorMessage ?? "Не удалось получить информацию о коде в ЧЗ");
 			}
 			
 			var codeResults = new List<TrueMarkCodeValidationResult>();

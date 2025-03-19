@@ -4,7 +4,7 @@
 	{
 		public class CodeToCheck
 		{
-			public string Code { get; set; }
+			public string RawCode { get; set; }
 			public bool NeedRecheck { get; set; }
 			public string Error { get; set; }
 		}
