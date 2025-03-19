@@ -431,17 +431,17 @@ namespace Vodovoz.Domain.Orders
 				info.AppendLine($"<b>Клиент:</b> {WebUtility.HtmlEncode(_oldOrder.Client.Name)}");
 				if(_oldOrder.SelfDelivery)
 				{
-					info.AppendLine($"<b>Адрес:</b> {"Самовывоз"}");
+					info.AppendLine("<b>Адрес:</b> \"Самовывоз\"");
 				}
 				else
 				{
 					info.AppendLine($"<b>Адрес:</b> {WebUtility.HtmlEncode(_oldOrder.DeliveryPoint?.ShortAddress)}");
 				}
 
-				info.AppendLine($"<b>Дата заказа:</b> {_oldOrder.DeliveryDate.Value.ToString("dd.MM.yyyy")}");
+				info.AppendLine($"<b>Дата заказа:</b> {_oldOrder.DeliveryDate.Value:dd.MM.yyyy}");
 				if(_oldOrder.SelfDelivery || _oldOrder.DeliverySchedule == null)
 				{
-					info.AppendLine($"<b>Интервал:</b> {"Самовывоз"}");
+					info.AppendLine("<b>Интервал:</b> \"Самовывоз\"");
 				}
 				else
 				{
@@ -484,7 +484,7 @@ namespace Vodovoz.Domain.Orders
 					var sb = new StringBuilder();
 					foreach(var d in drivers)
 					{
-						sb.AppendFormat("{0} ← ", WebUtility.HtmlEncode(d.ShortName));
+						sb.AppendLine($"{WebUtility.HtmlEncode(d.ShortName)} ← ");
 					}
 
 					info.AppendLine($"<b>Водитель:</b> {sb.ToString().Trim(new char[] { ' ', '←' })}");
@@ -496,7 +496,7 @@ namespace Vodovoz.Domain.Orders
 
 					foreach(var l in routeLists)
 					{
-						rls.AppendFormat("{0} ← ", l.Id);
+						rls.AppendLine($"{l.Id} ← ");
 					}
 
 					info.AppendLine($"<b>Маршрутный лист:</b> {rls.ToString().Trim(new char[] { ' ', '←' })}");
@@ -515,7 +515,7 @@ namespace Vodovoz.Domain.Orders
 			StringBuilder info = new StringBuilder("\n");
 			if(InProcessAtDepartment != null)
 			{
-				info.AppendLine(string.Format("<i>В работе у отдела:</i> {0}", InProcessAtDepartment.Name));
+				info.AppendLine($"<i>В работе у отдела:</i> {InProcessAtDepartment.Name}");
 			}
 
 			if(ObservableGuilty.Any())
@@ -523,29 +523,29 @@ namespace Vodovoz.Domain.Orders
 				info.AppendLine("<i>Ответственные:</i> ");
 				foreach(GuiltyInUndelivery g in ObservableGuilty)
 				{
-					info.AppendLine(string.Format("\t{0}", g));
+					info.AppendLine($"\t{g}");
 				}
 			}
 			var routeLists = orderRepository.GetAllRLForOrder(UoW, OldOrder);
 			if(routeLists.Any())
 			{
-				info.AppendLine(string.Format("<i>Место:</i> {0}", DriverCallType.GetEnumTitle()));
+				info.AppendLine($"<i>Место:</i> {DriverCallType.GetEnumTitle()}");
 				if(DriverCallTime.HasValue)
 				{
-					info.AppendLine(string.Format("<i>Время звонка водителя:</i> {0}", DriverCallTime.Value.ToString("HH:mm")));
+					info.AppendLine($"<i>Время звонка водителя:</i> {DriverCallTime.Value:HH:mm}");
 				}
 			}
 			if(DriverCallTime.HasValue)
 			{
-				info.AppendLine(string.Format("<i>Время звонка клиенту:</i> {0}", DispatcherCallTime.Value.ToString("HH:mm")));
+				info.AppendLine($"<i>Время звонка клиенту:</i> {DispatcherCallTime.Value:HH:mm}");
 			}
 
 			if(NewOrder != null)
 			{
-				info.AppendLine(string.Format("<i>Перенос:</i> {0}, {1}", NewOrder.Title, NewOrder.DeliverySchedule?.DeliveryTime ?? "инт-л не выбран"));
+				info.AppendLine($"<i>Перенос:</i> {NewOrder.Title}, {NewOrder.DeliverySchedule?.DeliveryTime ?? "инт-л не выбран"}");
 			}
 
-			info.AppendLine(string.Format("<i>Причина:</i> {0}", Reason));
+			info.AppendLine($"<i>Причина:</i> {Reason}");
 			return info.ToString();
 		}
 
@@ -616,16 +616,14 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult(
 					"Необходимо выбрать недовезённый заказ",
-					new[] { this.GetPropertyName(u => u.OldOrder) }
-				);
+					new[] { nameof(OldOrder) });
 			}
 
 			if(OldOrder != null && NewOrder != null && OldOrder.Id == NewOrder.Id)
 			{
 				yield return new ValidationResult(
 					"Перенесённый заказ не может совпадать с недовезённым",
-					new[] { this.GetPropertyName(u => u.OldOrder), this.GetPropertyName(u => u.NewOrder) }
-				);
+					new[] { nameof(OldOrder), nameof(NewOrder) });
 			}
 
 			if(NewOrder != null && OrderTransferType == null)
@@ -637,40 +635,35 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult(
 					"Не заполнено поле \"Что случилось?\"",
-					new[] { this.GetPropertyName(u => u.Reason) }
-				);
+					new[] { nameof(Reason) });
 			}
 
 			if(!ObservableGuilty.Any())
 			{
 				yield return new ValidationResult(
 					"Необходимо выбрать Ответственого",
-					new[] { this.GetPropertyName(u => u.ObservableGuilty) }
-				);
+					new[] { nameof(ObservableGuilty) });
 			}
 
 			if(InProcessAtDepartment == null)
 			{
 				yield return new ValidationResult(
 					"Необходимо заполнить поле \"В работе у отдела\"",
-					new[] { this.GetPropertyName(u => u.InProcessAtDepartment) }
-				);
+					new[] { nameof(InProcessAtDepartment) });
 			}
 
 			if(ObservableGuilty.Count() > 1 && ObservableGuilty.Any(g => g.GuiltySide == GuiltyTypes.None))
 			{
 				yield return new ValidationResult(
 					"Определитесь, кто ответственный! Либо это не недовоз, либо кто-то ответственный!",
-					new[] { this.GetPropertyName(u => u.GuiltyInUndelivery) }
-				);
+					new[] { nameof(GuiltyInUndelivery) });
 			}
 
 			if(ObservableGuilty.Any(g => g.GuiltySide == GuiltyTypes.Department && g.GuiltyDepartment == null))
 			{
 				yield return new ValidationResult(
 					"Не выбран отдел в одном или нескольких Ответственных.",
-					new[] { this.GetPropertyName(u => u.GuiltyInUndelivery) }
-				);
+					new[] { nameof(GuiltyInUndelivery) });
 			}
 
 			if(EmployeeRegistrator == null)
