@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Settings.Edo;
 using NewPool = TrueMark.Codes.Pool.TrueMarkCodesPool;
@@ -18,6 +19,7 @@ namespace Vodovoz.Models.TrueMark
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly TrueMarkWaterCodeParser _trueMarkCodeParser;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly TrueMarkCodesPoolFactory _trueMarkCodesPoolFactory;
 		private readonly NewPool _newTrueMarkCodesPool;
 		private readonly IInteractiveMessage _interactiveMessage;
 		private readonly IEdoSettings _edoSettings;
@@ -27,7 +29,7 @@ namespace Vodovoz.Models.TrueMark
 			IUnitOfWorkFactory uowFactory, 
 			TrueMarkWaterCodeParser trueMarkCodeParser,
 			TrueMarkCodesPool trueMarkCodesPool,
-			NewPool newTrueMarkCodesPool,
+			TrueMarkCodesPoolFactory trueMarkCodesPoolFactory,
 			IInteractiveMessage interactiveMessage,
 			IEdoSettings edoSettings
 			)
@@ -35,7 +37,7 @@ namespace Vodovoz.Models.TrueMark
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_trueMarkCodeParser = trueMarkCodeParser ?? throw new ArgumentNullException(nameof(trueMarkCodeParser));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
-			_newTrueMarkCodesPool = newTrueMarkCodesPool ?? throw new ArgumentNullException(nameof(newTrueMarkCodesPool));
+			_trueMarkCodesPoolFactory = trueMarkCodesPoolFactory ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolFactory));
 			_interactiveMessage = interactiveMessage ?? throw new ArgumentNullException(nameof(interactiveMessage));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_usingNewPool = _edoSettings.CodePoolLoaderToNewPool;
@@ -188,20 +190,58 @@ namespace Vodovoz.Models.TrueMark
 			{
 				try
 				{
-					uow.Save(codeEntity);
-					uow.Commit();
+					var savedCode = uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+						.Where(x => x.RawCode == codeEntity.RawCode)
+						.Take(1)
+						.SingleOrDefault<TrueMarkWaterIdentificationCode>();
+
+					if(savedCode != null)
+					{
+						uow.Delete(savedCode);
+						uow.Commit();
+					}
 				}
-				catch(Exception)
+				catch(Exception ex)
 				{
 					return false;
 				}
 			}
 
-			if(_usingNewPool)
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				_newTrueMarkCodesPool.PutCode(codeEntity.Id);
+				try
+				{
+					var savedCode = uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+						.Where(x => x.RawCode == codeEntity.RawCode)
+						.Take(1)
+						.SingleOrDefault<TrueMarkWaterIdentificationCode>();
+
+					int codeId = 0;
+					if(savedCode == null)
+					{
+						uow.Save(codeEntity);
+						codeId = codeEntity.Id;
+					}
+					else
+					{
+						codeId = savedCode.Id;
+					}
+
+					if(_usingNewPool)
+					{
+						var pool = _trueMarkCodesPoolFactory.Create(uow);
+						pool.PutCode(codeId);
+					}
+
+					uow.Commit();
+				}
+				catch(Exception ex)
+				{
+					return false;
+				}
 			}
-			else
+
+			if(!_usingNewPool)
 			{
 				_trueMarkCodesPool.PutCode(codeEntity.Id);
 			}
