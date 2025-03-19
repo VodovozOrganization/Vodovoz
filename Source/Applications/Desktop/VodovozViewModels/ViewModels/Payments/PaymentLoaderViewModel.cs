@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IOrderRepository _orderRepository;
 		private readonly int _vodovozId;
 		private readonly int _vodovozSouthId;
+		private readonly int _mbnOrganizationId;
 		private IReadOnlyList<Organization> _organisations;
 		private IReadOnlyList<Organization> _allVodOrganisations;
 		//убираем из выписки Юмани и банк СИАБ (платежи от физ. лиц)
@@ -69,6 +70,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			InteractiveService = commonServices.InteractiveService;
 			_vodovozId = organizationSettings.VodovozOrganizationId;
 			_vodovozSouthId = organizationSettings.VodovozSouthOrganizationId;
+			_mbnOrganizationId = organizationSettings.VodovozMbnOrganizationId;
 
 			UnitOfWorkFactory = unitOfWorkFactory;
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -130,10 +132,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			var vodovozOrg = UoW.GetById<Organization>(_vodovozId);
 			var vodovozSouthOrg = UoW.GetById<Organization>(_vodovozSouthId);
+			var mbnOrg = UoW.GetById<Organization>(_mbnOrganizationId);
 			_allVodOrganisations = UoW.GetAll<Organization>().ToList();
 
 			orgs.Add(vodovozOrg);
 			orgs.Add(vodovozSouthOrg);
+			orgs.Add(mbnOrg);
 
 			_organisations = orgs;
 		}
@@ -253,12 +257,19 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					&& !_excludeInnForVodovozSouth.Contains(x.PayerInn)
 					&& !_allVodOrganisations.Select(o => o.INN).Contains(x.PayerInn))
 					.ToList();
-			var totalCount = paymentsToVodovoz.Count + paymentsToVodovozSouth.Count;
+			var paymentsToMbn =
+				Parser.TransferDocuments.Where(x =>
+					x.RecipientInn == _organisations[2].INN
+					&& !_excludeInnForVodovozSouth.Contains(x.PayerInn)
+					&& !_allVodOrganisations.Select(o => o.INN).Contains(x.PayerInn))
+					.ToList();
+			var totalCount = paymentsToVodovoz.Count + paymentsToVodovozSouth.Count + paymentsToMbn.Count;
 
 			_progress = 1d / totalCount;
 
 			Match(ref count, ref countDuplicates, totalCount, autoPaymentMatching, defaultProfitCategory, paymentsToVodovoz, _organisations[0]);
 			Match(ref count, ref countDuplicates, totalCount, autoPaymentMatching, defaultProfitCategory, paymentsToVodovozSouth, _organisations[1]);
+			Match(ref count, ref countDuplicates, totalCount, autoPaymentMatching, defaultProfitCategory, paymentsToMbn, _organisations[2]);
 
 			var paymentsSum = ObservablePayments.Sum(x => x.Total);
 			UpdateProgress?.Invoke($"Загрузка завершена. Обработано платежей {count} на сумму: {paymentsSum}р. из них не загружено дублей: {countDuplicates}", _progress = 1);
