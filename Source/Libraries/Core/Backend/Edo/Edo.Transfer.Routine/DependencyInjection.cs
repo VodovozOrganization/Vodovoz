@@ -21,7 +21,7 @@ namespace Edo.Transfer.Dispatcher
 
 			services.AddEdoTransfer();
 
-			//services.AddHostedService<TransferTimeoutWorker>();
+			services.AddHostedService<TransferTimeoutWorker>();
 
 			services.AddEdoMassTransit();
 
