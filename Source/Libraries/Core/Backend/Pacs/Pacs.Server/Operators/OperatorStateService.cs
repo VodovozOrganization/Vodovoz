@@ -102,6 +102,8 @@ namespace Pacs.Server.Operators
 
 					transaction.Commit();
 
+					_logger.LogInformation("Подключение оператора {OperatorId}", operatorId);
+
 					return await Task.FromResult(new OperatorResult(GetResultContent(newState)));
 				}
 				catch(Exception ex)
@@ -132,11 +134,6 @@ namespace Pacs.Server.Operators
 						return new OperatorResult(null, $"Оператор {operatorId} не найден");
 					}
 
-					if(!@operator.PacsEnabled)
-					{
-						return new OperatorResult(null, $"Оператор {operatorId} отключен от СКУД");
-					}
-
 					if(!(_operatorStateRepository
 						.GetLastOrDefault(
 							_unitOfWork,
@@ -162,6 +159,8 @@ namespace Pacs.Server.Operators
 					_unitOfWork.Save(newState);
 
 					transaction.Commit();
+
+					_logger.LogInformation("Отключение оператора {OperatorId}", operatorId);
 
 					return await Task.FromResult(new OperatorResult(GetResultContent(newState)));
 				}
@@ -217,18 +216,12 @@ namespace Pacs.Server.Operators
 						return new OperatorResult(null, $"Оператор {operatorId} не подключен");
 					}
 
-					var currentAssignedOperator = _operatorPhoneService.GetAssignedOperator(phoneNumber);
+					var currentAssignedOperatorId = _operatorPhoneService.GetAssignedOperator(phoneNumber);
 
-					if(currentAssignedOperator != null)
+					if(currentAssignedOperatorId != null
+						&& currentAssignedOperatorId != operatorId)
 					{
-						if(currentAssignedOperator != operatorId)
-						{
-							return new OperatorResult(GetResultContent(lastOperatorState), $"Номер телефона {phoneNumber}, уже используется другим оператором");
-						}
-						else
-						{
-							return new OperatorResult(GetResultContent(lastOperatorState), $"Номер телефона {phoneNumber}, уже назначен текущему оператору");
-						}
+						return new OperatorResult(GetResultContent(lastOperatorState), $"Номер телефона {phoneNumber}, уже используется другим оператором");
 					}
 
 					if(lastOperatorState.State != OperatorStateType.Connected)
@@ -243,12 +236,16 @@ namespace Pacs.Server.Operators
 					newOperatorState.Started = DateTime.Now;
 					newOperatorState.Trigger = OperatorTrigger.StartWorkShift;
 
+					// TODO: Создание смены оператора
+
 					lastOperatorState.Ended = newOperatorState.Started;
 
 					_unitOfWork.Save(lastOperatorState);
 					_unitOfWork.Save(newOperatorState);
 
 					transaction.Commit();
+
+					_logger.LogInformation("Начало рабочей смены оператора {OperatorId}", operatorId);
 
 					return await Task.FromResult(new OperatorResult(GetResultContent(newOperatorState)));
 				}
@@ -273,16 +270,11 @@ namespace Pacs.Server.Operators
 				try
 				{
 					if(!(_operatorRepository
-							.GetFirstOrDefault(
-								_unitOfWork,
-								x => x.Id == operatorId) is Operator @operator))
+						.GetFirstOrDefault(
+							_unitOfWork,
+							x => x.Id == operatorId) is Operator @operator))
 					{
 						return new OperatorResult(null, $"Оператор {operatorId} не найден");
-					}
-
-					if(!@operator.PacsEnabled)
-					{
-						return new OperatorResult(null, $"Оператор {operatorId} отключен от СКУД");
 					}
 
 					if(!(_operatorStateRepository
@@ -299,8 +291,8 @@ namespace Pacs.Server.Operators
 						return new OperatorResult(GetResultContent(lastOperatorState), "Нельзя завершить смену в текущем состоянии");
 					}
 
-
-					if(string.IsNullOrWhiteSpace(reason))
+					if(lastOperatorState.WorkShift.GetPlannedEndTime() > DateTime.Now
+						&& string.IsNullOrWhiteSpace(reason))
 					{
 						return new OperatorResult(GetResultContent(lastOperatorState), $"Необходимо указать причину закрытия смены, если завершается раньше планируемого");
 					}
@@ -312,12 +304,16 @@ namespace Pacs.Server.Operators
 					newOperatorState.Trigger = OperatorTrigger.EndWorkShift;
 					newOperatorState.PhoneNumber = null;
 
+					newOperatorState.WorkShift.Reason = reason;
+
 					lastOperatorState.Ended = newOperatorState.Started;
 
 					_unitOfWork.Save(lastOperatorState);
 					_unitOfWork.Save(newOperatorState);
 
 					transaction.Commit();
+
+					_logger.LogInformation("Завершение рабочей смены оператора {OperatorId}", operatorId);
 
 					return await Task.FromResult(new OperatorResult(GetResultContent(newOperatorState)));
 				}
@@ -390,6 +386,7 @@ namespace Pacs.Server.Operators
 
 					var newOperatorState = lastOperatorState.Copy();
 					newOperatorState.PhoneNumber = phoneNumber;
+					newOperatorState.State = OperatorStateType.WaitingForCall;
 					newOperatorState.Started = DateTime.Now;
 					newOperatorState.Trigger = OperatorTrigger.ChangePhone;
 
@@ -399,6 +396,8 @@ namespace Pacs.Server.Operators
 					_unitOfWork.Save(newOperatorState);
 
 					transaction.Commit();
+
+					_logger.LogInformation("Смена номера телефона оператора {OperatorId} на {PhoneNumber}", operatorId, phoneNumber);
 
 					return await Task.FromResult(new OperatorResult(GetResultContent(newOperatorState)));
 				}
@@ -446,11 +445,6 @@ namespace Pacs.Server.Operators
 						return new OperatorResult(null, $"Оператор {operatorId} не подключен");
 					}
 
-					if(lastOperatorState.State != OperatorStateType.WaitingForCall)
-					{
-						return new OperatorResult(GetResultContent(lastOperatorState), "Нельзя начать перерыв в текущем состоянии");
-					}
-
 					if(lastOperatorState.State == OperatorStateType.Talk)
 					{
 						return new OperatorResult(GetResultContent(lastOperatorState), "Нельзя начать перерыв во время разговора");
@@ -466,6 +460,11 @@ namespace Pacs.Server.Operators
 						return new OperatorResult(GetResultContent(lastOperatorState), "Нельзя начать перерыв, вы не на смене");
 					}
 
+					if(lastOperatorState.State != OperatorStateType.WaitingForCall)
+					{
+						return new OperatorResult(GetResultContent(lastOperatorState), "Нельзя начать перерыв в текущем состоянии");
+					}
+
 					var checkResult = GetCheckStartBreakResult(lastOperatorState, breakType);
 
 					if(checkResult != null)
@@ -479,6 +478,7 @@ namespace Pacs.Server.Operators
 					newOperatorState.BreakType = breakType;
 					newOperatorState.Started = DateTime.Now;
 					newOperatorState.Trigger = OperatorTrigger.StartBreak;
+					newOperatorState.BreakChangedBy = BreakChangedBy.Operator;
 
 					lastOperatorState.Ended = newOperatorState.Started;
 
@@ -486,6 +486,10 @@ namespace Pacs.Server.Operators
 					_unitOfWork.Save(newOperatorState);
 
 					transaction.Commit();
+
+					// TODO: Оповестить о начале перерыва
+
+					_logger.LogInformation("Начало перерыва оператора {OperatorId}", operatorId);
 
 					return await Task.FromResult(new OperatorResult(GetResultContent(newOperatorState)));
 				}
@@ -540,6 +544,7 @@ namespace Pacs.Server.Operators
 					newOperatorState.State = OperatorStateType.WaitingForCall;
 					newOperatorState.Started = DateTime.Now;
 					newOperatorState.Trigger = OperatorTrigger.EndBreak;
+					newOperatorState.BreakChangedBy = BreakChangedBy.Operator;
 
 					lastOperatorState.Ended = newOperatorState.Started;
 
@@ -547,6 +552,10 @@ namespace Pacs.Server.Operators
 					_unitOfWork.Save(newOperatorState);
 
 					transaction.Commit();
+
+					// TODO: Оповестить о завершении перерыва
+
+					_logger.LogInformation("Завершение перерыва оператора {OperatorId}", operatorId);
 
 					return await Task.FromResult(new OperatorResult(GetResultContent(newOperatorState)));
 				}
@@ -607,7 +616,8 @@ namespace Pacs.Server.Operators
 					}
 
 					var newOperatorState = lastOperatorState.Copy();
-					newOperatorState.State = OperatorStateType.Connected;
+
+					newOperatorState.State = OperatorStateType.Break;
 					newOperatorState.Started = DateTime.Now;
 					newOperatorState.Trigger = OperatorTrigger.StartBreak;
 					newOperatorState.BreakChangedBy = BreakChangedBy.Admin;
@@ -652,11 +662,6 @@ namespace Pacs.Server.Operators
 							x => x.Id == operatorId) is Operator @operator))
 					{
 						return new OperatorResult(null, $"Оператор {operatorId} не найден");
-					}
-
-					if(!@operator.PacsEnabled)
-					{
-						return new OperatorResult(null, $"Оператор {operatorId} отключен от СКУД");
 					}
 
 					if(!(_operatorStateRepository
@@ -721,11 +726,6 @@ namespace Pacs.Server.Operators
 						return new OperatorResult(null, $"Оператор {operatorId} не найден");
 					}
 
-					if(!@operator.PacsEnabled)
-					{
-						return new OperatorResult(null, $"Оператор {operatorId} отключен от СКУД");
-					}
-
 					if(!(_operatorStateRepository
 						.GetLastOrDefault(
 							_unitOfWork,
@@ -739,7 +739,7 @@ namespace Pacs.Server.Operators
 						|| lastOperatorState.State == OperatorStateType.New
 						|| lastOperatorState.State == OperatorStateType.Connected)
 					{
-						return new OperatorResult(GetResultContent(lastOperatorState), "Нельзя завершить перерыв в текущем состоянии");
+						return new OperatorResult(GetResultContent(lastOperatorState), "Нельзя завершить смену в текущем состоянии");
 					}
 
 					if(string.IsNullOrWhiteSpace(reason))
@@ -750,15 +750,11 @@ namespace Pacs.Server.Operators
 					if(lastOperatorState.State == OperatorStateType.Break)
 					{
 						_logger.LogWarning("Оператор {OperatorId} находится на перерыве, перерыв будет завершен.", operatorId);
-
-						await AdminEndBreak(operatorId, adminId, reason);
 					}
 
 					if(lastOperatorState.State == OperatorStateType.Talk)
 					{
 						_logger.LogWarning("Оператор {OperatorId} находится в разговоре, разговор будет завершен.", operatorId);
-
-						await EndCall(lastOperatorState.PhoneNumber, lastOperatorState.CallId);
 					}
 
 					var newOperatorState = lastOperatorState.Copy();
@@ -777,6 +773,8 @@ namespace Pacs.Server.Operators
 					transaction.Commit();
 
 					_logger.LogInformation("Администратор {AdminId} завершил рабочую смену оператора {OperatorId} по причине: {Reason}.", adminId, operatorId, reason);
+
+					// TODO: Оповестить о завершении перерыва, если он был
 
 					return await Task.FromResult(new OperatorResult(GetResultContent(newOperatorState)));
 				}
@@ -810,7 +808,7 @@ namespace Pacs.Server.Operators
 
 					if(operatorId == null || operatorId == 0)
 					{
-						_logger.LogError("Номер телефона {InnerPhoneNumber} не назначен ни одному оператору", toExtension);
+						_logger.LogWarning("Номер телефона {InnerPhoneNumber} не назначен ни одному оператору", toExtension);
 						return;
 					}
 
@@ -819,13 +817,13 @@ namespace Pacs.Server.Operators
 							_unitOfWork,
 							x => x.Id == operatorId) is Operator @operator))
 					{
-						_logger.LogError("Оператор {OperatorId} не найден", operatorId);
+						_logger.LogWarning("Оператор {OperatorId} не найден", operatorId);
 						return;
 					}
 
 					if(!@operator.PacsEnabled)
 					{
-						_logger.LogError(callId, "Оператор {OperatorId} отключен от СКУД", operatorId);
+						_logger.LogWarning("Оператор {OperatorId} отключен от СКУД", operatorId);
 						return;
 					}
 
@@ -835,7 +833,7 @@ namespace Pacs.Server.Operators
 							x => x.OperatorId == operatorId
 								&& x.Ended == null) is OperatorState lastOperatorState))
 					{
-						_logger.LogError("Оператор {OperatorId} не подключен", operatorId);
+						_logger.LogWarning("Оператор {OperatorId} не подключен", operatorId);
 						return;
 					}
 
@@ -868,6 +866,8 @@ namespace Pacs.Server.Operators
 
 					_logger.LogInformation("Оператор {OperatorId} принял звонок {CallId}", operatorId, callId);
 
+					// TODO: Оповещение о начале звонка
+
 					await Task.CompletedTask;
 				}
 				catch(Exception ex)
@@ -898,7 +898,7 @@ namespace Pacs.Server.Operators
 
 					if(operatorId == null || operatorId == 0)
 					{
-						_logger.LogError("Номер телефона {InnerPhoneNumber} не назначен ни одному оператору", toExtension);
+						_logger.LogWarning("Номер телефона {InnerPhoneNumber} не назначен ни одному оператору", toExtension);
 						return;
 					}
 
@@ -907,13 +907,7 @@ namespace Pacs.Server.Operators
 							_unitOfWork,
 							x => x.Id == operatorId) is Operator @operator))
 					{
-						_logger.LogError("Оператор {OperatorId} не найден", operatorId);
-						return;
-					}
-
-					if(!@operator.PacsEnabled)
-					{
-						_logger.LogError(callId, "Оператор {OperatorId} отключен от СКУД", operatorId);
+						_logger.LogWarning("Оператор {OperatorId} не найден", operatorId);
 						return;
 					}
 
@@ -943,7 +937,7 @@ namespace Pacs.Server.Operators
 					newOperatorState.State = OperatorStateType.WaitingForCall;
 					newOperatorState.Started = DateTime.Now;
 					newOperatorState.Trigger = OperatorTrigger.EndCall;
-					newOperatorState.CallId = null;
+					newOperatorState.CallId = lastOperatorState.CallId;
 
 					lastOperatorState.Ended = newOperatorState.Started;
 
@@ -951,6 +945,10 @@ namespace Pacs.Server.Operators
 					_unitOfWork.Save(newOperatorState);
 
 					transaction.Commit();
+
+					_logger.LogInformation("Оператор {OperatorId} завершил звонок {CallId}", operatorId, callId);
+
+					// TODO: Оповещение о завершении звонка
 
 					await Task.CompletedTask;
 				}
