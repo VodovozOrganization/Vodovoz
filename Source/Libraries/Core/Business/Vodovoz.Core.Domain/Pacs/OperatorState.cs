@@ -21,14 +21,12 @@ namespace Vodovoz.Core.Domain.Pacs
 		public virtual int? BreakChangedByAdminId { get; set; }
 		public virtual string BreakAdminReason { get; set; }
 
-		public OperatorState Copy()
+		public virtual OperatorState Copy()
 		{
 			return new OperatorState
 			{
 				OperatorId = OperatorId,
 				Session = Session,
-				Started = Started,
-				Ended = Ended,
 				Trigger = Trigger,
 				State = State,
 				PhoneNumber = PhoneNumber,
@@ -43,8 +41,6 @@ namespace Vodovoz.Core.Domain.Pacs
 			{
 				OperatorId = operatorState.OperatorId,
 				Session = operatorState.Session,
-				Started = operatorState.Started,
-				Ended = operatorState.Ended,
 				Trigger = operatorState.Trigger,
 				State = operatorState.State,
 				PhoneNumber = operatorState.PhoneNumber,
