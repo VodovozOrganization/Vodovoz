@@ -121,7 +121,7 @@ namespace WarehouseApi.Library.Converters
 			return new TrueMarkCodeDto
 			{
 				SequenceNumber = sequenceNumber,
-				Code = documentTrueMarkCode.SourceCode.RawCode,
+				Code = documentTrueMarkCode.ResultCode?.RawCode ?? documentTrueMarkCode.SourceCode?.RawCode,
 				Level = WarehouseApiTruemarkCodeLevel.unit
 			};
 		}
