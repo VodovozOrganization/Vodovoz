@@ -142,6 +142,11 @@ public partial class MainWindow
 		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
 	}
 
+	protected void OnActionTrueMarkActivated(object sender, EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.true_mark.xml");
+	}
+
 	#region Логистика
 
 	/// <summary>
