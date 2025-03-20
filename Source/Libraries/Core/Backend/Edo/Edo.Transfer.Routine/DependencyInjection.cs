@@ -6,7 +6,6 @@ using Edo.Transfer.Routine.WaitingTransfersUpdate;
 using Edo.Transport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 
 namespace Edo.Transfer.Dispatcher
@@ -32,8 +31,7 @@ namespace Edo.Transfer.Dispatcher
 
 		private static IServiceCollection AddWaitingTransfersUpdateWorker(this IServiceCollection services, IConfiguration configuration)
 		{
-			services.Configure<WaitingTransfersUpdateSettings>(options =>
-				configuration.GetSection(nameof(WaitingTransfersUpdateSettings)).Bind(options));
+			services.ConfigureOptions<ConfigureWaitingTransfersUpdateSettings>();
 
 			services
 				.AddEdo()
@@ -41,7 +39,7 @@ namespace Edo.Transfer.Dispatcher
 				.AddHttpClient()
 				.AddScoped<TransferEdoHandler>()
 				.AddScoped<WaitingTransfersUpdateService>()
-				.AddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(WaitingTransfersUpdateService)));
+				.AddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(Routine)));
 
 			services.AddHostedService<WaitingTransfersUpdateWorker>();
 

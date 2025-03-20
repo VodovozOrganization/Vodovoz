@@ -1,5 +1,6 @@
 ﻿using Edo.Transfer.Routine.Options;
 using Edo.Transfer.Routine.WaitingTransfersUpdate;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -12,27 +13,33 @@ namespace Edo.Transfer.Routine
 	public class WaitingTransfersUpdateWorker : TimerBackgroundServiceBase
 	{
 		private readonly ILogger<WaitingTransfersUpdateWorker> _logger;
-		private readonly IOptions<WaitingTransfersUpdateSettings> _options;
-		private readonly WaitingTransfersUpdateService _waitingTransfersUpdateService;
+		private readonly IOptionsMonitor<WaitingTransfersUpdateSettings> _optionsMonitor;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 
 		public WaitingTransfersUpdateWorker(
 			ILogger<WaitingTransfersUpdateWorker> logger,
-			IOptions<WaitingTransfersUpdateSettings> options,
-			WaitingTransfersUpdateService waitingTransfersUpdateService)
+			IOptionsMonitor<WaitingTransfersUpdateSettings> optionsMonitor,
+			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_options = options ?? throw new ArgumentNullException(nameof(options));
-			_waitingTransfersUpdateService = waitingTransfersUpdateService ?? throw new ArgumentNullException(nameof(waitingTransfersUpdateService));
+			_optionsMonitor = optionsMonitor;
+			_serviceScopeFactory = serviceScopeFactory;
 		}
-		protected override TimeSpan Interval => TimeSpan.FromSeconds(_options.Value.IntervalInSeconds);
+		protected override TimeSpan Interval => _optionsMonitor.CurrentValue.Interval;
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation("Start waiting transfers update");
+			using(var scope = _serviceScopeFactory.CreateScope())
+			{
+				var waitingTransfersUpdateService = scope.ServiceProvider.GetService<WaitingTransfersUpdateService>();
 
-			await _waitingTransfersUpdateService.Update(stoppingToken);
+				_logger.LogInformation("Start waiting transfers update");
 
-			_logger.LogInformation("End waiting transfers update");
+				await waitingTransfersUpdateService.Update(stoppingToken);
+
+				_logger.LogInformation("End waiting transfers update");
+			}
+
 		}
 	}
 }
