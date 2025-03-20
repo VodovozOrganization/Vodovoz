@@ -47,7 +47,7 @@ namespace Edo.Transfer.Routine.Worker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddEdoTransferRoutine()
+						.AddEdoTransferRoutine(hostContext.Configuration)
 						;
 
 					services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Settings.Edo
+﻿using System;
+
+namespace Vodovoz.Settings.Edo
 {
 	public interface IEdoTransferSettings
 	{
@@ -12,6 +14,11 @@
 		/// Интервал проверки таймаута ожидания запросов на трансфер.
 		/// </summary>
 		int TransferTaskRequestsWaitingTimeoutCheckIntervalSecond { get; }
+
+		/// <summary>
+		/// Интервал обновления ожидающих задач на трансфер с завершенными документами
+		/// </summary>
+		TimeSpan WaitingTransfersUpdateInterval { get; }
 
 		/// <summary>
 		/// Минимальное количество кодов для начала трансфера
