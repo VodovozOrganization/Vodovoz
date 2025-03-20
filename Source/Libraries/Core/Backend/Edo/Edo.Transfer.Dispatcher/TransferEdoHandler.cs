@@ -82,7 +82,7 @@ namespace Edo.Transfer.Dispatcher
 			}
 
 			var requestsGroups = newTransferRequests.GroupBy(x => new TransferDirection(
-				x.FromOrganizationId, 
+				x.FromOrganizationId,
 				x.ToOrganizationId
 			));
 

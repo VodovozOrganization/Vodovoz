@@ -1,4 +1,5 @@
-﻿using Vodovoz.Settings.Edo;
+﻿using System;
+using Vodovoz.Settings.Edo;
 
 namespace Vodovoz.Settings.Database.Edo
 {
@@ -16,6 +17,9 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public int TransferTaskRequestsWaitingTimeoutCheckIntervalSecond => _settingsController
 			.GetIntValue("edo.transfer.requests_waiting_timeout_check_interval_seconds");
+
+		public TimeSpan WaitingTransfersUpdateInterval => _settingsController
+			.GetValue<TimeSpan>("edo.transfer.waiting_transfers_update_interval");
 
 		public int MinCodesCountForStartTransfer => _settingsController
 			.GetIntValue("edo.transfer.min_codes_count_for_start_transfer");
