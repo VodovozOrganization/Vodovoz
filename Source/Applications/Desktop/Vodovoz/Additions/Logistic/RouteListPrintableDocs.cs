@@ -47,6 +47,7 @@ namespace Vodovoz.Additions.Logistic
 					case RouteListPrintableDocuments.RouteList:
 					case RouteListPrintableDocuments.OrderOfAddresses:
 					case RouteListPrintableDocuments.ForwarderReceipt:
+					case RouteListPrintableDocuments.ChainStoreNotification:
 						return DocumentOrientation.Landscape;
 					default:
 						return DocumentOrientation.Portrait;
