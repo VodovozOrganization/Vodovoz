@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using System;
 using Vodovoz.Settings.Edo;
 
 namespace Edo.Transfer.Routine.Options
 {
-	public class ConfigureWaitingTransfersUpdateSettings
+	public class ConfigureWaitingTransfersUpdateSettings : IConfigureOptions<WaitingTransfersUpdateSettings>
 	{
 		private readonly IEdoTransferSettings _edoTransferSettings;
 
