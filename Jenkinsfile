@@ -80,6 +80,7 @@ IS_MANUAL_BUILD = GIT_BRANCH ==~ /^manual-build(.*?)/
 
 // 105	Настройки. Сборка
 
+ARTEFACT_DATE_TIME = new Date().format("MMdd_HHmm")
 CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
 CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
@@ -161,6 +162,7 @@ stage('Log') {
 	echo "104	Настройки. Восстановление пакетов"
 
 	echo "105	Настройки. Сборка"
+	echo "Can Build Desktop: ${ARTEFACT_DATE_TIME}"
 	echo "Can Build Desktop: ${CAN_BUILD_DESKTOP}"
 	echo "Can Build Web: ${CAN_BUILD_WEB}"
 	echo "Can Publish Build Web: ${CAN_PUBLISH_BUILD_WEB}"
@@ -597,9 +599,7 @@ def PublishDesktop(nodeName){
 	node(nodeName){
 		if(CAN_PUBLISH_DESKTOP){
 			if(IS_HOTFIX){
-				def now = new Date()
-				def hofix_suffix = now.format("MMdd_HHmm")
-				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${hofix_suffix}"
+				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTEFACT_DATE_TIME}"
 				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
 				DecompressArtifact(newHotfixPath, 'VodovozDesktop')
 				LockHotfix(hotfixName)
