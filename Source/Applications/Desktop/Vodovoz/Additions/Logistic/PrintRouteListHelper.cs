@@ -427,13 +427,13 @@ namespace Vodovoz.Additions.Logistic
 				case RouteListPrintableDocuments.ForwarderReceipt:
 					return GetRDLForwarderReceipt(routeList);
 				case RouteListPrintableDocuments.ChainStoreNotification:
-					return GetRDLChainStoreNotification(uow, routeList);
+					return GetRDLChainStoreNotification(routeList);
 				default:
 					throw new NotImplementedException("Неизвестный тип документа");
 			}
 		}
 
-		private static ReportInfo GetRDLChainStoreNotification(IUnitOfWork unitOfWork, RouteList routeList)
+		private static ReportInfo GetRDLChainStoreNotification(RouteList routeList)
 		{
 			var reportInfo = _reportInfoFactory.Create();
 
@@ -447,7 +447,7 @@ namespace Vodovoz.Additions.Logistic
 			reportInfo.Identifier = "Documents.ChainStoreNotification";
 			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				{ "orderIds", chainStoreOrderIds }
+				{ "orderIds", string.Join(", ", chainStoreOrderIds) }
 			};
 			
 			return reportInfo;
