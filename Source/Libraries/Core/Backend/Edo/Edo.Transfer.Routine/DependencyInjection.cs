@@ -41,7 +41,7 @@ namespace Edo.Transfer.Dispatcher
 				.AddHttpClient()
 				.AddScoped<TransferEdoHandler>()
 				.AddScoped<WaitingTransfersUpdateService>()
-				.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+				.AddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(WaitingTransfersUpdateService)));
 
 			services.AddHostedService<WaitingTransfersUpdateWorker>();
 

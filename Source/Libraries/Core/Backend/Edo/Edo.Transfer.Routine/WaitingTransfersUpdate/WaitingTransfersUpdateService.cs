@@ -1,4 +1,6 @@
-﻿using Edo.Transfer.Dispatcher;
+﻿using Autofac;
+using Edo.Transfer.Dispatcher;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
@@ -14,22 +16,22 @@ namespace Edo.Transfer.Routine.WaitingTransfersUpdate
 	public class WaitingTransfersUpdateService
 	{
 		private readonly ILogger<WaitingTransfersUpdateService> _logger;
-		private readonly IUnitOfWork _uow;
-		private readonly TransferEdoHandler _transferEdoHandler;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 
 		public WaitingTransfersUpdateService(
 			ILogger<WaitingTransfersUpdateService> logger,
-			IUnitOfWork uow,
-			TransferEdoHandler transferEdoHandler)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_transferEdoHandler = transferEdoHandler ?? throw new System.ArgumentNullException(nameof(transferEdoHandler));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 		}
 
 		public async Task Update(CancellationToken cancellationToken)
 		{
-			var documentIds = await GetWaitingTransfersDocumentsIds();
+			var documentIds = await GetWaitingTransfersDocumentsIds(cancellationToken);
 
 			_logger.LogInformation("Получено {DocumentIdsCount} документов для обработки", documentIds.Count());
 
@@ -41,7 +43,11 @@ namespace Edo.Transfer.Routine.WaitingTransfersUpdate
 				{
 					_logger.LogInformation("Обработка документа трансфера с Id {DocumentId}", documentId);
 
-					await _transferEdoHandler.HandleTransferDocumentAcceptance(documentId, cancellationToken);
+					using(var documentScope = _serviceScopeFactory.CreateScope())
+					{
+						var transferEdoHandler = documentScope.ServiceProvider.GetRequiredService<TransferEdoHandler>();
+						await transferEdoHandler.HandleTransferDocumentAcceptance(documentId, cancellationToken);
+					}
 
 					_logger.LogInformation("Документ трансфера с Id {DocumentId} успешно обработан", documentId);
 				}
@@ -59,18 +65,21 @@ namespace Edo.Transfer.Routine.WaitingTransfersUpdate
 				errorsCount);
 		}
 
-		private async Task<IEnumerable<int>> GetWaitingTransfersDocumentsIds()
+		private async Task<IEnumerable<int>> GetWaitingTransfersDocumentsIds(CancellationToken cancellationToken)
 		{
-			var documentIds =
-					await (from task in _uow.Session.Query<TransferEdoTask>()
-						   join document in _uow.Session.Query<TransferEdoDocument>() on task.Id equals document.TransferTaskId
-						   where
-						   task.Status == EdoTaskStatus.Waiting
-						   && document.Status == EdoDocumentStatus.Succeed
-						   select document.Id)
-					.ToListAsync();
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var documentIds =
+						await (from task in uow.Session.Query<TransferEdoTask>()
+							   join document in uow.Session.Query<TransferEdoDocument>() on task.Id equals document.TransferTaskId
+							   where
+							   task.Status == EdoTaskStatus.Waiting
+							   && document.Status == EdoDocumentStatus.Succeed
+							   select document.Id)
+						.ToListAsync(cancellationToken);
 
-			return documentIds;
+				return documentIds;
+			}
 		}
 	}
 }

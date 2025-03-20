@@ -2,7 +2,6 @@
 using Edo.Transfer.Routine.WaitingTransfersUpdate;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +14,6 @@ namespace Edo.Transfer.Routine
 		private readonly ILogger<WaitingTransfersUpdateWorker> _logger;
 		private readonly IOptions<WaitingTransfersUpdateSettings> _options;
 		private readonly WaitingTransfersUpdateService _waitingTransfersUpdateService;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
 		public WaitingTransfersUpdateWorker(
 			ILogger<WaitingTransfersUpdateWorker> logger,
