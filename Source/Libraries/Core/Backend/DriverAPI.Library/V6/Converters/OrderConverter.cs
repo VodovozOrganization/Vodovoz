@@ -70,12 +70,14 @@ namespace DriverAPI.Library.V6.Converters
 		/// <param name="routeListItem">Адрес маршрутного листа</param>
 		/// <param name="smsPaymentStatus">Статус оплаты по смс</param>
 		/// <param name="qrPaymentDtoStatus">Статус оплаты по QR-коду</param>
+		/// <param name="hasCodesInCarLoadDocument"></param>
 		/// <returns></returns>
 		public OrderDto ConvertToAPIOrder(
 			Order vodovozOrder,
 			RouteListItem routeListItem,
 			SmsPaymentStatus? smsPaymentStatus,
-			FastPaymentStatus? qrPaymentDtoStatus)
+			FastPaymentStatus? qrPaymentDtoStatus,
+			bool hasCodesInCarLoadDocument)
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
@@ -103,7 +105,7 @@ namespace DriverAPI.Library.V6.Converters
 				Trifle = vodovozOrder.Trifle ?? 0,
 				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType),
 				WaitUntilTime = vodovozOrder.WaitUntilTime,
-				OrderType = GetOrderType(vodovozOrder)
+				OrderType = GetOrderType(vodovozOrder, hasCodesInCarLoadDocument)
 			};
 
 			if(vodovozOrder.DontArriveBeforeInterval)
@@ -126,14 +128,16 @@ namespace DriverAPI.Library.V6.Converters
 			return apiOrder;
 		}
 
-		private OrderReasonForLeavingDtoType GetOrderType(Order vodovozOrder)
+		private OrderReasonForLeavingDtoType GetOrderType(
+			Order vodovozOrder,
+			bool hasCodesInCarLoadDocument)
 		{
-			if(vodovozOrder.IsNeedIndividualSetOnLoad)
+			if(vodovozOrder.IsNeedIndividualSetOnLoad && hasCodesInCarLoadDocument)
 			{
 				return OrderReasonForLeavingDtoType.Distributing;
 			}
 
-			if(vodovozOrder.IsOrderForResale)
+			if(vodovozOrder.IsOrderForResale || !hasCodesInCarLoadDocument)
 			{
 				return OrderReasonForLeavingDtoType.ForResale;
 			}

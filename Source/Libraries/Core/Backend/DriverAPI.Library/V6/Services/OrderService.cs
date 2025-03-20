@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V6;
+﻿using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
@@ -37,7 +37,9 @@ using OrderItemErrors = Vodovoz.Errors.Orders.OrderItem;
 using RouteListErrors = Vodovoz.Errors.Logistics.RouteList;
 using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteList.RouteListItem;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
-using Vodovoz.Errors.TrueMark;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Documents;
+using Remotion.Linq.Clauses;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -60,6 +62,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IOrderSettings _orderSettings;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
+		private readonly IGenericRepository<CarLoadDocument> _carLoadDocumentRepository;
 		private readonly MessageService _edoMessageService;
 
 		public OrderService(
@@ -78,6 +81,7 @@ namespace DriverAPI.Library.V6.Services
 			IOrderSettings orderSettings,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
+			IGenericRepository<CarLoadDocument> carLoadDocumentRepository,
 			MessageService edoMessageService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -95,6 +99,7 @@ namespace DriverAPI.Library.V6.Services
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
+			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_edoMessageService = edoMessageService ?? throw new ArgumentNullException(nameof(edoMessageService));
 		}
 
@@ -103,7 +108,7 @@ namespace DriverAPI.Library.V6.Services
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>APIOrder</returns>
-		public Vodovoz.Errors.Result<OrderDto> GetOrder(int orderId)
+		public Result<OrderDto> GetOrder(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
 
@@ -119,11 +124,20 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure<OrderDto>(RouteListItemErrors.NotFoundAssociatedWithOrder);
 			}
 
+			// проверить коды, если кодов на складе не сканировали - добавить параметр, который заставит отвечать что это заказа типа Resale
+
+			var carLoadDocuments = _carLoadDocumentRepository.Get(_uow, x => x.RouteList.Id == routeListItem.RouteList.Id);
+
+			var carLoadDocumentItems = carLoadDocuments.SelectMany(x => x.Items.Where(x => x.OrderId == orderId));
+
+			var hasCodesInCarLoadDocument = carLoadDocumentItems.Any(x => x.TrueMarkCodes.Any(x => x.SourceCode != null || x.ResultCode != null));
+
 			var order = _orderConverter.ConvertToAPIOrder(
 				vodovozOrder,
 				routeListItem,
 				_aPISmsPaymentModel.GetOrderSmsPaymentStatus(orderId),
-				_fastPaymentModel.GetOrderFastPaymentStatus(orderId, vodovozOrder.OnlineOrder));
+				_fastPaymentModel.GetOrderFastPaymentStatus(orderId, vodovozOrder.OnlineOrder),
+				hasCodesInCarLoadDocument);
 
 			var additionalInfo = GetAdditionalInfo(vodovozOrder);
 
@@ -145,14 +159,22 @@ namespace DriverAPI.Library.V6.Services
 		public IEnumerable<OrderDto> Get(int[] orderIds)
 		{
 			var result = new List<OrderDto>();
-			var vodovozOrders = _orderRepository.GetOrders(_uow, orderIds);
+			var vodovozOrders = _orderRepository.GetOrders(_uow, orderIds).ToArray();
+
+			var carLoadDocuments = _carLoadDocumentRepository.Get(_uow, x => x.RouteList.Addresses.Any(routeListItem => orderIds.Contains(routeListItem.Order.Id)));
 
 			foreach(var vodovozOrder in vodovozOrders)
 			{
+				// проверить коды, если кодов на складе не сканировали - добавить параметр, который заставит отвечать что это заказа типа Resale
+
+				var carLoadDocumentItems = carLoadDocuments.SelectMany(x => x.Items.Where(x => x.OrderId == vodovozOrder.Id));
+
+				var hasCodesInCarLoadDocument = carLoadDocumentItems.Any(x => x.TrueMarkCodes.Any(x => x.SourceCode != null || x.ResultCode != null));
+
 				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderSmsPaymentStatus(vodovozOrder.Id);
 				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id, vodovozOrder.OnlineOrder);
 				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
-				var order = _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem, smsPaymentStatus, qrPaymentStatus);
+				var order = _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem, smsPaymentStatus, qrPaymentStatus, hasCodesInCarLoadDocument);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder).Value;
 				result.Add(order);
 			}
@@ -842,7 +864,15 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListItemErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, $"Нельзя добавить код к заказу {orderId}, адрес МЛ {routeListAddress.Id} не в пути");
 			}
 
-			if(vodovozOrderItem.IsTrueMarkCodesMustBeAddedInWarehouse)
+			// Если на скаладе не сканировались коды ЧЗ, то разрешить добавить коды
+
+			var carLoadDocuments = _carLoadDocumentRepository.Get(_uow, x => x.RouteList.Addresses.Any(routeListItem => routeListItem.Order.Id == orderId));
+
+			var carLoadDocumentItems = carLoadDocuments.SelectMany(x => x.Items.Where(x => x.OrderId == vodovozOrder.Id));
+
+			var hasCodesInCarLoadDocument = carLoadDocumentItems.Any(x => x.TrueMarkCodes.Any(x => x.SourceCode != null || x.ResultCode != null));
+
+			if(vodovozOrderItem.IsTrueMarkCodesMustBeAddedInWarehouse && hasCodesInCarLoadDocument)
 			{
 				_logger.LogWarning("Коды ЧЗ сетевого заказа {OrderId} должны добавляться на складе", orderId);
 				return GetFailureTrueMarkCodeProcessingResponse(TrueMarkCodeErrors.TrueMarkCodesHaveToBeAddedInWarehouse, vodovozOrderItem, routeListAddress, $"Коды ЧЗ сетевого заказа {orderId} должны добавляться на складе");
