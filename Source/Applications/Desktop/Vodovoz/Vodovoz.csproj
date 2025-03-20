@@ -2077,7 +2077,6 @@
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\TrueMark\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2738,6 +2737,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="icons\toolbar\order_ratings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="toolbars\true_mark.xml" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
