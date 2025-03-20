@@ -17,9 +17,13 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewData.ColumnsConfig = ColumnsConfigFactory.Create<CodesPoolDataNode>()
 				.AddColumn("GTIN").AddTextRenderer(node => node.Gtin)
 				.AddColumn("Количество в пуле").AddTextRenderer(node => node.CountInPool.ToString())
-				.AddColumn("Продано вчера").AddTextRenderer(node => node.SoldYesterdayCount.ToString())
-				.AddColumn("Номенклатуры").AddTextRenderer(node => node.NomenclatureName)
+				.AddColumn("Продано вчера").AddTextRenderer(node => node.SoldYesterday.ToString())
+				.AddColumn("Номенклатуры").AddTextRenderer(node => node.Nomenclatures)
 				.Finish();
+
+			ytreeviewData.Binding
+				.AddBinding(ViewModel, vm => vm.CodesPoolData, w => w.ItemsDataSource)
+				.InitializeFromSource();
 
 			ybuttonLoadCodesToPool.BindCommand(ViewModel.LoadCodesToPoolCommand);
 			ybutton2.BindCommand(ViewModel.RefreshCommand);

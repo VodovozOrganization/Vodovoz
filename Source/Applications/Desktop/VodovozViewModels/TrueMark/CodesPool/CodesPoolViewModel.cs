@@ -46,10 +46,10 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 		{
 			var sql = @"
 		SELECT
-			g.gtin,
-			pool.count_in_pool,
-			stock.sold_yesterday,
-			GROUP_CONCAT(DISTINCT n.official_name SEPARATOR '|') as nomenclatures
+			g.gtin as Gtin,
+			pool.count_in_pool as CountInPool,
+			stock.sold_yesterday as SoldYesterday,
+			GROUP_CONCAT(DISTINCT n.official_name SEPARATOR '|') as Nomenclatures
 		FROM
 			gtins g
 		LEFT JOIN
@@ -84,10 +84,10 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 		GROUP BY g.gtin";
 
 			var codesData = UoW.Session.CreateSQLQuery(sql)
-				.AddScalar("gtin", NHibernateUtil.String)
-				.AddScalar("count_in_pool", NHibernateUtil.Int32)
-				.AddScalar("sold_yesterday", NHibernateUtil.Int32)
-				.AddScalar("nomenclatures", NHibernateUtil.String)
+				.AddScalar("Gtin", NHibernateUtil.String)
+				.AddScalar("CountInPool", NHibernateUtil.Int32)
+				.AddScalar("SoldYesterday", NHibernateUtil.Int32)
+				.AddScalar("Nomenclatures", NHibernateUtil.String)
 				.SetResultTransformer(Transformers.AliasToBean<CodesPoolDataNode>())
 				.List<CodesPoolDataNode>()
 				.ToList();
@@ -103,9 +103,9 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 		{
 			public string Gtin { get; set; }
 			public int CountInPool { get; set; }
-			public int SoldYesterdayCount { get; set; }
-			public string NomenclatureName { get; set; }
-			public bool IsNotEnoughCodes => CountInPool < SoldYesterdayCount;
+			public int SoldYesterday { get; set; }
+			public string Nomenclatures { get; set; }
+			public bool IsNotEnoughCodes => CountInPool < SoldYesterday;
 		}
 	}
 }
