@@ -361,6 +361,16 @@ stage('Publish'){
 	)
 }
 
+stage('CleanUp'){
+	parallel(
+		"Desktop ${NODE_VOD1}" : { DeleteCompressedArtifactAtNode(NODE_VOD1) },
+		"Desktop ${NODE_VOD3}" : { DeleteCompressedArtifactAtNode(NODE_VOD3) },
+		"Desktop ${NODE_VOD5}" : { DeleteCompressedArtifactAtNode(NODE_VOD5) },
+		"Desktop ${NODE_VOD7}" : { DeleteCompressedArtifactAtNode(NODE_VOD7) },
+		"Desktop ${NODE_VOD13}" : { DeleteCompressedArtifactAtNode(NODE_VOD13) },
+	)
+}
+
 //-----------------------------------------------------------------------
 
 // 300	Фукнции
@@ -483,7 +493,7 @@ def CompressWebArtifact(relativeProjectPath){
 }
 
 def CompressArtifact(sourcePath, artifactName) {
-	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
+	def archive_file = "${artifactName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
 
 	if (fileExists(archive_file)) {
 		echo "Delete exiting artifact ${archive_file} from ${sourcePath}/*"
@@ -495,10 +505,16 @@ def CompressArtifact(sourcePath, artifactName) {
 }
 
 def DecompressArtifact(destPath, artifactName) {
-	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
+	def archive_file = "${artifactName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
 
 	echo "Decompressing artifact ${archive_file} to ${destPath}"
 	UnzipFiles(archive_file, destPath)
+}
+
+def DeleteCompressedArtifact(artifactName) {
+	def archive_file = "${artifactName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
+	echo "Deleting artifact ${archive_file} to ${destPath}"
+	fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
 }
 
 // 305	Фукнции. Доставка
@@ -638,8 +654,43 @@ def PublishWeb(projectName){
 	}
 }
 
-// 308	Фукнции. Утилитарные
+def DeleteCompressedArtifactAtNode(nodeName) {
+	def nodeIsOnline = true;
 
+	jenkins.model.Jenkins.instance.getNodes().each{node ->
+		node.getAssignedLabels().each{label ->
+			if(label.name == nodeName && node.toComputer().isOffline()){
+				nodeIsOnline = false;
+				return
+			}
+		}
+	}
+
+	if(!nodeIsOnline){
+		unstable("${nodeName} - cleanup failed! node is offline")
+		return
+	}
+
+	node(nodeName){
+		if(CAN_PUBLISH_DESKTOP){
+			if(IS_HOTFIX){
+				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTEFACT_DATE_TIME}"
+				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
+				DeleteCompressedArtifact(newHotfixPath, 'VodovozDesktop')
+				LockHotfix(hotfixName)
+				return
+			}
+
+			if(IS_RELEASE){
+				DeleteCompressedArtifact(DESKTOP_NEW_RELEASE_PUBLISH_PATH, 'VodovozDesktop')
+				return
+			}
+		}
+		echo "Cleanup not needed"
+	}
+}
+
+// 308	Фукнции. Утилитарные
 
 def LockHotfix(hotfixName){
 	writeFile(file: UPDATE_LOCK_FILE, text: hotfixName)
