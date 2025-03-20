@@ -24,6 +24,7 @@ using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
 using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
+using VodovozInfrastructure.Keyboard;
 
 namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 {
@@ -38,6 +39,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private readonly ITrueMarkCodesValidator _trueMarkValidator;
 		private readonly IBus _messageBus;
 		private readonly IGuiDispatcher _guiDispatcher;
+		private readonly IInteractiveService _interactiveService;
 		private readonly ILogger<CodesScanViewModel> _logger;
 		private string _organizationInn;
 		private List<GtinFromNomenclatureDto> _allGtins;
@@ -58,7 +60,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			IGenericRepository<Gtin> gtinRepository,
 			ITrueMarkCodesValidator trueMarkValidator,
 			IBus messageBus,
-			IGuiDispatcher guiDispatcher
+			IGuiDispatcher guiDispatcher,
+			IInteractiveService interactiveService
 		)
 			: base(navigationManager)
 		{
@@ -72,6 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			_trueMarkValidator = trueMarkValidator ?? throw new ArgumentNullException(nameof(trueMarkValidator));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
 			WindowPosition = WindowGravity.None;
 
@@ -144,7 +148,25 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			FillAlreadyScannedNomenclatures();
 
+			CheckAllCodeScanned();
+
 			StartUpdater();
+		}
+
+		private void CheckAllCodeScanned()
+		{
+			if(IsAllCodesScanned)
+			{
+				_guiDispatcher.RunInGuiTread(() =>
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Info,
+							"Сейчас нечего сканировать. Проверьте количество номенклатур на форме самовывоза");
+						CloseScanning();
+					}
+				);
+				
+
+			}
 		}
 
 		private void StartUpdater()
@@ -166,7 +188,27 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				await RecheckOldCodes(cancellationToken);
 
+				_guiDispatcher.RunInGuiTread(CheckAndSetKeyBoardSettings);
+
 				Thread.Sleep(100);
+			}
+		}
+
+		private void CheckAndSetKeyBoardSettings()
+		{
+			if(!WinKeyboardWorkHelper.IsWindowsOs)
+			{
+				return;
+			}
+
+			if(!WinKeyboardWorkHelper.IsEnKeyboardLayot())
+			{
+				WinKeyboardWorkHelper.SwitchToEnglish();
+			}
+
+			if(WinKeyboardWorkHelper.IsCapsLockEnabled)
+			{
+				WinKeyboardWorkHelper.TurnOffCapsLock();
 			}
 		}
 
