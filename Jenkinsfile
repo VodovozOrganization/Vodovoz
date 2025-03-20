@@ -80,7 +80,7 @@ IS_MANUAL_BUILD = GIT_BRANCH ==~ /^manual-build(.*?)/
 
 // 105	Настройки. Сборка
 
-ARTEFACT_DATE_TIME = new Date().format("MMdd_HHmm")
+ARTEFACT_DATE_TIME = new Date().format("MMdd_HHmm", TimeZone.getDefault())
 CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
 CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
