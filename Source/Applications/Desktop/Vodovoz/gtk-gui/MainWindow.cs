@@ -697,6 +697,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action ChangingFormOfPaymentbyDriversReportAction;
 
+	private global::Gtk.RadioAction ActionTrueMark;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1815,6 +1817,10 @@ public partial class MainWindow
 		this.ChangingFormOfPaymentbyDriversReportAction = new global::Gtk.Action("ChangingFormOfPaymentbyDriversReportAction", global::Mono.Unix.Catalog.GetString("Отчет по изменению формы оплаты водителями"), null, null);
 		this.ChangingFormOfPaymentbyDriversReportAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по изменению формы оплаты водителями");
 		w1.Add(this.ChangingFormOfPaymentbyDriversReportAction, null);
+		this.ActionTrueMark = new global::Gtk.RadioAction("ActionTrueMark", global::Mono.Unix.Catalog.GetString("Маркировка"), null, "true_mark", 0);
+		this.ActionTrueMark.Group = this.ActionAccounting.Group;
+		this.ActionTrueMark.ShortLabel = global::Mono.Unix.Catalog.GetString("Маркировка");
+		w1.Add(this.ActionTrueMark, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -2227,7 +2233,7 @@ public partial class MainWindow
 		this.hbox2.Name = "hbox2";
 		this.hbox2.Spacing = 6;
 		// Container child hbox2.Gtk.Box+BoxChild
-		this.UIManager.AddUiFromString(@"<ui><toolbar name='toolbarMain'><toolitem name='ActionOrders' action='ActionOrders'/><toolitem name='ActionServices' action='ActionServices'/><toolitem name='ActionLogistics' action='ActionLogistics'/><toolitem name='ActionStock' action='ActionStock'/><toolitem name='ActionCash' action='ActionCash'/><toolitem name='ActionAccounting' action='ActionAccounting'/><toolitem name='ActionArchive' action='ActionArchive'/><toolitem name='ActionStaff' action='ActionStaff'/><toolitem name='ActionCRM' action='ActionCRM'/><toolitem name='ActionSuppliers' action='ActionSuppliers'/><toolitem name='ActionCashRequest' action='ActionCashRequest'/><toolitem name='ActionRetail' action='ActionRetail'/><toolitem name='ActionCarService' action='ActionCarService'/><toolitem name='ActionSalesDepartment' action='ActionSalesDepartment'/><toolitem name='Action1SWork' action='Action1SWork'/></toolbar></ui>");
+		this.UIManager.AddUiFromString(@"<ui><toolbar name='toolbarMain'><toolitem name='ActionOrders' action='ActionOrders'/><toolitem name='ActionServices' action='ActionServices'/><toolitem name='ActionLogistics' action='ActionLogistics'/><toolitem name='ActionStock' action='ActionStock'/><toolitem name='ActionCash' action='ActionCash'/><toolitem name='ActionAccounting' action='ActionAccounting'/><toolitem name='ActionArchive' action='ActionArchive'/><toolitem name='ActionStaff' action='ActionStaff'/><toolitem name='ActionCRM' action='ActionCRM'/><toolitem name='ActionSuppliers' action='ActionSuppliers'/><toolitem name='ActionCashRequest' action='ActionCashRequest'/><toolitem name='ActionRetail' action='ActionRetail'/><toolitem name='ActionCarService' action='ActionCarService'/><toolitem name='ActionSalesDepartment' action='ActionSalesDepartment'/><toolitem name='Action1SWork' action='Action1SWork'/><toolitem name='ActionTrueMark' action='ActionTrueMark'/></toolbar></ui>");
 		this.toolbarMain = ((global::Gtk.Toolbar)(this.UIManager.GetWidget("/toolbarMain")));
 		this.toolbarMain.Name = "toolbarMain";
 		this.toolbarMain.ShowArrow = false;
@@ -2334,7 +2340,7 @@ public partial class MainWindow
 		{
 			this.Child.ShowAll();
 		}
-		this.DefaultWidth = 1868;
+		this.DefaultWidth = 1969;
 		this.Show();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler(this.OnDeleteEvent);
 		this.dialogAuthenticationAction.Activated += new global::System.EventHandler(this.OnDialogAuthenticationActionActivated);
@@ -2627,6 +2633,7 @@ public partial class MainWindow
 		this.Action91.Activated += new global::System.EventHandler(this.OnFinancialResponsibilityCenterJournalActivated);
 		this.ActionIncorrectFuelReport.Activated += new global::System.EventHandler(this.OnActionIncorrectFuelReportActivated);
 		this.ChangingFormOfPaymentbyDriversReportAction.Activated += new global::System.EventHandler(this.OnChangingFormOfPaymentbyDriversReportActionActivated);
+		this.ActionTrueMark.Activated += new global::System.EventHandler(this.OnActionTrueMarkActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);

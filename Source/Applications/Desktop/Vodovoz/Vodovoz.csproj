@@ -408,6 +408,7 @@
     <EmbeddedResource Include="icons\pacs\short-break-denied.png" />
     <EmbeddedResource Include="icons\toolbar\1s_default.png" />
     <EmbeddedResource Include="icons\common\Сalendar.png" />
+    <EmbeddedResource Include="icons\toolbar\true_mark.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
