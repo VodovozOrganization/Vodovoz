@@ -375,15 +375,21 @@ namespace Edo.Documents
 						var forNewAvailableGtin = orderItem.Nomenclature.Gtins.First().GtinNumber;
 						var forNewFromPoolCodeId = await _trueMarkCodesPool.TakeCode(forNewAvailableGtin, cancellationToken);
 						var forNewCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(forNewFromPoolCodeId);
+
+
+						var newAutoTrueMarkProductCode = new AutoTrueMarkProductCode
+						{
+							ResultCode = forNewCode,
+							SourceCode = forNewCode,
+							SourceCodeStatus = SourceProductCodeStatus.Accepted,
+							Problem = ProductCodeProblem.None
+						};
+
+						await _uow.SaveAsync(newAutoTrueMarkProductCode, cancellationToken: cancellationToken);
+
 						var newTaskItem = new EdoTaskItem
 						{
-							ProductCode = new AutoTrueMarkProductCode
-							{
-								ResultCode = forNewCode,
-								SourceCode = forNewCode,
-								SourceCodeStatus = SourceProductCodeStatus.Accepted,
-								Problem = ProductCodeProblem.None
-							},
+							ProductCode = newAutoTrueMarkProductCode,
 							CustomerEdoTask = documentEdoTask
 						};
 						documentEdoTask.Items.Add(newTaskItem);
