@@ -18,6 +18,8 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
 using ModulKassa;
 using System;
+using Edo.Documents;
+using TrueMarkApi.Client;
 
 namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 {
@@ -54,10 +56,15 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 					;
 
 					services
-					.AddHttpClient()
+						.AddTrueMarkApiClient()
 					;
 
 					services
+						//document
+						.AddScoped<DocumentEdoTaskHandler>()
+						.AddScoped<ForOwnNeedDocumentEdoTaskHandler>()
+						.AddScoped<ForResaleDocumentEdoTaskHandler>()
+
 						//receipt.dispatcher
 						.AddScoped<ReceiptEdoTaskHandler>()
 						.AddScoped<ResaleReceiptEdoTaskHandler>()
@@ -81,7 +88,8 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 							// Выбор какие ошибки дебажить:
 
 							//cfg.AddConsumer<TransferCompleteErrorConsumer, TransferCompleteErrorConsumerDefinition>();
-							cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
+							//cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
+							cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
 						}
 					);
 				});
