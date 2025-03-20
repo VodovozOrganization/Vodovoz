@@ -161,6 +161,9 @@ public partial class MainWindow : Window
 	Action ActionExportCounterpartiesTo1c;
 	Action ActionAnalyseCounterpartyDiscrepancies;
 
+	//Честный знак
+	Action ActionCodesPool;
+
 	public void BuildToolbarActions()
 	{
 		#region Creating actions
@@ -455,6 +458,9 @@ public partial class MainWindow : Window
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
 		ActionAnalyseCounterpartyDiscrepancies.Activated += ActionAnalyseCounterpartyDiscrepancies_Activated;
+
+		//Честный знак
+		ActionCodesPool.Activated += ActionCodesPool_Activated;
 
 		#endregion
 	}

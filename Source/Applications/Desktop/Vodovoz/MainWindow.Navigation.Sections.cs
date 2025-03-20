@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -23,6 +23,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 using Vodovoz.ViewModels.ReportsParameters.Logistics;
+using Vodovoz.ViewModels.TrueMark.CodesPool;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 
 public partial class MainWindow
@@ -266,7 +267,17 @@ public partial class MainWindow
 	void ActionAnalyseCounterpartyDiscrepancies_Activated(object sender, System.EventArgs e)
 	{
 		NavigationManager.OpenViewModel<PaymentsDiscrepanciesAnalysisViewModel>(null, OpenPageOptions.IgnoreHash);
+		ActionCodesPool_Activated(sender, e);
 	}
+
+	#region Честный знак
+
+	void ActionCodesPool_Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CodesPoolViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	#endregion
 
 	#region Заказы
 

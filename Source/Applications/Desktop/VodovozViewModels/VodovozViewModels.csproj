@@ -90,7 +90,7 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
-    <Compile Include="Marking\CodesPool\CodesPoolViewModel.cs" />
+    <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.cs" />
     <Compile Include="Dialogs\Mango\DialogType.cs" />
     <Compile Include="Dialogs\Mango\SearchTableEntity.cs" />
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalFilterViewModel.cs" />

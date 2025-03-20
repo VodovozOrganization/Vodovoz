@@ -1,5 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Transform;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -7,7 +8,7 @@ using QS.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Vodovoz.ViewModels.Marking.CodesPool
+namespace Vodovoz.ViewModels.TrueMark.CodesPool
 {
 	public class CodesPoolViewModel : DialogTabViewModelBase
 	{
@@ -21,6 +22,9 @@ namespace Vodovoz.ViewModels.Marking.CodesPool
 		{
 			Title = "Пул кодов маркировки";
 
+			RefreshCommand = new DelegateCommand(UpdateCodesPoolData);
+			LoadCodesToPoolCommand = new DelegateCommand(LoadCodesToPool);
+
 			UpdateCodesPoolData();
 		}
 
@@ -29,6 +33,9 @@ namespace Vodovoz.ViewModels.Marking.CodesPool
 			get => _codesPoolData;
 			set => SetField(ref _codesPoolData, value);
 		}
+
+		public DelegateCommand RefreshCommand { get; }
+		public DelegateCommand LoadCodesToPoolCommand { get; }
 
 		private void UpdateCodesPoolData()
 		{
@@ -86,6 +93,10 @@ namespace Vodovoz.ViewModels.Marking.CodesPool
 				.ToList();
 
 			return codesData;
+		}
+
+		private void LoadCodesToPool()
+		{
 		}
 
 		public class CodesPoolDataNode
