@@ -2740,7 +2740,7 @@
     <EmbeddedResource Include="icons\toolbar\order_ratings.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="toolbars\true_mark.xml" />
+    <EmbeddedResource Include="toolbars\true_mark.xml" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

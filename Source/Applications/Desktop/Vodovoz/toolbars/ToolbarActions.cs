@@ -2,7 +2,6 @@
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
@@ -18,8 +17,6 @@ using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
@@ -33,7 +30,6 @@ using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Suppliers;
-using Vodovoz.PermissionExtensions;
 using Vodovoz.Reports;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
@@ -264,7 +260,7 @@ public partial class MainWindow : Window
 		ActionAnalyseCounterpartyDiscrepancies = new Action("ActionAnalyseCounterpartyDiscrepancies", "Сверка по контрагентам", null, "table");
 
 		//Честный знак
-		ActionCodesPool = new Action("ActionCodesPool", "Маркировка", null, "table");
+		ActionCodesPool = new Action("ActionCodesPool", "Пул кодов", null, "table");
 
 		#endregion
 		#region Inserting actions to the toolbar
@@ -369,6 +365,9 @@ public partial class MainWindow : Window
 		w1.Add(ActionExportCounterpartiesTo1c, null);
 		w1.Add(ActionAnalyseCounterpartyDiscrepancies, null);
 
+		//Честный знак
+		w1.Add(ActionCodesPool, null);
+
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -463,7 +462,7 @@ public partial class MainWindow : Window
 		ActionAnalyseCounterpartyDiscrepancies.Activated += ActionAnalyseCounterpartyDiscrepancies_Activated;
 
 		//Честный знак
-		ActionCodesPool.Activated += ActionCodesPool_Activated;
+		ActionCodesPool.Activated += OnActionCodesPoolActivated;
 
 		#endregion
 	}
