@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 {
@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			/// <summary>
 			/// Код
 			/// </summary>
-			public string CodeNumber { get; set; }
+			public string RawCode { get; set; }
 			/// <summary>
 			/// Название номенклатуры
 			/// </summary>

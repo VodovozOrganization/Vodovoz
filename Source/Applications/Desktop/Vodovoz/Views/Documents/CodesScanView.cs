@@ -36,13 +36,13 @@ namespace Vodovoz.Views.Documents
 				.AddColumn("№")
 				.AddTextRenderer(n =>
 					n.Parent == null && n.Children.Any()
-						? $"{n.RowNumber} ╗"
+						? $"{n.RowNumber} ╗   "
 						: n.Parent != null
-							? "╠"
-							: $"{n.RowNumber}.  ")
+							? $"╠ {n.RowNumber}."
+							: $"{n.RowNumber}.      ")
 				.XAlign(1)
 				.AddColumn("Код")
-				.AddTextRenderer(n => n.CodeNumber)
+				.AddTextRenderer(n => n.RawCode)
 				.AddSetter((c, n) =>
 					c.CellBackgroundGdk = n.Children.Any() ? _colorAggregate : _colorBase)
 				.AddColumn("Номенклатура")
@@ -64,7 +64,7 @@ namespace Vodovoz.Views.Documents
 				.AddColumn("Доп.информация")
 				.AddTextRenderer(n => n.AdditionalInformation)
 				.AddSetter((c, n) =>
-					c.CellBackgroundGdk = n.CodeNumber == ViewModel.CurrentCodeInProcess ? _colorCurrencCodeInProcess : _colorBase)
+					c.CellBackgroundGdk = n.RawCode == ViewModel.CurrentCodeInProcess ? _colorCurrencCodeInProcess : _colorBase)
 				.WrapMode(WrapMode.Word).WrapWidth(400)
 				.AddColumn("")
 				.Finish();

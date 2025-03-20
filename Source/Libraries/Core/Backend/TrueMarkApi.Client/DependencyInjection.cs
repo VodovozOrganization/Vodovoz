@@ -7,6 +7,7 @@ namespace TrueMarkApi.Client
 		public static IServiceCollection AddTrueMarkApiClient(this IServiceCollection services)
 		{
 			services
+				.AddHttpClient()
 				.AddScoped<ITrueMarkApiClientFactory, TrueMarkApiClientFactory>()
 				.AddScoped<ITrueMarkApiClient>(sp => sp.GetRequiredService<ITrueMarkApiClientFactory>().GetClient())
 				;

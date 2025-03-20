@@ -379,18 +379,23 @@ namespace DriverAPI.Library.V6.Services
 			_uow.Save(routeListAddress);
 			_uow.Save(routeList);
 
-			OrderEdoRequest edoRequest = null;
+			OrderEdoRequest edoRequest = _uow.Session.Query<OrderEdoRequest>()
+				.Where(x => x.Order.Id == vodovozOrder.Id)
+				.Take(1)
+				.SingleOrDefault();
 
-			if(!vodovozOrder.IsNeedIndividualSetOnLoad)
+			var edoRequestCreated = false;
+			if(!vodovozOrder.IsNeedIndividualSetOnLoad && edoRequest == null)
 			{
-				edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
+				CreateEdoRequests(vodovozOrder, routeListAddress);
+				edoRequestCreated = true;
 			}
 
 			_uow.Commit();
 
-			if(edoRequest != null)
+			if(edoRequestCreated)
 			{
-				await PublishEdoRequestCreatedEvent(edoRequest.Id);
+				await _edoMessageService.PublishEdoRequestCreatedEvent(edoRequest.Id);
 			}
 
 			return Result.Success();
@@ -414,11 +419,6 @@ namespace DriverAPI.Library.V6.Services
 			_uow.Save(edoRequest);
 
 			return edoRequest;
-		}
-
-		private async Task PublishEdoRequestCreatedEvent(int requestId)
-		{
-			await _edoMessageService.PublishEdoRequestCreatedEvent(requestId);
 		}
 
 		public Result UpdateOrderShipmentInfo(
