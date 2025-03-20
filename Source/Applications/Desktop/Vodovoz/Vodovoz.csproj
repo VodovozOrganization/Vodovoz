@@ -2070,11 +2070,14 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Documents.CodesScanView.cs" />
     <Compile Include="Views\Goods\GroupGtinView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.GroupGtinView.cs" />
+    <Compile Include="Views\TrueMark\CodesPoolView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.CodesPoolView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\TrueMark\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
