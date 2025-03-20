@@ -31,7 +31,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private int _id;
 		private OrderStatusForSendingUpd _orderStatusForSendingUpd;
 		private ConsentForEdoStatus _consentForEdoStatus;
-		private bool _isNewEdoProcessing;
+		private bool _isNewEdoProcessing = true;
 
 		private bool _roboatsExclude;
 		private bool _isForSalesDepartment;
