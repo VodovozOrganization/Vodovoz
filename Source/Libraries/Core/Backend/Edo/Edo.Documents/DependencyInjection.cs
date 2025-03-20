@@ -6,6 +6,7 @@ using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using TrueMark.Codes.Pool;
+using TrueMarkApi.Client;
 
 namespace Edo.Documents
 {
@@ -13,12 +14,14 @@ namespace Edo.Documents
 	{
 		public static IServiceCollection AddEdoDocuments(this IServiceCollection services)
 		{
+					
 			services
 				.AddScoped<DocumentEdoTaskHandler>()
 				.AddScoped<ForOwnNeedDocumentEdoTaskHandler>()
 				.AddScoped<ForResaleDocumentEdoTaskHandler>()
 				;
 
+			services.AddTrueMarkApiClient();
 			services.AddEdo();
 			services.AddCodesPool();
 			services.AddEdoProblemRegistation();
