@@ -4,22 +4,34 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Vodovoz.Models.TrueMark;
 
 namespace Vodovoz.ViewModels.TrueMark.CodesPool
 {
 	public class CodesPoolViewModel : DialogTabViewModelBase
 	{
 		private IEnumerable<CodesPoolDataNode> _codesPoolData = new List<CodesPoolDataNode>();
+		private readonly IInteractiveService _interactiveService;
+		private readonly IFileDialogService _fileDialogService;
+		private readonly TrueMarkCodePoolLoader _codePoolLoader;
 
 		public CodesPoolViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
-			INavigationManager navigation)
+			INavigationManager navigation,
+			IFileDialogService fileDialogService,
+			TrueMarkCodePoolLoader codePoolLoader)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_interactiveService = interactiveService ?? throw new System.ArgumentNullException(nameof(interactiveService));
+			_fileDialogService = fileDialogService ?? throw new System.ArgumentNullException(nameof(fileDialogService));
+			_codePoolLoader = codePoolLoader ?? throw new System.ArgumentNullException(nameof(codePoolLoader));
+
 			Title = "Пул кодов маркировки";
 
 			RefreshCommand = new DelegateCommand(UpdateCodesPoolData);
@@ -95,8 +107,43 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			return codesData;
 		}
 
+
 		private void LoadCodesToPool()
 		{
+			var dialogSettings = CreateDialogSettings();
+
+			var result = _fileDialogService.RunOpenFileDialog(dialogSettings);
+
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			try
+			{
+				var lodingResult = _codePoolLoader.LoadFromFile(result.Path);
+
+				_interactiveService.ShowMessage(ImportanceLevel.Info,
+					$"Найдено кодов: {lodingResult.TotalFound}" +
+					$"\nЗагружено: {lodingResult.SuccessfulLoaded}" +
+					$"\nУже существуют в системе: {lodingResult.TotalFound - lodingResult.SuccessfulLoaded}");
+			}
+			catch(IOException ex)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, ex.Message);
+			}
+		}
+
+		private DialogSettings CreateDialogSettings()
+		{
+			var dialogSettings = new DialogSettings
+			{
+				SelectMultiple = false,
+				Title = "Выберите файл содержащий коды"
+			};
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Файлы содержащие коды", "*.xlsx", "*.mxl", "*.csv", "*.txt"));
+
+			return dialogSettings;
 		}
 
 		public class CodesPoolDataNode
