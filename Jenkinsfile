@@ -549,7 +549,7 @@ def DeliveryDesktopArtifact(nodeName, deliveryPath){
 def DeliveryWebArtifact(projectName){
 	if(CAN_DELIVERY_WEB)
 	{
-		DeliveryWinArtifact("${projectName}${ARCHIVE_EXTENTION}", WEB_DELIVERY_PATH)
+		DeliveryWinArtifact("${projectName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}", WEB_DELIVERY_PATH)
 	}
 	else
 	{
