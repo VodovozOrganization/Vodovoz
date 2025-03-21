@@ -18,7 +18,7 @@ namespace Vodovoz.Models.CashReceipts.DTO
 		/// Дата регламентирующего документа
 		/// </summary>
 		[JsonProperty("docDateTime", Required = Required.Always)]
-		public DateTime DocDateTime => new DateTime(2023, 11, 21);
+		public string DocDateTime => "2023-11-21T00:00:00+00:00";
 
 		/// <summary>
 		/// Номер документа, который регламентирует заполнение отраслевых реквизитов.
