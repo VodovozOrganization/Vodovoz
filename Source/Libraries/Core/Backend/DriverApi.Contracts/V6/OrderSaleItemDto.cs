@@ -78,6 +78,11 @@ namespace DriverApi.Contracts.V6
 		public IEnumerable<string> Gtin { get; set; }
 
 		/// <summary>
+		/// Номера группы товарной продукции GTIN
+		/// </summary>
+		public IEnumerable<GroupGtinDto> GroupGtins { get; set; }
+
+		/// <summary>
 		/// Коды маркировки ЧЗ
 		/// </summary>
 		public IEnumerable<TrueMarkCodeDto> Codes { get; set; }

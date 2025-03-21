@@ -9,11 +9,11 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using VodovozBusiness.Services.TrueMark;
 
 namespace DriverAPI.Library.V6.Converters
 {
@@ -29,6 +29,7 @@ namespace DriverAPI.Library.V6.Converters
 		private readonly SignatureTypeConverter _signatureTypeConverter;
 		private readonly QrPaymentConverter _qrPaymentConverter;
 		private readonly IOrderRepository _orderRepository;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 
 		/// <summary>
 		/// Конструктор
@@ -40,6 +41,7 @@ namespace DriverAPI.Library.V6.Converters
 		/// <param name="signatureTypeConverter"></param>
 		/// <param name="qrPaymentConverter"></param>
 		/// <param name="orderRepository"></param>
+		/// <param name="trueMarkWaterCodeService"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public OrderConverter(
 			IUnitOfWork uow,
@@ -48,7 +50,8 @@ namespace DriverAPI.Library.V6.Converters
 			PaymentTypeConverter paymentTypeConverter,
 			SignatureTypeConverter signatureTypeConverter,
 			QrPaymentConverter qrPaymentConverter,
-			IOrderRepository orderRepository)
+			IOrderRepository orderRepository,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
@@ -57,6 +60,7 @@ namespace DriverAPI.Library.V6.Converters
 			_signatureTypeConverter = signatureTypeConverter ?? throw new ArgumentNullException(nameof(signatureTypeConverter));
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
 
 		/// <summary>
@@ -66,12 +70,14 @@ namespace DriverAPI.Library.V6.Converters
 		/// <param name="routeListItem">Адрес маршрутного листа</param>
 		/// <param name="smsPaymentStatus">Статус оплаты по смс</param>
 		/// <param name="qrPaymentDtoStatus">Статус оплаты по QR-коду</param>
+		/// <param name="hasCodesInCarLoadDocument"></param>
 		/// <returns></returns>
 		public OrderDto ConvertToAPIOrder(
 			Order vodovozOrder,
 			RouteListItem routeListItem,
 			SmsPaymentStatus? smsPaymentStatus,
-			FastPaymentStatus? qrPaymentDtoStatus)
+			FastPaymentStatus? qrPaymentDtoStatus,
+			bool hasCodesInCarLoadDocument)
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
@@ -99,7 +105,7 @@ namespace DriverAPI.Library.V6.Converters
 				Trifle = vodovozOrder.Trifle ?? 0,
 				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType),
 				WaitUntilTime = vodovozOrder.WaitUntilTime,
-				OrderType = GetOrderType(vodovozOrder)
+				OrderType = GetOrderType(vodovozOrder, hasCodesInCarLoadDocument)
 			};
 
 			if(vodovozOrder.DontArriveBeforeInterval)
@@ -122,14 +128,16 @@ namespace DriverAPI.Library.V6.Converters
 			return apiOrder;
 		}
 
-		private OrderReasonForLeavingDtoType GetOrderType(Order vodovozOrder)
+		private OrderReasonForLeavingDtoType GetOrderType(
+			Order vodovozOrder,
+			bool hasCodesInCarLoadDocument)
 		{
-			if(vodovozOrder.IsNeedIndividualSetOnLoad)
+			if(vodovozOrder.IsNeedIndividualSetOnLoad && hasCodesInCarLoadDocument)
 			{
 				return OrderReasonForLeavingDtoType.Distributing;
 			}
 
-			if(vodovozOrder.IsOrderForResale)
+			if(vodovozOrder.IsOrderForResale || !hasCodesInCarLoadDocument)
 			{
 				return OrderReasonForLeavingDtoType.ForResale;
 			}
@@ -249,6 +257,7 @@ namespace DriverAPI.Library.V6.Converters
 				CapColor = saleItem.Nomenclature.BottleCapColor,
 				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false,
 				Gtin = saleItem.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList(),
+				GroupGtins = saleItem.Nomenclature.GroupGtins.Select(x => new GroupGtinDto { Gtin = x.GtinNumber, Count = x.CodesCount }).ToList(),
 				Codes = GetOrderItemCodes(saleItem, routeListItem)
 			};
 
@@ -295,8 +304,36 @@ namespace DriverAPI.Library.V6.Converters
 				? GetCodesAddedInWarehouse(saleItem)
 				: GetCodesAddedByDriver(saleItem, routeListItem);
 
-			codes = addedTrueMarkWaterCodes
-				.Select(x => ConvertToApiTrueMarkCode(x, sequenceNumber++))
+			var trueMarkCodes = new List<TrueMarkAnyCode>();
+
+			foreach(var trueMarkWaterCode in addedTrueMarkWaterCodes)
+			{
+				if(trueMarkCodes.Any(x => x.Match(
+					transportCode => transportCode.RawCode == trueMarkWaterCode.RawCode,
+					groupCode => groupCode.RawCode == trueMarkWaterCode.RawCode,
+					waterCode => waterCode.RawCode == trueMarkWaterCode.RawCode)))
+				{
+					continue;
+				}
+
+				if(trueMarkWaterCode.ParentWaterGroupCodeId == null
+					&& trueMarkWaterCode.ParentTransportCodeId == null)
+				{
+					trueMarkCodes.Add(trueMarkWaterCode);
+					continue;
+				}
+
+				var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkWaterCode);
+
+				trueMarkCodes.AddRange(
+					parentCode.Match(
+						transportCode => transportCode.GetAllCodes(),
+						groupCode => groupCode.GetAllCodes(),
+						_ => throw new InvalidOperationException("Не может быть найден родитель являющийся индивидуальным кодом, что-то пошло не так")));
+			}
+
+			codes = trueMarkCodes
+				.Select(x => ConvertToApiTrueMarkCode(x, sequenceNumber++, trueMarkCodes))
 				.ToList();
 
 			return codes;
@@ -347,13 +384,50 @@ namespace DriverAPI.Library.V6.Converters
 			return codes;
 		}
 
-		private TrueMarkCodeDto ConvertToApiTrueMarkCode(TrueMarkWaterIdentificationCode trueMarkCode, int sequenceNumber)
+		private TrueMarkCodeDto ConvertToApiTrueMarkCode(TrueMarkAnyCode trueMarkCode, int sequenceNumber, IEnumerable<TrueMarkAnyCode> allCodes)
 		{
-			return new TrueMarkCodeDto
-			{
-				SequenceNumber = sequenceNumber,
-				Code = trueMarkCode.RawCode
-			};
+			return trueMarkCode.Match(
+				transportCode => new TrueMarkCodeDto
+				{
+					SequenceNumber = sequenceNumber,
+					Level = DriverApiTruemarkCodeLevel.transport,
+					Code = transportCode.RawCode,
+					Parent = transportCode.ParentTransportCodeId != null
+						? allCodes
+							.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == transportCode.ParentTransportCodeId)
+							?.TrueMarkTransportCode.RawCode
+						: null
+				},
+				groupCode => new TrueMarkCodeDto
+				{
+					SequenceNumber = sequenceNumber,
+					Level = DriverApiTruemarkCodeLevel.group,
+					Code = groupCode.RawCode,
+					Parent = groupCode.ParentTransportCodeId != null
+						? allCodes
+							.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == groupCode.ParentTransportCodeId)
+							?.TrueMarkTransportCode.RawCode
+						: groupCode.ParentWaterGroupCodeId != null
+							? allCodes
+								.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode && x.TrueMarkWaterGroupCode.Id == groupCode.ParentWaterGroupCodeId)
+								?.TrueMarkWaterGroupCode.RawCode
+							: null
+				},
+				waterCode => new TrueMarkCodeDto
+				{
+					SequenceNumber = sequenceNumber,
+					Level = DriverApiTruemarkCodeLevel.unit,
+					Code = waterCode.RawCode,
+					Parent = waterCode.ParentTransportCodeId != null
+						? allCodes
+							.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == waterCode.ParentTransportCodeId)
+							?.TrueMarkTransportCode.RawCode
+						: waterCode.ParentWaterGroupCodeId != null
+							? allCodes
+								.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode && x.TrueMarkWaterGroupCode.Id == waterCode.ParentWaterGroupCodeId)
+								?.TrueMarkWaterGroupCode.RawCode
+							: null
+				});
 		}
 
 		private OrderDeliveryItemDto ConvertToAPIOrderDeliveryItem(OrderEquipment saleItem)
@@ -395,6 +469,7 @@ namespace DriverAPI.Library.V6.Converters
 				OrderSaleItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,
 				Gtin = saleItem.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList(),
+				GroupGtins = saleItem.Nomenclature.GroupGtins.Select(x => new GroupGtinDto { Gtin = x.GtinNumber, Count = x.CodesCount }).ToList(),
 				Quantity = saleItem.ActualCount ?? saleItem.Count,
 				Codes = GetOrderItemCodes(saleItem, routeListItem)
 			};
