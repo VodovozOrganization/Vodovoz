@@ -80,6 +80,7 @@ IS_MANUAL_BUILD = GIT_BRANCH ==~ /^manual-build(.*?)/
 
 // 105	Настройки. Сборка
 
+ARTEFACT_DATE_TIME = new Date().format("MMdd_HHmm")
 CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
 CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
@@ -161,6 +162,7 @@ stage('Log') {
 	echo "104	Настройки. Восстановление пакетов"
 
 	echo "105	Настройки. Сборка"
+	echo "Can Build Desktop: ${ARTEFACT_DATE_TIME}"
 	echo "Can Build Desktop: ${CAN_BUILD_DESKTOP}"
 	echo "Can Build Web: ${CAN_BUILD_WEB}"
 	echo "Can Publish Build Web: ${CAN_PUBLISH_BUILD_WEB}"
@@ -359,6 +361,16 @@ stage('Publish'){
 	)
 }
 
+stage('CleanUp'){
+	parallel(
+		"Desktop ${NODE_VOD1}" : { DeleteCompressedArtifactAtNode(NODE_VOD1) },
+		"Desktop ${NODE_VOD3}" : { DeleteCompressedArtifactAtNode(NODE_VOD3) },
+		"Desktop ${NODE_VOD5}" : { DeleteCompressedArtifactAtNode(NODE_VOD5) },
+		"Desktop ${NODE_VOD7}" : { DeleteCompressedArtifactAtNode(NODE_VOD7) },
+		"Desktop ${NODE_VOD13}" : { DeleteCompressedArtifactAtNode(NODE_VOD13) },
+	)
+}
+
 //-----------------------------------------------------------------------
 
 // 300	Фукнции
@@ -481,7 +493,7 @@ def CompressWebArtifact(relativeProjectPath){
 }
 
 def CompressArtifact(sourcePath, artifactName) {
-	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
+	def archive_file = "${artifactName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
 
 	if (fileExists(archive_file)) {
 		echo "Delete exiting artifact ${archive_file} from ${sourcePath}/*"
@@ -493,10 +505,16 @@ def CompressArtifact(sourcePath, artifactName) {
 }
 
 def DecompressArtifact(destPath, artifactName) {
-	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
+	def archive_file = "${artifactName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
 
 	echo "Decompressing artifact ${archive_file} to ${destPath}"
 	UnzipFiles(archive_file, destPath)
+}
+
+def DeleteCompressedArtifact(artifactName) {
+	def archive_file = "${artifactName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
+	echo "Deleting artifact ${archive_file} to ${destPath}"
+	fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
 }
 
 // 305	Фукнции. Доставка
@@ -520,7 +538,7 @@ def DeliveryDesktopArtifact(nodeName, deliveryPath){
 
 	if(CAN_DELIVERY_DESKTOP)
 	{
-		DeliveryWinArtifact("VodovozDesktop${ARCHIVE_EXTENTION}", deliveryPath)
+		DeliveryWinArtifact("VodovozDesktop_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}", deliveryPath)
 	}
 	else
 	{
@@ -597,9 +615,7 @@ def PublishDesktop(nodeName){
 	node(nodeName){
 		if(CAN_PUBLISH_DESKTOP){
 			if(IS_HOTFIX){
-				def now = new Date()
-				def hofix_suffix = now.format("MMdd_HHmm")
-				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${hofix_suffix}"
+				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTEFACT_DATE_TIME}"
 				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
 				DecompressArtifact(newHotfixPath, 'VodovozDesktop')
 				LockHotfix(hotfixName)
@@ -638,8 +654,43 @@ def PublishWeb(projectName){
 	}
 }
 
-// 308	Фукнции. Утилитарные
+def DeleteCompressedArtifactAtNode(nodeName) {
+	def nodeIsOnline = true;
 
+	jenkins.model.Jenkins.instance.getNodes().each{node ->
+		node.getAssignedLabels().each{label ->
+			if(label.name == nodeName && node.toComputer().isOffline()){
+				nodeIsOnline = false;
+				return
+			}
+		}
+	}
+
+	if(!nodeIsOnline){
+		unstable("${nodeName} - cleanup failed! node is offline")
+		return
+	}
+
+	node(nodeName){
+		if(CAN_PUBLISH_DESKTOP){
+			if(IS_HOTFIX){
+				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTEFACT_DATE_TIME}"
+				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
+				DeleteCompressedArtifact(newHotfixPath, 'VodovozDesktop')
+				LockHotfix(hotfixName)
+				return
+			}
+
+			if(IS_RELEASE){
+				DeleteCompressedArtifact(DESKTOP_NEW_RELEASE_PUBLISH_PATH, 'VodovozDesktop')
+				return
+			}
+		}
+		echo "Cleanup not needed"
+	}
+}
+
+// 308	Фукнции. Утилитарные
 
 def LockHotfix(hotfixName){
 	writeFile(file: UPDATE_LOCK_FILE, text: hotfixName)
