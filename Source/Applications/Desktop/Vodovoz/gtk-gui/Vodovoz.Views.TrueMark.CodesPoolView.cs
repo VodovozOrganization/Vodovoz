@@ -10,7 +10,7 @@ namespace Vodovoz.Views.TrueMark
 
 		private global::Gamma.GtkWidgets.yButton ybuttonLoadCodesToPool;
 
-		private global::Gamma.GtkWidgets.yButton ybutton2;
+		private global::Gamma.GtkWidgets.yButton ybuttonRefresh;
 
 		private global::Gamma.GtkWidgets.yHBox yhboxData;
 
@@ -44,16 +44,16 @@ namespace Vodovoz.Views.TrueMark
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child yhboxButtons.Gtk.Box+BoxChild
-			this.ybutton2 = new global::Gamma.GtkWidgets.yButton();
-			this.ybutton2.CanFocus = true;
-			this.ybutton2.Name = "ybutton2";
-			this.ybutton2.UseUnderline = true;
-			this.ybutton2.Label = global::Mono.Unix.Catalog.GetString("Обновить");
+			this.ybuttonRefresh = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonRefresh.CanFocus = true;
+			this.ybuttonRefresh.Name = "ybuttonRefresh";
+			this.ybuttonRefresh.UseUnderline = true;
+			this.ybuttonRefresh.Label = global::Mono.Unix.Catalog.GetString("Обновить");
 			global::Gtk.Image w2 = new global::Gtk.Image();
 			w2.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
-			this.ybutton2.Image = w2;
-			this.yhboxButtons.Add(this.ybutton2);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybutton2]));
+			this.ybuttonRefresh.Image = w2;
+			this.yhboxButtons.Add(this.ybuttonRefresh);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonRefresh]));
 			w3.PackType = ((global::Gtk.PackType)(1));
 			w3.Position = 2;
 			w3.Expand = false;

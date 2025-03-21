@@ -26,7 +26,7 @@ namespace Vodovoz.Views.TrueMark
 				.InitializeFromSource();
 
 			ybuttonLoadCodesToPool.BindCommand(ViewModel.LoadCodesToPoolCommand);
-			ybutton2.BindCommand(ViewModel.RefreshCommand);
+			ybuttonRefresh.BindCommand(ViewModel.RefreshCommand);
 		}
 	}
 }
