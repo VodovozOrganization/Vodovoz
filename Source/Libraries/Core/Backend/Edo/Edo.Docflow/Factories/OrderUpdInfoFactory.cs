@@ -184,7 +184,22 @@ namespace Edo.Docflow.Factories
 					Value = $"N{ order.CounterpartyExternalOrderId }"
 				});
 			}
-			
+
+			additionalInformation.Add(new UpdAdditionalInfo
+			{
+				Id = "номер_отгрузки",
+				Value = $"{order.Id}"
+			});
+
+			if(order.DeliveryDate.HasValue)
+			{
+				additionalInformation.Add(new UpdAdditionalInfo
+				{
+					Id = "дата_заказа",
+					Value = $"{order.DeliveryDate.Value:dd.MM.yyyy}"
+				});
+			}
+
 			return additionalInformation;
 		}
 
@@ -362,8 +377,26 @@ namespace Edo.Docflow.Factories
 					IncludeVat = orderItem.IncludeNDS ?? 0,
 					ValueAddedTax = orderItem.ValueAddedTax,
 					DiscountMoney = orderItem.DiscountMoney,
-					TrueMarkCodes = codesInfo
+					TrueMarkCodes = codesInfo,
+					EconomicLifeFacts = new List<ProductEconomicLifeFactsInfo>()
 				};
+
+				//var specialNomenclatureIdentifications = documentEdoTask.OrderEdoRequest.Order.Client.SpecialNomenclatureIdentifications;
+
+				if(true)
+				{
+					var productEconomicLifeFacts = new List<ProductEconomicLifeFactsInfo>();
+
+					var productEconomicLifeFact = new ProductEconomicLifeFactsInfo
+					{
+						Id = "код_материала",
+						Value = "код_материала"
+					};
+
+					productEconomicLifeFacts.Add(productEconomicLifeFact);
+
+					product.EconomicLifeFacts = productEconomicLifeFacts;
+				}
 
 				products.Add(product);
 			}
