@@ -1120,7 +1120,9 @@ namespace Vodovoz
 				.AddColumn("ТМЦ").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : string.Empty)
 				.AddColumn("Код").AddNumericRenderer(node => node.SpecialId).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1)).Editing()
 				.Finish();
-			ytreeviewSpecialNomenclature.ItemsDataSource = Entity.ObservableSpecialNomenclatures;
+			ytreeviewSpecialNomenclature.Binding
+				.AddBinding(Entity, e => e.SpecialNomenclatures, w => w.ItemsDataSource)
+				.InitializeFromSource();
 			ytreeviewSpecialNomenclature.Sensitive = CanEdit;
 
 			ybuttonAddNom.Sensitive = CanEdit;
@@ -2065,7 +2067,7 @@ namespace Vodovoz
 				return;
 			}
 
-			if(Entity.ObservableSpecialNomenclatures.Any(x => x.Nomenclature.Id == selectedNode.Id))
+			if(Entity.SpecialNomenclatures.Any(x => x.Nomenclature.Id == selectedNode.Id))
 			{
 				return;
 			}
@@ -2077,7 +2079,7 @@ namespace Vodovoz
 				Counterparty = Entity
 			};
 
-			Entity.ObservableSpecialNomenclatures.Add(specNomenclature);
+			Entity.SpecialNomenclatures.Add(specNomenclature);
 		}
 
 		private void NomenclatureSelectDlg_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
@@ -2088,17 +2090,17 @@ namespace Vodovoz
 				Counterparty = Entity
 			};
 
-			if(Entity.ObservableSpecialNomenclatures.Any(x => x.Nomenclature.Id == specNom.Nomenclature.Id))
+			if(Entity.SpecialNomenclatures.Any(x => x.Nomenclature.Id == specNom.Nomenclature.Id))
 			{
 				return;
 			}
 
-			Entity.ObservableSpecialNomenclatures.Add(specNom);
+			Entity.SpecialNomenclatures.Add(specNom);
 		}
 
 		protected void OnYbuttonRemoveNomClicked(object sender, EventArgs e)
 		{
-			Entity.ObservableSpecialNomenclatures.Remove(ytreeviewSpecialNomenclature.GetSelectedObject<SpecialNomenclature>());
+			Entity.SpecialNomenclatures.Remove(ytreeviewSpecialNomenclature.GetSelectedObject<SpecialNomenclature>());
 		}
 
 		protected void OnEnumcomboCargoReceiverSourceChangedByUser(object sender, EventArgs e)

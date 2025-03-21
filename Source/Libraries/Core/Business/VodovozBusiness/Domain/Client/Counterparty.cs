@@ -68,7 +68,6 @@ namespace Vodovoz.Domain.Client
 		private Order _firstOrder;
 		private LogisticsRequirements _logisticsRequirements;
 		private Account _ourOrganizationAccountForBills;
-		private GenericObservableList<SpecialNomenclature> _observableSpecialNomenclatures;
 		private IList<SalesChannel> _salesChannels = new List<SalesChannel>();
 		private GenericObservableList<SalesChannel> _observableSalesChannels;
 		private IList<SupplierPriceItem> _suplierPriceItems = new List<SupplierPriceItem>();
@@ -282,9 +281,6 @@ namespace Vodovoz.Domain.Client
 			get => _ourOrganizationAccountForBills;
 			set => SetField(ref _ourOrganizationAccountForBills, value);
 		}
-
-		public virtual GenericObservableList<SpecialNomenclature> ObservableSpecialNomenclatures => _observableSpecialNomenclatures
-			?? new GenericObservableList<SpecialNomenclature>(SpecialNomenclatures);
 
 		#endregion ОсобаяПечать
 
