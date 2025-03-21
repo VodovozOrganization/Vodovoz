@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.EntityRepositories.TrueMark
 {
@@ -16,5 +16,7 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		ISet<string> GetAllowedCodeOwnersGtins();
 
 		IEnumerable<TrueMarkWaterIdentificationCode> GetTrueMarkCodeDuplicates(IUnitOfWork uow, string gtin, string serialNumber, string checkCode);
+		Task<IDictionary<string, List<string>>> GetGtinsNomenclatureData(IUnitOfWork uow, CancellationToken cancellationToken);
+		Task<IDictionary<string, int>> GetSoldYesterdayGtinsCount(IUnitOfWork uow, CancellationToken cancellationToken);
 	}
 }

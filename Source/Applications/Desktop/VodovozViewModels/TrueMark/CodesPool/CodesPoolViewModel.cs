@@ -1,43 +1,66 @@
-﻿using NHibernate;
-using NHibernate.Transform;
+﻿using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using TrueMark.Codes.Pool;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
 
 namespace Vodovoz.ViewModels.TrueMark.CodesPool
 {
-	public class CodesPoolViewModel : DialogTabViewModelBase
+	public partial class CodesPoolViewModel : DialogTabViewModelBase
 	{
 		private IEnumerable<CodesPoolDataNode> _codesPoolData = new List<CodesPoolDataNode>();
+		private readonly ILogger<CodesPoolViewModel> _logger;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly TrueMarkCodePoolLoader _codePoolLoader;
+		private readonly TrueMarkCodesPoolManager _trueMarkCodesPoolManager;
+
+		private bool _isDataRefreshInProgress;
+		CancellationTokenSource _dataRefreshCancellationTokenSource;
+		private bool _isCodesLoadingInProgress;
+		CancellationTokenSource _codesLoadingCancellationTokenSource;
 
 		public CodesPoolViewModel(
+			ILogger<CodesPoolViewModel> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
+			IGuiDispatcher guiDispatcher,
 			IFileDialogService fileDialogService,
-			TrueMarkCodePoolLoader codePoolLoader)
+			ITrueMarkRepository trueMarkRepository,
+			TrueMarkCodePoolLoader codePoolLoader,
+			TrueMarkCodesPoolManager trueMarkCodesPoolManager)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_interactiveService = interactiveService ?? throw new System.ArgumentNullException(nameof(interactiveService));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_fileDialogService = fileDialogService ?? throw new System.ArgumentNullException(nameof(fileDialogService));
+			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_codePoolLoader = codePoolLoader ?? throw new System.ArgumentNullException(nameof(codePoolLoader));
+			_trueMarkCodesPoolManager = trueMarkCodesPoolManager ?? throw new System.ArgumentNullException(nameof(trueMarkCodesPoolManager));
 
 			Title = "Пул кодов маркировки";
 
-			RefreshCommand = new DelegateCommand(UpdateCodesPoolData);
+			RefreshCommand = new DelegateCommand(async () => await UpdateCodesPoolData(), () => !IsDataRefreshInProgress);
+			RefreshCommand.CanExecuteChangedWith(this, vm => vm.IsDataRefreshInProgress);
+
 			LoadCodesToPoolCommand = new DelegateCommand(LoadCodesToPool);
 
-			UpdateCodesPoolData();
+			RefreshCommand.Execute();
 		}
 
 		public IEnumerable<CodesPoolDataNode> CodesPoolData
@@ -46,65 +69,81 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			set => SetField(ref _codesPoolData, value);
 		}
 
+		public bool IsDataRefreshInProgress
+		{
+			get => _isDataRefreshInProgress;
+			set => SetField(ref _isDataRefreshInProgress, value);
+		}
+
+		public bool IsCodesLoadingInProgress
+		{
+			get => _isCodesLoadingInProgress;
+			set => SetField(ref _isCodesLoadingInProgress, value);
+		}
+
 		public DelegateCommand RefreshCommand { get; }
 		public DelegateCommand LoadCodesToPoolCommand { get; }
 
-		private void UpdateCodesPoolData()
+		private async Task UpdateCodesPoolData()
 		{
-			CodesPoolData = GetCodesPoolData();
+			if(IsDataRefreshInProgress)
+			{
+				return;
+			}
+
+			var codesPoolData = new List<CodesPoolDataNode>();
+
+			IsDataRefreshInProgress = true;
+			_dataRefreshCancellationTokenSource = new CancellationTokenSource();
+
+			try
+			{
+				codesPoolData = (await GetCodesPoolData(_dataRefreshCancellationTokenSource.Token)).ToList();
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "При обновлении данных по кодам в пуле возникла ошибка: {ExceptionMessage}", ex.Message);
+				_interactiveService.ShowMessage(ImportanceLevel.Error, $"При обновлении данных по кодам в пуле возникла ошибка: {ex.Message}");
+			}
+			finally
+			{
+				_dataRefreshCancellationTokenSource?.Dispose();
+				_dataRefreshCancellationTokenSource = null;
+
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					CodesPoolData = codesPoolData;
+					IsDataRefreshInProgress = false;
+				});
+			}
 		}
 
-		private IList<CodesPoolDataNode> GetCodesPoolData()
+		private async Task<IEnumerable<CodesPoolDataNode>> GetCodesPoolData(CancellationToken cancellationToken)
 		{
-			var sql = @"
-		SELECT
-			g.gtin as Gtin,
-			pool.count_in_pool as CountInPool,
-			stock.sold_yesterday as SoldYesterday,
-			GROUP_CONCAT(DISTINCT n.official_name SEPARATOR '|') as Nomenclatures
-		FROM
-			gtins g
-		LEFT JOIN
-			(
-				SELECT
-					tmic.gtin,
-					COUNT(DISTINCT tmcpn.id) as count_in_pool
-				FROM
-					true_mark_codes_pool_new tmcpn
-				LEFT JOIN true_mark_identification_code tmic ON
-					tmic.id = tmcpn.code_id
-				WHERE
-					tmcpn.code_id = tmcpn.code_id
-				GROUP BY
-					tmic.gtin
-			) pool ON pool.gtin = g.gtin
-		LEFT JOIN
-			(
-				SELECT
-					g.gtin,
-					SUM(oi.actual_count) as sold_yesterday
-				FROM
-					orders o
-				LEFT JOIN order_items oi ON oi.order_id = o.id
-				LEFT JOIN gtins g ON g.nomenclature_id = oi.nomenclature_id
-				WHERE
-					o.delivery_date = DATE_ADD(CURRENT_DATE(), INTERVAL -1 DAY)
-				GROUP BY
-					g.gtin
-			) stock ON stock.gtin = g.gtin
-		LEFT JOIN nomenclature n ON n.id = g.nomenclature_id
-		GROUP BY g.gtin";
+			var gtinsData = await _trueMarkRepository.GetGtinsNomenclatureData(UoW, cancellationToken);
 
-			var codesData = UoW.Session.CreateSQLQuery(sql)
-				.AddScalar("Gtin", NHibernateUtil.String)
-				.AddScalar("CountInPool", NHibernateUtil.Int32)
-				.AddScalar("SoldYesterday", NHibernateUtil.Int32)
-				.AddScalar("Nomenclatures", NHibernateUtil.String)
-				.SetResultTransformer(Transformers.AliasToBean<CodesPoolDataNode>())
-				.List<CodesPoolDataNode>()
-				.ToList();
+			var codesInPool = await _trueMarkCodesPoolManager.GetTotalCountByGtinAsync(cancellationToken);
+			var soldYesterdayGtinsCount = await _trueMarkRepository.GetSoldYesterdayGtinsCount(UoW, cancellationToken);
 
-			return codesData;
+			var codesPoolDataNodes = new List<CodesPoolDataNode>();
+
+			foreach(var gtinData in gtinsData)
+			{
+				codesInPool.TryGetValue(gtinData.Key, out var countInPool);
+				soldYesterdayGtinsCount.TryGetValue(gtinData.Key, out var soldYesterdayCount);
+
+				var dataNode = new CodesPoolDataNode
+				{
+					Gtin = gtinData.Key,
+					Nomenclatures = string.Join(" | ", gtinData.Value),
+					CountInPool = (int)countInPool,
+					SoldYesterday = soldYesterdayCount
+				};
+
+				codesPoolDataNodes.Add(dataNode);
+			}
+
+			return codesPoolDataNodes;
 		}
 
 
@@ -144,15 +183,6 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			dialogSettings.FileFilters.Add(new DialogFileFilter("Файлы содержащие коды", "*.xlsx", "*.mxl", "*.csv", "*.txt"));
 
 			return dialogSettings;
-		}
-
-		public class CodesPoolDataNode
-		{
-			public string Gtin { get; set; }
-			public int CountInPool { get; set; }
-			public int SoldYesterday { get; set; }
-			public string Nomenclatures { get; set; }
-			public bool IsNotEnoughCodes => CountInPool < SoldYesterday;
 		}
 	}
 }
