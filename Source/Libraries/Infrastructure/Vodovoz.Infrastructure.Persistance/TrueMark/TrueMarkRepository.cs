@@ -1,12 +1,17 @@
-﻿using MoreLinq;
+﻿using DateTimeHelpers;
+using MoreLinq;
 using NHibernate.Criterion;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 using VodovozBusiness.Domain.Goods;
@@ -74,6 +79,43 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Where(x => x.GTIN == gtin && x.SerialNumber == serialNumber && x.CheckCode == checkCode);
 
 			return query.ToList();
+		}
+
+		public async Task<IDictionary<string, List<string>>> GetGtinsNomenclatureData(IUnitOfWork uow, CancellationToken cancellationToken)
+		{
+			var gtins =
+				await (from gtin in uow.Session.Query<Gtin>()
+					   join nomenclature in uow.Session.Query<Nomenclature>() on gtin.Nomenclature.Id equals nomenclature.Id
+					   select new { GtinNumber = gtin.GtinNumber, Nomenclature = nomenclature.Name })
+				.ToListAsync(cancellationToken);
+
+			var groupedData = gtins
+				.OrderBy(x => x.GtinNumber)
+				.GroupBy(x => x.GtinNumber)
+				.ToDictionary(x => x.Key, x => x.Select(g => g.Nomenclature).ToList());
+
+			return groupedData;
+		}
+
+		public async Task<IDictionary<string, int>> GetSoldYesterdayGtinsCount(IUnitOfWork uow, CancellationToken cancellationToken)
+		{
+			var yesterdayDate = DateTime.Today.Date.AddDays(-1);
+
+			var gtinsSoldYesterdayData =
+				await (from order in uow.Session.Query<Domain.Orders.Order>()
+					   join orderItem in uow.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
+					   join gtin in uow.Session.Query<Gtin>() on orderItem.Nomenclature.Id equals gtin.Nomenclature.Id
+					   where
+						   order.DeliveryDate >= yesterdayDate
+						   && order.DeliveryDate <= yesterdayDate.LatestDayTime()
+					   select new { GtinNumber = gtin.GtinNumber, Count = (int)(orderItem.ActualCount ?? 0) })
+				 .ToListAsync(cancellationToken);
+
+			var gtinsSoldYesterdayCount = gtinsSoldYesterdayData
+				.GroupBy(x => x.GtinNumber)
+				.ToDictionary(x => x.Key, x => x.Sum(g => g.Count));
+
+			return gtinsSoldYesterdayCount;
 		}
 	}
 }
