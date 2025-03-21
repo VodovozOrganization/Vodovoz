@@ -29,9 +29,6 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 		private readonly TrueMarkCodesPoolManager _trueMarkCodesPoolManager;
 
 		private bool _isDataRefreshInProgress;
-		CancellationTokenSource _dataRefreshCancellationTokenSource;
-		private bool _isCodesLoadingInProgress;
-		CancellationTokenSource _codesLoadingCancellationTokenSource;
 
 		public CodesPoolViewModel(
 			ILogger<CodesPoolViewModel> logger,
@@ -55,7 +52,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 
 			Title = "Пул кодов маркировки";
 
-			RefreshCommand = new DelegateCommand(async () => await UpdateCodesPoolData(), () => !IsDataRefreshInProgress);
+			RefreshCommand = new AsyncCommand(guiDispatcher, UpdateCodesPoolData, () => !IsDataRefreshInProgress);
 			RefreshCommand.CanExecuteChangedWith(this, vm => vm.IsDataRefreshInProgress);
 
 			LoadCodesToPoolCommand = new DelegateCommand(LoadCodesToPool);
@@ -75,16 +72,10 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			set => SetField(ref _isDataRefreshInProgress, value);
 		}
 
-		public bool IsCodesLoadingInProgress
-		{
-			get => _isCodesLoadingInProgress;
-			set => SetField(ref _isCodesLoadingInProgress, value);
-		}
-
-		public DelegateCommand RefreshCommand { get; }
+		public AsyncCommand RefreshCommand { get; }
 		public DelegateCommand LoadCodesToPoolCommand { get; }
 
-		private async Task UpdateCodesPoolData()
+		private async Task UpdateCodesPoolData(CancellationToken cancellationToken)
 		{
 			if(IsDataRefreshInProgress)
 			{
@@ -94,11 +85,10 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			var codesPoolData = new List<CodesPoolDataNode>();
 
 			IsDataRefreshInProgress = true;
-			_dataRefreshCancellationTokenSource = new CancellationTokenSource();
 
 			try
 			{
-				codesPoolData = (await GetCodesPoolData(_dataRefreshCancellationTokenSource.Token)).ToList();
+				codesPoolData = (await GetCodesPoolData(cancellationToken)).ToList();
 			}
 			catch(Exception ex)
 			{
@@ -107,9 +97,6 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			}
 			finally
 			{
-				_dataRefreshCancellationTokenSource?.Dispose();
-				_dataRefreshCancellationTokenSource = null;
-
 				_guiDispatcher.RunInGuiTread(() =>
 				{
 					CodesPoolData = codesPoolData;
@@ -163,9 +150,9 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 				var loadingResult = _codePoolLoader.LoadFromFile(result.Path);
 
 				_interactiveService.ShowMessage(ImportanceLevel.Info,
-					$"Найдено кодов: {loadingResult.TotalFound}" +
-					$"\nЗагружено: {loadingResult.SuccessfulLoaded}" +
-					$"\nУже существуют в системе: {loadingResult.TotalFound - loadingResult.SuccessfulLoaded}");
+					$"Найдено кодов: {loadingResult.TotalFound}\n" +
+					$"Загружено: {loadingResult.SuccessfulLoaded}\n" +
+					$"Уже существуют в системе: {loadingResult.TotalFound - loadingResult.SuccessfulLoaded}");
 			}
 			catch(IOException ex)
 			{

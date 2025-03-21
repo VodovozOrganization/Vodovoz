@@ -269,19 +269,19 @@ public partial class MainWindow
 		});
 	}
 
-	void ActionAnalyseCounterpartyDiscrepancies_Activated(object sender, System.EventArgs e)
+	protected void ActionAnalyseCounterpartyDiscrepancies_Activated(object sender, System.EventArgs e)
 	{
 		NavigationManager.OpenViewModel<PaymentsDiscrepanciesAnalysisViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#region Честный знак
 
-	void OnActionCodesPoolActivated(object sender, EventArgs e)
+	protected void OnActionCodesPoolActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CodesPoolViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
-	#endregion
+	#endregion Честный знак
 
 	#region Заказы
 
