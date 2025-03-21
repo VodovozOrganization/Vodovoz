@@ -68,7 +68,6 @@ namespace Vodovoz.Domain.Client
 		private Order _firstOrder;
 		private LogisticsRequirements _logisticsRequirements;
 		private Account _ourOrganizationAccountForBills;
-		private IList<SpecialNomenclature> _specialNomenclatures = new List<SpecialNomenclature>();
 		private GenericObservableList<SpecialNomenclature> _observableSpecialNomenclatures;
 		private IList<SalesChannel> _salesChannels = new List<SalesChannel>();
 		private GenericObservableList<SalesChannel> _observableSalesChannels;
@@ -284,26 +283,8 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _ourOrganizationAccountForBills, value);
 		}
 
-		[Display(Name = "Особенный номер ТМЦ")]
-		public virtual IList<SpecialNomenclature> SpecialNomenclatures
-		{
-			get => _specialNomenclatures;
-			set => SetField(ref _specialNomenclatures, value);
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<SpecialNomenclature> ObservableSpecialNomenclatures
-		{
-			get
-			{
-				if(_observableSpecialNomenclatures == null)
-				{
-					_observableSpecialNomenclatures = new GenericObservableList<SpecialNomenclature>(SpecialNomenclatures);
-				}
-
-				return _observableSpecialNomenclatures;
-			}
-		}
+		public virtual GenericObservableList<SpecialNomenclature> ObservableSpecialNomenclatures => _observableSpecialNomenclatures
+			?? new GenericObservableList<SpecialNomenclature>(SpecialNomenclatures);
 
 		#endregion ОсобаяПечать
 
