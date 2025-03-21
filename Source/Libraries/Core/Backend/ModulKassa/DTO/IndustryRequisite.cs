@@ -19,7 +19,7 @@ namespace ModulKassa.DTO
 		/// Дата регламентирующего документа
 		/// </summary>
 		[JsonProperty("docDateTime", Required = Required.Always)]
-		public DateTime DocDateTime { get; set; }
+		public string DocDateTime { get; set; }
 
 		/// <summary>
 		/// Номер документа, который регламентирует заполнение отраслевых реквизитов.
