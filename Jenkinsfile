@@ -482,7 +482,7 @@ def CompressWebArtifact(relativeProjectPath){
 	if(CAN_COMPRESS_WEB)
 	{
 		node(NODE_WIN_BUILD){
-			def webProjectName = "${GetFolderName(relativeProjectPath)}_${ARTEFACT_DATE_TIME}"
+			def webProjectName = "${GetFolderName(relativeProjectPath)}"
 			CompressArtifact("${APP_PATH}/${relativeProjectPath}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
 		}
 	} 
