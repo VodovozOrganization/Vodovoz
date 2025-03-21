@@ -356,8 +356,8 @@ namespace Vodovoz
 			services.AddScoped<AutofacViewModelsGtkPageFactory>(sp => new AutofacViewModelsGtkPageFactory(sp.GetRequiredService<ILifetimeScope>()));
 			services.AddScoped<TdiNotebook>(sp => TDIMain.MainNotebook);
 
-			services.AddScoped<TdiNavigationManagerAdapter>();
-			services.AddScoped<INavigationManager>(sp => sp.GetRequiredService<TdiNavigationManagerAdapter>());
+			services.AddSingleton<TdiNavigationManagerAdapter>();
+			services.AddSingleton<INavigationManager>(sp => sp.GetRequiredService<TdiNavigationManagerAdapter>());
 			services.AddSingleton<ITdiCompatibilityNavigation>(sp => sp.GetRequiredService<TdiNavigationManagerAdapter>());
 
 			#endregion
@@ -672,7 +672,7 @@ namespace Vodovoz
 				new ConfigurationRoot(
 					new List<IConfigurationProvider>
 					{
-							new MemoryConfigurationProvider(new MemoryConfigurationSource())
+						new MemoryConfigurationProvider(new MemoryConfigurationSource())
 					}
 					), "");
 
@@ -717,7 +717,6 @@ namespace Vodovoz
 			services.AddScoped<CarsMonitoringInfoPanelView>();
 
 			#endregion
-
 
 			return services;
 		}
