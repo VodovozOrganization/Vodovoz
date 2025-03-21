@@ -15,7 +15,7 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		private int _id;
 		private string _foivId;
-		private DateTime _docDateTime;
+		private string _docDateTime;
 		private string _docNumber;
 
 		[Display(Name = "Код")]
@@ -39,7 +39,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Дата регламентирующего документа
 		/// </summary>
 		[Display(Name = "Дата регламентирующего документа")]
-		public virtual DateTime DocDateTime
+		public virtual string DocDateTime
 		{
 			get => _docDateTime;
 			set => SetField(ref _docDateTime, value);
