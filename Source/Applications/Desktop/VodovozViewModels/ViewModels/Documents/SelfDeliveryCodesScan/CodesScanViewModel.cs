@@ -449,35 +449,40 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			var hasInOrder = IsOrderContainsGtin(gtin);
 			var nomenclatureName = GetNomenclatureNameByGtin(gtin);
 
-			var existsCodeScanRow = CodeScanRows.FirstOrDefault(x => x.RawCode == code);
 
-			if(existsCodeScanRow is null)
+			lock(CodeScanRows)
 			{
-				existsCodeScanRow = CodeScanRows
-					.SelectMany(x => x.Children)
-					.FirstOrDefault(x => x.RawCode == code);
-			}
 
-			if(existsCodeScanRow is null)
-			{
-				var codeScanRow = new CodeScanRow
+				var existsCodeScanRow = CodeScanRows.FirstOrDefault(x => x.RawCode == code);
+
+				if(existsCodeScanRow is null)
 				{
-					RowNumber = CodeScanRows.Count + 1,
-					RawCode = code,
-					IsTrueMarkValid = isValid,
-					HasInOrder = hasInOrder,
-					NomenclatureName = nomenclatureName,
-					AdditionalInformation = string.Join(", ", additionalInformation),
-				};
+					existsCodeScanRow = CodeScanRows
+						.SelectMany(x => x.Children)
+						.FirstOrDefault(x => x.RawCode == code);
+				}
 
-				CodeScanRows.Add(codeScanRow);
-			}
-			else
-			{
-				existsCodeScanRow.NomenclatureName = nomenclatureName;
-				existsCodeScanRow.IsTrueMarkValid = isValid;
-				existsCodeScanRow.HasInOrder = hasInOrder;
-				existsCodeScanRow.AdditionalInformation = string.Join(", ", additionalInformation);
+				if(existsCodeScanRow is null)
+				{
+					var codeScanRow = new CodeScanRow
+					{
+						RowNumber = CodeScanRows.Count + 1,
+						RawCode = code,
+						IsTrueMarkValid = isValid,
+						HasInOrder = hasInOrder,
+						NomenclatureName = nomenclatureName,
+						AdditionalInformation = string.Join(", ", additionalInformation),
+					};
+
+					CodeScanRows.Add(codeScanRow);
+				}
+				else
+				{
+					existsCodeScanRow.NomenclatureName = nomenclatureName;
+					existsCodeScanRow.IsTrueMarkValid = isValid;
+					existsCodeScanRow.HasInOrder = hasInOrder;
+					existsCodeScanRow.AdditionalInformation = string.Join(", ", additionalInformation);
+				}
 			}
 
 			RefreshCodeScanRows();
@@ -528,69 +533,74 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			(var childrenUnitCodeList, var gtin, var rawCode, string identificationCode, var nomenclatureName, bool? hasInOrder) = codeInfo;
 
-			var rootNode = CodeScanRows.FirstOrDefault(x => x.RawCode == rawCode);
-
-			UpdateCodeScanRows(rawCode, gtin, additionalInformation: new List<string> { rootNode.AdditionalInformation });
-
 			var validationErrors = await GetValidationErrorsFromTrueMarkAsync(rawCode, identificationCode, gtin, cancellationToken);
 			var isValid = validationErrors is null;
 
-			if(childrenUnitCodeList is null)
+
+			var codesToDistribute = new List<TrueMarkWaterIdentificationCode>();
+			
+			lock(CodeScanRows)
 			{
-				if(isValid)
+				var rootNode = CodeScanRows.FirstOrDefault(x => x.RawCode == rawCode);
+				
+				if(childrenUnitCodeList is null)
 				{
-					await DistributeCodeOnNextSelfDeliveryItemAsync(anyCode.TrueMarkWaterIdentificationCode, cancellationToken);
+					codesToDistribute.Add(anyCode.TrueMarkWaterIdentificationCode);
+				}
+				else
+				{
+					var existsUnitCodeFromAggregateCode =
+						CodeScanRows.FirstOrDefault(sr => childrenUnitCodeList.Any(uc => uc.RawCode == sr.RawCode));
+
+					if(existsUnitCodeFromAggregateCode != null)
+					{
+						UpdateCodeScanRows(rawCode, gtin, false,
+							new List<string>
+							{
+								$"Дочерний код данного агрегатного кода уже есть в самовывозе: {existsUnitCodeFromAggregateCode.RawCode}"
+							});
+
+						return;
+					}
+
+					rootNode.Children.Clear();
+
+					var rowNumber = 0;
+					foreach(var trueMarkWaterIdentificationCode in childrenUnitCodeList)
+					{
+						hasInOrder = IsOrderContainsGtin(trueMarkWaterIdentificationCode.GTIN);
+
+						var childNode = CodeScanRows.FirstOrDefault(x =>
+							                x.RawCode == trueMarkWaterIdentificationCode.RawCode)
+						                ?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
+
+						childNode.RawCode = trueMarkWaterIdentificationCode.RawCode;
+						childNode.NomenclatureName = GetNomenclatureNameByGtin(trueMarkWaterIdentificationCode.GTIN);
+						childNode.Parent = rootNode;
+						childNode.HasInOrder = hasInOrder;
+						childNode.IsTrueMarkValid = isValid;
+						childNode.RowNumber = ++rowNumber;
+
+						rootNode.Children.Add(childNode);
+
+						if(isValid)
+						{
+							codesToDistribute.Add(trueMarkWaterIdentificationCode);
+						}
+						else
+						{
+							childNode.AdditionalInformation = string.Join(", ", validationErrors);
+						}
+					}
 				}
 			}
-			else
-			{
-				var existsUnitCodeFromAggregateCode =
-					CodeScanRows.FirstOrDefault(sr => childrenUnitCodeList.Any(uc => uc.RawCode == sr.RawCode));
-
-				if(existsUnitCodeFromAggregateCode != null)
-				{
-					UpdateCodeScanRows(rawCode, gtin, false,
-						new List<string>
-							{ $"Дочерний код данного агрегатного кода уже есть в самовывозе: {existsUnitCodeFromAggregateCode.RawCode}" });
-
-					return;
-				}
-
-				rootNode.Children.Clear();
-
-				var rowNumber = 0;
-				foreach(var trueMarkWaterIdentificationCode in childrenUnitCodeList)
-				{
-					hasInOrder = IsOrderContainsGtin(trueMarkWaterIdentificationCode.GTIN);
-
-					var childNode = CodeScanRows.FirstOrDefault(x =>
-						                x.RawCode == trueMarkWaterIdentificationCode.RawCode)
-					                ?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
-
-					childNode.RawCode = trueMarkWaterIdentificationCode.RawCode;
-					childNode.NomenclatureName = GetNomenclatureNameByGtin(trueMarkWaterIdentificationCode.GTIN);
-					childNode.Parent = rootNode;
-					childNode.HasInOrder = hasInOrder;
-					childNode.IsTrueMarkValid = isValid;
-					childNode.RowNumber = ++rowNumber;
-
-					rootNode.Children.Add(childNode);
-
-					if(isValid)
-					{
-						await DistributeCodeOnNextSelfDeliveryItemAsync(trueMarkWaterIdentificationCode, cancellationToken);
-					}
-					else
-					{
-						childNode.AdditionalInformation = string.Join(", ", validationErrors);
-					}
-				}
-			}
-
+			
 			if(!anyCode.IsTrueMarkWaterIdentificationCode)
 			{
 				UpdateCodeScanRows(rawCode, gtin, additionalInformation: new List<string> { "Агрегатный код" });
 			}
+
+			await DistributeCodeOnNextSelfDeliveryItemAsync(codesToDistribute, cancellationToken);
 
 			RefreshCodeScanRows();
 		}
@@ -664,6 +674,15 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			return null;
 		}
 
+		private async Task DistributeCodeOnNextSelfDeliveryItemAsync(List<TrueMarkWaterIdentificationCode> codes,
+			CancellationToken cancellationToken)
+		{
+			foreach(var code in codes)
+			{
+				await DistributeCodeOnNextSelfDeliveryItemAsync(code, cancellationToken);
+			}
+		}
+
 		private async Task DistributeCodeOnNextSelfDeliveryItemAsync(TrueMarkWaterIdentificationCode code,
 			CancellationToken cancellationToken)
 		{
@@ -705,20 +724,28 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			var code = ParseRawCode(rawCode, out var parsedCode);
 			var gtin = parsedCode?.GTIN;
 
-			var alreadyScannedNode = CodeScanRows.FirstOrDefault(x => x?.RawCode == code);
+			CodeScanRow alreadyScannedNode;
+			
+			lock(CodeScanRows)
+			{
+				alreadyScannedNode = CodeScanRows.FirstOrDefault(x => x?.RawCode == code);
 
-			//Поднятие вновь отсканированного кода наверх
+				//Поднятие вновь отсканированного кода наверх
+				if(alreadyScannedNode != null)
+				{
+					for(var i = alreadyScannedNode.RowNumber + 1; i <= CodeScanRows.Count; i++)
+					{
+						CodeScanRows.First(x => x.RowNumber == i).RowNumber--;
+					}
+
+					alreadyScannedNode.RowNumber = CodeScanRows.Count;
+				}
+			}
+
 			if(alreadyScannedNode != null)
 			{
-				for(var i = alreadyScannedNode.RowNumber + 1; i <= CodeScanRows.Count; i++)
-				{
-					CodeScanRows.First(x => x.RowNumber == i).RowNumber--;
-				}
-
-				alreadyScannedNode.RowNumber = CodeScanRows.Count;
-
 				RefreshCodeScanRows();
-
+				
 				return;
 			}
 
