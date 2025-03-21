@@ -15,6 +15,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.NotificationSenders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace SmsPaymentService
@@ -30,6 +31,7 @@ namespace SmsPaymentService
 	    private readonly ISmsPaymentDTOFactory _smsPaymentDTOFactory;
 	    private readonly ISmsPaymentValidator _smsPaymentValidator;
 		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IOrderContractUpdater _contractUpdater;
 
 		public SmsPaymentService(
 			IUnitOfWorkFactory uowFactory,
@@ -39,7 +41,8 @@ namespace SmsPaymentService
             SmsPaymentFileCache smsPaymentFileCache,
             ISmsPaymentDTOFactory smsPaymentDTOFactory,
             ISmsPaymentValidator smsPaymentValidator,
-			INomenclatureSettings nomenclatureSettings
+			INomenclatureSettings nomenclatureSettings,
+			IOrderContractUpdater contractUpdater
         )
         {
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -50,6 +53,7 @@ namespace SmsPaymentService
             _smsPaymentDTOFactory = smsPaymentDTOFactory ?? throw new ArgumentNullException(nameof(smsPaymentDTOFactory));
             _smsPaymentValidator = smsPaymentValidator ?? throw new ArgumentNullException(nameof(smsPaymentValidator));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 		}
         
         public PaymentResult SendPayment(int orderId, string phoneNumber)
@@ -232,7 +236,12 @@ namespace SmsPaymentService
 
                     switch (status) {
                         case SmsPaymentStatus.Paid:
-                            payment.SetPaid(uow, paidDate == default(DateTime) ? DateTime.Now : paidDate, uow.GetById<PaymentFrom>(_orderSettings.PaymentByCardFromSmsId), _nomenclatureSettings);
+                            payment.SetPaid(
+								uow,
+								paidDate == default(DateTime) ? DateTime.Now : paidDate,
+								uow.GetById<PaymentFrom>(_orderSettings.PaymentByCardFromSmsId),
+								_nomenclatureSettings,
+								_contractUpdater);
                             break;
                         case SmsPaymentStatus.Cancelled:
                             payment.SetCancelled();
@@ -306,7 +315,12 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(_orderSettings.PaymentByCardFromSmsId), _nomenclatureSettings);
+                                payment.SetPaid(
+									uow,
+									DateTime.Now,
+									uow.GetById<PaymentFrom>(_orderSettings.PaymentByCardFromSmsId),
+									_nomenclatureSettings,
+									_contractUpdater);
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();
@@ -428,7 +442,12 @@ namespace SmsPaymentService
                                 payment.SetWaitingForPayment();
                                 break;
                             case SmsPaymentStatus.Paid:
-                                payment.SetPaid(uow, DateTime.Now, uow.GetById<PaymentFrom>(_orderSettings.PaymentByCardFromSmsId), _nomenclatureSettings);
+                                payment.SetPaid(
+									uow,
+									DateTime.Now,
+									uow.GetById<PaymentFrom>(_orderSettings.PaymentByCardFromSmsId),
+									_nomenclatureSettings,
+									_contractUpdater);
                                 break;
                             case SmsPaymentStatus.Cancelled:
                                 payment.SetCancelled();

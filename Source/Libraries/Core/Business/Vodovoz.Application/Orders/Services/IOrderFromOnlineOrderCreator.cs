@@ -9,6 +9,7 @@ namespace Vodovoz.Application.Orders.Services
 		Order CreateOrderFromOnlineOrder(IUnitOfWork uow, Employee orderCreator, OnlineOrder onlineOrder);
 
 		Order FillOrderFromOnlineOrder(
+			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
 			Employee employee = null,

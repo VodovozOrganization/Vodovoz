@@ -724,8 +724,7 @@
     <Compile Include="Views\Users\UserRoleView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderItemReturnsNode.cs" />
-    <Compile Include="ViewWidgets\Logistics\OrderReturnsView.OrderNode.ChangedType.cs" />
-    <Compile Include="ViewWidgets\Logistics\OrderReturnsView.OrderNode.cs" />
+    <Compile Include="ViewWidgets\Logistics\OrderReturnsView.ChangedType.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListCreateItemsView.AddOrderEnum.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />

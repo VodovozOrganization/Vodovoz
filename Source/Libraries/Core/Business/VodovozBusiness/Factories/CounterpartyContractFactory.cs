@@ -19,7 +19,7 @@ namespace Vodovoz.Factories
 			_counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
 		}
 
-		public CounterpartyContract CreateContract(IUnitOfWork unitOfWork, Order order, DateTime? issueDate, Organization organization = null)
+		public CounterpartyContract CreateContract(IUnitOfWork unitOfWork, Order order, Organization organization = null)
 		{
 			var contractType = _counterpartyContractRepository.GetContractTypeForPaymentType(order.Client.PersonType, order.PaymentType);
 			var org = organization ?? _organizationProvider.GetOrganization(unitOfWork, order);
@@ -31,11 +31,12 @@ namespace Vodovoz.Factories
 				IsArchive = false,
 				ContractType = contractType
 			};
+			
 			contract.UpdateNumber();
 
-			if(issueDate.HasValue)
+			if(order.DeliveryDate.HasValue)
 			{
-				contract.IssueDate = issueDate.Value;
+				contract.IssueDate = order.DeliveryDate.Value;
 			}
 
 			return contract;

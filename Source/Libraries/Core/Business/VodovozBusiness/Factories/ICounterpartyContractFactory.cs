@@ -8,6 +8,6 @@ namespace Vodovoz.Factories
 {
 	public interface ICounterpartyContractFactory
 	{
-		CounterpartyContract CreateContract(IUnitOfWork unitOfWork, Order order, DateTime? issueDate, Organization organization = null);
+		CounterpartyContract CreateContract(IUnitOfWork unitOfWork, Order order, Organization organization = null);
 	}
 }

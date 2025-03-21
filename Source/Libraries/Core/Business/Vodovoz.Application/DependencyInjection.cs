@@ -68,6 +68,7 @@ namespace Vodovoz.Application
 			.AddTransient<OrganizationForDeliveryOrderByPaymentTypeHandler>()
 			.AddTransient<OrganizationForSelfDeliveryOrderByPaymentTypeHandler>()
 			.AddTransient<OrganizationFromClientForOrderHandler>()
+			.AddScoped<IOrderContractUpdater, OrderContractUpdater>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

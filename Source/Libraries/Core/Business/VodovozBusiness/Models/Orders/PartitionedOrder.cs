@@ -6,6 +6,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Models.Orders
 {
@@ -14,6 +15,7 @@ namespace Vodovoz.Models.Orders
 		private readonly IUnitOfWork _uow;
 		private readonly Order _copiedOrder;
 		private readonly Order _resultOrder;
+		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
 		private readonly int _fastDeliveryNomenclatureId;
@@ -25,12 +27,14 @@ namespace Vodovoz.Models.Orders
 			Order copiedOrder,
 			Order resultOrder,
 			INomenclatureSettings nomenclatureSettings,
-			IFlyerRepository flyerRepository)
+			IFlyerRepository flyerRepository,
+			IOrderContractUpdater contractUpdater)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_copiedOrder = copiedOrder ?? throw new ArgumentNullException(nameof(copiedOrder));
 			_resultOrder = resultOrder ?? throw new ArgumentNullException(nameof(resultOrder));
-			
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+
 			if(nomenclatureSettings is null)
 			{
 				throw new ArgumentNullException(nameof(nomenclatureSettings));
@@ -52,10 +56,10 @@ namespace Vodovoz.Models.Orders
 		/// </summary>
 		public PartitionedOrder CopyFields()
 		{
-			_resultOrder.Client = _copiedOrder.Client;
+			_resultOrder.UpdateClient(_copiedOrder.Client, _contractUpdater, out var message);
 			_resultOrder.SelfDelivery = _copiedOrder.SelfDelivery;
-			_resultOrder.DeliveryPoint = _copiedOrder.DeliveryPoint;
-			_resultOrder.PaymentType = _copiedOrder.PaymentType;
+			_resultOrder.UpdateDeliveryPoint(_copiedOrder.DeliveryPoint, _contractUpdater);
+			_resultOrder.UpdatePaymentType(_copiedOrder.PaymentType, _contractUpdater);
 			_resultOrder.Author = _copiedOrder.Author;
 			_resultOrder.Comment = _copiedOrder.Comment;
 			_resultOrder.CommentLogist = _copiedOrder.CommentLogist;
@@ -183,7 +187,7 @@ namespace Vodovoz.Models.Orders
 			}
 
 			_resultOrder.OnlineOrder = _copiedOrder.OnlineOrder;
-			_resultOrder.PaymentByCardFrom = _copiedOrder.PaymentByCardFrom;
+			_resultOrder.UpdatePaymentByCardFrom(_copiedOrder.PaymentByCardFrom, _contractUpdater);
 
 			return this;
 		}
@@ -254,7 +258,7 @@ namespace Vodovoz.Models.Orders
 				CopyingDiscounts(orderItem, newOrderItem, _needCopyStockBottleDiscount);
 			}
 
-			_resultOrder.AddOrderItem(newOrderItem);
+			_resultOrder.AddOrderItem(_uow, _contractUpdater, newOrderItem);
 		}
 
 		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo, bool withStockBottleDiscount)

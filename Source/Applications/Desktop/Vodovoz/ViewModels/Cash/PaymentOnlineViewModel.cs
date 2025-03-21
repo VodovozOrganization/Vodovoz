@@ -11,6 +11,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Cash
@@ -19,6 +20,7 @@ namespace Vodovoz.ViewModels.Cash
 	{
 		private readonly Employee _currentEmployee;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly IOrderContractUpdater _contractUpdater;
 
 		public PaymentOnlineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -28,6 +30,7 @@ namespace Vodovoz.ViewModels.Cash
 			IOrderPaymentSettings orderPaymentSettings,
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
+			IOrderContractUpdater contractUpdater,
 			Employee currentEmployee) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			if(orderPaymentSettings == null)
@@ -45,6 +48,7 @@ namespace Vodovoz.ViewModels.Cash
 			}
 
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_currentEmployee = currentEmployee;
 
 			TabName = "Онлайн оплата";
@@ -73,7 +77,7 @@ namespace Vodovoz.ViewModels.Cash
 		public PaymentFrom PaymentOnlineFrom
 		{
 			get => Entity.PaymentByCardFrom;
-			set => Entity.PaymentByCardFrom = value;
+			set => Entity.UpdatePaymentByCardFrom(value, _contractUpdater);
 		}
 
 		public List<PaymentFrom> ItemsList { get; private set; }

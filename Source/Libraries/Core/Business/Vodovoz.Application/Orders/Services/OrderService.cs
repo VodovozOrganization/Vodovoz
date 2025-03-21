@@ -57,6 +57,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderDeliveryPriceGetter _orderDeliveryPriceGetter;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IOrderContractUpdater _orderContractUpdater;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -80,7 +81,8 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderDiscountsController orderDiscountsController,
 			IOrderDeliveryPriceGetter orderDeliveryPriceGetter,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			ISubdivisionRepository subdivisionRepository)
+			ISubdivisionRepository subdivisionRepository,
+			IOrderContractUpdater orderContractUpdater)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -108,6 +110,7 @@ namespace Vodovoz.Application.Orders.Services
 			_orderDeliveryPriceGetter = orderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(orderDeliveryPriceGetter));
 			_undeliveredOrdersRepository = undeliveredOrdersRepository;
 			_subdivisionRepository = subdivisionRepository;
+			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 
@@ -116,7 +119,8 @@ namespace Vodovoz.Application.Orders.Services
 		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
 			var deliveryPrice = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
-			order.UpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice);
+			order.UpdateDeliveryItem(
+				unitOfWork, _orderContractUpdater, unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice);
 		}
 
 		/// <summary>
@@ -139,14 +143,14 @@ namespace Vodovoz.Application.Orders.Services
 
 				Order order = unitOfWork.Root;
 				order.Author = roboatsEmployee;
-				order.Client = counterparty;
-				order.DeliveryPoint = deliveryPoint;
-				order.PaymentType = PaymentType.Cash;
+				order.UpdateClient(counterparty, _orderContractUpdater, out var updateClientMessage);
+				order.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater);
+				order.UpdatePaymentType(PaymentType.Cash, _orderContractUpdater);
 
 				foreach(var waterInfo in createOrderRequest.SaleItems)
 				{
 					var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
-					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+					order.AddWaterForSale(unitOfWork, _orderContractUpdater, nomenclature, waterInfo.BottlesCount);
 				}
 
 				order.RecalculateItemsPrice();
@@ -175,14 +179,14 @@ namespace Vodovoz.Application.Orders.Services
 
 				Order order = unitOfWork.Root;
 				order.Author = roboatsEmployee;
-				order.Client = counterparty;
-				order.DeliveryPoint = deliveryPoint;
-				order.PaymentType = PaymentType.Cash;
+				order.UpdateClient(counterparty, _orderContractUpdater, out var updateClientMessage);
+				order.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater);
+				order.UpdatePaymentType(PaymentType.Cash, _orderContractUpdater);
 
 				foreach(var waterInfo in createOrderRequest.SaleItems)
 				{
 					var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
-					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+					order.AddWaterForSale(unitOfWork, _orderContractUpdater, nomenclature, waterInfo.BottlesCount);
 				}
 
 				order.RecalculateItemsPrice();
@@ -217,7 +221,8 @@ namespace Vodovoz.Application.Orders.Services
 
 				var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
 				order.AcceptOrder(roboatsEmployee, _callTaskWorker);
-				order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+				order.SaveEntity(
+					unitOfWork, _orderContractUpdater, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
 				return order.Id;
 			}
 		}
@@ -249,7 +254,8 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
-			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+			order.SaveEntity(
+				unitOfWork, _orderContractUpdater, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
 			return (order.Id, order.Author.Id, order.OrderStatus);
 		}
 
@@ -266,7 +272,8 @@ namespace Vodovoz.Application.Orders.Services
 				var order = unitOfWork.Root;
 				var employee = unitOfWork.GetById<Employee>(roboatsEmployeeId);
 				order.AcceptOrder(employee, _callTaskWorker);
-				order.SaveEntity(unitOfWork, employee, _orderDailyNumberController, _paymentFromBankClientController);
+				order.SaveEntity(
+					unitOfWork, _orderContractUpdater, employee, _orderDailyNumberController, _paymentFromBankClientController);
 				return (order.Id, order.Author.Id, order.OrderStatus);
 			}
 		}
@@ -278,10 +285,10 @@ namespace Vodovoz.Application.Orders.Services
 			var deliverySchedule = unitOfWork.GetById<DeliverySchedule>(createOrderRequest.DeliveryScheduleId);
 			Order order = unitOfWork.Root;
 			order.Author = author;
-			order.Client = counterparty;
-			order.DeliveryPoint = deliveryPoint;
+			order.UpdateClient(counterparty, _orderContractUpdater, out var updateClientMessage);
+			order.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater);
 
-			order.PaymentType = createOrderRequest.PaymentType;
+			order.UpdatePaymentType(createOrderRequest.PaymentType, _orderContractUpdater);
 
 			switch(createOrderRequest.PaymentType)
 			{
@@ -294,14 +301,14 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			order.DeliverySchedule = deliverySchedule;
-			order.DeliveryDate = createOrderRequest.Date;
+			order.UpdateDeliveryDate(createOrderRequest.Date, _orderContractUpdater, out var updateDeliveryDateMessage);
 
-			order.UpdateOrCreateContract(unitOfWork, _counterpartyContractRepository, _counterpartyContractFactory);
+			_orderContractUpdater.UpdateOrCreateContract(unitOfWork, order);
 
 			foreach(var waterInfo in createOrderRequest.SaleItems)
 			{
 				var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
-				order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+				order.AddWaterForSale(unitOfWork, _orderContractUpdater, nomenclature, waterInfo.BottlesCount);
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
@@ -349,7 +356,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			UpdateDeliveryCost(uow, order);
 			order.AddDeliveryPointCommentToOrder();
-			order.AddFastDeliveryNomenclatureIfNeeded();
+			order.AddFastDeliveryNomenclatureIfNeeded(uow, _orderContractUpdater);
 
 			uow.Save(onlineOrder);
 			var acceptResult = TryAcceptOrderCreatedByOnlineOrder(uow, employee, order);
@@ -382,7 +389,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			order.AcceptOrder(order.Author, _callTaskWorker);
-			order.SaveEntity(uow, employee, _orderDailyNumberController, _paymentFromBankClientController);
+			order.SaveEntity(uow, _orderContractUpdater, employee, _orderDailyNumberController, _paymentFromBankClientController);
 
 			return Result.Success();
 		}
@@ -412,7 +419,7 @@ namespace Vodovoz.Application.Orders.Services
 			var referFriendDiscountReason = _discountReasonRepository.Get(uow, x => x.Id == _orderSettings.ReferFriendDiscountReasonId).First();
 
 			var beforeAddItemsCount = order.OrderItems.Count();
-			order.AddNomenclature(nomenclature, bottlesToAdd);
+			order.AddNomenclature(uow, _orderContractUpdater, nomenclature, bottlesToAdd);
 			var afterAddItemsCount = order.OrderItems.Count();
 
 			if(afterAddItemsCount == beforeAddItemsCount)

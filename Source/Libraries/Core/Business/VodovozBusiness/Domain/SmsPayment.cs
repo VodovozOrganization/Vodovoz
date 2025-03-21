@@ -11,6 +11,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Domain
 {
@@ -85,7 +86,12 @@ namespace Vodovoz.Domain
 
         #region Функции
 
-        public virtual SmsPayment SetPaid(IUnitOfWork uow, DateTime datePaid, PaymentFrom paymentFrom, INomenclatureSettings nomenclatureSettings)
+        public virtual SmsPayment SetPaid(
+			IUnitOfWork uow,
+			DateTime datePaid,
+			PaymentFrom paymentFrom,
+			INomenclatureSettings nomenclatureSettings,
+			IOrderContractUpdater contractUpdater)
         {
             SmsPaymentStatus = SmsPaymentStatus.Paid;
             
@@ -114,9 +120,8 @@ namespace Vodovoz.Domain
             
             PaidDate = datePaid;
             Order.OnlineOrder = ExternalId;
-            Order.PaymentType = PaymentType.PaidOnline;    
-            Order.PaymentByCardFrom = paymentFrom;
-            Order.ForceUpdateContract();
+            Order.UpdatePaymentType(PaymentType.PaidOnline, contractUpdater);    
+            Order.UpdatePaymentByCardFrom(paymentFrom, contractUpdater);
 
             foreach (var routeListItem in uow.Session.QueryOver<RouteListItem>().Where(x => x.Order.Id == Order.Id).List<RouteListItem>()) {
                 routeListItem.RecalculateTotalCash();
