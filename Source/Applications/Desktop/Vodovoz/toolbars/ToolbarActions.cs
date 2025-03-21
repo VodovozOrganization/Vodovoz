@@ -260,7 +260,7 @@ public partial class MainWindow : Window
 		ActionAnalyseCounterpartyDiscrepancies = new Action("ActionAnalyseCounterpartyDiscrepancies", "Сверка по контрагентам", null, "table");
 
 		//Честный знак
-		ActionCodesPool = new Action("ActionCodesPool", "Пул кодов", null, "table");
+		ActionCodesPool = new Action("ActionCodesPool", "Пул кодов маркировки", null, "table");
 
 		#endregion
 		#region Inserting actions to the toolbar
