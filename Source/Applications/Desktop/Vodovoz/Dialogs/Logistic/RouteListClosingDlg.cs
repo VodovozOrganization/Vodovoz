@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -111,7 +111,7 @@ namespace Vodovoz
 		private IFlyerRepository _flyerRepository;
 
 		private readonly bool _isOpenFromCash;
-		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.PresetPermissionsRoles.Cashier);
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
