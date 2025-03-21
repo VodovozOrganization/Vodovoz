@@ -538,7 +538,7 @@ def DeliveryDesktopArtifact(nodeName, deliveryPath){
 
 	if(CAN_DELIVERY_DESKTOP)
 	{
-		DeliveryWinArtifact("VodovozDesktop${ARCHIVE_EXTENTION}", deliveryPath)
+		DeliveryWinArtifact("VodovozDesktop_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}", deliveryPath)
 	}
 	else
 	{
