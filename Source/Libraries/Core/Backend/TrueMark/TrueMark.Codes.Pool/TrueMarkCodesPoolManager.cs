@@ -211,7 +211,7 @@ namespace TrueMark.Codes.Pool
 						Count(pool.code_id)
 					FROM {_poolTableName} pool
 					INNER JOIN true_mark_identification_code tmic ON tmic.id = pool.code_id
-					WHERE pool.promoted
+					WHERE pool.promoted = 0
 					GROUP BY tmic.gtin
 					;";
 			var query = uow.Session.CreateSQLQuery(sql);

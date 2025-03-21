@@ -160,12 +160,12 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 
 			try
 			{
-				var lodingResult = _codePoolLoader.LoadFromFile(result.Path);
+				var loadingResult = _codePoolLoader.LoadFromFile(result.Path);
 
 				_interactiveService.ShowMessage(ImportanceLevel.Info,
-					$"Найдено кодов: {lodingResult.TotalFound}" +
-					$"\nЗагружено: {lodingResult.SuccessfulLoaded}" +
-					$"\nУже существуют в системе: {lodingResult.TotalFound - lodingResult.SuccessfulLoaded}");
+					$"Найдено кодов: {loadingResult.TotalFound}" +
+					$"\nЗагружено: {loadingResult.SuccessfulLoaded}" +
+					$"\nУже существуют в системе: {loadingResult.TotalFound - loadingResult.SuccessfulLoaded}");
 			}
 			catch(IOException ex)
 			{
