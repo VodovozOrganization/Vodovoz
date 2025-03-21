@@ -58,7 +58,7 @@ namespace Vodovoz.Controllers
 
 			foreach(var permission in NewEntityUserPermissions)
 			{
-				var node = _scope.Resolve<UserPermissionNode>();
+				var node = _scope.Resolve<IPermissionNode>() as UserPermissionNode;
 				node.EntityUserOnlyPermission = permission;
 				node.TypeOfEntity = permission.TypeOfEntity;
 				node.EntityPermissionExtended = new List<EntityUserPermissionExtended>();
