@@ -1118,7 +1118,7 @@ namespace Vodovoz
 			ytreeviewSpecialNomenclature.ColumnsConfig = ColumnsConfigFactory.Create<SpecialNomenclature>()
 				.AddColumn("№").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Id.ToString() : "0")
 				.AddColumn("ТМЦ").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : string.Empty)
-				.AddColumn("Код").AddNumericRenderer(node => node.SpecialId).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1)).Editing()
+				.AddColumn("Код").AddNumericRenderer(node => node.SpecialId).Adjustment(new Adjustment(0, 0, 1000000, 1, 1, 1)).Editing()
 				.Finish();
 			ytreeviewSpecialNomenclature.Binding
 				.AddBinding(Entity, e => e.SpecialNomenclatures, w => w.ItemsDataSource)
@@ -2055,8 +2055,14 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			var page = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(this);
-			page.ViewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+				});
 		}
 
 		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
