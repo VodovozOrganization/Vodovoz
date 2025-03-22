@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Goods;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using VodovozBusiness.Converters;
 

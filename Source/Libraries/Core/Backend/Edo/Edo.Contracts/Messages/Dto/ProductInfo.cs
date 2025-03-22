@@ -53,6 +53,11 @@ namespace Edo.Contracts.Messages.Dto
 		/// </summary>
 		public IEnumerable<ProductCodeInfo> TrueMarkCodes { get; set; }
 
+		/// <summary>
+		/// Информационные поля фактов хозяйственной жизни товара (ИнфПолФХЖ2)
+		/// </summary>
+		public IEnumerable<ProductEconomicLifeFactsInfo> EconomicLifeFacts { get; set; }
+
 		public decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);
 		public decimal SumWithoutVat => Math.Round(Price * Count - IncludeVat - DiscountMoney, 2);
 		public decimal PriceWithoutVat =>
