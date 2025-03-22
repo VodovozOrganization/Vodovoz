@@ -312,6 +312,7 @@ namespace Edo.Docflow.Factories
 		{
 			var inventPositions = documentEdoTask.UpdInventPositions;
 
+			var client = documentEdoTask.OrderEdoRequest.Order.Client;
 			var products = new List<ProductInfo>();
 
 			foreach(var inventPosition in inventPositions)
@@ -381,16 +382,18 @@ namespace Edo.Docflow.Factories
 					EconomicLifeFacts = new List<ProductEconomicLifeFactsInfo>()
 				};
 
-				//var specialNomenclatureIdentifications = documentEdoTask.OrderEdoRequest.Order.Client.SpecialNomenclatureIdentifications;
+				var clientSpecialNomenclature = client.SpecialNomenclatures
+					.Where(x => x.Nomenclature.Id == nomenclature.Id)
+					.FirstOrDefault();
 
-				if(true)
+				if(client.UseSpecialDocFields && clientSpecialNomenclature != null)
 				{
 					var productEconomicLifeFacts = new List<ProductEconomicLifeFactsInfo>();
 
 					var productEconomicLifeFact = new ProductEconomicLifeFactsInfo
 					{
 						Id = "код_материала",
-						Value = "код_материала"
+						Value = clientSpecialNomenclature.SpecialId.ToString()
 					};
 
 					productEconomicLifeFacts.Add(productEconomicLifeFact);
