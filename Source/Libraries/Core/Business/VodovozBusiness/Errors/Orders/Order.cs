@@ -44,6 +44,12 @@
 				"По этому адресу/телефону уже была ранее отгрузка промо набора\n" +
 				"Пожалуйста, удалите промо набор или поменяйте адрес доставки.");
 		
+		public static Error UnableToPartitionOrderWithBigDeposit =>
+			new Error(
+				typeof(Order),
+				nameof(UnableToShipPromoSet),
+				"Нельзя разделить заказ с большим залогом(сумма залога превышает суммы заказов, получаемых при разбиении)");
+		
 		public static Error UnableToShipPromoSetForNewClientsFromSelfDelivery =>
 			new Error(
 				typeof(Order),

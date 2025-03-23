@@ -35,7 +35,6 @@ namespace Vodovoz
 				.AddService<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>(), serviceLifetime)
 				.AddService<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>(serviceLifetime)
 				.AddService<IFastPaymentSender, FastPaymentSender>(serviceLifetime)
-				.AddService<IOrganizationProvider, Stage2OrganizationProvider>(serviceLifetime)
 				.AddService<ISmsClientChannelFactory, SmsClientChannelFactory>(serviceLifetime)
 				.AddService<IDeliveryPriceCalculator, DeliveryPriceCalculator>(serviceLifetime)
 				.AddService<FastDeliveryHandler>(serviceLifetime)

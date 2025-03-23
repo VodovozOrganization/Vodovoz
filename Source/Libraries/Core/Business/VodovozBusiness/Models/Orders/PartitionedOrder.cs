@@ -56,10 +56,12 @@ namespace Vodovoz.Models.Orders
 		/// </summary>
 		public PartitionedOrder CopyFields()
 		{
-			_resultOrder.UpdateClient(_copiedOrder.Client, _contractUpdater, out var message);
+			_resultOrder.UpdateClient(_copiedOrder.Client, _contractUpdater, out var updateClientMessage);
 			_resultOrder.SelfDelivery = _copiedOrder.SelfDelivery;
 			_resultOrder.UpdateDeliveryPoint(_copiedOrder.DeliveryPoint, _contractUpdater);
 			_resultOrder.UpdatePaymentType(_copiedOrder.PaymentType, _contractUpdater);
+			_resultOrder.UpdateDeliveryDate(_copiedOrder.DeliveryDate, _contractUpdater, out var updateDeliveryDateMessage);
+			_resultOrder.DeliverySchedule = _copiedOrder.DeliverySchedule;
 			_resultOrder.Author = _copiedOrder.Author;
 			_resultOrder.Comment = _copiedOrder.Comment;
 			_resultOrder.CommentLogist = _copiedOrder.CommentLogist;
@@ -79,6 +81,9 @@ namespace Vodovoz.Models.Orders
 			_resultOrder.ContactPhone = _copiedOrder.ContactPhone;
 			_resultOrder.LogisticsRequirements = _copiedOrder.LogisticsRequirements;
 			_resultOrder.IsSecondOrder = _copiedOrder.IsSecondOrder;
+			_resultOrder.CallBeforeArrivalMinutes = _copiedOrder.CallBeforeArrivalMinutes;
+			_resultOrder.IsDoNotMakeCallBeforeArrival = _copiedOrder.IsDoNotMakeCallBeforeArrival;
+			_resultOrder.ContactPhone = _copiedOrder.ContactPhone;
 
 			return this;
 		}
@@ -114,12 +119,14 @@ namespace Vodovoz.Models.Orders
 		/// Очистка товаров, оборудования и залогов
 		/// </summary>
 		/// <exception cref="NotImplementedException"></exception>
-		public void ClearGoodsAndEquipmentsAndDeposits()
+		public PartitionedOrder ClearGoodsAndEquipmentsAndDeposits()
 		{
 			_resultOrder.ObservablePromotionalSets.Clear();
 			_resultOrder.ObservableOrderItems.Clear();
 			_resultOrder.ObservableOrderEquipments.Clear();
 			_resultOrder.ObservableOrderDepositItems.Clear();
+			
+			return this;
 		}
 		
 		/// <summary>
