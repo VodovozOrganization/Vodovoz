@@ -10,7 +10,7 @@ namespace Vodovoz.Application.Orders.Services
 	/// <summary>
 	/// Основной обработчик для подбора организаций для заказа
 	/// </summary>
-	public class OrderOrganizationManager : IGetOrganizationForOrder
+	public class OrderOrganizationManager : IOrderOrganizationManager
 	{
 		private readonly OrderOurOrganizationForOrderHandler _orderOurOrganization;
 		private readonly OrganizationFromClientForOrderHandler _organizationFromClient;

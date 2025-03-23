@@ -238,15 +238,21 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 			return id == orderId;
 		}
 
-		public IEnumerable<CashReceipt> GetReceiptsForOrder(IUnitOfWork uow, int orderId)
+		public IEnumerable<CashReceipt> GetReceiptsForOrder(IUnitOfWork uow, int orderId, CashReceiptStatus? cashReceiptStatus = null)
 		{
-			CashReceipt receiptAlias = null;
+			var query =
+				from receipt in uow.Session.Query<CashReceipt>()
+				where receipt.Order.Id == orderId
+				select receipt;
 
-			var result = uow.Session.QueryOver(() => receiptAlias)
-				.Where(() => receiptAlias.Order.Id == orderId)
-				.List();
+			if(cashReceiptStatus != null)
+			{
+				return query
+					.Where(x => x.Status == cashReceiptStatus)
+					.ToList();
+			}
 
-			return result;
+			return query.ToList();
 		}
 
 		public CashReceipt LoadReceipt(IUnitOfWork uow, int receiptId)

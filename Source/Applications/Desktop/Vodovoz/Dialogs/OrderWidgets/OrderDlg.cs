@@ -2440,6 +2440,7 @@ namespace Vodovoz
 			{
 				SetSensitivity(false);
 
+				//TODO нужна ли здесь проверка
 				/*if(Entity.OrganizationsByOrderItems.Count() > 1)
 				{
 					//вывести сообщение о том, что заказ необходимо разбить на несколько
@@ -2660,7 +2661,7 @@ namespace Vodovoz
 			}
 
 			var orderPartsByOrganizations =
-				_lifetimeScope.Resolve<OrderOrganizationManager>().GetOrderPartsByOrganizations(DateTime.Now.TimeOfDay, Entity, UoW);
+				_lifetimeScope.Resolve<IOrderOrganizationManager>().GetOrderPartsByOrganizations(DateTime.Now.TimeOfDay, Entity, UoW);
 			
 			var i = 0;
 			ITdiTab masterTab = null;

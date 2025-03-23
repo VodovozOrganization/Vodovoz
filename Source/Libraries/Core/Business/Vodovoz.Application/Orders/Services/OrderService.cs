@@ -33,7 +33,9 @@ namespace Vodovoz.Application.Orders.Services
 {
 	internal sealed class OrderService : IOrderService
 	{
-		private const string _employeeRequiredForServiceError = "Требуется сотрудник. Еслм сообщение получено в сервисе - убедитесь, что настроили сервис корректно и в ДВ есть соответствующий сотрудник";
+		private const string _employeeRequiredForServiceError =
+			"Требуется сотрудник. " +
+			"Если сообщение получено в сервисе - убедитесь, что настроили сервис корректно и в ДВ есть соответствующий сотрудник";
 
 		private readonly ILogger<OrderService> _logger;
 
@@ -41,8 +43,6 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
-		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
-		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
@@ -66,8 +66,6 @@ namespace Vodovoz.Application.Orders.Services
 			IEmployeeRepository employeeRepository,
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
-			ICounterpartyContractRepository counterpartyContractRepository,
-			ICounterpartyContractFactory counterpartyContractFactory,
 			ICallTaskWorker callTaskWorker,
 			IOrderFromOnlineOrderCreator orderFromOnlineOrderCreator,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
@@ -94,8 +92,6 @@ namespace Vodovoz.Application.Orders.Services
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_orderDailyNumberController = orderDailyNumberController ?? throw new ArgumentNullException(nameof(orderDailyNumberController));
 			_paymentFromBankClientController = paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
-			_counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
-			_counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_orderFromOnlineOrderCreator = orderFromOnlineOrderCreator ?? throw new ArgumentNullException(nameof(orderFromOnlineOrderCreator));
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));

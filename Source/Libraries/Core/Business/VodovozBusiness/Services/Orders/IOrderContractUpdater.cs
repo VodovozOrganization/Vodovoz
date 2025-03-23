@@ -8,10 +8,6 @@ namespace VodovozBusiness.Services.Orders
 	{
 		void UpdateContract(IUnitOfWork uow, Order order, bool onPaymentTypeChanged = false);
 		void ForceUpdateContract(IUnitOfWork uow, Order order, Organization organization = null);
-
-		void UpdateOrCreateContract(
-			IUnitOfWork uow,
-			Order order,
-			Organization organization = null);
+		void UpdateOrCreateContract(IUnitOfWork uow, Order order, Organization organization = null);
 	}
 }

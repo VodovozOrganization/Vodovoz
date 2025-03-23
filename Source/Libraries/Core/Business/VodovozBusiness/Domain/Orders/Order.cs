@@ -1405,9 +1405,6 @@ namespace Vodovoz.Domain.Orders
 			contractUpdater.UpdateContract(uow, this, true);
 		}
 
-		private IGetOrganizationForOrder orderOrganizationManager;
-		private ICounterpartyContractFactory counterpartyContractFactory;
-
 		/// <summary>
 		/// <b>Не должен вызываться при создании сущности NHibernate'ом</b>
 		/// </summary>
