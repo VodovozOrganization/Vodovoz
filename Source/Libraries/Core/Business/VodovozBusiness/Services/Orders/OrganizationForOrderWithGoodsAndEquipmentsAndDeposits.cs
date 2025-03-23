@@ -3,10 +3,10 @@ using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 
-namespace VodovozBusiness.Domain.Orders
+namespace VodovozBusiness.Services.Orders
 {
 	/// <summary>
-	/// Организация с товарами, оборудованием, залогами. Для возможного разбиения заказа на несколько
+	/// Организация с товарами, оборудованием, залогами. Часть общего заказа при разбиении
 	/// </summary>
 	public class OrganizationForOrderWithGoodsAndEquipmentsAndDeposits
 	{
@@ -40,16 +40,5 @@ namespace VodovozBusiness.Domain.Orders
 		/// Сумма товаров
 		/// </summary>
 		public decimal GoodsSum => OrderItems.Sum(x => x.Sum);
-	}
-
-	public class OrderForOrderWithGoodsEquipmentsAndDeposits
-	{
-		/// <summary>
-		/// Можно разделять заказ с залогами
-		/// <c>true</c> можно разделять и в заказе есть или нет залогов.
-		/// <c>false</c> нельзя разделять. Сумма залогов превышает сумму в любой из частей заказа
-		/// </summary>
-		public bool CanSplitOrderWithDeposits { get; set; }
-		public IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> OrderParts { get; set; }
 	}
 }

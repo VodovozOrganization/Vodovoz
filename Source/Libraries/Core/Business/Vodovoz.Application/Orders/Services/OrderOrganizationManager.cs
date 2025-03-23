@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -45,7 +46,7 @@ namespace Vodovoz.Application.Orders.Services
 			_organizationByOrderContentForOrderHandler.SetNextHandler(_organizationByPaymentTypeForOrderHandler);
 		}
 
-		public OrderForOrderWithGoodsEquipmentsAndDeposits GetOrderPartsByOrganizations(
+		public PartitionedOrderByOrganizations GetOrderPartsByOrganizations(
 			TimeSpan requestTime,
 			Order order,
 			IUnitOfWork uow = null)
@@ -70,7 +71,7 @@ namespace Vodovoz.Application.Orders.Services
 				}
 			}
 
-			return new OrderForOrderWithGoodsEquipmentsAndDeposits
+			return new PartitionedOrderByOrganizations
 			{
 				CanSplitOrderWithDeposits = canSplitOrderWithDeposits,
 				OrderParts = orderParts
