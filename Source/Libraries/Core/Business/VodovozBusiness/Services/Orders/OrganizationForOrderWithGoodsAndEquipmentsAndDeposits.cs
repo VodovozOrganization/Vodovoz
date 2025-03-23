@@ -12,11 +12,11 @@ namespace VodovozBusiness.Services.Orders
 	{
 		public OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(
 			Organization organization,
-			IEnumerable<OrderItem> orderItems = null,
+			IEnumerable<IProduct> goods = null,
 			IEnumerable<OrderEquipment> orderEquipments = null)
 		{
 			Organization = organization;
-			OrderItems = orderItems;
+			Goods = goods;
 			OrderEquipments = orderEquipments;
 		}
 		
@@ -27,7 +27,7 @@ namespace VodovozBusiness.Services.Orders
 		/// <summary>
 		/// Товары
 		/// </summary>
-		public IEnumerable<OrderItem> OrderItems { get; }
+		public IEnumerable<IProduct> Goods { get; }
 		/// <summary>
 		/// Оборудование
 		/// </summary>
@@ -39,6 +39,6 @@ namespace VodovozBusiness.Services.Orders
 		/// <summary>
 		/// Сумма товаров
 		/// </summary>
-		public decimal GoodsSum => OrderItems.Sum(x => x.Sum);
+		public decimal GoodsSum => Goods.Sum(x => x.ActualSum);
 	}
 }

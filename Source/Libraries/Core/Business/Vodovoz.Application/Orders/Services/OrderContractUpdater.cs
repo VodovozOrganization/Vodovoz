@@ -9,6 +9,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Tools;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Receipts;
 
@@ -124,7 +125,8 @@ namespace Vodovoz.Application.Orders.Services
 
 		private Organization GetOrganization(IUnitOfWork uow, Order order)
 		{
-			var firstPartOrder = _orderOrganizationManager.GetOrganizationsWithOrderItems(DateTime.Now.TimeOfDay, order, uow)
+			var firstPartOrder = _orderOrganizationManager
+				.GetOrganizationsWithOrderItems(uow, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(order))
 				.FirstOrDefault();
 
 			if(firstPartOrder is null)

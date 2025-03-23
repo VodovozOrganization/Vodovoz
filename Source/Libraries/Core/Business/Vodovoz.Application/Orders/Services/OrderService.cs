@@ -13,19 +13,19 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Errors;
-using Vodovoz.Factories;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -58,6 +58,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IOrderContractUpdater _orderContractUpdater;
+		private readonly IOrderOrganizationManager _orderOrganizationManager;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -80,7 +81,8 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderDeliveryPriceGetter orderDeliveryPriceGetter,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionRepository subdivisionRepository,
-			IOrderContractUpdater orderContractUpdater)
+			IOrderContractUpdater orderContractUpdater,
+			IOrderOrganizationManager orderOrganizationManager)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -107,6 +109,7 @@ namespace Vodovoz.Application.Orders.Services
 			_undeliveredOrdersRepository = undeliveredOrdersRepository;
 			_subdivisionRepository = subdivisionRepository;
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
+			_orderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 
@@ -349,6 +352,12 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
+
+			if(_orderOrganizationManager.GetOrganizationsWithOrderItems(
+				uow, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(order)).Count() > 1)
+			{
+				return 0;
+			}
 
 			UpdateDeliveryCost(uow, order);
 			order.AddDeliveryPointCommentToOrder();

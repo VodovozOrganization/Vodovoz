@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Orders;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -16,12 +15,19 @@ namespace Vodovoz.Application.Orders.Services
 			NextHandler = handler;
 		}
 
+		/// <summary>
+		/// Разбиение заказа на части на основе его содержания
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="requestTime">Время запроса</param>
+		/// <param name="organizationChoice">Данные для подбора организации</param>
+		/// <returns></returns>
 		public virtual IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow = null)
+			OrderOrganizationChoice organizationChoice)
 		{
-			return NextHandler?.GetOrganizationsWithOrderItems(requestTime, order, uow);
+			return NextHandler?.GetOrganizationsWithOrderItems(uow, requestTime, organizationChoice);
 		}
 	}
 }

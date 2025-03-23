@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using VodovozBusiness.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using VodovozBusiness.Domain.Settings;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -33,17 +35,10 @@ namespace Vodovoz.Application.Orders.Services
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="requestTime">Время запроса</param>
-		/// <param name="order"></param>
-		/// <param name="uow"></param>
-		/// <returns></returns>
 		public override IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow = null)
+			OrderOrganizationChoice organizationChoice)
 		{
 			var result = new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>();
 			var setsOrganizations = new Dictionary<short, OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>();
@@ -56,8 +51,8 @@ namespace Vodovoz.Application.Orders.Services
 				//подбираем по форме оплаты
 			}
 
-			var processingOrderItems = order.OrderItems.ToList();
-			var processingEquipments = order.OrderEquipments.ToList();
+			var processingGoods = organizationChoice.Goods.ToList();
+			var processingEquipments = organizationChoice.OrderEquipments.ToList();
 			
 			/*	1 - заполнено первое множество
 				1.1 - с организацией
@@ -77,20 +72,20 @@ namespace Vodovoz.Application.Orders.Services
 				}
 				
 				var i = 0;
-				var orderItemsForOrganization = new List<OrderItem>();
+				var goodsForOrganization = new List<IProduct>();
 				var orderEquipmentsForOrganization = new List<OrderEquipment>();
 
-				while(i < processingOrderItems.Count)
+				while(i < processingGoods.Count)
 				{
-					if(OrderItemBelongsSet(processingOrderItems[i], set))
+					if(OrderItemBelongsSet(processingGoods[i], set))
 					{
-						orderItemsForOrganization.Add(processingOrderItems[i]);
+						goodsForOrganization.Add(processingGoods[i]);
 						
 						var dependentEquipments = processingEquipments.Where(
 							x =>
-								x.OrderItem.Id == processingOrderItems[i].Id
-								|| x.OrderRentDepositItem.Id == processingOrderItems[i].Id
-								|| x.OrderRentServiceItem.Id == processingOrderItems[i].Id)
+								x.OrderItem.Id == processingGoods[i].Id
+								|| x.OrderRentDepositItem.Id == processingGoods[i].Id
+								|| x.OrderRentServiceItem.Id == processingGoods[i].Id)
 							.ToList();
 
 						foreach(var dependentEquipment in dependentEquipments)
@@ -99,14 +94,14 @@ namespace Vodovoz.Application.Orders.Services
 							processingEquipments.Remove(dependentEquipment);
 						}
 						
-						processingOrderItems.RemoveAt(i);
+						processingGoods.RemoveAt(i);
 						continue;
 					}
 
 					i++;
 				}
 
-				if(!orderItemsForOrganization.Any())
+				if(!goodsForOrganization.Any())
 				{
 					continue;
 				}
@@ -120,19 +115,19 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				var org =
-					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(DateTime.Now.TimeOfDay, set)
-					?? _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(requestTime, order, uow);
+					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(requestTime, set)
+					?? _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
 				
 				setsOrganizations.Add(
 					set.OrderContentSet,
-					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(org, orderItemsForOrganization, orderEquipmentsForOrganization));
+					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(org, goodsForOrganization, orderEquipmentsForOrganization));
 			}
 
-			if(!processingOrderItems.Any())
+			if(!processingGoods.Any())
 			{
 				if(!setsOrganizations.Any())
 				{
-					var org = _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(requestTime, order, uow);
+					var org = _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
 					result.Add(new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(org, null));
 					return result;
 				}
@@ -142,14 +137,14 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			var authorsResult = _organizationByOrderAuthorHandler.GetOrganizationsWithOrderItems(
-				requestTime, setsOrganizations, order, processingOrderItems, uow);
+				uow, requestTime, setsOrganizations, organizationChoice, processingGoods);
 
 			if(authorsResult.Any())
 			{
 				return authorsResult;
 			}
 			
-			return base.GetOrganizationsWithOrderItems(requestTime, order, uow);
+			return base.GetOrganizationsWithOrderItems(uow, requestTime, organizationChoice);
 			
 			//TODO это должно вызываться в менеджере последним из обработчиков
 			/*var orgByPaymentType = _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(order, uow, paymentType);
@@ -172,14 +167,90 @@ namespace Vodovoz.Application.Orders.Services
 			return result;*/
 		}
 		
-		private bool OrderItemBelongsSet(OrderItem orderItem, OrganizationBasedOrderContentSettings organizationBasedOrderContentSettings)
+		public bool OrderHasGoodsFromSeveralOrganizations(
+			IUnitOfWork uow, TimeSpan requestTime, IList<int> nomenclatureIds, bool isSelfDelivery, PaymentType paymentType)
 		{
-			if(organizationBasedOrderContentSettings.Nomenclatures.Contains(orderItem.Nomenclature))
+			var setsOrganizations = new Dictionary<short, Organization>();
+			
+			var organizationsBasedOrderContent = uow.GetAll<OrganizationBasedOrderContentSettings>().ToArray();
+
+			if(!organizationsBasedOrderContent.Any())
+			{
+				return false;
+			}
+			
+			foreach(var set in organizationsBasedOrderContent)
+			{
+				if(!set.Nomenclatures.Any() && !set.ProductGroups.Any())
+				{
+					continue;
+				}
+				
+				var i = 0;
+				var nomenclatureIdsForOrganization = new List<int>();
+
+				while(i < nomenclatureIds.Count)
+				{
+					var nomenclature = uow.GetAll<Nomenclature>().FirstOrDefault(x => x.Id == nomenclatureIds[i]);
+					
+					if(NomenclatureBelongsSet(nomenclature, set))
+					{
+						nomenclatureIdsForOrganization.Add(nomenclatureIds[i]);
+						nomenclatureIds.RemoveAt(i);
+						continue;
+					}
+
+					i++;
+				}
+
+				if(!nomenclatureIdsForOrganization.Any())
+				{
+					continue;
+				}
+
+				var org =
+					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(DateTime.Now.TimeOfDay, set)
+					?? _organizationByPaymentTypeForOrderHandler.GetOrganization(
+						uow, requestTime, isSelfDelivery, paymentType, null);
+				
+				setsOrganizations.Add(set.OrderContentSet, org);
+			}
+			
+			if(!nomenclatureIds.Any())
+			{
+				if(!setsOrganizations.Any())
+				{
+					return false;
+				}
+			}
+
+			return setsOrganizations.Count > 1;
+		}
+		
+		private bool OrderItemBelongsSet(IProduct product, OrganizationBasedOrderContentSettings organizationBasedOrderContentSettings)
+		{
+			if(organizationBasedOrderContentSettings.Nomenclatures.Contains(product.Nomenclature))
 			{
 				return true;
 			}
 
-			if(ContainsProductGroup(orderItem.Nomenclature.ProductGroup, organizationBasedOrderContentSettings.ProductGroups))
+			if(ContainsProductGroup(product.Nomenclature.ProductGroup, organizationBasedOrderContentSettings.ProductGroups))
+			{
+				return true;
+			}
+			
+			return false;
+		}
+		
+		private bool NomenclatureBelongsSet(
+			Nomenclature nomenclature, OrganizationBasedOrderContentSettings organizationBasedOrderContentSettings)
+		{
+			if(organizationBasedOrderContentSettings.Nomenclatures.Contains(nomenclature))
+			{
+				return true;
+			}
+
+			if(ContainsProductGroup(nomenclature.ProductGroup, organizationBasedOrderContentSettings.ProductGroups))
 			{
 				return true;
 			}

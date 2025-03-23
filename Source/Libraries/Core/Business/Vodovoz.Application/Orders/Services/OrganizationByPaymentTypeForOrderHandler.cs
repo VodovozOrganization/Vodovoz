@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -28,42 +28,66 @@ namespace Vodovoz.Application.Orders.Services
 				?? throw new ArgumentNullException(nameof(organizationForSelfDeliveryOrderByPaymentTypeHandler));
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="requestTime">Время запроса</param>
-		/// <param name="order"></param>
-		/// <param name="uow"></param>
-		/// <returns></returns>
 		public override IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow)
+			OrderOrganizationChoice organizationChoice)
 		{
 			return new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>
 			{
-				new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(GetOrganizationForOrder(requestTime, order, uow))
+				new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(
+					GetOrganization(
+						uow,
+						requestTime,
+						organizationChoice))
 			};
+		}
+		
+		/// <summary>
+		/// Получение организации для заказа
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="requestTime">Время запроса</param>
+		/// <param name="organizationChoice">Данные для подбора организации</param>
+		/// <returns></returns>
+		public Organization GetOrganization(
+			IUnitOfWork uow,
+			TimeSpan requestTime,
+			OrderOrganizationChoice organizationChoice)
+		{
+			return GetOrganization(
+				uow,
+				requestTime,
+				organizationChoice.IsSelfDelivery || organizationChoice.DeliveryPoint == null,
+				organizationChoice.PaymentType,
+				organizationChoice.OnlinePaymentNumber);
 		}
 
 		/// <summary>
-		/// 
+		/// Получение организации для заказа с заданными параметрами
 		/// </summary>
+		/// <param name="uow">unit of work</param>
 		/// <param name="requestTime">Время запроса</param>
-		/// <param name="order"></param>
-		/// <param name="uow"></param>
+		/// <param name="isSelfDelivery">Самовывоз или нет</param>
+		/// <param name="paymentType">Тип оплаты заказа</param>
+		/// <param name="onlinePaymentNumber">Номер онлайн оплаты</param>
 		/// <returns></returns>
-		public Organization GetOrganizationForOrder(
+		public Organization GetOrganization(
+			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow)
+			bool isSelfDelivery,
+			PaymentType paymentType,
+			int? onlinePaymentNumber
+			)
 		{
-			if(order.SelfDelivery || order.DeliveryPoint is null)
+			if(isSelfDelivery)
 			{
-				return _organizationForSelfDeliveryOrderByPaymentTypeHandler.GetOrganizationForOrder(requestTime, order, uow);
+				return _organizationForSelfDeliveryOrderByPaymentTypeHandler.GetOrganizationForOrder(
+					uow, requestTime, paymentType, onlinePaymentNumber);
 			}
 
-			return _organizationForDeliveryOrderByPaymentTypeHandler.GetOrganizationForOrder(requestTime, order, uow);
+			return _organizationForDeliveryOrderByPaymentTypeHandler.GetOrganizationForOrder(
+				uow, requestTime, paymentType, onlinePaymentNumber);
 		}
 	}
 }

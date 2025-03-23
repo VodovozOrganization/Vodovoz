@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Client;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -18,13 +19,15 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly ContractOrganizationForOrderHandler _contractOrganization;
 		private readonly OrganizationByOrderContentForOrderHandler _organizationByOrderContentForOrderHandler;
 		private readonly OrganizationByPaymentTypeForOrderHandler _organizationByPaymentTypeForOrderHandler;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
 		public OrderOrganizationManager(
 			OrderOurOrganizationForOrderHandler orderOurOrganization,
 			OrganizationFromClientForOrderHandler organizationFromClient,
 			ContractOrganizationForOrderHandler contractOrganization,
 			OrganizationByOrderContentForOrderHandler organizationByOrderContentForOrderHandler,
-			OrganizationByPaymentTypeForOrderHandler organizationByPaymentTypeForOrderHandler
+			OrganizationByPaymentTypeForOrderHandler organizationByPaymentTypeForOrderHandler,
+			IUnitOfWorkFactory unitOfWorkFactory
 			)
 		{
 			_orderOurOrganization = orderOurOrganization ?? throw new ArgumentNullException(nameof(orderOurOrganization));
@@ -34,6 +37,7 @@ namespace Vodovoz.Application.Orders.Services
 				organizationByOrderContentForOrderHandler ?? throw new ArgumentNullException(nameof(organizationByOrderContentForOrderHandler));
 			_organizationByPaymentTypeForOrderHandler =
 				organizationByPaymentTypeForOrderHandler ?? throw new ArgumentNullException(nameof(organizationByPaymentTypeForOrderHandler));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
 			Initialize();
 		}
@@ -47,25 +51,27 @@ namespace Vodovoz.Application.Orders.Services
 		}
 
 		public PartitionedOrderByOrganizations GetOrderPartsByOrganizations(
+			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow = null)
+			OrderOrganizationChoice organizationChoice)
 		{
-			var orderParts = GetOrganizationsWithOrderItems(requestTime, order, uow);
+			var orderParts = GetOrganizationsWithOrderItems(uow, requestTime, organizationChoice);
 			var canSplitOrderWithDeposits = true;
 
-			if(order.OrderDepositItems.Any())
+			if(organizationChoice.OrderDepositItems.Any())
 			{
+				var depositsSum = organizationChoice.OrderDepositItems.Sum(x => x.ActualSum);
+				
 				foreach(var orderPart in orderParts)
 				{
-					if(order.DepositsSum > orderPart.GoodsSum)
+					if(depositsSum > orderPart.GoodsSum)
 					{
 						canSplitOrderWithDeposits = false;
 					}
 					else
 					{
 						canSplitOrderWithDeposits = true;
-						orderPart.OrderDepositItems = order.OrderDepositItems;
+						orderPart.OrderDepositItems = organizationChoice.OrderDepositItems;
 						break;
 					}
 				}
@@ -82,21 +88,31 @@ namespace Vodovoz.Application.Orders.Services
 		/// 
 		/// </summary>
 		/// <param name="requestTime">Время запроса</param>
-		/// <param name="order">Обрабатываемый заказ</param>
+		/// <param name="organizationChoice">Обрабатываемые данные</param>
 		/// <param name="uow">unit Of Work</param>
 		/// <returns>Список организаций с товарами</returns>
 		/// <exception cref="ArgumentNullException"></exception>
 		public IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow = null)
+			OrderOrganizationChoice organizationChoice)
 		{
-			if(order is null)
+			if(organizationChoice is null)
 			{
-				throw new ArgumentNullException(nameof(order));
+				throw new ArgumentNullException(nameof(organizationChoice));
 			}
 
-			return _orderOurOrganization.GetOrganizationsWithOrderItems(requestTime, order, uow);
+			return _orderOurOrganization.GetOrganizationsWithOrderItems(uow, requestTime, organizationChoice);
+		}
+
+		public bool OrderHasGoodsFromSeveralOrganizations(
+			TimeSpan requestTime, IList<int> nomenclatureIds, bool isSelfDelivery, PaymentType paymentType)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				return _organizationByOrderContentForOrderHandler.OrderHasGoodsFromSeveralOrganizations(
+					uow, requestTime, nomenclatureIds, isSelfDelivery, paymentType);
+			}
 		}
 	}
 }

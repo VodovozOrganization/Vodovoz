@@ -132,6 +132,7 @@ using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Utils;
@@ -634,8 +635,8 @@ namespace Vodovoz
 			}
 			
 			partitionedOrder
-				.CopyPromotionalSets(organizationForOrderWithGoodsAndEquipmentsAndDeposits.OrderItems)
-				.CopyOrderItems(organizationForOrderWithGoodsAndEquipmentsAndDeposits.OrderItems, true)
+				.CopyPromotionalSets(organizationForOrderWithGoodsAndEquipmentsAndDeposits.Goods)
+				.CopyOrderItems(organizationForOrderWithGoodsAndEquipmentsAndDeposits.Goods, true)
 				.CopyOrderEquipments(organizationForOrderWithGoodsAndEquipmentsAndDeposits.OrderEquipments)
 				.CopyOrderDepositItems(organizationForOrderWithGoodsAndEquipmentsAndDeposits.OrderDepositItems)
 				.CopyAttachedDocuments();
@@ -2671,7 +2672,8 @@ namespace Vodovoz
 			}
 
 			var orderPartsByOrganizations =
-				_lifetimeScope.Resolve<IOrderOrganizationManager>().GetOrderPartsByOrganizations(DateTime.Now.TimeOfDay, Entity, UoW);
+				_lifetimeScope.Resolve<IOrderOrganizationManager>()
+					.GetOrderPartsByOrganizations(UoW, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(Entity));
 			
 			var i = 0;
 			ITdiTab masterTab = null;
@@ -2691,7 +2693,7 @@ namespace Vodovoz
 			{
 				var set = orderPartsByOrganizations.OrderParts.First();
 
-				if(set.OrderItems != null && set.OrderItems.Any() && set.OrderItems.Count() != Entity.OrderItems.Count)
+				if(set.Goods != null && set.Goods.Any() && set.Goods.Count() != Entity.OrderItems.Count)
 				{
 					throw new InvalidOperationException(
 						"Неправильное разбиение заказа. Несоответствие количества товаров в разбиении и начальном заказе");

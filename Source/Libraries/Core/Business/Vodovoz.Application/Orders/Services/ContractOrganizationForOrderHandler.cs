@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -20,27 +19,22 @@ namespace Vodovoz.Application.Orders.Services
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="requestTime">Время запроса</param>
-		/// <param name="order">Обрабатываемый заказ</param>
-		/// <param name="uow">UnitOfWork</param>
-		/// <returns></returns>
 		public override IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow = null)
+			OrderOrganizationChoice organizationChoice)
 		{
-			if(order.Id != 0 && order.Contract != null && _cashReceiptRepository.HasNeededReceipt(order.Id))
+			if(organizationChoice.OrderId != 0
+				&& organizationChoice.Contract != null
+				&& _cashReceiptRepository.HasNeededReceipt(organizationChoice.OrderId))
 			{
 				return new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>
 				{
-					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(order.Contract.Organization, null)
+					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(organizationChoice.Contract.Organization, null)
 				};
 			}
 
-			return base.GetOrganizationsWithOrderItems(requestTime, order, uow);
+			return base.GetOrganizationsWithOrderItems(uow, requestTime, organizationChoice);
 		}
 	}
 }

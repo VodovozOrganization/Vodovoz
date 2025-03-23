@@ -25,6 +25,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -40,6 +41,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		public OnlineOrderViewModel(
 			ILogger<OnlineOrderViewModel> logger,
+			ILifetimeScope scope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -50,7 +52,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
 			IDiscountController discountController,
-			ILifetimeScope scope)
+			IOrderOrganizationManager orderOrganizationManager
+			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_currentEmployee =
@@ -74,6 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			ExternalCounterpartyMatchingRepository =
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
+			OrderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
 			
 			SetPermissions();
 			CreateCommands();
@@ -92,6 +96,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public ILogger<OnlineOrderViewModel> Logger { get; }
 		public IExternalCounterpartyMatchingRepository ExternalCounterpartyMatchingRepository { get; }
 		public IDiscountController DiscountController { get; }
+		public IOrderOrganizationManager OrderOrganizationManager { get; }
 
 		public bool CanShowId => Entity.Id > 0;
 
@@ -210,6 +215,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public void ShowMessage(string message, string title = null)
 		{
 			ShowInfoMessage(message, title);
+		}
+		
+		public bool Question(string question, string title = null)
+		{
+			return AskQuestion(question, title);
 		}
 		
 		private void SetPermissions()

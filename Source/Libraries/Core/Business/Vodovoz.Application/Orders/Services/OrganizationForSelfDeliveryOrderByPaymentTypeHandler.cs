@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Settings.Orders;
@@ -26,36 +24,21 @@ namespace Vodovoz.Application.Orders.Services
 		{
 		}
 
-		public IReadOnlyDictionary<Organization, IEnumerable<OrderItem>> GetOrganizationsForOrder(
-			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow = null,
-			PaymentType? paymentType = null)
-		{
-			return new Dictionary<Organization, IEnumerable<OrderItem>>
-			{
-				{ GetOrganizationForOrder(requestTime, order, uow, paymentType), null }
-			};
-		}
-
 		/// <summary>
 		/// Подбор организации в зависимости от типа оплаты заказа
 		/// </summary>
-		/// <param name="requestTime">Время запроса</param>
-		/// <param name="order">Заказ, для которого подбирается организация</param>
 		/// <param name="uow">UnitOfWork</param>
+		/// <param name="requestTime">Время запроса</param>
 		/// <param name="paymentType">Тип оплаты заказа</param>
+		/// <param name="onlineOrderNumber">Номер онлайн оплаты</param>
 		/// <returns>Организация</returns>
 		/// <exception cref="NotSupportedException">Не поддерживается переданный тип оплаты</exception>
 		public Organization GetOrganizationForOrder(
+			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow = null,
-			PaymentType? paymentType = null)
+			PaymentType paymentType,
+			int? onlineOrderNumber)
 		{
-			var onlineOrderId = order.OnlineOrder;
-			paymentType = order.PaymentType;
-
 			var organizationsByPaymentType = uow.GetAll<PaymentTypeOrganizationSettings>().ToList();
 			var paymentTypeOrganization = organizationsByPaymentType.FirstOrDefault(settings => settings.PaymentType == paymentType);
 
@@ -73,7 +56,7 @@ namespace Vodovoz.Application.Orders.Services
 					uow,
 					paymentTypeOrganization,
 					requestTime,
-					onlineOrderId);
+					onlineOrderNumber);
 				
 				return uow.GetById<Organization>(organizationId);
 			}

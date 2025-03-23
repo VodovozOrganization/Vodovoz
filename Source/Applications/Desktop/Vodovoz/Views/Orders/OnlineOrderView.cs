@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Microsoft.Extensions.Logging;
@@ -6,10 +7,13 @@ using NHibernate.Engine;
 using Gtk;
 using QS.Views.GtkUI;
 using QS.Navigation;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using VodovozBusiness.Extensions;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Views.Orders
 {
@@ -480,9 +484,35 @@ namespace Vodovoz.Views.Orders
 
 		private void OpenOrderDlgAndFillOnlineOrderData()
 		{
-			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation)
-				.OpenTdiTabOnTdi<OrderDlg, OnlineOrder>(Tab, ViewModel.Entity, OpenPageOptions.AsSlave);
-			page.PageClosed += OnOrderTabClosed;
+			var navigation = ViewModel.NavigationManager as ITdiCompatibilityNavigation;
+
+			var partsOrder =
+				ViewModel.OrderOrganizationManager.GetOrganizationsWithOrderItems(
+					ViewModel.UoW, DateTime.Now.TimeOfDay, ViewModel.Entity.ToOrderOrganizationChoice());
+
+			if(partsOrder.Count() > 1)
+			{
+				if(!ViewModel.Question(
+					"В заказе есть товары продающиеся от нескольких организаций. Заказ будет автоматически разбит. Продолжаем?"))
+				{
+					return;
+				}
+				
+				foreach(var partOrder in partsOrder)
+				{
+					navigation.OpenTdiTab<OrderDlg, OnlineOrder, OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>(
+						ViewModel,
+						ViewModel.Entity,
+						partOrder,
+						OpenPageOptions.AsSlave);
+				}
+			}
+			else
+			{
+				navigation.OpenTdiTab<OrderDlg, OnlineOrder>(ViewModel, ViewModel.Entity, OpenPageOptions.AsSlave);
+			}
+			
+			//page.PageClosed += OnOrderTabClosed;
 		}
 		
 		private void OnOrderTabClosed(object sender, EventArgs e)

@@ -17,7 +17,7 @@ namespace Vodovoz.Application.Orders.Services
 	/// <summary>
 	/// Обработчик для подбора организации для доставляемого заказа
 	/// </summary>
-	public class OrganizationForDeliveryOrderByPaymentTypeHandler : OrganizationForOrderByDelivery, IGetOrganizationForOrder
+	public class OrganizationForDeliveryOrderByPaymentTypeHandler : OrganizationForOrderByDelivery
 	{
 		public OrganizationForDeliveryOrderByPaymentTypeHandler(
 			IOrganizationSettings organizationSettings,
@@ -28,35 +28,21 @@ namespace Vodovoz.Application.Orders.Services
 		{
 		}
 
-		public IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
-			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow)
-		{
-			return new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>
-			{
-				new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(GetOrganizationForOrder(requestTime, order, uow))
-			};
-		}
-
 		/// <summary>
 		/// Подбор организации в зависимости от типа оплаты заказа
 		/// </summary>
 		/// <param name="requestTime">Время запроса</param>
-		/// <param name="order">Заказ, для которого подбирается организация</param>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="paymentType">Тип оплаты заказа</param>
+		/// <param name="onlineOrderNumber">Номер онлайн оплаты</param>
 		/// <returns>Организация</returns>
 		/// <exception cref="NotSupportedException">Не поддерживается переданный тип оплаты</exception>
 		public Organization GetOrganizationForOrder(
+			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow = null,
-			PaymentType? paymentType = null)
+			PaymentType paymentType,
+			int? onlineOrderNumber)
 		{
-			var onlineOrderId = order.OnlineOrder;
-			paymentType = order.PaymentType;
-
 			var organizationsByPaymentType = uow.GetAll<PaymentTypeOrganizationSettings>().ToList();
 			var paymentTypeOrganization = organizationsByPaymentType.FirstOrDefault(settings => settings.PaymentType == paymentType);
 
@@ -74,7 +60,7 @@ namespace Vodovoz.Application.Orders.Services
 					uow,
 					paymentTypeOrganization,
 					requestTime,
-					onlineOrderId);
+					onlineOrderNumber);
 				
 				return uow.GetById<Organization>(organizationId);
 			}

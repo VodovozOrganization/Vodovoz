@@ -130,26 +130,42 @@ namespace Vodovoz.Models.Orders
 		}
 		
 		/// <summary>
-		/// Копирование товаров (<see cref="OrderItem"/>) заказа и связанного с ним оборудования (<see cref="OrderEquipment"/>)
+		/// Копирование товаров (<see cref="OrderItem"/>) заказа
 		/// </summary>
 		/// <param name="withDiscounts">true - копируем со скидками false - не переносим скидки</param>
 		/// <param name="copyingItems">Копируемые товары заказа</param>
-		public PartitionedOrder CopyOrderItems(IEnumerable<OrderItem> copyingItems, bool withDiscounts = false)
+		public PartitionedOrder CopyOrderItems(IEnumerable<IProduct> copyingItems, bool withDiscounts = false)
 		{
-			var orderItems = copyingItems
+			var goods = copyingItems
 				.Where(x => x.PromoSet == null)
 				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId)
 				.Where(x => x.Nomenclature.Id != _fastDeliveryNomenclatureId)
 				.Where(x => x.Nomenclature.Id != _masterCallNomenclatureId);
 
-			foreach(var orderItem in orderItems)
-			{
-				CopyOrderItem(orderItem, withDiscounts);
-			}
+			CopyGoods(withDiscounts, goods);
 
 			_resultOrder.RecalculateItemsPrice();
 
 			return this;
+		}
+
+		private void CopyGoods(bool withDiscounts, IEnumerable<IProduct> goods)
+		{
+			
+			foreach(var product in goods)
+			{
+				switch(product)
+				{
+					case OrderItem orderItem:
+						CopyOrderItem(orderItem, withDiscounts);
+						break;
+					case OnlineOrderItem onlineOrderItem:
+						//TODO сделать конверт в строку заказа
+						break;
+					default:
+						throw new InvalidOperationException("Unknown product type");
+				}
+			}
 		}
 
 		/// <summary>
@@ -219,8 +235,9 @@ namespace Vodovoz.Models.Orders
 		/// Копирование промонаборов <see cref="PromotionalSet"/> и связанных с ними товаров <see cref="OrderItem"/>
 		/// <param name="copyingItems">Копируемые товары заказа</param>
 		/// </summary>
-		public PartitionedOrder CopyPromotionalSets(IEnumerable<OrderItem> copyingItems)
+		public PartitionedOrder CopyPromotionalSets(IEnumerable<IProduct> copyingItems)
 		{
+			//TODO настроить правильную выборку промонаборов
 			var promoSets =
 				(from copyingItem in copyingItems
 					where copyingItem.PromoSet != null
@@ -232,14 +249,11 @@ namespace Vodovoz.Models.Orders
 				_resultOrder.ObservablePromotionalSets.Add(promoSet);
 			}
 
-			var orderItems = _copiedOrder.OrderItems
+			var goods = copyingItems
 				.Where(x => x.PromoSet != null)
 				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId);
 
-			foreach(var promosetOrderItem in orderItems)
-			{
-				CopyOrderItem(promosetOrderItem, true);
-			}
+			CopyGoods(true, goods);
 
 			return this;
 		}

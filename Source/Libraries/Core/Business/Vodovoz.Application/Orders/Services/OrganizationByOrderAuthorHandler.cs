@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -29,16 +29,16 @@ namespace Vodovoz.Application.Orders.Services
 		/// </summary>
 		/// <param name="requestTime">Время запроса</param>
 		/// <param name="setsOrganizations"></param>
-		/// <param name="order"></param>
-		/// <param name="processingOrderItems"></param>
-		/// <param name="uow"></param>
+		/// <param name="organizationChoice">Данные для подбора организации</param>
+		/// <param name="processingProducts">Обрабатываемые товары</param>
+		/// <param name="uow">unit of work</param>
 		/// <returns></returns>
 		public IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			IUnitOfWork uow,
 			TimeSpan requestTime,
 			Dictionary<short, OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> setsOrganizations,
-			Order order,
-			IEnumerable<OrderItem> processingOrderItems,
-			IUnitOfWork uow)
+			OrderOrganizationChoice organizationChoice,
+			IEnumerable<IProduct> processingProducts)
 		{
 			var result = new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>();
 			var organizationByOrderAuthorSettings = uow.GetAll<OrganizationByOrderAuthorSettings>().SingleOrDefault();
@@ -49,12 +49,12 @@ namespace Vodovoz.Application.Orders.Services
 				return setsOrganizations.Values;
 			}
 
-			if(ContainsSubdivision(order.Author.Subdivision, organizationByOrderAuthorSettings.OrderAuthorsSubdivisions))
+			if(ContainsSubdivision(organizationChoice.AuthorSubdivision, organizationByOrderAuthorSettings.OrderAuthorsSubdivisions))
 			{
 				if(setsOrganizations.TryGetValue(
 					organizationByOrderAuthorSettings.OrganizationBasedOrderContentSettings.OrderContentSet, out var setSettings))
 				{
-					UpdateOrganizationOrderItems(processingOrderItems, setSettings);
+					UpdateOrganizationOrderItems(processingProducts, setSettings);
 					return setsOrganizations.Values;
 				}
 
@@ -65,11 +65,11 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(setsOrganizations.TryGetValue(OrganizationByOrderAuthorSettings.DefaultSetForAuthorNotIncludedSet, out var defaultSetSettings))
 			{
-				UpdateOrganizationOrderItems(processingOrderItems, defaultSetSettings);
+				UpdateOrganizationOrderItems(processingProducts, defaultSetSettings);
 				return result;
 			}
 
-			var org = _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(requestTime, order, uow);
+			var org = _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
 	
 			foreach(var orgWithOrderItems in setsOrganizations.Values)
 			{
@@ -78,13 +78,13 @@ namespace Vodovoz.Application.Orders.Services
 					continue;
 				}
 				
-				UpdateOrganizationOrderItems(processingOrderItems, orgWithOrderItems);
+				UpdateOrganizationOrderItems(processingProducts, orgWithOrderItems);
 				return setsOrganizations.Values;
 			}
 			
 			//TODO проверить условие
 			result.AddRange(setsOrganizations.Values);
-			result.Add(new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(org, processingOrderItems));
+			result.Add(new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(org, processingProducts));
 
 			return result;
 		}
@@ -94,11 +94,11 @@ namespace Vodovoz.Application.Orders.Services
 			&& setSubdivisions.Any(authorSubdivision.IsChildOf);
 		
 		private void UpdateOrganizationOrderItems(
-			IEnumerable<OrderItem> processingOrderItems,
+			IEnumerable<IProduct> processingProducts,
 			OrganizationForOrderWithGoodsAndEquipmentsAndDeposits setSettings)
 		{
-			var list = setSettings.OrderItems as List<OrderItem>;
-			list.AddRange(processingOrderItems);
+			var list = setSettings.Goods as List<IProduct>;
+			list.AddRange(processingProducts);
 		}
 	}
 }

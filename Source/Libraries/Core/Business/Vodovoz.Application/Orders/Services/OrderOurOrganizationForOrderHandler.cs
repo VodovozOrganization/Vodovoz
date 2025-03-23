@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -13,19 +14,19 @@ namespace Vodovoz.Application.Orders.Services
 	public class OrderOurOrganizationForOrderHandler : OrganizationForOrderHandler
 	{
 		public override IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Order order,
-			IUnitOfWork uow = null)
+			OrderOrganizationChoice organizationChoice)
 		{
-			if(order.OurOrganization != null)
+			if(organizationChoice.OurOrganization != null)
 			{
 				return new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>
 				{
-					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(order.OurOrganization)
+					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(organizationChoice.OurOrganization)
 				};
 			}
 			
-			return base.GetOrganizationsWithOrderItems(requestTime, order, uow);
+			return base.GetOrganizationsWithOrderItems(uow, requestTime, organizationChoice);
 		}
 	}
 }

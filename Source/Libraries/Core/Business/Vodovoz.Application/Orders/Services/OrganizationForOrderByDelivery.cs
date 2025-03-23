@@ -35,14 +35,14 @@ namespace Vodovoz.Application.Orders.Services
 			IUnitOfWork uow,
 			IOrganizations settingsOrganizations,
 			TimeSpan requestTime,
-			int? onlineOrderId)
+			int? onlineOrderNumber)
 		{
-			if(!onlineOrderId.HasValue)
+			if(!onlineOrderNumber.HasValue)
 			{
 				return GetOrganizationIdFromSet(settingsOrganizations, requestTime);
 			}
 
-			var fastPayment = _fastPaymentRepository.GetPerformedFastPaymentByExternalId(uow, onlineOrderId.Value);
+			var fastPayment = _fastPaymentRepository.GetPerformedFastPaymentByExternalId(uow, onlineOrderNumber.Value);
 			
 			if(fastPayment is null)
 			{
