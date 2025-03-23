@@ -420,7 +420,6 @@
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\CustomPrintRdlDocumentsPrinter.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
-    <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Commons\DeprecatedObservableListReorderableTreeModel.cs" />
     <Compile Include="Commons\DeprecatedObservableListTreeModel.cs" />
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
@@ -2436,10 +2435,6 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\SmsPaymentService\SmsPaymentService.csproj">
-      <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
-      <Name>SmsPaymentService</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj">
       <Project>{88eea039-f3d5-4069-a160-939fdf186ab4}</Project>
