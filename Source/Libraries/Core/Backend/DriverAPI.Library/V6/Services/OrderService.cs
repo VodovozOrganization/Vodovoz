@@ -387,7 +387,7 @@ namespace DriverAPI.Library.V6.Services
 			var edoRequestCreated = false;
 			if(!vodovozOrder.IsNeedIndividualSetOnLoad && edoRequest == null)
 			{
-				CreateEdoRequests(vodovozOrder, routeListAddress);
+				edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
 				edoRequestCreated = true;
 			}
 
