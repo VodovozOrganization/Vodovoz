@@ -513,7 +513,7 @@ def DecompressArtifact(destPath, artifactName) {
 
 def DeleteCompressedArtifact(artifactName) {
 	def archive_file = "${artifactName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
-	echo "Deleting artifact ${archive_file} to ${destPath}"
+	echo "Deleting artifact ${archive_file}"
 	fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
 }
 
@@ -675,14 +675,20 @@ def DeleteCompressedArtifactAtNode(nodeName) {
 		if(CAN_PUBLISH_DESKTOP){
 			if(IS_HOTFIX){
 				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTEFACT_DATE_TIME}"
-				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
-				DeleteCompressedArtifact(newHotfixPath, 'VodovozDesktop')
+
+				echo "Deleting artifact ${hotfixName}"
+
+				DeleteCompressedArtifact("${hotfixName}VodovozDesktop")
 				LockHotfix(hotfixName)
 				return
 			}
 
 			if(IS_RELEASE){
-				DeleteCompressedArtifact(DESKTOP_NEW_RELEASE_PUBLISH_PATH, 'VodovozDesktop')
+				def hotfixName = "${DESKTOP_NEW_RELEASE_PUBLISH_PATH}"
+
+				echo "Deleting artifact ${hotfixName}"
+
+				DeleteCompressedArtifact("${hotfixName}VodovozDesktop")
 				return
 			}
 		}
