@@ -330,8 +330,7 @@ stage('Delivery'){
 		"RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
 		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
-		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
-		"PushNotificationsWorker" : { DeliveryWebArtifact("PushNotificationsWorker") }
+		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") }
 	)
 }
 
