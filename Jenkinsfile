@@ -80,7 +80,7 @@ IS_MANUAL_BUILD = GIT_BRANCH ==~ /^manual-build(.*?)/
 
 // 105	Настройки. Сборка
 
-ARTEFACT_DATE_TIME = new Date().format("MMdd_HHmm")
+ARTIFACT_DATE_TIME = new Date().format("MMdd_HHmm")
 CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
 CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
@@ -90,7 +90,7 @@ CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVEL
 CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
 
 // 107.1	Настройки. Доставка
-CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP
+CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP && (IS_HOTFIX || IS_RELEASE)
 CAN_DELIVERY_WEB = CAN_COMPRESS_WEB
 WIN_DELIVERY_SHARED_FOLDER_NAME = "JenkinsWorkspace"
 
@@ -162,7 +162,7 @@ stage('Log') {
 	echo "104	Настройки. Восстановление пакетов"
 
 	echo "105	Настройки. Сборка"
-	echo "Can Build Desktop: ${ARTEFACT_DATE_TIME}"
+	echo "Artifact date time postfix: ${ARTIFACT_DATE_TIME}"
 	echo "Can Build Desktop: ${CAN_BUILD_DESKTOP}"
 	echo "Can Build Web: ${CAN_BUILD_WEB}"
 	echo "Can Publish Build Web: ${CAN_PUBLISH_BUILD_WEB}"
@@ -368,6 +368,7 @@ stage('CleanUp'){
 		"Desktop ${NODE_VOD5}" : { DeleteCompressedArtifactAtNode(NODE_VOD5) },
 		"Desktop ${NODE_VOD7}" : { DeleteCompressedArtifactAtNode(NODE_VOD7) },
 		"Desktop ${NODE_VOD13}" : { DeleteCompressedArtifactAtNode(NODE_VOD13) },
+		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD) },
 	)
 }
 
@@ -493,7 +494,7 @@ def CompressWebArtifact(relativeProjectPath){
 }
 
 def CompressArtifact(sourcePath, artifactName) {
-	def archive_file = "${artifactName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
+	def archive_file = "${artifactName}_${ARTIFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
 
 	if (fileExists(archive_file)) {
 		echo "Delete exiting artifact ${archive_file} from ${sourcePath}/*"
@@ -505,14 +506,14 @@ def CompressArtifact(sourcePath, artifactName) {
 }
 
 def DecompressArtifact(destPath, artifactName) {
-	def archive_file = "${artifactName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
+	def archive_file = "${artifactName}_${ARTIFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
 
 	echo "Decompressing artifact ${archive_file} to ${destPath}"
 	UnzipFiles(archive_file, destPath)
 }
 
 def DeleteCompressedArtifact(artifactName) {
-	def archive_file = "${artifactName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
+	def archive_file = "${artifactName}_${ARTIFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
 	echo "Deleting artifact ${archive_file}"
 	fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
 }
@@ -538,7 +539,7 @@ def DeliveryDesktopArtifact(nodeName, deliveryPath){
 
 	if(CAN_DELIVERY_DESKTOP)
 	{
-		DeliveryWinArtifact("VodovozDesktop_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}", deliveryPath)
+		DeliveryWinArtifact("VodovozDesktop_${ARTIFACT_DATE_TIME}${ARCHIVE_EXTENTION}", deliveryPath)
 	}
 	else
 	{
@@ -549,7 +550,7 @@ def DeliveryDesktopArtifact(nodeName, deliveryPath){
 def DeliveryWebArtifact(projectName){
 	if(CAN_DELIVERY_WEB)
 	{
-		DeliveryWinArtifact("${projectName}_${ARTEFACT_DATE_TIME}${ARCHIVE_EXTENTION}", WEB_DELIVERY_PATH)
+		DeliveryWinArtifact("${projectName}_${ARTIFACT_DATE_TIME}${ARCHIVE_EXTENTION}", WEB_DELIVERY_PATH)
 	}
 	else
 	{
@@ -615,7 +616,7 @@ def PublishDesktop(nodeName){
 	node(nodeName){
 		if(CAN_PUBLISH_DESKTOP){
 			if(IS_HOTFIX){
-				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTEFACT_DATE_TIME}"
+				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTIFACT_DATE_TIME}"
 				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
 				DecompressArtifact(newHotfixPath, 'VodovozDesktop')
 				LockHotfix(hotfixName)
@@ -674,7 +675,7 @@ def DeleteCompressedArtifactAtNode(nodeName) {
 	node(nodeName){
 		if(CAN_PUBLISH_DESKTOP){
 			if(IS_HOTFIX){
-				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTEFACT_DATE_TIME}"
+				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTIFACT_DATE_TIME}"
 
 				echo "Deleting artifact ${hotfixName}"
 
