@@ -4,6 +4,7 @@ using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using ModulKassa;
 
 namespace Edo.Receipt.Sender
 {
@@ -11,6 +12,8 @@ namespace Edo.Receipt.Sender
 	{
 		public static IServiceCollection AddEdoReceiptSender(this IServiceCollection services)
 		{
+			services.AddModulKassa();
+
 			services
 				.AddScoped<FiscalDocumentFactory>()
 				.AddScoped<ReceiptSender>()

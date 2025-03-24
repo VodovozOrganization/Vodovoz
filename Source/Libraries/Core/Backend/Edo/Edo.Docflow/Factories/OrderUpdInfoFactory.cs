@@ -181,10 +181,25 @@ namespace Edo.Docflow.Factories
 				additionalInformation.Add(new UpdAdditionalInfo
 				{
 					Id = "номер_заказа",
-					Value = $"N{ order.CounterpartyExternalOrderId }"
+					Value = order.Client.SpecialNomenclatures.Any() ? $"{order.CounterpartyExternalOrderId}" : $"N{ order.CounterpartyExternalOrderId }"
 				});
 			}
-			
+
+			additionalInformation.Add(new UpdAdditionalInfo
+			{
+				Id = "номер_отгрузки",
+				Value = $"{order.Id}"
+			});
+
+			if(order.DeliveryDate.HasValue)
+			{
+				additionalInformation.Add(new UpdAdditionalInfo
+				{
+					Id = "дата_заказа",
+					Value = $"{order.DeliveryDate.Value:dd.MM.yyyy}"
+				});
+			}
+
 			return additionalInformation;
 		}
 
@@ -297,6 +312,7 @@ namespace Edo.Docflow.Factories
 		{
 			var inventPositions = documentEdoTask.UpdInventPositions;
 
+			var client = documentEdoTask.OrderEdoRequest.Order.Client;
 			var products = new List<ProductInfo>();
 
 			foreach(var inventPosition in inventPositions)
@@ -357,13 +373,33 @@ namespace Edo.Docflow.Factories
 					UnitName = nomenclature.Unit.Name,
 					OKEI = nomenclature.Unit.OKEI,
 					Code = nomenclature.Id.ToString(),
-					Count = orderItem.Count,
+					Count = orderItem.CurrentCount,
 					Price = orderItem.Price,
 					IncludeVat = orderItem.IncludeNDS ?? 0,
 					ValueAddedTax = orderItem.ValueAddedTax,
 					DiscountMoney = orderItem.DiscountMoney,
-					TrueMarkCodes = codesInfo
+					TrueMarkCodes = codesInfo,
+					EconomicLifeFacts = new List<ProductEconomicLifeFactsInfo>()
 				};
+
+				var clientSpecialNomenclature = client.SpecialNomenclatures
+					.Where(x => x.Nomenclature.Id == nomenclature.Id)
+					.FirstOrDefault();
+
+				if(client.UseSpecialDocFields && clientSpecialNomenclature != null)
+				{
+					var productEconomicLifeFacts = new List<ProductEconomicLifeFactsInfo>();
+
+					var productEconomicLifeFact = new ProductEconomicLifeFactsInfo
+					{
+						Id = "код_материала",
+						Value = clientSpecialNomenclature.SpecialId.ToString()
+					};
+
+					productEconomicLifeFacts.Add(productEconomicLifeFact);
+
+					product.EconomicLifeFacts = productEconomicLifeFacts;
+				}
 
 				products.Add(product);
 			}

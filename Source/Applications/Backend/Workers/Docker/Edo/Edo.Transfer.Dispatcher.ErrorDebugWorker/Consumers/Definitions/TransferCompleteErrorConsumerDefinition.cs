@@ -23,4 +23,5 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions
 			});
 		}
 	}
+	
 }

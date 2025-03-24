@@ -257,6 +257,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 				.LazyLoad()
 				.KeyColumn("counterparty_id");
 
+			HasMany(x => x.SpecialNomenclatures)
+				.Cascade.AllDeleteOrphan()
+				.LazyLoad()
+				.KeyColumn("counterparty_id");
 		}
 	}
 }

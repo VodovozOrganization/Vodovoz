@@ -120,9 +120,15 @@ namespace TaxcomEdoApi.Library.Converters.Format5_01
 				{
 					NaimEdIzm = product.UnitName,
 					KodTov = product.Code
-				},
-				
+				}
 			};
+
+			if(product.EconomicLifeFacts != null && product.EconomicLifeFacts.Any())
+			{
+				updProduct.InfPolFHZh2 = product.EconomicLifeFacts
+					.Select(x => new TekstInfTip { Identif = x.Id, Znachen = x.Value })
+					.ToArray();
+			}
 
 			if(product.TrueMarkCodes.Any())
 			{

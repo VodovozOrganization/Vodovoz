@@ -1,4 +1,6 @@
 ﻿using Edo.Contracts.Messages.Events;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using ModulKassa;
@@ -10,13 +12,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 
-
 namespace Edo.Receipt.Sender
 {
 	public class ReceiptSender
 	{
 		private readonly ILogger<ReceiptSender> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly CashboxClientProvider _cashboxClientProvider;
 		private readonly FiscalDocumentFactory _fiscalDocumentFactory;
 		private readonly IBus _messageBus;
@@ -24,6 +26,7 @@ namespace Edo.Receipt.Sender
 		public ReceiptSender(
 			ILogger<ReceiptSender> logger,
 			IUnitOfWorkFactory uowFactory,
+			EdoProblemRegistrar edoProblemRegistrar,
 			CashboxClientProvider cashboxClientProvider,
 			FiscalDocumentFactory fiscalDocumentFactory,
 			IBus messageBus
@@ -31,6 +34,7 @@ namespace Edo.Receipt.Sender
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_cashboxClientProvider = cashboxClientProvider ?? throw new ArgumentNullException(nameof(cashboxClientProvider));
 			_fiscalDocumentFactory = fiscalDocumentFactory ?? throw new ArgumentNullException(nameof(fiscalDocumentFactory));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
@@ -111,13 +115,19 @@ namespace Edo.Receipt.Sender
 					foreach(var edoFiscalDocument in edoTask.FiscalDocuments)
 					{
 						var fiscalDocument =  _fiscalDocumentFactory.CreateFiscalDocument(edoFiscalDocument);
-						var result = await cashboxClient.SendFiscalDocument(fiscalDocument, cancellationToken);
+						var result = await cashboxClient.CheckFiscalDocument(fiscalDocument, cancellationToken);
+						if(result.SendStatus == SendStatus.Error)
+						{
+							result = await cashboxClient.SendFiscalDocument(fiscalDocument, cancellationToken);
+						}
 						if(result.SendStatus == SendStatus.Error)
 						{
 							edoFiscalDocument.FailureMessage = result.ErrorMessage;
 							edoFiscalDocument.Status = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.Failed;
 							continue;
 						}
+
+						_logger.LogInformation("Чек №{documentNumber} отправлен успешно.", edoFiscalDocument.DocumentNumber);
 
 						edoFiscalDocument.Stage = FiscalDocumentStage.Sent;
 						edoFiscalDocument.Status = ReceiptConverters.ConvertFiscalDocumentStatus(result.FiscalDocumentInfo.Status);
@@ -134,17 +144,15 @@ namespace Edo.Receipt.Sender
 					var hasFailure = edoTask.FiscalDocuments.Any(x => x.Status == Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.Failed);
 					if(hasFailure)
 					{
-						edoTask.Status = EdoTaskStatus.Problem;
-						edoTask.Problems.Add(new CustomEdoTaskProblem
-						{
-							EdoTask = edoTask,
-							CustomMessage = "Не удалось отправить некоторые чеки"
-						});
+						_logger.LogWarning("Не удалось отправить некоторые чеки по задаче №{edoTaskId}.", edoTask.Id);
+						await _edoProblemRegistrar.RegisterCustomProblem<NotAllReceiptsWasSended>(
+							edoTask,
+							cancellationToken
+						);
 					}
 					else
 					{
-						// НЕТ ОЧИСТКИ РЕШЕННЫХ ПРОБЛЕМ
-						// может тут было бы правильно из перевести в Solved
+						_edoProblemRegistrar.SolveCustomProblem<NotAllReceiptsWasSended>(edoTask);
 
 						edoTask.ReceiptStatus = EdoReceiptStatus.Sent;
 						message = new ReceiptSentEvent { ReceiptEdoTaskId = edoTask.Id };
@@ -152,19 +160,14 @@ namespace Edo.Receipt.Sender
 				}
 				catch(CashboxException ex)
 				{
-					// ТУТ ЕСТЬ ПРОБЛЕМА
-					// задача не сможет сама повторить отправку
-					edoTask.Status = EdoTaskStatus.Problem;
-					edoTask.Problems.Add(new CustomEdoTaskProblem
-					{
-						EdoTask = edoTask,
-						//Exception = ex.GetType().Name,
-						CustomMessage = ex.Message
-					});
+					_logger.LogWarning("Ошибка при отправке чека по задаче №{edoTaskId}.", edoTask.Id);
+					throw;
 				}
 
 				await uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
+
+				_logger.LogInformation("Все чеки по задаче №{edoTaskId} отправлены успешно.", edoTask.Id);
 
 				if(message != null)
 				{

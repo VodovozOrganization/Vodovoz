@@ -4,6 +4,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -113,6 +114,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
 		private IObservableList<EmailEntity> _emails = new ObservableList<EmailEntity>();
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
+		private IObservableList<SpecialNomenclature> _specialNomenclatures = new ObservableList<SpecialNomenclature>();
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -733,6 +735,13 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
+		}
+
+		[Display(Name = "Особенные номера ТМЦ")]
+		public virtual IObservableList<SpecialNomenclature> SpecialNomenclatures
+		{
+			get => _specialNomenclatures;
+			set => SetField(ref _specialNomenclatures, value);
 		}
 
 		public virtual void AddFileInformation(string fileName)
