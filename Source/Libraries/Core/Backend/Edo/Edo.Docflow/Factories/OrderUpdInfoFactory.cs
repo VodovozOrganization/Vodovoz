@@ -181,7 +181,7 @@ namespace Edo.Docflow.Factories
 				additionalInformation.Add(new UpdAdditionalInfo
 				{
 					Id = "номер_заказа",
-					Value = $"N{ order.CounterpartyExternalOrderId }"
+					Value = order.Client.SpecialNomenclatures.Any() ? $"{order.CounterpartyExternalOrderId}" : $"N{ order.CounterpartyExternalOrderId }"
 				});
 			}
 
