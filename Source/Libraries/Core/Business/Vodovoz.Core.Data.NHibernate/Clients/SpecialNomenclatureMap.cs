@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Clients;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
+namespace Vodovoz.Core.Data.NHibernate.Clients
 {
 	public class SpecialNomenclatureMap : ClassMap<SpecialNomenclature>
 	{
