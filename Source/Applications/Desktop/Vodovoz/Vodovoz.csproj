@@ -669,6 +669,8 @@
     <Compile Include="TreeModels\ModelConfig.cs" />
     <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />
     <Compile Include="ViewModels\Cash\PaymentOnlineViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListsOnDayViewModel.FilterEnumParameterNode.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListsOnDayViewModel.AddressAdditionalParameterType.cs" />
     <Compile Include="ViewModels\Mango\CounterpartyOrderViewModel.cs" />
     <Compile Include="ViewModels\Mango\MangoViewModelNavigator.cs" />
     <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
