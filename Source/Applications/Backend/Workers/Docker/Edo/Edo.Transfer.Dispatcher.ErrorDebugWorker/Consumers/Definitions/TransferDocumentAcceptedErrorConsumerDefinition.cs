@@ -3,21 +3,21 @@ using MassTransit;
 
 namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions
 {
-	public class TransferCompleteErrorConsumerDefinition : ConsumerDefinition<TransferCompleteErrorConsumer>
+	public class TransferDocumentAcceptedErrorConsumerDefinition : ConsumerDefinition<TransferDocumentAcceptedErrorConsumer>
 	{
-		public TransferCompleteErrorConsumerDefinition()
+		public TransferDocumentAcceptedErrorConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.transfer-complete.consumer.receipt-dispatcher_error");
+			Endpoint(x => x.Name = "edo.transfer-document-accepted.consumer.transfer-dispatcher_error");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<TransferCompleteErrorConsumer> consumerConfigurator)
+			IConsumerConfigurator<TransferDocumentAcceptedErrorConsumer> consumerConfigurator)
 		{
 			var rmq = (IRabbitMqReceiveEndpointConfigurator)endpointConfigurator;
 
 			endpointConfigurator.ConfigureConsumeTopology = false;
 			rmq.PrefetchCount = 1;
-			rmq.Batch<TransferCompleteEvent>(x =>
+			rmq.Batch<TransferDocumentAcceptedEvent>(x =>
 			{
 				x.MessageLimit = 1;
 			});

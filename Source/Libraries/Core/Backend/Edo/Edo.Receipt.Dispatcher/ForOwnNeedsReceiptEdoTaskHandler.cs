@@ -115,8 +115,6 @@ namespace Edo.Receipt.Dispatcher
 			if(hasManualSend)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
-				await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
-				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
@@ -125,8 +123,6 @@ namespace Edo.Receipt.Dispatcher
 			if(hasAlwaysSend)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
-				await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
-				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
@@ -135,8 +131,6 @@ namespace Edo.Receipt.Dispatcher
 			if(!hasReceiptOnSumToday)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
-				await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
-				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
@@ -146,6 +140,7 @@ namespace Edo.Receipt.Dispatcher
 			await SaveCodesToPool(receiptEdoTask, cancellationToken);
 			receiptEdoTask.Status = EdoTaskStatus.Completed;
 			receiptEdoTask.ReceiptStatus = EdoReceiptStatus.SavedToPool;
+			receiptEdoTask.EndTime = DateTime.Now;
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 		}
@@ -268,35 +263,14 @@ namespace Edo.Receipt.Dispatcher
 								foundInvalidGroupIdentificationCode.ProductCode.SourceCode = null;
 								foundInvalidGroupIdentificationCode.ProductCode.ResultCode = null;
 							}
-							
-							// надо передать информацию о том что код не валиден, и надо переформировать позиции в чеке
-
-
-							// обнуляем GroupCode, чтобы знать что там был не валидный групповой код,
-							// это будет необходимо когда будем обновлять позиции в чеке
-							// не групповые позициии всегда имеют ссылку на EdoTaskItem, поэтому путаницы быть не должно
-							//foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
-							//{
-							//	var foundGroupPosition = fiscalDocument.InventPositions
-							//		.FirstOrDefault(x => x.GroupCode == groupCode);
-							//	if(foundGroupPosition != null)
-							//	{
-							//		foundGroupPosition.GroupCode = null;
-							//		break;
-							//	}
-							//}
 						}
 						else
 						{
-							codeResult.EdoTaskItem.ProductCode.ResultCode = null;
+							var gtin = codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN;
+							var newCodeId = await _trueMarkCodesPool.TakeCode(gtin, cancellationToken);
+							var newCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(newCodeId, cancellationToken);
+							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 						}
-					}
-
-					if(hasGroupInvalidCodes)
-					{
-						// если нашелся групповой код, который не валиден, то лучше полностью переформировать
-						// фискальные документы, потому что групповой код влияет на кол-во позиций в чеке
-						receiptEdoTask.FiscalDocuments.Clear();
 					}
 
 					continue;
@@ -349,19 +323,18 @@ namespace Edo.Receipt.Dispatcher
 
 			} while(!isValid && attempts > 0);
 
+			if(!isValid)
+			{
+				await _edoProblemRegistrar.RegisterCustomProblem<ReceiptPrepareMaxAttemptsReached>(
+						receiptEdoTask,
+						cancellationToken);
+				return;
+			}
 
-
-			// ЭТО ДОЛЖНО БЫТЬ В ТЕСТЕ, УДАЛИТЬ ИЗ ПРОДА
-			//var orderSumForReceipt = receiptEdoTask.OrderEdoRequest.Order.OrderItems
-			//	.Where(x => x.Count > 0)
-			//	.Sum(x => x.Sum);
-			//var receiptsSum = receiptEdoTask.FiscalDocuments.SelectMany(x => x.MoneyPositions).Sum(x => x.Sum);
-			//if(receiptsSum != orderSumForReceipt)
-			//{
-			//	throw new InvalidOperationException($"Сумма чека не совпадает с суммой заказа. Сумма заказа: {orderSumForReceipt}, сумма чека: {receiptsSum}");
-			//}
-
-
+			if(!receiptEdoTask.FiscalDocuments.Any())
+			{
+				throw new InvalidOperationException("Проблема с подготовкой фискальных документов. Не удалось создать ни один документ.");
+			}
 
 			// перевод в отправку
 			receiptEdoTask.Status = EdoTaskStatus.InProgress;
@@ -392,19 +365,11 @@ namespace Edo.Receipt.Dispatcher
 			//проверяем продуктовые коды на дубликаты, если дубли найдены, то меняем статус, проблему и устанавливаем кол-во дублей
 			CheckProductCodesForDuplicatesAndUpdateIfNeed(receiptEdoTaskProductCodesWithoutConsolidated);
 
+			receiptEdoTask.FiscalDocuments.Clear();
+
 			//создать или обновить немаркированные позиции
 			var mainFiscalDocument = UpdateUnmarkedFiscalDocument(receiptEdoTask);
-
-			//создать или обновить маркированные позиции
-			var hasMarkedFiscalDocuments = receiptEdoTask.FiscalDocuments.Any(x => x.Index > 0);
-			if(hasMarkedFiscalDocuments)
-			{
-				await UpdateMarkedFiscalDocuments(receiptEdoTask, cancellationToken);
-			}
-			else
-			{
-				await CreateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, cancellationToken);
-			}
+			await CreateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, cancellationToken);
 
 			//создать или обновить сумму в чеках
 			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
@@ -803,55 +768,6 @@ namespace Edo.Receipt.Dispatcher
 			return result;
 		}
 
-
-		//private IEnumerable<TrueMarkAnyCode> FindGroupCodes(ReceiptEdoTask receiptEdoTask)
-		//{
-		//	var result = new List<TrueMarkAnyCode>();
-
-		//	var unprocessedWithResultCode = receiptEdoTask.Items
-		//		.Where(x => x.ProductCode.ResultCode != null)
-		//		.ToList();
-
-		//	while(unprocessedWithResultCode.Any())
-		//	{
-		//		var unprocessedItem = unprocessedWithResultCode.First();
-		//		if(unprocessedItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
-		//		{
-		//			var groupCode = GetParentGroupCode(unprocessedItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value);
-		//			var allCodes = groupCode.GetAllCodes();
-		//			var identificationCodes = allCodes
-		//				.Where(x => x.IsTrueMarkWaterIdentificationCode)
-		//				.Select(x => x.TrueMarkWaterIdentificationCode);
-
-		//			foreach(var identificationCode in identificationCodes)
-		//			{
-		//				var taskItemToRemove = unprocessedWithResultCode.FirstOrDefault(x => x.ProductCode.ResultCode.Id == identificationCode.Id);
-		//				unprocessedWithResultCode.Remove(taskItemToRemove);
-		//			}
-
-		//			result.Add(groupCode);
-		//		}
-		//		else
-		//		{
-		//			unprocessedWithResultCode.Remove(unprocessedItem);
-		//			result.Add(unprocessedItem.ProductCode.ResultCode);
-		//		}
-		//	}
-
-		//	// добавить обработку остальных кодов у которых нет ResultCode
-			
-		//	return result;
-		//}
-
-
-
-
-
-
-
-
-
-
 		private void UpdateReceiptMoneyPositions(EdoFiscalDocument currentFiscalDocument)
 		{
 			var receiptSum = currentFiscalDocument.InventPositions
@@ -865,54 +781,6 @@ namespace Edo.Receipt.Dispatcher
 
 			currentFiscalDocument.MoneyPositions.Clear();
 			currentFiscalDocument.MoneyPositions.Add(moneyPosition);
-		}
-
-		private async Task UpdateMarkedFiscalDocuments(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
-		{
-			// обновляем существующие документы
-			// тут не может появится новых orderItems
-			// поэтому просто проверяем коды в существующих документах
-			// и обновляем их если необходимо
-
-			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
-			{
-				// в первую очередь надо найти групповые позиции которым нужно обновить коды
-				// чтобы обновить групповой код, нужно позицию разбить на индивидуальные позиции
-				// и заполниь их кодами из пула, при этом создав новые EdoTaskItem
-
-				//var markedEmptyGroupPositions = fiscalDocument.InventPositions
-				//	.Where(x => x.OrderItem.Nomenclature.IsAccountableInTrueMark)
-				//	// Если EdoTaskItem == null, значит это групповая позиция
-				//	.Where(x => x.EdoTaskItem == null)
-				//	// Если GroupCode == null, значит что групповой код был не валиден в ЧЗ
-				//	.Where(x => x.GroupCode == null)
-				//	;
-
-				//foreach(var emptyGroupPosition in markedEmptyGroupPositions)
-				//{
-				//	fiscalDocument.InventPositions.Remove(emptyGroupPosition);
-
-				//	receiptEdoTask.
-				//	emptyGroupPosition.GroupCode
-
-				//}
-
-
-				// потом обновить по старому все остальные :
-
-				var markedEmptyPositions = fiscalDocument.InventPositions
-					.Where(x => x.OrderItems.Any(oi => oi.Nomenclature.IsAccountableInTrueMark))
-					.Where(x => x.EdoTaskItem.ProductCode.ResultCode == null)
-					;
-
-				foreach(var inventPosition in markedEmptyPositions)
-				{
-					var nomenclature = inventPosition.OrderItems.First().Nomenclature;
-
-					var code = await LoadCodeFromPool(nomenclature, cancellationToken);
-					inventPosition.EdoTaskItem.ProductCode.ResultCode = code;
-				}
-			}
 		}
 
 		private IEnumerable<(OrderItemEntity OrderItem, decimal DiscountPerSingleItem)> ExpandMarkedOrderItems(IEnumerable<OrderItemEntity> markedOrderItems)
@@ -1142,13 +1010,22 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			bool isValid = true;
-			var invalidTaskItems = new List<EdoTaskItem>();
 
 			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
 			{
 				var codesToCheck1260 = fiscalDocument.InventPositions
-					.Where(x => x.EdoTaskItem.ProductCode.ResultCode != null)
-					.ToDictionary(x => x.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260);
+					.Where(x => x.EdoTaskItem != null || x.GroupCode != null)
+					.ToDictionary(x =>
+					{
+						if(x.EdoTaskItem != null)
+						{
+							return x.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260;
+						}
+						else
+						{
+							return x.GroupCode.FormatForCheck1260;
+						}
+					});
 
 				var result = await _tag1260Checker.CheckCodesForTag1260Async(
 					codesToCheck1260.Keys, 
@@ -1181,8 +1058,6 @@ namespace Edo.Receipt.Dispatcher
 
 				if(invalidCodes.Any())
 				{
-					var taskItems = invalidCodes.Select(x => codesToCheck1260[x.Cis].EdoTaskItem);
-					invalidTaskItems.AddRange(taskItems);
 					isValid = false;
 					continue;
 				}
@@ -1208,230 +1083,6 @@ namespace Edo.Receipt.Dispatcher
 				return IndustryRequisitePrepareResult.NeedToChange;
 			}
 		}
-
-		//private async Task<bool> PrepareIndustryRequisite(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
-		//{
-		//	var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
-		//	var sellerEdoKey = seller.EdoKey;
-		//	if(sellerEdoKey == null)
-		//	{
-		//		throw new InvalidOperationException($"Для организации {seller.Id} не установлен ключ для доступа к ЭДО");
-		//	}
-
-		//	bool isValid = true;
-		//	foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
-		//	{
-		//		var codesToCheck1260 = fiscalDocument.InventPositions
-		//			.Where(x => x.EdoTaskItem.ProductCode.ResultCode != null)
-		//			.ToDictionary(x => x.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260);
-
-		//		var result = await _tag1260Checker.CheckCodesForTag1260Async(
-		//			codesToCheck1260.Keys, 
-		//			sellerEdoKey.Value, 
-		//			cancellationToken
-		//		);
-
-		//		if(result.Code != 0)
-		//		{
-		//			throw new InvalidOperationException($"Ошибка при итоговой проверке кодов в ЧЗ. Код ошибки: {result.Code}, сообщение: {result.Description}");
-		//		}
-
-		//		foreach(var codeResult in result.Codes)
-		//		{
-		//			var canSell = codeResult.ErrorCode == 0
-		//				&& codeResult.Found
-		//				&& codeResult.Valid
-		//				&& codeResult.Verified
-		//				&& codeResult.ExpireDate > DateTime.Now
-		//				&& codeResult.Realizable
-		//				&& codeResult.Utilised
-		//				&& !codeResult.IsBlocked
-		//				&& !codeResult.Sold;
-
-		//			var inventPosition = codesToCheck1260[codeResult.Cis];
-		//			if(!canSell)
-		//			{
-		//				isValid = false;
-		//				inventPosition.EdoTaskItem.ProductCode.ResultCode = null;
-		//			}
-		//			else
-		//			{
-		//				inventPosition.IndustryRequisiteData = $"UUID={result.ReqId}&Time={result.ReqTimestamp}";
-		//			}
-		//		}
-		//	}
-
-		//	return isValid;
-		//}
-
-
-		//private async Task CreateFiscalDocuments(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
-		//{
-		//	var regulatoryDocumentId = _edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId;
-		//	var regulatoryDocument = await _uow.Session
-		//		.GetAsync<FiscalIndustryRequisiteRegulatoryDocument>(regulatoryDocumentId, cancellationToken);
-		//	if(regulatoryDocument == null)
-		//	{
-		//		throw new InvalidOperationException($"Не найден регламентирующий документ " +
-		//			$"{nameof(FiscalIndustryRequisiteRegulatoryDocument)} с id {regulatoryDocumentId}," +
-		//			$" необходимый для настройки разрешительного режима");
-		//	}
-
-
-
-
-		//	var order = receiptEdoTask.OrderEdoRequest.Order;
-		//	var pricedOrderItems = order.OrderItems
-		//		.Where(x => x.Price != 0m)
-		//		.Where(x => x.Count > 0m);
-		//	var notMarkedOrderItems = pricedOrderItems
-		//		.Where(x => x.Nomenclature.IsAccountableInTrueMark == false);
-		//	var markedOrderItems = pricedOrderItems
-		//		.Where(x => x.Nomenclature.IsAccountableInTrueMark == true);
-
-		//	var mainFiscalDocument = CreateFiscalDocument(receiptEdoTask, order);
-
-		//	//создать не маркированные позиции
-		//	foreach(var notMarkedOrderItem in notMarkedOrderItems)
-		//	{
-		//		var inventPosition = CreateInventPosition(notMarkedOrderItem);
-		//		inventPosition.Quantity = notMarkedOrderItem.Count;
-		//		mainFiscalDocument.InventPositions.Add(inventPosition);
-		//	}
-
-		//	//создать маркированные позиции
-
-		//	// умножает каждую позицию на кол-во товаров, возвращает в едином списке
-		//	var totalCountedMarkedItems = markedOrderItems.SelectMany(orderItem => 
-		//	{
-		//		var multipliedItems = new List<(OrderItemEntity OrderItem, decimal DiscountPerSingleItem)>();
-
-		//		decimal wholeDiscount = 0;
-		//		//i == 1 чтобы пропуcтить последний элемент, у него расчет происходит из остатков
-		//		for(int i = 1; i < orderItem.Count; i++)
-		//		{
-		//			var itemDiscount = 0m;
-		//			if(wholeDiscount < orderItem.DiscountMoney)
-		//			{
-		//				var partDiscount = Math.Round(orderItem.DiscountMoney / orderItem.Count, 1);
-		//				wholeDiscount += partDiscount;
-		//				itemDiscount = partDiscount;
-		//			}
-		//			multipliedItems.Add((orderItem, itemDiscount));
-		//		}
-
-		//		//добавление последнего элемента с остатками от целой скидки
-		//		var residueDiscount = orderItem.DiscountMoney - wholeDiscount;
-		//		if(residueDiscount < 0)
-		//		{
-		//			residueDiscount = 0;
-		//		}
-		//		multipliedItems.Add((orderItem, residueDiscount));
-
-		//		return multipliedItems;
-		//	});
-
-		//	var codes = receiptEdoTask.Items.Select(x => x.ProductCode.ResultCode).ToList();
-
-
-		//	var currentFiscalDocument = mainFiscalDocument;
-		//	var currentProcessingPositions = totalCountedMarkedItems.Skip(0).Take(_maxCodesInReceipt);
-		//	do
-		//	{
-		//		foreach(var item in currentProcessingPositions)
-		//		{
-		//			var markedOrderItem = item.OrderItem;
-		//			var discount = item.DiscountPerSingleItem;
-		//			var inventPosition = CreateInventPosition(markedOrderItem);
-		//			inventPosition.Quantity = 1;
-		//			inventPosition.DiscountSum = discount;
-
-		//			// маркировка
-		//			// поиск кода по Gtin
-		//			foreach(var gtin in markedOrderItem.Nomenclature.Gtins)
-		//			{
-		//				var matchCode = codes.FirstOrDefault(x => x.GTIN == gtin.GtinNumber);
-		//				if(matchCode != null)
-		//				{
-		//					codes.Remove(matchCode);
-		//					inventPosition.ProductMark = matchCode.FullCode;
-		//					break;
-		//				}
-		//			}
-
-		//			currentFiscalDocument.InventPositions.Add(inventPosition);
-
-		//			var sum = Math.Round(markedOrderItem.Price - discount, 2);
-		//			receiptSummary += sum;
-		//		}
-
-		//		receiptEdoTask.FiscalDocuments.Add(currentFiscalDocument);
-
-		//		var nextInnerNumber = receiptEdoTask.FiscalDocuments.Count;
-		//		currentProcessingPositions = totalCountedMarkedItems
-		//			.Skip(_maxCodesInReceipt * nextInnerNumber)
-		//			.Take(_maxCodesInReceipt);
-		//		currentFiscalDocument = CreateFiscalDocument(receiptEdoTask, order);
-		//		currentFiscalDocument.DocumentNumber += $"_{nextInnerNumber}";
-		//	} while(currentProcessingPositions.Any());
-
-
-
-
-
-		//	var remainingMarkedOrderItems = markedOrderItems.Skip(_maxCodesInReceipt);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		//	foreach(var taskItem in receiptEdoTask.Items)
-		//	{
-		//		if(taskItem.ProductCode.ResultCode == null)
-		//		{
-		//			taskItem.
-		//			_trueMarkCodesPool.TakeCode();
-		//			taskItem.ProductCode.ResultCode =
-		//		}
-
-
-
-		//		var code = taskItem.ProductCode;
-
-		//		taskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
-
-		//		if(taskItem.ProductCode.Problem != ProductCodeProblem.None && )
-		//		{
-		//			var code = _uow.GetById<TrueMarkWaterIdentificationCode>(codeId);
-		//			taskItem.
-		//		}
-		//	}
-
-
-		//	_trueMarkCodesPool.TakeCode();
-		//	// проверка и замена кодов из пула
-
-		//	// проверка в ЧЗ, если не валидны то назад
-		//}
-
-		//private void CreateIndustryRequisite(InventPosition inventPosition, TrueMarkWaterIdentificationCode code)
-		//{
-		//	inventPosition.IndustryRequisite = new IndustryRequisite
-		//	{
-		//		inventPosition.RegulatoryDocument = regulatoryDocument;
-		//		DocData = $"UUID={code.Tag1260CodeCheckResult.ReqId}&Time={code.Tag1260CodeCheckResult.ReqTimestamp}"
-		//	};
-		//}
 
 		private EdoFiscalDocument CreateFiscalDocument(ReceiptEdoTask receiptEdoTask)
 		{
@@ -1670,58 +1321,4 @@ namespace Edo.Receipt.Dispatcher
 		}
 
 	}
-
-
-
-	//public class ResaleReceiptEdoTaskHandler
-	//{
-	//	private readonly IUnitOfWorkFactory _uowFactory;
-	//	private readonly EdoTaskMainValidator _validator;
-	//	private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
-	//	private readonly TransferRequestCreator _transferRequestCreator;
-	//	private readonly IBus _messageBus;
-	//	private readonly IUnitOfWork _uow;
-
-	//	public ResaleReceiptEdoTaskHandler(
-	//		IUnitOfWorkFactory uowFactory,
-	//		EdoTaskMainValidator validator,
-	//		EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
-	//		TransferRequestCreator transferRequestCreator,
-	//		IBus messageBus
-	//		)
-	//	{
-	//		_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-	//		_validator = validator ?? throw new ArgumentNullException(nameof(validator));
-	//		_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
-	//		_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
-	//		_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-	//		_uow = uowFactory.CreateWithoutRoot();
-	//	}
-
-	//	// handle new
-	//	// Entry stage: New
-	//	// Validated stage: New
-	//	// Changed to: Transfering, Sending
-	//	// [событие от scheduler]
-	//	// (проверяет нужен ли перенос, или сразу отправляет)
-	//	public async Task HandleResaleReceipt(int receiptEdoTaskId, CancellationToken cancellationToken)
-	//	{
-	//		var edoTask = await _uow.Session.GetAsync<ReceiptEdoTask>(receiptEdoTaskId, cancellationToken);
-	//		// TEST
-	//		// проверяем все коды как МН
-	//		var trueMarkApiClient = new TrueMarkApiClient("https://test-mn-truemarkapi.dev.vod.qsolution.ru/", "test");
-	//		var trueMarkCodeChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask, trueMarkApiClient);
-
-	//		var valid = await Validate(edoTask, trueMarkCodeChecker, cancellationToken);
-	//		if(!valid)
-	//		{
-	//			await _uow.CommitAsync(cancellationToken);
-	//			return;
-	//		}
-
-	//		object message = null;
-
-	//		// Определя
-	//	}
-	//}
 }

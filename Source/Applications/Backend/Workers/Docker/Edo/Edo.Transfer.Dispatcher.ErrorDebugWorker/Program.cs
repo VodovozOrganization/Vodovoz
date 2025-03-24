@@ -65,6 +65,10 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 						.AddScoped<ForOwnNeedDocumentEdoTaskHandler>()
 						.AddScoped<ForResaleDocumentEdoTaskHandler>()
 
+						//transfer.dispatcher
+						.AddScoped<TransferEdoHandler>()
+						.AddEdoTransfer()
+
 						//receipt.dispatcher
 						.AddScoped<ReceiptEdoTaskHandler>()
 						.AddScoped<ResaleReceiptEdoTaskHandler>()
@@ -88,8 +92,9 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 							// Выбор какие ошибки дебажить:
 
 							//cfg.AddConsumer<TransferCompleteErrorConsumer, TransferCompleteErrorConsumerDefinition>();
-							//cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
-							cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
+							cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
+							//cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
+							//cfg.AddConsumer<TransferDocumentAcceptedErrorConsumer, TransferDocumentAcceptedErrorConsumerDefinition>();
 						}
 					);
 				});

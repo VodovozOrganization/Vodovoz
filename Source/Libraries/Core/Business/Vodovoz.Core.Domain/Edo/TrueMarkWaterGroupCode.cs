@@ -106,7 +106,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 
 		public virtual string CashReceiptCode => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
 
-		public virtual string Tag1260Code => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
+		public virtual string FormatForCheck1260 => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
 
 		public virtual void AddInnerGroupCode(TrueMarkWaterGroupCode innerGroupCode)
 		{
