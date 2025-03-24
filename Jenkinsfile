@@ -680,7 +680,6 @@ def DeleteCompressedArtifactAtNode(nodeName) {
 				echo "Deleting artifact ${hotfixName}"
 
 				DeleteCompressedArtifact("${hotfixName}VodovozDesktop")
-				LockHotfix(hotfixName)
 				return
 			}
 
