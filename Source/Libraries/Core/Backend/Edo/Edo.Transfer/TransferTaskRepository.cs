@@ -61,7 +61,7 @@ namespace Edo.Transfer
 					.AddEntity(typeof(TransferEdoTask))
 					.SetParameter("fromOrg", fromOrg)
 					.SetParameter("toOrg", toOrg)
-					.SetParameter("transferStatus", TransferEdoTaskStatus.WaitingRequests);
+					.SetParameter("transferStatus", nameof(TransferEdoTaskStatus.WaitingRequests));
 
 			return await query.UniqueResultAsync<TransferEdoTask>(cancellationToken);
 		}

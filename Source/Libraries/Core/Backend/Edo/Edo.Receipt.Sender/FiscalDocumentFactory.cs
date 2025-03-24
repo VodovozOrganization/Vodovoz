@@ -1,4 +1,5 @@
-﻿using ModulKassa.DTO;
+﻿using Core.Infrastructure;
+using ModulKassa.DTO;
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Edo;
@@ -89,15 +90,28 @@ namespace Edo.Receipt.Sender
 				PriceWithoutDiscount = fiscalInventPosition.Price,
 				DiscSum = fiscalInventPosition.DiscountSum,
 				VatTag = (int)fiscalInventPosition.Vat,
-				ProductMark = fiscalInventPosition.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260,
-				IndustryRequisite = new IndustryRequisite
+			};
+
+			if(fiscalInventPosition.EdoTaskItem != null)
+			{
+				inventPosition.ProductMark = fiscalInventPosition.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260;
+			}
+			else if(fiscalInventPosition.GroupCode != null)
+			{
+				inventPosition.ProductMark = fiscalInventPosition.GroupCode.FormatForCheck1260;
+			}
+
+			if(!inventPosition.ProductMark.IsNullOrWhiteSpace())
+			{
+				inventPosition.IndustryRequisite = new IndustryRequisite
 				{
 					FoivId = fiscalInventPosition.RegulatoryDocument.FoivId,
 					DocNumber = fiscalInventPosition.RegulatoryDocument.DocNumber,
 					DocDateTime = fiscalInventPosition.RegulatoryDocument.DocDateTime,
 					DocData = fiscalInventPosition.IndustryRequisiteData
-				}
-			};
+				};
+			}
+
 			return inventPosition;
 		}
 
