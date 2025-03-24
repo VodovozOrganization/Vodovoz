@@ -108,7 +108,7 @@ CAN_DEPLOY_DESKTOP = CAN_DELIVERY_DESKTOP && (env.BRANCH_NAME == 'Beta' || IS_PU
 CAN_DEPLOY_WEB = false
 
 // 109	Настройки. Публикация	
-CAN_PUBLISH_DESKTOP = CAN_DELIVERY_DESKTOP && (IS_HOTFIX || IS_RELEASE)
+CAN_PUBLISH_DESKTOP = CAN_DELIVERY_DESKTOP && IS_HOTFIX
 CAN_PUBLISH_WEB = CAN_DELIVERY_WEB
 //Release потому что правила именования фиксов/релизов Release_MMDD_HHMM
 NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX = "Release"
@@ -619,7 +619,7 @@ def PublishDesktop(nodeName){
 				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTIFACT_DATE_TIME}"
 				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
 				DecompressArtifact(newHotfixPath, 'VodovozDesktop')
-				LockHotfix(hotfixName)
+				//LockHotfix(hotfixName)
 				return
 			}
 
