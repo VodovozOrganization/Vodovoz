@@ -619,7 +619,7 @@ def PublishDesktop(nodeName){
 				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTIFACT_DATE_TIME}"
 				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
 				DecompressArtifact(newHotfixPath, 'VodovozDesktop')
-				LockHotfix(hotfixName)
+				//LockHotfix(hotfixName)
 				return
 			}
 
