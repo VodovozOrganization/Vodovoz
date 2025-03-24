@@ -96,7 +96,7 @@ namespace Receipt.Dispatcher.Tests
 
 			// Act
 
-			await _forOwnNeedsReceiptEdoTaskHandler.CreateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, default);
+			await _forOwnNeedsReceiptEdoTaskHandler.UpdateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, default);
 
 			// Assert
 
@@ -166,7 +166,7 @@ namespace Receipt.Dispatcher.Tests
 
 			// Act
 
-			await _forOwnNeedsReceiptEdoTaskHandler.CreateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, default);
+			await _forOwnNeedsReceiptEdoTaskHandler.UpdateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, default);
 
 			// Assert
 			//Ожидаем 4 строки чека: 3 с групповыми кодами, 1 с индивидуальным
@@ -236,7 +236,7 @@ namespace Receipt.Dispatcher.Tests
 
 			// Act
 
-			await _forOwnNeedsReceiptEdoTaskHandler.CreateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, default);
+			await _forOwnNeedsReceiptEdoTaskHandler.UpdateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, default);
 
 			// Assert
 
