@@ -535,8 +535,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			var validationErrors = await GetValidationErrorsFromTrueMarkAsync(rawCode, identificationCode, gtin, cancellationToken);
 			var isValid = validationErrors is null;
-
-
+			
 			var codesToDistribute = new List<TrueMarkWaterIdentificationCode>();
 			
 			lock(CodeScanRows)
@@ -545,19 +544,38 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				
 				if(childrenUnitCodeList is null)
 				{
-					codesToDistribute.Add(anyCode.TrueMarkWaterIdentificationCode);
-				}
-				else
-				{
-					var existsUnitCodeFromAggregateCode =
-						CodeScanRows.FirstOrDefault(sr => childrenUnitCodeList.Any(uc => uc.RawCode == sr.RawCode));
+					var childrenCodeScanRows = CodeScanRows.SelectMany(x => x.Children);
+					
+					var existsUnitCodeFromAggregateCode = childrenCodeScanRows.FirstOrDefault(x => 
+						x.RawCode.Contains(rootNode.RawCode) 
+						|| rootNode.RawCode.Contains(x.RawCode));
 
 					if(existsUnitCodeFromAggregateCode != null)
 					{
 						UpdateCodeScanRows(rawCode, gtin, false,
 							new List<string>
 							{
-								$"Дочерний код данного агрегатного кода уже есть в самовывозе: {existsUnitCodeFromAggregateCode.RawCode}"
+								$"Данный индивидуальный код уже содержится в отсканированном агрегатном коде: {existsUnitCodeFromAggregateCode.Parent?.RawCode}"
+							});
+
+						return;
+					}
+					
+					codesToDistribute.Add(anyCode.TrueMarkWaterIdentificationCode);
+				}
+				else
+				{
+					var existsAggregateCodeForUnitCode =
+						CodeScanRows.FirstOrDefault(sr => childrenUnitCodeList.Any(uc =>
+							uc.RawCode.Contains(sr.RawCode)
+							|| sr.RawCode.Contains(uc.RawCode)));
+
+					if(existsAggregateCodeForUnitCode != null)
+					{
+						UpdateCodeScanRows(rawCode, gtin, false,
+							new List<string>
+							{
+								$"Дочерний код данного агрегатного кода уже есть в самовывозе: {existsAggregateCodeForUnitCode.RawCode}"
 							});
 
 						return;
