@@ -243,7 +243,7 @@ namespace Edo.Transfer
 			{
 				nomenclature = groupGtins.Where(x => x.GtinNumber == groupCode.GTIN)
 					.Select(x => x.Nomenclature)
-					.SingleOrDefault();
+					.FirstOrDefault();
 			}
 
 			return nomenclature;
@@ -264,7 +264,7 @@ namespace Edo.Transfer
 			{
 				nomenclature = gtins.Where(x => x.GtinNumber == individualCode.GTIN)
 					.Select(x => x.Nomenclature)
-					.SingleOrDefault();
+					.FirstOrDefault();
 			}
 
 			return nomenclature;
