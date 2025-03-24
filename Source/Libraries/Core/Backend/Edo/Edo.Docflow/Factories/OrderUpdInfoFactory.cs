@@ -373,7 +373,7 @@ namespace Edo.Docflow.Factories
 					UnitName = nomenclature.Unit.Name,
 					OKEI = nomenclature.Unit.OKEI,
 					Code = nomenclature.Id.ToString(),
-					Count = orderItem.Count,
+					Count = orderItem.CurrentCount,
 					Price = orderItem.Price,
 					IncludeVat = orderItem.IncludeNDS ?? 0,
 					ValueAddedTax = orderItem.ValueAddedTax,
