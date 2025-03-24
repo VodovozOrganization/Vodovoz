@@ -123,7 +123,7 @@ namespace TaxcomEdoApi.Library.Converters
 				}
 			};
 
-			if(product.EconomicLifeFacts.Any())
+			if(product.EconomicLifeFacts != null && product.EconomicLifeFacts.Any())
 			{
 				updProduct.InfPolFHZh2 = product.EconomicLifeFacts
 					.Select(x => new TekstInfTip { Identif = x.Id, Znachen = x.Value })
