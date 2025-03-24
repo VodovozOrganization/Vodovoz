@@ -93,7 +93,11 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "При обновлении данных по кодам в пуле возникла ошибка: {ExceptionMessage}", ex.Message);
-				_interactiveService.ShowMessage(ImportanceLevel.Error, $"При обновлении данных по кодам в пуле возникла ошибка: {ex.Message}");
+
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error, $"При обновлении данных по кодам в пуле возникла ошибка: {ex.Message}");
+				});
 			}
 			finally
 			{
