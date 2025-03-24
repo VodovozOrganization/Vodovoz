@@ -26,20 +26,15 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers
 
 		public async Task Consume(ConsumeContext<ReceiptReadyToSendEvent> context)
 		{
-			//foreach(var batchItem in context.Message)
-			//{
-				//var msg = batchItem.Message;
-				try
-				{
-					//await _receiptEdoTaskHandler.HandleNew(msg.ReceiptEdoTaskId, context.CancellationToken);
-					await _receiptSender.HandleReceiptSendEvent(context.Message.ReceiptEdoTaskId, context.CancellationToken);
-				}
-				catch(Exception ex)
-				{
-					_logger.LogError(ex, "Ошибка обработки события ReceiptReadyToSendEvent");
-					throw;
-				}
-			//}
+			try
+			{
+				await _receiptSender.HandleReceiptSendEvent(context.Message.ReceiptEdoTaskId, context.CancellationToken);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка обработки события ReceiptReadyToSendEvent");
+				throw;
+			}
 		}
 	}
 }
