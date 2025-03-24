@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -23,6 +23,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 using Vodovoz.ViewModels.ReportsParameters.Logistics;
+using Vodovoz.ViewModels.TrueMark.CodesPool;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 
 public partial class MainWindow
@@ -139,6 +140,11 @@ public partial class MainWindow
 	protected void OnActionSuppliersActivated(object sender, EventArgs e)
 	{
 		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
+	}
+
+	protected void OnActionTrueMarkActivated(object sender, EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.true_mark.xml");
 	}
 
 	#region Логистика
@@ -263,10 +269,19 @@ public partial class MainWindow
 		});
 	}
 
-	void ActionAnalyseCounterpartyDiscrepancies_Activated(object sender, System.EventArgs e)
+	protected void ActionAnalyseCounterpartyDiscrepancies_Activated(object sender, System.EventArgs e)
 	{
 		NavigationManager.OpenViewModel<PaymentsDiscrepanciesAnalysisViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
+
+	#region Честный знак
+
+	protected void OnActionCodesPoolActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CodesPoolViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	#endregion Честный знак
 
 	#region Заказы
 

@@ -408,6 +408,7 @@
     <EmbeddedResource Include="icons\pacs\short-break-denied.png" />
     <EmbeddedResource Include="icons\toolbar\1s_default.png" />
     <EmbeddedResource Include="icons\common\Сalendar.png" />
+    <EmbeddedResource Include="icons\toolbar\true_mark.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
@@ -2072,6 +2073,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Documents.CodesScanView.cs" />
     <Compile Include="Views\Goods\GroupGtinView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.GroupGtinView.cs" />
+    <Compile Include="Views\TrueMark\CodesPoolView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.CodesPoolView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2737,6 +2740,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="icons\toolbar\order_ratings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="toolbars\true_mark.xml" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
