@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>8.5in</PageHeight>
+  <PageWidth>11in</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <PageHeader>
+    <Height>.5in</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>579.9pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox4">
+        <Height>28.51pt</Height>
+        <Width>755pt</Width>
+        <Value>Уважаемый водитель, уведомляю Вас о том, что заказы с номерами:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>92.70pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>22pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <PaddingLeft >10pt</PaddingLeft>
+          <PaddingRight >10pt</PaddingRight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox3">
+        <Height>39.76pt</Height>
+        <Width>757.10pt</Width>
+        <Value>Уведомление о наличии сетевого заказа!</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>20.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>32pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox2">
+        <Height>88.06pt</Height>
+        <Width>755pt</Width>
+        <Value>В случае сетевого заказа водителю необходимо передать клиенту только те бутыли, которые складские сотрудники проклеили  стикерами.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>205.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>24pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <PaddingLeft >10pt</PaddingLeft>
+          <PaddingRight >10pt</PaddingRight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox6">
+        <Height>62.67pt</Height>
+        <Width>755pt</Width>
+        <Value>Передать другие бытыли, не входящие в состав сетевого заказа, не получится. Данная операция будет запрещена!</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>311.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>24pt</FontSize>
+          <PaddingLeft >10pt</PaddingLeft>
+          <PaddingRight >10pt</PaddingRight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>29.26pt</Height>
+        <Width>755pt</Width>
+        <Value>являются сетевым! </Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>153.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>22pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <PaddingLeft >10pt</PaddingLeft>
+          <PaddingRight >10pt</PaddingRight>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>true</CanShrink>
+      </Textbox>
+      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>24.76pt</Height>
+        <Width>755pt</Width>
+        <Value>={?orderIds}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>127.05pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>22pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <PaddingLeft >10pt</PaddingLeft>
+          <PaddingRight >10pt</PaddingRight>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>true</CanShrink>
+      </Textbox>
+    </ReportItems>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
+    <ReportParameter Name="orderIds">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2955437, 2955437</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

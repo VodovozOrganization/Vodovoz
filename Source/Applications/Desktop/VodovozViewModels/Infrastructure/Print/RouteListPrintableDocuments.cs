@@ -19,7 +19,9 @@ namespace Vodovoz.ViewModels.Infrastructure.Print
 		[Display(Name = "Отчёт по порядку адресов")]
 		OrderOfAddresses,
 		[Display(Name = "Экспедиторская расписка")]
-		ForwarderReceipt
+		ForwarderReceipt,
+		[Display(Name = "Уведомление о сетевом заказе")]
+		ChainStoreNotification
 
 	}
 }
