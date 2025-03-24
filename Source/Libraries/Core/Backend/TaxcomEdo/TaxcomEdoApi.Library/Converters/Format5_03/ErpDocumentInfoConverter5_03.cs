@@ -1,9 +1,9 @@
 using Edo.Contracts.Messages.Dto;
-using Taxcom.Client.Api.Document.DocumentByFormat1115131;
+using Taxcom.Client.Api.Document.DocumentByFormat1115131_5_03;
 
-namespace TaxcomEdoApi.Library.Converters
+namespace TaxcomEdoApi.Library.Converters.Format5_03
 {
-	public class ErpDocumentInfoConverter : IErpDocumentInfoConverter
+	public class ErpDocumentInfoConverter5_03 : IErpDocumentInfoConverter5_03
 	{
 		public UchastnikTip ConvertCounterpartyToCustomerInfo(CustomerInfo customer)
 		{

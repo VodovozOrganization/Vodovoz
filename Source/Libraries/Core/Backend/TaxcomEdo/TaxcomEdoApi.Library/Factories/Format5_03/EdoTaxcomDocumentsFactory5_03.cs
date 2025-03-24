@@ -3,36 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Edo.Contracts.Messages.Dto;
-using Taxcom.Client.Api.Document.DocumentByFormat1115131;
+using Taxcom.Client.Api.Document.DocumentByFormat1115131_5_03;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.Goods;
 using TaxcomEdo.Contracts.Orders;
-using TaxcomEdoApi.Library.Builders;
+using TaxcomEdoApi.Library.Builders.Format5_03;
 using TaxcomEdoApi.Library.Config;
-using TaxcomEdoApi.Library.Converters;
+using TaxcomEdoApi.Library.Converters.Format5_03;
 using TISystems.TTC.Common;
-using Fajl = Taxcom.Client.Api.Document.DocumentByFormat1115131.Fajl;
-using FajlSvUchDokObor = Taxcom.Client.Api.Document.DocumentByFormat1115131.FajlSvUchDokObor;
-using FajlVersForm = Taxcom.Client.Api.Document.DocumentByFormat1115131.FajlVersForm;
-using FIOTip = Taxcom.Client.Api.Document.DocumentByFormat1115131.FIOTip;
 
-namespace TaxcomEdoApi.Library.Factories
+namespace TaxcomEdoApi.Library.Factories.Format5_03
 {
-	public class EdoTaxcomDocumentsFactory : IEdoTaxcomDocumentsFactory
+	public class EdoTaxcomDocumentsFactory5_03 : IEdoTaxcomDocumentsFactory5_03
 	{
 		private const string _productsShipped = "Товары переданы";
 		private const string _servicesHaveBeenProvided = "Услуги оказаны в полном объеме";
 		private const string _jobResponsibilities = "Должностные обязанности";
 		
-		private readonly IParticipantDocFlowConverter _participantDocFlowConverter;
-		private readonly IErpDocumentInfoConverter _erpDocumentInfoConverter;
-		private readonly IUpdProductConverter _updProductConverter;
+		private readonly IParticipantDocFlowConverter5_03 _participantDocFlowConverter;
+		private readonly IErpDocumentInfoConverter5_03 _erpDocumentInfoConverter;
+		private readonly IUpdProductConverter5_03 _updProductConverter;
 
-		public EdoTaxcomDocumentsFactory(
-			IParticipantDocFlowConverter participantDocFlowConverter,
-			IErpDocumentInfoConverter erpDocumentInfoConverter,
-			IUpdProductConverter updProductConverter)
+		public EdoTaxcomDocumentsFactory5_03(
+			IParticipantDocFlowConverter5_03 participantDocFlowConverter,
+			IErpDocumentInfoConverter5_03 erpDocumentInfoConverter,
+			IUpdProductConverter5_03 updProductConverter)
 		{
 			_participantDocFlowConverter =
 				participantDocFlowConverter ?? throw new ArgumentNullException(nameof(participantDocFlowConverter));
@@ -42,7 +38,7 @@ namespace TaxcomEdoApi.Library.Factories
 
 		#region УПД
 
-		public Fajl CreateNewUpdXml(
+		public Fajl CreateUpdXml5_03(
 			InfoForCreatingEdoUpd infoForCreatingEdoUpd,
 			WarrantOptions warrantOptions,
 			string organizationAccountId,
@@ -50,10 +46,11 @@ namespace TaxcomEdoApi.Library.Factories
 		{
 			var orderInfoForEdo = infoForCreatingEdoUpd.OrderInfoForEdo;
 			var org = orderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo;
+			var updDate = orderInfoForEdo.DeliveryDate.ToShortDateString();
 			
 			var upd = new Fajl
 			{
-				VersForm = FajlVersForm.Item501,
+				VersForm = FajlVersForm.Item503,
 				VersProg = "ВерсПрог",
 				SvUchDokObor = new FajlSvUchDokObor
 				{
@@ -65,7 +62,8 @@ namespace TaxcomEdoApi.Library.Factories
 			var hasMarkGoods = orderInfoForEdo.OrderItems.Any(x => !string.IsNullOrWhiteSpace(x.NomenclatureInfoForEdo.Gtin));
 
 			var updNameBuilder =
-				EdoSellerUpdNameBuilder.Create()
+				EdoSellerUpdNameBuilder5_03
+					.Create()
 					.ReceiverId(upd.SvUchDokObor.IdPol)
 					.SenderId(upd.SvUchDokObor.IdOtpr)
 					.Date(orderInfoForEdo.DeliveryDate);
@@ -88,45 +86,43 @@ namespace TaxcomEdoApi.Library.Factories
 				NaimJekonSubSost = $"{org.Name}, ИНН/КПП {org.Inn}/{org.Kpp}",
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
-					NomerSchF = orderInfoForEdo.Id.ToString(),
-					DataSchF = orderInfoForEdo.DeliveryDate.ToShortDateString(),
-					KodOKV = "643",
-					IsprSchF = new FajlDokumentSvSchFaktIsprSchF
+					NomerDoc = orderInfoForEdo.Id.ToString(),
+					DataSchF = updDate,
+					
+					DenIzm = new FajlDokumentSvSchFaktDenIzm
 					{
-						DefNomIsprSchFSpecified = true,
-						DefNomIsprSchF = FajlDokumentSvSchFaktIsprSchFDefNomIsprSchF.Item,
-						DefDataIsprSchFSpecified = true,
-						DefDataIsprSchF = FajlDokumentSvSchFaktIsprSchFDefDataIsprSchF.Item
+						KodOKV = "643",
+						NaimОКВ = "Российский рубль"
+					},
+					
+					//Сведения о продавце
+					SvProd = new[]
+					{
+						_participantDocFlowConverter.ConvertOrganizationToUchastnikTip(org)
+					},
+					
+					//Грузоотправитель
+					GruzOt = new[]
+					{
+						new FajlDokumentSvSchFaktGruzOt
+						{
+							Item = FajlDokumentSvSchFaktGruzOtOnZhe.onzhe
+						}
+					},
+					
+					//Сведения о покупателе
+					SvPokup = new[]
+					{
+						_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(orderInfoForEdo.CounterpartyInfoForEdo)
+					},
+					
+					//Грузополучатель
+					GruzPoluch = new[]
+					{
+						_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(
+							orderInfoForEdo.CounterpartyInfoForEdo, orderInfoForEdo.DeliveryPointInfoForEdo)
 					}
 				}
-			};
-
-			//Сведения о продавце
-			upd.Dokument.SvSchFakt.SvProd = new[]
-			{
-				_participantDocFlowConverter.ConvertOrganizationToUchastnikTip(org)
-			};
-
-			//Грузоотправитель
-			upd.Dokument.SvSchFakt.GruzOt = new[]
-			{
-				new FajlDokumentSvSchFaktGruzOt
-				{
-					Item = FajlDokumentSvSchFaktGruzOtOnZhe.onzhe
-				}
-			};
-			
-			//Сведения о покупателе
-			upd.Dokument.SvSchFakt.SvPokup = new[]
-			{
-				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(orderInfoForEdo.CounterpartyInfoForEdo)
-			};
-			
-			//Грузополучатель
-			upd.Dokument.SvSchFakt.GruzPoluch = new[]
-			{
-				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(
-					orderInfoForEdo.CounterpartyInfoForEdo, orderInfoForEdo.DeliveryPointInfoForEdo)
 			};
 
 			//К платежно-расчетному документу
@@ -147,7 +143,7 @@ namespace TaxcomEdoApi.Library.Factories
 				{
 					NaimDokOtgr = "Универсальный передаточный документ,",
 					NomDokOtgr = orderInfoForEdo.Id.ToString(),
-					DataDokOtgr = orderInfoForEdo.DeliveryDate.ToShortDateString()
+					DataDokOtgr = updDate
 				}
 			};
 
@@ -212,7 +208,15 @@ namespace TaxcomEdoApi.Library.Factories
 				SvPer = new FajlDokumentSvProdPerSvPer
 				{
 					SodOper = GetOperationName(orderItems),
-					OsnPer = new []{ GetBasis(orderInfoForEdo) },
+					DataPer = updDate,
+					DataNach = updDate,
+					DataOkon = updDate,
+					
+					Items = new[]
+					{
+						GetDocumentConfirmingShipment(orderInfoForEdo)
+					},
+					
 					SvLicPer = new FajlDokumentSvProdPerSvPerSvLicPer
 					{
 						Item = new FajlDokumentSvProdPerSvPerSvLicPerRabOrgProd
@@ -233,38 +237,34 @@ namespace TaxcomEdoApi.Library.Factories
 			{
 				new FajlDokumentPodpisant
 				{
-					OblPoln = FajlDokumentPodpisantOblPoln.Item5,
-					Status = FajlDokumentPodpisantStatus.Item1,
+					SposPodtPolnom = FajlDokumentPodpisantSposPodtPolnom.Item1,
+					DataPodDok = updDate,
 					OsnPoln = _jobResponsibilities,
-					Item = new FajlDokumentPodpisantJuL
+					Dolzn = warrantOptions.JobPosition,
+					FIO = new FIOTip
 					{
-						FIO = new FIOTip
-						{
-							Familija = certDetails.SurName,
-							Imja = firstNameAndPatronymic[0],
-							Otchestvo = patronymic
-						},
-						INNJuL = org.Inn,
-						NaimOrg = org.Name,
-						Dolzhn = warrantOptions.JobPosition
-					}
+						Familija = certDetails.SurName,
+						Imja = firstNameAndPatronymic[0],
+						Otchestvo = patronymic
+					},
 				}
 			};
 
 			return upd;
 		}
 
-		public Fajl CreateNewUpdXml(
+		public Fajl CreateUpdXml5_03(
 			UniversalTransferDocumentInfo updInfo,
 			WarrantOptions warrantOptions,
 			string organizationAccountId,
 			string certificateSubject)
 		{
 			var org = updInfo.Seller.Organization;
+			var updDate = updInfo.Date.ToShortDateString();
 			
 			var upd = new Fajl
 			{
-				VersForm = FajlVersForm.Item501,
+				VersForm = FajlVersForm.Item503,
 				VersProg = "ВерсПрог",
 				SvUchDokObor = new FajlSvUchDokObor
 				{
@@ -276,7 +276,8 @@ namespace TaxcomEdoApi.Library.Factories
 			var hasMarkGoods = updInfo.Products.Any(x => x.TrueMarkCodes.Any());
 
 			var updNameBuilder =
-				EdoSellerUpdNameBuilder.Create()
+				EdoSellerUpdNameBuilder5_03
+					.Create()
 					.ReceiverId(upd.SvUchDokObor.IdPol)
 					.SenderId(upd.SvUchDokObor.IdOtpr)
 					.Date(updInfo.Date);
@@ -299,44 +300,51 @@ namespace TaxcomEdoApi.Library.Factories
 				NaimJekonSubSost = $"{org.Name}, ИНН/КПП {org.Inn}/{org.Kpp}",
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
-					NomerSchF = updInfo.Number.ToString(),
-					DataSchF = updInfo.Date.ToShortDateString(),
-					KodOKV = "643",
-					IsprSchF = new FajlDokumentSvSchFaktIsprSchF
+					NomerDoc = updInfo.Number.ToString(),
+					DataSchF = updDate,
+					
+					DenIzm = new FajlDokumentSvSchFaktDenIzm
+					{
+						KodOKV = "643",
+						NaimОКВ = "Российский рубль"
+					},
+					
+					//Сведения о продавце
+					SvProd = new[]
+					{
+						_erpDocumentInfoConverter.ConvertOrganizationToSellerInfo(org)
+					},
+					
+					//Грузоотправитель
+					GruzOt = new[]
+					{
+						new FajlDokumentSvSchFaktGruzOt
+						{
+							Item = FajlDokumentSvSchFaktGruzOtOnZhe.onzhe
+						}
+					},
+					
+					//Сведения о покупателе
+					SvPokup = new[]
+					{
+						_erpDocumentInfoConverter.ConvertCounterpartyToCustomerInfo(updInfo.Customer)
+					},
+					
+					//Грузополучатель
+					GruzPoluch = new[]
+					{
+						_erpDocumentInfoConverter.ConvertCounterpartyToConsigneeInfo(updInfo.Consignee)
+					}
+					
+					//KodOKV = "643",
+					/*IsprSchF = new FajlDokumentSvSchFaktIsprSchF
 					{
 						DefNomIsprSchFSpecified = true,
 						DefNomIsprSchF = FajlDokumentSvSchFaktIsprSchFDefNomIsprSchF.Item,
 						DefDataIsprSchFSpecified = true,
 						DefDataIsprSchF = FajlDokumentSvSchFaktIsprSchFDefDataIsprSchF.Item
-					}
+					}*/
 				}
-			};
-
-			//Сведения о продавце
-			upd.Dokument.SvSchFakt.SvProd = new[]
-			{
-				_erpDocumentInfoConverter.ConvertOrganizationToSellerInfo(org)
-			};
-
-			//Грузоотправитель
-			upd.Dokument.SvSchFakt.GruzOt = new[]
-			{
-				new FajlDokumentSvSchFaktGruzOt
-				{
-					Item = FajlDokumentSvSchFaktGruzOtOnZhe.onzhe
-				}
-			};
-			
-			//Сведения о покупателе
-			upd.Dokument.SvSchFakt.SvPokup = new[]
-			{
-				_erpDocumentInfoConverter.ConvertCounterpartyToCustomerInfo(updInfo.Customer)
-			};
-			
-			//Грузополучатель
-			upd.Dokument.SvSchFakt.GruzPoluch = new[]
-			{
-				_erpDocumentInfoConverter.ConvertCounterpartyToConsigneeInfo(updInfo.Consignee)
 			};
 
 			//К платежно-расчетному документу
@@ -357,7 +365,7 @@ namespace TaxcomEdoApi.Library.Factories
 				{
 					NaimDokOtgr = "Универсальный передаточный документ,",
 					NomDokOtgr = updInfo.Number.ToString(),
-					DataDokOtgr = updInfo.Date.ToShortDateString()
+					DataDokOtgr = updDate
 				}
 			};
 
@@ -403,16 +411,15 @@ namespace TaxcomEdoApi.Library.Factories
 				SvPer = new FajlDokumentSvProdPerSvPer
 				{
 					SodOper = GetOperationName(products),
-					DataPer = updInfo.Date.ToShortDateString(),
-					OsnPer = new OsnovanieTip[]
+					DataPer = updDate,
+					DataNach = updDate,
+					DataOkon = updDate,
+					
+					Items = new[]
 					{
-						new()
-						{
-							NaimOsn = updInfo.DocumentConfirmingShipment.Document,
-							NomOsn = updInfo.DocumentConfirmingShipment.Number,
-							DataOsn = updInfo.DocumentConfirmingShipment.Date
-						}
+						GetDocumentConfirmingShipment(updInfo.DocumentConfirmingShipment)
 					},
+					
 					SvLicPer = new FajlDokumentSvProdPerSvPerSvLicPer
 					{
 						Item = new FajlDokumentSvProdPerSvPerSvLicPerRabOrgProd
@@ -429,25 +436,21 @@ namespace TaxcomEdoApi.Library.Factories
 				}
 			};
 			
+			//Уточнить насчет даты подписания документа в случае переотправки в другой день
 			upd.Dokument.Podpisant = new[]
 			{
 				new FajlDokumentPodpisant
 				{
-					OblPoln = FajlDokumentPodpisantOblPoln.Item5,
-					Status = FajlDokumentPodpisantStatus.Item1,
+					SposPodtPolnom = FajlDokumentPodpisantSposPodtPolnom.Item1,
+					DataPodDok = updDate,
 					OsnPoln = _jobResponsibilities,
-					Item = new FajlDokumentPodpisantJuL
+					Dolzn = warrantOptions.JobPosition,
+					FIO = new FIOTip
 					{
-						FIO = new FIOTip
-						{
-							Familija = certDetails.SurName,
-							Imja = firstNameAndPatronymic[0],
-							Otchestvo = patronymic
-						},
-						INNJuL = org.Inn,
-						NaimOrg = org.Name,
-						Dolzhn = warrantOptions.JobPosition
-					}
+						Familija = certDetails.SurName,
+						Imja = firstNameAndPatronymic[0],
+						Otchestvo = patronymic
+					},
 				}
 			};
 
@@ -456,7 +459,7 @@ namespace TaxcomEdoApi.Library.Factories
 
 		#endregion
 
-		private OsnovanieTip GetBasis(OrderInfoForEdo orderInfoForEdo)
+		private object GetDocumentConfirmingShipment(OrderInfoForEdo orderInfoForEdo)
 		{
 			var basis = new OsnovanieTip();
 
@@ -468,12 +471,14 @@ namespace TaxcomEdoApi.Library.Factories
 				basis.NaimOsn = orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractName;
 				basis.NomOsn = orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractNumber;
 				basis.DataOsn = $"{orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractDate.Value:dd.MM.yyyy}";
+				
 				return basis;
 			}
-			if(orderInfoForEdo.CounterpartyInfoForEdo.UseSpecialDocFields && !string.IsNullOrWhiteSpace(orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractName))
+			
+			if(orderInfoForEdo.CounterpartyInfoForEdo.UseSpecialDocFields
+				&& !string.IsNullOrWhiteSpace(orderInfoForEdo.CounterpartyInfoForEdo.SpecialContractName))
 			{
-				basis.NaimOsn = "Без документа-основания";
-				return basis;
+				return FajlDokumentSvProdPerBezDocOsnPer.Item1;
 			}
 
 			if(orderInfoForEdo.ContractInfoForEdo != null)
@@ -481,13 +486,26 @@ namespace TaxcomEdoApi.Library.Factories
 				basis.NaimOsn = "Договор";
 				basis.NomOsn = orderInfoForEdo.ContractInfoForEdo.Number;
 				basis.DataOsn = $"{orderInfoForEdo.ContractInfoForEdo.IssueDate:dd.MM.yyyy}";
-			}
-			else
-			{
-				basis.NaimOsn = "Без документа-основания";
+				
+				return basis;
 			}
 
-			return basis;
+			return FajlDokumentSvProdPerBezDocOsnPer.Item1;
+		}
+		
+		private object GetDocumentConfirmingShipment(DocumentConfirmingShipmentInfo documentConfirmingShipmentInfo)
+		{
+			if(string.IsNullOrWhiteSpace(documentConfirmingShipmentInfo.Number))
+			{
+				return FajlDokumentSvProdPerBezDocOsnPer.Item1;
+			}
+
+			return new RekvDocTip
+			{
+				RekvNaimDoc = documentConfirmingShipmentInfo.Document,
+				RekvNomDoc = documentConfirmingShipmentInfo.Number,
+				RekvDataDoc = documentConfirmingShipmentInfo.Date
+			};
 		}
 
 		private string GetOperationName(IList<OrderItemInfoForEdo> orderItems)

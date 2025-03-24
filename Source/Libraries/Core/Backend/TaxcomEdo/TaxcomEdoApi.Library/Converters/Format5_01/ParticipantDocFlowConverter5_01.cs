@@ -3,9 +3,9 @@ using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Organizations;
 
-namespace TaxcomEdoApi.Library.Converters
+namespace TaxcomEdoApi.Library.Converters.Format5_01
 {
-	public class ParticipantDocFlowConverter : IParticipantDocFlowConverter
+	public class ParticipantDocFlowConverter5_01 : IParticipantDocFlowConverter5_01
 	{
 		private const string _russiaCode = "643";  //Россия
 		

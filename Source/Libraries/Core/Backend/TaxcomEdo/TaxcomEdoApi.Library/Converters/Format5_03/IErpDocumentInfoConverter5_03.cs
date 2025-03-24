@@ -1,9 +1,9 @@
 using Edo.Contracts.Messages.Dto;
-using Taxcom.Client.Api.Document.DocumentByFormat1115131;
+using Taxcom.Client.Api.Document.DocumentByFormat1115131_5_03;
 
-namespace TaxcomEdoApi.Library.Converters
+namespace TaxcomEdoApi.Library.Converters.Format5_03
 {
-	public interface IErpDocumentInfoConverter
+	public interface IErpDocumentInfoConverter5_03
 	{
 		/// <summary>
 		/// Получение информации о покупателе для документа

@@ -70,7 +70,9 @@ namespace TaxcomEdoApi.Controllers
 					updInfo.Number,
 					documentId);
 				
-				_taxcomApi.Send(container);
+				System.IO.File.WriteAllBytes(@"D:\test.zip", container.ExportToZip());
+				
+				//_taxcomApi.Send(container);
 				return Ok();
 			}
 			catch(Exception e)

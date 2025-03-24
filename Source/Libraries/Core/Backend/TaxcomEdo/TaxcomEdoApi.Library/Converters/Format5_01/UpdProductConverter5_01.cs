@@ -7,9 +7,9 @@ using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdo.Contracts.Goods;
 using TaxcomEdo.Contracts.Orders;
 
-namespace TaxcomEdoApi.Library.Converters
+namespace TaxcomEdoApi.Library.Converters.Format5_01
 {
-	public class UpdProductConverter : IUpdProductConverter
+	public class UpdProductConverter5_01 : IUpdProductConverter5_01
 	{
 		public FajlDokumentTablSchFaktSvedTov[] ConvertOrderItemsToUpdProducts(
 			IList<OrderItemInfoForEdo> orderItems, IEnumerable<SpecialNomenclatureInfoForEdo> counterpartySpecialNomenclatures)

@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 
-namespace TaxcomEdoApi.Library.Builders
+namespace TaxcomEdoApi.Library.Builders.Format5_01
 {
 	/// <summary>
 	/// Класс для формирования имени УПД в ЭДО
 	/// </summary>
-	public abstract class EdoUpdNameBuilder
+	public abstract class EdoUpdNameBuilder5_01
 	{
 		private const string _separator = "_";
 		private const string _markTag = "MARK";
@@ -26,7 +24,7 @@ namespace TaxcomEdoApi.Library.Builders
 		/// Установка идентификатора отправителя
 		/// </summary>
 		/// <param name="senderId">Идентификатор отправителя</param>
-		public EdoUpdNameBuilder SenderId(string senderId)
+		public EdoUpdNameBuilder5_01 SenderId(string senderId)
 		{
 			_senderId = senderId;
 			return this;
@@ -36,7 +34,7 @@ namespace TaxcomEdoApi.Library.Builders
 		/// Установка идентификатора получателя
 		/// </summary>
 		/// <param name="receiverId">Идентификатор получателя</param>
-		public EdoUpdNameBuilder ReceiverId(string receiverId)
+		public EdoUpdNameBuilder5_01 ReceiverId(string receiverId)
 		{
 			_receiverId = receiverId;
 			return this;
@@ -46,7 +44,7 @@ namespace TaxcomEdoApi.Library.Builders
 		/// Установка даты формирования документа в формате yyyyMMdd
 		/// </summary>
 		/// <param name="date">Дата</param>
-		public EdoUpdNameBuilder Date(DateTime date)
+		public EdoUpdNameBuilder5_01 Date(DateTime date)
 		{
 			_date = $"{date:yyyyMMdd}";
 			return this;
@@ -55,7 +53,7 @@ namespace TaxcomEdoApi.Library.Builders
 		/// <summary>
 		/// Контроль за движением товаров, подлежащих прослеживаемости
 		/// </summary>
-		public EdoUpdNameBuilder ControlTraceabilityGoods()
+		public EdoUpdNameBuilder5_01 ControlTraceabilityGoods()
 		{
 			_controlTraceabilityGoods = true;
 			return this;
@@ -64,7 +62,7 @@ namespace TaxcomEdoApi.Library.Builders
 		/// <summary>
 		/// Контроль за движением товаров, подлежащих маркировке
 		/// </summary>
-		public EdoUpdNameBuilder ControlMarkGoods()
+		public EdoUpdNameBuilder5_01 ControlMarkGoods()
 		{
 			_controlMarkGoods = true;
 			return this;

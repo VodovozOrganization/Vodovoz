@@ -1,10 +1,10 @@
-﻿using Taxcom.Client.Api.Document.DocumentByFormat1115131;
+﻿using Taxcom.Client.Api.Document.DocumentByFormat1115131_5_03;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Organizations;
 
-namespace TaxcomEdoApi.Library.Converters
+namespace TaxcomEdoApi.Library.Converters.Format5_03
 {
-	public interface IParticipantDocFlowConverter
+	public interface IParticipantDocFlowConverter5_03
 	{
 		UchastnikTip ConvertCounterpartyToUchastnikTip(CounterpartyInfoForEdo client);
 		UchastnikTip ConvertCounterpartyToUchastnikTip(CounterpartyInfoForEdo client, DeliveryPointInfoForEdo deliveryPoint);
