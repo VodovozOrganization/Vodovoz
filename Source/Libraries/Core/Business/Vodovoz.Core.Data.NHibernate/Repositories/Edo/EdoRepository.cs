@@ -45,6 +45,17 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				return result;
 			}
 		}
+		
+		public async Task<IEnumerable<GroupGtinEntity>> GetGroupGtinsAsync(CancellationToken cancellationToken)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var result = await uow.Session.QueryOver<GroupGtinEntity>()
+					.ListAsync(cancellationToken);
+
+				return result;
+			}
+		}
 
 		public async Task<bool> HasReceiptOnSumToday(decimal sum, CancellationToken cancellationToken)
 		{
