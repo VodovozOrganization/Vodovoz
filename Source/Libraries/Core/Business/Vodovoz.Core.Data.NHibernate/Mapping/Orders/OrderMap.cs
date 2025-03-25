@@ -166,7 +166,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 				.Column("is_second_order");
 
 			Map(x => x.CounterpartyExternalOrderId)
-				.Column("counterparty_external_order_id");
+				.Column("client_external_order_id");
 
 			Map(x => x.IsDoNotMakeCallBeforeArrival)
 				.Column("is_do_not_make_call_before_arrival");
