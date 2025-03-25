@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
@@ -72,8 +72,8 @@ namespace Vodovoz.Views.Documents
 			treeViewCodes.YTreeModel =
 				new RecursiveTreeModel<CodesScanViewModel.CodeScanRow>(ViewModel.CodeScanRows, x => x.Parent,
 					x => x.Children);
-			
-			treeViewCodes.KeyPressEvent += OnTreeViewCodesKeyPressEvent;
+
+			treeViewCodes.Binding.AddBinding(ViewModel, vm => vm.SelectedRow, w => w.SelectedRow).InitializeFromSource();
 
 			ytreeviewProgress.ColumnsConfig = FluentColumnsConfig<CodesScanViewModel.CodesScanProgressRow>.Create()
 				.AddColumn("GTIN")
@@ -91,25 +91,27 @@ namespace Vodovoz.Views.Documents
 
 			ytreeviewProgress.ItemsDataSource = ViewModel.CodesScanProgressRows;
 
-			ybuttonOk.Binding.AddBinding(ViewModel, vm => vm.IsAllCodesScanned, w => w.Sensitive).InitializeFromSource();
 			ybuttonOk.BindCommand(ViewModel.CloseCommand);
+
+			ybuttonDeleteCode.BindCommand(ViewModel.DeleteCodeCommand);
+
+			ybuttonCopyCodes.Clicked += OnYbuttonCopyCodesClicked;
 
 			ViewModel.RefreshScanningNomenclaturesAction = OnRefreshScanningNomenclatures;
 		}
 
-		private void OnTreeViewCodesKeyPressEvent(object o, KeyPressEventArgs args)
+		private void OnYbuttonCopyCodesClicked(object sender, EventArgs e)
 		{
-			if(args.Event.Key == Gdk.Key.Delete)
+			if(ViewModel.CodeScanRows.Any())
 			{
-				var row = treeViewCodes.GetSelectedObject() as CodesScanViewModel.CodeScanRow;
-				ViewModel.DeleteCodeCommand.Execute(row);
+				GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.GetCodesForClipboardCopy();
 			}
 		}
 
 		private void OnYentryCodeOnActivated(object sender, EventArgs args)
 		{
 			ViewModel.CheckCode(yentryCode.Text);
-			
+
 			yentryCode.Text = string.Empty;
 		}
 
@@ -129,7 +131,7 @@ namespace Vodovoz.Views.Documents
 		{
 			yentryCode.FocusOutEvent -= OnYentryCodeOnFocusOutEvent;
 			yentryCode.Activated -= OnYentryCodeOnActivated;
-			treeViewCodes.KeyPressEvent -= OnTreeViewCodesKeyPressEvent;
+			ybuttonCopyCodes.Clicked -= OnYbuttonCopyCodesClicked;
 
 			base.Destroy();
 		}

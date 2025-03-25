@@ -48,6 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private readonly BlockingCollection<CodeToCheck> _newCodesToCheck = new BlockingCollection<CodeToCheck>();
 		private readonly BlockingCollection<CodeToCheck> _oldCodesToRechek = new BlockingCollection<CodeToCheck>();
 		private CancellationTokenSource _cancelationTokenSource;
+		private CodeScanRow _selectedRow;
 
 		public CodesScanViewModel(
 			ILogger<CodesScanViewModel> logger,
@@ -87,7 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		public List<CodesScanProgressRow> CodesScanProgressRows { get; } = new List<CodesScanProgressRow>();
 
 		public DelegateCommand CloseCommand { get; private set; }
-		public DelegateCommand<CodeScanRow> DeleteCodeCommand { get; private set; }
+		public DelegateCommand DeleteCodeCommand { get; private set; }
 
 		public IRecursiveConfig RecursiveConfig { get; set; }
 
@@ -105,12 +106,18 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 		}
 
+		public CodeScanRow SelectedRow
+		{
+			get => _selectedRow;
+			set => SetField(ref _selectedRow, value);
+		}
+
 		private void Initialize()
 		{
 			CloseCommand = new DelegateCommand(CloseScanning, () => IsAllCodesScanned);
 			CloseCommand.CanExecuteChangedWith(this, vm => vm.IsAllCodesScanned);
 
-			DeleteCodeCommand = new DelegateCommand<CodeScanRow>(DeleteCode); 
+			DeleteCodeCommand = new DelegateCommand(DeleteCode);
 
 			_organizationInn = _selfDeliveryDocument.Order.Contract.Organization.INN;
 
@@ -156,25 +163,67 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			StartUpdater();
 		}
 
-		private void DeleteCode(CodeScanRow row)
+		private void DeleteCode()
 		{
-			if(row is null || !_interactiveService.Question($"Действительно хотите удалить код {row.RowNumber}?"))
-			{
-				return;
-			}
-
 			lock(CodeScanRows)
 			{
-				if(row.Parent != null)
-				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя удалять дочерний код из агрегатного.");
+				var rawCode = SelectedRow?.RawCode;
 
+				var parentRawCode = SelectedRow?.Parent;
+
+				if(rawCode is null || CurrentCodeInProcess != null)
+				{
 					return;
 				}
 
-				CodeScanRows.Remove(row);
+				var unitCodes = SelectedRow.Children.Any()
+					? SelectedRow.Children.Select(x => x.RawCode).ToList()
+					: new List<string> { SelectedRow.RawCode };
 
-				RefreshCodeScanRows();
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					if(!_interactiveService.Question($"Действительно хотите удалить код {rawCode}?"))
+					{
+						return;
+					}
+
+					if(parentRawCode != null)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя удалять дочерний код из агрегатного.");
+
+						return;
+					}
+
+					var hasOrderEdoRequest = _unitOfWork
+						.GetAll<OrderEdoRequest>()
+						.Any(x => x.Order.Id == _selfDeliveryDocument.Order.Id);
+
+					if(hasOrderEdoRequest)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Error, $"По данному заказу уже создана заявка");
+
+						return;
+					}
+
+					foreach(var unitCode in unitCodes)
+					{
+						ParseRawCode(unitCode, out var code);
+
+						var documentItem = _selfDeliveryDocument.Items
+							.FirstOrDefault(di => di.TrueMarkProductCodes.Any(pc => pc.SourceCode.RawCode == unitCode));
+
+						var toRemoveProducCode = documentItem?.TrueMarkProductCodes?
+							.FirstOrDefault(x => x.SourceCode.RawCode == unitCode);
+
+						documentItem?.TrueMarkProductCodes?.Remove(toRemoveProducCode);
+					}
+
+					var toRemoveRow = CodeScanRows.FirstOrDefault(x => x.RawCode == rawCode);
+
+					CodeScanRows.Remove(toRemoveRow);
+
+					RefreshCodeScanRows();
+				});
 			}
 		}
 
@@ -189,8 +238,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						CloseScanning();
 					}
 				);
-				
-
 			}
 		}
 
@@ -243,7 +290,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			while(!needCheckNewCode && _oldCodesToRechek.TryTake(out var code) && !cancellationToken.IsCancellationRequested)
 			{
-				var toTime = DateTime.UtcNow + TimeSpan.FromSeconds(10);
+				var toTime = DateTime.UtcNow + TimeSpan.FromMinutes(1);
 
 				while(DateTime.UtcNow < toTime && !cancellationToken.IsCancellationRequested)
 				{
@@ -254,6 +301,14 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					}
 
 					Thread.Sleep(100);
+				}
+
+				lock(CodeScanRows)
+				{
+					if(CodeScanRows.All(x => !x.RawCode.Contains(code.RawCode) && !code.RawCode.Contains(x.RawCode)))
+					{
+						break;
+					}
 				}
 
 				_logger.LogInformation("Запускам обработку кода c ошибкой {ToRecheckCode} из Updater-а", code.RawCode);
@@ -448,12 +503,11 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			{
 				CreationTime = DateTime.Now,
 				SourceCode = trueMarkWaterIdentificationCode,
+				ResultCode = trueMarkWaterIdentificationCode,
 				Problem = ProductCodeProblem.None,
 				SourceCodeStatus = SourceProductCodeStatus.Accepted,
 				SelfDeliveryDocumentItem = selfDeliveryDocumentItem
 			};
-
-			await _unitOfWork.SaveAsync(productCode, cancellationToken: cancellationToken);
 
 			selfDeliveryDocumentItem.TrueMarkProductCodes.Add(productCode);
 		}
@@ -477,7 +531,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			lock(CodeScanRows)
 			{
-
 				var existsCodeScanRow = CodeScanRows.FirstOrDefault(x => x.RawCode == code);
 
 				if(existsCodeScanRow is null)
@@ -560,19 +613,19 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			var validationErrors = await GetValidationErrorsFromTrueMarkAsync(rawCode, identificationCode, gtin, cancellationToken);
 			var isValid = validationErrors is null;
-			
+
 			var codesToDistribute = new List<TrueMarkWaterIdentificationCode>();
-			
+
 			lock(CodeScanRows)
 			{
 				var rootNode = CodeScanRows.FirstOrDefault(x => x.RawCode == rawCode);
-				
+
 				if(childrenUnitCodeList is null)
 				{
 					var childrenCodeScanRows = CodeScanRows.SelectMany(x => x.Children);
-					
-					var existsUnitCodeFromAggregateCode = childrenCodeScanRows.FirstOrDefault(x => 
-						x.RawCode.Contains(rootNode.RawCode) 
+
+					var existsUnitCodeFromAggregateCode = childrenCodeScanRows.FirstOrDefault(x =>
+						x.RawCode.Contains(rootNode.RawCode)
 						|| rootNode.RawCode.Contains(x.RawCode));
 
 					if(existsUnitCodeFromAggregateCode != null)
@@ -585,7 +638,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 						return;
 					}
-					
+
 					codesToDistribute.Add(anyCode.TrueMarkWaterIdentificationCode);
 				}
 				else
@@ -637,7 +690,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					}
 				}
 			}
-			
+
 			if(!anyCode.IsTrueMarkWaterIdentificationCode)
 			{
 				UpdateCodeScanRows(rawCode, gtin, additionalInformation: new List<string> { "Агрегатный код" });
@@ -768,7 +821,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			var gtin = parsedCode?.GTIN;
 
 			CodeScanRow alreadyScannedNode;
-			
+
 			lock(CodeScanRows)
 			{
 				alreadyScannedNode = CodeScanRows.FirstOrDefault(x => x?.RawCode == code);
@@ -788,7 +841,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			if(alreadyScannedNode != null)
 			{
 				RefreshCodeScanRows();
-				
+
 				return;
 			}
 
@@ -867,6 +920,9 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		{
 			await _messageBus.Publish(new EdoRequestCreatedEvent { Id = orderEdoRequest.Id });
 		}
+
+		public string GetCodesForClipboardCopy() =>
+			string.Join(", ", CodeScanRows.OrderBy(x => x.RowNumber).Select(x => $"\"{x.RawCode}\""));
 
 		public void Dispose()
 		{
