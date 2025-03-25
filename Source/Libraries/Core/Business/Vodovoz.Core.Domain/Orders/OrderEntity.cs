@@ -65,7 +65,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private int? _trifle;
 		private int? _onlineOrder;
 		private int? _eShopOrder;
-		private int? _counterpartyExternalOrderId;
+		private string _counterpartyExternalOrderId;
 		private bool _isContractCloser;
 		private bool _isTareNonReturnReasonChangedByUser;
 		private bool _hasCommentForDriver;
@@ -412,7 +412,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Идентификатор заказа в ИС контрагента")]
-		public virtual int? CounterpartyExternalOrderId
+		public virtual string CounterpartyExternalOrderId
 		{
 			get => _counterpartyExternalOrderId;
 			set => SetField(ref _counterpartyExternalOrderId, value);
