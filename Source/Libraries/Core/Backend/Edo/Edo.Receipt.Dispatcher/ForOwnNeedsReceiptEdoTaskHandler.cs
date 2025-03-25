@@ -27,6 +27,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Edo;
 
 namespace Edo.Receipt.Dispatcher
@@ -738,17 +739,33 @@ namespace Edo.Receipt.Dispatcher
 
 		private void UpdateReceiptMoneyPositions(EdoFiscalDocument currentFiscalDocument)
 		{
+			var order = currentFiscalDocument.ReceiptEdoTask.OrderEdoRequest.Order;
+
 			var receiptSum = currentFiscalDocument.InventPositions
 				.Sum(x =>  x.Price * x.Quantity - x.DiscountSum);
 
 			var moneyPosition = new FiscalMoneyPosition
 			{
-				PaymentType = FiscalPaymentType.Cash,
+				PaymentType = GetPaymentType(order.PaymentType),
 				Sum = receiptSum
 			};
 
 			currentFiscalDocument.MoneyPositions.Clear();
 			currentFiscalDocument.MoneyPositions.Add(moneyPosition);
+		}
+
+		private FiscalPaymentType GetPaymentType(PaymentType orderPaymentType)
+		{
+			switch(orderPaymentType)
+			{
+				case PaymentType.Terminal:
+				case PaymentType.DriverApplicationQR:
+				case PaymentType.SmsQR:
+				case PaymentType.PaidOnline:
+					return FiscalPaymentType.Card;
+				default:
+					return FiscalPaymentType.Cash;
+			}
 		}
 
 		private IEnumerable<(OrderItemEntity OrderItem, decimal DiscountPerSingleItem)> ExpandMarkedOrderItems(IEnumerable<OrderItemEntity> markedOrderItems)
