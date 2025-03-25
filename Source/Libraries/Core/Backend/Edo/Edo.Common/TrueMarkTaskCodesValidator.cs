@@ -157,7 +157,11 @@ namespace Edo.Common
 		public async Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<string> codes, string organizationInn, CancellationToken cancellationToken)
 		{
 			var gtins = await _edoRepository.GetGtinsAsync(cancellationToken);
-			var gtinNumbers = gtins.Select(x => x.GtinNumber);
+			var groupGtins = await _edoRepository.GetGroupGtinsAsync(cancellationToken);
+
+			var gtinNumbers =
+				gtins.Select(x => x.GtinNumber)
+					.Union(groupGtins.Select(x => x.GtinNumber));
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
 			var ourOrganizationInns = edoOrganizations.Select(x => x.INN);
