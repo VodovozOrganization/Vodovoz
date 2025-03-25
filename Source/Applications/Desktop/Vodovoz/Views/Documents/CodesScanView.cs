@@ -72,6 +72,8 @@ namespace Vodovoz.Views.Documents
 			treeViewCodes.YTreeModel =
 				new RecursiveTreeModel<CodesScanViewModel.CodeScanRow>(ViewModel.CodeScanRows, x => x.Parent,
 					x => x.Children);
+			
+			treeViewCodes.KeyPressEvent += OnTreeViewCodesKeyPressEvent;
 
 			ytreeviewProgress.ColumnsConfig = FluentColumnsConfig<CodesScanViewModel.CodesScanProgressRow>.Create()
 				.AddColumn("GTIN")
@@ -93,6 +95,15 @@ namespace Vodovoz.Views.Documents
 			ybuttonOk.BindCommand(ViewModel.CloseCommand);
 
 			ViewModel.RefreshScanningNomenclaturesAction = OnRefreshScanningNomenclatures;
+		}
+
+		private void OnTreeViewCodesKeyPressEvent(object o, KeyPressEventArgs args)
+		{
+			if(args.Event.Key == Gdk.Key.Delete)
+			{
+				var row = treeViewCodes.GetSelectedObject() as CodesScanViewModel.CodeScanRow;
+				ViewModel.DeleteCodeCommand.Execute(row);
+			}
 		}
 
 		private void OnYentryCodeOnActivated(object sender, EventArgs args)
@@ -118,6 +129,7 @@ namespace Vodovoz.Views.Documents
 		{
 			yentryCode.FocusOutEvent -= OnYentryCodeOnFocusOutEvent;
 			yentryCode.Activated -= OnYentryCodeOnActivated;
+			treeViewCodes.KeyPressEvent -= OnTreeViewCodesKeyPressEvent;
 
 			base.Destroy();
 		}

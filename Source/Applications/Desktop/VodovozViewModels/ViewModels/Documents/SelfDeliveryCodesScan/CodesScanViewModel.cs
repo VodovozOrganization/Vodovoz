@@ -86,7 +86,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		public List<CodesScanProgressRow> CodesScanProgressRows { get; } = new List<CodesScanProgressRow>();
 
-		public DelegateCommand CloseCommand { get; set; }
+		public DelegateCommand CloseCommand { get; private set; }
+		public DelegateCommand<CodeScanRow> DeleteCodeCommand { get; private set; }
 
 		public IRecursiveConfig RecursiveConfig { get; set; }
 
@@ -108,6 +109,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		{
 			CloseCommand = new DelegateCommand(CloseScanning, () => IsAllCodesScanned);
 			CloseCommand.CanExecuteChangedWith(this, vm => vm.IsAllCodesScanned);
+
+			DeleteCodeCommand = new DelegateCommand<CodeScanRow>(DeleteCode); 
 
 			_organizationInn = _selfDeliveryDocument.Order.Contract.Organization.INN;
 
@@ -151,6 +154,28 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			CheckAllCodeScanned();
 
 			StartUpdater();
+		}
+
+		private void DeleteCode(CodeScanRow row)
+		{
+			if(row is null || !_interactiveService.Question($"Действительно хотите удалить код {row.RowNumber}?"))
+			{
+				return;
+			}
+
+			lock(CodeScanRows)
+			{
+				if(row.Parent != null)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя удалять дочерний код из агрегатного.");
+
+					return;
+				}
+
+				CodeScanRows.Remove(row);
+
+				RefreshCodeScanRows();
+			}
 		}
 
 		private void CheckAllCodeScanned()
