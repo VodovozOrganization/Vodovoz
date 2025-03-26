@@ -828,7 +828,7 @@ namespace Vodovoz.Views.Cash
 			w59.XOptions = ((global::Gtk.AttachOptions)(4));
 			w59.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.spinBillSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 100D);
+			this.spinBillSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 1D);
 			this.spinBillSum.WidthRequest = 190;
 			this.spinBillSum.CanFocus = true;
 			this.spinBillSum.Name = "spinBillSum";
@@ -847,7 +847,7 @@ namespace Vodovoz.Views.Cash
 			w60.XOptions = ((global::Gtk.AttachOptions)(4));
 			w60.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.spinBillSumGived = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 100D);
+			this.spinBillSumGived = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 1D);
 			this.spinBillSumGived.WidthRequest = 190;
 			this.spinBillSumGived.CanFocus = true;
 			this.spinBillSumGived.Name = "spinBillSumGived";
@@ -866,7 +866,7 @@ namespace Vodovoz.Views.Cash
 			w61.XOptions = ((global::Gtk.AttachOptions)(4));
 			w61.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.spinBillSumRemainingToGive = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 100D);
+			this.spinBillSumRemainingToGive = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 1D);
 			this.spinBillSumRemainingToGive.WidthRequest = 190;
 			this.spinBillSumRemainingToGive.CanFocus = true;
 			this.spinBillSumRemainingToGive.Name = "spinBillSumRemainingToGive";
@@ -885,7 +885,7 @@ namespace Vodovoz.Views.Cash
 			w62.XOptions = ((global::Gtk.AttachOptions)(4));
 			w62.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.spinCustomVatValue = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 100D);
+			this.spinCustomVatValue = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 1D);
 			this.spinCustomVatValue.WidthRequest = 190;
 			this.spinCustomVatValue.CanFocus = true;
 			this.spinCustomVatValue.Name = "spinCustomVatValue";
@@ -904,7 +904,7 @@ namespace Vodovoz.Views.Cash
 			w63.XOptions = ((global::Gtk.AttachOptions)(4));
 			w63.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.spinIntervals = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 100D);
+			this.spinIntervals = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 1D);
 			this.spinIntervals.WidthRequest = 190;
 			this.spinIntervals.CanFocus = true;
 			this.spinIntervals.Name = "spinIntervals";
@@ -922,7 +922,7 @@ namespace Vodovoz.Views.Cash
 			w64.XOptions = ((global::Gtk.AttachOptions)(4));
 			w64.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.spinRepeatsCount = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 100D);
+			this.spinRepeatsCount = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 1D);
 			this.spinRepeatsCount.WidthRequest = 190;
 			this.spinRepeatsCount.CanFocus = true;
 			this.spinRepeatsCount.Name = "spinRepeatsCount";
