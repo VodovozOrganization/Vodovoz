@@ -827,6 +827,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private void RemoveOutgoingPayment()
 		{
 			Entity.RemoveOutgoingPayment(SelectedOutgoingPayment.Id);
+
+			OnPropertyChanged(nameof(SumGiven));
+			OnPropertyChanged(nameof(SumRemaining));
 		}
 
 		private void AddOutgoingPayment()
@@ -870,6 +873,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 
 			Entity.AddOutgoingPayments(outgoignPaymentsToAdd.Where(x => x.CashlessRequestId == null));
+
+			OnPropertyChanged(nameof(SumGiven));
+			OnPropertyChanged(nameof(SumRemaining));
 		}
 
 		#endregion Command Handlers
@@ -1034,6 +1040,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				e => e.ExpenseCategoryId,
 				() => FinancialExpenseCategory);
 			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanChangeFinancialResponsibilityCenter);
+			SetPropertyChangeRelation(e => e.Sum,
+				() => SumGiven,
+				() => SumRemaining);
 		}
 
 		private bool ValidateForNextState(PayoutRequestState nextState)
