@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Errors;
 using Vodovoz.Settings.Delivery;
+using VodovozBusiness.Domain.Operations;
 
 namespace Vodovoz.Application.Payments
 {

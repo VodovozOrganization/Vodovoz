@@ -5,6 +5,7 @@ using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
+using VodovozBusiness.Domain.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Payments
 {

@@ -19,6 +19,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Counterparties;
+using VodovozBusiness.Domain.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {

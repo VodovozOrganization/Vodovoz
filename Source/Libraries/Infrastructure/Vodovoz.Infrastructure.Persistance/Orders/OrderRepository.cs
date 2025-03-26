@@ -39,6 +39,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.TrueMark;
+using VodovozBusiness.Domain.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {

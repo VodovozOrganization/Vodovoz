@@ -17,6 +17,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
+using VodovozBusiness.Domain.Operations;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Payments

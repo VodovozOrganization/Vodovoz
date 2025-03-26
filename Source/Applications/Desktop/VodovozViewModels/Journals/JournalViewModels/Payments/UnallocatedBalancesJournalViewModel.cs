@@ -25,6 +25,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Payments;
+using VodovozBusiness.Domain.Operations;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments

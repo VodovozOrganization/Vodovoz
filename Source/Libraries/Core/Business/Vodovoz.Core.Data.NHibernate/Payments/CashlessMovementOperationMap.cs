@@ -1,16 +1,16 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Operations;
-using VodovozBusiness.Domain.Operations;
+using Vodovoz.Core.Domain.Payments;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
+namespace Vodovoz.Core.Data.NHibernate.Payments
 {
-	public class CashlessMovementOperationMap : ClassMap<CashlessMovementOperation>
+	public class CashlessMovementOperationMap : ClassMap<CashlessMovementOperationEntity>
 	{
 		public CashlessMovementOperationMap()
 		{
 			Table("cashless_movement_operations");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			
 			Map(x => x.OperationTime).Column("operation_time");
 			Map(x => x.Income).Column("income");
 			Map(x => x.Expense).Column("expense");

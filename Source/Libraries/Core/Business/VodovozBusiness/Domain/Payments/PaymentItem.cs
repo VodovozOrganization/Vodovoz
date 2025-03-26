@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Operations;
 
 namespace Vodovoz.Domain.Payments
 {

@@ -29,6 +29,7 @@ using Vodovoz.Tools;
 using Vodovoz.ViewModels.Accounting.Payments;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.ViewModels.Payments;
+using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.Payments;
 using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;
 using BaseOrg = Vodovoz.Domain.Organizations.Organization;

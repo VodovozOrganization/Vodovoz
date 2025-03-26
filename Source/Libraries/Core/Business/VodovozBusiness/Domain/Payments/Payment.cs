@@ -15,6 +15,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using VodovozBusiness.Domain.Operations;
 
 namespace Vodovoz.Domain.Payments
 {
