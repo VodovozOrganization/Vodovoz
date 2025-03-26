@@ -296,7 +296,7 @@ namespace Vodovoz.Views.Cash
 			};
 
 			ytreeviewComments.ExpandAll();
-			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
+			ytreeviewComments.RowActivated += OnCommentNoeActivated;
 
 			ytextviewComment.Binding
 				.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text)
@@ -329,6 +329,19 @@ namespace Vodovoz.Views.Cash
 			ytreeview1.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedOutgoingPaymentObject, w => w.SelectedRow)
 				.InitializeFromSource();
+
+			ytreeview1.RowActivated += OnOutgoingPaymentNodeActivated;
+		}
+
+		private void OnOutgoingPaymentNodeActivated(object o, RowActivatedArgs args)
+		{
+			if(!(ytreeview1.GetSelectedObject<OutgoingPayment>() is OutgoingPayment node))
+			{
+				return;
+			}
+
+			ViewModel.OpenOutgoingPaymentsCommand?.Execute();
+
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -339,7 +352,7 @@ namespace Vodovoz.Views.Cash
 			}
 		}
 
-		private void YtreeviewComments_RowActivated(object o, RowActivatedArgs args)
+		private void OnCommentNoeActivated(object o, RowActivatedArgs args)
 		{
 			if(!(ytreeviewComments.GetSelectedObject() is CashlessRequestCommentFileInformation cashlessRequestCommentFileInformation))
 			{
@@ -399,7 +412,7 @@ namespace Vodovoz.Views.Cash
 		public override void Destroy()
 		{
 			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-			ytreeviewComments.RowActivated -= YtreeviewComments_RowActivated;
+			ytreeviewComments.RowActivated -= OnCommentNoeActivated;
 
 			base.Destroy();
 		}

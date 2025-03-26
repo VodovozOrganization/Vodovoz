@@ -32,6 +32,7 @@ using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
+using Vodovoz.ViewModels.Cash.Payments;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -317,6 +318,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			CreateCalendarCommand = new DelegateCommand(CreateCalendar, () => CanCreateGiveOutSchedule && !IsSecurityServiceRole);
 
+			OpenOutgoingPaymentsCommand = new DelegateCommand(OpenOutgoingPayment, () => true);
+
 			AddOutgoingPaymentCommand = new DelegateCommand(AddOutgoingPayment, () => CanEdit);
 
 			RemoveOutgoingPaymentCommand = new DelegateCommand(RemoveOutgoingPayment, () => CanEdit);
@@ -333,6 +336,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			UpdateCanEdit();
 
 			PrefetchCommentsAuthorsTitles();
+		}
+
+		private void OpenOutgoingPayment()
+		{
+			NavigationManager.OpenViewModel<OutgoingPaymentEditViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(SelectedOutgoingPayment.Id));
 		}
 
 		private void OnCashlessRequestPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -535,8 +543,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public DelegateCommand CreateCalendarCommand { get; }
 
-		public DelegateCommand AddOutgoingPaymentCommand { get; set; }
-		public DelegateCommand RemoveOutgoingPaymentCommand { get; set; }
+		public DelegateCommand AddOutgoingPaymentCommand { get; }
+		public DelegateCommand RemoveOutgoingPaymentCommand { get; }
+		public DelegateCommand OpenOutgoingPaymentsCommand { get; }
 
 		#endregion Commands
 
