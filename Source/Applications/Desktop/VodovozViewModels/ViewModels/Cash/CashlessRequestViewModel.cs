@@ -322,7 +322,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			AddOutgoingPaymentCommand = new DelegateCommand(AddOutgoingPayment, () => CanEdit);
 
-			RemoveOutgoingPaymentCommand = new DelegateCommand(RemoveOutgoingPayment, () => CanEdit);
+			RemoveOutgoingPaymentCommand = new DelegateCommand(RemoveOutgoingPayment, () => CanRemoveOutgoingPaymentCommand);
 
 			#endregion Commands
 
@@ -401,6 +401,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 		}
 
+		[PropertyChangedAlso(nameof(CanRemoveOutgoingPaymentCommand))]
 		public OutgoingPayment SelectedOutgoingPayment
 		{
 			get => _selectedOutgoingPayment;
@@ -469,6 +470,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public bool CanAddComment =>
 			CanEdit
 			&& !string.IsNullOrWhiteSpace(NewCommentText);
+
+		public bool CanRemoveOutgoingPaymentCommand =>
+			CanEdit
+			&& SelectedOutgoingPayment != null;
 
 		public string VatString => Entity.VatValue == 0 ? "Без НДС" : $"{Entity.VatValue}% НДС";
 
@@ -646,7 +651,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			nameof(CanSeeExpenseCategory),
 			nameof(IsSecurityServiceRole),
 			nameof(CanSendToWaitingForAgreedByExecutiveDirector),
-			nameof(CanEditPlainProperties))]
+			nameof(CanEditPlainProperties),
+			nameof(CanRemoveOutgoingPaymentCommand))]
 		public bool CanEdit
 		{
 			get => _canEdit;
