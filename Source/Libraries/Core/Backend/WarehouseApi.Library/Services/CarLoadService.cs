@@ -1,8 +1,10 @@
-﻿using Edo.Contracts.Messages.Events;
+using Edo.Contracts.Messages.Events;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using MySqlConnector;
 using OneOf;
+using OneOf.Types;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -27,6 +29,7 @@ using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
+using Error = Vodovoz.Errors.Error;
 
 namespace WarehouseApi.Library.Services
 {
@@ -335,7 +338,38 @@ namespace WarehouseApi.Library.Services
 				_uow.Save(documentItemToEdit);
 			}
 
-			_uow.Commit();
+			try
+			{
+				_uow.Commit();
+			}
+			catch(MySqlException mysqlException) when (mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
+			{
+				_logger.LogError(mysqlException, "DuplicateEntry: {ExceptionMessage}", mysqlException.Message);
+
+				var error = new Error("Database.Commit.Error", "Код уже был добавлен в другом документе");
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+
+				var error = new Error("Database.Commit.Error", e.Message);
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
 
 			if(nomenclatureDto != null)
 			{
@@ -436,7 +470,7 @@ namespace WarehouseApi.Library.Services
 				});
 			}
 
-			Result<TrueMarkAnyCode> newTrueMarkCodeResult = null;
+			Vodovoz.Errors.Result<TrueMarkAnyCode> newTrueMarkCodeResult = null;
 
 			if(!string.IsNullOrWhiteSpace(newScannedCode))
 			{
