@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
@@ -73,6 +73,8 @@ namespace Vodovoz.Views.Documents
 				new RecursiveTreeModel<CodesScanViewModel.CodeScanRow>(ViewModel.CodeScanRows, x => x.Parent,
 					x => x.Children);
 
+			treeViewCodes.Binding.AddBinding(ViewModel, vm => vm.SelectedRow, w => w.SelectedRow).InitializeFromSource();
+
 			ytreeviewProgress.ColumnsConfig = FluentColumnsConfig<CodesScanViewModel.CodesScanProgressRow>.Create()
 				.AddColumn("GTIN")
 				.AddTextRenderer(n => n.Gtin)
@@ -89,16 +91,27 @@ namespace Vodovoz.Views.Documents
 
 			ytreeviewProgress.ItemsDataSource = ViewModel.CodesScanProgressRows;
 
-			ybuttonOk.Binding.AddBinding(ViewModel, vm => vm.IsAllCodesScanned, w => w.Sensitive).InitializeFromSource();
 			ybuttonOk.BindCommand(ViewModel.CloseCommand);
 
+			ybuttonDeleteCode.BindCommand(ViewModel.DeleteCodeCommand);
+
+			ybuttonCopyCodes.Clicked += OnYbuttonCopyCodesClicked;
+
 			ViewModel.RefreshScanningNomenclaturesAction = OnRefreshScanningNomenclatures;
+		}
+
+		private void OnYbuttonCopyCodesClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.CodeScanRows.Any())
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.GetCodesForClipboardCopy();
+			}
 		}
 
 		private void OnYentryCodeOnActivated(object sender, EventArgs args)
 		{
 			ViewModel.CheckCode(yentryCode.Text);
-			
+
 			yentryCode.Text = string.Empty;
 		}
 
@@ -118,6 +131,7 @@ namespace Vodovoz.Views.Documents
 		{
 			yentryCode.FocusOutEvent -= OnYentryCodeOnFocusOutEvent;
 			yentryCode.Activated -= OnYentryCodeOnActivated;
+			ybuttonCopyCodes.Clicked -= OnYbuttonCopyCodesClicked;
 
 			base.Destroy();
 		}
