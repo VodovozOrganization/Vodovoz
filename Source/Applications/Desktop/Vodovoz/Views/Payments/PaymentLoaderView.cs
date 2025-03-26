@@ -7,6 +7,7 @@ using System.Linq;
 using QS.Navigation;
 using System;
 using NLog;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.Infrastructure;
