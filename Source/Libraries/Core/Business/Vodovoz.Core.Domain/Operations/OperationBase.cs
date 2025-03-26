@@ -2,16 +2,24 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 
-namespace Vodovoz.Domain.Operations
+namespace Vodovoz.Core.Domain.Operations
 {
+	/// <summary>
+	/// Базовый класс операций
+	/// </summary>
 	public class OperationBase: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private DateTime _operationTime;
+
 		public virtual int Id { get; set; }
 
-		DateTime operationTime;
-		public virtual DateTime OperationTime {
-			get => operationTime;
-			set => SetField (ref operationTime, value);
+		/// <summary>
+		/// Время операции
+		/// </summary>
+		public virtual DateTime OperationTime
+		{
+			get => _operationTime;
+			set => SetField (ref _operationTime, value);
 		}
 
 		#region IValidatableObject implementation
