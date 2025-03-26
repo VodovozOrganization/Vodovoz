@@ -469,8 +469,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public bool CanAddComment =>
 			CanEdit
 			&& !string.IsNullOrWhiteSpace(NewCommentText);
-		
-		public string VatString => Entity.VatValue == 0 ? "Без НДС" : Entity.VatValue.ToString();
+
+		public string VatString => Entity.VatValue == 0 ? "Без НДС" : $"{Entity.VatValue}% НДС";
 
 		public bool CanCreateGiveOutSchedule { get; private set; }
 
@@ -978,7 +978,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(Entity.Id == 0 && string.IsNullOrWhiteSpace(Entity.PaymentPurpose))
 			{
-				Entity.PaymentPurpose = $"Оплата по счету № {Entity.BillNumber} от {Entity.BillDate:dd.MM.yyyy}.Сумма {Entity.Sum:# ###.##}. {VatString}";
+				Entity.PaymentPurpose = $"Оплата по счету № {Entity.BillNumber} от {Entity.BillDate:dd.MM.yyyy}.Сумма {Entity.Sum:# ###.##}, в том числе {VatString} - {Entity.Sum / 100 * VatValues[SelectedVatValue]}";
 			}
 
 			if(!base.Save(false))
