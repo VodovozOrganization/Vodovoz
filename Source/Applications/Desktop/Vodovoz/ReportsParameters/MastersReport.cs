@@ -21,6 +21,10 @@ namespace Vodovoz.ReportsParameters
 			evmeDriver.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Driver, w => w.Subject)
 				.InitializeFromSource();
+			
+			chkAccountPartUndelivery.Binding
+				.AddBinding(ViewModel, vm => vm.AccountPartUndelivery, w => w.Active)
+				.InitializeFromSource();
 
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
