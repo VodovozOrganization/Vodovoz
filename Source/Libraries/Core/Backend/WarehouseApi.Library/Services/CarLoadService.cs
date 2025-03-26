@@ -1,4 +1,4 @@
-﻿using Edo.Contracts.Messages.Events;
+using Edo.Contracts.Messages.Events;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -470,7 +470,7 @@ namespace WarehouseApi.Library.Services
 				});
 			}
 
-			Result<TrueMarkAnyCode> newTrueMarkCodeResult = null;
+			Vodovoz.Errors.Result<TrueMarkAnyCode> newTrueMarkCodeResult = null;
 
 			if(!string.IsNullOrWhiteSpace(newScannedCode))
 			{
