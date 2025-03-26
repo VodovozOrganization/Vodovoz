@@ -12,7 +12,7 @@ namespace Edo.Transfer.Dispatcher
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddEdoTransferRoutine(this IServiceCollection services, IConfiguration configuration)
+		public static IServiceCollection AddEdoTransferRoutine(this IServiceCollection services)
 		{
 			services
 				.AddScoped<StaleTransferSender>()
@@ -24,12 +24,12 @@ namespace Edo.Transfer.Dispatcher
 
 			services.AddEdoMassTransit();
 
-			services.AddWaitingTransfersUpdateWorker(configuration);
+			services.AddWaitingTransfersUpdateWorker();
 
 			return services;
 		}
 
-		private static IServiceCollection AddWaitingTransfersUpdateWorker(this IServiceCollection services, IConfiguration configuration)
+		private static IServiceCollection AddWaitingTransfersUpdateWorker(this IServiceCollection services)
 		{
 			services.ConfigureOptions<ConfigureWaitingTransfersUpdateSettings>();
 
