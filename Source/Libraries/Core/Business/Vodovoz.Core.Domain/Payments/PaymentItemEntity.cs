@@ -14,7 +14,6 @@ namespace Vodovoz.Core.Domain.Payments
 		Nominative = "строка платежа(куда распределен)",
 		Prepositional = "строке платежа(куда распределен)",
 		PrepositionalPlural = "строках платежа(куда распределены)")]
-	[HistoryTrace]
 	public class PaymentItemEntity : PropertyChangedBase, IDomainObject
 	{
 		private decimal _sum;
