@@ -10,6 +10,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Settings.Nomenclature;
 
@@ -36,12 +37,14 @@ namespace Edo.Docflow.Factories
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
-		public UniversalTransferDocumentInfo CreateUniversalTransferDocumentInfo(DocumentEdoTask documentEdoTask)
+		public UniversalTransferDocumentInfo CreateUniversalTransferDocumentInfo(
+			DocumentEdoTask documentEdoTask, IEnumerable<PaymentEntity> payments)
 		{
-			return ConvertTransferOrderToUniversalTransferDocumentInfo(documentEdoTask);
+			return ConvertTransferOrderToUniversalTransferDocumentInfo(documentEdoTask, payments);
 		}
 
-		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(DocumentEdoTask documentEdoTask)
+		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(
+			DocumentEdoTask documentEdoTask, IEnumerable<PaymentEntity> payments)
 		{
 			var order = documentEdoTask.OrderEdoRequest.Order;
 
@@ -58,7 +61,7 @@ namespace Edo.Docflow.Factories
 				Consignee = GetConsigneeInfo(order.Client, order.DeliveryPoint),
 				DocumentConfirmingShipment = GetDocumentConfirmingShipmentInfo(order),
 				BasisShipment = GetBasisShipmentInfo(order.Client, order.Contract),
-				Payments = GetPayments(order),
+				Payments = GetPayments(payments),
 				Products = products,
 				AdditionalInformation = GetAdditionalInformation(order, products)
 			};
@@ -152,15 +155,14 @@ namespace Edo.Docflow.Factories
 			return basis;
 		}
 
-		private IEnumerable<PaymentInfo> GetPayments(OrderEntity order) =>
-			new List<PaymentInfo>
-			{
-				new PaymentInfo
+		private IEnumerable<PaymentInfo> GetPayments(IEnumerable<PaymentEntity> payments)
+		{
+			return payments.Select(payment => new PaymentInfo
 				{
-					PaymentNum = order.Id.ToString(),
-					PaymentDate = order.DeliveryDate.Value.ToString(_dateFormatString),
-				}
-			};
+					PaymentNum = payment.PaymentNum.ToString(),
+					PaymentDate = payment.Date.ToString(_dateFormatString),
+				}).ToList();
+		}
 
 		private IEnumerable<UpdAdditionalInfo> GetAdditionalInformation(OrderEntity order, IEnumerable<ProductInfo> products)
 		{

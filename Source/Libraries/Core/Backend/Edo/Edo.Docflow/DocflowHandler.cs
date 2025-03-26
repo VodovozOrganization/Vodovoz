@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
@@ -19,6 +20,7 @@ namespace Edo.Docflow
 		private readonly ILogger<DocflowHandler> _logger;
 		private readonly TransferOrderUpdInfoFactory _transferOrderUpdInfoFactory;
 		private readonly OrderUpdInfoFactory _orderUpdInfoFactory;
+		private readonly IPaymentRepository _paymentRepository;
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
 
@@ -27,6 +29,7 @@ namespace Edo.Docflow
 			IUnitOfWorkFactory uowFactory,
 			TransferOrderUpdInfoFactory transferOrderUpdInfoFactory,
 			OrderUpdInfoFactory orderUpdInfoFactory,
+			IPaymentRepository paymentRepository,
 			IBus messageBus
 			)
 		{
@@ -38,6 +41,7 @@ namespace Edo.Docflow
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_transferOrderUpdInfoFactory = transferOrderUpdInfoFactory ?? throw new ArgumentNullException(nameof(transferOrderUpdInfoFactory));
 			_orderUpdInfoFactory = orderUpdInfoFactory ?? throw new ArgumentNullException(nameof(orderUpdInfoFactory));
+			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_uow = uowFactory.CreateWithoutRoot();
 		}
@@ -92,8 +96,9 @@ namespace Edo.Docflow
 			{
 				case CustomerEdoRequestType.Order:
 					var order = documentTask.OrderEdoRequest.Order;
+					var payments = _paymentRepository.GetOrderPayments(_uow, order.Id);
 					sender = order.Contract.Organization;
-					updInfo = _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask);
+					updInfo = _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask, payments);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 				case CustomerEdoRequestType.OrderWithoutShipmentForDebt:

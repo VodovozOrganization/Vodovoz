@@ -2,6 +2,7 @@
 using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Payments
 {
@@ -18,7 +19,7 @@ namespace Vodovoz.Core.Domain.Payments
 	{
 		private decimal _sum;
 		private AllocationStatus _paymentItemStatus;
-		private Order _order;
+		private OrderEntity _order;
 		private PaymentEntity _payment;
 		private CashlessMovementOperationEntity _cashlessMovementOperation;
 
@@ -28,7 +29,7 @@ namespace Vodovoz.Core.Domain.Payments
 		/// Заказ
 		/// </summary>
 		[Display(Name = "Заказ")]
-		public virtual Order Order
+		public virtual OrderEntity Order
 		{
 			get => _order;
 			set => SetField(ref _order, value);
