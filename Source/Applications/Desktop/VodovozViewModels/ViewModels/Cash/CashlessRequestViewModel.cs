@@ -849,7 +849,18 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				.Where(x => outgoingPaymentsIds.Contains(x.Id))
 				.ToArray();
 
-			Entity.AddOutgoingPayments(outgoignPaymentsToAdd);
+			var usedOutgoingPayments = outgoignPaymentsToAdd.Where(x => x.CashlessRequestId != null);
+
+			if(usedOutgoingPayments.Any())
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Платежи:\n" +
+					$"{string.Join("", usedOutgoingPayments.Select(x => $"[{x.Id}]: №{x.PaymentNumber} - {x.Sum}\n"))}\n" +
+					$"Уже привязаны к другим заявкам и не будут добавлены");
+			}
+
+			Entity.AddOutgoingPayments(outgoignPaymentsToAdd.Where(x => x.CashlessRequestId == null));
 		}
 
 		#endregion Command Handlers
