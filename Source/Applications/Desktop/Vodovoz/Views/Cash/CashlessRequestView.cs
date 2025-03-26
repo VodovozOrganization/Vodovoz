@@ -209,6 +209,7 @@ namespace Vodovoz.Views.Cash
 
 			ylabelRepeatInterval.Binding
 				.AddBinding(ViewModel, vm => vm.CreateGiveOutSchedule, w => w.Visible)
+				.AddBinding(vm => vm.ShowDaysBetween, w => w.Visible)
 				.InitializeFromSource();
 
 			spinIntervals.Binding
