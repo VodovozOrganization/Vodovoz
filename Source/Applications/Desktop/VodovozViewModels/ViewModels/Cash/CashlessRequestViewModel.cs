@@ -19,7 +19,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Windows.Input;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Domain.Cash;
@@ -488,6 +487,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			set => SetField(ref _createGiveOutSchedule, value);
 		}
 
+		[PropertyChangedAlso(nameof(ShowDaysBetween))]
 		public RepeatIntervalTypes RepeatIntervalType
 		{
 			get => _repeatIntervalType;
