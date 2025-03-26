@@ -10,7 +10,7 @@ namespace Vodovoz.ReportsParameters
 	{
 		public MastersReport(MastersReportViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 
 			dateperiodpicker.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
