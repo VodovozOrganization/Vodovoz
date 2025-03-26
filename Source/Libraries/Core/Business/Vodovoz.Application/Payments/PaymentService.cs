@@ -144,7 +144,7 @@ namespace Vodovoz.Application.Payments
 					}
 
 					var allocatedPaymentItems =
-						payment.PaymentItems.Where(
+						payment.Items.Where(
 							pi => pi.CashlessMovementOperation == null
 								|| pi.Sum != pi.CashlessMovementOperation.Expense);
 
@@ -261,10 +261,10 @@ namespace Vodovoz.Application.Payments
 					&& (allocateCompletedPayments
 						? payment.Status == PaymentState.completed
 						: payment.Status != PaymentState.Cancelled)
-					&& (payment.Total - ((decimal?)payment.PaymentItems
+					&& (payment.Total - ((decimal?)payment.Items
 						.Where(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
 						.Sum(pi => pi.Sum) ?? 0m) > 0)
-				orderby payment.Total - ((decimal?)payment.PaymentItems
+				orderby payment.Total - ((decimal?)payment.Items
 					.Where(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
 					.Sum(pi => pi.Sum) ?? 0m) descending
 				orderby payment.Date ascending
@@ -272,7 +272,7 @@ namespace Vodovoz.Application.Payments
 				{
 					Id = payment.Id,
 					PaymentDate = payment.Date,
-					UnallocatedSum = payment.Total - ((decimal?)payment.PaymentItems
+					UnallocatedSum = payment.Total - ((decimal?)payment.Items
 						.Where(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
 						.Sum(pi => pi.Sum) ?? 0m)
 				}).ToList();

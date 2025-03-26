@@ -16,6 +16,7 @@ using QS.Utilities.Enums;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -129,9 +130,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			TabClosed += OnTabClosed;
 
-			Entity.ObservableItems.ElementRemoved += (_, _1, _2) => OnPropertyChanged(nameof(CanChangeCounterparty));
-
-			Entity.ObservableItems.ElementAdded += (_, _1) => OnPropertyChanged(nameof(CanChangeCounterparty));
+			Entity.Items.CollectionChanged += OnPaymentItemsChanged;
 		}
 
 		#region Свойства
@@ -218,7 +217,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public bool CanRevertPayFromOrderPermission { get; }
 
-		public bool HasPaymentItems => Entity.PaymentItems.Any();
+		public bool HasPaymentItems => Entity.Items.Any();
 		public bool CounterpartyIsNull => Entity.Counterparty == null;
 
 		public IJournalSearch Search { get; }
@@ -349,7 +348,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private bool RevertPay()
 		{
-			var paymentItem = Entity.PaymentItems.SingleOrDefault(x => x.Id == SelectedAllocatedNode.PaymentItemId);
+			var paymentItem = Entity.Items.SingleOrDefault(x => x.Id == SelectedAllocatedNode.PaymentItemId);
 
 			if(paymentItem is null)
 			{
@@ -360,7 +359,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			UoW.Save();
 
-			if(Entity.PaymentItems.Any())
+			if(Entity.Items.Any())
 			{
 				UpdateAllocatedNodes();
 			}
@@ -495,7 +494,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
-		public bool CanChangeCounterparty => !Entity.ObservableItems.Any(x => x.PaymentItemStatus == AllocationStatus.Accepted);
+		public bool CanChangeCounterparty => !Entity.Items.Any(x => x.PaymentItemStatus == AllocationStatus.Accepted);
 
 		#endregion Commands
 
@@ -532,7 +531,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			AllocateOrders();
 			CreateOperations();
 
-			var notCancelledItems = Entity.PaymentItems.Where(x => x.PaymentItemStatus != AllocationStatus.Cancelled);
+			var notCancelledItems = Entity.Items.Where(x => x.PaymentItemStatus != AllocationStatus.Cancelled);
 
 			foreach(var item in notCancelledItems)
 			{
@@ -597,7 +596,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		{
 			Entity.CreateIncomeOperation();
 
-			foreach(PaymentItem item in Entity.ObservableItems)
+			foreach(PaymentItem item in Entity.Items)
 			{
 				item.CreateOrUpdateExpenseOperation();
 			}
@@ -765,6 +764,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			CounterpartyClosingDocumentsOrdersDebt = Entity.Counterparty != null
 				? _orderRepository.GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(UoW, Entity.Counterparty.Id, _deliveryScheduleSettings)
 				: default;
+		}
+		
+		private void OnPaymentItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			if(e.Action == NotifyCollectionChangedAction.Add
+				|| e.Action == NotifyCollectionChangedAction.Remove)
+			{
+				OnPropertyChanged(nameof(CanChangeCounterparty));
+			}
 		}
 
 		private string TryGetOrganizationType(string name)

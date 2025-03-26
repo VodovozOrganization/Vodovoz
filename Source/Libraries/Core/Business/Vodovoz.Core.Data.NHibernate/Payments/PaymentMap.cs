@@ -1,16 +1,16 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Payments;
+using Vodovoz.Core.Domain.Payments;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Accounting
+namespace Vodovoz.Core.Data.NHibernate.Payments
 {
-	public class PaymentMap : ClassMap<Payment>
+	public class PaymentMap : ClassMap<PaymentEntity>
 	{
 		public PaymentMap()
 		{
 			Table("payments_from_bank_client");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-
+			
 			Map(x => x.Date).Column("payment_date");
 			Map(x => x.PaymentNum).Column("payment_num");
 			Map(x => x.Total).Column("total_sum");

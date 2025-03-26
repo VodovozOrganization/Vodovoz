@@ -170,7 +170,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Left.JoinAlias(p => p.Organization, () => organizationAlias)
 				.Left.JoinAlias(p => p.ProfitCategory, () => profitCategoryAlias)
-				.Left.JoinAlias(p => p.PaymentItems, () => paymentItemAlias)
+				.Left.JoinAlias(p => p.Items, () => paymentItemAlias)
 				.Left.JoinAlias(p => p.Counterparty, () => counterpartyAlias);
 
 			var numOrdersProjection = Projections.SqlFunction(
