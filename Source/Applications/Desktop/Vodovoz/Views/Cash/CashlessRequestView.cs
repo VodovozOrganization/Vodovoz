@@ -341,7 +341,6 @@ namespace Vodovoz.Views.Cash
 			}
 
 			ViewModel.OpenOutgoingPaymentsCommand?.Execute();
-
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)

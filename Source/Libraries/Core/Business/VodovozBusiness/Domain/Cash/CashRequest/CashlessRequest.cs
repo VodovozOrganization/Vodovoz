@@ -71,7 +71,7 @@ namespace Vodovoz.Domain.Cash
 				if(base.Id != value)
 				{
 					base.Id = value;
-					UpdateOutgoundPayments();
+					UpdateOutgoingPayments();
 				}
 			}
 		}
@@ -327,7 +327,16 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual void RemoveOutgoingPayment(int id)
 		{
-			OutgoingPayments.Remove(OutgoingPayments.Where(x => id == x.Id).FirstOrDefault());
+			var paymentToRemove = OutgoingPayments.Where(x => id == x.Id).FirstOrDefault();
+			
+			if(paymentToRemove is null)
+			{
+				return;
+			}
+
+			paymentToRemove.CashlessRequestId = null;
+
+			OutgoingPayments.Remove(paymentToRemove);
 		}
 
 		public virtual void AddOutgoingPayments(IEnumerable<OutgoingPayment> outgoingPayments)
@@ -339,7 +348,7 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
-		public virtual void UpdateOutgoundPayments()
+		public virtual void UpdateOutgoingPayments()
 		{
 			foreach(var outgoingPayment in OutgoingPayments)
 			{
