@@ -202,7 +202,7 @@ stage('Log') {
 }
 
 stage('Stop previous builds') {
-	def jobName = "Vodovoz/${env.BRANCH_NAME}"
+	def jobName = "Vodovoz/Vodovoz/${env.BRANCH_NAME}"
 	def job = Jenkins.instance.getItemByFullName(jobName)
 	job.builds.each { build ->
 		if (build.isBuilding()) {
