@@ -1,7 +1,12 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Edo.Common;
+using Edo.Docflow;
+using Edo.Docflow.Factories;
+using Edo.Documents;
 using Edo.Problems;
 using Edo.Receipt.Dispatcher;
+using Edo.Receipt.Sender;
+using Edo.Transfer.Routine;
 using Edo.Transport;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +21,7 @@ using TrueMark.Library;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
+using Edo.Transfer;
 
 namespace CustomTaskDebugExecutor
 {
@@ -69,7 +75,24 @@ namespace CustomTaskDebugExecutor
 			services.AddEdoProblemRegistation();
 			services.AddCodesPool();
 
+			services.AddEdoTransfer();
+
 			services
+				//sender
+				.AddScoped<StaleTransferSender>()
+				.AddScoped<FiscalDocumentFactory>()
+				.AddScoped<ReceiptSender>()
+
+				//docflow
+				.AddScoped<DocflowHandler>()
+				.AddScoped<OrderUpdInfoFactory>()
+				.AddScoped<TransferOrderUpdInfoFactory>()
+
+				//document
+				.AddScoped<DocumentEdoTaskHandler>()
+				.AddScoped<ForOwnNeedDocumentEdoTaskHandler>()
+				.AddScoped<ForResaleDocumentEdoTaskHandler>()
+
 				.AddScoped<ReceiptEdoTaskHandler>()
 				.AddScoped<ResaleReceiptEdoTaskHandler>()
 				.AddScoped<ForOwnNeedsReceiptEdoTaskHandler>()
@@ -84,12 +107,17 @@ namespace CustomTaskDebugExecutor
 
 			logger.LogInformation("Debug запуск обработчиков задач ЭДО");
 
-			var receiptTaskHandler = serviceProvider.GetRequiredService<ReceiptEdoTaskHandler>();
 			CancellationTokenSource cts = new CancellationTokenSource();
 
+			//var handler = serviceProvider.GetRequiredService<DocflowHandler>();
+			//// Вызов обработчика
+			//var id = 0;
+			//handler.HandleTransferDocument(id, cts.Token).Wait();
+
+			var handler = serviceProvider.GetRequiredService<StaleTransferSender>();
 			// Вызов обработчика
 			var id = 0;
-			receiptTaskHandler.HandleNew(id, cts.Token).Wait();
+			handler.SendTaskAsync(id, cts.Token).Wait();
 		}
 	}
 }

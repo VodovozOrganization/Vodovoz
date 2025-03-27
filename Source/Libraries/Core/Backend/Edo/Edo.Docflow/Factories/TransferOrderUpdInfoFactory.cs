@@ -159,20 +159,29 @@ namespace Edo.Docflow.Factories
 
 					if(code.GroupCode != null)
 					{
-						productCode.IndividualOrGroupCode = code.GroupCode.IdentificationCode;
-						productCode.IsGroup = true;
 						transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.GroupCode);
+						if(transportCode != null)
+						{
+							productCode.TransportCode = transportCode.RawCode;
+						}
+						else
+						{
+							productCode.IndividualOrGroupCode = code.GroupCode.IdentificationCode;
+							productCode.IsGroup = true;
+						}
 					}
 					else
 					{
-						productCode.IndividualOrGroupCode = code.IndividualCode.IdentificationCode;
-						productCode.IsGroup = false;
 						transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.IndividualCode);
-					}
-
-					if(transportCode != null)
-					{
-						productCode.TransportCode = transportCode.RawCode;
+						if(transportCode != null)
+						{
+							productCode.TransportCode = transportCode.RawCode;
+						}
+						else
+						{
+							productCode.IndividualOrGroupCode = code.IndividualCode.IdentificationCode;
+							productCode.IsGroup = false;
+						}
 					}
 
 					productCodes.Add(productCode);
