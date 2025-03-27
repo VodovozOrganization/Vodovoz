@@ -1514,7 +1514,7 @@ namespace Vodovoz
 				var requirements =
 					clearCheckedCheckboxes
 					? new LogisticsRequirements()
-					: GetLogisticsRequirements();
+					: _orderService.GetLogisticsRequirements(Entity);
 
 				logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(requirements);
 				UpdateEntityLogisticsRequirements();
