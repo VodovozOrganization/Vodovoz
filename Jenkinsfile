@@ -201,6 +201,18 @@ stage('Log') {
 	echo "Web Publish Path: ${WEB_PUBLISH_PATH}"
 }
 
+stage('Stop previous builds') {
+	def jobName = "Vodovoz/Vodovoz/${env.BRANCH_NAME}"
+	def job = Jenkins.instance.getItemByFullName(jobName)
+	def currentBuildNumber = currentBuild.number.toInteger()
+	job.builds.each { build ->
+		if (build.isBuilding() &&
+            build.number.toInteger() < currentBuildNumber) {
+				build.finish(hudson.model.Result.ABORTED, new java.io.IOException("Aborting build"))
+		}
+	}
+}
+
 // 201	Этапы. Подготовка репозитория
 stage('Checkout'){
 	parallel (
