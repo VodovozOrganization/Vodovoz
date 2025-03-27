@@ -36,7 +36,7 @@ namespace Edo.Docflow.Taxcom
 				CreationTime = now,
 				MainDocumentId = @event.UpdInfo.DocumentId.ToString(),
 				DocflowId = null,
-				EdoDocumentId = @event.EdoOutgoingDocumentId
+				EdoDocumentId = @event.EdoOutgoingDocumentId,
 			};
 			
 			taxcomDocflow.Actions.Add(new TaxcomDocflowAction
@@ -94,7 +94,8 @@ namespace Edo.Docflow.Taxcom
 					State = newStatus.Value,
 					Time = @event.StatusChangeDateTime,
 					TaxcomDocflowId = taxcomDocflow.Id,
-					ErrorMessage = @event.ErrorDescription
+					ErrorMessage = @event.ErrorDescription,
+					IsReceived = @event.IsReceived
 				};
 			
 				taxcomDocflow.Actions.Add(newAction);
