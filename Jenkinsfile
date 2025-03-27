@@ -361,12 +361,23 @@ stage('Publish'){
 
 stage('CleanUp'){
 	parallel(
-		"Desktop ${NODE_VOD1}" : { DeleteCompressedArtifactAtNode(NODE_VOD1) },
-		"Desktop ${NODE_VOD3}" : { DeleteCompressedArtifactAtNode(NODE_VOD3) },
-		"Desktop ${NODE_VOD5}" : { DeleteCompressedArtifactAtNode(NODE_VOD5) },
-		"Desktop ${NODE_VOD7}" : { DeleteCompressedArtifactAtNode(NODE_VOD7) },
-		"Desktop ${NODE_VOD13}" : { DeleteCompressedArtifactAtNode(NODE_VOD13) },
-		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD) },
+		"Desktop ${NODE_VOD1}" : { DeleteCompressedArtifactAtNode(NODE_VOD1, "VodovozDesktop"),  },
+		"Desktop ${NODE_VOD3}" : { DeleteCompressedArtifactAtNode(NODE_VOD3, "VodovozDesktop") },
+		"Desktop ${NODE_VOD5}" : { DeleteCompressedArtifactAtNode(NODE_VOD5, "VodovozDesktop") },
+		"Desktop ${NODE_VOD7}" : { DeleteCompressedArtifactAtNode(NODE_VOD7, "VodovozDesktop") },
+		"Desktop ${NODE_VOD13}" : { DeleteCompressedArtifactAtNode(NODE_VOD13, "VodovozDesktop") },
+		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "VodovozDesktop") },
+		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "VodovozDesktop") },
+
+		// IIS
+		"FastPaymentsAPI" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD,"FastPaymentsAPI") },
+		"MailjetEventsDistributorAPI" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "MailjetEventsDistributorAPI") },
+		"UnsubscribePage" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "UnsubscribePage") },
+		"DeliveryRulesService" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "DeliveryRulesService") },
+		"RoboatsService" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "RoboatsService") },
+		"CustomerAppsApi" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "CustomerAppsApi") },
+		"CashReceiptPrepareWorker" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "CashReceiptPrepareWorker") },
+		"CashReceiptSendWorker" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "CashReceiptSendWorker") }
 	)
 }
 
@@ -653,7 +664,7 @@ def PublishWeb(projectName){
 	}
 }
 
-def DeleteCompressedArtifactAtNode(nodeName) {
+def DeleteCompressedArtifactAtNode(nodeName, projectName) {
 	def nodeIsOnline = true;
 
 	jenkins.model.Jenkins.instance.getNodes().each{node ->
@@ -672,23 +683,8 @@ def DeleteCompressedArtifactAtNode(nodeName) {
 
 	node(nodeName){
 		if(CAN_PUBLISH_DESKTOP){
-			if(IS_HOTFIX){
-				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTIFACT_DATE_TIME}"
-
-				echo "Deleting artifact ${hotfixName}"
-
-				DeleteCompressedArtifact("${hotfixName}VodovozDesktop")
-				return
-			}
-
-			if(IS_RELEASE){
-				def hotfixName = "${DESKTOP_NEW_RELEASE_PUBLISH_PATH}"
-
-				echo "Deleting artifact ${hotfixName}"
-
-				DeleteCompressedArtifact("${hotfixName}VodovozDesktop")
-				return
-			}
+			DeleteCompressedArtifact("${projectName}")
+			return
 		}
 		echo "Cleanup not needed"
 	}
