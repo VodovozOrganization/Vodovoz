@@ -13,6 +13,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -336,9 +337,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			_canCreateGiveOutSchedulePermissionGranted = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CashlessRequest.CanCreateGiveOutSchedule);
 
+			Entity.OutgoingPayments.CollectionChanged += OnOutgoingPaymentsChanged;
+
 			UpdateCanEdit();
 
 			PrefetchCommentsAuthorsTitles();
+		}
+
+		private void OnOutgoingPaymentsChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			OnPropertyChanged(nameof(CanPayout));
 		}
 
 		private void OpenOutgoingPayment()
@@ -378,7 +386,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				if(SupplierBankAccount != null
 					&& (Entity.Counterparty is null
 						|| !Entity.Counterparty.Accounts
-							.Select(x=>x.Id)
+							.Select(x => x.Id)
 							.Contains(SupplierBankAccount.Id)))
 				{
 					SupplierBankAccount = null;
@@ -641,7 +649,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			CanEdit
 			&& (Entity.PayoutRequestState == PayoutRequestState.GivenForTake
 				|| Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed)
-			&& UserRole == PayoutRequestUserRole.Cashier;
+			&& UserRole == PayoutRequestUserRole.Cashier
+			&& Entity.OutgoingPayments.Sum(x => x.Sum) == Entity.Sum;
 
 		#endregion Настройки кнопок смены состояний
 
@@ -1040,25 +1049,32 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		private void ConfigureEntityChangingRelations()
 		{
-			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanAccept);
-			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanApprove);
-			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanCancel);
-			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanConveyForPayout);
-			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanSendToClarification);
-			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanPayout);
-			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanSetExpenseCategory);
-			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanSendToWaitingForAgreedByExecutiveDirector);
-			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanSeeNotToReconcile);
-			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanEditPaymentDatePlanned);
-			SetPropertyChangeRelation(e => e.VatValue, () => VatString);
-			SetPropertyChangeRelation(e => e.VatValue, () => SelectedVatValue);
-			SetPropertyChangeRelation(
-				e => e.ExpenseCategoryId,
+			SetPropertyChangeRelation(e => e.PayoutRequestState,
+				() => CanAccept,
+				() => CanApprove,
+				() => CanCancel,
+				() => CanConveyForPayout,
+				() => CanSendToClarification,
+				() => CanPayout,
+				() => CanSetExpenseCategory,
+				() => CanSendToWaitingForAgreedByExecutiveDirector,
+				() => CanSeeNotToReconcile,
+				() => CanEditPaymentDatePlanned);
+
+			SetPropertyChangeRelation(e => e.VatValue,
+				() => VatString,
+				() => SelectedVatValue);
+
+			SetPropertyChangeRelation(e => e.ExpenseCategoryId,
 				() => FinancialExpenseCategory);
-			SetPropertyChangeRelation(e => e.PayoutRequestState, () => CanChangeFinancialResponsibilityCenter);
+
+			SetPropertyChangeRelation(e => e.PayoutRequestState,
+				() => CanChangeFinancialResponsibilityCenter);
+
 			SetPropertyChangeRelation(e => e.Sum,
 				() => SumGiven,
-				() => SumRemaining);
+				() => SumRemaining,
+				() => CanPayout);
 		}
 
 		private bool ValidateForNextState(PayoutRequestState nextState)
@@ -1208,6 +1224,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				File.Delete(process.StartInfo.FileName);
 				process.Exited -= OnProcessExited;
 			}
+		}
+
+		public override void Dispose()
+		{
+			Entity.OutgoingPayments.CollectionChanged -= OnOutgoingPaymentsChanged;
+			base.Dispose();
 		}
 	}
 }
