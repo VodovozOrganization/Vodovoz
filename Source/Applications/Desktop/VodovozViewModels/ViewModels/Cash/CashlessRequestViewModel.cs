@@ -984,7 +984,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			if(Entity.Id == 0 && string.IsNullOrWhiteSpace(Entity.PaymentPurpose))
 			{
-				Entity.PaymentPurpose = $"Оплата по счету № {Entity.BillNumber} от {Entity.BillDate:dd.MM.yyyy}. Сумма {Entity.Sum:# ###.##} руб., в том числе {VatString} - {Entity.Sum / 100 * VatValues[SelectedVatValue]} руб.";
+				Entity.PaymentPurpose = $"Оплата по счету № {Entity.BillNumber} от {Entity.BillDate:dd.MM.yyyy}. Сумма {Entity.Sum:# ###.##} руб., в том числе {VatString} - {Entity.Sum / 100 * VatValues[SelectedVatValue]:# ###.##} руб.";
 			}
 
 			if(!base.Save(false))
