@@ -487,8 +487,6 @@ namespace Vodovoz.Domain.Goods
 			&& TareVolume.HasValue
 			&& TareVolume.Value == Core.Domain.Goods.TareVolume.Vol19L;
 
-		public override string ToString() => $"id = {Id} Name = {Name}";
-
 		#endregion Рассчетные
 
 		#region Методы
