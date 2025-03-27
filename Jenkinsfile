@@ -361,7 +361,7 @@ stage('Publish'){
 
 stage('CleanUp'){
 	parallel(
-		"Desktop ${NODE_VOD1}" : { DeleteCompressedArtifactAtNode(NODE_VOD1, "VodovozDesktop"),  },
+		"Desktop ${NODE_VOD1}" : { DeleteCompressedArtifactAtNode(NODE_VOD1, "VodovozDesktop")  },
 		"Desktop ${NODE_VOD3}" : { DeleteCompressedArtifactAtNode(NODE_VOD3, "VodovozDesktop") },
 		"Desktop ${NODE_VOD5}" : { DeleteCompressedArtifactAtNode(NODE_VOD5, "VodovozDesktop") },
 		"Desktop ${NODE_VOD7}" : { DeleteCompressedArtifactAtNode(NODE_VOD7, "VodovozDesktop") },
