@@ -54,12 +54,22 @@ namespace Edo.Problems.Validation.Sources
 			return isOrder && isSelfdelivery;
 		}
 
-		public override Task<bool> NotValidCondition(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
 			var orderEdoRequest = GetOrderEdoRequest(edoTask);
-			var condition = orderEdoRequest.Order.SelfDelivery && !orderEdoRequest.Order.IsSelfDeliveryPaid;
+			if(!orderEdoRequest.Order.SelfDelivery)
+			{
+				return Task.FromResult(EdoValidationResult.Valid(this));
+			}
 
-			return Task.FromResult(condition);
+			var invalid = !orderEdoRequest.Order.IsSelfDeliveryPaid;
+
+			if(invalid)
+			{
+				return Task.FromResult(EdoValidationResult.Invalid(this));
+			}
+
+			return Task.FromResult(EdoValidationResult.Valid(this));
 		}
 	}
 }
