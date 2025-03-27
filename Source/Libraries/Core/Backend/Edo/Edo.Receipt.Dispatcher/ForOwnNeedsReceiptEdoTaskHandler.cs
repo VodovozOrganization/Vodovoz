@@ -959,7 +959,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 			if(codeId == 0)
 			{
-				throw new EdoCodePoolException($"В пуле не найдено кодов для номенклатуры {nomenclature}");
+				throw new EdoCodePoolException($"В пуле не найдено кодов с gtin для номенклатуры {nomenclature}");
 			}
 
 			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
@@ -999,18 +999,21 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
 			{
 				var codesToCheck1260 = fiscalDocument.InventPositions
-					.Where(x => x.EdoTaskItem != null || x.GroupCode != null)
+					.Where(x => x.EdoTaskItem?.ProductCode != null || x.GroupCode != null)
 					.ToDictionary(x =>
 					{
 						if(x.EdoTaskItem != null)
 						{
 							return x.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260;
 						}
-						else
-						{
-							return x.GroupCode.FormatForCheck1260;
-						}
+						
+						return x.GroupCode.FormatForCheck1260;
 					});
+
+				if(!codesToCheck1260.Any())
+				{
+					continue;
+				}
 
 				var result = await _tag1260Checker.CheckCodesForTag1260Async(
 					codesToCheck1260.Keys, 

@@ -1196,5 +1196,7 @@ namespace Vodovoz.Core.Domain.Goods
 
 			return purchasePrice;
 		}
+		
+		public override string ToString() => $"id = {Id} Name = {Name}";
 	}
 }
