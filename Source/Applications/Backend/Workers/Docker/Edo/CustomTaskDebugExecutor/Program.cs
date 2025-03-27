@@ -117,7 +117,7 @@ namespace CustomTaskDebugExecutor
 			var handler = serviceProvider.GetRequiredService<StaleTransferSender>();
 			// Вызов обработчика
 			var id = 0;
-			handler.SendTaskAsync(id, cts.Token).Wait();
+			//handler.SendTaskAsync(id, cts.Token).Wait(); Мешает сборке master
 		}
 	}
 }
