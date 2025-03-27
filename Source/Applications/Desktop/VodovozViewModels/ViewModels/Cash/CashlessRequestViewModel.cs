@@ -296,33 +296,36 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			OpenFileCommand = new DelegateCommand<CashlessRequestCommentFileInformation>(OpenFile);
 
 			PayoutCommand = new DelegateCommand(Payout, () => CanPayout && !IsSecurityServiceRole);
-			PayoutCommand.CanExecuteChangedWith(this, x => x.CanPayout);
+			PayoutCommand.CanExecuteChangedWith(this, x => x.CanPayout, x => x.IsSecurityServiceRole);
 
 			AcceptCommand = new DelegateCommand(Accept, () => CanAccept && !IsSecurityServiceRole);
-			AcceptCommand.CanExecuteChangedWith(this, x => x.CanAccept);
+			AcceptCommand.CanExecuteChangedWith(this, x => x.CanAccept, x => x.IsSecurityServiceRole);
 
 			ApproveCommand = new DelegateCommand(Approve, () => CanApprove && !IsSecurityServiceRole);
-			ApproveCommand.CanExecuteChangedWith(this, x => x.CanApprove);
+			ApproveCommand.CanExecuteChangedWith(this, x => x.CanApprove, x => x.IsSecurityServiceRole);
 
 			SendToWaitingForAgreedByExecutiveDirectorCommand = new DelegateCommand(SendToWaitingForAgreedByExecutiveDirector, () => CanSendToWaitingForAgreedByExecutiveDirector);
 			SendToWaitingForAgreedByExecutiveDirectorCommand.CanExecuteChangedWith(this, x => x.CanSendToWaitingForAgreedByExecutiveDirector);
 
 			CancelRequestCommand = new DelegateCommand(CancelRequest, () => CanCancel && !IsSecurityServiceRole);
-			CancelRequestCommand.CanExecuteChangedWith(this, x => x.CanCancel);
+			CancelRequestCommand.CanExecuteChangedWith(this, x => x.CanCancel, x => x.IsSecurityServiceRole);
 
 			SendToClarificationCommand = new DelegateCommand(SendToClarification, () => CanSendToClarification && !IsSecurityServiceRole);
-			SendToClarificationCommand.CanExecuteChangedWith(this, x => x.CanSendToClarification);
+			SendToClarificationCommand.CanExecuteChangedWith(this, x => x.CanSendToClarification, x => x.IsSecurityServiceRole);
 
 			ConveyForPayoutCommand = new DelegateCommand(ConveyForPayout, () => CanConveyForPayout && !IsSecurityServiceRole);
-			ConveyForPayoutCommand.CanExecuteChangedWith(this, x => x.CanConveyForPayout);
+			ConveyForPayoutCommand.CanExecuteChangedWith(this, x => x.CanConveyForPayout, x => x.IsSecurityServiceRole);
 
-			CreateCalendarCommand = new DelegateCommand(CreateCalendar, () => CanCreateGiveOutSchedule && !IsSecurityServiceRole);
+			CreateCalendarCommand = new DelegateCommand(CreateCalendar, () => CanCreateCalendar);
+			CreateCalendarCommand.CanExecuteChangedWith(this, x => x.CanCreateCalendar);
 
 			OpenOutgoingPaymentsCommand = new DelegateCommand(OpenOutgoingPayment, () => true);
 
 			AddOutgoingPaymentCommand = new DelegateCommand(AddOutgoingPayment, () => CanEdit);
+			AddOutgoingPaymentCommand.CanExecuteChangedWith(this, x => x.CanEdit);
 
-			RemoveOutgoingPaymentCommand = new DelegateCommand(RemoveOutgoingPayment, () => CanRemoveOutgoingPaymentCommand);
+			RemoveOutgoingPaymentCommand = new DelegateCommand(RemoveOutgoingPayment, () => CanRemoveOutgoingPayment);
+			RemoveOutgoingPaymentCommand.CanExecuteChangedWith(this, x => x.CanRemoveOutgoingPayment);
 
 			#endregion Commands
 
@@ -385,6 +388,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
 
+		[PropertyChangedAlso(nameof(SelectedOutgoingPayment))]
+		[PropertyChangedAlso(nameof(CanRemoveOutgoingPayment))]
 		public object SelectedOutgoingPaymentObject
 		{
 			get => SelectedOutgoingPayment;
@@ -401,7 +406,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 		}
 
-		[PropertyChangedAlso(nameof(CanRemoveOutgoingPaymentCommand))]
+		[PropertyChangedAlso(nameof(CanRemoveOutgoingPayment))]
 		public OutgoingPayment SelectedOutgoingPayment
 		{
 			get => _selectedOutgoingPayment;
@@ -471,12 +476,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			CanEdit
 			&& !string.IsNullOrWhiteSpace(NewCommentText);
 
-		public bool CanRemoveOutgoingPaymentCommand =>
+		public bool CanRemoveOutgoingPayment =>
 			CanEdit
 			&& SelectedOutgoingPayment != null;
 
+		public bool CanCreateCalendar => CanCreateGiveOutSchedule && !IsSecurityServiceRole;
+
 		public string VatString => Entity.VatValue == 0 ? "Без НДС" : $"{Entity.VatValue}% НДС";
 
+		[PropertyChangedAlso(nameof(CanCreateCalendar))]
 		public bool CanCreateGiveOutSchedule { get; private set; }
 
 		[PropertyChangedAlso(nameof(CanAddComment))]
@@ -652,7 +660,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			nameof(IsSecurityServiceRole),
 			nameof(CanSendToWaitingForAgreedByExecutiveDirector),
 			nameof(CanEditPlainProperties),
-			nameof(CanRemoveOutgoingPaymentCommand))]
+			nameof(CanRemoveOutgoingPayment))]
 		public bool CanEdit
 		{
 			get => _canEdit;
@@ -681,6 +689,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				|| (_expenseCategoriesWithSpecialPermission.Contains(Entity.PayoutRequestState)
 					&& _canChangeFinancialExpenseCategory));
 
+		[PropertyChangedAlso(nameof(CanCreateCalendar))]
+		[PropertyChangedAlso(nameof(IsSecurityServiceRole))]
 		public PayoutRequestUserRole UserRole
 		{
 			get => _userRole;
