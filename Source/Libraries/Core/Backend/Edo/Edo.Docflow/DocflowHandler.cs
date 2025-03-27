@@ -4,6 +4,7 @@ using Edo.Contracts.Messages.Events;
 using Edo.Docflow.Factories;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using QS.DomainModel.UoW;
 using System;
 using System.Threading;
@@ -56,7 +57,18 @@ namespace Edo.Docflow
 			}
 
 			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
-			var transferOrder = await _uow.Session.GetAsync<TransferOrder>(transferTask.TransferOrderId, cancellationToken);
+
+			var transferOrder = await _uow.Session.QueryOver<TransferOrder>()
+				.Where(x => x.Id == transferTask.TransferOrderId)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			var transferOrderCodes = await _uow.Session.QueryOver<TransferOrderTrueMarkCode>()
+				.Fetch(SelectMode.Fetch, x => x.Nomenclature)
+				.Fetch(SelectMode.Fetch, x => x.Nomenclature.Unit)
+				.Fetch(SelectMode.Fetch, x => x.IndividualCode)
+				.Fetch(SelectMode.Fetch, x => x.IndividualCode.Tag1260CodeCheckResult)
+				.Where(x => x.TransferOrder.Id == transferOrder.Id)
+				.ListAsync(cancellationToken);
 
 			var updInfo = _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(_uow, transferOrder);
 
