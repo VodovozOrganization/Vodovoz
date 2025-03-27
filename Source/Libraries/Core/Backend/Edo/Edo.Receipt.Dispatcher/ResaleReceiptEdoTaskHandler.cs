@@ -462,8 +462,13 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
 			{
 				var codesToCheck1260 = fiscalDocument.InventPositions
-					.Where(x => x.EdoTaskItem.ProductCode.ResultCode != null)
+					.Where(x => x.EdoTaskItem?.ProductCode?.ResultCode != null)
 					.ToDictionary(x => x.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260);
+
+				if(!codesToCheck1260.Any())
+				{
+					continue;
+				}
 
 				var result = await _tag1260Checker.CheckCodesForTag1260Async(
 					codesToCheck1260.Keys,
