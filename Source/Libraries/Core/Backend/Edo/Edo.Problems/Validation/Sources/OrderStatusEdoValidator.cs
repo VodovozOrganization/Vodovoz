@@ -1,5 +1,4 @@
-﻿using Edo.Problems.Validation;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
@@ -43,12 +42,19 @@ namespace Edo.Problems.Validation.Sources
 			return $"Заказ №{orderEdoRequest.Order.Id} должен как минимум быть отправлен со склада в путь";
 		}
 
-		public override Task<bool> NotValidCondition(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
 			var orderEdoRequest = GetOrderEdoRequest(edoTask);
-			var condition = orderEdoRequest.Order.OrderStatus < OrderStatus.OnTheWay;
+			var invalid = orderEdoRequest.Order.OrderStatus < OrderStatus.OnTheWay;
 
-			return Task.FromResult(condition);
+			if(invalid)
+			{
+				return Task.FromResult(EdoValidationResult.Invalid(this));
+			}
+			else
+			{
+				return Task.FromResult(EdoValidationResult.Valid(this));
+			}
 		}
 	}
 }
