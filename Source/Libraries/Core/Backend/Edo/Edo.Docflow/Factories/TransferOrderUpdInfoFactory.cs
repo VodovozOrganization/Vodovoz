@@ -198,7 +198,8 @@ namespace Edo.Docflow.Factories
 					price *= 1 + additionalPercent / 100;
 				}
 
-				var includeVat = Math.Round(price * nomenclature.VatNumericValue / (1 + nomenclature.VatNumericValue), 2);
+				var sum = price * quantity;
+				var includeVat = Math.Round(sum * nomenclature.VatNumericValue / (1 + nomenclature.VatNumericValue), 2);
 
 				var product = new ProductInfo
 				{
