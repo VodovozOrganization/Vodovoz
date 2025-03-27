@@ -204,8 +204,9 @@ stage('Log') {
 stage('Stop previous builds') {
 	def jobName = "Vodovoz/Vodovoz/${env.BRANCH_NAME}"
 	def job = Jenkins.instance.getItemByFullName(jobName)
+	def currentBuild = Thread.currentThread()?.executable
 	job.builds.each { build ->
-		if (build.isBuilding()) {
+		if (build.isBuilding() && build != currentBuild) {
 			build.finish(hudson.model.Result.ABORTED, new java.io.IOException("Aborting build"))
 		}
 	}
