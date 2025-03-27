@@ -1,4 +1,4 @@
-using Edo.Contracts.Messages.Events;
+﻿using Edo.Contracts.Messages.Events;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -197,10 +197,24 @@ namespace WarehouseApi.Library.Services
 					var allCodes = parentCode.Match(
 						transportCode => transportCode.GetAllCodes(),
 						groupCode => groupCode.GetAllCodes(),
-						waterCode => new TrueMarkAnyCode[] { waterCode });
+						waterCode => new TrueMarkAnyCode[] { waterCode })
+						.ToArray();
+
+					var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
+						&& documentOrderItem.TrueMarkCodes.Any(y =>
+							(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
+							|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
+						.Select(x => x.TrueMarkWaterIdentificationCode)
+						.ToArray();
 
 					foreach(var anyCode in allCodes)
 					{
+						if(anyCode.IsTrueMarkWaterIdentificationCode
+							&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkWaterIdentificationCode.Id))
+						{
+							continue;
+						}
+
 						trueMarkCodes.Add(
 							anyCode.Match(
 								PopulateTransportCode(allCodes),
