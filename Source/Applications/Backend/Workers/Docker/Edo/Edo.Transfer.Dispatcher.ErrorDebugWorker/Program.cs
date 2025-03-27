@@ -1,5 +1,6 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Edo.Common;
+using Edo.Documents;
 using Edo.Problems;
 using Edo.Receipt.Dispatcher;
 using Edo.Receipt.Dispatcher.ErrorDebug.Consumers;
@@ -8,18 +9,20 @@ using Edo.Receipt.Sender;
 using Edo.Transport;
 using MassTransit;
 using MessageTransport;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using ModulKassa;
+using NLog.Extensions.Logging;
 using QS.Project.Core;
+using System;
 using TrueMark.Codes.Pool;
 using TrueMark.Library;
+using TrueMarkApi.Client;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
-using ModulKassa;
-using System;
-using Edo.Documents;
-using TrueMarkApi.Client;
 
 namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 {
@@ -34,6 +37,10 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+				.ConfigureLogging((ctx, builder) => {
+					builder.AddNLog();
+					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
 					services
@@ -91,10 +98,10 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 						{
 							// Выбор какие ошибки дебажить:
 
-							//cfg.AddConsumer<TransferCompleteErrorConsumer, TransferCompleteErrorConsumerDefinition>();
-							cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
+							////cfg.AddConsumer<TransferCompleteErrorConsumer, TransferCompleteErrorConsumerDefinition>();
+							//cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
 							//cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
-							//cfg.AddConsumer<TransferDocumentAcceptedErrorConsumer, TransferDocumentAcceptedErrorConsumerDefinition>();
+							cfg.AddConsumer<TransferDocumentAcceptedErrorConsumer, TransferDocumentAcceptedErrorConsumerDefinition>();
 						}
 					);
 				});
