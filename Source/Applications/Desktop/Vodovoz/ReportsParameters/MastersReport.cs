@@ -10,7 +10,7 @@ namespace Vodovoz.ReportsParameters
 	{
 		public MastersReport(MastersReportViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 
 			dateperiodpicker.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
@@ -20,6 +20,10 @@ namespace Vodovoz.ReportsParameters
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			evmeDriver.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Driver, w => w.Subject)
+				.InitializeFromSource();
+			
+			chkAccountPartUndelivery.Binding
+				.AddBinding(ViewModel, vm => vm.AccountPartUndelivery, w => w.Active)
 				.InitializeFromSource();
 
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);

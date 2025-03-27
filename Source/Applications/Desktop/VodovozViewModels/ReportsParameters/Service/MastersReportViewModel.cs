@@ -20,6 +20,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Service
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private Employee _driver;
+		private bool _accountPartUndelivery;
 
 		public MastersReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
@@ -58,6 +59,15 @@ namespace Vodovoz.ViewModels.ReportsParameters.Service
 			get => _driver;
 			set => SetField(ref _driver, value);
 		}
+		
+		/// <summary>
+		/// Учитывать частичные недовозы
+		/// </summary>
+		public virtual bool AccountPartUndelivery
+		{
+			get => _accountPartUndelivery;
+			set => SetField(ref _accountPartUndelivery, value);
+		}
 
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory  { get; }
 
@@ -80,7 +90,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Service
 					{
 						{ "start_date", StartDate },
 						{ "end_date", EndDate },
-						{ "driver_id", Driver?.Id ?? 0 }
+						{ "driver_id", Driver?.Id ?? 0 },
+						{ "account_part_undelivery", _accountPartUndelivery }
 					};
 
 				return parameters;
