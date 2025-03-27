@@ -679,7 +679,6 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.EdoDocFlowStatus is SpecialComboState specialComboState && specialComboState == SpecialComboState.Not)
 			{
-				//query.WithSubquery.WhereNotExists(edoUpdLastStatusSubquery);
 				var edoFlowStateRestriction = Restrictions.Conjunction()
 					.Add(Restrictions.IsNull(Projections.SubQuery(edoUpdLastStatusSubquery)))
 					.Add(Restrictions.IsNull(Projections.SubQuery(edoUpdLastStatusNewDocflowSubquery)));
