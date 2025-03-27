@@ -3,6 +3,7 @@ using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -92,5 +93,6 @@ namespace Vodovoz.JournalNodes
 		public bool Sensitive { get; set; }
 
 		public EdoDocFlowStatus? EdoDocFlowStatus { get; set; }
+		public EdoDocumentStatus? NewEdoDocFlowStatus { get; set; }
 	}
 }
