@@ -52,7 +52,7 @@ namespace Edo.Problems.Validation.Sources
 			return transferTask.TransferStatus == TransferEdoTaskStatus.InProgress;
 		}
 
-		public override async Task<bool> NotValidCondition(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+		public override async Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
 			var trueMarkStatusProvider = serviceProvider.GetRequiredService<EdoTaskItemTrueMarkStatusProvider>();
 
@@ -64,8 +64,17 @@ namespace Edo.Problems.Validation.Sources
 			using(var uow = uowFactory.CreateWithoutRoot())
 			{
 				var toOrg = uow.GetById<OrganizationEntity>(transferTask.ToOrganizationId);
-				var allTransfered = codesResults.All(x => x.Value.ProductInstanceStatus.OwnerInn == toOrg.INN);
-				return !allTransfered;
+				var notTransfered = codesResults.Where(x => x.Value.ProductInstanceStatus.OwnerInn != toOrg.INN);
+				
+				if(notTransfered.Any())
+				{
+					var items = notTransfered.Select(x => x.Value.EdoTaskItem);
+					return EdoValidationResult.Invalid(this, items);
+				}
+				else
+				{
+					return EdoValidationResult.Valid(this);
+				}
 			}
 		}
 	}
