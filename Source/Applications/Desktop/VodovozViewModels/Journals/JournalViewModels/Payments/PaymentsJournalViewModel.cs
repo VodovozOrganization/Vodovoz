@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			IPaymentsRepository paymentsRepository,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			ICurrentPermissionService permissionService,
-			Action<PaymentsJournalFilterViewModel>[] filterParams = null)
+			Action<PaymentsJournalFilterViewModel> filterParams = null)
 			: base(unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_commonServices = commonServices
@@ -92,6 +92,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				typeof(Payment),
 				typeof(PaymentWriteOff),
 				typeof(VodOrder));
+
+			Refresh();
 		}
 
 		private void SetPermissions()
@@ -103,7 +105,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Payment.BankClient.CanCancelManualPaymentFromBankClient);
 		}
 
-		private void CreateFilter(Action<PaymentsJournalFilterViewModel>[] filterParams = null)
+		private void CreateFilter(Action<PaymentsJournalFilterViewModel> filterParams = null)
 		{
 			_filterViewModel = _scope.Resolve<PaymentsJournalFilterViewModel>(new[]{
 				new TypedParameter(typeof(ITdiTab), this)
