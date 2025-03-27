@@ -1,4 +1,4 @@
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -107,7 +107,7 @@ namespace Vodovoz.ViewModels.Cash.Payments
 					|| x.PayoutRequestState == PayoutRequestState.GivenForTake)
 					&& x.Counterparty.Id == Entity.CounterpartyId
 					&& x.Organization.Id == Entity.OrganizationId
-					&& x.Sum <= Entity.Sum
+					&& x.Sum >= Entity.Sum
 					&& x.PaymentPurpose == Entity.PaymentPurpose)
 				.OrderBy(x => x.BillDate)
 				.FirstOrDefault();
