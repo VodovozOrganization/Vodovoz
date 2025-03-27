@@ -1,4 +1,5 @@
 ﻿using MySqlConnector;
+using NHibernate;
 using Polly;
 using Polly.Retry;
 using QS.DomainModel.UoW;
@@ -146,6 +147,41 @@ namespace Edo.Transfer
 			transferOrder.Seller = new OrganizationEntity { Id = transferEdoTask.FromOrganizationId };
 			transferOrder.Customer = new OrganizationEntity { Id = transferEdoTask.ToOrganizationId };
 
+			var transferRequests = await uow.Session.QueryOver<TransferEdoRequest>()
+				.Fetch(SelectMode.Fetch, x => x.Iteration)
+				.Where(x => x.TransferEdoTask.Id == transferEdoTask.Id)
+				.ListAsync();
+
+			var orderTaskIds = transferRequests.Select(x => x.Iteration.OrderEdoTask.Id);
+
+			await uow.Session.QueryOver<DocumentEdoTask>()
+				.Fetch(SelectMode.Fetch, x => x.UpdInventPositions)
+				.WhereRestrictionOn(x => x.Id).IsIn(orderTaskIds.ToArray())
+				.ListAsync();
+
+			await uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
+				.WhereRestrictionOn(x => x.CustomerEdoTask.Id).IsIn(orderTaskIds.ToArray())
+				.ListAsync();
+
+
+			var transferItems = transferEdoTask.TransferEdoRequests.SelectMany(x => x.TransferedItems);
+
+			var groupCodeIds = transferItems.Select(x => x.ProductCode.ResultCode.ParentWaterGroupCodeId);
+
+			var groupCodes = await uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+				.WhereRestrictionOn(x => x.Id).IsIn(groupCodeIds.ToArray())
+				.ListAsync();
+
+			await uow.Session.QueryOver<TrueMarkTransportCode>()
+				.WhereRestrictionOn(x => x.Id).IsIn(groupCodes.Select(x => x.ParentTransportCodeId).ToArray())
+				.ListAsync();
+
 			foreach(var transferEdoRequest in transferEdoTask.TransferEdoRequests)
 			{
 				foreach(var transferedItem in transferEdoRequest.TransferedItems)
@@ -176,6 +212,16 @@ namespace Edo.Transfer
 						default:
 							throw new NotSupportedException($"Тип задачи " +
 								$"{transferEdoRequest.Iteration.OrderEdoTask.TaskType} не поддерживается.");
+					}
+					var isGroupCodeItem = transferOrderTrueMarkCode.GroupCode != null;
+					if(isGroupCodeItem)
+					{
+						var groupCodeItems = transferOrder.Items
+							.Where(x => x.GroupCode != null);
+						if(groupCodeItems.Any(x => x.GroupCode.Id == transferOrderTrueMarkCode.GroupCode.Id))
+						{
+							continue;
+						}
 					}
 
 					transferOrderTrueMarkCode.TransferOrder = transferOrder;

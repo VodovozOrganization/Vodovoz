@@ -173,26 +173,25 @@ namespace TaxcomEdoApi.Library.Converters
 			string transportCode = null
 			)
 		{
-			var codesCount = codes.Count();
-			var identificationInfo = new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov
-			{
-				ItemsElementName = new ItemsChoiceType[codesCount],
-				Items = new string[codesCount]
-			};
+			var identificationInfo = new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov();
 
 			if(!transportCode.IsNullOrWhiteSpace())
 			{
 				identificationInfo.IdentTransUpak = transportCode;
+				return identificationInfo;
 			}
 
-			var i = 0;
+			var items = new List<(ItemsChoiceType Type, string Code)>();
 
 			foreach(var code in codes)
 			{
-				identificationInfo.ItemsElementName[i] = code.IsGroup ? ItemsChoiceType.NomUpak : ItemsChoiceType.KIZ;
-				identificationInfo.Items[i] = code.IndividualOrGroupCode;
-				i++;
+				var itemType = code.IsGroup ? ItemsChoiceType.NomUpak : ItemsChoiceType.KIZ;
+				var item = (itemType, code.IndividualOrGroupCode);
+				items.Add(item);
 			}
+
+			identificationInfo.ItemsElementName = items.Select(x => x.Type).ToArray();
+			identificationInfo.Items = items.Select(x => x.Code).ToArray();
 
 			return identificationInfo;
 		}
