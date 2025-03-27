@@ -60,6 +60,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Service
 			set => SetField(ref _driver, value);
 		}
 		
+		/// <summary>
+		/// Учитывать частичные недовозы
+		/// </summary>
 		public virtual bool AccountPartUndelivery
 		{
 			get => _accountPartUndelivery;
