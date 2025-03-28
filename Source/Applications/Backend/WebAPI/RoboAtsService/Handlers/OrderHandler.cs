@@ -264,7 +264,6 @@ namespace RoboatsService.Handlers
 
 		private string CreateOrderAndGetResult(int counterpartyId, int deliveryPointId, IEnumerable<SaleItem> watersInfo, int bottlesReturn)
 		{
-
 			if(!DateTime.TryParseExact(RequestDto.Date, "yyyy-MM-dd", new DateTimeFormatInfo(), DateTimeStyles.None, out DateTime date))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.IncorrectOrderDate, RoboatsCallOperation.CreateOrder,

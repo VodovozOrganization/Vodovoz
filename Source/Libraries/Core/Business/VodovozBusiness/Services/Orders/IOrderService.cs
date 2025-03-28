@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace VodovozBusiness.Services.Orders
@@ -25,5 +26,10 @@ namespace VodovozBusiness.Services.Orders
 		/// Рассчитывает и возвращает цену заказа и цену доставки по имеющимся данным о заказе
 		/// </summary>
 		(decimal OrderPrice, decimal DeliveryPrice) GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest);
+		
+		/// <summary>
+		/// Получение логистических требований для заказа
+		/// </summary>
+		LogisticsRequirements GetLogisticsRequirements(Order order);
 	}
 }
