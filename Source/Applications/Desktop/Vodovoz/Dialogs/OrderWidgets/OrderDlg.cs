@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using DynamicData;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -17,6 +16,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.Tracking;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.Print;
 using QS.Project.Dialogs;
@@ -47,8 +47,6 @@ using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
-using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -132,6 +130,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
@@ -218,6 +217,7 @@ namespace Vodovoz
 		private readonly ICashRepository _cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = ScopeProvider.Scope.Resolve<IPromotionalSetRepository>();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
+		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
 		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
@@ -259,11 +259,11 @@ namespace Vodovoz
 		private bool _isNeedSendBillToEmail;
 		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
-		private GenericObservableList<EdoDockflowDataNode> _edoEdoDocumentDataNodes = new GenericObservableList<EdoDockflowDataNode>();
-		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
+		private IObservableList<EdoDockflowData> _edoEdoDocumentDataNodes = new ObservableList<EdoDockflowData>();
+		private IObservableList<EdoContainer> _edoContainers = new ObservableList<EdoContainer>();
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
-		private EdoDockflowDataNode _selectedEdoDocumentDataNode;
+		private EdoDockflowData _selectedEdoDocumentDataNode;
 		private FastDeliveryHandler _fastDeliveryHandler;
 		private IFreeLoaderChecker _freeLoaderChecker;
 		private IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
@@ -298,7 +298,7 @@ namespace Vodovoz
 
 		private List<(int Id, decimal Count, decimal Sum)> _orderItemsOriginalValues = new List<(int Id, decimal Count, decimal Sum)>();
 
-		public EdoDockflowDataNode SelectedEdoDocumentDataNode
+		public EdoDockflowData SelectedEdoDocumentDataNode
 		{
 			get => _selectedEdoDocumentDataNode;
 			set
@@ -1296,9 +1296,9 @@ namespace Vodovoz
 			}
 		}
 
-		private List<EdoDockflowDataNode> GetEdoOutgoingDocuments()
+		private List<EdoDockflowData> GetEdoOutgoingDocuments()
 		{
-			var orderDocuments = new List<EdoDockflowDataNode>();
+			var orderDocuments = new List<EdoDockflowData>();
 
 			if(Entity.Id == 0)
 			{
@@ -2080,7 +2080,7 @@ namespace Vodovoz
 
 			treeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
 
-			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoDockflowDataNode>.Create()
+			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoDockflowData>.Create()
 				.AddColumn("Новый\nдокументооборот")
 					.AddToggleRenderer(x => x.IsNewDockflow)
 					.Editing(false)
@@ -2218,6 +2218,10 @@ namespace Vodovoz
 
 			foreach(var item in containers)
 			{
+				if(!item.IsIncoming)
+				{
+					continue;
+				}
 				_edoContainers.Add(item);
 			}
 		}
@@ -2225,46 +2229,21 @@ namespace Vodovoz
 		private void UpdateEdoDocumentDataNodes()
 		{
 			_edoEdoDocumentDataNodes.Clear();
-
 			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Отправка документов по ЭДО, диалог заказа"))
 			{
 				UpdateEdoContainers(uow);
 
-				var data =
-					from orderEdoRequest in uow.Session.Query<OrderEdoRequest>()
-					join oet in uow.Session.Query<OrderEdoTask>() on orderEdoRequest.Task.Id equals oet.Id into orderEdoTasks
-					from orderEdoTask in orderEdoTasks.DefaultIfEmpty()
-					join oed in uow.Session.Query<OrderEdoDocument>() on  orderEdoTask.Id equals oed.DocumentTaskId into orderEdoDocuments
-					from orderEdoDocument in orderEdoDocuments.DefaultIfEmpty()
-					join td in uow.Session.Query<TaxcomDocflow>() on orderEdoDocument.Id equals td.EdoDocumentId into taxcomDocflows
-					from taxcomDocflow in taxcomDocflows.DefaultIfEmpty()
-					join tda in uow.Session.Query<TaxcomDocflowAction>() on taxcomDocflow.Id equals tda.TaxcomDocflowId into taxcomDocflowActions
-					from taxcomDocflowAction in taxcomDocflowActions.DefaultIfEmpty()
+				var newEdoDockflowData = _edoDocflowRepository.GetEdoDocflowDataByOrderId(uow, Entity.Id);
 
-					let lastTaxcomDocflowActionTime = (DateTime?)uow.Session.Query<TaxcomDocflowAction>()
-						.Where(x => x.TaxcomDocflowId == taxcomDocflow.Id)
-						.OrderByDescending(x => x.Id)
-						.Select(x => x.Time)
-						.FirstOrDefault()
+				foreach(var item in newEdoDockflowData)
+				{
+					_edoEdoDocumentDataNodes.Add(item);
+				}
 
-					where
-						orderEdoRequest.Order.Id == Entity.Id
-						&& (taxcomDocflowAction.Id == null || taxcomDocflowAction.Time == lastTaxcomDocflowActionTime)
-
-					select new EdoDockflowDataNode
-					{
-						DocFlowId = taxcomDocflow.DocflowId,
-						EdoDocFlowStatus = taxcomDocflowAction == null ? default(EdoDocFlowStatus?) : taxcomDocflowAction.State,
-						IsReceived = default,// taxcomDocflowActions == null ? default : taxcomDocflowActions.IsReceived,
-						ErrorDescription = taxcomDocflowAction == null ? default : taxcomDocflowAction.ErrorMessage,
-						IsNewDockflow = true,
-						EdoDocumentType = orderEdoDocument.DocumentType,
-						EdoTaskStatus = orderEdoTask.Status,
-						EdoDocumentStatus = orderEdoDocument.Status
-					};
-
-				_edoEdoDocumentDataNodes.AddRange(data.ToList());
-				_edoEdoDocumentDataNodes.AddRange(_edoContainers.Select(x => new EdoDockflowDataNode(x)).ToList());
+				foreach(var edoContainer in _edoContainers)
+				{
+					_edoEdoDocumentDataNodes.Add(new EdoDockflowData(edoContainer));
+				}
 			}
 		}
 
