@@ -62,7 +62,7 @@ namespace TrueMark.Codes.Pool
 			var id = findCodeQuery.UniqueResult<uint>();
 			if(id == 0)
 			{
-				throw new EdoCodePoolException($"В пуле не найден код для gtin {gtin}");
+				throw new EdoCodePoolMissingCodeException($"В пуле не найден код для gtin {gtin}");
 			}
 
 			var takeCodeQuery = GetTakeCodeQuery((int)id);
@@ -76,7 +76,7 @@ namespace TrueMark.Codes.Pool
 			var id = await findCodeQuery.UniqueResultAsync<uint>(cancellationToken);
 			if(id == 0)
 			{
-				throw new EdoCodePoolException($"В пуле не найден код для gtin {gtin}");
+				throw new EdoCodePoolMissingCodeException($"В пуле не найден код для gtin {gtin}");
 			}
 
 			var takeCodeQuery = GetTakeCodeQuery((int)id);

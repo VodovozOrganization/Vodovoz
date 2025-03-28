@@ -9,9 +9,5 @@
 		<ProjectReference Include="..\..\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj" />
 		<ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Exception\Sources\" />
-	</ItemGroup>
 	
 </Project>
