@@ -7,16 +7,16 @@ using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace VodovozBusiness.Nodes
 {
-	public class EdoDocumentDataNode
+	public class EdoDockflowDataNode
 	{
-		public EdoDocumentDataNode(EdoContainer edoContainer)
+		public EdoDockflowDataNode(EdoContainer edoContainer)
 		{
 			if(edoContainer is null)
 			{
 				throw new ArgumentNullException(nameof(edoContainer));
 			}
 
-			DocflowId = edoContainer.DocFlowId?.ToString();
+			DocFlowId = edoContainer.DocFlowId;
 			OldEdoDocumentType = edoContainer.Type;
 			EdoDocFlowStatus = edoContainer.EdoDocFlowStatus;
 			IsReceived = edoContainer.Received;
@@ -24,9 +24,9 @@ namespace VodovozBusiness.Nodes
 			IsNewDockflow = false;
 		}
 
-		public EdoDocumentDataNode(){ }
+		public EdoDockflowDataNode(){ }
 
-		public string DocflowId { get; set; }
+		public Guid? DocFlowId { get; set; }
 		public EdoDocFlowStatus? EdoDocFlowStatus { get; set; }
 		public bool IsReceived { get; set; }
 		public string ErrorDescription { get; set; }
@@ -35,7 +35,7 @@ namespace VodovozBusiness.Nodes
 		public Type? OldEdoDocumentType { get; set; }
 
 		public EdoDocumentType? EdoDocumentType { get; set; }
-		public DocumentEdoTaskStage? EdoTaskStage { get; set; }
+		public EdoTaskStatus? EdoTaskStatus { get; set; }
 		public EdoDocumentStatus? EdoDocumentStatus { get; set; }
 
 
@@ -43,5 +43,10 @@ namespace VodovozBusiness.Nodes
 			IsNewDockflow
 			? EdoDocumentType?.GetEnumTitle()
 			: OldEdoDocumentType?.GetEnumTitle();
+
+		public string EdoDocFlowStatusString =>
+			EdoDocFlowStatus is null
+			? string.Empty
+			: EdoDocFlowStatus.Value.GetEnumTitle();
 	}
 }
