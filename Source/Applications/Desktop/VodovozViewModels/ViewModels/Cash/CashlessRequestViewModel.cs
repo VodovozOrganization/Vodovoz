@@ -981,8 +981,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					CanEdit = UserRole == PayoutRequestUserRole.Cashier;
 					break;
 				case PayoutRequestState.OnClarification:
+					CanEdit = (UserRole == PayoutRequestUserRole.RequestCreator
+							&& _currentEmployee == Entity.Author)
+						|| UserRole == PayoutRequestUserRole.SubdivisionChief
+						|| (_currentEmployee.Id == FinancialResponsibilityCenter.ResponsibleEmployeeId
+							|| _currentEmployee.Id == FinancialResponsibilityCenter.ViceResponsibleEmployeeId)
+						|| UserRole == PayoutRequestUserRole.SecurityService;
 					break;
 				case PayoutRequestState.Canceled:
+					CanEdit = UserRole == PayoutRequestUserRole.RequestCreator
+						&& _currentEmployee == Entity.Author;
 					break;
 				case PayoutRequestState.Closed:
 					CanEdit = false;
