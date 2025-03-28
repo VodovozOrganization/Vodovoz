@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -54,7 +55,7 @@ namespace Vodovoz.Domain.Payments
 		private Payment _refundedPayment;
 		private UserBase _currentEditorUser;
 		private IList<PaymentItem> _paymentItems = new List<PaymentItem>();
-		GenericObservableList<PaymentItem> _observableItems;
+		private GenericObservableList<PaymentItem> _observableItems;
 
 		public Payment() { }
 
