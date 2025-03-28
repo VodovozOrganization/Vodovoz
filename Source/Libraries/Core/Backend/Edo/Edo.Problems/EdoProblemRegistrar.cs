@@ -117,7 +117,7 @@ namespace Edo.Problems
 				var source = sources.SingleOrDefault(x => x.Name == sourceName);
 				if(source == null)
 				{
-					throw new InvalidOperationException($"Не найден источник описания проблемы " +
+					throw new InvalidOperationException("Не найден источник описания проблемы " +
 						$"по исключению {sourceName}. Каждый источник должен быть зарегистрирован " +
 						$"в контейнера под типом {nameof(EdoTaskProblemExceptionSource)}");
 				}

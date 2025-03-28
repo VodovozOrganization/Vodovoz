@@ -918,8 +918,19 @@ namespace Edo.Receipt.Dispatcher
 				}
 			}
 
-			// Если ничего не смогли подобрать то создаем новую запись
-			var code = await LoadCodeFromPool(orderItem.Nomenclature, cancellationToken);
+			TrueMarkWaterIdentificationCode code = null;
+
+			try
+			{
+				// Если ничего не смогли подобрать, то создаем новую запись
+				code = await LoadCodeFromPool(orderItem.Nomenclature, cancellationToken);
+			}
+			catch(EdoCodePoolMissingCodeException e)
+			{
+				await _edoProblemRegistrar.RegisterExceptionProblem(receiptEdoTask, e, cancellationToken);
+				throw;
+			}
+			
 			var newProductCode = new AutoTrueMarkProductCode
 			{
 				Problem = ProductCodeProblem.Unscanned,
@@ -952,14 +963,11 @@ namespace Edo.Receipt.Dispatcher
 				{
 					codeId = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
 				}
-				catch(EdoCodePoolException)
-				{
-					continue;
-				}
+				catch(EdoCodePoolMissingCodeException) { }
 			}
 			if(codeId == 0)
 			{
-				throw new EdoCodePoolException($"В пуле не найдено кодов с gtin для номенклатуры {nomenclature}");
+				throw new EdoCodePoolMissingCodeException($"В пуле не найдено кодов с gtin для номенклатуры {nomenclature}");
 			}
 
 			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
