@@ -1108,7 +1108,7 @@ namespace Vodovoz
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
 
-			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
+			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? _orderService.GetLogisticsRequirements(Entity), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 
@@ -1502,58 +1502,6 @@ namespace Vodovoz
 			}
 		}
 
-		private LogisticsRequirements GetLogisticsRequirements()
-		{
-			if(Entity.LogisticsRequirements != null && Entity.IsCopiedFromUndelivery)
-			{
-				return Entity.LogisticsRequirements;
-			}
-
-			if(Entity.Client == null || (!Entity.SelfDelivery && Entity.DeliveryPoint == null))
-			{
-				return new LogisticsRequirements();
-			}
-
-			var counterpartyLogisticsRequirements = new LogisticsRequirements();
-			var deliveryPointLogisticsRequirements = new LogisticsRequirements();
-
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				if(Entity.Client?.LogisticsRequirements?.Id > 0)
-				{
-					counterpartyLogisticsRequirements = uow.GetById<LogisticsRequirements>(Entity.Client.LogisticsRequirements.Id) ?? new LogisticsRequirements();
-				}
-
-				if(Entity.DeliveryPoint?.LogisticsRequirements?.Id > 0)
-				{
-					deliveryPointLogisticsRequirements = uow.GetById<LogisticsRequirements>(Entity.DeliveryPoint.LogisticsRequirements.Id) ?? new LogisticsRequirements();
-				}
-			}
-
-			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements
-			{
-				ForwarderRequired = counterpartyLogisticsRequirements.ForwarderRequired || deliveryPointLogisticsRequirements.ForwarderRequired,
-				DocumentsRequired = counterpartyLogisticsRequirements.DocumentsRequired || deliveryPointLogisticsRequirements.DocumentsRequired,
-				RussianDriverRequired = counterpartyLogisticsRequirements.RussianDriverRequired || deliveryPointLogisticsRequirements.RussianDriverRequired,
-				PassRequired = counterpartyLogisticsRequirements.PassRequired || deliveryPointLogisticsRequirements.PassRequired,
-				LargusRequired = counterpartyLogisticsRequirements.LargusRequired || deliveryPointLogisticsRequirements.LargusRequired
-			};
-
-			if(Entity.LogisticsRequirements != null)
-			{
-				return new LogisticsRequirements
-				{
-					ForwarderRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.ForwarderRequired || Entity.LogisticsRequirements.ForwarderRequired,
-					DocumentsRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.DocumentsRequired || Entity.LogisticsRequirements.DocumentsRequired,
-					RussianDriverRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.RussianDriverRequired || Entity.LogisticsRequirements.RussianDriverRequired,
-					PassRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.PassRequired || Entity.LogisticsRequirements.PassRequired,
-					LargusRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.LargusRequired || Entity.LogisticsRequirements.LargusRequired
-				};
-			}
-
-			return logisticsRequirementsFromCounterpartyAndDeliveryPoint;
-		}
-
 		private void UpdateEntityLogisticsRequirements()
 		{
 			Entity.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
@@ -1566,7 +1514,7 @@ namespace Vodovoz
 				var requirements =
 					clearCheckedCheckboxes
 					? new LogisticsRequirements()
-					: GetLogisticsRequirements();
+					: _orderService.GetLogisticsRequirements(Entity);
 
 				logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(requirements);
 				UpdateEntityLogisticsRequirements();
