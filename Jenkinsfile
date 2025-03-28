@@ -346,7 +346,9 @@ stage('Delivery'){
 
 // 206	Этапы. Развертывание
 stage('Deploy'){
-	DeployDesktop()
+	node(NODE_VOD3){
+		DeployDesktopForTest()
+	}
 }
 
 // 207	Этапы. Публикация
@@ -587,27 +589,25 @@ def DeliveryWinArtifact(artifactName, deliveryPath){
 
 // 306	Фукнции. Развертывание
 
-def DeployDesktop(){
-	node(NODE_VOD3){
-		if(CAN_DEPLOY_FOR_TEST_DESKTOP)
+def DeployDesktopForTest(){
+	if(CAN_DEPLOY_FOR_TEST_DESKTOP)
+	{
+		def OUTPUT_PATH = ""
+
+		if(IS_PULL_REQUEST)
 		{
-			def OUTPUT_PATH = ""
-
-			if(IS_PULL_REQUEST)
-			{
-				OUTPUT_PATH = "${DEPLOY_PATH}/pull_requests/${env.CHANGE_ID}"
-			}
-			else
-			{
-				OUTPUT_PATH = "${DEPLOY_PATH}/${env.BRANCH_NAME}"
-			}
-
-			DecompressArtifact(OUTPUT_PATH, 'VodovozDesktop')
+			OUTPUT_PATH = "${DEPLOY_PATH}/pull_requests/${env.CHANGE_ID}"
 		}
 		else
 		{
-			echo "Deploy desktop builds not needed"
+			OUTPUT_PATH = "${DEPLOY_PATH}/${env.BRANCH_NAME}"
 		}
+
+		DecompressArtifact(OUTPUT_PATH, 'VodovozDesktop')
+	}
+	else
+	{
+		echo "Deploy desktop builds not needed"
 	}
 }
 
