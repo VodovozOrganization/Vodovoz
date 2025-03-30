@@ -19,32 +19,51 @@ namespace VodovozBusiness.Nodes
 				throw new ArgumentNullException(nameof(edoContainer));
 			}
 
+			OrderId = edoContainer.Order.Id;
 			DocFlowId = edoContainer.DocFlowId;
 			OldEdoDocumentType = edoContainer.Type;
 			EdoDocFlowStatus = edoContainer.EdoDocFlowStatus;
 			IsReceived = edoContainer.Received;
 			ErrorDescription = edoContainer.ErrorDescription;
+			OrderWithoutShipmentForAdvancePaymentId = edoContainer.OrderWithoutShipmentForAdvancePayment?.Id;
+			OrderWithoutShipmentForDebtId = edoContainer.OrderWithoutShipmentForDebt?.Id;
+			OrderWithoutShipmentForPaymentId = edoContainer.OrderWithoutShipmentForPayment?.Id;
+			TaxcomDocflowCreationTime = edoContainer.Created;
 			IsNewDockflow = false;
 		}
 
 		public EdoDockflowData(){ }
 
 		/// <summary>
+		/// Номер заказа
+		/// </summary>
+		public int? OrderId { get; set; }
+
+		/// <summary>
 		/// Идентификатор документооборота
 		/// </summary>
 		public Guid? DocFlowId { get; set; }
+
+		/// <summary>
+		/// Дата создания документооборота
+		/// </summary>
+		public DateTime? TaxcomDocflowCreationTime { get; set; }
+
 		/// <summary>
 		/// Статус документооборота
 		/// </summary>
 		public EdoDocFlowStatus? EdoDocFlowStatus { get; set; }
+
 		/// <summary>
 		/// Доставлен
 		/// </summary>
 		public bool IsReceived { get; set; }
+
 		/// <summary>
 		/// Описание ошибки
 		/// </summary>
 		public string ErrorDescription { get; set; }
+
 		/// <summary>
 		/// Новый документооборот
 		/// </summary>
@@ -56,17 +75,39 @@ namespace VodovozBusiness.Nodes
 		public Type? OldEdoDocumentType { get; set; }
 
 		/// <summary>
+		/// Номер счета без отгрузки на предоплату
+		/// </summary>
+		public int? OrderWithoutShipmentForAdvancePaymentId { get; set; }
+
+		/// <summary>
+		/// Номер счета без отгрузки на долг
+		/// </summary>
+		public int? OrderWithoutShipmentForDebtId { get; set; }
+
+		/// <summary>
+		/// Номер счета без отгрузки на постоплату
+		/// </summary>
+		public int? OrderWithoutShipmentForPaymentId { get; set; }
+
+		/// <summary>
 		/// Тип документа в новом документообороте
 		/// </summary>
 		public EdoDocumentType? EdoDocumentType { get; set; }
+
 		/// <summary>
 		/// Статус задачи ЭДО в новом документообороте
 		/// </summary>
 		public EdoTaskStatus? EdoTaskStatus { get; set; }
+
 		/// <summary>
 		/// Статус документа ЭДО в новом документообороте
 		/// </summary>
 		public EdoDocumentStatus? EdoDocumentStatus { get; set; }
+
+		/// <summary>
+		/// Дата создания запроса ЭДО
+		/// </summary>
+		public DateTime? EdoRequestCreationTime { get; set; }
 
 		/// <summary>
 		/// Тип документа

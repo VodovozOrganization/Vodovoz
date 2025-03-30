@@ -2218,7 +2218,7 @@ namespace Vodovoz
 
 			foreach(var item in containers)
 			{
-				if(!item.IsIncoming)
+				if(item.IsIncoming)
 				{
 					continue;
 				}
@@ -2229,21 +2229,24 @@ namespace Vodovoz
 		private void UpdateEdoDocumentDataNodes()
 		{
 			_edoEdoDocumentDataNodes.Clear();
+
+			var documents = new List<EdoDockflowData>();
+
 			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Отправка документов по ЭДО, диалог заказа"))
 			{
 				UpdateEdoContainers(uow);
 
-				var newEdoDockflowData = _edoDocflowRepository.GetEdoDocflowDataByOrderId(uow, Entity.Id);
+				documents.AddRange(_edoDocflowRepository.GetEdoDocflowDataByOrderId(uow, Entity.Id));
+				documents.AddRange(_edoContainers.Select(x => new EdoDockflowData(x)));
+			}
 
-				foreach(var item in newEdoDockflowData)
-				{
-					_edoEdoDocumentDataNodes.Add(item);
-				}
+			documents = documents
+				.OrderByDescending(x => x.TaxcomDocflowCreationTime == null ? x.EdoRequestCreationTime : x.TaxcomDocflowCreationTime)
+				.ToList();
 
-				foreach(var edoContainer in _edoContainers)
-				{
-					_edoEdoDocumentDataNodes.Add(new EdoDockflowData(edoContainer));
-				}
+			foreach(var document in documents)
+			{
+				_edoEdoDocumentDataNodes.Add(document);
 			}
 		}
 
