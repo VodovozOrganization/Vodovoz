@@ -404,6 +404,10 @@ namespace Vodovoz.JournalViewModels
 			GeoGroup selfDeliveryGeographicalGroupAlias = null;
 			EdoContainer edoContainerAlias = null;
 			EdoContainer innerEdoContainerAlias = null;
+			OrderEdoRequest orderEdoRequestAlias = null;
+			OrderEdoRequest orderEdoRequestAlias2 = null;
+			OrderEdoDocument orderEdoDocumentAlias = null;
+			OrderEdoDocument orderEdoDocumentAlias2 = null;
 
 			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
@@ -644,11 +648,6 @@ namespace Vodovoz.JournalViewModels
 					.And(() => edoContainerAlias.Type == Type.Upd)
 					.WithSubquery.WhereProperty(() => edoContainerAlias.Created).Eq(edoUpdLastRecordDateByOrderSubquery)
 					.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus));
-
-			OrderEdoRequest orderEdoRequestAlias = null;
-			OrderEdoRequest orderEdoRequestAlias2 = null;
-			OrderEdoDocument orderEdoDocumentAlias = null;
-			OrderEdoDocument orderEdoDocumentAlias2 = null;
 
 			var edoUpdLastStatusNewDocflowSubquery = QueryOver.Of(() => orderEdoRequestAlias)
 				.JoinEntityAlias(

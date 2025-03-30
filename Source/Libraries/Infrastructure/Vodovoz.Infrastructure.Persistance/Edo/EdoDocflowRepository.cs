@@ -17,8 +17,7 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 		{
 			var data =
 				from orderEdoRequest in uow.Session.Query<OrderEdoRequest>()
-				join oet in uow.Session.Query<OrderEdoTask>() on orderEdoRequest.Task.Id equals oet.Id into orderEdoTasks
-				from orderEdoTask in orderEdoTasks.DefaultIfEmpty()
+				join orderEdoTask in uow.Session.Query<OrderEdoTask>() on orderEdoRequest.Task.Id equals orderEdoTask.Id
 				join oed in uow.Session.Query<OrderEdoDocument>() on orderEdoTask.Id equals oed.DocumentTaskId into orderEdoDocuments
 				from orderEdoDocument in orderEdoDocuments.DefaultIfEmpty()
 				join td in uow.Session.Query<TaxcomDocflow>() on orderEdoDocument.Id equals td.EdoDocumentId into taxcomDocflows
@@ -60,8 +59,7 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 				from client in uow.Session.Query<Counterparty>()
 				join order in uow.Session.Query<Order>() on client.Id equals order.Client.Id
 				join orderEdoRequest in uow.Session.Query<OrderEdoRequest>() on order.Id equals orderEdoRequest.Order.Id
-				join oet in uow.Session.Query<OrderEdoTask>() on orderEdoRequest.Task.Id equals oet.Id into orderEdoTasks
-				from orderEdoTask in orderEdoTasks.DefaultIfEmpty()
+				join orderEdoTask in uow.Session.Query<OrderEdoTask>() on orderEdoRequest.Task.Id equals orderEdoTask.Id
 				join oed in uow.Session.Query<OrderEdoDocument>() on orderEdoTask.Id equals oed.DocumentTaskId into orderEdoDocuments
 				from orderEdoDocument in orderEdoDocuments.DefaultIfEmpty()
 				join td in uow.Session.Query<TaxcomDocflow>() on orderEdoDocument.Id equals td.EdoDocumentId into taxcomDocflows
