@@ -136,7 +136,6 @@ namespace DriverAPI.Library
 				.AddScoped<TrueMarkCodesChecker>()
 				.AddScoped<ITrueMarkApiClientFactory, TrueMarkApiClientFactory>()
 				.AddScoped(sp => sp.GetRequiredService<ITrueMarkApiClientFactory>().GetClient())
-				.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>();
 		}
 	}

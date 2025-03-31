@@ -72,9 +72,12 @@ namespace Vodovoz.Application.TrueMark
 				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_trueMarkApiClientFactory = trueMarkApiClientFactory
 				?? throw new ArgumentNullException(nameof(trueMarkApiClientFactory));
-			_trueMarkTransportCodeFactory = trueMarkTransportCodeFactory;
-			_trueMarkWaterGroupCodeFactory = trueMarkWaterGroupCodeFactory;
-			_trueMarkWaterIdentificationCodeFactory = trueMarkWaterIdentificationCodeFactory;
+			_trueMarkTransportCodeFactory = trueMarkTransportCodeFactory
+				?? throw new ArgumentNullException(nameof(trueMarkTransportCodeFactory));
+			_trueMarkWaterGroupCodeFactory = trueMarkWaterGroupCodeFactory
+				?? throw new ArgumentNullException(nameof(trueMarkWaterGroupCodeFactory));
+			_trueMarkWaterIdentificationCodeFactory = trueMarkWaterIdentificationCodeFactory
+				?? throw new ArgumentNullException(nameof(trueMarkWaterIdentificationCodeFactory));
 			_trueMarkWaterIdentificationCodeRepository = trueMarkWaterIdentificationCodeRepository
 				?? throw new ArgumentNullException(nameof(trueMarkWaterIdentificationCodeRepository));
 			_trueMarkProductCodeRepository = trueMarkProductCodeRepository
