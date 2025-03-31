@@ -556,7 +556,7 @@ def DeliveryDesktopArtifact(nodeName, deliveryPath){
 		return
 	}
 
-	if(CAN_DEPLOY_FOR_USERS_DESKTOP)
+	if(CAN_DELIVERY_DESKTOP)
 	{
 		DeliveryWinArtifact("VodovozDesktop_${ARTIFACT_DATE_TIME}${ARCHIVE_EXTENTION}", deliveryPath)
 	}
