@@ -97,11 +97,11 @@ namespace Edo.Docflow.Taxcom
 					State = newStatus.Value,
 					Time = @event.StatusChangeDateTime,
 					TaxcomDocflowId = taxcomDocflow.Id,
-					ErrorMessage = @event.ErrorDescription,
-					IsReceived = @event.IsReceived
+					ErrorMessage = @event.ErrorDescription
 				};
 			
 				taxcomDocflow.Actions.Add(newAction);
+				taxcomDocflow.IsReceived = @event.IsReceived;
 
 				edoDocflowUpdatedEvent = new EdoDocflowUpdatedEvent
 				{

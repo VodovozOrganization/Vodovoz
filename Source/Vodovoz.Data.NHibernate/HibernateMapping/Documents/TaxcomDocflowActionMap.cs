@@ -15,7 +15,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			Map(x => x.ErrorMessage).Column("error_message");
 			Map(x => x.Time).Column("time");
 			Map(x => x.TaxcomDocflowId).Column("taxcom_docflow_id");
-			Map(x => x.IsReceived).Column("is_received");
 		}
 	}
 }

@@ -17,8 +17,8 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 		{
 			var data =
 				from orderEdoRequest in uow.Session.Query<OrderEdoRequest>()
-				join orderEdoTask in uow.Session.Query<OrderEdoTask>() on orderEdoRequest.Task.Id equals orderEdoTask.Id
-				join oed in uow.Session.Query<OrderEdoDocument>() on orderEdoTask.Id equals oed.DocumentTaskId into orderEdoDocuments
+				join documentEdoTask in uow.Session.Query<DocumentEdoTask>() on orderEdoRequest.Task.Id equals documentEdoTask.Id
+				join oed in uow.Session.Query<OrderEdoDocument>() on documentEdoTask.Id equals oed.DocumentTaskId into orderEdoDocuments
 				from orderEdoDocument in orderEdoDocuments.DefaultIfEmpty()
 				join td in uow.Session.Query<TaxcomDocflow>() on orderEdoDocument.Id equals td.EdoDocumentId into taxcomDocflows
 				from taxcomDocflow in taxcomDocflows.DefaultIfEmpty()
@@ -42,11 +42,11 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 					EdoRequestCreationTime = orderEdoRequest.Time,
 					TaxcomDocflowCreationTime = taxcomDocflow == null ? default(DateTime?) : taxcomDocflow.CreationTime,
 					EdoDocFlowStatus = taxcomDocflowAction == null ? default(EdoDocFlowStatus?) : taxcomDocflowAction.State,
-					IsReceived = taxcomDocflowAction != null && taxcomDocflowAction.IsReceived,
+					IsReceived = taxcomDocflow != null && taxcomDocflow.IsReceived,
 					ErrorDescription = taxcomDocflowAction == null ? default : taxcomDocflowAction.ErrorMessage,
 					IsNewDockflow = true,
 					EdoDocumentType = orderEdoDocument == null ? default(EdoDocumentType?) : orderEdoDocument.DocumentType,
-					EdoTaskStatus = orderEdoTask == null ? default(EdoTaskStatus?) : orderEdoTask.Status,
+					EdoTaskStatus = documentEdoTask == null ? default(EdoTaskStatus?) : documentEdoTask.Status,
 					EdoDocumentStatus = orderEdoDocument == null ? default(EdoDocumentStatus?) : orderEdoDocument.Status
 				};
 
@@ -59,8 +59,8 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 				from client in uow.Session.Query<Counterparty>()
 				join order in uow.Session.Query<Order>() on client.Id equals order.Client.Id
 				join orderEdoRequest in uow.Session.Query<OrderEdoRequest>() on order.Id equals orderEdoRequest.Order.Id
-				join orderEdoTask in uow.Session.Query<OrderEdoTask>() on orderEdoRequest.Task.Id equals orderEdoTask.Id
-				join oed in uow.Session.Query<OrderEdoDocument>() on orderEdoTask.Id equals oed.DocumentTaskId into orderEdoDocuments
+				join documentEdoTask in uow.Session.Query<DocumentEdoTask>() on orderEdoRequest.Task.Id equals documentEdoTask.Id
+				join oed in uow.Session.Query<OrderEdoDocument>() on documentEdoTask.Id equals oed.DocumentTaskId into orderEdoDocuments
 				from orderEdoDocument in orderEdoDocuments.DefaultIfEmpty()
 				join td in uow.Session.Query<TaxcomDocflow>() on orderEdoDocument.Id equals td.EdoDocumentId into taxcomDocflows
 				from taxcomDocflow in taxcomDocflows.DefaultIfEmpty()
@@ -84,11 +84,11 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 					EdoRequestCreationTime = orderEdoRequest.Time,
 					TaxcomDocflowCreationTime = taxcomDocflow == null ? default(DateTime?) : taxcomDocflow.CreationTime,
 					EdoDocFlowStatus = taxcomDocflowAction == null ? default(EdoDocFlowStatus?) : taxcomDocflowAction.State,
-					IsReceived = taxcomDocflowAction != null && taxcomDocflowAction.IsReceived,
+					IsReceived = taxcomDocflow != null && taxcomDocflow.IsReceived,
 					ErrorDescription = taxcomDocflowAction == null ? default : taxcomDocflowAction.ErrorMessage,
 					IsNewDockflow = true,
 					EdoDocumentType = orderEdoDocument == null ? default(EdoDocumentType?) : orderEdoDocument.DocumentType,
-					EdoTaskStatus = orderEdoTask == null ? default(EdoTaskStatus?) : orderEdoTask.Status,
+					EdoTaskStatus = documentEdoTask == null ? default(EdoTaskStatus?) : documentEdoTask.Status,
 					EdoDocumentStatus = orderEdoDocument == null ? default(EdoDocumentStatus?) : orderEdoDocument.Status
 				};
 

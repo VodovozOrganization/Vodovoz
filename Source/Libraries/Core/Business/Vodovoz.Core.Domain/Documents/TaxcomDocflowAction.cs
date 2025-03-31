@@ -12,7 +12,6 @@ namespace Vodovoz.Core.Domain.Documents
 		private DateTime _time;
 		private EdoDocFlowStatus _state;
 		private string _errorMessage;
-		private bool _isReceived;
 
 		public TaxcomDocflowAction()
 		{
@@ -58,15 +57,6 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _errorMessage;
 			set => SetField(ref _errorMessage, value);
-		}
-
-		/// <summary>
-		/// Доставлено
-		/// </summary>
-		public virtual bool IsReceived
-		{
-			get => _isReceived;
-			set => SetField(ref _isReceived, value);
 		}
 	}
 }
