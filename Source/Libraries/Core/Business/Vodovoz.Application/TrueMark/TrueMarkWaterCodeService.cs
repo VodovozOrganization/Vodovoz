@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -34,6 +34,9 @@ namespace Vodovoz.Application.TrueMark
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly ITrueMarkApiClientFactory _trueMarkApiClientFactory;
+		private readonly ITrueMarkTransportCodeFactory _trueMarkTransportCodeFactory;
+		private readonly ITrueMarkWaterGroupCodeFactory _trueMarkWaterGroupCodeFactory;
+		private readonly ITrueMarkWaterIdentificationCodeFactory _trueMarkWaterIdentificationCodeFactory;
 		private readonly IGenericRepository<TrueMarkWaterIdentificationCode> _trueMarkWaterIdentificationCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _trueMarkProductCodeRepository;
 		private readonly IGenericRepository<TrueMarkWaterGroupCode> _trueMarkWaterGroupCodeRepository;
@@ -49,6 +52,9 @@ namespace Vodovoz.Application.TrueMark
 			TrueMarkCodesChecker trueMarkCodesChecker,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			ITrueMarkApiClientFactory trueMarkApiClientFactory,
+			ITrueMarkTransportCodeFactory trueMarkTransportCodeFactory,
+			ITrueMarkWaterGroupCodeFactory trueMarkWaterGroupCodeFactory,
+			ITrueMarkWaterIdentificationCodeFactory trueMarkWaterIdentificationCodeFactory,
 			IGenericRepository<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodeRepository,
 			IGenericRepository<TrueMarkProductCode> trueMarkProductCodeRepository,
 			IGenericRepository<TrueMarkWaterGroupCode> trueMarkWaterGroupCodeRepository,
@@ -66,6 +72,9 @@ namespace Vodovoz.Application.TrueMark
 				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_trueMarkApiClientFactory = trueMarkApiClientFactory
 				?? throw new ArgumentNullException(nameof(trueMarkApiClientFactory));
+			_trueMarkTransportCodeFactory = trueMarkTransportCodeFactory;
+			_trueMarkWaterGroupCodeFactory = trueMarkWaterGroupCodeFactory;
+			_trueMarkWaterIdentificationCodeFactory = trueMarkWaterIdentificationCodeFactory;
 			_trueMarkWaterIdentificationCodeRepository = trueMarkWaterIdentificationCodeRepository
 				?? throw new ArgumentNullException(nameof(trueMarkWaterIdentificationCodeRepository));
 			_trueMarkProductCodeRepository = trueMarkProductCodeRepository
@@ -401,46 +410,16 @@ namespace Vodovoz.Application.TrueMark
 				SetOrganizationInns();
 			}
 
-			if(!_organizationsInns.Contains(instanceStatus.OwnerInn))
+			var createCodesResult = await CreateCodesAsync(truemarkClient, new ProductInstanceStatus[] { productInstanceInfo.InstanceStatuses.FirstOrDefault() }, cancellationToken);
+
+			if(createCodesResult.IsFailure)
 			{
-				return Result.Failure<TrueMarkAnyCode>(TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(instanceStatus.OwnerInn));
+				return Result.Failure<TrueMarkAnyCode>(createCodesResult.Errors);
 			}
 
-			if(instanceStatus.GeneralPackageType == GeneralPackageType.Unit)
+			if(createCodesResult.Value.FirstOrDefault() is TrueMarkAnyCode)
 			{
-				var newWaterCode = CreateWaterCode(parsedCode);
-
-				uow.Save(newWaterCode);
-
-				return Result.Success<TrueMarkAnyCode>(newWaterCode);
-			}
-
-			if(instanceStatus.GeneralPackageType == GeneralPackageType.Group)
-			{
-				var newGroupCodeResult = await CreateGroupCodeAsync(parsedCode, truemarkClient, instanceStatus, cancellationToken);
-				
-				if(newGroupCodeResult.IsFailure)
-				{
-					return Result.Failure<TrueMarkAnyCode>(newGroupCodeResult.Errors);
-				}
-
-				uow.Save(newGroupCodeResult.Value);
-
-				return Result.Success<TrueMarkAnyCode>(newGroupCodeResult.Value);
-			}
-
-			if(instanceStatus.GeneralPackageType == GeneralPackageType.Box)
-			{
-				var newTransportCodeResult = await CreateTransportCodeAsync(truemarkClient, instanceStatus, cancellationToken);
-
-				if (newTransportCodeResult.IsFailure)
-				{
-					return Result.Failure<TrueMarkAnyCode>(newTransportCodeResult.Errors);
-				}
-
-				uow.Save(newTransportCodeResult.Value);
-
-				return Result.Success<TrueMarkAnyCode>(newTransportCodeResult.Value);
+				createCodesResult.Value.FirstOrDefault();
 			}
 
 			return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", "Не удалось получить информацию о коде"));
@@ -547,12 +526,12 @@ namespace Vodovoz.Application.TrueMark
 				return Result.Failure<TrueMarkTransportCode>(new Error("Temporary.Exception.Error", "Ошибка при запросе к API TrueMark"));
 			}
 
-			if (innerCodesCheckResult == null)
+			if(innerCodesCheckResult == null)
 			{
 				return Result.Failure<TrueMarkTransportCode>(new Error("Temporary.Exception.Error", "Не удалось получить информацию о коде"));
 			}
 
-			foreach (var innerCodeCheckResult in innerCodesCheckResult.InstanceStatuses)
+			foreach(var innerCodeCheckResult in innerCodesCheckResult.InstanceStatuses)
 			{
 				if(!_organizationsInns.Contains(instanceStatus.OwnerInn))
 				{
@@ -574,7 +553,7 @@ namespace Vodovoz.Application.TrueMark
 				{
 					var newGroupCodeResult = await CreateGroupCodeAsync(truemarkClient, innerCodeCheckResult, cancellationToken);
 
-					if (newGroupCodeResult.IsFailure)
+					if(newGroupCodeResult.IsFailure)
 					{
 						return Result.Failure<TrueMarkTransportCode>(newGroupCodeResult.Errors);
 					}
@@ -589,6 +568,121 @@ namespace Vodovoz.Application.TrueMark
 			}
 
 			return newTransportCode;
+		}
+
+		private async Task<Result<IEnumerable<TrueMarkAnyCode>>> CreateCodesAsync(ITrueMarkApiClient truemarkClient, ProductInstanceStatus[] instanceStatuses, CancellationToken cancellationToken)
+		{
+			var nextIterationInstanceCodes = instanceStatuses
+				.SelectMany(x => x.Childs);
+
+			ProductInstanceStatus[] innerCodesCheckResults = null;
+
+			List<TrueMarkAnyCode> newCodes = new List<TrueMarkAnyCode>();
+			List<TrueMarkAnyCode> newInnerCodes = new List<TrueMarkAnyCode>();
+
+			try
+			{
+				innerCodesCheckResults = (await truemarkClient.GetProductInstanceInfoAsync(nextIterationInstanceCodes, cancellationToken)).InstanceStatuses.ToArray();
+
+				if(innerCodesCheckResults.Any())
+				{
+					var innerCodesResult = await CreateCodesAsync(truemarkClient, innerCodesCheckResults, cancellationToken);
+
+					if(innerCodesResult.IsFailure)
+					{
+						return Result.Failure<IEnumerable<TrueMarkAnyCode>>(innerCodesResult.Errors);
+					}
+
+					newInnerCodes.AddRange(innerCodesResult.Value);
+				}
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при запросе к API TrueMark");
+				return Result.Failure<IEnumerable<TrueMarkAnyCode>>(new Error("Temporary.Exception.Error", "Ошибка при запросе к API TrueMark"));
+			}
+
+			foreach(var instanceStatus in innerCodesCheckResults)
+			{
+				if(!_organizationsInns.Contains(instanceStatus.OwnerInn))
+				{
+					return Result.Failure<IEnumerable<TrueMarkAnyCode>>(TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(instanceStatus.OwnerInn));
+				}
+
+				if(instanceStatus.GeneralPackageType == GeneralPackageType.Box)
+				{
+					newCodes.Add(_trueMarkTransportCodeFactory.CreateFromProductInstanceStatus(instanceStatus));
+				}
+				else if(instanceStatus.GeneralPackageType == GeneralPackageType.Group)
+				{
+					newCodes.Add(_trueMarkWaterGroupCodeFactory.CreateFromProductInstanceStatus(instanceStatus));
+				}
+				else if(instanceStatus.GeneralPackageType == GeneralPackageType.Unit)
+				{
+					newCodes.Add(_trueMarkWaterIdentificationCodeFactory.CreateFromProductInstanceStatus(instanceStatus));
+				}
+			}
+
+			var newTransportCodes = newCodes
+				.Where(x => x.IsTrueMarkTransportCode)
+				.Select(x => x.TrueMarkTransportCode)
+				.ToArray();
+
+			var newGroupCodes = newCodes
+				.Where(x => x.IsTrueMarkWaterGroupCode)
+				.Select(x => x.TrueMarkWaterGroupCode)
+				.ToArray();
+
+			foreach(var innerCode in newInnerCodes)
+			{
+				innerCode.Match(
+					transportCode =>
+					{
+						if(transportCode.ParentTransportCodeId != null)
+						{
+							newTransportCodes
+								.FirstOrDefault(x => x.Id == transportCode.ParentTransportCodeId)
+								?.AddInnerTransportCode(transportCode);
+						}
+						return true;
+					},
+					waterGroupCode =>
+					{
+						if(waterGroupCode.ParentTransportCodeId != null)
+						{
+							newTransportCodes
+								.FirstOrDefault(x => x.Id == waterGroupCode.ParentTransportCodeId)
+								?.AddInnerGroupCode(waterGroupCode);
+						}
+
+						if(waterGroupCode.ParentWaterGroupCodeId != null)
+						{
+							newGroupCodes
+								.FirstOrDefault(x => x.Id == waterGroupCode.ParentWaterGroupCodeId)
+								?.AddInnerGroupCode(waterGroupCode);
+						}
+						return true;
+					},
+					waterIdentificationCode =>
+					{
+						if(waterIdentificationCode.ParentTransportCodeId != null)
+						{
+							newTransportCodes
+								.FirstOrDefault(x => x.Id == waterIdentificationCode.ParentTransportCodeId)
+								?.AddInnerWaterCode(waterIdentificationCode);
+						}
+						if(waterIdentificationCode.ParentWaterGroupCodeId != null)
+						{
+							newGroupCodes
+								.FirstOrDefault(x => x.Id == waterIdentificationCode.ParentWaterGroupCodeId)
+								?.AddInnerWaterCode(waterIdentificationCode);
+						}
+						return true;
+					});
+			}
+
+			newInnerCodes.Clear();
+			return newCodes;
 		}
 
 		private async Task<Result<TrueMarkWaterGroupCode>> CreateGroupCodeAsync(TrueMarkWaterCode parsedCode, ITrueMarkApiClient truemarkClient, ProductInstanceStatus instanceStatus, CancellationToken cancellationToken)
@@ -677,12 +771,12 @@ namespace Vodovoz.Application.TrueMark
 				return Result.Failure<TrueMarkWaterGroupCode>(new Error("Temporary.Exception.Error", "Ошибка при запросе к API TrueMark"));
 			}
 
-			if (innerCodesCheckResult == null)
+			if(innerCodesCheckResult == null)
 			{
 				return Result.Failure<TrueMarkWaterGroupCode>(new Error("Temporary.Exception.Error", "Не удалось получить информацию о коде"));
 			}
 
-			foreach (var innerCodeCheckResult in innerCodesCheckResult.InstanceStatuses)
+			foreach(var innerCodeCheckResult in innerCodesCheckResult.InstanceStatuses)
 			{
 				if(!_organizationsInns.Contains(instanceStatus.OwnerInn))
 				{
