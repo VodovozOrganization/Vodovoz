@@ -208,6 +208,10 @@ namespace Vodovoz.Domain.Cash
 		{
 		}
 
+		protected override void UpdateComments()
+		{
+		}
+
 		#endregion
 	}
 }

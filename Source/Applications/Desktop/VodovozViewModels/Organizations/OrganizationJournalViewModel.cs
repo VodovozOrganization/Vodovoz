@@ -33,6 +33,8 @@ namespace Vodovoz.ViewModels.Organizations
 
 			_filterViewModel = organizationJournalFilterViewModel;
 
+			JournalFilter = _filterViewModel;
+
 			_filterViewModel.OnFiltered += OnFilterFiltered;
 
 			UpdateOnChanges(typeof(Organization));
