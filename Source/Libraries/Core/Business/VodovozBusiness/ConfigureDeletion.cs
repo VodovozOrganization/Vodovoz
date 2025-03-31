@@ -50,6 +50,7 @@ using VodovozBusiness.Domain.Service;
 using VodovozBusiness.Domain.Documents;
 using Vodovoz.Core.Domain.StoredResources;
 using VodovozBusiness.Domain.Contacts;
+using VodovozBusiness.Domain.Operations;
 
 namespace Vodovoz
 {

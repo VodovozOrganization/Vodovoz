@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Payments;
 using VodovozBusiness.Domain.Payments;
 
@@ -27,11 +28,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 				if(other.NodeType == typeof(PaymentWriteOff))
 				{
-					return PaymentState > Domain.Payments.PaymentState.undistributed ? 1 : -1;
+					return PaymentState > Core.Domain.Payments.PaymentState.undistributed ? 1 : -1;
 				}
 				else if(other.NodeType == typeof(PaymentWriteOff))
 				{
-					return PaymentState < Domain.Payments.PaymentState.undistributed ? 1 : -1;
+					return PaymentState < Core.Domain.Payments.PaymentState.undistributed ? 1 : -1;
 				}
 
 				return PaymentState > other.PaymentState ? 1 : -1;

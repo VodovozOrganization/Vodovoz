@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.Project.Journal;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
