@@ -90,7 +90,7 @@ CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVEL
 CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
 
 // 107.1	Настройки. Доставка
-CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP && (IS_HOTFIX || IS_RELEASE)
+CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP
 CAN_DELIVERY_WEB = CAN_COMPRESS_WEB
 WIN_DELIVERY_SHARED_FOLDER_NAME = "JenkinsWorkspace"
 
@@ -104,11 +104,10 @@ WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB
 
 // 108	Настройки. Развертывание
 DEPLOY_PATH = "F:/WORK/_BUILDS"
-CAN_DEPLOY_DESKTOP = CAN_DELIVERY_DESKTOP && (env.BRANCH_NAME == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD || IS_DEVELOP)
-CAN_DEPLOY_WEB = false
+CAN_DEPLOY_FOR_TEST_DESKTOP = CAN_DELIVERY_DESKTOP && (env.BRANCH_NAME == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD || IS_DEVELOP)
+CAN_DEPLOY_FOR_USERS_DESKTOP = CAN_DELIVERY_DESKTOP && (IS_HOTFIX || IS_RELEASE)
 
 // 109	Настройки. Публикация	
-CAN_PUBLISH_DESKTOP = CAN_DELIVERY_DESKTOP && IS_HOTFIX
 CAN_PUBLISH_WEB = CAN_DELIVERY_WEB
 //Release потому что правила именования фиксов/релизов Release_MMDD_HHMM
 NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX = "Release"
@@ -186,11 +185,10 @@ stage('Log') {
 
 	echo "108	Настройки. Развертывание"
 	echo "Deploy Path: ${DEPLOY_PATH}"
-	echo "Can Deploy Desktop: ${CAN_DEPLOY_DESKTOP}"
-	echo "Can Deploy Web: ${CAN_DEPLOY_WEB}"
+	echo "Can Deploy Desktop for test: ${CAN_DEPLOY_FOR_TEST_DESKTOP}"
+	echo "Can Deploy Desktop for users: ${CAN_DEPLOY_FOR_USERS_DESKTOP}"
 
 	echo "109	Настройки. Публикация"
-	echo "Can Publish Desktop: ${CAN_PUBLISH_DESKTOP}"
 	echo "Can Publish Web: ${CAN_PUBLISH_WEB}"
 
 	echo "New Desktop Hotfix Folder Name Prefix: ${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}"
@@ -348,7 +346,9 @@ stage('Delivery'){
 
 // 206	Этапы. Развертывание
 stage('Deploy'){
-	DeployDesktop()
+	node(NODE_VOD3){
+		DeployDesktopForTest()
+	}
 }
 
 // 207	Этапы. Публикация
@@ -403,7 +403,7 @@ def PrepareSources() {
 	def REFERENCE_REPOSITORY_PATH = "${JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
 	echo "Prepare reference repository ${REFERENCE_REPOSITORY_PATH}"
 
-	if(fileExists(REFERENCE_REPOSITORY_PATH)){
+	if (fileExists(REFERENCE_REPOSITORY_PATH)) {
 		// fetch all on reference repository
 		if (isUnix()) {
 			sh script: """\
@@ -418,8 +418,7 @@ def PrepareSources() {
 				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects \
 				git fetch --all \
 			""", returnStdout: true
-		}
-		else {
+		} else {
 			RunPowerShell("""
 				cd ${REFERENCE_REPOSITORY_PATH}
 				git fetch --all
@@ -433,7 +432,7 @@ def PrepareSources() {
 				git fetch --all
 			""")
 		}		
-	}else{
+	} else {
 		// clone reference
 		if (isUnix()) {
 			sh script: """\
@@ -443,8 +442,7 @@ def PrepareSources() {
 				git clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting \
 				git clone https://github.com/QualitySolution/QSProjects.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects \
 			""", returnStdout: true
-		}
-		else {
+		} else {
 			RunPowerShell("""
 				git clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ${REFERENCE_REPOSITORY_PATH}
 				git clone https://github.com/QualitySolution/GMap.NET.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET
@@ -536,7 +534,7 @@ def DecompressArtifact(destPath, artifactName) {
 def DeleteCompressedArtifact(artifactName) {
 	def archive_file = "${artifactName}_${ARTIFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
 	echo "Deleting artifact ${archive_file}"
-	fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
+	fileOperations([fileDeleteOperation(excludes: '', includes: "./${archive_file}")])
 }
 
 // 305	Фукнции. Доставка
@@ -591,27 +589,25 @@ def DeliveryWinArtifact(artifactName, deliveryPath){
 
 // 306	Фукнции. Развертывание
 
-def DeployDesktop(){
-	node(NODE_VOD3){
-		if(CAN_DEPLOY_DESKTOP)
+def DeployDesktopForTest(){
+	if(CAN_DEPLOY_FOR_TEST_DESKTOP)
+	{
+		def OUTPUT_PATH = ""
+
+		if(IS_PULL_REQUEST)
 		{
-			def OUTPUT_PATH = ""
-
-			if(IS_PULL_REQUEST)
-			{
-				OUTPUT_PATH = "${DEPLOY_PATH}/pull_requests/${env.CHANGE_ID}"
-			}
-			else
-			{
-				OUTPUT_PATH = "${DEPLOY_PATH}/${env.BRANCH_NAME}"
-			}
-
-			DecompressArtifact(OUTPUT_PATH, 'VodovozDesktop')
+			OUTPUT_PATH = "${DEPLOY_PATH}/pull_requests/${env.CHANGE_ID}"
 		}
 		else
 		{
-			echo "Deploy desktop builds not needed"
+			OUTPUT_PATH = "${DEPLOY_PATH}/${env.BRANCH_NAME}"
 		}
+
+		DecompressArtifact(OUTPUT_PATH, 'VodovozDesktop')
+	}
+	else
+	{
+		echo "Deploy desktop builds not needed"
 	}
 }
 
@@ -635,7 +631,7 @@ def PublishDesktop(nodeName){
 	}
 
 	node(nodeName){
-		if(CAN_PUBLISH_DESKTOP){
+		if(CAN_DEPLOY_FOR_USERS_DESKTOP){
 			if(IS_HOTFIX){
 				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${ARTIFACT_DATE_TIME}"
 				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
@@ -694,8 +690,8 @@ def DeleteCompressedArtifactAtNode(nodeName, projectName) {
 	}
 
 	node(nodeName){
-		if(CAN_PUBLISH_DESKTOP){
-			DeleteCompressedArtifact("${projectName}")
+		if(CAN_COMPRESS_DESKTOP){
+			DeleteCompressedArtifact(projectName)
 			return
 		}
 		echo "Cleanup not needed"
