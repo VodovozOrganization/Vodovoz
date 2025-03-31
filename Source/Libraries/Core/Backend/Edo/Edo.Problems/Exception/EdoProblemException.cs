@@ -1,26 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Problems.Exception
 {
-	public abstract class EdoProblemException : System.Exception
+	public class EdoProblemException : System.Exception
 	{
-		public EdoProblemException()
+		public EdoProblemException(System.Exception ex) 
+			: base("Возникло исключение при выполнении ЭДО процесса", ex)
 		{
 		}
 
-		public EdoProblemException(string message) : base(message)
+		public EdoProblemException(System.Exception ex, IEnumerable<EdoTaskItem> taskItems)
+			: base("Возникло исключение при выполнении ЭДО процесса", ex)
 		{
+			ProblemItems = taskItems ?? throw new ArgumentNullException(nameof(taskItems));
 		}
 
-		public EdoProblemException(string message, System.Exception innerException) : base(message, innerException)
+		public EdoProblemException(System.Exception ex, IEnumerable<EdoProblemCustomItem> customItems)
+			: base("Возникло исключение при выполнении ЭДО процесса", ex)
 		{
+			CustomItems = customItems ?? throw new ArgumentNullException(nameof(customItems));
 		}
 
-		protected EdoProblemException(SerializationInfo info, StreamingContext context) : base(info, context)
-		{
-		}
+		public IEnumerable<EdoTaskItem> ProblemItems { get; }
+
+		public IEnumerable<EdoProblemCustomItem> CustomItems { get; set; }
 	}
+
+	
 }

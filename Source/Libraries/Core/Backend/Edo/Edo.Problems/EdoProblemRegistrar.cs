@@ -90,19 +90,41 @@ namespace Edo.Problems
 			_taskUow.Dispose();
 		}
 
-		public async Task RegisterExceptionProblem(
+		public async Task<bool> TryRegisterExceptionProblem(
 			EdoTask edoTask,
 			EdoProblemException exception,
 			CancellationToken cancellationToken
 			)
 		{
-			await RegisterExceptionProblem(edoTask, exception, new List<EdoTaskItem>(), cancellationToken);
+			return await TryRegisterExceptionProblem(
+				edoTask, 
+				exception.InnerException, 
+				exception.ProblemItems,
+				exception.CustomItems,
+				cancellationToken
+			);
 		}
 
-		public async Task RegisterExceptionProblem(
+		public async Task<bool> TryRegisterExceptionProblem(
 			EdoTask edoTask,
-			EdoProblemException exception,
+			System.Exception exception,
+			CancellationToken cancellationToken
+			)
+		{
+			return await TryRegisterExceptionProblem(
+				edoTask, 
+				exception, 
+				new List<EdoTaskItem>(), 
+				new List<EdoProblemCustomItem>(),
+				cancellationToken
+			);
+		}
+
+		public async Task<bool> TryRegisterExceptionProblem(
+			EdoTask edoTask,
+			System.Exception exception,
 			IEnumerable<EdoTaskItem> affectedTaskItems,
+			IEnumerable<EdoProblemCustomItem> customItems,
 			CancellationToken cancellationToken
 			)
 		{
@@ -117,9 +139,8 @@ namespace Edo.Problems
 				var source = sources.SingleOrDefault(x => x.Name == sourceName);
 				if(source == null)
 				{
-					throw new InvalidOperationException("Не найден источник описания проблемы " +
-						$"по исключению {sourceName}. Каждый источник должен быть зарегистрирован " +
-						$"в контейнера под типом {nameof(EdoTaskProblemExceptionSource)}");
+					_taskUow.Dispose();
+					return false;
 				}
 
 				var problem = edoTask.Problems.FirstOrDefault(x => x.SourceName == sourceName);
@@ -142,6 +163,13 @@ namespace Edo.Problems
 					problem.TaskItems.Add(taskItem);
 				}
 
+				problem.CustomItems.Clear();
+				foreach(var customItem in customItems)
+				{
+					customItem.Problem = problem;
+					problem.CustomItems.Add(customItem);
+				}
+
 				if(source.Importance == EdoProblemImportance.Problem)
 				{
 					edoTask.Status = EdoTaskStatus.Problem;
@@ -153,8 +181,10 @@ namespace Edo.Problems
 
 				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
+
+				_taskUow.Dispose();
+				return true;
 			}
-			_taskUow.Dispose();
 		}
 
 		internal async Task UpdateValidationProblems(

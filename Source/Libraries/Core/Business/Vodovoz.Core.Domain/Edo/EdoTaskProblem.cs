@@ -2,6 +2,7 @@
 using QS.Extensions.Observable.Collections.List;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -15,6 +16,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private string _sourceName;
 		private TaskProblemState _state;
 		private IObservableList<EdoTaskItem> _taskItems = new ObservableList<EdoTaskItem>();
+		private IObservableList<EdoProblemCustomItem> _customItems = new ObservableList<EdoProblemCustomItem>();
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -71,5 +73,53 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _taskItems;
 			set => SetField(ref _taskItems, value);
 		}
+
+		[Display(Name = "Строки проблемы")]
+		public virtual IObservableList<EdoProblemCustomItem> CustomItems
+		{
+			get => _customItems;
+			set => SetField(ref _customItems, value);
+		}
+	}
+
+	public abstract class EdoProblemCustomItem : PropertyChangedBase, IDomainObject
+	{
+		private int _id;
+		private EdoTaskProblem _problem;
+
+		[Display(Name = "Код")]
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
+
+		[Display(Name = "Проблема")]
+		public virtual EdoTaskProblem Problem
+		{
+			get => _problem;
+			set => SetField(ref _problem, value);
+		}
+
+		public abstract EdoProblemCustomItemType Type { get; }
+	}
+
+	public class EdoProblemGtinItem : EdoProblemCustomItem
+	{
+		private GtinEntity _gtin;
+
+		public override EdoProblemCustomItemType Type => EdoProblemCustomItemType.Gtin;
+
+		[Display(Name = "Gtin")]
+		public virtual GtinEntity Gtin
+		{
+			get => _gtin;
+			set => SetField(ref _gtin, value);
+		}
+	}
+
+	public enum EdoProblemCustomItemType
+	{
+		Gtin
 	}
 }

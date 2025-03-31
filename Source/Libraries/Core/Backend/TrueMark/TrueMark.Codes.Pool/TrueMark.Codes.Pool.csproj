@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
-    <ProjectReference Include="..\..\Edo\Edo.Problems\Edo.Problems.csproj" />
   </ItemGroup>
 
 </Project>

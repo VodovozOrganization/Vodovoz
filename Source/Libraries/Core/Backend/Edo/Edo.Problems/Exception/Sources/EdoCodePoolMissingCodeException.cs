@@ -1,8 +1,9 @@
-﻿using Vodovoz.Core.Domain.Edo;
+﻿using TrueMark.Codes.Pool;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Problems.Exception.Sources
 {
-	public class EdoCodePoolMissingCodeException : EdoTaskProblemExceptionSource
+	public class MissingCodeInPool : EdoTaskProblemExceptionSource
 	{
 		public override string Name => nameof(EdoCodePoolMissingCodeException);
 		public override string Description => "В пуле не хватает кодов";

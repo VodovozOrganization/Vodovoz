@@ -1,9 +1,8 @@
 ﻿using System;
-using Edo.Problems.Exception;
 
 namespace TrueMark.Codes.Pool
 {
-	public class EdoCodePoolMissingCodeException : EdoProblemException
+	public class EdoCodePoolMissingCodeException : Exception
 	{
 		public EdoCodePoolMissingCodeException()
 		{
