@@ -37,6 +37,7 @@ using TrueMarkApi.Client;
 using Edo.Transport;
 using MessageTransport;
 using DriverApi.Notifications.Client;
+using Vodovoz.Application.TrueMark;
 
 namespace DriverAPI.Library
 {
@@ -135,7 +136,6 @@ namespace DriverAPI.Library
 				.AddScoped<TrueMarkCodesChecker>()
 				.AddScoped<ITrueMarkApiClientFactory, TrueMarkApiClientFactory>()
 				.AddScoped(sp => sp.GetRequiredService<ITrueMarkApiClientFactory>().GetClient())
-				.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>();
 		}
 	}
