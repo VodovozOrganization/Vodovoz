@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Edo;
 using TrueMark.Contracts;
 using TrueMark.Contracts.Responses;
 using TrueMarkApi.Client;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
@@ -16,9 +16,10 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
+using VodovozBusiness.Services.TrueMark;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
-namespace VodovozBusiness.Services.TrueMark
+namespace Vodovoz.Application.TrueMark
 {
 	public class TrueMarkWaterCodeService : ITrueMarkWaterCodeService
 	{

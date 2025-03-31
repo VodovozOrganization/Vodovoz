@@ -37,6 +37,7 @@ using TrueMarkApi.Client;
 using Edo.Transport;
 using MessageTransport;
 using DriverApi.Notifications.Client;
+using Vodovoz.Application.TrueMark;
 
 namespace DriverAPI.Library
 {

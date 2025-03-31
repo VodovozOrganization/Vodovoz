@@ -7,6 +7,7 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using TrueMarkApi.Client;
 using Vodovoz;
+using Vodovoz.Application.TrueMark;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
 using Vodovoz.FirebaseCloudMessaging;
