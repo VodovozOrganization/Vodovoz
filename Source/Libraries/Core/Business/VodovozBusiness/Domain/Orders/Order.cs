@@ -1265,6 +1265,18 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			#endregion
+
+			if(DeliverySchedule?.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId)
+			{
+				var orderItemsTrueMarkCodesMustBeAdded = OrderItems.Where(x => x.IsTrueMarkCodesMustBeAdded);
+
+				if(orderItemsTrueMarkCodesMustBeAdded.Any())
+				{
+					yield return new ValidationResult($"В заказе с \"Закр док\" не должно быть товаров с маркировкой ЧЗ. " +
+						$"В заказ были добавлены следующие маркированные товары: {string.Join(", ", orderItemsTrueMarkCodesMustBeAdded.Select(x => x.Nomenclature.Name))}",
+						new[] { nameof(OrderItems) });
+				}
+			}
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
