@@ -21,6 +21,11 @@ namespace Vodovoz.Settings.Edo
 		TimeSpan WaitingTransfersUpdateInterval { get; }
 
 		/// <summary>
+		/// Интервал отправки УПД по заказам Закр.Док
+		/// </summary>
+		TimeSpan ClosingDocumentsOrdersUpdSendInterval { get; }
+
+		/// <summary>
 		/// Минимальное количество кодов для начала трансфера
 		/// </summary>
 		int MinCodesCountForStartTransfer { get; }
