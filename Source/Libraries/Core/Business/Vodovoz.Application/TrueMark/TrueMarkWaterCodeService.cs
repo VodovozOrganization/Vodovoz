@@ -413,19 +413,72 @@ namespace Vodovoz.Application.TrueMark
 				SetOrganizationInns();
 			}
 
-			var createCodesResult = await CreateCodesAsync(truemarkClient, new ProductInstanceStatus[] { productInstanceInfo.InstanceStatuses.FirstOrDefault() }, cancellationToken);
+			TrueMarkAnyCode trueMarkAnyCode = null;
 
-			if(createCodesResult.IsFailure)
+			switch(instanceStatus.GeneralPackageType)
 			{
-				return Result.Failure<TrueMarkAnyCode>(createCodesResult.Errors);
+				case GeneralPackageType.Box:
+					trueMarkAnyCode = _trueMarkTransportCodeFactory.CreateFromProductInstanceStatus(instanceStatus);
+					break;
+				case GeneralPackageType.Group:
+					trueMarkAnyCode = _trueMarkWaterGroupCodeFactory.CreateFromProductInstanceStatus(instanceStatus);
+					break;
+				case GeneralPackageType.Unit:
+					trueMarkAnyCode = _trueMarkWaterIdentificationCodeFactory.CreateFromProductInstanceStatus(instanceStatus);
+					break;
 			}
 
-			if(createCodesResult.Value.FirstOrDefault() is TrueMarkAnyCode)
+			if(trueMarkAnyCode.IsTrueMarkWaterGroupCode || trueMarkAnyCode.IsTrueMarkTransportCode)
 			{
-				return createCodesResult.Value.FirstOrDefault();
+				var createCodesResult = await CreateCodesAsync(truemarkClient, new ProductInstanceStatus[] { instanceStatus }, cancellationToken);
+
+				if(createCodesResult.IsFailure)
+				{
+					return Result.Failure<TrueMarkAnyCode>(createCodesResult.Errors);
+				}
+
+				if(trueMarkAnyCode.IsTrueMarkTransportCode)
+				{
+					var innerCodes = createCodesResult.Value.ToArray();
+					
+					foreach(var innerCode in innerCodes)
+					{
+						if(innerCode.IsTrueMarkTransportCode)
+						{
+							trueMarkAnyCode.TrueMarkTransportCode.AddInnerTransportCode(innerCode.TrueMarkTransportCode);
+						}
+
+						if(innerCode.IsTrueMarkWaterGroupCode)
+						{
+							trueMarkAnyCode.TrueMarkTransportCode.AddInnerGroupCode(innerCode.TrueMarkWaterGroupCode);
+						}
+
+						if(innerCode.IsTrueMarkWaterIdentificationCode)
+						{
+							trueMarkAnyCode.TrueMarkTransportCode.AddInnerWaterCode(innerCode.TrueMarkWaterIdentificationCode);
+						}
+					}
+				}
+
+				if(trueMarkAnyCode.IsTrueMarkWaterGroupCode)
+				{
+					var innerCodes = createCodesResult.Value.ToArray();
+
+					foreach(var innerCode in innerCodes)
+					{
+						if(innerCode.IsTrueMarkWaterGroupCode)
+						{
+							trueMarkAnyCode.TrueMarkWaterGroupCode.AddInnerGroupCode(innerCode.TrueMarkWaterGroupCode);
+						}
+						if(innerCode.IsTrueMarkWaterIdentificationCode)
+						{
+							trueMarkAnyCode.TrueMarkWaterGroupCode.AddInnerWaterCode(innerCode.TrueMarkWaterIdentificationCode);
+						}
+					}
+				}
 			}
 
-			return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", "Не удалось получить информацию о коде"));
+			return trueMarkAnyCode;
 		}
 
 		public TrueMarkAnyCode GetParentGroupCode(IUnitOfWork unitOfWork, TrueMarkAnyCode trueMarkAnyCode)
@@ -641,45 +694,44 @@ namespace Vodovoz.Application.TrueMark
 				innerCode.Match(
 					transportCode =>
 					{
-						if(transportCode.ParentTransportCodeId != null)
-						{
-							newTransportCodes
-								.FirstOrDefault(x => x.Id == transportCode.ParentTransportCodeId)
-								?.AddInnerTransportCode(transportCode);
-						}
+						newTransportCodes
+							.FirstOrDefault(ntc => innerCodesCheckResults
+								.FirstOrDefault(iccr => iccr.Childs.Contains(transportCode.RawCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerTransportCode(transportCode);
+
 						return true;
 					},
 					waterGroupCode =>
 					{
-						if(waterGroupCode.ParentTransportCodeId != null)
-						{
-							newTransportCodes
-								.FirstOrDefault(x => x.Id == waterGroupCode.ParentTransportCodeId)
-								?.AddInnerGroupCode(waterGroupCode);
-						}
+						newTransportCodes
+							.FirstOrDefault(ntc => innerCodesCheckResults
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterGroupCode.IdentificationCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerGroupCode(waterGroupCode);
 
-						if(waterGroupCode.ParentWaterGroupCodeId != null)
-						{
-							newGroupCodes
-								.FirstOrDefault(x => x.Id == waterGroupCode.ParentWaterGroupCodeId)
-								?.AddInnerGroupCode(waterGroupCode);
-						}
+						newGroupCodes
+							.FirstOrDefault(ngc => innerCodesCheckResults
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterGroupCode.IdentificationCode))
+								?.IdentificationCode == ngc.IdentificationCode)
+							?.AddInnerGroupCode(waterGroupCode);
+
 						return true;
 					},
 					waterIdentificationCode =>
 					{
-						if(waterIdentificationCode.ParentTransportCodeId != null)
-						{
-							newTransportCodes
-								.FirstOrDefault(x => x.Id == waterIdentificationCode.ParentTransportCodeId)
-								?.AddInnerWaterCode(waterIdentificationCode);
-						}
-						if(waterIdentificationCode.ParentWaterGroupCodeId != null)
-						{
-							newGroupCodes
-								.FirstOrDefault(x => x.Id == waterIdentificationCode.ParentWaterGroupCodeId)
-								?.AddInnerWaterCode(waterIdentificationCode);
-						}
+						newTransportCodes
+							.FirstOrDefault(ntc => innerCodesCheckResults
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.RawCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerWaterCode(waterIdentificationCode);
+
+						newGroupCodes
+							.FirstOrDefault(ngc => innerCodesCheckResults
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.IdentificationCode))
+								?.IdentificationCode == ngc.IdentificationCode)
+							?.AddInnerWaterCode(waterIdentificationCode);
+
 						return true;
 					});
 			}

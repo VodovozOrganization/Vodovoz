@@ -287,6 +287,40 @@ namespace WarehouseApi.Library.Services
 				});
 			}
 
+			try
+			{
+				trueMarkCodeResult.Value.Match(
+					transportCode =>
+					{
+						_uow.Save(transportCode);
+						return true;
+					},
+					waterGroupCode =>
+					{
+						_uow.Save(waterGroupCode);
+						return true;
+					},
+					waterIdentificationCode =>
+					{
+						_uow.Save(waterIdentificationCode);
+						return true;
+					});
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+
+				var error = new Error("Database.Commit.Error", e.Message);
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
+
 			_uow.Commit();
 			_uow.Session.BeginTransaction();
 
