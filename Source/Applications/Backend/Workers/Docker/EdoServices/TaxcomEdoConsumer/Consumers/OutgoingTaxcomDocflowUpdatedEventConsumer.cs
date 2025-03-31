@@ -30,20 +30,28 @@ namespace TaxcomEdoConsumer.Consumers
 			try
 			{
 				_logger.LogInformation(
-					"Отправляем информацию об обновленном исходящем документообороте с документом {EdoDocument}",
-					message.MainDocumentId);
+					"Обрабатываем информацию об обновленном исходящем документообороте {DocflowId} с документом {EdoDocument}",
+					message.DocFlowId,
+					message.MainDocumentId
+					);
 
 				var edoDocflowUpdatedEvent = await _edoDocflowHandler.UpdateOutgoingTaxcomDocFlow(message);
 
 				if(edoDocflowUpdatedEvent != null)
 				{
+					_logger.LogInformation(
+						"Отправляем информацию об обновленном исходящем документообороте {DocflowId} с документом {EdoDocument}",
+						message.DocFlowId,
+						message.MainDocumentId
+					);
 					await _publishEndpoint.Publish(edoDocflowUpdatedEvent);
 				}
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e,
-					"Ошибка при отправке информации об обновленном исходящем документообороте с документом {EdoDocument}",
+					"Ошибка при отправке информации об обновленном исходящем документообороте {DocflowId} с документом {EdoDocument}",
+					message.DocFlowId,
 					message.MainDocumentId);
 			}
 		}

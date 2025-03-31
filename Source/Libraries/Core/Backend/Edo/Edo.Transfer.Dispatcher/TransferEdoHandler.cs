@@ -5,6 +5,7 @@ using Edo.Problems.Custom.Sources;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System;
@@ -13,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Transfer.Dispatcher
 {
@@ -122,7 +124,31 @@ namespace Edo.Transfer.Dispatcher
 				_logger.LogError("Невозможно завершить трансфер, так как документ №{documentId} еще не принят.", documentId);
 			}
 
+
 			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
+
+			await _uow.Session.QueryOver<TransferEdoRequest>()
+				.Fetch(SelectMode.Fetch, x => x.Iteration)
+				.Where(x => x.TransferEdoTask.Id == document.TransferTaskId)
+				.ListAsync();
+
+			await _uow.Session.QueryOver<TransferEdoRequest>()
+				.Fetch(SelectMode.Fetch, x => x.TransferedItems)
+				.Where(x => x.TransferEdoTask.Id == document.TransferTaskId)
+				.ListAsync();
+
+			var orderTaskIds = transferTask.TransferEdoRequests.Select(x => x.Iteration.OrderEdoTask.Id);
+
+			await _uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
+				.WhereRestrictionOn(x => x.CustomerEdoTask.Id).IsIn(orderTaskIds.ToArray())
+				.ListAsync();
+
 			if(transferTask.Status == EdoTaskStatus.Completed)
 			{
 				_logger.LogWarning("При обработке принятия документа трансфера №{documentId} обнаружено, что трансфер уже завершен.", documentId);

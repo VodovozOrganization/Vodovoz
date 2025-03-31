@@ -178,12 +178,12 @@ namespace Edo.Docflow.Factories
 				});
 			}
 
-			if(order.CounterpartyExternalOrderId != null && order.Client.UseSpecialDocFields)
+			if(!string.IsNullOrWhiteSpace(order.CounterpartyExternalOrderId) && order.Client.UseSpecialDocFields)
 			{
 				additionalInformation.Add(new UpdAdditionalInfo
 				{
 					Id = "номер_заказа",
-					Value = order.Client.SpecialNomenclatures.Any() ? $"{order.CounterpartyExternalOrderId}" : $"N{ order.CounterpartyExternalOrderId }"
+					Value = order.Client.SpecialNomenclatures.Any() ? $"{order.CounterpartyExternalOrderId}" : $"N{order.CounterpartyExternalOrderId}"
 				});
 			}
 

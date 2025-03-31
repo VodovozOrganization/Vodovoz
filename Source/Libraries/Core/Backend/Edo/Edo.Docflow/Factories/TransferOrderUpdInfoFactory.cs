@@ -152,20 +152,29 @@ namespace Edo.Docflow.Factories
 
 					if(code.GroupCode != null)
 					{
-						productCode.IndividualOrGroupCode = code.GroupCode.IdentificationCode;
-						productCode.IsGroup = true;
 						transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.GroupCode);
+						if(transportCode != null)
+						{
+							productCode.TransportCode = transportCode.RawCode;
+						}
+						else
+						{
+							productCode.IndividualOrGroupCode = code.GroupCode.IdentificationCode;
+							productCode.IsGroup = true;
+						}
 					}
 					else
 					{
-						productCode.IndividualOrGroupCode = code.IndividualCode.IdentificationCode;
-						productCode.IsGroup = false;
 						transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.IndividualCode);
-					}
-
-					if(transportCode != null)
-					{
-						productCode.TransportCode = transportCode.RawCode;
+						if(transportCode != null)
+						{
+							productCode.TransportCode = transportCode.RawCode;
+						}
+						else
+						{
+							productCode.IndividualOrGroupCode = code.IndividualCode.IdentificationCode;
+							productCode.IsGroup = false;
+						}
 					}
 
 					productCodes.Add(productCode);
@@ -182,7 +191,8 @@ namespace Edo.Docflow.Factories
 					price *= 1 + additionalPercent / 100;
 				}
 
-				var includeVat = Math.Round(price * nomenclature.VatNumericValue / (1 + nomenclature.VatNumericValue), 2);
+				var sum = price * quantity;
+				var includeVat = Math.Round(sum * nomenclature.VatNumericValue / (1 + nomenclature.VatNumericValue), 2);
 
 				var product = new ProductInfo
 				{

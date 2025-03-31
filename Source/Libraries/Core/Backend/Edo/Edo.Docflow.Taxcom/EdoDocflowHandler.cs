@@ -73,6 +73,9 @@ namespace Edo.Docflow.Taxcom
 
 			if(taxcomDocflow is null)
 			{
+				_logger.LogWarning("Пришел запрос обновления документооборота {DocflowId} по неизвестному документу {EdoDocument}",
+					@event.DocFlowId,
+					@event.MainDocumentId);
 				return null;
 			}
 
