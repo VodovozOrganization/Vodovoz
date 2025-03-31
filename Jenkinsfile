@@ -534,7 +534,7 @@ def DecompressArtifact(destPath, artifactName) {
 def DeleteCompressedArtifact(artifactName) {
 	def archive_file = "${artifactName}_${ARTIFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
 	echo "Deleting artifact ${archive_file}"
-	fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
+	fileOperations([fileDeleteOperation(excludes: '', includes: "./${archive_file}")])
 }
 
 // 305	Фукнции. Доставка
