@@ -422,7 +422,7 @@ namespace Vodovoz.Application.TrueMark
 
 			if(createCodesResult.Value.FirstOrDefault() is TrueMarkAnyCode)
 			{
-				createCodesResult.Value.FirstOrDefault();
+				return createCodesResult.Value.FirstOrDefault();
 			}
 
 			return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", "Не удалось получить информацию о коде"));
