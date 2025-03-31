@@ -67,7 +67,6 @@ namespace FastPaymentsAPI.Library
 				.AddScoped<IFastPaymentValidator, FastPaymentValidator>()
 
 				//helpers
-				.AddSingleton<IDTOManager, DTOManager>()
 				.AddScoped<ISignatureManager, SignatureManager>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
 				.AddSingleton<IFastPaymentManager, FastPaymentManager>()

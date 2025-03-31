@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DateTimeHelpers;
 using Edo.Contracts.Messages.Dto;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131_5_03;
 using TaxcomEdo.Contracts.Counterparties;
@@ -46,7 +47,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 		{
 			var orderInfoForEdo = infoForCreatingEdoUpd.OrderInfoForEdo;
 			var org = orderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo;
-			var updDate = orderInfoForEdo.DeliveryDate.ToShortDateString();
+			var updDate = orderInfoForEdo.DeliveryDate.ToEdoShortDateString();
 			
 			var upd = new Fajl
 			{
@@ -87,7 +88,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
 					NomerDoc = orderInfoForEdo.Id.ToString(),
-					DataSchF = updDate,
+					DataDoc = updDate,
 					
 					DenIzm = new FajlDokumentSvSchFaktDenIzm
 					{
@@ -209,8 +210,6 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				{
 					SodOper = GetOperationName(orderItems),
 					DataPer = updDate,
-					DataNach = updDate,
-					DataOkon = updDate,
 					
 					Items = new[]
 					{
@@ -301,7 +300,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
 					NomerDoc = updInfo.Number.ToString(),
-					DataSchF = updDate,
+					DataDoc = updDate,
 					
 					DenIzm = new FajlDokumentSvSchFaktDenIzm
 					{
@@ -335,15 +334,6 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 					{
 						_erpDocumentInfoConverter.ConvertCounterpartyToConsigneeInfo(updInfo.Consignee)
 					}
-					
-					//KodOKV = "643",
-					/*IsprSchF = new FajlDokumentSvSchFaktIsprSchF
-					{
-						DefNomIsprSchFSpecified = true,
-						DefNomIsprSchF = FajlDokumentSvSchFaktIsprSchFDefNomIsprSchF.Item,
-						DefDataIsprSchFSpecified = true,
-						DefDataIsprSchF = FajlDokumentSvSchFaktIsprSchFDefDataIsprSchF.Item
-					}*/
 				}
 			};
 
@@ -412,9 +402,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				{
 					SodOper = GetOperationName(products),
 					DataPer = updDate,
-					DataNach = updDate,
-					DataOkon = updDate,
-					
+
 					Items = new[]
 					{
 						GetDocumentConfirmingShipment(updInfo.DocumentConfirmingShipment)
@@ -456,8 +444,6 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 
 			return upd;
 		}
-
-		#endregion
 
 		private object GetDocumentConfirmingShipment(OrderInfoForEdo orderInfoForEdo)
 		{
@@ -555,5 +541,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 			
 			return sb.ToString();
 		}
+		
+		#endregion УПД
 	}
 }

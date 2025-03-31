@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
+using Core.Infrastructure;
+using DateTimeHelpers;
 using Edo.Contracts.Messages.Dto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -9,7 +11,6 @@ using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.Documents.Events;
 using TaxcomEdoApi.Library.Config;
 using TaxcomEdoApi.Library.Factories;
-using TaxcomEdoApi.Library.Factories.Format5_01;
 using TaxcomEdoApi.Library.Factories.Format5_03;
 
 namespace TaxcomEdoApi.Library.Services
@@ -20,7 +21,6 @@ namespace TaxcomEdoApi.Library.Services
 		private readonly X509Certificate2 _certificate;
 		private readonly TaxcomEdoApiOptions _apiOptions;
 		private readonly WarrantOptions _warrantOptions;
-		private readonly IEdoTaxcomDocumentsFactory5_01 _edoTaxcomDocumentsFactory;
 		private readonly IEdoTaxcomDocumentsFactory5_03 _edoTaxcomDocumentsFactory503;
 		private readonly IEdoBillFactory _edoBillFactory;
 		
@@ -28,15 +28,14 @@ namespace TaxcomEdoApi.Library.Services
 			ILogger<TaxcomEdoService> logger,
 			IOptions<TaxcomEdoApiOptions> apiOptions,
 			IOptions<WarrantOptions> warrantOptions,
-			IEdoTaxcomDocumentsFactory5_01 edoTaxcomDocumentsFactory,
 			IEdoTaxcomDocumentsFactory5_03 edoTaxcomDocumentsFactory503,
 			IEdoBillFactory edoBillFactory,
 			X509Certificate2 certificate
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_edoTaxcomDocumentsFactory = edoTaxcomDocumentsFactory ?? throw new ArgumentNullException(nameof(edoTaxcomDocumentsFactory));
-			_edoTaxcomDocumentsFactory503 = edoTaxcomDocumentsFactory503 ?? throw new ArgumentNullException(nameof(edoTaxcomDocumentsFactory503));
+			_edoTaxcomDocumentsFactory503 =
+				edoTaxcomDocumentsFactory503 ?? throw new ArgumentNullException(nameof(edoTaxcomDocumentsFactory503));
 			_edoBillFactory = edoBillFactory ?? throw new ArgumentNullException(nameof(edoBillFactory));
 			_certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
 			_apiOptions = (apiOptions ?? throw new ArgumentNullException(nameof(apiOptions))).Value;
@@ -58,7 +57,7 @@ namespace TaxcomEdoApi.Library.Services
 				throw new InvalidOperationException("Организация заказа отличается от указанной для отправки документов в конфиге");
 			}
 			
-			var updXml = _edoTaxcomDocumentsFactory.CreateNewUpdXml5_01(
+			var updXml = _edoTaxcomDocumentsFactory503.CreateUpdXml5_03(
 				infoForCreatingEdoUpd,
 				_warrantOptions,
 				edoAccountId,
@@ -71,7 +70,7 @@ namespace TaxcomEdoApi.Library.Services
 
 			var orderId = infoForCreatingEdoUpd.OrderInfoForEdo.Id;
 			var upd = new UniversalInvoiceDocument();
-			UniversalInvoiceConverter.Convert(upd, updXml);
+			UniversalInvoiceConverter_5_03.Convert(upd, updXml);
 
 			if(!upd.Validate(out var errors))
 			{
@@ -193,7 +192,7 @@ namespace TaxcomEdoApi.Library.Services
 			return container;
 		}
 
-		public SendCustomerInformationEvent GetSendCustomerInformationEvent(string docflowId, string organization)
+		public string GetSendCustomerInformationEvent(string docflowId, string organization, string updFormat)
 		{
 			if(string.IsNullOrWhiteSpace(organization))
 			{
@@ -206,7 +205,18 @@ namespace TaxcomEdoApi.Library.Services
 			{
 				throw new InvalidOperationException("В конфиге не найдена должность подписанта!");
 			}
-			
+
+			switch(updFormat)
+			{
+				case "5.01":
+					return CreateSendCustomerInformation5_01(docflowId, organization, jobPosition).ToXmlString();
+				default:
+					return CreateSendCustomerInformation5_03(docflowId, organization, jobPosition).ToXmlString();
+			}
+		}
+
+		private SendCustomerInformationEvent CreateSendCustomerInformation5_01(string docflowId, string organization, string jobPosition)
+		{
 			return new SendCustomerInformationEvent
 			{
 				InternalId = docflowId,
@@ -255,6 +265,55 @@ namespace TaxcomEdoApi.Library.Services
 					}
 				}
 			};
+		}
+		
+		private SendCustomerInformationEvent CreateSendCustomerInformation5_03(string docflowId, string organization, string jobPosition)
+		{
+			var document = new SendCustomerInformationEvent
+			{
+				InternalId = docflowId,
+				Signers = new[]
+				{
+					new TaxcomEdo.Contracts.Documents.Events.Signer
+					{
+						Item = new SignerCertificate
+						{
+							Thumbprint = _certificate.Thumbprint,
+							SerialNumber = _certificate.SerialNumber
+						}
+					}
+				},
+				AdditionalData =  new []
+				{
+					new AdditionalParameter
+					{
+						Name = "Покупатель.НаименованиеЭкономическогоСубъектаСоставителя",
+						Value = organization
+					},
+					new AdditionalParameter
+					{
+						Name = "СодержаниеФактаХозЖизни.СодержаниеОперации",
+						Value = "Товары/Услуги получены, претензий нет"
+					},
+					new AdditionalParameter
+					{
+						Name = "СодержаниеФактаХозЖизни.ДатаПринятия",
+						Value = DateTime.Today.ToEdoShortDateString()
+					},
+					new AdditionalParameter
+					{
+						Name = "Подписант.СпосПодтПолном",
+						Value = "1"
+					},
+					new AdditionalParameter
+					{
+						Name = "СодержаниеФактаХозЖизни.СведенияОПринятии.КодСодержанияОперации.КодИтога",
+						Value = "1"
+					}
+				}
+			};
+			
+			return document;
 		}
 	}
 }

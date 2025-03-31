@@ -91,6 +91,7 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 			return new AdrInfTip
 			{
 				KodStr = address.CountryCode,
+				NaimStran = address.CountryName,
 				AdrTekst = address.Address
 			};
 		}

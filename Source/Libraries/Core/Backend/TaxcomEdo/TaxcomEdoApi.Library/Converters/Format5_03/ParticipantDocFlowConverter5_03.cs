@@ -8,6 +8,7 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 	public class ParticipantDocFlowConverter5_03 : IParticipantDocFlowConverter5_03
 	{
 		private const string _russiaCode = "643";  //Россия
+		private const string _russia = "Россия";
 		
 		public UchastnikTip ConvertCounterpartyToUchastnikTip(CounterpartyInfoForEdo client)
 		{
@@ -163,6 +164,7 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 			return new AdrInfTip
 			{
 				KodStr = _russiaCode,
+				NaimStran = _russia,
 				AdrTekst = address
 			};
 		}
