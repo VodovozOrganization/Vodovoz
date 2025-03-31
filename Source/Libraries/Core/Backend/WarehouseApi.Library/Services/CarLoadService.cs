@@ -469,14 +469,13 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.AddTrueMarkCode);
 
-			checkResult = await _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
+			checkResult = _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
 				orderId,
 				nomenclatureId,
 				waterCode,
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
-				documentItemToEdit,
-				cancellationToken);
+				documentItemToEdit);
 
 			if(checkResult.IsFailure)
 			{
@@ -535,10 +534,42 @@ namespace WarehouseApi.Library.Services
 						Error = error.Message
 					});
 				}
-			}
+				try
+				{
+					newTrueMarkCodeResult.Value.Match(
+						transportCode =>
+						{
+							_uow.Save(transportCode);
+							return true;
+						},
+						waterGroupCode =>
+						{
+							_uow.Save(waterGroupCode);
+							return true;
+						},
+						waterIdentificationCode =>
+						{
+							_uow.Save(waterIdentificationCode);
+							return true;
+						});
 
-			_uow.Commit();
-			_uow.Session.BeginTransaction();
+					_uow.Commit();
+					_uow.Session.BeginTransaction();
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+
+					var error = new Error("Database.Commit.Error", e.Message);
+					var result = Result.Failure<ChangeOrderCodeResponse>(error);
+					return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
+					{
+						Nomenclature = null,
+						Result = OperationResultEnumDto.Error,
+						Error = error.Message
+					});
+				}
+			}
 
 			if(oldTrueMarkCodeResult.Value.Match(
 				transportCode => transportCode.ParentTransportCodeId != null,
