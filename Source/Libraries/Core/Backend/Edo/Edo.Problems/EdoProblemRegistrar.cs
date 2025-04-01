@@ -54,20 +54,19 @@ namespace Edo.Problems
 			// а UoW задачи обязательно закрывается с откатом транзакции
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
+				var task = uow.GetById<EdoTask>(edoTask.Id);
 				var source = _customSourcesPersister.GetCustomSource<TCustomSource>();
-				var problem = edoTask.Problems.FirstOrDefault(x => x.SourceName == source.Name);
-				if(problem == null)
-				{
-					problem = new CustomEdoTaskProblem
+				var problem = task.Problems.FirstOrDefault(x => x.SourceName == source.Name)
+					?? new CustomEdoTaskProblem
 					{
 						SourceName = source.Name,
-						EdoTask = edoTask,
+						EdoTask = task,
 						CustomMessage = customMessage
 					};
-				}
 
 				problem.CreationTime = DateTime.Now;
 				problem.State = TaskProblemState.Active;
+				
 
 				problem.TaskItems.Clear();
 				foreach(var taskItem in affectedTaskItems)
@@ -75,16 +74,12 @@ namespace Edo.Problems
 					problem.TaskItems.Add(taskItem);
 				}
 
-				if(source.Importance == EdoProblemImportance.Problem)
-				{
-					edoTask.Status = EdoTaskStatus.Problem;
-				}
-				else
-				{
-					edoTask.Status = EdoTaskStatus.Waiting;
-				}
+				task.Status = source.Importance == EdoProblemImportance.Problem
+					? EdoTaskStatus.Problem
+					: EdoTaskStatus.Waiting;
 
 				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
+				await uow.SaveAsync(task, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
 			}
 			_taskUow.Dispose();
@@ -134,6 +129,7 @@ namespace Edo.Problems
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
+				var task = uow.GetById<EdoTask>(edoTask.Id);
 				var sourceName = exception.GetType().Name;
 				var sources = _exceptionSourcesPersister.GetEdoProblemExceptionSources();
 				var source = sources.SingleOrDefault(x => x.Name == sourceName);
@@ -143,24 +139,24 @@ namespace Edo.Problems
 					return false;
 				}
 
-				var problem = edoTask.Problems.FirstOrDefault(x => x.SourceName == sourceName);
-				if(problem == null)
-				{
-					problem = new ExceptionEdoTaskProblem
+				var problem = task.Problems.FirstOrDefault(x => x.SourceName == sourceName)
+					?? new ExceptionEdoTaskProblem
 					{
 						SourceName = sourceName,
-						EdoTask = edoTask,
+						EdoTask = task,
 						ExceptionMessage = exception.Message
 					};
-				}
 
 				problem.CreationTime = DateTime.Now;
 				problem.State = TaskProblemState.Active;
+
+				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
 
 				problem.TaskItems.Clear();
 				foreach(var taskItem in affectedTaskItems)
 				{
 					problem.TaskItems.Add(taskItem);
+					await uow.SaveAsync(taskItem, cancellationToken: cancellationToken);
 				}
 
 				problem.CustomItems.Clear();
@@ -168,18 +164,14 @@ namespace Edo.Problems
 				{
 					customItem.Problem = problem;
 					problem.CustomItems.Add(customItem);
+					await uow.SaveAsync(customItem, cancellationToken: cancellationToken);
 				}
 
-				if(source.Importance == EdoProblemImportance.Problem)
-				{
-					edoTask.Status = EdoTaskStatus.Problem;
-				}
-				else
-				{
-					edoTask.Status = EdoTaskStatus.Waiting;
-				}
+				task.Status = source.Importance == EdoProblemImportance.Problem
+					? EdoTaskStatus.Problem
+					: EdoTaskStatus.Waiting;
 
-				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
+				await uow.SaveAsync(task, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
 
 				_taskUow.Dispose();

@@ -23,9 +23,9 @@ namespace Edo.Problems.Exception
 			CustomItems = customItems ?? throw new ArgumentNullException(nameof(customItems));
 		}
 
-		public IEnumerable<EdoTaskItem> ProblemItems { get; }
+		public IEnumerable<EdoTaskItem> ProblemItems { get; } = new List<EdoTaskItem>();
 
-		public IEnumerable<EdoProblemCustomItem> CustomItems { get; set; }
+		public IEnumerable<EdoProblemCustomItem> CustomItems { get; set; } = new List<EdoProblemCustomItem>();
 	}
 
 	
