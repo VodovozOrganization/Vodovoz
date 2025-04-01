@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
@@ -109,8 +110,12 @@ namespace Edo.Docflow
 				case CustomerEdoRequestType.Order:
 					var order = documentTask.OrderEdoRequest.Order;
 					var payments = _paymentRepository.GetOrderPayments(_uow, order.Id);
+					var filteredPayments = 
+						payments.Where(x => order.DeliveryDate.HasValue && x.Date < order.DeliveryDate.Value.AddDays(1))
+						.Distinct();
+					
 					sender = order.Contract.Organization;
-					updInfo = _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask, payments);
+					updInfo = _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask, filteredPayments);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 				case CustomerEdoRequestType.OrderWithoutShipmentForDebt:

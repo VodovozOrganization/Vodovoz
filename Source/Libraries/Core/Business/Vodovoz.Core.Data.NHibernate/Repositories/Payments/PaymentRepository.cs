@@ -19,11 +19,9 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Payments
 					on paymentItem.Order.Id equals order.Id
 				where order.Id == orderId
 					&& paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
-					&& order.DeliveryDate.HasValue
-					&& payment.Date < order.DeliveryDate.Value.AddDays(1)
 				select payment;
 			
-			return query.Distinct().ToList();
+			return query.ToList();
 		}
 	}
 }
