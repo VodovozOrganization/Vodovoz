@@ -91,6 +91,7 @@
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.CodesPoolDataNode.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.cs" />

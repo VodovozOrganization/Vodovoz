@@ -1,165 +1,20 @@
 ﻿using NHibernate;
+using NHibernate.Type;
 using QS.Dialog;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
-using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Documents;
 using System.Threading;
-using NHibernate.Transform;
-using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Presentation.ViewModels.Employees.Journals;
-using NLog;
-using Gamma.Utilities;
-using NHibernate.Type;
-using System.Linq.Expressions;
-using NPOI.SS.Formula.Functions;
+using Vodovoz.Core.Data.NHibernate.Extensions;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
+using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 {
-	public class EdoProcessJournalNode
-	{
-		private CustomerEdoRequestSource? _customerRequestSource;
-		private EdoTaskType? _orderTaskType;
-		private EdoTaskStatus? _orderTaskStatus;
-		private DocumentEdoTaskStage? _orderTaskDocumentStage;
-		private EdoReceiptStatus? _edoReceiptStatus;
-		private TimeSpan? _totalTransferTimeByTransferTasks;
-		private TimeSpan? _orderTaskTimeInProgress;
-
-
-		public int OrderId { get; set; }
-
-		public DateTime DeliveryDate { get; set; }
-
-		public DateTime CustomerRequestTime { get; internal set; }
-
-		public string CustomerRequestSourceTitle { get; set; }
-		public CustomerEdoRequestSource? CustomerRequestSource
-		{
-			get => _customerRequestSource;
-			set
-			{
-				_customerRequestSource = value;
-				CustomerRequestSourceTitle = value.GetEnumTitle();
-			}
-		}
-
-		public int OrderTaskId { get; set; }
-
-		public string OrderTaskTypeTitle { get; set; }
-		public EdoTaskType? OrderTaskType
-		{
-			get => _orderTaskType;
-			set
-			{
-				_orderTaskType = value;
-				OrderTaskTypeTitle = value.GetEnumTitle();
-			}
-		}
-
-		public string OrderTaskStatusTitle { get; set; }
-		public EdoTaskStatus? OrderTaskStatus
-		{
-			get => _orderTaskStatus;
-			set
-			{
-				_orderTaskStatus = value;
-				OrderTaskStatusTitle = value.GetEnumTitle();
-			}
-		}
-
-		public string OrderTaskDocumentStageTitle { get; set; }
-		public DocumentEdoTaskStage? OrderTaskDocumentStage
-		{
-			get => _orderTaskDocumentStage;
-			set
-			{
-				_orderTaskDocumentStage = value;
-				if(_orderTaskDocumentStage != null)
-				{
-					OrderTaskDocumentStageTitle = value.GetEnumTitle();
-				}
-			}
-		}
-
-		public string OrderTaskReceiptStageTitle { get; set; }
-		public EdoReceiptStatus? OrderTaskReceiptStage
-		{
-			get => _edoReceiptStatus;
-			set
-			{
-				_edoReceiptStatus = value;
-				if(_edoReceiptStatus != null)
-				{
-					OrderTaskReceiptStageTitle = value.GetEnumTitle();
-				}
-			}
-		}
-
-		public string TaskStage
-		{
-			get
-			{
-				if(OrderTaskDocumentStage != null)
-				{
-					return OrderTaskDocumentStageTitle;
-				}
-
-				if(OrderTaskReceiptStage != null)
-				{
-					return OrderTaskReceiptStageTitle;
-				}
-
-				return "";
-			}
-		}
-
-		public int TransfersCompleted { get; set; }
-		public int TransfersTotal { get; set; }
-		public string TransfersCompletedTitle => $"{TransfersCompleted}/{TransfersTotal}";
-
-		public bool TransfersHasProblems { get; set; }
-
-		public string TotalTransferTimeByTransferTasksTitle { get; set; }
-        public TimeSpan? TotalTransferTimeByTransferTasks
-		{
-			get => _totalTransferTimeByTransferTasks;
-			set
-			{
-				_totalTransferTimeByTransferTasks = value;
-				if(TotalTransferTimeByTransferTasks != null)
-				{
-					TotalTransferTimeByTransferTasksTitle = _totalTransferTimeByTransferTasks.Value.ToString(@"hh\:mm\:ss");
-				}
-			}
-		}
-
-		public string OrderTaskTimeInProgressTitle { get; set; }
-		public TimeSpan? OrderTaskTimeInProgress
-		{
-			get => _orderTaskTimeInProgress;
-			set
-			{
-				_orderTaskTimeInProgress = value;
-				if(OrderTaskTimeInProgress != null)
-				{
-					OrderTaskTimeInProgressTitle = OrderTaskTimeInProgressTitle = _orderTaskTimeInProgress.Value.ToString(@"hh\:mm\:ss");
-				}
-			}
-		}
-	}
-
 	public class EdoProcessJournalViewModel : JournalViewModelBase
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
@@ -353,94 +208,6 @@ order by o.delivery_date desc
 
 				var result = query.ListAsync<EdoProcessJournalNode>(token).Result;
 				return result;
-			}
-		}
-	}
-
-
-	public static class NhibernateSqlQueryMapExtenstions
-	{
-		/// <summary>
-		/// Добавляет параметр в запрос и мапит его на свойство объекта
-		/// </summary>
-		/// <typeparam name="Node">Тип ноды используемый в трансформере AliasToBean</typeparam>
-		/// <param name="parameter">Имя парметра. В тексте SQL запроса должен быть записан как :parameter_name</param>
-		/// <param name="propertySelection">Выражение для выбра свойства ноды на которе будет маппиться параметр</param>
-		/// <param name="type">Тип данных параметра</param>
-		public static ISQLQuery MapScalarParameter<Node>(
-			this ISQLQuery query, 
-			string parameter,
-			Expression<Func<Node, object>> propertySelection, 
-			IType type
-			)
-		{
-			var propertyName = PropertyUtil.GetName(propertySelection);
-
-			query.SetParameter(parameter, propertyName);
-			query.AddScalar(propertyName, type);
-			return query;
-		}
-
-		/// <summary>
-		/// Настраивает маппинг параметров на свойства ноды
-		/// </summary>
-		/// <typeparam name="Node">Тип ноды</typeparam>
-		public static ISQLQueryParameterMapping<Node> MapParametersToNode<Node>(this ISQLQuery query)
-			where Node : class
-		{
-			return new SQLQueryParameterMapping<Node>(query);
-		}
-
-		public interface ISQLQueryParameterMapping<Node>
-			where Node : class
-		{
-			/// <summary>
-			/// Добавляет параметр в запрос и мапит его на свойство объекта
-			/// </summary>
-			/// <typeparam name="Node">Тип ноды используемый в трансформере AliasToBean</typeparam>
-			/// <param name="parameter">Имя парметра. В тексте SQL запроса должен быть записан как :parameter_name</param>
-			/// <param name="propertySelection">Выражение для выбра свойства ноды на которе будет маппиться параметр</param>
-			/// <param name="type">Тип данных параметра</param>
-			ISQLQueryParameterMapping<Node> Map(
-				string parameter,
-				Expression<Func<Node, object>> propertySelection,
-				IType type
-			);
-
-			/// <summary>
-			/// Устанавливает AliasToBean трансформер
-			/// </summary>
-			/// <returns></returns>
-			IQuery SetResultTransformer();
-		}
-
-		private class SQLQueryParameterMapping<Node> : ISQLQueryParameterMapping<Node>
-			where Node : class
-		{
-			private readonly ISQLQuery _query;
-
-			public SQLQueryParameterMapping(ISQLQuery query)
-			{
-				_query = query ?? throw new ArgumentNullException(nameof(query));
-			}
-
-			public ISQLQueryParameterMapping<Node> Map(
-				string parameter,
-				Expression<Func<Node, object>> propertySelection,
-				IType type
-				)
-			{
-				var propertyName = PropertyUtil.GetName(propertySelection);
-
-				_query.SetParameter(parameter, propertyName);
-				_query.AddScalar(propertyName, type);
-
-				return this;
-			}
-
-			public IQuery SetResultTransformer()
-			{
-				return _query.SetResultTransformer(Transformers.AliasToBean<Node>());
 			}
 		}
 	}
