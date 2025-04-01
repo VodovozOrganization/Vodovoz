@@ -19,6 +19,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
@@ -279,6 +280,11 @@ public partial class MainWindow
 	protected void OnActionCodesPoolActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CodesPoolViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnActionEdoProcessJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoProcessJournalViewModel>(null);
 	}
 
 	#endregion Честный знак
