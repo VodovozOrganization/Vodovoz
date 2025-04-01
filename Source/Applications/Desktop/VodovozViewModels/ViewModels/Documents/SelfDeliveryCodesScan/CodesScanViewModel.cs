@@ -499,6 +499,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			CancellationToken cancellationToken)
 		{
+			await _unitOfWork.SaveAsync(trueMarkWaterIdentificationCode, cancellationToken: cancellationToken);
+			
 			var productCode = new SelfDeliveryDocumentItemTrueMarkProductCode
 			{
 				CreationTime = DateTime.Now,
