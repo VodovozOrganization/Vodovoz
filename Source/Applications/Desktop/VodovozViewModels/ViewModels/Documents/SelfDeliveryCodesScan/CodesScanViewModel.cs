@@ -808,7 +808,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				.FirstOrDefault(s =>
 					s.Nomenclature.Gtins.Select(g => g.GtinNumber).Contains(code.GTIN)
 					&& s.TrueMarkProductCodes.Count < s.Amount
-					&& s.TrueMarkProductCodes.All(c => c.SourceCode.Id != code.Id));
+					&& s.TrueMarkProductCodes.All(c =>
+						!c.SourceCode.RawCode.Contains(code.RawCode) && !code.RawCode.Contains(c.SourceCode.RawCode)));
 
 			return documentItem;
 		}
