@@ -3,6 +3,7 @@ using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
+using Edo.Problems.Exception;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -267,9 +268,10 @@ namespace Edo.Receipt.Dispatcher
 						}
 						else
 						{
-							var gtin = codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN;
-							var newCodeId = await _trueMarkCodesPool.TakeCode(gtin, cancellationToken);
-							var newCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(newCodeId, cancellationToken);
+							var gtin = await _uow.Session.QueryOver<GtinEntity>()
+								.Where(x => x.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN)
+								.SingleOrDefaultAsync(cancellationToken);
+							var newCode = await LoadCodeFromPool(gtin, cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 						}
 					}
@@ -883,8 +885,7 @@ namespace Edo.Receipt.Dispatcher
 				if(matchEdoTaskItem != null)
 				{
 					// запись кода из пула в result
-					codeIdFromPool = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
-					var identificationCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeIdFromPool, cancellationToken);
+					var identificationCode = await LoadCodeFromPool(gtin, cancellationToken);
 					matchEdoTaskItem.ProductCode.ResultCode = identificationCode;
 					matchEdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 					await _uow.SaveAsync(matchEdoTaskItem, cancellationToken: cancellationToken);
@@ -906,8 +907,7 @@ namespace Edo.Receipt.Dispatcher
 				if(matchEdoTaskItem != null)
 				{
 					// запись кода из пула в result
-					codeIdFromPool = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
-					var identificationCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeIdFromPool, cancellationToken);
+					var identificationCode = await LoadCodeFromPool(gtin, cancellationToken);
 					matchEdoTaskItem.ProductCode.ResultCode = identificationCode;
 					matchEdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 					await _uow.SaveAsync(matchEdoTaskItem, cancellationToken: cancellationToken);
@@ -918,8 +918,9 @@ namespace Edo.Receipt.Dispatcher
 				}
 			}
 
-			// Если ничего не смогли подобрать то создаем новую запись
+			// Если ничего не смогли подобрать, то создаем новую запись
 			var code = await LoadCodeFromPool(orderItem.Nomenclature, cancellationToken);
+
 			var newProductCode = new AutoTrueMarkProductCode
 			{
 				Problem = ProductCodeProblem.Unscanned,
@@ -946,20 +947,55 @@ namespace Edo.Receipt.Dispatcher
 		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(NomenclatureEntity nomenclature, CancellationToken cancellationToken)
 		{
 			int codeId = 0;
+			var problemGtins = new List<EdoProblemCustomItem>();
+			EdoCodePoolMissingCodeException exception = null;
+
 			foreach(var gtin in nomenclature.Gtins.Reverse())
 			{
 				try
 				{
 					codeId = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
 				}
-				catch(EdoCodePoolException)
+				catch(EdoCodePoolMissingCodeException ex) 
 				{
-					continue;
+					exception = ex;
+					problemGtins.Add(new EdoProblemGtinItem
+					{
+						Gtin = gtin
+					});
 				}
 			}
+
 			if(codeId == 0)
 			{
-				throw new EdoCodePoolException($"В пуле не найдено кодов с gtin для номенклатуры {nomenclature}");
+				throw new EdoProblemException(exception, problemGtins);
+			}
+
+			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
+		}
+
+		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(GtinEntity gtin, CancellationToken cancellationToken)
+		{
+			int codeId = 0;
+			var problemGtins = new List<EdoProblemCustomItem>();
+			EdoCodePoolMissingCodeException exception = null;
+
+			try
+			{
+				codeId = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
+			}
+			catch(EdoCodePoolMissingCodeException ex)
+			{
+				exception = ex;
+				problemGtins.Add(new EdoProblemGtinItem
+				{
+					Gtin = gtin
+				});
+			}
+
+			if(codeId == 0)
+			{
+				throw new EdoProblemException(exception, problemGtins);
 			}
 
 			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);

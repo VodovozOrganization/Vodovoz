@@ -1,5 +1,6 @@
 ﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
+using Edo.Problems.Exception;
 using MassTransit;
 using QS.DomainModel.UoW;
 using System;
@@ -11,6 +12,7 @@ using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
@@ -112,9 +114,10 @@ namespace Edo.Documents
 						}
 						else
 						{
-							var gtin = codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN;
-							var fromPoolCodeId = await _trueMarkCodesPool.TakeCode(gtin, cancellationToken);
-							var newCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(fromPoolCodeId);
+							var gtin = await _uow.Session.QueryOver<GtinEntity>()
+								.Where(x => x.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN)
+								.SingleOrDefaultAsync(cancellationToken);
+							var newCode = await LoadCodeFromPool(gtin, cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 							codeResult.EdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 						}
@@ -287,10 +290,10 @@ namespace Edo.Documents
 							.ToList();
 
 						TrueMarkWaterIdentificationCode individualCode = null;
-						var availableGtins = orderItem.Nomenclature.Gtins.Select(x => x.GtinNumber);
+						var availableGtins = orderItem.Nomenclature.Gtins;
 						foreach(var availableGtin in availableGtins)
 						{
-							var availableCode = validUnprocessedCodes.FirstOrDefault(x => x.ProductCode.SourceCode.GTIN == availableGtin);
+							var availableCode = validUnprocessedCodes.FirstOrDefault(x => x.ProductCode.SourceCode.GTIN == availableGtin.GtinNumber);
 							if(availableCode == null)
 							{
 								continue;
@@ -307,8 +310,7 @@ namespace Edo.Documents
 								}
 								else
 								{
-									var fromPoolCodeId = await _trueMarkCodesPool.TakeCode(availableGtin, cancellationToken);
-									var newCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(fromPoolCodeId);
+									var newCode = await LoadCodeFromPool(availableGtin, cancellationToken);
 									availableCode.ProductCode.ResultCode = newCode;
 									availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 								}
@@ -348,9 +350,8 @@ namespace Edo.Documents
 							// индивидуальные коды при этом будут обновлены после валидации
 							if(unscannedCode.ProductCode.ResultCode == null)
 							{
-								var availableGtin = orderItem.Nomenclature.Gtins.First().GtinNumber;
-								var fromPoolCodeId = await _trueMarkCodesPool.TakeCode(availableGtin, cancellationToken);
-								var newCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(fromPoolCodeId);
+								var availableGtin = orderItem.Nomenclature.Gtins.First();
+								var newCode = await LoadCodeFromPool(availableGtin, cancellationToken);
 								unscannedCode.ProductCode.ResultCode = newCode;
 								unscannedCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 							}
@@ -372,9 +373,8 @@ namespace Edo.Documents
 
 						// если не отсканированных нет, но назначить код все еще есть необходимость
 						// то создаем новый taskItem и назначаем код из пула в него и в инвентарную позицию УПД
-						var forNewAvailableGtin = orderItem.Nomenclature.Gtins.First().GtinNumber;
-						var forNewFromPoolCodeId = await _trueMarkCodesPool.TakeCode(forNewAvailableGtin, cancellationToken);
-						var forNewCode = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(forNewFromPoolCodeId);
+						var forNewAvailableGtin = orderItem.Nomenclature.Gtins.First();
+						var forNewCode = await LoadCodeFromPool(forNewAvailableGtin, cancellationToken);
 
 
 						var newAutoTrueMarkProductCode = new AutoTrueMarkProductCode
@@ -429,6 +429,32 @@ namespace Edo.Documents
 			}
 		}
 
+		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(GtinEntity gtin, CancellationToken cancellationToken)
+		{
+			int codeId = 0;
+			var problemGtins = new List<EdoProblemCustomItem>();
+			EdoCodePoolMissingCodeException exception = null;
+
+			try
+			{
+				codeId = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
+			}
+			catch(EdoCodePoolMissingCodeException ex)
+			{
+				exception = ex;
+				problemGtins.Add(new EdoProblemGtinItem
+				{
+					Gtin = gtin
+				});
+			}
+
+			if(codeId == 0)
+			{
+				throw new EdoProblemException(exception, problemGtins);
+			}
+
+			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
+		}
 
 		private IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>> TakeGroupCodesWithTaskItems(List<EdoTaskItem> unprocessedTaskItems)
 		{
