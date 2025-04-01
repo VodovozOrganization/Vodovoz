@@ -2075,6 +2075,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.GroupGtinView.cs" />
     <Compile Include="Views\TrueMark\CodesPoolView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.CodesPoolView.cs" />
+    <Compile Include="Filters\GtkViews\EdoProcessFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProcessFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
