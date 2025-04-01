@@ -76,7 +76,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 			}
 
-			if(!payment.PaymentItems.Any())
+			if(!payment.Items.Any())
 			{
 				return false;
 			}

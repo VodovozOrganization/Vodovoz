@@ -531,10 +531,11 @@ def DecompressArtifact(destPath, artifactName) {
 	UnzipFiles(archive_file, destPath)
 }
 
-def DeleteCompressedArtifact(path, artifactName) {
+def DeleteCompressedArtifact(artifactName) {
+	def workspacePath = GetWorkspacePath()
 	def archive_file = "${artifactName}_${ARTIFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
 	echo "Deleting artifact ${archive_file}"
-	fileOperations([fileDeleteOperation(excludes: '', includes: "${path}${archive_file}")])
+	WinRemoveDirectory("${workspacePath}/${archive_file}");
 }
 
 // 305	Фукнции. Доставка
@@ -691,8 +692,7 @@ def DeleteCompressedArtifactAtNode(nodeName, projectName) {
 
 	node(nodeName){
 		if(CAN_COMPRESS_DESKTOP){
-			def workspacePath = GetWorkspacePath()
-			DeleteCompressedArtifact(workspacePath, projectName)
+			DeleteCompressedArtifact(projectName)
 			return
 		}
 		echo "Cleanup not needed"

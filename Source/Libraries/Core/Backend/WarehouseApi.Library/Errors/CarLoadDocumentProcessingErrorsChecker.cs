@@ -206,14 +206,13 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		public async Task<Result> IsTrueMarkCodeCanBeAdded(
+		public Result IsTrueMarkCodeCanBeAdded(
 			int orderId,
 			int nomenclatureId,
 			TrueMarkWaterIdentificationCode trueMarkWaterCode,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
-			CarLoadDocumentItemEntity documentItemToEdit,
-			CancellationToken cancellationToken)
+			CarLoadDocumentItemEntity documentItemToEdit)
 		{
 			var result = IsOrderNeedIndividualSetOnLoad(orderId);
 
@@ -269,12 +268,6 @@ namespace WarehouseApi.Library.Errors
 			if(result.IsFailure)
 			{
 				return result;
-			}
-
-			if(trueMarkWaterCode.ParentTransportCodeId == null
-				&& trueMarkWaterCode.ParentTransportCodeId == null)
-			{
-				return await IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
 			}
 
 			return Result.Success();

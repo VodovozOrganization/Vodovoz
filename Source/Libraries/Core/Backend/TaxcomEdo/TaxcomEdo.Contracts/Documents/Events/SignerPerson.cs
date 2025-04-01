@@ -32,19 +32,19 @@ namespace TaxcomEdo.Contracts.Documents.Events
 		public string Inn { get; set; }
 		/// <summary>
 		/// Статус
-		/// Опционально. При отсутствии берется значение <see cref="AdditionalParameter"/> <c> "Подписант.ОблПолн"</c>
+		/// Опционально. При отсутствии берется значение <see cref="AdditionalParameter"/> <c>"Подписант.ОблПолн"</c>
 		/// </summary>
 		[XmlAttribute]
 		public string SignerPersonStatus { get; set; }
 		/// <summary>
 		/// Область полномочий
-		/// Опционально. При отсутствии берется значение <see cref="AdditionalParameter"/> <c> "Подписант.Статус"</c>
+		/// Опционально. При отсутствии берется значение <see cref="AdditionalParameter"/> <c>"Подписант.Статус"</c>
 		/// </summary>
 		[XmlAttribute]
 		public string AreaOfAuthority { get; set; }
 		/// <summary>
 		/// Основание полномочий (доверия)
-		/// Опционально. При отсутствии берется значение <see cref="AdditionalParameter"/> <c> "Подписант.ОснПолн"</c>
+		/// Опционально. При отсутствии берется значение <see cref="AdditionalParameter"/> <c>"Подписант.ОснПолн"</c>
 		/// </summary>
 		[XmlAttribute]
 		public string ReasonTheAuthority { get; set; }

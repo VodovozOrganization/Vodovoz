@@ -3,6 +3,7 @@ using QS.Navigation;
 using QS.Project.Filter;
 using QS.Tdi;
 using System;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Payments;
 

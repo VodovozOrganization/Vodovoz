@@ -1,8 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
-using System.Text;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace TaxcomEdo.Contracts.Documents.Events
@@ -24,7 +21,7 @@ namespace TaxcomEdo.Contracts.Documents.Events
 		/// Действие(отправка титула покупателя)
 		/// </summary>
 		[XmlAttribute]
-		public string Action => "SendCustomerInformation";
+		public string Action { get; set; } = "SendCustomerInformation";
 		/// <summary>
 		/// Дополнительные параметры
 		/// </summary>
@@ -33,22 +30,5 @@ namespace TaxcomEdo.Contracts.Documents.Events
 		/// Подписанты
 		/// </summary>
 		public Signer[] Signers { get; set; }
-		
-		/// <summary>
-		/// Перевод xml в строку
-		/// </summary>
-		/// <returns></returns>
-		public string ToXmlString()
-		{
-			using(var stringWriter = new StringWriterWithEncoding(Encoding.UTF8))
-			{
-				new XmlSerializer(typeof(SendCustomerInformationEvent))
-					.Serialize(stringWriter, this, new XmlSerializerNamespaces(new []
-						{
-							new XmlQualifiedName(string.Empty)
-						}));
-				return stringWriter.ToString();
-			}
-		}
 	}
 }

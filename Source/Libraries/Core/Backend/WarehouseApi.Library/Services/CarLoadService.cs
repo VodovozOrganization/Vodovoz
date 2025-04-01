@@ -287,6 +287,40 @@ namespace WarehouseApi.Library.Services
 				});
 			}
 
+			try
+			{
+				trueMarkCodeResult.Value.Match(
+					transportCode =>
+					{
+						_uow.Save(transportCode);
+						return true;
+					},
+					waterGroupCode =>
+					{
+						_uow.Save(waterGroupCode);
+						return true;
+					},
+					waterIdentificationCode =>
+					{
+						_uow.Save(waterIdentificationCode);
+						return true;
+					});
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+
+				var error = new Error("Database.Commit.Error", e.Message);
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
+
 			_uow.Commit();
 			_uow.Session.BeginTransaction();
 
@@ -435,14 +469,13 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.AddTrueMarkCode);
 
-			checkResult = await _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
+			checkResult = _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
 				orderId,
 				nomenclatureId,
 				waterCode,
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
-				documentItemToEdit,
-				cancellationToken);
+				documentItemToEdit);
 
 			if(checkResult.IsFailure)
 			{
@@ -501,10 +534,42 @@ namespace WarehouseApi.Library.Services
 						Error = error.Message
 					});
 				}
-			}
+				try
+				{
+					newTrueMarkCodeResult.Value.Match(
+						transportCode =>
+						{
+							_uow.Save(transportCode);
+							return true;
+						},
+						waterGroupCode =>
+						{
+							_uow.Save(waterGroupCode);
+							return true;
+						},
+						waterIdentificationCode =>
+						{
+							_uow.Save(waterIdentificationCode);
+							return true;
+						});
 
-			_uow.Commit();
-			_uow.Session.BeginTransaction();
+					_uow.Commit();
+					_uow.Session.BeginTransaction();
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+
+					var error = new Error("Database.Commit.Error", e.Message);
+					var result = Result.Failure<ChangeOrderCodeResponse>(error);
+					return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
+					{
+						Nomenclature = null,
+						Result = OperationResultEnumDto.Error,
+						Error = error.Message
+					});
+				}
+			}
 
 			if(oldTrueMarkCodeResult.Value.Match(
 				transportCode => transportCode.ParentTransportCodeId != null,
@@ -551,7 +616,7 @@ namespace WarehouseApi.Library.Services
 				groupCode => groupCode.GetAllCodes(),
 				waterCode => new TrueMarkAnyCode[] { waterCode }) ?? Enumerable.Empty<TrueMarkAnyCode>();
 
-			var oldTrueMarkAnyCodesList = oldTrueMarkAnyCodes.ToList();
+			var oldTrueMarkAnyCodesList = oldTrueMarkAnyCodes.ToArray();
 
 			foreach(var codeToRemove in oldTrueMarkAnyCodesList)
 			{
@@ -568,14 +633,40 @@ namespace WarehouseApi.Library.Services
 				oldCodeToRemoveFromDatabase.Match(
 					transportCode =>
 					{
-						transportCode.InnerTransportCodes.Clear();
-						transportCode.InnerGroupCodes.Clear();
+						transportCode.ClearAllCodes();
+						return true;
+					},
+					groupCode =>
+					{
+						groupCode.ClearAllCodes();
+						return true;
+					},
+					waterCode =>
+					{
+						return true;
+					});
+			}
+
+			try
+			{
+				_uow.Commit();
+				_uow.Session.BeginTransaction();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+			}
+
+			foreach(var oldCodeToRemoveFromDatabase in oldTrueMarkAnyCodesList)
+			{
+				oldCodeToRemoveFromDatabase.Match(
+					transportCode =>
+					{
 						_uow.Delete(transportCode);
 						return true;
 					},
 					groupCode =>
 					{
-						groupCode.InnerGroupCodes.Clear();
 						_uow.Delete(groupCode);
 						return true;
 					},

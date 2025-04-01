@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
@@ -28,6 +29,7 @@ using Vodovoz.Tools;
 using Vodovoz.ViewModels.Accounting.Payments;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.ViewModels.Payments;
+using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.Payments;
 using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;
 using BaseOrg = Vodovoz.Domain.Organizations.Organization;
@@ -168,7 +170,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Left.JoinAlias(p => p.Organization, () => organizationAlias)
 				.Left.JoinAlias(p => p.ProfitCategory, () => profitCategoryAlias)
-				.Left.JoinAlias(p => p.PaymentItems, () => paymentItemAlias)
+				.Left.JoinAlias(p => p.Items, () => paymentItemAlias)
 				.Left.JoinAlias(p => p.Counterparty, () => counterpartyAlias);
 
 			var numOrdersProjection = Projections.SqlFunction(
