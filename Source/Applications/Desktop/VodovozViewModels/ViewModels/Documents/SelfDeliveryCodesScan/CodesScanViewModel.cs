@@ -700,6 +700,11 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			{
 				UpdateCodeScanRows(rawCode, gtin, additionalInformation: new List<string> { "Агрегатный код" });
 			}
+			
+			await anyCode.Match(
+				transportCode => _unitOfWork.SaveAsync(transportCode, cancellationToken: cancellationToken),
+				groupCode => _unitOfWork.SaveAsync(groupCode, cancellationToken: cancellationToken),
+				uniCode => _unitOfWork.SaveAsync(uniCode, cancellationToken: cancellationToken));
 
 			await DistributeCodeOnNextSelfDeliveryItemAsync(codesToDistribute, cancellationToken);
 
