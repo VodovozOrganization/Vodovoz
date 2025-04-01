@@ -18,6 +18,8 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
 using DriverApi.Notifications.Client;
+using Vodovoz.Application.TrueMark;
+using VodovozBusiness.Services.TrueMark;
 
 namespace Vodovoz.Application
 {
@@ -38,6 +40,10 @@ namespace Vodovoz.Application
 			.AddScoped<INomenclatureService, NomenclatureService>()
 			.AddScoped<IComplaintService, ComplaintService>()
 			.AddScoped<ISubdivisionPermissionsService, SubdivisionPermissionsService>()
+			.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
+			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
+			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
+			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
 			.AddOrderServicesDependencies()
 		;
 		
