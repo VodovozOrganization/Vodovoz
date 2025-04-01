@@ -418,13 +418,13 @@ namespace Vodovoz.Application.TrueMark
 			switch(instanceStatus.GeneralPackageType)
 			{
 				case GeneralPackageType.Box:
-					trueMarkAnyCode = _trueMarkTransportCodeFactory.CreateFromProductInstanceStatus(instanceStatus);
+					trueMarkAnyCode = _trueMarkTransportCodeFactory.CreateFromRawCode(scannedCode);
 					break;
 				case GeneralPackageType.Group:
-					trueMarkAnyCode = _trueMarkWaterGroupCodeFactory.CreateFromProductInstanceStatus(instanceStatus);
+					trueMarkAnyCode = _trueMarkWaterGroupCodeFactory.CreateFromParsedCode(parsedCode);
 					break;
 				case GeneralPackageType.Unit:
-					trueMarkAnyCode = _trueMarkWaterIdentificationCodeFactory.CreateFromProductInstanceStatus(instanceStatus);
+					trueMarkAnyCode = _trueMarkWaterIdentificationCodeFactory.CreateFromParsedCode(parsedCode);
 					break;
 			}
 
