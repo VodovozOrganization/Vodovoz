@@ -651,6 +651,22 @@ def PublishDesktop(nodeName){
 }
 
 def PublishWeb(projectName){
+	def nodeIsOnline = true;
+
+	jenkins.model.Jenkins.instance.getNodes().each{node ->
+		node.getAssignedLabels().each{label ->
+			if(label.name == NODE_VOD6 && node.toComputer().isOffline()){
+				nodeIsOnline = false;
+				return
+			}
+		}
+	}
+
+	if(!nodeIsOnline){
+		unstable("${NODE_VOD6} - publish failed! node is offline")
+		return
+	}
+
 	node(NODE_VOD6){
 		if(CAN_PUBLISH_WEB)
 		{
