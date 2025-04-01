@@ -108,7 +108,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		public bool TransfersHasProblems { get; set; }
 
 		public string TotalTransferTimeByTransferTasksTitle { get; set; }
-        public TimeSpan? TotalTransferTimeByTransferTasks
+		public TimeSpan? TotalTransferTimeByTransferTasks
 		{
 			get => _totalTransferTimeByTransferTasks;
 			set
