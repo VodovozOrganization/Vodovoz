@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Edo.Problems;
+using Edo.Problems.Exception;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 
@@ -14,34 +17,53 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IUnitOfWork _uow;
 		private readonly ForOwnNeedsReceiptEdoTaskHandler _forOwnNeedsReceiptEdoTaskHandler;
 		private readonly ResaleReceiptEdoTaskHandler _resaleReceiptEdoTaskHandler;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 
 		public ReceiptEdoTaskHandler(
 			ILogger<ReceiptEdoTaskHandler> logger,
 			IUnitOfWork uow,
 			ForOwnNeedsReceiptEdoTaskHandler forOwnNeedsReceiptEdoTaskHandler,
-			ResaleReceiptEdoTaskHandler resaleReceiptEdoTaskHandler
+			ResaleReceiptEdoTaskHandler resaleReceiptEdoTaskHandler,
+			EdoProblemRegistrar edoProblemRegistrar
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_forOwnNeedsReceiptEdoTaskHandler = forOwnNeedsReceiptEdoTaskHandler ?? throw new ArgumentNullException(nameof(forOwnNeedsReceiptEdoTaskHandler));
 			_resaleReceiptEdoTaskHandler = resaleReceiptEdoTaskHandler ?? throw new ArgumentNullException(nameof(resaleReceiptEdoTaskHandler));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 		}
 
 		public async Task HandleNew(int receiptEdoTaskId, CancellationToken cancellationToken)
 		{
 			var edoTask = await _uow.Session.GetAsync<ReceiptEdoTask>(receiptEdoTaskId, cancellationToken);
-
-			if(edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
+			try
 			{
-				await _resaleReceiptEdoTaskHandler.HandleResaleReceipt(edoTask, cancellationToken);
+				if(edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
+				{
+					await _resaleReceiptEdoTaskHandler.HandleResaleReceipt(edoTask, cancellationToken);
+				}
+				else
+				{
+					await _forOwnNeedsReceiptEdoTaskHandler.HandleForOwnNeedsReceipt(edoTask, cancellationToken);
+				}
 			}
-			else
+			catch(EdoProblemException ex)
 			{
-				await _forOwnNeedsReceiptEdoTaskHandler.HandleForOwnNeedsReceipt(edoTask, cancellationToken);
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
 			}
-
-			// надо ловить исключения о проблемах и сохранять их вне основного UoW
+			catch(Exception ex)
+			{
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
+			}
 		}
 
 		public async Task HandleTransfered(int transferIterationId, CancellationToken cancellationToken)
