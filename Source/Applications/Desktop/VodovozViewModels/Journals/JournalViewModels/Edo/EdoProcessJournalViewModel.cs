@@ -197,7 +197,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var filterSql = @"";
+				var filterSql = "";
+				var havingSql = "";
+
 				if(_filterViewModel.OrderId.HasValue)
 				{
 					filterSql += " and o.id = :filter_order_id";
@@ -232,11 +234,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				{
 					if(_filterViewModel.AllTransfersComplete.Value)
 					{
-						filterSql += " and Count(distinct if(etri.status = 'Completed', etri.id, null)) = Count(distinct etri.id)";
+						havingSql += " HAVING Count(distinct if(etri.status = 'Completed', etri.id, null)) = Count(distinct etri.id) and Count(distinct if(etri.status = 'Completed', etri.id, null)) > 0";
 					}
 					else
 					{
-						filterSql += " and Count(distinct if(etri.status = 'Completed', etri.id, null)) != Count(distinct etri.id)";
+						havingSql += " HAVING Count(distinct if(etri.status = 'Completed', etri.id, null)) != Count(distinct etri.id) and Count(distinct etri.id) > 0";
 					}
 				}
 
@@ -277,7 +279,7 @@ left join edo_tasks tt on tt.id = etr.transfer_edo_task_id
 left join edo_task_problems ttp on ttp.edo_task_id = tt.id and ttp.state = 'Active'
 where et.`type` not in ('BulkAccounting', 'Transfer')
 {filterSql}
-group by o.id, ecr.id
+group by o.id, ecr.id {havingSql}
 order by o.delivery_date desc
 ";
 
