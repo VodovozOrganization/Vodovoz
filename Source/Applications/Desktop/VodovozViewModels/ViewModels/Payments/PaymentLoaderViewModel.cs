@@ -1,14 +1,15 @@
-﻿using NLog;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using NLog;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -280,7 +281,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			payment.CreateIncomeOperation();
 			uow.Save(payment.CashlessMovementOperation);
 
-			foreach(var item in payment.ObservableItems)
+			foreach(var item in payment.Items)
 			{
 				item.CreateOrUpdateExpenseOperation();
 				uow.Save(item.CashlessMovementOperation);

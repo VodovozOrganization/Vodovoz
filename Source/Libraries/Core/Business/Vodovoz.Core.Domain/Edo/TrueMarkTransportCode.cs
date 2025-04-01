@@ -2,6 +2,7 @@
 using QS.Extensions.Observable.Collections.List;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Domain.TrueMark
@@ -87,6 +88,51 @@ namespace Vodovoz.Core.Domain.TrueMark
 		{
 			innerWaterCode.ParentTransportCodeId = Id;
 			InnerWaterCodes.Add(innerWaterCode);
+		}
+
+
+		public virtual void RemoveCode(TrueMarkWaterIdentificationCode waterCode)
+		{
+			waterCode.ParentTransportCodeId = null;
+			InnerWaterCodes.Remove(waterCode);
+		}
+
+		public virtual void RemoveCode(TrueMarkWaterGroupCode waterGroupCode)
+		{
+			waterGroupCode.ParentTransportCodeId = null;
+			InnerGroupCodes.Remove(waterGroupCode);
+		}
+
+		public virtual void RemoveCode(TrueMarkTransportCode trueMarkTransportCode)
+		{
+			trueMarkTransportCode.ParentTransportCodeId = null;
+			InnerTransportCodes.Remove(trueMarkTransportCode);
+		}
+
+		public virtual void ClearAllCodes()
+		{
+			var waterCodesToRemove = InnerWaterCodes.ToArray();
+
+			foreach(var waterCode in waterCodesToRemove)
+			{
+				RemoveCode(waterCode);
+			}
+
+			var waterGroupCodesToRemove = InnerGroupCodes.ToArray();
+
+			foreach(var waterGroupCode in waterGroupCodesToRemove)
+			{
+				waterGroupCode.ClearAllCodes();
+				RemoveCode(waterGroupCode);
+			}
+
+			var transportCodesToRemove = InnerTransportCodes.ToArray();
+
+			foreach(var transportCode in transportCodesToRemove)
+			{
+				transportCode.ClearAllCodes();
+				RemoveCode(transportCode);
+			}
 		}
 
 		public virtual IEnumerable<TrueMarkAnyCode> GetAllCodes()
