@@ -1,10 +1,24 @@
-﻿using TrueMark.Contracts;
+﻿using System;
+using TrueMark.Contracts;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Models.TrueMark;
 
 namespace Vodovoz.Application.TrueMark
 {
 	internal sealed class TrueMarkWaterGroupCodeFactory : ITrueMarkWaterGroupCodeFactory
 	{
+		public TrueMarkWaterGroupCode CreateFromParsedCode(TrueMarkWaterCode parsedCode)
+		{
+			return new TrueMarkWaterGroupCode
+			{
+				IsInvalid = false,
+				RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length)),
+				GTIN = parsedCode.GTIN,
+				SerialNumber = parsedCode.SerialNumber,
+				CheckCode = parsedCode.CheckCode
+			};
+		}
+
 		public TrueMarkWaterGroupCode CreateFromProductInstanceStatus(ProductInstanceStatus productInstanceStatus)
 		{
 			var identificationCode = productInstanceStatus.IdentificationCode;
