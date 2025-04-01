@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
@@ -282,7 +283,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			payment.CreateIncomeOperation();
 			uow.Save(payment.CashlessMovementOperation);
 
-			foreach(var item in payment.ObservableItems)
+			foreach(var item in payment.Items)
 			{
 				item.CreateOrUpdateExpenseOperation();
 				uow.Save(item.CashlessMovementOperation);

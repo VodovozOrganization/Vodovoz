@@ -108,14 +108,7 @@ namespace Edo.Docflow.Factories
 			};
 
 		private IEnumerable<PaymentInfo> GetPayments(TransferOrder transferOrder) =>
-			new List<PaymentInfo>
-			{
-				new PaymentInfo
-				{
-					PaymentNum = transferOrder.Id.ToString(),
-					PaymentDate = transferOrder.Date.ToString(_dateFormatString),
-				}
-			};
+			new List<PaymentInfo>();
 
 		private IEnumerable<UpdAdditionalInfo> GettAdditionalInformation(TransferOrder transferOrder) =>
 			new List<UpdAdditionalInfo>();

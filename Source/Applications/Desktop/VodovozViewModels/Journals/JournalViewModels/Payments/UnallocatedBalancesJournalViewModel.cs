@@ -13,6 +13,7 @@ using QS.Services;
 using QS.Tdi;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -24,6 +25,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Payments;
+using VodovozBusiness.Domain.Operations;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
