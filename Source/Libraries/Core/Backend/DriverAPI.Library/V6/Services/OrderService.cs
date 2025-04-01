@@ -1186,6 +1186,43 @@ namespace DriverAPI.Library.V6.Services
 				});
 			}
 
+			try
+			{
+				trueMarkCodeResult.Value.Match(
+					transportCode =>
+					{
+						_uow.Save(transportCode);
+						return true;
+					},
+					waterGroupCode =>
+					{
+						_uow.Save(waterGroupCode);
+						return true;
+					},
+					waterIdentificationCode =>
+					{
+						_uow.Save(waterIdentificationCode);
+						return true;
+					});
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+
+				var error = new Error("Database.Commit.Error", e.Message);
+				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
+				{
+					Nomenclature = null,
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message
+				});
+			}
+
+			_uow.Commit();
+			_uow.Session.BeginTransaction();
+
 			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
 				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
 				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
