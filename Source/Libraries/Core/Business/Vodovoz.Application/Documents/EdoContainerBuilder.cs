@@ -4,7 +4,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 
 namespace Vodovoz.Application.Documents
 {
@@ -29,10 +29,10 @@ namespace Vodovoz.Application.Documents
 			_edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
 			return this;
 		}
-		
+
 		/// <summary>
 		/// Установка нужных параметров для контейнера по отправке УПД
-		/// <see cref="Vodovoz.Domain.Orders.Documents.Type.Upd"/>
+		/// <see cref="Type.Upd"/>
 		/// </summary>
 		/// <param name="order">Заказ, по которому отправляется УПД</param>
 		/// <returns></returns>
@@ -45,7 +45,7 @@ namespace Vodovoz.Application.Documents
 		
 		/// <summary>
 		/// Установка нужных параметров для контейнера по отправке Счета
-		/// <see cref="Vodovoz.Domain.Orders.Documents.Type.Bill"/>
+		/// <see cref="Type.Bill"/>
 		/// </summary>
 		/// <param name="order">Заказ, по которому отправляется Счет</param>
 		/// <returns></returns>
@@ -58,7 +58,7 @@ namespace Vodovoz.Application.Documents
 		
 		/// <summary>
 		/// Установка нужных параметров для контейнера по отправке Счета на долг
-		/// <see cref="Vodovoz.Domain.Orders.Documents.Type.BillWSForDebt"/>
+		/// <see cref="Type.BillWSForDebt"/>
 		/// </summary>
 		/// <param name="orderWithoutShipment">Счет на долг</param>
 		/// <returns></returns>
@@ -72,7 +72,7 @@ namespace Vodovoz.Application.Documents
 		
 		/// <summary>
 		/// Установка нужных параметров для контейнера по отправке Счета на постоплату
-		/// <see cref="Vodovoz.Domain.Orders.Documents.Type.BillWSForPayment"/>
+		/// <see cref="Type.BillWSForPayment"/>
 		/// </summary>
 		/// <param name="orderWithoutShipment">Счет на постоплату</param>
 		/// <returns></returns>
@@ -86,7 +86,7 @@ namespace Vodovoz.Application.Documents
 		
 		/// <summary>
 		/// Установка нужных параметров для контейнера по отправке Счета на предоплату
-		/// <see cref="Vodovoz.Domain.Orders.Documents.Type.BillWSForAdvancePayment"/>
+		/// <see cref="Type.BillWSForAdvancePayment"/>
 		/// </summary>
 		/// <param name="orderWithoutShipment">Счет на предоплату</param>
 		/// <returns></returns>

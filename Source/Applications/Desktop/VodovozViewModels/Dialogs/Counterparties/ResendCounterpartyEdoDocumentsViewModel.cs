@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Orders.Documents;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparties
 {
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			var documents = UoW.GetAll<EdoContainer>()
 				.Where(x => 
 					x.Counterparty.Id == Entity.Id
-					&& x.Type == Domain.Orders.Documents.Type.Upd
+					&& x.Type == Type.Upd
 					&& !x.IsIncoming
 					&& x.EdoDocFlowStatus != EdoDocFlowStatus.Succeed
 					&& x.Created >= startDate
