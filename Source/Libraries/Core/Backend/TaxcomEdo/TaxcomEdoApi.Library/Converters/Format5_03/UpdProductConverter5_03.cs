@@ -119,12 +119,18 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 				StTovUchNal = product.Sum,
 				StTovBezNDS = product.SumWithoutVat,
 				StTovBezNDSSpecified = true,
-				
 				DopSvedTov = new FajlDokumentTablSchFaktSvedTovDopSvedTov
 				{
 					KodTov = product.Code
 				}
 			};
+
+			if(product.EconomicLifeFacts != null && product.EconomicLifeFacts.Any())
+			{
+				updProduct.InfPolFHZh2 = product.EconomicLifeFacts
+					.Select(x => new TekstInfTip { Identif = x.Id, Znachen = x.Value })
+					.ToArray();
+			}
 
 			if(product.TrueMarkCodes.Any())
 			{
@@ -169,26 +175,25 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 			string transportCode = null
 			)
 		{
-			var codesCount = codes.Count();
-			var identificationInfo = new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov
-			{
-				ItemsElementName = new ItemsChoiceType[codesCount],
-				Items = new string[codesCount]
-			};
+			var identificationInfo = new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov();
 
 			if(!transportCode.IsNullOrWhiteSpace())
 			{
 				identificationInfo.IdentTransUpak = transportCode;
+				return identificationInfo;
 			}
 
-			var i = 0;
+			var items = new List<(ItemsChoiceType Type, string Code)>();
 
 			foreach(var code in codes)
 			{
-				identificationInfo.ItemsElementName[i] = code.IsGroup ? ItemsChoiceType.NomUpak : ItemsChoiceType.KIZ;
-				identificationInfo.Items[i] = code.IndividualOrGroupCode;
-				i++;
+				var itemType = code.IsGroup ? ItemsChoiceType.NomUpak : ItemsChoiceType.KIZ;
+				var item = (itemType, code.IndividualOrGroupCode);
+				items.Add(item);
 			}
+
+			identificationInfo.ItemsElementName = items.Select(x => x.Type).ToArray();
+			identificationInfo.Items = items.Select(x => x.Code).ToArray();
 
 			return identificationInfo;
 		}
