@@ -1032,7 +1032,8 @@ namespace DriverAPI.Library.V6.Services
 			IEnumerable<TrueMarkAnyCode> oldTrueMarkAnyCodes = oldTrueMarkCodeResult.Value.Match(
 				transportCode => transportCode.GetAllCodes(),
 				groupCode => groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode });
+				waterCode => new TrueMarkAnyCode[] { waterCode })
+				.ToArray();
 
 			_uow.Commit();
 			_uow.Session.BeginTransaction();
@@ -1085,14 +1086,39 @@ namespace DriverAPI.Library.V6.Services
 				oldCodeToRemoveFromDatabase.Match(
 					transportCode =>
 					{
-						transportCode.InnerTransportCodes.Clear();
-						transportCode.InnerGroupCodes.Clear();
+						transportCode.ClearAllCodes();
+						return true;
+					},
+					groupCode =>
+					{
+						groupCode.ClearAllCodes();
+						return true;
+					},
+					waterCode =>
+					{
+						return true;
+					});
+			}
+
+			try
+			{
+				_uow.Commit();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+			}
+
+			foreach(var oldCodeToRemoveFromDatabase in oldTrueMarkAnyCodes)
+			{
+				oldCodeToRemoveFromDatabase.Match(
+					transportCode =>
+					{
 						_uow.Delete(transportCode);
 						return true;
 					},
 					groupCode =>
 					{
-						groupCode.InnerGroupCodes.Clear();
 						_uow.Delete(groupCode);
 						return true;
 					},
