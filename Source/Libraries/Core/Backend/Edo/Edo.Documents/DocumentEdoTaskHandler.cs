@@ -193,6 +193,14 @@ namespace Edo.Documents
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
 			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
 
+			await _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
+				.ListAsync();
+
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 
 			var reasonForLeaving = edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving;
