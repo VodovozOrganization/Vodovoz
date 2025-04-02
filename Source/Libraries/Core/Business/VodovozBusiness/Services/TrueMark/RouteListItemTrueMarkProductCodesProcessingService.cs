@@ -36,7 +36,8 @@ namespace VodovozBusiness.Services.TrueMark
 			string scannedCode,
 			SourceProductCodeStatus status,
 			CancellationToken cancellationToken,
-			bool isCheckForCodeChange = false)
+			bool isCheckForCodeChange = false,
+			bool skipCodeIntroducedAndHasCorrectInnCheck = false)
 		{
 			var trueMarkCodeResult =
 				await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode, cancellationToken);
@@ -74,7 +75,8 @@ namespace VodovozBusiness.Services.TrueMark
 					routeListAddress,
 					vodovozOrderItem,
 					cancellationToken,
-					isCheckForCodeChange);
+					isCheckForCodeChange,
+					skipCodeIntroducedAndHasCorrectInnCheck);
 
 				if(codeCheckingResult.IsFailure)
 				{
@@ -145,7 +147,8 @@ namespace VodovozBusiness.Services.TrueMark
 			RouteListItem routeListAddress,
 			OrderItem orderItem,
 			CancellationToken cancellationToken,
-			bool isCheckForCodeChange = false)
+			bool isCheckForCodeChange = false,
+			bool skipCodeIntroducedAndHasCorrectInnCheck = false)
 		{
 			var codeCheckingProcessResult = IsTrueMarkWaterIdentificationCodeValid(trueMarkWaterIdentificationCode);
 
@@ -186,12 +189,15 @@ namespace VodovozBusiness.Services.TrueMark
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult =
+			if(!skipCodeIntroducedAndHasCorrectInnCheck)
+			{
+				codeCheckingProcessResult =
 				await _trueMarkWaterCodeService.IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterIdentificationCode, cancellationToken);
 
-			if(codeCheckingProcessResult.IsFailure)
-			{
-				return codeCheckingProcessResult;
+				if(codeCheckingProcessResult.IsFailure)
+				{
+					return codeCheckingProcessResult;
+				}
 			}
 
 			return Result.Success();
