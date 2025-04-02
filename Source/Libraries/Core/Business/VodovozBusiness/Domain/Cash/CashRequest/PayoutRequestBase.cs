@@ -177,13 +177,4 @@ namespace Vodovoz.Domain.Cash
 
 		public abstract void ChangeState(PayoutRequestState newState);
 	}
-
-	public enum PayoutRequestDocumentType
-	{
-		[Display(Name = "Заявка на выдачу наличных ДС")]
-		CashRequest,
-
-		[Display(Name = "Заявка на оплату по Б/Н")]
-		CashlessRequest
-	}
 }

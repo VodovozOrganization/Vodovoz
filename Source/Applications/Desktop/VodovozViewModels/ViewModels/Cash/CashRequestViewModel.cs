@@ -115,6 +115,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IsNewEntity = uowBuilder.IsNewEntity;
 			CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
+			if(Entity.Subdivision?.FinancialResponsibilityCenterId != null)
+			{
+				FinancialResponsibilityCenter = UoW.GetById<FinancialResponsibilityCenter>(Entity.Subdivision.FinancialResponsibilityCenterId.Value);
+			}
+
 			if(IsNewEntity)
 			{
 				Entity.Author = CurrentEmployee;

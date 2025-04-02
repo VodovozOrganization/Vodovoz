@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -17,6 +18,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Cryptography;
+using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
@@ -40,6 +44,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly ICashRequestForDriverIsGivenForTakeNotificationSender _cashRequestForDriverIsGivenForTakeNotificationSender;
 		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
+		private readonly IGenericRepository<FinancialResponsibilityCenter> _financialResponsibilityCenterRepository;
+		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICashRepository _cashRepository;
@@ -70,6 +76,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			ICurrentPermissionService currentPermissionService,
 			ICashRequestForDriverIsGivenForTakeNotificationSender cashRequestForDriverIsGivenForTakeNotificationSender,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory, 
+			IGenericRepository<FinancialResponsibilityCenter> financialResponsibilityCenterRepository,
+			IGenericRepository<Subdivision> subdivisionRepository,
 			bool createSelectAction = true)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -83,6 +91,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_cashRequestForDriverIsGivenForTakeNotificationSender = cashRequestForDriverIsGivenForTakeNotificationSender
 				?? throw new ArgumentNullException(nameof(cashRequestForDriverIsGivenForTakeNotificationSender));
 			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			_financialResponsibilityCenterRepository = financialResponsibilityCenterRepository ?? throw new ArgumentNullException(nameof(financialResponsibilityCenterRepository));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_createSelectAction = createSelectAction;
 
 			TabName = "Журнал заявок ДС";
@@ -192,8 +202,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
 		}
 
-		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow) =>
-			_employeeRepository.GetControlledByEmployeeSubdivisionIds(uow, _currentEmployee.Id);
+		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow)
+		{
+			var financialResponsibilityCenterIds = _financialResponsibilityCenterRepository
+				.GetValue(uow, frc => frc.Id, frc => frc.ResponsibleEmployeeId == _currentEmployee.Id)
+				.Concat(_financialResponsibilityCenterRepository
+					.GetValue(uow, frc => frc.Id, frc => frc.ViceResponsibleEmployeeId == _currentEmployee.Id))
+				.Distinct()
+				.ToArray();
+
+			return _employeeRepository
+				.GetControlledByEmployeeSubdivisionIds(uow, _currentEmployee.Id)
+				.Concat(_subdivisionRepository.GetValue(
+					uow,
+					s => s.Id,
+					s => financialResponsibilityCenterIds.Contains(s.Id)));
+		}
 
 		#region JournalActions
 

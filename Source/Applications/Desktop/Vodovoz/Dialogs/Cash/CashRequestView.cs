@@ -91,6 +91,10 @@ namespace Vodovoz.Dialogs.Cash
 			ybtnAccept.BindCommand(ViewModel.AcceptCommand);
 			ybtnApprove.BindCommand(ViewModel.ApproveCommand);
 			ybtnSubdivisionChiefApprove.BindCommand(ViewModel.SubdivisionChiefApproveCommand);
+			ybtnFinancialResponsibilityCenterApprove.BindCommand(ViewModel.AgreeByFinancialResponsibilityCenterCommand);
+			ybtnFinancialResponsibilityCenterApprove.Binding
+				.AddBinding(ViewModel, vm => vm.CanAgreeByFinancialResponsibilityCenter, w => w.Visible)
+				.InitializeFromSource();
 			ybtnCancel.BindCommand(ViewModel.CancelRequestCommand);
 			//Передать на выдачу
 			ybtnConveyForResults.BindCommand(ViewModel.ConveyForResultsCommand);
