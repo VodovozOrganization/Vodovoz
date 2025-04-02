@@ -131,6 +131,14 @@ namespace EmailStatusUpdateWorker
 
 			if(storedEmail.StateChangeDate >= message.RecievedAt)
 			{
+				_logger.LogInformation("Skipped event for emaid with id: {EmailId}," +
+					" externalId {ExternalEmailId} for status change to {NewStatus}. StateChangeDate: {StateChangeDate}. RecievedAt: {RecievedAt}",
+					storedEmail.Id,
+					storedEmail.ExternalId,
+					message.Status,
+					storedEmail.StateChangeDate.ToString("dd.MM.yyyy HH:mm:ss"),
+					message.RecievedAt.ToString("dd.MM.yyyy HH:mm:ss"));
+
 				_channel.BasicAck(e.DeliveryTag, false);
 				return;
 			}
