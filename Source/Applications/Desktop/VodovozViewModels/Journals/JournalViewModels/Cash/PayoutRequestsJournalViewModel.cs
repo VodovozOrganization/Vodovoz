@@ -12,6 +12,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
 using QS.Utilities;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -461,9 +462,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_employeeRepository,
 				_cashRepository,
 				NavigationManager,
-				_scope,
-				_cashRequestForDriverIsGivenForTakeNotificationSender
-			);
+				_cashRequestForDriverIsGivenForTakeNotificationSender,
+				_scope.Resolve<ViewModelEEVMBuilder<Employee>>(),
+				_scope.Resolve<ViewModelEEVMBuilder<Subdivision>>(),
+				_scope.Resolve<ViewModelEEVMBuilder<FinancialExpenseCategory>>());
 		}
 
 		private IQueryOver<CashRequest> GetCashRequestQuery(IUnitOfWork uow)
