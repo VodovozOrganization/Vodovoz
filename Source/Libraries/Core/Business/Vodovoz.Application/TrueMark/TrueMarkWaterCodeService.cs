@@ -388,6 +388,20 @@ namespace Vodovoz.Application.TrueMark
 				var requestCode = parsedCode is null ? scannedCode : _trueMarkWaterCodeParser.GetWaterIdentificationCode(parsedCode);
 
 				productInstanceInfo = await truemarkClient.GetProductInstanceInfoAsync(new string[] { requestCode }, cancellationToken);
+
+				if(!(productInstanceInfo.InstanceStatuses.FirstOrDefault() is ProductInstanceStatus productInstanceStatus))
+				{
+					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о коде");
+					return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", "Ошибка при запросе к API TrueMark, нет информации о коде"));
+				}
+
+				if(productInstanceStatus.Status == ProductInstanceStatusEnum.Emitted
+					|| productInstanceStatus.Status == ProductInstanceStatusEnum.Applied
+					|| productInstanceStatus.Status == ProductInstanceStatusEnum.AppliedPaid)
+				{
+					return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.TrueMark.ProductInstanceStatus",
+						$"Ошибка при запросе к API TrueMark, код в статусе {productInstanceStatus.Status}, Должен быть {ProductInstanceStatusEnum.Introduced} или более поздний"));
+				}
 			}
 			catch(Exception ex)
 			{
