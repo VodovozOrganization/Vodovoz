@@ -227,6 +227,11 @@ namespace Edo.Documents
 
 				var codeItemsToAssign = new List<EdoUpdInventPositionCode>();
 
+				if(orderItem.Price <= 0 && documentEdoTask.DocumentType == EdoDocumentType.UPD)
+				{
+					continue;
+				}
+
 				if(orderItem.Nomenclature.IsAccountableInTrueMark)
 				{
 					var assignedQuantity = 0;
@@ -266,9 +271,9 @@ namespace Edo.Documents
 
 						if(groupCode != null)
 						{
-							var codesInGroup = groupCode.GetAllCodes()
-										.Where(x => x.IsTrueMarkWaterIdentificationCode)
-										.Count();
+							var codesInGroup = groupCode
+								.GetAllCodes()
+								.Count(x => x.IsTrueMarkWaterIdentificationCode);
 
 							var codeItem = new EdoUpdInventPositionCode
 							{
@@ -280,8 +285,6 @@ namespace Edo.Documents
 							assignedQuantity += codesInGroup;
 							continue;
 						}
-
-
 
 						// затем, если ничего не смогли взять из групповых, то ищем и назначаем из индивидуальных
 						// в которыех есть заполенный SourceCode, т.е. исключаем неотсканированные позиции задачи
@@ -335,8 +338,6 @@ namespace Edo.Documents
 							continue;
 						}
 
-
-
 						// затем, если ничего не смогли взять из индивидуальных, то берем неотсканированную позицию
 						// заполняем ее из пула и используем в назначении
 						var unscannedCodes = unprocessedCodes
@@ -368,8 +369,6 @@ namespace Edo.Documents
 							assignedQuantity++;
 							continue;
 						}
-
-
 
 						// если не отсканированных нет, но назначить код все еще есть необходимость
 						// то создаем новый taskItem и назначаем код из пула в него и в инвентарную позицию УПД

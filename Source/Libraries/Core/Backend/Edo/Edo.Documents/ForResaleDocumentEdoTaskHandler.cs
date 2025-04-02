@@ -126,7 +126,6 @@ namespace Edo.Documents
 			await _uow.CommitAsync(cancellationToken);
 
 			await _messageBus.Publish(message, cancellationToken);
-
 		}
 
 		private async Task<OrderEdoDocument> SendDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
@@ -146,7 +145,6 @@ namespace Edo.Documents
 			return customerEdoDocument;
 		}
 
-
 		private void CreateUpdDocument(DocumentEdoTask documentEdoTask)
 		{
 			var order = documentEdoTask.OrderEdoRequest.Order;
@@ -159,6 +157,11 @@ namespace Edo.Documents
 			foreach(var orderItem in order.OrderItems)
 			{
 				var codeItemsToAssign = new List<EdoUpdInventPositionCode>();
+
+				if(orderItem.Price <= 0 && documentEdoTask.DocumentType == EdoDocumentType.UPD)
+				{
+					continue;
+				}
 
 				var assignedQuantity = 0;
 				while(assignedQuantity < orderItem.Count)
@@ -192,9 +195,9 @@ namespace Edo.Documents
 
 					if(groupCode != null)
 					{
-						var codesInGroup = groupCode.GetAllCodes()
-									.Where(x => x.IsTrueMarkWaterIdentificationCode)
-									.Count();
+						var codesInGroup = groupCode
+							.GetAllCodes()
+							.Count(x => x.IsTrueMarkWaterIdentificationCode);
 
 						var codeItem = new EdoUpdInventPositionCode
 						{
@@ -285,7 +288,7 @@ namespace Edo.Documents
 
 			var parentCodesIds = groupped
 				.Select(x => x.Key)
-			.Distinct();
+				.Distinct();
 			var parentCodes = parentCodesIds
 				.Select(x => _trueMarkCodeRepository.GetParentGroupCode(_uow, x.Value))
 				.Distinct();

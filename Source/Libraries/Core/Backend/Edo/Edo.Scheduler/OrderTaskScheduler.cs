@@ -50,16 +50,14 @@ namespace Edo.Scheduler.Service
 			
 			if(edoRequest.Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 			{
-				// Если есть согласение на ЭДО
+				// Если есть согласие на ЭДО
 				// создаем задачу формирования документа ЭДО
 				return CreateDocumentEdoTask(edoRequest);
 			}
-			else
-			{
-				// Иначе
-				// создаем задачу вывода из оборота через честный знак
-				return CreateWithdrawalEdoTask(edoRequest);
-			}
+
+			// Иначе
+			// создаем задачу вывода из оборота через честный знак
+			return CreateWithdrawalEdoTask(edoRequest);
 		}
 
 		private EdoTask CreateDocumentEdoTask(OrderEdoRequest edoRequest)
