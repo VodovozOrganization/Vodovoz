@@ -38,8 +38,8 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <param name="isCheckForCodeChange">Выполняется операция замены коды. Если true, то не выполняется проверка кол-ва добавленных кодов</param>
 		/// <returns>Результат операции</returns>
-		Task<Result> AddTrueMarkCodeToRouteListItemWithCodeChecking(IUnitOfWork uow, RouteListItem routeListAddress, OrderItem vodovozOrderItem, string scannedCode, SourceProductCodeStatus status, CancellationToken cancellationToken, bool isCheckForCodeChange = false);
-		Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(IUnitOfWork uow, TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, RouteListItem routeListAddress, OrderItem orderItem, CancellationToken cancellationToken, bool isCheckForCodeChange = false);
+		Task<Result> AddTrueMarkCodeToRouteListItemWithCodeChecking(IUnitOfWork uow, RouteListItem routeListAddress, OrderItem vodovozOrderItem, string scannedCode, SourceProductCodeStatus status, CancellationToken cancellationToken, bool isCheckForCodeChange = false, bool skipCodeIntroducedAndHasCorrectInnCheck = false);
+		Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(IUnitOfWork uow, TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, RouteListItem routeListAddress, OrderItem orderItem, CancellationToken cancellationToken, bool isCheckForCodeChange = false, bool skipCodeIntroducedAndHasCorrectInnCheck = false);
 		Result ValidateTrueMarkCodeIsInAggregationCode(TrueMarkAnyCode trueMarkCodeResult);
 	}
 }
