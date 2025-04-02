@@ -136,8 +136,8 @@ namespace EmailStatusUpdateWorker
 					storedEmail.Id,
 					storedEmail.ExternalId,
 					message.Status,
-					storedEmail.StateChangeDate.ToString("dd.MM.yyyy HH:mm:ss"),
-					message.RecievedAt.ToString("dd.MM.yyyy HH:mm:ss"));
+					storedEmail.StateChangeDate,
+					message.RecievedAt);
 
 				_channel.BasicAck(e.DeliveryTag, false);
 				return;
