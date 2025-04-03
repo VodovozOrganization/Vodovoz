@@ -242,6 +242,7 @@ namespace Edo.Documents
 								&& orderItem.Nomenclature.Gtins.Any(x => x.GtinNumber == unprocessedCodes[i].ProductCode.SourceCode.GTIN))
 							{
 								await _trueMarkCodesPool.PutCodeAsync(unprocessedCodes[i].ProductCode.SourceCode.Id, cancellationToken);
+								documentEdoTask.Items.Remove(unprocessedCodes[i]);
 								unprocessedCodes.RemoveAt(i);
 							}
 							else

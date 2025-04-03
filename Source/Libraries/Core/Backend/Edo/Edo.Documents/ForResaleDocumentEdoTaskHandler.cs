@@ -176,6 +176,7 @@ namespace Edo.Documents
 								&& orderItem.Nomenclature.Gtins.Any(x => x.GtinNumber == unprocessedCodes[i].ProductCode.SourceCode.GTIN))
 							{
 								_trueMarkCodesPool.PutCode(unprocessedCodes[i].ProductCode.SourceCode.Id);
+								documentEdoTask.Items.Remove(unprocessedCodes[i]);
 								unprocessedCodes.RemoveAt(i);
 							}
 							else
