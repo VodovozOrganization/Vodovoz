@@ -117,7 +117,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 
 			var codesInPool = await _trueMarkCodesPoolManager.GetTotalCountByGtinAsync(cancellationToken);
 			var soldYesterdayGtinsCount = await _trueMarkRepository.GetSoldYesterdayGtinsCount(UoW, cancellationToken);
-			var missingCodesCount = GetMissingCodesCount(UoW);
+			var missingCodesCount = await _trueMarkRepository.GetMissingCodesCount(UoW, cancellationToken);
 
 			var codesPoolDataNodes = new List<CodesPoolDataNode>();
 
@@ -125,6 +125,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			{
 				codesInPool.TryGetValue(gtinData.Key, out var countInPool);
 				soldYesterdayGtinsCount.TryGetValue(gtinData.Key, out var soldYesterdayCount);
+				missingCodesCount.TryGetValue(gtinData.Key, out var gtinMissingCodesCount);
 
 				var dataNode = new CodesPoolDataNode
 				{
@@ -132,35 +133,14 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 					Nomenclatures = string.Join(" | ", gtinData.Value),
 					CountInPool = (int)countInPool,
 					SoldYesterday = soldYesterdayCount,
-					MissingCodesInOrdersCount = missingCodesCount
+					MissingCodesInOrdersCount = gtinMissingCodesCount
 				};
 
 				codesPoolDataNodes.Add(dataNode);
 			}
 
 			return codesPoolDataNodes;
-		}
-
-		private int GetMissingCodesCount(IUnitOfWork uow)
-		{
-			var missingCodesData =
-				from edoTaskProblem in uow.Session.Query<EdoTaskProblem>()
-				join edoRequest in uow.Session.Query<OrderEdoRequest>() on edoTaskProblem.EdoTask.Id equals edoRequest.Task.Id
-				join order in uow.Session.Query<Order>() on edoRequest.Order.Id equals order.Id
-				where
-				edoTaskProblem.Type == EdoTaskProblemType.Exception
-				&& edoTaskProblem.SourceName == nameof(EdoCodePoolMissingCodeException)
-				&& edoTaskProblem.State == TaskProblemState.Active
-				select new
-				{
-					Order = order,
-					Items = edoTaskProblem.CustomItems.ToList()
-				};
-
-			var data = missingCodesData.ToList();
-
-			return data.Count();
-		}
+		}		
 
 		private void LoadCodesToPool()
 		{

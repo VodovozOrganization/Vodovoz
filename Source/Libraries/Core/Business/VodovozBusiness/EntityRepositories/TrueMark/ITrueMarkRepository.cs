@@ -31,5 +31,13 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Словарь. Ключ - gtin, значение - количество единиц товаров с данным gtin</returns>
 		Task<IDictionary<string, int>> GetSoldYesterdayGtinsCount(IUnitOfWork uow, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить значение Gtin и количество кодов, отсутствующих в пуле, необходимых для формирования передаточных документов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns>Словарь. Ключ - gtin, значение - количество кодов с данным gtin, необходимых для документов</returns>
+		Task<IDictionary<string, int>> GetMissingCodesCount(IUnitOfWork uow, CancellationToken cancellationToken);
 	}
 }

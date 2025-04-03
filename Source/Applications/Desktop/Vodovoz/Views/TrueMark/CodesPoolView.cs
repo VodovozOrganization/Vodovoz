@@ -24,8 +24,8 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewData.ColumnsConfig = ColumnsConfigFactory.Create<CodesPoolDataNode>()
 				.AddColumn("GTIN").AddTextRenderer(node => node.Gtin)
 				.AddColumn("Количество в пуле").AddTextRenderer(node => node.CountInPool.ToString())
-				.AddColumn("Нехватка по реализованным заказам").AddTextRenderer(node => node.MissingCodesInOrdersCount.ToString())
 				.AddColumn("Продано вчера").AddTextRenderer(node => node.SoldYesterday.ToString())
+				.AddColumn("Нехватка по заказам").AddTextRenderer(node => node.MissingCodesInOrdersCount.ToString())
 				.AddColumn("Номенклатуры").AddTextRenderer(node => node.Nomenclatures)
 				.RowCells().AddSetter<CellRenderer>((cell, node) =>
 				{
