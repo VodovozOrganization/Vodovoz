@@ -220,7 +220,9 @@ namespace Edo.Documents
 			// в котором созданы инвентарные позиции в кол-ве равном строкам товаров в заказе
 			// к каждой инвентарной позиции привязаны коды в кол-ве равном кол-ву товаров в заказе
 			var updInventPositions = new List<EdoUpdInventPosition>();
-			foreach(var orderItem in order.OrderItems)
+			var orderItemsByPriceDesc = order.OrderItems.OrderByDescending(x => x.Price).ToArray();
+			
+			foreach(var orderItem in orderItemsByPriceDesc)
 			{
 				// Процесс создания инвентарной позиции УПД
 				// и поиск и назначение соответствующих кодов
@@ -229,6 +231,26 @@ namespace Edo.Documents
 
 				if(orderItem.Price <= 0 && documentEdoTask.DocumentType == EdoDocumentType.UPD)
 				{
+					if(orderItem.Nomenclature.IsAccountableInTrueMark && unprocessedCodes.Any())
+					{
+						var i = 0;
+						
+						while(i < unprocessedCodes.Count)
+						{
+							if(unprocessedCodes[i].ProductCode.SourceCode != null
+								&& unprocessedCodes[i].ProductCode.ResultCode is null
+								&& orderItem.Nomenclature.Gtins.Any(x => x.GtinNumber == unprocessedCodes[i].ProductCode.SourceCode.GTIN))
+							{
+								await _trueMarkCodesPool.PutCodeAsync(unprocessedCodes[i].ProductCode.SourceCode.Id, cancellationToken);
+								unprocessedCodes.RemoveAt(i);
+							}
+							else
+							{
+								i++;
+							}
+						}
+					}
+					
 					continue;
 				}
 
