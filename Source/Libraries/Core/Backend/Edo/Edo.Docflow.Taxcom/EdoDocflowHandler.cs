@@ -36,7 +36,7 @@ namespace Edo.Docflow.Taxcom
 				CreationTime = now,
 				MainDocumentId = @event.UpdInfo.DocumentId.ToString(),
 				DocflowId = null,
-				EdoDocumentId = @event.EdoOutgoingDocumentId
+				EdoDocumentId = @event.EdoOutgoingDocumentId,
 			};
 			
 			taxcomDocflow.Actions.Add(new TaxcomDocflowAction
@@ -101,6 +101,7 @@ namespace Edo.Docflow.Taxcom
 				};
 			
 				taxcomDocflow.Actions.Add(newAction);
+				taxcomDocflow.IsReceived = @event.IsReceived;
 
 				edoDocflowUpdatedEvent = new EdoDocflowUpdatedEvent
 				{
