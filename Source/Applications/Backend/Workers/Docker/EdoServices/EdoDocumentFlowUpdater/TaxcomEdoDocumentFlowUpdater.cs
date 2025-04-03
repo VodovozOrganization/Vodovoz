@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -31,6 +31,8 @@ namespace EdoDocumentFlowUpdater
 {
 	public class TaxcomEdoDocumentFlowUpdater : BackgroundService
 	{
+		private const string _postDateConfirmation = "PostDateConfirmation";
+
 		private readonly ILogger<TaxcomEdoDocumentFlowUpdater> _logger;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly TaxcomEdoDocumentFlowUpdaterOptions _documentFlowUpdaterOptions;
@@ -196,6 +198,9 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 
+			var isReceived =
+				docflow.Documents.FirstOrDefault(x => x.TransactionCode == _postDateConfirmation) != null;
+
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent
 			{
 				DocFlowId = docflow.Id,
@@ -203,7 +208,8 @@ namespace EdoDocumentFlowUpdater
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
 				Status = docflow.Status,
 				StatusChangeDateTime = docflow.StatusChangeDateTime,
-				ErrorDescription = docflow.ErrorDescription
+				ErrorDescription = docflow.ErrorDescription,
+				IsReceived = isReceived
 			};
 			
 			await _publishEndpoint.Publish(@event, cancellationToken);
@@ -300,7 +306,7 @@ namespace EdoDocumentFlowUpdater
 			}
 			
 			var containerReceived =
-				docflow.Documents.FirstOrDefault(x => x.TransactionCode == "PostDateConfirmation") != null;
+				docflow.Documents.FirstOrDefault(x => x.TransactionCode == _postDateConfirmation) != null;
 
 			container.DocFlowId = docflow.Id;
 			container.Received = containerReceived;
