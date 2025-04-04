@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Core.Infrastructure.Specifications
+namespace Vodovoz.Core.Domain.Specifications
 {
 	public class ExpressionSpecification<T> : ISpecification<T>
 	{
