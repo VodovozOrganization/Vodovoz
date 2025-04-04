@@ -13,5 +13,14 @@ namespace Vodovoz.Application.TrueMark
 				RawCode = productInstanceStatus.IdentificationCode,
 			};
 		}
+
+		public TrueMarkTransportCode CreateFromRawCode(string scannedCode)
+		{
+			return new TrueMarkTransportCode
+			{
+				IsInvalid = false,
+				RawCode = scannedCode,
+			};
+		}
 	}
 }

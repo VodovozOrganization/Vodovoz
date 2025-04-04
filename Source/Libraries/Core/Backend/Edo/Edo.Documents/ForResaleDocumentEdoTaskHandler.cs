@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
@@ -20,6 +21,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
 		private readonly TransferRequestCreator _transferRequestCreator;
+		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly IBus _messageBus;
 
 		public ForResaleDocumentEdoTaskHandler(
@@ -27,6 +29,7 @@ namespace Edo.Documents
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			TrueMarkTaskCodesValidator trueMarkTaskCodesValidator,
 			TransferRequestCreator transferRequestCreator,
+			TrueMarkCodesPool trueMarkCodesPool,
 			IBus messageBus
 			)
 		{
@@ -34,6 +37,7 @@ namespace Edo.Documents
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
+			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -126,7 +130,6 @@ namespace Edo.Documents
 			await _uow.CommitAsync(cancellationToken);
 
 			await _messageBus.Publish(message, cancellationToken);
-
 		}
 
 		private async Task<OrderEdoDocument> SendDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
@@ -146,19 +149,45 @@ namespace Edo.Documents
 			return customerEdoDocument;
 		}
 
-
 		private void CreateUpdDocument(DocumentEdoTask documentEdoTask)
 		{
 			var order = documentEdoTask.OrderEdoRequest.Order;
 
 			var unprocessedCodes = documentEdoTask.Items.ToList();
 			var groupCodesWithTaskItems = TakeGroupCodesWithTaskItems(unprocessedCodes);
+			var orderItemsByPriceDesc = order.OrderItems.OrderByDescending(x => x.Price).ToArray();
 
 			var updInventPositions = new List<EdoUpdInventPosition>();
 
-			foreach(var orderItem in order.OrderItems)
+			foreach(var orderItem in orderItemsByPriceDesc)
 			{
 				var codeItemsToAssign = new List<EdoUpdInventPositionCode>();
+
+				if(orderItem.Price <= 0 && documentEdoTask.DocumentType == EdoDocumentType.UPD)
+				{
+					if(orderItem.Nomenclature.IsAccountableInTrueMark && unprocessedCodes.Any())
+					{
+						var i = 0;
+						
+						while(i < unprocessedCodes.Count)
+						{
+							if(unprocessedCodes[i].ProductCode.SourceCode != null
+								&& unprocessedCodes[i].ProductCode.ResultCode is null
+								&& orderItem.Nomenclature.Gtins.Any(x => x.GtinNumber == unprocessedCodes[i].ProductCode.SourceCode.GTIN))
+							{
+								_trueMarkCodesPool.PutCode(unprocessedCodes[i].ProductCode.SourceCode.Id);
+								documentEdoTask.Items.Remove(unprocessedCodes[i]);
+								unprocessedCodes.RemoveAt(i);
+							}
+							else
+							{
+								i++;
+							}
+						}
+					}
+					
+					continue;
+				}
 
 				var assignedQuantity = 0;
 				while(assignedQuantity < orderItem.Count)
@@ -192,9 +221,9 @@ namespace Edo.Documents
 
 					if(groupCode != null)
 					{
-						var codesInGroup = groupCode.GetAllCodes()
-									.Where(x => x.IsTrueMarkWaterIdentificationCode)
-									.Count();
+						var codesInGroup = groupCode
+							.GetAllCodes()
+							.Count(x => x.IsTrueMarkWaterIdentificationCode);
 
 						var codeItem = new EdoUpdInventPositionCode
 						{
@@ -285,7 +314,7 @@ namespace Edo.Documents
 
 			var parentCodesIds = groupped
 				.Select(x => x.Key)
-			.Distinct();
+				.Distinct();
 			var parentCodes = parentCodesIds
 				.Select(x => _trueMarkCodeRepository.GetParentGroupCode(_uow, x.Value))
 				.Distinct();

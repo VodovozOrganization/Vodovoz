@@ -499,6 +499,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			CancellationToken cancellationToken)
 		{
+			await _unitOfWork.SaveAsync(trueMarkWaterIdentificationCode, cancellationToken: cancellationToken);
+			
 			var productCode = new SelfDeliveryDocumentItemTrueMarkProductCode
 			{
 				CreationTime = DateTime.Now,
@@ -531,13 +533,13 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			lock(CodeScanRows)
 			{
-				var existsCodeScanRow = CodeScanRows.FirstOrDefault(x => x.RawCode == code);
+				var existsCodeScanRow = CodeScanRows.FirstOrDefault(x => x.RawCode.Contains(code) || code.Contains(x.RawCode));
 
 				if(existsCodeScanRow is null)
 				{
 					existsCodeScanRow = CodeScanRows
 						.SelectMany(x => x.Children)
-						.FirstOrDefault(x => x.RawCode == code);
+						.FirstOrDefault(x => x.RawCode.Contains(code) || code.Contains(x.RawCode));
 				}
 
 				if(existsCodeScanRow is null)
@@ -618,15 +620,13 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			lock(CodeScanRows)
 			{
-				var rootNode = CodeScanRows.FirstOrDefault(x => x.RawCode == rawCode);
-
 				if(childrenUnitCodeList is null)
 				{
 					var childrenCodeScanRows = CodeScanRows.SelectMany(x => x.Children);
 
 					var existsUnitCodeFromAggregateCode = childrenCodeScanRows.FirstOrDefault(x =>
-						x.RawCode.Contains(rootNode.RawCode)
-						|| rootNode.RawCode.Contains(x.RawCode));
+						x.RawCode.Contains(rawCode)
+						|| rawCode.Contains(x.RawCode));
 
 					if(existsUnitCodeFromAggregateCode != null)
 					{
@@ -639,7 +639,10 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						return;
 					}
 
-					codesToDistribute.Add(anyCode.TrueMarkWaterIdentificationCode);
+					if(isValid)
+					{
+						codesToDistribute.Add(anyCode.TrueMarkWaterIdentificationCode);
+					}
 				}
 				else
 				{
@@ -658,6 +661,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 						return;
 					}
+					
+					var rootNode = CodeScanRows.FirstOrDefault(x => x.RawCode.Contains(rawCode) || rawCode.Contains(x.RawCode));
 
 					rootNode.Children.Clear();
 
@@ -667,7 +672,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						hasInOrder = IsOrderContainsGtin(trueMarkWaterIdentificationCode.GTIN);
 
 						var childNode = CodeScanRows.FirstOrDefault(x =>
-							                x.RawCode == trueMarkWaterIdentificationCode.RawCode)
+							                x.RawCode.Contains(trueMarkWaterIdentificationCode.RawCode) || trueMarkWaterIdentificationCode.RawCode.Contains(x.RawCode))
 						                ?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
 
 						childNode.RawCode = trueMarkWaterIdentificationCode.RawCode;
@@ -695,6 +700,11 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			{
 				UpdateCodeScanRows(rawCode, gtin, additionalInformation: new List<string> { "Агрегатный код" });
 			}
+			
+			await anyCode.Match(
+				transportCode => _unitOfWork.SaveAsync(transportCode, cancellationToken: cancellationToken),
+				groupCode => _unitOfWork.SaveAsync(groupCode, cancellationToken: cancellationToken),
+				uniCode => _unitOfWork.SaveAsync(uniCode, cancellationToken: cancellationToken));
 
 			await DistributeCodeOnNextSelfDeliveryItemAsync(codesToDistribute, cancellationToken);
 
@@ -805,7 +815,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				.FirstOrDefault(s =>
 					s.Nomenclature.Gtins.Select(g => g.GtinNumber).Contains(code.GTIN)
 					&& s.TrueMarkProductCodes.Count < s.Amount
-					&& s.TrueMarkProductCodes.All(c => c.SourceCode.Id != code.Id));
+					&& s.TrueMarkProductCodes.All(c =>
+						!c.SourceCode.RawCode.Contains(code.RawCode) && !code.RawCode.Contains(c.SourceCode.RawCode)));
 
 			return documentItem;
 		}
@@ -824,7 +835,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			lock(CodeScanRows)
 			{
-				alreadyScannedNode = CodeScanRows.FirstOrDefault(x => x?.RawCode == code);
+				alreadyScannedNode = CodeScanRows.FirstOrDefault(x => x.RawCode.Contains(code) || code.Contains(x.RawCode));
 
 				//Поднятие вновь отсканированного кода наверх
 				if(alreadyScannedNode != null)

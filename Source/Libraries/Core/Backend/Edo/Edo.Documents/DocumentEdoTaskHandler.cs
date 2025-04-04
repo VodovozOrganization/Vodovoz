@@ -14,6 +14,7 @@ using Vodovoz.Core.Domain.Edo;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using NHibernate;
+using Edo.Problems.Exception;
 
 namespace Edo.Documents
 {
@@ -78,20 +79,39 @@ namespace Edo.Documents
 				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
 				.ListAsync();
 
-			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
-			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
-			if(!isValid)
+			try
 			{
-				return;
-			}
+				var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
+				var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
+				if(!isValid)
+				{
+					return;
+				}
 
-			if(IsFormalDocument(edoTask))
-			{
-				await HandleFormalDocument(edoTask, trueMarkCodesChecker, cancellationToken);
+				if(IsFormalDocument(edoTask))
+				{
+					await HandleFormalDocument(edoTask, trueMarkCodesChecker, cancellationToken);
+				}
+				else
+				{
+					await HandleInformalDocument(edoTask, cancellationToken);
+				}
 			}
-			else
+			catch(EdoProblemException ex)
 			{
-				await HandleInformalDocument(edoTask, cancellationToken);
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
+			}
+			catch(Exception ex)
+			{
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
 			}
 		}
 
@@ -172,6 +192,14 @@ namespace Edo.Documents
 		{
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
 			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
+
+			await _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
+				.ListAsync();
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 

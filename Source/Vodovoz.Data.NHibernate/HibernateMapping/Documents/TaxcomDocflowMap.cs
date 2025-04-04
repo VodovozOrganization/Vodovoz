@@ -15,7 +15,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			Map(x => x.CreationTime).Column("creation_time");
 			Map(x => x.MainDocumentId).Column("main_document_id");
 			Map(x => x.EdoDocumentId).Column("edo_document_id");
-			
+			Map(x => x.IsReceived).Column("is_received");
+
 			HasMany(x => x.Actions)
 				.KeyColumn("taxcom_docflow_id")
 				.Cascade

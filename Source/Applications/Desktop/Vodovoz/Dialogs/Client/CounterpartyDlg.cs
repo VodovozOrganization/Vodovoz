@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using EdoService.Library.Converters;
 using EdoService.Library.Dto;
@@ -18,6 +18,7 @@ using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -102,7 +103,9 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using VodovozBusiness.EntityRepositories.Edo;
+using VodovozBusiness.Nodes;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
 {
@@ -124,6 +127,7 @@ namespace Vodovoz
 		private readonly IEmailRepository _emailRepository = ScopeProvider.Scope.Resolve<IEmailRepository>();
 		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = ScopeProvider.Scope.Resolve<IExternalCounterpartyRepository>();
+		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
 		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
@@ -150,7 +154,8 @@ namespace Vodovoz
 		private IEdoService _edoService;
 		private IAttachedFileInformationsViewModelFactory _attachmentsViewModelFactory;
 		private ICounterpartyFileStorageService _counterpartyFileStorageService;
-		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
+		private IObservableList<EdoDockflowData> _edoEdoDocumentDataNodes = new ObservableList<EdoDockflowData>();
+		private IObservableList<EdoContainer> _edoContainers = new ObservableList<EdoContainer>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -1378,37 +1383,44 @@ namespace Vodovoz
 
 		private void ConfigureTabEdoContainers()
 		{
-			treeViewEdoDocumentsContainer.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
+			treeViewEdoDocumentsContainer.ColumnsConfig = FluentColumnsConfig<EdoDockflowData>.Create()
+				.AddColumn("Новый\nдокументооборот")
+					.AddToggleRenderer(x => x.IsNewDockflow)
+					.Editing(false)
 				.AddColumn(" Дата \n создания ")
-					.AddTextRenderer(x => x.Created.ToString("dd.MM.yyyy\nHH:mm"))
+					.AddTextRenderer(x => x.TaxcomDocflowCreationTime == null ? string.Empty : x.TaxcomDocflowCreationTime.Value.ToString("dd.MM.yyyy\nHH:mm"))
 				.AddColumn(" Номер \n заказа ")
-					.AddTextRenderer(x => x.Order == null ? "" : x.Order.Id.ToString())
+					.AddTextRenderer(x => x.OrderId == null ? "" : x.OrderId.ToString())
 				.AddColumn(" Номер счета б/о \n на предоплату ")
-					.AddTextRenderer(x => x.OrderWithoutShipmentForAdvancePayment == null ? "" : x.OrderWithoutShipmentForAdvancePayment.Id.ToString())
+					.AddTextRenderer(x => x.OrderWithoutShipmentForAdvancePaymentId == null ? "" : x.OrderWithoutShipmentForAdvancePaymentId.ToString())
 				.AddColumn(" Номер счета б/о \n на долг ")
-					.AddTextRenderer(x => x.OrderWithoutShipmentForDebt == null ? "" : x.OrderWithoutShipmentForDebt.Id.ToString())
+					.AddTextRenderer(x => x.OrderWithoutShipmentForDebtId == null ? "" : x.OrderWithoutShipmentForDebtId.ToString())
 				.AddColumn(" Номер счета б/о \n на постоплату ")
-					.AddTextRenderer(x => x.OrderWithoutShipmentForPayment == null ? "" : x.OrderWithoutShipmentForPayment.Id.ToString())
+					.AddTextRenderer(x => x.OrderWithoutShipmentForPaymentId == null ? "" : x.OrderWithoutShipmentForPaymentId.ToString())
 				.AddColumn(" Код документооборота ")
 					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
 				.AddColumn(" Отправленные \n документы ")
-					.AddTextRenderer(x => x.SentDocuments)
+					.AddTextRenderer(x => x.DocumentType)
 				.AddColumn(" Статус \n документооборота ")
-					.AddEnumRenderer(x => x.EdoDocFlowStatus)
+					.AddTextRenderer(x => x.EdoDocFlowStatusString)
 				.AddColumn(" Доставлено \n клиенту? ")
-					.AddToggleRenderer(x => x.Received)
+					.AddToggleRenderer(x => x.IsReceived)
 					.Editing(false)
 				.AddColumn(" Описание ошибки ")
 					.AddTextRenderer(x => x.ErrorDescription)
 					.WrapWidth(500)
+				.AddColumn("Статус задачи\nнового документооборота")
+					.AddTextRenderer(x => x.EdoTaskStatus.HasValue ? x.EdoTaskStatus.Value.GetEnumTitle() : string.Empty)
+				.AddColumn("Статус документа\nнового документооборота")
+					.AddTextRenderer(x => x.EdoDocumentStatus.HasValue ? x.EdoDocumentStatus.Value.GetEnumTitle() : string.Empty)
 				.AddColumn("")
 				.Finish();
 
-			UpdateEdoContainers();
-			treeViewEdoDocumentsContainer.ItemsDataSource = _edoContainers;
+			UpdateEdoDocumentDataNodes();
+			treeViewEdoDocumentsContainer.ItemsDataSource = _edoEdoDocumentDataNodes;
 			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_edo_documents");
 			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnButtonEdoDocumentsSendAllUnsentClicked;
-			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoContainers();
+			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoDocumentDataNodes();
 		}
 
 		private void OnButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
@@ -1425,7 +1437,7 @@ namespace Vodovoz
 			}
 		}
 
-		private void UpdateEdoContainers()
+		private void UpdateEdoContainers(IUnitOfWork uow)
 		{
 			if(Entity.Id < 1)
 			{
@@ -1434,12 +1446,37 @@ namespace Vodovoz
 
 			_edoContainers.Clear();
 
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			var containers = _counterpartyRepository.GetEdoContainersByCounterpartyId(uow, Entity.Id);
+
+			foreach(var item in containers)
 			{
-				foreach(var item in _counterpartyRepository.GetEdoContainersByCounterpartyId(uow, Entity.Id))
+				if(item.IsIncoming)
 				{
-					_edoContainers.Add(item);
+					continue;
 				}
+				_edoContainers.Add(item);
+			}
+		}
+
+		private void UpdateEdoDocumentDataNodes()
+		{
+			_edoEdoDocumentDataNodes.Clear();
+
+			var documents = new List<EdoDockflowData>();
+
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Отправка документов по ЭДО, диалог заказа"))
+			{
+				UpdateEdoContainers(uow);
+
+				documents.AddRange(_edoDocflowRepository.GetEdoDocflowDataByClientId(uow, Entity.Id));
+				documents.AddRange(_edoContainers.Select(x => new EdoDockflowData(x)));
+			}
+
+			documents = documents.OrderByDescending(x => x.OrderId).ToList();
+
+			foreach(var document in documents)
+			{
+				_edoEdoDocumentDataNodes.Add(document);
 			}
 
 			SetEdoDocumentsSendAllUnsentButtonSensitive();
