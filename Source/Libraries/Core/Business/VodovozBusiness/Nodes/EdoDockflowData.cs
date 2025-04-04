@@ -3,7 +3,7 @@ using System;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders.Documents;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 
 namespace VodovozBusiness.Nodes
 {
