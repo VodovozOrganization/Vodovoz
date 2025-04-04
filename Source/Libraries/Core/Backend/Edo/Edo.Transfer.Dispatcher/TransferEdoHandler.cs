@@ -99,7 +99,7 @@ namespace Edo.Transfer.Dispatcher
 				transferTasks.Add(transferTask);
 			}
 
-			var sentTasks = transferTasks.Where(x => x.TransferStatus == TransferEdoTaskStatus.InProgress);
+			var sentTasks = transferTasks.Where(x => x.TransferStatus == TransferEdoTaskStatus.ReadyToSend);
 			await _uow.CommitAsync(cancellationToken);
 
 			var events = sentTasks.Select(x => new TransferTaskReadyToSendEvent { Id = x.Id });

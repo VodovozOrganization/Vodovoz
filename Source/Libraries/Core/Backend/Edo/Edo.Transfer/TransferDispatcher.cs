@@ -66,12 +66,18 @@ namespace Edo.Transfer
 			CancellationToken cancellationToken)
 		{
 			var direction = requestsGroup.Key;
-			var task = await _transferTaskRepository.FindTaskAsync(
-				uow,
-				direction.FromOrganizationId,
-				direction.ToOrganizationId,
-				cancellationToken
-			);
+			var transferedItemsCount = requestsGroup.Sum(x => x.TransferedItems.Count);
+
+			TransferEdoTask task = null;
+			if(transferedItemsCount < _edoTransferSettings.MinCodesCountForStartTransfer)
+			{
+				task = await _transferTaskRepository.FindTaskAsync(
+					uow,
+					direction.FromOrganizationId,
+					direction.ToOrganizationId,
+					cancellationToken
+				);
+			}
 
 			if(task == null)
 			{
@@ -81,6 +87,11 @@ namespace Edo.Transfer
 				task.FromOrganizationId = direction.FromOrganizationId;
 				task.ToOrganizationId = direction.ToOrganizationId;
 				task.TransferStatus = TransferEdoTaskStatus.WaitingRequests;
+			}
+
+			if(transferedItemsCount >= _edoTransferSettings.MinCodesCountForStartTransfer)
+			{
+				task.TransferStatus = TransferEdoTaskStatus.ReadyToSend;
 			}
 
 			foreach(var request in requestsGroup)
@@ -100,6 +111,12 @@ namespace Edo.Transfer
 			IEnumerable<TransferEdoRequest> currentTransferEdoRequests,
 			CancellationToken cancellationToken)
 		{
+			if(transferEdoTask.TransferStatus == TransferEdoTaskStatus.ReadyToSend)
+			{
+				await SendTransfer(uow, transferEdoTask, cancellationToken);
+				return;
+			}
+
 			var transferRequestsFromDb = await uow.Session.QueryOver<TransferEdoRequest>()
 				.Where(x => x.TransferEdoTask.Id == transferEdoTask.Id)
 				.ListAsync();
@@ -126,7 +143,7 @@ namespace Edo.Transfer
 
 		private async Task SendTransfer(IUnitOfWork uow, TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
 		{
-			transferEdoTask.TransferStatus = TransferEdoTaskStatus.InProgress;
+			transferEdoTask.TransferStatus = TransferEdoTaskStatus.ReadyToSend;
 			transferEdoTask.TransferStartTime = DateTime.Now;
 
 			await CreateTransferOrder(uow, transferEdoTask, cancellationToken);
