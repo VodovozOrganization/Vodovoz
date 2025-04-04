@@ -235,7 +235,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					{
 						_interactiveService.ShowMessage(ImportanceLevel.Info,
 							"Сейчас нечего сканировать. Проверьте количество номенклатур на форме самовывоза");
-						CloseScanning();
 					}
 				);
 			}
