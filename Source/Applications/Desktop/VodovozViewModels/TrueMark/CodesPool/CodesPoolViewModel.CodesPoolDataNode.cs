@@ -18,6 +18,11 @@
 			public int CountInPool { get; set; }
 
 			/// <summary>
+			/// Количество кодов, необходимое для добавления в уже реализованные заказы
+			/// </summary>
+			public int MissingCodesInOrdersCount { get; set; }
+
+			/// <summary>
 			/// Количество проданных товаров за предыдущий день
 			/// </summary>
 			public int SoldYesterday { get; set; }
