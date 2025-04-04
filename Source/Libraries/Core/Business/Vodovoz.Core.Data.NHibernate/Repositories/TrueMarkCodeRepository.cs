@@ -1,5 +1,8 @@
 ﻿using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
@@ -9,140 +12,158 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 {
 	internal sealed class TrueMarkCodeRepository : ITrueMarkCodeRepository
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IGenericRepository<TrueMarkWaterGroupCode> _waterGroupCodeRepository;
-		private readonly IGenericRepository<TrueMarkTransportCode> _transportCodeRepository;
+		private readonly IUnitOfWork _uow;
 
-		public TrueMarkCodeRepository(
-			IUnitOfWorkFactory uowFactory,
-			IGenericRepository<TrueMarkWaterGroupCode> waterGroupCodeRepository,
-			IGenericRepository<TrueMarkTransportCode> transportCodeRepository
+		private Dictionary<int, TrueMarkWaterIdentificationCode> _waterCodes = new Dictionary<int, TrueMarkWaterIdentificationCode>();
+		private Dictionary<int, TrueMarkWaterGroupCode> _waterGroupCodes = new Dictionary<int, TrueMarkWaterGroupCode>();
+		private Dictionary<int, TrueMarkTransportCode> _transportCodes = new Dictionary<int, TrueMarkTransportCode>();
+
+		public TrueMarkCodeRepository(IUnitOfWork uow)
+		{
+			_uow = uow ?? throw new System.ArgumentNullException(nameof(uow));
+		}
+
+		public async Task PreloadCodes(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
+		{
+			_waterCodes.Clear();
+			_waterGroupCodes.Clear();
+			_transportCodes.Clear();
+
+			_waterCodes = codes.ToDictionary(x => x.Id);
+
+			var transportCodeIds = new HashSet<int>(
+				codes.Where(x => x.ParentTransportCodeId.HasValue)
+					.Select(x => x.ParentTransportCodeId.Value)
+			);
+
+			var groupCodeIds = codes.Where(x => x.ParentWaterGroupCodeId.HasValue)
+				.Select(x => x.ParentWaterGroupCodeId.Value)
+				.ToArray();
+
+			while(groupCodeIds.Any())
+			{
+				var groupCodes = await _uow.Session.QueryOver<TrueMarkWaterGroupCode>()
+					.WhereRestrictionOn(x => x.Id).IsIn(groupCodeIds)
+					.ListAsync(cancellationToken);
+				groupCodeIds = groupCodes.Where(x => x.ParentWaterGroupCodeId.HasValue)
+					.Select(x => x.ParentWaterGroupCodeId.Value)
+					.ToArray();
+
+				foreach(var groupCode in groupCodes)
+				{
+					if(!_waterGroupCodes.ContainsKey(groupCode.Id))
+					{
+						_waterGroupCodes.Add(groupCode.Id, groupCode);
+					}
+				}
+
+				foreach(var groupCode in groupCodes.Where(x => x.ParentTransportCodeId.HasValue))
+				{
+					if(!transportCodeIds.Contains(groupCode.ParentTransportCodeId.Value))
+					{
+						transportCodeIds.Add(groupCode.ParentTransportCodeId.Value);
+					}
+				}
+			}
+
+			var transportCodes = await _uow.Session.QueryOver<TrueMarkTransportCode>()
+				.WhereRestrictionOn(x => x.Id).IsIn(transportCodeIds.ToArray())
+				.ListAsync(cancellationToken);
+			_transportCodes = transportCodes.ToDictionary(x => x.Id);
+		}
+
+		public async Task<TrueMarkTransportCode> FindParentTransportCode(
+			TrueMarkWaterIdentificationCode code, 
+			CancellationToken cancellationToken
 			)
 		{
-			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
-			_waterGroupCodeRepository = waterGroupCodeRepository ?? throw new System.ArgumentNullException(nameof(waterGroupCodeRepository));
-			_transportCodeRepository = transportCodeRepository ?? throw new System.ArgumentNullException(nameof(transportCodeRepository));
-		}
-
-		public TrueMarkWaterGroupCode GetParentGroupCode(int id)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			if(code.ParentTransportCodeId.HasValue)
 			{
-				return GetParentGroupCode(uow, id);
+				return await GetTransportCode(code.ParentTransportCodeId.Value, cancellationToken);
 			}
+
+			if(code.ParentWaterGroupCodeId.HasValue)
+			{
+				return null;
+			}
+
+			var nextGroupCodeId = code.ParentWaterGroupCodeId;
+			while(nextGroupCodeId.HasValue)
+			{
+				var groupCode = await GetGroupCode(nextGroupCodeId.Value, cancellationToken);
+
+				if(groupCode.ParentTransportCodeId.HasValue)
+				{
+					return await GetTransportCode(groupCode.ParentTransportCodeId.Value, cancellationToken);
+				}
+
+				if(groupCode.ParentWaterGroupCodeId.HasValue)
+				{
+					return null;
+				}
+
+				nextGroupCodeId = groupCode.ParentWaterGroupCodeId;
+			}
+
+			return null;
 		}
 
-		public TrueMarkWaterGroupCode GetParentGroupCode(IUnitOfWork uow, int id)
+		public async Task<TrueMarkTransportCode> FindParentTransportCode(
+			TrueMarkWaterGroupCode code,
+			CancellationToken cancellationToken
+			)
 		{
-			var groupCode = _waterGroupCodeRepository
-				.Get(uow, x => x.Id == id, 1)
-				.FirstOrDefault();
-
-			if(groupCode.ParentWaterGroupCodeId != null)
+			if(code.ParentTransportCodeId.HasValue)
 			{
-				return GetParentGroupCode(uow, groupCode.ParentWaterGroupCodeId.Value);
+				return await GetTransportCode(code.ParentTransportCodeId.Value, cancellationToken);
+			}
+
+			if(code.ParentWaterGroupCodeId.HasValue)
+			{
+				return null;
+			}
+
+			var nextGroupCodeId = code.ParentWaterGroupCodeId;
+			while(nextGroupCodeId.HasValue)
+			{
+				var groupCode = await GetGroupCode(nextGroupCodeId.Value, cancellationToken);
+
+				if(groupCode.ParentTransportCodeId.HasValue)
+				{
+					return await GetTransportCode(groupCode.ParentTransportCodeId.Value, cancellationToken);
+				}
+
+				if(groupCode.ParentWaterGroupCodeId.HasValue)
+				{
+					return null;
+				}
+
+				nextGroupCodeId = groupCode.ParentWaterGroupCodeId;
+			}
+
+			return null;
+		}
+
+		public async Task<TrueMarkWaterGroupCode> GetGroupCode(int id, CancellationToken cancellationToken)
+		{
+			if(!_waterGroupCodes.TryGetValue(id, out var groupCode))
+			{
+				groupCode = await _uow.Session.GetAsync<TrueMarkWaterGroupCode>(id, cancellationToken);
+				_waterGroupCodes.Add(id, groupCode);
 			}
 
 			return groupCode;
 		}
 
-
-		public TrueMarkTransportCode FindParentTransportCode(TrueMarkWaterIdentificationCode code)
+		private async Task<TrueMarkTransportCode> GetTransportCode(int id, CancellationToken cancellationToken)
 		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			if(!_transportCodes.TryGetValue(id, out var transportCode))
 			{
-				return FindParentTransportCode(uow, code);
-			}
-		}
-
-		public TrueMarkTransportCode FindParentTransportCode(IUnitOfWork uow, TrueMarkWaterIdentificationCode code)
-		{
-			if(code.ParentTransportCodeId != null)
-			{
-				var transportCode = _transportCodeRepository
-					.Get(uow, x => x.Id == code.ParentTransportCodeId.Value, 1)
-					.FirstOrDefault();
-
-				return transportCode;
+				transportCode = await _uow.Session.GetAsync<TrueMarkTransportCode>(id, cancellationToken);
+				_transportCodes.Add(id, transportCode);
 			}
 
-			if(code.ParentWaterGroupCodeId == null)
-			{
-				return null;
-			}
-
-			int nextGroupCodeId = code.ParentWaterGroupCodeId.Value;
-			while(true)
-			{
-				var groupCode = _waterGroupCodeRepository
-					.Get(uow, x => x.Id == nextGroupCodeId, 1)
-					.FirstOrDefault();
-
-				if(groupCode.ParentTransportCodeId != null)
-				{
-					var transportCode = _transportCodeRepository
-						.Get(uow, x => x.Id == groupCode.ParentTransportCodeId.Value, 1)
-						.FirstOrDefault();
-
-					return transportCode;
-				}
-
-				if(groupCode.ParentWaterGroupCodeId == null)
-				{
-					return null;
-				}
-
-				nextGroupCodeId = groupCode.ParentWaterGroupCodeId.Value;
-			}
-		}
-
-		public TrueMarkTransportCode FindParentTransportCode(TrueMarkWaterGroupCode code)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				return FindParentTransportCode(uow, code);
-			}
-		}
-
-		public TrueMarkTransportCode FindParentTransportCode(IUnitOfWork uow, TrueMarkWaterGroupCode code)
-		{
-			if(code.ParentTransportCodeId != null)
-			{
-				var transportCode = _transportCodeRepository
-					.Get(uow, x => x.Id == code.ParentTransportCodeId.Value, 1)
-					.FirstOrDefault();
-
-				return transportCode;
-			}
-
-			if(code.ParentWaterGroupCodeId == null)
-			{
-				return null;
-			}
-
-			int nextGroupCodeId = code.ParentWaterGroupCodeId.Value;
-			while(true)
-			{
-				var groupCode = _waterGroupCodeRepository
-					.Get(uow, x => x.Id == nextGroupCodeId, 1)
-					.FirstOrDefault();
-
-				if(groupCode.ParentTransportCodeId != null)
-				{
-					var transportCode = _transportCodeRepository
-						.Get(uow, x => x.Id == groupCode.ParentTransportCodeId.Value, 1)
-						.FirstOrDefault();
-
-					return transportCode;
-				}
-
-				if(groupCode.ParentWaterGroupCodeId == null)
-				{
-					return null;
-				}
-
-				nextGroupCodeId = groupCode.ParentWaterGroupCodeId.Value;
-			}
+			return transportCode;
 		}
 	}
 }

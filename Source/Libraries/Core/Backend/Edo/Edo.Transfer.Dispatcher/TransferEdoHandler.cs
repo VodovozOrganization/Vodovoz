@@ -14,7 +14,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Transfer.Dispatcher
 {
@@ -92,7 +91,6 @@ namespace Edo.Transfer.Dispatcher
 			foreach(var requestsGroup in requestsGroups)
 			{
 				var transferTask = await _transferDispatcher.AddRequestsToTask(
-					_uow,
 					requestsGroup,
 					cancellationToken
 				);

@@ -66,7 +66,7 @@ namespace Edo.Documents
 
 			if(taskValidationResult.ReadyToSell)
 			{
-				CreateUpdDocument(documentEdoTask);
+				await CreateUpdDocument(documentEdoTask, cancellationToken);
 
 				var customerDocument = await SendDocument(documentEdoTask, cancellationToken);
 				documentEdoTask.Status = EdoTaskStatus.InProgress;
@@ -99,7 +99,6 @@ namespace Edo.Documents
 			CancellationToken cancellationToken
 			)
 		{
-
 			trueMarkCodesChecker.ClearCache();
 			var taskValidationResult = await _trueMarkTaskCodesValidator.ValidateAsync(
 				documentEdoTask,
@@ -119,7 +118,7 @@ namespace Edo.Documents
 				throw new InvalidOperationException("Трансфер не завершен, или имеет ошибку");
 			}
 
-			CreateUpdDocument(documentEdoTask);
+			await CreateUpdDocument(documentEdoTask, cancellationToken);
 
 			var customerDocument = await SendDocument(documentEdoTask, cancellationToken);
 			documentEdoTask.Status = EdoTaskStatus.InProgress;
@@ -149,14 +148,15 @@ namespace Edo.Documents
 			return customerEdoDocument;
 		}
 
-		private void CreateUpdDocument(DocumentEdoTask documentEdoTask)
+
+		private async Task CreateUpdDocument(DocumentEdoTask documentEdoTask, CancellationToken cancellationToken)
 		{
 			var order = documentEdoTask.OrderEdoRequest.Order;
 
 			var unprocessedCodes = documentEdoTask.Items.ToList();
-			var groupCodesWithTaskItems = TakeGroupCodesWithTaskItems(unprocessedCodes);
+			var groupCodesWithTaskItems = await TakeGroupCodesWithTaskItems(unprocessedCodes, cancellationToken);
 			var orderItemsByPriceDesc = order.OrderItems.OrderByDescending(x => x.Price).ToArray();
-
+			
 			var updInventPositions = new List<EdoUpdInventPosition>();
 
 			foreach(var orderItem in orderItemsByPriceDesc)
@@ -295,7 +295,10 @@ namespace Edo.Documents
 			}
 		}
 
-		private IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>> TakeGroupCodesWithTaskItems(List<EdoTaskItem> unprocessedTaskItems)
+		private async Task<IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
+			List<EdoTaskItem> unprocessedTaskItems,
+			CancellationToken cancellationToken
+			)
 		{
 			// нашли все индивидуальные коды, которые содержатся в группах
 			var codesThatContainedInGroup = unprocessedTaskItems
@@ -315,9 +318,19 @@ namespace Edo.Documents
 			var parentCodesIds = groupped
 				.Select(x => x.Key)
 				.Distinct();
-			var parentCodes = parentCodesIds
-				.Select(x => _trueMarkCodeRepository.GetParentGroupCode(_uow, x.Value))
-				.Distinct();
+
+			var parentCodes = new List<TrueMarkWaterGroupCode>();
+			foreach(var parentCodesId in parentCodesIds)
+			{
+				var parentCode = await _trueMarkCodeRepository.GetGroupCode(parentCodesId.Value, cancellationToken);
+
+				if(parentCode == null)
+				{
+					continue;
+				}
+
+				parentCodes.Add(parentCode);
+			}
 
 			var result = new Dictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>();
 
