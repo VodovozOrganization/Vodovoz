@@ -107,15 +107,24 @@ namespace Edo.Transfer.Routine.Services
 					continue;
 				}
 
-				edoRequests.Add(await CreateEdoRequests(uow, order, cancellationToken));
+				var edoRequest = CreateEdoRequests(order);
+
+				await uow.SaveAsync(edoRequest, cancellationToken: cancellationToken);
+
+				edoRequests.Add(edoRequest);
 			}
 
-			await uow.CommitAsync(cancellationToken);
+			if(edoRequests.Any())
+			{
+				await uow.CommitAsync(cancellationToken);
+			}
+
+			_logger.LogInformation("Создано {RequestsCount} заявок", edoRequests.Count);
 
 			return edoRequests;
 		}
 
-		private async Task<OrderEdoRequest> CreateEdoRequests(IUnitOfWork uow, OrderEntity order, CancellationToken cancellationToken)
+		private OrderEdoRequest CreateEdoRequests(OrderEntity order)
 		{
 			var edoRequest = new OrderEdoRequest
 			{
@@ -125,13 +134,20 @@ namespace Edo.Transfer.Routine.Services
 				Order = order,
 			};
 
-			await uow.SaveAsync(edoRequest, cancellationToken: cancellationToken);
-
 			return edoRequest;
 		}
 
 		private async Task PublishEdoRequestCreatedEvents(IEnumerable<OrderEdoRequest> edoRequests)
 		{
+			_logger.LogInformation("Отправляем события о создании новых заявок по ЭДО");
+
+			if(edoRequests is null || !edoRequests.Any())
+			{
+				_logger.LogInformation("Нет новых заявок по ЭДО для отправки событий");
+
+				return;
+			}
+
 			foreach(var edoRequest in edoRequests)
 			{
 				try
