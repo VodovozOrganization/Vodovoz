@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Edo.Transport;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
@@ -23,81 +24,115 @@ namespace Edo.Transfer.Routine.Services
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
+		private readonly MessageService _edoMessageService;
 
 		public ClosingDocumentsOrdersUpdSendService(
 			ILogger<ClosingDocumentsOrdersUpdSendService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IServiceScopeFactory serviceScopeFactory,
-			IDeliveryScheduleSettings deliveryScheduleSettings)
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			MessageService edoMessageService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
+			_edoMessageService = edoMessageService ?? throw new ArgumentNullException(nameof(edoMessageService));
 		}
 
 		public async Task Send(CancellationToken cancellationToken)
 		{
-			var orders = await GetCloseDocumentOrdersToSendEdoRequest(cancellationToken);
-
-			foreach(var order in orders)
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ClosingDocumentsOrdersUpdSendService)))
 			{
-
+				var orders = await GetCloseDocumentOrdersToSendEdoRequest(uow, cancellationToken);
+				await CreateEdoRequests(uow, orders, cancellationToken);
 			}
 
 			await Task.CompletedTask;
 		}
 
-		private async Task<IEnumerable<OrderEntity>> GetCloseDocumentOrdersToSendEdoRequest(CancellationToken cancellationToken)
+		private async Task<IEnumerable<OrderEntity>> GetCloseDocumentOrdersToSendEdoRequest(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Получение заказов с \"Закр док\" для отправки УПД"))
-			{
-				var orders =
-					from order in uow.Session.Query<OrderEntity>()
-					join client in uow.Session.Query<CounterpartyEntity>() on order.Client.Id equals client.Id
-					join er in uow.Session.Query<OrderEdoRequest>() on order.Id equals er.Order.Id into edoRequests
-					from edoRequest in edoRequests.DefaultIfEmpty()
-					join ec in uow.Session.Query<EdoContainerEntity>()
-						on new { OrderId = order.Id, DocType = Type.Upd } equals new { OrderId = ec.Order.Id, DocType = ec.Type } into edoContainers
-					from edoContainer in edoContainers.DefaultIfEmpty()
-					where
-					//Проверка, что Закр Док
-					order.PaymentType == PaymentType.Cashless
-					&& client.IsNewEdoProcessing
-					&& client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-					&& edoContainer.Id == null
-					&& edoRequest.Id == null
-					select order;
+			var orders =
+				from order in uow.Session.Query<OrderEntity>()
+				join client in uow.Session.Query<CounterpartyEntity>() on order.Client.Id equals client.Id
+				join er in uow.Session.Query<OrderEdoRequest>() on order.Id equals er.Order.Id into edoRequests
+				from edoRequest in edoRequests.DefaultIfEmpty()
+				join ec in uow.Session.Query<EdoContainerEntity>()
+					on new { OrderId = order.Id, DocType = Type.Upd } equals new { OrderId = ec.Order.Id, DocType = ec.Type } into edoContainers
+				from edoContainer in edoContainers.DefaultIfEmpty()
+				where
+				order.PaymentType == PaymentType.Cashless
+				&& order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
+				&& client.IsNewEdoProcessing
+				&& client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+				&& edoContainer.Id == null
+				&& edoRequest.Id == null
+				select order;
 
-				return await orders.ToListAsync(cancellationToken);
-			}
+			return await orders.ToListAsync(cancellationToken);
 		}
 
-		private async Task CreateEdoRequests(IEnumerable<OrderEntity> order)
+		private async Task CreateEdoRequests(IUnitOfWork uow, IEnumerable<OrderEntity> orders, CancellationToken cancellationToken)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Создание запросов на отправку УПД для заказов \"Закр док\""))
+			var edoResuests = new List<OrderEdoRequest>();
+
+			foreach(var order in orders)
 			{
-				//var ordersHavingRequests =
+				if(order is null)
+				{
+					continue;
+				}
 
+				if(order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark))
+				{
+					_logger.LogError(
+						"В заказе \"Закр док\" имеются маркированные товары. Отправка документов по ЭДО недоступна. OrderId: {OrderId}",
+						order.Id);
 
-				//OrderEdoRequest edoRequest = _uow.Session.Query<OrderEdoRequest>()
-				//.Where(x => x.Order.Id == vodovozOrder.Id)
-				//.Take(1)
-				//.SingleOrDefault();
+					continue;
+				}
 
-				//var edoRequestCreated = false;
-				//if(!vodovozOrder.IsNeedIndividualSetOnLoad && edoRequest == null)
-				//{
-				//	edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
-				//	edoRequestCreated = true;
-				//}
+				edoResuests.Add(await CreateEdoRequests(uow, order, cancellationToken));
+			}
 
-				//_uow.Commit();
+			await uow.CommitAsync(cancellationToken);
 
-				//if(edoRequestCreated)
-				//{
-				//	await _edoMessageService.PublishEdoRequestCreatedEvent(edoRequest.Id);
-				//}
+			await PublishEdoRequests(edoResuests);
+		}
+
+		private async Task<OrderEdoRequest> CreateEdoRequests(IUnitOfWork uow, OrderEntity order, CancellationToken cancellationToken)
+		{
+			var edoRequest = new OrderEdoRequest
+			{
+				Time = DateTime.Now,
+				Source = CustomerEdoRequestSource.Manual,
+				DocumentType = EdoDocumentType.UPD,
+				Order = order,
+			};
+
+			await uow.SaveAsync(edoRequest, cancellationToken: cancellationToken);
+
+			return edoRequest;
+		}
+
+		private async Task PublishEdoRequests(IEnumerable<OrderEdoRequest> edoRequests)
+		{
+			foreach(var edoRequest in edoRequests)
+			{
+				try
+				{
+					await _edoMessageService.PublishEdoRequestCreatedEvent(edoRequest.Id);
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(
+						ex,
+						"Ошибка при отправке события на создание новой заявки по ЭДО. Id запроса: {RequestId}.",
+						edoRequest.Id);
+
+					continue;
+				}
 			}
 		}
 	}
