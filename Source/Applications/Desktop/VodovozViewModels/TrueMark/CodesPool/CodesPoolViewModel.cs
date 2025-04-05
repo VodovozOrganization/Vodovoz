@@ -12,6 +12,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
 
@@ -115,6 +117,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 
 			var codesInPool = await _trueMarkCodesPoolManager.GetTotalCountByGtinAsync(cancellationToken);
 			var soldYesterdayGtinsCount = await _trueMarkRepository.GetSoldYesterdayGtinsCount(UoW, cancellationToken);
+			var missingCodesCount = await _trueMarkRepository.GetMissingCodesCount(UoW, cancellationToken);
 
 			var codesPoolDataNodes = new List<CodesPoolDataNode>();
 
@@ -122,21 +125,22 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			{
 				codesInPool.TryGetValue(gtinData.Key, out var countInPool);
 				soldYesterdayGtinsCount.TryGetValue(gtinData.Key, out var soldYesterdayCount);
+				missingCodesCount.TryGetValue(gtinData.Key, out var gtinMissingCodesCount);
 
 				var dataNode = new CodesPoolDataNode
 				{
 					Gtin = gtinData.Key,
 					Nomenclatures = string.Join(" | ", gtinData.Value),
 					CountInPool = (int)countInPool,
-					SoldYesterday = soldYesterdayCount
+					SoldYesterday = soldYesterdayCount,
+					MissingCodesInOrdersCount = gtinMissingCodesCount
 				};
 
 				codesPoolDataNodes.Add(dataNode);
 			}
 
 			return codesPoolDataNodes;
-		}
-
+		}		
 
 		private void LoadCodesToPool()
 		{
