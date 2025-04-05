@@ -1,10 +1,9 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Problems;
 using Edo.Transfer.Routine;
 using Edo.Transfer.Routine.Options;
 using Edo.Transfer.Routine.Services;
 using Edo.Transport;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 

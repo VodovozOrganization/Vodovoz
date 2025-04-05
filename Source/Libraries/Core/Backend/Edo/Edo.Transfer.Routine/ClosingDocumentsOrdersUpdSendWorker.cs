@@ -36,7 +36,14 @@ namespace Edo.Transfer.Routine
 
 				_logger.LogInformation("Start closing documents orders upd send");
 
-				await closingDocumentsOrdersUpdSendService.Send(stoppingToken);
+				try
+				{
+					await closingDocumentsOrdersUpdSendService.Send(stoppingToken);
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Error while sending closing documents orders upd");
+				}
 
 				_logger.LogInformation("End closing documents orders upd send");
 			}

@@ -1,6 +1,7 @@
-﻿using Edo.Transport;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Edo.Transfer.Routine.Options;
+using Edo.Transport;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
@@ -13,6 +14,7 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Delivery;
 using Type = Vodovoz.Core.Domain.Documents.Type;
 
@@ -22,21 +24,24 @@ namespace Edo.Transfer.Routine.Services
 	{
 		private readonly ILogger<ClosingDocumentsOrdersUpdSendService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
+		private readonly IOptionsMonitor<ClosingDocumentsOrdersUpdSendSettings> _optionsMonitor;
 		private readonly MessageService _edoMessageService;
+
+		private readonly IEnumerable<OrderStatus> _orderStatusesToSendUpd =
+			new List<OrderStatus> { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
 
 		public ClosingDocumentsOrdersUpdSendService(
 			ILogger<ClosingDocumentsOrdersUpdSendService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IServiceScopeFactory serviceScopeFactory,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
+			IOptionsMonitor<ClosingDocumentsOrdersUpdSendSettings> optionsMonitor,
 			MessageService edoMessageService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
+			_optionsMonitor = optionsMonitor;
 			_edoMessageService = edoMessageService ?? throw new ArgumentNullException(nameof(edoMessageService));
 		}
 
@@ -45,7 +50,9 @@ namespace Edo.Transfer.Routine.Services
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ClosingDocumentsOrdersUpdSendService)))
 			{
 				var orders = await GetCloseDocumentOrdersToSendEdoRequest(uow, cancellationToken);
-				await CreateEdoRequests(uow, orders, cancellationToken);
+				var edoRequests = await CreateEdoRequests(uow, orders, cancellationToken);
+
+				await PublishEdoRequestCreatedEvents(edoRequests);
 			}
 
 			await Task.CompletedTask;
@@ -64,6 +71,7 @@ namespace Edo.Transfer.Routine.Services
 				where
 				order.PaymentType == PaymentType.Cashless
 				&& order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
+				&& _orderStatusesToSendUpd.Contains(order.OrderStatus)
 				&& client.IsNewEdoProcessing
 				&& client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 				&& edoContainer.Id == null
@@ -73,9 +81,9 @@ namespace Edo.Transfer.Routine.Services
 			return await orders.ToListAsync(cancellationToken);
 		}
 
-		private async Task CreateEdoRequests(IUnitOfWork uow, IEnumerable<OrderEntity> orders, CancellationToken cancellationToken)
+		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(IUnitOfWork uow, IEnumerable<OrderEntity> orders, CancellationToken cancellationToken)
 		{
-			var edoResuests = new List<OrderEdoRequest>();
+			var edoRequests = new List<OrderEdoRequest>();
 
 			foreach(var order in orders)
 			{
@@ -93,12 +101,12 @@ namespace Edo.Transfer.Routine.Services
 					continue;
 				}
 
-				edoResuests.Add(await CreateEdoRequests(uow, order, cancellationToken));
+				edoRequests.Add(await CreateEdoRequests(uow, order, cancellationToken));
 			}
 
 			await uow.CommitAsync(cancellationToken);
 
-			await PublishEdoRequests(edoResuests);
+			return edoRequests;
 		}
 
 		private async Task<OrderEdoRequest> CreateEdoRequests(IUnitOfWork uow, OrderEntity order, CancellationToken cancellationToken)
@@ -116,7 +124,7 @@ namespace Edo.Transfer.Routine.Services
 			return edoRequest;
 		}
 
-		private async Task PublishEdoRequests(IEnumerable<OrderEdoRequest> edoRequests)
+		private async Task PublishEdoRequestCreatedEvents(IEnumerable<OrderEdoRequest> edoRequests)
 		{
 			foreach(var edoRequest in edoRequests)
 			{
