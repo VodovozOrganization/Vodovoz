@@ -58,30 +58,37 @@ namespace Edo.Transfer.Routine.Services
 
 		private async Task<IEnumerable<OrderEntity>> GetCloseDocumentOrdersToSendEdoRequest(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
-			var orders =
-				from order in uow.Session.Query<OrderEntity>()
-				join client in uow.Session.Query<CounterpartyEntity>() on order.Client.Id equals client.Id
-				join er in uow.Session.Query<OrderEdoRequest>() on order.Id equals er.Order.Id into edoRequests
-				from edoRequest in edoRequests.DefaultIfEmpty()
-				join ec in uow.Session.Query<EdoContainerEntity>()
-					on new { OrderId = order.Id, DocType = Type.Upd } equals new { OrderId = ec.Order.Id, DocType = ec.Type } into edoContainers
-				from edoContainer in edoContainers.DefaultIfEmpty()
-				where
-				order.PaymentType == PaymentType.Cashless
-				&& order.DeliveryDate >= DateTime.Today.AddDays(-_optionsMonitor.CurrentValue.MaxDaysFromDeliveryDate)
-				&& order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
-				&& _orderStatusesToSendUpd.Contains(order.OrderStatus)
-				&& client.IsNewEdoProcessing
-				&& client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-				&& edoContainer.Id == null
-				&& edoRequest.Id == null
-				select order;
+			_logger.LogInformation("Получаем заказы для отправки ЭДО УПД");
 
-			return await orders.ToListAsync(cancellationToken);
+			var orders =
+				await (from order in uow.Session.Query<OrderEntity>()
+					   join client in uow.Session.Query<CounterpartyEntity>() on order.Client.Id equals client.Id
+					   join er in uow.Session.Query<OrderEdoRequest>() on order.Id equals er.Order.Id into edoRequests
+					   from edoRequest in edoRequests.DefaultIfEmpty()
+					   join ec in uow.Session.Query<EdoContainerEntity>()
+						   on new { OrderId = order.Id, DocType = Type.Upd } equals new { OrderId = ec.Order.Id, DocType = ec.Type } into edoContainers
+					   from edoContainer in edoContainers.DefaultIfEmpty()
+					   where
+						   order.PaymentType == PaymentType.Cashless
+						   && order.DeliveryDate >= DateTime.Today.AddDays(-_optionsMonitor.CurrentValue.MaxDaysFromDeliveryDate)
+						   && order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
+						   && _orderStatusesToSendUpd.Contains(order.OrderStatus)
+						   && client.IsNewEdoProcessing
+						   && client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+						   && edoContainer.Id == null
+						   && edoRequest.Id == null
+					   select order)
+				.ToListAsync(cancellationToken);
+
+			_logger.LogInformation("Найдено {OrdersCount} заказов для отправки ЭДО УПД", orders.Count());
+
+			return orders;
 		}
 
 		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(IUnitOfWork uow, IEnumerable<OrderEntity> orders, CancellationToken cancellationToken)
 		{
+			_logger.LogInformation("Создаем заявки на ЭДО УПД");
+
 			var edoRequests = new List<OrderEdoRequest>();
 
 			foreach(var order in orders)
@@ -129,13 +136,17 @@ namespace Edo.Transfer.Routine.Services
 			{
 				try
 				{
+					_logger.LogInformation("Отправляем событие о создании новой заявки по ЭДО. RequestId: {RequestId}.", edoRequest.Id);
+
 					await _edoMessageService.PublishEdoRequestCreatedEvent(edoRequest.Id);
+
+					_logger.LogInformation("Событие о создании новой заявки по ЭДО отправлено успешно");
 				}
 				catch(Exception ex)
 				{
 					_logger.LogError(
 						ex,
-						"Ошибка при отправке события на создание новой заявки по ЭДО. Id запроса: {RequestId}.",
+						"Ошибка при отправке события на создание новой заявки по ЭДО. RequestId: {RequestId}.",
 						edoRequest.Id);
 
 					continue;
