@@ -54,8 +54,6 @@ namespace Edo.Transfer.Routine.Services
 
 				await PublishEdoRequestCreatedEvents(edoRequests);
 			}
-
-			await Task.CompletedTask;
 		}
 
 		private async Task<IEnumerable<OrderEntity>> GetCloseDocumentOrdersToSendEdoRequest(IUnitOfWork uow, CancellationToken cancellationToken)
@@ -70,6 +68,7 @@ namespace Edo.Transfer.Routine.Services
 				from edoContainer in edoContainers.DefaultIfEmpty()
 				where
 				order.PaymentType == PaymentType.Cashless
+				&& order.DeliveryDate >= DateTime.Today.AddDays(-_optionsMonitor.CurrentValue.MaxDaysFromDeliveryDate)
 				&& order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
 				&& _orderStatusesToSendUpd.Contains(order.OrderStatus)
 				&& client.IsNewEdoProcessing

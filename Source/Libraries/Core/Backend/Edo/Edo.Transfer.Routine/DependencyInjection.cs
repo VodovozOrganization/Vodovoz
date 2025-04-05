@@ -48,9 +48,11 @@ namespace Edo.Transfer.Dispatcher
 
 		private static IServiceCollection AddClosingDocumentsOrdersUpdSendWorker(this IServiceCollection services)
 		{
-			services.AddScoped<ClosingDocumentsOrdersUpdSendService>();
+			services.ConfigureOptions<ConfigureClosingDocumentsOrdersUpdSendSettings>();
 
-			services.AddHostedService<ClosingDocumentsOrdersUpdSendWorker>();
+			services
+				.AddScoped<ClosingDocumentsOrdersUpdSendService>()
+				.AddHostedService<ClosingDocumentsOrdersUpdSendWorker>();
 
 			return services;
 		}

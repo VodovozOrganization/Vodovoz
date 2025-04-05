@@ -16,6 +16,7 @@ namespace Edo.Transfer.Routine.Options
 		public void Configure(ClosingDocumentsOrdersUpdSendSettings settings)
 		{
 			settings.Interval = _edoTransferSettings.ClosingDocumentsOrdersUpdSendInterval;
+			settings.MaxDaysFromDeliveryDate = _edoTransferSettings.ClosingDocumentsOrdersUpdSendMaxDaysFromDeliveryDate;
 		}
 	}
 }

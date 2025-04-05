@@ -26,6 +26,11 @@ namespace Vodovoz.Settings.Edo
 		TimeSpan ClosingDocumentsOrdersUpdSendInterval { get; }
 
 		/// <summary>
+		/// Максимальное количество дней с даты доставки заказа для отправки УПД по Закр.Док
+		/// </summary>
+		int ClosingDocumentsOrdersUpdSendMaxDaysFromDeliveryDate { get; }
+
+		/// <summary>
 		/// Минимальное количество кодов для начала трансфера
 		/// </summary>
 		int MinCodesCountForStartTransfer { get; }
