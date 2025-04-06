@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using QS.Utilities.Debug;
 
 namespace TrueMark.Codes.Pool
 {
@@ -29,9 +30,14 @@ namespace TrueMark.Codes.Pool
 			{
 				query.ExecuteUpdate();
 			}
-			catch(MySqlException ex) when(ex.Number == (int)MySqlErrorCode.DuplicateKeyEntry)
+			catch(Exception ex)
 			{
-				return;
+				var mySqlException = ex.FindExceptionTypeInInner<MySqlException>();
+
+				if(mySqlException != null && mySqlException.Number == (int)MySqlErrorCode.DuplicateKeyEntry)
+				{
+					return;
+				}
 			}
 		}
 
@@ -42,9 +48,14 @@ namespace TrueMark.Codes.Pool
 			{
 				await query.ExecuteUpdateAsync(cancellationToken);
 			}
-			catch(MySqlException ex) when(ex.Number == (int)MySqlErrorCode.DuplicateKeyEntry)
+			catch(Exception ex)
 			{
-				return;
+				var mySqlException = ex.FindExceptionTypeInInner<MySqlException>();
+
+				if(mySqlException != null && mySqlException.Number == (int)MySqlErrorCode.DuplicateKeyEntry)
+				{
+					return;
+				}
 			}
 		}
 
