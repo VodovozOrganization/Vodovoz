@@ -113,7 +113,7 @@ namespace Edo.Transfer
 		{
 			if(transferEdoTask.TransferStatus == TransferEdoTaskStatus.ReadyToSend)
 			{
-				await SendTransfer(_uow, transferEdoTask, cancellationToken);
+				await SendTransfer(transferEdoTask, cancellationToken);
 				return;
 			}
 
