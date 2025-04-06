@@ -22,6 +22,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
 using Edo.Transfer;
+using System.IO;
+using System.Linq;
 
 namespace CustomTaskDebugExecutor
 {
@@ -33,9 +35,16 @@ namespace CustomTaskDebugExecutor
 
 			ServiceCollection services = new ServiceCollection();
 
+			var projectSettingsPath = Path.Combine(GetProjectDirectory(), "appsettings.Development.json");
+			var settingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.Development.json");
+
+			if(File.Exists(projectSettingsPath))
+			{
+				settingsPath = projectSettingsPath;
+			}
+
 			var builder = new ConfigurationBuilder();
-			builder.SetBasePath(Environment.CurrentDirectory);
-			builder.AddJsonFile("appsettings.Development.json");
+			builder.AddJsonFile(settingsPath);
 			IConfiguration configuration = builder.Build();
 			services.AddScoped<IConfiguration>(_ => configuration);
 
@@ -114,10 +123,20 @@ namespace CustomTaskDebugExecutor
 			//var id = 0;
 			//handler.HandleTransferDocument(id, cts.Token).Wait();
 
-			var handler = serviceProvider.GetRequiredService<StaleTransferSender>();
+			var handler = serviceProvider.GetRequiredService<DocumentEdoTaskHandler>();
 			// Вызов обработчика
-			var id = 0;
-			//handler.SendTaskAsync(id, cts.Token).Wait(); Мешает сборке master
+			var id = 71933;
+			handler.HandleNew(id, cts.Token).Wait();
+		}
+
+		private static string GetProjectDirectory()
+		{
+			string current = AppContext.BaseDirectory;
+			while(!Directory.GetFiles(current, "*.csproj").Any() && Directory.GetParent(current) != null)
+			{
+				current = Directory.GetParent(current)?.FullName ?? current;
+			}
+			return current;
 		}
 	}
 }
