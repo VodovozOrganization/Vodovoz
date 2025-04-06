@@ -10,32 +10,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
 using TrueMark.Contracts.Responses;
+using Vodovoz.Settings.Edo;
 
 namespace TrueMarkApi.Client
 {
 	public class TrueMarkApiClient : ITrueMarkApiClient
 	{
-		private static HttpClient _httpClient;
+		private readonly IHttpClientFactory _httpClientFactory;
+		private readonly IEdoSettings _edoSettings;
 
-		public TrueMarkApiClient(HttpClient httpClient, string trueMarkApiBaseUrl, string trueMarkApiToken)
+		public TrueMarkApiClient(IHttpClientFactory httpClientFactory, IEdoSettings edoSettings)
 		{
-			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-
-			if(_httpClient.BaseAddress != null)
-			{
-				return;
-			}
-
-			_httpClient.BaseAddress = new Uri(trueMarkApiBaseUrl);
-			_httpClient.DefaultRequestHeaders.Accept.Clear();
-			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", trueMarkApiToken);
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 		}
 
 		public async Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn, CancellationToken cancellationToken)
 		{
 			var urlWithParams = $"{url}?inn={inn}";
-			var response = await _httpClient.GetAsync(urlWithParams, cancellationToken);
+			var response = await GetClient().GetAsync(urlWithParams, cancellationToken);
 			var responseBody = await response.Content.ReadAsStreamAsync();
 			var responseResult = await JsonSerializer.DeserializeAsync<TrueMarkRegistrationResultDto>(responseBody, cancellationToken: cancellationToken);
 
@@ -55,7 +48,7 @@ namespace TrueMarkApi.Client
 			var result = await retryPolicy.ExecuteAndCaptureAsync(
 				async (innerCancellationToken) =>
 				{
-					var response = await _httpClient.PostAsync("api/RequestProductInstanceInfo", httpContent, innerCancellationToken);
+					var response = await GetClient().PostAsync("api/RequestProductInstanceInfo", httpContent, innerCancellationToken);
 					var responseBody = await response.Content.ReadAsStreamAsync();
 					var responseResult = await JsonSerializer.DeserializeAsync<ProductInstancesInfoResponse>(responseBody, cancellationToken: innerCancellationToken);
 					return responseResult;
@@ -63,6 +56,17 @@ namespace TrueMarkApi.Client
 				cancellationToken);
 
 			return result.Result;
+		}
+
+		private HttpClient GetClient()
+		{
+			var client = _httpClientFactory.CreateClient();
+			client.BaseAddress = new Uri(_edoSettings.TrueMarkApiBaseUrl);
+			client.DefaultRequestHeaders.Accept.Clear();
+			client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _edoSettings.TrueMarkApiToken);
+			
+			return client;
 		}
 	}
 }

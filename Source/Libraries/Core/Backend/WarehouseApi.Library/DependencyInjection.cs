@@ -44,9 +44,8 @@ namespace WarehouseApi.Library
 				.AddScoped<CarLoadDocumentConverter>()
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
-				.AddScoped<ITrueMarkApiClientFactory, TrueMarkApiClientFactory>()
-				.AddScoped(sp => sp.GetRequiredService<ITrueMarkApiClientFactory>().GetClient())
 				.AddScoped<TrueMarkCodesChecker>()
+				.AddTrueMarkApiClient()
 				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
 				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>();
 

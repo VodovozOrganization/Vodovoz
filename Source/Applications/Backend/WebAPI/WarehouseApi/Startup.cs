@@ -34,7 +34,6 @@ namespace WarehouseApi
 		{
 			services.AddControllers();
 			services.ConfigureHealthCheckService<WarehouseApiHealthCheck>();
-			services.AddHttpClient();
 
 			services.AddSwaggerGen(c =>
 			{

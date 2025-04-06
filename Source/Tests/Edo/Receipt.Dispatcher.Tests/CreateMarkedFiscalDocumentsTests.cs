@@ -506,13 +506,13 @@ namespace Receipt.Dispatcher.Tests
 			var unitOfWorkFactory = Substitute.For<IUnitOfWorkFactory>();
 			var edoRepository = Substitute.For<IEdoRepository>();
 			var httpClientFactory = Substitute.For<IHttpClientFactory>();
+			var trueMarkClient = Substitute.For<ITrueMarkApiClient>();
 			var edoProblemRegistrar = CreateEdoProblemRegistrarFixture(unitOfWork, unitOfWorkFactory);
 			var edoTaskValidator = CreateEdoTaskValidatorFixture(unitOfWorkFactory, edoProblemRegistrar);
-			var trueMarkClientFactoryFixture = new TrueMarkClientFactoryFixture();
-			var edoTaskTrueMarkCodeCheckerFactory = CreateEdoTaskItemTrueMarkStatusProviderFactoryFixture(trueMarkClientFactoryFixture);
+			var edoTaskTrueMarkCodeCheckerFactory = CreateEdoTaskItemTrueMarkStatusProviderFactoryFixture(trueMarkClient);
 			var transferRequestCreator = CreateTransferRequestCreatorFixture(edoRepository);
 			var edoReceiptSettings = Substitute.For<IEdoReceiptSettings>();
-			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, trueMarkClientFactoryFixture.GetClient());
+			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, trueMarkClient);
 			var trueMarkCodesPool = CreateTrueMarkCodesPoolFixture(unitOfWork);
 			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
@@ -573,9 +573,9 @@ namespace Receipt.Dispatcher.Tests
 			return new EdoTaskValidatorsPersister(unitOfWorkFactory, Enumerable.Empty<IEdoTaskValidator>());
 		}
 
-		private EdoTaskItemTrueMarkStatusProviderFactory CreateEdoTaskItemTrueMarkStatusProviderFactoryFixture(ITrueMarkApiClientFactory trueMarkApiClientFactory)
+		private EdoTaskItemTrueMarkStatusProviderFactory CreateEdoTaskItemTrueMarkStatusProviderFactoryFixture(ITrueMarkApiClient trueMarkApiClient)
 		{
-			return new EdoTaskItemTrueMarkStatusProviderFactory(trueMarkApiClientFactory);
+			return new EdoTaskItemTrueMarkStatusProviderFactory(trueMarkApiClient);
 		}
 
 		private TransferRequestCreator CreateTransferRequestCreatorFixture(IEdoRepository edoRepository)
