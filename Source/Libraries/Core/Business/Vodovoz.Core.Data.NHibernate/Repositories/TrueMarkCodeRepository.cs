@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories
@@ -14,7 +13,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 	{
 		private readonly IUnitOfWork _uow;
 
-		private Dictionary<int, TrueMarkWaterIdentificationCode> _waterCodes = new Dictionary<int, TrueMarkWaterIdentificationCode>();
+		//private Dictionary<int, TrueMarkWaterIdentificationCode> _waterCodes = new Dictionary<int, TrueMarkWaterIdentificationCode>();
 		private Dictionary<int, TrueMarkWaterGroupCode> _waterGroupCodes = new Dictionary<int, TrueMarkWaterGroupCode>();
 		private Dictionary<int, TrueMarkTransportCode> _transportCodes = new Dictionary<int, TrueMarkTransportCode>();
 
@@ -25,11 +24,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 
 		public async Task PreloadCodes(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
 		{
-			_waterCodes.Clear();
+			//_waterCodes.Clear();
 			_waterGroupCodes.Clear();
 			_transportCodes.Clear();
 
-			_waterCodes = codes.ToDictionary(x => x.Id);
+			//_waterCodes = codes.ToDictionary(x => x.Id);
 
 			var transportCodeIds = new HashSet<int>(
 				codes.Where(x => x.ParentTransportCodeId.HasValue)
@@ -38,6 +37,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 
 			var groupCodeIds = codes.Where(x => x.ParentWaterGroupCodeId.HasValue)
 				.Select(x => x.ParentWaterGroupCodeId.Value)
+				.Distinct()
 				.ToArray();
 
 			while(groupCodeIds.Any())
@@ -47,6 +47,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 					.ListAsync(cancellationToken);
 				groupCodeIds = groupCodes.Where(x => x.ParentWaterGroupCodeId.HasValue)
 					.Select(x => x.ParentWaterGroupCodeId.Value)
+					.Distinct()
 					.ToArray();
 
 				foreach(var groupCode in groupCodes)
