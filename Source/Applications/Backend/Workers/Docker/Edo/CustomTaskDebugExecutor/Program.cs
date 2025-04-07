@@ -1,35 +1,38 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Edo.CodesSaver;
 using Edo.Common;
-using Edo.Docflow;
-using Edo.Docflow.Factories;
 using Edo.Documents;
 using Edo.Problems;
 using Edo.Receipt.Dispatcher;
 using Edo.Receipt.Sender;
-using Edo.Transfer.Routine;
+using Edo.Scheduler;
+using Edo.Transfer;
+using Edo.Transfer.Dispatcher;
 using Edo.Transport;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using ModulKassa;
 using NLog.Extensions.Logging;
+using QS.DomainModel.UoW;
 using QS.Project.Core;
 using System;
+using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
-using TrueMark.Library;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
-using Edo.Transfer;
-using System.IO;
-using System.Linq;
 
 namespace CustomTaskDebugExecutor
 {
 	internal class Program
 	{
-		static void Main(string[] args)
+		static async Task Main(string[] args)
 		{
 			Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -75,6 +78,8 @@ namespace CustomTaskDebugExecutor
 				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 			;
 
+			services.Configure<CashboxesSetting>(configuration);
+
 			services.AddMessageTransportSettings();
 			services.AddEdoMassTransit();
 
@@ -87,46 +92,46 @@ namespace CustomTaskDebugExecutor
 			services.AddEdoTransfer();
 
 			services
-				//sender
-				.AddScoped<StaleTransferSender>()
-				.AddScoped<FiscalDocumentFactory>()
-				.AddScoped<ReceiptSender>()
-
-				//docflow
-				.AddScoped<DocflowHandler>()
-				.AddScoped<OrderUpdInfoFactory>()
-				.AddScoped<TransferOrderUpdInfoFactory>()
-
-				//document
-				.AddScoped<DocumentEdoTaskHandler>()
-				.AddScoped<ForOwnNeedDocumentEdoTaskHandler>()
-				.AddScoped<ForResaleDocumentEdoTaskHandler>()
-
-				.AddScoped<ReceiptEdoTaskHandler>()
-				.AddScoped<ResaleReceiptEdoTaskHandler>()
-				.AddScoped<ForOwnNeedsReceiptEdoTaskHandler>()
-				.AddScoped<Tag1260Checker>()
+				.AddCodesSaverServices()
+				.AddEdoDocflowServices()
+				.AddEdoDocumentsServices()
+				.AddEdoReceiptDispatcherServices()
+				.AddEdoReceiptSenderServices()
+				.AddEdoSchedulerServices()
+				.AddEdoTransferDispatcherServices()
+				.AddEdoTransferRoutineServices()
+				.AddEdoTransferSenderServices()
 				;
 
+
+			services.AddScoped<EdoExecutor>();
+
+			// Коммит с подтверждением в консоли
+			services.AddScoped<TrackedUnitOfWorkFactory>();
+			services.Replace(ServiceDescriptor.Scoped(typeof(IUnitOfWorkFactory), typeof(ConsoleApprovedUnitOfWorkFactory)));
+			services.Replace(ServiceDescriptor.Scoped(typeof(IUnitOfWork), typeof(ConsoleApprovedUnitOfWork)));
+			
 			var autofacFactory = new AutofacServiceProviderFactory();
-			var autofacBuilder = autofacFactory.CreateBuilder(services);			
+			var autofacBuilder = autofacFactory.CreateBuilder(services);
 			var serviceProvider = autofacFactory.CreateServiceProvider(autofacBuilder);
 
-			var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+			using(var scope = serviceProvider.CreateScope())
+			{
+				var sp = scope.ServiceProvider;
+				var timeout = TimeSpan.FromMinutes(30);
+				var cts = new CancellationTokenSource(timeout);
 
-			logger.LogInformation("Debug запуск обработчиков задач ЭДО");
+				var exec = sp.GetRequiredService<EdoExecutor>();
 
-			CancellationTokenSource cts = new CancellationTokenSource();
-
-			//var handler = serviceProvider.GetRequiredService<DocflowHandler>();
-			//// Вызов обработчика
-			//var id = 0;
-			//handler.HandleTransferDocument(id, cts.Token).Wait();
-
-			var handler = serviceProvider.GetRequiredService<DocumentEdoTaskHandler>();
-			// Вызов обработчика
-			var id = 71933;
-			handler.HandleNew(id, cts.Token).Wait();
+				try
+				{
+					await exec.TrySendEdoEvent(cts.Token);
+				}
+				catch(Exception ex)
+				{
+					Console.WriteLine(ex);
+				}
+			}
 		}
 
 		private static string GetProjectDirectory()
