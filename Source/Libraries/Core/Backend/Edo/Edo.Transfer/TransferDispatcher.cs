@@ -141,7 +141,7 @@ namespace Edo.Transfer
 			return staleTasks;
 		}
 
-		private async Task SendTransfer(TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
+		public async Task SendTransfer(TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
 		{
 			transferEdoTask.TransferStatus = TransferEdoTaskStatus.ReadyToSend;
 			transferEdoTask.TransferStartTime = DateTime.Now;
@@ -197,6 +197,8 @@ namespace Edo.Transfer
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
+			await _uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
+
 			foreach(var transferEdoRequest in transferEdoTask.TransferEdoRequests)
 			{
 				foreach(var transferedItem in transferEdoRequest.TransferedItems)
@@ -241,10 +243,10 @@ namespace Edo.Transfer
 
 					transferOrderTrueMarkCode.TransferOrder = transferOrder;
 					transferOrder.Items.Add(transferOrderTrueMarkCode);
+					await _uow.SaveAsync(transferOrderTrueMarkCode, cancellationToken: cancellationToken);
 				}
 			}
 
-			await _uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
 			transferEdoTask.TransferOrderId = transferOrder.Id;
 		}
 

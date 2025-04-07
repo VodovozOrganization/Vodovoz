@@ -237,6 +237,18 @@ namespace Edo.Transfer.Dispatcher
 				transferTask, cancellationToken, "Возникла проблема с документооборотом, не завершился на стороне ЭДО провайдера");
 		}
 
+		public async Task SendTransfer(int transferTaskId, CancellationToken cancellationToken)
+		{
+			var transferEdoTask = await _uow.Session.GetAsync<TransferEdoTask>(transferTaskId, cancellationToken);
+			await _transferDispatcher.SendTransfer(transferEdoTask, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+
+			await _messageBus.Publish(
+				new TransferTaskReadyToSendEvent { Id = transferTaskId },
+				cancellationToken
+			);
+		}
+
 		public void Dispose()
 		{
 			_uow.Dispose();
