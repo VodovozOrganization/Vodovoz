@@ -163,7 +163,8 @@ namespace Edo.Documents
 			{
 				var codeItemsToAssign = new List<EdoUpdInventPositionCode>();
 
-				if(orderItem.Price <= 0 && documentEdoTask.DocumentType == EdoDocumentType.UPD)
+				if(orderItem.ActualSum <= 0
+					&& documentEdoTask.DocumentType == EdoDocumentType.UPD)
 				{
 					if(orderItem.Nomenclature.IsAccountableInTrueMark && unprocessedCodes.Any())
 					{
