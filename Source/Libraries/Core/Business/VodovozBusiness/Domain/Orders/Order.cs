@@ -1268,7 +1268,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(DeliverySchedule?.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId)
 			{
-				var orderItemsTrueMarkCodesMustBeAdded = OrderItems.Where(x => x.IsTrueMarkCodesMustBeAdded);
+				var orderItemsTrueMarkCodesMustBeAdded = OrderItems.Where(x => x.IsTrueMarkCodesMustBeAdded).ToList();
 
 				if(orderItemsTrueMarkCodesMustBeAdded.Any())
 				{
