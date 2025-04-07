@@ -1,10 +1,11 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Web;
-using System.Linq;
 using Vodovoz.Presentation.WebApi;
 
 namespace RobotMiaApi
@@ -43,6 +44,7 @@ namespace RobotMiaApi
 				.ConfigureAppConfiguration(configuration =>
 				{
 					configuration.ConfigureJsonSourcesAutoReload();
+					configuration.AddJsonFile("/run/secrets/secrets.json", optional: true, reloadOnChange: true);
 				})
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureLogging((context, logging) =>

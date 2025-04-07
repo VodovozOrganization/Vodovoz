@@ -116,12 +116,13 @@ namespace RobotMiaApi.Controllers.V1
 				return Problem($"Не найдена запись о звонке {calculatePriceRequest.CallId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			(var orderPrice, var deliveryPrice) = _orderService.GetOrderAndDeliveryPrices(calculatePriceRequest.MapToCreateOrderRequest());
+			(var orderPrice, var deliveryPrice, var forfeitPrice) = _orderService.GetOrderAndDeliveryPrices(calculatePriceRequest.MapToCreateOrderRequest());
 
 			return Ok(new CalculatePriceResponse
 			{
 				OrderPrice = orderPrice,
-				DeliveryPrice = deliveryPrice
+				DeliveryPrice = deliveryPrice,
+				ForfeitPrice = forfeitPrice
 			});
 		}
 	}

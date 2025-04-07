@@ -18,5 +18,11 @@ namespace RobotMiaApi.Contracts.Responses.V1
 		/// </summary>
 		[JsonPropertyName("order_price")]
 		public decimal OrderPrice { get; set; }
+
+		/// <summary>
+		/// Цена неустойки
+		/// </summary>
+		[JsonPropertyName("forfeit_price")]
+		public decimal ForfeitPrice { get; set; }
 	}
 }
