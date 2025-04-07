@@ -15,6 +15,8 @@ namespace Vodovoz.Core.Data.NHibernate.Logistic
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.UnscannedCodesReason).Column("unscanned_codes_reason");
+			
+			References(x => x.Order).Column("order_id");
 
 			HasMany(x => x.TrueMarkCodes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_item_id");
 		}

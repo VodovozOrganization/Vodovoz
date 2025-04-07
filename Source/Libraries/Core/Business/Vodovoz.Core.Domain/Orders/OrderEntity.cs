@@ -629,6 +629,12 @@ namespace Vodovoz.Core.Domain.Orders
 			|| OrderStatus == OrderStatus.NotDelivered;
 
 		public virtual bool IsLoadedFrom1C => !string.IsNullOrEmpty(Code1c);
+		
+		/// <summary>
+		/// Проверка, является ли целью покупки заказа - для перепродажи
+		/// </summary>
+		public virtual bool IsOrderForResale =>
+			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
 
 		/// <summary>
 		/// Проверка, является ли клиент по заказу сетевым покупателем
