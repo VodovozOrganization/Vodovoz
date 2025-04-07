@@ -3,8 +3,10 @@ using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.Specifications;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
+using Core.Infrastructure.Specifications;
 
 namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 {
@@ -17,7 +19,10 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 
 		public GenericObservableList<LightsMatrixRow> ObservableLightsMatrixRows = new GenericObservableList<LightsMatrixRow>();
 
-		private void Colorize(ReasonForLeaving reasonForLeaving, EdoLightsMatrixPaymentType paymentKind, PossibleAccessState edoLightsColorizeType)
+		private void Colorize(
+			ReasonForLeaving reasonForLeaving,
+			EdoLightsMatrixPaymentType paymentKind,
+			PossibleAccessState edoLightsColorizeType)
 		{
 			var row = ObservableLightsMatrixRows.FirstOrDefault(c => c.ReasonForLeaving == reasonForLeaving);
 			var column = row?.Columns?.FirstOrDefault(r => r.PaymentKind == paymentKind);
@@ -38,7 +43,7 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			};
 
 			foreach(EdoLightsMatrixPaymentType paymentKind in (EdoLightsMatrixPaymentType[])Enum.GetValues(
-				        typeof(EdoLightsMatrixPaymentType)))
+						typeof(EdoLightsMatrixPaymentType)))
 			{
 				lightsMatrixRow.Columns.Add(new EdoLightsMatrixColumn
 				{
@@ -72,20 +77,29 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 		{
 			UnLightAll();
 
-			if(counterparty.ReasonForLeaving == ReasonForLeaving.Unknown)
+			if(CounterpartySpecification
+				.ReasonForLeavingIs(ReasonForLeaving.Unknown)
+				.IsSatisfiedBy(counterparty))
 			{
 				return;
 			}
 
-			if(counterparty.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || counterparty.ReasonForLeaving == ReasonForLeaving.Other)
+			if(CounterpartySpecification
+				.ReasonForLeavingIsIn(ReasonForLeaving.ForOwnNeeds, ReasonForLeaving.Other)
+				.IsSatisfiedBy(counterparty))
 			{
 				Colorize(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Receipt, PossibleAccessState.Allowed);
 			}
 
-			if(counterparty.ReasonForLeaving == ReasonForLeaving.Other
-			   && counterparty.PersonType == PersonType.legal)
+			if(CounterpartySpecification
+				.ReasonForLeavingIs(ReasonForLeaving.Other)
+				.And(CounterpartySpecification
+					.IsLegalPerson())
+				.IsSatisfiedBy(counterparty))
 			{
-				if(!string.IsNullOrWhiteSpace(counterparty.INN))
+				if(CounterpartySpecification
+					.NonEmptyInn()
+					.IsSatisfiedBy(counterparty))
 				{
 					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, PossibleAccessState.Allowed);
 					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, PossibleAccessState.Allowed);
@@ -95,36 +109,51 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				Colorize(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, PossibleAccessState.Allowed);
 			}
 
-			if(counterparty.ReasonForLeaving == ReasonForLeaving.Resale)
+			if(CounterpartySpecification
+				.ReasonForLeavingIs(ReasonForLeaving.Resale)
+				.IsSatisfiedBy(counterparty))
 			{
-				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
-				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
-				   && !string.IsNullOrWhiteSpace(counterparty.INN)
-				   && counterparty.PersonType == PersonType.legal)
+				if(CounterpartySpecification
+					.TruemarkRegisatrationStatusIsIn(RegistrationInChestnyZnakStatus.InProcess, RegistrationInChestnyZnakStatus.Registered)
+					.And(CounterpartySpecification
+						.NonEmptyInn())
+					.And(CounterpartySpecification
+						.IsLegalPerson())
+					.IsSatisfiedBy(counterparty))
 				{
 					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, PossibleAccessState.Allowed);
 				}
 
-				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
-				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
-				   && !string.IsNullOrWhiteSpace(counterparty.INN)
-				   && counterparty.PersonType == PersonType.legal
-				   && counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+				if(CounterpartySpecification
+					.TruemarkRegisatrationStatusIsIn(RegistrationInChestnyZnakStatus.InProcess, RegistrationInChestnyZnakStatus.Registered)
+					.And(CounterpartySpecification
+						.NonEmptyInn())
+					.And(CounterpartySpecification.IsLegalPerson())
+					.And(CounterpartySpecification.ConsentForEdoStatusIs(ConsentForEdoStatus.Agree))
+					.IsSatisfiedBy(counterparty))
 				{
 					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, PossibleAccessState.Allowed);
 					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, PossibleAccessState.Allowed);
 				}
 
-				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
-				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
-				   && !string.IsNullOrWhiteSpace(counterparty.INN)
-				   && counterparty.PersonType == PersonType.natural)
+				if(CounterpartySpecification
+					.TruemarkRegisatrationStatusIsIn(RegistrationInChestnyZnakStatus.InProcess,
+						RegistrationInChestnyZnakStatus.Registered)
+					.And(CounterpartySpecification
+						.NonEmptyInn())
+					.And(CounterpartySpecification
+						.IsNaturalPerson())
+					.IsSatisfiedBy(counterparty))
 				{
 					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, PossibleAccessState.Allowed);
 				}
 			}
 
-			if(counterparty.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds && counterparty.PersonType == PersonType.legal)
+			if(CounterpartySpecification
+				.ReasonForLeavingIs(ReasonForLeaving.ForOwnNeeds)
+				.And(CounterpartySpecification
+					.IsLegalPerson())
+				.IsSatisfiedBy(counterparty))
 			{
 				Colorize(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless,
 					counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree
@@ -160,14 +189,20 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 					|| column.EdoLightsColorizeType == PossibleAccessState.Unknown;
 			}
 
-			if(counterparty.ReasonForLeaving == ReasonForLeaving.Unknown)
+			if(CounterpartySpecification
+				.ReasonForLeavingIs(ReasonForLeaving.Unknown)
+				.IsSatisfiedBy(counterparty))
 			{
 				return false;
 			}
 
-			if(counterparty.ReasonForLeaving == ReasonForLeaving.Other)
+			if(CounterpartySpecification
+				.ReasonForLeavingIs(ReasonForLeaving.Other)
+				.IsSatisfiedBy(counterparty))
 			{
-				if(counterparty.PersonType == PersonType.legal)
+				if(CounterpartySpecification
+					.IsLegalPerson()
+					.IsSatisfiedBy(counterparty))
 				{
 					return true;
 				}
