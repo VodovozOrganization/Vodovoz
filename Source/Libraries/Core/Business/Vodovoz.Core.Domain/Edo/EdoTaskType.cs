@@ -38,6 +38,12 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Вывод из оборота
 		/// </summary>
 		[Display(Name = "Вывод из оборота")]
-		Withdrawal
+		Withdrawal,
+		
+		/// <summary>
+		/// Тендер/госзакупки
+		/// </summary>
+		[Display(Name = "Тендер/госзакупки")]
+		Tender
 	}
 }
