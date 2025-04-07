@@ -13,7 +13,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 	{
 		private readonly IUnitOfWork _uow;
 
-		//private Dictionary<int, TrueMarkWaterIdentificationCode> _waterCodes = new Dictionary<int, TrueMarkWaterIdentificationCode>();
 		private Dictionary<int, TrueMarkWaterGroupCode> _waterGroupCodes = new Dictionary<int, TrueMarkWaterGroupCode>();
 		private Dictionary<int, TrueMarkTransportCode> _transportCodes = new Dictionary<int, TrueMarkTransportCode>();
 
@@ -24,11 +23,8 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 
 		public async Task PreloadCodes(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
 		{
-			//_waterCodes.Clear();
 			_waterGroupCodes.Clear();
 			_transportCodes.Clear();
-
-			//_waterCodes = codes.ToDictionary(x => x.Id);
 
 			var transportCodeIds = new HashSet<int>(
 				codes.Where(x => x.ParentTransportCodeId.HasValue)
