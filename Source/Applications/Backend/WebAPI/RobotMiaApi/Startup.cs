@@ -43,19 +43,10 @@ namespace RobotMiaApi
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			app.ApplicationServices.GetService<IUserService>();
-
-			if(env.IsDevelopment())
-			{
-				app.UseDeveloperExceptionPage();
-			}
-			else
-			{
-				app.UseMiddleware<ErrorHandlingMiddleware>();
-			}
+			app.UseSwagger();
 
 			if(env.IsDevelopment() || _configuration.GetValue<bool>("SwaggerEnabled"))
 			{
-				app.UseSwagger();
 				app.UseSwaggerUI(options =>
 				{
 					var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
@@ -67,6 +58,15 @@ namespace RobotMiaApi
 							 description.ApiVersion.ToString());
 					}
 				});
+			}
+
+			if(env.IsDevelopment())
+			{
+				app.UseDeveloperExceptionPage();
+			}
+			else
+			{
+				app.UseMiddleware<ErrorHandlingMiddleware>();
 			}
 
 			app.UseRouting();

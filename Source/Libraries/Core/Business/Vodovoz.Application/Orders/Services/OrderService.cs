@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -109,9 +109,11 @@ namespace Vodovoz.Application.Orders.Services
 			_undeliveredOrdersRepository = undeliveredOrdersRepository;
 			_subdivisionRepository = subdivisionRepository;
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
+			ForfeitNomenclatureId = nomenclatureSettings.ForfeitId;
 		}
 
 		public int PaidDeliveryNomenclatureId { get; }
+		public int ForfeitNomenclatureId { get; }
 
 		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
@@ -158,7 +160,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа и цену доставки по имеющимся данным о заказе
 		/// </summary>
-		public (decimal OrderPrice, decimal DeliveryPrice) GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest)
+		public (decimal OrderPrice, decimal DeliveryPrice, decimal ForfeitPrice) GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
@@ -194,7 +196,8 @@ namespace Vodovoz.Application.Orders.Services
 				return
 				(
 					order.OrderSum,
-					order.OrderItems.Where(oi => oi.Nomenclature.Id == PaidDeliveryNomenclatureId).FirstOrDefault()?.ActualSum ?? 0m
+					order.OrderItems.Where(oi => oi.Nomenclature.Id == PaidDeliveryNomenclatureId).FirstOrDefault()?.ActualSum ?? 0m,
+					order.OrderItems.Where(oi => oi.Nomenclature.Id == ForfeitNomenclatureId).Sum(x => x.ActualSum)
 				);
 			}
 		}

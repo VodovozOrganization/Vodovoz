@@ -46,11 +46,13 @@ namespace RobotMiaApi
 
 			services
 				.AddSecurity(configuration)
-				.AddAuthorizationIfNeeded()
-				.AddVersioning();
+				.AddAuthorizationIfNeeded();
 
 			services.AddControllers()
 				.AddSharedControllers();
+
+			services
+				.AddVersioning();
 
 			return services;
 		}
