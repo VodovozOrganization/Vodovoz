@@ -7,9 +7,14 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using Edo.Transport;
+using QS.Services;
 using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
 
@@ -19,28 +24,105 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly EdoProcessFilterViewModel _filterViewModel;
+		private readonly IInteractiveService _interactiveService;
+		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
+		private readonly MessageService _messageService;
+		private readonly IUserService _userService;
 
 		public EdoProcessJournalViewModel(
 			IUnitOfWorkFactory uowFactory,
 			EdoProcessFilterViewModel filterViewModel,
 			IInteractiveService interactiveService,
+			IGenericRepository<ReceiptEdoTask> receiptRepository,
+			MessageService messageService,
+			IUserService userService,
 			INavigationManager navigation = null
 			) : base(uowFactory, interactiveService, navigation)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
+			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
+			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+			_interactiveService = interactiveService;
 
 			Title = "ЭДО процессы";
 
 			DataLoader = new AnyDataLoader<EdoProcessJournalNode>(GetNodes);
 
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+			CreateNodeActions();
 		}
 
 		public override IJournalFilterViewModel JournalFilter 
 		{ 
 			get => _filterViewModel; 
 			protected set => throw new NotSupportedException("Установка фильтра выполняется через конструктор"); 
+		}
+
+		protected override void CreateNodeActions()
+		{
+			base.CreateNodeActions();
+			CreateResendReceiptFromSaveCodesTaskAction();
+		}
+
+		private void CreateResendReceiptFromSaveCodesTaskAction()
+		{
+			var action = new JournalAction(
+				"Отправить чек, ушедший в сохранение кодов",
+				sensitive => sensitive.Any(),
+				visible => _userService.GetCurrentUser().IsAdmin,
+				async selected =>
+				{
+					var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
+					
+					using(var uow = _uowFactory.CreateWithoutRoot("Обработка переотправки чеков с кодами, сохраненными в пул"))
+					{
+						foreach(var selectedNode in selectedNodes)
+						{
+							if(selectedNode.OrderTaskType != EdoTaskType.Receipt
+								|| selectedNode.OrderTaskReceiptStage != EdoReceiptStatus.SavedToPool
+								|| selectedNode.OrderTaskStatus != EdoTaskStatus.Completed)
+							{
+								continue;
+							}
+
+							var orderId = selectedNode.OrderId;
+
+							var tasks = _receiptRepository.Get(
+									uow,
+									f => f.OrderEdoRequest.Order.Id == orderId && f.Id != selectedNode.OrderTaskId)
+								.ToList();
+
+							if(tasks.Any(x => x.ReceiptStatus != EdoReceiptStatus.SavedToPool))
+							{
+								_interactiveService.ShowMessage(
+									ImportanceLevel.Warning,
+									$"Переотправка чека невозможна, т.к. помимо задачи на сохранение кодов по заказу {orderId}, есть другая задача");
+								continue;
+							}
+
+							var newRequest = new OrderEdoRequest
+							{
+								Order = new Order
+								{
+									Id = orderId
+								},
+								Time = DateTime.Now,
+								Source = CustomerEdoRequestSource.Manual,
+								DocumentType = EdoDocumentType.UPD
+							};
+
+							await uow.SaveAsync(newRequest);
+							await uow.CommitAsync();
+
+							await _messageService.PublishEdoRequestCreatedEvent(newRequest.Id);
+						}
+					}
+				}
+			);
+			
+			NodeActionsList.Add(action);
 		}
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
