@@ -2,6 +2,9 @@
 
 namespace Edo.Transfer.Routine.Options
 {
+	/// <summary>
+	/// Настройки отправки УПД по заказам Закр.Док
+	/// </summary>
 	public class ClosingDocumentsOrdersUpdSendSettings
 	{
 		/// <summary>

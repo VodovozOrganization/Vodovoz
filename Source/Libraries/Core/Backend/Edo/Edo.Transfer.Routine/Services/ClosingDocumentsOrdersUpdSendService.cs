@@ -29,7 +29,7 @@ namespace Edo.Transfer.Routine.Services
 		private readonly MessageService _edoMessageService;
 
 		private readonly IEnumerable<OrderStatus> _orderStatusesToSendUpd =
-			new List<OrderStatus> { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
+			new [] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
 
 		public ClosingDocumentsOrdersUpdSendService(
 			ILogger<ClosingDocumentsOrdersUpdSendService> logger,
@@ -75,6 +75,7 @@ namespace Edo.Transfer.Routine.Services
 						   && _orderStatusesToSendUpd.Contains(order.OrderStatus)
 						   && client.IsNewEdoProcessing
 						   && client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+						   && !client.IsNotSendDocumentsByEdo
 						   && edoContainer.Id == null
 						   && edoRequest.Id == null
 					   select order)

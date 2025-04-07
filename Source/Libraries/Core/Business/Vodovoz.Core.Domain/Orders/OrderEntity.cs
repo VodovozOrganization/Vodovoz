@@ -623,6 +623,9 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _contract, value);
 		}
 
+		/// <summary>
+		/// Время доставки
+		/// </summary>
 		[Display(Name = "Время доставки")]
 		public virtual DeliveryScheduleEntity DeliverySchedule
 		{

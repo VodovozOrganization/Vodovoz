@@ -8,11 +8,19 @@ using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Documents
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
+	/// <summary>
+	/// Контейнер электронного документооборота
+	/// </summary>
+	[Appellative(
+		Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Контейнеры электронного документооборота",
 		Nominative = "Контейнер электронного документооборота",
 		Prepositional = "Контейнере электронного документооборота",
-		PrepositionalPlural = "Контейнерах электронного документооборота")]
+		PrepositionalPlural = "Контейнерах электронного документооборота",
+		Accusative = "Контейнер электронного документооборота",
+		AccusativePlural = "Контейнеры электронного документооборота",
+		Genitive = "Контейнера электронного документооборота",
+		GenitivePlural = "Контейнеров электронного документооборота")]
 	[HistoryTrace]
 	public class EdoContainerEntity : PropertyChangedBase, IDomainObject
 	{
@@ -30,12 +38,19 @@ namespace Vodovoz.Core.Domain.Documents
 		private int? _edoTaskId;
 		private Type _type;
 
+		/// <summary>
+		/// Код контейнера
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
 			get => _id;
 			set => SetField(ref _id, value);
 		}
+
+		/// <summary>
+		/// Доставлено
+		/// </summary>
 		[Display(Name = "Доставлено")]
 		public virtual bool Received
 		{
@@ -43,6 +58,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _received, value);
 		}
 
+		/// <summary>
+		/// Входящий? (true - входящий, false - исходящий)
+		/// </summary>
 		[Display(Name = "Входящий?")]
 		public virtual bool IsIncoming
 		{
@@ -50,6 +68,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _isIncoming, value);
 		}
 
+		/// <summary>
+		/// Id главного документа
+		/// </summary>
 		[Display(Name = "Id главного документа")]
 		public virtual string MainDocumentId
 		{
@@ -57,6 +78,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _mainDocumentId, value);
 		}
 
+		/// <summary>
+		/// Id документа в хранилище служб Такском
+		/// </summary>
 		[Display(Name = "Внутренний Id документа в хранилище служб Такском")]
 		public virtual Guid? InternalId
 		{
@@ -64,6 +88,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _internalId, value);
 		}
 
+		/// <summary>
+		/// Id документооборота
+		/// </summary>
 		[Display(Name = "Id документооборота")]
 		public virtual Guid? DocFlowId
 		{
@@ -71,6 +98,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _docFlowId, value);
 		}
 
+		/// <summary>
+		/// Заказ
+		/// </summary>
 		[Display(Name = "Заказ")]
 		public virtual OrderEntity Order
 		{
@@ -78,6 +108,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _order, value);
 		}
 
+		/// <summary>
+		/// Контрагент
+		/// </summary>
 		[Display(Name = "Контрагент")]
 		public virtual CounterpartyEntity Counterparty
 		{
@@ -85,6 +118,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _counterparty, value);
 		}
 
+		/// <summary>
+		/// Статус документооборота
+		/// </summary>
 		[Display(Name = "Статус")]
 		public virtual EdoDocFlowStatus EdoDocFlowStatus
 		{
@@ -92,6 +128,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _edoDocFlowStatus, value);
 		}
 
+		/// <summary>
+		/// Описание ошибки
+		/// </summary>
 		[Display(Name = "Описание ошибки")]
 		public virtual string ErrorDescription
 		{
@@ -99,6 +138,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _errorDescription, value);
 		}
 
+		/// <summary>
+		/// Дата создания
+		/// </summary>
 		[Display(Name = "Дата создания")]
 		public virtual DateTime Created
 		{
@@ -106,36 +148,30 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _created, value);
 		}
 
+		/// <summary>
+		/// Id задачи ЭДО
+		/// </summary>
+		[Display(Name = "Id задачи ЭДО")]
 		public virtual int? EdoTaskId
 		{
 			get => _edoTaskId;
 			set => SetField(ref _edoTaskId, value);
 		}
 
+		/// <summary>
+		/// Тип документа
+		/// </summary>
+		[Display(Name = "Тип документа")]
 		public virtual Type Type
 		{
 			get => _type;
 			set => SetField(ref _type, value);
 		}
 
+		/// <summary>
+		/// Отправленные документы
+		/// </summary>
 		[Display(Name = "Отправленные документы")]
 		public virtual string SentDocuments => Type.GetEnumTitle();
-	}
-
-	/// <summary>
-	/// WS - используется потому, что enum в NHibernate не может быть более 36 символов для 1 значения
-	/// </summary>
-	public enum Type
-	{
-		[Display(Name = "УПД")]
-		Upd,
-		[Display(Name = "Счёт")]
-		Bill,
-		[Display(Name = "Счет без отгрузки на предоплату")]
-		BillWSForAdvancePayment,
-		[Display(Name = "Cчет без отгрузки на долг")]
-		BillWSForDebt,
-		[Display(Name = "Cчет без отгрузки на постоплату")]
-		BillWSForPayment
 	}
 }
