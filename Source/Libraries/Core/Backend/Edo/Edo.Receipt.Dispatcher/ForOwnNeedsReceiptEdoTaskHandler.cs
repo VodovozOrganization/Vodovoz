@@ -33,7 +33,7 @@ using Vodovoz.Settings.Edo;
 
 namespace Edo.Receipt.Dispatcher
 {
-	public class ForOwnNeedsReceiptEdoTaskHandler
+	public class ForOwnNeedsReceiptEdoTaskHandler : IDisposable
 	{
 		private readonly ILogger<ForOwnNeedsReceiptEdoTaskHandler> _logger;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
@@ -1381,5 +1381,9 @@ namespace Edo.Receipt.Dispatcher
 			return contact;
 		}
 
+		public void Dispose()
+		{
+			_uow.Dispose();
+		}
 	}
 }

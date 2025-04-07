@@ -16,7 +16,7 @@ using Vodovoz.Settings.Nomenclature;
 
 namespace Edo.Docflow.Factories
 {
-	public class TransferOrderUpdInfoFactory
+	public class TransferOrderUpdInfoFactory : IDisposable
 	{
 		private const string _dateFormatString = "dd.MM.yyyy";
 		private readonly IUnitOfWork _uow;
@@ -247,6 +247,11 @@ namespace Edo.Docflow.Factories
 				.List().FirstOrDefault();
 
 			return nomenclature;
+		}
+
+		public void Dispose()
+		{
+			_uow.Dispose();
 		}
 	}
 }

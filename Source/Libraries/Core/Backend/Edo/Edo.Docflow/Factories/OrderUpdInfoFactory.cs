@@ -18,7 +18,7 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Docflow.Factories
 {
-	public class OrderUpdInfoFactory
+	public class OrderUpdInfoFactory : IDisposable
 	{
 		private const string _dateFormatString = "dd.MM.yyyy";
 		private readonly IUnitOfWork _uow;
@@ -423,6 +423,11 @@ namespace Edo.Docflow.Factories
 			}
 
 			return products;
+		}
+
+		public void Dispose()
+		{
+			_uow.Dispose();
 		}
 	}
 }
