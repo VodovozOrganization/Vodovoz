@@ -200,15 +200,12 @@ stage('Log') {
 }
 
 stage('Stop previous builds') {
-	def jobName = "Vodovoz/Vodovoz/${GIT_BRANCH}"
+	def decodedBranchName = java.net.URLDecoder.decode(GIT_BRANCH, "UTF-8")
+	def jobName = "Vodovoz/Vodovoz/${decodedBranchName}"
 	def job = Jenkins.get().getItemByFullName(jobName)
 	if (job == null) {
-		def jobNameWithUnderscores = jobName.replaceAll(/\./, "_")
-		job = Jenkins.get().getItemByFullName(jobNameWithUnderscores)
-		if (job == null) {
-			echo "Job ${jobName} or ${jobNameWithUnderscores} not found"
-			return
-		}
+		echo "Job ${jobName} not found"
+		return
 	}
 	def currentBuildNumber = currentBuild.number.toInteger()
 	if (job.builds != null && !job.builds.isEmpty()) {
