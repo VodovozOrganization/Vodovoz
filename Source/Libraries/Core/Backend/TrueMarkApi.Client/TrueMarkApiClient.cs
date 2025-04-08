@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -15,21 +14,11 @@ namespace TrueMarkApi.Client
 {
 	public class TrueMarkApiClient : ITrueMarkApiClient
 	{
-		private static HttpClient _httpClient;
+		private readonly HttpClient _httpClient;
 
-		public TrueMarkApiClient(HttpClient httpClient, string trueMarkApiBaseUrl, string trueMarkApiToken)
+		public TrueMarkApiClient(HttpClient httpClient)
 		{
 			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-
-			if(_httpClient.BaseAddress != null)
-			{
-				return;
-			}
-
-			_httpClient.BaseAddress = new Uri(trueMarkApiBaseUrl);
-			_httpClient.DefaultRequestHeaders.Accept.Clear();
-			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", trueMarkApiToken);
 		}
 
 		public async Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn, CancellationToken cancellationToken)
