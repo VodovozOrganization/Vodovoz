@@ -31,7 +31,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Converters;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 
 namespace EdoDocumentsPreparer
 {
