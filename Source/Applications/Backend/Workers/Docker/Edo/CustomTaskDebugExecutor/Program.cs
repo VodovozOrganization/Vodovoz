@@ -1,41 +1,53 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Edo.CodesSaver;
 using Edo.Common;
-using Edo.Docflow;
-using Edo.Docflow.Factories;
 using Edo.Documents;
 using Edo.Problems;
 using Edo.Receipt.Dispatcher;
 using Edo.Receipt.Sender;
-using Edo.Transfer.Routine;
+using Edo.Scheduler;
+using Edo.Transfer;
+using Edo.Transfer.Dispatcher;
 using Edo.Transport;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using ModulKassa;
 using NLog.Extensions.Logging;
+using QS.DomainModel.UoW;
 using QS.Project.Core;
 using System;
+using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
-using TrueMark.Library;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
-using Edo.Transfer;
 
 namespace CustomTaskDebugExecutor
 {
 	internal class Program
 	{
-		static void Main(string[] args)
+		static async Task Main(string[] args)
 		{
 			Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 			ServiceCollection services = new ServiceCollection();
 
+			var projectSettingsPath = Path.Combine(GetProjectDirectory(), "appsettings.Development.json");
+			var settingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.Development.json");
+
+			if(File.Exists(projectSettingsPath))
+			{
+				settingsPath = projectSettingsPath;
+			}
+
 			var builder = new ConfigurationBuilder();
-			builder.SetBasePath(Environment.CurrentDirectory);
-			builder.AddJsonFile("appsettings.Development.json");
+			builder.AddJsonFile(settingsPath);
 			IConfiguration configuration = builder.Build();
 			services.AddScoped<IConfiguration>(_ => configuration);
 
@@ -66,6 +78,8 @@ namespace CustomTaskDebugExecutor
 				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 			;
 
+			services.Configure<CashboxesSetting>(configuration);
+
 			services.AddMessageTransportSettings();
 			services.AddEdoMassTransit();
 
@@ -78,46 +92,56 @@ namespace CustomTaskDebugExecutor
 			services.AddEdoTransfer();
 
 			services
-				//sender
-				.AddScoped<StaleTransferSender>()
-				.AddScoped<FiscalDocumentFactory>()
-				.AddScoped<ReceiptSender>()
-
-				//docflow
-				.AddScoped<DocflowHandler>()
-				.AddScoped<OrderUpdInfoFactory>()
-				.AddScoped<TransferOrderUpdInfoFactory>()
-
-				//document
-				.AddScoped<DocumentEdoTaskHandler>()
-				.AddScoped<ForOwnNeedDocumentEdoTaskHandler>()
-				.AddScoped<ForResaleDocumentEdoTaskHandler>()
-
-				.AddScoped<ReceiptEdoTaskHandler>()
-				.AddScoped<ResaleReceiptEdoTaskHandler>()
-				.AddScoped<ForOwnNeedsReceiptEdoTaskHandler>()
-				.AddScoped<Tag1260Checker>()
+				.AddCodesSaverServices()
+				.AddEdoDocflowServices()
+				.AddEdoDocumentsServices()
+				.AddEdoReceiptDispatcherServices()
+				.AddEdoReceiptSenderServices()
+				.AddEdoSchedulerServices()
+				.AddEdoTransferDispatcherServices()
+				.AddEdoTransferRoutineServices()
+				.AddEdoTransferSenderServices()
 				;
 
+
+			services.AddScoped<EdoExecutor>();
+
+			// Коммит с подтверждением в консоли
+			services.AddScoped<TrackedUnitOfWorkFactory>();
+			services.Replace(ServiceDescriptor.Scoped(typeof(IUnitOfWorkFactory), typeof(ConsoleApprovedUnitOfWorkFactory)));
+			services.Replace(ServiceDescriptor.Scoped(typeof(IUnitOfWork), typeof(ConsoleApprovedUnitOfWork)));
+			
 			var autofacFactory = new AutofacServiceProviderFactory();
-			var autofacBuilder = autofacFactory.CreateBuilder(services);			
+			var autofacBuilder = autofacFactory.CreateBuilder(services);
 			var serviceProvider = autofacFactory.CreateServiceProvider(autofacBuilder);
 
-			var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+			using(var scope = serviceProvider.CreateScope())
+			{
+				var sp = scope.ServiceProvider;
+				var timeout = TimeSpan.FromMinutes(30);
+				var cts = new CancellationTokenSource(timeout);
 
-			logger.LogInformation("Debug запуск обработчиков задач ЭДО");
+				var exec = sp.GetRequiredService<EdoExecutor>();
 
-			CancellationTokenSource cts = new CancellationTokenSource();
+				try
+				{
+					await exec.TrySendEdoEvent(cts.Token);
+				}
+				catch(Exception ex)
+				{
+					Console.WriteLine(ex);
+				}
+			}
+		}
 
-			//var handler = serviceProvider.GetRequiredService<DocflowHandler>();
-			//// Вызов обработчика
-			//var id = 0;
-			//handler.HandleTransferDocument(id, cts.Token).Wait();
-
-			var handler = serviceProvider.GetRequiredService<StaleTransferSender>();
-			// Вызов обработчика
-			var id = 0;
-			//handler.SendTaskAsync(id, cts.Token).Wait(); Мешает сборке master
+		private static string GetProjectDirectory()
+		{
+			string current = AppContext.BaseDirectory;
+			while(!Directory.GetFiles(current, "*.csproj").Any() && Directory.GetParent(current) != null)
+			{
+				current = Directory.GetParent(current)?.FullName ?? current;
+			}
+			return current;
 		}
 	}
 }

@@ -35,6 +35,6 @@ namespace WarehouseApi.Contracts.Dto
 		/// <summary>
 		/// Коды маркировки ЧЗ
 		/// </summary>
-		public IEnumerable<TrueMarkCodeDto> Codes { get; set; }
+		public List<TrueMarkCodeDto> Codes { get; } = new List<TrueMarkCodeDto>();
 	}
 }

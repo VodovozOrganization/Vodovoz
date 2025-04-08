@@ -5,43 +5,44 @@ using Edo.Transfer.Routine.Options;
 using Edo.Transfer.Routine.Services;
 using Edo.Transport;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 
 namespace Edo.Transfer.Dispatcher
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddEdoTransferRoutine(this IServiceCollection services)
-		{
-			services
-				.AddScoped<StaleTransferSender>()
-				;
-
-			services.AddEdoTransfer();
-
-			services.AddHostedService<TransferTimeoutWorker>();
-
-			services.AddEdoMassTransit();
-
-			services.AddWaitingTransfersUpdateWorker();
-			services.AddClosingDocumentsOrdersUpdSendWorker();
-
-			return services;
-		}
-
-		private static IServiceCollection AddWaitingTransfersUpdateWorker(this IServiceCollection services)
+		public static IServiceCollection AddEdoTransferRoutineServices(this IServiceCollection services)
 		{
 			services.ConfigureOptions<ConfigureWaitingTransfersUpdateSettings>();
+
+			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+
+			services.TryAddScoped<StaleTransferSender>();
+			services.TryAddScoped<TransferEdoHandler>();
+			services.TryAddScoped<WaitingTransfersUpdateService>();
 
 			services
 				.AddEdo()
 				.AddEdoProblemRegistation()
 				.AddHttpClient()
-				.AddScoped<TransferEdoHandler>()
-				.AddScoped<WaitingTransfersUpdateService>()
-				.AddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(Routine)));
+				.AddEdoTransfer()
+				;
 
-			services.AddHostedService<WaitingTransfersUpdateWorker>();
+			services.AddClosingDocumentsOrdersUpdSendWorker();
+			return services;
+		}
+
+		public static IServiceCollection AddEdoTransferRoutine(this IServiceCollection services)
+		{
+			services
+				.AddEdoMassTransit()
+				;
+
+			services
+				.AddHostedService<TransferTimeoutWorker>()
+				.AddHostedService<WaitingTransfersUpdateWorker>()
+				;
 
 			return services;
 		}

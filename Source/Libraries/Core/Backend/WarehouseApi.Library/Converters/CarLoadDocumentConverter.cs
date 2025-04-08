@@ -69,10 +69,11 @@ namespace WarehouseApi.Library.Converters
 					NomenclatureId = documentItem.Nomenclature.Id,
 					Name = documentItem.Nomenclature.Name,
 					Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
-					GroupGtins = documentItem.Nomenclature.GroupGtins.Select(gg => new GroupGtinDto { Gtin = gg.GtinNumber, Count = gg.CodesCount}),
+					GroupGtins = documentItem.Nomenclature.GroupGtins.Select(gg => new GroupGtinDto { Gtin = gg.GtinNumber, Count = gg.CodesCount }),
 					Quantity = (int)documentItem.Amount,
-					Codes = GetApiTrueMarkCodes(documentItem)
 				};
+
+				apiOrderItem.Codes.AddRange(GetApiTrueMarkCodes(documentItem));
 
 				apiOrderItems.Add(apiOrderItem);
 			}
