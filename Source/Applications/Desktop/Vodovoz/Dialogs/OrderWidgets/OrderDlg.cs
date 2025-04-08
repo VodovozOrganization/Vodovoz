@@ -3578,8 +3578,9 @@ namespace Vodovoz
 			else
 			{
 				_selectPaymentTypeViewModel.ExcludedPaymentTypes.Remove(PaymentType.Terminal);
-				Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 			}
+
+			Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 
 			if(pickerDeliveryDate.Date < DateTime.Today && !_canCreateOrderInAdvance)
 			{
@@ -3943,6 +3944,8 @@ namespace Vodovoz
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 			UpdateUIState();
+
+			Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 		}
 
 		private bool UpdateVisibilityHboxOnlineOrder()
