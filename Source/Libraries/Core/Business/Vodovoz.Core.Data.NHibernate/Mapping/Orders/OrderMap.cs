@@ -221,6 +221,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 				.Column("counterparty_contract_id")
 				.Cascade.SaveUpdate();
 
+			References(x => x.DeliverySchedule)
+				.Column("delivery_schedule_id");
+
 			HasMany(x => x.OrderItems)
 				.KeyColumn("order_id")
 				.Cascade.AllDeleteOrphan()

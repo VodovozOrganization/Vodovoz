@@ -1,4 +1,4 @@
-using FluentNHibernate.Data;
+﻿using FluentNHibernate.Data;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
@@ -7,15 +7,15 @@ using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using Order = Vodovoz.Domain.Orders.Order;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 
 namespace EdoService.Library
 {
@@ -159,7 +159,7 @@ namespace EdoService.Library
 			return Result.Success();
 		}
 
-		public Result ValidateOrderForDocument(Order order, Type type)
+		public Result ValidateOrderForDocument(OrderEntity order, Type type)
 		{
 			var errors = new List<Error>();
 

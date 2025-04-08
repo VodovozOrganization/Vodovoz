@@ -2,7 +2,7 @@
 using Edo.Problems;
 using Edo.Transfer.Routine;
 using Edo.Transfer.Routine.Options;
-using Edo.Transfer.Routine.WaitingTransfersUpdate;
+using Edo.Transfer.Routine.Services;
 using Edo.Transport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -15,12 +15,14 @@ namespace Edo.Transfer.Dispatcher
 		public static IServiceCollection AddEdoTransferRoutineServices(this IServiceCollection services)
 		{
 			services.ConfigureOptions<ConfigureWaitingTransfersUpdateSettings>();
+			services.ConfigureOptions<ConfigureClosingDocumentsOrdersUpdSendSettings>();
 
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			services.TryAddScoped<StaleTransferSender>();
 			services.TryAddScoped<TransferEdoHandler>();
 			services.TryAddScoped<WaitingTransfersUpdateService>();
+			services.TryAddScoped<ClosingDocumentsOrdersUpdSendService>();
 
 			services
 				.AddEdo()
@@ -36,11 +38,13 @@ namespace Edo.Transfer.Dispatcher
 		{
 			services
 				.AddEdoMassTransit()
+				.AddEdoTransferRoutineServices()
 				;
 
 			services
 				.AddHostedService<TransferTimeoutWorker>()
 				.AddHostedService<WaitingTransfersUpdateWorker>()
+				.AddHostedService<ClosingDocumentsOrdersUpdSendWorker>()
 				;
 
 			return services;
