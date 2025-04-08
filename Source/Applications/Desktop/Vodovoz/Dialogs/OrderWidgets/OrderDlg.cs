@@ -1134,6 +1134,7 @@ namespace Vodovoz
 			UpdateOrderItemsOriginalValues();
 
 			RefreshBottlesDebtNotifier();
+			UpdatePaymentTypeAvailability();
 		}
 
 		private void UpdateOrderItemsOriginalValues()
@@ -3554,7 +3555,7 @@ namespace Vodovoz
 
 		#region Методы событий виджетов
 
-		private void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
+		private void UpdatePaymentTypeAvailability()
 		{
 			// Этот блок нужно удалить через месяц
 			if(pickerDeliveryDate.Date >= _terminalUnavaliableStartDate
@@ -3579,6 +3580,11 @@ namespace Vodovoz
 			{
 				_selectPaymentTypeViewModel.ExcludedPaymentTypes.Remove(PaymentType.Terminal);
 			}
+		}
+
+		private void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
+		{
+			UpdatePaymentTypeAvailability();
 
 			Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 
