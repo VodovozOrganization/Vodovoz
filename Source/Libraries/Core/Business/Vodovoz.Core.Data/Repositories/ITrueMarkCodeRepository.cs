@@ -1,16 +1,23 @@
 ﻿using QS.DomainModel.UoW;
+using System.Threading.Tasks;
+using System.Threading;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
+using System.Collections.Generic;
 
 namespace Vodovoz.Core.Data.Repositories
 {
 	public interface ITrueMarkCodeRepository
 	{
-		TrueMarkTransportCode FindParentTransportCode(IUnitOfWork uow, TrueMarkWaterGroupCode code);
-		TrueMarkTransportCode FindParentTransportCode(TrueMarkWaterGroupCode code);
-		TrueMarkTransportCode FindParentTransportCode(IUnitOfWork uow, TrueMarkWaterIdentificationCode code);
-		TrueMarkTransportCode FindParentTransportCode(TrueMarkWaterIdentificationCode code);
-		TrueMarkWaterGroupCode GetParentGroupCode(IUnitOfWork uow, int id);
-		TrueMarkWaterGroupCode GetParentGroupCode(int id);
+		Task PreloadCodes(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken);
+		Task<TrueMarkTransportCode> FindParentTransportCode(
+			TrueMarkWaterIdentificationCode code,
+			CancellationToken cancellationToken
+		);
+		Task<TrueMarkTransportCode> FindParentTransportCode(
+			TrueMarkWaterGroupCode code,
+			CancellationToken cancellationToken
+		);
+		Task<TrueMarkWaterGroupCode> GetGroupCode(int id, CancellationToken cancellationToken);
 	}
 }

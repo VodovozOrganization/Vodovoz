@@ -1,23 +1,31 @@
 ﻿using Edo.Transfer.Sender;
-using Edo.Transfer.Sender.Consumers;
-using Edo.Transfer.Sender.Consumers.Definitions;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using QS.DomainModel.UoW;
+using System.Reflection;
 
 namespace Edo.Transfer.Dispatcher
 {
 	public static class DependencyInjection
 	{
+		public static IServiceCollection AddEdoTransferSenderServices(this IServiceCollection services)
+		{
+			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+
+			services.TryAddScoped<TransferSendHandler>();
+
+			return services;
+		}
+
 		public static IServiceCollection AddEdoTransferSender(this IServiceCollection services)
 		{
-			services
-				.AddScoped<TransferSendHandler>()
-				;
+			services.AddEdoTransferSenderServices();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumer<TransferTaskReadyToSendConsumer, TransferTaskReadyToSendConsumerDefinition>();
+				cfg.AddConsumers(Assembly.GetExecutingAssembly());
 			});
 
 			return services;
