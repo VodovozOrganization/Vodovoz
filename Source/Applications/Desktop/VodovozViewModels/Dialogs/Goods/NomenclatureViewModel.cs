@@ -83,7 +83,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			IUserRepository userRepository,
 			IStringHandler stringHandler,
 			INomenclatureOnlineSettings nomenclatureOnlineSettings,
-			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
+			INomenclatureSettings nomenclatureSettings,
 			INomenclatureService nomenclatureService,
 			NomenclatureMinimumBalanceByWarehouseViewModel nomenclatureMinimumBalanceByWarehouseViewModel,
 			INomenclatureFileStorageService nomenclatureFileStorageService,
@@ -132,10 +132,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
-			SaveCommand = CreateSaveCommand();
-			CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand =
-				CreateCopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand();
+			SaveCommand = new DelegateCommand(SaveHandler, () => CanEdit);
+			CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand = new DelegateCommand(
+				CopyPricesWithoutDiscountFromMobileAppToVodovozWebSite,
+				() => true);
 
+			CloseCommand = new DelegateCommand(CloseHandler);
 			ArchiveCommand = new DelegateCommand(Archive);
 			UnArchiveCommand = new DelegateCommand(UnArchive);
 			EditGtinsCommand = new DelegateCommand(EditGtins);
@@ -162,7 +164,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public IEntityEntryViewModel RouteColumnViewModel { get; }
 		public IEntityEntryViewModel ProductGroupEntityEntryViewModel { get; }
 
-		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; private set; }
+		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; }
 			= new GenericObservableList<NomenclatureOnlinePricesNode>();
 
 		public bool PriceChanged { get; set; }
@@ -371,6 +373,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool IsCupHolderParameters =>
 			SelectedOnlineCategory != null
 			&& SelectedOnlineCategory.Id == _nomenclatureOnlineSettings.CupHolderNomenclatureOnlineCategoryId;
+
 		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; private set; }
 		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; private set; }
 		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; private set; }
@@ -382,43 +385,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public DelegateCommand SaveCommand { get; }
 
-
-		private DelegateCommand CreateSaveCommand()
-		{
-			return new DelegateCommand(
-				() =>
-				{
-
-					if(_needCheckOnlinePrices)
-					{
-						if(HasAccessToSitesAndAppsTab && AskQuestion(
-							"Было произведено изменение цен номенклатуры, необходимо проверить корректность цен," +
-							" установленных на вкладке Сайты и приложения.\n" +
-							"Вы хотите переключиться на вкладку Сайты и приложения перед сохранением номенклатуры?"))
-						{
-							ActiveSitesAndAppsTab = true;
-							return;
-						}
-					}
-
-					Save(true);
-				},
-				() => true);
-		}
+		public DelegateCommand CloseCommand { get; }
 
 		public DelegateCommand CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand { get; }
-
-
-		private DelegateCommand CreateCopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand()
-		{
-			return new DelegateCommand(
-				() =>
-				{
-					CopyPricesWithoutDiscountFromMobileAppToOtherParameters(VodovozWebSiteNomenclatureOnlineParameters);
-					UpdateNomenclatureOnlinePricesNodes();
-				},
-				() => true);
-		}
 
 		public DelegateCommand ArchiveCommand { get; }
 		public DelegateCommand UnArchiveCommand { get; }
@@ -445,6 +414,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		}
 
 		public NomenclatureMinimumBalanceByWarehouseViewModel NomenclatureMinimumBalanceByWarehouseViewModel { get; private set; }
+
+		private void CopyPricesWithoutDiscountFromMobileAppToVodovozWebSite()
+		{
+			CopyPricesWithoutDiscountFromMobileAppToOtherParameters(VodovozWebSiteNomenclatureOnlineParameters);
+			UpdateNomenclatureOnlinePricesNodes();
+		}
+
 		private void SetGlassHolderCheckboxesSelection()
 		{
 			if(Entity.Category != NomenclatureCategory.equipment
@@ -970,7 +946,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		private void Archive()
 		{
-			if(!UoWGeneric.IsNew)
+			if(Entity.Id != 0)
 			{
 				var result = _nomenclatureService.Archive(UoW, Entity);
 
@@ -1121,6 +1097,28 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					.GetAwaiter()
 					.GetResult();
 			}
+		}
+
+		private void SaveHandler()
+		{
+			if(_needCheckOnlinePrices)
+			{
+				if(HasAccessToSitesAndAppsTab && AskQuestion(
+					"Было произведено изменение цен номенклатуры, необходимо проверить корректность цен," +
+					" установленных на вкладке Сайты и приложения.\n" +
+					"Вы хотите переключиться на вкладку Сайты и приложения перед сохранением номенклатуры?"))
+				{
+					ActiveSitesAndAppsTab = true;
+					return;
+				}
+			}
+
+			Save(true);
+		}
+
+		private void CloseHandler()
+		{
+			Close(AskSaveOnClose, CloseSource.Cancel);
 		}
 	}
 }
