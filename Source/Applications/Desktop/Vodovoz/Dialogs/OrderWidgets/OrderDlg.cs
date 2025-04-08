@@ -3561,7 +3561,10 @@ namespace Vodovoz
 			if(pickerDeliveryDate.Date >= _terminalUnavaliableStartDate
 				&& pickerDeliveryDate.Date <= _terminalUnavaliableEndDate)
 			{
-				_selectPaymentTypeViewModel.ExcludedPaymentTypes.Add(PaymentType.Terminal);
+				if(!_selectPaymentTypeViewModel.ExcludedPaymentTypes.Contains(PaymentType.Terminal))
+				{
+					_selectPaymentTypeViewModel.ExcludedPaymentTypes.Add(PaymentType.Terminal);
+				}
 
 				if(Entity.CanEditByStatus
 					&& Entity.PaymentType == PaymentType.Terminal)
