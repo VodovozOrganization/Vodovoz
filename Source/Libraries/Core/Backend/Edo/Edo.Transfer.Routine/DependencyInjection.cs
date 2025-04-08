@@ -1,4 +1,4 @@
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Problems;
 using Edo.Transfer.Routine;
 using Edo.Transfer.Routine.Options;
@@ -15,12 +15,14 @@ namespace Edo.Transfer.Dispatcher
 		public static IServiceCollection AddEdoTransferRoutineServices(this IServiceCollection services)
 		{
 			services.ConfigureOptions<ConfigureWaitingTransfersUpdateSettings>();
+			services.ConfigureOptions<ConfigureClosingDocumentsOrdersUpdSendSettings>();
 
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			services.TryAddScoped<StaleTransferSender>();
 			services.TryAddScoped<TransferEdoHandler>();
 			services.TryAddScoped<WaitingTransfersUpdateService>();
+			services.TryAddScoped<ClosingDocumentsOrdersUpdSendService>();
 
 			services
 				.AddEdo()
@@ -29,7 +31,6 @@ namespace Edo.Transfer.Dispatcher
 				.AddEdoTransfer()
 				;
 
-			services.AddClosingDocumentsOrdersUpdSendWorker();
 			return services;
 		}
 
@@ -37,23 +38,14 @@ namespace Edo.Transfer.Dispatcher
 		{
 			services
 				.AddEdoMassTransit()
+				.AddEdoTransferRoutineServices()
 				;
 
 			services
 				.AddHostedService<TransferTimeoutWorker>()
 				.AddHostedService<WaitingTransfersUpdateWorker>()
+				.AddHostedService<ClosingDocumentsOrdersUpdSendWorker>()
 				;
-
-			return services;
-		}
-
-		private static IServiceCollection AddClosingDocumentsOrdersUpdSendWorker(this IServiceCollection services)
-		{
-			services.ConfigureOptions<ConfigureClosingDocumentsOrdersUpdSendSettings>();
-
-			services
-				.AddScoped<ClosingDocumentsOrdersUpdSendService>()
-				.AddHostedService<ClosingDocumentsOrdersUpdSendWorker>();
 
 			return services;
 		}
