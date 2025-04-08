@@ -392,6 +392,10 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewOnlinePrices;
 
+		private global::Gtk.HPaned hpaned1;
+
+		private global::Gtk.VBox vbox11;
+
 		private global::Gamma.GtkWidgets.yLabel lblNomenclatureOnlineParametersTitle;
 
 		private global::Gtk.ScrolledWindow scrolledWindowOnlineCharacteristics;
@@ -571,6 +575,22 @@ namespace Vodovoz.Views.Goods
 		private global::QS.Widgets.NullableCheckButton nullableChkHeating;
 
 		private global::Gtk.VSeparator vseparator4;
+
+		private global::Gtk.VBox vbox10;
+
+		private global::Gamma.GtkWidgets.yLabel lblNomenclatureRobotMiaParametersTitle;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow7;
+
+		private global::Gamma.GtkWidgets.yTreeView yTreeViewSlangWords;
+
+		private global::Gtk.HBox hbox18;
+
+		private global::Gamma.GtkWidgets.yButton btnAddSlangWord;
+
+		private global::Gamma.GtkWidgets.yButton btnEditSlangWord;
+
+		private global::Gamma.GtkWidgets.yButton btnRemoveSlangWord;
 
 		private global::Gtk.Label lblSitesAndApps;
 
@@ -2747,17 +2767,26 @@ namespace Vodovoz.Views.Goods
 			global::Gtk.Box.BoxChild w192 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.GtkScrolledWindowOnlinePrices]));
 			w192.Position = 2;
 			// Container child vboxSitesAndApps.Gtk.Box+BoxChild
+			this.hpaned1 = new global::Gtk.HPaned();
+			this.hpaned1.CanFocus = true;
+			this.hpaned1.Name = "hpaned1";
+			this.hpaned1.Position = 800;
+			// Container child hpaned1.Gtk.Paned+PanedChild
+			this.vbox11 = new global::Gtk.VBox();
+			this.vbox11.Name = "vbox11";
+			this.vbox11.Spacing = 6;
+			// Container child vbox11.Gtk.Box+BoxChild
 			this.lblNomenclatureOnlineParametersTitle = new global::Gamma.GtkWidgets.yLabel();
 			this.lblNomenclatureOnlineParametersTitle.Name = "lblNomenclatureOnlineParametersTitle";
 			this.lblNomenclatureOnlineParametersTitle.Xalign = 0F;
 			this.lblNomenclatureOnlineParametersTitle.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Характеристики товара для мп и сайта:</b>");
 			this.lblNomenclatureOnlineParametersTitle.UseMarkup = true;
-			this.vboxSitesAndApps.Add(this.lblNomenclatureOnlineParametersTitle);
-			global::Gtk.Box.BoxChild w193 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.lblNomenclatureOnlineParametersTitle]));
-			w193.Position = 3;
+			this.vbox11.Add(this.lblNomenclatureOnlineParametersTitle);
+			global::Gtk.Box.BoxChild w193 = ((global::Gtk.Box.BoxChild)(this.vbox11[this.lblNomenclatureOnlineParametersTitle]));
+			w193.Position = 0;
 			w193.Expand = false;
 			w193.Fill = false;
-			// Container child vboxSitesAndApps.Gtk.Box+BoxChild
+			// Container child vbox11.Gtk.Box+BoxChild
 			this.scrolledWindowOnlineCharacteristics = new global::Gtk.ScrolledWindow();
 			this.scrolledWindowOnlineCharacteristics.CanFocus = true;
 			this.scrolledWindowOnlineCharacteristics.Name = "scrolledWindowOnlineCharacteristics";
@@ -3816,12 +3845,88 @@ namespace Vodovoz.Views.Goods
 			w281.Fill = false;
 			w194.Add(this.hboxOnlineCharacteristics);
 			this.scrolledWindowOnlineCharacteristics.Add(w194);
-			this.vboxSitesAndApps.Add(this.scrolledWindowOnlineCharacteristics);
-			global::Gtk.Box.BoxChild w284 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.scrolledWindowOnlineCharacteristics]));
-			w284.Position = 4;
+			this.vbox11.Add(this.scrolledWindowOnlineCharacteristics);
+			global::Gtk.Box.BoxChild w284 = ((global::Gtk.Box.BoxChild)(this.vbox11[this.scrolledWindowOnlineCharacteristics]));
+			w284.Position = 1;
+			this.hpaned1.Add(this.vbox11);
+			global::Gtk.Paned.PanedChild w285 = ((global::Gtk.Paned.PanedChild)(this.hpaned1[this.vbox11]));
+			w285.Resize = false;
+			// Container child hpaned1.Gtk.Paned+PanedChild
+			this.vbox10 = new global::Gtk.VBox();
+			this.vbox10.Name = "vbox10";
+			this.vbox10.Spacing = 6;
+			// Container child vbox10.Gtk.Box+BoxChild
+			this.lblNomenclatureRobotMiaParametersTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblNomenclatureRobotMiaParametersTitle.Name = "lblNomenclatureRobotMiaParametersTitle";
+			this.lblNomenclatureRobotMiaParametersTitle.Xalign = 0F;
+			this.lblNomenclatureRobotMiaParametersTitle.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Характеристики товара для робота Мия:</b>");
+			this.lblNomenclatureRobotMiaParametersTitle.UseMarkup = true;
+			this.vbox10.Add(this.lblNomenclatureRobotMiaParametersTitle);
+			global::Gtk.Box.BoxChild w286 = ((global::Gtk.Box.BoxChild)(this.vbox10[this.lblNomenclatureRobotMiaParametersTitle]));
+			w286.Position = 0;
+			w286.Expand = false;
+			w286.Fill = false;
+			// Container child vbox10.Gtk.Box+BoxChild
+			this.GtkScrolledWindow7 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow7.Name = "GtkScrolledWindow7";
+			this.GtkScrolledWindow7.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow7.Gtk.Container+ContainerChild
+			this.yTreeViewSlangWords = new global::Gamma.GtkWidgets.yTreeView();
+			this.yTreeViewSlangWords.CanFocus = true;
+			this.yTreeViewSlangWords.Name = "yTreeViewSlangWords";
+			this.GtkScrolledWindow7.Add(this.yTreeViewSlangWords);
+			this.vbox10.Add(this.GtkScrolledWindow7);
+			global::Gtk.Box.BoxChild w288 = ((global::Gtk.Box.BoxChild)(this.vbox10[this.GtkScrolledWindow7]));
+			w288.Position = 1;
+			// Container child vbox10.Gtk.Box+BoxChild
+			this.hbox18 = new global::Gtk.HBox();
+			this.hbox18.Name = "hbox18";
+			this.hbox18.Spacing = 6;
+			// Container child hbox18.Gtk.Box+BoxChild
+			this.btnAddSlangWord = new global::Gamma.GtkWidgets.yButton();
+			this.btnAddSlangWord.CanFocus = true;
+			this.btnAddSlangWord.Name = "btnAddSlangWord";
+			this.btnAddSlangWord.UseUnderline = true;
+			this.btnAddSlangWord.Label = global::Mono.Unix.Catalog.GetString("Добавить");
+			this.hbox18.Add(this.btnAddSlangWord);
+			global::Gtk.Box.BoxChild w289 = ((global::Gtk.Box.BoxChild)(this.hbox18[this.btnAddSlangWord]));
+			w289.Position = 0;
+			w289.Expand = false;
+			w289.Fill = false;
+			// Container child hbox18.Gtk.Box+BoxChild
+			this.btnEditSlangWord = new global::Gamma.GtkWidgets.yButton();
+			this.btnEditSlangWord.CanFocus = true;
+			this.btnEditSlangWord.Name = "btnEditSlangWord";
+			this.btnEditSlangWord.UseUnderline = true;
+			this.btnEditSlangWord.Label = global::Mono.Unix.Catalog.GetString("Редактировать");
+			this.hbox18.Add(this.btnEditSlangWord);
+			global::Gtk.Box.BoxChild w290 = ((global::Gtk.Box.BoxChild)(this.hbox18[this.btnEditSlangWord]));
+			w290.Position = 1;
+			w290.Expand = false;
+			w290.Fill = false;
+			// Container child hbox18.Gtk.Box+BoxChild
+			this.btnRemoveSlangWord = new global::Gamma.GtkWidgets.yButton();
+			this.btnRemoveSlangWord.CanFocus = true;
+			this.btnRemoveSlangWord.Name = "btnRemoveSlangWord";
+			this.btnRemoveSlangWord.UseUnderline = true;
+			this.btnRemoveSlangWord.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			this.hbox18.Add(this.btnRemoveSlangWord);
+			global::Gtk.Box.BoxChild w291 = ((global::Gtk.Box.BoxChild)(this.hbox18[this.btnRemoveSlangWord]));
+			w291.Position = 2;
+			w291.Expand = false;
+			w291.Fill = false;
+			this.vbox10.Add(this.hbox18);
+			global::Gtk.Box.BoxChild w292 = ((global::Gtk.Box.BoxChild)(this.vbox10[this.hbox18]));
+			w292.Position = 2;
+			w292.Expand = false;
+			w292.Fill = false;
+			this.hpaned1.Add(this.vbox10);
+			this.vboxSitesAndApps.Add(this.hpaned1);
+			global::Gtk.Box.BoxChild w294 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.hpaned1]));
+			w294.Position = 3;
 			this.notebook.Add(this.vboxSitesAndApps);
-			global::Gtk.Notebook.NotebookChild w285 = ((global::Gtk.Notebook.NotebookChild)(this.notebook[this.vboxSitesAndApps]));
-			w285.Position = 6;
+			global::Gtk.Notebook.NotebookChild w295 = ((global::Gtk.Notebook.NotebookChild)(this.notebook[this.vboxSitesAndApps]));
+			w295.Position = 6;
 			// Notebook tab
 			this.lblSitesAndApps = new global::Gtk.Label();
 			this.lblSitesAndApps.Name = "lblSitesAndApps";
@@ -3829,8 +3934,8 @@ namespace Vodovoz.Views.Goods
 			this.notebook.SetTabLabel(this.vboxSitesAndApps, this.lblSitesAndApps);
 			this.lblSitesAndApps.ShowAll();
 			this.vbox1.Add(this.notebook);
-			global::Gtk.Box.BoxChild w286 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook]));
-			w286.Position = 1;
+			global::Gtk.Box.BoxChild w296 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook]));
+			w296.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
