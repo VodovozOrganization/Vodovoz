@@ -476,8 +476,6 @@ namespace Vodovoz.Views.Goods
 
 			#region Вкладка Сайты и приложения
 
-			ConfigureNotSpecialStateForOnlineAvailabilityWidgets();
-			ConfigureNotSpecialStateForOnlineMarkerWidgets();
 			ConfigureParametersForMobileApp();
 			ConfigureParametersForVodovozWebSite();
 			ConfigureParametersForKulerSaleWebSite();
@@ -560,11 +558,13 @@ namespace Vodovoz.Views.Goods
 		private void ConfigureParametersForMobileApp()
 		{
 			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(GoodsOnlineAvailability);
+			enumCmbOnlineAvailabilityMobileApp.ShowSpecialStateNot = true;
 			enumCmbOnlineAvailabilityMobileApp.Binding
 				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			enumCmbOnlineMarkerMobileApp.ItemsEnum = typeof(NomenclatureOnlineMarker);
+			enumCmbOnlineMarkerMobileApp.ShowSpecialStateNot = true;
 			enumCmbOnlineMarkerMobileApp.Binding
 				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineMarker, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
@@ -578,11 +578,13 @@ namespace Vodovoz.Views.Goods
 		private void ConfigureParametersForVodovozWebSite()
 		{
 			enumCmbOnlineAvailabilityVodovozWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
+			enumCmbOnlineAvailabilityVodovozWebSite.ShowSpecialStateNot = true;
 			enumCmbOnlineAvailabilityVodovozWebSite.Binding
 				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			enumCmbOnlineMarkerVodovozWebSite.ItemsEnum = typeof(NomenclatureOnlineMarker);
+			enumCmbOnlineMarkerVodovozWebSite.ShowSpecialStateNot = true;
 			enumCmbOnlineMarkerVodovozWebSite.Binding
 				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineMarker, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
@@ -598,11 +600,13 @@ namespace Vodovoz.Views.Goods
 		private void ConfigureParametersForKulerSaleWebSite()
 		{
 			enumCmbOnlineAvailabilityKulerSaleWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
+			enumCmbOnlineAvailabilityKulerSaleWebSite.ShowSpecialStateNot = true;
 			enumCmbOnlineAvailabilityKulerSaleWebSite.Binding
 				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			enumCmbOnlineMarkerKulerSaleWebSite.ItemsEnum = typeof(NomenclatureOnlineMarker);
+			enumCmbOnlineMarkerKulerSaleWebSite.ShowSpecialStateNot = true;
 			enumCmbOnlineMarkerKulerSaleWebSite.Binding
 				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineMarker, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
@@ -611,20 +615,6 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
 			entryOnlineDiscountKulerSaleWebSite.Changed += OnNumericEntryChanged;
-		}
-
-		private void ConfigureNotSpecialStateForOnlineAvailabilityWidgets()
-		{
-			enumCmbOnlineAvailabilityMobileApp.ShowSpecialStateNot = true;
-			enumCmbOnlineAvailabilityVodovozWebSite.ShowSpecialStateNot = true;
-			enumCmbOnlineAvailabilityKulerSaleWebSite.ShowSpecialStateNot = true;
-		}
-
-		private void ConfigureNotSpecialStateForOnlineMarkerWidgets()
-		{
-			enumCmbOnlineMarkerMobileApp.ShowSpecialStateNot = true;
-			enumCmbOnlineMarkerVodovozWebSite.ShowSpecialStateNot = true;
-			enumCmbOnlineMarkerKulerSaleWebSite.ShowSpecialStateNot = true;
 		}
 
 		private void ConfigureTreeOnlinePrices()
