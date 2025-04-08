@@ -19,23 +19,25 @@ namespace Edo.Transfer
 {
 	public class TransferDispatcher
 	{
+		private readonly IUnitOfWork _uow;
 		private readonly TransferTaskRepository _transferTaskRepository;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IEdoTransferSettings _edoTransferSettings;
 
 		public TransferDispatcher(
+			IUnitOfWork uow,
 			TransferTaskRepository transferTaskRepository,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IEdoTransferSettings edoTransferSettings
 			)
 		{
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_transferTaskRepository = transferTaskRepository ?? throw new ArgumentNullException(nameof(transferTaskRepository));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_edoTransferSettings = edoTransferSettings ?? throw new ArgumentNullException(nameof(edoTransferSettings));
 		}
 
 		public async Task<TransferEdoTask> AddRequestsToTask(
-			IUnitOfWork uow,
 			IGrouping<TransferDirection, TransferEdoRequest> requestsGroup,
 			CancellationToken cancellationToken)
 		{
@@ -54,24 +56,29 @@ namespace Edo.Transfer
 				.Build();
 
 			var result = await pipeline.ExecuteAsync(async token => {
-				return await TryAddRequestsToTask(uow, requestsGroup, token);
+				return await TryAddRequestsToTask(requestsGroup, token);
 			}, cancellationToken);
 
 			return result;
 		}
 
 		private async Task<TransferEdoTask> TryAddRequestsToTask(
-			IUnitOfWork uow,
 			IGrouping<TransferDirection, TransferEdoRequest> requestsGroup,
 			CancellationToken cancellationToken)
 		{
 			var direction = requestsGroup.Key;
-			var task = await _transferTaskRepository.FindTaskAsync(
-				uow,
-				direction.FromOrganizationId,
-				direction.ToOrganizationId,
-				cancellationToken
-			);
+			var transferedItemsCount = requestsGroup.Sum(x => x.TransferedItems.Count);
+
+			TransferEdoTask task = null;
+			if(transferedItemsCount < _edoTransferSettings.MinCodesCountForStartTransfer)
+			{
+				task = await _transferTaskRepository.FindTaskAsync(
+					_uow,
+					direction.FromOrganizationId,
+					direction.ToOrganizationId,
+					cancellationToken
+				);
+			}
 
 			if(task == null)
 			{
@@ -83,24 +90,34 @@ namespace Edo.Transfer
 				task.TransferStatus = TransferEdoTaskStatus.WaitingRequests;
 			}
 
+			if(transferedItemsCount >= _edoTransferSettings.MinCodesCountForStartTransfer)
+			{
+				task.TransferStatus = TransferEdoTaskStatus.ReadyToSend;
+			}
+
 			foreach(var request in requestsGroup)
 			{
 				request.TransferEdoTask = task;
-				await uow.SaveAsync(request, cancellationToken: cancellationToken);
+				await _uow.SaveAsync(request, cancellationToken: cancellationToken);
 			}
 
-			await TrySendTransfer(uow, task, requestsGroup, cancellationToken);
+			await TrySendTransfer(task, requestsGroup, cancellationToken);
 
 			return task;
 		}
 
 		private async Task TrySendTransfer(
-			IUnitOfWork uow, 
 			TransferEdoTask transferEdoTask, 
 			IEnumerable<TransferEdoRequest> currentTransferEdoRequests,
 			CancellationToken cancellationToken)
 		{
-			var transferRequestsFromDb = await uow.Session.QueryOver<TransferEdoRequest>()
+			if(transferEdoTask.TransferStatus == TransferEdoTaskStatus.ReadyToSend)
+			{
+				await SendTransfer(transferEdoTask, cancellationToken);
+				return;
+			}
+
+			var transferRequestsFromDb = await _uow.Session.QueryOver<TransferEdoRequest>()
 				.Where(x => x.TransferEdoTask.Id == transferEdoTask.Id)
 				.ListAsync();
 			var transferRequests = transferRequestsFromDb.Union(currentTransferEdoRequests);
@@ -109,37 +126,37 @@ namespace Edo.Transfer
 
 			if(codesCountInTask >= _edoTransferSettings.MinCodesCountForStartTransfer)
 			{
-				await SendTransfer(uow, transferEdoTask, cancellationToken);
+				await SendTransfer(transferEdoTask, cancellationToken);
 			}
 		}
 
-		public async Task<IEnumerable<TransferEdoTask>> SendStaleTasksAsync(IUnitOfWork uow, CancellationToken cancellationToken)
+		public async Task<IEnumerable<TransferEdoTask>> SendStaleTasksAsync(CancellationToken cancellationToken)
 		{
-			var staleTasks = await _transferTaskRepository.GetStaleTasksAsync(uow, cancellationToken);
+			var staleTasks = await _transferTaskRepository.GetStaleTasksAsync(_uow, cancellationToken);
 			foreach(var staleTask in staleTasks)
 			{
-				await SendTransfer(uow, staleTask, cancellationToken);
+				await SendTransfer(staleTask, cancellationToken);
 			}
 
 			return staleTasks;
 		}
 
-		private async Task SendTransfer(IUnitOfWork uow, TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
+		public async Task SendTransfer(TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
 		{
-			transferEdoTask.TransferStatus = TransferEdoTaskStatus.InProgress;
+			transferEdoTask.TransferStatus = TransferEdoTaskStatus.ReadyToSend;
 			transferEdoTask.TransferStartTime = DateTime.Now;
 
-			await CreateTransferOrder(uow, transferEdoTask, cancellationToken);
+			await CreateTransferOrder(transferEdoTask, cancellationToken);
 
-			await uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
+			await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 		}
 
-		private async Task CreateTransferOrder(IUnitOfWork uow, TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
+		private async Task CreateTransferOrder(TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
 		{
-			var transferedCodes = await _transferTaskRepository.GetAllCodesForTransferTaskAsync(uow, transferEdoTask, cancellationToken);
-			var groupGtins = await uow.Session.QueryOver<GroupGtinEntity>()
+			var transferedCodes = await _transferTaskRepository.GetAllCodesForTransferTaskAsync(_uow, transferEdoTask, cancellationToken);
+			var groupGtins = await _uow.Session.QueryOver<GroupGtinEntity>()
 					.ListAsync(cancellationToken);
-			var gtins = await uow.Session.QueryOver<GtinEntity>()
+			var gtins = await _uow.Session.QueryOver<GtinEntity>()
 					.ListAsync(cancellationToken);
 
 			var transferOrder = new TransferOrder();
@@ -147,19 +164,19 @@ namespace Edo.Transfer
 			transferOrder.Seller = new OrganizationEntity { Id = transferEdoTask.FromOrganizationId };
 			transferOrder.Customer = new OrganizationEntity { Id = transferEdoTask.ToOrganizationId };
 
-			var transferRequests = await uow.Session.QueryOver<TransferEdoRequest>()
+			var transferRequests = await _uow.Session.QueryOver<TransferEdoRequest>()
 				.Fetch(SelectMode.Fetch, x => x.Iteration)
 				.Where(x => x.TransferEdoTask.Id == transferEdoTask.Id)
 				.ListAsync();
 
 			var orderTaskIds = transferRequests.Select(x => x.Iteration.OrderEdoTask.Id);
 
-			await uow.Session.QueryOver<DocumentEdoTask>()
+			await _uow.Session.QueryOver<DocumentEdoTask>()
 				.Fetch(SelectMode.Fetch, x => x.UpdInventPositions)
 				.WhereRestrictionOn(x => x.Id).IsIn(orderTaskIds.ToArray())
 				.ListAsync();
 
-			await uow.Session.QueryOver<EdoTaskItem>()
+			var taskItems = await _uow.Session.QueryOver<EdoTaskItem>()
 				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
@@ -169,18 +186,18 @@ namespace Edo.Transfer
 				.WhereRestrictionOn(x => x.CustomerEdoTask.Id).IsIn(orderTaskIds.ToArray())
 				.ListAsync();
 
+			var sourceCodes = taskItems
+				.Where(x => x.ProductCode.SourceCode != null)
+				.Select(x => x.ProductCode.SourceCode);
 
-			var transferItems = transferEdoTask.TransferEdoRequests.SelectMany(x => x.TransferedItems);
+			var resultCodes = taskItems
+				.Where(x => x.ProductCode.ResultCode != null)
+				.Select(x => x.ProductCode.ResultCode);
 
-			var groupCodeIds = transferItems.Select(x => x.ProductCode.ResultCode.ParentWaterGroupCodeId);
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
-			var groupCodes = await uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
-				.WhereRestrictionOn(x => x.Id).IsIn(groupCodeIds.ToArray())
-				.ListAsync();
-
-			await uow.Session.QueryOver<TrueMarkTransportCode>()
-				.WhereRestrictionOn(x => x.Id).IsIn(groupCodes.Select(x => x.ParentTransportCodeId).ToArray())
-				.ListAsync();
+			await _uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
 
 			foreach(var transferEdoRequest in transferEdoTask.TransferEdoRequests)
 			{
@@ -191,22 +208,22 @@ namespace Edo.Transfer
 					{
 						case EdoTaskType.Document:
 							var documentEdoTask = transferEdoRequest.Iteration.OrderEdoTask.As<DocumentEdoTask>();
-							transferOrderTrueMarkCode = CreateTransferCodeItem(
-								uow, 
+							transferOrderTrueMarkCode = await CreateTransferCodeItem(
 								documentEdoTask, 
 								transferedItem,
 								groupGtins,
-								gtins
+								gtins,
+								cancellationToken
 							);
 							break;
 						case EdoTaskType.Receipt:
 							var receiptEdoTask = transferEdoRequest.Iteration.OrderEdoTask.As<ReceiptEdoTask>();
-							transferOrderTrueMarkCode = CreateTransferCodeItem(
-								uow,
+							transferOrderTrueMarkCode = await CreateTransferCodeItem(
 								receiptEdoTask,
 								transferedItem,
 								groupGtins,
-								gtins
+								gtins,
+								cancellationToken
 							);
 							break;
 						default:
@@ -226,28 +243,28 @@ namespace Edo.Transfer
 
 					transferOrderTrueMarkCode.TransferOrder = transferOrder;
 					transferOrder.Items.Add(transferOrderTrueMarkCode);
+					await _uow.SaveAsync(transferOrderTrueMarkCode, cancellationToken: cancellationToken);
 				}
 			}
 
-			await uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
 			transferEdoTask.TransferOrderId = transferOrder.Id;
 		}
 
-		private TransferOrderTrueMarkCode CreateTransferCodeItem(
-			IUnitOfWork uow,
+		private async Task<TransferOrderTrueMarkCode> CreateTransferCodeItem(
 			DocumentEdoTask edoTask,
 			EdoTaskItem edoTaskItem,
 			IEnumerable<GroupGtinEntity> groupGtins,
-			IEnumerable<GtinEntity> gtins
+			IEnumerable<GtinEntity> gtins,
+			CancellationToken cancellationToken
 			)
 		{
 			TransferOrderTrueMarkCode transferOrderTrueMarkCode = null;
 
 			if(edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
 			{
-				var groupCode = _trueMarkCodeRepository.GetParentGroupCode(
-					uow, 
-					edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value
+				var groupCode = await _trueMarkCodeRepository.GetGroupCode(
+					edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value,
+					cancellationToken
 				);
 
 				var groupCodeNomenclature = GetNomenclatureForTaskItem(edoTask, groupCode, groupGtins);
@@ -316,21 +333,21 @@ namespace Edo.Transfer
 			return nomenclature;
 		}
 
-		private TransferOrderTrueMarkCode CreateTransferCodeItem(
-			IUnitOfWork uow,
+		private async Task<TransferOrderTrueMarkCode> CreateTransferCodeItem(
 			ReceiptEdoTask edoTask,
 			EdoTaskItem edoTaskItem,
 			IEnumerable<GroupGtinEntity> groupGtins,
-			IEnumerable<GtinEntity> gtins
+			IEnumerable<GtinEntity> gtins,
+			CancellationToken cancellationToken
 			)
 		{
 			TransferOrderTrueMarkCode transferOrderTrueMarkCode = null;
 
 			if(edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
 			{
-				var groupCode = _trueMarkCodeRepository.GetParentGroupCode(
-					uow,
-					edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value
+				var groupCode = await _trueMarkCodeRepository.GetGroupCode(
+					edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value,
+					cancellationToken
 				);
 
 				var groupCodeNomenclature = GetNomenclatureForTaskItem(edoTask, groupCode, groupGtins);

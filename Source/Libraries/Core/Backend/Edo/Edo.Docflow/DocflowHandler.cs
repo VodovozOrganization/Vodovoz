@@ -28,24 +28,19 @@ namespace Edo.Docflow
 
 		public DocflowHandler(
 			ILogger<DocflowHandler> logger,
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWork uow,
 			TransferOrderUpdInfoFactory transferOrderUpdInfoFactory,
 			OrderUpdInfoFactory orderUpdInfoFactory,
 			IPaymentRepository paymentRepository,
 			IBus messageBus
 			)
 		{
-			if(uowFactory is null)
-			{
-				throw new ArgumentNullException(nameof(uowFactory));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_transferOrderUpdInfoFactory = transferOrderUpdInfoFactory ?? throw new ArgumentNullException(nameof(transferOrderUpdInfoFactory));
 			_orderUpdInfoFactory = orderUpdInfoFactory ?? throw new ArgumentNullException(nameof(orderUpdInfoFactory));
 			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-			_uow = uowFactory.CreateWithoutRoot();
 		}
 
 		public async Task HandleTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
@@ -67,15 +62,7 @@ namespace Edo.Docflow
 				.Where(x => x.Id == transferTask.TransferOrderId)
 				.SingleOrDefaultAsync(cancellationToken);
 
-			var transferOrderCodes = await _uow.Session.QueryOver<TransferOrderTrueMarkCode>()
-				.Fetch(SelectMode.Fetch, x => x.Nomenclature)
-				.Fetch(SelectMode.Fetch, x => x.Nomenclature.Unit)
-				.Fetch(SelectMode.Fetch, x => x.IndividualCode)
-				.Fetch(SelectMode.Fetch, x => x.IndividualCode.Tag1260CodeCheckResult)
-				.Where(x => x.TransferOrder.Id == transferOrder.Id)
-				.ListAsync(cancellationToken);
-
-			var updInfo = _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(_uow, transferOrder);
+			var updInfo = await _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(transferOrder, cancellationToken);
 
 			var message = new TaxcomDocflowSendEvent
 			{
@@ -115,7 +102,7 @@ namespace Edo.Docflow
 						.Distinct();
 					
 					sender = order.Contract.Organization;
-					updInfo = _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask, filteredPayments);
+					updInfo = await _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask, filteredPayments, cancellationToken);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 				case CustomerEdoRequestType.OrderWithoutShipmentForDebt:
