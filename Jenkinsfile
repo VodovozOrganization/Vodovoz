@@ -86,7 +86,7 @@ CAN_BUILD_WEB = true
 CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
 
 // 106	Настройки. Архивация
-CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
+CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || GIT_BRANCH == 'Beta')
 CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
 
 // 107.1	Настройки. Доставка
@@ -104,7 +104,7 @@ WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB
 
 // 108	Настройки. Развертывание
 DEPLOY_PATH = "F:/WORK/_BUILDS"
-CAN_DEPLOY_FOR_TEST_DESKTOP = CAN_DELIVERY_DESKTOP && (env.BRANCH_NAME == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD || IS_DEVELOP)
+CAN_DEPLOY_FOR_TEST_DESKTOP = CAN_DELIVERY_DESKTOP && (GIT_BRANCH == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD || IS_DEVELOP)
 CAN_DEPLOY_FOR_USERS_DESKTOP = CAN_DELIVERY_DESKTOP && (IS_HOTFIX || IS_RELEASE)
 
 // 109	Настройки. Публикация	
@@ -200,14 +200,22 @@ stage('Log') {
 }
 
 stage('Stop previous builds') {
-	def jobName = "Vodovoz/Vodovoz/${env.BRANCH_NAME}"
+	def jobName = "Vodovoz/Vodovoz/${GIT_BRANCH}"
 	def job = Jenkins.instance.getItemByFullName(jobName)
+	if (job == null) {
+		echo "Job ${jobName} not found"
+		return
+	}
 	def currentBuildNumber = currentBuild.number.toInteger()
-	job.builds.each { build ->
-		if (build.isBuilding() &&
-            build.number.toInteger() < currentBuildNumber) {
-				build.finish(hudson.model.Result.ABORTED, new java.io.IOException("Aborting build"))
+	if (job.builds != null && !job.builds.isEmpty()) {
+		job.builds.each { build ->
+			if (build.isBuilding() &&
+				build.number.toInteger() < currentBuildNumber) {
+					build.finish(hudson.model.Result.ABORTED, new java.io.IOException("Aborting build"))
+			}
 		}
+	} else {
+		echo "No builds found for job ${jobName}"
 	}
 }
 
@@ -601,7 +609,7 @@ def DeployDesktopForTest(){
 		}
 		else
 		{
-			OUTPUT_PATH = "${DEPLOY_PATH}/${env.BRANCH_NAME}"
+			OUTPUT_PATH = "${DEPLOY_PATH}/${GIT_BRANCH}"
 		}
 
 		DecompressArtifact(OUTPUT_PATH, 'VodovozDesktop')
