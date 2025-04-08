@@ -10,7 +10,6 @@ using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +25,7 @@ using Vodovoz.Settings.Edo;
 
 namespace Edo.Receipt.Dispatcher
 {
-	public class ResaleReceiptEdoTaskHandler
+	public class ResaleReceiptEdoTaskHandler : IDisposable
 	{
 		private readonly ILogger<ResaleReceiptEdoTaskHandler> _logger;
 		private readonly IUnitOfWork _uow;
@@ -695,6 +694,11 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			return contact;
+		}
+
+		public void Dispose()
+		{
+			_uow.Dispose();
 		}
 	}
 }

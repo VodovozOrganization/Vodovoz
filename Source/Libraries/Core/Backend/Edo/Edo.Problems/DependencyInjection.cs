@@ -13,21 +13,23 @@ namespace Edo.Problems
 	{
 		public static IServiceCollection AddEdoProblemRegistation(this IServiceCollection services)
 		{
+			services.TryAddScoped<IUnitOfWork>(x => x.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+
 			services
 				.AddCustomProblemSourcesFromAssembly()
 				.AddExceptionProblemSourcesFromAssembly()
 				.AddEdoTaskValidatorsFromAssembly()
+				;
 
-				.AddSingleton<EdoTaskCustomSourcesPersister>()
-				.AddSingleton<EdoTaskExceptionSourcesPersister>()
-				.AddSingleton<EdoTaskValidatorsPersister>()
+			services.TryAddSingleton<EdoTaskCustomSourcesPersister>();
+			services.TryAddSingleton<EdoTaskExceptionSourcesPersister>();
+			services.TryAddSingleton<EdoTaskValidatorsPersister>();
 
-				.AddScoped<EdoTaskValidatorsProvider>()
-				.AddScoped<EdoTaskValidator>()
-				.AddScoped<EdoProblemRegistrar>()
+			services.TryAddScoped<EdoTaskValidatorsProvider>();
+			services.TryAddScoped<EdoTaskValidator>();
+			services.TryAddScoped<EdoProblemRegistrar>();
 			;
 
-			services.TryAddScoped<IUnitOfWork>(x => x.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			return services;
 		}
@@ -39,6 +41,7 @@ namespace Edo.Problems
 				.Where(type => type.IsClass && !type.IsAbstract)
 				.Where(type => typeof(EdoTaskProblemCustomSource).IsAssignableFrom(type));
 
+			services.RemoveAll(typeof(EdoTaskProblemCustomSource));
 			foreach(var validatorType in validatorTypes)
 			{
 				services.AddSingleton(typeof(EdoTaskProblemCustomSource), validatorType);
@@ -54,6 +57,7 @@ namespace Edo.Problems
 				.Where(type => type.IsClass && !type.IsAbstract)
 				.Where(type => typeof(EdoTaskProblemExceptionSource).IsAssignableFrom(type));
 
+			services.RemoveAll(typeof(EdoTaskProblemExceptionSource));
 			foreach(var validatorType in validatorTypes)
 			{
 				services.AddSingleton(typeof(EdoTaskProblemExceptionSource), validatorType);
@@ -69,6 +73,7 @@ namespace Edo.Problems
 				.Where(type => type.IsClass && !type.IsAbstract)
 				.Where(type => typeof(IEdoTaskValidator).IsAssignableFrom(type));
 
+			services.RemoveAll(typeof(IEdoTaskValidator));
 			foreach(var validatorType in validatorTypes)
 			{
 				services.AddSingleton(typeof(IEdoTaskValidator), validatorType);

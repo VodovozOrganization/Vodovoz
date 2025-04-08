@@ -1,20 +1,21 @@
 ﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
-using Edo.Problems.Custom.Sources;
 using Edo.Problems;
+using Edo.Problems.Custom.Sources;
+using Edo.Problems.Exception;
 using Edo.Problems.Validation;
 using MassTransit;
+using Microsoft.Extensions.Logging;
+using NHibernate;
 using QS.DomainModel.UoW;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TrueMark.Contracts;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
-using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using NHibernate;
-using Edo.Problems.Exception;
 
 namespace Edo.Documents
 {
@@ -25,10 +26,9 @@ namespace Edo.Documents
 		private readonly ForOwnNeedDocumentEdoTaskHandler _forOwnNeedDocumentEdoTaskHandler;
 		private readonly ForResaleDocumentEdoTaskHandler _forResaleDocumentEdoTaskHandler;
 		private readonly EdoTaskValidator _edoTaskValidator;
-		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
-		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IBus _messageBus;
 
 		public DocumentEdoTaskHandler(
@@ -41,6 +41,7 @@ namespace Edo.Documents
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferRequestCreator transferRequestCreator,
 			EdoProblemRegistrar edoProblemRegistrar,
+			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IBus messageBus
 			)
 		{
@@ -49,10 +50,9 @@ namespace Edo.Documents
 			_forOwnNeedDocumentEdoTaskHandler = forOwnNeedDocumentEdoTaskHandler ?? throw new ArgumentNullException(nameof(forOwnNeedDocumentEdoTaskHandler));
 			_forResaleDocumentEdoTaskHandler = forResaleDocumentEdoTaskHandler ?? throw new ArgumentNullException(nameof(forResaleDocumentEdoTaskHandler));
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
-			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
-			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -73,11 +73,24 @@ namespace Edo.Documents
 			}
 
 			// предзагрузка для ускорения
-			await _uow.Session.QueryOver<TrueMarkProductCode>()
+			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
 				.ListAsync();
+
+			var sourceCodes = productCodes
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = productCodes
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
 			try
 			{
@@ -193,13 +206,24 @@ namespace Edo.Documents
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
 			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
 
-			await _uow.Session.QueryOver<TrueMarkProductCode>()
+			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
 				.ListAsync();
+
+			var sourceCodes = productCodes
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = productCodes
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 

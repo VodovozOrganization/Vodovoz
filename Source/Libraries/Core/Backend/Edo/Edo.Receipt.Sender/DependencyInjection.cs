@@ -5,22 +5,31 @@ using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using ModulKassa;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using QS.DomainModel.UoW;
 
 namespace Edo.Receipt.Sender
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddEdoReceiptSender(this IServiceCollection services)
+		public static IServiceCollection AddEdoReceiptSenderServices(this IServiceCollection services)
 		{
+			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+
 			services.AddModulKassa();
 
-			services
-				.AddScoped<FiscalDocumentFactory>()
-				.AddScoped<ReceiptSender>()
-				;
+			services.TryAddScoped<FiscalDocumentFactory>();
+			services.TryAddScoped<ReceiptSender>();
 
 			services.AddEdo();
 			services.AddEdoProblemRegistation();
+
+			return services;
+		}
+
+		public static IServiceCollection AddEdoReceiptSender(this IServiceCollection services)
+		{
+			services.AddEdoReceiptSenderServices();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{

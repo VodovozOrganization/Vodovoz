@@ -23,14 +23,18 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark
             HasMany(x => x.InnerGroupCodes)
 				.KeyColumn("parent_water_group_code_id")
 				.Not.LazyLoad()
+				.Fetch.Subselect()
 				.Inverse()
-				.Cascade.All();
+				.Cascade.All()
+				;
 
 			HasMany(x => x.InnerWaterCodes)
 				.KeyColumn("parent_water_group_code_id")
 				.Not.LazyLoad()
+				.Fetch.Subselect()
 				.Inverse()
-				.Cascade.All();
+				.Cascade.All()
+				;
 		}
 	}
 }

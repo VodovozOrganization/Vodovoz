@@ -14,7 +14,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Transfer.Dispatcher
 {
@@ -92,7 +91,6 @@ namespace Edo.Transfer.Dispatcher
 			foreach(var requestsGroup in requestsGroups)
 			{
 				var transferTask = await _transferDispatcher.AddRequestsToTask(
-					_uow,
 					requestsGroup,
 					cancellationToken
 				);
@@ -237,6 +235,18 @@ namespace Edo.Transfer.Dispatcher
 
 			await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
 				transferTask, cancellationToken, "Возникла проблема с документооборотом, не завершился на стороне ЭДО провайдера");
+		}
+
+		public async Task SendTransfer(int transferTaskId, CancellationToken cancellationToken)
+		{
+			var transferEdoTask = await _uow.Session.GetAsync<TransferEdoTask>(transferTaskId, cancellationToken);
+			await _transferDispatcher.SendTransfer(transferEdoTask, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+
+			await _messageBus.Publish(
+				new TransferTaskReadyToSendEvent { Id = transferTaskId },
+				cancellationToken
+			);
 		}
 
 		public void Dispose()
