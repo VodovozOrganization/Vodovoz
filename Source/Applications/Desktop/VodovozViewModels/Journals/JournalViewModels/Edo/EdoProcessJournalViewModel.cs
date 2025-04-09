@@ -17,6 +17,8 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
+using Core.Infrastructure;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 {
@@ -28,6 +30,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
 		private readonly MessageService _messageService;
 		private readonly IUserService _userService;
+		private readonly IClipboard _clipboard;
+		private readonly IGtkTabsOpener _gtkTabsOpener;
 
 		public EdoProcessJournalViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -36,6 +40,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			MessageService messageService,
 			IUserService userService,
+			IClipboard clipboard,
+			IGtkTabsOpener gtkTabsOpener,
 			INavigationManager navigation = null
 			) : base(uowFactory, interactiveService, navigation)
 		{
@@ -44,14 +50,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
 			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
+			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_interactiveService = interactiveService;
 
-			Title = "ЭДО процессы";
+			Title = "Документооброт с клиентами";
 
 			DataLoader = new AnyDataLoader<EdoProcessJournalNode>(GetNodes);
 
+			SearchEnabled = false;
+			_filterViewModel.IsShow = true;
+			SelectionMode = JournalSelectionMode.Multiple;
+
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 			CreateNodeActions();
+			CreatePopupActions();
 		}
 
 		public override IJournalFilterViewModel JournalFilter 
@@ -62,8 +75,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 		protected override void CreateNodeActions()
 		{
-			base.CreateNodeActions();
+			NodeActionsList.Clear();
 			CreateResendReceiptFromSaveCodesTaskAction();
+		}
+
+		protected override void CreatePopupActions()
+		{
+			PopupActionsList.Clear();
+			CreateCopyOrderIdToClipboardAction();
+			CreateOpenOrderAction();
 		}
 
 		private void CreateResendReceiptFromSaveCodesTaskAction()
@@ -123,6 +143,59 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			);
 			
 			NodeActionsList.Add(action);
+		}
+
+		private void CreateCopyOrderIdToClipboardAction()
+		{
+			var action = new JournalAction(
+				"Скопировать номер заказа",
+				selected => selected.Any(),
+				selected => true,
+				selected =>
+				{
+					var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
+
+					var orderIds = string.Join(", ", selectedNodes.Select(x => x.OrderId));
+					_clipboard.SetText(orderIds);
+				}
+			);
+
+			PopupActionsList.Add(action);
+		}
+
+		private void CreateOpenOrderAction()
+		{
+			var action = new JournalAction(
+				"Открыть заказ",
+				selected => selected.Count() == 1,
+				selected => true,
+				selected =>
+				{
+					var selectedNode = selected.Cast<EdoProcessJournalNode>().FirstOrDefault();
+
+					_gtkTabsOpener.OpenOrderDlgFromViewModelByNavigator(this, selectedNode.OrderId);
+				}
+			);
+
+			PopupActionsList.Add(action);
+		}
+
+		private void CreateCopyTaskIdToClipboardAction()
+		{
+			var action = new JournalAction(
+				"Скопировать номер задачи",
+				selected => selected.Any(),
+				selected => true,
+				selected =>
+				{
+					var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
+
+					var orderIds = string.Join(", ", selectedNodes.Select(x => x.OrderId));
+					_clipboard.SetText(orderIds);
+				}
+			);
+
+			PopupActionsList.Add(action);
 		}
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
@@ -195,6 +268,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 select 
 	o.id as :order_id,
 	o.delivery_date as :delivery_date,
+	o.order_status as :order_status,
 	ecr.`time` as :customer_request_time,
 	ecr.source as :customer_request_source,
 	et.id as :order_task_id,
@@ -204,7 +278,7 @@ select
 	et.receipt_status as :order_task_receipt_stage,
 	Count(distinct if(etri.status = 'Completed', etri.id, null)) as :transfers_completed,
 	Count(distinct etri.id) as :transfers_total,
-	ttp.id is not null as :transfers_has_problem,
+	IF(tt.id is not null, ttp.id is not null, null) as :transfers_has_problem,
 	TIMEDIFF(Max(tt.end_time),Min(tt.start_time)) as :total_transfer_time_by_transfer_tasks,
 	TIMEDIFF(et.end_time, et.start_time) as :order_task_time_in_progress
 from orders o
@@ -214,9 +288,11 @@ left join edo_transfer_request_iterations etri on etri.order_edo_task_id = et.id
 left join edo_transfer_requests etr on etr.iteration_id = etri.id
 left join edo_tasks tt on tt.id = etr.transfer_edo_task_id
 left join edo_task_problems ttp on ttp.edo_task_id = tt.id and ttp.state = 'Active'
-where et.`type` not in ('BulkAccounting', 'Transfer')
+where (et.`type` not in ('Transfer') or et.id IS NULL)
+and o.delivery_date >= :delivery_date_from and o.delivery_date <= :delivery_date_to
 {filterSql}
-group by o.id, ecr.id {havingSql}
+group by o.id, ecr.id
+{havingSql}
 order by o.delivery_date desc
 ";
 
@@ -224,6 +300,7 @@ order by o.delivery_date desc
 					.MapParametersToNode<EdoProcessJournalNode>()
 					.Map("order_id", x => x.OrderId, NHibernateUtil.Int32)
 					.Map("delivery_date", x => x.DeliveryDate, NHibernateUtil.DateTime)
+					.Map("order_status", x => x.OrderStatus, new EnumStringType<OrderStatus>())
 					.Map("customer_request_time", x => x.CustomerRequestTime, NHibernateUtil.DateTime)
 					.Map("customer_request_source", x => x.CustomerRequestSource, new EnumStringType<CustomerEdoRequestSource>())
 					.Map("order_task_id", x => x.OrderTaskId, NHibernateUtil.Int32)
@@ -237,6 +314,9 @@ order by o.delivery_date desc
 					.Map("total_transfer_time_by_transfer_tasks", x => x.TotalTransferTimeByTransferTasks, NHibernateUtil.TimeAsTimeSpan)
 					.Map("order_task_time_in_progress", x => x.OrderTaskTimeInProgress, NHibernateUtil.TimeAsTimeSpan)
 					.SetResultTransformer();
+
+				query.SetParameter("delivery_date_from", _filterViewModel.DeliveryDateFrom);
+				query.SetParameter("delivery_date_to", _filterViewModel.DeliveryDateTo);
 
 				if(_filterViewModel.OrderId.HasValue)
 				{

@@ -1,4 +1,5 @@
-﻿using DriverApi.Notifications.Client;
+﻿using Core.Infrastructure;
+using DriverApi.Notifications.Client;
 using Edo.Transport;
 using Fias.Client;
 using FuelControl.Library;
@@ -84,6 +85,8 @@ namespace Vodovoz
 	{
 		public static IServiceCollection AddWaterDeliveryDesktop(this IServiceCollection services, IConfiguration configuration)
 		{
+			services.AddScoped<IClipboard, GtkClipboard>();
+
 			services.AddVodovozViewModels()
 				.AddPresentationViews()
 				.AddDocumentPrinter()
