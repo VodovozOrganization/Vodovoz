@@ -216,8 +216,9 @@ namespace Edo.Documents
 			if(edoTask.Stage != DocumentEdoTaskStage.Transfering)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
-					"так как задача Id {documentEdoTaskId} находится на на стадии трансфера, а {documentEdoTaskStage}", 
-					edoTask.Stage);
+					"так как задача Id {documentEdoTaskId} находится не на стадии трансфера, " +
+					"а на стадии {documentEdoTaskStage}",
+					edoTask.Id, edoTask.Stage);
 				return;
 			}
 
