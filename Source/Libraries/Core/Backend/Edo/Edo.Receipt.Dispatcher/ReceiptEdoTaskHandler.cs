@@ -99,11 +99,19 @@ namespace Edo.Receipt.Dispatcher
 
 			var receiptEdoTask = transferIteration.OrderEdoTask.As<ReceiptEdoTask>();
 
-			if(receiptEdoTask.Status == EdoTaskStatus.Completed
-				|| receiptEdoTask.ReceiptStatus != EdoReceiptStatus.Transfering)
+			if(receiptEdoTask.Status == EdoTaskStatus.Completed)
 			{
-				_logger.LogInformation("Завершение трансфера по итерации id {transferIterationId} уже было обработано ранее.", 
-					transferIteration.Initiator);
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+					"так как задача Id {receiptEdoTaskId} уже завершена", receiptEdoTask.Id);
+				return;
+			}
+
+			if(receiptEdoTask.ReceiptStatus != EdoReceiptStatus.Transfering)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+					"так как задача Id {receiptEdoTaskId} находится не на стадии трансфера, " +
+					"а на стадии {receiptEdoTaskReceiptStatus}",
+					receiptEdoTask.Id, receiptEdoTask.ReceiptStatus);
 				return;
 			}
 
