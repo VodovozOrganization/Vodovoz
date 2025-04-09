@@ -3,6 +3,7 @@ using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Linq;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 {
@@ -11,6 +12,7 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 		private int _id;
 		private int? _nomenclatureId;
 		private IObservableList<SlangWord> _slangWords;
+		private GoodsOnlineAvailability? _goodsOnlineAvailability;
 
 		public int Id
 		{
@@ -22,6 +24,12 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 		{
 			get => _nomenclatureId;
 			set => SetField(ref _nomenclatureId, value);
+		}
+
+		public GoodsOnlineAvailability? GoodsOnlineAvailability
+		{
+			get => _goodsOnlineAvailability;
+			set => SetField(ref _goodsOnlineAvailability, value);
 		}
 
 		public IObservableList<SlangWord> SlangWords
