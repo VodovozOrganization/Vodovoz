@@ -622,9 +622,9 @@ namespace Vodovoz.Views.Goods
 		{
 			enumCmbOnlineAvailabilityRobotMia.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityRobotMia.ShowSpecialStateNot = true;
-			//enumCmbOnlineAvailabilityRobotMia.Binding
-			//	.AddBinding(ViewModel.RobotMiaParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
-			//	.InitializeFromSource();
+			enumCmbOnlineAvailabilityRobotMia.Binding
+				.AddBinding(ViewModel.RobotMiaParameters, p => p.GoodsOnlineAvailability, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 		}
 
 		private void ConfigureTreeOnlinePrices()

@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
@@ -68,6 +69,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private GtinJournalViewModel _gtinsJornalViewModel;
 		private GroupGtinJournalViewModel _groupGtinsJornalViewModel;
 
+		private readonly IGenericRepository<RobotMiaParameters> _robotMiaParametersRepository;
+
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private RobotMiaParameters _robotMiaParameters;
 
@@ -90,6 +93,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			NomenclatureMinimumBalanceByWarehouseViewModel nomenclatureMinimumBalanceByWarehouseViewModel,
 			INomenclatureFileStorageService nomenclatureFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			IGenericRepository<RobotMiaParameters> robotMiaParametersRepository,
 			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -117,6 +121,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 			_nomenclatureFileStorageService = nomenclatureFileStorageService ?? throw new ArgumentNullException(nameof(nomenclatureFileStorageService));
+			_robotMiaParametersRepository = robotMiaParametersRepository ?? throw new ArgumentNullException(nameof(robotMiaParametersRepository));
 			_productGroupEEVMBuilder = productGroupEEVMBuilder ?? throw new ArgumentNullException(nameof(productGroupEEVMBuilder));
 
 			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
@@ -754,6 +759,14 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
 			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
 
+			RobotMiaParameters = _robotMiaParametersRepository
+				.Get(UoW, x => x.NomenclatureId == Entity.Id)
+				.FirstOrDefault()
+				?? new RobotMiaParameters
+				{
+					NomenclatureId = Entity.Id,
+				};
+
 			MobileAppNomenclatureOnlineCatalogs = UoW.GetAll<MobileAppNomenclatureOnlineCatalog>().ToList();
 			VodovozWebSiteNomenclatureOnlineCatalogs = UoW.GetAll<VodovozWebSiteNomenclatureOnlineCatalog>().ToList();
 			KulerSaleWebSiteNomenclatureOnlineCatalogs = UoW.GetAll<KulerSaleWebSiteNomenclatureOnlineCatalog>().ToList();
@@ -1123,6 +1136,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				}
 			}
 
+			UoW.Save(RobotMiaParameters);
 			Save(true);
 		}
 

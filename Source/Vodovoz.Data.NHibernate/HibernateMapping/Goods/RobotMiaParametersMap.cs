@@ -14,7 +14,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.GoodsOnlineAvailability).Column("goods_online_availability");
 
 			HasMany(x => x.SlangWords)
-				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("robot_mia_parameters_id");
+				.Not.LazyLoad()
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.KeyColumn("robot_mia_parameters_id");
 		}
 	}
 }
