@@ -206,6 +206,21 @@ namespace Edo.Documents
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
 			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
 
+			if(edoTask.Status == EdoTaskStatus.Completed)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+					"так как задача Id {documentEdoTaskId} уже завершена", edoTask.Id);
+				return;
+			}
+
+			if(edoTask.Stage != DocumentEdoTaskStage.Transfering)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+					"так как задача Id {documentEdoTaskId} находится на на стадии трансфера, а {documentEdoTaskStage}", 
+					edoTask.Stage);
+				return;
+			}
+
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)

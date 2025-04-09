@@ -153,6 +153,43 @@ namespace Edo.Receipt.Dispatcher
 		{
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
+			if(!receiptEdoTask.FiscalDocuments.Any())
+			{
+				_logger.LogWarning("Отсутствуют фискальные документы. Задача id {edoTaskId} " +
+					"отправлена на переобработку.", receiptEdoTask.Id);
+				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
+				return;
+			}
+
+			var markedInventPositions = receiptEdoTask.FiscalDocuments.SelectMany(x => x.InventPositions)
+				.Where(x => x.EdoTaskItem != null || x.GroupCode != null);
+
+			var groupedByCode = markedInventPositions.GroupBy(x =>
+			{
+				if(x.EdoTaskItem != null)
+				{
+					return x.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260;
+				}
+
+				return x.GroupCode.FormatForCheck1260;
+			});
+
+			var hasDuplicateInventPositions = groupedByCode.Any(x => x.Count() > 1);
+
+			if(hasDuplicateInventPositions)
+			{
+				_logger.LogWarning("Обнаружено дублирование строк фискальных документов. Задача id {edoTaskId} " +
+					"отправлена на переобработку.", receiptEdoTask.Id);
+
+				await _edoProblemRegistrar.OptionalRegisterCustomProblem<FiscalInventPositionDuplicatesDetected>(
+					receiptEdoTask, 
+					cancellationToken,
+					solved: true
+				);
+				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
+				return;
+			}
+
 			var taskValidationResult = await _localCodesValidator.ValidateAsync(
 					receiptEdoTask,
 					trueMarkCodesChecker,

@@ -1,13 +1,17 @@
 ﻿using Edo.Problems;
 using Edo.Problems.Exception;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using QS.DomainModel.UoW;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Receipt.Dispatcher
 {
@@ -18,13 +22,15 @@ namespace Edo.Receipt.Dispatcher
 		private readonly ForOwnNeedsReceiptEdoTaskHandler _forOwnNeedsReceiptEdoTaskHandler;
 		private readonly ResaleReceiptEdoTaskHandler _resaleReceiptEdoTaskHandler;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 
 		public ReceiptEdoTaskHandler(
 			ILogger<ReceiptEdoTaskHandler> logger,
 			IUnitOfWork uow,
 			ForOwnNeedsReceiptEdoTaskHandler forOwnNeedsReceiptEdoTaskHandler,
 			ResaleReceiptEdoTaskHandler resaleReceiptEdoTaskHandler,
-			EdoProblemRegistrar edoProblemRegistrar
+			EdoProblemRegistrar edoProblemRegistrar,
+			ITrueMarkCodeRepository trueMarkCodeRepository
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -32,6 +38,7 @@ namespace Edo.Receipt.Dispatcher
 			_forOwnNeedsReceiptEdoTaskHandler = forOwnNeedsReceiptEdoTaskHandler ?? throw new ArgumentNullException(nameof(forOwnNeedsReceiptEdoTaskHandler));
 			_resaleReceiptEdoTaskHandler = resaleReceiptEdoTaskHandler ?? throw new ArgumentNullException(nameof(resaleReceiptEdoTaskHandler));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 		}
 
 		public async Task HandleNew(int receiptEdoTaskId, CancellationToken cancellationToken)
@@ -70,21 +77,56 @@ namespace Edo.Receipt.Dispatcher
 		{
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
 
+			if(transferIteration == null)
+			{
+				_logger.LogWarning("Итерация трансфера Id {transferIterationId} не найдена.", transferIterationId);
+				return;
+			}
+
 			if(transferIteration.Status != TransferEdoRequestIterationStatus.Completed)
 			{
-				_logger.LogWarning($"Пришло событие завершения трансфера, но трансфер не завершен, " +
-					$"статус: {transferIteration.Status}.");
+				_logger.LogWarning("Пришло событие завершения трансфера, но трансфер не завершен, " +
+					"статус: {transferIterationStatus}.", transferIteration.Status);
 				return;
 			}
 
 			if(transferIteration.Initiator != TransferInitiator.Receipt)
 			{
-				_logger.LogWarning($"Пришло событие завершения трансфера, но инициатор трансфера не чек, " +
-					$"инициатор: {transferIteration.Initiator}.");
+				_logger.LogWarning("Пришло событие завершения трансфера, но инициатор трансфера не чек, " +
+					"инициатор: {transferIterationInitiator}.", transferIteration.Initiator);
 				return;
 			}
 
 			var receiptEdoTask = transferIteration.OrderEdoTask.As<ReceiptEdoTask>();
+
+			if(receiptEdoTask.Status == EdoTaskStatus.Completed
+				|| receiptEdoTask.ReceiptStatus != EdoReceiptStatus.Transfering)
+			{
+				_logger.LogInformation("Завершение трансфера по итерации id {transferIterationId} уже было обработано ранее.", 
+					transferIteration.Initiator);
+				return;
+			}
+
+			// предзагрузка для ускорения
+			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.OrderEdoRequest.Id)
+				.ListAsync();
+
+			var sourceCodes = productCodes
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = productCodes
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
 			if(receiptEdoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
 			{
 				await _resaleReceiptEdoTaskHandler.HandleTransferComplete(receiptEdoTask, cancellationToken);
