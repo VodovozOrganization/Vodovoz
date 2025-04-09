@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems.Exception;
 using MassTransit;
@@ -115,9 +115,13 @@ namespace Edo.Documents
 						}
 						else
 						{
-							var gtin = await _uow.Session.QueryOver<GtinEntity>()
-								.Where(x => x.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN)
-								.SingleOrDefaultAsync(cancellationToken);
+							var gtin = (
+									from gtinEntity in _uow.Session.Query<GtinEntity>()
+									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN
+									select gtinEntity
+								)
+								.FirstOrDefault();
+							
 							var newCode = await LoadCodeFromPool(gtin, cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 							codeResult.EdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
