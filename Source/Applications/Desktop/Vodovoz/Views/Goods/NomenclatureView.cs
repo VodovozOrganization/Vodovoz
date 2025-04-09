@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.BusinessCommon.Domain;
@@ -622,9 +622,9 @@ namespace Vodovoz.Views.Goods
 		{
 			enumCmbOnlineAvailabilityRobotMia.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityRobotMia.ShowSpecialStateNot = true;
-			enumCmbOnlineAvailabilityRobotMia.Binding
-				.AddBinding(ViewModel.RobotMiaParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
-				.InitializeFromSource();
+			//enumCmbOnlineAvailabilityRobotMia.Binding
+			//	.AddBinding(ViewModel.RobotMiaParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
+			//	.InitializeFromSource();
 		}
 
 		private void ConfigureTreeOnlinePrices()
