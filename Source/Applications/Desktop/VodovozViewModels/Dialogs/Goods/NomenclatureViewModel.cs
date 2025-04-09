@@ -68,6 +68,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private GroupGtinJournalViewModel _groupGtinsJornalViewModel;
 
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private RobotMiaParameters _robotMiaParameters;
 
 		public NomenclatureViewModel(
 			ILogger<NomenclatureViewModel> logger,
@@ -226,15 +227,23 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			get => _mobileAppNomenclatureOnlineParameters;
 			set => SetField(ref _mobileAppNomenclatureOnlineParameters, value);
 		}
+
 		public NomenclatureOnlineParameters VodovozWebSiteNomenclatureOnlineParameters
 		{
 			get => _vodovozWebSiteNomenclatureOnlineParameters;
 			set => SetField(ref _vodovozWebSiteNomenclatureOnlineParameters, value);
 		}
+
 		public NomenclatureOnlineParameters KulerSaleWebSiteNomenclatureOnlineParameters
 		{
 			get => _kulerSaleWebSiteNomenclatureOnlineParameters;
 			set => SetField(ref _kulerSaleWebSiteNomenclatureOnlineParameters, value);
+		}
+
+		public RobotMiaParameters RobotMiaParameters
+		{
+			get => _robotMiaParameters;
+			set => SetField(ref _robotMiaParameters, value);
 		}
 
 		public IList<MobileAppNomenclatureOnlineCatalog> MobileAppNomenclatureOnlineCatalogs { get; private set; }
