@@ -1,18 +1,13 @@
-﻿using Vodovoz.Presentation.ViewModels.Common;
+﻿using QS.Views.Dialog;
+using Vodovoz.Presentation.ViewModels.Common;
 
 namespace Vodovoz.Presentation.Views.Common
 {
-	public partial class TextEditView : Gtk.Dialog
+	public partial class TextEditView : DialogViewBase<TextEditViewModel>
 	{
-		private readonly TextEditViewModel _viewModel;
-
 		public TextEditView(TextEditViewModel viewModel)
+			: base(viewModel)
 		{
-			_viewModel = viewModel
-				?? throw new System.ArgumentNullException(nameof(viewModel));
-
-			WindowPosition = Gtk.WindowPosition.None;
-
 			Build();
 
 			Initialize();
@@ -21,17 +16,17 @@ namespace Vodovoz.Presentation.Views.Common
 		private void Initialize()
 		{
 			yentryOldValue.Binding
-				.AddSource(_viewModel)
+				.AddSource(ViewModel)
 				.AddBinding(vm => vm.OldText, w => w.Text)
 				.AddBinding(vm => vm.ShowOldText, w => w.Visible)
 				.InitializeFromSource();
 
 			yentryNewValue.Binding
-				.AddBinding(_viewModel, vm => vm.NewText, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.NewText, w => w.Text)
 				.InitializeFromSource();
 
-			ybuttonAccept.BindCommand(_viewModel.AcceptCommand);
-			ybuttonCancel.BindCommand(_viewModel.CancelCommand);
+			ybuttonAccept.BindCommand(ViewModel.AcceptCommand);
+			ybuttonCancel.BindCommand(ViewModel.CancelCommand);
 		}
 	}
 }

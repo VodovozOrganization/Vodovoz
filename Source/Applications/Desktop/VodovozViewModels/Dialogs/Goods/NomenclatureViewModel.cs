@@ -1164,26 +1164,42 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		private void AddSlangWord()
 		{
-			NavigationManager.OpenViewModel<TextEditViewModel>(this, OpenPageOptions.AsSlave, viewModel =>
-			{
-				viewModel.Title = "Добавление жаргонизма";
-				viewModel.ShowOldText = false;
-				viewModel.TextChanged += OnSlangWordChanged;
-			});
+			var page = NavigationManager.OpenViewModel<TextEditViewModel>(this);
+
+			page.ViewModel.Configure(
+				viewModel =>
+				{
+					viewModel.Title = "Добавление жаргонизма";
+					viewModel.ShowOldText = false;
+					viewModel.TextChanged += OnSlangWordChanged;
+				});
 		}
 
 		private void EditSlangWord()
 		{
-			NavigationManager.OpenViewModel<TextEditViewModel>(this, OpenPageOptions.AsSlave, viewModel =>
+			if(SelectedSlangWord is null)
 			{
-				viewModel.Title = "Изменение жаргонизма";
-				viewModel.OldText = SelectedSlangWord.Word;
-				viewModel.TextChanged += OnSlangWordChanged;
-			});
+				return;
+			}
+
+			var page = NavigationManager.OpenViewModel<TextEditViewModel>(this);
+
+			page.ViewModel.Configure(
+				viewModel =>
+				{
+					viewModel.Title = "Изменение жаргонизма";
+					viewModel.OldText = SelectedSlangWord.Word;
+					viewModel.TextChanged += OnSlangWordChanged;
+				});
 		}
 
 		private void RemoveSlangWord()
 		{
+			if(SelectedSlangWord is null)
+			{
+				return;
+			}
+
 			RobotMiaParameters.RemoveSlangWord(SelectedSlangWord.Word);
 		}
 

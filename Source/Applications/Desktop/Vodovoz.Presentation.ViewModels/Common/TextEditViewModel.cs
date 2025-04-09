@@ -5,7 +5,7 @@ using System;
 
 namespace Vodovoz.Presentation.ViewModels.Common
 {
-	public class TextEditViewModel : DialogViewModelBase
+	public class TextEditViewModel : WindowDialogViewModelBase
 	{
 		private string _oldText = string.Empty;
 		private string _newText = string.Empty;
@@ -14,6 +14,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		public TextEditViewModel(INavigationManager navigation)
 			: base(navigation)
 		{
+			WindowPosition = QS.Dialog.WindowGravity.None;
+
 			AcceptCommand = new DelegateCommand(Accept);
 			CancelCommand = new DelegateCommand(Cancel);
 		}
