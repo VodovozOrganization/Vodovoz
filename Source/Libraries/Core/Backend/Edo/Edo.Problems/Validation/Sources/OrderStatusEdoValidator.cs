@@ -47,14 +47,12 @@ namespace Edo.Problems.Validation.Sources
 			var orderEdoRequest = GetOrderEdoRequest(edoTask);
 			var invalid = orderEdoRequest.Order.OrderStatus < OrderStatus.OnTheWay;
 
-			if(invalid)
-			{
-				return Task.FromResult(EdoValidationResult.Invalid(this));
-			}
-			else
+			if(orderEdoRequest.Order.SelfDelivery && orderEdoRequest.Order.IsOrderForResale)
 			{
 				return Task.FromResult(EdoValidationResult.Valid(this));
 			}
+
+			return Task.FromResult(invalid ? EdoValidationResult.Invalid(this) : EdoValidationResult.Valid(this));
 		}
 	}
 }

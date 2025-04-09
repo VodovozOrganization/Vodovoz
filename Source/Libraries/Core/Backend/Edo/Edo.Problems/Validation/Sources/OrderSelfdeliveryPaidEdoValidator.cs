@@ -48,10 +48,11 @@ namespace Edo.Problems.Validation.Sources
 			{
 				return isOrder;
 			}
+			
 			var orderEdoTask = (OrderEdoTask)edoTask;
 			var orderEdoRequest = orderEdoTask.OrderEdoRequest;
-			var isSelfdelivery = orderEdoRequest.Order.SelfDelivery;
-			return isOrder && isSelfdelivery;
+			var order = orderEdoRequest.Order;
+			return isOrder && order.SelfDelivery && !order.IsOrderForResale;
 		}
 
 		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
