@@ -14,31 +14,31 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 		private IObservableList<SlangWord> _slangWords;
 		private GoodsOnlineAvailability? _goodsOnlineAvailability;
 
-		public int Id
+		public virtual int Id
 		{
 			get => _id;
 			set => SetField(ref _id, value);
 		}
 
-		public int? NomenclatureId
+		public virtual int? NomenclatureId
 		{
 			get => _nomenclatureId;
 			set => SetField(ref _nomenclatureId, value);
 		}
 
-		public GoodsOnlineAvailability? GoodsOnlineAvailability
+		public virtual GoodsOnlineAvailability? GoodsOnlineAvailability
 		{
 			get => _goodsOnlineAvailability;
 			set => SetField(ref _goodsOnlineAvailability, value);
 		}
 
-		public IObservableList<SlangWord> SlangWords
+		public virtual IObservableList<SlangWord> SlangWords
 		{
 			get => _slangWords;
 			set => SetField(ref _slangWords, value);
 		}
 
-		public void AddSlangWord(string word)
+		public virtual void AddSlangWord(string word)
 		{
 			if(NomenclatureId is null)
 			{
@@ -54,7 +54,7 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 			}
 		}
 
-		public void ChangeSlangWord(string wordOld, string wordNew)
+		public virtual void ChangeSlangWord(string wordOld, string wordNew)
 		{
 			if(NomenclatureId is null)
 			{
@@ -69,7 +69,7 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 			}
 		}
 
-		public void RemoveSlangWord(string word)
+		public virtual void RemoveSlangWord(string word)
 		{
 			if(NomenclatureId is null)
 			{
