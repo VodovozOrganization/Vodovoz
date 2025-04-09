@@ -625,6 +625,10 @@ namespace Vodovoz.Views.Goods
 			enumCmbOnlineAvailabilityRobotMia.Binding
 				.AddBinding(ViewModel.RobotMiaParameters, p => p.GoodsOnlineAvailability, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
+
+			btnAddSlangWord.BindCommand(ViewModel.AddSlangWordCommand);
+			btnEditSlangWord.BindCommand(ViewModel.EditSlangWordCommand);
+			btnRemoveSlangWord.BindCommand(ViewModel.RemoveSlangWordCommand);
 		}
 
 		private void ConfigureTreeOnlinePrices()

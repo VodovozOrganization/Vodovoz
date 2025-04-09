@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Windows.Input;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
@@ -164,6 +165,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			NomenclatureMinimumBalanceByWarehouseViewModel = nomenclatureMinimumBalanceByWarehouseViewModel
 				?? throw new ArgumentNullException(nameof(nomenclatureMinimumBalanceByWarehouseViewModel));
 			NomenclatureMinimumBalanceByWarehouseViewModel.Initialize(this, Entity, UoW);
+
+			AddSlangWordCommand = new DelegateCommand(AddSlangWord, () => CanEdit);
+			AddSlangWordCommand.CanExecuteChangedWith(this, x => x.CanEdit);
+			EditSlangWordCommand = new DelegateCommand(EditSlangWord, () => CanEdit);
+			EditSlangWordCommand.CanExecuteChangedWith(this, x => x.CanEdit);
+			RemoveSlangWordCommand = new DelegateCommand(RemoveSlangWord, () => CanEdit);
+			RemoveSlangWordCommand.CanExecuteChangedWith(this, x => x.CanEdit);
 		}
 
 		public IStringHandler StringHandler { get; }
@@ -410,6 +418,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public DelegateCommand EditGroupGtinsCommand { get; }
 
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
+
+		public DelegateCommand AddSlangWordCommand { get; set; }
+		public DelegateCommand EditSlangWordCommand { get; set; }
+		public DelegateCommand RemoveSlangWordCommand { get; set; }
+
 
 		#endregion Commands
 
@@ -1120,6 +1133,21 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					.GetAwaiter()
 					.GetResult();
 			}
+		}
+
+		private void RemoveSlangWord()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void EditSlangWord()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void AddSlangWord()
+		{
+			throw new NotImplementedException();
 		}
 
 		private void SaveHandler()

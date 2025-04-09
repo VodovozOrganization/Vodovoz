@@ -17,7 +17,11 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 		public virtual int Id
 		{
 			get => _id;
-			set => SetField(ref _id, value);
+			set
+			{
+				SetField(ref _id, value);
+				UpdateSlangWords();
+			}
 		}
 
 		public virtual int? NomenclatureId
@@ -49,6 +53,7 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 			{
 				SlangWords.Add(new SlangWord
 				{
+					RobotMiaParametersId = Id,
 					Word = word
 				});
 			}
@@ -81,6 +86,14 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 			foreach(var item in toRemove)
 			{
 				SlangWords.Remove(item);
+			}
+		}
+
+		private void UpdateSlangWords()
+		{
+			foreach(var slangWord in SlangWords)
+			{
+				slangWord.RobotMiaParametersId = Id;
 			}
 		}
 	}
