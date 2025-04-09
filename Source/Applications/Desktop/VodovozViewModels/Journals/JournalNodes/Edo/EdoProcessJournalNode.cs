@@ -1,11 +1,14 @@
 ﻿using Gamma.Utilities;
 using System;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 {
 	public class EdoProcessJournalNode
 	{
+		private DateTime? _customerRequestTime;
+		private OrderStatus? _orderStatus;
 		private CustomerEdoRequestSource? _customerRequestSource;
 		private EdoTaskType? _orderTaskType;
 		private EdoTaskStatus? _orderTaskStatus;
@@ -18,7 +21,27 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 
 		public DateTime DeliveryDate { get; set; }
 
-		public DateTime CustomerRequestTime { get; internal set; }
+		public string CustomerRequestTimeTitle { get; set; }
+		public DateTime? CustomerRequestTime
+		{
+			get => _customerRequestTime;
+			set
+			{
+				_customerRequestTime = value;
+				CustomerRequestTimeTitle = value == null ? "" : value.Value.ToString("dd.MM.yyyy HH:mm");
+			}
+		}
+
+		public string OrderStatusTitle { get; set; }
+		public OrderStatus? OrderStatus
+		{
+			get => _orderStatus;
+			set
+			{
+				_orderStatus = value;
+				OrderStatusTitle = value == null ? "" : value.GetEnumTitle();
+			}
+		}
 
 		public string CustomerRequestSourceTitle { get; set; }
 		public CustomerEdoRequestSource? CustomerRequestSource
@@ -27,11 +50,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 			set
 			{
 				_customerRequestSource = value;
-				CustomerRequestSourceTitle = value.GetEnumTitle();
+				CustomerRequestSourceTitle = value == null ? "" : value.GetEnumTitle();
 			}
 		}
 
-		public int OrderTaskId { get; set; }
+		public int? OrderTaskId { get; set; }
 
 		public string OrderTaskTypeTitle { get; set; }
 		public EdoTaskType? OrderTaskType
@@ -40,7 +63,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 			set
 			{
 				_orderTaskType = value;
-				OrderTaskTypeTitle = value.GetEnumTitle();
+				OrderTaskTypeTitle = value == null ? "" : value.GetEnumTitle();
 			}
 		}
 
@@ -51,7 +74,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 			set
 			{
 				_orderTaskStatus = value;
-				OrderTaskStatusTitle = value.GetEnumTitle();
+				OrderTaskStatusTitle = value == null ? "" : value.GetEnumTitle();
 			}
 		}
 
@@ -64,7 +87,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 				_orderTaskDocumentStage = value;
 				if(_orderTaskDocumentStage != null)
 				{
-					OrderTaskDocumentStageTitle = value.GetEnumTitle();
+					OrderTaskDocumentStageTitle = value == null ? "" : value.GetEnumTitle();
 				}
 			}
 		}
@@ -78,7 +101,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 				_edoReceiptStatus = value;
 				if(_edoReceiptStatus != null)
 				{
-					OrderTaskReceiptStageTitle = value.GetEnumTitle();
+					OrderTaskReceiptStageTitle = value == null ? "" : value.GetEnumTitle();
 				}
 			}
 		}
@@ -103,9 +126,46 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 
 		public int TransfersCompleted { get; set; }
 		public int TransfersTotal { get; set; }
-		public string TransfersCompletedTitle => $"{TransfersCompleted}/{TransfersTotal}";
+		public string TransfersCompletedTitle
+		{
+			get
+			{
+				if(TransfersTotal == 0)
+				{
+					return "";
+				}
 
-		public bool TransfersHasProblems { get; set; }
+				if(TransfersCompleted == TransfersTotal)
+				{
+					return "Да";
+				}
+				else
+				{
+					return "Нет";
+				}
+			}
+		}
+
+		public bool? TransfersHasProblems { get; set; }
+		public string TransfersHasProblemsTitle
+		{
+			get
+			{
+				if(TransfersHasProblems == null)
+				{
+					return "";
+				}
+
+				if(TransfersHasProblems.Value)
+				{
+					return "Да";
+				}
+				else
+				{
+					return "Нет";
+				}
+			}
+		}
 
 		public string TotalTransferTimeByTransferTasksTitle { get; set; }
 		public TimeSpan? TotalTransferTimeByTransferTasks

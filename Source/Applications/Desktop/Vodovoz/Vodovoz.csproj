@@ -424,6 +424,7 @@
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Commons\DeprecatedObservableListReorderableTreeModel.cs" />
     <Compile Include="Commons\DeprecatedObservableListTreeModel.cs" />
+    <Compile Include="Commons\GtkClipboard.cs" />
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />

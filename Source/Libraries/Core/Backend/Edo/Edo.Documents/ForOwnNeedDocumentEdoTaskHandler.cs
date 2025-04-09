@@ -176,25 +176,6 @@ namespace Edo.Documents
 			CancellationToken cancellationToken
 			)
 		{
-			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
-				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Where(x => x.CustomerEdoRequest.Id == documentEdoTask.OrderEdoRequest.Id)
-				.ListAsync();
-
-			var sourceCodes = productCodes
-				.Where(x => x.SourceCode != null)
-				.Select(x => x.SourceCode);
-
-			var resultCodes = productCodes
-				.Where(x => x.ResultCode != null)
-				.Select(x => x.ResultCode);
-
-			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
-			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
-
 			// проверить коды в ЧЗ, не валидные снова заменить кодами из пула
 			trueMarkCodesChecker.ClearCache();
 			var taskValidationResult = await _trueMarkTaskCodesValidator.ValidateAsync(
