@@ -273,9 +273,13 @@ namespace Edo.Receipt.Dispatcher
 						}
 						else
 						{
-							var gtin = await _uow.Session.QueryOver<GtinEntity>()
-								.Where(x => x.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN)
-								.SingleOrDefaultAsync(cancellationToken);
+							var gtin = (
+									from gtinEntity in _uow.Session.Query<GtinEntity>()
+									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN
+									select gtinEntity
+								)
+								.FirstOrDefault();
+
 							var newCode = await LoadCodeFromPool(gtin, cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 						}
