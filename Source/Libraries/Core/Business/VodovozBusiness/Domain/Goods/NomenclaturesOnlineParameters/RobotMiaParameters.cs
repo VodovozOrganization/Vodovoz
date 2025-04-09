@@ -11,7 +11,7 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 	{
 		private int _id;
 		private int? _nomenclatureId;
-		private IObservableList<SlangWord> _slangWords;
+		private IObservableList<SlangWord> _slangWords = new ObservableList<SlangWord>();
 		private GoodsOnlineAvailability? _goodsOnlineAvailability;
 
 		public virtual int Id
