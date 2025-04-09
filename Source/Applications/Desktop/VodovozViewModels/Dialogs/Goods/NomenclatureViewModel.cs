@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -29,9 +30,11 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.Models;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
+using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Dialogs.Nodes;
 using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -74,6 +77,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private RobotMiaParameters _robotMiaParameters;
+		private SlangWord _selectedSlangWord;
 
 		public NomenclatureViewModel(
 			ILogger<NomenclatureViewModel> logger,
@@ -258,6 +262,29 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			get => _robotMiaParameters;
 			set => SetField(ref _robotMiaParameters, value);
+		}
+
+		[PropertyChangedAlso(nameof(SelectedSlangWord))]
+		public object SelectedSlangWordObject
+		{
+			get => SelectedSlangWord;
+			set
+			{
+				if(value is SlangWord slangWord)
+				{
+					SelectedSlangWord = slangWord;
+				}
+				else
+				{
+					SelectedSlangWord = null;
+				}
+			}
+		}
+
+		public SlangWord SelectedSlangWord
+		{
+			get => _selectedSlangWord;
+			set => SetField(ref _selectedSlangWord, value);
 		}
 
 		public IList<MobileAppNomenclatureOnlineCatalog> MobileAppNomenclatureOnlineCatalogs { get; private set; }
@@ -1135,19 +1162,52 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 		}
 
-		private void RemoveSlangWord()
+		private void AddSlangWord()
 		{
-			throw new NotImplementedException();
+			NavigationManager.OpenViewModel<TextEditViewModel>(this, OpenPageOptions.AsSlave, viewModel =>
+			{
+				viewModel.Title = "Добавление жаргонизма";
+				viewModel.ShowOldText = false;
+				viewModel.TextChanged += OnSlangWordChanged;
+			});
 		}
 
 		private void EditSlangWord()
 		{
-			throw new NotImplementedException();
+			NavigationManager.OpenViewModel<TextEditViewModel>(this, OpenPageOptions.AsSlave, viewModel =>
+			{
+				viewModel.Title = "Изменение жаргонизма";
+				viewModel.OldText = SelectedSlangWord.Word;
+				viewModel.TextChanged += OnSlangWordChanged;
+			});
 		}
 
-		private void AddSlangWord()
+		private void RemoveSlangWord()
 		{
-			throw new NotImplementedException();
+			RobotMiaParameters.RemoveSlangWord(SelectedSlangWord.Word);
+		}
+
+		private void OnSlangWordChanged(object sender, TextChangeEventArgs e)
+		{
+			if(sender is TextEditViewModel textEditViewModel)
+			{
+				textEditViewModel.TextChanged -= OnSlangWordChanged;
+			}
+
+			if(string.IsNullOrWhiteSpace(e.NewText))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Жаргонизм не может быть пустым");
+				return;
+			}
+
+			if(string.IsNullOrWhiteSpace(e.OldText))
+			{
+				RobotMiaParameters.AddSlangWord(e.NewText);
+			}
+			else
+			{
+				RobotMiaParameters.ChangeSlangWord(e.OldText, e.NewText);
+			}
 		}
 
 		private void SaveHandler()

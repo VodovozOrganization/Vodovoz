@@ -19,6 +19,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Nodes;
+using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 using Menu = Gtk.Menu;
 using MenuItem = Gtk.MenuItem;
 
@@ -620,6 +621,17 @@ namespace Vodovoz.Views.Goods
 
 		private void ConfigureParametersForRobotMia()
 		{
+			yTreeViewSlangWords.CreateFluentColumnsConfig<SlangWord>()
+				.AddColumn("Номер")
+					.AddNumericRenderer(x => x.Id)
+				.AddColumn("Слово")
+					.AddTextRenderer(x => x.Word)
+				.Finish();
+
+			yTreeViewSlangWords.Binding
+				.AddBinding(ViewModel.RobotMiaParameters, vm => vm.SlangWords, w => w.ItemsDataSource)
+				.InitializeFromSource();
+
 			enumCmbOnlineAvailabilityRobotMia.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityRobotMia.ShowSpecialStateNot = true;
 			enumCmbOnlineAvailabilityRobotMia.Binding
