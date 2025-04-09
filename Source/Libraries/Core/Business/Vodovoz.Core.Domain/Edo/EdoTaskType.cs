@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// <summary>
 		/// Задача отправки документов клиенту
 		/// </summary>
-		[Display(Name = "Документ")]
+		[Display(Name = "ЭДО документ")]
 		Document,
 
 		/// <summary>
@@ -41,9 +41,9 @@ namespace Vodovoz.Core.Domain.Edo
 		Withdrawal,
 		
 		/// <summary>
-		/// Тендер/госзакупки
+		/// Госзакупки
 		/// </summary>
-		[Display(Name = "Тендер/госзакупки")]
+		[Display(Name = "Госзакупки")]
 		Tender
 	}
 }
