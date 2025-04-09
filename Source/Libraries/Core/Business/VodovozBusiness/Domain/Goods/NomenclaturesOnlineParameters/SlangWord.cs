@@ -8,19 +8,19 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 		private int? _robotMiaParametersId;
 		private string _word;
 
-		public int Id
+		public virtual int Id
 		{
 			get => _id;
 			set => SetField(ref _id, value);
 		}
 
-		public int? RobotMiaParametersId
+		public virtual int? RobotMiaParametersId
 		{
 			get => _robotMiaParametersId;
 			set => SetField(ref _robotMiaParametersId, value);
 		}
 
-		public string Word
+		public virtual string Word
 		{
 			get => _word;
 			set => SetField(ref _word, value);
