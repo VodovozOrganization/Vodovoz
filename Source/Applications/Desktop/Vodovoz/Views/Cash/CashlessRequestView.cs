@@ -81,7 +81,7 @@ namespace Vodovoz.Views.Cash
 
 			entryOrganizationBankAccount.ViewModel = ViewModel.OurOrganizationBankAccountViewModel;
 
-			ViewModel.CounterpartyViewModel = new LegacyEEVMBuilderFactory<CashlessRequest>(
+			var legacyCounterpartyViewModel = new LegacyEEVMBuilderFactory<CashlessRequest>(
 					ViewModel,
 					ViewModel.Entity,
 					ViewModel.UoW,
@@ -95,6 +95,9 @@ namespace Vodovoz.Views.Cash
 				})
 				.Finish();
 
+			legacyCounterpartyViewModel.SetPropertyValue(nameof(legacyCounterpartyViewModel.CanViewEntity), false);
+
+			ViewModel.CounterpartyViewModel = legacyCounterpartyViewModel;
 			entryCounterparty.ViewModel = ViewModel.CounterpartyViewModel;
 
 			entryCounterparty.Binding
