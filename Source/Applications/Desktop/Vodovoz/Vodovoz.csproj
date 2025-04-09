@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -430,6 +430,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
+    <Compile Include="JournalColumnsConfigs\AccountJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
@@ -2063,8 +2064,14 @@
     <Compile Include="gtk-gui\Vodovoz.Organizations.OrganizationView.cs" />
     <Compile Include="Organizations\OrganizationJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Organizations.OrganizationJournalFilterView.cs" />
+    <Compile Include="Organizations\AccountJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Organizations.AccountJournalFilterView.cs" />
     <Compile Include="Views\Reports\IncorrectFuelReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncorrectFuelReportView.cs" />
+    <Compile Include="Dialogs\Cash\Payments\OutgoingPaymentCreateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.Payments.OutgoingPaymentCreateView.cs" />
+    <Compile Include="Dialogs\Cash\Payments\OutgoingPaymentEditView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.Payments.OutgoingPaymentEditView.cs" />
     <Compile Include="Views\Goods\GtinView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.GtinView.cs" />
     <Compile Include="Views\Goods\NonReturnReasonView.cs" />
@@ -2084,6 +2091,8 @@
   <ItemGroup>
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Cash\Payments\" />
+    <Folder Include="Dialogs\Cash\Payments\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">

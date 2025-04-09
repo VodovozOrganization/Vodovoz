@@ -443,11 +443,14 @@ namespace Vodovoz.Additions.Logistic
 				                  && address.Order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
 				.Select(address => address.Order.Id);
 
-			reportInfo.Title = $"Уведомление о наличии сетевого заказа  № {string.Join(", ", chainStoreOrderIds)}";
+			var orderIds = chainStoreOrderIds.Any() ? string.Join(", ", chainStoreOrderIds) : "Отсутствуют сетевые заказы";
+
+			reportInfo.Title = $"Уведомление о наличии сетевого заказа  № {orderIds}";
 			reportInfo.Identifier = "Documents.ChainStoreNotification";
 			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				{ "orderIds", string.Join(", ", chainStoreOrderIds) }
+				
+				{ "orderIds", orderIds }
 			};
 			
 			return reportInfo;
