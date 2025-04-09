@@ -19,7 +19,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 
 		public EdoProcessFilterViewModel()
 		{
-			_deliveryDateFrom = DateTime.Today.AddMonths(-1);
+			_deliveryDateFrom = DateTime.Today.AddDays(-7);
 			_deliveryDateTo = DateTime.Today;
 		}
 
