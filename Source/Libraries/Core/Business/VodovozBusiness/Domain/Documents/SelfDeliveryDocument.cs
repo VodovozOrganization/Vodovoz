@@ -142,7 +142,8 @@ namespace Vodovoz.Domain.Documents
 					   Vodovoz.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded)
 				   && Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
 				   && item.Nomenclature.IsAccountableInTrueMark
-				   && item.Amount > item.TrueMarkProductCodes.Count)
+				   && item.Amount > item.TrueMarkProductCodes.Count
+				   && Order.Client.IsNewEdoProcessing)
 				{
 					yield return new ValidationResult($"Для перепродажи должны быть отсканированы все коды.",
 						new[] { nameof(item) });
