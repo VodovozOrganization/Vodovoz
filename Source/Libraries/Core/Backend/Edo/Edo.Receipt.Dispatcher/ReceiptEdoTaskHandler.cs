@@ -134,13 +134,32 @@ namespace Edo.Receipt.Dispatcher
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
-			if(receiptEdoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
+			try
 			{
-				await _resaleReceiptEdoTaskHandler.HandleTransferComplete(receiptEdoTask, cancellationToken);
+				if(receiptEdoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
+				{
+					await _resaleReceiptEdoTaskHandler.HandleTransferComplete(receiptEdoTask, cancellationToken);
+				}
+				else
+				{
+					await _forOwnNeedsReceiptEdoTaskHandler.HandleTransferComplete(receiptEdoTask, cancellationToken);
+				}
 			}
-			else
+			catch(EdoProblemException ex)
 			{
-				await _forOwnNeedsReceiptEdoTaskHandler.HandleTransferComplete(receiptEdoTask, cancellationToken);
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(receiptEdoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
+			}
+			catch(Exception ex)
+			{
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(receiptEdoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
 			}
 		}
 
