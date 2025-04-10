@@ -68,7 +68,7 @@ namespace Edo.Documents
 
 			if(edoTask == null)
 			{
-				_logger.LogInformation("Задача Id {documentEdoTaskId} не найдена", documentEdoTaskId);
+				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не найдена", documentEdoTaskId);
 				return;
 			}
 
@@ -206,6 +206,22 @@ namespace Edo.Documents
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
 			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
 
+			if(edoTask.Status == EdoTaskStatus.Completed)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+					"так как задача Id {DocumentEdoTaskId} уже завершена", edoTask.Id);
+				return;
+			}
+
+			if(edoTask.Stage != DocumentEdoTaskStage.Transfering)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+					"так как задача Id {DocumentEdoTaskId} находится не на стадии трансфера, " +
+					"а на стадии {DocumentEdoTaskStage}",
+					edoTask.Id, edoTask.Stage);
+				return;
+			}
+
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
@@ -315,7 +331,7 @@ namespace Edo.Documents
 
 			if(document == null)
 			{
-				_logger.LogError("При обработке отмены документа №{documentId} не найден документ.", documentId);
+				_logger.LogError("При обработке отмены документа №{DocumentId} не найден документ.", documentId);
 			}
 
 			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
@@ -332,7 +348,7 @@ namespace Edo.Documents
 
 			if(document == null)
 			{
-				_logger.LogError("При обработке отмены документа №{documentId} не найден документ.", documentId);
+				_logger.LogError("При обработке отмены документа №{DocumentId} не найден документ.", documentId);
 			}
 
 			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
