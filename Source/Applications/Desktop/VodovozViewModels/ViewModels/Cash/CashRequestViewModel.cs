@@ -346,6 +346,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ChangeStateAndSave(PayoutRequestState.AgreedByFinancialResponsibilityCenter);
 		}
 
+		[PropertyChangedAlso(nameof(CanExecuteGive))]
 		public object SelectedCashRequestSumItemObject
 		{
 			get => SelectedCashRequestSumItem;
@@ -436,13 +437,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		// TODO: оповещения об изменении
 		public bool CanExecuteGive =>
-			SelectedCashRequestSumItem != null
+			Entity.PayoutRequestState != PayoutRequestState.Closed
+			&& !IsSecurityServiceRole
+			&& SelectedCashRequestSumItem != null
 			&& SelectedCashRequestSumItem.Sum > SelectedCashRequestSumItem.Expenses
 				.Sum(e => e.Money)
 			&& (Entity.PossibilityNotToReconcilePayments
 				|| SelectedCashRequestSumItem.Expenses.Any()
 				|| Entity.ObservableSums.All(x => !x.Expenses.Any()
-					|| x.Sum == x.Expenses.Sum(e => e.Money)));
+				|| x.Sum == x.Expenses.Sum(e => e.Money)));
 
 		private void CancelRequestCommandHandler()
 		{
