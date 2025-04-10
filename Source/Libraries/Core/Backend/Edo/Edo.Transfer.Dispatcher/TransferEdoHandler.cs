@@ -182,7 +182,7 @@ namespace Edo.Transfer.Dispatcher
 			transferTask.EndTime = DateTime.Now;
 
 			await _uow.SaveAsync(transferTask, cancellationToken: cancellationToken);
-			_uow.Commit();
+			await _uow.CommitAsync(cancellationToken);
 
 			await UpdateIterationsAndNotifyOnCompleted(transferTask, cancellationToken);
 		}
