@@ -7,7 +7,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
@@ -79,21 +78,21 @@ namespace Edo.Receipt.Dispatcher
 
 			if(transferIteration == null)
 			{
-				_logger.LogWarning("Итерация трансфера Id {transferIterationId} не найдена.", transferIterationId);
+				_logger.LogWarning("Итерация трансфера Id {TransferIterationId} не найдена.", transferIterationId);
 				return;
 			}
 
 			if(transferIteration.Status != TransferEdoRequestIterationStatus.Completed)
 			{
 				_logger.LogWarning("Пришло событие завершения трансфера, но трансфер не завершен, " +
-					"статус: {transferIterationStatus}.", transferIteration.Status);
+					"статус: {TransferIterationStatus}.", transferIteration.Status);
 				return;
 			}
 
 			if(transferIteration.Initiator != TransferInitiator.Receipt)
 			{
 				_logger.LogWarning("Пришло событие завершения трансфера, но инициатор трансфера не чек, " +
-					"инициатор: {transferIterationInitiator}.", transferIteration.Initiator);
+					"инициатор: {TransferIterationInitiator}.", transferIteration.Initiator);
 				return;
 			}
 
@@ -102,15 +101,15 @@ namespace Edo.Receipt.Dispatcher
 			if(receiptEdoTask.Status == EdoTaskStatus.Completed)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
-					"так как задача Id {receiptEdoTaskId} уже завершена", receiptEdoTask.Id);
+					"так как задача Id {ReceiptEdoTaskId} уже завершена", receiptEdoTask.Id);
 				return;
 			}
 
 			if(receiptEdoTask.ReceiptStatus != EdoReceiptStatus.Transfering)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
-					"так как задача Id {receiptEdoTaskId} находится не на стадии трансфера, " +
-					"а на стадии {receiptEdoTaskReceiptStatus}",
+					"так как задача Id {ReceiptEdoTaskId} находится не на стадии трансфера, " +
+					"а на стадии {ReceiptEdoTaskReceiptStatus}",
 					receiptEdoTask.Id, receiptEdoTask.ReceiptStatus);
 				return;
 			}
