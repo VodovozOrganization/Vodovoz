@@ -2,6 +2,7 @@
 using NHibernate;
 using Polly;
 using Polly.Retry;
+using Polly.Timeout;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -49,9 +50,10 @@ namespace Edo.Transfer
 			var options = new RetryStrategyOptions();
 			options.MaxRetryAttempts = 5;
 			options.ShouldHandle = shouldHandle;
-			options.Delay = TimeSpan.FromSeconds(2);
 
 			var pipeline = new ResiliencePipelineBuilder()
+				//Это общее время на выполнение всех дополнительных попыток + первичное выполение
+				.AddTimeout(TimeSpan.FromMinutes(6))
 				.AddRetry(options)
 				.Build();
 
