@@ -252,7 +252,6 @@ namespace Vodovoz.Dialogs.Cash
 				ybtnCancel.Sensitive = false;
 				ybtnDeleteSumm.Sensitive = false;
 				ybtnEditSum.Sensitive = false;
-				ybtnGiveSumm.Sensitive = false;
 				ybtnConveyForResults.Sensitive = false;
 				ybtnReturnForRenegotiation.Sensitive = false;
 				speccomboOrganization.Sensitive = false;
