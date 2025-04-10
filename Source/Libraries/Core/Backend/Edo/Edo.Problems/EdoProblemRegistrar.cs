@@ -85,6 +85,84 @@ namespace Edo.Problems
 			_taskUow.Dispose();
 		}
 
+		/// <summary>
+		/// Регистрирует проблему в задаче не завершая выполнение ее обработки
+		/// для того чтобы запись о наличии такой проблемы осталась, 
+		/// даже если она будет решена в процессе дальнейшей обработки задачи
+		/// </summary>
+		/// <typeparam name="TCustomSource"></typeparam>
+		/// <param name="edoTask">ЭДО задача по которой региструется проблема</param>
+		/// <param name="customMessage">Произвольное сообщение к проблеме</param>
+		/// <returns></returns>
+		public async Task OptionalRegisterCustomProblem<TCustomSource>(
+			EdoTask edoTask,
+			CancellationToken cancellationToken,
+			bool solved = false,
+			string customMessage = null
+			)
+			where TCustomSource : EdoTaskProblemCustomSource
+		{
+			await OptionalRegisterCustomProblem<TCustomSource>(
+				edoTask, 
+				new List<EdoTaskItem>(), 
+				cancellationToken, 
+				solved, 
+				customMessage
+			);
+		}
+
+		/// <summary>
+		/// Регистрирует проблему в задаче не завершая выполнение ее обработки
+		/// для того чтобы запись о наличии такой проблемы осталась, 
+		/// даже если она будет решена в процессе дальнейшей обработки задачи
+		/// </summary>
+		/// <typeparam name="TCustomSource"></typeparam>
+		/// <param name="edoTask">ЭДО задача по которой региструется проблема</param>
+		/// <param name="affectedTaskItems">Строки задачи связанные с проблемой</param>
+		/// <param name="customMessage">Произвольное сообщение к проблеме</param>
+		/// <returns></returns>
+		public async Task OptionalRegisterCustomProblem<TCustomSource>(
+			EdoTask edoTask,
+			IEnumerable<EdoTaskItem> affectedTaskItems,
+			CancellationToken cancellationToken,
+			bool solved = false,
+			string customMessage = null
+			)
+			where TCustomSource : EdoTaskProblemCustomSource
+		{
+			var task = _taskUow.GetById<EdoTask>(edoTask.Id);
+			var source = _customSourcesPersister.GetCustomSource<TCustomSource>();
+			var problem = task.Problems.FirstOrDefault(x => x.SourceName == source.Name)
+				?? new CustomEdoTaskProblem
+				{
+					SourceName = source.Name,
+					EdoTask = task,
+					CustomMessage = customMessage
+				};
+
+			problem.CreationTime = DateTime.Now;
+			problem.State = solved ? TaskProblemState.Solved : TaskProblemState.Active;
+
+
+			problem.TaskItems.Clear();
+			foreach(var taskItem in affectedTaskItems)
+			{
+				problem.TaskItems.Add(taskItem);
+			}
+
+			task.Problems.Add(problem);
+
+			if(!solved)
+			{
+				task.Status = source.Importance == EdoProblemImportance.Problem
+					? EdoTaskStatus.Problem
+					: EdoTaskStatus.Waiting;
+			}
+
+			await _taskUow.SaveAsync(problem, cancellationToken: cancellationToken);
+			await _taskUow.SaveAsync(task, cancellationToken: cancellationToken);
+		}
+
 		public async Task<bool> TryRegisterExceptionProblem(
 			EdoTask edoTask,
 			EdoProblemException exception,
