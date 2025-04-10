@@ -59,7 +59,7 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			var shopId = GetShopIdFromOrganization(organization);
 			var orderInfoDTO = _fastPaymentApiFactory.GetOrderInfoRequestDTO(ticket, shopId);
-			var xmlStringFromOrderInfoDTO = orderInfoDTO.ToString();
+			var xmlStringFromOrderInfoDTO = orderInfoDTO.ToXmlString();
 
 			return _orderService.GetOrderInfoAsync(xmlStringFromOrderInfoDTO);
 		}
