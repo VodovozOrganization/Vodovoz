@@ -88,7 +88,7 @@ namespace Edo.Receipt.Dispatcher
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
 		}
 
-		public async Task HandleForOwnNeedsReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
+		public async Task HandleNewReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
 			var order = receiptEdoTask.OrderEdoRequest.Order;
 			if(order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
