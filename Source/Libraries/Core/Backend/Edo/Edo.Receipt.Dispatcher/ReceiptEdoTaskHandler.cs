@@ -47,11 +47,11 @@ namespace Edo.Receipt.Dispatcher
 			{
 				if(edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
 				{
-					await _resaleReceiptEdoTaskHandler.HandleResaleReceipt(edoTask, cancellationToken);
+					await _resaleReceiptEdoTaskHandler.HandleNewReceipt(edoTask, cancellationToken);
 				}
 				else
 				{
-					await _forOwnNeedsReceiptEdoTaskHandler.HandleForOwnNeedsReceipt(edoTask, cancellationToken);
+					await _forOwnNeedsReceiptEdoTaskHandler.HandleNewReceipt(edoTask, cancellationToken);
 				}
 			}
 			catch(EdoProblemException ex)
