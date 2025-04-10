@@ -30,10 +30,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.CodesSaver\Edo.CodesSaver.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Docflow\Edo.Docflow.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Documents\Edo.Documents.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Receipt.Dispatcher\Edo.Receipt.Dispatcher.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Receipt.Sender\Edo.Receipt.Sender.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Scheduler\Edo.Scheduler.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transfer.Dispatcher\Edo.Transfer.Dispatcher.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transfer.Routine\Edo.Transfer.Routine.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transfer.Sender\Edo.Transfer.Sender.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
