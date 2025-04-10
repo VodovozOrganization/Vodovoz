@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
@@ -23,7 +24,9 @@ using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Widgets.Print;
 using Vodovoz.ViewModels.Widgets.Users;
 
@@ -63,12 +66,18 @@ namespace Vodovoz.ViewModels.Users
 			INomenclatureFixedPriceRepository nomenclatureFixedPriceRepository,
 			IFuelApiService fuelApiService,
 			IGuiDispatcher guiDispatcher,
-			DocumentsPrinterSettingsViewModel documentsPrinterSettingsViewModel)
+			DocumentsPrinterSettingsViewModel documentsPrinterSettingsViewModel,
+			ViewModelEEVMBuilder<Warehouse> warehouseViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
+			if(warehouseViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(warehouseViewModelEEVMBuilder));
 			}
 
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
@@ -105,6 +114,14 @@ namespace Vodovoz.ViewModels.Users
 			FuelControlApiLoginCommand = new DelegateCommand(async () => await FuelControlApiLogin(), () => Entity.IsUserHasAuthDataForFuelControlApi);
 
 			DocumentsPrinterSettingsViewModel.UserSettings = Entity;
+
+			WarehouseViewModel = warehouseViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.DefaultWarehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
 		}
 
 		private void OnWarehousesToNotifyListContentChanged(object sender, EventArgs e)
@@ -156,6 +173,7 @@ namespace Vodovoz.ViewModels.Users
 
 		public IInteractiveService InteractiveService { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		public IEntityEntryViewModel WarehouseViewModel { get; }
 
 		public bool IsUserFromOkk => _subdivisionSettings.GetOkkId()
 									 == _employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;
