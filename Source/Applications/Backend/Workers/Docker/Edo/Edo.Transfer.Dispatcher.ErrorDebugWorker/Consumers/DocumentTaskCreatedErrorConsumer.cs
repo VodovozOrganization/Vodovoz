@@ -22,7 +22,6 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers
 			try
 			{
 				await _documentEdoTaskHandler.HandleNew(context.Message.Id, context.CancellationToken);
-				//await _receiptSender.HandleReceiptSendEvent(msg.ReceiptEdoTaskId, context.CancellationToken);
 			}
 			catch(Exception ex)
 			{
