@@ -2,6 +2,9 @@
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
+using Edo.Problems.Exception;
+using Edo.Problems.Exception.EdoExceptions;
+using Edo.Problems.Exception.Sources;
 using MassTransit;
 using QS.DomainModel.UoW;
 using System;
@@ -295,9 +298,8 @@ namespace Edo.Documents
 					}
 
 					// Недостаточно кодов для назначения для перепродажи
-					throw new InvalidOperationException("Недостаточно кодов для назначения для перепродажи");
+					throw new ResaleMissingCodesOnFillInventPositionsException();
 				}
-
 
 				var inventPosition = new EdoUpdInventPosition();
 				inventPosition.AssignedOrderItem = orderItem;
