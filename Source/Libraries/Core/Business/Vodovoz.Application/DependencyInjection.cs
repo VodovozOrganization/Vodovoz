@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application.Contacts;
 using Vodovoz.Application.Complaints;
 using Vodovoz.Application.FileStorage;
@@ -18,6 +18,7 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
 using DriverApi.Notifications.Client;
+using RevenueService.Client;
 using Vodovoz.Application.TrueMark;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkApi.Client;
@@ -29,7 +30,8 @@ namespace Vodovoz.Application
 		public static IServiceCollection AddApplication(this IServiceCollection services) => services
 			.AddScoped<IRouteOptimizer, RouteOptimizer>()
 			.AddApplicationServices()
-			.ConfigureFileOptions();
+			.ConfigureFileOptions()
+			.AddRevenueServiceClient();
 
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
 			.AddSingleton<OperatorService>()

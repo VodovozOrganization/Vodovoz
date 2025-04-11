@@ -3992,7 +3992,12 @@ namespace Vodovoz.Domain.Orders
 
 			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
-			ParseTareReason();
+			
+			if(TareNonReturnReason is null)
+			{
+				ParseTareReason();
+			}
+			
 			ClearPromotionSets();
 			orderDailyNumberController.UpdateDailyNumber(this);
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
