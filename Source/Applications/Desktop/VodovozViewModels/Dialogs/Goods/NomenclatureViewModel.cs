@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -18,8 +19,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Windows.Input;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
@@ -27,9 +30,11 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.Models;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
+using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Dialogs.Nodes;
 using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -37,6 +42,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.Goods;
+using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 using VodovozBusiness.Services;
 using VodovozInfrastructure.StringHandlers;
 
@@ -67,7 +73,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private GtinJournalViewModel _gtinsJornalViewModel;
 		private GroupGtinJournalViewModel _groupGtinsJornalViewModel;
 
+		private readonly IGenericRepository<RobotMiaParameters> _robotMiaParametersRepository;
+
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private RobotMiaParameters _robotMiaParameters;
+		private SlangWord _selectedSlangWord;
 
 		public NomenclatureViewModel(
 			ILogger<NomenclatureViewModel> logger,
@@ -88,6 +98,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			NomenclatureMinimumBalanceByWarehouseViewModel nomenclatureMinimumBalanceByWarehouseViewModel,
 			INomenclatureFileStorageService nomenclatureFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			IGenericRepository<RobotMiaParameters> robotMiaParametersRepository,
 			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -115,6 +126,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			_nomenclatureService = nomenclatureService ?? throw new ArgumentNullException(nameof(nomenclatureService));
 			_nomenclatureFileStorageService = nomenclatureFileStorageService ?? throw new ArgumentNullException(nameof(nomenclatureFileStorageService));
+			_robotMiaParametersRepository = robotMiaParametersRepository ?? throw new ArgumentNullException(nameof(robotMiaParametersRepository));
 			_productGroupEEVMBuilder = productGroupEEVMBuilder ?? throw new ArgumentNullException(nameof(productGroupEEVMBuilder));
 
 			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
@@ -157,6 +169,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			NomenclatureMinimumBalanceByWarehouseViewModel = nomenclatureMinimumBalanceByWarehouseViewModel
 				?? throw new ArgumentNullException(nameof(nomenclatureMinimumBalanceByWarehouseViewModel));
 			NomenclatureMinimumBalanceByWarehouseViewModel.Initialize(this, Entity, UoW);
+
+			AddSlangWordCommand = new DelegateCommand(AddSlangWord, () => CanEdit);
+			AddSlangWordCommand.CanExecuteChangedWith(this, x => x.CanEdit);
+			EditSlangWordCommand = new DelegateCommand(EditSlangWord, () => CanEdit);
+			EditSlangWordCommand.CanExecuteChangedWith(this, x => x.CanEdit);
+			RemoveSlangWordCommand = new DelegateCommand(RemoveSlangWord, () => CanEdit);
+			RemoveSlangWordCommand.CanExecuteChangedWith(this, x => x.CanEdit);
 		}
 
 		public IStringHandler StringHandler { get; }
@@ -226,15 +245,46 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			get => _mobileAppNomenclatureOnlineParameters;
 			set => SetField(ref _mobileAppNomenclatureOnlineParameters, value);
 		}
+
 		public NomenclatureOnlineParameters VodovozWebSiteNomenclatureOnlineParameters
 		{
 			get => _vodovozWebSiteNomenclatureOnlineParameters;
 			set => SetField(ref _vodovozWebSiteNomenclatureOnlineParameters, value);
 		}
+
 		public NomenclatureOnlineParameters KulerSaleWebSiteNomenclatureOnlineParameters
 		{
 			get => _kulerSaleWebSiteNomenclatureOnlineParameters;
 			set => SetField(ref _kulerSaleWebSiteNomenclatureOnlineParameters, value);
+		}
+
+		public RobotMiaParameters RobotMiaParameters
+		{
+			get => _robotMiaParameters;
+			set => SetField(ref _robotMiaParameters, value);
+		}
+
+		[PropertyChangedAlso(nameof(SelectedSlangWord))]
+		public object SelectedSlangWordObject
+		{
+			get => SelectedSlangWord;
+			set
+			{
+				if(value is SlangWord slangWord)
+				{
+					SelectedSlangWord = slangWord;
+				}
+				else
+				{
+					SelectedSlangWord = null;
+				}
+			}
+		}
+
+		public SlangWord SelectedSlangWord
+		{
+			get => _selectedSlangWord;
+			set => SetField(ref _selectedSlangWord, value);
 		}
 
 		public IList<MobileAppNomenclatureOnlineCatalog> MobileAppNomenclatureOnlineCatalogs { get; private set; }
@@ -395,6 +445,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public DelegateCommand EditGroupGtinsCommand { get; }
 
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
+
+		public DelegateCommand AddSlangWordCommand { get; set; }
+		public DelegateCommand EditSlangWordCommand { get; set; }
+		public DelegateCommand RemoveSlangWordCommand { get; set; }
+
 
 		#endregion Commands
 
@@ -743,6 +798,14 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
 			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
 			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
+
+			RobotMiaParameters = _robotMiaParametersRepository
+				.Get(UoW, x => x.NomenclatureId == Entity.Id)
+				.FirstOrDefault()
+				?? new RobotMiaParameters
+				{
+					NomenclatureId = Entity.Id,
+				};
 
 			MobileAppNomenclatureOnlineCatalogs = UoW.GetAll<MobileAppNomenclatureOnlineCatalog>().ToList();
 			VodovozWebSiteNomenclatureOnlineCatalogs = UoW.GetAll<VodovozWebSiteNomenclatureOnlineCatalog>().ToList();
@@ -1099,6 +1162,71 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 		}
 
+		private void AddSlangWord()
+		{
+			var page = NavigationManager.OpenViewModel<TextEditViewModel>(this);
+
+			page.ViewModel.Configure(
+				viewModel =>
+				{
+					viewModel.Title = "Добавление жаргонизма";
+					viewModel.ShowOldText = false;
+					viewModel.TextChanged += OnSlangWordChanged;
+				});
+		}
+
+		private void EditSlangWord()
+		{
+			if(SelectedSlangWord is null)
+			{
+				return;
+			}
+
+			var page = NavigationManager.OpenViewModel<TextEditViewModel>(this);
+
+			page.ViewModel.Configure(
+				viewModel =>
+				{
+					viewModel.Title = "Изменение жаргонизма";
+					viewModel.ShowOldText = true;
+					viewModel.OldText = SelectedSlangWord.Word;
+					viewModel.TextChanged += OnSlangWordChanged;
+				});
+		}
+
+		private void RemoveSlangWord()
+		{
+			if(SelectedSlangWord is null)
+			{
+				return;
+			}
+
+			RobotMiaParameters.RemoveSlangWord(SelectedSlangWord.Word);
+		}
+
+		private void OnSlangWordChanged(object sender, TextChangeEventArgs e)
+		{
+			if(sender is TextEditViewModel textEditViewModel)
+			{
+				textEditViewModel.TextChanged -= OnSlangWordChanged;
+			}
+
+			if(string.IsNullOrWhiteSpace(e.NewText))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Жаргонизм не может быть пустым");
+				return;
+			}
+
+			if(string.IsNullOrWhiteSpace(e.OldText))
+			{
+				RobotMiaParameters.AddSlangWord(e.NewText);
+			}
+			else
+			{
+				RobotMiaParameters.ChangeSlangWord(e.OldText, e.NewText);
+			}
+		}
+
 		private void SaveHandler()
 		{
 			if(_needCheckOnlinePrices)
@@ -1113,6 +1241,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				}
 			}
 
+			UoW.Save(RobotMiaParameters);
 			Save(true);
 		}
 
