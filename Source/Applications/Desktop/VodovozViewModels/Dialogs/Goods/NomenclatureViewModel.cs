@@ -1188,6 +1188,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				viewModel =>
 				{
 					viewModel.Title = "Изменение жаргонизма";
+					viewModel.ShowOldText = true;
 					viewModel.OldText = SelectedSlangWord.Word;
 					viewModel.TextChanged += OnSlangWordChanged;
 				});

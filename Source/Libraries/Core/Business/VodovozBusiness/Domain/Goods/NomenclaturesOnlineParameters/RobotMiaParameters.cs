@@ -68,7 +68,7 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 
 			var wordToChange = SlangWords.FirstOrDefault(sw => sw.Word == wordOld);
 
-			if(wordToChange is null)
+			if(wordToChange != null)
 			{
 				wordToChange.Word = wordNew;
 			}
@@ -81,7 +81,9 @@ namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 				throw new InvalidOperationException("Нельзя добавить слово, не указана номенклатура");
 			}
 
-			var toRemove = SlangWords.Where(sw => sw.Word == word);
+			var toRemove = SlangWords
+				.Where(sw => sw.Word == word)
+				.ToArray();
 
 			foreach(var item in toRemove)
 			{
