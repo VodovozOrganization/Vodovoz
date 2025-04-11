@@ -15,6 +15,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			: base(navigation)
 		{
 			WindowPosition = QS.Dialog.WindowGravity.None;
+			IsModal = true;
 
 			AcceptCommand = new DelegateCommand(Accept);
 			CancelCommand = new DelegateCommand(Cancel);
