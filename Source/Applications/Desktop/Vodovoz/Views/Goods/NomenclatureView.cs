@@ -630,6 +630,7 @@ namespace Vodovoz.Views.Goods
 
 			yTreeViewSlangWords.Binding
 				.AddBinding(ViewModel.RobotMiaParameters, vm => vm.SlangWords, w => w.ItemsDataSource)
+				.AddBinding(ViewModel, vm => vm.SelectedSlangWordObject, w => w.SelectedRow)
 				.InitializeFromSource();
 
 			enumCmbOnlineAvailabilityRobotMia.ItemsEnum = typeof(GoodsOnlineAvailability);
