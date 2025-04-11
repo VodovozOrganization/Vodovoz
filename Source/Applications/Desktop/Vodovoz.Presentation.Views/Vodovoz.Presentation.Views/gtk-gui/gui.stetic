@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <stetic-interface>
   <configuration>
     <images-root-path>..</images-root-path>
@@ -561,7 +561,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Presentation.Views.Common.TextEditView" design-size="300 107">
+  <widget class="Gtk.Bin" id="Vodovoz.Presentation.Views.Common.TextEditView" design-size="331 113">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -571,6 +571,7 @@
         <child>
           <widget class="Gamma.GtkWidgets.yEntry" id="yentryOldValue">
             <property name="MemberName" />
+            <property name="Sensitive">False</property>
             <property name="CanFocus">True</property>
             <property name="IsEditable">True</property>
             <property name="InvisibleChar">•</property>
@@ -616,7 +617,14 @@
               </packing>
             </child>
             <child>
-              <placeholder />
+              <widget class="Gtk.Label" id="expander">
+                <property name="MemberName" />
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">False</property>
+                <property name="Fill">False</property>
+              </packing>
             </child>
             <child>
               <widget class="Gamma.GtkWidgets.yButton" id="ybuttonCancel">

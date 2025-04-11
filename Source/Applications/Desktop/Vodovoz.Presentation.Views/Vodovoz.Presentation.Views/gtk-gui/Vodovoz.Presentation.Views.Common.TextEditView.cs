@@ -14,6 +14,8 @@ namespace Vodovoz.Presentation.Views.Common
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAccept;
 
+		private global::Gtk.Label expander;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonCancel;
 
 		protected virtual void Build()
@@ -28,6 +30,7 @@ namespace Vodovoz.Presentation.Views.Common
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.yentryOldValue = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryOldValue.Sensitive = false;
 			this.yentryOldValue.CanFocus = true;
 			this.yentryOldValue.Name = "yentryOldValue";
 			this.yentryOldValue.IsEditable = true;
@@ -64,21 +67,28 @@ namespace Vodovoz.Presentation.Views.Common
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
+			this.expander = new global::Gtk.Label();
+			this.expander.Name = "expander";
+			this.hbox1.Add(this.expander);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.expander]));
+			w4.Position = 1;
+			w4.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.ybuttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCancel.CanFocus = true;
 			this.ybuttonCancel.Name = "ybuttonCancel";
 			this.ybuttonCancel.UseUnderline = true;
 			this.ybuttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отмена");
 			this.hbox1.Add(this.ybuttonCancel);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ybuttonCancel]));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ybuttonCancel]));
 			w5.Position = 2;
 			w5.Expand = false;
 			w5.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w6.Position = 2;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
