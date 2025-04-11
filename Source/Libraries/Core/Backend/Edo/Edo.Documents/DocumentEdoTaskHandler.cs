@@ -204,6 +204,12 @@ namespace Edo.Documents
 		public async Task HandleTransfered(int transferIterationId, CancellationToken cancellationToken)
 		{
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
+			if(transferIteration == null)
+			{
+				_logger.LogInformation("Итерация трансфера Id {TransferIterationId} не найдена", transferIterationId);
+				return;
+			}
+
 			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
 
 			if(edoTask.Status == EdoTaskStatus.Completed)

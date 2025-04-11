@@ -1,5 +1,7 @@
 ﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using MassTransit;
 using QS.DomainModel.UoW;
 using System;
@@ -22,6 +24,7 @@ namespace Edo.Documents
 		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 
 		public ForResaleDocumentEdoTaskHandler(
@@ -30,6 +33,7 @@ namespace Edo.Documents
 			TrueMarkTaskCodesValidator trueMarkTaskCodesValidator,
 			TransferRequestCreator transferRequestCreator,
 			TrueMarkCodesPool trueMarkCodesPool,
+			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
 		{
@@ -38,6 +42,7 @@ namespace Edo.Documents
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -108,14 +113,26 @@ namespace Edo.Documents
 
 			if(!taskValidationResult.IsAllValid)
 			{
-				// регистрация проблемы
-				throw new InvalidOperationException("Формирование УПД документа для перепродажи. Имеются коды не прошедшие валидацию в ЧЗ");
+				var invalidTaskItems = taskValidationResult.CodeResults.Where(x => !x.IsValid)
+					.Select(x => x.EdoTaskItem);
+				await _edoProblemRegistrar.RegisterCustomProblem<ResaleHasInvalidCodesOnTransferComplete>(
+					documentEdoTask,
+					invalidTaskItems,
+					cancellationToken
+				);
+				return;
 			}
 
 			if(!taskValidationResult.ReadyToSell)
 			{
-				// Поставить задачу в ожидание
-				throw new InvalidOperationException("Трансфер не завершен, или имеет ошибку");
+				var notReadyTaskItems = taskValidationResult.CodeResults.Where(x => !x.ReadyToSell)
+					.Select(x => x.EdoTaskItem);
+				await _edoProblemRegistrar.RegisterCustomProblem<HasNotTransferedCodesOnTransferComplete>(
+					documentEdoTask,
+					notReadyTaskItems,
+					cancellationToken
+				);
+				return;
 			}
 
 			await CreateUpdDocument(documentEdoTask, cancellationToken);

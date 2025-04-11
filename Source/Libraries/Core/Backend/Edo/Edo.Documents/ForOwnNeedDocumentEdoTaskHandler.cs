@@ -1,5 +1,7 @@
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
+using Edo.Problems.Custom.Sources;
+using Edo.Problems;
 using Edo.Problems.Exception;
 using MassTransit;
 using NHibernate;
@@ -26,6 +28,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 
 		public ForOwnNeedDocumentEdoTaskHandler(
@@ -34,6 +37,7 @@ namespace Edo.Documents
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			TransferRequestCreator transferRequestCreator,
 			TrueMarkCodesPool trueMarkCodesPool,
+			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
 		{
@@ -42,6 +46,7 @@ namespace Edo.Documents
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -192,8 +197,14 @@ namespace Edo.Documents
 
 			if(!taskValidationResult.ReadyToSell)
 			{
-				// ожидание
-				throw new InvalidOperationException("Трансфер не завершен, или возникла ошибка. Задача в ожидание");
+				var notReadyTaskItems = taskValidationResult.CodeResults.Where(x => !x.ReadyToSell)
+					.Select(x => x.EdoTaskItem);
+				await _edoProblemRegistrar.RegisterCustomProblem<HasNotTransferedCodesOnTransferComplete>(
+					documentEdoTask,
+					notReadyTaskItems,
+					cancellationToken
+				);
+				return;
 			}
 
 			var customerDocument = await SendDocument(documentEdoTask, cancellationToken);

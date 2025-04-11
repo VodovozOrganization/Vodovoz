@@ -3,15 +3,15 @@ using MassTransit;
 
 namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions
 {
-	public class TransferCompleteErrorConsumerDefinition : ConsumerDefinition<TransferCompleteErrorConsumer>
+	public class ReceiptTransferCompleteErrorConsumerDefinition : ConsumerDefinition<ReceiptTransferCompleteErrorConsumer>
 	{
-		public TransferCompleteErrorConsumerDefinition()
+		public ReceiptTransferCompleteErrorConsumerDefinition()
 		{
 			Endpoint(x => x.Name = "edo.transfer-complete.consumer.receipt-dispatcher_error");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<TransferCompleteErrorConsumer> consumerConfigurator)
+			IConsumerConfigurator<ReceiptTransferCompleteErrorConsumer> consumerConfigurator)
 		{
 			var rmq = (IRabbitMqReceiveEndpointConfigurator)endpointConfigurator;
 
@@ -23,5 +23,4 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions
 			});
 		}
 	}
-	
 }
