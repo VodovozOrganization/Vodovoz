@@ -955,13 +955,17 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
 		{
-			var isReceiptSendOldDocflow = IsReceiptSendOldDocflow(uow, orderId);
-			var isReceiptSendNewDocflow = IsReceiptSendNewDocflow(uow, orderId);
+			var isReceiptSendOldDocflow = IsReceiptSentOldDocflow(uow, orderId);
 
-			return isReceiptSendNewDocflow || isReceiptSendOldDocflow;
+			if(isReceiptSendOldDocflow)
+			{
+				return true;
+			}
+
+			return IsReceiptSentNewDocflow(uow, orderId);
 		}
 
-		private bool IsReceiptSendOldDocflow(IUnitOfWork uow, int orderId)
+		private bool IsReceiptSentOldDocflow(IUnitOfWork uow, int orderId)
 		{
 			var receipts = uow.Session.QueryOver<CashReceipt>()
 				.Where(x => x.Order.Id == orderId)
@@ -971,13 +975,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return receipts.Any();
 		}
 
-		private bool IsReceiptSendNewDocflow(IUnitOfWork uow, int orderId)
+		private bool IsReceiptSentNewDocflow(IUnitOfWork uow, int orderId)
 		{
-			var receiptStatusesInTask = new[]
+			var fiscalDocumentStages = new[]
 			{
-				EdoReceiptStatus.Sending,
-				EdoReceiptStatus.Sent,
-				EdoReceiptStatus.Completed
+				FiscalDocumentStage.Sent,
+				FiscalDocumentStage.Completed
 			};
 
 			var receipts =
@@ -985,9 +988,17 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				 join edoRequest in uow.Session.Query<OrderEdoRequest>() on edoTask.Id equals edoRequest.Task.Id
 				 join efd in uow.Session.Query<EdoFiscalDocument>() on edoTask.Id equals efd.ReceiptEdoTask.Id into fiscalDocuments
 				 from fiscalDocument in fiscalDocuments.DefaultIfEmpty()
+				 join tri in uow.Session.Query<TransferEdoRequestIteration>() on edoTask.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
+				 from transferEdoRequestIteration in transferEdoRequestIterations.DefaultIfEmpty()
+				 join ter in uow.Session.Query<TransferEdoRequest>() on transferEdoRequestIteration.Id equals ter.Iteration.Id into transferEdoRequests
+				 from transferEdoRequest in transferEdoRequests.DefaultIfEmpty()
+				 join tet in uow.Session.Query<TransferEdoTask>() on transferEdoRequest.TransferEdoTask.Id equals tet.Id into transferEdoTasks
+				 from transferEdoTask in transferEdoTasks.DefaultIfEmpty()
+				 join ted in uow.Session.Query<TransferEdoDocument>() on transferEdoTask.Id equals ted.TransferTaskId into transferEdoDocuments
+				 from transferEdoDocument in transferEdoDocuments.DefaultIfEmpty()
 				 where
-				 edoRequest.Order.Id == orderId
-				 && (receiptStatusesInTask.Contains(edoTask.ReceiptStatus) || fiscalDocument.Id != null)
+					 edoRequest.Order.Id == orderId
+					 && (transferEdoDocument.Id != null || fiscalDocumentStages.Contains(fiscalDocument.Stage))
 				 select
 				 edoTask.Id)
 				.ToList();
