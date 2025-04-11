@@ -344,7 +344,8 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Форма оплаты")]
 		public virtual new PaymentType PaymentType {
 			get => _paymentType;
-			set {
+			set
+			{
 				if(value != _paymentType && SetField(ref _paymentType, value)) 
 				{
 					if(PaymentType != PaymentType.PaidOnline)
@@ -830,6 +831,14 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
 
 			OrderStatus? newStatus = null;
+
+			// Убрать через месяц
+			if(DeliveryDate >= TerminalUnavaliableStartDate
+				&& PaymentType == PaymentType.Terminal)
+			{
+				yield return new ValidationResult("Оплата по терминалу после 16 апреля недоступена",
+							new[] { nameof(PaymentType), nameof(DeliveryDate) });
+			}
 
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				newStatus = (OrderStatus)validationContext.Items["NewStatus"];
