@@ -955,10 +955,42 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
 		{
+			var isReceiptSendOldDocflow = IsReceiptSendOldDocflow(uow, orderId);
+			var isReceiptSendNewDocflow = IsReceiptSendNewDocflow(uow, orderId);
+
+			return isReceiptSendNewDocflow || isReceiptSendOldDocflow;
+		}
+
+		private bool IsReceiptSendOldDocflow(IUnitOfWork uow, int orderId)
+		{
 			var receipts = uow.Session.QueryOver<CashReceipt>()
 				.Where(x => x.Order.Id == orderId)
 				.Where(x => x.Status == CashReceiptStatus.Sended)
 				.List();
+
+			return receipts.Any();
+		}
+
+		private bool IsReceiptSendNewDocflow(IUnitOfWork uow, int orderId)
+		{
+			var receiptStatusesInTask = new[]
+			{
+				EdoReceiptStatus.Sending,
+				EdoReceiptStatus.Sent,
+				EdoReceiptStatus.Completed
+			};
+
+			var receipts =
+				(from edoTask in uow.Session.Query<ReceiptEdoTask>()
+				 join edoRequest in uow.Session.Query<OrderEdoRequest>() on edoTask.Id equals edoRequest.Task.Id
+				 join efd in uow.Session.Query<EdoFiscalDocument>() on edoTask.Id equals efd.ReceiptEdoTask.Id into fiscalDocuments
+				 from fiscalDocument in fiscalDocuments.DefaultIfEmpty()
+				 where
+				 edoRequest.Order.Id == orderId
+				 && (receiptStatusesInTask.Contains(edoTask.ReceiptStatus) || fiscalDocument.Id != null)
+				 select
+				 edoTask.Id)
+				.ToList();
 
 			return receipts.Any();
 		}
