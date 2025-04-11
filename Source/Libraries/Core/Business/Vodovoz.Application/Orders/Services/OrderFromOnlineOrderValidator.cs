@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
@@ -43,6 +44,12 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			_onlineOrder = onlineOrder;
 			var validationResults = new List<Error>();
+
+			if(_onlineOrder.OnlineOrderPaymentType == Core.Domain.Orders.OnlineOrderPaymentType.Terminal
+				&& _onlineOrder.DeliveryDate >= OrderEntity.TerminalUnavaliableStartDate)
+			{
+				validationResults.Add(new Error("Temporary.Terminal.Unavailable", "Доставка с 16 апреля по типу оплаты Терминал недоступна"));
+			}
 			
 			if(_onlineOrder.IsSelfDelivery)
 			{

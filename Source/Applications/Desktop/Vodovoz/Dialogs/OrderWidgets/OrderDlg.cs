@@ -160,7 +160,7 @@ namespace Vodovoz
 		// Временное!! Удалить через месяц
 
 		private readonly DateTime _terminalUnavaliableStartDate = new DateTime(2025, 4, 16, 0, 0, 0, DateTimeKind.Local);
-		private readonly DateTime _terminalUnavaliableEndDate = new DateTime(2025, 4, 17, 23, 59, 59, DateTimeKind.Local);
+		//private readonly DateTime _terminalUnavaliableEndDate = new DateTime(2025, 4, 17, 23, 59, 59, DateTimeKind.Local);
 
 		private readonly int? _defaultCallBeforeArrival = null;
 		private readonly ITdiCompatibilityNavigation _navigationManager = Startup.MainWin.NavigationManager;
@@ -3559,7 +3559,7 @@ namespace Vodovoz
 		{
 			// Этот блок нужно удалить через месяц
 			if(pickerDeliveryDate.Date >= _terminalUnavaliableStartDate
-				&& pickerDeliveryDate.Date <= _terminalUnavaliableEndDate)
+				/*&& pickerDeliveryDate.Date <= _terminalUnavaliableEndDate*/)
 			{
 				if(!_selectPaymentTypeViewModel.ExcludedPaymentTypes.Contains(PaymentType.Terminal))
 				{
