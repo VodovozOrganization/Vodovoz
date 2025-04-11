@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers
 {
-	public class DocumentTaskCreatedErrorConsumer : IConsumer<Batch<DocumentTaskCreatedEvent>>
+	public class DocumentTaskCreatedErrorConsumer : IConsumer<DocumentTaskCreatedEvent>
 	{
 		private readonly DocumentEdoTaskHandler _documentEdoTaskHandler;
 
@@ -17,20 +17,16 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers
 			_documentEdoTaskHandler = documentEdoTaskHandler ?? throw new ArgumentNullException(nameof(documentEdoTaskHandler));
 		}
 
-		public async Task Consume(ConsumeContext<Batch<DocumentTaskCreatedEvent>> context)
+		public async Task Consume(ConsumeContext<DocumentTaskCreatedEvent> context)
 		{
-			foreach(var batchItem in context.Message)
+			try
 			{
-				var msg = batchItem.Message;
-				try
-				{
-					await _documentEdoTaskHandler.HandleNew(msg.Id, context.CancellationToken);
-					//await _receiptSender.HandleReceiptSendEvent(msg.ReceiptEdoTaskId, context.CancellationToken);
-				}
-				catch(Exception ex)
-				{
-					throw;
-				}
+				await _documentEdoTaskHandler.HandleNew(context.Message.Id, context.CancellationToken);
+			}
+			catch(Exception ex)
+			{
+				Console.WriteLine($"Error processing DocumentTaskCreatedEvent: {ex.Message}");
+				throw;
 			}
 		}
 	}
