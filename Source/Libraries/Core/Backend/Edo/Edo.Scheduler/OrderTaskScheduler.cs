@@ -47,7 +47,6 @@ namespace Edo.Scheduler.Service
 		
 		private EdoTask CreateInstanceAccountingEdoTask(OrderEdoRequest edoRequest)
 		{
-			
 			if(edoRequest.Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 			{
 				// Если есть согласие на ЭДО
@@ -55,9 +54,7 @@ namespace Edo.Scheduler.Service
 				return CreateDocumentEdoTask(edoRequest);
 			}
 
-			// Иначе
-			// создаем задачу вывода из оборота через честный знак
-			return CreateWithdrawalEdoTask(edoRequest);
+			return CreateSaveCodeTask(edoRequest);
 		}
 
 		private EdoTask CreateDocumentEdoTask(OrderEdoRequest edoRequest)
