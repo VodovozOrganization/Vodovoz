@@ -13,8 +13,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Transfer.Dispatcher
 {
@@ -27,6 +27,7 @@ namespace Edo.Transfer.Dispatcher
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferDispatcher _transferDispatcher;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IBus _messageBus;
 
 		public TransferEdoHandler(
@@ -37,6 +38,7 @@ namespace Edo.Transfer.Dispatcher
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferDispatcher transferDispatcher,
 			EdoProblemRegistrar edoProblemRegistrar,
+			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IBus messageBus
 			)
 		{
@@ -47,6 +49,7 @@ namespace Edo.Transfer.Dispatcher
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_transferDispatcher = transferDispatcher ?? throw new ArgumentNullException(nameof(transferDispatcher));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -92,7 +95,6 @@ namespace Edo.Transfer.Dispatcher
 			foreach(var requestsGroup in requestsGroups)
 			{
 				var transferTask = await _transferDispatcher.AddRequestsToTask(
-					_uow,
 					requestsGroup,
 					cancellationToken
 				);
@@ -139,7 +141,7 @@ namespace Edo.Transfer.Dispatcher
 
 			var orderTaskIds = transferTask.TransferEdoRequests.Select(x => x.Iteration.OrderEdoTask.Id);
 
-			await _uow.Session.QueryOver<EdoTaskItem>()
+			var taskItems = await _uow.Session.QueryOver<EdoTaskItem>()
 				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
@@ -148,6 +150,17 @@ namespace Edo.Transfer.Dispatcher
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
 				.WhereRestrictionOn(x => x.CustomerEdoTask.Id).IsIn(orderTaskIds.ToArray())
 				.ListAsync();
+
+			var sourceCodes = taskItems.Select(x => x.ProductCode)
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = taskItems.Select(x => x.ProductCode)
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
 			if(transferTask.Status == EdoTaskStatus.Completed)
 			{
@@ -169,7 +182,7 @@ namespace Edo.Transfer.Dispatcher
 			transferTask.EndTime = DateTime.Now;
 
 			await _uow.SaveAsync(transferTask, cancellationToken: cancellationToken);
-			_uow.Commit();
+			await _uow.CommitAsync(cancellationToken);
 
 			await UpdateIterationsAndNotifyOnCompleted(transferTask, cancellationToken);
 		}
@@ -237,6 +250,18 @@ namespace Edo.Transfer.Dispatcher
 
 			await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
 				transferTask, cancellationToken, "Возникла проблема с документооборотом, не завершился на стороне ЭДО провайдера");
+		}
+
+		public async Task SendTransfer(int transferTaskId, CancellationToken cancellationToken)
+		{
+			var transferEdoTask = await _uow.Session.GetAsync<TransferEdoTask>(transferTaskId, cancellationToken);
+			await _transferDispatcher.SendTransfer(transferEdoTask, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+
+			await _messageBus.Publish(
+				new TransferTaskReadyToSendEvent { Id = transferTaskId },
+				cancellationToken
+			);
 		}
 
 		public void Dispose()

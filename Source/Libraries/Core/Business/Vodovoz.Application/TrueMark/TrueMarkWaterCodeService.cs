@@ -31,9 +31,9 @@ namespace Vodovoz.Application.TrueMark
 
 		private readonly ILogger<TrueMarkWaterCodeService> _logger;
 		private readonly IUnitOfWork _uow;
+		private readonly ITrueMarkApiClient _trueMarkApiClient;
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
-		private readonly ITrueMarkApiClientFactory _trueMarkApiClientFactory;
 		private readonly ITrueMarkTransportCodeFactory _trueMarkTransportCodeFactory;
 		private readonly ITrueMarkWaterGroupCodeFactory _trueMarkWaterGroupCodeFactory;
 		private readonly ITrueMarkWaterIdentificationCodeFactory _trueMarkWaterIdentificationCodeFactory;
@@ -49,9 +49,9 @@ namespace Vodovoz.Application.TrueMark
 		public TrueMarkWaterCodeService(
 			ILogger<TrueMarkWaterCodeService> logger,
 			IUnitOfWork uow,
+			ITrueMarkApiClient trueMarkApiClient,
 			TrueMarkCodesChecker trueMarkCodesChecker,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
-			ITrueMarkApiClientFactory trueMarkApiClientFactory,
 			ITrueMarkTransportCodeFactory trueMarkTransportCodeFactory,
 			ITrueMarkWaterGroupCodeFactory trueMarkWaterGroupCodeFactory,
 			ITrueMarkWaterIdentificationCodeFactory trueMarkWaterIdentificationCodeFactory,
@@ -66,12 +66,12 @@ namespace Vodovoz.Application.TrueMark
 				?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow
 				?? throw new ArgumentNullException(nameof(uow));
+			_trueMarkApiClient = trueMarkApiClient
+				?? throw new ArgumentNullException(nameof(trueMarkApiClient));
 			_trueMarkCodesChecker = trueMarkCodesChecker
 				?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser
 				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
-			_trueMarkApiClientFactory = trueMarkApiClientFactory
-				?? throw new ArgumentNullException(nameof(trueMarkApiClientFactory));
 			_trueMarkTransportCodeFactory = trueMarkTransportCodeFactory
 				?? throw new ArgumentNullException(nameof(trueMarkTransportCodeFactory));
 			_trueMarkWaterGroupCodeFactory = trueMarkWaterGroupCodeFactory
@@ -381,13 +381,11 @@ namespace Vodovoz.Application.TrueMark
 
 			ProductInstancesInfoResponse productInstanceInfo = null;
 
-			var truemarkClient = _trueMarkApiClientFactory.GetClient();
-
 			try
 			{
 				var requestCode = parsedCode is null ? scannedCode : _trueMarkWaterCodeParser.GetWaterIdentificationCode(parsedCode);
 
-				productInstanceInfo = await truemarkClient.GetProductInstanceInfoAsync(new string[] { requestCode }, cancellationToken);
+				productInstanceInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(new string[] { requestCode }, cancellationToken);
 
 				if(!(productInstanceInfo.InstanceStatuses.FirstOrDefault() is ProductInstanceStatus productInstanceStatus))
 				{
@@ -444,7 +442,7 @@ namespace Vodovoz.Application.TrueMark
 
 			if(trueMarkAnyCode.IsTrueMarkWaterGroupCode || trueMarkAnyCode.IsTrueMarkTransportCode)
 			{
-				var createCodesResult = await CreateCodesAsync(truemarkClient, new ProductInstanceStatus[] { instanceStatus }, cancellationToken);
+				var createCodesResult = await CreateCodesAsync(_trueMarkApiClient, new ProductInstanceStatus[] { instanceStatus }, cancellationToken);
 
 				if(createCodesResult.IsFailure)
 				{

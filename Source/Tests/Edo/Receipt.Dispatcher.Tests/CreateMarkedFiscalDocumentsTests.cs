@@ -1,4 +1,4 @@
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Problems;
 using Edo.Problems.Custom;
 using Edo.Problems.Exception;
@@ -508,11 +508,10 @@ namespace Receipt.Dispatcher.Tests
 			var httpClientFactory = Substitute.For<IHttpClientFactory>();
 			var edoProblemRegistrar = CreateEdoProblemRegistrarFixture(unitOfWork, unitOfWorkFactory);
 			var edoTaskValidator = CreateEdoTaskValidatorFixture(unitOfWorkFactory, edoProblemRegistrar);
-			var trueMarkClientFactoryFixture = new TrueMarkClientFactoryFixture();
-			var edoTaskTrueMarkCodeCheckerFactory = CreateEdoTaskItemTrueMarkStatusProviderFactoryFixture(trueMarkClientFactoryFixture);
+			var edoTaskTrueMarkCodeCheckerFactory = Substitute.For<EdoTaskItemTrueMarkStatusProviderFactory>();
 			var transferRequestCreator = CreateTransferRequestCreatorFixture(edoRepository);
 			var edoReceiptSettings = Substitute.For<IEdoReceiptSettings>();
-			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, trueMarkClientFactoryFixture.GetClient());
+			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, Substitute.For<TrueMarkApiClient>());
 			var trueMarkCodesPool = CreateTrueMarkCodesPoolFixture(unitOfWork);
 			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
@@ -571,11 +570,6 @@ namespace Receipt.Dispatcher.Tests
 		private EdoTaskValidatorsPersister CreateEdoTaskValidatorsPersisterFixture(IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			return new EdoTaskValidatorsPersister(unitOfWorkFactory, Enumerable.Empty<IEdoTaskValidator>());
-		}
-
-		private EdoTaskItemTrueMarkStatusProviderFactory CreateEdoTaskItemTrueMarkStatusProviderFactoryFixture(ITrueMarkApiClientFactory trueMarkApiClientFactory)
-		{
-			return new EdoTaskItemTrueMarkStatusProviderFactory(trueMarkApiClientFactory);
 		}
 
 		private TransferRequestCreator CreateTransferRequestCreatorFixture(IEdoRepository edoRepository)

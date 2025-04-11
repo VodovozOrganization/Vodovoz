@@ -359,7 +359,7 @@ namespace Vodovoz.Domain.Orders
 		: Count;
 
 		public virtual bool IsTrueMarkCodesMustBeAdded =>
-			Nomenclature?.IsAccountableInTrueMarkAndHasGtin == true
+			Nomenclature?.IsAccountableInTrueMark == true
 			&& Count > 0;
 
 		public virtual bool IsTrueMarkCodesMustBeAddedInWarehouse =>

@@ -33,7 +33,7 @@ using Vodovoz.Settings.Edo;
 
 namespace Edo.Receipt.Dispatcher
 {
-	public class ForOwnNeedsReceiptEdoTaskHandler
+	public class ForOwnNeedsReceiptEdoTaskHandler : IDisposable
 	{
 		private readonly ILogger<ForOwnNeedsReceiptEdoTaskHandler> _logger;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
@@ -88,7 +88,7 @@ namespace Edo.Receipt.Dispatcher
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
 		}
 
-		public async Task HandleForOwnNeedsReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
+		public async Task HandleNewReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
 			var order = receiptEdoTask.OrderEdoRequest.Order;
 			if(order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
@@ -100,7 +100,9 @@ namespace Edo.Receipt.Dispatcher
 			// предзагрузка для ускорения
 			await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.OrderEdoRequest.Id)
 				.ListAsync();
 
@@ -150,6 +152,43 @@ namespace Edo.Receipt.Dispatcher
 		public async Task HandleTransferComplete(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
+
+			if(!receiptEdoTask.FiscalDocuments.Any())
+			{
+				_logger.LogWarning("Отсутствуют фискальные документы. Задача id {edoTaskId} " +
+					"отправлена на переобработку.", receiptEdoTask.Id);
+				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
+				return;
+			}
+
+			var markedInventPositions = receiptEdoTask.FiscalDocuments.SelectMany(x => x.InventPositions)
+				.Where(x => x.EdoTaskItem != null || x.GroupCode != null);
+
+			var groupedByCode = markedInventPositions.GroupBy(x =>
+			{
+				if(x.EdoTaskItem != null)
+				{
+					return x.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260;
+				}
+
+				return x.GroupCode.FormatForCheck1260;
+			});
+
+			var hasDuplicateInventPositions = groupedByCode.Any(x => x.Count() > 1);
+
+			if(hasDuplicateInventPositions)
+			{
+				_logger.LogWarning("Обнаружено дублирование строк фискальных документов. Задача id {edoTaskId} " +
+					"отправлена на переобработку.", receiptEdoTask.Id);
+
+				await _edoProblemRegistrar.OptionalRegisterCustomProblem<FiscalInventPositionDuplicatesDetected>(
+					receiptEdoTask, 
+					cancellationToken,
+					solved: true
+				);
+				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
+				return;
+			}
 
 			var taskValidationResult = await _localCodesValidator.ValidateAsync(
 					receiptEdoTask,
@@ -257,7 +296,10 @@ namespace Edo.Receipt.Dispatcher
 							hasGroupInvalidCodes = true;
 
 							// так же надо зачистить все части этого группового кода
-							var groupCode = _trueMarkCodeRepository.GetParentGroupCode(_uow, codeResult.EdoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value);
+							var groupCode = await _trueMarkCodeRepository.GetGroupCode(
+								codeResult.EdoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value,
+								cancellationToken
+							);
 							foreach(var individualCode in groupCode.GetAllCodes().Where(x => x.IsTrueMarkWaterIdentificationCode))
 							{
 								var foundInvalidGroupIdentificationCode = receiptEdoTask.Items
@@ -268,9 +310,13 @@ namespace Edo.Receipt.Dispatcher
 						}
 						else
 						{
-							var gtin = await _uow.Session.QueryOver<GtinEntity>()
-								.Where(x => x.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN)
-								.SingleOrDefaultAsync(cancellationToken);
+							var gtin = (
+									from gtinEntity in _uow.Session.Query<GtinEntity>()
+									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN
+									select gtinEntity
+								)
+								.FirstOrDefault();
+
 							var newCode = await LoadCodeFromPool(gtin, cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 						}
@@ -480,7 +526,7 @@ namespace Edo.Receipt.Dispatcher
 
 			// отобрали от списка необработанных кодов все групповые коды
 			// их обработаем в первую очередь
-			var groupCodesWithTaskItems = TakeGroupCodesWithTaskItems(unprocessedCodes);
+			var groupCodesWithTaskItems = await TakeGroupCodesWithTaskItems(unprocessedCodes, cancellationToken);
 
 			var groupFiscalInventPositions = new List<FiscalInventPosition>();
 
@@ -697,7 +743,10 @@ namespace Edo.Receipt.Dispatcher
 			}
 		}		
 
-		private IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>> TakeGroupCodesWithTaskItems(List<EdoTaskItem> unprocessedTaskItems)
+		private async Task<IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
+			List<EdoTaskItem> unprocessedTaskItems,
+			CancellationToken cancellationToken
+			)
 		{
 			// нашли все индивидуальные коды, которые содержатся в группах
 			var codesThatContainedInGroup = unprocessedTaskItems
@@ -718,9 +767,18 @@ namespace Edo.Receipt.Dispatcher
 				.Select(x => x.Key)
 				.Distinct();
 
-			var parentCodes = parentCodesIds
-				.Select(x => _trueMarkCodeRepository.GetParentGroupCode(_uow, x.Value))
-				.Distinct();
+			var parentCodes = new List<TrueMarkWaterGroupCode>();
+			foreach(var parentCodesId in parentCodesIds)
+			{
+				var parentCode = await _trueMarkCodeRepository.GetGroupCode(parentCodesId.Value, cancellationToken);
+
+				if(parentCode == null)
+				{
+					continue;
+				}
+
+				parentCodes.Add(parentCode);
+			}
 
 			var result = new Dictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>();
 
@@ -1364,5 +1422,9 @@ namespace Edo.Receipt.Dispatcher
 			return contact;
 		}
 
+		public void Dispose()
+		{
+			_uow.Dispose();
+		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Edo.Transfer
 {
@@ -6,10 +7,8 @@ namespace Edo.Transfer
 	{
 		public static IServiceCollection AddEdoTransfer(this IServiceCollection services)
 		{
-			services
-				.AddScoped<TransferDispatcher>()
-				.AddScoped<TransferTaskRepository>()
-				;
+			services.TryAddScoped<TransferDispatcher>();
+			services.TryAddScoped<TransferTaskRepository>();
 
 			return services;
 		}

@@ -138,7 +138,7 @@ using VodovozInfrastructure.Utils;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using LogLevel = NLog.LogLevel;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 
 namespace Vodovoz
 {
@@ -157,6 +157,11 @@ namespace Vodovoz
 		IAskSaveOnCloseViewModel,
 		IEdoLightsMatrixInfoProvider
 	{
+		// Временное!! Удалить через месяц
+
+		private readonly DateTime _terminalUnavaliableStartDate = new DateTime(2025, 4, 16, 0, 0, 0, DateTimeKind.Local);
+		private readonly DateTime _terminalUnavaliableEndDate = new DateTime(2025, 4, 17, 23, 59, 59, DateTimeKind.Local);
+
 		private readonly int? _defaultCallBeforeArrival = null;
 		private readonly ITdiCompatibilityNavigation _navigationManager = Startup.MainWin.NavigationManager;
 
@@ -1129,6 +1134,7 @@ namespace Vodovoz
 			UpdateOrderItemsOriginalValues();
 
 			RefreshBottlesDebtNotifier();
+			UpdatePaymentTypeAvailability();
 		}
 
 		private void UpdateOrderItemsOriginalValues()
@@ -3549,8 +3555,42 @@ namespace Vodovoz
 
 		#region Методы событий виджетов
 
+		private void UpdatePaymentTypeAvailability()
+		{
+			// Этот блок нужно удалить через месяц
+			if(pickerDeliveryDate.Date >= _terminalUnavaliableStartDate
+				&& pickerDeliveryDate.Date <= _terminalUnavaliableEndDate)
+			{
+				if(!_selectPaymentTypeViewModel.ExcludedPaymentTypes.Contains(PaymentType.Terminal))
+				{
+					_selectPaymentTypeViewModel.ExcludedPaymentTypes.Add(PaymentType.Terminal);
+				}
+
+				if(Entity.CanEditByStatus
+					&& Entity.PaymentType == PaymentType.Terminal)
+				{
+					if(Entity.Client.PaymentMethod != PaymentType.Terminal)
+					{
+						Entity.PaymentType = Entity.Client.PaymentMethod;
+					}
+					else
+					{
+						Entity.PaymentType = PaymentType.Cash;
+					}
+				}
+			}
+			else
+			{
+				_selectPaymentTypeViewModel.ExcludedPaymentTypes.Remove(PaymentType.Terminal);
+			}
+		}
+
 		private void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
 		{
+			UpdatePaymentTypeAvailability();
+
+			Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
+
 			if(pickerDeliveryDate.Date < DateTime.Today && !_canCreateOrderInAdvance)
 			{
 				pickerDeliveryDate.ModifyBase(StateType.Normal, GdkColors.DangerText);
@@ -3913,6 +3953,8 @@ namespace Vodovoz
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 			UpdateUIState();
+
+			Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 		}
 
 		private bool UpdateVisibilityHboxOnlineOrder()

@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
@@ -11,7 +10,6 @@ using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Counterparties;

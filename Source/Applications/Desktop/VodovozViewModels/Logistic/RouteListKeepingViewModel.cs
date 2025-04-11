@@ -466,7 +466,7 @@ namespace Vodovoz
 				return;
 			}
 
-			if(!CanCompleteAddressByNewEdoProcess(rli, out var message))
+			if(!CanCompleteAddressByNewEdoProcess(rli, _routeListItemStatusToChange, out var message))
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
 				return;
@@ -540,12 +540,15 @@ namespace Vodovoz
 			UpdateCreatedEdoRequests(request, addressStatus);
 		}
 
-		private bool CanCompleteAddressByNewEdoProcess(RouteListKeepingItemNode rli, out string message)
+		private bool CanCompleteAddressByNewEdoProcess(
+			RouteListKeepingItemNode rli,
+			RouteListItemStatus newStatus,
+			out string message)
 		{
 			message = null;
 			var order = rli.RouteListItem.Order;
 			
-			if(_routeListItemStatusToChange == RouteListItemStatus.Completed
+			if(newStatus == RouteListItemStatus.Completed
 			   && order.IsOrderContainsIsAccountableInTrueMarkItems
 			   && !_currentPermissionService.ValidatePresetPermission(
 				   Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
@@ -758,14 +761,16 @@ namespace Vodovoz
 					continue;
 				}
 
-				if(!CanCompleteAddressByNewEdoProcess(item, out var message))
+				const RouteListItemStatus newStatus = RouteListItemStatus.Completed;
+
+				if(!CanCompleteAddressByNewEdoProcess(item, newStatus, out var message))
 				{
 					cantSetCompleteMessages.AppendLine(message);
 					continue;
 				}
 				
-				Entity.ChangeAddressStatusAndCreateTask(UoW, item.RouteListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
-				TryUpdateCreatedEdoRequests(item, RouteListItemStatus.Completed);
+				Entity.ChangeAddressStatusAndCreateTask(UoW, item.RouteListItem.Id, newStatus, CallTaskWorker);
+				TryUpdateCreatedEdoRequests(item, newStatus);
 			}
 
 			if(cantSetCompleteMessages.Length > 0)

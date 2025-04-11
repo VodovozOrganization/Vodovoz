@@ -1,4 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Edo.CodesSaver;
 using Edo.Common;
 using Edo.Documents;
 using Edo.Problems;
@@ -6,6 +7,7 @@ using Edo.Receipt.Dispatcher;
 using Edo.Receipt.Dispatcher.ErrorDebug.Consumers;
 using Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions;
 using Edo.Receipt.Sender;
+using Edo.Scheduler;
 using Edo.Transport;
 using MassTransit;
 using MessageTransport;
@@ -18,8 +20,6 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using System;
 using TrueMark.Codes.Pool;
-using TrueMark.Library;
-using TrueMarkApi.Client;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
@@ -62,31 +62,28 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 					;
 
-					services
-						.AddTrueMarkApiClient()
-					;
+					services.Configure<CashboxesSetting>(hostContext.Configuration);
+
+					services.AddMessageTransportSettings();
+
+					services.AddHttpClient();
+
+					services.AddEdo();
+					services.AddEdoProblemRegistation();
+					services.AddCodesPool();
+
+					services.AddEdoTransfer();
 
 					services
-						//document
-						.AddScoped<DocumentEdoTaskHandler>()
-						.AddScoped<ForOwnNeedDocumentEdoTaskHandler>()
-						.AddScoped<ForResaleDocumentEdoTaskHandler>()
-
-						//transfer.dispatcher
-						.AddScoped<TransferEdoHandler>()
-						.AddEdoTransfer()
-
-						//receipt.dispatcher
-						.AddScoped<ReceiptEdoTaskHandler>()
-						.AddScoped<ResaleReceiptEdoTaskHandler>()
-						.AddScoped<ForOwnNeedsReceiptEdoTaskHandler>()
-						.AddScoped<Tag1260Checker>()
-
-						//receipt.sender
-						.AddModulKassa()
-						.Configure<CashboxesSetting>(hostContext.Configuration)
-						.AddScoped<FiscalDocumentFactory>()
-						.AddScoped<ReceiptSender>()
+						.AddCodesSaverServices()
+						.AddEdoDocflowServices()
+						.AddEdoDocumentsServices()
+						.AddEdoReceiptDispatcherServices()
+						.AddEdoReceiptSenderServices()
+						.AddEdoSchedulerServices()
+						.AddEdoTransferDispatcherServices()
+						.AddEdoTransferRoutineServices()
+						.AddEdoTransferSenderServices()
 						;
 
 					services.AddEdo();
@@ -96,12 +93,13 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 					services.AddEdoMassTransit(
 						configureBus: cfg =>
 						{
-							// Выбор какие ошибки дебажить:
+							// Выбор какой консюмер дебажить:
 
-							////cfg.AddConsumer<TransferCompleteErrorConsumer, TransferCompleteErrorConsumerDefinition>();
+							cfg.AddConsumer<DocumentTransferCompleteErrorConsumer, DocumentTransferCompleteErrorConsumerDefinition>();
+							//cfg.AddConsumer<ReceiptTransferCompleteErrorConsumer, ReceiptTransferCompleteErrorConsumerDefinition>();
 							//cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
 							//cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
-							cfg.AddConsumer<TransferDocumentAcceptedErrorConsumer, TransferDocumentAcceptedErrorConsumerDefinition>();
+							//cfg.AddConsumer<TransferDocumentAcceptedErrorConsumer, TransferDocumentAcceptedErrorConsumerDefinition>();
 						}
 					);
 				});

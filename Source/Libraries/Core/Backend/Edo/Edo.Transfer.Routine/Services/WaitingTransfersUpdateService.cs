@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Transfer.Routine.WaitingTransfersUpdate
+namespace Edo.Transfer.Routine.Services
 {
 	public class WaitingTransfersUpdateService
 	{
@@ -24,7 +24,7 @@ namespace Edo.Transfer.Routine.WaitingTransfersUpdate
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IServiceScopeFactory serviceScopeFactory)
 		{
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 		}

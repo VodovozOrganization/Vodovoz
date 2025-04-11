@@ -40,7 +40,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.ViewModels.Reports.Orders;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using QS.Deletion;
 using Vodovoz.Core.Domain.Documents;

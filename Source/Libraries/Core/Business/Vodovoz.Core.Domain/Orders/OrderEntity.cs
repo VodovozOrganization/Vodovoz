@@ -7,6 +7,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -90,6 +91,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private CounterpartyEntity _client;
 		private DeliveryPointEntity _deliveryPoint;
 		private CounterpartyContractEntity _contract;
+		private DeliveryScheduleEntity _deliverySchedule;
 
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
@@ -621,6 +623,17 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _contract, value);
 		}
 
+		/// <summary>
+		/// Время доставки
+		/// </summary>
+		[Display(Name = "Время доставки")]
+		public virtual DeliveryScheduleEntity DeliverySchedule
+		{
+			get => _deliverySchedule;
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _deliverySchedule, value);
+		}
+
 		#region Вычисляемые свойства
 
 		public virtual bool IsUndeliveredStatus =>
@@ -629,6 +642,12 @@ namespace Vodovoz.Core.Domain.Orders
 			|| OrderStatus == OrderStatus.NotDelivered;
 
 		public virtual bool IsLoadedFrom1C => !string.IsNullOrEmpty(Code1c);
+		
+		/// <summary>
+		/// Проверка, является ли целью покупки заказа - для перепродажи
+		/// </summary>
+		public virtual bool IsOrderForResale =>
+			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
 
 		/// <summary>
 		/// Проверка, является ли клиент по заказу сетевым покупателем

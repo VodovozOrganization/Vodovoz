@@ -76,7 +76,7 @@ namespace TrueMarkCodePoolCheckWorker
 						.AddCodesPool()
 
 						.AddHostedService<CodePoolCheckWorker>()
-						.AddHttpClient()
+						.AddTrueMarkApiClient()
 						;
 
 					DependencyInjection.AddStaticScopeForEntity(services);
@@ -97,14 +97,6 @@ namespace TrueMarkCodePoolCheckWorker
 
 			builder.RegisterType<OurCodesChecker>()
 				.AsSelf()
-				.InstancePerLifetimeScope();
-
-			builder.RegisterType<TrueMarkApiClientFactory>()
-				.As<ITrueMarkApiClientFactory>()
-				.InstancePerLifetimeScope();
-
-			builder.Register((context, instance) => context.Resolve<ITrueMarkApiClientFactory>().GetClient())
-				.As<ITrueMarkApiClient>()
 				.InstancePerLifetimeScope();
 
 			builder.RegisterType<TrueMarkWaterCodeParser>()

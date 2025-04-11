@@ -1,7 +1,10 @@
 ﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
+using Edo.Problems.Custom.Sources;
+using Edo.Problems;
 using Edo.Problems.Exception;
 using MassTransit;
+using NHibernate;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -25,6 +28,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 
 		public ForOwnNeedDocumentEdoTaskHandler(
@@ -33,6 +37,7 @@ namespace Edo.Documents
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			TransferRequestCreator transferRequestCreator,
 			TrueMarkCodesPool trueMarkCodesPool,
+			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
 		{
@@ -41,6 +46,7 @@ namespace Edo.Documents
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -114,9 +120,13 @@ namespace Edo.Documents
 						}
 						else
 						{
-							var gtin = await _uow.Session.QueryOver<GtinEntity>()
-								.Where(x => x.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN)
-								.SingleOrDefaultAsync(cancellationToken);
+							var gtin = (
+									from gtinEntity in _uow.Session.Query<GtinEntity>()
+									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN
+									select gtinEntity
+								)
+								.FirstOrDefault();
+							
 							var newCode = await LoadCodeFromPool(gtin, cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 							codeResult.EdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
@@ -187,8 +197,14 @@ namespace Edo.Documents
 
 			if(!taskValidationResult.ReadyToSell)
 			{
-				// ожидание
-				throw new InvalidOperationException("Трансфер не завершен, или возникла ошибка. Задача в ожидание");
+				var notReadyTaskItems = taskValidationResult.CodeResults.Where(x => !x.ReadyToSell)
+					.Select(x => x.EdoTaskItem);
+				await _edoProblemRegistrar.RegisterCustomProblem<HasNotTransferedCodesOnTransferComplete>(
+					documentEdoTask,
+					notReadyTaskItems,
+					cancellationToken
+				);
+				return;
 			}
 
 			var customerDocument = await SendDocument(documentEdoTask, cancellationToken);
@@ -212,7 +228,7 @@ namespace Edo.Documents
 			var order = documentEdoTask.OrderEdoRequest.Order;
 
 			var unprocessedCodes = documentEdoTask.Items.ToList();
-			var groupCodesWithTaskItems = TakeGroupCodesWithTaskItems(unprocessedCodes);
+			var groupCodesWithTaskItems = await TakeGroupCodesWithTaskItems(unprocessedCodes, cancellationToken);
 
 			// ---------------------------------------------------------------------
 			// алгоритм назначения кодов на товары в заказе
@@ -229,7 +245,8 @@ namespace Edo.Documents
 
 				var codeItemsToAssign = new List<EdoUpdInventPositionCode>();
 
-				if(orderItem.Price <= 0 && documentEdoTask.DocumentType == EdoDocumentType.UPD)
+				if(orderItem.ActualSum <= 0
+					&& documentEdoTask.DocumentType == EdoDocumentType.UPD)
 				{
 					if(orderItem.Nomenclature.IsAccountableInTrueMark && unprocessedCodes.Any())
 					{
@@ -478,7 +495,10 @@ namespace Edo.Documents
 			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
 		}
 
-		private IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>> TakeGroupCodesWithTaskItems(List<EdoTaskItem> unprocessedTaskItems)
+		private async Task<IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
+			List<EdoTaskItem> unprocessedTaskItems, 
+			CancellationToken cancellationToken
+			)
 		{
 			// нашли все индивидуальные коды, которые содержатся в группах
 			var codesThatContainedInGroup = unprocessedTaskItems
@@ -497,10 +517,20 @@ namespace Edo.Documents
 
 			var parentCodesIds = groupped
 				.Select(x => x.Key)
-			.Distinct();
-			var parentCodes = parentCodesIds
-				.Select(x => _trueMarkCodeRepository.GetParentGroupCode(_uow, x.Value))
 				.Distinct();
+
+			var parentCodes = new List<TrueMarkWaterGroupCode>();
+			foreach(var parentCodesId in parentCodesIds)
+			{
+				var parentCode = await _trueMarkCodeRepository.GetGroupCode(parentCodesId.Value, cancellationToken);
+
+				if(parentCode == null)
+				{
+					continue;
+				}
+
+				parentCodes.Add(parentCode);
+			}
 
 			var result = new Dictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>();
 

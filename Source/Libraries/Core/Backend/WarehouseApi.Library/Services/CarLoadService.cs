@@ -222,9 +222,8 @@ namespace WarehouseApi.Library.Services
 								PopulateWaterCode(allCodes)));
 					}
 
-					codeToAddInfo.Codes = codeToAddInfo.Codes
-						.Where(code => !trueMarkCodes.Any(x => x.Code == code.Code))
-						.Concat(trueMarkCodes);
+					codeToAddInfo.Codes.RemoveAll(code => trueMarkCodes.Any(x => x.Code == code.Code));
+					codeToAddInfo.Codes.AddRange(trueMarkCodes);
 				}
 			}
 
@@ -490,7 +489,7 @@ namespace WarehouseApi.Library.Services
 
 			AddTrueMarkCodeToCarLoadDocumentItem(documentItemToEdit, waterCode);
 
-			return documentItemToEdit;
+			return await Task.FromResult(documentItemToEdit);
 		}
 
 		public async Task<RequestProcessingResult<ChangeOrderCodeResponse>> ChangeOrderCode(

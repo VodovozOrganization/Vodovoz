@@ -8,11 +8,9 @@ namespace TrueMark.Codes.Pool
 	{
 		public static IServiceCollection AddCodesPool(this IServiceCollection services)
 		{
-			services
-				.AddScoped<TrueMarkCodesPool>()
-				.AddScoped<TrueMarkCodesPoolManager>()
-				.AddScoped<TrueMarkCodesPoolFactory>()
-				;
+			services.TryAddScoped<TrueMarkCodesPool>();
+			services.TryAddScoped<TrueMarkCodesPoolManager>();
+			services.TryAddScoped<TrueMarkCodesPoolFactory>();
 
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot());
 

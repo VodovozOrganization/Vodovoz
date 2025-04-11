@@ -9,22 +9,21 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Transfer.Sender
 {
-	public class TransferSendHandler
+	public class TransferSendHandler : IDisposable
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<TransferSendHandler> _logger;
 		private readonly IBus _messageBus;
 
-		public TransferSendHandler(ILogger<TransferSendHandler> logger, IUnitOfWorkFactory uowFactory, IBus messageBus)
+		public TransferSendHandler(
+			ILogger<TransferSendHandler> logger,
+			IUnitOfWork uow, 
+			IBus messageBus)
 		{
-			if(uowFactory is null)
-			{
-				throw new ArgumentNullException(nameof(uowFactory));
-			}
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 
-			_uow = uowFactory.CreateWithoutRoot();
 		}
 
 		public async Task HandleReadyToSend(int transferTaskId, CancellationToken cancellationToken)
@@ -64,6 +63,11 @@ namespace Edo.Transfer.Sender
 				Id = transferDocument.Id
 			};
 			await _messageBus.Publish(message, cancellationToken);
+		}
+
+		public void Dispose()
+		{
+			_uow.Dispose();
 		}
 	}
 }

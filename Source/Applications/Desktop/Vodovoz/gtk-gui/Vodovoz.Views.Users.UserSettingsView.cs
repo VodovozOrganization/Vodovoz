@@ -18,6 +18,8 @@ namespace Vodovoz.Views.Users
 
 		private global::Gtk.Table tableWriteoff;
 
+		private global::QS.Views.Control.EntityEntry entityentryWarehouse;
+
 		private global::Gtk.Frame frameWarehousesToNotifications;
 
 		private global::Gtk.Alignment GtkAlignment9;
@@ -27,8 +29,6 @@ namespace Vodovoz.Views.Users
 		private global::Gtk.Label GtkLabel18;
 
 		private global::Gtk.Label label4;
-
-		private global::Gamma.Widgets.yEntryReference yentryrefWarehouse;
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboDefaultCategory;
 
@@ -150,7 +150,7 @@ namespace Vodovoz.Views.Users
 
 		private global::Vodovoz.ViewWidgets.Users.DocumentsPrinterSettingsView documentsprintersettingsview;
 
-		private global::Gtk.Label GtkLabel23;
+		private global::Gtk.Label GtkLabel26;
 
 		protected virtual void Build()
 		{
@@ -212,6 +212,16 @@ namespace Vodovoz.Views.Users
 			this.tableWriteoff.RowSpacing = ((uint)(6));
 			this.tableWriteoff.ColumnSpacing = ((uint)(6));
 			// Container child tableWriteoff.Gtk.Table+TableChild
+			this.entityentryWarehouse = new global::QS.Views.Control.EntityEntry();
+			this.entityentryWarehouse.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryWarehouse.Name = "entityentryWarehouse";
+			this.tableWriteoff.Add(this.entityentryWarehouse);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.entityentryWarehouse]));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.frameWarehousesToNotifications = new global::Gtk.Frame();
 			this.frameWarehousesToNotifications.WidthRequest = 400;
 			this.frameWarehousesToNotifications.Name = "frameWarehousesToNotifications";
@@ -232,28 +242,18 @@ namespace Vodovoz.Views.Users
 			this.GtkLabel18.UseMarkup = true;
 			this.frameWarehousesToNotifications.LabelWidget = this.GtkLabel18;
 			this.tableWriteoff.Add(this.frameWarehousesToNotifications);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.frameWarehousesToNotifications]));
-			w7.TopAttach = ((uint)(2));
-			w7.BottomAttach = ((uint)(3));
-			w7.RightAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.frameWarehousesToNotifications]));
+			w8.TopAttach = ((uint)(2));
+			w8.BottomAttach = ((uint)(3));
+			w8.RightAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.label4 = new global::Gtk.Label();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Склад по умолчанию:");
 			this.tableWriteoff.Add(this.label4);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.label4]));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.yentryrefWarehouse = new global::Gamma.Widgets.yEntryReference();
-			this.yentryrefWarehouse.Events = ((global::Gdk.EventMask)(256));
-			this.yentryrefWarehouse.Name = "yentryrefWarehouse";
-			this.tableWriteoff.Add(this.yentryrefWarehouse);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryrefWarehouse]));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.label4]));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
@@ -810,11 +810,11 @@ namespace Vodovoz.Views.Users
 			this.documentsprintersettingsview.Name = "documentsprintersettingsview";
 			this.GtkAlignment14.Add(this.documentsprintersettingsview);
 			this.frameDocumentsPrinterSettings.Add(this.GtkAlignment14);
-			this.GtkLabel23 = new global::Gtk.Label();
-			this.GtkLabel23.Name = "GtkLabel23";
-			this.GtkLabel23.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройка печати документов</b>");
-			this.GtkLabel23.UseMarkup = true;
-			this.frameDocumentsPrinterSettings.LabelWidget = this.GtkLabel23;
+			this.GtkLabel26 = new global::Gtk.Label();
+			this.GtkLabel26.Name = "GtkLabel26";
+			this.GtkLabel26.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройка печати документов</b>");
+			this.GtkLabel26.UseMarkup = true;
+			this.frameDocumentsPrinterSettings.LabelWidget = this.GtkLabel26;
 			this.yhboxDocumentsPrintersSerttings.Add(this.frameDocumentsPrinterSettings);
 			global::Gtk.Box.BoxChild w65 = ((global::Gtk.Box.BoxChild)(this.yhboxDocumentsPrintersSerttings[this.frameDocumentsPrinterSettings]));
 			w65.Position = 0;

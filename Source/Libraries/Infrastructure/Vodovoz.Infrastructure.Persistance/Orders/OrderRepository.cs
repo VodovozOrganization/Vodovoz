@@ -33,7 +33,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Payments;

@@ -1,8 +1,11 @@
 ﻿using Edo.Contracts.Messages.Dto;
+using NHibernate;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
@@ -11,44 +14,54 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Docflow.Factories
 {
-	public class OrderUpdInfoFactory
+	public class OrderUpdInfoFactory : IDisposable
 	{
 		private const string _dateFormatString = "dd.MM.yyyy";
-		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
+		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
-		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public OrderUpdInfoFactory(
-			IUnitOfWorkFactory uowFactory,
-			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
-			ITrueMarkCodeRepository trueMarkCodeRepository,
-			INomenclatureSettings nomenclatureSettings
+			IUnitOfWork uow,
+			ITrueMarkCodeRepository trueMarkCodeRepository
 			)
 		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
-		public UniversalTransferDocumentInfo CreateUniversalTransferDocumentInfo(
-			DocumentEdoTask documentEdoTask, IEnumerable<PaymentEntity> payments)
-		{
-			return ConvertTransferOrderToUniversalTransferDocumentInfo(documentEdoTask, payments);
-		}
-
-		private UniversalTransferDocumentInfo ConvertTransferOrderToUniversalTransferDocumentInfo(
-			DocumentEdoTask documentEdoTask, IEnumerable<PaymentEntity> payments)
+		public async Task<UniversalTransferDocumentInfo> CreateUniversalTransferDocumentInfo(
+			DocumentEdoTask documentEdoTask, 
+			IEnumerable<PaymentEntity> payments,
+			CancellationToken cancellationToken
+			)
 		{
 			var order = documentEdoTask.OrderEdoRequest.Order;
 
-			var products = GetProducts(documentEdoTask);
+			// предзагрузка для ускорения
+			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoRequest.Id == documentEdoTask.OrderEdoRequest.Id)
+				.ListAsync();
+
+			var sourceCodes = productCodes
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = productCodes
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
+			var products = await GetProducts(documentEdoTask, cancellationToken);
 
 			var document = new UniversalTransferDocumentInfo
 			{
@@ -310,7 +323,10 @@ namespace Edo.Docflow.Factories
 			};
 		}
 
-		private IEnumerable<ProductInfo> GetProducts(DocumentEdoTask documentEdoTask)
+		private async Task<IEnumerable<ProductInfo>> GetProducts(
+			DocumentEdoTask documentEdoTask, 
+			CancellationToken cancellationToken
+			)
 		{
 			var inventPositions = documentEdoTask.UpdInventPositions;
 
@@ -336,7 +352,7 @@ namespace Edo.Docflow.Factories
 							IndividualOrGroupCode = codeValue
 						};
 
-						var transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.GroupCode);
+						var transportCode = await _trueMarkCodeRepository.FindParentTransportCode(code.GroupCode, cancellationToken);
 						if(transportCode != null)
 						{
 							codeInfo.TransportCode = transportCode.RawCode;
@@ -355,7 +371,7 @@ namespace Edo.Docflow.Factories
 							IndividualOrGroupCode = codeValue
 						};
 
-						var transportCode = _trueMarkCodeRepository.FindParentTransportCode(code.IndividualCode);
+						var transportCode = await _trueMarkCodeRepository.FindParentTransportCode(code.IndividualCode, cancellationToken);
 						if(transportCode != null)
 						{
 							codeInfo.TransportCode = transportCode.RawCode;
@@ -407,6 +423,11 @@ namespace Edo.Docflow.Factories
 			}
 
 			return products;
+		}
+
+		public void Dispose()
+		{
+			_uow.Dispose();
 		}
 	}
 }

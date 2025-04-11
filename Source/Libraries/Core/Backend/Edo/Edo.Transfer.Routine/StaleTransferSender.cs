@@ -1,6 +1,5 @@
 ﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
-using NLog;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -11,13 +10,13 @@ namespace Edo.Transfer.Routine
 {
 	public class StaleTransferSender
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IUnitOfWork _uow;
 		private readonly TransferDispatcher _transferDispatcher;
 		private readonly IBus _messageBus;
 
-		public StaleTransferSender(IUnitOfWorkFactory uowFactory, TransferDispatcher transferDispatcher, IBus messageBus)
+		public StaleTransferSender(IUnitOfWork uow, TransferDispatcher transferDispatcher, IBus messageBus)
 		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_transferDispatcher = transferDispatcher ?? throw new ArgumentNullException(nameof(transferDispatcher));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 
@@ -25,23 +24,19 @@ namespace Edo.Transfer.Routine
 
 		public async Task SendStaleTasksAsync(CancellationToken cancellationToken)
 		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			_uow.OpenTransaction();
+
+			var staleTasks = await _transferDispatcher.SendStaleTasksAsync(cancellationToken);
+			if(!staleTasks.Any())
 			{
-
-				uow.OpenTransaction();
-
-				var staleTasks = await _transferDispatcher.SendStaleTasksAsync(uow, cancellationToken);
-				if(!staleTasks.Any())
-				{
-					return;
-				}
-
-				await uow.CommitAsync();
-
-				var events = staleTasks.Select(x => new TransferTaskReadyToSendEvent { Id = x.Id });
-				var publishTasks = events.Select(x => _messageBus.Publish(x, cancellationToken));
-				await Task.WhenAll(publishTasks);
+				return;
 			}
+
+			await _uow.CommitAsync();
+
+			var events = staleTasks.Select(x => new TransferTaskReadyToSendEvent { Id = x.Id });
+			var publishTasks = events.Select(x => _messageBus.Publish(x, cancellationToken));
+			await Task.WhenAll(publishTasks);
 		}
 	}
 }
