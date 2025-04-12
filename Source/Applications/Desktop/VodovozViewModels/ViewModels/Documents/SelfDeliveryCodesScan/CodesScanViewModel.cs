@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -928,7 +928,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		public async Task SendEdoRequestCreatedEvent(OrderEdoRequest orderEdoRequest)
 		{
-			await _messageBus.Publish(new EdoRequestCreatedEvent { Id = orderEdoRequest.Id });
+			await _messageBus.Publish(new EdoRequestCreatedEvent { CustomerEdoRequestId = orderEdoRequest.Id });
 		}
 
 		public string GetCodesForClipboardCopy() =>

@@ -22,7 +22,7 @@ namespace Edo.Docflow.Consumers
 		{
 			try
 			{
-				await _taskScheduler.CreateTask(context.Message.Id, context.CancellationToken);
+				await _taskScheduler.CreateTask(context.Message.CustomerEdoRequestId, context.CancellationToken);
 			}
 			catch(Exception ex)
 			{

@@ -23,7 +23,7 @@ namespace Edo.Transport
 
 			try
 			{
-				await _bus.Publish(new EdoRequestCreatedEvent { Id = requestId });
+				await _bus.Publish(new EdoRequestCreatedEvent { CustomerEdoRequestId = requestId });
 				_logger.LogInformation("Событие на создание новой заявки по ЭДО отправлено успешно");
 			}
 			catch(Exception ex)

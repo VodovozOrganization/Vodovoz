@@ -1112,7 +1112,7 @@ namespace WarehouseApi.Library.Services
 
 			try
 			{
-				await _messageBus.Publish(new EdoRequestCreatedEvent { Id = requestId });
+				await _messageBus.Publish(new EdoRequestCreatedEvent { CustomerEdoRequestId = requestId });
 
 				_logger.LogInformation("Событие создания новой заявки на отправку документов ЭДО отправлено успешно");
 			}
