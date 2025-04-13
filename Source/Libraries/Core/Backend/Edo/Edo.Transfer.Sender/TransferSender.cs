@@ -9,26 +9,30 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Transfer.Sender
 {
-	public class TransferSendHandler : IDisposable
+	public class TransferSender : IDisposable
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly ILogger<TransferSendHandler> _logger;
+		private readonly ILogger<TransferSender> _logger;
 		private readonly IBus _messageBus;
 
-		public TransferSendHandler(
-			ILogger<TransferSendHandler> logger,
+		public TransferSender(
+			ILogger<TransferSender> logger,
 			IUnitOfWork uow, 
 			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-
 		}
 
 		public async Task HandleReadyToSend(int transferTaskId, CancellationToken cancellationToken)
 		{
-			_uow.OpenTransaction();
+			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(transferTaskId, cancellationToken);
+			if(transferTask == null)
+			{
+				_logger.LogError("При отправке документа на трансфер не найдена задача на трансфер с Id {TransferTaskId}", transferTaskId);
+				return;
+			}
 
 			var transferDocument = await _uow.Session.QueryOver<TransferEdoDocument>()
 				.Where(x => x.TransferTaskId == transferTaskId)
@@ -49,18 +53,17 @@ namespace Edo.Transfer.Sender
 				Status = EdoDocumentStatus.NotStarted
 			};
 
-			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(transferTaskId);
 			transferTask.TransferStatus = TransferEdoTaskStatus.InProgress;
 			transferTask.TransferStartTime = DateTime.Now;
 
 			await _uow.SaveAsync(transferDocument, cancellationToken: cancellationToken);
 			await _uow.SaveAsync(transferTask, cancellationToken: cancellationToken);
 
-			await _uow.CommitAsync();
+			await _uow.CommitAsync(cancellationToken);
 
 			var message = new TransferDocumentSendEvent
 			{
-				Id = transferDocument.Id
+				TransferDocumentId = transferDocument.Id
 			};
 			await _messageBus.Publish(message, cancellationToken);
 		}

@@ -55,10 +55,7 @@ namespace Edo.Transfer.Dispatcher
 
 		public async Task HandleNewTransfer(int transferIterationId, CancellationToken cancellationToken)
 		{
-			_uow.OpenTransaction();
-
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
-
 			if(transferIteration == null)
 			{
 				throw new InvalidOperationException($"Итерация трансфера с Id {transferIterationId} не найдена");
@@ -101,10 +98,10 @@ namespace Edo.Transfer.Dispatcher
 				transferTasks.Add(transferTask);
 			}
 
-			var sentTasks = transferTasks.Where(x => x.TransferStatus == TransferEdoTaskStatus.ReadyToSend);
+			var sentTasks = transferTasks.Where(x => x.TransferStatus == TransferEdoTaskStatus.PreparingToSend);
 			await _uow.CommitAsync(cancellationToken);
 
-			var events = sentTasks.Select(x => new TransferTaskReadyToSendEvent { Id = x.Id });
+			var events = sentTasks.Select(x => new TransferTaskPrepareToSendEvent { TransferTaskId = x.Id });
 			var publishTasks = events.Select(message => _messageBus.Publish(message, cancellationToken));
 
 			await Task.WhenAll(publishTasks);
@@ -112,8 +109,6 @@ namespace Edo.Transfer.Dispatcher
 
 		public async Task HandleTransferDocumentAcceptance(int documentId, CancellationToken cancellationToken)
 		{
-			_uow.OpenTransaction();
-
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(documentId, cancellationToken);
 
 			if(document == null)
@@ -237,8 +232,6 @@ namespace Edo.Transfer.Dispatcher
 
 		public async Task HandleTransferDocumentProblem(int documentId, CancellationToken cancellationToken)
 		{
-			_uow.OpenTransaction();
-
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(documentId, cancellationToken);
 
 			if(document == null)
@@ -252,14 +245,14 @@ namespace Edo.Transfer.Dispatcher
 				transferTask, cancellationToken, "Возникла проблема с документооборотом, не завершился на стороне ЭДО провайдера");
 		}
 
-		public async Task SendTransfer(int transferTaskId, CancellationToken cancellationToken)
+		public async Task MoveToPrepareToSend(int transferTaskId, CancellationToken cancellationToken)
 		{
 			var transferEdoTask = await _uow.Session.GetAsync<TransferEdoTask>(transferTaskId, cancellationToken);
-			await _transferDispatcher.SendTransfer(transferEdoTask, cancellationToken);
+			await _transferDispatcher.MoveToPrepareToSend(transferEdoTask, cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
 			await _messageBus.Publish(
-				new TransferTaskReadyToSendEvent { Id = transferTaskId },
+				new TransferTaskPrepareToSendEvent { TransferTaskId = transferTaskId },
 				cancellationToken
 			);
 		}

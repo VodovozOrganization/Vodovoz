@@ -368,7 +368,7 @@ namespace CustomTaskDebugExecutor
 				return;
 			}
 
-			var service = _serviceProvider.GetRequiredService<TransferSendHandler>();
+			var service = _serviceProvider.GetRequiredService<TransferSender>();
 			await service.HandleReadyToSend(id, cancellationToken);
 		}
 
@@ -387,7 +387,7 @@ namespace CustomTaskDebugExecutor
 			}
 
 			var service = _serviceProvider.GetRequiredService<TransferEdoHandler>();
-			await service.SendTransfer(id, cancellationToken);
+			await service.MoveToPrepareToSend(id, cancellationToken);
 		}
 	}
 }

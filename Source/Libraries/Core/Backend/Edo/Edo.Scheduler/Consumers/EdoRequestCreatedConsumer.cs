@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Edo.Contracts.Messages.Events;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Docflow.Consumers
 {
@@ -26,8 +27,9 @@ namespace Edo.Docflow.Consumers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Error while processing EdoRequestCreatedEvent");
-				await Task.CompletedTask;
+				_logger.LogError(ex, "Ошибка в процессе создания ЭДО задачи для заявки Id {CustomerEdoRequestId}",
+					context.Message.CustomerEdoRequestId);
+				throw;
 			}
 		}
 	}

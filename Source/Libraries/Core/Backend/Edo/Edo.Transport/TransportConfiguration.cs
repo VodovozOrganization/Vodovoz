@@ -53,6 +53,15 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
+			cfg.Message<TransferTaskPrepareToSendEvent>(x => x.SetEntityName("edo.transfer-task-prepare-to-send.publish"));
+			cfg.Publish<TransferTaskPrepareToSendEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			
 			cfg.Message<TransferDocumentAcceptedEvent>(x => x.SetEntityName("edo.transfer-document-accepted.publish"));
 			cfg.Publish<TransferDocumentAcceptedEvent>(x =>
 			{
