@@ -928,7 +928,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		public async Task SendEdoRequestCreatedEvent(OrderEdoRequest orderEdoRequest)
 		{
-			await _messageBus.Publish(new EdoRequestCreatedEvent { CustomerEdoRequestId = orderEdoRequest.Id });
+			await _messageBus.Publish(new EdoRequestCreatedEvent { Id = orderEdoRequest.Id });
 		}
 
 		public string GetCodesForClipboardCopy() =>

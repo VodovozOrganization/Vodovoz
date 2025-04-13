@@ -98,7 +98,7 @@ namespace EdoManualEventSender
 				return;
 			}
 
-			_messageBus.Publish(new EdoRequestCreatedEvent { CustomerEdoRequestId = id });
+			_messageBus.Publish(new EdoRequestCreatedEvent { Id = id });
 		}
 
 		private void SendDocumentTaskCreatedEvent()
