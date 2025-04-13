@@ -34,6 +34,7 @@ namespace Edo.Problems.Validation
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
+				var changed = false;
 				var savedValidators = uow.Session.QueryOver<EdoTaskProblemValidatorSourceEntity>().List();
 				foreach(var registeredValidator in _registeredValidators)
 				{
@@ -48,19 +49,28 @@ namespace Edo.Problems.Validation
 							Description = registeredValidator.Description,
 							Recommendation = registeredValidator.Recommendation
 						};
+						uow.Save(savedValidator);
+						changed = true;
+						continue;
 					}
 
-					if(!savedValidator.Equals(registeredValidator))
+					if(savedValidator.Equals(registeredValidator))
 					{
-						savedValidator.Importance = registeredValidator.Importance;
-						savedValidator.Message = registeredValidator.Message;
-						savedValidator.Description = registeredValidator.Description;
-						savedValidator.Recommendation = registeredValidator.Recommendation;
+						continue;
 					}
+
+					savedValidator.Importance = registeredValidator.Importance;
+					savedValidator.Message = registeredValidator.Message;
+					savedValidator.Description = registeredValidator.Description;
+					savedValidator.Recommendation = registeredValidator.Recommendation;
 
 					uow.Save(savedValidator);
+					changed = true;
 				}
-				uow.Commit();
+				if(changed)
+				{
+					uow.Commit();
+				}
 			}
 
 			_persistedValidators = _registeredValidators;
