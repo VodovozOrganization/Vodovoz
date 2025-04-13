@@ -955,9 +955,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
 		{
-			var isReceiptSendOldDocflow = IsReceiptSentOldDocflow(uow, orderId);
-
-			if(isReceiptSendOldDocflow)
+			if(IsReceiptSentOldDocflow(uow, orderId))
 			{
 				return true;
 			}
