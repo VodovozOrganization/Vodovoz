@@ -9,6 +9,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		{
 			Table("edo_tasks");
 
+			OptimisticLock.Version();
+			Version(x => x.Version)
+				.Column("version");
+
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
 			DiscriminateSubClassesOnColumn("type");

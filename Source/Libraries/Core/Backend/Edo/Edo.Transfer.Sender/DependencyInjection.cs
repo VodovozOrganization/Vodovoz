@@ -1,4 +1,5 @@
-﻿using Edo.Transfer.Sender;
+﻿using Edo.Problems;
+using Edo.Transfer.Sender;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,11 @@ namespace Edo.Transfer.Dispatcher
 		{
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
-			services.TryAddScoped<TransferSendHandler>();
+			services.AddEdoTransfer();
+			services.AddEdoProblemRegistation();
+
+			services.TryAddScoped<TransferSender>();
+			services.TryAddScoped<TransferSendPreparer>();
 
 			return services;
 		}

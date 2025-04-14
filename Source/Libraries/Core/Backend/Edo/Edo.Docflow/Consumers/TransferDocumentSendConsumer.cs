@@ -24,7 +24,7 @@ namespace Edo.Docflow.Consumers
 		{
 			try
 			{
-				await _docflowHandler.HandleTransferDocument(context.Message.Id, context.CancellationToken);
+				await _docflowHandler.HandleTransferDocument(context.Message.TransferDocumentId, context.CancellationToken);
 			}
 			catch(Exception ex)
 			{

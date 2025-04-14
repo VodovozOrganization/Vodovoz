@@ -35,7 +35,7 @@ namespace Edo.Problems.Exception
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				uow.OpenTransaction();
+				var changed = false;
 				var savedSources = uow.Session.QueryOver<EdoTaskProblemExceptionSourceEntity>().List();
 				foreach(var registeredSource in _registeredSources)
 				{
@@ -49,18 +49,27 @@ namespace Edo.Problems.Exception
 							Description = registeredSource.Description,
 							Recommendation = registeredSource.Recommendation
 						};
+						uow.Save(savedSource);
+						changed = true;
+						continue;
 					}
 
-					if(!savedSource.Equals(registeredSource))
+					if(savedSource.Equals(registeredSource))
 					{
-						savedSource.Importance = registeredSource.Importance;
-						savedSource.Description = registeredSource.Description;
-						savedSource.Recommendation = registeredSource.Recommendation;
+						continue;
 					}
+
+					savedSource.Importance = registeredSource.Importance;
+					savedSource.Description = registeredSource.Description;
+					savedSource.Recommendation = registeredSource.Recommendation;
 
 					uow.Save(savedSource);
+					changed = true;
 				}
-				uow.Commit();
+				if(changed)
+				{
+					uow.Commit();
+				}
 			}
 
 			_persistedSources = _registeredSources;

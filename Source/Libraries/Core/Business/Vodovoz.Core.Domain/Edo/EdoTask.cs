@@ -9,6 +9,7 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		private int _id;
 		private DateTime _creationTime;
+		private DateTime _version;
 		private EdoTaskStatus _status;
 		private DateTime? _startTime;
 		private DateTime? _endTime;
@@ -26,6 +27,13 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _creationTime;
 			set => SetField(ref _creationTime, value);
+		}
+
+		[Display(Name = "Версия")]
+		public virtual DateTime Version
+		{
+			get => _version;
+			set => SetField(ref _version, value);
 		}
 
 		[Display(Name = "Тип")]
