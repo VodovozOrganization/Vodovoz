@@ -111,10 +111,11 @@ namespace DriverAPI.Controllers.V6
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromServices] IUnitOfWork unitOfWork, [FromBody] CompletedOrderRequest completedOrderRequestModel)
 		{
-			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
+			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken} | Тело запроса: {@RequestBody}",
 				completedOrderRequestModel.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization]);
+				Request.Headers[HeaderNames.Authorization],
+				completedOrderRequestModel);
 
 			var recievedTime = DateTime.Now;
 
@@ -134,7 +135,7 @@ namespace DriverAPI.Controllers.V6
 
 			try
 			{
-				unitOfWork.Session.BeginTransaction();
+				var transaction = unitOfWork.Session.BeginTransaction();
 
 				var result = await _orderService.CompleteOrderDelivery(
 					recievedTime,
@@ -142,7 +143,7 @@ namespace DriverAPI.Controllers.V6
 					completedOrderRequestModel,
 					completedOrderRequestModel);
 
-				unitOfWork.Commit();
+				transaction.Commit();
 
 				return MapResult(
 					result,
@@ -183,9 +184,14 @@ namespace DriverAPI.Controllers.V6
 					completedOrderRequestModel.OrderId,
 					mysqlException.Message);
 
-				unitOfWork.Session
-					.GetCurrentTransaction()
-					?.Rollback();
+				var currentTransaction = unitOfWork.Session?
+					.GetCurrentTransaction();
+
+				if(currentTransaction != null && currentTransaction.IsActive)
+				{
+					currentTransaction.Rollback();
+					currentTransaction.Dispose();
+				}
 
 				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}", statusCode: StatusCodes.Status400BadRequest);
 			}
@@ -195,9 +201,14 @@ namespace DriverAPI.Controllers.V6
 					completedOrderRequestModel.OrderId,
 					ex.Message);
 
-				unitOfWork.Session
-					.GetCurrentTransaction()
-					?.Rollback();
+				var currentTransaction = unitOfWork.Session?
+					.GetCurrentTransaction();
+
+				if(currentTransaction != null && currentTransaction.IsActive)
+				{
+					currentTransaction.Rollback();
+					currentTransaction.Dispose();
+				}
 
 				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}", statusCode: StatusCodes.Status400BadRequest);
 			}
@@ -209,9 +220,14 @@ namespace DriverAPI.Controllers.V6
 
 				resultMessage = ex.Message;
 
-				unitOfWork.Session
-					.GetCurrentTransaction()
-					?.Rollback();
+				var currentTransaction = unitOfWork.Session?
+					.GetCurrentTransaction();
+
+				if(currentTransaction != null && currentTransaction.IsActive)
+				{
+					currentTransaction.Rollback();
+					currentTransaction.Dispose();
+				}
 
 				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}");
 			}
