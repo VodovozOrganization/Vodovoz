@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services.Interactive;
+using Telemetry;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Complaints;
@@ -40,6 +41,10 @@ namespace DriverAPI
 				.AddScoped<IErrorReporter>((sp) => ErrorReporter.Instance)
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<TrueMarkCodesPool, TrueMarkTransactionalCodesPool>()
+
+				// Телеметрия
+
+				.AddApiOpenTelemetry()
 
 				// Сервисы
 				.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>()
