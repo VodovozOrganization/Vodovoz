@@ -400,8 +400,6 @@ namespace DriverAPI.Library.V6.Services
 				edoRequestCreated = true;
 			}
 
-			_uow.Commit();
-
 			if(edoRequestCreated)
 			{
 				await _edoMessageService.PublishEdoRequestCreatedEvent(edoRequest.Id);
@@ -697,6 +695,23 @@ namespace DriverAPI.Library.V6.Services
 					status,
 					problem);
 			}
+
+			trueMarkAnyCodeRwsult.Value.Match(
+				transportCode =>
+				{
+					_uow.Save(transportCode);
+					return true;
+				},
+				groupCode =>
+				{
+					_uow.Save(groupCode);
+					return true;
+				},
+				waterCode =>
+				{
+					_uow.Save(waterCode);
+					return true;
+				});
 
 			return Result.Success();
 		}
