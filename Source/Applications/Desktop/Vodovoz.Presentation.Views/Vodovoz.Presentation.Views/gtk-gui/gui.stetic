@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <stetic-interface>
   <configuration>
     <images-root-path>..</images-root-path>
@@ -561,7 +561,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Presentation.Views.Common.TextEditView" design-size="331 113">
+  <widget class="Gtk.Bin" id="Vodovoz.Presentation.Views.Common.TextEditView" design-size="454 113">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -619,6 +619,7 @@
             <child>
               <widget class="Gtk.Label" id="expander">
                 <property name="MemberName" />
+                <property name="WidthRequest">300</property>
               </widget>
               <packing>
                 <property name="Position">1</property>

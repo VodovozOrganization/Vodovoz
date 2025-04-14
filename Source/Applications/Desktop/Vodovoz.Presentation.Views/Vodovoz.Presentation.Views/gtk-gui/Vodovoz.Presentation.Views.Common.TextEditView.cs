@@ -68,6 +68,7 @@ namespace Vodovoz.Presentation.Views.Common
 			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.expander = new global::Gtk.Label();
+			this.expander.WidthRequest = 300;
 			this.expander.Name = "expander";
 			this.hbox1.Add(this.expander);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.expander]));
