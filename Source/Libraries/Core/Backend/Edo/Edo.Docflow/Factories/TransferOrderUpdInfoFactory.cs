@@ -71,10 +71,13 @@ namespace Edo.Docflow.Factories
 				.Fetch(SelectMode.Fetch, x => x.Nomenclature.Unit)
 				.Fetch(SelectMode.Fetch, x => x.IndividualCode)
 				.Fetch(SelectMode.Fetch, x => x.IndividualCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.GroupCode)
 				.Where(x => x.TransferOrder.Id == transferOrder.Id)
 				.ListAsync(cancellationToken);
 
-			var preloadCodes = transferOrderCodes.Select(x => x.IndividualCode);
+			var preloadCodes = transferOrderCodes
+				.Where(x => x.IndividualCode != null)
+				.Select(x => x.IndividualCode);
 			await _trueMarkCodeRepository.PreloadCodes(preloadCodes, cancellationToken);
 
 			return await ConvertTransferOrderToUniversalTransferDocumentInfo(transferOrder, cancellationToken);
