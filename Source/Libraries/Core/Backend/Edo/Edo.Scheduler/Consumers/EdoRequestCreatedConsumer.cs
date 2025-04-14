@@ -21,16 +21,7 @@ namespace Edo.Docflow.Consumers
 
 		public async Task Consume(ConsumeContext<EdoRequestCreatedEvent> context)
 		{
-			try
-			{
-				await _taskScheduler.CreateTask(context.Message.Id, context.CancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка в процессе создания ЭДО задачи для заявки Id {CustomerEdoRequestId}",
-					context.Message.Id);
-				throw;
-			}
+			await _taskScheduler.CreateTask(context.Message.Id, context.CancellationToken);
 		}
 	}
 }

@@ -22,14 +22,7 @@ namespace Edo.Docflow.Consumers
 
 		public async Task Consume(ConsumeContext<EdoDocflowUpdatedEvent> context)
 		{
-			try
-			{
-				await _docflowHandler.HandleDocflowUpdated(context.Message, context.CancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка при обработке события обновления документооборота");
-			}
+			await _docflowHandler.HandleDocflowUpdated(context.Message, context.CancellationToken);
 		}
 	}
 }
