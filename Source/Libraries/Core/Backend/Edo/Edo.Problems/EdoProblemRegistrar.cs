@@ -1,4 +1,5 @@
-﻿using Edo.Problems.Custom;
+﻿using Edo.Common;
+using Edo.Problems.Custom;
 using Edo.Problems.Exception;
 using Edo.Problems.Validation;
 using QS.DomainModel.UoW;
@@ -228,13 +229,23 @@ namespace Edo.Problems
 				problem.CreationTime = DateTime.Now;
 				problem.State = TaskProblemState.Active;
 
-				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
-
-				problem.TaskItems.Clear();
-				foreach(var taskItem in affectedTaskItems)
+				// Удаляем старые строки задачи, которые не относятся к обновленной проблеме
+				// и добавляем новые строки задачи, которые относятся к проблеме
+				foreach(var existsItem in problem.TaskItems.ToList())
 				{
-					problem.TaskItems.Add(taskItem);
-					await uow.SaveAsync(taskItem, cancellationToken: cancellationToken);
+					if(affectedTaskItems.Any(x => x.Id == existsItem.Id))
+					{
+						continue;
+					}
+					problem.TaskItems.Remove(existsItem);
+				}
+				foreach(var newItem in affectedTaskItems)
+				{
+					if(problem.TaskItems.Any(x => x.Id == newItem.Id))
+					{
+						continue;
+					}
+					problem.TaskItems.Add(newItem);
 				}
 
 				problem.CustomItems.Clear();
@@ -248,6 +259,8 @@ namespace Edo.Problems
 				task.Status = source.Importance == EdoProblemImportance.Problem
 					? EdoTaskStatus.Problem
 					: EdoTaskStatus.Waiting;
+
+				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
 
 				await uow.SaveAsync(task, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
