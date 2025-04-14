@@ -1,6 +1,8 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Edo.CodesSaver;
 using Edo.Common;
+using Edo.Docflow.Consumers;
+using Edo.Docflow.Consumers.Definitions;
 using Edo.Documents;
 using Edo.Problems;
 using Edo.Receipt.Dispatcher;
@@ -38,6 +40,7 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 			Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureLogging((ctx, builder) => {
+					builder.ClearProviders();
 					builder.AddNLog();
 					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
 				})
@@ -94,8 +97,8 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 						configureBus: cfg =>
 						{
 							// Выбор какой консюмер дебажить:
-
-							cfg.AddConsumer<DocumentTransferCompleteErrorConsumer, DocumentTransferCompleteErrorConsumerDefinition>();
+							
+							//cfg.AddConsumer<DocumentTransferCompleteErrorConsumer, DocumentTransferCompleteErrorConsumerDefinition>();
 							//cfg.AddConsumer<ReceiptTransferCompleteErrorConsumer, ReceiptTransferCompleteErrorConsumerDefinition>();
 							//cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
 							//cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();

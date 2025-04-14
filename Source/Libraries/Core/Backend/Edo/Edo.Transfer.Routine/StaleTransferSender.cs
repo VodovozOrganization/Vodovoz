@@ -24,17 +24,15 @@ namespace Edo.Transfer.Routine
 
 		public async Task SendStaleTasksAsync(CancellationToken cancellationToken)
 		{
-			_uow.OpenTransaction();
-
 			var staleTasks = await _transferDispatcher.SendStaleTasksAsync(cancellationToken);
 			if(!staleTasks.Any())
 			{
 				return;
 			}
 
-			await _uow.CommitAsync();
+			await _uow.CommitAsync(cancellationToken);
 
-			var events = staleTasks.Select(x => new TransferTaskReadyToSendEvent { Id = x.Id });
+			var events = staleTasks.Select(x => new TransferTaskPrepareToSendEvent { TransferTaskId = x.Id });
 			var publishTasks = events.Select(x => _messageBus.Publish(x, cancellationToken));
 			await Task.WhenAll(publishTasks);
 		}

@@ -146,7 +146,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new TransferTaskReadyToSendEvent { Id = id });
+			_messageBus.Publish(new TransferTaskReadyToSendEvent { TransferTaskId = id });
 		}
 
 		private void SendTransferDocumentSendEvent()
@@ -160,7 +160,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new TransferDocumentSendEvent { Id = id });
+			_messageBus.Publish(new TransferDocumentSendEvent { TransferDocumentId = id });
 		}
 
 		private void SendTransferDocumentAcceptedEvent()
