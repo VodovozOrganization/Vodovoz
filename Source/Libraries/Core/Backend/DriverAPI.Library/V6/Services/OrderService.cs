@@ -2,22 +2,25 @@
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
+using Edo.Transport;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Transport;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -37,10 +40,6 @@ using OrderItemErrors = Vodovoz.Errors.Orders.OrderItem;
 using RouteListErrors = Vodovoz.Errors.Logistics.RouteList;
 using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteList.RouteListItem;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
-using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Domain.Documents;
-using Remotion.Linq.Clauses;
-using NHibernate;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -389,7 +388,7 @@ namespace DriverAPI.Library.V6.Services
 			_uow.Save(routeListAddress);
 			_uow.Save(routeList);
 
-			OrderEdoRequest edoRequest = _uow.Session.Query<OrderEdoRequest>()
+			var edoRequest = _uow.Session.Query<OrderEdoRequest>()
 				.Where(x => x.Order.Id == vodovozOrder.Id)
 				.Take(1)
 				.SingleOrDefault();
@@ -400,8 +399,6 @@ namespace DriverAPI.Library.V6.Services
 				edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
 				edoRequestCreated = true;
 			}
-
-			_uow.Commit();
 
 			if(edoRequestCreated)
 			{
@@ -698,6 +695,23 @@ namespace DriverAPI.Library.V6.Services
 					status,
 					problem);
 			}
+
+			trueMarkAnyCodeRwsult.Value.Match(
+				transportCode =>
+				{
+					_uow.Save(transportCode);
+					return true;
+				},
+				groupCode =>
+				{
+					_uow.Save(groupCode);
+					return true;
+				},
+				waterCode =>
+				{
+					_uow.Save(waterCode);
+					return true;
+				});
 
 			return Result.Success();
 		}

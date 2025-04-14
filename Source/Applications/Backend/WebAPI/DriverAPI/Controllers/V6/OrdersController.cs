@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using MySqlConnector;
+using NHibernate;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -99,13 +102,14 @@ namespace DriverAPI.Controllers.V6
 		/// <summary>
 		/// Завершение доставки заказа
 		/// </summary>
+		/// <param name="unitOfWork"></param>
 		/// <param name="completedOrderRequestModel"><see cref="CompletedOrderRequest"/></param>
 		/// <returns></returns>
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequest completedOrderRequestModel)
+		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromServices] IUnitOfWork unitOfWork, [FromBody] CompletedOrderRequest completedOrderRequestModel)
 		{
 			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				completedOrderRequestModel.OrderId,
@@ -130,12 +134,18 @@ namespace DriverAPI.Controllers.V6
 
 			try
 			{
+				unitOfWork.Session.BeginTransaction();
+
+				var result = await _orderService.CompleteOrderDelivery(
+					recievedTime,
+					driver,
+					completedOrderRequestModel,
+					completedOrderRequestModel);
+
+				unitOfWork.Commit();
+
 				return MapResult(
-					await _orderService.CompleteOrderDelivery(
-						recievedTime,
-						driver,
-						completedOrderRequestModel,
-						completedOrderRequestModel),
+					result,
 					result =>
 					{
 						if(result.IsSuccess)
@@ -166,6 +176,31 @@ namespace DriverAPI.Controllers.V6
 						return StatusCodes.Status500InternalServerError;
 					});
 			}
+			catch(MySqlException mysqlException) when (mysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry
+				|| (mysqlException.InnerException is MySqlException innerMysqlException && innerMysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry))
+			{
+				_logger.LogError(mysqlException, "Произошла ошибка при сохранении завершения доставки заказа {OrderId}: {ExceptionMessage}",
+					completedOrderRequestModel.OrderId,
+					mysqlException.Message);
+
+				unitOfWork.Session
+					.GetCurrentTransaction()
+					?.Rollback();
+
+				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}", statusCode: StatusCodes.Status400BadRequest);
+			}
+			catch(Exception ex) when (ex.InnerException is MySqlException innerMysqlException && innerMysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+			{
+				_logger.LogError(ex, "Произошла ошибка при сохранении завершения доставки заказа {OrderId}: {ExceptionMessage}",
+					completedOrderRequestModel.OrderId,
+					ex.Message);
+
+				unitOfWork.Session
+					.GetCurrentTransaction()
+					?.Rollback();
+
+				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}", statusCode: StatusCodes.Status400BadRequest);
+			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошла ошибка при завершении доставки заказа {OrderId}: {ExceptionMessage}",
@@ -173,6 +208,10 @@ namespace DriverAPI.Controllers.V6
 					ex.Message);
 
 				resultMessage = ex.Message;
+
+				unitOfWork.Session
+					.GetCurrentTransaction()
+					?.Rollback();
 
 				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}");
 			}
