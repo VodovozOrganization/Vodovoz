@@ -24,15 +24,16 @@ namespace EdoManualEventSender
 			Console.WriteLine("2. DocumentTaskCreatedEvent");
 			Console.WriteLine("3. TransferRequestCreatedEvent");
 			Console.WriteLine("4. TransferTaskReadyToSendEvent:");
-			Console.WriteLine("5. TransferDocumentSendEvent:");
-			Console.WriteLine("6. TransferDocumentAcceptedEvent:");
-			Console.WriteLine("7. TransferCompleteEvent (Document):");
-			Console.WriteLine("8. TransferCompleteEvent (Receipt):");
-			Console.WriteLine("9. OrderDocumentSendEvent:");
-			Console.WriteLine("10. OrderDocumentAcceptedEvent:");
-			Console.WriteLine("11. SaveCodesTaskCreatedEvent:");
-			Console.WriteLine("12. ReceiptTaskCreatedEvent:");
-			Console.WriteLine("13. ReceiptReadyToSendEvent:");
+			Console.WriteLine("5. TransferTaskPreparingToSendEvent:");
+			Console.WriteLine("6. TransferDocumentSendEvent:");
+			Console.WriteLine("7. TransferDocumentAcceptedEvent:");
+			Console.WriteLine("8. TransferCompleteEvent (Document):");
+			Console.WriteLine("9. TransferCompleteEvent (Receipt):");
+			Console.WriteLine("10. OrderDocumentSendEvent:");
+			Console.WriteLine("11. OrderDocumentAcceptedEvent:");
+			Console.WriteLine("12. SaveCodesTaskCreatedEvent:");
+			Console.WriteLine("13. ReceiptTaskCreatedEvent:");
+			Console.WriteLine("14. ReceiptReadyToSendEvent:");
 			Console.WriteLine();
 
 			Console.Write("Выберите тип сообщения: ");
@@ -53,30 +54,33 @@ namespace EdoManualEventSender
 					SendTransferTaskReadyToSendEvent();
 					break;
 				case 5:
-					SendTransferDocumentSendEvent();
+					SendTransferTaskPreparingToSendEvent();
 					break;
 				case 6:
-					SendTransferDocumentAcceptedEvent();
+					SendTransferDocumentSendEvent();
 					break;
 				case 7:
-					SendTransferCompleteDocumentEvent();
+					SendTransferDocumentAcceptedEvent();
 					break;
 				case 8:
-					SendTransferCompleteReceiptEvent();
+					SendTransferCompleteDocumentEvent();
 					break;
 				case 9:
-					SendOrderDocumentSendEvent();
+					SendTransferCompleteReceiptEvent();
 					break;
 				case 10:
-					SendOrderDocumentAcceptedEvent();
+					SendOrderDocumentSendEvent();
 					break;
 				case 11:
-					SendSaveCodesTaskCreatedEvent();
+					SendOrderDocumentAcceptedEvent();
 					break;
 				case 12:
-					SendReceiptTaskCreatedEvent();
+					SendSaveCodesTaskCreatedEvent();
 					break;
 				case 13:
+					SendReceiptTaskCreatedEvent();
+					break;
+				case 14:
 					SendReceiptReadyToSendEvent();
 					break;
 				default:
@@ -149,6 +153,20 @@ namespace EdoManualEventSender
 			_messageBus.Publish(new TransferTaskReadyToSendEvent { TransferTaskId = id });
 		}
 
+		private void SendTransferTaskPreparingToSendEvent()
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id задачи с типом Transfer (edo_tasks)");
+			Console.Write("Введите Id (0 - выход): ");
+			var id = int.Parse(Console.ReadLine());
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+			_messageBus.Publish(new TransferTaskPrepareToSendEvent { TransferTaskId = id });
+		}
+		
 		private void SendTransferDocumentSendEvent()
 		{
 			Console.WriteLine();
