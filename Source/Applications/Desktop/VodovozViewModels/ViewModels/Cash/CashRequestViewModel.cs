@@ -592,6 +592,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		//Согласовать исполнительным директором
 		public bool CanApprove =>
 			(Entity.PayoutRequestState == PayoutRequestState.AgreedByFinancialResponsibilityCenter
+				|| Entity.PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief // Убрать по заполнении ЦФО
 				|| Entity.PayoutRequestState == PayoutRequestState.Submited)
 			&& UserRole == PayoutRequestUserRole.Coordinator;
 
