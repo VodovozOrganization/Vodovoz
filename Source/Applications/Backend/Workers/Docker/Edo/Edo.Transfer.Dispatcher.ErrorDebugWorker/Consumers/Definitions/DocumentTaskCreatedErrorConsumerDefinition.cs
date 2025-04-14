@@ -17,10 +17,6 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions
 
 			endpointConfigurator.ConfigureConsumeTopology = false;
 			rmq.PrefetchCount = 1;
-			rmq.Batch<DocumentTaskCreatedEvent>(x =>
-			{
-				x.MessageLimit = 1;
-			});
 		}
 	}
 
