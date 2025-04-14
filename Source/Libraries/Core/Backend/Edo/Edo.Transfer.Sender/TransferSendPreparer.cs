@@ -78,6 +78,7 @@ namespace Edo.Transfer.Sender
 			try
 			{
 				await CreateTransferOrder(transferEdoTask, cancellationToken);
+				transferEdoTask.TransferStatus = TransferEdoTaskStatus.ReadyToSend;
 			}
 			catch(EdoProblemException ex)
 			{
