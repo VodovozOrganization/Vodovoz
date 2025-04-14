@@ -629,7 +629,11 @@ namespace DriverAPI.Library.V6.Services
 
 			foreach(var scannedItem in completeOrderInfo.ScannedItems)
 			{
-				foreach(var scannedCode in scannedItem.BottleCodes)
+				var uniqueBottleCodes = scannedItem.BottleCodes
+					.Distinct()
+					.ToArray();
+
+				foreach(var scannedCode in uniqueBottleCodes)
 				{
 					var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem, scannedCode, SourceProductCodeStatus.New, ProductCodeProblem.None);
 
@@ -639,7 +643,11 @@ namespace DriverAPI.Library.V6.Services
 					}
 				}
 
-				foreach(var defectiveBottleCode in scannedItem.DefectiveBottleCodes)
+				var uniqueDefectiveCodes = scannedItem.DefectiveBottleCodes
+					.Distinct()
+					.ToArray();
+
+				foreach(var defectiveBottleCode in uniqueDefectiveCodes)
 				{
 					var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem, defectiveBottleCode, SourceProductCodeStatus.Problem, ProductCodeProblem.Defect);
 
@@ -699,17 +707,29 @@ namespace DriverAPI.Library.V6.Services
 			trueMarkAnyCodeRwsult.Value.Match(
 				transportCode =>
 				{
-					_uow.Save(transportCode);
+					if(transportCode.Id == 0)
+					{
+						_uow.Save(transportCode);
+					}
+					
 					return true;
 				},
 				groupCode =>
 				{
-					_uow.Save(groupCode);
+					if(groupCode.Id == 0)
+					{
+						_uow.Save(groupCode);
+					}
+
 					return true;
 				},
 				waterCode =>
 				{
-					_uow.Save(waterCode);
+					if(waterCode.Id == 0)
+					{
+						_uow.Save(waterCode);
+					}
+
 					return true;
 				});
 
