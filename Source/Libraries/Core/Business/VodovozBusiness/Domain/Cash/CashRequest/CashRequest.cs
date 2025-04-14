@@ -114,6 +114,7 @@ namespace Vodovoz.Domain.Cash
 				//Согласована исполнительным директором
 				case PayoutRequestState.Agreed:
 					if(PayoutRequestState == PayoutRequestState.AgreedByFinancialResponsibilityCenter
+						|| PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief /// Убрать по заполнению ЦФО
 						|| PayoutRequestState == PayoutRequestState.Submited)
 					{
 						PayoutRequestState = newState;
