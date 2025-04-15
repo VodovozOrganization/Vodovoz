@@ -7,6 +7,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -22,6 +23,8 @@ namespace Vodovoz.Core.Domain.Orders
 	[EntityPermission]
 	public class OrderEntity : PropertyChangedBase, IDomainObject, IBusinessObject
 	{
+		public static DateTime TerminalUnavaliableStartDate => new DateTime(2025, 4, 16, 0, 0, 0, DateTimeKind.Local);
+
 		private int _id;
 		private DateTime _version;
 		private DateTime? _createDate;
@@ -65,7 +68,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private int? _trifle;
 		private int? _onlineOrder;
 		private int? _eShopOrder;
-		private int? _counterpartyExternalOrderId;
+		private string _counterpartyExternalOrderId;
 		private bool _isContractCloser;
 		private bool _isTareNonReturnReasonChangedByUser;
 		private bool _hasCommentForDriver;
@@ -90,6 +93,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private CounterpartyEntity _client;
 		private DeliveryPointEntity _deliveryPoint;
 		private CounterpartyContractEntity _contract;
+		private DeliveryScheduleEntity _deliverySchedule;
 
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
@@ -412,7 +416,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Идентификатор заказа в ИС контрагента")]
-		public virtual int? CounterpartyExternalOrderId
+		public virtual string CounterpartyExternalOrderId
 		{
 			get => _counterpartyExternalOrderId;
 			set => SetField(ref _counterpartyExternalOrderId, value);
@@ -621,6 +625,17 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _contract, value);
 		}
 
+		/// <summary>
+		/// Время доставки
+		/// </summary>
+		[Display(Name = "Время доставки")]
+		public virtual DeliveryScheduleEntity DeliverySchedule
+		{
+			get => _deliverySchedule;
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _deliverySchedule, value);
+		}
+
 		#region Вычисляемые свойства
 
 		public virtual bool IsUndeliveredStatus =>
@@ -629,6 +644,12 @@ namespace Vodovoz.Core.Domain.Orders
 			|| OrderStatus == OrderStatus.NotDelivered;
 
 		public virtual bool IsLoadedFrom1C => !string.IsNullOrEmpty(Code1c);
+		
+		/// <summary>
+		/// Проверка, является ли целью покупки заказа - для перепродажи
+		/// </summary>
+		public virtual bool IsOrderForResale =>
+			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
 
 		/// <summary>
 		/// Проверка, является ли клиент по заказу сетевым покупателем

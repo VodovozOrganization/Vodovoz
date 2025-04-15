@@ -1,5 +1,4 @@
-﻿using Edo.Problems.Validation;
-using Vodovoz.Core.Domain.Edo;
+﻿using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Problems.Validation.Sources
 {

@@ -69,7 +69,7 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="driver">Водитель</param>
 		/// <param name="completeOrderInfo">Информация о завершении заказа</param>
 		/// <returns>Результат обновления информации о доставке</returns>
-		Result UpdateOrderShipmentInfo(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo);
+		Task<Result> UpdateOrderShipmentInfoAsync(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo);
 
 		/// <summary>
 		/// Получить дополнительную информацию о заказе

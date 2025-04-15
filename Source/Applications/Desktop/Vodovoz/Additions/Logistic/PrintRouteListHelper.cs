@@ -12,6 +12,7 @@ using System.Xml;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -425,9 +426,34 @@ namespace Vodovoz.Additions.Logistic
 					return routeList.OrderOfAddressesRep(routeList.Id);
 				case RouteListPrintableDocuments.ForwarderReceipt:
 					return GetRDLForwarderReceipt(routeList);
+				case RouteListPrintableDocuments.ChainStoreNotification:
+					return GetRDLChainStoreNotification(routeList);
 				default:
 					throw new NotImplementedException("Неизвестный тип документа");
 			}
+		}
+
+		private static ReportInfo GetRDLChainStoreNotification(RouteList routeList)
+		{
+			var reportInfo = _reportInfoFactory.Create();
+
+			var chainStoreOrderIds = routeList.Addresses
+				.Where(address => address.RouteList.Id == routeList.Id
+				                  && address.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
+				                  && address.Order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
+				.Select(address => address.Order.Id);
+
+			var orderIds = chainStoreOrderIds.Any() ? string.Join(", ", chainStoreOrderIds) : "Отсутствуют сетевые заказы";
+
+			reportInfo.Title = $"Уведомление о наличии сетевого заказа  № {orderIds}";
+			reportInfo.Identifier = "Documents.ChainStoreNotification";
+			reportInfo.Parameters = new Dictionary<string, object>
+			{
+				
+				{ "orderIds", orderIds }
+			};
+			
+			return reportInfo;
 		}
 	}
 }

@@ -2,7 +2,9 @@
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using MySqlConnector;
 using OneOf;
+using OneOf.Types;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -27,6 +29,7 @@ using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
+using Error = Vodovoz.Errors.Error;
 
 namespace WarehouseApi.Library.Services
 {
@@ -194,10 +197,24 @@ namespace WarehouseApi.Library.Services
 					var allCodes = parentCode.Match(
 						transportCode => transportCode.GetAllCodes(),
 						groupCode => groupCode.GetAllCodes(),
-						waterCode => new TrueMarkAnyCode[] { waterCode });
+						waterCode => new TrueMarkAnyCode[] { waterCode })
+						.ToArray();
+
+					var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
+						&& documentOrderItem.TrueMarkCodes.Any(y =>
+							(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
+							|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
+						.Select(x => x.TrueMarkWaterIdentificationCode)
+						.ToArray();
 
 					foreach(var anyCode in allCodes)
 					{
+						if(anyCode.IsTrueMarkWaterIdentificationCode
+							&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkWaterIdentificationCode.Id))
+						{
+							continue;
+						}
+
 						trueMarkCodes.Add(
 							anyCode.Match(
 								PopulateTransportCode(allCodes),
@@ -205,9 +222,8 @@ namespace WarehouseApi.Library.Services
 								PopulateWaterCode(allCodes)));
 					}
 
-					codeToAddInfo.Codes = codeToAddInfo.Codes
-						.Where(code => !trueMarkCodes.Any(x => x.Code == code.Code))
-						.Concat(trueMarkCodes);
+					codeToAddInfo.Codes.RemoveAll(code => trueMarkCodes.Any(x => x.Code == code.Code));
+					codeToAddInfo.Codes.AddRange(trueMarkCodes);
 				}
 			}
 
@@ -260,6 +276,40 @@ namespace WarehouseApi.Library.Services
 			{
 				var error = trueMarkCodeResult.Errors.FirstOrDefault();
 
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
+
+			try
+			{
+				trueMarkCodeResult.Value.Match(
+					transportCode =>
+					{
+						_uow.Save(transportCode);
+						return true;
+					},
+					waterGroupCode =>
+					{
+						_uow.Save(waterGroupCode);
+						return true;
+					},
+					waterIdentificationCode =>
+					{
+						_uow.Save(waterIdentificationCode);
+						return true;
+					});
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+
+				var error = new Error("Database.Commit.Error", e.Message);
 				var result = Result.Failure<AddOrderCodeResponse>(error);
 
 				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
@@ -335,7 +385,38 @@ namespace WarehouseApi.Library.Services
 				_uow.Save(documentItemToEdit);
 			}
 
-			_uow.Commit();
+			try
+			{
+				_uow.Commit();
+			}
+			catch(MySqlException mysqlException) when (mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
+			{
+				_logger.LogError(mysqlException, "DuplicateEntry: {ExceptionMessage}", mysqlException.Message);
+
+				var error = new Error("Database.Commit.Error", "Код уже был добавлен в другом документе");
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+
+				var error = new Error("Database.Commit.Error", e.Message);
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
 
 			if(nomenclatureDto != null)
 			{
@@ -387,14 +468,13 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.AddTrueMarkCode);
 
-			checkResult = await _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
+			checkResult = _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
 				orderId,
 				nomenclatureId,
 				waterCode,
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
-				documentItemToEdit,
-				cancellationToken);
+				documentItemToEdit);
 
 			if(checkResult.IsFailure)
 			{
@@ -409,7 +489,7 @@ namespace WarehouseApi.Library.Services
 
 			AddTrueMarkCodeToCarLoadDocumentItem(documentItemToEdit, waterCode);
 
-			return documentItemToEdit;
+			return await Task.FromResult(documentItemToEdit);
 		}
 
 		public async Task<RequestProcessingResult<ChangeOrderCodeResponse>> ChangeOrderCode(
@@ -436,7 +516,7 @@ namespace WarehouseApi.Library.Services
 				});
 			}
 
-			Result<TrueMarkAnyCode> newTrueMarkCodeResult = null;
+			Vodovoz.Errors.Result<TrueMarkAnyCode> newTrueMarkCodeResult = null;
 
 			if(!string.IsNullOrWhiteSpace(newScannedCode))
 			{
@@ -453,10 +533,42 @@ namespace WarehouseApi.Library.Services
 						Error = error.Message
 					});
 				}
-			}
+				try
+				{
+					newTrueMarkCodeResult.Value.Match(
+						transportCode =>
+						{
+							_uow.Save(transportCode);
+							return true;
+						},
+						waterGroupCode =>
+						{
+							_uow.Save(waterGroupCode);
+							return true;
+						},
+						waterIdentificationCode =>
+						{
+							_uow.Save(waterIdentificationCode);
+							return true;
+						});
 
-			_uow.Commit();
-			_uow.Session.BeginTransaction();
+					_uow.Commit();
+					_uow.Session.BeginTransaction();
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+
+					var error = new Error("Database.Commit.Error", e.Message);
+					var result = Result.Failure<ChangeOrderCodeResponse>(error);
+					return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
+					{
+						Nomenclature = null,
+						Result = OperationResultEnumDto.Error,
+						Error = error.Message
+					});
+				}
+			}
 
 			if(oldTrueMarkCodeResult.Value.Match(
 				transportCode => transportCode.ParentTransportCodeId != null,
@@ -503,7 +615,7 @@ namespace WarehouseApi.Library.Services
 				groupCode => groupCode.GetAllCodes(),
 				waterCode => new TrueMarkAnyCode[] { waterCode }) ?? Enumerable.Empty<TrueMarkAnyCode>();
 
-			var oldTrueMarkAnyCodesList = oldTrueMarkAnyCodes.ToList();
+			var oldTrueMarkAnyCodesList = oldTrueMarkAnyCodes.ToArray();
 
 			foreach(var codeToRemove in oldTrueMarkAnyCodesList)
 			{
@@ -520,14 +632,40 @@ namespace WarehouseApi.Library.Services
 				oldCodeToRemoveFromDatabase.Match(
 					transportCode =>
 					{
-						transportCode.InnerTransportCodes.Clear();
-						transportCode.InnerGroupCodes.Clear();
+						transportCode.ClearAllCodes();
+						return true;
+					},
+					groupCode =>
+					{
+						groupCode.ClearAllCodes();
+						return true;
+					},
+					waterCode =>
+					{
+						return true;
+					});
+			}
+
+			try
+			{
+				_uow.Commit();
+				_uow.Session.BeginTransaction();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+			}
+
+			foreach(var oldCodeToRemoveFromDatabase in oldTrueMarkAnyCodesList)
+			{
+				oldCodeToRemoveFromDatabase.Match(
+					transportCode =>
+					{
 						_uow.Delete(transportCode);
 						return true;
 					},
 					groupCode =>
 					{
-						groupCode.InnerGroupCodes.Clear();
 						_uow.Delete(groupCode);
 						return true;
 					},

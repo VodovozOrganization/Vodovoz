@@ -43,6 +43,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.ParentKeyColumn("edo_task_problem_id")
 				.ChildKeyColumn("order_edo_task_item_id")
 				.LazyLoad();
+
+			HasMany(x => x.CustomItems)
+				.Table("edo_task_problem_custom_items")
+				.KeyColumn("edo_task_problem_id")
+				.LazyLoad();
 		}
 	}
 }

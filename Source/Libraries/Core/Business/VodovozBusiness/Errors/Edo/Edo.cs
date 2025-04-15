@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.Orders.Documents;
+﻿using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Extensions;
 
 namespace Vodovoz.Errors.Edo

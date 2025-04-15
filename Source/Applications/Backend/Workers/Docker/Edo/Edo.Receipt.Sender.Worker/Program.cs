@@ -1,21 +1,14 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using ModulKassa;
-using NLog.Extensions.Logging;
-using System;
-using System.Text;
-using Autofac.Extensions.DependencyInjection;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ModulKassa;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
+using System;
+using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
@@ -43,8 +36,6 @@ namespace Edo.Receipt.Sender.Worker
 				{
 					services.Configure<CashboxesSetting>(hostContext.Configuration);
 					services
-						.AddModulKassa()
-
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 							typeof(QS.Banks.Domain.Bank).Assembly,
@@ -65,8 +56,6 @@ namespace Edo.Receipt.Sender.Worker
 						;
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();
-
-					//services.AddHostedService<WorkerService>();
 				});
 	}
 }

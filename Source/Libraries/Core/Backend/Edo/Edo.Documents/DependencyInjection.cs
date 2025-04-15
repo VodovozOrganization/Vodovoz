@@ -1,34 +1,39 @@
 ﻿using Edo.Common;
-using Edo.Documents.Consumers;
-using Edo.Documents.Consumers.Definitions;
 using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using QS.DomainModel.UoW;
+using System.Reflection;
 using TrueMark.Codes.Pool;
 
 namespace Edo.Documents
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddEdoDocuments(this IServiceCollection services)
+		public static IServiceCollection AddEdoDocumentsServices(this IServiceCollection services)
 		{
-			services
-				.AddScoped<DocumentEdoTaskHandler>()
-				.AddScoped<ForOwnNeedDocumentEdoTaskHandler>()
-				.AddScoped<ForResaleDocumentEdoTaskHandler>()
-				;
+			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+
+			services.TryAddScoped<DocumentEdoTaskHandler>();
+			services.TryAddScoped<ForOwnNeedDocumentEdoTaskHandler>();
+			services.TryAddScoped<ForResaleDocumentEdoTaskHandler>();
 
 			services.AddEdo();
 			services.AddCodesPool();
 			services.AddEdoProblemRegistation();
 
+			return services;
+		}
+
+		public static IServiceCollection AddEdoDocuments(this IServiceCollection services)
+		{
+			services.AddEdoDocumentsServices();
+
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumer<TransferCompleteConsumer, TransferCompleteConsumerDefinition>();
-				cfg.AddConsumer<DocumentTaskCreatedConsumer, DocumentTaskCreatedConsumerDefinition>();
-				cfg.AddConsumer<OrderDocumentSentConsumer, OrderDocumentSentConsumerDefinition>();
-				cfg.AddConsumer<OrderDocumentAcceptedConsumer, OrderDocumentAcceptedConsumerDefinition>();
+				cfg.AddConsumers(Assembly.GetExecutingAssembly());
 			});
 
 			return services;

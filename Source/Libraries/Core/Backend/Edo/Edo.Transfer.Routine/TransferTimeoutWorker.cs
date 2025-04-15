@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using NHibernate;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,6 +35,10 @@ namespace Edo.Transfer.Routine
 			try
 			{
 				await _staleTransferSender.SendStaleTasksAsync(stoppingToken);
+			}
+			catch(StaleObjectStateException ex)
+			{
+				_logger.LogInformation("Задача уже была кем-то изменена. Попытка закрытия задачи будет произведена на следующей итерации воркера");
 			}
 			catch(Exception ex)
 			{

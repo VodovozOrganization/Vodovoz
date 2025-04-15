@@ -1,19 +1,21 @@
 ﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
-using Edo.Problems.Custom.Sources;
 using Edo.Problems;
+using Edo.Problems.Custom.Sources;
+using Edo.Problems.Exception;
 using Edo.Problems.Validation;
 using MassTransit;
+using Microsoft.Extensions.Logging;
+using NHibernate;
 using QS.DomainModel.UoW;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TrueMark.Contracts;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
-using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using NHibernate;
 
 namespace Edo.Documents
 {
@@ -24,10 +26,9 @@ namespace Edo.Documents
 		private readonly ForOwnNeedDocumentEdoTaskHandler _forOwnNeedDocumentEdoTaskHandler;
 		private readonly ForResaleDocumentEdoTaskHandler _forResaleDocumentEdoTaskHandler;
 		private readonly EdoTaskValidator _edoTaskValidator;
-		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
-		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IBus _messageBus;
 
 		public DocumentEdoTaskHandler(
@@ -40,6 +41,7 @@ namespace Edo.Documents
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferRequestCreator transferRequestCreator,
 			EdoProblemRegistrar edoProblemRegistrar,
+			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IBus messageBus
 			)
 		{
@@ -48,10 +50,9 @@ namespace Edo.Documents
 			_forOwnNeedDocumentEdoTaskHandler = forOwnNeedDocumentEdoTaskHandler ?? throw new ArgumentNullException(nameof(forOwnNeedDocumentEdoTaskHandler));
 			_forResaleDocumentEdoTaskHandler = forResaleDocumentEdoTaskHandler ?? throw new ArgumentNullException(nameof(forResaleDocumentEdoTaskHandler));
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
-			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
-			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -67,31 +68,63 @@ namespace Edo.Documents
 
 			if(edoTask == null)
 			{
-				_logger.LogInformation("Задача Id {documentEdoTaskId} не найдена", documentEdoTaskId);
+				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не найдена", documentEdoTaskId);
 				return;
 			}
 
 			// предзагрузка для ускорения
-			await _uow.Session.QueryOver<TrueMarkProductCode>()
+			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
 				.ListAsync();
 
-			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
-			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
-			if(!isValid)
-			{
-				return;
-			}
+			var sourceCodes = productCodes
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
 
-			if(IsFormalDocument(edoTask))
+			var resultCodes = productCodes
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
+			try
 			{
-				await HandleFormalDocument(edoTask, trueMarkCodesChecker, cancellationToken);
+				var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
+				var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
+				if(!isValid)
+				{
+					return;
+				}
+
+				if(IsFormalDocument(edoTask))
+				{
+					await HandleFormalDocument(edoTask, trueMarkCodesChecker, cancellationToken);
+				}
+				else
+				{
+					await HandleInformalDocument(edoTask, cancellationToken);
+				}
 			}
-			else
+			catch(EdoProblemException ex)
 			{
-				await HandleInformalDocument(edoTask, cancellationToken);
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
+			}
+			catch(Exception ex)
+			{
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
 			}
 		}
 
@@ -171,7 +204,48 @@ namespace Edo.Documents
 		public async Task HandleTransfered(int transferIterationId, CancellationToken cancellationToken)
 		{
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
+			if(transferIteration == null)
+			{
+				_logger.LogInformation("Итерация трансфера Id {TransferIterationId} не найдена", transferIterationId);
+				return;
+			}
+
 			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
+
+			if(edoTask.Status == EdoTaskStatus.Completed)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+					"так как задача Id {DocumentEdoTaskId} уже завершена", edoTask.Id);
+				return;
+			}
+
+			if(edoTask.Stage != DocumentEdoTaskStage.Transfering)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+					"так как задача Id {DocumentEdoTaskId} находится не на стадии трансфера, " +
+					"а на стадии {DocumentEdoTaskStage}",
+					edoTask.Id, edoTask.Stage);
+				return;
+			}
+
+			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
+				.ListAsync();
+
+			var sourceCodes = productCodes
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = productCodes
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 
@@ -263,7 +337,7 @@ namespace Edo.Documents
 
 			if(document == null)
 			{
-				_logger.LogError("При обработке отмены документа №{documentId} не найден документ.", documentId);
+				_logger.LogError("При обработке отмены документа №{DocumentId} не найден документ.", documentId);
 			}
 
 			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
@@ -280,7 +354,7 @@ namespace Edo.Documents
 
 			if(document == null)
 			{
-				_logger.LogError("При обработке отмены документа №{documentId} не найден документ.", documentId);
+				_logger.LogError("При обработке отмены документа №{DocumentId} не найден документ.", documentId);
 			}
 
 			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);

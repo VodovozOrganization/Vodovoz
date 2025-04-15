@@ -9,7 +9,7 @@ namespace Edo.Problems.Validation
 	{
 		public abstract override string Name { get; }
 		public abstract bool IsApplicable(EdoTask edoTask);
-		public abstract Task<bool> NotValidCondition(
+		public abstract Task<EdoValidationResult> ValidateAsync(
 			EdoTask edoTask,
 			IServiceProvider serviceProvider,
 			CancellationToken cancellationToken
@@ -18,26 +18,6 @@ namespace Edo.Problems.Validation
 		public virtual string GetTemplatedMessage(EdoTask edoTask)
 		{
 			return Message;
-		}
-
-		public virtual async Task<EdoValidationResult> ValidateAsync(
-			EdoTask edoTask,
-			IServiceProvider serviceProvider,
-			CancellationToken cancellationToken
-			)
-		{
-			if(!IsApplicable(edoTask))
-			{
-				throw new EdoTaskValidationException($"Валидатор {Name} не применим к задаче {edoTask.GetType().Name}");
-			}
-
-			var notValidCondition = await NotValidCondition(edoTask, serviceProvider, cancellationToken);
-			if(notValidCondition)
-			{
-				return EdoValidationResult.NotValid(this);
-			}
-
-			return EdoValidationResult.Valid(this);
 		}
 	}
 }

@@ -30,6 +30,10 @@ namespace Vodovoz.Views.Documents
 
 		private global::Gamma.GtkWidgets.yButton ybuttonOk;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonCopyCodes;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonDeleteCode;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -127,11 +131,34 @@ namespace Vodovoz.Views.Documents
 			w11.Position = 0;
 			w11.Expand = false;
 			w11.Fill = false;
-			this.yvboxMain.Add(this.yhboxButtons);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
+			// Container child yhboxButtons.Gtk.Box+BoxChild
+			this.ybuttonCopyCodes = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonCopyCodes.CanFocus = true;
+			this.ybuttonCopyCodes.Name = "ybuttonCopyCodes";
+			this.ybuttonCopyCodes.UseUnderline = true;
+			this.ybuttonCopyCodes.Label = global::Mono.Unix.Catalog.GetString("Скопировать коды");
+			this.yhboxButtons.Add(this.ybuttonCopyCodes);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonCopyCodes]));
 			w12.Position = 2;
 			w12.Expand = false;
 			w12.Fill = false;
+			// Container child yhboxButtons.Gtk.Box+BoxChild
+			this.ybuttonDeleteCode = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonDeleteCode.CanFocus = true;
+			this.ybuttonDeleteCode.Name = "ybuttonDeleteCode";
+			this.ybuttonDeleteCode.UseUnderline = true;
+			this.ybuttonDeleteCode.Label = global::Mono.Unix.Catalog.GetString("Удалить код");
+			this.yhboxButtons.Add(this.ybuttonDeleteCode);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonDeleteCode]));
+			w13.PackType = ((global::Gtk.PackType)(1));
+			w13.Position = 3;
+			w13.Expand = false;
+			w13.Fill = false;
+			this.yvboxMain.Add(this.yhboxButtons);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
+			w14.Position = 2;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

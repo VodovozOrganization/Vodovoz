@@ -32,5 +32,9 @@ namespace Edo.Contracts.Messages.Events
 		/// Описание ошибки
 		/// </summary>
 		public string ErrorDescription { get; set; }
+		/// <summary>
+		/// Доставлено
+		/// </summary>
+		public bool IsReceived { get; set; }
 	}
 }

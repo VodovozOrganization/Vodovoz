@@ -33,11 +33,13 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.TrueMark;
+using VodovozBusiness.Domain.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -953,10 +955,51 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
 		{
+			if(IsReceiptSentOldDocflow(uow, orderId))
+			{
+				return true;
+			}
+
+			return IsReceiptSentNewDocflow(uow, orderId);
+		}
+
+		private bool IsReceiptSentOldDocflow(IUnitOfWork uow, int orderId)
+		{
 			var receipts = uow.Session.QueryOver<CashReceipt>()
 				.Where(x => x.Order.Id == orderId)
 				.Where(x => x.Status == CashReceiptStatus.Sended)
 				.List();
+
+			return receipts.Any();
+		}
+
+		private bool IsReceiptSentNewDocflow(IUnitOfWork uow, int orderId)
+		{
+			var fiscalDocumentStages = new[]
+			{
+				FiscalDocumentStage.Sent,
+				FiscalDocumentStage.Completed
+			};
+
+			var receipts =
+				(from edoTask in uow.Session.Query<ReceiptEdoTask>()
+				 join edoRequest in uow.Session.Query<OrderEdoRequest>() on edoTask.Id equals edoRequest.Task.Id
+				 join efd in uow.Session.Query<EdoFiscalDocument>() on edoTask.Id equals efd.ReceiptEdoTask.Id into fiscalDocuments
+				 from fiscalDocument in fiscalDocuments.DefaultIfEmpty()
+				 join tri in uow.Session.Query<TransferEdoRequestIteration>() on edoTask.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
+				 from transferEdoRequestIteration in transferEdoRequestIterations.DefaultIfEmpty()
+				 join ter in uow.Session.Query<TransferEdoRequest>() on transferEdoRequestIteration.Id equals ter.Iteration.Id into transferEdoRequests
+				 from transferEdoRequest in transferEdoRequests.DefaultIfEmpty()
+				 join tet in uow.Session.Query<TransferEdoTask>() on transferEdoRequest.TransferEdoTask.Id equals tet.Id into transferEdoTasks
+				 from transferEdoTask in transferEdoTasks.DefaultIfEmpty()
+				 join ted in uow.Session.Query<TransferEdoDocument>() on transferEdoTask.Id equals ted.TransferTaskId into transferEdoDocuments
+				 from transferEdoDocument in transferEdoDocuments.DefaultIfEmpty()
+				 where
+					 edoRequest.Order.Id == orderId
+					 && (transferEdoDocument.Id != null || fiscalDocumentStages.Contains(fiscalDocument.Stage))
+				 select
+				 edoTask.Id)
+				.ToList();
 
 			return receipts.Any();
 		}
@@ -1222,7 +1265,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			PaymentItem paymentItemAlias = null;
 
 			var payments = uow.Session.QueryOver(() => paymentAlias)
-				.JoinAlias(p => p.PaymentItems, () => paymentItemAlias)
+				.JoinAlias(p => p.Items, () => paymentItemAlias)
 				.Where(() => paymentItemAlias.Order.Id == orderId)
 				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
 				.TransformUsing(Transformers.DistinctRootEntity)
@@ -1540,10 +1583,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			District districtAlias = null;
 			GeoGroup geographicGroupAlias = null;
 			VodovozOrder orderAlias = null;
+			Counterparty clientAlias = null;
 
 			var mainQuery = QueryOver.Of(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => orderAlias.DeliverySchedule, () => deliveryScheduleAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => clientAlias)
 				.Where(() => orderAlias.DeliveryDate == orderOnDayFilters.DateForRouting.Date)
 				.Where(() => !orderAlias.SelfDelivery)
 				.Where(() => orderAlias.DeliveryPoint != null)
@@ -1595,9 +1640,24 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.WhereRestrictionOn(() => districtAlias.GeographicGroup.Id).IsIn(orderOnDayFilters.GeographicGroupIds);
 			}
 
-			if(!orderOnDayFilters.FastDeliveryEnabled)
+			if(orderOnDayFilters.FastDeliveryEnabled || orderOnDayFilters.IsCodesScanInWarehouseRequired)
 			{
-				mainQuery.Where(() => !orderAlias.IsFastDelivery);
+				var additionalParametersRestriction = Restrictions.Conjunction();
+
+				if(orderOnDayFilters.FastDeliveryEnabled)
+				{
+					additionalParametersRestriction.Add(() => orderAlias.IsFastDelivery);
+				}
+
+				if(orderOnDayFilters.IsCodesScanInWarehouseRequired)
+				{
+					additionalParametersRestriction.Add(Restrictions.Conjunction()
+						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
+						.Add(() => clientAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+						.Add(() => clientAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute));
+				}
+
+				mainQuery.Where(additionalParametersRestriction);
 			}
 
 			mainQuery.WhereRestrictionOn(() => orderAlias.OrderAddressType)

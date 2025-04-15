@@ -10,6 +10,7 @@ namespace Vodovoz.Core.Data.Repositories
 	{
 		Task<IEnumerable<OrganizationEntity>> GetEdoOrganizationsAsync(CancellationToken cancellationToken);
 		Task<IEnumerable<GtinEntity>> GetGtinsAsync(CancellationToken cancellationToken);
+		Task<IEnumerable<GroupGtinEntity>> GetGroupGtinsAsync(CancellationToken cancellationToken);
 		Task<bool> HasReceiptOnSumToday(decimal sum, CancellationToken cancellationToken);
 	}
 }

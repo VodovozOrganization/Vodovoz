@@ -2,6 +2,6 @@
 {
 	public class TransferDocumentSendEvent
 	{
-		public int Id { get; set; }
+		public int TransferDocumentId { get; set; }
 	}
 }

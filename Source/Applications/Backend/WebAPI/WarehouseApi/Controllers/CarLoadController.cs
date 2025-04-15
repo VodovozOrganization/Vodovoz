@@ -104,10 +104,10 @@ namespace WarehouseApi.Controllers
 				{
 					foreach(var item in requestProcessingResult.Result.Value.Order.Items)
 					{
-						var maxIndex = item.Codes.Count();
+						var maxIndex = item.Codes.Count;
 						for(int i = 0; i < maxIndex; i++)
 						{
-							item.Codes.ElementAt(i).SequenceNumber = i;
+							item.Codes[i].SequenceNumber = i;
 						}
 					}
 				}

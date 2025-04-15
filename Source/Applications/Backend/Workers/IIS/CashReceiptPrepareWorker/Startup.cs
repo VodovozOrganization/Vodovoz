@@ -60,7 +60,7 @@ namespace CashReceiptPrepareWorker
 				.AddCore()
 				.AddInfrastructure()
 				.AddTrackedUoW()
-				.AddHttpClient()
+				.AddTrueMarkApiClient()
 			;
 
 			DependencyInjection.AddStaticScopeForEntity(services);
@@ -98,14 +98,6 @@ namespace CashReceiptPrepareWorker
 
 			builder.RegisterType<DeliveryOrderReceiptCreator>()
 				.AsSelf()
-				.InstancePerLifetimeScope();
-
-			builder.RegisterType<TrueMarkApiClientFactory>()
-				.As<ITrueMarkApiClientFactory>()
-				.InstancePerLifetimeScope();
-
-			builder.Register((context, instance) => context.Resolve<ITrueMarkApiClientFactory>().GetClient())
-				.As<ITrueMarkApiClient>()
 				.InstancePerLifetimeScope();
 
 			builder.RegisterType<TrueMarkTransactionalCodesPool>()

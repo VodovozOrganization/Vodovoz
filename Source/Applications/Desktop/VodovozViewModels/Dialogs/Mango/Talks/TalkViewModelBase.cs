@@ -62,8 +62,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		public void ForwardCallCommand()
 		{
 			Action action = () => { Close(true, CloseSource.Self); };
-			IPage page = NavigationManager.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>
-			(this, MangoManager, SubscriberSelectionViewModel.DialogType.Transfer);
+			IPage page = NavigationManager.OpenViewModel<SubscriberSelectionViewModel, MangoManager, DialogType>
+			(this, MangoManager, DialogType.Transfer);
 		}
 
 	}

@@ -53,6 +53,15 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
+			cfg.Message<TransferTaskPrepareToSendEvent>(x => x.SetEntityName("edo.transfer-task-prepare-to-send.publish"));
+			cfg.Publish<TransferTaskPrepareToSendEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			
 			cfg.Message<TransferDocumentAcceptedEvent>(x => x.SetEntityName("edo.transfer-document-accepted.publish"));
 			cfg.Publish<TransferDocumentAcceptedEvent>(x =>
 			{
@@ -225,7 +234,21 @@ namespace Edo.Transport
 						}
 					);
 
-					//rabbitCfg.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
+					rabbitCfg.UseMessageRetry(r => 
+					{
+						r.Interval(5, TimeSpan.FromSeconds(5));
+
+						// Если не ставить ничего, то все будут обрабатываться
+						// Если установить Handle, то остальные будут игнорироваться
+						// Если установить Ignore, то будут обрабатываться все кроме игнорируемых
+						// Если установить Handle и Ignore, то будут обрабатываться только те которые в Handle
+
+						// По умолчанию желательно игнорировать только те,
+						// по которым точно будет одинаковый результат
+						r.Ignore<NotImplementedException>();
+						r.Ignore<NotSupportedException>();
+						r.Ignore<ArgumentNullException>();
+					});
 
 					rabbitCfg.AddEdoTopology(context);
 

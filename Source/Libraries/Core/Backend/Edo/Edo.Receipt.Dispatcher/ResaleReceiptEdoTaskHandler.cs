@@ -10,7 +10,6 @@ using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,11 +20,12 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Edo;
 
 namespace Edo.Receipt.Dispatcher
 {
-	public class ResaleReceiptEdoTaskHandler
+	public class ResaleReceiptEdoTaskHandler : IDisposable
 	{
 		private readonly ILogger<ResaleReceiptEdoTaskHandler> _logger;
 		private readonly IUnitOfWork _uow;
@@ -69,7 +69,7 @@ namespace Edo.Receipt.Dispatcher
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
 		}
 
-		public async Task HandleResaleReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
+		public async Task HandleNewReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
 			var order = receiptEdoTask.OrderEdoRequest.Order;
 			if(order.Client.ReasonForLeaving != ReasonForLeaving.Resale)
@@ -200,13 +200,11 @@ namespace Edo.Receipt.Dispatcher
 		/// <returns></returns>
 		private void PrepareFiscalDocuments(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
-			var order = receiptEdoTask.OrderEdoRequest.Order;
-
 			//создать немаркированные позиции
 			var mainFiscalDocument = CreateUnmarkedFiscalDocument(receiptEdoTask);
 
 			//создать маркированные позиции
-			CreateMarkedFiscalDocuments(receiptEdoTask, order, mainFiscalDocument, cancellationToken);
+			CreateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, cancellationToken);
 
 			//создать или обновить сумму в чеках
 			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
@@ -242,11 +240,12 @@ namespace Edo.Receipt.Dispatcher
 
 		private void CreateMarkedFiscalDocuments(
 			ReceiptEdoTask receiptEdoTask,
-			OrderEntity order,
 			EdoFiscalDocument mainFiscalDocument,
 			CancellationToken cancellationToken
 			)
 		{
+			var order = receiptEdoTask.OrderEdoRequest.Order;
+
 			var markedOrderItems = order.OrderItems
 				.Where(x => x.Price != 0m)
 				.Where(x => x.Count > 0m)
@@ -282,6 +281,7 @@ namespace Edo.Receipt.Dispatcher
 					.Take(_maxCodesInReceipt);
 				currentFiscalDocument = CreateFiscalDocument(receiptEdoTask);
 				currentFiscalDocument.DocumentNumber += $"_{documentIndex}";
+
 			} while(currentProcessingPositions.Any());
 		}
 
@@ -322,16 +322,32 @@ namespace Edo.Receipt.Dispatcher
 
 		private void CreateReceiptMoneyPositions(EdoFiscalDocument currentFiscalDocument)
 		{
+			var order = currentFiscalDocument.ReceiptEdoTask.OrderEdoRequest.Order;
+
 			var receiptSum = currentFiscalDocument.InventPositions
-								.Sum(x => x.OrderItems.First().Price * x.Quantity - x.DiscountSum);
+				.Sum(x => x.OrderItems.First().Price * x.Quantity - x.DiscountSum);
 
 			var moneyPosition = new FiscalMoneyPosition
 			{
-				PaymentType = FiscalPaymentType.Cash,
+				PaymentType = GetPaymentType(order.PaymentType),
 				Sum = receiptSum
 			};
 
 			currentFiscalDocument.MoneyPositions.Add(moneyPosition);
+		}
+
+		private FiscalPaymentType GetPaymentType(PaymentType orderPaymentType)
+		{
+			switch(orderPaymentType)
+			{
+				case PaymentType.Terminal:
+				case PaymentType.DriverApplicationQR:
+				case PaymentType.SmsQR:
+				case PaymentType.PaidOnline:
+					return FiscalPaymentType.Card;
+				default:
+					return FiscalPaymentType.Cash;
+			}
 		}
 
 		/// <summary>
@@ -445,8 +461,13 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
 			{
 				var codesToCheck1260 = fiscalDocument.InventPositions
-					.Where(x => x.EdoTaskItem.ProductCode.ResultCode != null)
+					.Where(x => x.EdoTaskItem?.ProductCode?.ResultCode != null)
 					.ToDictionary(x => x.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260);
+
+				if(!codesToCheck1260.Any())
+				{
+					continue;
+				}
 
 				var result = await _tag1260Checker.CheckCodesForTag1260Async(
 					codesToCheck1260.Keys,
@@ -673,6 +694,11 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			return contact;
+		}
+
+		public void Dispose()
+		{
+			_uow.Dispose();
 		}
 	}
 }

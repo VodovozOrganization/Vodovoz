@@ -181,24 +181,24 @@ namespace TrueMark.Codes.Pool
 			return query;
 		}
 
-		public IDictionary<string, int> GetTotalCountByGtin()
+		public IDictionary<string, long> GetTotalCountByGtin()
 		{
 			using(var uow = CreateUow())
 			{
 				var query = GetTotalCountByGtinQuery(uow);
 				var objects = query.List<object[]>();
-				var result = objects.ToDictionary(x => (string)x[0], x => (int)x[1]);
+				var result = objects.ToDictionary(x => (string)x[0], x => (long)x[1]);
 				return result;
 			}
 		}
 
-		public async Task<IDictionary<string, int>> GetTotalCountByGtinAsync(CancellationToken cancellationToken)
+		public async Task<IDictionary<string, long>> GetTotalCountByGtinAsync(CancellationToken cancellationToken)
 		{
 			using(var uow = CreateUow())
 			{
 				var query = GetTotalCountByGtinQuery(uow);
 				var objects = await query.ListAsync<object[]>(cancellationToken);
-				var result = objects.ToDictionary(x => (string)x[0], x => (int)x[1]);
+				var result = objects.ToDictionary(x => (string)x[0], x => (long)x[1]);
 				return result;
 			}
 		}
@@ -211,7 +211,6 @@ namespace TrueMark.Codes.Pool
 						Count(pool.code_id)
 					FROM {_poolTableName} pool
 					INNER JOIN true_mark_identification_code tmic ON tmic.id = pool.code_id
-					WHERE pool.promoted
 					GROUP BY tmic.gtin
 					;";
 			var query = uow.Session.CreateSQLQuery(sql);

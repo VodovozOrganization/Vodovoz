@@ -5,6 +5,7 @@ using Edo.Problems.Custom.Sources;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Transfer.Dispatcher
@@ -25,6 +27,7 @@ namespace Edo.Transfer.Dispatcher
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferDispatcher _transferDispatcher;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IBus _messageBus;
 
 		public TransferEdoHandler(
@@ -35,6 +38,7 @@ namespace Edo.Transfer.Dispatcher
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferDispatcher transferDispatcher,
 			EdoProblemRegistrar edoProblemRegistrar,
+			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IBus messageBus
 			)
 		{
@@ -45,15 +49,13 @@ namespace Edo.Transfer.Dispatcher
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_transferDispatcher = transferDispatcher ?? throw new ArgumentNullException(nameof(transferDispatcher));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		public async Task HandleNewTransfer(int transferIterationId, CancellationToken cancellationToken)
 		{
-			_uow.OpenTransaction();
-
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
-
 			if(transferIteration == null)
 			{
 				throw new InvalidOperationException($"Итерация трансфера с Id {transferIterationId} не найдена");
@@ -82,7 +84,7 @@ namespace Edo.Transfer.Dispatcher
 			}
 
 			var requestsGroups = newTransferRequests.GroupBy(x => new TransferDirection(
-				x.FromOrganizationId, 
+				x.FromOrganizationId,
 				x.ToOrganizationId
 			));
 
@@ -90,17 +92,16 @@ namespace Edo.Transfer.Dispatcher
 			foreach(var requestsGroup in requestsGroups)
 			{
 				var transferTask = await _transferDispatcher.AddRequestsToTask(
-					_uow,
 					requestsGroup,
 					cancellationToken
 				);
 				transferTasks.Add(transferTask);
 			}
 
-			var sentTasks = transferTasks.Where(x => x.TransferStatus == TransferEdoTaskStatus.InProgress);
+			var sentTasks = transferTasks.Where(x => x.TransferStatus == TransferEdoTaskStatus.PreparingToSend);
 			await _uow.CommitAsync(cancellationToken);
 
-			var events = sentTasks.Select(x => new TransferTaskReadyToSendEvent { Id = x.Id });
+			var events = sentTasks.Select(x => new TransferTaskPrepareToSendEvent { TransferTaskId = x.Id });
 			var publishTasks = events.Select(message => _messageBus.Publish(message, cancellationToken));
 
 			await Task.WhenAll(publishTasks);
@@ -108,8 +109,6 @@ namespace Edo.Transfer.Dispatcher
 
 		public async Task HandleTransferDocumentAcceptance(int documentId, CancellationToken cancellationToken)
 		{
-			_uow.OpenTransaction();
-
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(documentId, cancellationToken);
 
 			if(document == null)
@@ -122,7 +121,42 @@ namespace Edo.Transfer.Dispatcher
 				_logger.LogError("Невозможно завершить трансфер, так как документ №{documentId} еще не принят.", documentId);
 			}
 
+
 			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
+
+			await _uow.Session.QueryOver<TransferEdoRequest>()
+				.Fetch(SelectMode.Fetch, x => x.Iteration)
+				.Where(x => x.TransferEdoTask.Id == document.TransferTaskId)
+				.ListAsync();
+
+			await _uow.Session.QueryOver<TransferEdoRequest>()
+				.Fetch(SelectMode.Fetch, x => x.TransferedItems)
+				.Where(x => x.TransferEdoTask.Id == document.TransferTaskId)
+				.ListAsync();
+
+			var orderTaskIds = transferTask.TransferEdoRequests.Select(x => x.Iteration.OrderEdoTask.Id);
+
+			var taskItems = await _uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
+				.WhereRestrictionOn(x => x.CustomerEdoTask.Id).IsIn(orderTaskIds.ToArray())
+				.ListAsync();
+
+			var sourceCodes = taskItems.Select(x => x.ProductCode)
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = taskItems.Select(x => x.ProductCode)
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
 			if(transferTask.Status == EdoTaskStatus.Completed)
 			{
 				_logger.LogWarning("При обработке принятия документа трансфера №{documentId} обнаружено, что трансфер уже завершен.", documentId);
@@ -143,7 +177,7 @@ namespace Edo.Transfer.Dispatcher
 			transferTask.EndTime = DateTime.Now;
 
 			await _uow.SaveAsync(transferTask, cancellationToken: cancellationToken);
-			_uow.Commit();
+			await _uow.CommitAsync(cancellationToken);
 
 			await UpdateIterationsAndNotifyOnCompleted(transferTask, cancellationToken);
 		}
@@ -198,8 +232,6 @@ namespace Edo.Transfer.Dispatcher
 
 		public async Task HandleTransferDocumentProblem(int documentId, CancellationToken cancellationToken)
 		{
-			_uow.OpenTransaction();
-
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(documentId, cancellationToken);
 
 			if(document == null)
@@ -211,6 +243,18 @@ namespace Edo.Transfer.Dispatcher
 
 			await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
 				transferTask, cancellationToken, "Возникла проблема с документооборотом, не завершился на стороне ЭДО провайдера");
+		}
+
+		public async Task MoveToPrepareToSend(int transferTaskId, CancellationToken cancellationToken)
+		{
+			var transferEdoTask = await _uow.Session.GetAsync<TransferEdoTask>(transferTaskId, cancellationToken);
+			await _transferDispatcher.MoveToPrepareToSend(transferEdoTask, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+
+			await _messageBus.Publish(
+				new TransferTaskPrepareToSendEvent { TransferTaskId = transferTaskId },
+				cancellationToken
+			);
 		}
 
 		public void Dispose()

@@ -1,4 +1,4 @@
-﻿using GeoCoderApi.Client.Contracts;
+using GeoCoderApi.Client.Contracts;
 using GeoCoderApi.Client.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -30,7 +30,7 @@ namespace GeoCoderApi.Client
 				["Longitude"] = longitude
 			};
 
-			var response = await _httpClient.GetAsync(_getAddressByCoordinatesEndpoint, parameters, cancellationToken);
+			HttpResponseMessage response = await _httpClient.GetAsync(_getAddressByCoordinatesEndpoint, parameters, cancellationToken);
 
 			AddressResponse result = null;
 
@@ -63,7 +63,7 @@ namespace GeoCoderApi.Client
 
 		public async Task<GeographicPointResponse> GetCoordinateAtAddressAsync(string address, CancellationToken cancellationToken = default)
 		{
-			var response = await _httpClient.GetAsync(_getCoordinatesAtAddressEndpoint, "address", address, cancellationToken);
+			HttpResponseMessage response = await _httpClient.GetAsync(_getCoordinatesAtAddressEndpoint, "address", address, cancellationToken);
 
 			GeographicPointResponse result = null;
 

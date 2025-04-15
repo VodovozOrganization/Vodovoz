@@ -19,18 +19,21 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark
 			HasMany(x => x.InnerTransportCodes)
 				.KeyColumn("parent_transport_code_id")
 				.Not.LazyLoad()
+				.Fetch.Subselect()
 				.Inverse()
 				.Cascade.All();
 
 			HasMany(x => x.InnerGroupCodes)
 				.KeyColumn("parent_transport_code_id")
 				.Not.LazyLoad()
+				.Fetch.Subselect()
 				.Inverse()
 				.Cascade.All();
 
 			HasMany(x => x.InnerWaterCodes)
 				.KeyColumn("parent_transport_code_id")
 				.Not.LazyLoad()
+				.Fetch.Subselect()
 				.Inverse()
 				.Cascade.All();
 		}

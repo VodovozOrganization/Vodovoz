@@ -22,7 +22,7 @@ namespace Edo.Problems.Validation
 			};
 		}
 
-		public static EdoValidationResult NotValid(IEdoTaskValidator validator)
+		public static EdoValidationResult Invalid(IEdoTaskValidator validator)
 		{
 			return new EdoValidationResult(validator)
 			{
@@ -30,7 +30,7 @@ namespace Edo.Problems.Validation
 			};
 		}
 
-		public static EdoValidationResult NotValid(IEdoTaskValidator validator, IEnumerable<EdoTaskItem> problemItems)
+		public static EdoValidationResult Invalid(IEdoTaskValidator validator, IEnumerable<EdoTaskItem> problemItems)
 		{
 			return new EdoValidationResult(validator)
 			{

@@ -11,9 +11,18 @@ using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.Core.Domain.Goods
 {
+	/// <summary>
+	/// Номенклатура
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
+		Accusative = "номенклатуру",
+		AccusativePlural = "номенклатуры",
+		Genitive = "номенклатуры",
+		GenitivePlural = "номенклатур",
+		Nominative = "номенклатура",
 		NominativePlural = "номенклатуры",
-		Nominative = "номенклатура")]
+		Prepositional = "номенклатуре",
+		PrepositionalPlural = "номенклатурах")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class NomenclatureEntity : PropertyChangedBase, IDomainObject, IBusinessObject, INamed, IHasAttachedFilesInformations<NomenclatureFileInformation>
@@ -127,6 +136,10 @@ namespace Vodovoz.Core.Domain.Goods
 
 		public virtual IUnitOfWork UoW { set; get; }
 
+		/// <summary>
+		/// Идентификатор
+		/// Код номенклатуры
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -140,6 +153,9 @@ namespace Vodovoz.Core.Domain.Goods
 			}
 		}
 
+		/// <summary>
+		/// Название
+		/// </summary>
 		[Display(Name = "Название")]
 		public virtual string Name
 		{
@@ -147,6 +163,9 @@ namespace Vodovoz.Core.Domain.Goods
 			set => SetField(ref _name, value);
 		}
 
+		/// <summary>
+		/// Категория
+		/// </summary>
 		[Display(Name = "Категория")]
 		public virtual NomenclatureCategory Category
 		{
@@ -155,6 +174,9 @@ namespace Vodovoz.Core.Domain.Goods
 			protected set => SetField(ref _category, value);
 		}
 
+		/// <summary>
+		/// Подлежит учету в Честном Знаке
+		/// </summary>
 		[Display(Name = "Подлежит учету в Честном Знаке")]
 		public virtual bool IsAccountableInTrueMark
 		{
@@ -162,6 +184,9 @@ namespace Vodovoz.Core.Domain.Goods
 			set => SetField(ref _isAccountableInTrueMark, value);
 		}
 
+		/// <summary>
+		/// Номер товарной продукции GTIN
+		/// </summary>
 		[Display(Name = "Номер товарной продукции GTIN")]
 		public virtual string Gtin
 		{
@@ -169,6 +194,9 @@ namespace Vodovoz.Core.Domain.Goods
 			set => SetField(ref _gtin, value);
 		}
 
+		/// <summary>
+		/// Инфоррмация о прикрепленных файлах
+		/// </summary>
 		[Display(Name = "Информация о прикрепленных файлах")]
 		public virtual IObservableList<NomenclatureFileInformation> AttachedFileInformations
 		{
@@ -556,13 +584,6 @@ namespace Vodovoz.Core.Domain.Goods
 			get => _purchasePrices;
 			set => SetField(ref _purchasePrices, value);
 		}
-
-		/// <summary>
-		/// Проверка на то, что номенклатура подлежит учету в Честном Знаке и имеет GTIN
-		/// </summary>
-		public virtual bool IsAccountableInTrueMarkAndHasGtin =>
-			IsAccountableInTrueMark
-			&& !string.IsNullOrWhiteSpace(Gtin);
 		
 
 		#region Свойства товаров для магазина
@@ -791,7 +812,6 @@ namespace Vodovoz.Core.Domain.Goods
 		#endregion Свойства товаров для магазина
 
 		#region Онлайн характеристики для ИПЗ
-
 
 		/// <summary>
 		/// Название в ИПЗ
@@ -1130,6 +1150,10 @@ namespace Vodovoz.Core.Domain.Goods
 			}
 		}
 
+		/// <summary>
+		/// Добавление информации о файле
+		/// </summary>
+		/// <param name="filename">Имя файла</param>
 		public virtual void AddFileInformation(string fileName)
 		{
 			if(AttachedFileInformations.Any(a => a.FileName == fileName))
@@ -1144,6 +1168,10 @@ namespace Vodovoz.Core.Domain.Goods
 			});
 		}
 
+		/// <summary>
+		/// Удаление информации о файле
+		/// </summary>
+		/// <param name="filename">Имя файла</param>
 		public virtual void RemoveFileInformation(string filename)
 		{
 			if(!AttachedFileInformations.Any(fi => fi.FileName == filename))
@@ -1154,6 +1182,9 @@ namespace Vodovoz.Core.Domain.Goods
 			AttachedFileInformations.Remove(AttachedFileInformations.First(x => x.FileName == filename));
 		}
 
+		/// <summary>
+		/// Обновление информации о файлах
+		/// </summary>
 		private void UpdateFileInformations()
 		{
 			foreach(var fileInformation in AttachedFileInformations)
@@ -1162,6 +1193,12 @@ namespace Vodovoz.Core.Domain.Goods
 			}
 		}
 
+		/// <summary>
+		/// Получение цены номенклатуры
+		/// </summary>
+		/// <param name="itemsCount">Количество единиц товара</param>
+		/// <param name="useAlternativePrice">Использовать ли альтернативную цену</param>
+		/// <returns></returns>
 		public virtual decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
 		{
 			if(itemsCount < 1)
@@ -1186,6 +1223,11 @@ namespace Vodovoz.Core.Domain.Goods
 			return price;
 		}
 
+		/// <summary>
+		/// Получение цены закупки на дату
+		/// </summary>
+		/// <param name="date"></param>
+		/// <returns></returns>
 		public virtual decimal GetPurchasePriceOnDate(DateTime date)
 		{
 			var purchasePrice =
@@ -1196,5 +1238,7 @@ namespace Vodovoz.Core.Domain.Goods
 
 			return purchasePrice;
 		}
+		
+		public override string ToString() => $"id = {Id} Name = {Name}";
 	}
 }

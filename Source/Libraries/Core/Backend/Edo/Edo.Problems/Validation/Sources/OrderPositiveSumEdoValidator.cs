@@ -23,12 +23,19 @@ namespace Edo.Problems.Validation.Sources
 			return $"Сумма заказа №{orderEdoRequest.Order.Id} должна быть больше нуля";
 		}
 
-		public override Task<bool> NotValidCondition(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
 			var orderEdoRequest = GetOrderEdoRequest(edoTask);
-			var condition = orderEdoRequest.Order.OrderSum <= 0;
+			var invalid = orderEdoRequest.Order.OrderSum <= 0;
 
-			return Task.FromResult(condition);
+			if(invalid)
+			{
+				return Task.FromResult(EdoValidationResult.Invalid(this));
+			}
+			else
+			{
+				return Task.FromResult(EdoValidationResult.Valid(this));
+			}
 		}
 	}
 }

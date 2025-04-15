@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using TrueMarkApi.Client;
 
 namespace Edo.Common
@@ -9,13 +10,10 @@ namespace Edo.Common
 		{
 			services.AddTrueMarkApiClient();
 
-			services
-				.AddScoped<TransferRequestCreator>()
-				.AddScoped<EdoTaskItemTrueMarkStatusProvider>()
-				.AddScoped<EdoTaskItemTrueMarkStatusProviderFactory>()
-
-				.AddScoped<TrueMarkTaskCodesValidator>()
-				;
+			services.TryAddScoped<TransferRequestCreator>();
+			services.TryAddScoped<EdoTaskItemTrueMarkStatusProvider>();
+			services.TryAddScoped<EdoTaskItemTrueMarkStatusProviderFactory>();
+			services.TryAddScoped<TrueMarkTaskCodesValidator>();
 
 			return services;
 		}

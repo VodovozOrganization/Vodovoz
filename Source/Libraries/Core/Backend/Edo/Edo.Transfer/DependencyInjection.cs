@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using QS.DomainModel.UoW;
 
 namespace Edo.Transfer
 {
@@ -6,10 +8,10 @@ namespace Edo.Transfer
 	{
 		public static IServiceCollection AddEdoTransfer(this IServiceCollection services)
 		{
-			services
-				.AddScoped<TransferDispatcher>()
-				.AddScoped<TransferTaskRepository>()
-				;
+			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+
+			services.TryAddScoped<TransferDispatcher>();
+			services.TryAddScoped<TransferTaskRepository>();
 
 			return services;
 		}

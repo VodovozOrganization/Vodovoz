@@ -74,6 +74,8 @@
     <Compile Include="Cash\IncomeViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialExpenseCategoryViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialIncomeCategoryViewModel.cs" />
+    <Compile Include="Cash\Payments\OutgoingPaymentCreateViewModel.cs" />
+    <Compile Include="Cash\Payments\OutgoingPaymentEditViewModel.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.ExpensesGroupLine.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.FinancialExpenseCategoryLine.cs" />
@@ -90,6 +92,13 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
+    <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.CodesPoolDataNode.cs" />
+    <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.cs" />
+    <Compile Include="Dialogs\Mango\DialogType.cs" />
+    <Compile Include="Dialogs\Mango\SearchTableEntity.cs" />
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalFilterViewModel.cs" />
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalNode.cs" />
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalViewModel.cs" />
@@ -109,6 +118,10 @@
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.RowsCreating.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.PromosetNode.cs" />
+    <Compile Include="Organizations\AccountJournalFilterViewModel.cs" />
+    <Compile Include="Organizations\AccountJournalNode.cs" />
+    <Compile Include="Organizations\AccountJournalViewModel.cs" />
+    <Compile Include="Organizations\AccountViewModel.cs" />
     <Compile Include="Organizations\OrganizationJournalFilterViewModel.cs" />
     <Compile Include="Organizations\OrganizationJournalNode.cs" />
     <Compile Include="Organizations\OrganizationJournalViewModel.cs" />
@@ -435,6 +448,7 @@
     <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
+    <Compile Include="ViewModels\Cash\RepeatIntervalTypes.cs" />
     <Compile Include="ViewModels\Contacts\EmailsViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyMatchingNode.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointMatchingNode.cs" />
@@ -457,6 +471,7 @@
     <Compile Include="Journals\JournalViewModels\Nomenclatures\InventoryNomenclaturesJournalViewModel.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeScanRow.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodesScanProgressDto.cs" />
+    <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeToCheck.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.GtinFromNomenclatureDto.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
@@ -1157,6 +1172,14 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
       <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj">
+      <Project>{88EEA039-F3D5-4069-A160-939FDF186AB4}</Project>
+      <Name>TrueMark.Codes.Pool</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj">
+      <Project>{988f9f39-781b-4c5c-8409-0c2f3e38a3d6}</Project>
+      <Name>TrueMark.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj">
       <Project>{5D521F22-C232-438D-B547-5D6486754737}</Project>

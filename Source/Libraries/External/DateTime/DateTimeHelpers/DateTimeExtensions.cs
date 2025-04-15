@@ -168,5 +168,8 @@ namespace DateTimeHelpers
 					return "-";
 			}
 		}
+		
+		public static string ToEdoShortDateString(this DateTime dateTime) => $"{dateTime:yyyy.MM.dd}";
+		public static string ToEdoShortTimeString(this DateTime dateTime) => $"{dateTime:HH.mm.ss}";
 	}
 }

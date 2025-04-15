@@ -97,6 +97,15 @@ namespace DriverAPI.Controllers.V6
 						addOrderCodeRequestModel.Code,
 						cancellationToken);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
@@ -158,6 +167,15 @@ namespace DriverAPI.Controllers.V6
 						changeOrderCodeRequest.NewCode,
 						cancellationToken);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
@@ -214,13 +232,22 @@ namespace DriverAPI.Controllers.V6
 						deleteOrderCodeRequest.DeletedCode,
 						cancellationToken);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "При замене кода ЧЗ в строке заказа произошла ошибка. " +
+				_logger.LogError(ex, "При удалении кода ЧЗ в строке заказа произошла ошибка. " +
 					"OrderId: {OrderId}, " +
 					"OrderItemId: {OrderSaleItemId}, " +
 					"ExceptionMessage: {ExceptionMessage}",
@@ -228,7 +255,7 @@ namespace DriverAPI.Controllers.V6
 					deleteOrderCodeRequest.OrderSaleItemId,
 					ex.Message);
 
-				return Problem($"При замене кода ЧЗ в строке заказа произошла ошибка. " +
+				return Problem($"При удалении кода ЧЗ в строке заказа произошла ошибка. " +
 					$"OrderId: {deleteOrderCodeRequest.OrderId}, " +
 					$"OrderItemId: {deleteOrderCodeRequest.OrderSaleItemId}, " +
 					$"ExceptionMessage: {ex.Message}");

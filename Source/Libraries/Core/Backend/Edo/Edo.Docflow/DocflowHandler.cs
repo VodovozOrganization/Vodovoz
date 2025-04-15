@@ -4,10 +4,13 @@ using Edo.Contracts.Messages.Events;
 using Edo.Docflow.Factories;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using QS.DomainModel.UoW;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
@@ -19,27 +22,25 @@ namespace Edo.Docflow
 		private readonly ILogger<DocflowHandler> _logger;
 		private readonly TransferOrderUpdInfoFactory _transferOrderUpdInfoFactory;
 		private readonly OrderUpdInfoFactory _orderUpdInfoFactory;
+		private readonly IPaymentRepository _paymentRepository;
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
 
 		public DocflowHandler(
 			ILogger<DocflowHandler> logger,
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWork uow,
 			TransferOrderUpdInfoFactory transferOrderUpdInfoFactory,
 			OrderUpdInfoFactory orderUpdInfoFactory,
+			IPaymentRepository paymentRepository,
 			IBus messageBus
 			)
 		{
-			if(uowFactory is null)
-			{
-				throw new ArgumentNullException(nameof(uowFactory));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_transferOrderUpdInfoFactory = transferOrderUpdInfoFactory ?? throw new ArgumentNullException(nameof(transferOrderUpdInfoFactory));
 			_orderUpdInfoFactory = orderUpdInfoFactory ?? throw new ArgumentNullException(nameof(orderUpdInfoFactory));
+			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-			_uow = uowFactory.CreateWithoutRoot();
 		}
 
 		public async Task HandleTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
@@ -56,9 +57,12 @@ namespace Edo.Docflow
 			}
 
 			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
-			var transferOrder = await _uow.Session.GetAsync<TransferOrder>(transferTask.TransferOrderId, cancellationToken);
 
-			var updInfo = _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(_uow, transferOrder);
+			var transferOrder = await _uow.Session.QueryOver<TransferOrder>()
+				.Where(x => x.Id == transferTask.TransferOrderId)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			var updInfo = await _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(transferOrder, cancellationToken);
 
 			var message = new TaxcomDocflowSendEvent
 			{
@@ -92,8 +96,13 @@ namespace Edo.Docflow
 			{
 				case CustomerEdoRequestType.Order:
 					var order = documentTask.OrderEdoRequest.Order;
+					var payments = _paymentRepository.GetOrderPayments(_uow, order.Id);
+					var filteredPayments = 
+						payments.Where(x => order.DeliveryDate.HasValue && x.Date < order.DeliveryDate.Value.AddDays(1))
+						.Distinct();
+					
 					sender = order.Contract.Organization;
-					updInfo = _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask);
+					updInfo = await _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask, filteredPayments, cancellationToken);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 				case CustomerEdoRequestType.OrderWithoutShipmentForDebt:
