@@ -34,7 +34,7 @@ namespace DriverAPI.Controllers.V6
 		private readonly IOrderService _orderService;
 		private readonly IDriverMobileAppActionRecordService _driverMobileAppActionRecordService;
 		private readonly IActionTimeHelper _actionTimeHelper;
-		private readonly ConcurrentDictionary<string, bool> _completeOrderDeliveryInProgress = new ConcurrentDictionary<string, bool>();
+		private static readonly ConcurrentDictionary<string, bool> _completeOrderDeliveryInProgress = new ConcurrentDictionary<string, bool>();
 
 		/// <summary>
 		/// Конструктор
