@@ -76,6 +76,11 @@ namespace Edo.Docflow
 		public async Task HandleOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(orderDocumentId, cancellationToken);
+			if(document == null)
+			{
+				_logger.LogWarning("Документ {documentId} не найден", orderDocumentId);
+				return;
+			}
 
 			if(document.Status.IsIn(
 				EdoDocumentStatus.InProgress,
@@ -88,6 +93,11 @@ namespace Edo.Docflow
 			}
 
 			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
+			if(documentTask == null)
+			{
+				_logger.LogWarning("Задача для документа {documentId} не найдена", orderDocumentId);
+				return;
+			}
 
 			UniversalTransferDocumentInfo updInfo;
 			OrganizationEntity sender;
