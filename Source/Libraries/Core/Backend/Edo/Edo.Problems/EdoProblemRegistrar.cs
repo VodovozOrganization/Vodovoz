@@ -218,13 +218,17 @@ namespace Edo.Problems
 					return false;
 				}
 
-				var problem = task.Problems.FirstOrDefault(x => x.SourceName == sourceName)
-					?? new ExceptionEdoTaskProblem
+				var problem = task.Problems.FirstOrDefault(x => x.SourceName == sourceName);
+				if(problem == null)
+				{
+					problem = new ExceptionEdoTaskProblem
 					{
 						SourceName = sourceName,
 						EdoTask = task,
 						ExceptionMessage = exception.Message
 					};
+					await uow.SaveAsync(problem, cancellationToken: cancellationToken);
+				}
 
 				problem.CreationTime = DateTime.Now;
 				problem.State = TaskProblemState.Active;
@@ -260,8 +264,8 @@ namespace Edo.Problems
 					? EdoTaskStatus.Problem
 					: EdoTaskStatus.Waiting;
 
-				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
 
+				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
 				await uow.SaveAsync(task, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
 
