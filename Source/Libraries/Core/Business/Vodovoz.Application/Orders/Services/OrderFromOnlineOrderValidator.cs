@@ -48,7 +48,7 @@ namespace Vodovoz.Application.Orders.Services
 			if(_onlineOrder.OnlineOrderPaymentType == Core.Domain.Orders.OnlineOrderPaymentType.Terminal
 				&& _onlineOrder.DeliveryDate >= OrderEntity.TerminalUnavaliableStartDate)
 			{
-				validationResults.Add(new Error("Temporary.Terminal.Unavailable", "Доставка с 16 апреля по типу оплаты Терминал недоступна"));
+				validationResults.Add(new Error("Temporary.Terminal.Unavailable", "Доставка с 23 апреля по типу оплаты Терминал недоступна"));
 			}
 			
 			if(_onlineOrder.IsSelfDelivery)
