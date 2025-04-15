@@ -531,6 +531,7 @@ namespace Receipt.Dispatcher.Tests
 				tag1260Checker,
 				trueMarkCodeRepository,
 				productCodeRepository ?? Substitute.For<IGenericRepository<TrueMarkProductCode>>(),
+				Substitute.For<IEdoOrderContactProvider>(),
 				bus);
 		}
 
