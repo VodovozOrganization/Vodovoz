@@ -108,7 +108,7 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 							//document
 							//cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
 							//cfg.AddConsumer<DocumentTransferCompleteErrorConsumer, DocumentTransferCompleteErrorConsumerDefinition>();
-							cfg.AddConsumer<OrderDocumentAcceptedErrorConsumer, OrderDocumentAcceptedErrorConsumerDefinition>();
+							//cfg.AddConsumer<OrderDocumentAcceptedErrorConsumer, OrderDocumentAcceptedErrorConsumerDefinition>();
 
 							//receipt
 							//cfg.AddConsumer<ReceiptTaskCreatedErrorConsumer, ReceiptTaskCreatedErrorConsumerDefinition>();
@@ -120,6 +120,7 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 
 							//docflow
 							//cfg.AddConsumer<DocflowUpdatedErrorConsumer, DocflowUpdatedErrorConsumerDefinition>();
+							cfg.AddConsumer<OrderDocumentSendErrorConsumer, OrderDocumentSendErrorConsumerDefinition>();
 						}
 					);
 				});
