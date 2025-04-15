@@ -14,6 +14,7 @@ namespace Edo.Common
 			services.TryAddScoped<EdoTaskItemTrueMarkStatusProvider>();
 			services.TryAddScoped<EdoTaskItemTrueMarkStatusProviderFactory>();
 			services.TryAddScoped<TrueMarkTaskCodesValidator>();
+			services.TryAddScoped<IEdoOrderContactProvider, EdoOrderContactProvider>();
 
 			return services;
 		}

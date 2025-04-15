@@ -6,13 +6,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Edo.Receipt.Dispatcher.Consumers
 {
-	public class ReceiptTaskCreatedEventConsumer : IConsumer<ReceiptTaskCreatedEvent>
+	public class ReceiptTaskCreatedConsumer : IConsumer<ReceiptTaskCreatedEvent>
 	{
-		private readonly ILogger<ReceiptTaskCreatedEventConsumer> _logger;
+		private readonly ILogger<ReceiptTaskCreatedConsumer> _logger;
 		private readonly ReceiptEdoTaskHandler _receiptEdoTaskHandler;
 
-		public ReceiptTaskCreatedEventConsumer(
-			ILogger<ReceiptTaskCreatedEventConsumer> logger,
+		public ReceiptTaskCreatedConsumer(
+			ILogger<ReceiptTaskCreatedConsumer> logger,
 			ReceiptEdoTaskHandler receiptEdoTaskHandler
 			)
 		{

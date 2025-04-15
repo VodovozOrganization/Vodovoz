@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Edo.Receipt.Dispatcher.Consumers
 {
-	public class ReceiptCompleteEventConsumer : IConsumer<ReceiptCompleteEvent>
+	public class ReceiptCompleteConsumer : IConsumer<ReceiptCompleteEvent>
 	{
-		private readonly ILogger<ReceiptTaskCreatedEventConsumer> _logger;
+		private readonly ILogger<ReceiptTaskCreatedConsumer> _logger;
 		private readonly ReceiptEdoTaskHandler _receiptEdoTaskHandler;
 
-		public ReceiptCompleteEventConsumer(
-			ILogger<ReceiptTaskCreatedEventConsumer> logger,
+		public ReceiptCompleteConsumer(
+			ILogger<ReceiptTaskCreatedConsumer> logger,
 			ReceiptEdoTaskHandler receiptEdoTaskHandler
 			)
 		{

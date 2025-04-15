@@ -4,15 +4,15 @@ using RabbitMQ.Client;
 
 namespace Edo.Receipt.Dispatcher.Consumers.Definitions
 {
-	public class ReceiptCompleteEventConsumerDefinition : ConsumerDefinition<ReceiptCompleteEventConsumer>
+	public class ReceiptCompleteConsumerDefinition : ConsumerDefinition<ReceiptCompleteConsumer>
 	{
-		public ReceiptCompleteEventConsumerDefinition()
+		public ReceiptCompleteConsumerDefinition()
 		{
 			Endpoint(x => x.Name = "edo.receipt-complete.consumer.receipt-dispatcher");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<ReceiptCompleteEventConsumer> consumerConfigurator)
+			IConsumerConfigurator<ReceiptCompleteConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
 
