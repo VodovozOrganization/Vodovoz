@@ -29,9 +29,6 @@ namespace Edo.Documents.Consumers
 					$"а должно быть для {nameof(TransferInitiator.Document)}");
 			}
 
-			_logger.LogInformation("Обрабатываем событие {EventName} по итерации {IterationId}" ,
-				nameof(TransferCompleteEvent),
-				context.Message.TransferIterationId);
 			await _documentEdoTaskHandler.HandleTransfered(context.Message.TransferIterationId, context.CancellationToken);
 		}
 	}

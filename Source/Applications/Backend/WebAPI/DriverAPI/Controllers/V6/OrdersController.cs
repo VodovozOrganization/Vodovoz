@@ -12,6 +12,7 @@ using MySqlConnector;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
@@ -33,6 +34,7 @@ namespace DriverAPI.Controllers.V6
 		private readonly IOrderService _orderService;
 		private readonly IDriverMobileAppActionRecordService _driverMobileAppActionRecordService;
 		private readonly IActionTimeHelper _actionTimeHelper;
+		private static readonly ConcurrentDictionary<string, bool> _completeOrderDeliveryInProgress = new ConcurrentDictionary<string, bool>();
 
 		/// <summary>
 		/// Конструктор
@@ -122,6 +124,13 @@ namespace DriverAPI.Controllers.V6
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeService.GetByAPILogin(user.UserName);
 
+			if(!_completeOrderDeliveryInProgress.TryAdd($"{user.UserName}:{completedOrderRequestModel.OrderId}", true))
+			{
+				_logger.LogWarning("Запрос на завершение заказа {OrderId} уже в процессе обработки", completedOrderRequestModel.OrderId);
+				HttpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+				return NoContent();
+			}
+
 			var resultMessage = "OK";
 
 			var localActionTime = completedOrderRequestModel.ActionTimeUtc.ToLocalTime();
@@ -130,6 +139,7 @@ namespace DriverAPI.Controllers.V6
 
 			if(timeCheckResult.IsFailure)
 			{
+				_completeOrderDeliveryInProgress.TryRemove($"{user.UserName}:{completedOrderRequestModel.OrderId}", out var _);
 				return MapResult(timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
 			}
 
@@ -234,6 +244,7 @@ namespace DriverAPI.Controllers.V6
 			finally
 			{
 				_driverMobileAppActionRecordService.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, localActionTime, recievedTime, resultMessage);
+				_completeOrderDeliveryInProgress.TryRemove($"{user.UserName}:{completedOrderRequestModel.OrderId}", out var _);
 			}
 		}
 

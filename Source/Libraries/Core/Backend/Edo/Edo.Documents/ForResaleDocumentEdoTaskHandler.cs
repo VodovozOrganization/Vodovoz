@@ -68,8 +68,10 @@ namespace Edo.Documents
 
 			if(!taskValidationResult.IsAllValid)
 			{
-				// регистрация проблемы
-				throw new InvalidOperationException("Формирование УПД документа для перепродажи. Имеются коды не прошедшие валидацию в ЧЗ");
+				var affectedCodes = taskValidationResult
+					.CodeResults.Where(x => !x.IsValid)
+					.Select(x => x.EdoTaskItem);
+				throw new EdoProblemException(new ResaleHasInvalidCodesException(), affectedCodes);
 			}
 
 			if(taskValidationResult.ReadyToSell)

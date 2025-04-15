@@ -11,6 +11,4 @@ namespace Edo.Problems.Exception.Sources
 			"Для замены кодов обратитесь за технической поддержкой";
 		public override EdoProblemImportance Importance => EdoProblemImportance.Problem;
 	}
-
-	
 }

@@ -1,6 +1,6 @@
-﻿using Edo.Contracts.Messages.Events;
+﻿using Edo.Common;
+using Edo.Contracts.Messages.Events;
 using Edo.Problems;
-using Edo.Problems.Exception;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -78,6 +78,7 @@ namespace Edo.Transfer.Sender
 			try
 			{
 				await CreateTransferOrder(transferEdoTask, cancellationToken);
+				transferEdoTask.TransferStatus = TransferEdoTaskStatus.ReadyToSend;
 			}
 			catch(EdoProblemException ex)
 			{

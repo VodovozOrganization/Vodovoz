@@ -1,5 +1,6 @@
 ﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Threading;
@@ -10,6 +11,7 @@ namespace Edo.Scheduler.Service
 {
 	public class EdoTaskScheduler : IDisposable
 	{
+		private readonly ILogger<EdoTaskScheduler> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly OrderTaskScheduler _orderTaskScheduler;
 		private readonly BillForAdvanceEdoRequestTaskScheduler _billForAdvanceEdoRequestTaskScheduler;
@@ -18,6 +20,7 @@ namespace Edo.Scheduler.Service
 		private readonly IBus _messageBus;
 
 		public EdoTaskScheduler(
+			ILogger<EdoTaskScheduler> logger,
 			IUnitOfWork uow,
 			OrderTaskScheduler orderTaskScheduler,
 			BillForAdvanceEdoRequestTaskScheduler billForAdvanceEdoRequestTaskScheduler,
@@ -26,6 +29,7 @@ namespace Edo.Scheduler.Service
 			IBus messageBus
 			)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_orderTaskScheduler = orderTaskScheduler ?? throw new ArgumentNullException(nameof(orderTaskScheduler));
 			_billForAdvanceEdoRequestTaskScheduler = billForAdvanceEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(billForAdvanceEdoRequestTaskScheduler));
@@ -39,14 +43,15 @@ namespace Edo.Scheduler.Service
 			var request = await _uow.Session.GetAsync<CustomerEdoRequest>(requestId, cancellationToken);
 			if(request == null)
 			{
-				throw new InvalidOperationException($"В бд нет заявки CustomerEdoRequest id " +
-					$"{nameof(CustomerEdoRequest)} {requestId}");
+				_logger.LogWarning("Не найдена клиентская ЭДО заявка Id {CustomerEdoRequestId}", requestId);
+				return;
 			}
 
 			EdoTask edoTask = request.Task;
 			if(edoTask != null)
 			{
-				throw new InvalidOperationException($"На заявку id {requestId} уже создана задача id {edoTask.Id}");
+				_logger.LogWarning("Для клиентскаой ЭДО заявки Id {CustomerEdoRequestId} уже была создана задача.", requestId);
+				return;
 			}
 
 			switch(request.Type)
