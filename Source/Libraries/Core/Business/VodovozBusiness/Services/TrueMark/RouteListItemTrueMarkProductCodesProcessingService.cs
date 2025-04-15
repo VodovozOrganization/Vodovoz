@@ -108,9 +108,7 @@ namespace VodovozBusiness.Services.TrueMark
 					&& (trueMarkCodeResult.TrueMarkWaterIdentificationCode?.ParentTransportCodeId != null
 						|| trueMarkCodeResult.TrueMarkWaterIdentificationCode?.ParentWaterGroupCodeId != null)))
 			{
-				var error = new Error("Temporary.Error.TrueMarkApi", "Нельзя добавить код, участвующий в аггрегации");
-
-				return Result.Failure(error);
+				return Result.Failure(TrueMarkCodeErrors.AggregatedCode);
 			}
 
 			return Result.Success();

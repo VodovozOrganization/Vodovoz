@@ -1079,7 +1079,7 @@ namespace DriverAPI.Library.V6.Services
 				waterCode => waterCode.ParentTransportCodeId != null
 					|| waterCode.ParentWaterGroupCodeId != null))
 			{
-				var error = new Error("Temporary.Error.TrueMarkApi", "Нельзя удалить код, участвующий в аггрегации");
+				var error = Errors.TrueMark.AggregatedCodeRemovalAttempt;
 				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
 				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
 				{
@@ -1269,7 +1269,7 @@ namespace DriverAPI.Library.V6.Services
 			{
 				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
 
-				var error = new Error("Database.Commit.Error", e.Message);
+				var error = Errors.UnitOfWork.CommitError;
 				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
 
 				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
@@ -1311,14 +1311,23 @@ namespace DriverAPI.Library.V6.Services
 
 			if(newCodesUsed.Length > 0)
 			{
-				var error = new Error("Temporary.Error.TrueMarkApi",
-					$"Отсканированные коды уже использованы: {string.Join(", ", newCodesUsed.Select(x => x.ResultCode?.IdentificationCode ?? x.SourceCode?.IdentificationCode))}");
+				var usedIdentificationCodes = newCodesUsed
+					.Select(x => x.ResultCode?.IdentificationCode
+						?? x.SourceCode?.IdentificationCode)
+					.ToArray();
+
+				_logger.LogWarning(
+					"Отсканированные коды уже использованы: {@IdentificationCodes}",
+					usedIdentificationCodes);
+
+				var error = Errors.TrueMark.CodesAlreadyInUse;
+
 				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
 				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
 				{
 					Nomenclature = null,
 					Result = RequestProcessingResultTypeDto.Error,
-					Error = error.Message
+					Error = error.Message + ": " + string.Join(", ", usedIdentificationCodes)
 				});
 			}
 
@@ -1448,7 +1457,7 @@ namespace DriverAPI.Library.V6.Services
 				waterCode => waterCode.ParentTransportCodeId != null
 					|| waterCode.ParentWaterGroupCodeId != null))
 			{
-				var error = new Error("Temporary.Error.TrueMarkApi", "Нельзя изменить код, участвующий в аггрегации");
+				var error = Errors.TrueMark.AggregatedCodeChangeAttempt;
 				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
 				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
 				{
@@ -1466,7 +1475,7 @@ namespace DriverAPI.Library.V6.Services
 					waterCode => waterCode.ParentTransportCodeId != null
 						|| waterCode.ParentWaterGroupCodeId != null))
 			{
-				var error = new Error("Temporary.Error.TrueMarkApi", "Нельзя изменить код на код, участвующий в аггрегации");
+				var error = Errors.TrueMark.ToAggregatedCodeChangeAttempt;
 				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
 				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
 				{
@@ -1511,14 +1520,23 @@ namespace DriverAPI.Library.V6.Services
 
 			if(newCodesUsed.Length > 0)
 			{
-				var error = new Error("Temporary.Error.TrueMarkApi",
-					$"Отсканированные коды уже использованы: {string.Join(", ", newCodesUsed.Select(x => x.ResultCode?.IdentificationCode ?? x.SourceCode?.IdentificationCode))}");
+				var usedIdentificationCodes = newCodesUsed
+									.Select(x => x.ResultCode?.IdentificationCode
+										?? x.SourceCode?.IdentificationCode)
+									.ToArray();
+
+				_logger.LogWarning(
+					"Отсканированные коды уже использованы: {@IdentificationCodes}",
+					usedIdentificationCodes);
+
+				var error = Errors.TrueMark.CodesAlreadyInUse;
+
 				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
 				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
 				{
 					Nomenclature = null,
 					Result = RequestProcessingResultTypeDto.Error,
-					Error = error.Message
+					Error = error.Message + ": " + string.Join(", ", usedIdentificationCodes)
 				});
 			}
 
