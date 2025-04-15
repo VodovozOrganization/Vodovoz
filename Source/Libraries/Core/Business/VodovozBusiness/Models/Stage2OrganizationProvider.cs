@@ -17,7 +17,7 @@ namespace Vodovoz.Models
 {
 	public class Stage2OrganizationProvider : IOrganizationProvider
 	{
-		private readonly DateTime _terminalVodovozSouthStartDate = new DateTime(2025, 4, 18, 0, 0, 0, DateTimeKind.Local);
+		private readonly DateTime _terminalVodovozSouthStartDate = new DateTime(2025, 4, 24, 0, 0, 0, DateTimeKind.Local);
 
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IOrderSettings _orderSettings;
