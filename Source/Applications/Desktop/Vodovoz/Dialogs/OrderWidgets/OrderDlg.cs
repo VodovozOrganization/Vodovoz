@@ -159,8 +159,7 @@ namespace Vodovoz
 	{
 		// Временное!! Удалить через месяц
 
-		private readonly DateTime _terminalUnavaliableStartDate = new DateTime(2025, 4, 16, 0, 0, 0, DateTimeKind.Local);
-		//private readonly DateTime _terminalUnavaliableEndDate = new DateTime(2025, 4, 17, 23, 59, 59, DateTimeKind.Local);
+		private readonly DateTime _terminalUnavaliableStartDate = OrderEntity.TerminalUnavaliableStartDate;
 
 		private readonly int? _defaultCallBeforeArrival = null;
 		private readonly ITdiCompatibilityNavigation _navigationManager = Startup.MainWin.NavigationManager;
