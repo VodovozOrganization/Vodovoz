@@ -22,15 +22,7 @@ namespace Edo.Receipt.Dispatcher.Consumers
 
 		public async Task Consume(ConsumeContext<ReceiptTaskCreatedEvent> context)
 		{
-			try
-			{
-				await _receiptEdoTaskHandler.HandleNew(context.Message.ReceiptEdoTaskId, context.CancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Error while processing EdoRequestCreatedEvent");
-				await context.ConsumeCompleted;
-			}
+			await _receiptEdoTaskHandler.HandleNew(context.Message.ReceiptEdoTaskId, context.CancellationToken);
 		}
 	}
 }

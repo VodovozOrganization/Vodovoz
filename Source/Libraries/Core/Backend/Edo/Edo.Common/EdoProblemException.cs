@@ -2,22 +2,22 @@
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Problems.Exception
+namespace Edo.Common
 {
-	public class EdoProblemException : System.Exception
+	public class EdoProblemException : Exception
 	{
-		public EdoProblemException(System.Exception ex) 
+		public EdoProblemException(Exception ex) 
 			: base("Возникло исключение при выполнении ЭДО процесса", ex)
 		{
 		}
 
-		public EdoProblemException(System.Exception ex, IEnumerable<EdoTaskItem> taskItems)
+		public EdoProblemException(Exception ex, IEnumerable<EdoTaskItem> taskItems)
 			: base("Возникло исключение при выполнении ЭДО процесса", ex)
 		{
 			ProblemItems = taskItems ?? throw new ArgumentNullException(nameof(taskItems));
 		}
 
-		public EdoProblemException(System.Exception ex, IEnumerable<EdoProblemCustomItem> customItems)
+		public EdoProblemException(Exception ex, IEnumerable<EdoProblemCustomItem> customItems)
 			: base("Возникло исключение при выполнении ЭДО процесса", ex)
 		{
 			CustomItems = customItems ?? throw new ArgumentNullException(nameof(customItems));

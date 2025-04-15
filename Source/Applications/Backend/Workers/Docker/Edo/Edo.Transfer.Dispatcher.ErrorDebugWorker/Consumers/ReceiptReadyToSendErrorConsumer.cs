@@ -32,7 +32,7 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Ошибка обработки события ReceiptReadyToSendEvent");
+				_logger.LogError(ex, "Error processing event");
 				throw;
 			}
 		}

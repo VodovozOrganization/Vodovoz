@@ -2,7 +2,6 @@
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
-using Edo.Problems.Exception;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -72,6 +71,12 @@ namespace Edo.Documents
 				return;
 			}
 
+			if(edoTask.Stage != DocumentEdoTaskStage.New)
+			{
+				_logger.LogInformation("Задача Id {DocumentEdoTaskId} уже в работе", documentEdoTaskId);
+				return;
+			}
+
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
@@ -79,13 +84,25 @@ namespace Edo.Documents
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
-				.ListAsync();
+				.ListAsync(cancellationToken);
 
-			var sourceCodes = productCodes
+			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoTask.Id == edoTask.Id)
+				.ListAsync(cancellationToken);
+
+			var totalProductCodes = productCodes
+				.Union(taskCodes.Select(x => x.ProductCode));
+
+			var sourceCodes = totalProductCodes
 				.Where(x => x.SourceCode != null)
 				.Select(x => x.SourceCode);
 
-			var resultCodes = productCodes
+			var resultCodes = totalProductCodes
 				.Where(x => x.ResultCode != null)
 				.Select(x => x.ResultCode);
 
@@ -211,6 +228,20 @@ namespace Edo.Documents
 			}
 
 			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
+			if(edoTask == null)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+					"так как задача Id {DocumentEdoTaskId} не найдена", transferIteration.OrderEdoTask.Id);
+				return;
+			}
+
+			if(edoTask.OrderEdoRequest == null)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+					"так как задача Id {DocumentEdoTaskId} не связана ни с одной клиенсткой заявкой", 
+					transferIteration.OrderEdoTask.Id);
+				return;
+			}
 
 			if(edoTask.Status == EdoTaskStatus.Completed)
 			{
@@ -249,22 +280,41 @@ namespace Edo.Documents
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 
-			var reasonForLeaving = edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving;
-			if(reasonForLeaving == ReasonForLeaving.Resale)
+			try
 			{
-				await _forResaleDocumentEdoTaskHandler.HandleTransferedForResaleFormalDocument(
-					edoTask,
-					trueMarkCodesChecker,
-					cancellationToken
-				);
+				var reasonForLeaving = edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving;
+				if(reasonForLeaving == ReasonForLeaving.Resale)
+				{
+					await _forResaleDocumentEdoTaskHandler.HandleTransferedForResaleFormalDocument(
+						edoTask,
+						trueMarkCodesChecker,
+						cancellationToken
+					);
+				}
+				else
+				{
+					await _forOwnNeedDocumentEdoTaskHandler.HandleTransferedForOwnNeedsFormalDocument(
+						edoTask,
+						trueMarkCodesChecker,
+						cancellationToken
+					);
+				}
 			}
-			else
+			catch(EdoProblemException ex)
 			{
-				await _forOwnNeedDocumentEdoTaskHandler.HandleTransferedForOwnNeedsFormalDocument(
-					edoTask,
-					trueMarkCodesChecker,
-					cancellationToken
-				);
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
+			}
+			catch(Exception ex)
+			{
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
 			}
 		}
 
