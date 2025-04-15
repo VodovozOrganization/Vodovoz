@@ -103,7 +103,8 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 							//cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
 							//cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
 							//cfg.AddConsumer<TransferDocumentAcceptedErrorConsumer, TransferDocumentAcceptedErrorConsumerDefinition>();
-							cfg.AddConsumer<EdoRequestCreatedErrorConsumer, EdoRequestCreatedErrorConsumerDefinition>();
+							//cfg.AddConsumer<EdoRequestCreatedErrorConsumer, EdoRequestCreatedErrorConsumerDefinition>();
+							cfg.AddConsumer<DocflowUpdatedErrorConsumer, DocflowUpdatedErrorConsumerDefinition>();
 						}
 					);
 				});
