@@ -125,6 +125,12 @@ namespace Edo.Docflow
 		{
 			var documentId = updatedEvent.EdoDocumentId;
 			var document = await _uow.Session.GetAsync<OutgoingEdoDocument>(documentId, cancellationToken);
+			if(document == null)
+			{
+				_logger.LogWarning("Документ {documentId} не найден", documentId);
+				return;
+			}
+
 			var docflowStatus = updatedEvent.DocFlowStatus.TryParseAsEnum<EdoDocFlowStatus>();
 
 			object message = null;
