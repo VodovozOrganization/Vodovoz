@@ -4,8 +4,12 @@ using Edo.Common;
 using Edo.Docflow.Consumers;
 using Edo.Docflow.Consumers.Definitions;
 using Edo.Documents;
+using Edo.ErrorDebugWorker.Consumers;
+using Edo.ErrorDebugWorker.Consumers.Definitions;
 using Edo.Problems;
 using Edo.Receipt.Dispatcher;
+using Edo.Receipt.Dispatcher.Consumers;
+using Edo.Receipt.Dispatcher.Consumers.Definitions;
 using Edo.Receipt.Dispatcher.ErrorDebug.Consumers;
 using Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions;
 using Edo.Receipt.Sender;
@@ -97,14 +101,25 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 						configureBus: cfg =>
 						{
 							// Выбор какой консюмер дебажить:
-							
-							//cfg.AddConsumer<DocumentTransferCompleteErrorConsumer, DocumentTransferCompleteErrorConsumerDefinition>();
-							//cfg.AddConsumer<ReceiptTransferCompleteErrorConsumer, ReceiptTransferCompleteErrorConsumerDefinition>();
-							//cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
-							//cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
-							//cfg.AddConsumer<TransferDocumentAcceptedErrorConsumer, TransferDocumentAcceptedErrorConsumerDefinition>();
+
+							//request
 							//cfg.AddConsumer<EdoRequestCreatedErrorConsumer, EdoRequestCreatedErrorConsumerDefinition>();
-							cfg.AddConsumer<DocflowUpdatedErrorConsumer, DocflowUpdatedErrorConsumerDefinition>();
+
+							//document
+							//cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
+							//cfg.AddConsumer<DocumentTransferCompleteErrorConsumer, DocumentTransferCompleteErrorConsumerDefinition>();
+							cfg.AddConsumer<OrderDocumentAcceptedErrorConsumer, OrderDocumentAcceptedErrorConsumerDefinition>();
+
+							//receipt
+							//cfg.AddConsumer<ReceiptTaskCreatedErrorConsumer, ReceiptTaskCreatedErrorConsumerDefinition>();
+							//cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
+							//cfg.AddConsumer<ReceiptTransferCompleteErrorConsumer, ReceiptTransferCompleteErrorConsumerDefinition>();
+
+							//transfer
+							//cfg.AddConsumer<TransferDocumentAcceptedErrorConsumer, TransferDocumentAcceptedErrorConsumerDefinition>();
+
+							//docflow
+							//cfg.AddConsumer<DocflowUpdatedErrorConsumer, DocflowUpdatedErrorConsumerDefinition>();
 						}
 					);
 				});
