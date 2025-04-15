@@ -381,10 +381,9 @@ namespace DriverAPI.Library.V6.Services
 				}
 
 				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;
-
-				_uow.Save(vodovozOrder);
 			}
 
+			_uow.Save(vodovozOrder);
 			_uow.Save(routeListAddress);
 			_uow.Save(routeList);
 
@@ -399,6 +398,10 @@ namespace DriverAPI.Library.V6.Services
 				edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
 				edoRequestCreated = true;
 			}
+
+			_uow.Session
+				.GetCurrentTransaction()
+				?.Commit();
 
 			if(edoRequestCreated)
 			{
