@@ -4,15 +4,15 @@ using RabbitMQ.Client;
 
 namespace Edo.Receipt.Dispatcher.Consumers.Definitions
 {
-	public class ReceiptCompleteEventConsumerDefinition : ConsumerDefinition<ReceiptCompleteEventConsumer>
+	public class ReceiptTaskCreatedConsumerDefinition : ConsumerDefinition<ReceiptTaskCreatedConsumer>
 	{
-		public ReceiptCompleteEventConsumerDefinition()
+		public ReceiptTaskCreatedConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.receipt-complete.consumer.receipt-dispatcher");
+			Endpoint(x => x.Name = "edo.receipt-task-created.consumer.receipt-dispatcher");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<ReceiptCompleteEventConsumer> consumerConfigurator)
+			IConsumerConfigurator<ReceiptTaskCreatedConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
 
@@ -20,7 +20,7 @@ namespace Edo.Receipt.Dispatcher.Consumers.Definitions
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<ReceiptCompleteEvent>();
+				rmq.Bind<ReceiptTaskCreatedEvent>();
 			}
 		}
 	}
