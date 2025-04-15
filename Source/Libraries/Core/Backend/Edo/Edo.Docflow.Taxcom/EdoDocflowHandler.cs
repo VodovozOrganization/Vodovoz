@@ -41,7 +41,7 @@ namespace Edo.Docflow.Taxcom
 			
 			taxcomDocflow.Actions.Add(new TaxcomDocflowAction
 			{
-				State = EdoDocFlowStatus.NotStarted,
+				DocFlowState = EdoDocFlowStatus.NotStarted,
 				Time = now
 			});
 			
@@ -54,7 +54,7 @@ namespace Edo.Docflow.Taxcom
 			{
 				var newAction = new TaxcomDocflowAction
 				{
-					State = EdoDocFlowStatus.Error,
+					DocFlowState = EdoDocFlowStatus.Error,
 					Time = DateTime.Now,
 					TaxcomDocflowId = taxcomDocflow.Id,
 					ErrorMessage = "Не удалось отправить УПД на сервер Такском"
@@ -82,6 +82,7 @@ namespace Edo.Docflow.Taxcom
 			taxcomDocflow.DocflowId = @event.DocFlowId;
 			var lastAction = taxcomDocflow.Actions.LastOrDefault();
 			var newStatus = @event.Status.TryParseAsEnum<EdoDocFlowStatus>();
+			var newTraceabilityStatus = @event.TrueMarkTraceabilityStatus.TryParseAsEnum<TrueMarkTraceabilityStatus>();
 
 			if(newStatus is null)
 			{
@@ -90,16 +91,23 @@ namespace Edo.Docflow.Taxcom
 
 			EdoDocflowUpdatedEvent edoDocflowUpdatedEvent = null;
 
-			if(lastAction is null || lastAction.State != newStatus.Value)
+			if(lastAction is null
+				|| lastAction.DocFlowState != newStatus.Value
+				|| lastAction.TrueMarkTraceabilityStatus != newTraceabilityStatus)
 			{
 				var newAction = new TaxcomDocflowAction
 				{
-					State = newStatus.Value,
+					DocFlowState = newStatus.Value,
 					Time = @event.StatusChangeDateTime,
 					TaxcomDocflowId = taxcomDocflow.Id,
 					ErrorMessage = @event.ErrorDescription
 				};
-			
+
+				if(newTraceabilityStatus != null)
+				{
+					newAction.TrueMarkTraceabilityStatus = newTraceabilityStatus;
+				}
+
 				taxcomDocflow.Actions.Add(newAction);
 				taxcomDocflow.IsReceived = @event.IsReceived;
 
@@ -107,10 +115,15 @@ namespace Edo.Docflow.Taxcom
 				{
 					EdoDocumentId = taxcomDocflow.EdoDocumentId,
 					DocFlowId = @event.DocFlowId,
-					DocFlowStatus = newAction.State.ToString()
+					DocFlowStatus = newAction.DocFlowState.ToString(),
 				};
 
-				if(newAction.State == EdoDocFlowStatus.Succeed)
+				if(newTraceabilityStatus != null)
+				{
+					edoDocflowUpdatedEvent.TrueMarkTraceabilityStatus = newAction.DocFlowState.ToString();
+				}
+
+				if(newAction.DocFlowState == EdoDocFlowStatus.Succeed)
 				{
 					edoDocflowUpdatedEvent.StatusChangeTime = @event.StatusChangeDateTime;
 					//TODO если нужно сохранять файлы по завершению документооборота,

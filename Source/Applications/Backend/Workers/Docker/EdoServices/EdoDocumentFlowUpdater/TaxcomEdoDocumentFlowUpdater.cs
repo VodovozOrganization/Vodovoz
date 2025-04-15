@@ -32,6 +32,10 @@ namespace EdoDocumentFlowUpdater
 	public class TaxcomEdoDocumentFlowUpdater : BackgroundService
 	{
 		private const string _postDateConfirmation = "PostDateConfirmation";
+		private const string _trueMarkAccepted = "TracingAccepted";
+		private const string _trueMarkRejected = "TracingRejected";
+		private const string _trueMarkCancellationAccepted = "TracingCancellationAccepted";
+		private const string _trueMarkCancellationRejected = "TracingCancellationRejected";
 
 		private readonly ILogger<TaxcomEdoDocumentFlowUpdater> _logger;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -211,10 +215,45 @@ namespace EdoDocumentFlowUpdater
 				ErrorDescription = docflow.ErrorDescription,
 				IsReceived = isReceived
 			};
-			
+
+			UpdateTrueMarkTraceabilityInfo(docflow, @event);
+
 			await _publishEndpoint.Publish(@event, cancellationToken);
 		}
-		
+
+		private void UpdateTrueMarkTraceabilityInfo(EdoDocFlow docflow, OutgoingTaxcomDocflowUpdatedEvent @event)
+		{
+			TrueMarkTraceabilityStatus? trueMarkStatus = null;
+
+			foreach(var docflowDocument in docflow.Documents)
+			{
+				if(docflowDocument.TransactionCode == _trueMarkAccepted)
+				{
+					trueMarkStatus = TrueMarkTraceabilityStatus.Accepted;
+				}
+
+				if(docflowDocument.TransactionCode == _trueMarkRejected)
+				{
+					trueMarkStatus = TrueMarkTraceabilityStatus.Rejected;
+				}
+
+				if(docflowDocument.TransactionCode == _trueMarkCancellationAccepted)
+				{
+					trueMarkStatus = TrueMarkTraceabilityStatus.CancellationAccepted;
+				}
+
+				if(docflowDocument.TransactionCode == _trueMarkCancellationRejected)
+				{
+					trueMarkStatus = TrueMarkTraceabilityStatus.CancellationRejected;
+				}
+			}
+
+			if(trueMarkStatus != null)
+			{
+				@event.TrueMarkTraceabilityStatus = trueMarkStatus.ToString();
+			}
+		}
+
 		private async Task ProcessIngoingDocuments(CancellationToken cancellationToken)
 		{
 			try

@@ -10,12 +10,13 @@ namespace Vodovoz.Core.Domain.Documents
 	{
 		private int? _taxcomDocflowId;
 		private DateTime _time;
-		private EdoDocFlowStatus _state;
+		private EdoDocFlowStatus _docFlowState;
+		private TrueMarkTraceabilityStatus? _trueMarkTraceabilityStatus;
 		private string _errorMessage;
 
 		public TaxcomDocflowAction()
 		{
-			State = EdoDocFlowStatus.NotStarted;
+			DocFlowState = EdoDocFlowStatus.NotStarted;
 		}
 
 		/// <summary>
@@ -42,12 +43,21 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
-		/// Состояние
+		/// Состояние документооборота
 		/// </summary>
-		public virtual EdoDocFlowStatus State
+		public virtual EdoDocFlowStatus DocFlowState
 		{
-			get => _state;
-			set => SetField(ref _state, value);
+			get => _docFlowState;
+			set => SetField(ref _docFlowState, value);
+		}
+		
+		/// <summary>
+		/// Статус прослеживаемости в ЧЗ
+		/// </summary>
+		public virtual TrueMarkTraceabilityStatus? TrueMarkTraceabilityStatus
+		{
+			get => _trueMarkTraceabilityStatus;
+			set => SetField(ref _trueMarkTraceabilityStatus, value);
 		}
 
 		/// <summary>
