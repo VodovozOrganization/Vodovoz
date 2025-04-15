@@ -46,6 +46,12 @@ namespace Edo.Docflow
 		public async Task HandleTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(transferDocumentId, cancellationToken);
+			if(document == null)
+			{
+				_logger.LogWarning("Документ {documentId} не найден", transferDocumentId);
+				return;
+			}
+
 			if(document.Status.IsIn(
 				EdoDocumentStatus.InProgress,
 				EdoDocumentStatus.CompletedWithDivergences,
@@ -57,6 +63,11 @@ namespace Edo.Docflow
 			}
 
 			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
+			if(transferTask == null)
+			{
+				_logger.LogWarning("Задача для документа {documentId} не найдена", transferDocumentId);
+				return;
+			}
 
 			var transferOrder = await _uow.Session.QueryOver<TransferOrder>()
 				.Where(x => x.Id == transferTask.TransferOrderId)
