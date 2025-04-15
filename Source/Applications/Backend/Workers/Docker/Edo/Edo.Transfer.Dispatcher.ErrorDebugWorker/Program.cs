@@ -2,7 +2,6 @@
 using Edo.CodesSaver;
 using Edo.Common;
 using Edo.Docflow.Consumers;
-using Edo.Docflow.Consumers.Definitions;
 using Edo.Documents;
 using Edo.ErrorDebugWorker.Consumers;
 using Edo.ErrorDebugWorker.Consumers.Definitions;
@@ -120,7 +119,8 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 
 							//docflow
 							//cfg.AddConsumer<DocflowUpdatedErrorConsumer, DocflowUpdatedErrorConsumerDefinition>();
-							cfg.AddConsumer<OrderDocumentSendErrorConsumer, OrderDocumentSendErrorConsumerDefinition>();
+							//cfg.AddConsumer<OrderDocumentSendErrorConsumer, OrderDocumentSendErrorConsumerDefinition>();
+							cfg.AddConsumer<TransferDocumentSendErrorConsumer, TransferDocumentSendErrorConsumerDefinition>();
 						}
 					);
 				});
