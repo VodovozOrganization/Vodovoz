@@ -95,10 +95,7 @@ namespace Edo.Receipt.Sender
 
 			if(edoTask.CashboxId == null)
 			{
-				// зарегистрировать проблему
-				// перенести в валидацию
-				// добавить валидацию для отправки чеков
-				throw new InvalidOperationException("Не указана касса для отправки чека.");
+				throw new InvalidOperationException("Не указана касса для отправки чека. Должна проверяться валидацией задачи");
 			}
 
 			object message = null;
