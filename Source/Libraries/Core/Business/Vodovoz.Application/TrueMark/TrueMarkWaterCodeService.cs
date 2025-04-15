@@ -390,34 +390,34 @@ namespace Vodovoz.Application.TrueMark
 				if(!(productInstanceInfo.InstanceStatuses.FirstOrDefault() is ProductInstanceStatus productInstanceStatus))
 				{
 					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о коде");
-					return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", "Ошибка при запросе к API TrueMark, нет информации о коде"));
+					return Result.Failure<TrueMarkAnyCode>(Errors.TrueMarkApi.UnknownCode);
 				}
 
 				if(productInstanceStatus.Status == ProductInstanceStatusEnum.Emitted
 					|| productInstanceStatus.Status == ProductInstanceStatusEnum.Applied
 					|| productInstanceStatus.Status == ProductInstanceStatusEnum.AppliedPaid)
 				{
-					return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.TrueMark.ProductInstanceStatus",
-						$"Ошибка при запросе к API TrueMark, код в статусе {productInstanceStatus.Status}, Должен быть {ProductInstanceStatusEnum.Introduced} или более поздний"));
+					return Result.Failure<TrueMarkAnyCode>(Errors.TrueMarkApi.CodeNotInCorrectStatus);
 				}
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при запросе к API TrueMark");
-				return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", "Ошибка при запросе к API TrueMark"));
+				return Result.Failure<TrueMarkAnyCode>(Errors.TrueMarkApi.CallFailed);
 			}
 
 			if((!productInstanceInfo.InstanceStatuses?.Any() ?? true)
 			   || !string.IsNullOrWhiteSpace(productInstanceInfo.ErrorMessage))
 			{
-				return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", productInstanceInfo?.ErrorMessage ?? "Не удалось получить информацию о коде"));
+				return Result.Failure<TrueMarkAnyCode>(Errors.TrueMarkApi.ErrorResponse);
 			}
 
 			ProductInstanceStatus instanceStatus = productInstanceInfo.InstanceStatuses.FirstOrDefault();
 
 			if(instanceStatus == null)
 			{
-				return Result.Failure<TrueMarkAnyCode>(new Error("Temporary.Exception.Error", "Не удалось получить информацию о коде"));
+				_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о коде, получен пустой список с информацией о кодах");
+				return Result.Failure<TrueMarkAnyCode>(Errors.TrueMarkApi.UnknownCode);
 			}
 
 			if(_organizationsInns is null)
@@ -603,7 +603,7 @@ namespace Vodovoz.Application.TrueMark
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при запросе к API TrueMark");
-				return Result.Failure<IEnumerable<TrueMarkAnyCode>>(new Error("Temporary.Exception.Error", "Ошибка при запросе к API TrueMark"));
+				return Result.Failure<IEnumerable<TrueMarkAnyCode>>(Errors.TrueMarkApi.CallFailed);
 			}
 
 			foreach(var instanceStatus in innerCodesCheckResults)

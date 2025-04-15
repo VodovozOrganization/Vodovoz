@@ -153,7 +153,7 @@ namespace DriverAPI.Controllers.V6
 					completedOrderRequestModel,
 					completedOrderRequestModel);
 
-				transaction.Commit();
+				unitOfWork.Commit();
 
 				return MapResult(
 					result,
