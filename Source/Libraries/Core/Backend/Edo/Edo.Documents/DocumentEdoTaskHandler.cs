@@ -357,7 +357,18 @@ namespace Edo.Documents
 		public async Task HandleAccepted(int documentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken);
+			if(document == null)
+			{
+				_logger.LogWarning("Документ №{DocumentId} не найден.", documentId);
+				return;
+			}
+
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
+			if(edoTask == null)
+			{
+				_logger.LogWarning("Задача ЭДО №{DocumentEdoTaskId} не найдена.", document.DocumentTaskId);
+				return;
+			}
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
