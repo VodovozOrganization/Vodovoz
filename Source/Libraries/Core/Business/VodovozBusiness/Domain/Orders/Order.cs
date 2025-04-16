@@ -699,7 +699,7 @@ namespace Vodovoz.Domain.Orders
 			return order;
 		}
 		
-		public virtual IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> OrganizationsByOrderItems { get; protected set; }
+		public virtual IEnumerable<PartOrderWithGoods> OrganizationsByOrderItems { get; protected set; }
 
 		#region IValidatableObject implementation
 
@@ -1966,6 +1966,16 @@ namespace Vodovoz.Domain.Orders
 					Nomenclature = nomenclature
 				}
 			);
+
+			UpdateDocuments();
+		}
+		
+		public virtual void AddEquipmentFromPartOrder(OrderEquipment equipment)
+		{
+			var newEquipment = OrderEquipment.Clone(equipment);
+			
+			ObservableOrderEquipments.Add(newEquipment);
+			
 			UpdateDocuments();
 		}
 

@@ -92,7 +92,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// <param name="uow">unit Of Work</param>
 		/// <returns>Список организаций с товарами</returns>
 		/// <exception cref="ArgumentNullException"></exception>
-		public IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+		public IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)

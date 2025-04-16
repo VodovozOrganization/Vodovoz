@@ -35,13 +35,13 @@ namespace Vodovoz.Application.Orders.Services
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 		}
 
-		public override IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+		public override IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)
 		{
-			var result = new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>();
-			var setsOrganizations = new Dictionary<short, OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>();
+			var result = new List<PartOrderWithGoods>();
+			var setsOrganizations = new Dictionary<short, PartOrderWithGoods>();
 			
 			var organizationsBasedOrderContent = uow.GetAll<OrganizationBasedOrderContentSettings>().ToArray();
 
@@ -120,7 +120,7 @@ namespace Vodovoz.Application.Orders.Services
 				
 				setsOrganizations.Add(
 					set.OrderContentSet,
-					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(org, goodsForOrganization, orderEquipmentsForOrganization));
+					new PartOrderWithGoods(org, goodsForOrganization, orderEquipmentsForOrganization));
 			}
 
 			if(!processingGoods.Any())
@@ -128,7 +128,7 @@ namespace Vodovoz.Application.Orders.Services
 				if(!setsOrganizations.Any())
 				{
 					var org = _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
-					result.Add(new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(org, null));
+					result.Add(new PartOrderWithGoods(org, null));
 					return result;
 				}
 

@@ -6,11 +6,11 @@ using Vodovoz.Domain.Organizations;
 namespace VodovozBusiness.Services.Orders
 {
 	/// <summary>
-	/// Организация с товарами, оборудованием, залогами. Часть общего заказа при разбиении
+	/// Часть общего заказа при разбиении (организация с товарами, оборудованием, залогами).
 	/// </summary>
-	public class OrganizationForOrderWithGoodsAndEquipmentsAndDeposits
+	public class PartOrderWithGoods
 	{
-		public OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(
+		public PartOrderWithGoods(
 			Organization organization,
 			IEnumerable<IProduct> goods = null,
 			IEnumerable<OrderEquipment> orderEquipments = null)

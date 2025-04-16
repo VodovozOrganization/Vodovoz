@@ -500,7 +500,7 @@ namespace Vodovoz.Views.Orders
 				
 				foreach(var partOrder in partsOrder)
 				{
-					navigation.OpenTdiTab<OrderDlg, OnlineOrder, OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>(
+					navigation.OpenTdiTab<OrderDlg, OnlineOrder, PartOrderWithGoods>(
 						ViewModel,
 						ViewModel.Entity,
 						partOrder,

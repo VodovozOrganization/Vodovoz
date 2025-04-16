@@ -33,14 +33,14 @@ namespace Vodovoz.Application.Orders.Services
 		/// <param name="processingProducts">Обрабатываемые товары</param>
 		/// <param name="uow">unit of work</param>
 		/// <returns></returns>
-		public IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+		public IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Dictionary<short, OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> setsOrganizations,
+			Dictionary<short, PartOrderWithGoods> setsOrganizations,
 			OrderOrganizationChoice organizationChoice,
 			IEnumerable<IProduct> processingProducts)
 		{
-			var result = new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>();
+			var result = new List<PartOrderWithGoods>();
 			var organizationByOrderAuthorSettings = uow.GetAll<OrganizationByOrderAuthorSettings>().SingleOrDefault();
 
 			if(organizationByOrderAuthorSettings is null)
@@ -84,7 +84,7 @@ namespace Vodovoz.Application.Orders.Services
 			
 			//TODO проверить условие
 			result.AddRange(setsOrganizations.Values);
-			result.Add(new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(org, processingProducts));
+			result.Add(new PartOrderWithGoods(org, processingProducts));
 
 			return result;
 		}
@@ -95,7 +95,7 @@ namespace Vodovoz.Application.Orders.Services
 		
 		private void UpdateOrganizationOrderItems(
 			IEnumerable<IProduct> processingProducts,
-			OrganizationForOrderWithGoodsAndEquipmentsAndDeposits setSettings)
+			PartOrderWithGoods setSettings)
 		{
 			var list = setSettings.Goods as List<IProduct>;
 			list.AddRange(processingProducts);

@@ -22,7 +22,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// <param name="requestTime">Время запроса</param>
 		/// <param name="organizationChoice">Данные для подбора организации</param>
 		/// <returns></returns>
-		public virtual IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+		public virtual IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)

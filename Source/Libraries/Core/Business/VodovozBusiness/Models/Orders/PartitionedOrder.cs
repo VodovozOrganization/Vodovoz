@@ -159,11 +159,8 @@ namespace Vodovoz.Models.Orders
 					case OrderItem orderItem:
 						CopyOrderItem(orderItem, withDiscounts);
 						break;
-					case OnlineOrderItem onlineOrderItem:
-						//TODO сделать конверт в строку заказа
-						break;
 					default:
-						throw new InvalidOperationException("Unknown product type");
+						throw new InvalidOperationException("Копирование товаров рассчитано только на товары сущности заказ!");
 				}
 			}
 		}

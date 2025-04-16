@@ -453,10 +453,10 @@ namespace Vodovoz
 			Entity.OrderAddressType = OrderAddressType.Delivery;
 		}
 
-		public OrderDlg(OnlineOrder onlineOrder) : this()
+		public OrderDlg(OnlineOrder onlineOrder, PartOrderWithGoods partOrder) : this()
 		{
 			var thisSessionOnlineOrder = UoW.GetById<OnlineOrder>(onlineOrder.Id);
-			_orderFromOnlineOrderCreator.FillOrderFromOnlineOrder(UoW, Entity, thisSessionOnlineOrder, manualCreation: true);
+			_orderFromOnlineOrderCreator.FillOrderFromOnlineOrder(UoW, Entity, thisSessionOnlineOrder, partOrder, manualCreation: true);
 
 			UpdateCallBeforeArrivalMinutesSelectedItem();
 			Entity.UpdateDocuments();
@@ -612,7 +612,7 @@ namespace Vodovoz
 		public void CopyOrderForPartitionByOrganizations(
 			int orderId,
 			int partOrder,
-			OrganizationForOrderWithGoodsAndEquipmentsAndDeposits organizationForOrderWithGoodsAndEquipmentsAndDeposits)
+			PartOrderWithGoods partOrderWithGoods)
 		{
 			_partitioningOrder = true;
 			
@@ -635,10 +635,10 @@ namespace Vodovoz
 			}
 			
 			partitionedOrder
-				.CopyPromotionalSets(organizationForOrderWithGoodsAndEquipmentsAndDeposits.Goods)
-				.CopyOrderItems(organizationForOrderWithGoodsAndEquipmentsAndDeposits.Goods, true)
-				.CopyOrderEquipments(organizationForOrderWithGoodsAndEquipmentsAndDeposits.OrderEquipments)
-				.CopyOrderDepositItems(organizationForOrderWithGoodsAndEquipmentsAndDeposits.OrderDepositItems)
+				.CopyPromotionalSets(partOrderWithGoods.Goods)
+				.CopyOrderItems(partOrderWithGoods.Goods, true)
+				.CopyOrderEquipments(partOrderWithGoods.OrderEquipments)
+				.CopyOrderDepositItems(partOrderWithGoods.OrderDepositItems)
 				.CopyAttachedDocuments();
 			
 			_partitioningOrder = false;
@@ -646,7 +646,7 @@ namespace Vodovoz
 			Entity.UpdateDocuments();
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			HboxReturnTareReasonCategoriesShow();
-			_orderContractUpdater.ForceUpdateContract(UoW, Entity, organizationForOrderWithGoodsAndEquipmentsAndDeposits.Organization);
+			_orderContractUpdater.ForceUpdateContract(UoW, Entity, partOrderWithGoods.Organization);
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 			AddCommentsFromDeliveryPoint();

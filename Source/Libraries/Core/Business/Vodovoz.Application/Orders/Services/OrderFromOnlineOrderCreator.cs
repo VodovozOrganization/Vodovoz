@@ -39,14 +39,15 @@ namespace Vodovoz.Application.Orders.Services
 				UoW = uow
 			};
 
-			return FillOrderFromOnlineOrder(uow, order, onlineOrder, orderCreator);
+			return FillOrderFromOnlineOrder(uow, order, onlineOrder, author: orderCreator);
 		}
 
 		public Order FillOrderFromOnlineOrder(
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			Employee employee = null,
+			PartOrderWithGoods partOrder = null,
+			Employee author = null,
 			bool manualCreation = false)
 		{
 			var paymentFrom = onlineOrder.OnlinePaymentSource.HasValue
@@ -54,9 +55,9 @@ namespace Vodovoz.Application.Orders.Services
 					onlineOrder.OnlinePaymentSource.Value.ConvertToPaymentFromId(_orderSettings))
 				: null;
 
-			if(employee != null)
+			if(author != null)
 			{
-				order.Author = employee;
+				order.Author = author;
 			}
 			
 			order.UpdateClient(onlineOrder.Counterparty, _contractUpdater, out var updateClientMessage);
@@ -91,24 +92,52 @@ namespace Vodovoz.Application.Orders.Services
 			//TODO скорее всего этот метод здесь избыточен, т.к. при заполнении других полей договор обновится
 			_contractUpdater.UpdateOrCreateContract(uow, order);
 
-			if(order.Client != null)
+			if(order.Client is null)
 			{
-				if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown)
-				{
-					order.Client.ReasonForLeaving = ReasonForLeaving.ForOwnNeeds;
-				}
-				
-				AddOrderItems(uow, order, onlineOrder.OnlineOrderItems, manualCreation);
-				AddFreeRentPackages(uow, order, onlineOrder.OnlineRentPackages);
+				return order;
+			}
+			
+			if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown)
+			{
+				order.Client.ReasonForLeaving = ReasonForLeaving.ForOwnNeeds;
+			}
+			
+			if(partOrder != null)
+			{
+				FillOrderGoodsFromPartOrder(uow, order, partOrder);
+			}
+			else
+			{
+				FillOrderGoodsFromOnlineOrder(uow, order, onlineOrder.OnlineOrderItems, onlineOrder.OnlineRentPackages, manualCreation);
 			}
 			
 			return order;
 		}
 
+		private void FillOrderGoodsFromPartOrder(
+			IUnitOfWork uow,
+			Order order,
+			PartOrderWithGoods partOrder)
+		{
+			AddOrderItems(uow, order, partOrder.Goods);
+			AddOrderEquipments(uow, order, partOrder.OrderEquipments);
+		}
+
+		private void FillOrderGoodsFromOnlineOrder(
+			IUnitOfWork uow,
+			Order order,
+			IEnumerable<IProduct> onlineOrderItems,
+			IEnumerable<OnlineFreeRentPackage> onlineRentPackages,
+			bool manualCreation)
+		{
+			AddOrderItems(uow, order, onlineOrderItems, manualCreation);
+			AddFreeRentPackages(uow, order, onlineRentPackages);
+		}
+
 		private void AddOrderItems(
 			IUnitOfWork uow,
 			Order order,
-			IEnumerable<OnlineOrderItem> onlineOrderItems,
+			IEnumerable<IProduct> onlineOrderItems,
 			bool manualCreation = false)
 		{
 			AddNomenclatures(uow, order, onlineOrderItems, manualCreation);
@@ -117,12 +146,12 @@ namespace Vodovoz.Application.Orders.Services
 		private void AddNomenclatures(
 			IUnitOfWork uow,
 			Order order,
-			IEnumerable<OnlineOrderItem> onlineOrderItems,
+			IEnumerable<IProduct> onlineOrderItems,
 			bool manualCreation = false)
 		{
 			var onlineOrderPromoSets = onlineOrderItems
 				.Where(x => x.PromoSet != null)
-				.ToLookup(x => x.PromoSetId);
+				.ToLookup(x => x.PromoSet.Id);
 
 			var otherItems =
 				onlineOrderItems
@@ -140,7 +169,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private void TryAddPromoSets(IUnitOfWork uow, Order order, ILookup<int?, OnlineOrderItem> onlineOrderPromoSets)
+		private void TryAddPromoSets(IUnitOfWork uow, Order order, ILookup<int, IProduct> onlineOrderPromoSets)
 		{
 			var addedPromoSetsForNewClients = new Dictionary<int, bool>();
 			
@@ -188,48 +217,49 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 		
-		private void TryAddOtherItemsFromManualCreationOrder(IUnitOfWork uow, Order order, IEnumerable<OnlineOrderItem> otherItems)
+		private void TryAddOtherItemsFromManualCreationOrder(IUnitOfWork uow, Order order, IEnumerable<IProduct> otherItems)
 		{
-			foreach(var onlineOrderItem in otherItems)
+			foreach(var product in otherItems)
 			{
-				if(onlineOrderItem.Nomenclature is null)
+				if(product.Nomenclature is null)
 				{
 					continue;
 				}
 				
-				if(_nomenclatureSettings.PaidDeliveryNomenclatureId == onlineOrderItem.Nomenclature.Id
-					|| _nomenclatureSettings.FastDeliveryNomenclatureId == onlineOrderItem.Nomenclature.Id)
+				if(_nomenclatureSettings.PaidDeliveryNomenclatureId == product.Nomenclature.Id
+					|| _nomenclatureSettings.FastDeliveryNomenclatureId == product.Nomenclature.Id)
 				{
 					continue;
 				}
 
-				if(onlineOrderItem.OnlineOrderErrorState.HasValue
+				if(product is OnlineOrderItem onlineOrderItem
+					&& onlineOrderItem.OnlineOrderErrorState.HasValue
 					&& onlineOrderItem.OnlineOrderErrorState == OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable)
 				{
-					order.AddNomenclature(uow, _contractUpdater, onlineOrderItem.Nomenclature, onlineOrderItem.Count);
+					order.AddNomenclature(uow, _contractUpdater, product.Nomenclature, product.Count);
 				}
 				else
 				{
-					if(onlineOrderItem.DiscountReason is null)
+					if(product.DiscountReason is null)
 					{
-						order.AddNomenclature(uow, _contractUpdater, onlineOrderItem.Nomenclature, onlineOrderItem.Count);
+						order.AddNomenclature(uow, _contractUpdater, product.Nomenclature, product.Count);
 					}
 					else
 					{
 						order.AddNomenclature(
 							uow,
 							_contractUpdater,
-							onlineOrderItem.Nomenclature,
-							onlineOrderItem.Count,
-							onlineOrderItem.GetDiscount,
-							onlineOrderItem.IsDiscountInMoney,
-							onlineOrderItem.DiscountReason);
+							product.Nomenclature,
+							product.Count,
+							product.GetDiscount,
+							product.IsDiscountInMoney,
+							product.DiscountReason);
 					}
 				}
 			}
 		}
 		
-		private void TryAddOtherItemsFromAutoCreationOrder(IUnitOfWork uow, Order order, IEnumerable<OnlineOrderItem> onlineOrderItems)
+		private void TryAddOtherItemsFromAutoCreationOrder(IUnitOfWork uow, Order order, IEnumerable<IProduct> onlineOrderItems)
 		{
 			foreach(var onlineOrderItem in onlineOrderItems)
 			{
@@ -271,8 +301,23 @@ namespace Vodovoz.Application.Orders.Services
 					rentPackage.EquipmentKind,
 					existingItems);
 				
-				order.AddFreeRent(uow, _contractUpdater,rentPackage, anyNomenclature);
+				order.AddFreeRent(uow, _contractUpdater, rentPackage, anyNomenclature);
 			}
+		}
+		
+		private void AddOrderEquipments(IUnitOfWork uow, Order order, IEnumerable<OrderEquipment> partOrderEquipments)
+		{
+			if(!partOrderEquipments.Any())
+			{
+				return;
+			}
+
+			foreach(var equipment in partOrderEquipments)
+			{
+				order.AddEquipmentFromPartOrder(equipment);
+			}
+			
+			order.UpdateRentsCount();
 		}
 	}
 }

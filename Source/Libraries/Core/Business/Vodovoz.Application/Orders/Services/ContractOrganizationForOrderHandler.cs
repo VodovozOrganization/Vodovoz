@@ -19,7 +19,7 @@ namespace Vodovoz.Application.Orders.Services
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 		}
 
-		public override IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+		public override IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)
@@ -28,9 +28,9 @@ namespace Vodovoz.Application.Orders.Services
 				&& organizationChoice.Contract != null
 				&& _cashReceiptRepository.HasNeededReceipt(organizationChoice.OrderId))
 			{
-				return new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>
+				return new List<PartOrderWithGoods>
 				{
-					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(organizationChoice.Contract.Organization, null)
+					new PartOrderWithGoods(organizationChoice.Contract.Organization, null)
 				};
 			}
 

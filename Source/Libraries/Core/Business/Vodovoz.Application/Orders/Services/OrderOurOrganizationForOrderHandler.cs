@@ -13,16 +13,16 @@ namespace Vodovoz.Application.Orders.Services
 	/// </summary>
 	public class OrderOurOrganizationForOrderHandler : OrganizationForOrderHandler
 	{
-		public override IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> GetOrganizationsWithOrderItems(
+		public override IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)
 		{
 			if(organizationChoice.OurOrganization != null)
 			{
-				return new List<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits>
+				return new List<PartOrderWithGoods>
 				{
-					new OrganizationForOrderWithGoodsAndEquipmentsAndDeposits(organizationChoice.OurOrganization)
+					new PartOrderWithGoods(organizationChoice.OurOrganization)
 				};
 			}
 			

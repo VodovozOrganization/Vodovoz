@@ -16,6 +16,6 @@ namespace VodovozBusiness.Services.Orders
 		/// <summary>
 		/// Части заказа
 		/// </summary>
-		public IEnumerable<OrganizationForOrderWithGoodsAndEquipmentsAndDeposits> OrderParts { get; set; }
+		public IEnumerable<PartOrderWithGoods> OrderParts { get; set; }
 	}
 }
