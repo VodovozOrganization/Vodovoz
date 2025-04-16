@@ -100,13 +100,9 @@ namespace Edo.Docflow.Taxcom
 					DocFlowState = newStatus.Value,
 					Time = @event.StatusChangeDateTime,
 					TaxcomDocflowId = taxcomDocflow.Id,
-					ErrorMessage = @event.ErrorDescription
+					ErrorMessage = @event.ErrorDescription,
+					TrueMarkTraceabilityStatus = newTraceabilityStatus
 				};
-
-				if(newTraceabilityStatus != null)
-				{
-					newAction.TrueMarkTraceabilityStatus = newTraceabilityStatus;
-				}
 
 				taxcomDocflow.Actions.Add(newAction);
 				taxcomDocflow.IsReceived = @event.IsReceived;
@@ -116,12 +112,8 @@ namespace Edo.Docflow.Taxcom
 					EdoDocumentId = taxcomDocflow.EdoDocumentId,
 					DocFlowId = @event.DocFlowId,
 					DocFlowStatus = newAction.DocFlowState.ToString(),
+					TrueMarkTraceabilityStatus = newAction.TrueMarkTraceabilityStatus?.ToString()
 				};
-
-				if(newTraceabilityStatus != null)
-				{
-					edoDocflowUpdatedEvent.TrueMarkTraceabilityStatus = newAction.DocFlowState.ToString();
-				}
 
 				if(newAction.DocFlowState == EdoDocFlowStatus.Succeed)
 				{
