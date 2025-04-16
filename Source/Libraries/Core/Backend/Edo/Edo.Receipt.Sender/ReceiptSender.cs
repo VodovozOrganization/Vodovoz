@@ -63,6 +63,12 @@ namespace Edo.Receipt.Sender
 				return;
 			}
 
+			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken);
+			if(!isValid)
+			{
+				return;
+			}
+
 			switch(edoTask.Status)
 			{
 				case EdoTaskStatus.New:
@@ -75,6 +81,11 @@ namespace Edo.Receipt.Sender
 						"находится в ожидании решения внешних факторов и не находится в работе.",
 						edoTaskId);
 					return;
+				case EdoTaskStatus.Problem:
+					_logger.LogWarning("Невозможно отправить чек. Задача №{edoTaskId} " +
+						"имеет не решенную проблему.",
+						edoTaskId);
+					return;
 				case EdoTaskStatus.Completed:
 					_logger.LogWarning("Невозможно отправить чек. Задача №{edoTaskId} " +
 						"уже завершена.",
@@ -85,12 +96,6 @@ namespace Edo.Receipt.Sender
 					break;
 				default:
 					throw new InvalidOperationException($"Неизвестный статус задачи ЭДО {edoTask.Status}");
-			}
-
-			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken);
-			if(!isValid)
-			{
-				return;
 			}
 
 			if(edoTask.CashboxId == null)
@@ -142,6 +147,7 @@ namespace Edo.Receipt.Sender
 						edoTask,
 						cancellationToken
 					);
+					return;
 				}
 				else
 				{
