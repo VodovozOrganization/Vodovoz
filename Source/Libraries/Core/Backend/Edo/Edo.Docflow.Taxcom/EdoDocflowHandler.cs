@@ -36,7 +36,7 @@ namespace Edo.Docflow.Taxcom
 				CreationTime = now,
 				MainDocumentId = @event.UpdInfo.DocumentId.ToString(),
 				DocflowId = null,
-				EdoDocumentId = @event.EdoOutgoingDocumentId
+				EdoDocumentId = @event.EdoOutgoingDocumentId,
 			};
 			
 			taxcomDocflow.Actions.Add(new TaxcomDocflowAction
@@ -73,6 +73,9 @@ namespace Edo.Docflow.Taxcom
 
 			if(taxcomDocflow is null)
 			{
+				_logger.LogWarning("Пришел запрос обновления документооборота {DocflowId} по неизвестному документу {EdoDocument}",
+					@event.DocFlowId,
+					@event.MainDocumentId);
 				return null;
 			}
 
@@ -98,6 +101,7 @@ namespace Edo.Docflow.Taxcom
 				};
 			
 				taxcomDocflow.Actions.Add(newAction);
+				taxcomDocflow.IsReceived = @event.IsReceived;
 
 				edoDocflowUpdatedEvent = new EdoDocflowUpdatedEvent
 				{

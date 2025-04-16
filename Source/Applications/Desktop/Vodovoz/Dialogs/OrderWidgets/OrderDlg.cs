@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -16,6 +16,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.Tracking;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.Print;
 using QS.Project.Dialogs;
@@ -133,12 +134,14 @@ using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Models.Orders;
+using VodovozBusiness.EntityRepositories.Edo;
+using VodovozBusiness.Nodes;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Utils;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using LogLevel = NLog.LogLevel;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 
 namespace Vodovoz
 {
@@ -157,6 +160,10 @@ namespace Vodovoz
 		IAskSaveOnCloseViewModel,
 		IEdoLightsMatrixInfoProvider
 	{
+		// Временное!! Удалить через месяц
+
+		private readonly DateTime _terminalUnavaliableStartDate = OrderEntity.TerminalUnavaliableStartDate;
+
 		private readonly int? _defaultCallBeforeArrival = null;
 		private readonly ITdiCompatibilityNavigation _navigationManager = Startup.MainWin.NavigationManager;
 
@@ -215,6 +222,7 @@ namespace Vodovoz
 		private readonly ICashRepository _cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = ScopeProvider.Scope.Resolve<IPromotionalSetRepository>();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
+		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
 		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
@@ -256,10 +264,11 @@ namespace Vodovoz
 		private bool _isNeedSendBillToEmail;
 		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
-		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
+		private IObservableList<EdoDockflowData> _edoEdoDocumentDataNodes = new ObservableList<EdoDockflowData>();
+		private IObservableList<EdoContainer> _edoContainers = new ObservableList<EdoContainer>();
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
-		private EdoContainer _selectedEdoContainer;
+		private EdoDockflowData _selectedEdoDocumentDataNode;
 		private FastDeliveryHandler _fastDeliveryHandler;
 		private IFreeLoaderChecker _freeLoaderChecker;
 		private IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
@@ -295,17 +304,17 @@ namespace Vodovoz
 
 		private List<(int Id, decimal Count, decimal Sum)> _orderItemsOriginalValues = new List<(int Id, decimal Count, decimal Sum)>();
 
-		public EdoContainer SelectedEdoContainer
+		public EdoDockflowData SelectedEdoDocumentDataNode
 		{
-			get => _selectedEdoContainer;
+			get => _selectedEdoDocumentDataNode;
 			set
 			{
-				if(_selectedEdoContainer == value)
+				if(_selectedEdoDocumentDataNode == value)
 				{
 					return;
 				}
 
-				_selectedEdoContainer = value;
+				_selectedEdoDocumentDataNode = value;
 				CustomizeSendDocumentAgainButton();
 			}
 		}
@@ -1131,9 +1140,8 @@ namespace Vodovoz
 				.AddFuncBinding(Entity, c => c.Client != null && c.Client.UseSpecialDocFields, w => w.Visible)
 				.InitializeFromSource();
 
-			yvalidatedentryCounterpartyExternalOrderId.ValidationMode = ValidationType.numeric;
 			yvalidatedentryCounterpartyExternalOrderId.Binding
-				.AddBinding(Entity, o => o.CounterpartyExternalOrderId, w => w.Text, new NullableIntToStringConverter())
+				.AddBinding(Entity, o => o.CounterpartyExternalOrderId, w => w.Text)
 				.InitializeFromSource();
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
@@ -1182,7 +1190,7 @@ namespace Vodovoz
 
 			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
 			{
-				UpdateEdoContainers();
+				UpdateEdoDocumentDataNodes();
 				CustomizeSendDocumentAgainButton();
 			};
 
@@ -1193,7 +1201,7 @@ namespace Vodovoz
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
 
-			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
+			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? _orderService.GetLogisticsRequirements(Entity), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 
@@ -1209,6 +1217,7 @@ namespace Vodovoz
 			UpdateOrderItemsOriginalValues();
 
 			RefreshBottlesDebtNotifier();
+			UpdatePaymentTypeAvailability();
 		}
 
 		private void UpdateOrderItemsOriginalValues()
@@ -1390,21 +1399,16 @@ namespace Vodovoz
 			}
 		}
 
-		private List<EdoContainer> GetEdoOutgoingDocuments()
+		private List<EdoDockflowData> GetEdoOutgoingDocuments()
 		{
-			var orderDocuments = new List<EdoContainer>();
+			var orderDocuments = new List<EdoDockflowData>();
 
 			if(Entity.Id == 0)
 			{
 				return orderDocuments;
 			}
 
-			var documents = _edoContainers
-				.Where(c =>
-					!c.IsIncoming)
-				.ToList();
-
-			return documents;
+			return _edoEdoDocumentDataNodes.ToList();
 		}
 
 		private void CustomizeSendDocumentAgainButton()
@@ -1417,15 +1421,23 @@ namespace Vodovoz
 				return;
 			}
 
-			var selectedType = SelectedEdoContainer?.Type;
-
-			if(selectedType == null)
+			if(SelectedEdoDocumentDataNode is null)
 			{
 				ybuttonSendDocumentAgain.Label = "Не выбран документ для повторной отправки";
 				ybuttonSendDocumentAgain.Sensitive = false;
 
 				return;
 			}
+
+			if(SelectedEdoDocumentDataNode.IsNewDockflow || SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
+			{
+				ybuttonSendDocumentAgain.Label = "Документы по новому документообороту недоступны для повторной отправки";
+				ybuttonSendDocumentAgain.Sensitive = false;
+
+				return;
+			}
+
+			var selectedType = SelectedEdoDocumentDataNode.OldEdoDocumentType.Value;
 
 			OrderEdoTrueMarkDocumentsActions resendAction;
 
@@ -1462,13 +1474,13 @@ namespace Vodovoz
 			}
 
 			var outgoingEdoDocuments = GetEdoOutgoingDocuments();
-			var canResendUpd = selectedType is Type.Upd && outgoingEdoDocuments.Any(x => x.Type == Type.Upd);
-			var canResendBill = selectedType is Type.Bill && outgoingEdoDocuments.Any(x => x.Type == Type.Bill);
+			var canResendUpd = selectedType is Type.Upd && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == Type.Upd);
+			var canResendBill = selectedType is Type.Bill && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == Type.Bill);
 
 			if(canResendUpd || canResendBill)
 			{
 				ybuttonSendDocumentAgain.Sensitive = true;
-				ybuttonSendDocumentAgain.Label = $"Отправить повторно {selectedType.Value.GetEnumDisplayName()}";
+				ybuttonSendDocumentAgain.Label = $"Отправить повторно {selectedType.GetEnumDisplayName()}";
 
 				return;
 			}
@@ -1479,15 +1491,25 @@ namespace Vodovoz
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			ResendUpd(SelectedEdoContainer.Type);
+			ResendUpd();
 			CustomizeSendDocumentAgainButton();
 		}
 
-		private void ResendUpd(Type type)
+		private void ResendUpd()
 		{
-			var edoValidateDocumentResult = _edoService.ValidateOrderForDocument(Entity, SelectedEdoContainer.Type);
-			var outgoingDocuments = GetEdoOutgoingDocuments().Where(x => x.Type == SelectedEdoContainer.Type).ToList();
-			var edoValidateContainerResult = _edoService.ValidateEdoContainers(outgoingDocuments);
+			if(SelectedEdoDocumentDataNode is null
+				|| SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
+			{
+				return;
+			}
+
+			var type = SelectedEdoDocumentDataNode.OldEdoDocumentType.Value;
+
+			var edoValidateDocumentResult = _edoService.ValidateOrderForDocument(Entity, type);
+
+			var outgoingEdoContainers = _edoContainers.Where(x => x.Type == type).ToList();
+
+			var edoValidateContainerResult = _edoService.ValidateEdoContainers(outgoingEdoContainers);
 
 			var edoValidateResult = edoValidateDocumentResult.Errors.Concat(edoValidateContainerResult.Errors);
 
@@ -1601,58 +1623,6 @@ namespace Vodovoz
 			}
 		}
 
-		private LogisticsRequirements GetLogisticsRequirements()
-		{
-			if(Entity.LogisticsRequirements != null && Entity.IsCopiedFromUndelivery)
-			{
-				return Entity.LogisticsRequirements;
-			}
-
-			if(Counterparty == null || (!Entity.SelfDelivery && DeliveryPoint == null))
-			{
-				return new LogisticsRequirements();
-			}
-
-			var counterpartyLogisticsRequirements = new LogisticsRequirements();
-			var deliveryPointLogisticsRequirements = new LogisticsRequirements();
-
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				if(Counterparty?.LogisticsRequirements?.Id > 0)
-				{
-					counterpartyLogisticsRequirements = uow.GetById<LogisticsRequirements>(Counterparty.LogisticsRequirements.Id) ?? new LogisticsRequirements();
-				}
-
-				if(DeliveryPoint?.LogisticsRequirements?.Id > 0)
-				{
-					deliveryPointLogisticsRequirements = uow.GetById<LogisticsRequirements>(DeliveryPoint.LogisticsRequirements.Id) ?? new LogisticsRequirements();
-				}
-			}
-
-			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements
-			{
-				ForwarderRequired = counterpartyLogisticsRequirements.ForwarderRequired || deliveryPointLogisticsRequirements.ForwarderRequired,
-				DocumentsRequired = counterpartyLogisticsRequirements.DocumentsRequired || deliveryPointLogisticsRequirements.DocumentsRequired,
-				RussianDriverRequired = counterpartyLogisticsRequirements.RussianDriverRequired || deliveryPointLogisticsRequirements.RussianDriverRequired,
-				PassRequired = counterpartyLogisticsRequirements.PassRequired || deliveryPointLogisticsRequirements.PassRequired,
-				LargusRequired = counterpartyLogisticsRequirements.LargusRequired || deliveryPointLogisticsRequirements.LargusRequired
-			};
-
-			if(Entity.LogisticsRequirements != null)
-			{
-				return new LogisticsRequirements
-				{
-					ForwarderRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.ForwarderRequired || Entity.LogisticsRequirements.ForwarderRequired,
-					DocumentsRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.DocumentsRequired || Entity.LogisticsRequirements.DocumentsRequired,
-					RussianDriverRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.RussianDriverRequired || Entity.LogisticsRequirements.RussianDriverRequired,
-					PassRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.PassRequired || Entity.LogisticsRequirements.PassRequired,
-					LargusRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.LargusRequired || Entity.LogisticsRequirements.LargusRequired
-				};
-			}
-
-			return logisticsRequirementsFromCounterpartyAndDeliveryPoint;
-		}
-
 		private void UpdateEntityLogisticsRequirements()
 		{
 			Entity.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
@@ -1665,7 +1635,7 @@ namespace Vodovoz
 				var requirements =
 					clearCheckedCheckboxes
 					? new LogisticsRequirements()
-					: GetLogisticsRequirements();
+					: _orderService.GetLogisticsRequirements(Entity);
 
 				logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(requirements);
 				UpdateEntityLogisticsRequirements();
@@ -2161,33 +2131,40 @@ namespace Vodovoz
 
 			treeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
 
-			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
-				.AddColumn("Код документооборота")
+			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoDockflowData>.Create()
+				.AddColumn("Новый\nдокументооборот")
+					.AddToggleRenderer(x => x.IsNewDockflow)
+					.Editing(false)
+				.AddColumn("Код\nдокументооборота")
 					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
 				.AddColumn("Отправленные\nдокументы")
-					.AddTextRenderer(x => x.SentDocuments)
+					.AddTextRenderer(x => x.DocumentType)
 				.AddColumn("Статус\nдокументооборота")
-					.AddEnumRenderer(x => x.EdoDocFlowStatus)
+					.AddTextRenderer(x => x.EdoDocFlowStatusString)
 				.AddColumn("Доставлено\nклиенту?")
-					.AddToggleRenderer(x => x.Received)
+					.AddToggleRenderer(x => x.IsReceived)
 					.Editing(false)
 				.AddColumn("Описание ошибки")
 					.AddTextRenderer(x => x.ErrorDescription)
 					.WrapWidth(500)
+				.AddColumn("Статус задачи\nнового документооборота")
+					.AddTextRenderer(x => x.EdoTaskStatus.HasValue ? x.EdoTaskStatus.Value.GetEnumTitle() : string.Empty)
+				.AddColumn("Статус документа\nнового документооборота")
+					.AddTextRenderer(x => x.EdoDocumentStatus.HasValue ? x.EdoDocumentStatus.Value.GetEnumTitle() : string.Empty)
 				.AddColumn("")
 				.Finish();
 
 			treeViewEdoContainers.Binding
-				.AddBinding(this, vm => vm.SelectedEdoContainer, w => w.SelectedRow)
+				.AddBinding(this, vm => vm.SelectedEdoDocumentDataNode, w => w.SelectedRow)
 				.InitializeFromSource();
 
 			if(Entity.Id != 0)
 			{
-				UpdateEdoContainers();
+				UpdateEdoDocumentDataNodes();
 				CustomizeSendDocumentAgainButton();
 			}
 
-			treeViewEdoContainers.ItemsDataSource = _edoContainers;
+			treeViewEdoContainers.ItemsDataSource = _edoEdoDocumentDataNodes;
 
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
 				.AddColumn("Статус заявки").AddTextRenderer(node => node.Status.GetEnumTitle())
@@ -2284,18 +2261,43 @@ namespace Vodovoz
 			Entity.UpdateCommentManagerInfo(_currentEmployee);
 		}
 
-		private void UpdateEdoContainers()
+		private void UpdateEdoContainers(IUnitOfWork uow)
 		{
 			_edoContainers.Clear();
 
+			var containers = _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderId(Entity.Id));
+
+			foreach(var item in containers)
+			{
+				if(item.IsIncoming)
+				{
+					continue;
+				}
+				_edoContainers.Add(item);
+			}
+		}
+
+		private void UpdateEdoDocumentDataNodes()
+		{
+			_edoEdoDocumentDataNodes.Clear();
+
+			var documents = new List<EdoDockflowData>();
+
 			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Отправка документов по ЭДО, диалог заказа"))
 			{
-				var containers = _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderId(Entity.Id));
+				UpdateEdoContainers(uow);
 
-				foreach(var item in containers)
-				{
-					_edoContainers.Add(item);
-				}
+				documents.AddRange(_edoDocflowRepository.GetEdoDocflowDataByOrderId(uow, Entity.Id));
+				documents.AddRange(_edoContainers.Select(x => new EdoDockflowData(x)));
+			}
+
+			documents = documents
+				.OrderByDescending(x => x.TaxcomDocflowCreationTime == null ? x.EdoRequestCreationTime : x.TaxcomDocflowCreationTime)
+				.ToList();
+
+			foreach(var document in documents)
+			{
+				_edoEdoDocumentDataNodes.Add(document);
 			}
 		}
 
@@ -3724,8 +3726,42 @@ namespace Vodovoz
 
 		#region Методы событий виджетов
 
+		private void UpdatePaymentTypeAvailability()
+		{
+			// Этот блок нужно удалить через месяц
+			if(pickerDeliveryDate.Date >= _terminalUnavaliableStartDate
+				/*&& pickerDeliveryDate.Date <= _terminalUnavaliableEndDate*/)
+			{
+				if(!_selectPaymentTypeViewModel.ExcludedPaymentTypes.Contains(PaymentType.Terminal))
+				{
+					_selectPaymentTypeViewModel.ExcludedPaymentTypes.Add(PaymentType.Terminal);
+				}
+
+				if(Entity.CanEditByStatus
+					&& Entity.PaymentType == PaymentType.Terminal)
+				{
+					if(Entity.Client.PaymentMethod != PaymentType.Terminal)
+					{
+						Entity.PaymentType = Entity.Client.PaymentMethod;
+					}
+					else
+					{
+						Entity.PaymentType = PaymentType.Cash;
+					}
+				}
+			}
+			else
+			{
+				_selectPaymentTypeViewModel.ExcludedPaymentTypes.Remove(PaymentType.Terminal);
+			}
+		}
+
 		private void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
 		{
+			UpdatePaymentTypeAvailability();
+
+			Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
+
 			if(pickerDeliveryDate.Date < DateTime.Today && !_canCreateOrderInAdvance)
 			{
 				pickerDeliveryDate.ModifyBase(StateType.Normal, GdkColors.DangerText);
@@ -4088,6 +4124,8 @@ namespace Vodovoz
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 			UpdateUIState();
+
+			Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
 		}
 
 		private bool UpdateVisibilityHboxOnlineOrder()

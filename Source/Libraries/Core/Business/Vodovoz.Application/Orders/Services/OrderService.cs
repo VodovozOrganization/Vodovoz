@@ -312,6 +312,7 @@ namespace Vodovoz.Application.Orders.Services
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
 			UpdateDeliveryCost(unitOfWork, order);
+			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
 			if(!order.SelfDelivery)
@@ -321,6 +322,11 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			return order;
+		}
+		
+		private void AddLogisticsRequirements(Order order)
+		{
+			order.LogisticsRequirements = GetLogisticsRequirements(order);
 		}
 
 		public int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder)
@@ -360,6 +366,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			UpdateDeliveryCost(uow, order);
+			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 			order.AddFastDeliveryNomenclatureIfNeeded(uow, _orderContractUpdater);
 
@@ -441,7 +448,7 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			return _orderRepository
 				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == Domain.Orders.Documents.Type.Bill) > 0;
+				.Count(x => x.Type == Core.Domain.Documents.Type.Bill) > 0;
 		}
 
 
@@ -528,6 +535,58 @@ namespace Vodovoz.Application.Orders.Services
 
 				newUndeliveredOrder.AddAutoCommentToOkkDiscussion(uow, GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle());
 			}
+		}
+
+		public LogisticsRequirements GetLogisticsRequirements(Order order)
+		{
+			if(order.LogisticsRequirements != null && order.IsCopiedFromUndelivery)
+			{
+				return order.LogisticsRequirements;
+			}
+
+			if(order.Client == null || (!order.SelfDelivery && order.DeliveryPoint == null))
+			{
+				return new LogisticsRequirements();
+			}
+
+			var counterpartyLogisticsRequirements = new LogisticsRequirements();
+			var deliveryPointLogisticsRequirements = new LogisticsRequirements();
+
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				if(order.Client?.LogisticsRequirements?.Id > 0)
+				{
+					counterpartyLogisticsRequirements = unitOfWork.GetById<LogisticsRequirements>(order.Client.LogisticsRequirements.Id) ?? new LogisticsRequirements();
+				}
+
+				if(order.DeliveryPoint?.LogisticsRequirements?.Id > 0)
+				{
+					deliveryPointLogisticsRequirements = unitOfWork.GetById<LogisticsRequirements>(order.DeliveryPoint.LogisticsRequirements.Id) ?? new LogisticsRequirements();
+				}
+			}
+
+			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements
+			{
+				ForwarderRequired = counterpartyLogisticsRequirements.ForwarderRequired || deliveryPointLogisticsRequirements.ForwarderRequired,
+				DocumentsRequired = counterpartyLogisticsRequirements.DocumentsRequired || deliveryPointLogisticsRequirements.DocumentsRequired,
+				RussianDriverRequired = counterpartyLogisticsRequirements.RussianDriverRequired || deliveryPointLogisticsRequirements.RussianDriverRequired,
+				PassRequired = counterpartyLogisticsRequirements.PassRequired || deliveryPointLogisticsRequirements.PassRequired,
+				LargusRequired = counterpartyLogisticsRequirements.LargusRequired || deliveryPointLogisticsRequirements.LargusRequired
+			};
+
+			if(order.LogisticsRequirements != null)
+			{
+				return new LogisticsRequirements
+				{
+					ForwarderRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.ForwarderRequired || order.LogisticsRequirements.ForwarderRequired,
+					DocumentsRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.DocumentsRequired || order.LogisticsRequirements.DocumentsRequired,
+					RussianDriverRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.RussianDriverRequired || order.LogisticsRequirements.RussianDriverRequired,
+					PassRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.PassRequired || order.LogisticsRequirements.PassRequired,
+					LargusRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.LargusRequired || order.LogisticsRequirements.LargusRequired
+				};
+			}
+
+			return logisticsRequirementsFromCounterpartyAndDeliveryPoint;
 		}
 	}
 }

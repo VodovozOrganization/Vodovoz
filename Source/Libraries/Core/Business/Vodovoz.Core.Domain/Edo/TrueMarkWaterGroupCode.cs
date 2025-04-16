@@ -1,7 +1,9 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Domain.TrueMark
@@ -106,7 +108,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 
 		public virtual string CashReceiptCode => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
 
-		public virtual string Tag1260Code => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
+		public virtual string FormatForCheck1260 => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
 
 		public virtual void AddInnerGroupCode(TrueMarkWaterGroupCode innerGroupCode)
 		{
@@ -118,6 +120,36 @@ namespace Vodovoz.Core.Domain.TrueMark
 		{
 			innerWaterCode.ParentWaterGroupCodeId = Id;
 			InnerWaterCodes.Add(innerWaterCode);
+		}
+
+		public virtual void RemoveCode(TrueMarkWaterIdentificationCode waterCode)
+		{
+			waterCode.ParentWaterGroupCodeId = null;
+			InnerWaterCodes.Remove(waterCode);
+		}
+
+		public virtual void RemoveCode(TrueMarkWaterGroupCode waterGroupCode)
+		{
+			waterGroupCode.ParentWaterGroupCodeId = null;
+			InnerGroupCodes.Remove(waterGroupCode);
+		}
+
+		public virtual void ClearAllCodes()
+		{
+			var waterCodesToRemove = InnerWaterCodes.ToArray();
+
+			foreach(var waterCode in waterCodesToRemove)
+			{
+				RemoveCode(waterCode);
+			}
+
+			var waterGroupCodesToRemove = InnerGroupCodes.ToArray();
+
+			foreach(var waterGroupCode in waterGroupCodesToRemove)
+			{
+				waterGroupCode.ClearAllCodes();
+				RemoveCode(waterGroupCode);
+			}
 		}
 
 		public virtual IEnumerable<TrueMarkAnyCode> GetAllCodes()

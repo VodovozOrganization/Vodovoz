@@ -1,8 +1,10 @@
-﻿using DriverApi.Notifications.Client.Clients;
+﻿using DriverApi.Notifications.Client;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Services;
+using Edo.Transport;
 using EventsApi.Library;
 using EventsApi.Library.Models;
+using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
@@ -11,32 +13,27 @@ using Vodovoz.Application;
 using Vodovoz.Controllers;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.NotificationSenders;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
-using ITrackPointsServiceV5 = DriverAPI.Library.V5.Services.ITrackPointsService;
-using TrackPointsServiceV5 = DriverAPI.Library.V5.Services.TrackPointsService;
-using IDriverMobileAppActionRecordServiceV5 = DriverAPI.Library.V5.Services.IDriverMobileAppActionRecordService;
-using DriverMobileAppActionRecordServiceV5 = DriverAPI.Library.V5.Services.DriverMobileAppActionRecordService;
-using IRouteListServiceV5 = DriverAPI.Library.V5.Services.IRouteListService;
-using RouteListServiceV5 = DriverAPI.Library.V5.Services.RouteListService;
-using IOrderServiceV5 = DriverAPI.Library.V5.Services.IOrderService;
-using OrderServiceV5 = DriverAPI.Library.V5.Services.OrderService;
-using IEmployeeServiceV5 = DriverAPI.Library.V5.Services.IEmployeeService;
-using EmployeeServiceV5 = DriverAPI.Library.V5.Services.EmployeeService;
-using ISmsPaymentServiceV5 = DriverAPI.Library.V5.Services.ISmsPaymentService;
-using SmsPaymentServiceV5 = DriverAPI.Library.V5.Services.SmsPaymentService;
-using IDriverComplaintServiceV5 = DriverAPI.Library.V5.Services.IDriverComplaintService;
-using DriverComplaintServiceV5 = DriverAPI.Library.V5.Services.DriverComplaintService;
-using IFastPaymentServiceV5 = DriverAPI.Library.V5.Services.IFastPaymentService;
-using FastPaymentServiceV5 = DriverAPI.Library.V5.Services.FastPaymentService;
 using VodovozBusiness.Services.TrueMark;
-using Vodovoz.Models.TrueMark;
-using TrueMarkApi.Client;
-using Edo.Transport;
-using MessageTransport;
-using DriverApi.Notifications.Client;
+using DriverComplaintServiceV5 = DriverAPI.Library.V5.Services.DriverComplaintService;
+using DriverMobileAppActionRecordServiceV5 = DriverAPI.Library.V5.Services.DriverMobileAppActionRecordService;
+using EmployeeServiceV5 = DriverAPI.Library.V5.Services.EmployeeService;
+using FastPaymentServiceV5 = DriverAPI.Library.V5.Services.FastPaymentService;
+using IDriverComplaintServiceV5 = DriverAPI.Library.V5.Services.IDriverComplaintService;
+using IDriverMobileAppActionRecordServiceV5 = DriverAPI.Library.V5.Services.IDriverMobileAppActionRecordService;
+using IEmployeeServiceV5 = DriverAPI.Library.V5.Services.IEmployeeService;
+using IFastPaymentServiceV5 = DriverAPI.Library.V5.Services.IFastPaymentService;
+using IOrderServiceV5 = DriverAPI.Library.V5.Services.IOrderService;
+using IRouteListServiceV5 = DriverAPI.Library.V5.Services.IRouteListService;
+using ISmsPaymentServiceV5 = DriverAPI.Library.V5.Services.ISmsPaymentService;
+using ITrackPointsServiceV5 = DriverAPI.Library.V5.Services.ITrackPointsService;
+using OrderServiceV5 = DriverAPI.Library.V5.Services.OrderService;
+using RouteListServiceV5 = DriverAPI.Library.V5.Services.RouteListService;
+using SmsPaymentServiceV5 = DriverAPI.Library.V5.Services.SmsPaymentService;
+using TrackPointsServiceV5 = DriverAPI.Library.V5.Services.TrackPointsService;
 
 namespace DriverAPI.Library
 {
@@ -133,9 +130,6 @@ namespace DriverAPI.Library
 			return services
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<TrueMarkCodesChecker>()
-				.AddScoped<ITrueMarkApiClientFactory, TrueMarkApiClientFactory>()
-				.AddScoped(sp => sp.GetRequiredService<ITrueMarkApiClientFactory>().GetClient())
-				.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>();
 		}
 	}

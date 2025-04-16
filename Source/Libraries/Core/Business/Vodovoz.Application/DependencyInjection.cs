@@ -22,6 +22,9 @@ using VodovozBusiness.Services.Subdivisions;
 using DriverApi.Notifications.Client;
 using Vodovoz.Application.Receipts;
 using VodovozBusiness.Services.Receipts;
+using Vodovoz.Application.TrueMark;
+using VodovozBusiness.Services.TrueMark;
+using TrueMarkApi.Client;
 
 namespace Vodovoz.Application
 {
@@ -42,6 +45,11 @@ namespace Vodovoz.Application
 			.AddScoped<INomenclatureService, NomenclatureService>()
 			.AddScoped<IComplaintService, ComplaintService>()
 			.AddScoped<ISubdivisionPermissionsService, SubdivisionPermissionsService>()
+			.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
+			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
+			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
+			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+			.AddTrueMarkApiClient()
 			.AddOrderServicesDependencies()
 		;
 		

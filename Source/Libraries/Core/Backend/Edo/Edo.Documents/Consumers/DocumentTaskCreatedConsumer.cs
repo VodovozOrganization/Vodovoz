@@ -22,14 +22,7 @@ namespace Edo.Documents.Consumers
 
 		public async Task Consume(ConsumeContext<DocumentTaskCreatedEvent> context)
 		{
-			try
-			{
-				await _documentEdoTaskHandler.HandleNew(context.Message.Id, context.CancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка при обработке события DocumentTaskCreatedEvent");
-			}
+			await _documentEdoTaskHandler.HandleNew(context.Message.Id, context.CancellationToken);
 		}
 	}
 }

@@ -14,13 +14,13 @@
 		/// </summary>
 		public string BaseAddress { get; set; }
 		/// <summary>
-		/// Эндпойнт отправки старых УПД(контейнеров)
+		/// Эндпойнт отправки УПД по объемно-сортовому учету(контейнеров)
 		/// </summary>
-		public string SendUpdOldEndpoint { get; set; }
+		public string SendBulkAccountingUpdEndpoint { get; set; }
 		/// <summary>
-		/// Эндпойнт отправки новых УПД
+		/// Эндпойнт отправки новых УПД(поэкземплярный учет)
 		/// </summary>
-		public string SendUpdNewEndpoint { get; set; }
+		public string SendIndividualAccountingUpdEndpoint { get; set; }
 		/// <summary>
 		/// Эндпойнт отправки счета
 		/// </summary>

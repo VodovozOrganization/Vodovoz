@@ -22,14 +22,7 @@ namespace Edo.Transfer.Dispatcher.Consumers
 
 		public async Task Consume(ConsumeContext<TransferRequestCreatedEvent> context)
 		{
-			try
-			{
-				await _transferEdoHandler.HandleNewTransfer(context.Message.TransferIterationId, context.CancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка при обработке события создания заявки на перенос кодов.");
-			}
+			await _transferEdoHandler.HandleNewTransfer(context.Message.TransferIterationId, context.CancellationToken);
 		}
 	}
 }

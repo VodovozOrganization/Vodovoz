@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -25,5 +25,6 @@ namespace Vodovoz.Core.Domain.Edo
 		public bool IsOurGtin { get; set; } = true;
 		public bool IsIntroduced { get; set; } = true;
 		public bool IsOwnedBySeller { get; set; } = true;
+		public string CodeString { get; set; }
 	}
 }

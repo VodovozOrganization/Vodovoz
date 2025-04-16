@@ -13,6 +13,7 @@ namespace Vodovoz.Core.Domain.Documents
 		private string _mainDocumentId;
 		private Guid? _docflowId;
 		private int _edoDocumentId;
+		private bool _isReceived;
 
 		/// <summary>
 		/// Id
@@ -53,6 +54,15 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _edoDocumentId;
 			set => SetField(ref _edoDocumentId, value);
+		}
+
+		/// <summary>
+		/// Доставлено
+		/// </summary>
+		public virtual bool IsReceived
+		{
+			get => _isReceived;
+			set => SetField(ref _isReceived, value);
 		}
 
 		/// <summary>

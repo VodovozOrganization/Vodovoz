@@ -3,7 +3,7 @@ using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
-	internal class OrganizationJournalRegistrar : ColumnsConfigRegistrarBase<OrganizationJournalViewModel, OrganizationJournalNode>
+	internal sealed class OrganizationJournalRegistrar : ColumnsConfigRegistrarBase<OrganizationJournalViewModel, OrganizationJournalNode>
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<OrganizationJournalNode> config) =>
 		config.AddColumn("Код")

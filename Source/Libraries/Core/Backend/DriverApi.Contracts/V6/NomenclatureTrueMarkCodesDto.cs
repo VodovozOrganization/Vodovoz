@@ -23,6 +23,11 @@ namespace DriverApi.Contracts.V6
 		public IEnumerable<string> Gtin { get; set; }
 
 		/// <summary>
+		/// Номера группы товарной продукции GTIN
+		/// </summary>
+		public IEnumerable<GroupGtinDto> GroupGtins { get; set; }
+
+		/// <summary>
 		/// Количество
 		/// </summary>
 		public decimal Quantity { get; set; }

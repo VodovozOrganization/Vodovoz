@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
@@ -36,13 +36,13 @@ namespace Vodovoz.Views.Documents
 				.AddColumn("№")
 				.AddTextRenderer(n =>
 					n.Parent == null && n.Children.Any()
-						? $"{n.RowNumber} ╗"
+						? $"{n.RowNumber} ╗   "
 						: n.Parent != null
-							? "╠"
-							: $"{n.RowNumber}.  ")
+							? $"╠ {n.RowNumber}."
+							: $"{n.RowNumber}.      ")
 				.XAlign(1)
 				.AddColumn("Код")
-				.AddTextRenderer(n => n.CodeNumber)
+				.AddTextRenderer(n => n.RawCode)
 				.AddSetter((c, n) =>
 					c.CellBackgroundGdk = n.Children.Any() ? _colorAggregate : _colorBase)
 				.AddColumn("Номенклатура")
@@ -64,7 +64,7 @@ namespace Vodovoz.Views.Documents
 				.AddColumn("Доп.информация")
 				.AddTextRenderer(n => n.AdditionalInformation)
 				.AddSetter((c, n) =>
-					c.CellBackgroundGdk = n.CodeNumber == ViewModel.CurrentCodeInProcess ? _colorCurrencCodeInProcess : _colorBase)
+					c.CellBackgroundGdk = n.RawCode == ViewModel.CurrentCodeInProcess ? _colorCurrencCodeInProcess : _colorBase)
 				.WrapMode(WrapMode.Word).WrapWidth(400)
 				.AddColumn("")
 				.Finish();
@@ -72,6 +72,8 @@ namespace Vodovoz.Views.Documents
 			treeViewCodes.YTreeModel =
 				new RecursiveTreeModel<CodesScanViewModel.CodeScanRow>(ViewModel.CodeScanRows, x => x.Parent,
 					x => x.Children);
+
+			treeViewCodes.Binding.AddBinding(ViewModel, vm => vm.SelectedRow, w => w.SelectedRow).InitializeFromSource();
 
 			ytreeviewProgress.ColumnsConfig = FluentColumnsConfig<CodesScanViewModel.CodesScanProgressRow>.Create()
 				.AddColumn("GTIN")
@@ -89,16 +91,27 @@ namespace Vodovoz.Views.Documents
 
 			ytreeviewProgress.ItemsDataSource = ViewModel.CodesScanProgressRows;
 
-			ybuttonOk.Binding.AddBinding(ViewModel, vm => vm.IsAllCodesScanned, w => w.Sensitive).InitializeFromSource();
 			ybuttonOk.BindCommand(ViewModel.CloseCommand);
 
+			ybuttonDeleteCode.BindCommand(ViewModel.DeleteCodeCommand);
+
+			ybuttonCopyCodes.Clicked += OnYbuttonCopyCodesClicked;
+
 			ViewModel.RefreshScanningNomenclaturesAction = OnRefreshScanningNomenclatures;
+		}
+
+		private void OnYbuttonCopyCodesClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.CodeScanRows.Any())
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.GetCodesForClipboardCopy();
+			}
 		}
 
 		private void OnYentryCodeOnActivated(object sender, EventArgs args)
 		{
 			ViewModel.CheckCode(yentryCode.Text);
-			
+
 			yentryCode.Text = string.Empty;
 		}
 
@@ -118,6 +131,7 @@ namespace Vodovoz.Views.Documents
 		{
 			yentryCode.FocusOutEvent -= OnYentryCodeOnFocusOutEvent;
 			yentryCode.Activated -= OnYentryCodeOnActivated;
+			ybuttonCopyCodes.Clicked -= OnYbuttonCopyCodesClicked;
 
 			base.Destroy();
 		}

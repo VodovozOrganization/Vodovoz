@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pacs.Admin.Server;
+using QS.BusinessCommon.HMap;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 
@@ -29,6 +30,9 @@ namespace Pacs.Admin.Service
 				.AddTrackedUoW()
 				.AddMessageTransportSettings()
 				.AddPacsAdminServices()
+				.AddMappingAssemblies(
+					typeof(QS.Banks.Domain.Account).Assembly,
+					typeof(MeasurementUnitsMap).Assembly)
 				;
 
 			services.AddApiKeyAuthentication();

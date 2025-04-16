@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using QS.Commands;
@@ -25,7 +25,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
-using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
+using EdoDocumentType = Vodovoz.Core.Domain.Documents.Type;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {

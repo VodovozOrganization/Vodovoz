@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Edo.Contracts.Messages.Events;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Docflow.Consumers
 {
@@ -20,15 +21,7 @@ namespace Edo.Docflow.Consumers
 
 		public async Task Consume(ConsumeContext<EdoRequestCreatedEvent> context)
 		{
-			try
-			{
-				await _taskScheduler.CreateTask(context.Message.Id, context.CancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Error while processing EdoRequestCreatedEvent");
-				await Task.CompletedTask;
-			}
+			await _taskScheduler.CreateTask(context.Message.Id, context.CancellationToken);
 		}
 	}
 }

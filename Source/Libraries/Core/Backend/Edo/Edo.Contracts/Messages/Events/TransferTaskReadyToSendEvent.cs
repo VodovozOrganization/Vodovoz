@@ -2,6 +2,6 @@
 {
 	public class TransferTaskReadyToSendEvent
 	{
-		public int Id { get; set; }
+		public int TransferTaskId { get; set; }
 	}
 }

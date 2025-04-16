@@ -134,9 +134,9 @@ namespace Edo.Common
 
 			var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(codes.Select(x=>x.IdentificationCode), cancellationToken);
 			
-			if(productInstancesInfo is null)
+			if(productInstancesInfo?.InstanceStatuses is null)
 			{
-				return new TrueMarkTaskValidationResult(null);
+				throw new Exception(productInstancesInfo?.ErrorMessage ?? "Не удалось получить информацию о коде в ЧЗ");
 			}
 			
 			var codeResults = new List<TrueMarkCodeValidationResult>();
@@ -151,6 +151,40 @@ namespace Edo.Common
 				codeResults.Add(codeResult);
 			}
 		
+			return new TrueMarkTaskValidationResult(codeResults);
+		}
+
+		public async Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<string> codes, string organizationInn, CancellationToken cancellationToken)
+		{
+			var gtins = await _edoRepository.GetGtinsAsync(cancellationToken);
+			var groupGtins = await _edoRepository.GetGroupGtinsAsync(cancellationToken);
+
+			var gtinNumbers =
+				gtins.Select(x => x.GtinNumber)
+					.Union(groupGtins.Select(x => x.GtinNumber));
+
+			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
+			var ourOrganizationInns = edoOrganizations.Select(x => x.INN);
+
+			var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(codes, cancellationToken);
+
+			if(productInstancesInfo?.InstanceStatuses is null)
+			{
+				throw new Exception(productInstancesInfo?.ErrorMessage ?? "Не удалось получить информацию о коде в ЧЗ");
+			}
+
+			var codeResults = new List<TrueMarkCodeValidationResult>();
+
+			foreach(var productInstanceStatus in productInstancesInfo.InstanceStatuses)
+			{
+				var code = codes.Where(x => x == productInstanceStatus.IdentificationCode).First();
+
+				var codeResult = CreateCodeValidationResult(productInstanceStatus, gtinNumbers, ourOrganizationInns, organizationInn);
+				codeResult.CodeString = code;
+
+				codeResults.Add(codeResult);
+			}
+
 			return new TrueMarkTaskValidationResult(codeResults);
 		}
 	}

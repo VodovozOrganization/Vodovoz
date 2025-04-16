@@ -32,12 +32,12 @@ namespace TaxcomEdo.Client
 		
 		public async Task SendDataForCreateUpdByEdo(InfoForCreatingEdoUpd data, CancellationToken cancellationToken = default)
 		{
-			await SendDocument(_taxcomApiOptions.SendUpdOldEndpoint, data);
+			await SendDocument(_taxcomApiOptions.SendBulkAccountingUpdEndpoint, data);
 		}
 		
 		public async Task<bool> SendDataForCreateUpdByEdo(UniversalTransferDocumentInfo data, CancellationToken cancellationToken = default)
 		{
-			return await SendDocument(_taxcomApiOptions.SendUpdNewEndpoint, data);
+			return await SendDocument(_taxcomApiOptions.SendIndividualAccountingUpdEndpoint, data);
 		}
 		
 		public async Task SendDataForCreateBillByEdo(InfoForCreatingEdoBill data, CancellationToken cancellationToken = default)

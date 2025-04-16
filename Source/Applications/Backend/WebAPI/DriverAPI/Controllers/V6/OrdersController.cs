@@ -8,7 +8,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using MySqlConnector;
+using NHibernate;
+using QS.DomainModel.UoW;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
@@ -30,6 +34,7 @@ namespace DriverAPI.Controllers.V6
 		private readonly IOrderService _orderService;
 		private readonly IDriverMobileAppActionRecordService _driverMobileAppActionRecordService;
 		private readonly IActionTimeHelper _actionTimeHelper;
+		private static readonly ConcurrentDictionary<string, bool> _completeOrderDeliveryInProgress = new ConcurrentDictionary<string, bool>();
 
 		/// <summary>
 		/// Конструктор
@@ -99,23 +104,32 @@ namespace DriverAPI.Controllers.V6
 		/// <summary>
 		/// Завершение доставки заказа
 		/// </summary>
+		/// <param name="unitOfWork"></param>
 		/// <param name="completedOrderRequestModel"><see cref="CompletedOrderRequest"/></param>
 		/// <returns></returns>
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequest completedOrderRequestModel)
+		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromServices] IUnitOfWork unitOfWork, [FromBody] CompletedOrderRequest completedOrderRequestModel)
 		{
-			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
+			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken} | Тело запроса: {@RequestBody}",
 				completedOrderRequestModel.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization]);
+				Request.Headers[HeaderNames.Authorization],
+				completedOrderRequestModel);
 
 			var recievedTime = DateTime.Now;
 
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeService.GetByAPILogin(user.UserName);
+
+			if(!_completeOrderDeliveryInProgress.TryAdd($"{user.UserName}:{completedOrderRequestModel.OrderId}", true))
+			{
+				_logger.LogWarning("Запрос на завершение заказа {OrderId} уже в процессе обработки", completedOrderRequestModel.OrderId);
+				HttpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+				return NoContent();
+			}
 
 			var resultMessage = "OK";
 
@@ -125,17 +139,24 @@ namespace DriverAPI.Controllers.V6
 
 			if(timeCheckResult.IsFailure)
 			{
+				_completeOrderDeliveryInProgress.TryRemove($"{user.UserName}:{completedOrderRequestModel.OrderId}", out var _);
 				return MapResult(timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
 			}
 
 			try
 			{
+				var transaction = unitOfWork.Session.BeginTransaction();
+
+				var result = await _orderService.CompleteOrderDelivery(
+					recievedTime,
+					driver,
+					completedOrderRequestModel,
+					completedOrderRequestModel);
+
+				unitOfWork.Commit();
+
 				return MapResult(
-					await _orderService.CompleteOrderDelivery(
-						recievedTime,
-						driver,
-						completedOrderRequestModel,
-						completedOrderRequestModel),
+					result,
 					result =>
 					{
 						if(result.IsSuccess)
@@ -166,6 +187,41 @@ namespace DriverAPI.Controllers.V6
 						return StatusCodes.Status500InternalServerError;
 					});
 			}
+			catch(MySqlException mysqlException) when (mysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry
+				|| (mysqlException.InnerException is MySqlException innerMysqlException && innerMysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry))
+			{
+				_logger.LogError(mysqlException, "Произошла ошибка при сохранении завершения доставки заказа {OrderId}: {ExceptionMessage}",
+					completedOrderRequestModel.OrderId,
+					mysqlException.Message);
+
+				var currentTransaction = unitOfWork.Session?
+					.GetCurrentTransaction();
+
+				if(currentTransaction != null && currentTransaction.IsActive)
+				{
+					currentTransaction.Rollback();
+					currentTransaction.Dispose();
+				}
+
+				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}", statusCode: StatusCodes.Status400BadRequest);
+			}
+			catch(Exception ex) when (ex.InnerException is MySqlException innerMysqlException && innerMysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+			{
+				_logger.LogError(ex, "Произошла ошибка при сохранении завершения доставки заказа {OrderId}: {ExceptionMessage}",
+					completedOrderRequestModel.OrderId,
+					ex.Message);
+
+				var currentTransaction = unitOfWork.Session?
+					.GetCurrentTransaction();
+
+				if(currentTransaction != null && currentTransaction.IsActive)
+				{
+					currentTransaction.Rollback();
+					currentTransaction.Dispose();
+				}
+
+				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}", statusCode: StatusCodes.Status400BadRequest);
+			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошла ошибка при завершении доставки заказа {OrderId}: {ExceptionMessage}",
@@ -174,11 +230,21 @@ namespace DriverAPI.Controllers.V6
 
 				resultMessage = ex.Message;
 
+				var currentTransaction = unitOfWork.Session?
+					.GetCurrentTransaction();
+
+				if(currentTransaction != null && currentTransaction.IsActive)
+				{
+					currentTransaction.Rollback();
+					currentTransaction.Dispose();
+				}
+
 				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}");
 			}
 			finally
 			{
 				_driverMobileAppActionRecordService.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, localActionTime, recievedTime, resultMessage);
+				_completeOrderDeliveryInProgress.TryRemove($"{user.UserName}:{completedOrderRequestModel.OrderId}", out var _);
 			}
 		}
 
@@ -213,7 +279,7 @@ namespace DriverAPI.Controllers.V6
 			}
 
 			return MapResult(
-				_orderService.UpdateOrderShipmentInfo(
+				await _orderService.UpdateOrderShipmentInfoAsync(
 				recievedTime,
 				driver,
 				completedOrderRequestModel),

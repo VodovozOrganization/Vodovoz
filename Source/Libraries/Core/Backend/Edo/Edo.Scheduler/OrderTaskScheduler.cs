@@ -47,19 +47,14 @@ namespace Edo.Scheduler.Service
 		
 		private EdoTask CreateInstanceAccountingEdoTask(OrderEdoRequest edoRequest)
 		{
-			
 			if(edoRequest.Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 			{
-				// Если есть согласение на ЭДО
+				// Если есть согласие на ЭДО
 				// создаем задачу формирования документа ЭДО
 				return CreateDocumentEdoTask(edoRequest);
 			}
-			else
-			{
-				// Иначе
-				// создаем задачу вывода из оборота через честный знак
-				return CreateWithdrawalEdoTask(edoRequest);
-			}
+
+			return CreateSaveCodeTask(edoRequest);
 		}
 
 		private EdoTask CreateDocumentEdoTask(OrderEdoRequest edoRequest)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Vodovoz.Settings.Organizations
 {
@@ -13,6 +13,11 @@ namespace Vodovoz.Settings.Organizations
 		int VodovozNorthOrganizationId { get; }
 		int VodovozEastOrganizationId { get; }
 		int VodovozDeshitsOrganizationId { get; }
+
+		/// <summary>
+		/// Id орагнизации МБН
+		/// </summary>
+		int VodovozMbnOrganizationId { get; }
 		int CommonCashDistributionOrganisationId { get; }
 		TimeSpan LatestCreateTimeForSouthOrganizationInByCardOrder { get; }
 	}

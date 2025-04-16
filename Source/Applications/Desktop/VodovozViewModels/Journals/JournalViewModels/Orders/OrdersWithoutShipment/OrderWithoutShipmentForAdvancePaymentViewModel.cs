@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using QS.Commands;
@@ -40,7 +40,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
-using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
+using EdoDocumentType = Vodovoz.Core.Domain.Documents.Type;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {

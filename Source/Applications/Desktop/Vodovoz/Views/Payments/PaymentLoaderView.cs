@@ -7,6 +7,7 @@ using System.Linq;
 using QS.Navigation;
 using System;
 using NLog;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.Infrastructure;
@@ -145,7 +146,7 @@ namespace Vodovoz.Views
 					{
 						if(payment.Status == PaymentState.distributed)
 						{
-							foreach(var paymentItem in payment.PaymentItems)
+							foreach(var paymentItem in payment.Items)
 							{
 								var order = uow.GetById<Order>(paymentItem.Order.Id);
 								order.OrderPaymentStatus = OrderPaymentStatus.Paid;

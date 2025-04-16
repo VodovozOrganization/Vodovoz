@@ -10,19 +10,23 @@ namespace Edo.CodesSaver
 {
 	public static class DependencyInjection
 	{
+		public static IServiceCollection AddCodesSaverServices(this IServiceCollection services)
+		{
+			services.TryAddScoped<IUnitOfWork>(x => x.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+
+			services.TryAddScoped<SaveCodesEventHandler>();
+			services.AddCodesPool();
+
+			return services;
+		}
+
 		public static IServiceCollection AddCodesSaver(this IServiceCollection services)
 		{
-			services
-				.AddScoped<SaveCodesEventHandler>()
-				.AddCodesPool()
-				;
-
-			services.TryAddScoped<IUnitOfWork>(x => x.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+			services.AddCodesSaverServices();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
 				cfg.AddConsumers(Assembly.GetExecutingAssembly());
-				//cfg.AddConsumer<SaveCodesTaskCreatedEventConsumer, SaveCodesTaskCreatedEventConsumerDefinition>();
 			});
 
 			return services;

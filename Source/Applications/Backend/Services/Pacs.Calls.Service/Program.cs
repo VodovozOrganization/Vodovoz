@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Pacs.MangoCalls;
 using Pacs.MangoCalls.Options;
+using QS.BusinessCommon.HMap;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 
@@ -36,6 +37,9 @@ namespace Pacs.Calls.Service
 						.Configure<RetrySettings>(options => hostContext.Configuration.Bind(nameof(RetrySettings), options))
 						.AddMessageTransportSettings()
 						.AddPacsMangoCallsServices()
+						.AddMappingAssemblies(
+							typeof(QS.Banks.Domain.Account).Assembly,
+							typeof(MeasurementUnitsMap).Assembly)
 						;
 				});
 		}
