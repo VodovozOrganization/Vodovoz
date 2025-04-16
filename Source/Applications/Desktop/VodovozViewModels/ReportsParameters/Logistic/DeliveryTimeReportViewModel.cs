@@ -13,6 +13,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 {
 	public partial class DeliveryTimeReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
+		private readonly IEnumerable<RouteListOwnType> _selectedRouteListOwnTypes = new[]
+		{
+			RouteListOwnType.Delivery,
+			RouteListOwnType.ChainStore
+		};
+
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _uow;
@@ -36,7 +42,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 				.ToArray();
 
 			RouteListTypeOfUseList = Enum.GetValues(typeof(RouteListOwnType)).Cast<RouteListOwnType>()
-				.Select(x => new SelectableParameter { RouteListOwnType = x, IsSelected = x == RouteListOwnType.Delivery })
+				.Select(x => new SelectableParameter { RouteListOwnType = x, IsSelected = _selectedRouteListOwnTypes.Contains(x) })
 				.ToList();
 
 			OrdersEnRouteCountList = Enumerable.Range(0, 8);

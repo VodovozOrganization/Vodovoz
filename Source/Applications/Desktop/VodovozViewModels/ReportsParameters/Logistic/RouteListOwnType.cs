@@ -11,6 +11,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 	{
 		[Display(Name = "Доставка")]
 		Delivery,
+		[Display(Name = "Сетевой магазин")]
+		ChainStore,
 		[Display(Name = "СЦ")]
 		ServiceCenter,
 		[Display(Name = "Фуры")]
