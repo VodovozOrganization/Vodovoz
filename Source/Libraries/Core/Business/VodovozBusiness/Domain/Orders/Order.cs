@@ -1578,13 +1578,25 @@ namespace Vodovoz.Domain.Orders
 
 		private void UpdateContractDocument()
 		{
-			var contractDocuments = OrderDocuments.Where(x =>
-				x.Type == OrderDocumentType.Contract && x.Order == this && x.AttachedToOrder == this);
-			if(!contractDocuments.Any()) {
+			var contractDocuments =
+				OrderDocuments
+				.Where(x => x.Type == OrderDocumentType.Contract && x.Order == this && x.AttachedToOrder == this);
+
+			if(!contractDocuments.Any())
+			{
 				return;
 			}
 
-			foreach(var contractDocument in contractDocuments.ToList()) {
+			foreach(var contractDocument in contractDocuments.ToList())
+			{
+				if(contractDocument is OrderContract orderContract)
+				{
+					if(orderContract.Contract == Contract)
+					{
+						continue;
+					}
+				}
+
 				ObservableOrderDocuments.Remove(contractDocument);
 			}
 
@@ -1799,16 +1811,18 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddContractDocument(CounterpartyContract contract)
 		{
-			if(ObservableOrderDocuments.OfType<OrderContract>().Any(x => x.Contract == contract)) {
+			if(ObservableOrderDocuments.OfType<OrderContract>().Any(x => x.Contract == contract))
+			{
 				return;
 			}
+
 			ObservableOrderDocuments.Add(
-				new OrderContract {
+				new OrderContract
+				{
 					Order = this,
 					AttachedToOrder = this,
 					Contract = contract
-				}
-			);
+				});
 		}
 
 		public virtual bool HasWater()
