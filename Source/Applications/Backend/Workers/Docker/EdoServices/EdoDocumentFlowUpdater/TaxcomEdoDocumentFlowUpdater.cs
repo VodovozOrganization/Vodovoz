@@ -227,31 +227,17 @@ namespace EdoDocumentFlowUpdater
 
 			foreach(var docflowDocument in docflow.Documents)
 			{
-				if(docflowDocument.TransactionCode == _trueMarkAccepted)
+				trueMarkStatus = docflowDocument.TransactionCode switch
 				{
-					trueMarkStatus = TrueMarkTraceabilityStatus.Accepted;
-				}
-
-				if(docflowDocument.TransactionCode == _trueMarkRejected)
-				{
-					trueMarkStatus = TrueMarkTraceabilityStatus.Rejected;
-				}
-
-				if(docflowDocument.TransactionCode == _trueMarkCancellationAccepted)
-				{
-					trueMarkStatus = TrueMarkTraceabilityStatus.CancellationAccepted;
-				}
-
-				if(docflowDocument.TransactionCode == _trueMarkCancellationRejected)
-				{
-					trueMarkStatus = TrueMarkTraceabilityStatus.CancellationRejected;
-				}
+					_trueMarkAccepted => TrueMarkTraceabilityStatus.Accepted,
+					_trueMarkRejected => TrueMarkTraceabilityStatus.Rejected,
+					_trueMarkCancellationAccepted => TrueMarkTraceabilityStatus.CancellationAccepted,
+					_trueMarkCancellationRejected => TrueMarkTraceabilityStatus.CancellationRejected,
+					_ => trueMarkStatus
+				};
 			}
 
-			if(trueMarkStatus != null)
-			{
-				@event.TrueMarkTraceabilityStatus = trueMarkStatus.ToString();
-			}
+			@event.TrueMarkTraceabilityStatus = trueMarkStatus?.ToString();
 		}
 
 		private async Task ProcessIngoingDocuments(CancellationToken cancellationToken)
