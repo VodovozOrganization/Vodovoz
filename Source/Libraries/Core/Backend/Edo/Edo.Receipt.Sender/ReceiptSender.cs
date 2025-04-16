@@ -1,6 +1,7 @@
 ﻿using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
+using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using ModulKassa;
@@ -21,6 +22,7 @@ namespace Edo.Receipt.Sender
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly CashboxClientProvider _cashboxClientProvider;
 		private readonly FiscalDocumentFactory _fiscalDocumentFactory;
+		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly IBus _messageBus;
 
 		public ReceiptSender(
@@ -29,6 +31,7 @@ namespace Edo.Receipt.Sender
 			EdoProblemRegistrar edoProblemRegistrar,
 			CashboxClientProvider cashboxClientProvider,
 			FiscalDocumentFactory fiscalDocumentFactory,
+			EdoTaskValidator edoTaskValidator,
 			IBus messageBus
 			)
 		{
@@ -37,6 +40,7 @@ namespace Edo.Receipt.Sender
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_cashboxClientProvider = cashboxClientProvider ?? throw new ArgumentNullException(nameof(cashboxClientProvider));
 			_fiscalDocumentFactory = fiscalDocumentFactory ?? throw new ArgumentNullException(nameof(fiscalDocumentFactory));
+			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -59,6 +63,12 @@ namespace Edo.Receipt.Sender
 				return;
 			}
 
+			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken);
+			if(!isValid)
+			{
+				return;
+			}
+
 			switch(edoTask.Status)
 			{
 				case EdoTaskStatus.New:
@@ -71,18 +81,11 @@ namespace Edo.Receipt.Sender
 						"находится в ожидании решения внешних факторов и не находится в работе.",
 						edoTaskId);
 					return;
-
-
-
-				// Это скорее всего не нужно, будет блокироваать повторную отправку проблемных задач
 				case EdoTaskStatus.Problem:
 					_logger.LogWarning("Невозможно отправить чек. Задача №{edoTaskId} " +
-						"имеет не решенные проблемы.",
+						"имеет не решенную проблему.",
 						edoTaskId);
 					return;
-
-
-
 				case EdoTaskStatus.Completed:
 					_logger.LogWarning("Невозможно отправить чек. Задача №{edoTaskId} " +
 						"уже завершена.",
@@ -97,10 +100,7 @@ namespace Edo.Receipt.Sender
 
 			if(edoTask.CashboxId == null)
 			{
-				// зарегистрировать проблему
-				// перенести в валидацию
-				// добавить валидацию для отправки чеков
-				throw new InvalidOperationException("Не указана касса для отправки чека.");
+				throw new InvalidOperationException("Не указана касса для отправки чека. Должна проверяться валидацией задачи");
 			}
 
 			object message = null;
@@ -147,6 +147,7 @@ namespace Edo.Receipt.Sender
 						edoTask,
 						cancellationToken
 					);
+					return;
 				}
 				else
 				{

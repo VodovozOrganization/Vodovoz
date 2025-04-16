@@ -1,6 +1,4 @@
 ﻿using Core.Infrastructure;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders;
@@ -137,6 +135,11 @@ namespace Edo.Common
 		/// </summary>
 		private string GetDeliveryPointPhoneForReceipts(OrderEntity order)
 		{
+			if(order.DeliveryPoint == null)
+			{
+				return null;
+			}
+
 			var phone = order.DeliveryPoint.Phones
 				.Where(p => !p.DigitsNumber.IsNullOrWhiteSpace())
 				.Where(p => !p.IsArchive)
@@ -165,6 +168,11 @@ namespace Edo.Common
 		/// </summary>
 		private string GetDeliveryPointPersonalPhone(OrderEntity order)
 		{
+			if(order.DeliveryPoint == null)
+			{
+				return null;
+			}
+
 			var phone = order.DeliveryPoint.Phones
 				.Where(p => !p.DigitsNumber.IsNullOrWhiteSpace())
 				.Where(p => !p.IsArchive)
@@ -211,6 +219,11 @@ namespace Edo.Common
 		/// </summary>
 		private string GetDeliveryPointCityPhone(OrderEntity order)
 		{
+			if(order.DeliveryPoint == null)
+			{
+				return null;
+			}
+
 			var phone = order.DeliveryPoint.Phones
 				.Where(p => !p.DigitsNumber.IsNullOrWhiteSpace())
 				.Where(p => !p.IsArchive)
