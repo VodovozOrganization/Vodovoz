@@ -1,12 +1,12 @@
 ﻿using DriverAPI.Library;
 using DriverAPI.Services;
 using DriverAPI.Workers;
+using Infrastructure.WebApi.Telemetry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services.Interactive;
-using Telemetry;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Complaints;
@@ -44,7 +44,7 @@ namespace DriverAPI
 
 				// Телеметрия
 
-				.AddApiOpenTelemetry()
+				.AddApiOpenTelemetry("driver_api")
 
 				// Сервисы
 				.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>()

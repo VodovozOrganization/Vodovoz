@@ -4,7 +4,7 @@ using OpenTelemetry.Trace;
 using System.Linq;
 using System.Reflection;
 
-namespace Telemetry
+namespace Infrastructure.WebApi.Telemetry
 {
 	public static class DependencyInjection
 	{
@@ -14,6 +14,21 @@ namespace Telemetry
 
 			services.AddOpenTelemetry()
 				.ConfigureResource(resource => resource.AddService(entryProjectName))
+				.WithTracing(tracing =>
+				{
+					tracing
+						.AddHttpClientInstrumentation()
+						.AddAspNetCoreInstrumentation();
+
+					tracing.AddOtlpExporter();
+				});
+			return services;
+		}
+
+		public static IServiceCollection AddApiOpenTelemetry(this IServiceCollection services, string serviceName)
+		{
+			services.AddOpenTelemetry()
+				.ConfigureResource(resource => resource.AddService(serviceName))
 				.WithTracing(tracing =>
 				{
 					tracing
