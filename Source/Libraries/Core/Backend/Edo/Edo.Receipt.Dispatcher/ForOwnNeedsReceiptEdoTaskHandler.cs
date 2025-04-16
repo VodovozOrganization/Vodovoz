@@ -240,6 +240,10 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var taskItem in receiptEdoTask.Items)
 			{
 				var code = taskItem.ProductCode.SourceCode;
+				if(code == null)
+				{
+					continue;
+				}
 				if(code.IsInvalid)
 				{
 					continue;

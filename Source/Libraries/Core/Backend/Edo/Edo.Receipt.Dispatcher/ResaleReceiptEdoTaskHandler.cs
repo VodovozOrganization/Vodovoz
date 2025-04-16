@@ -2,6 +2,7 @@
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
+using Edo.Problems.Exception.EdoExceptions;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -388,7 +389,7 @@ namespace Edo.Receipt.Dispatcher
 				}
 			}
 
-			throw new InvalidOperationException($"Не найден код для номенклатуры {orderItem.Nomenclature}");
+			throw new ResaleMissingCodesException($"Не найден код для номенклатуры Id {orderItem.Nomenclature.Id}");
 		}
 
 		private EdoFiscalDocument CreateFiscalDocument(ReceiptEdoTask receiptEdoTask)
