@@ -15,7 +15,9 @@ using QS.Tdi;
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -29,6 +31,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
@@ -53,6 +56,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IGenericRepository<CarEvent> _carEventRepository;
 		private readonly IInteractiveService _interactiveService;
+		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
 
 		public WarehouseDocumentsJournalViewModel(
 			WarehouseDocumentsJournalFilterViewModel filterViewModel,
@@ -62,12 +66,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			IGtkTabsOpener gtkTabsOpener,
 			IGenericRepository<CarEvent> carEventRepository,
 			IInteractiveService interactiveService,
+			ISelfDeliveryRepository selfDeliveryRepository,
 			Action<WarehouseDocumentsJournalFilterViewModel> filterConfiguration = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
 			UseSlider = false;
 			SearchEnabled = true;
 			TabName = "Журнал складских документов";
@@ -1324,6 +1330,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 								ImportanceLevel.Warning,
 								$"Данный акт списания привязан к событию ТС {carEvent.Id} {carEvent.CarEventType.Name}",
 								"Невозможно удалить документ");
+
+							return;
+						}
+					}
+
+					if(selectedNode.DocTypeEnum == DocumentType.SelfDeliveryDocument)
+					{
+						var isSelfDeliveryDocumentUsedInEdoTasks =
+						_selfDeliveryRepository.IsSelfDeliveryDocumentItemsUsedInEdoTasks(UoW, selectedNode.Id);
+
+						if(isSelfDeliveryDocumentUsedInEdoTasks)
+						{
+							_interactiveService.ShowMessage(
+								ImportanceLevel.Warning,
+								$"Невозможно удалить документ.\nВ данный документ отпуска самовывоза включены маркированные товары, участвующие в ЭДО.");
 
 							return;
 						}
