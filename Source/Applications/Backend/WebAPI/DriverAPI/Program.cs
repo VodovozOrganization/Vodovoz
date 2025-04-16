@@ -4,6 +4,8 @@ using Microsoft.Extensions.Hosting;
 using System;
 using NLog.Web;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Resources;
 
 namespace DriverAPI
 {
@@ -25,10 +27,11 @@ namespace DriverAPI
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
-				.ConfigureLogging((ctx, builder) =>
+				.ConfigureLogging((context, logging) =>
 				{
-					builder.AddNLogWeb();
-					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+					logging.AddConfiguration(context.Configuration.GetSection("NLog"));
 				})
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureWebHostDefaults(webBuilder =>
