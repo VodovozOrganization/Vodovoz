@@ -262,6 +262,86 @@ namespace DriverAPI.Controllers.V6
 			}
 		}
 
+		/// <summary>
+		/// Добавление кодов ЧЗ для заказа (адреса в МЛ). 
+		/// Используется для добавления нескольких кодов для заказов для собственных нужд в тех случаях,
+		/// когда водитель отсканировал коды, но не смог завершить заказ по месту.
+		/// </summary>
+		/// <param name="sendOrderCodesRequestModel"><see cref="AddOrderCodeRequest"/></param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns></returns>
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public async Task<IActionResult> SendOrderCodes([FromBody] SendOrderCodesRequest sendOrderCodesRequestModel, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("(Добавление кодов ЧЗ к заказу: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
+				sendOrderCodesRequestModel.OrderId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization],
+				HttpContext.Request.Headers["X-Idempotency-Key"],
+				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+
+			var recievedTime = DateTime.Now;
+
+			var user = await _userManager.GetUserAsync(User);
+			var driver = _employeeService.GetByAPILogin(user.UserName);
+
+			try
+			{
+				var result =
+					await _orderService.SendTrueMarkCodes(
+						recievedTime,
+						driver,
+						sendOrderCodesRequestModel.OrderId,
+						sendOrderCodesRequestModel.ScannedBottles,
+						sendOrderCodesRequestModel.UnscannedBottlesReason,
+						cancellationToken);
+
+				return MapResult(
+					result,
+					result =>
+					{
+						if(result.IsSuccess)
+						{
+							return StatusCodes.Status204NoContent;
+						}
+
+						var firstError = result.Errors.First();
+
+						if(firstError == RouteListErrors.NotEnRouteState
+							|| firstError == RouteListItemErrors.NotEnRouteState)
+						{
+							return StatusCodes.Status400BadRequest;
+						}
+
+						if(firstError == Library.Errors.Security.Authorization.OrderAccessDenied)
+						{
+							return StatusCodes.Status403Forbidden;
+						}
+
+						if(firstError == OrderErrors.NotFound
+							|| firstError == RouteListItemErrors.NotFound
+							|| firstError == RouteListErrors.NotFoundAssociatedWithOrder
+							|| firstError == RouteListItemErrors.NotFoundAssociatedWithOrder)
+						{
+							return StatusCodes.Status404NotFound;
+						}
+
+						return StatusCodes.Status500InternalServerError;
+					});
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при добавлении кодов ЧЗ к заказу {OrderId}: {ExceptionMessage}",
+					sendOrderCodesRequestModel.OrderId,
+					ex.Message);
+
+				return Problem($"Произошла ошибка при добавлении кодов ЧЗ к заказу {sendOrderCodesRequestModel.OrderId}");
+			}
+		}
+
 		private IActionResult MapRequestProcessingResult<TValue>(
 			RequestProcessingResult<TValue> processingResult,
 			Func<Result, int?> statusCodeSelectorFunc)
