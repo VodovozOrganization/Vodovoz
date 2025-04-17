@@ -349,13 +349,13 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 					.ToArray();
 			}
 
-			upd.Dokument.SvSchFakt.DokPodtvOtgr = new[]
+			upd.Dokument.SvSchFakt.DocPodtvOtgrNom = new[]
 			{
-				new FajlDokumentSvSchFaktDokPodtvOtgr
+				new RekvDocTip
 				{
-					NaimDokOtgr = "Универсальный передаточный документ,",
-					NomDokOtgr = updInfo.Number.ToString(),
-					DataDokOtgr = updDate
+					RekvNaimDoc = "Универсальный передаточный документ",
+					RekvNomDoc = updInfo.Number.ToString(),
+					RekvDataDoc = updDate
 				}
 			};
 
