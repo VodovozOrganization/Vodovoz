@@ -22,15 +22,7 @@ namespace Edo.Transfer.Sender.Consumers
 
 		public async Task Consume(ConsumeContext<TransferTaskPrepareToSendEvent> context)
 		{
-			try
-			{
-				await _transferSendPreparer.PrepareSendAsync(context.Message.TransferTaskId, context.CancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка при обработке события подготовки к отправке задачи на трансфер.");
-				throw;
-			}
+			await _transferSendPreparer.PrepareSendAsync(context.Message.TransferTaskId, context.CancellationToken);
 		}
 	}
 }

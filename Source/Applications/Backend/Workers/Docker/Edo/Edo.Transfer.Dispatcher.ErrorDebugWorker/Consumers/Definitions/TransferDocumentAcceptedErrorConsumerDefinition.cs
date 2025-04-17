@@ -1,5 +1,7 @@
 ﻿using Edo.Contracts.Messages.Events;
+using Edo.Docflow.Consumers;
 using MassTransit;
+using RabbitMQ.Client;
 
 namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions
 {
@@ -17,11 +19,7 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions
 
 			endpointConfigurator.ConfigureConsumeTopology = false;
 			rmq.PrefetchCount = 1;
-			rmq.Batch<TransferDocumentAcceptedEvent>(x =>
-			{
-				x.MessageLimit = 1;
-			});
 		}
 	}
-	
+
 }

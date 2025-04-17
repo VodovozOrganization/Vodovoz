@@ -114,18 +114,26 @@ namespace Edo.Transfer.Dispatcher
 			if(document == null)
 			{
 				_logger.LogError("При обработке подтверждения документа №{documentId} не найден документ.", documentId);
+				return;
 			}
 
 			if(document.AcceptTime == null)
 			{
 				_logger.LogError("Невозможно завершить трансфер, так как документ №{documentId} еще не принят.", documentId);
+				return;
 			}
-
 
 			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
 
-			await _uow.Session.QueryOver<TransferEdoRequest>()
+			if(transferTask.Status == EdoTaskStatus.Completed)
+			{
+				_logger.LogWarning("При обработке принятия документа трансфера №{documentId} обнаружено, что трансфер уже завершен.", documentId);
+				return;
+			}
+
+			var requests = await _uow.Session.QueryOver<TransferEdoRequest>()
 				.Fetch(SelectMode.Fetch, x => x.Iteration)
+				.Fetch(SelectMode.Fetch, x => x.Iteration.OrderEdoTask)
 				.Where(x => x.TransferEdoTask.Id == document.TransferTaskId)
 				.ListAsync();
 
@@ -144,7 +152,7 @@ namespace Edo.Transfer.Dispatcher
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
 				.WhereRestrictionOn(x => x.CustomerEdoTask.Id).IsIn(orderTaskIds.ToArray())
-				.ListAsync();
+				.ListAsync(cancellationToken);
 
 			var sourceCodes = taskItems.Select(x => x.ProductCode)
 				.Where(x => x.SourceCode != null)
@@ -157,18 +165,31 @@ namespace Edo.Transfer.Dispatcher
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
-			if(transferTask.Status == EdoTaskStatus.Completed)
+			try
 			{
-				_logger.LogWarning("При обработке принятия документа трансфера №{documentId} обнаружено, что трансфер уже завершен.", documentId);
-				_uow.Dispose();
+				var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(transferTask);
+				var isValid = await _edoTaskValidator.Validate(transferTask, cancellationToken, trueMarkCodesChecker);
+				if(!isValid)
+				{
+					return;
+				}
+			}
+			catch(EdoProblemException ex)
+			{
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(transferTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
 				return;
 			}
-
-
-			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(transferTask);
-			var isValid = await _edoTaskValidator.Validate(transferTask, cancellationToken, trueMarkCodesChecker);
-			if(!isValid)
+			catch(Exception ex)
 			{
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(transferTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
 				return;
 			}
 

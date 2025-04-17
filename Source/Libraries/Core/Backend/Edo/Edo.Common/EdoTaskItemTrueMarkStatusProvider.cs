@@ -29,6 +29,13 @@ namespace Edo.Common
 			_codeItems = GetCodeItems();
 			_codesStatuses.Clear();
 			var preparedCodes = _codeItems.Where(x => x.ProductCode.ResultCode != null);
+			var duplicates = preparedCodes.GroupBy(x => x.ProductCode.ResultCode.IdentificationCode)
+				.Where(x => x.Count() > 1)
+				.Select(x => x.First());
+			if(duplicates.Any())
+			{
+				throw new EdoProblemException(new ResultCodesDuplicatesException(), duplicates);
+			}
 			foreach(var preparedCode in preparedCodes)
 			{
 				_codesStatuses.Add(

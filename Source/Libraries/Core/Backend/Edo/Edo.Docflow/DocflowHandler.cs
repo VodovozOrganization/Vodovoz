@@ -46,6 +46,12 @@ namespace Edo.Docflow
 		public async Task HandleTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(transferDocumentId, cancellationToken);
+			if(document == null)
+			{
+				_logger.LogWarning("Документ {documentId} не найден", transferDocumentId);
+				return;
+			}
+
 			if(document.Status.IsIn(
 				EdoDocumentStatus.InProgress,
 				EdoDocumentStatus.CompletedWithDivergences,
@@ -57,6 +63,11 @@ namespace Edo.Docflow
 			}
 
 			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
+			if(transferTask == null)
+			{
+				_logger.LogWarning("Задача для документа {documentId} не найдена", transferDocumentId);
+				return;
+			}
 
 			var transferOrder = await _uow.Session.QueryOver<TransferOrder>()
 				.Where(x => x.Id == transferTask.TransferOrderId)
@@ -76,6 +87,11 @@ namespace Edo.Docflow
 		public async Task HandleOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(orderDocumentId, cancellationToken);
+			if(document == null)
+			{
+				_logger.LogWarning("Документ {documentId} не найден", orderDocumentId);
+				return;
+			}
 
 			if(document.Status.IsIn(
 				EdoDocumentStatus.InProgress,
@@ -88,6 +104,11 @@ namespace Edo.Docflow
 			}
 
 			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
+			if(documentTask == null)
+			{
+				_logger.LogWarning("Задача для документа {documentId} не найдена", orderDocumentId);
+				return;
+			}
 
 			UniversalTransferDocumentInfo updInfo;
 			OrganizationEntity sender;
@@ -125,6 +146,12 @@ namespace Edo.Docflow
 		{
 			var documentId = updatedEvent.EdoDocumentId;
 			var document = await _uow.Session.GetAsync<OutgoingEdoDocument>(documentId, cancellationToken);
+			if(document == null)
+			{
+				_logger.LogWarning("Документ {documentId} не найден", documentId);
+				return;
+			}
+
 			var docflowStatus = updatedEvent.DocFlowStatus.TryParseAsEnum<EdoDocFlowStatus>();
 
 			object message = null;

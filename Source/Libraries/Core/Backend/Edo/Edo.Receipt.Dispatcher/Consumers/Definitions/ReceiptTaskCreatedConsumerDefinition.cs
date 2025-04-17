@@ -4,15 +4,15 @@ using RabbitMQ.Client;
 
 namespace Edo.Receipt.Dispatcher.Consumers.Definitions
 {
-	public class ReceiptTaskCreatedEventConsumerDefinition : ConsumerDefinition<ReceiptTaskCreatedEventConsumer>
+	public class ReceiptTaskCreatedConsumerDefinition : ConsumerDefinition<ReceiptTaskCreatedConsumer>
 	{
-		public ReceiptTaskCreatedEventConsumerDefinition()
+		public ReceiptTaskCreatedConsumerDefinition()
 		{
 			Endpoint(x => x.Name = "edo.receipt-task-created.consumer.receipt-dispatcher");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<ReceiptTaskCreatedEventConsumer> consumerConfigurator)
+			IConsumerConfigurator<ReceiptTaskCreatedConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
 

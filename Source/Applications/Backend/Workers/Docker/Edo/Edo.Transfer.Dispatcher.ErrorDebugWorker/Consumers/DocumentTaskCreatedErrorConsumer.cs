@@ -1,6 +1,7 @@
 ﻿using Edo.Contracts.Messages.Events;
 using Edo.Documents;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -8,12 +9,15 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers
 {
 	public class DocumentTaskCreatedErrorConsumer : IConsumer<DocumentTaskCreatedEvent>
 	{
+		private readonly ILogger<DocumentTaskCreatedErrorConsumer> _logger;
 		private readonly DocumentEdoTaskHandler _documentEdoTaskHandler;
 
 		public DocumentTaskCreatedErrorConsumer(
+			ILogger<DocumentTaskCreatedErrorConsumer> logger,
 			DocumentEdoTaskHandler documentEdoTaskHandler
 			)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_documentEdoTaskHandler = documentEdoTaskHandler ?? throw new ArgumentNullException(nameof(documentEdoTaskHandler));
 		}
 
@@ -25,7 +29,7 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers
 			}
 			catch(Exception ex)
 			{
-				Console.WriteLine($"Error processing DocumentTaskCreatedEvent: {ex.Message}");
+				_logger.LogError(ex, "Error processing event");
 				throw;
 			}
 		}

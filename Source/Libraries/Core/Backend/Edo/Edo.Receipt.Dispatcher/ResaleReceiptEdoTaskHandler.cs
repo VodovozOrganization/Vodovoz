@@ -2,6 +2,7 @@
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
+using Edo.Problems.Exception.EdoExceptions;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -37,6 +38,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
 		private readonly Tag1260Checker _tag1260Checker;
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
+		private readonly IEdoOrderContactProvider _edoOrderContactProvider;
 		private readonly IBus _messageBus;
 		private readonly int _maxCodesInReceipt;
 
@@ -51,6 +53,7 @@ namespace Edo.Receipt.Dispatcher
 			TrueMarkTaskCodesValidator trueMarkTaskCodesValidator,
 			Tag1260Checker tag1260Checker,
 			IEdoReceiptSettings edoReceiptSettings,
+			IEdoOrderContactProvider edoOrderContactProvider,
 			IBus messageBus
 			)
 		{
@@ -64,6 +67,7 @@ namespace Edo.Receipt.Dispatcher
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
 			_edoReceiptSettings = edoReceiptSettings ?? throw new ArgumentNullException(nameof(edoReceiptSettings));
+			_edoOrderContactProvider = edoOrderContactProvider ?? throw new ArgumentNullException(nameof(edoOrderContactProvider));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
@@ -385,7 +389,7 @@ namespace Edo.Receipt.Dispatcher
 				}
 			}
 
-			throw new InvalidOperationException($"Не найден код для номенклатуры {orderItem.Nomenclature}");
+			throw new ResaleMissingCodesException($"Не найден код для номенклатуры Id {orderItem.Nomenclature.Id}");
 		}
 
 		private EdoFiscalDocument CreateFiscalDocument(ReceiptEdoTask receiptEdoTask)
@@ -400,7 +404,7 @@ namespace Edo.Receipt.Dispatcher
 				DocumentNumber = $"vod_{order.Id}",
 				DocumentType = FiscalDocumentType.Sale,
 				CheckoutTime = order.TimeDelivered ?? DateTime.Now,
-				Contact = GetContact(order),
+				Contact = _edoOrderContactProvider.GetContact(order),
 				ClientInn = order.Client.INN,
 				CashierName = order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName,
 				//По умолчанию не печатаем чеки
@@ -531,169 +535,6 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			return isValid;
-		}
-
-		/// <summary>
-		/// Возврат первого попавшегося контакта из цепочки:<br/>
-		/// 0. Почта для чеков в контрагенте<br/>
-		/// 1. Почта для счетов в контрагенте<br/>
-		/// 2. Телефон для чеков в точке доставки<br/>
-		/// 3. Телефон для чеков в контрагенте<br/>
-		/// 4. Телефон личный в ТД<br/>
-		/// 5. Телефон личный в контрагенте<br/>
-		/// 6. Иная почта в контрагенте<br/>
-		/// 7. Городской телефон в ТД<br/>
-		/// 8. Городской телефон в контрагенте<br/>
-		/// </summary>
-		/// <returns>Контакт с минимальным весом.<br/>Телефоны возвращает в формате +7</returns>
-		public virtual string GetContact(OrderEntity order)
-		{
-			if(order.Client == null)
-			{
-				return null;
-			}
-
-			//Dictionary<вес контакта, контакт>
-			Dictionary<int, string> contacts = new Dictionary<int, string>();
-
-			try
-			{
-				if(!order.SelfDelivery && order.DeliveryPoint != null && order.DeliveryPoint.Phones.Any())
-				{
-					var deliveryPointReceiptPhone = order.DeliveryPoint.Phones.FirstOrDefault(
-						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
-							&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts
-							&& !p.IsArchive);
-
-					if(deliveryPointReceiptPhone != null)
-					{
-						contacts[2] = "+7" + deliveryPointReceiptPhone.DigitsNumber;
-					}
-
-					var phone = order.DeliveryPoint.Phones.FirstOrDefault(
-						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
-							&& p.DigitsNumber.Substring(0, 1) == "9"
-							&& !p.IsArchive);
-
-					if(phone != null)
-					{
-						contacts[4] = "+7" + phone.DigitsNumber;
-					}
-					else if(order.DeliveryPoint.Phones.Any(
-						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
-							&& !p.IsArchive))
-					{
-						contacts[7] = "+7" + order.DeliveryPoint.Phones.FirstOrDefault(
-							p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
-								&& !p.IsArchive).DigitsNumber;
-					}
-				}
-			}
-			catch(GenericADOException ex)
-			{
-				_logger.LogWarning(ex, "Исключение при попытке поборать телефон для чеков из точки доставки");
-			}
-
-			try
-			{
-				if(order.Client.Phones.Any())
-				{
-					var clientReceiptPhone = order.Client.Phones.FirstOrDefault(
-						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
-							&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts
-							&& !p.IsArchive);
-
-					if(clientReceiptPhone != null)
-					{
-						contacts[3] = "+7" + clientReceiptPhone.DigitsNumber;
-					}
-
-					var phone = order.Client.Phones.FirstOrDefault(
-						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
-							&& p.DigitsNumber.Substring(0, 1) == "9"
-							&& !p.IsArchive);
-
-					if(phone != null)
-					{
-						contacts[5] = "+7" + phone.DigitsNumber;
-					}
-					else if(order.Client.Phones.Any(
-						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
-							&& !p.IsArchive))
-					{
-						contacts[8] = "+7" + order.Client.Phones.FirstOrDefault(
-							p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
-								&& !p.IsArchive).DigitsNumber;
-					}
-				}
-			}
-			catch(GenericADOException ex)
-			{
-				_logger.LogWarning(ex, "Исключение при попытке поборать телефон для чеков из контрагента");
-			}
-
-			try
-			{
-				if(order.Client.Emails.Any())
-				{
-					var receiptEmail = order.Client.Emails.FirstOrDefault(e => !string.IsNullOrWhiteSpace(e.Address)
-						 && e.EmailType?.EmailPurpose == EmailPurpose.ForReceipts)?.Address;
-
-					if(receiptEmail != null)
-					{
-						contacts[0] = receiptEmail;
-					}
-
-					var billsEmail = order.Client.Emails.FirstOrDefault(
-						e => !string.IsNullOrWhiteSpace(e.Address)
-							&& e.EmailType?.EmailPurpose == EmailPurpose.ForBills)?.Address;
-
-					if(billsEmail != null)
-					{
-						contacts[1] = billsEmail;
-					}
-
-					var email = order.Client.Emails.FirstOrDefault(e =>
-						!string.IsNullOrWhiteSpace(e.Address)
-						&& e.EmailType?.EmailPurpose != EmailPurpose.ForBills
-						&& e.EmailType?.EmailPurpose != EmailPurpose.ForReceipts)
-						?.Address;
-
-					if(email != null)
-					{
-						contacts[6] = email;
-					}
-				}
-			}
-			catch(GenericADOException ex)
-			{
-				_logger.LogWarning(ex, "Исключение при попытке поборать почту для чеков из контрагента");
-			}
-
-			if(!contacts.Any())
-			{
-				return null;
-			}
-
-			var onlyWithValidPhones = contacts.Where(x =>
-				(x.Value.StartsWith("+7")
-					&& x.Value.Length == 12)
-				|| !x.Value.StartsWith("+7"));
-
-			if(!onlyWithValidPhones.Any())
-			{
-				throw new InvalidOperationException($"Не удалось подобрать контакт для заказа {order.Id}");
-			}
-
-			int minWeight = onlyWithValidPhones.Min(c => c.Key);
-			var contact = contacts[minWeight];
-
-			if(string.IsNullOrWhiteSpace(contact))
-			{
-				throw new InvalidOperationException($"Не удалось подобрать контакт для заказа {order.Id}");
-			}
-
-			return contact;
 		}
 
 		public void Dispose()

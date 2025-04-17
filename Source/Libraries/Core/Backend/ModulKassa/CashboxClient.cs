@@ -126,7 +126,12 @@ namespace ModulKassa
 
 					_logger.LogWarning("Запуск проверки статуса фискального документа №{docId} на кассу №{cashboxId}", 
 						doc.Id, _setting.CashBoxId);
+
 					result = await CheckFiscalDocument(doc, cancellationToken);
+					if(result.SendStatus == SendStatus.Error)
+					{
+						return CreateErrorResult(httpCodeMessage);
+					}
 					return result;
 				}
 

@@ -6,13 +6,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Edo.Receipt.Dispatcher.Consumers
 {
-	public class ReceiptTaskCreatedEventConsumer : IConsumer<ReceiptTaskCreatedEvent>
+	public class ReceiptTaskCreatedConsumer : IConsumer<ReceiptTaskCreatedEvent>
 	{
-		private readonly ILogger<ReceiptTaskCreatedEventConsumer> _logger;
+		private readonly ILogger<ReceiptTaskCreatedConsumer> _logger;
 		private readonly ReceiptEdoTaskHandler _receiptEdoTaskHandler;
 
-		public ReceiptTaskCreatedEventConsumer(
-			ILogger<ReceiptTaskCreatedEventConsumer> logger,
+		public ReceiptTaskCreatedConsumer(
+			ILogger<ReceiptTaskCreatedConsumer> logger,
 			ReceiptEdoTaskHandler receiptEdoTaskHandler
 			)
 		{
@@ -22,15 +22,7 @@ namespace Edo.Receipt.Dispatcher.Consumers
 
 		public async Task Consume(ConsumeContext<ReceiptTaskCreatedEvent> context)
 		{
-			try
-			{
-				await _receiptEdoTaskHandler.HandleNew(context.Message.ReceiptEdoTaskId, context.CancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Error while processing EdoRequestCreatedEvent");
-				await context.ConsumeCompleted;
-			}
+			await _receiptEdoTaskHandler.HandleNew(context.Message.ReceiptEdoTaskId, context.CancellationToken);
 		}
 	}
 }

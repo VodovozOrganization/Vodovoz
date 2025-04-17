@@ -22,14 +22,7 @@ namespace Edo.Docflow.Consumers
 
 		public async Task Consume(ConsumeContext<OrderDocumentSendEvent> context)
 		{
-			try
-			{
-				await _docflowHandler.HandleOrderDocument(context.Message.OrderDocumentId, context.CancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка при обработке события отправки клиентского документа");
-			}
+			await _docflowHandler.HandleOrderDocument(context.Message.OrderDocumentId, context.CancellationToken);
 		}
 	}
 }

@@ -1,5 +1,5 @@
-﻿using Edo.Problems;
-using Edo.Problems.Exception;
+﻿using Edo.Common;
+using Edo.Problems;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.DomainModel.UoW;

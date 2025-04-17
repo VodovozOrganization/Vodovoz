@@ -147,5 +147,11 @@
 				typeof(TrueMarkCode),
 				nameof(TrueMarkCodesHaveToBeAddedInWarehouse),
 				"Коды ЧЗ сетевого заказа должны добавляться на складе");
+
+		public static Error AggregatedCode =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(AggregatedCode),
+				"Код ЧЗ участвует в агрегации");
 	}
 }

@@ -29,7 +29,7 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Произошла ошибка в процессе завершения трансфера");
+				_logger.LogError(ex, "Error processing event");
 				throw;
 			}
 		}
