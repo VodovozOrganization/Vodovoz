@@ -1,6 +1,7 @@
 ﻿using DriverAPI.Library;
 using DriverAPI.Services;
 using DriverAPI.Workers;
+using Infrastructure.WebApi.Telemetry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Dialog;
@@ -40,6 +41,10 @@ namespace DriverAPI
 				.AddScoped<IErrorReporter>((sp) => ErrorReporter.Instance)
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<TrueMarkCodesPool, TrueMarkTransactionalCodesPool>()
+
+				// Телеметрия
+
+				.AddApiOpenTelemetry("driver_api")
 
 				// Сервисы
 				.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>()
