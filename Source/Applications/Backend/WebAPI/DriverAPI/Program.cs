@@ -1,11 +1,8 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using System;
-using NLog.Web;
-using Microsoft.Extensions.Logging;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Resources;
 
 namespace DriverAPI
 {
@@ -27,16 +24,11 @@ namespace DriverAPI
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
-				.ConfigureLogging((context, logging) =>
-				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(context.Configuration.GetSection("NLog"));
-				})
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
 					webBuilder.UseStartup<Startup>();
-				});
+				})
+				.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
 	}
 }
