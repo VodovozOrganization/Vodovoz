@@ -11,7 +11,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id,
@@ -66,6 +66,7 @@ WHERE route_lists.`date` BETWEEN @start_date AND @end_date
   AND (@geographic_group_id = 0 OR districts.geo_group_id = @geographic_group_id)
   AND (
          IF('Delivery' IN (@RouteListOwnType_include), !driver.visiting_master AND cm.car_type_of_use != 'Truck' AND orders.order_address_type = 'Delivery' , '0' IN (@RouteListOwnType_include))
+            OR IF('ChainStore' IN (@RouteListOwnType_include), !driver.visiting_master AND cm.car_type_of_use != 'Truck' AND orders.order_address_type = 'ChainStore', '0' IN (@RouteListOwnType_include))
             OR IF('Trucks' IN (@RouteListOwnType_include), cm.car_type_of_use = 'Truck', '0' IN (@RouteListOwnType_include))
             OR IF('ServiceCenter' IN (@RouteListOwnType_include), driver.visiting_master, '0' IN (@RouteListOwnType_include))
             OR IF('StorageLogistics' IN (@RouteListOwnType_include), orders.order_address_type = 'StorageLogistics', '0' IN (@RouteListOwnType_include))
@@ -93,7 +94,7 @@ HAVING delay &gt; 0;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -179,7 +180,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
       </Fields>
     </DataSet>
     <DataSet Name="LatenessSummary">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	Sum(Delays.delay &lt; '00:05:00') AS LessThan5Minutes,
@@ -258,7 +259,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="LessThan5Minutes">
           <DataField>LessThan5Minutes</DataField>
           <TypeName>System.String</TypeName>
