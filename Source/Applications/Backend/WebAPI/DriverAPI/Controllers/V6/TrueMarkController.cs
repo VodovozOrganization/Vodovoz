@@ -267,7 +267,7 @@ namespace DriverAPI.Controllers.V6
 		/// Используется для добавления нескольких кодов для заказов для собственных нужд в тех случаях,
 		/// когда водитель отсканировал коды, но не смог завершить заказ по месту.
 		/// </summary>
-		/// <param name="sendOrderCodesRequestModel"><see cref="AddOrderCodeRequest"/></param>
+		/// <param name="sendOrderCodesRequestModel"><see cref="SendOrderCodesRequest"/></param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns></returns>
 		[HttpPost]
