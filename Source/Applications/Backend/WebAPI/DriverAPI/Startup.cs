@@ -15,13 +15,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using NLog.Web;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Project.DB;
 using QS.Services;
+using Serilog;
 using System;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
@@ -35,9 +34,6 @@ namespace DriverAPI
 {
 	internal class Startup
 	{
-		private const string _nLogSectionName = nameof(NLog);
-		private ILogger<Startup> _logger;
-
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -48,17 +44,6 @@ namespace DriverAPI
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddLogging(
-				logging =>
-				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
-				});
-
-			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
-				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName))));
-
 			// Подключение к БД
 
 			var connectionString = Configuration.GetConnectionString("DefaultConnection");
@@ -202,6 +187,8 @@ namespace DriverAPI
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
+
+			app.UseSerilogRequestLogging();
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
