@@ -15,7 +15,7 @@ namespace RobotMiaApi.Controllers.V1
 	/// </summary>
 	public class NomenclatureController : VersionedController
 	{
-		private readonly NomenclatureService _nomenclatureService;
+		private readonly INomenclatureService _nomenclatureService;
 
 		/// <summary>
 		/// Конструктор
@@ -24,7 +24,7 @@ namespace RobotMiaApi.Controllers.V1
 		/// <param name="nomenclatureService"></param>
 		public NomenclatureController(
 			ILogger<NomenclatureController> logger,
-			NomenclatureService nomenclatureService) : base(logger)
+			INomenclatureService nomenclatureService) : base(logger)
 		{
 			_nomenclatureService = nomenclatureService
 				?? throw new ArgumentNullException(nameof(nomenclatureService));

@@ -19,7 +19,7 @@ namespace RobotMiaApi.Controllers.V1
 	public class BottlesForReturnFromDeliveryPointController : VersionedController
 	{
 		private readonly IBottlesRepository _bottlesRepository;
-		private readonly IncomingCallCallService _incomingCallService;
+		private readonly IIncomingCallCallService _incomingCallService;
 
 		/// <summary>
 		/// Конструктор
@@ -29,7 +29,7 @@ namespace RobotMiaApi.Controllers.V1
 		/// <param name="bottlesRepository"></param>
 		public BottlesForReturnFromDeliveryPointController(
 			ILogger<ApiControllerBase> logger,
-			IncomingCallCallService incomingCallService,
+			IIncomingCallCallService incomingCallService,
 			IBottlesRepository bottlesRepository)
 			: base(logger)
 		{

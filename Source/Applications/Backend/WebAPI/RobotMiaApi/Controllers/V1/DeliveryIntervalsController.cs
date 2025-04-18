@@ -25,7 +25,7 @@ namespace RobotMiaApi.Controllers.V1
 	public class DeliveryIntervalsController : VersionedController
 	{
 		private readonly IGenericRepository<DeliveryPoint> _deliveryPointRepository;
-		private readonly IncomingCallCallService _incomingCallService;
+		private readonly IIncomingCallCallService _incomingCallService;
 
 		/// <summary>
 		/// Конструктор
@@ -38,7 +38,7 @@ namespace RobotMiaApi.Controllers.V1
 			ILogger<ApiControllerBase> logger,
 			IGenericRepository<DeliveryPoint> deliveryPointRepository,
 			IGenericRepository<District> districtRepository,
-			IncomingCallCallService incomingCallService)
+			IIncomingCallCallService incomingCallService)
 			: base(logger)
 		{
 			_deliveryPointRepository = deliveryPointRepository

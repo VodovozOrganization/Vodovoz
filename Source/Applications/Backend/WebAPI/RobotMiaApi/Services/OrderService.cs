@@ -14,10 +14,8 @@ using VodovozBusiness.Specifications.Orders;
 
 namespace RobotMiaApi.Services
 {
-	/// <summary>
-	/// Сервис заказов Api робота Мия
-	/// </summary>
-	public class OrderService
+	/// <inheritdoc cref="IOrderService"/>
+	public class OrderService : IOrderService
 	{
 		private static readonly OrderStatus[] _lastOrderCompletedStatuses = new OrderStatus[]
 		{
@@ -25,7 +23,7 @@ namespace RobotMiaApi.Services
 			OrderStatus.Closed,
 			OrderStatus.UnloadingOnStock
 		};
-		
+
 		private readonly ILogger<OrderService> _logger;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRoboatsSettings _roboatsSettings;
@@ -60,11 +58,7 @@ namespace RobotMiaApi.Services
 				?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
-		/// <summary>
-		/// Получение последнего заказа контрагента
-		/// </summary>
-		/// <param name="counterpartyId"></param>
-		/// <returns></returns>
+		/// <inheritdoc/>
 		public LastOrderResponse GetLastOrderByCounterpartyId(int counterpartyId)
 		{
 			return _orderRepository
@@ -81,11 +75,7 @@ namespace RobotMiaApi.Services
 				.MapToLastOrderResponseV1();
 		}
 
-		/// <summary>
-		/// Получение последнего заказа точки доставки
-		/// </summary>
-		/// <param name="deliveryPointId"></param>
-		/// <returns></returns>
+		/// <inheritdoc/>
 		public LastOrderResponse GetLastOrderByDeliveryPointId(int deliveryPointId)
 		{
 			return _orderRepository

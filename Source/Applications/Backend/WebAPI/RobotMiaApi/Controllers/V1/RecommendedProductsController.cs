@@ -19,7 +19,7 @@ namespace RobotMiaApi.Controllers.V1
 	/// </summary>
 	public class RecommendedProductsController : VersionedController
 	{
-		private readonly IncomingCallCallService _incomingCallService;
+		private readonly IIncomingCallCallService _incomingCallService;
 
 		/// <summary>
 		/// Конструктор
@@ -28,7 +28,7 @@ namespace RobotMiaApi.Controllers.V1
 		/// <param name="incomingCallService"></param>
 		public RecommendedProductsController(
 			ILogger<ApiControllerBase> logger,
-			IncomingCallCallService incomingCallService)
+			IIncomingCallCallService incomingCallService)
 			: base(logger)
 		{
 			_incomingCallService = incomingCallService
