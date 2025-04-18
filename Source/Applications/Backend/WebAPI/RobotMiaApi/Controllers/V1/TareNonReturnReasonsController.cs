@@ -22,7 +22,7 @@ namespace RobotMiaApi.Controllers.V1
 	public class TareNonReturnReasonsController : VersionedController
 	{
 		private readonly IGenericRepository<NonReturnReason> _nonReturnReasonRepository;
-		private readonly IncomingCallCallService _incomingCallService;
+		private readonly IIncomingCallCallService _incomingCallService;
 
 		/// <summary>
 		/// Конструктор
@@ -33,7 +33,7 @@ namespace RobotMiaApi.Controllers.V1
 		public TareNonReturnReasonsController(
 			ILogger<ApiControllerBase> logger,
 			IGenericRepository<NonReturnReason> nonReturnReasonRepository,
-			IncomingCallCallService incomingCallService)
+			IIncomingCallCallService incomingCallService)
 			: base(logger)
 		{
 			_nonReturnReasonRepository = nonReturnReasonRepository

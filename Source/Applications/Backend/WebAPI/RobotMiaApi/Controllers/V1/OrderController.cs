@@ -13,8 +13,8 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Presentation.WebApi.Common;
-using VodovozBusiness.Services.Orders;
 using CreateOrderRequest = RobotMiaApi.Contracts.Requests.V1.CreateOrderRequest;
+using IOrderService = VodovozBusiness.Services.Orders.IOrderService;
 
 namespace RobotMiaApi.Controllers.V1
 {
@@ -24,7 +24,7 @@ namespace RobotMiaApi.Controllers.V1
 	public class OrderController : VersionedController
 	{
 		private readonly IOrderService _orderService;
-		private readonly IncomingCallCallService _incomingCallService;
+		private readonly IIncomingCallCallService _incomingCallService;
 
 		/// <summary>
 		/// Конструктор
@@ -35,7 +35,7 @@ namespace RobotMiaApi.Controllers.V1
 		public OrderController(
 			ILogger<ApiControllerBase> logger,
 			IOrderService orderService,
-			IncomingCallCallService incomingCallService)
+			IIncomingCallCallService incomingCallService)
 			: base(logger)
 		{
 			_orderService = orderService

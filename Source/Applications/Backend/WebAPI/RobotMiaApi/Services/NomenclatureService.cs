@@ -11,10 +11,8 @@ using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace RobotMiaApi.Services
 {
-	/// <summary>
-	/// Сервис для работы с номенклатурами
-	/// </summary>
-	public class NomenclatureService
+	/// <inheritdoc cref="INomenclatureService"/>
+	public class NomenclatureService : INomenclatureService
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly INomenclatureSettings _nomenclatureSettings;
@@ -45,10 +43,7 @@ namespace RobotMiaApi.Services
 				?? throw new ArgumentNullException(nameof(robotMiaParametersRepository));
 		}
 
-		/// <summary>
-		/// Получение номенклатур
-		/// </summary>
-		/// <returns></returns>
+		/// <inheritdoc/>
 		public async Task<IEnumerable<NomenclatureDto>> GetNomenclatures()
 		{
 			var parameters = _robotMiaParametersRepository
@@ -83,10 +78,7 @@ namespace RobotMiaApi.Services
 			return await ValueTask.FromResult(results);
 		}
 
-		/// <summary>
-		/// Получение номенклатуры неустойки
-		/// </summary>
-		/// <returns></returns>
+		/// <inheritdoc/>
 		public async Task<NomenclatureDto> GetForfeitNomenclature()
 		{
 			var nomenclature = _nomenclatureRepository.Get(

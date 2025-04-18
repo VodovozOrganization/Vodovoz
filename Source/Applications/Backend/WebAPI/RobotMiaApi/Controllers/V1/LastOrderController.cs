@@ -17,8 +17,8 @@ namespace RobotMiaApi.Controllers.V1
 	/// </summary>
 	public class LastOrderController : VersionedController
 	{
-		private readonly IncomingCallCallService _incomingCallService;
-		private readonly OrderService _orderService;
+		private readonly IIncomingCallCallService _incomingCallService;
+		private readonly IOrderService _orderService;
 
 		/// <summary>
 		/// Констркутор
@@ -28,8 +28,8 @@ namespace RobotMiaApi.Controllers.V1
 		/// <param name="orderService"></param>
 		public LastOrderController(
 			ILogger<ApiControllerBase> logger,
-			IncomingCallCallService incomingCallService,
-			OrderService orderService)
+			IIncomingCallCallService incomingCallService,
+			IOrderService orderService)
 			: base(logger)
 		{
 			_incomingCallService = incomingCallService

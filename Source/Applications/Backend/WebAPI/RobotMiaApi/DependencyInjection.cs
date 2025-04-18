@@ -37,8 +37,9 @@ namespace RobotMiaApi
 				.AddTrackedUoW()
 				.AddDatabaseSettings()
 				.AddScoped<IUnitOfWork>((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
-				.AddScoped<IncomingCallCallService>()
-				.AddScoped<OrderService>()
+				.AddScoped<INomenclatureService, NomenclatureService>()
+				.AddScoped<IIncomingCallCallService, IncomingCallCallService>()
+				.AddScoped<IOrderService, OrderService>()
 				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

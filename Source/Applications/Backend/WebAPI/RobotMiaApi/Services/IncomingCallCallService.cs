@@ -9,10 +9,8 @@ using Vodovoz.Core.Domain.RobotMia;
 
 namespace RobotMiaApi.Services
 {
-	/// <summary>
-	/// Сервис входящих звонков Api робота Мия
-	/// </summary>
-	public class IncomingCallCallService
+	/// <inheritdoc cref="IIncomingCallCallService"/>
+	public class IncomingCallCallService : IIncomingCallCallService
 	{
 		private readonly ILogger<IncomingCallCallService> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
@@ -38,12 +36,7 @@ namespace RobotMiaApi.Services
 				?? throw new ArgumentNullException(nameof(robotMiaCallRespository));
 		}
 
-		/// <summary>
-		/// Получение зарегистрарованного звонка по уникальному идентификатору
-		/// </summary>
-		/// <param name="callId"></param>
-		/// <param name="uow"></param>
-		/// <returns></returns>
+		/// <inheritdoc/>
 		public async Task<RobotMiaCall> GetCallByIdAsync(Guid callId, IUnitOfWork uow = default)
 		{
 			try
@@ -60,6 +53,25 @@ namespace RobotMiaApi.Services
 			{
 				_logger.LogError(ex, "Ошибка получения звонка");
 				throw;
+			}
+		}
+
+		/// <inheritdoc/>
+		public async Task RegisterCallAsync(Guid callId, string phoneNumber, int? counterpartyId, IUnitOfWork uow = default)
+		{
+			try
+			{
+				uow ??= _uowFactory.CreateWithoutRoot();
+
+				var call = await GetCallByIdAsync(callId, phoneNumber.NormalizePhone(), uow);
+
+				call.CounterpartyId = counterpartyId;
+
+				await uow.SaveAsync(call);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Возникло исключение при регистрации записи в мониторинг.");
 			}
 		}
 
@@ -88,32 +100,6 @@ namespace RobotMiaApi.Services
 			{
 				_logger.LogError(ex, "Ошибка получения звонка");
 				throw;
-			}
-		}
-
-		/// <summary>
-		/// Регистрация входящего звонка робота Мия
-		/// </summary>
-		/// <param name="callId"></param>
-		/// <param name="phoneNumber"></param>
-		/// <param name="counterpartyId"></param>
-		/// <param name="uow"></param>
-		/// <returns></returns>
-		public async Task RegisterCallAsync(Guid callId, string phoneNumber, int? counterpartyId, IUnitOfWork uow = default)
-		{
-			try
-			{
-				uow ??= _uowFactory.CreateWithoutRoot();
-
-				var call = await GetCallByIdAsync(callId, phoneNumber.NormalizePhone(), uow);
-
-				call.CounterpartyId = counterpartyId;
-
-				await uow.SaveAsync(call);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Возникло исключение при регистрации записи в мониторинг.");
 			}
 		}
 	}

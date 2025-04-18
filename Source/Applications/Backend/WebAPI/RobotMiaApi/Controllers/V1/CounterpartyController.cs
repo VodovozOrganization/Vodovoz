@@ -22,7 +22,7 @@ namespace RobotMiaApi.Controllers.V1
 	/// </summary>
 	public class CounterpartyController : VersionedController
 	{
-		private readonly IncomingCallCallService _incomingCallService;
+		private readonly IIncomingCallCallService _incomingCallService;
 		private readonly ICounterpartyService _counterpartyService;
 
 		/// <summary>
@@ -33,7 +33,7 @@ namespace RobotMiaApi.Controllers.V1
 		/// <param name="counterpartyService"></param>
 		public CounterpartyController(
 			ILogger<ApiControllerBase> logger,
-			IncomingCallCallService incomingCallService,
+			IIncomingCallCallService incomingCallService,
 			ICounterpartyService counterpartyService)
 			: base(logger)
 		{
