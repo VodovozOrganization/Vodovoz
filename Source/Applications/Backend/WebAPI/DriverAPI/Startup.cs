@@ -36,17 +36,21 @@ namespace DriverAPI
 			app.UseRequestResponseLogging();
 
 			app.UseSwagger();
-			app.UseSwaggerUI(options =>
-			{
-				var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
 
-				foreach(var description in provider.ApiVersionDescriptions)
+			if(env.IsDevelopment() || Configuration.GetValue<bool>("SwaggerEnabled"))
+			{
+				app.UseSwaggerUI(options =>
 				{
-					options.SwaggerEndpoint(
-						 $"/swagger/{description.GroupName}/swagger.json",
-						 description.ApiVersion.ToString());
-				}
-			});
+					var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+
+					foreach(var description in provider.ApiVersionDescriptions)
+					{
+						options.SwaggerEndpoint(
+							 $"/swagger/{description.GroupName}/swagger.json",
+							 description.ApiVersion.ToString());
+					}
+				});
+			}
 
 			if(env.IsDevelopment())
 			{
