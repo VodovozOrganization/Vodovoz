@@ -2,14 +2,11 @@
 using DriverAPI.HealthChecks;
 using DriverAPI.Library;
 using DriverAPI.Library.Helpers;
-using DriverAPI.Options;
 using DriverAPI.Services;
 using DriverAPI.Workers;
 using Infrastructure.WebApi.Telemetry;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
