@@ -1,5 +1,4 @@
-﻿using Core.Infrastructure.Specifications;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
@@ -7,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Specifications;
 
 namespace Receipt.Dispatcher.Tests
 {
