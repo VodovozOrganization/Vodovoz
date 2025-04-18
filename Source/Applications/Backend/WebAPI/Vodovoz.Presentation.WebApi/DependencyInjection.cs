@@ -78,7 +78,7 @@ namespace Vodovoz.Presentation.WebApi
 			var maxVersion = controllersVersions
 				.OrderBy(av => av.MajorVersion)
 				.ThenBy(av => av.MinorVersion)
-				.FirstOrDefault() ?? new ApiVersion(1, 0);
+				.LastOrDefault() ?? new ApiVersion(1, 0);
 
 			services.AddApiVersioning(config =>
 			{
