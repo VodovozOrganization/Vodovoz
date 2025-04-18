@@ -1,4 +1,5 @@
-﻿using RobotMiaApi.Contracts.Responses.V1;
+﻿using RobotMiaApi.Contracts.Requests.V1;
+using RobotMiaApi.Contracts.Responses.V1;
 
 namespace RobotMiaApi.Services
 {
@@ -20,5 +21,25 @@ namespace RobotMiaApi.Services
 		/// <param name="deliveryPointId"></param>
 		/// <returns></returns>
 		LastOrderResponse GetLastOrderByDeliveryPointId(int deliveryPointId);
+
+		/// <summary>
+		/// Создание и принятие заказа
+		/// </summary>
+		/// <param name="createOrderRequest"></param>
+		/// <returns></returns>
+		int CreateAndAcceptOrder(CreateOrderRequest createOrderRequest);
+
+		/// <summary>
+		/// Создание заказа без принятия
+		/// </summary>
+		/// <param name="createOrderRequest"></param>
+		void CreateIncompleteOrder(CreateOrderRequest createOrderRequest);
+
+		/// <summary>
+		/// Получение цены заказа, доставки и неустойки
+		/// </summary>
+		/// <param name="calculatePriceRequest"></param>
+		/// <returns></returns>
+		(decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice) GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest);
 	}
 }

@@ -5,7 +5,6 @@ using NHibernate.Util;
 using QS.DomainModel.UoW;
 using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
-using RobotMiaApi.Extensions.Mapping;
 using RobotMiaApi.Services;
 using System;
 using System.Linq;
@@ -13,8 +12,6 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Presentation.WebApi.Common;
-using CreateOrderRequest = RobotMiaApi.Contracts.Requests.V1.CreateOrderRequest;
-using IOrderService = VodovozBusiness.Services.Orders.IOrderService;
 
 namespace RobotMiaApi.Controllers.V1
 {
@@ -84,12 +81,12 @@ namespace RobotMiaApi.Controllers.V1
 				|| postOrderRequest.BottlesReturn is null
 				|| !postOrderRequest.SaleItems.Any())
 			{
-				_orderService.CreateIncompleteOrder(postOrderRequest.MapToCreateOrderRequest());
+				_orderService.CreateIncompleteOrder(postOrderRequest);
 
 				return NoContent();
 			}
 
-			var createdOrderId = _orderService.CreateAndAcceptOrder(postOrderRequest.MapToCreateOrderRequest());
+			var createdOrderId = _orderService.CreateAndAcceptOrder(postOrderRequest);
 			_logger.LogInformation("Создан заказ #{OrderId}", createdOrderId);
 
 			return NoContent();
@@ -116,7 +113,7 @@ namespace RobotMiaApi.Controllers.V1
 				return Problem($"Не найдена запись о звонке {calculatePriceRequest.CallId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			(var orderPrice, var deliveryPrice, var forfeitPrice) = _orderService.GetOrderAndDeliveryPrices(calculatePriceRequest.MapToCreateOrderRequest());
+			(var orderPrice, var deliveryPrice, var forfeitPrice) = _orderService.GetOrderAndDeliveryPrices(calculatePriceRequest);
 
 			return Ok(new CalculatePriceResponse
 			{

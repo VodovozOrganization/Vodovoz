@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
 using RobotMiaApi.Extensions.Mapping;
 using RobotMiaApi.Specifications;
@@ -11,6 +12,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Roboats;
 using VodovozBusiness.Specifications.Orders;
+using IVodovozOrderService = VodovozBusiness.Services.Orders.IOrderService;
 
 namespace RobotMiaApi.Services
 {
@@ -28,6 +30,7 @@ namespace RobotMiaApi.Services
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly IVodovozOrderService _vodovozOrderService;
 		private readonly IUnitOfWork _unitOfWork;
 
 		/// <summary>
@@ -37,6 +40,7 @@ namespace RobotMiaApi.Services
 		/// <param name="nomenclatureSettings"></param>
 		/// <param name="roboatsSettings"></param>
 		/// <param name="orderRepository"></param>
+		/// <param name="vodovozOrderService"></param>
 		/// <param name="unitOfWork"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public OrderService(
@@ -44,6 +48,7 @@ namespace RobotMiaApi.Services
 			INomenclatureSettings nomenclatureSettings,
 			IRoboatsSettings roboatsSettings,
 			IGenericRepository<Order> orderRepository,
+			IVodovozOrderService vodovozOrderService,
 			IUnitOfWork unitOfWork)
 		{
 			_logger = logger
@@ -54,9 +59,11 @@ namespace RobotMiaApi.Services
 				?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_orderRepository = orderRepository
 				?? throw new ArgumentNullException(nameof(orderRepository));
+			_vodovozOrderService = vodovozOrderService;
 			_unitOfWork = unitOfWork
 				?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
+
 
 		/// <inheritdoc/>
 		public LastOrderResponse GetLastOrderByCounterpartyId(int counterpartyId)
@@ -90,6 +97,24 @@ namespace RobotMiaApi.Services
 							_nomenclatureSettings.FastDeliveryNomenclatureId)))
 				.FirstOrDefault()?
 				.MapToLastOrderResponseV1();
+		}
+
+		/// <inheritdoc/>
+		public void CreateIncompleteOrder(CreateOrderRequest createOrderRequest)
+		{
+			_vodovozOrderService.CreateIncompleteOrder(createOrderRequest.MapToCreateOrderRequest());
+		}
+
+		/// <inheritdoc/>
+		public int CreateAndAcceptOrder(CreateOrderRequest createOrderRequest)
+		{
+			return _vodovozOrderService.CreateAndAcceptOrder(createOrderRequest.MapToCreateOrderRequest());
+		}
+
+		/// <inheritdoc/>
+		public (decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice) GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest)
+		{
+			return _vodovozOrderService.GetOrderAndDeliveryPrices(calculatePriceRequest.MapToCreateOrderRequest());
 		}
 	}
 }
