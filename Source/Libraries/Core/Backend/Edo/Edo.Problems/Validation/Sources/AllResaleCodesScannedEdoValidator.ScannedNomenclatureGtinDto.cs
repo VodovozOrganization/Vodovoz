@@ -2,11 +2,11 @@
 {
 	public partial class AllResaleCodesScannedEdoValidator
 	{
-		private class ScannedDto
+		private class ScannedNomenclatureGtinDto
 		{
+			public int NomenclatureId { get; set; }
 			public string Gtin { get; set; }
 			public decimal Amount { get; set; }
-			public int NomenclatureId { get; set; }
 		}
 	}
 }

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Common;
 using Microsoft.Extensions.DependencyInjection;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
@@ -13,11 +15,11 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Problems.Validation.Sources
 {
-	public class AllCodeScannedEdoValidator : EdoTaskProblemValidatorSource, IEdoTaskValidator
+	public partial class AllResaleCodesScannedEdoValidator : EdoTaskProblemValidatorSource, IEdoTaskValidator
 	{
 		public override string Name
 		{
-			get => "Order.AllCodesScanned";
+			get => "Order.AllResaleCodesScanned";
 		}
 
 		public override EdoProblemImportance Importance
@@ -27,12 +29,12 @@ namespace Edo.Problems.Validation.Sources
 
 		public override string Message
 		{
-			get => "Недостаточно валидных кодов";
+			get => "На стадии подготовки данных в задаче на отправку обнаружено недостаточно количество валидных кодов для перепродажи";
 		}
 
 		public override string Description
 		{
-			get => "Проверяет, что валидных кодов достаточно";
+			get => "Проверяет, что для перепродажи достаточно валидных кодов";
 		}
 
 		public override string Recommendation
@@ -50,12 +52,12 @@ namespace Edo.Problems.Validation.Sources
 			var documentEdoTask = edoTask as DocumentEdoTask;
 			var receiptEdoTask = edoTask as ReceiptEdoTask;
 
-			if(documentEdoTask == null && receiptEdoTask == null)
+			var orderEdoRequest = documentEdoTask?.OrderEdoRequest ?? receiptEdoTask?.OrderEdoRequest;
+			
+			if(orderEdoRequest is null)
 			{
 				return false;
 			}
-
-			var orderEdoRequest = documentEdoTask?.OrderEdoRequest ?? receiptEdoTask.OrderEdoRequest;
 
 			return orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad;
 		}
@@ -72,7 +74,7 @@ namespace Edo.Problems.Validation.Sources
 			var receiptEdoTask = edoTask as ReceiptEdoTask;
 			var orderEdoRequest = documentEdoTask?.OrderEdoRequest ?? receiptEdoTask.OrderEdoRequest;
 
-			using(var uow = uowFactory.CreateWithoutRoot(nameof(AllCodeScannedEdoValidator)))
+			using(var uow = uowFactory.CreateWithoutRoot(nameof(AllResaleCodesScannedEdoValidator)))
 			{
 				return await IsAllTrueMarkProductCodesAddedToOrder(uow, trueMarkTaskCodesValidator, trueMarkCodesChecker,
 					orderEdoRequest, cancellationToken)
@@ -88,20 +90,25 @@ namespace Edo.Problems.Validation.Sources
 			OrderEdoRequest orderEdoRequest,
 			CancellationToken cancellationToken)
 		{
-			var accountableInTrueMarkItemsGtins =
+			#region Запросы в БД
+			
+			// Что нужно отсканировать в заказе
+			var accountableInTrueMarkItemsOrderGtins =
 				(from oi in unitOfWork.Session.Query<OrderItemEntity>()
 					where oi.Order.Id == orderEdoRequest.Order.Id && oi.Nomenclature.IsAccountableInTrueMark
 					from gtin in oi.Nomenclature.Gtins
 					group oi by gtin.GtinNumber
 					into grouped
-					select new
+					select new ScannedNomenclatureGtinDto
 					{
+						NomenclatureId = grouped.Select(x => x.Nomenclature.Id).FirstOrDefault(),
 						Gtin = grouped.Key,
-						TotalCount = grouped.Sum(item => item.Count)
+						Amount = grouped.Sum(item => item.Count)
 					})
-				.ToDictionary(result => result.Gtin, result => result.TotalCount);
+				.ToFuture();
 
-			var addedTrueMarkCodesFromRouteList =
+			// Что отсканировано в МЛ
+			var scannedRouteListCodes =
 				(from routeListItem in unitOfWork.Session.Query<RouteListItemEntity>()
 					join productCode in unitOfWork.Session.Query<RouteListItemTrueMarkProductCode>()
 						on routeListItem.Id equals productCode.RouteListItem.Id
@@ -109,14 +116,15 @@ namespace Edo.Problems.Validation.Sources
 					      && productCode.SourceCodeStatus == SourceProductCodeStatus.Accepted
 					group productCode by productCode.ResultCode.GTIN
 					into grouped
-					select new
+					select new ScannedNomenclatureGtinDto
 					{
-						GTIN = grouped.Key,
-						TotalCount = grouped.Count()
+						Gtin = grouped.Key,
+						Amount = grouped.Count()
 					})
-				.ToDictionary(group => group.GTIN, group => group.TotalCount);
+				.ToFuture();
 
-			var addedTrueMarkCodesFromSelfDelivery =
+			// Что отсканировано в самовывозах
+			var scannedSelfDeliveryCodes =
 				(from item in unitOfWork.Session.Query<SelfDeliveryDocumentItemEntity>()
 					join document in unitOfWork.Session.Query<SelfDeliveryDocumentEntity>() on item.SelfDeliveryDocument.Id equals document.Id
 					where document.Order.Id == orderEdoRequest.Order.Id
@@ -124,25 +132,48 @@ namespace Edo.Problems.Validation.Sources
 						on item.Id equals productCode.SelfDeliveryDocumentItem.Id
 					group productCode by productCode.ResultCode.GTIN
 					into grouped
-					select new
+					select new ScannedNomenclatureGtinDto
 					{
-						GTIN = grouped.Key,
-						TotalCount = grouped.Count(),
+						Gtin = grouped.Key,
+						Amount = grouped.Count(),
 					})
-				.ToDictionary(group => group.GTIN, group => group.TotalCount);
+				.ToFuture();
+			
+			#endregion Запросы в БД
 
-			var addedTrueMarkCodes = addedTrueMarkCodesFromRouteList.Concat(addedTrueMarkCodesFromSelfDelivery);
-
-			foreach(var accountableItem in accountableInTrueMarkItemsGtins)
+			// Всё, что отсканировано
+			var allScannedCodes = scannedRouteListCodes.Concat(scannedSelfDeliveryCodes).ToArray();
+			
+			// У одной номенклатуры несколько Gtin - собираем все Gtin-ы каждой номенклатуры в один список
+			var needToScanNomenclaturesWithGtinLists =
+				accountableInTrueMarkItemsOrderGtins
+					.GroupBy(x => x.NomenclatureId)
+					.Select(g =>
+						new
+						{
+							NomenclatureId = g.Key,
+							GtinList = g.Select(x => x.Gtin),
+							Amount = g.First().Amount
+						});
+			
+			// Все ли коды отсканированы?
+			foreach(var needToScan in needToScanNomenclaturesWithGtinLists)
 			{
-				var added = addedTrueMarkCodes.FirstOrDefault(x => x.Key == accountableItem.Key);
+				var scanned = allScannedCodes.FirstOrDefault(x => needToScan.GtinList.Contains(x.Gtin));
 
-				if(added.Value < accountableItem.Value)
+				if(scanned == null || scanned.Amount < needToScan.Amount)
 				{
 					return false;
 				}
 			}
+			
+			// Все ли отсканированные коды прикреплены к задаче?
+			if(orderEdoRequest.Task.Items.Count < allScannedCodes.Sum(x => x.Amount))
+			{
+				return false;
+			}
 
+			// Валидны ли коды в ЧЗ?
 			var trueMarkValidationResult = await trueMarkTaskCodesValidator.ValidateAsync(orderEdoRequest.Task, trueMarkCodesChecker, cancellationToken);
 
 			return trueMarkValidationResult.ReadyToSell;
