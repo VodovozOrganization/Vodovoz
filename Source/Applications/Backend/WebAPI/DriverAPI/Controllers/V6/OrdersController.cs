@@ -2,6 +2,7 @@
 using DriverApi.Contracts.V6.Requests;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Services;
+using Edo.Transport;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -20,6 +21,7 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
+using Vodovoz.Errors;
 
 namespace DriverAPI.Controllers.V6
 {
@@ -35,6 +37,7 @@ namespace DriverAPI.Controllers.V6
 		private readonly IOrderService _orderService;
 		private readonly IDriverMobileAppActionRecordService _driverMobileAppActionRecordService;
 		private readonly IActionTimeHelper _actionTimeHelper;
+		private readonly MessageService _edoMessageService;
 		private static readonly ConcurrentDictionary<string, bool> _completeOrderDeliveryInProgress = new ConcurrentDictionary<string, bool>();
 
 		/// <summary>
@@ -53,13 +56,16 @@ namespace DriverAPI.Controllers.V6
 			UserManager<IdentityUser> userManager,
 			IOrderService orderService,
 			IDriverMobileAppActionRecordService driverMobileAppActionRecordService,
-			IActionTimeHelper actionTimeHelper) : base(logger)
+			IActionTimeHelper actionTimeHelper,
+			MessageService edoMessageService
+			) : base(logger)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_driverMobileAppActionRecordService = driverMobileAppActionRecordService ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordService));
 			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
+			_edoMessageService = edoMessageService ?? throw new ArgumentNullException(nameof(edoMessageService));
 		}
 
 		/// <summary>
@@ -159,6 +165,12 @@ namespace DriverAPI.Controllers.V6
 					completedOrderRequestModel);
 
 				unitOfWork.Commit();
+
+				if(result is Result<int>)
+				{
+					var resultWithMessage = (Result<int>)result;
+					await _edoMessageService.PublishEdoRequestCreatedEvent(resultWithMessage.Value);
+				}
 
 				return MapResult(
 					result,
