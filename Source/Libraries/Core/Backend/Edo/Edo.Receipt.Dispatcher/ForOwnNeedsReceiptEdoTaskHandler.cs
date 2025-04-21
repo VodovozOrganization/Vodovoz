@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
@@ -971,14 +971,27 @@ namespace Edo.Receipt.Dispatcher
 				matchEdoTaskItem = invalidCodes.FirstOrDefault();
 				if(matchEdoTaskItem != null)
 				{
+					TrueMarkWaterIdentificationCode identificationCode = null;
+						
 					// запись кода из пула в result
-					var identificationCode = await LoadCodeFromPool(gtin, cancellationToken);
+					try
+					{
+						identificationCode = await LoadCodeFromPool(gtin, cancellationToken);
+					}
+					catch
+					{
+						_logger.LogInformation("Не получилось подобрать код из пула по gtin {Gtin}.  Пробуем подобрать код из пула по следуюущему gtin номенклатуры.",  gtin.GtinNumber);
+						
+						continue;
+					}
+
 					matchEdoTaskItem.ProductCode.ResultCode = identificationCode;
 					matchEdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 					await _uow.SaveAsync(matchEdoTaskItem, cancellationToken: cancellationToken);
 
 					inventPosition.EdoTaskItem = matchEdoTaskItem;
 					unprocessedCodes.Remove(matchEdoTaskItem);
+					
 					return inventPosition;
 				}
 			}

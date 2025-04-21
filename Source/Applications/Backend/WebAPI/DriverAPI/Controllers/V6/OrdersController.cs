@@ -14,6 +14,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
@@ -131,6 +132,8 @@ namespace DriverAPI.Controllers.V6
 				return NoContent();
 			}
 
+			Activity.Current?.AddTag("OrderId", completedOrderRequestModel.OrderId);
+
 			var resultMessage = "OK";
 
 			var localActionTime = completedOrderRequestModel.ActionTimeUtc.ToLocalTime();
@@ -140,6 +143,8 @@ namespace DriverAPI.Controllers.V6
 			if(timeCheckResult.IsFailure)
 			{
 				_completeOrderDeliveryInProgress.TryRemove($"{user.UserName}:{completedOrderRequestModel.OrderId}", out var _);
+
+				Activity.Current?.SetStatus(ActivityStatusCode.Error);
 				return MapResult(timeCheckResult, errorStatusCode: StatusCodes.Status400BadRequest);
 			}
 
@@ -187,7 +192,7 @@ namespace DriverAPI.Controllers.V6
 						return StatusCodes.Status500InternalServerError;
 					});
 			}
-			catch(MySqlException mysqlException) when (mysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry
+			catch(MySqlException mysqlException) when(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry
 				|| (mysqlException.InnerException is MySqlException innerMysqlException && innerMysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry))
 			{
 				_logger.LogError(mysqlException, "Произошла ошибка при сохранении завершения доставки заказа {OrderId}: {ExceptionMessage}",
@@ -203,9 +208,10 @@ namespace DriverAPI.Controllers.V6
 					currentTransaction.Dispose();
 				}
 
+				Activity.Current?.SetStatus(ActivityStatusCode.Error);
 				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}", statusCode: StatusCodes.Status400BadRequest);
 			}
-			catch(Exception ex) when (ex.InnerException is MySqlException innerMysqlException && innerMysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+			catch(Exception ex) when(ex.InnerException is MySqlException innerMysqlException && innerMysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
 			{
 				_logger.LogError(ex, "Произошла ошибка при сохранении завершения доставки заказа {OrderId}: {ExceptionMessage}",
 					completedOrderRequestModel.OrderId,
@@ -220,6 +226,7 @@ namespace DriverAPI.Controllers.V6
 					currentTransaction.Dispose();
 				}
 
+				Activity.Current?.SetStatus(ActivityStatusCode.Error);
 				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 			catch(Exception ex)
@@ -239,6 +246,7 @@ namespace DriverAPI.Controllers.V6
 					currentTransaction.Dispose();
 				}
 
+				Activity.Current?.SetStatus(ActivityStatusCode.Error);
 				return Problem($"Произошла ошибка при завершении доставки заказа {completedOrderRequestModel.OrderId}");
 			}
 			finally
