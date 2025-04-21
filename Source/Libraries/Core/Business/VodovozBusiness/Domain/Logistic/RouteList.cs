@@ -1093,7 +1093,7 @@ namespace Vodovoz.Domain.Logistic
 			#region Терминал для оплаты
 
 			//Терминал для оплаты 
-			//TODO Если используются операции по водителю с терминалами, переделать на них.
+			//TODO: Если используются операции по водителю с терминалами, переделать на них.
 
 			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 			var terminal = UoW.GetById<Nomenclature>(terminalId);

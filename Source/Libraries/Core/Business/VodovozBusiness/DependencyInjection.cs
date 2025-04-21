@@ -37,7 +37,7 @@ namespace Vodovoz
 				.AddService<IFastPaymentSender, FastPaymentSender>(serviceLifetime)
 				.AddService<ISmsClientChannelFactory, SmsClientChannelFactory>(serviceLifetime)
 				.AddService<IDeliveryPriceCalculator, DeliveryPriceCalculator>(serviceLifetime)
-				.AddService<FastDeliveryHandler>(serviceLifetime)
+				.AddService<IFastDeliveryHandler, FastDeliveryHandler>(serviceLifetime)
 				.AddService<IFastDeliveryValidator, FastDeliveryValidator>(serviceLifetime)
 				.AddService<ICallTaskWorker, CallTaskWorker>(serviceLifetime)
 				.AddService<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance(), serviceLifetime)

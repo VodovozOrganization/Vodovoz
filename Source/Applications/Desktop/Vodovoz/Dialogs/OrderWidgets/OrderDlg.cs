@@ -224,6 +224,7 @@ namespace Vodovoz
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
 		private ICounterpartyService _counterpartyService;
+		private IPartitioningOrderService _partitioningOrderService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
 			= ScopeProvider.Scope.Resolve<IRentPackagesJournalsViewModelsFactory>();
@@ -269,7 +270,7 @@ namespace Vodovoz
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 		private EdoDockflowData _selectedEdoDocumentDataNode;
-		private FastDeliveryHandler _fastDeliveryHandler;
+		private IFastDeliveryHandler _fastDeliveryHandler;
 		private IFreeLoaderChecker _freeLoaderChecker;
 		private IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
 		private IBottlesRepository _bottlesRepository;
@@ -462,10 +463,10 @@ namespace Vodovoz
 			Entity.OrderAddressType = OrderAddressType.Delivery;
 		}
 
-		public OrderDlg(OnlineOrder onlineOrder, PartOrderWithGoods partOrder) : this()
+		public OrderDlg(OnlineOrder onlineOrder) : this()
 		{
 			var thisSessionOnlineOrder = UoW.GetById<OnlineOrder>(onlineOrder.Id);
-			_orderFromOnlineOrderCreator.FillOrderFromOnlineOrder(UoW, Entity, thisSessionOnlineOrder, partOrder, manualCreation: true);
+			_orderFromOnlineOrderCreator.FillOrderFromOnlineOrder(UoW, Entity, thisSessionOnlineOrder, manualCreation: true);
 
 			UpdateCallBeforeArrivalMinutesSelectedItem();
 			Entity.UpdateDocuments();
@@ -618,6 +619,7 @@ namespace Vodovoz
 			SetLogisticsRequirementsCheckboxes();
 		}
 		
+		//TODO: удалить после доработки разбивки заказа
 		public void CopyOrderForPartitionByOrganizations(
 			int orderId,
 			int partOrder,
@@ -639,8 +641,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				partitionedOrder
-					.CopyFields();
+				partitionedOrder.CopyFields();
 			}
 			
 			partitionedOrder
@@ -670,7 +671,7 @@ namespace Vodovoz
 			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
 			_advancedPaymentNomenclatureId = _nomenclatureSettings.AdvancedPaymentNomenclatureId;
 			_orderService = _lifetimeScope.Resolve<IOrderService>();
-			_fastDeliveryHandler = _lifetimeScope.Resolve<FastDeliveryHandler>();
+			_fastDeliveryHandler = _lifetimeScope.Resolve<IFastDeliveryHandler>();
 			_fastDeliveryValidator = _lifetimeScope.Resolve<IFastDeliveryValidator>();
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
@@ -686,6 +687,7 @@ namespace Vodovoz
 
 			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
 			_freeLoaderChecker = _lifetimeScope.Resolve<IFreeLoaderChecker>();
+			_partitioningOrderService = _lifetimeScope.Resolve<IPartitioningOrderService>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -2453,7 +2455,7 @@ namespace Vodovoz
 			{
 				SetSensitivity(false);
 
-				//TODO нужна ли здесь проверка
+				//TODO: нужна ли здесь проверка
 				/*if(Entity.OrganizationsByOrderItems.Count() > 1)
 				{
 					//вывести сообщение о том, что заказ необходимо разбить на несколько
@@ -2616,8 +2618,13 @@ namespace Vodovoz
 
 					if(acceptResult.IsSuccess)
 					{
-						transaction.Commit();
-						GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
+						//TODO: проверить сохранение в сессию без записи в базу
+						if(!_partitioningOrder)
+						{
+							transaction.Commit();
+							GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
+						}
+						
 						Save();
 					}
 
@@ -2705,35 +2712,13 @@ namespace Vodovoz
 			{
 				if(!MessageDialogHelper.RunQuestionDialog(
 					"Данный заказ содержит товары, продаваемые от нескольких организаций." +
-					$" Будет произведено автоматическое разбиение на {partsOrder} заказа(ов). Продолжаем?"))
+					$" Будет произведено автоматическое разбиение на {partsOrder} заказа(ов), с последующим сохранением." +
+					" Продолжаем?"))
 				{
 					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
-				
-				//нужно разбить заказ
-				foreach(var o in orderPartsByOrganizations.OrderParts)
-				{
-					var orderId = Entity.Id;
-					
-					var newTab = i == 0
-						? _navigationManager.OpenTdiTab<OrderDlg, int>(
-							null,
-							orderId,
-							OpenPageOptions.IgnoreHash,
-							dlg => dlg.CopyOrderForPartitionByOrganizations(orderId, i + 1, o)).TdiTab
-						: _navigationManager.OpenTdiTabOnTdi<OrderDlg>(
-							masterTab,
-							OpenPageOptions.AsSlave,
-							dlg => dlg.CopyOrderForPartitionByOrganizations(orderId, i + 1, o)).TdiTab;
-					
-					if(i == 0)
-					{
-						masterTab = newTab;
-					}
 
-					i++;
-				}
-
+				SplitOrder(orderPartsByOrganizations);
 				OnCloseTab(false);
 				return Result.Failure(Errors.Orders.Order.AcceptException);
 			}
@@ -2863,6 +2848,38 @@ namespace Vodovoz
 			UpdateUIState();
 
 			return Result.Success();
+		}
+
+		private bool SplitOrder(PartitionedOrderByOrganizations orderPartsByOrganizations)
+		{
+			var needOpenSavedOrders = false;
+			Result<IEnumerable<int>> result = null;
+			
+			if(MessageDialogHelper.RunQuestionDialog("После сохранения открыть итоговые заказы?"))
+			{
+				needOpenSavedOrders = true;
+				result = _partitioningOrderService.CreatePartOrdersAndSave(Entity.Id, Entity.Author, orderPartsByOrganizations);
+			}
+			else
+			{
+				result = _partitioningOrderService.CreatePartOrdersAndSave(Entity.Id, Entity.Author, orderPartsByOrganizations);
+			}
+
+			if(result.IsFailure)
+			{
+				MessageDialogHelper.RunErrorDialog($"{ result.Errors.First().Message }. Переоткройте его заново и повторите попытку");
+				return false;
+			}
+
+			if(needOpenSavedOrders)
+			{
+				foreach(var orderId in result.Value)
+				{
+					_navigationManager.OpenTdiTabOnTdi<OrderDlg, int>(null, orderId);
+				}
+			}
+			
+			return true;
 		}
 
 		private void PrepareSendBillInformation()
@@ -3339,7 +3356,7 @@ namespace Vodovoz
 			var serviceClaim = UoW.GetById<ServiceClaim>(selectedServiceClaim.Id);
 			serviceClaim.FinalOrder = Entity;
 			Entity.ObservableFinalOrderService.Add(serviceClaim);
-			//TODO Add service nomenclature with price.
+			//TODO: Add service nomenclature with price.
 		}
 
 		private void TreeServiceClaim_Selection_Changed(object sender, EventArgs e)
@@ -3737,17 +3754,11 @@ namespace Vodovoz
 					_selectPaymentTypeViewModel.ExcludedPaymentTypes.Add(PaymentType.Terminal);
 				}
 
-				if(Entity.CanEditByStatus
-					&& Entity.PaymentType == PaymentType.Terminal)
+				if(Entity.CanEditByStatus && Entity.PaymentType == PaymentType.Terminal)
 				{
-					if(Entity.Client.PaymentMethod != PaymentType.Terminal)
-					{
-						Entity.PaymentType = Entity.Client.PaymentMethod;
-					}
-					else
-					{
-						Entity.PaymentType = PaymentType.Cash;
-					}
+					Entity.UpdatePaymentType(
+						Entity.Client.PaymentMethod != PaymentType.Terminal ? Entity.Client.PaymentMethod : PaymentType.Cash,
+						_orderContractUpdater);
 				}
 			}
 			else
@@ -3760,7 +3771,8 @@ namespace Vodovoz
 		{
 			UpdatePaymentTypeAvailability();
 
-			Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
+			//TODO: похоже это здесь лишнее, т.к. при обновлении даты доставки есть вызов обновления контракта
+			_orderContractUpdater.UpdateOrCreateContract(UoW, Entity);
 
 			if(pickerDeliveryDate.Date < DateTime.Today && !_canCreateOrderInAdvance)
 			{
@@ -4125,7 +4137,8 @@ namespace Vodovoz
 			UpdateProxyInfo();
 			UpdateUIState();
 
-			Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
+			//TODO: также, при обновлении типа оплаты дергается обновление контракта
+			_orderContractUpdater.UpdateOrCreateContract(UoW, Entity);
 		}
 
 		private bool UpdateVisibilityHboxOnlineOrder()

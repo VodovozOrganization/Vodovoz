@@ -80,7 +80,6 @@ namespace Vodovoz.Models.Orders
 			_resultOrder.ReturnTareReason = _copiedOrder.ReturnTareReason;
 			_resultOrder.ContactPhone = _copiedOrder.ContactPhone;
 			_resultOrder.LogisticsRequirements = _copiedOrder.LogisticsRequirements;
-			_resultOrder.IsSecondOrder = _copiedOrder.IsSecondOrder;
 			_resultOrder.CallBeforeArrivalMinutes = _copiedOrder.CallBeforeArrivalMinutes;
 			_resultOrder.IsDoNotMakeCallBeforeArrival = _copiedOrder.IsDoNotMakeCallBeforeArrival;
 			_resultOrder.ContactPhone = _copiedOrder.ContactPhone;
@@ -137,10 +136,7 @@ namespace Vodovoz.Models.Orders
 		public PartitionedOrder CopyOrderItems(IEnumerable<IProduct> copyingItems, bool withDiscounts = false)
 		{
 			var goods = copyingItems
-				.Where(x => x.PromoSet == null)
-				.Where(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId)
-				.Where(x => x.Nomenclature.Id != _fastDeliveryNomenclatureId)
-				.Where(x => x.Nomenclature.Id != _masterCallNomenclatureId);
+				.Where(x => x.PromoSet == null);
 
 			CopyGoods(withDiscounts, goods);
 
@@ -151,7 +147,6 @@ namespace Vodovoz.Models.Orders
 
 		private void CopyGoods(bool withDiscounts, IEnumerable<IProduct> goods)
 		{
-			
 			foreach(var product in goods)
 			{
 				switch(product)
@@ -234,7 +229,7 @@ namespace Vodovoz.Models.Orders
 		/// </summary>
 		public PartitionedOrder CopyPromotionalSets(IEnumerable<IProduct> copyingItems)
 		{
-			//TODO настроить правильную выборку промонаборов
+			//TODO: настроить правильную выборку промонаборов
 			var promoSets =
 				(from copyingItem in copyingItems
 					where copyingItem.PromoSet != null

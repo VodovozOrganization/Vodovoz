@@ -13,7 +13,8 @@ namespace VodovozBusiness.Domain.Settings
 		/// </summary>
 		/// <param name="requestTime">Время запроса</param>
 		/// <param name="organizationsSet">Множество организаций</param>
+		/// <param name="canReturnNull">Может возвращать null</param>
 		/// <returns>Организация</returns>
-		Organization GetOrganizationForOrderFromSet(TimeSpan requestTime, IOrganizations organizationsSet);
+		Organization GetOrganizationForOrderFromSet(TimeSpan requestTime, IOrganizations organizationsSet, bool canReturnNull = false);
 	}
 }

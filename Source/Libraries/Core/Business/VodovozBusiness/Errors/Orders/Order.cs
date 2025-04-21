@@ -87,5 +87,11 @@
 				typeof(Order),
 				nameof(PaidCashlessOrderClientReplacementError),
 				"Контрагента изменить невозможно пока на заказе распределен платеж, обратитесь к сотрудникам ОДЗ для снятия распределения.");
+		
+		public static Error SplitOrderError =>
+			new Error(
+				typeof(Order),
+				nameof(SplitOrderError),
+				"Произошла ошибка при разбиении заказа");
 	}
 }

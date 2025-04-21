@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
-	//TODO Если не будет обращений по поводу VodInternalId, удалить его из таблицы
+	//TODO: Если не будет обращений по поводу VodInternalId, удалить его из таблицы
 	public class CounterpartyMap : ClassMap<Domain.Client.Counterparty>
 	{
 		public CounterpartyMap()

@@ -15,7 +15,8 @@ using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Models
 {
-	public class Stage2OrganizationProvider : IOrganizationProvider
+	//TODO: просмотреть класс на изменения и снести
+	public class Stage2OrganizationProvider// : IOrganizationProvider
 	{
 		private readonly DateTime _terminalVodovozSouthStartDate = new DateTime(2025, 4, 24, 0, 0, 0, DateTimeKind.Local);
 
@@ -249,6 +250,6 @@ namespace Vodovoz.Models
 		}
 
 		private int GetPaymentFromOrganisationIdOrDefault(PaymentFrom paymentFrom) =>
-			paymentFrom.OrganizationForOnlinePayments?.Id ?? _organizationSettings.VodovozNorthOrganizationId;
+			8; //paymentFrom.OrganizationForOnlinePayments?.Id ?? _organizationSettings.VodovozNorthOrganizationId;
 	}
 }

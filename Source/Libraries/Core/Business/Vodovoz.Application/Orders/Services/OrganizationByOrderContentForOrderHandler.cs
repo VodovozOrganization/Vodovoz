@@ -35,7 +35,7 @@ namespace Vodovoz.Application.Orders.Services
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 		}
 
-		public override IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
+		public override IEnumerable<PartOrderWithGoods> SplitOrderByOrganizations(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)
@@ -60,7 +60,7 @@ namespace Vodovoz.Application.Orders.Services
 				2 - заполнены оба множества
 				2.1 - оба без организаций
 				2.2 - первое с, второе без
-				2.3 - первое без второе с
+				2.3 - первое без, второе с
 				2.4 - оба с организациями
 			 */
 			
@@ -77,7 +77,7 @@ namespace Vodovoz.Application.Orders.Services
 
 				while(i < processingGoods.Count)
 				{
-					if(OrderItemBelongsSet(processingGoods[i], set))
+					if(ProductBelongsSet(processingGoods[i], set))
 					{
 						goodsForOrganization.Add(processingGoods[i]);
 						
@@ -114,13 +114,13 @@ namespace Vodovoz.Application.Orders.Services
 						&& x.OrderRentServiceItem == null));
 				}
 
-				var org =
-					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(requestTime, set)
+				var organization =
+					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(requestTime, set, true)
 					?? _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
 				
 				setsOrganizations.Add(
 					set.OrderContentSet,
-					new PartOrderWithGoods(org, goodsForOrganization, orderEquipmentsForOrganization));
+					new PartOrderWithGoods(organization, goodsForOrganization, orderEquipmentsForOrganization));
 			}
 
 			if(!processingGoods.Any())
@@ -136,35 +136,8 @@ namespace Vodovoz.Application.Orders.Services
 				return result;
 			}
 
-			var authorsResult = _organizationByOrderAuthorHandler.GetOrganizationsWithOrderItems(
+			return _organizationByOrderAuthorHandler.SplitOrderByOrganizations(
 				uow, requestTime, setsOrganizations, organizationChoice, processingGoods);
-
-			if(authorsResult.Any())
-			{
-				return authorsResult;
-			}
-			
-			return base.GetOrganizationsWithOrderItems(uow, requestTime, organizationChoice);
-			
-			//TODO это должно вызываться в менеджере последним из обработчиков
-			/*var orgByPaymentType = _organizationByPaymentTypeForOrderHandler.GetOrganizationForOrder(order, uow, paymentType);
-
-			foreach(var orgWithOrderItems in setsOrganizations.Values)
-			{
-				if(orgWithOrderItems.Organization.Id == orgByPaymentType.Id)
-				{
-					var list = orgWithOrderItems.orderItems as List<OrderItem>;
-					list.AddRange(processingOrderItems);
-					
-					result.AddRange(setsOrganizations.Values);
-					return result;
-				}
-			}
-			
-			result.AddRange(setsOrganizations.Values);
-			result.Add((orgByPaymentType, processingOrderItems));
-
-			return result;*/
 		}
 		
 		public bool OrderHasGoodsFromSeveralOrganizations(
@@ -209,7 +182,7 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				var org =
-					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(DateTime.Now.TimeOfDay, set)
+					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(DateTime.Now.TimeOfDay, set, true)
 					?? _organizationByPaymentTypeForOrderHandler.GetOrganization(
 						uow, requestTime, isSelfDelivery, paymentType, null);
 				
@@ -227,7 +200,7 @@ namespace Vodovoz.Application.Orders.Services
 			return setsOrganizations.Count > 1;
 		}
 		
-		private bool OrderItemBelongsSet(IProduct product, OrganizationBasedOrderContentSettings organizationBasedOrderContentSettings)
+		private bool ProductBelongsSet(IProduct product, OrganizationBasedOrderContentSettings organizationBasedOrderContentSettings)
 		{
 			if(organizationBasedOrderContentSettings.Nomenclatures.Contains(product.Nomenclature))
 			{

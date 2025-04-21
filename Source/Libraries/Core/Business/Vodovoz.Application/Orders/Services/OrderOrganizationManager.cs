@@ -55,33 +55,31 @@ namespace Vodovoz.Application.Orders.Services
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)
 		{
-			var orderParts = GetOrganizationsWithOrderItems(uow, requestTime, organizationChoice);
+			var orderParts = SplitOrderByOrganizations(uow, requestTime, organizationChoice);
 			var canSplitOrderWithDeposits = true;
 
-			if(organizationChoice.OrderDepositItems.Any())
+			if(!organizationChoice.OrderDepositItems.Any())
 			{
-				var depositsSum = organizationChoice.OrderDepositItems.Sum(x => x.ActualSum);
+				return PartitionedOrderByOrganizations.Create(canSplitOrderWithDeposits, orderParts);
+			}
+
+			var depositsSum = organizationChoice.OrderDepositItems.Sum(x => x.ActualSum);
 				
-				foreach(var orderPart in orderParts)
+			foreach(var orderPart in orderParts)
+			{
+				if(depositsSum > orderPart.GoodsSum)
 				{
-					if(depositsSum > orderPart.GoodsSum)
-					{
-						canSplitOrderWithDeposits = false;
-					}
-					else
-					{
-						canSplitOrderWithDeposits = true;
-						orderPart.OrderDepositItems = organizationChoice.OrderDepositItems;
-						break;
-					}
+					canSplitOrderWithDeposits = false;
+				}
+				else
+				{
+					canSplitOrderWithDeposits = true;
+					orderPart.OrderDepositItems = organizationChoice.OrderDepositItems;
+					break;
 				}
 			}
 
-			return new PartitionedOrderByOrganizations
-			{
-				CanSplitOrderWithDeposits = canSplitOrderWithDeposits,
-				OrderParts = orderParts
-			};
+			return PartitionedOrderByOrganizations.Create(canSplitOrderWithDeposits, orderParts);
 		}
 
 		/// <summary>
@@ -92,7 +90,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// <param name="uow">unit Of Work</param>
 		/// <returns>Список организаций с товарами</returns>
 		/// <exception cref="ArgumentNullException"></exception>
-		public IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
+		public IEnumerable<PartOrderWithGoods> SplitOrderByOrganizations(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)
@@ -102,7 +100,7 @@ namespace Vodovoz.Application.Orders.Services
 				throw new ArgumentNullException(nameof(organizationChoice));
 			}
 
-			return _orderOurOrganization.GetOrganizationsWithOrderItems(uow, requestTime, organizationChoice);
+			return _orderOurOrganization.SplitOrderByOrganizations(uow, requestTime, organizationChoice);
 		}
 
 		public bool OrderHasGoodsFromSeveralOrganizations(

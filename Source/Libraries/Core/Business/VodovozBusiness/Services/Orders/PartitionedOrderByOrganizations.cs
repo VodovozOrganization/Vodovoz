@@ -17,5 +17,13 @@ namespace VodovozBusiness.Services.Orders
 		/// Части заказа
 		/// </summary>
 		public IEnumerable<PartOrderWithGoods> OrderParts { get; set; }
+
+		public static PartitionedOrderByOrganizations Create(
+			bool canSplitOrderWithDeposits,
+			IEnumerable<PartOrderWithGoods> orderParts) => new PartitionedOrderByOrganizations
+		{
+			CanSplitOrderWithDeposits = canSplitOrderWithDeposits,
+			OrderParts = orderParts
+		};
 	}
 }

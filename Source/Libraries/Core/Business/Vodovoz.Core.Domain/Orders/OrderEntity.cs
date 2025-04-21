@@ -94,7 +94,9 @@ namespace Vodovoz.Core.Domain.Orders
 		private DeliveryPointEntity _deliveryPoint;
 		private CounterpartyContractEntity _contract;
 		private DeliveryScheduleEntity _deliverySchedule;
-
+		private int? _onlineOrderId;
+		private string _orderPartsIds;
+		
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
 
@@ -634,6 +636,26 @@ namespace Vodovoz.Core.Domain.Orders
 			get => _deliverySchedule;
 			//Нельзя устанавливать, см. логику в Order.cs
 			protected set => SetField(ref _deliverySchedule, value);
+		}
+		
+		/// <summary>
+		/// Id онлайн заказа
+		/// </summary>
+		[Display(Name = "Id онлайн заказа")]
+		public virtual int? OnlineOrderId
+		{
+			get => _onlineOrderId;
+			set => SetField(ref _onlineOrderId, value);
+		}
+		
+		/// <summary>
+		/// Id частей заказа
+		/// </summary>
+		[Display(Name = "Id частей заказа")]
+		public virtual string OrderPartsIds
+		{
+			get => _orderPartsIds;
+			set => SetField(ref _orderPartsIds, value);
 		}
 
 		#region Вычисляемые свойства

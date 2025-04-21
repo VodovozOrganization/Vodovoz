@@ -19,7 +19,7 @@ namespace Vodovoz.Application.Orders.Services
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 		}
 
-		public override IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
+		public override IEnumerable<PartOrderWithGoods> SplitOrderByOrganizations(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)
@@ -34,7 +34,7 @@ namespace Vodovoz.Application.Orders.Services
 				};
 			}
 
-			return base.GetOrganizationsWithOrderItems(uow, requestTime, organizationChoice);
+			return base.SplitOrderByOrganizations(uow, requestTime, organizationChoice);
 		}
 	}
 }

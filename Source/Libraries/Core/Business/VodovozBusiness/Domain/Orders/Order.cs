@@ -992,7 +992,7 @@ namespace Vodovoz.Domain.Orders
 				);
 			}
 
-			//TODO убрать из валидации
+			//TODO: убрать из валидации
 			/*if(IsFastDelivery)
 			{
 				AddFastDeliveryNomenclatureIfNeeded();
@@ -1592,16 +1592,22 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 		
-		public virtual void UpdatePaymentByCardFrom(PaymentFrom paymentByCardFrom, IOrderContractUpdater orderContractUpdater)
+		public virtual void UpdatePaymentByCardFrom(
+			PaymentFrom paymentByCardFrom,
+			IOrderContractUpdater orderContractUpdater)
 		{
-			var oldPaymentByCardFrom = PaymentByCardFrom;
+			if(_paymentByCardFrom == paymentByCardFrom)
+			{
+				return;
+			}
+
 			PaymentByCardFrom = paymentByCardFrom;
-			
-			//TODO сделать проверку на изменение поля
 			orderContractUpdater.UpdateContract(UoW, this);
 		}
 
-		public virtual void UpdatePaymentType(PaymentType paymentType, IOrderContractUpdater orderContractUpdater)
+		public virtual void UpdatePaymentType(
+			PaymentType paymentType,
+			IOrderContractUpdater orderContractUpdater)
 		{
 			if(paymentType == _paymentType)
 			{
@@ -1919,7 +1925,6 @@ namespace Vodovoz.Domain.Orders
 				organization = OrganizationsByOrderItems.FirstOrDefault().Organization;
 			}
 
-			//TODO перепроверить условие
 			var counterpartyContract = contractRepository.GetCounterpartyContractByOrganization(uow, this, organization);
 				//: contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
 
@@ -2431,7 +2436,7 @@ namespace Vodovoz.Domain.Orders
 			IOrderContractUpdater contractUpdater,
 			Nomenclature nomenclature)
 		{
-			//TODO проверить целесообразность этой установки, т.к. при добавлении номенклатуры обновляется и сам договор
+			//TODO: проверить целесообразность этой установки, т.к. при добавлении номенклатуры обновляется и сам договор
 			if(Contract == null)
 			{
 				contractUpdater.ForceUpdateContract(uow, this);
@@ -3220,7 +3225,7 @@ namespace Vodovoz.Domain.Orders
 		/// если заказ был создан только для залога.
 		/// Для отображения этих данных в отчете "Акт по бутылям и залогам"
 		/// </summary>
-		public virtual void SetDepositsActualCounts() //TODO : проверить актуальность метода
+		public virtual void SetDepositsActualCounts() //TODO: проверить актуальность метода
 		{
 			if(OrderItems.All(x => x.Nomenclature.Id == 157))
 			{

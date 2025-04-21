@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Core.Infrastructure;
 using Gamma.ColumnConfig;
 using Microsoft.Extensions.Logging;
 using NHibernate.Engine;
@@ -94,7 +95,7 @@ namespace Vodovoz.Views.Orders
 			lblOrder.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanShowOrder, w => w.Visible)
-				.AddBinding(vm => vm.Order, w => w.LabelProp)
+				.AddBinding(vm => vm.Orders, w => w.LabelProp)
 				.InitializeFromSource();
 			
 			lblStatus.Binding
@@ -485,36 +486,11 @@ namespace Vodovoz.Views.Orders
 		private void OpenOrderDlgAndFillOnlineOrderData()
 		{
 			var navigation = ViewModel.NavigationManager as ITdiCompatibilityNavigation;
-
-			var partsOrder =
-				ViewModel.OrderOrganizationManager.GetOrganizationsWithOrderItems(
-					ViewModel.UoW, DateTime.Now.TimeOfDay, ViewModel.Entity.ToOrderOrganizationChoice());
-
-			if(partsOrder.Count() > 1)
-			{
-				if(!ViewModel.Question(
-					"В заказе есть товары продающиеся от нескольких организаций. Заказ будет автоматически разбит. Продолжаем?"))
-				{
-					return;
-				}
-				
-				foreach(var partOrder in partsOrder)
-				{
-					navigation.OpenTdiTab<OrderDlg, OnlineOrder, PartOrderWithGoods>(
-						ViewModel,
-						ViewModel.Entity,
-						partOrder,
-						OpenPageOptions.AsSlave);
-				}
-			}
-			else
-			{
-				navigation.OpenTdiTab<OrderDlg, OnlineOrder>(ViewModel, ViewModel.Entity, OpenPageOptions.AsSlave);
-			}
-			
-			//page.PageClosed += OnOrderTabClosed;
+			var page = navigation.OpenTdiTab<OrderDlg, OnlineOrder>(ViewModel, ViewModel.Entity, OpenPageOptions.AsSlave);
+			page.PageClosed += OnOrderTabClosed;
 		}
 		
+		//TODO: проверить и переделать работу с несколькими заказами
 		private void OnOrderTabClosed(object sender, EventArgs e)
 		{
 			var page = sender as ITdiPage;
@@ -540,8 +516,11 @@ namespace Vodovoz.Views.Orders
 					ViewModel.Entity.Id,
 					orderId);
 				
-				var order = ViewModel.UoW.GetById<Order>(orderId);
-				ViewModel.Entity.SetOrderPerformed(order);
+				ViewModel.Entity.SetOrderPerformed(
+					!string.IsNullOrWhiteSpace(dlg.Entity.OrderPartsIds)
+						? dlg.Entity.OrderPartsIds.ParseNumbers()
+						: new [] { orderId });
+				
 				var notification = ViewModel.CreateNewNotification();
 				ViewModel.UoW.Save(notification);
 				ViewModel.Save(true);

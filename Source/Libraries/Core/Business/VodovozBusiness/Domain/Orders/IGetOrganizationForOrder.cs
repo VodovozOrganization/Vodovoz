@@ -8,7 +8,7 @@ namespace VodovozBusiness.Domain.Orders
 {
 	public interface IGetOrganizationForOrder
 	{
-		IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
+		IEnumerable<PartOrderWithGoods> SplitOrderByOrganizations(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice

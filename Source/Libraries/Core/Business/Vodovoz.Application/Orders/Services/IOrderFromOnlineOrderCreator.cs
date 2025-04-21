@@ -1,7 +1,6 @@
 ﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -13,7 +12,6 @@ namespace Vodovoz.Application.Orders.Services
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			PartOrderWithGoods partOrder = null,
 			Employee author = null,
 			bool manualCreation = false);
 	}

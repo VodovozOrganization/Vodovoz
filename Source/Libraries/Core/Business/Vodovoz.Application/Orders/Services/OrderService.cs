@@ -18,12 +18,10 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
-using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
@@ -43,11 +41,8 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
-		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
-		private readonly FastDeliveryHandler _fastDeliveryHandler;
-		private readonly IPromotionalSetRepository _promotionalSetRepository;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
@@ -59,6 +54,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IOrderOrganizationManager _orderOrganizationManager;
+		private readonly IOrderConfirmationService _orderConfirmationService;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -67,11 +63,8 @@ namespace Vodovoz.Application.Orders.Services
 			IEmployeeRepository employeeRepository,
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
-			ICallTaskWorker callTaskWorker,
 			IOrderFromOnlineOrderCreator orderFromOnlineOrderCreator,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
-			FastDeliveryHandler fastDeliveryHandler,
-			IPromotionalSetRepository promotionalSetRepository,
 			IEmployeeSettings employeeSettings,
 			INomenclatureRepository nomenclatureRepository,
 			IGenericRepository<DiscountReason> discountReasonRepository,
@@ -82,7 +75,8 @@ namespace Vodovoz.Application.Orders.Services
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IOrderContractUpdater orderContractUpdater,
-			IOrderOrganizationManager orderOrganizationManager)
+			IOrderOrganizationManager orderOrganizationManager,
+			IOrderConfirmationService orderConfirmationService)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -94,11 +88,8 @@ namespace Vodovoz.Application.Orders.Services
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_orderDailyNumberController = orderDailyNumberController ?? throw new ArgumentNullException(nameof(orderDailyNumberController));
 			_paymentFromBankClientController = paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
-			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_orderFromOnlineOrderCreator = orderFromOnlineOrderCreator ?? throw new ArgumentNullException(nameof(orderFromOnlineOrderCreator));
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
-			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));
-			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
@@ -110,6 +101,7 @@ namespace Vodovoz.Application.Orders.Services
 			_subdivisionRepository = subdivisionRepository;
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_orderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
+			_orderConfirmationService = orderConfirmationService ?? throw new ArgumentNullException(nameof(orderConfirmationService));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
 
@@ -219,9 +211,7 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
-				order.AcceptOrder(roboatsEmployee, _callTaskWorker);
-				order.SaveEntity(
-					unitOfWork, _orderContractUpdater, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+				_orderConfirmationService.AcceptOrder(unitOfWork, roboatsEmployee, order);
 				return order.Id;
 			}
 		}
@@ -270,9 +260,8 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				var order = unitOfWork.Root;
 				var employee = unitOfWork.GetById<Employee>(roboatsEmployeeId);
-				order.AcceptOrder(employee, _callTaskWorker);
-				order.SaveEntity(
-					unitOfWork, _orderContractUpdater, employee, _orderDailyNumberController, _paymentFromBankClientController);
+				
+				_orderConfirmationService.AcceptOrder(unitOfWork, employee, order);
 				return (order.Id, order.Author.Id, order.OrderStatus);
 			}
 		}
@@ -357,13 +346,13 @@ namespace Vodovoz.Application.Orders.Services
 					break;
 			}
 
-			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
-
-			if(_orderOrganizationManager.GetOrganizationsWithOrderItems(
-				uow, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(order)).Count() > 1)
+			if(_orderOrganizationManager.SplitOrderByOrganizations(
+				uow, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(onlineOrder)).Count() > 1)
 			{
 				return 0;
 			}
+
+			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
 
 			UpdateDeliveryCost(uow, order);
 			AddLogisticsRequirements(order);
@@ -371,39 +360,18 @@ namespace Vodovoz.Application.Orders.Services
 			order.AddFastDeliveryNomenclatureIfNeeded(uow, _orderContractUpdater);
 
 			uow.Save(onlineOrder);
-			var acceptResult = TryAcceptOrderCreatedByOnlineOrder(uow, employee, order);
 
-			if(acceptResult.IsFailure)
+			if(_orderConfirmationService.TryAcceptOrderCreatedByOnlineOrder(uow, employee, order).IsFailure)
 			{
 				return 0;
 			}
 
-			onlineOrder.SetOrderPerformed(order, employee);
-			var notification = OnlineOrderStatusUpdatedNotification.CreateOnlineOrderStatusUpdatedNotification(onlineOrder);
+			onlineOrder.SetOrderPerformed(new []{ order.Id }, employee);
+			var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
 			uow.Save(notification);
 			uow.Commit();
 
 			return order.Id;
-		}
-
-		private Result TryAcceptOrderCreatedByOnlineOrder(IUnitOfWork uow, Employee employee, Order order)
-		{
-			if(!order.SelfDelivery)
-			{
-				var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(uow, order);
-
-				if(fastDeliveryResult.IsFailure)
-				{
-					return fastDeliveryResult;
-				}
-
-				_fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(uow, order, _callTaskWorker);
-			}
-
-			order.AcceptOrder(order.Author, _callTaskWorker);
-			order.SaveEntity(uow, _orderContractUpdater, employee, _orderDailyNumberController, _paymentFromBankClientController);
-
-			return Result.Success();
 		}
 
 		public void CheckAndAddBottlesToReferrerByReferFriendPromo(

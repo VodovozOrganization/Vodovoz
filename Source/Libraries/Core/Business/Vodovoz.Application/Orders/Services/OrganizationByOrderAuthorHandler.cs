@@ -28,76 +28,80 @@ namespace Vodovoz.Application.Orders.Services
 		/// 
 		/// </summary>
 		/// <param name="requestTime">Время запроса</param>
-		/// <param name="setsOrganizations"></param>
+		/// <param name="setsPartsOrders"></param>
 		/// <param name="organizationChoice">Данные для подбора организации</param>
 		/// <param name="processingProducts">Обрабатываемые товары</param>
 		/// <param name="uow">unit of work</param>
 		/// <returns></returns>
-		public IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
+		public IEnumerable<PartOrderWithGoods> SplitOrderByOrganizations(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
-			Dictionary<short, PartOrderWithGoods> setsOrganizations,
+			Dictionary<short, PartOrderWithGoods> setsPartsOrders,
 			OrderOrganizationChoice organizationChoice,
 			IEnumerable<IProduct> processingProducts)
 		{
-			var result = new List<PartOrderWithGoods>();
 			var organizationByOrderAuthorSettings = uow.GetAll<OrganizationByOrderAuthorSettings>().SingleOrDefault();
 
 			if(organizationByOrderAuthorSettings is null)
 			{
-				//TODO проверить условие
-				return setsOrganizations.Values;
+				CreateNewPartOrderOrUpdateExisting(uow, requestTime, setsPartsOrders, organizationChoice, processingProducts);
+				return setsPartsOrders.Values;
 			}
 
 			if(ContainsSubdivision(organizationChoice.AuthorSubdivision, organizationByOrderAuthorSettings.OrderAuthorsSubdivisions))
 			{
-				if(setsOrganizations.TryGetValue(
+				if(setsPartsOrders.TryGetValue(
 					organizationByOrderAuthorSettings.OrganizationBasedOrderContentSettings.OrderContentSet, out var setSettings))
 				{
-					UpdateOrganizationOrderItems(processingProducts, setSettings);
-					return setsOrganizations.Values;
+					UpdatePartOrder(processingProducts, setSettings);
+					return setsPartsOrders.Values;
 				}
 
-				//подумать, что делаем если каким-то образом там нет такого множества
-
-				return result;
+				throw new InvalidOperationException("Organization by order authors subdivision not found");
 			}
 
-			if(setsOrganizations.TryGetValue(OrganizationByOrderAuthorSettings.DefaultSetForAuthorNotIncludedSet, out var defaultSetSettings))
+			if(setsPartsOrders.TryGetValue(OrganizationByOrderAuthorSettings.DefaultSetForAuthorNotIncludedSet, out var defaultSetSettings))
 			{
-				UpdateOrganizationOrderItems(processingProducts, defaultSetSettings);
-				return result;
+				UpdatePartOrder(processingProducts, defaultSetSettings);
+				return setsPartsOrders.Values;
 			}
 
+			CreateNewPartOrderOrUpdateExisting(uow, requestTime, setsPartsOrders, organizationChoice, processingProducts);
+			return setsPartsOrders.Values;
+		}
+
+		private void CreateNewPartOrderOrUpdateExisting(
+			IUnitOfWork uow,
+			TimeSpan requestTime,
+			Dictionary<short, PartOrderWithGoods> setsPartsOrders,
+			OrderOrganizationChoice organizationChoice,
+			IEnumerable<IProduct> processingProducts)
+		{
 			var org = _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
-	
-			foreach(var orgWithOrderItems in setsOrganizations.Values)
+
+			foreach(var partOrder in setsPartsOrders.Values)
 			{
-				if(orgWithOrderItems.Organization.Id != org.Id)
+				if(partOrder.Organization.Id != org.Id)
 				{
 					continue;
 				}
 				
-				UpdateOrganizationOrderItems(processingProducts, orgWithOrderItems);
-				return setsOrganizations.Values;
+				UpdatePartOrder(processingProducts, partOrder);
+				return;
 			}
-			
-			//TODO проверить условие
-			result.AddRange(setsOrganizations.Values);
-			result.Add(new PartOrderWithGoods(org, processingProducts));
 
-			return result;
+			setsPartsOrders.Add(short.MaxValue, new PartOrderWithGoods(org, processingProducts));
 		}
 
 		private bool ContainsSubdivision(Subdivision authorSubdivision, IEnumerable<Subdivision> setSubdivisions) => 
 			authorSubdivision != null
 			&& setSubdivisions.Any(authorSubdivision.IsChildOf);
 		
-		private void UpdateOrganizationOrderItems(
+		private void UpdatePartOrder(
 			IEnumerable<IProduct> processingProducts,
-			PartOrderWithGoods setSettings)
+			PartOrderWithGoods partOrderFromSet)
 		{
-			var list = setSettings.Goods as List<IProduct>;
+			var list = partOrderFromSet.Goods as List<IProduct>;
 			list.AddRange(processingProducts);
 		}
 	}

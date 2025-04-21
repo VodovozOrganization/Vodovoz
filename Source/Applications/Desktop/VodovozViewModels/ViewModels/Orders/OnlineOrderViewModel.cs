@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
@@ -118,7 +119,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanEditCancellationReason => OrderIsNullAndOnlineOrderNotCanceledStatus;
 		public bool CanShowSelfDeliveryGeoGroup => Entity.IsSelfDelivery;
 		public bool CanShowEmployeeWorkWith => Entity.EmployeeWorkWith != null;
-		public bool CanShowOrder => Entity.Order != null;
+		public bool CanShowOrder => !Entity.OrdersIds.Any();
 		public bool CanShowOnlinePayment => Entity.OnlinePayment.HasValue;
 		public bool CanShowOnlinePaymentSource => Entity.OnlinePaymentSource.HasValue;
 		public bool CanShowContactPhone => !string.IsNullOrWhiteSpace(Entity.ContactPhone);
@@ -152,10 +153,27 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				? "Онлайн заказ не взят в работу"
 				: $"{ Entity.EmployeeWorkWith.ShortName }";
 
-		public string Order =>
-			Entity.Order is null
-				? "Заказ не создан"
-				: $"{ Entity.Order.Title }";
+		//TODO: групп конкат???
+		public string Orders
+		{
+			get
+			{
+				if(!Entity.OrdersIds.Any())
+				{
+					return "Заказ не создан";
+				}
+
+				var sb = new StringBuilder();
+
+				foreach(var orderId in Entity.OrdersIds)
+				{
+					sb.Append(orderId);
+					sb.Append(", ");
+				}
+					
+				return sb.ToString().TrimEnd(',', ' ');
+			}
+		}
 
 		public string Counterparty =>
 			Entity.Counterparty is null
@@ -207,10 +225,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private bool CurrentEmployeeIsEmployeeWorkWith =>
 			Entity.EmployeeWorkWith != null && Entity.EmployeeWorkWith.Id == _currentEmployee.Id;
 		private bool OrderIsNullAndOnlineOrderNotCanceledStatus =>
-			Entity.Order is null && Entity.OnlineOrderStatus != OnlineOrderStatus.Canceled;
+			!Entity.OrdersIds.Any() && Entity.OnlineOrderStatus != OnlineOrderStatus.Canceled;
 		
 		public OnlineOrderStatusUpdatedNotification CreateNewNotification() =>
-			OnlineOrderStatusUpdatedNotification.CreateOnlineOrderStatusUpdatedNotification(Entity);
+			OnlineOrderStatusUpdatedNotification.Create(Entity);
 
 		public void ShowMessage(string message, string title = null)
 		{
@@ -365,7 +383,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				() => CanEditCancellationReason);
 			
 			SetPropertyChangeRelation(
-				e => e.Order,
+				e => e.OrdersIds,
 				() => CanGetToWork,
 				() => CanCreateOrder,
 				() => CanCancelOnlineOrder,

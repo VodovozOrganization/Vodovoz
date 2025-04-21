@@ -46,7 +46,6 @@ namespace Vodovoz.Application.Orders.Services
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			PartOrderWithGoods partOrder = null,
 			Employee author = null,
 			bool manualCreation = false)
 		{
@@ -89,7 +88,7 @@ namespace Vodovoz.Application.Orders.Services
 				order.SelfDeliveryGeoGroup = onlineOrder.SelfDeliveryGeoGroup;
 			}
 			
-			//TODO скорее всего этот метод здесь избыточен, т.к. при заполнении других полей договор обновится
+			//TODO: скорее всего этот метод здесь избыточен, т.к. при заполнении других полей договор обновится
 			_contractUpdater.UpdateOrCreateContract(uow, order);
 
 			if(order.Client is null)
@@ -102,14 +101,7 @@ namespace Vodovoz.Application.Orders.Services
 				order.Client.ReasonForLeaving = ReasonForLeaving.ForOwnNeeds;
 			}
 			
-			if(partOrder != null)
-			{
-				FillOrderGoodsFromPartOrder(uow, order, partOrder);
-			}
-			else
-			{
-				FillOrderGoodsFromOnlineOrder(uow, order, onlineOrder.OnlineOrderItems, onlineOrder.OnlineRentPackages, manualCreation);
-			}
+			FillOrderGoodsFromOnlineOrder(uow, order, onlineOrder.OnlineOrderItems, onlineOrder.OnlineRentPackages, manualCreation);
 			
 			return order;
 		}

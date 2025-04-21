@@ -19,7 +19,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					on onlineOrder.Id equals orderRating.OnlineOrder.Id into orderRatings
 				from onlineOrderRating in orderRatings.DefaultIfEmpty()
 				where onlineOrder.Counterparty.Id == counterpartyId
-					&& onlineOrder.Order == null
+					&& !onlineOrder.OrdersIds.Any()
 				
 				let address = onlineOrder.DeliveryPoint != null ? onlineOrder.DeliveryPoint.ShortAddress : null
 				

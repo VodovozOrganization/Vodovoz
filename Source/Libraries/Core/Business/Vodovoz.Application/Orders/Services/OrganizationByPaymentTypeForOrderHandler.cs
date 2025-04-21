@@ -28,7 +28,7 @@ namespace Vodovoz.Application.Orders.Services
 				?? throw new ArgumentNullException(nameof(organizationForSelfDeliveryOrderByPaymentTypeHandler));
 		}
 
-		public override IEnumerable<PartOrderWithGoods> GetOrganizationsWithOrderItems(
+		public override IEnumerable<PartOrderWithGoods> SplitOrderByOrganizations(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)

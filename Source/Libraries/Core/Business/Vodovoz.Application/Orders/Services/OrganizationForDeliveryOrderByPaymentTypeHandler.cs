@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
-using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {

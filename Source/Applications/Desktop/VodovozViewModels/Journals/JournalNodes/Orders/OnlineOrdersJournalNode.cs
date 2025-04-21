@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Project.Journal;
 using Vodovoz.Core.Domain.Orders;
@@ -48,6 +49,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public int? OnlinePayment { get; set; }
 		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
 		public bool IsNeedConfirmationByCall { get; set; }
-		public int? OrderId { get; set; }
+		public string OrdersIds { get; set; }
 	}
 }

@@ -16,7 +16,7 @@ using Vodovoz.Validation;
 
 namespace Vodovoz.Controllers
 {
-	public class FastDeliveryHandler
+	public class FastDeliveryHandler : IFastDeliveryHandler
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IDeliveryRepository _deliveryRepository;

@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application.Contacts;
 using Vodovoz.Application.Complaints;
 using Vodovoz.Application.FileStorage;
@@ -40,7 +40,6 @@ namespace Vodovoz.Application
 			.AddScoped<ICounterpartyService, CounterpartyService>()
 			.AddScoped<IRouteListService, RouteListService>()
 			.AddScoped<IPaymentService, PaymentService>()
-			.AddScoped<IOrderService, OrderService>()
 			.AddScoped<IPhoneService, PhoneService>()
 			.AddScoped<INomenclatureService, NomenclatureService>()
 			.AddScoped<IComplaintService, ComplaintService>()
@@ -50,7 +49,7 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
 			.AddTrueMarkApiClient()
-			.AddOrderServicesDependencies()
+			.AddApplicationOrderServices()
 		;
 		
 		public static IServiceCollection AddApplicationOrderServices(this IServiceCollection services) => services
@@ -79,6 +78,8 @@ namespace Vodovoz.Application
 			.AddTransient<OrganizationForSelfDeliveryOrderByPaymentTypeHandler>()
 			.AddTransient<OrganizationFromClientForOrderHandler>()
 			.AddScoped<IOrderContractUpdater, OrderContractUpdater>()
+			.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
+			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)
