@@ -72,7 +72,12 @@ namespace Edo.Problems.Validation.Sources
 
 			var documentEdoTask = edoTask as DocumentEdoTask;
 			var receiptEdoTask = edoTask as ReceiptEdoTask;
-			var orderEdoRequest = documentEdoTask?.OrderEdoRequest ?? receiptEdoTask.OrderEdoRequest;
+			var orderEdoRequest = documentEdoTask?.OrderEdoRequest ?? receiptEdoTask?.OrderEdoRequest;
+
+			if(orderEdoRequest is null)
+			{
+				return EdoValidationResult.Invalid(this);
+			}
 
 			using(var uow = uowFactory.CreateWithoutRoot(nameof(AllResaleCodesScannedEdoValidator)))
 			{
