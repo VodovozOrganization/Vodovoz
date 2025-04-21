@@ -15,7 +15,7 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Problems.Validation.Sources
 {
-	public partial class AllResaleCodesScannedEdoValidator : EdoTaskProblemValidatorSource, IEdoTaskValidator
+	public partial class AllResaleCodesScannedEdoValidator : OrderEdoValidatorBase, IEdoTaskValidator
 	{
 		public override string Name
 		{
@@ -49,15 +49,12 @@ namespace Edo.Problems.Validation.Sources
 
 		public override bool IsApplicable(EdoTask edoTask)
 		{
-			var documentEdoTask = edoTask as DocumentEdoTask;
-			var receiptEdoTask = edoTask as ReceiptEdoTask;
-
-			var orderEdoRequest = documentEdoTask?.OrderEdoRequest ?? receiptEdoTask?.OrderEdoRequest;
-			
-			if(orderEdoRequest is null)
+			if(!(edoTask is OrderEdoTask orderEdoTask))
 			{
 				return false;
 			}
+			
+			var orderEdoRequest = orderEdoTask.OrderEdoRequest;
 
 			return orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad;
 		}
@@ -69,12 +66,8 @@ namespace Edo.Problems.Validation.Sources
 			var trueMarkTaskCodesValidator = serviceProvider.GetRequiredService<ITrueMarkCodesValidator>();
 			var edoTaskTrueMarkCodeCheckerFactory = serviceProvider.GetRequiredService<EdoTaskItemTrueMarkStatusProviderFactory>();
 			var trueMarkCodesChecker = edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
-
-			var documentEdoTask = edoTask as DocumentEdoTask;
-			var receiptEdoTask = edoTask as ReceiptEdoTask;
-			var orderEdoRequest = documentEdoTask?.OrderEdoRequest ?? receiptEdoTask?.OrderEdoRequest;
-
-			if(orderEdoRequest is null)
+			
+			if(!(edoTask is OrderEdoTask orderEdoTask))
 			{
 				return EdoValidationResult.Invalid(this);
 			}
@@ -82,7 +75,7 @@ namespace Edo.Problems.Validation.Sources
 			using(var uow = uowFactory.CreateWithoutRoot(nameof(AllResaleCodesScannedEdoValidator)))
 			{
 				return await IsAllTrueMarkProductCodesAddedToOrder(uow, trueMarkTaskCodesValidator, trueMarkCodesChecker,
-					orderEdoRequest, cancellationToken)
+					orderEdoTask.OrderEdoRequest, cancellationToken)
 					? EdoValidationResult.Valid(this)
 					: EdoValidationResult.Invalid(this);
 			}
