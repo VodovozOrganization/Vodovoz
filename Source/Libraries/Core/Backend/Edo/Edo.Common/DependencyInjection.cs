@@ -13,7 +13,7 @@ namespace Edo.Common
 			services.TryAddScoped<TransferRequestCreator>();
 			services.TryAddScoped<EdoTaskItemTrueMarkStatusProvider>();
 			services.TryAddScoped<EdoTaskItemTrueMarkStatusProviderFactory>();
-			services.TryAddScoped<TrueMarkTaskCodesValidator>();
+			services.TryAddScoped<ITrueMarkCodesValidator, TrueMarkTaskCodesValidator>();
 			services.TryAddScoped<IEdoOrderContactProvider, EdoOrderContactProvider>();
 
 			return services;

@@ -24,7 +24,7 @@ namespace Edo.Documents
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
-		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
+		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
@@ -33,7 +33,7 @@ namespace Edo.Documents
 		public ForResaleDocumentEdoTaskHandler(
 			IUnitOfWork uow,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
-			TrueMarkTaskCodesValidator trueMarkTaskCodesValidator,
+			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			TransferRequestCreator transferRequestCreator,
 			TrueMarkCodesPool trueMarkCodesPool,
 			EdoProblemRegistrar edoProblemRegistrar,

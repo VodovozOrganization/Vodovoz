@@ -40,7 +40,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
-		private readonly TrueMarkTaskCodesValidator _localCodesValidator;
+		private readonly ITrueMarkCodesValidator _localCodesValidator;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly Tag1260Checker _tag1260Checker;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
@@ -63,7 +63,7 @@ namespace Edo.Receipt.Dispatcher
 			TransferRequestCreator transferRequestCreator,
 			IEdoRepository edoRepository,
 			IEdoReceiptSettings edoReceiptSettings,
-			TrueMarkTaskCodesValidator localCodesValidator,
+			ITrueMarkCodesValidator localCodesValidator,
 			TrueMarkCodesPool trueMarkCodesPool,
 			Tag1260Checker tag1260Checker,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
