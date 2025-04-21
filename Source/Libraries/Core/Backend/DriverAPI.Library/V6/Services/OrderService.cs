@@ -63,7 +63,6 @@ namespace DriverAPI.Library.V6.Services
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IGenericRepository<CarLoadDocument> _carLoadDocumentRepository;
-		private readonly MessageService _edoMessageService;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -81,8 +80,8 @@ namespace DriverAPI.Library.V6.Services
 			IOrderSettings orderSettings,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
-			IGenericRepository<CarLoadDocument> carLoadDocumentRepository,
-			MessageService edoMessageService)
+			IGenericRepository<CarLoadDocument> carLoadDocumentRepository
+			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -100,7 +99,6 @@ namespace DriverAPI.Library.V6.Services
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
-			_edoMessageService = edoMessageService ?? throw new ArgumentNullException(nameof(edoMessageService));
 		}
 
 		/// <summary>
@@ -402,7 +400,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(edoRequestCreated)
 			{
-				await _edoMessageService.PublishEdoRequestCreatedEvent(edoRequest.Id);
+				return Result.Success(edoRequest.Id);
 			}
 
 			return Result.Success();
