@@ -77,7 +77,7 @@ namespace Edo.Scheduler.Service
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-						message = new WithdrawalTaskCreatedEvent { Id = edoTask.Id };
+						message = new WithdrawalTaskCreatedEvent { WithdrawalEdoTaskId = edoTask.Id };
 			object message = null;
 			switch(edoTask.TaskType)
 			{

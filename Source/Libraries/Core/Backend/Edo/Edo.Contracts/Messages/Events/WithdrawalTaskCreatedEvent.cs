@@ -8,6 +8,6 @@
 		/// <summary>
 		/// Идентификатор задачи на вывод из оборота
 		/// </summary>
-		public int Id { get; set; }
+		public int WithdrawalEdoTaskId { get; set; }
 	}
 }

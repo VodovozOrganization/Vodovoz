@@ -50,11 +50,24 @@ namespace Edo.Withdrawal
 					throw new InvalidOperationException($"Задача {nameof(WithdrawalEdoTask)} с Id {withdrawalEdoTaskId} уже завершена");
 				}
 
+				//Проверка, что заказ по безналу
+				//Проверка, что клиент согласен на ЭДО
+				//Проверка, что клиент не зарегистрирован в ЧЗ
+
 				var codes = withdrawalEdoTask.Items.Select(x => x.ProductCode).ToList();
+
+				if(codes.Count == 0)
+				{
+					_logger.LogInformation("Задача {EdoTaskType} с Id {WithdrawalEdoTaskId} не содержит товаров",
+						nameof(WithdrawalEdoTask),
+						withdrawalEdoTaskId);
+
+					return;
+				}
 
 				var firstOrganizationData = _options.Value.OrganizationCertificates.FirstOrDefault();
 
-				var crptToken = _trueMarkApiClient.GetCrptTokenAsync(firstOrganizationData.CertificateThumbPrint, firstOrganizationData.Inn, cancellationToken);
+				var crptToken = await _trueMarkApiClient.GetCrptTokenAsync(firstOrganizationData.CertificateThumbPrint, firstOrganizationData.Inn, cancellationToken);
 
 				withdrawalEdoTask.Status = EdoTaskStatus.Completed;
 				withdrawalEdoTask.EndTime = DateTime.Now;
