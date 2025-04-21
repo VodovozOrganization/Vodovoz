@@ -50,9 +50,20 @@ namespace Edo.Withdrawal
 					throw new InvalidOperationException($"Задача {nameof(WithdrawalEdoTask)} с Id {withdrawalEdoTaskId} уже завершена");
 				}
 
+				var order = withdrawalEdoTask.OrderEdoRequest?.Order;
+
+				if(order == null)
+				{
+					throw new InvalidOperationException($"Для задачи вывода из оборота с Id {withdrawalEdoTaskId} не найден заказ");
+				}
+
+				var client = order.Client;
+
+				if(client)
 				//Проверка, что заказ по безналу
 				//Проверка, что клиент согласен на ЭДО
 				//Проверка, что клиент не зарегистрирован в ЧЗ
+				//Проверка статусов кодов и владельцев
 
 				var codes = withdrawalEdoTask.Items.Select(x => x.ProductCode).ToList();
 
