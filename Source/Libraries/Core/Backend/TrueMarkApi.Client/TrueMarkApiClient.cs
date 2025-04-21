@@ -53,5 +53,13 @@ namespace TrueMarkApi.Client
 
 			return result.Result;
 		}
+
+		public async Task<string> GetCrptTokenAsync(string certificateThumbPrint, string inn, CancellationToken cancellationToken)
+		{
+			var endPoint = $"Login?certificateThumbPrint={certificateThumbPrint}&&inn={inn}";
+			var crptToken = await _httpClient.GetStringAsync(endPoint);
+
+			return crptToken;
+		}
 	}
 }

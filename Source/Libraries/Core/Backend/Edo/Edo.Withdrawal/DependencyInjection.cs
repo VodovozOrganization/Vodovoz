@@ -5,6 +5,7 @@ using Edo.Withdrawal.Options;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TrueMarkApi.Client;
 
 namespace Edo.Withdrawal
 {
@@ -19,13 +20,14 @@ namespace Edo.Withdrawal
 
 			services
 				.AddScoped<WithdrawalTaskCreatedHandler>()
+				.AddTrueMarkApiClient()
 				.ConfigureBusinessOptions(configuration);
 
 			return services;
 		}
 
 		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services, IConfiguration configuration) => services
-			.Configure<TrueMarkSettings>(trueMarkSettings =>
-				configuration.GetSection(nameof(TrueMarkSettings)).Bind(trueMarkSettings));
+			.Configure<TrueMarkOptions>(trueMarkSettings =>
+				configuration.GetSection(nameof(TrueMarkOptions)).Bind(trueMarkSettings));
 	}
 }

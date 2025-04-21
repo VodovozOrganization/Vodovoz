@@ -6,7 +6,7 @@ namespace Edo.Withdrawal.Options
 	/// <summary>
 	/// Настройки Честного знака
 	/// </summary>
-	public class TrueMarkSettings
+	public class TrueMarkOptions
 	{
 		/// <summary>
 		/// Интервал обработки документов ЧЗ
