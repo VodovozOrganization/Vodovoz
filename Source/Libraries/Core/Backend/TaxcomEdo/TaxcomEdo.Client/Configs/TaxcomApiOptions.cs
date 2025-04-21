@@ -65,5 +65,9 @@
 		/// Эндпойнт подписания входящего документооборота
 		/// </summary>
 		public string AcceptIngoingDocflowEndpoint { get; set; }
+		/// <summary>
+		/// Эндпойнт получения статуса документооборота
+		/// </summary>
+		public string GetDocflowStatusEndpoint { get; set; }
 	}
 }
