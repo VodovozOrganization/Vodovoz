@@ -346,7 +346,8 @@ namespace Edo.Documents
 							// индивидуальные коды при этом будут обновлены после валидации
 							if(availableCode.ProductCode.ResultCode == null)
 							{
-								if(availableCode.ProductCode.Problem == ProductCodeProblem.None)
+								if(availableCode.ProductCode.Problem == ProductCodeProblem.None
+									&& availableCode.ProductCode.SourceCodeStatus != SourceProductCodeStatus.SavedToPool)
 								{
 									availableCode.ProductCode.ResultCode = availableCode.ProductCode.SourceCode;
 									availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;

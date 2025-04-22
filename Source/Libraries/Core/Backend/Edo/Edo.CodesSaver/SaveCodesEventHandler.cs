@@ -3,9 +3,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TrueMark.Codes.Pool;
+using Edo.Common;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.CodesSaver
 {
@@ -13,17 +12,17 @@ namespace Edo.CodesSaver
 	{
 		private readonly ILogger<SaveCodesEventHandler> _logger;
 		private readonly IUnitOfWork _uow;
-		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ISaveCodesService _saveCodesService;
 
 		public SaveCodesEventHandler(
 			ILogger<SaveCodesEventHandler> logger,
 			IUnitOfWork uow,
-			TrueMarkCodesPool trueMarkCodesPool
+			ISaveCodesService saveCodesService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
+			_saveCodesService = saveCodesService ?? throw new ArgumentNullException(nameof(saveCodesService));
 		}
 
 		public async Task Handle(int edoTaskId, CancellationToken cancellationToken)
@@ -41,26 +40,13 @@ namespace Edo.CodesSaver
 				return;
 			}
 
-			await SaveCodes(edoTask, cancellationToken);
+			await _saveCodesService.SaveCodesToPool(edoTask, cancellationToken);
 			edoTask.Status = EdoTaskStatus.Completed;
 			edoTask.StartTime = DateTime.Now;
 			edoTask.EndTime = DateTime.Now;
 
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
-		}
-
-		private async Task SaveCodes(SaveCodesEdoTask edoTask, CancellationToken cancellationToken)
-		{
-			foreach(var taskItem in edoTask.Items)
-			{
-				var productCode = taskItem.ProductCode;
-				if(productCode.Problem != ProductCodeProblem.None)
-				{
-					continue;
-				}
-				await _trueMarkCodesPool.PutCodeAsync(productCode.SourceCode.Id, cancellationToken);
-			}
 		}
 
 		public void Dispose()
