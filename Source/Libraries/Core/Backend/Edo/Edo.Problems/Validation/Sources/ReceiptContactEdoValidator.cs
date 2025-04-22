@@ -48,30 +48,21 @@ namespace Edo.Problems.Validation.Sources
 		public override async Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider,
 			CancellationToken cancellationToken)
 		{
-			var edoOrderContactProvider = serviceProvider.GetRequiredService<IEdoOrderContactProvider>();
-
 			if(!(edoTask is ReceiptEdoTask receiptEdoTask))
 			{
 				return EdoValidationResult.Invalid(this);
 			}
+			
+			var edoOrderContactProvider = serviceProvider.GetRequiredService<IEdoOrderContactProvider>();
 
 			var contact = edoOrderContactProvider.GetContact(receiptEdoTask.OrderEdoRequest.Order);
 
-			var validationEmail = new EmailEntity { Address = contact };
-
-			if(validationEmail.IsValidEmail)
+			if(!contact.IsValid)
 			{
-				return EdoValidationResult.Valid(this);
+				return EdoValidationResult.Invalid(this);
 			}
 
-			var validationPhone = new PhoneEntity { Number = contact };
-
-			if(validationPhone.IsValidPhoneNumber)
-			{
-				return EdoValidationResult.Valid(this);
-			}
-
-			return EdoValidationResult.Invalid(this);
+			return EdoValidationResult.Valid(this);
 		}
 	}
 }
