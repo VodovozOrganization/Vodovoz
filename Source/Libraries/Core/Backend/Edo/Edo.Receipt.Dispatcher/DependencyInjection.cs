@@ -23,6 +23,7 @@ namespace Edo.Receipt.Dispatcher
 			services.TryAddScoped<ResaleReceiptEdoTaskHandler>();
 			services.TryAddScoped<ForOwnNeedsReceiptEdoTaskHandler>();
 			services.TryAddScoped<Tag1260Checker>();
+			services.TryAddScoped<ISaveCodesService, SaveCodesService>();
 
 			services.AddEdo();
 			services.AddEdoProblemRegistation();
