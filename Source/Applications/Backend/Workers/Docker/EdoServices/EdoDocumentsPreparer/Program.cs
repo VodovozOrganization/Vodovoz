@@ -56,7 +56,7 @@ namespace EdoDocumentsPreparer
 						.AddHostedService<EdoDocumentsPreparerWorker>()
 						.AddPreparerDependencyGroup()
 						.ConfigurePreparer(hostContext.Configuration)
-						
+
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
 						.AddStaticScopeForEntity()
