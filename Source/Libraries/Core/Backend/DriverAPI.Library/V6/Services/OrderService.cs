@@ -633,7 +633,7 @@ namespace DriverAPI.Library.V6.Services
 
 				foreach(var scannedCode in uniqueBottleCodes)
 				{
-					var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem, scannedCode, SourceProductCodeStatus.New, ProductCodeProblem.None);
+					var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, scannedCode, SourceProductCodeStatus.New, ProductCodeProblem.None);
 
 					if(result.IsFailure)
 					{
@@ -647,7 +647,7 @@ namespace DriverAPI.Library.V6.Services
 
 				foreach(var defectiveBottleCode in uniqueDefectiveCodes)
 				{
-					var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem, defectiveBottleCode, SourceProductCodeStatus.Problem, ProductCodeProblem.Defect);
+					var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, defectiveBottleCode, SourceProductCodeStatus.Problem, ProductCodeProblem.Defect);
 
 					if(result.IsFailure)
 					{
@@ -661,7 +661,7 @@ namespace DriverAPI.Library.V6.Services
 
 		private async Task<Result> AddProductCodeToRouteListItemAsync(
 			RouteListItem routeListAddress,
-			ITrueMarkOrderItemScannedInfo scannedItem,
+			int orderSaleItemId,
 			string scannedCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem)
@@ -696,7 +696,7 @@ namespace DriverAPI.Library.V6.Services
 				_routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItem(
 					_uow,
 					routeListAddress,
-					scannedItem.OrderSaleItemId,
+					orderSaleItemId,
 					code.TrueMarkWaterIdentificationCode,
 					status,
 					problem);
@@ -1734,6 +1734,89 @@ namespace DriverAPI.Library.V6.Services
 					Parent = parentRawCode
 				};
 			};
+		}
+
+		public async Task<Result> SendTrueMarkCodes(
+			DateTime actionTime,
+			Employee driver,
+			int orderId,
+			IEnumerable<OrderItemScannedBottlesDto> scannedBottles,
+			string unscannedBottlesReason,
+			CancellationToken cancellationToken)
+		{
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
+
+			if(vodovozOrder is null)
+			{
+				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
+				return Result.Failure(OrderErrors.NotFound);
+			}
+
+			if(vodovozOrder.IsNeedIndividualSetOnLoad || vodovozOrder.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds)
+			{
+				_logger.LogWarning("Заказ {OrderId} не является заказом для собственных нужд", orderId);
+				return Result.Failure(OrderErrors.OrderIsNotForPersonalUseError);
+			}
+
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
+
+			if(routeList is null)
+			{
+				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
+				return Result.Failure(RouteListErrors.NotFoundAssociatedWithOrder);
+			}
+
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
+
+			if(routeListAddress is null)
+			{
+				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
+				return Result.Failure(RouteListItemErrors.NotFoundAssociatedWithOrder);
+			}
+
+			if(routeList.Driver.Id != driver.Id)
+			{
+				_logger.LogWarning("Сотрудник {EmployeeId} попытался добавить коды к заказу {OrderId} водителя {DriverId}",
+					driver.Id, orderId, routeList.Driver.Id);
+				return Result.Failure(Errors.Security.Authorization.OrderAccessDenied);
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute)
+			{
+				_logger.LogWarning("Нельзя добавить коды к заказу: {OrderId}, МЛ не в пути", orderId);
+				return Result.Failure<PayByQrResponse>(RouteListErrors.NotEnRouteState);
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				_logger.LogWarning("Нельзя добавить коды к заказу: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
+				return Result.Failure<PayByQrResponse>(RouteListItemErrors.NotEnRouteState);
+			}
+
+			foreach(var scannedBottle in scannedBottles)
+			{
+				var orderSaleItemId = scannedBottle.OrderSaleItemId;
+
+				if(!vodovozOrder.OrderItems.Any(x => x.Id == orderSaleItemId))
+				{
+					_logger.LogWarning("У заказа {OrderId} заказа не найдена: {OrderItemId}", orderSaleItemId);
+					return Result.Failure(OrderItemErrors.NotFound);
+				}
+				
+				foreach(var scannedCode in scannedBottle.BottleCodes)
+				{
+					await AddProductCodeToRouteListItemAsync(
+						routeListAddress,
+						orderSaleItemId,
+						scannedCode,
+						SourceProductCodeStatus.New,
+						ProductCodeProblem.None);
+				}
+			}
+
+			await _uow.CommitAsync(cancellationToken);
+
+			return Result.Success();
 		}
 	}
 }
