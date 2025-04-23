@@ -148,7 +148,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			get => this.GetIdRefField(ref _counterparty, Entity.CounterpartyId);
 			set
 			{
-				if(this.SetIdRefField(SetField, ref _counterparty, () => Entity.CounterpartyId, value))
+				if(this.SetIdRefField(ref _counterparty, () => Entity.CounterpartyId, value))
 				{
 					UpdateSum();
 				}
@@ -160,7 +160,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			get => this.GetIdRefField(ref _organization, Entity.OrganizationId);
 			set
 			{
-				if(this.SetIdRefField(SetField, ref _organization, () => Entity.OrganizationId, value))
+				if(this.SetIdRefField(ref _organization, () => Entity.OrganizationId, value))
 				{
 					UpdateSum();
 				}
