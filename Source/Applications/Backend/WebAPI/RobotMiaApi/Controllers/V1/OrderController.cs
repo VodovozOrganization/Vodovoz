@@ -86,7 +86,7 @@ namespace RobotMiaApi.Controllers.V1
 				return NoContent();
 			}
 
-			var createdOrderId = _orderService.CreateAndAcceptOrder(postOrderRequest);
+			var createdOrderId = await _orderService.CreateAndAcceptOrder(postOrderRequest);
 			_logger.LogInformation("Создан заказ #{OrderId}", createdOrderId);
 
 			return NoContent();

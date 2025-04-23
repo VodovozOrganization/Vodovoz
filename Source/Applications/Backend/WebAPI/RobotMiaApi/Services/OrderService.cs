@@ -4,11 +4,14 @@ using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
 using RobotMiaApi.Extensions.Mapping;
 using RobotMiaApi.Specifications;
+using Sms.Internal;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Specifications;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Models;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Roboats;
 using VodovozBusiness.Specifications.Orders;
@@ -32,6 +35,7 @@ namespace RobotMiaApi.Services
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly IVodovozOrderService _vodovozOrderService;
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IFastPaymentSender _fastPaymentSender;
 
 		/// <summary>
 		/// Конструктор
@@ -49,7 +53,8 @@ namespace RobotMiaApi.Services
 			IRoboatsSettings roboatsSettings,
 			IGenericRepository<Order> orderRepository,
 			IVodovozOrderService vodovozOrderService,
-			IUnitOfWork unitOfWork)
+			IUnitOfWork unitOfWork,
+			IFastPaymentSender fastPaymentSender)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -62,6 +67,8 @@ namespace RobotMiaApi.Services
 			_vodovozOrderService = vodovozOrderService;
 			_unitOfWork = unitOfWork
 				?? throw new ArgumentNullException(nameof(unitOfWork));
+			_fastPaymentSender = fastPaymentSender
+				?? throw new ArgumentNullException(nameof(fastPaymentSender));
 		}
 
 
@@ -106,15 +113,57 @@ namespace RobotMiaApi.Services
 		}
 
 		/// <inheritdoc/>
-		public int CreateAndAcceptOrder(CreateOrderRequest createOrderRequest)
+		public async Task<int> CreateAndAcceptOrder(CreateOrderRequest createOrderRequest)
 		{
-			return _vodovozOrderService.CreateAndAcceptOrder(createOrderRequest.MapToCreateOrderRequest());
+			var orderArgs = createOrderRequest.MapToCreateOrderRequest();
+
+			if(createOrderRequest.PaymentType == PaymentType.SmsQR)
+			{
+				var orderData = _vodovozOrderService.CreateIncompleteOrder(orderArgs);
+
+				var paymentSent = await TryingSendPayment(createOrderRequest.ContactPhone, orderData.OrderId);
+
+				if(paymentSent)
+				{
+					orderData = _vodovozOrderService.AcceptOrder(orderData.OrderId, orderData.AuthorId);
+				}
+
+				return orderData.OrderId;
+			}
+
+			return _vodovozOrderService.CreateAndAcceptOrder(orderArgs);
 		}
 
 		/// <inheritdoc/>
 		public (decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice) GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest)
 		{
 			return _vodovozOrderService.GetOrderAndDeliveryPrices(calculatePriceRequest.MapToCreateOrderRequest());
+		}
+
+		private async Task<bool> TryingSendPayment(string phone, int orderId)
+		{
+			FastPaymentResult result;
+			var attemptsCount = 0;
+
+			do
+			{
+				if(attemptsCount > 0)
+				{
+					await Task.Delay(60000);
+				}
+
+				result = await _fastPaymentSender.SendFastPaymentUrlAsync(orderId, phone, true);
+
+				if(result.Status == ResultStatus.Error && result.OrderAlreadyPaied)
+				{
+					return true;
+				}
+
+				attemptsCount++;
+
+			} while(result.Status == ResultStatus.Error && attemptsCount < 3);
+
+			return result.Status == ResultStatus.Ok;
 		}
 	}
 }

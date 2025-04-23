@@ -1,5 +1,6 @@
 ﻿using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
+using System.Threading.Tasks;
 
 namespace RobotMiaApi.Services
 {
@@ -27,7 +28,7 @@ namespace RobotMiaApi.Services
 		/// </summary>
 		/// <param name="createOrderRequest"></param>
 		/// <returns></returns>
-		int CreateAndAcceptOrder(CreateOrderRequest createOrderRequest);
+		Task<int> CreateAndAcceptOrder(CreateOrderRequest createOrderRequest);
 
 		/// <summary>
 		/// Создание заказа без принятия
