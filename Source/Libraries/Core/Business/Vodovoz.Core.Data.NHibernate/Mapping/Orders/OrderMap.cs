@@ -207,6 +207,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 
 			Map(x => x.PaymentType).Column("payment_type")
 				.Access.CamelCaseField(Prefix.Underscore);
+			
+			Map(x => x.OnlineOrderId)
+				.Column("online_order_id");
+			
+			Map(x => x.OrderPartsIds)
+				.Column("order_parts_ids");
 
 			References(x => x.PaymentByCardFrom)
 				.Column("payment_from_id");

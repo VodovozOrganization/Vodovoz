@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
@@ -48,87 +47,57 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Разделение заказа на подзаказы по организациям"))
 			{
-				using(var transaction = uow.Session.BeginTransaction())
+				var i = 0;
+				var orders = new List<Order>();
+
+				foreach(var partOrderWithGoods in partitionedOrderByOrganizations.OrderParts)
 				{
-					try
+					var resultOrder = i == 0 ? uow.GetById<Order>(baseOrderId) : new Order();
+					resultOrder.UoW = uow;
+					orders.Add(resultOrder);
+
+					var partitionedOrder = new PartitionedOrder(
+						uow,
+						uow.GetById<Order>(baseOrderId),
+						resultOrder,
+						_nomenclatureSettings,
+						_flyerRepository,
+						_orderContractUpdater);
+
+					if(i == 0)
 					{
-						var i = 0;
-						var orders = new List<Order>();
-
-						foreach(var partOrderWithGoods in partitionedOrderByOrganizations.OrderParts)
-						{
-							var resultOrder = i == 0 ? uow.GetById<Order>(baseOrderId) : new Order();
-							resultOrder.UoW = uow;
-							orders.Add(resultOrder);
-
-							var partitionedOrder = new PartitionedOrder(
-								uow,
-								uow.GetById<Order>(baseOrderId),
-								resultOrder,
-								_nomenclatureSettings,
-								_flyerRepository,
-								_orderContractUpdater);
-
-							if(i == 0)
-							{
-								partitionedOrder.ClearGoodsAndEquipmentsAndDeposits();
-							}
-							else
-							{
-								partitionedOrder.CopyFields();
-							}
-
-							partitionedOrder
-								.CopyPromotionalSets(partOrderWithGoods.Goods)
-								.CopyOrderItems(partOrderWithGoods.Goods, true)
-								.CopyOrderEquipments(partOrderWithGoods.OrderEquipments)
-								.CopyOrderDepositItems(partOrderWithGoods.OrderDepositItems)
-								.CopyAttachedDocuments();
-
-							resultOrder.UpdateDocuments();
-							_orderContractUpdater.ForceUpdateContract(uow, resultOrder, partOrderWithGoods.Organization);
-							_orderConfirmationService.AcceptOrder(uow, employee, resultOrder);
-							uow.Save(resultOrder);
-
-							i++;
-						}
-
-						uow.Commit();
-
-						var orderIds = orders.Select(x => x.Id).ToList();
-
-						var parts = GenerateOrderPartsString(orderIds);
-
-						foreach(var order in orders)
-						{
-							order.OrderPartsIds = parts;
-						}
-
-						transaction.Commit();
-						return Result.Success<IEnumerable<int>>(orderIds);
+						partitionedOrder.ClearGoodsAndEquipmentsAndDeposits();
 					}
-					catch(Exception e)
+					else
 					{
-						if(!transaction.WasCommitted
-							&& !transaction.WasRolledBack
-							&& transaction.IsActive
-							&& uow.Session.Connection.State == ConnectionState.Open)
-						{
-							try
-							{
-								transaction.Rollback();
-							}
-							catch
-							{
-							}
-						}
-
-						transaction.Dispose();
-						
-						_logger.LogError(e, "Произошла ошибка при разбиении заказа {BaseOrderId}", baseOrderId);
-						return Result.Failure<IEnumerable<int>>(Vodovoz.Errors.Orders.Order.SplitOrderError);
+						partitionedOrder.CopyFields();
 					}
+
+					partitionedOrder
+						.CopyPromotionalSets(partOrderWithGoods.Goods)
+						.CopyOrderItems(partOrderWithGoods.Goods, true)
+						.CopyOrderEquipments(partOrderWithGoods.OrderEquipments)
+						.CopyOrderDepositItems(partOrderWithGoods.OrderDepositItems)
+						.CopyAttachedDocuments();
+
+					resultOrder.UpdateDocuments();
+					_orderContractUpdater.ForceUpdateContract(uow, resultOrder, partOrderWithGoods.Organization);
+					_orderConfirmationService.AcceptOrder(uow, employee, resultOrder);
+
+					i++;
 				}
+
+				var orderIds = orders.Select(x => x.Id).ToList();
+				var parts = GenerateOrderPartsString(orderIds);
+
+				foreach(var order in orders)
+				{
+					order.Comment = $"Заказ был разбит на части. Номера созданных заказов: {parts}\n" + order.Comment;
+					order.OrderPartsIds = parts;
+				}
+
+				uow.Commit();
+				return Result.Success<IEnumerable<int>>(orderIds);
 			}
 		}
 

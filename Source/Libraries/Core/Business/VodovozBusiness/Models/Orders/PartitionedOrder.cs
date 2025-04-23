@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
@@ -18,8 +17,6 @@ namespace Vodovoz.Models.Orders
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
-		private readonly int _fastDeliveryNomenclatureId;
-		private readonly int _masterCallNomenclatureId;
 		private bool _needCopyStockBottleDiscount;
 
 		public PartitionedOrder(
@@ -46,8 +43,6 @@ namespace Vodovoz.Models.Orders
 			}
 
 			_paidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
-			_fastDeliveryNomenclatureId = nomenclatureSettings.FastDeliveryNomenclatureId;
-			_masterCallNomenclatureId = nomenclatureSettings.MasterCallNomenclatureId;
 			_flyersNomenclaturesIds = flyerRepository.GetAllFlyersNomenclaturesIds(_uow);
 		}
 		
@@ -190,38 +185,6 @@ namespace Vodovoz.Models.Orders
 
 			return this;
 		}
-
-		/// <summary>
-		/// Копирование данных об оплате по карте
-		/// </summary>
-		public PartitionedOrder CopyPaymentByCardDataIfPossible()
-		{
-			if(_copiedOrder.PaymentType != PaymentType.PaidOnline)
-			{
-				return this;
-			}
-
-			_resultOrder.OnlineOrder = _copiedOrder.OnlineOrder;
-			_resultOrder.UpdatePaymentByCardFrom(_copiedOrder.PaymentByCardFrom, _contractUpdater);
-
-			return this;
-		}
-
-		/// <summary>
-		/// Копирование данных об оплате по QR коду из приложения водителя или СМС
-		/// </summary>
-		public PartitionedOrder CopyPaymentByQrDataIfPossible()
-		{
-			if(_copiedOrder.PaymentType != PaymentType.DriverApplicationQR
-				&& _copiedOrder.PaymentType != PaymentType.SmsQR)
-			{
-				return this;
-			}
-
-			_resultOrder.OnlineOrder = _copiedOrder.OnlineOrder;
-
-			return this;
-		}
 		
 		/// <summary>
 		/// Копирование промонаборов <see cref="PromotionalSet"/> и связанных с ними товаров <see cref="OrderItem"/>
@@ -229,7 +192,6 @@ namespace Vodovoz.Models.Orders
 		/// </summary>
 		public PartitionedOrder CopyPromotionalSets(IEnumerable<IProduct> copyingItems)
 		{
-			//TODO: настроить правильную выборку промонаборов
 			var promoSets =
 				(from copyingItem in copyingItems
 					where copyingItem.PromoSet != null
@@ -248,12 +210,6 @@ namespace Vodovoz.Models.Orders
 			CopyGoods(true, goods);
 
 			return this;
-		}
-
-		public Order GetResult()
-		{
-			_resultOrder.UpdateDocuments();
-			return _resultOrder;
 		}
 
 		private void CopyOrderItem(

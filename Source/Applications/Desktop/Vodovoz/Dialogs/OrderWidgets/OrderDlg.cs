@@ -197,7 +197,6 @@ namespace Vodovoz
 		private int _paidDeliveryNomenclatureId;
 		private int _fastDeliveryNomenclatureId;
 		private int _advancedPaymentNomenclatureId;
-		private bool _partitioningOrder;
 
 		private IOrderSettings _orderSettings;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
@@ -540,8 +539,6 @@ namespace Vodovoz
 				}
 
 				Entity.UpdatePaymentType(Counterparty.PaymentMethod, _orderContractUpdater);
-				var orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
-				var cashReceiptRepository = ScopeProvider.Scope.Resolve<ICashReceiptRepository>();
 				_orderContractUpdater.UpdateOrCreateContract(UoW, Entity);
 				FillOrderItems(copiedOrder);
 				CheckForStopDelivery();
@@ -613,50 +610,6 @@ namespace Vodovoz
 			}
 
 			Entity.UpdateDocuments();
-			CheckForStopDelivery();
-			UpdateOrderAddressTypeWithUI();
-			AddCommentsFromDeliveryPoint();
-			SetLogisticsRequirementsCheckboxes();
-		}
-		
-		//TODO: удалить после доработки разбивки заказа
-		public void CopyOrderForPartitionByOrganizations(
-			int orderId,
-			int partOrder,
-			PartOrderWithGoods partOrderWithGoods)
-		{
-			_partitioningOrder = true;
-			
-			var partitionedOrder = new PartitionedOrder(
-				UoW,
-				UoW.GetById<Order>(orderId),
-				Entity,
-				_nomenclatureSettings,
-				_flyerRepository,
-				_orderContractUpdater);
-
-			if(partOrder == 1)
-			{
-				partitionedOrder.ClearGoodsAndEquipmentsAndDeposits();
-			}
-			else
-			{
-				partitionedOrder.CopyFields();
-			}
-			
-			partitionedOrder
-				.CopyPromotionalSets(partOrderWithGoods.Goods)
-				.CopyOrderItems(partOrderWithGoods.Goods, true)
-				.CopyOrderEquipments(partOrderWithGoods.OrderEquipments)
-				.CopyOrderDepositItems(partOrderWithGoods.OrderDepositItems)
-				.CopyAttachedDocuments();
-			
-			_partitioningOrder = false;
-
-			Entity.UpdateDocuments();
-			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
-			HboxReturnTareReasonCategoriesShow();
-			_orderContractUpdater.ForceUpdateContract(UoW, Entity, partOrderWithGoods.Organization);
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 			AddCommentsFromDeliveryPoint();
@@ -1335,17 +1288,14 @@ namespace Vodovoz
 				case nameof(Order.Client):
 					if(Counterparty != null)
 					{
-						if(!_partitioningOrder)
+						try
 						{
-							try
-							{
-								_cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
-								_counterpartyService.StopShipmentsIfNeeded(Counterparty.Id, _currentEmployee.Id, _cancellationTokenCheckLiquidationSource.Token).GetAwaiter().GetResult();
-							}
-							catch(Exception e)
-							{
-								MessageDialogHelper.RunWarningDialog($"Не удалось проверить статус контрагента в ФНС. {e.Message}", "Ошибка проверки статуса контрагента в ФНС");
-							}
+							_cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
+							_counterpartyService.StopShipmentsIfNeeded(Counterparty.Id, _currentEmployee.Id, _cancellationTokenCheckLiquidationSource.Token).GetAwaiter().GetResult();
+						}
+						catch(Exception e)
+						{
+							MessageDialogHelper.RunWarningDialog($"Не удалось проверить статус контрагента в ФНС. {e.Message}", "Ошибка проверки статуса контрагента в ФНС");
 						}
 
 						if(!Entity.IsCopiedFromUndelivery)
@@ -2455,17 +2405,6 @@ namespace Vodovoz
 			{
 				SetSensitivity(false);
 
-				//TODO: нужна ли здесь проверка
-				/*if(Entity.OrganizationsByOrderItems.Count() > 1)
-				{
-					//вывести сообщение о том, что заказ необходимо разбить на несколько
-					if(!MessageDialogHelper.RunQuestionDialog(
-						"Заказ должен быть разбит на несколько. Продолжаем?"))
-					{
-						return false;
-					}
-				}*/
-
 				if(_orderRepository.GetStatusesForFreeBalanceOperations().Contains(Entity.OrderStatus))
 				{
 					CreateDeliveryFreeBalanceOperations();
@@ -2610,55 +2549,38 @@ namespace Vodovoz
 				return _lastSaveResult;
 			}
 
-			using(var transaction = UoW.Session.BeginTransaction())
+			var possibleConfirmation = CheckPossibilityConfirmation();
+
+			if(possibleConfirmation.IsFailure)
 			{
-				try
+				return possibleConfirmation;
+			}
+
+			try
+			{
+				var acceptResult = TryAcceptOrder();
+
+				if(!acceptResult.SplitedOrder && acceptResult.Result.IsSuccess)
 				{
-					var acceptResult = TryAcceptOrder();
-
-					if(acceptResult.IsSuccess)
-					{
-						//TODO: проверить сохранение в сессию без записи в базу
-						if(!_partitioningOrder)
-						{
-							transaction.Commit();
-							GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
-						}
-						
-						Save();
-					}
-
-					return acceptResult;
+					Save();
 				}
-				catch(Exception e)
-				{
-					if(!transaction.WasCommitted
-					   && !transaction.WasRolledBack
-					   && transaction.IsActive
-					   && UoW.Session.Connection.State == ConnectionState.Open)
-					{
-						try
-						{
-							transaction.Rollback();
-						}
-						catch { }
-					}
 
-					transaction.Dispose();
+				return acceptResult.Result;
+			}
+			catch(Exception e)
+			{
+				OnCloseTab(false);
 
-					OnCloseTab(false);
+				TabParent.OpenTab(() => new OrderDlg(Entity.Id));
 
-					TabParent.OpenTab(() => new OrderDlg(Entity.Id));
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
 
-					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
-
-					return Result.Failure(Errors.Orders.Order.AcceptException);
-				}
+				return Result.Failure(Errors.Orders.Order.AcceptException);
 			}
 		}
 
-		private Result TryAcceptOrder()
+		private Result CheckPossibilityConfirmation()
 		{
 			if(!Entity.CanSetOrderAsAccepted)
 			{
@@ -2678,49 +2600,6 @@ namespace Vodovoz
 			if(validationResult.IsFailure)
 			{
 				return Result.Failure(validationResult.Errors);
-			}
-
-			var orderPartsByOrganizations =
-				_lifetimeScope.Resolve<IOrderOrganizationManager>()
-					.GetOrderPartsByOrganizations(UoW, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(Entity));
-			
-			var i = 0;
-			ITdiTab masterTab = null;
-
-			if(!orderPartsByOrganizations.CanSplitOrderWithDeposits && Entity.ObservableOrderDepositItems.Any())
-			{
-				MessageDialogHelper.RunWarningDialog("Данный заказ содержит возврат залогов." +
-					" И т.к. он содержит позиции, продаваемые от разных организаций," +
-					" то сумма каждого отдельного заказа меньше возвращаемого залога, что не позволяет разбить его вместе с залогом");
-				
-				return Result.Failure(Errors.Orders.Order.UnableToPartitionOrderWithBigDeposit);
-			}
-
-			var partsOrder = orderPartsByOrganizations.OrderParts.Count();
-
-			if(partsOrder == 1)
-			{
-				var set = orderPartsByOrganizations.OrderParts.First();
-
-				if(set.Goods != null && set.Goods.Any() && set.Goods.Count() != Entity.OrderItems.Count)
-				{
-					throw new InvalidOperationException(
-						"Неправильное разбиение заказа. Несоответствие количества товаров в разбиении и начальном заказе");
-				}
-			}
-			else if(partsOrder > 1)
-			{
-				if(!MessageDialogHelper.RunQuestionDialog(
-					"Данный заказ содержит товары, продаваемые от нескольких организаций." +
-					$" Будет произведено автоматическое разбиение на {partsOrder} заказа(ов), с последующим сохранением." +
-					" Продолжаем?"))
-				{
-					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
-				}
-
-				SplitOrder(orderPartsByOrganizations);
-				OnCloseTab(false);
-				return Result.Failure(Errors.Orders.Order.AcceptException);
 			}
 
 			if(!CheckCertificates(canSaveFromHere: true))
@@ -2790,7 +2669,6 @@ namespace Vodovoz
 				return fastDeliveryResult;
 			}
 
-
 			var edoLightsMatrixViewModel = !(Startup.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) is EdoLightsMatrixPanelView edoLightsMatrixPanelView)
 				? new EdoLightsMatrixViewModel()
 				: edoLightsMatrixPanelView.ViewModel.EdoLightsMatrixViewModel;
@@ -2832,6 +2710,52 @@ namespace Vodovoz
 					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
 			}
+			
+			return Result.Success();
+		}
+
+		private (bool SplitedOrder, Result Result) TryAcceptOrder()
+		{
+			var orderPartsByOrganizations =
+				_lifetimeScope.Resolve<IOrderOrganizationManager>()
+					.GetOrderPartsByOrganizations(UoW, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(Entity));
+			
+			if(!orderPartsByOrganizations.CanSplitOrderWithDeposits && Entity.ObservableOrderDepositItems.Any())
+			{
+				MessageDialogHelper.RunWarningDialog("Данный заказ содержит возврат залогов." +
+					" И т.к. он содержит позиции, продаваемые от разных организаций," +
+					" то сумма каждого отдельного заказа меньше возвращаемого залога, что не позволяет разбить его вместе с залогом");
+				
+				return (false, Result.Failure(Errors.Orders.Order.UnableToPartitionOrderWithBigDeposit));
+			}
+
+			var partsOrder = orderPartsByOrganizations.OrderParts.Count();
+
+			if(partsOrder == 1)
+			{
+				var set = orderPartsByOrganizations.OrderParts.First();
+
+				if(set.Goods != null && set.Goods.Any() && set.Goods.Count() != Entity.OrderItems.Count)
+				{
+					throw new InvalidOperationException(
+						"Неправильное разбиение заказа. Несоответствие количества товаров в разбиении и начальном заказе");
+				}
+			}
+			else if(partsOrder > 1)
+			{
+				if(!MessageDialogHelper.RunQuestionDialog(
+					"Данный заказ содержит товары, продаваемые от нескольких организаций." +
+					$" Будет произведено автоматическое разбиение на {partsOrder} заказа(ов), с последующим сохранением." +
+					" Продолжаем?"))
+				{
+					return (false, Result.Failure(Errors.Orders.Order.AcceptAbortedByUser));
+				}
+
+				SplitOrder(orderPartsByOrganizations);
+				OnCloseTab(false);
+				
+				return (true, Result.Success());
+			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C)
 			{
@@ -2847,7 +2771,7 @@ namespace Vodovoz
 			ProcessSmsNotification();
 			UpdateUIState();
 
-			return Result.Success();
+			return (false, Result.Success());
 		}
 
 		private bool SplitOrder(PartitionedOrderByOrganizations orderPartsByOrganizations)
@@ -2867,7 +2791,7 @@ namespace Vodovoz
 
 			if(result.IsFailure)
 			{
-				MessageDialogHelper.RunErrorDialog($"{ result.Errors.First().Message }. Переоткройте его заново и повторите попытку");
+				MessageDialogHelper.RunErrorDialog($"{ result.Errors.First().Message }. Переоткройте заново заказ и повторите попытку");
 				return false;
 			}
 

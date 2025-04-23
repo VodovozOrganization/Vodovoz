@@ -46,8 +46,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.OnlineOrderCancellationReason).Column("online_order_cancellation_reason_id");
 			
 			HasMany(x => x.OrdersIds)
-				.KeyColumn("online_order_id")
-				.Inverse().Cascade.AllDeleteOrphan();
+				.Table("online_orders")
+				.Element("online_order_id")
+				.Cascade.AllDeleteOrphan();
 
 			HasMany(x => x.OnlineOrderItems)
 				.KeyColumn("online_order_id")

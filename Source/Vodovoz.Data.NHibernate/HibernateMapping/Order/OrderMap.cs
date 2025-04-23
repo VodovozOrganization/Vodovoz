@@ -82,6 +82,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.CallBeforeArrivalMinutes).Column("call_before_arrival_minutes");
 			Map(x => x.WaitUntilTime).Column("wait_until_time").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.DontArriveBeforeInterval).Column("dont_arrive_before_interval");
+			Map(x => x.OnlineOrderId).Column("online_order_id");
+			Map(x => x.OrderPartsIds).Column("order_parts_ids");
 
 			References(x => x.Client).Column("client_id");
 			References(x => x.Contract).Column("counterparty_contract_id").Cascade.SaveUpdate();
