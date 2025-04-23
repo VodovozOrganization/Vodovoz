@@ -138,5 +138,17 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Задача с результатом обработки кода ЧЗ</returns>
 		Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> RemoveTrueMarkCode(Employee driver, int orderId, int orderSaleItemId, string scannedCode, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Отправить коды ЧЗ
+		/// </summary>
+		/// <param name="actionTime">Время действия</param>
+		/// <param name="driver">Водитель</param>
+		/// <param name="orderId">Номер строки заказа</param>
+		/// <param name="scannedBottles">Данные по отсканированным бутылкам</param>
+		/// <param name="unscannedBottlesReason">Причина несканирования кодов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Задача с результатом обработки кодов ЧЗ</returns>
+		Task<Result> SendTrueMarkCodes(DateTime actionTime, Employee driver, int orderId, IEnumerable<OrderItemScannedBottlesDto> scannedBottles, string unscannedBottlesReason, CancellationToken cancellationToken);
 	}
 }
