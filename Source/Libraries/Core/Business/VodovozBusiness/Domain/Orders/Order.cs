@@ -1302,16 +1302,17 @@ namespace Vodovoz.Domain.Orders
 					yield return new ValidationResult($"Номер телефона клиента {phone.Number} имеет неправильный формат.");
 				}
 			}
-			
-			foreach(var phone in DeliveryPoint.Phones)
+
+			if(DeliveryPoint != null)
 			{
-				if(!phone.IsValidPhoneNumber)
+				foreach(var phone in DeliveryPoint.Phones)
 				{
-					yield return new ValidationResult($"Номер телефона точки доставки {phone.Number} имеет неправильный формат.");
+					if(!phone.IsValidPhoneNumber)
+					{
+						yield return new ValidationResult($"Номер телефона точки доставки {phone.Number} имеет неправильный формат.");
+					}
 				}
 			}
-			
-
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
