@@ -22,6 +22,9 @@ namespace RobotMiaApi.Services
 	/// <inheritdoc cref="IOrderService"/>
 	public class OrderService : IOrderService
 	{
+		private const int _smsSendIntervalInSeconds = 60;
+		private const int _smsSendMaxCount = 3;
+
 		private static readonly OrderStatus[] _lastOrderCompletedStatuses = new OrderStatus[]
 		{
 			OrderStatus.Shipped,
@@ -149,7 +152,7 @@ namespace RobotMiaApi.Services
 			{
 				if(attemptsCount > 0)
 				{
-					await Task.Delay(60000);
+					await Task.Delay(_smsSendIntervalInSeconds * 1000);
 				}
 
 				result = await _fastPaymentSender.SendFastPaymentUrlAsync(orderId, phone, true);
@@ -161,7 +164,7 @@ namespace RobotMiaApi.Services
 
 				attemptsCount++;
 
-			} while(result.Status == ResultStatus.Error && attemptsCount < 3);
+			} while(result.Status == ResultStatus.Error && attemptsCount < _smsSendMaxCount);
 
 			return result.Status == ResultStatus.Ok;
 		}
