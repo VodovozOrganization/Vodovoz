@@ -2,6 +2,7 @@
 using QS.HistoryLog;
 using QS.Utilities.Numeric;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace Vodovoz.Core.Domain.Contacts
 {
@@ -78,6 +79,18 @@ namespace Vodovoz.Core.Domain.Contacts
 		{
 			get => _phoneType;
 			set => SetField(ref _phoneType, value);
+		}
+		
+		public virtual bool IsValidPhoneNumber => IsValidPhoneNumberFormat();
+
+		private bool IsValidPhoneNumberFormat()
+		{
+			if(Regex.IsMatch(_digitsNumber, "^[3 4 8 9]{1}[0-9]{9}"))
+			{
+				return true;
+			}
+
+			return false;
 		}
 	}
 }

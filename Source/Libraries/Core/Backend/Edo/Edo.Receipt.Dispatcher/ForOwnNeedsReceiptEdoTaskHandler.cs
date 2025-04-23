@@ -1206,7 +1206,7 @@ namespace Edo.Receipt.Dispatcher
 					DocumentNumber = documentNumber,
 					DocumentType = FiscalDocumentType.Sale,
 					CheckoutTime = order.TimeDelivered ?? DateTime.Now,
-					Contact = _edoOrderContactProvider.GetContact(order),
+					Contact = _edoOrderContactProvider.GetContact(order).StringValue,
 					//Для собственных нужд не заполняется
 					ClientInn = null,
 					CashierName = order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName,
