@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -187,7 +188,20 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					var nomenclature = unitOfWork.GetById<Nomenclature>(saleItem.NomenclatureId)
 						?? throw new InvalidOperationException($"Не найдена номенклатура #{saleItem.NomenclatureId}");
-					order.AddWaterForSale(nomenclature, saleItem.BottlesCount);
+
+					if(nomenclature.Category == NomenclatureCategory.water)
+					{
+						order.AddWaterForSale(nomenclature, saleItem.BottlesCount);
+					}
+					else if(nomenclature.Id == ForfeitNomenclatureId)
+					{
+						order.AddNomenclature(nomenclature, saleItem.BottlesCount);
+					}
+					else
+					{
+						throw new InvalidOperationException(
+							$"Номенклатура {nomenclature.Name} не может быть добавлена. В заказ может быть добавлена либо вода, либо неустойка");
+					}
 				}
 
 				order.RecalculateItemsPrice();
