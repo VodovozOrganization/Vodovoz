@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Vodovoz.Settings.Pacs;
 
 namespace MessageTransport
@@ -9,7 +8,7 @@ namespace MessageTransport
 	{
 		public static IServiceCollection AddMessageTransportSettings(this IServiceCollection services)
 		{
-			services.TryAddSingleton<IMessageTransportSettings>((provider) =>
+			services.AddSingleton<IMessageTransportSettings>((provider) =>
 			{
 				var configuration = provider.GetRequiredService<IConfiguration>();
 				var transportSettings = new ConfigTransportSettings();

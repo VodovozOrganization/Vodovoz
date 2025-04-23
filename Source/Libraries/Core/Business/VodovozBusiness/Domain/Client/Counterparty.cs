@@ -36,13 +36,6 @@ namespace Vodovoz.Domain.Client
 
 		private int? _defaultExpenseCategoryId;
 
-		private bool _roboatsExclude;
-		private bool _isForSalesDepartment;
-		private bool _isPaperlessWorkflow;
-		private bool _isNotSendDocumentsByEdo;
-		private bool _canSendUpdInAdvance;
-		private RegistrationInChestnyZnakStatus _registrationInChestnyZnakStatus;
-		private string _personalAccountIdInEdo;
 		private EdoOperator _edoOperator;
 		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
 		private GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
@@ -285,48 +278,6 @@ namespace Vodovoz.Domain.Client
 		#endregion ОсобаяПечать
 
 		#region ЭДО и Честный знак
-
-		[Display(Name = "Статус регистрации в Честном Знаке")]
-		public virtual RegistrationInChestnyZnakStatus RegistrationInChestnyZnakStatus
-		{
-			get => _registrationInChestnyZnakStatus;
-			set => SetField(ref _registrationInChestnyZnakStatus, value);
-		}
-
-		[Display(Name = "Отказ от печатных документов")]
-		public virtual bool IsPaperlessWorkflow
-		{
-			get => _isPaperlessWorkflow;
-			set => SetField(ref _isPaperlessWorkflow, value);
-		}
-
-		[Display(Name = "Не отправлять документы по EDO")]
-		public virtual bool IsNotSendDocumentsByEdo
-		{
-			get => _isNotSendDocumentsByEdo;
-			set => SetField(ref _isNotSendDocumentsByEdo, value);
-		}
-
-		[Display(Name = "Отправлять УПД заранее")]
-		public virtual bool CanSendUpdInAdvance
-		{
-			get => _canSendUpdInAdvance;
-			set => SetField(ref _canSendUpdInAdvance, value);
-		}
-
-		[Display(Name = "Код личного кабинета в ЭДО")]
-		public virtual string PersonalAccountIdInEdo
-		{
-			get => _personalAccountIdInEdo;
-			set
-			{
-				var cleanedId = value == null
-					? null
-					: Regex.Replace(value, @"\s+", string.Empty);
-
-				SetField(ref _personalAccountIdInEdo, cleanedId?.ToUpper());
-			}
-		}
 
 		[Display(Name = "Оператор ЭДО")]
 		public virtual EdoOperator EdoOperator
