@@ -404,7 +404,7 @@ namespace Edo.Receipt.Dispatcher
 				DocumentNumber = $"vod_{order.Id}",
 				DocumentType = FiscalDocumentType.Sale,
 				CheckoutTime = order.TimeDelivered ?? DateTime.Now,
-				Contact = _edoOrderContactProvider.GetContact(order),
+				Contact = _edoOrderContactProvider.GetContact(order).StringValue,
 				ClientInn = order.Client.INN,
 				CashierName = order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName,
 				//По умолчанию не печатаем чеки
