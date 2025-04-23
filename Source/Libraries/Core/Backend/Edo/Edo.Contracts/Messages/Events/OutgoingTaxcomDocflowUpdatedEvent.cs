@@ -25,6 +25,10 @@ namespace Edo.Contracts.Messages.Events
 		/// </summary>
 		public string Status { get; set; }
 		/// <summary>
+		/// Статус прослеживаемости в ЧЗ
+		/// </summary>
+		public string TrueMarkTraceabilityStatus { get; set; }
+		/// <summary>
 		/// Время изменения состояния
 		/// </summary>
 		public DateTime StatusChangeDateTime { get; set; }
