@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Input;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.Entity;
 using QS.Validation;
 using QS.ViewModels.Control.EEVM;
@@ -37,6 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly IGeneralSettings _generalSettings;
 		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly ICarInsuranceSettings _carInsuranceSettings;
+		private readonly ILogger<GeneralSettingsViewModel> _logger;
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ILifetimeScope _lifetimeScope;
@@ -86,6 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private int _carTechnicalCheckupEndingNotifyDaysBefore;
 
 		public GeneralSettingsViewModel(
+			ILogger<GeneralSettingsViewModel> logger,
 			IGeneralSettings generalSettings,
 			IFuelControlSettings fuelControlSettings,
 			ICarInsuranceSettings carInsuranceSettings,
@@ -98,6 +101,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			EntityJournalOpener entityJournalOpener,
 			IValidator validator) : base(commonServices?.InteractiveService, navigation)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			RoboatsSettingsViewModel = roboatsSettingsViewModel ?? throw new ArgumentNullException(nameof(roboatsSettingsViewModel));
 			EntityJournalOpener = entityJournalOpener ?? throw new ArgumentNullException(nameof(entityJournalOpener));
@@ -748,8 +752,19 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			SaveOrganizationBasedOrderContentSettings();
 			SavePaymentTypesOrganizationSettings();
 			SaveOrganizationByOrderAuthorSettings();
-			UowOrderOrganizationSettings.Commit();
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Настройки по выбору организации для заказа сохранены!");
+			try
+			{
+				UowOrderOrganizationSettings.Commit();
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Настройки по выбору организации для заказа сохранены!");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при сохранении настроек юр лиц для заказа");
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"При сохранении настроек юр лиц для заказа произошла ошибка. Переоткройте вкладку и попробуйте снова");
+				Close(false, CloseSource.Self);
+			}
 		}
 
 		private void SaveOrganizationBasedOrderContentSettings()
@@ -781,7 +796,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		
 		private void SaveOrganizationByOrderAuthorSettings()
 		{
-			//_uowOrderOrganizationSettings.Save(_organizationByOrderAuthorSettings);
+			UowOrderOrganizationSettings.Save(_organizationByOrderAuthorSettings);
 		}
 
 		private bool ValidateOrderOrganizationSettings()
@@ -837,15 +852,15 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void ConfigureDataForSetWidgets()
 		{
-			var organizationsByOrderContent =
+			var orderContentSettings =
 				UowOrderOrganizationSettings
 					.GetAll<OrganizationBasedOrderContentSettings>()
 					.ToDictionary(x => x.OrderContentSet);
 
-			OrganizationsByOrderContent = organizationsByOrderContent;
+			OrganizationsByOrderContent = orderContentSettings;
 			
-			InitializeDataForSet1(organizationsByOrderContent);
-			InitializeDataForSet2(organizationsByOrderContent);
+			InitializeDataForSet1(orderContentSettings);
+			InitializeDataForSet2(orderContentSettings);
 			InitializeDataForSet3();
 		}
 
