@@ -1417,49 +1417,6 @@ namespace Vodovoz.Domain.Orders
 			contractUpdater.UpdateContract(uow, this, true);
 		}
 
-		/// <summary>
-		/// <b>Не должен вызываться при создании сущности NHibernate'ом</b>
-		/// </summary>
-		/*private void UpdateContract(bool onPaymentTypeChanged = false)
-		{
-			//Если Initialize вызывается при создании сущности NHibernate'ом,
-			//то почему-то не загружаются OrderItems и OrderDocuments (А возможно и вообще все коллекции Order)
-			if(!NHibernateUtil.IsInitialized(Client))
-			{
-				NHibernateUtil.Initialize(Client);
-			}
-			if(!NHibernateUtil.IsInitialized(Contract))
-			{
-				NHibernateUtil.Initialize(Contract);
-			}
-			if(!NHibernateUtil.IsInitialized(Client) || !NHibernateUtil.IsInitialized(Contract))
-			{
-				return;
-			}
-
-			if(CreateDate != null
-				&& CreateDate <= new DateTime(2020, 12, 16)
-				&& Contract != null
-				&& !onPaymentTypeChanged
-				&& Contract.Counterparty == Client)
-			{
-				return;
-			}
-
-			ForceUpdateContract();
-		}*/
-		
-		/*public virtual void ForceUpdateContract(Organization organization = null)
-		{
-			if(orderOrganizationProviderFactory == null) {
-				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope); 
-				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, _counterpartyContractRepository);
-			}
-			
-			UpdateOrCreateContract(UoW, _counterpartyContractRepository, counterpartyContractFactory, organization);
-		}*/
-
 		public virtual void UpdateContractDocument()
 		{
 			var contractDocuments = OrderDocuments.Where(x =>
@@ -1882,74 +1839,6 @@ namespace Vodovoz.Domain.Orders
 				Client.FirstOrder = this;
 			}
 		}
-
-		/*public virtual void UpdateOrCreateContract(
-			IUnitOfWork uow,
-			ICounterpartyContractRepository contractRepository,
-			ICounterpartyContractFactory contractFactory,
-			Organization organization = null)
-		{
-			if(!NHibernateUtil.IsInitialized(Client))
-			{
-				NHibernateUtil.Initialize(Client);
-			}
-			if(!NHibernateUtil.IsInitialized(Contract))
-			{
-				NHibernateUtil.Initialize(Contract);
-			}
-
-			if(uow == null)
-			{
-				throw new ArgumentNullException(nameof(uow));
-			}
-			if(contractRepository == null)
-			{
-				throw new ArgumentNullException(nameof(contractRepository));
-			}
-			if(contractFactory == null)
-			{
-				throw new ArgumentNullException(nameof(contractFactory));
-			}
-
-			if(Client == null)
-			{
-				return;
-			}
-
-			OrganizationsByOrderItems =
-				ScopeProvider.Scope.Resolve<IGetOrganizationForOrder>()
-					.GetOrganizationsWithOrderItems(DateTime.Now.TimeOfDay, this, UoW);
-
-			if(organization is null)
-			{
-				organization = OrganizationsByOrderItems.FirstOrDefault().Organization;
-			}
-
-			var counterpartyContract = contractRepository.GetCounterpartyContractByOrganization(uow, this, organization);
-				//: contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
-
-			if(counterpartyContract == null)
-			{
-				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate, organization);
-			}
-			else
-			{
-				if(DeliveryDate.HasValue && DeliveryDate.Value < counterpartyContract.IssueDate)
-				{
-					counterpartyContract.IssueDate = DeliveryDate.Value;
-				}
-			}
-
-			Contract = counterpartyContract;
-
-			for(var i = 0; i < OrderItems.Count; i++)
-			{
-				OrderItems[i].CalculateVATType();
-			}
-			
-			UpdateContractDocument();
-			UpdateDocuments();
-		}*/
 
 		public virtual void RecalculateItemsPrice()
 		{
