@@ -132,7 +132,7 @@ namespace Vodovoz.Application.Orders.Services
 			if(firstPartOrder is null)
 			{
 				throw new NullReferenceException(
-					$"Не удалось получить организацию для заказа. Скорее всего не хватает какой-то настройки {nameof(IGetOrganizationForOrder)}");
+					$"Не удалось получить организацию для заказа. Скорее всего не хватает какой-то настройки {nameof(ISplitOrderByOrganizations)}");
 			}
 				
 			return firstPartOrder.Organization;

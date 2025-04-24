@@ -6,7 +6,7 @@ using VodovozBusiness.Services.Orders;
 
 namespace VodovozBusiness.Domain.Orders
 {
-	public interface IGetOrganizationForOrder
+	public interface ISplitOrderByOrganizations
 	{
 		IEnumerable<PartOrderWithGoods> SplitOrderByOrganizations(
 			IUnitOfWork uow,

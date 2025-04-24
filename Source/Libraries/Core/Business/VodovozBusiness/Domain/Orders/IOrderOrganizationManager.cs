@@ -8,7 +8,7 @@ using VodovozBusiness.Services.Orders;
 
 namespace VodovozBusiness.Domain.Orders
 {
-	public interface IOrderOrganizationManager : IGetOrganizationForOrder
+	public interface IOrderOrganizationManager : ISplitOrderByOrganizations
 	{
 		PartitionedOrderByOrganizations GetOrderPartsByOrganizations(
 			IUnitOfWork uow, TimeSpan requestTime, OrderOrganizationChoice organizationChoice);
