@@ -87,5 +87,11 @@
 				typeof(Order),
 				nameof(OrderIsNotForPersonalUseError),
 				"Заказ приобретается не для собственных нужд");
+		
+		public static Error ContactError(string contact) =>
+			new Error(
+				typeof(Order),
+				nameof(ContactError),
+				$"Контакт {contact} имеет неправильный формат");
 	}
 }

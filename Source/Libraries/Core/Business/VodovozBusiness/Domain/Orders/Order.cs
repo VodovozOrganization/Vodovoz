@@ -970,36 +970,6 @@ namespace Vodovoz.Domain.Orders
 														$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
 							new[] { nameof(Nomenclature) });
 					}
-
-					if(Client != null)
-					{
-						foreach(var email in Client.Emails)
-						{
-							if(!email.IsValidEmail)
-							{
-								yield return new ValidationResult($"Адрес электронной почты клиента {email.Address} имеет неправильный формат.");
-							}
-						}
-
-						foreach(var phone in Client.Phones)
-						{
-							if(!phone.IsValidPhoneNumber)
-							{
-								yield return new ValidationResult($"Номер телефона клиента {phone.Number} имеет неправильный формат.");
-							}
-						}
-					}
-
-					if(DeliveryPoint != null)
-					{
-						foreach(var phone in DeliveryPoint.Phones)
-						{
-							if(!phone.IsValidPhoneNumber)
-							{
-								yield return new ValidationResult($"Номер телефона точки доставки {phone.Number} имеет неправильный формат.");
-							}
-						}
-					}
 				}
 
 				if(newStatus == OrderStatus.Closed) {

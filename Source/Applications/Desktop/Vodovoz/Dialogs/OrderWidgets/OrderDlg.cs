@@ -2674,6 +2674,36 @@ namespace Vodovoz
 				}
 			}
 
+			if(Counterparty != null)
+			{
+				foreach(var email in Counterparty.Emails)
+				{
+					if(!email.IsValidEmail)
+					{
+						return Result.Failure(Errors.Orders.Order.ContactError(email.Address));
+					}
+				}
+
+				foreach(var phone in Counterparty.Phones)
+				{
+					if(!phone.IsValidPhoneNumber)
+					{
+						return Result.Failure(Errors.Orders.Order.ContactError(phone.Number));
+					}
+				}
+			}
+
+			if(DeliveryPoint != null)
+			{
+				foreach(var phone in DeliveryPoint.Phones)
+				{
+					if(!phone.IsValidPhoneNumber)
+					{
+						return Result.Failure(Errors.Orders.Order.ContactError(phone.Number));
+					}
+				}
+			}
+
 			if(Contract == null && !Entity.IsLoadedFrom1C)
 			{
 				Entity.UpdateOrCreateContract(UoW, _counterpartyContractRepository, _counterpartyContractFactory);
