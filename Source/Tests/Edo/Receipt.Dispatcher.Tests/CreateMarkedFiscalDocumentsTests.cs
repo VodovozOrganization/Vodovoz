@@ -515,6 +515,7 @@ namespace Receipt.Dispatcher.Tests
 			var trueMarkCodesPool = CreateTrueMarkCodesPoolFixture(unitOfWork);
 			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
+			var saveCodesService = Substitute.For<ISaveCodesService>();
 			var bus = Substitute.For<IBus>();
 
 			return new ForOwnNeedsReceiptEdoTaskHandler(
@@ -532,6 +533,7 @@ namespace Receipt.Dispatcher.Tests
 				trueMarkCodeRepository,
 				productCodeRepository ?? Substitute.For<IGenericRepository<TrueMarkProductCode>>(),
 				Substitute.For<IEdoOrderContactProvider>(),
+				saveCodesService,
 				bus);
 		}
 

@@ -26,8 +26,8 @@ namespace TaxcomEdoApi.Library.Services
 		
 		public TaxcomEdoService(
 			ILogger<TaxcomEdoService> logger,
-			IOptions<TaxcomEdoApiOptions> apiOptions,
-			IOptions<WarrantOptions> warrantOptions,
+			IOptionsSnapshot<TaxcomEdoApiOptions> apiOptions,
+			IOptionsSnapshot<WarrantOptions> warrantOptions,
 			IEdoTaxcomDocumentsFactory5_03 edoTaxcomDocumentsFactory503,
 			IEdoBillFactory edoBillFactory,
 			X509Certificate2 certificate
@@ -174,6 +174,15 @@ namespace TaxcomEdoApi.Library.Services
 			container.Documents.Add(document);
 			document.AddCertificateForSign(_certificate.Thumbprint);
 
+			if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber) && _apiOptions.SendWarrantWithBills)
+			{
+				container.SetWarrantParameters(
+					_warrantOptions.WarrantNumber,
+					data.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.Inn,
+					_warrantOptions.StartDate,
+					_warrantOptions.EndDate);
+			}
+
 			return container;
 		}
 		
@@ -183,11 +192,20 @@ namespace TaxcomEdoApi.Library.Services
 			{
 				SignMode = DocumentSignMode.UseSpecifiedCertificate
 			};
-				
+
 			var document = _edoBillFactory.CreateBillWithoutShipment(data);
 
 			container.Documents.Add(document);
 			document.AddCertificateForSign(_certificate.Thumbprint);
+
+			if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber) && _apiOptions.SendWarrantWithBillsWithoutShipment)
+			{
+				container.SetWarrantParameters(
+					_warrantOptions.WarrantNumber,
+					data.OrderWithoutShipmentInfo.OrganizationInfoForEdo.Inn,
+					_warrantOptions.StartDate,
+					_warrantOptions.EndDate);
+			}
 
 			return container;
 		}
