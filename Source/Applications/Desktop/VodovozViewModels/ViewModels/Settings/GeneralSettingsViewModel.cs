@@ -8,6 +8,7 @@ using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Input;
 using QS.DomainModel.Entity;
@@ -815,7 +816,17 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		{
 			foreach(var keyPairValue in OrganizationsByOrderContent)
 			{
-				if(!_validator.Validate(keyPairValue.Value))
+				var otherSetSettings = OrganizationsByOrderContent
+					.Where(x => x.Key != keyPairValue.Key)
+					.Select(x => x.Value)
+					.ToList();
+
+				var contextItems = new Dictionary<object, object>
+				{
+					{ "OtherSets", otherSetSettings }
+				};
+				
+				if(!_validator.Validate(keyPairValue.Value, new ValidationContext(keyPairValue.Value, contextItems)))
 				{
 					return false;
 				}

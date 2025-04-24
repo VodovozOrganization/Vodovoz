@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories.Settings;
 
 namespace VodovozBusiness.Domain.Settings
 {
@@ -55,62 +53,70 @@ namespace VodovozBusiness.Domain.Settings
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var unitOfWorkFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
-			var orderOrganizationSettingsRepository = validationContext.GetRequiredService<IOrderOrganizationSettingsRepository>();
-			
-			using(var uow = unitOfWorkFactory.CreateWithoutRoot("Проверка на дубли в настройке организации для заказа"))
+			if(!validationContext.Items.TryGetValue("OtherSets", out var data)
+				|| !(data is IList<OrganizationBasedOrderContentSettings> otherSetsData))
 			{
-				var sb = new StringBuilder();
+				throw new InvalidOperationException("Не переданы данные по остальным множествам! Валидация не возможна");
+			}
+			
+			var sb = new StringBuilder();
+			
+			if(Nomenclatures.Any() && otherSetsData.Any())
+			{
+				sb.Clear();
 				
-				if(Nomenclatures.Any())
+				foreach(var nomenclature in Nomenclatures)
 				{
-					var duplicateNomenclatures = 
-						orderOrganizationSettingsRepository.GetSameNomenclaturesInOrganizationBasedOrderContentSettings(
-							uow, Nomenclatures.Select(x => x.Id).ToArray(), Id);
+					var nomenclaturesFromOtherSets = otherSetsData.SelectMany(x => x.Nomenclatures);
 
-					if(duplicateNomenclatures.Any())
+					if(nomenclaturesFromOtherSets.FirstOrDefault(x => x.Id == nomenclature.Id) != null)
 					{
-						sb.Clear();
-						
-						foreach(var duplicateNomenclature in duplicateNomenclatures)
-						{
-							sb.AppendLine($"{duplicateNomenclature.Id} - {duplicateNomenclature.Name}");
-						}
-						
-						yield return new ValidationResult(
-							$"В множестве {OrderContentSet} указаны пересекающиеся с другим множеством товары\n{sb}");
-					}
-				}
-				
-				if(ProductGroups.Any())
-				{
-					var duplicateProductGroups = 
-						orderOrganizationSettingsRepository.GetSameProductGroupsInOrganizationBasedOrderContentSettings(
-							uow, ProductGroups, Id);
-
-					if(duplicateProductGroups.Any())
-					{
-						sb.Clear();
-						
-						foreach(var duplicateNomenclature in duplicateProductGroups)
-						{
-							sb.AppendLine($"{duplicateNomenclature.Id} - {duplicateNomenclature.Name}");
-						}
-						
-						yield return new ValidationResult(
-							$"В множестве {OrderContentSet} указаны пересекающиеся с другим множеством группы товаров\n{sb}");
+						sb.AppendLine($"{nomenclature.Id} - {nomenclature.Name}");
 					}
 				}
 
-				if(Organizations.Any())
+				if(sb.Length > 0)
 				{
-					if(!ProductGroups.Any() && !Nomenclatures.Any())
-					{
-						yield return new ValidationResult(
-							$"Если заполнены организации у множества {OrderContentSet}, то должны быть заполнены и товары/группы товаров");
-					}
+					yield return new ValidationResult(
+						$"В множестве {OrderContentSet} указаны пересекающиеся с другим множеством товары\n{sb}");
 				}
 			}
+			
+			if(ProductGroups.Any() && otherSetsData.Any())
+			{
+				sb.Clear();
+				
+				var productGroupsFromOtherSets = otherSetsData.SelectMany(x => x.ProductGroups);
+
+				foreach(var productGroup in ProductGroups)
+				{
+					foreach(var productGroupFromOtherSets in productGroupsFromOtherSets)
+					{
+						if(productGroup.Id == productGroupFromOtherSets.Id
+							|| productGroup.IsChildOf(productGroupFromOtherSets)
+							|| productGroupFromOtherSets.IsChildOf(productGroup))
+						{
+							sb.AppendLine($"{productGroup.Id} - {productGroup.Name}");
+						}
+					}
+				}
+
+				if(sb.Length > 0)
+				{
+					yield return new ValidationResult(
+						$"В множестве {OrderContentSet} указаны пересекающиеся с другим множеством группы товаров\n{sb}");
+				}
+			}
+
+			if(Organizations.Any())
+			{
+				if(!ProductGroups.Any() && !Nomenclatures.Any())
+				{
+					yield return new ValidationResult(
+						$"Если заполнены организации у множества {OrderContentSet}, то должны быть заполнены и товары/группы товаров");
+				}
+			}
+			
 		}
 	}
 }
