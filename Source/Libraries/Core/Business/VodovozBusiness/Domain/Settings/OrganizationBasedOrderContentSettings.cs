@@ -102,21 +102,14 @@ namespace VodovozBusiness.Domain.Settings
 					}
 				}
 
-				//уточнить по пересечению организаций
-				/*if(Organization != null)
+				if(Organizations.Any())
 				{
-					if(orderOrganizationSettingsRepository.OrganizationBasedOrderContentSettingsWithOrganizationExists(
-						   uow, Organization.Id))
-					{
-						yield return new ValidationResult($"В множестве {OrderContentSet} указана организация из другого множества");
-					}
-
 					if(!ProductGroups.Any() && !Nomenclatures.Any())
 					{
 						yield return new ValidationResult(
-							$"Если заполнена организация у множества {OrderContentSet}, то должны быть заполнены и товары/группы товаров");
+							$"Если заполнены организации у множества {OrderContentSet}, то должны быть заполнены и товары/группы товаров");
 					}
-				}*/
+				}
 			}
 		}
 	}
