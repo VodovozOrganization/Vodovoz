@@ -600,7 +600,7 @@ namespace Vodovoz.ViewModels.Widgets
 					   CommonServices.InteractiveService.Question("Перенести на выбранный заказ Оплату по Карте?"))
 					{
 						Entity.NewOrder.UpdatePaymentType(Entity.OldOrder.PaymentType, _contractUpdater);
-						Entity.NewOrder.OnlineOrder = Entity.OldOrder.OnlineOrder;
+						Entity.NewOrder.OnlinePaymentNumber = Entity.OldOrder.OnlinePaymentNumber;
 						Entity.NewOrder.UpdatePaymentByCardFrom(Entity.OldOrder.PaymentByCardFrom, _contractUpdater);
 					}
 				};

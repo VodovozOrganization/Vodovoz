@@ -67,7 +67,7 @@ namespace Vodovoz.Application.Orders.Services
 			order.IsFastDelivery = onlineOrder.IsFastDelivery;
 			order.UpdatePaymentType(onlineOrder.OnlineOrderPaymentType.ToOrderPaymentType(), _contractUpdater);
 			order.BottlesReturn = onlineOrder.BottlesReturn;
-			order.OnlineOrder = onlineOrder.OnlinePayment;
+			order.OnlinePaymentNumber = onlineOrder.OnlinePayment;
 			order.UpdatePaymentByCardFrom(paymentFrom, _contractUpdater);
 			order.Trifle = onlineOrder.Trifle;
 			order.DontArriveBeforeInterval = onlineOrder.DontArriveBeforeInterval;

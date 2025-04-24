@@ -828,7 +828,7 @@ namespace Vodovoz
 			OldFieldsConfigure();
 
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
-			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter())
+			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlinePaymentNumber, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
 			var excludedPaymentFromIds = new[]
@@ -4074,7 +4074,7 @@ namespace Vodovoz
 				case PaymentType.Terminal:
 				case PaymentType.SmsQR:
 				case PaymentType.DriverApplicationQR:
-					return Entity.OnlineOrder != null;
+					return Entity.OnlinePaymentNumber != null;
 				default:
 					return false;
 			}

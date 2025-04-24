@@ -119,7 +119,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanEditCancellationReason => OrderIsNullAndOnlineOrderNotCanceledStatus;
 		public bool CanShowSelfDeliveryGeoGroup => Entity.IsSelfDelivery;
 		public bool CanShowEmployeeWorkWith => Entity.EmployeeWorkWith != null;
-		public bool CanShowOrder => !Entity.OrdersIds.Any();
+		public bool CanShowOrder => !Entity.Orders.Any();
 		public bool CanShowOnlinePayment => Entity.OnlinePayment.HasValue;
 		public bool CanShowOnlinePaymentSource => Entity.OnlinePaymentSource.HasValue;
 		public bool CanShowContactPhone => !string.IsNullOrWhiteSpace(Entity.ContactPhone);
@@ -158,14 +158,14 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		{
 			get
 			{
-				if(!Entity.OrdersIds.Any())
+				if(!Entity.Orders.Any())
 				{
 					return "Заказ не создан";
 				}
 
 				var sb = new StringBuilder();
 
-				foreach(var orderId in Entity.OrdersIds)
+				foreach(var orderId in Entity.Orders)
 				{
 					sb.Append(orderId);
 					sb.Append(", ");
@@ -225,7 +225,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private bool CurrentEmployeeIsEmployeeWorkWith =>
 			Entity.EmployeeWorkWith != null && Entity.EmployeeWorkWith.Id == _currentEmployee.Id;
 		private bool OrderIsNullAndOnlineOrderNotCanceledStatus =>
-			!Entity.OrdersIds.Any() && Entity.OnlineOrderStatus != OnlineOrderStatus.Canceled;
+			!Entity.Orders.Any() && Entity.OnlineOrderStatus != OnlineOrderStatus.Canceled;
 		
 		public OnlineOrderStatusUpdatedNotification CreateNewNotification() =>
 			OnlineOrderStatusUpdatedNotification.Create(Entity);
@@ -383,7 +383,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				() => CanEditCancellationReason);
 			
 			SetPropertyChangeRelation(
-				e => e.OrdersIds,
+				e => e.Orders,
 				() => CanGetToWork,
 				() => CanCreateOrder,
 				() => CanCancelOnlineOrder,

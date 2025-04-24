@@ -296,7 +296,7 @@ namespace Vodovoz.Models.Orders
 				return this;
 			}
 
-			_resultOrder.OnlineOrder = _copiedOrder.OnlineOrder;
+			_resultOrder.OnlinePaymentNumber = _copiedOrder.OnlinePaymentNumber;
 			_resultOrder.UpdatePaymentByCardFrom(_copiedOrder.PaymentByCardFrom, _contractUpdater);
 
 			return this;
@@ -313,7 +313,7 @@ namespace Vodovoz.Models.Orders
 				return this;
 			}
 
-			_resultOrder.OnlineOrder = _copiedOrder.OnlineOrder;
+			_resultOrder.OnlinePaymentNumber = _copiedOrder.OnlinePaymentNumber;
 
 			return this;
 		}

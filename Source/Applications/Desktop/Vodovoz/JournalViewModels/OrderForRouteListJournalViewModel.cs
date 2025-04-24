@@ -277,7 +277,7 @@ namespace Vodovoz.JournalViewModels
 				() => deliveryPointAlias.CompiledAddress,
 				() => authorAlias.LastName,
 				() => orderAlias.DriverCallId,
-				() => orderAlias.OnlineOrder,
+				() => orderAlias.OnlinePaymentNumber,
 				() => orderAlias.EShopOrder,
 				() => orderAlias.OrderPaymentStatus
 			));

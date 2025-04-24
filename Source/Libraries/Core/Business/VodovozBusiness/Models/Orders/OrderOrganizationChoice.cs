@@ -56,7 +56,7 @@ namespace VodovozBusiness.Models.Orders
 				OrderDepositItems = order.OrderDepositItems,
 				IsSelfDelivery = order.SelfDelivery,
 				PaymentType = order.PaymentType,
-				OnlinePaymentNumber = order.OnlineOrder
+				OnlinePaymentNumber = order.OnlinePaymentNumber
 			};
 		}
 	}

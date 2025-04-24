@@ -17,7 +17,7 @@ namespace Vodovoz.Views.Cash
 
 		private void Configure() {
 			ybuttonSave.Binding.AddFuncBinding(ViewModel.Entity,
-				e => e.OnlineOrder.HasValue,
+				e => e.OnlinePaymentNumber.HasValue,
 				w => w.Sensitive).InitializeFromSource();
 			
 			ybuttonSave.Clicked += (s, ea) => ViewModel.SaveAndClose();
@@ -25,7 +25,7 @@ namespace Vodovoz.Views.Cash
 			
 			entryOnlineOrder.ValidationMode = (QS.Widgets.ValidationType)ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(ViewModel.Entity,
-				e => e.OnlineOrder,
+				e => e.OnlinePaymentNumber,
 				w => w.Text,
 				new NullableIntToStringConverter()).InitializeFromSource();
 

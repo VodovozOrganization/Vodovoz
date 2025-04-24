@@ -427,7 +427,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			entryOnlineOrder.Binding.AddBinding(_routeListItem.Order, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter())
+			entryOnlineOrder.Binding.AddBinding(_routeListItem.Order, e => e.OnlinePaymentNumber, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
 			_routeListItem.Order.ObservableOrderItems.ListContentChanged += (sender, e) => { UpdateItemsList(); };

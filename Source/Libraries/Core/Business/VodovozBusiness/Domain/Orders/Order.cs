@@ -136,6 +136,7 @@ namespace Vodovoz.Domain.Orders
 		private Employee _commentOPManagerChangedBy;
 		private bool? _canCreateOrderInAdvance;
 		private GeoGroup _selfDeliveryGeoGroup;
+		private OnlineOrder _onlineOrder;
 
 		public Order()
 		{
@@ -385,6 +386,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _selfDeliveryGeoGroup;
 			set => SetField(ref _selfDeliveryGeoGroup, value);
+		}
+		
+		[Display(Name = "Онлайн заказ")]
+		public virtual OnlineOrder OnlineOrder
+		{
+			get => _onlineOrder;
+			set => SetField(ref _onlineOrder, value);
 		}
 
 		#endregion
@@ -891,7 +899,7 @@ namespace Vodovoz.Domain.Orders
 			if(isCashOrderClose
 				&& !isTransferedAddress
 				&& PaymentTypesNeededOnlineOrder.Contains(PaymentType)
-				&& OnlineOrder == null
+				&& OnlinePaymentNumber == null
 				&& !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus)				)
 			{
 				yield return new ValidationResult($"В заказе №{Id} с оплатой по \"{PaymentType.GetEnumDisplayName(true)}\"  отсутствует номер оплаты.");
@@ -918,9 +926,9 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
-			if(PaymentType == PaymentType.PaidOnline && OnlineOrder == null)
+			if(PaymentType == PaymentType.PaidOnline && OnlinePaymentNumber == null)
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
-												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
+												  new[] { this.GetPropertyName(o => o.OnlinePaymentNumber) });
 
 			if(PaymentType == PaymentType.PaidOnline && PaymentByCardFrom == null)
 				yield return new ValidationResult(
@@ -1020,7 +1028,7 @@ namespace Vodovoz.Domain.Orders
 
 			var orderSettings = validationContext.GetService(typeof(IOrderSettings)) as IOrderSettings;
 
-			if(SelfDelivery && PaymentType == PaymentType.PaidOnline && PaymentByCardFrom != null && OnlineOrder == null)
+			if(SelfDelivery && PaymentType == PaymentType.PaidOnline && PaymentByCardFrom != null && OnlinePaymentNumber == null)
 			{
 				if(orderSettings == null)
 				{
@@ -3440,7 +3448,7 @@ namespace Vodovoz.Domain.Orders
 				case PaymentType.SmsQR:
 					ChangeStatusAndCreateTasks(
 						PayAfterShipment 
-						? OnlineOrder != null 
+						? OnlinePaymentNumber != null 
 							? OrderStatus.Closed 
 							: OrderStatus.WaitForPayment
 						: OrderStatus.Closed, 

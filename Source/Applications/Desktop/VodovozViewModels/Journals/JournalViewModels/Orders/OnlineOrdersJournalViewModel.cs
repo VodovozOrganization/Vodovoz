@@ -108,7 +108,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 				.Left.JoinAlias(o => o.EmployeeWorkWith, () => employeeWorkWithAlias)
-				.Left.JoinAlias(o => o.OrdersIds, () => orderAlias)
+				.Left.JoinAlias(o => o.Orders, () => orderAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias)
 				.Left.JoinAlias(() => orderAlias.SelfDeliveryGeoGroup, () => selfDeliveryGeographicalGroupAlias);

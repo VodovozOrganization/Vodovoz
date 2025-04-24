@@ -1982,7 +1982,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var onlineOrders = Addresses
 				.Where(x => !ignoreRouteListItemStatuses.Contains(x.Status) && x.Order.PaymentType != PaymentType.Terminal)
-				.GroupBy(x => x.Order.OnlineOrder)
+				.GroupBy(x => x.Order.OnlinePaymentNumber)
 				.Where(g => g.Key != null && g.Count() > 1)
 				.Select(o => o.Key);
 

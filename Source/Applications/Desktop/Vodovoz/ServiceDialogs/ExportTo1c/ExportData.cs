@@ -96,7 +96,7 @@ namespace Vodovoz.ExportTo1c
 					Id = ++objectCounter
 				};
 				exportInvoiceDocument.Reference = new ReferenceNode(exportInvoiceDocument.Id,
-					new PropertyNode("Номер", Common1cTypes.String, ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
+					new PropertyNode("Номер", Common1cTypes.String, ExportMode == Export1cMode.IPForTinkoff ? order.OnlinePaymentNumber.Value : order.Id),
 					new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s"))
 				);
 
@@ -192,7 +192,7 @@ namespace Vodovoz.ExportTo1c
 				Id = ++objectCounter
 			};
 			exportSaleDocument.Reference = new ReferenceNode(exportSaleDocument.Id,
-				new PropertyNode("Номер", Common1cTypes.String, ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
+				new PropertyNode("Номер", Common1cTypes.String, ExportMode == Export1cMode.IPForTinkoff ? order.OnlinePaymentNumber.Value : order.Id),
 				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s"))
 			);
 
@@ -296,7 +296,7 @@ namespace Vodovoz.ExportTo1c
 					new PropertyNode(
 						"Номер",
 						Common1cTypes.String,
-						ExportMode == Export1cMode.IPForTinkoff ? (order.OnlineOrder ?? throw new ArgumentNullException(nameof(order.OnlineOrder), $@"(OrderId: {order.Id})")) : order.Id),
+						ExportMode == Export1cMode.IPForTinkoff ? (order.OnlinePaymentNumber ?? throw new ArgumentNullException(nameof(order.OnlinePaymentNumber), $@"(OrderId: {order.Id})")) : order.Id),
 					new PropertyNode(
 						"Дата", 
 						Common1cTypes.Date,

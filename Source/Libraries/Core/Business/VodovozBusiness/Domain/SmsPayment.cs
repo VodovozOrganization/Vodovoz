@@ -119,7 +119,7 @@ namespace Vodovoz.Domain
             }
             
             PaidDate = datePaid;
-            Order.OnlineOrder = ExternalId;
+            Order.OnlinePaymentNumber = ExternalId;
             Order.UpdatePaymentType(PaymentType.PaidOnline, contractUpdater);    
             Order.UpdatePaymentByCardFrom(paymentFrom, contractUpdater);
 

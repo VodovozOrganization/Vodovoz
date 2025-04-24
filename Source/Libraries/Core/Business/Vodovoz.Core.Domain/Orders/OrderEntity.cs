@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -23,6 +23,7 @@ namespace Vodovoz.Core.Domain.Orders
 	[EntityPermission]
 	public class OrderEntity : PropertyChangedBase, IDomainObject, IBusinessObject
 	{
+		public const string Table = "orders";
 		public static DateTime TerminalUnavaliableStartDate => new DateTime(2025, 4, 23, 0, 0, 0, DateTimeKind.Local);
 
 		private int _id;
@@ -66,7 +67,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private int _bottlesByStockActualCount;
 		private int? _driverCallId;
 		private int? _trifle;
-		private int? _onlineOrder;
+		private int? _onlinePaymentNumber;
 		private int? _eShopOrder;
 		private string _counterpartyExternalOrderId;
 		private bool _isContractCloser;
@@ -94,7 +95,6 @@ namespace Vodovoz.Core.Domain.Orders
 		private DeliveryPointEntity _deliveryPoint;
 		private CounterpartyContractEntity _contract;
 		private DeliveryScheduleEntity _deliverySchedule;
-		private int? _onlineOrderId;
 		private string _orderPartsIds;
 		
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
@@ -403,11 +403,11 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _trifle, value);
 		}
 
-		[Display(Name = "Номер онлайн заказа")]
-		public virtual int? OnlineOrder
+		[Display(Name = "Номер онлайн оплаты")]
+		public virtual int? OnlinePaymentNumber
 		{
-			get => _onlineOrder;
-			set => SetField(ref _onlineOrder, value);
+			get => _onlinePaymentNumber;
+			set => SetField(ref _onlinePaymentNumber, value);
 		}
 
 		[Display(Name = "Заказ из интернет магазина")]
@@ -636,16 +636,6 @@ namespace Vodovoz.Core.Domain.Orders
 			get => _deliverySchedule;
 			//Нельзя устанавливать, см. логику в Order.cs
 			protected set => SetField(ref _deliverySchedule, value);
-		}
-		
-		/// <summary>
-		/// Id онлайн заказа
-		/// </summary>
-		[Display(Name = "Id онлайн заказа")]
-		public virtual int? OnlineOrderId
-		{
-			get => _onlineOrderId;
-			set => SetField(ref _onlineOrderId, value);
 		}
 		
 		/// <summary>

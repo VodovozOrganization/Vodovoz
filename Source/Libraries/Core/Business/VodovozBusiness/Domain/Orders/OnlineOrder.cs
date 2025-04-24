@@ -56,7 +56,7 @@ namespace Vodovoz.Domain.Orders
 		private Employee _employeeWorkWith;
 		private bool? _isDeliveryPointNotBelongCounterparty;
 		private OnlineOrderCancellationReason _onlineOrderCancellationReason;
-		private IList<int> _ordersIds = new List<int>();
+		private IList<Order> _orders = new List<Order>();
 		private IList<OnlineOrderItem> _onlineOrderItems = new List<OnlineOrderItem>();
 		private IList<OnlineFreeRentPackage> _onlineRentPackages = new List<OnlineFreeRentPackage>();
 
@@ -266,10 +266,10 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		[Display(Name = "Выставленные заказы")]
-		public virtual IList<int> OrdersIds
+		public virtual IList<Order> Orders
 		{
-			get => _ordersIds;
-			set => SetField(ref _ordersIds, value);
+			get => _orders;
+			set => SetField(ref _orders, value);
 		}
 		
 		[Display(Name = "У кого в работе заявка")]
@@ -315,7 +315,10 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(var orderId in ordersIds)
 			{
-				OrdersIds.Add(orderId);
+				Orders.Add(new Order
+				{
+					Id = orderId
+				});
 			}
 
 			OnlineOrderStatus = OnlineOrderStatus.OrderPerformed;

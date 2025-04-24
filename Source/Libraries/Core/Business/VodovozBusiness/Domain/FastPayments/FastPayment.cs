@@ -197,7 +197,7 @@ namespace Vodovoz.Domain.FastPayments
 			}
 			
 			PaidDate = paidDate;
-			Order.OnlineOrder = ExternalId;
+			Order.OnlinePaymentNumber = ExternalId;
 			Order.UpdatePaymentType(PaymentType, contractUpdater);
 			Order.UpdatePaymentByCardFrom(PaymentByCardFrom, contractUpdater);
 

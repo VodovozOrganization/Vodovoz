@@ -239,7 +239,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					query
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
 						.Where(o => o.PaymentType == PaymentType.PaidOnline)
-						.Where(o => o.OnlineOrder != null)
+						.Where(o => o.OnlinePaymentNumber != null)
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
 				default:
@@ -1502,7 +1502,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			var orders =
 				from onlineOrder in uow.Session.Query<OnlineOrder>()
 				join order in uow.Session.Query<VodovozOrder>()
-					on onlineOrder.Id equals order.OnlineOrderId
+					on onlineOrder.Id equals order.OnlineOrder.Id
 				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
 					on order.DeliverySchedule.Id equals deliverySchedule.Id into schedules
 				join orderRating in uow.Session.Query<OrderRating>()
@@ -1539,7 +1539,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						|| orderStatus == ExternalOrderStatus.Canceled
 						|| orderStatus == ExternalOrderStatus.OrderDelivering)
 				
-				let orderPaymentStatus = order.OnlineOrder.HasValue
+				let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
 					? OnlineOrderPaymentStatus.Paid
 					: OnlineOrderPaymentStatus.UnPaid
 					
@@ -1581,7 +1581,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					on order.Id equals orderRating.Order.Id into orderRatings
 				from orderRating in orderRatings.DefaultIfEmpty()
 				from deliverySchedule in schedules.DefaultIfEmpty()
-				where order.Client.Id == counterpartyId && order.OnlineOrderId == null
+				where order.Client.Id == counterpartyId && order.OnlineOrder == null
 				let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
 				let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
 				let orderStatus =
@@ -1611,7 +1611,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						|| orderStatus == ExternalOrderStatus.Canceled
 						|| orderStatus == ExternalOrderStatus.OrderDelivering)
 				
-				let orderPaymentStatus = order.OnlineOrder.HasValue
+				let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
 					? OnlineOrderPaymentStatus.Paid
 					: OnlineOrderPaymentStatus.UnPaid
 					
