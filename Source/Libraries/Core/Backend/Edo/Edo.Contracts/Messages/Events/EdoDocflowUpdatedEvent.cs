@@ -23,6 +23,11 @@ namespace Edo.Contracts.Messages.Events
 		/// Общий статус документооборота
 		/// </summary>
 		public string DocFlowStatus { get; set; }
+		
+		/// <summary>
+		/// Статус прослеживаемости в ЧЗ
+		/// </summary>
+		public string TrueMarkTraceabilityStatus { get; set; }
 
 		/// <summary>
 		/// Время обновления статуса документооборота

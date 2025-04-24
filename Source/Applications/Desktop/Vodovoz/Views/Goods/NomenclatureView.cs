@@ -19,6 +19,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Nodes;
+using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 using Menu = Gtk.Menu;
 using MenuItem = Gtk.MenuItem;
 
@@ -479,6 +480,7 @@ namespace Vodovoz.Views.Goods
 			ConfigureParametersForMobileApp();
 			ConfigureParametersForVodovozWebSite();
 			ConfigureParametersForKulerSaleWebSite();
+			ConfigureParametersForRobotMia();
 
 			ConfigureTreeOnlinePrices();
 			ConfigureOnlineCharacteristics();
@@ -615,6 +617,31 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
 			entryOnlineDiscountKulerSaleWebSite.Changed += OnNumericEntryChanged;
+		}
+
+		private void ConfigureParametersForRobotMia()
+		{
+			yTreeViewSlangWords.CreateFluentColumnsConfig<SlangWord>()
+				.AddColumn("Номер")
+					.AddNumericRenderer(x => x.Id)
+				.AddColumn("Слово")
+					.AddTextRenderer(x => x.Word)
+				.Finish();
+
+			yTreeViewSlangWords.Binding
+				.AddBinding(ViewModel.RobotMiaParameters, vm => vm.SlangWords, w => w.ItemsDataSource)
+				.AddBinding(ViewModel, vm => vm.SelectedSlangWordObject, w => w.SelectedRow)
+				.InitializeFromSource();
+
+			enumCmbOnlineAvailabilityRobotMia.ItemsEnum = typeof(GoodsOnlineAvailability);
+			enumCmbOnlineAvailabilityRobotMia.ShowSpecialStateNot = true;
+			enumCmbOnlineAvailabilityRobotMia.Binding
+				.AddBinding(ViewModel.RobotMiaParameters, p => p.GoodsOnlineAvailability, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			btnAddSlangWord.BindCommand(ViewModel.AddSlangWordCommand);
+			btnEditSlangWord.BindCommand(ViewModel.EditSlangWordCommand);
+			btnRemoveSlangWord.BindCommand(ViewModel.RemoveSlangWordCommand);
 		}
 
 		private void ConfigureTreeOnlinePrices()

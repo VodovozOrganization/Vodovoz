@@ -46,6 +46,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly IEdoOrderContactProvider _edoOrderContactProvider;
+		private readonly ISaveCodesService _saveCodesService;
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
 		private readonly EdoTaskValidator _edoTaskValidator;
@@ -69,6 +70,7 @@ namespace Edo.Receipt.Dispatcher
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			IEdoOrderContactProvider edoOrderContactProvider,
+			ISaveCodesService saveCodesService,
 			IBus messageBus
 			)
 		{
@@ -85,6 +87,7 @@ namespace Edo.Receipt.Dispatcher
 			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
 			_productCodeRepository = productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
 			_edoOrderContactProvider = edoOrderContactProvider ?? throw new ArgumentNullException(nameof(edoOrderContactProvider));
+			_saveCodesService = saveCodesService ?? throw new ArgumentNullException(nameof(saveCodesService));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 
@@ -237,20 +240,7 @@ namespace Edo.Receipt.Dispatcher
 
 		private async Task SaveCodesToPool(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
-			foreach(var taskItem in receiptEdoTask.Items)
-			{
-				var code = taskItem.ProductCode.SourceCode;
-				if(code == null)
-				{
-					continue;
-				}
-				if(code.IsInvalid)
-				{
-					continue;
-				}
-
-				await _trueMarkCodesPool.PutCodeAsync(code.Id, cancellationToken);
-			}
+			await _saveCodesService.SaveCodesToPool(receiptEdoTask, cancellationToken);
 		}
 
 		private async Task PrepareReceipt(
@@ -911,13 +901,14 @@ namespace Edo.Receipt.Dispatcher
 				}
 			}
 
-			// затем у кого заполнен Source код без проблем
-
+			// затем у кого заполнен Source код без проблем и не сохранен в пул
 			var sourceCodes = unprocessedCodes
-				.Where(x => x.ProductCode.Problem == ProductCodeProblem.None)
-				.Where(x => x.ProductCode.ResultCode == null)
-				.Where(x => x.ProductCode.SourceCode != null)
-				.Where(x => x.ProductCode.SourceCode.IsInvalid == false);
+				.Where(x => x.ProductCode.Problem == ProductCodeProblem.None
+					&& x.ProductCode.SourceCode != null
+					&& x.ProductCode.SourceCode.IsInvalid == false
+					&& x.ProductCode.ResultCode == null
+					&& x.ProductCode.SourceCodeStatus != SourceProductCodeStatus.SavedToPool);
+			
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				matchEdoTaskItem = sourceCodes
@@ -935,13 +926,16 @@ namespace Edo.Receipt.Dispatcher
 				}
 			}
 
-			// затем у кого заполнен Source код, но дефектный или задублированный
+			// затем у кого заполнен Source код,
+			// но дефектный или задублированный или сохранен в пул
 			// и заполняем у него Result кодом из пула
 			var ddCodes = unprocessedCodes
-				.Where(x => x.ProductCode.Problem.IsIn(ProductCodeProblem.Defect, ProductCodeProblem.Duplicate))
-				.Where(x => x.ProductCode.ResultCode == null)
-				.Where(x => x.ProductCode.SourceCode != null)
-				.Where(x => x.ProductCode.SourceCode.IsInvalid = false);
+				.Where(x => x.ProductCode.SourceCode != null
+					&& x.ProductCode.SourceCode.IsInvalid == false
+					&& x.ProductCode.ResultCode == null
+					&& (x.ProductCode.Problem.IsIn(ProductCodeProblem.Defect, ProductCodeProblem.Duplicate)
+						|| x.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool));
+
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				matchEdoTaskItem = ddCodes

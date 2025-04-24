@@ -32,6 +32,12 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 		/// Код принят без изменений
 		/// </summary>
 		[Display(Name = "Принят")]
-		Accepted
+		Accepted,
+		
+		/// <summary>
+		/// Код сохранен в пул
+		/// </summary>
+		[Display(Name = "Сохранен в пул")]
+		SavedToPool
 	}
 }
