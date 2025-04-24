@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -970,6 +970,36 @@ namespace Vodovoz.Domain.Orders
 														$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
 							new[] { nameof(Nomenclature) });
 					}
+
+					if(Client != null)
+					{
+						foreach(var email in Client.Emails)
+						{
+							if(!email.IsValidEmail)
+							{
+								yield return new ValidationResult($"Адрес электронной почты клиента {email.Address} имеет неправильный формат.");
+							}
+						}
+
+						foreach(var phone in Client.Phones)
+						{
+							if(!phone.IsValidPhoneNumber)
+							{
+								yield return new ValidationResult($"Номер телефона клиента {phone.Number} имеет неправильный формат.");
+							}
+						}
+					}
+
+					if(DeliveryPoint != null)
+					{
+						foreach(var phone in DeliveryPoint.Phones)
+						{
+							if(!phone.IsValidPhoneNumber)
+							{
+								yield return new ValidationResult($"Номер телефона точки доставки {phone.Number} имеет неправильный формат.");
+							}
+						}
+					}
 				}
 
 				if(newStatus == OrderStatus.Closed) {
@@ -1284,33 +1314,6 @@ namespace Vodovoz.Domain.Orders
 					yield return new ValidationResult($"В заказе с \"Закр док\" не должно быть товаров с маркировкой ЧЗ. " +
 						$"В заказ были добавлены следующие маркированные товары: {string.Join(", ", orderItemsTrueMarkCodesMustBeAdded.Select(x => x.Nomenclature.Name))}",
 						new[] { nameof(OrderItems) });
-				}
-			}
-			
-			foreach(var email in Client.Emails)
-			{
-				if(!email.IsValidEmail)
-				{
-					yield return new ValidationResult($"Адрес электронной почты клиента {email.Address} имеет неправильный формат.");
-				}
-			}
-
-			foreach(var phone in Client.Phones)
-			{
-				if(!phone.IsValidPhoneNumber)
-				{
-					yield return new ValidationResult($"Номер телефона клиента {phone.Number} имеет неправильный формат.");
-				}
-			}
-
-			if(DeliveryPoint != null)
-			{
-				foreach(var phone in DeliveryPoint.Phones)
-				{
-					if(!phone.IsValidPhoneNumber)
-					{
-						yield return new ValidationResult($"Номер телефона точки доставки {phone.Number} имеет неправильный формат.");
-					}
 				}
 			}
 		}
