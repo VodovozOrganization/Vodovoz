@@ -631,30 +631,127 @@ namespace DriverAPI.Library.V6.Services
 					.Distinct()
 					.ToArray();
 
-				foreach(var scannedCode in uniqueBottleCodes)
-				{
-					var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, scannedCode, SourceProductCodeStatus.New, ProductCodeProblem.None);
+				var result = await AddProductCodesToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, uniqueBottleCodes, SourceProductCodeStatus.New, ProductCodeProblem.None);
 
-					if(result.IsFailure)
-					{
-						return result;
-					}
+				if(result.IsFailure)
+				{
+					return result;
 				}
+
+				//foreach(var scannedCode in uniqueBottleCodes)
+				//{
+				//	//var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, scannedCode, SourceProductCodeStatus.New, ProductCodeProblem.None);
+					
+				//	if(result.IsFailure)
+				//	{
+				//		return result;
+				//	}
+				//}
 
 				var uniqueDefectiveCodes = scannedItem.DefectiveBottleCodes
 					.Distinct()
 					.ToArray();
 
-				foreach(var defectiveBottleCode in uniqueDefectiveCodes)
-				{
-					var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, defectiveBottleCode, SourceProductCodeStatus.Problem, ProductCodeProblem.Defect);
+				result = await AddProductCodesToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, uniqueDefectiveCodes, SourceProductCodeStatus.Problem, ProductCodeProblem.Defect);
 
-					if(result.IsFailure)
+				if(result.IsFailure)
+				{
+					return result;
+				}
+
+				//foreach(var defectiveBottleCode in uniqueDefectiveCodes)
+				//{
+				//	var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, defectiveBottleCode, SourceProductCodeStatus.Problem, ProductCodeProblem.Defect);
+
+				//	if(result.IsFailure)
+				//	{
+				//		return result;
+				//	}
+				//}
+			}
+
+			return Result.Success();
+		}
+
+		private async Task<Result> AddProductCodesToRouteListItemAsync(
+			RouteListItem routeListAddress,
+			int orderSaleItemId,
+			IEnumerable<string> scannedCodes,
+			SourceProductCodeStatus status,
+			ProductCodeProblem problem)
+		{
+			var scannedCodesDataResult = await _trueMarkWaterCodeService.GetTrueMarkAnyCodesByScannedCodes(_uow, scannedCodes);
+
+			if(scannedCodesDataResult.IsFailure)
+			{
+				return scannedCodesDataResult;
+			}
+
+			foreach(var codesData in scannedCodesDataResult.Value)
+			{
+				var codes = codesData.Value
+					.Select(x => x.Match(
+						transportCode => transportCode.GetAllCodes(),
+						groupCode => groupCode.GetAllCodes(),
+						waterCode => new List<TrueMarkAnyCode> { waterCode }))
+					.SelectMany(x => x)
+					.ToList();
+
+				foreach(var code in codes)
+				{
+
+					code.Match(
+						transportCode =>
+						{
+							if(transportCode.Id == 0)
+							{
+								_uow.Save(transportCode);
+							}
+
+							return true;
+						},
+						groupCode =>
+						{
+							if(groupCode.Id == 0)
+							{
+								_uow.Save(groupCode);
+							}
+
+							return true;
+						},
+						waterCode =>
+						{
+							if(waterCode.Id == 0)
+							{
+								_uow.Save(waterCode);
+							}
+
+							return true;
+						});
+
+					if(!code.IsTrueMarkWaterIdentificationCode)
 					{
-						return result;
+						continue;
 					}
+
+					if(routeListAddress.TrueMarkCodes.Any(x =>
+						x.SourceCode.GTIN == code.TrueMarkWaterIdentificationCode.GTIN
+						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber))
+					{
+						continue;
+					}
+
+					_routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItem(
+						_uow,
+						routeListAddress,
+						orderSaleItemId,
+						code.TrueMarkWaterIdentificationCode,
+						status,
+						problem);
 				}
 			}
+
+			
 
 			return Result.Success();
 		}
@@ -666,15 +763,15 @@ namespace DriverAPI.Library.V6.Services
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem)
 		{
-			var trueMarkAnyCodeRwsult =
+			var trueMarkAnyCodeResult =
 				await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, scannedCode);
 
-			if(trueMarkAnyCodeRwsult.IsFailure)
+			if(trueMarkAnyCodeResult.IsFailure)
 			{
-				return trueMarkAnyCodeRwsult;
+				return trueMarkAnyCodeResult;
 			}
 
-			var codes = trueMarkAnyCodeRwsult.Value.Match(
+			var codes = trueMarkAnyCodeResult.Value.Match(
 				transportCode => transportCode.GetAllCodes(),
 				groupCode => groupCode.GetAllCodes(),
 				waterCode => new List<TrueMarkAnyCode> { waterCode });
@@ -702,7 +799,7 @@ namespace DriverAPI.Library.V6.Services
 					problem);
 			}
 
-			trueMarkAnyCodeRwsult.Value.Match(
+			trueMarkAnyCodeResult.Value.Match(
 				transportCode =>
 				{
 					if(transportCode.Id == 0)

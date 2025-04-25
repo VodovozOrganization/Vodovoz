@@ -54,5 +54,7 @@ namespace VodovozBusiness.Services.TrueMark
 		[Obsolete("Use TryGetSavedTrueMarkCodeByScannedCode instead")]
 		TrueMarkWaterIdentificationCode LoadOrCreateTrueMarkWaterIdentificationCode(IUnitOfWork uow, string scannedCode);
 		TrueMarkAnyCode GetParentGroupCode(IUnitOfWork unitOfWork, TrueMarkAnyCode trueMarkAnyCode);
+
+		Task<Result<IDictionary<string, List<TrueMarkAnyCode>>>> GetTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, IEnumerable<string> scannedCodes);
 	}
 }
