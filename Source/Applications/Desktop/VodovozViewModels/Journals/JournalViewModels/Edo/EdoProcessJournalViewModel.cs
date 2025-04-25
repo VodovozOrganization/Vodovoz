@@ -84,6 +84,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			PopupActionsList.Clear();
 			CreateCopyOrderIdToClipboardAction();
 			CreateOpenOrderAction();
+			CreateCopyTaskIdToClipboardAction();
 		}
 
 		private void CreateResendReceiptFromSaveCodesTaskAction()

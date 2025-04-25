@@ -36,7 +36,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.Widgets.yEnumComboBox yenumEdoTaskStatus;
 
-		private global::Gamma.Widgets.yEnumComboBox yenumEdoTaskStatus1;
+		private global::Gamma.Widgets.yEnumComboBox yenumTaskProblemState;
 
 		protected virtual void Build()
 		{
@@ -229,14 +229,14 @@ namespace Vodovoz.Filters.GtkViews
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yenumEdoTaskStatus1 = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumEdoTaskStatus1.Name = "yenumEdoTaskStatus1";
-			this.yenumEdoTaskStatus1.ShowSpecialStateAll = false;
-			this.yenumEdoTaskStatus1.ShowSpecialStateNot = false;
-			this.yenumEdoTaskStatus1.UseShortTitle = false;
-			this.yenumEdoTaskStatus1.DefaultFirst = false;
-			this.table1.Add(this.yenumEdoTaskStatus1);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumEdoTaskStatus1]));
+			this.yenumTaskProblemState = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumTaskProblemState.Name = "yenumTaskProblemState";
+			this.yenumTaskProblemState.ShowSpecialStateAll = false;
+			this.yenumTaskProblemState.ShowSpecialStateNot = false;
+			this.yenumTaskProblemState.UseShortTitle = false;
+			this.yenumTaskProblemState.DefaultFirst = false;
+			this.table1.Add(this.yenumTaskProblemState);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumTaskProblemState]));
 			w16.TopAttach = ((uint)(1));
 			w16.BottomAttach = ((uint)(2));
 			w16.LeftAttach = ((uint)(3));
