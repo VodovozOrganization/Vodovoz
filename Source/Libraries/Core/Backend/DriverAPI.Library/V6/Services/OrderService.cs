@@ -1899,19 +1899,26 @@ namespace DriverAPI.Library.V6.Services
 					_logger.LogWarning("У заказа {OrderId} заказа не найдена: {OrderItemId}", orderSaleItemId);
 					return Result.Failure(OrderItemErrors.NotFound);
 				}
-				
-				foreach(var scannedCode in scannedBottle.BottleCodes)
-				{
-					await AddProductCodeToRouteListItemAsync(
-						routeListAddress,
-						orderSaleItemId,
-						scannedCode,
-						SourceProductCodeStatus.New,
-						ProductCodeProblem.None);
-				}
+
+				await AddProductCodesToRouteListItemAsync(
+					routeListAddress,
+					orderSaleItemId,
+					scannedBottle.BottleCodes,
+					SourceProductCodeStatus.New,
+					ProductCodeProblem.None);
+
+				//foreach(var scannedCode in scannedBottle.BottleCodes)
+				//{
+				//	await AddProductCodeToRouteListItemAsync(
+				//		routeListAddress,
+				//		orderSaleItemId,
+				//		scannedCode,
+				//		SourceProductCodeStatus.New,
+				//		ProductCodeProblem.None);
+				//}
 			}
 
-			await _uow.CommitAsync(cancellationToken);
+			//await _uow.CommitAsync(cancellationToken);
 
 			return Result.Success();
 		}
