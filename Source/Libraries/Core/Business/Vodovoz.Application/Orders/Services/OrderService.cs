@@ -347,7 +347,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			if(_orderOrganizationManager.SplitOrderByOrganizations(
-				uow, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(onlineOrder)).Count() > 1)
+				uow, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(uow, _orderSettings, onlineOrder)).Count() > 1)
 			{
 				return 0;
 			}

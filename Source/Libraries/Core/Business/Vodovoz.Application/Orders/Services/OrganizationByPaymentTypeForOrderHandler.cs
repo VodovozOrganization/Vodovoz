@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
@@ -60,6 +61,7 @@ namespace Vodovoz.Application.Orders.Services
 				requestTime,
 				organizationChoice.IsSelfDelivery || organizationChoice.DeliveryPoint == null,
 				organizationChoice.PaymentType,
+				organizationChoice.PaymentFrom,
 				organizationChoice.OnlinePaymentNumber);
 		}
 
@@ -70,6 +72,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// <param name="requestTime">Время запроса</param>
 		/// <param name="isSelfDelivery">Самовывоз или нет</param>
 		/// <param name="paymentType">Тип оплаты заказа</param>
+		/// <param name="paymentFrom">Источник оплаты</param>
 		/// <param name="onlinePaymentNumber">Номер онлайн оплаты</param>
 		/// <returns></returns>
 		public Organization GetOrganization(
@@ -77,17 +80,18 @@ namespace Vodovoz.Application.Orders.Services
 			TimeSpan requestTime,
 			bool isSelfDelivery,
 			PaymentType paymentType,
+			PaymentFrom paymentFrom,
 			int? onlinePaymentNumber
 			)
 		{
 			if(isSelfDelivery)
 			{
 				return _organizationForSelfDeliveryOrderByPaymentTypeHandler.GetOrganizationForOrder(
-					uow, requestTime, paymentType, onlinePaymentNumber);
+					uow, requestTime, paymentType, paymentFrom, onlinePaymentNumber);
 			}
 
 			return _organizationForDeliveryOrderByPaymentTypeHandler.GetOrganizationForOrder(
-				uow, requestTime, paymentType, onlinePaymentNumber);
+				uow, requestTime, paymentType, paymentFrom, onlinePaymentNumber);
 		}
 	}
 }

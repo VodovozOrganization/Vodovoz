@@ -752,6 +752,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			SaveOrganizationBasedOrderContentSettings();
 			SavePaymentTypesOrganizationSettings();
 			SaveOrganizationByOrderAuthorSettings();
+			
 			try
 			{
 				UowOrderOrganizationSettings.Commit();

@@ -2,6 +2,7 @@
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Settings.Orders;
@@ -30,6 +31,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// <param name="requestTime">Время запроса</param>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="paymentType">Тип оплаты заказа</param>
+		/// <param name="paymentFrom">Источник оплаты</param>
 		/// <param name="onlineOrderNumber">Номер онлайн оплаты</param>
 		/// <returns>Организация</returns>
 		/// <exception cref="NotSupportedException">Не поддерживается переданный тип оплаты</exception>
@@ -37,6 +39,7 @@ namespace Vodovoz.Application.Orders.Services
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			PaymentType paymentType,
+			PaymentFrom paymentFrom,
 			int? onlineOrderNumber)
 		{
 			var organizationsByPaymentType = uow.GetAll<PaymentTypeOrganizationSettings>().ToList();

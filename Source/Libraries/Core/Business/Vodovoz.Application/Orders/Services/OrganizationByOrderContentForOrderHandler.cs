@@ -141,7 +141,12 @@ namespace Vodovoz.Application.Orders.Services
 		}
 		
 		public bool OrderHasGoodsFromSeveralOrganizations(
-			IUnitOfWork uow, TimeSpan requestTime, IList<int> nomenclatureIds, bool isSelfDelivery, PaymentType paymentType)
+			IUnitOfWork uow,
+			TimeSpan requestTime,
+			IList<int> nomenclatureIds,
+			bool isSelfDelivery,
+			PaymentType paymentType,
+			PaymentFrom paymentFrom)
 		{
 			var setsOrganizations = new Dictionary<short, Organization>();
 			
@@ -184,7 +189,7 @@ namespace Vodovoz.Application.Orders.Services
 				var org =
 					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(DateTime.Now.TimeOfDay, set, true)
 					?? _organizationByPaymentTypeForOrderHandler.GetOrganization(
-						uow, requestTime, isSelfDelivery, paymentType, null);
+						uow, requestTime, isSelfDelivery, paymentType, paymentFrom, null);
 				
 				setsOrganizations.Add(set.OrderContentSet, org);
 			}

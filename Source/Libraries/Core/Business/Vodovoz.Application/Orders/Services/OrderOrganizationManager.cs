@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
@@ -104,12 +105,16 @@ namespace Vodovoz.Application.Orders.Services
 		}
 
 		public bool OrderHasGoodsFromSeveralOrganizations(
-			TimeSpan requestTime, IList<int> nomenclatureIds, bool isSelfDelivery, PaymentType paymentType)
+			TimeSpan requestTime,
+			IList<int> nomenclatureIds,
+			bool isSelfDelivery,
+			PaymentType paymentType,
+			PaymentFrom paymentFrom)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
 				return _organizationByOrderContentForOrderHandler.OrderHasGoodsFromSeveralOrganizations(
-					uow, requestTime, nomenclatureIds, isSelfDelivery, paymentType);
+					uow, requestTime, nomenclatureIds, isSelfDelivery, paymentType, paymentFrom);
 			}
 		}
 	}

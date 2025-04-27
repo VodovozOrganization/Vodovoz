@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using Vodovoz;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Extensions;
+using Vodovoz.Settings.Orders;
 
 namespace VodovozBusiness.Models.Orders
 {
@@ -20,10 +22,16 @@ namespace VodovozBusiness.Models.Orders
 		public IEnumerable<OrderDepositItem> OrderDepositItems { get; private set; }
 		public bool IsSelfDelivery { get; private set; }
 		public PaymentType PaymentType { get; private set; }
+		public PaymentFrom PaymentFrom { get; private set; }
 		public int? OnlinePaymentNumber { get; private set; }
 
-		public static OrderOrganizationChoice Create(OnlineOrder onlineOrder)
+		public static OrderOrganizationChoice Create(IUnitOfWork uow, IOrderSettings orderSettings, OnlineOrder onlineOrder)
 		{
+			var paymentFrom = onlineOrder.OnlinePaymentSource.HasValue
+				? uow.GetById<PaymentFrom>(
+					onlineOrder.OnlinePaymentSource.Value.ConvertToPaymentFromId(orderSettings))
+				: null;
+			
 			return new OrderOrganizationChoice
 			{
 				OrderId = 0,
@@ -37,6 +45,7 @@ namespace VodovozBusiness.Models.Orders
 				OrderDepositItems = new List<OrderDepositItem>(),
 				IsSelfDelivery = onlineOrder.IsSelfDelivery,
 				PaymentType = onlineOrder.OnlineOrderPaymentType.ToOrderPaymentType(),
+				PaymentFrom = paymentFrom,
 				OnlinePaymentNumber = onlineOrder.OnlinePayment
 			};
 		}
@@ -56,6 +65,7 @@ namespace VodovozBusiness.Models.Orders
 				OrderDepositItems = order.OrderDepositItems,
 				IsSelfDelivery = order.SelfDelivery,
 				PaymentType = order.PaymentType,
+				PaymentFrom = order.PaymentByCardFrom,
 				OnlinePaymentNumber = order.OnlinePaymentNumber
 			};
 		}
