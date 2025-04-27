@@ -21,6 +21,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 		private const string _productsShipped = "Товары переданы";
 		private const string _servicesHaveBeenProvided = "Услуги оказаны в полном объеме";
 		private const string _jobResponsibilities = "Должностные обязанности";
+		private const string _upd = "Универсальный передаточный документ";
 		
 		private readonly IParticipantDocFlowConverter5_03 _participantDocFlowConverter;
 		private readonly IErpDocumentInfoConverter5_03 _erpDocumentInfoConverter;
@@ -142,7 +143,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 			{
 				new FajlDokumentSvSchFaktDokPodtvOtgr
 				{
-					NaimDokOtgr = "Универсальный передаточный документ,",
+					NaimDokOtgr = _upd,
 					NomDokOtgr = orderInfoForEdo.Id.ToString(),
 					DataDokOtgr = updDate
 				}
@@ -292,7 +293,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 			{
 				Funkcija = FajlDokumentFunkcija.SChFDOP,
 				PoFaktHZh = "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
-				NaimDokOpr = "Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
+				NaimDokOpr = _upd,
 				KND = FajlDokumentKND.Item1115131,
 				DataInfPr = DateTime.Now.ToShortDateString(),
 				VremInfPr = $"{DateTime.Now:HH.mm.ss}",
@@ -349,13 +350,13 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 					.ToArray();
 			}
 
-			upd.Dokument.SvSchFakt.DokPodtvOtgr = new[]
+			upd.Dokument.SvSchFakt.DocPodtvOtgrNom = new[]
 			{
-				new FajlDokumentSvSchFaktDokPodtvOtgr
+				new RekvDocTip
 				{
-					NaimDokOtgr = "Универсальный передаточный документ,",
-					NomDokOtgr = updInfo.Number.ToString(),
-					DataDokOtgr = updDate
+					RekvNaimDoc = _upd,
+					RekvNomDoc = updInfo.Number.ToString(),
+					RekvDataDoc = updDate
 				}
 			};
 

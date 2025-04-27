@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Errors;
@@ -44,12 +44,6 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			_onlineOrder = onlineOrder;
 			var validationResults = new List<Error>();
-
-			if(_onlineOrder.OnlineOrderPaymentType == Core.Domain.Orders.OnlineOrderPaymentType.Terminal
-				&& _onlineOrder.DeliveryDate >= OrderEntity.TerminalUnavaliableStartDate)
-			{
-				validationResults.Add(new Error("Temporary.Terminal.Unavailable", "Доставка с 23 апреля по типу оплаты Терминал недоступна"));
-			}
 			
 			if(_onlineOrder.IsSelfDelivery)
 			{
@@ -102,6 +96,12 @@ namespace Vodovoz.Application.Orders.Services
 			if(_onlineOrder.DeliveryDate < DateTime.Today && _onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
 			{
 				validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDeliveryDate);
+			}
+
+			var phone = new PhoneEntity { Number = onlineOrder.ContactPhone };
+			if(!phone.IsValidPhoneNumber)
+			{
+				validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.InvalidPhone(onlineOrder.ContactPhone));
 			}
 
 			ValidateOnlineOrderItems(uow, validationResults);

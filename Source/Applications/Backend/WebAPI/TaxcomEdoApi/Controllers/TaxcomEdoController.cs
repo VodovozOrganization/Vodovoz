@@ -296,6 +296,23 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
+		
+		[HttpGet]
+		public IActionResult GetDocFlowStatus(string docFlowId)
+		{
+			_logger.LogInformation("Получение текущего статуса документооборота {DocFlowId}", docFlowId);
+
+			try
+			{
+				var docflowDescription = _taxcomApi.GetStatus(docFlowId);
+				return Ok(docflowDescription);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при получении текущего статуса документооборота {DocFlowId}", docFlowId);
+				return Problem();
+			}
+		}
 
 		[HttpGet]
 		public IActionResult GetStatus()

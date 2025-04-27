@@ -24,8 +24,6 @@ namespace Vodovoz.Core.Domain.Orders
 	public class OrderEntity : PropertyChangedBase, IDomainObject, IBusinessObject
 	{
 		public const string Table = "orders";
-		public static DateTime TerminalUnavaliableStartDate => new DateTime(2025, 4, 23, 0, 0, 0, DateTimeKind.Local);
-
 		private int _id;
 		private DateTime _version;
 		private DateTime? _createDate;

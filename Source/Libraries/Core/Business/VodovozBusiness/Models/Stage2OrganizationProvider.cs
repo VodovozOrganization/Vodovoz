@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -18,8 +18,6 @@ namespace Vodovoz.Models
 	//TODO: просмотреть класс на изменения и снести
 	public class Stage2OrganizationProvider// : IOrganizationProvider
 	{
-		private readonly DateTime _terminalVodovozSouthStartDate = new DateTime(2025, 4, 24, 0, 0, 0, DateTimeKind.Local);
-
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IGeographicGroupSettings _geographicGroupSettings;
@@ -98,12 +96,12 @@ namespace Vodovoz.Models
 
 			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;
 
-			return GetOrganizationForOrderParameters(uow, paymentType ?? order.PaymentType, isSelfDelivery, order.CreateDate, order.DeliveryDate,
-				order.OrderItems, paymentFrom ?? order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup, order.OnlinePaymentNumber);
+			return GetOrganizationForOrderParameters(uow, paymentType ?? order.PaymentType, isSelfDelivery, order.CreateDate,
+				order.OrderItems, paymentFrom ?? order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup, order.OnlineOrder);
 		}
 
 		private Organization GetOrganizationForOrderParameters(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery,
-			DateTime? orderCreateDate, DateTime? orderDeliveryDate, IEnumerable<OrderItem> orderItems, PaymentFrom paymentFrom, GeoGroup geographicGroup,
+			DateTime? orderCreateDate, IEnumerable<OrderItem> orderItems, PaymentFrom paymentFrom, GeoGroup geographicGroup,
 			int? onlineOrderId)
 		{
 			if(uow == null)
@@ -118,12 +116,12 @@ namespace Vodovoz.Models
 
 			return isSelfDelivery
 				? GetOrganizationForSelfDelivery(
-					uow, paymentType, orderCreateDate, orderDeliveryDate, paymentFrom, geographicGroup, onlineOrderId)
+					uow, paymentType, orderCreateDate, paymentFrom, geographicGroup, onlineOrderId)
 				: GetOrganizationForOtherOptions(
-					uow, paymentType, orderCreateDate, orderDeliveryDate, paymentFrom, geographicGroup, onlineOrderId);
+					uow, paymentType, orderCreateDate, paymentFrom, geographicGroup, onlineOrderId);
 		}
 
-		private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate, DateTime? orderDeliveryDate,
+		private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
 			PaymentFrom paymentFrom, GeoGroup geographicGroup, int? onlineOrderId)
 		{
 			int organizationId;
@@ -138,12 +136,7 @@ namespace Vodovoz.Models
 					organizationId = _organizationSettings.VodovozNorthOrganizationId;
 					break;
 				case PaymentType.Terminal:
-					if(orderDeliveryDate >= _terminalVodovozSouthStartDate)
-					{
-						organizationId = _organizationSettings.VodovozSouthOrganizationId;
-						break;
-					}
-					organizationId = _organizationSettings.BeveragesWorldOrganizationId;
+					organizationId = _organizationSettings.VodovozSouthOrganizationId;
 					break;
 				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:
@@ -173,9 +166,10 @@ namespace Vodovoz.Models
 			return uow.GetById<Organization>(_organizationSettings.VodovozNorthOrganizationId);
 		}
 
-		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate, DateTime? orderDeliveryDate,
+		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
 			PaymentFrom paymentFrom, GeoGroup geographicGroup, int? onlineOrderId)
 		{
+			
 			int organizationId;
 			switch(paymentType)
 			{
@@ -188,12 +182,7 @@ namespace Vodovoz.Models
 					organizationId = _organizationSettings.VodovozNorthOrganizationId;
 					break;
 				case PaymentType.Terminal:
-					if(orderDeliveryDate >= _terminalVodovozSouthStartDate)
-					{
-						organizationId = _organizationSettings.VodovozSouthOrganizationId;
-						break;
-					}
-					organizationId = _organizationSettings.BeveragesWorldOrganizationId;
+					organizationId = _organizationSettings.VodovozSouthOrganizationId;
 					break;
 				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:

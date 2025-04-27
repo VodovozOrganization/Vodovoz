@@ -724,14 +724,6 @@ namespace Vodovoz.Domain.Orders
 
 			OrderStatus? newStatus = null;
 
-			// Убрать через месяц
-			if(DeliveryDate >= TerminalUnavaliableStartDate
-				&& PaymentType == PaymentType.Terminal)
-			{
-				yield return new ValidationResult("Оплата по терминалу после 16 апреля недоступена",
-							new[] { nameof(PaymentType), nameof(DeliveryDate) });
-			}
-
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null)
@@ -861,6 +853,36 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: " +
 														$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
 							new[] { nameof(Nomenclature) });
+					}
+
+					if(Client != null)
+					{
+						foreach(var email in Client.Emails)
+						{
+							if(!email.IsValidEmail)
+							{
+								yield return new ValidationResult($"Адрес электронной почты клиента {email.Address} имеет неправильный формат.");
+							}
+						}
+
+						foreach(var phone in Client.Phones)
+						{
+							if(!phone.IsValidPhoneNumber)
+							{
+								yield return new ValidationResult($"Номер телефона клиента {phone.Number} имеет неправильный формат.");
+							}
+						}
+					}
+
+					if(DeliveryPoint != null)
+					{
+						foreach(var phone in DeliveryPoint.Phones)
+						{
+							if(!phone.IsValidPhoneNumber)
+							{
+								yield return new ValidationResult($"Номер телефона точки доставки {phone.Number} имеет неправильный формат.");
+							}
+						}
 					}
 				}
 
@@ -1434,7 +1456,16 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			foreach(var contractDocument in contractDocuments.ToList()) {
+			foreach(var contractDocument in contractDocuments.ToList())
+			{
+				if(contractDocument is OrderContract orderContract)
+				{
+					if(orderContract.Contract == Contract)
+					{
+						continue;
+					}
+				}
+
 				ObservableOrderDocuments.Remove(contractDocument);
 			}
 
@@ -1814,16 +1845,18 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddContractDocument(CounterpartyContract contract)
 		{
-			if(ObservableOrderDocuments.OfType<OrderContract>().Any(x => x.Contract == contract)) {
+			if(ObservableOrderDocuments.OfType<OrderContract>().Any(x => x.Contract == contract))
+			{
 				return;
 			}
+
 			ObservableOrderDocuments.Add(
-				new OrderContract {
+				new OrderContract
+				{
 					Order = this,
 					AttachedToOrder = this,
 					Contract = contract
-				}
-			);
+				});
 		}
 
 		public virtual bool HasWater()

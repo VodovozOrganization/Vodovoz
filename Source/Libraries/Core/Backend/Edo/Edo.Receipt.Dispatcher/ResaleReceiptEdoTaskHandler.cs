@@ -2,6 +2,7 @@
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
+using Edo.Problems.Exception.EdoExceptions;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -33,8 +34,8 @@ namespace Edo.Receipt.Dispatcher
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferRequestCreator _transferRequestCreator;
-		private readonly TrueMarkTaskCodesValidator _localCodesValidator;
-		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
+		private readonly ITrueMarkCodesValidator _localCodesValidator;
+		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
 		private readonly Tag1260Checker _tag1260Checker;
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
 		private readonly IEdoOrderContactProvider _edoOrderContactProvider;
@@ -48,8 +49,8 @@ namespace Edo.Receipt.Dispatcher
 			EdoProblemRegistrar edoProblemRegistrar,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferRequestCreator transferRequestCreator,
-			TrueMarkTaskCodesValidator localCodesValidator,
-			TrueMarkTaskCodesValidator trueMarkTaskCodesValidator,
+			ITrueMarkCodesValidator localCodesValidator,
+			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			Tag1260Checker tag1260Checker,
 			IEdoReceiptSettings edoReceiptSettings,
 			IEdoOrderContactProvider edoOrderContactProvider,
@@ -388,7 +389,7 @@ namespace Edo.Receipt.Dispatcher
 				}
 			}
 
-			throw new InvalidOperationException($"Не найден код для номенклатуры {orderItem.Nomenclature}");
+			throw new ResaleMissingCodesException($"Не найден код для номенклатуры Id {orderItem.Nomenclature.Id}");
 		}
 
 		private EdoFiscalDocument CreateFiscalDocument(ReceiptEdoTask receiptEdoTask)
@@ -403,7 +404,7 @@ namespace Edo.Receipt.Dispatcher
 				DocumentNumber = $"vod_{order.Id}",
 				DocumentType = FiscalDocumentType.Sale,
 				CheckoutTime = order.TimeDelivered ?? DateTime.Now,
-				Contact = _edoOrderContactProvider.GetContact(order),
+				Contact = _edoOrderContactProvider.GetContact(order).StringValue,
 				ClientInn = order.Client.INN,
 				CashierName = order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName,
 				//По умолчанию не печатаем чеки

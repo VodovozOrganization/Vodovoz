@@ -146,7 +146,7 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 				if(codesWithoutTransport.Any())
 				{
 					var sredIdentTov = CreateSredIdentTov(codesWithoutTransport);
-					sredIdentTovList.Add(sredIdentTov);
+					sredIdentTovList.AddRange(sredIdentTov);
 				}
 
 				foreach(var codesPerTransportItem in codesPerTransport)
@@ -155,7 +155,7 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 					{
 						var transportCode = codesPerTransportItem.Key;
 						var sredIdentTov = CreateSredIdentTov(codesWithoutTransport, transportCode);
-						sredIdentTovList.Add(sredIdentTov);
+						sredIdentTovList.AddRange(sredIdentTov);
 					}
 				}
 
@@ -170,32 +170,37 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 			return updProduct;
 		}
 
-		private FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov CreateSredIdentTov(
+		private IEnumerable<FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov> CreateSredIdentTov(
 			IEnumerable<ProductCodeInfo> codes, 
 			string transportCode = null
 			)
 		{
-			var identificationInfo = new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov();
-
 			if(!transportCode.IsNullOrWhiteSpace())
 			{
-				identificationInfo.IdentTransUpak = transportCode;
-				return identificationInfo;
+				return new []{ new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov { IdentTransUpak = transportCode} };
 			}
 
-			var items = new List<(ItemsChoiceType Type, string Code)>();
+			var identificationData = new List<FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov>();
+			var groupedCodesByType = codes.ToLookup(x => x.IsGroup);
 
-			foreach(var code in codes)
+			foreach(var groupCodesByType in groupedCodesByType)
 			{
-				var itemType = code.IsGroup ? ItemsChoiceType.NomUpak : ItemsChoiceType.KIZ;
-				var item = (itemType, code.IndividualOrGroupCode);
-				items.Add(item);
+				var identificationInfo = new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov();
+				var items = new List<(ItemsChoiceType Type, string Code)>();
+				
+				items.AddRange(
+					from code in groupCodesByType
+					let itemType = code.IsGroup
+						? ItemsChoiceType.NomUpak
+						: ItemsChoiceType.KIZ
+					select (itemType, code.IndividualOrGroupCode));
+
+				identificationInfo.ItemsElementName = items.Select(x => x.Type).ToArray();
+				identificationInfo.Items = items.Select(x => x.Code).ToArray();
+				identificationData.Add(identificationInfo);
 			}
 
-			identificationInfo.ItemsElementName = items.Select(x => x.Type).ToArray();
-			identificationInfo.Items = items.Select(x => x.Code).ToArray();
-
-			return identificationInfo;
+			return identificationData;
 		}
 
 		private string GetProductCode(IEnumerable<SpecialNomenclatureInfoForEdo> counterpartySpecialNomenclatures, int nomenclatureId)

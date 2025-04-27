@@ -36,9 +36,7 @@ namespace Edo.Documents
 			ForOwnNeedDocumentEdoTaskHandler forOwnNeedDocumentEdoTaskHandler,
 			ForResaleDocumentEdoTaskHandler forResaleDocumentEdoTaskHandler,
 			EdoTaskValidator edoTaskValidator,
-			TrueMarkTaskCodesValidator trueMarkTaskCodesValidator,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
-			TransferRequestCreator transferRequestCreator,
 			EdoProblemRegistrar edoProblemRegistrar,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IBus messageBus

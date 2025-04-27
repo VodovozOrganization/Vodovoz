@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Errors.Orders
+namespace Vodovoz.Errors.Orders
 {
 	public static partial class Order
 	{
@@ -87,6 +87,12 @@
 				typeof(Order),
 				nameof(PaidCashlessOrderClientReplacementError),
 				"Контрагента изменить невозможно пока на заказе распределен платеж, обратитесь к сотрудникам ОДЗ для снятия распределения.");
+
+		public static Error OrderIsNotForPersonalUseError =>
+			new Error(
+				typeof(Order),
+				nameof(OrderIsNotForPersonalUseError),
+				"Заказ приобретается не для собственных нужд");
 		
 		public static Error SplitOrderError =>
 			new Error(

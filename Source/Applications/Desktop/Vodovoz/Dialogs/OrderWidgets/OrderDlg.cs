@@ -160,10 +160,6 @@ namespace Vodovoz
 		IAskSaveOnCloseViewModel,
 		IEdoLightsMatrixInfoProvider
 	{
-		// Временное!! Удалить через месяц
-
-		private readonly DateTime _terminalUnavaliableStartDate = OrderEntity.TerminalUnavaliableStartDate;
-
 		private readonly int? _defaultCallBeforeArrival = null;
 		private readonly ITdiCompatibilityNavigation _navigationManager = Startup.MainWin.NavigationManager;
 
@@ -1172,7 +1168,6 @@ namespace Vodovoz
 			UpdateOrderItemsOriginalValues();
 
 			RefreshBottlesDebtNotifier();
-			UpdatePaymentTypeAvailability();
 		}
 
 		private void UpdateOrderItemsOriginalValues()
@@ -3667,37 +3662,8 @@ namespace Vodovoz
 
 		#region Методы событий виджетов
 
-		private void UpdatePaymentTypeAvailability()
-		{
-			// Этот блок нужно удалить через месяц
-			if(pickerDeliveryDate.Date >= _terminalUnavaliableStartDate
-				/*&& pickerDeliveryDate.Date <= _terminalUnavaliableEndDate*/)
-			{
-				if(!_selectPaymentTypeViewModel.ExcludedPaymentTypes.Contains(PaymentType.Terminal))
-				{
-					_selectPaymentTypeViewModel.ExcludedPaymentTypes.Add(PaymentType.Terminal);
-				}
-
-				if(Entity.CanEditByStatus && Entity.PaymentType == PaymentType.Terminal)
-				{
-					Entity.UpdatePaymentType(
-						Entity.Client.PaymentMethod != PaymentType.Terminal ? Entity.Client.PaymentMethod : PaymentType.Cash,
-						_orderContractUpdater);
-				}
-			}
-			else
-			{
-				_selectPaymentTypeViewModel.ExcludedPaymentTypes.Remove(PaymentType.Terminal);
-			}
-		}
-
 		private void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
 		{
-			UpdatePaymentTypeAvailability();
-
-			//TODO: похоже это здесь лишнее, т.к. при обновлении даты доставки есть вызов обновления контракта
-			_orderContractUpdater.UpdateOrCreateContract(UoW, Entity);
-
 			if(pickerDeliveryDate.Date < DateTime.Today && !_canCreateOrderInAdvance)
 			{
 				pickerDeliveryDate.ModifyBase(StateType.Normal, GdkColors.DangerText);
@@ -4060,9 +4026,6 @@ namespace Vodovoz
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 			UpdateUIState();
-
-			//TODO: также, при обновлении типа оплаты дергается обновление контракта
-			_orderContractUpdater.UpdateOrCreateContract(UoW, Entity);
 		}
 
 		private bool UpdateVisibilityHboxOnlineOrder()

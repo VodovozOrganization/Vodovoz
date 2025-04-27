@@ -24,7 +24,7 @@ namespace Edo.Documents
 	public class ForOwnNeedDocumentEdoTaskHandler : IDisposable
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly TrueMarkTaskCodesValidator _trueMarkTaskCodesValidator;
+		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
@@ -33,7 +33,7 @@ namespace Edo.Documents
 
 		public ForOwnNeedDocumentEdoTaskHandler(
 			IUnitOfWork uow,
-			TrueMarkTaskCodesValidator trueMarkTaskCodesValidator,
+			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			TransferRequestCreator transferRequestCreator,
 			TrueMarkCodesPool trueMarkCodesPool,
@@ -346,7 +346,8 @@ namespace Edo.Documents
 							// индивидуальные коды при этом будут обновлены после валидации
 							if(availableCode.ProductCode.ResultCode == null)
 							{
-								if(availableCode.ProductCode.Problem == ProductCodeProblem.None)
+								if(availableCode.ProductCode.Problem == ProductCodeProblem.None
+									&& availableCode.ProductCode.SourceCodeStatus != SourceProductCodeStatus.SavedToPool)
 								{
 									availableCode.ProductCode.ResultCode = availableCode.ProductCode.SourceCode;
 									availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;
