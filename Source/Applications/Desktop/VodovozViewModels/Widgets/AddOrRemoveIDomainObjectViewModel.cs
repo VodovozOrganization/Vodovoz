@@ -35,8 +35,11 @@ namespace Vodovoz.ViewModels.Widgets
 
 		private void InitializeCommands()
 		{
-			AddCommand = new DelegateCommand(AddEntity);
-			RemoveCommand = new DelegateCommand(RemoveEntity);
+			AddCommand = new DelegateCommand(AddEntity, () => CanEdit);
+
+			var removeCommand = new DelegateCommand(RemoveEntity, () => CanRemoveEntity);
+			removeCommand.CanExecuteChangedWith(this, x => x.CanRemoveEntity);
+			RemoveCommand = removeCommand;
 		}
 
 		public IEnumerable<INamedDomainObject> Entities { get; private set; }
@@ -47,6 +50,7 @@ namespace Vodovoz.ViewModels.Widgets
 			private set => SetField(ref _title, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanRemoveEntity))]
 		public INamedDomainObject SelectedEntity
 		{
 			get => _selectedEntity;
