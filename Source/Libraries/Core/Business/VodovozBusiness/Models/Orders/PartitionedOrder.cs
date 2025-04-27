@@ -59,6 +59,7 @@ namespace Vodovoz.Models.Orders
 			_resultOrder.DeliverySchedule = _copiedOrder.DeliverySchedule;
 			_resultOrder.Author = _copiedOrder.Author;
 			_resultOrder.Comment = _copiedOrder.Comment;
+			_resultOrder.HasCommentForDriver = _copiedOrder.HasCommentForDriver;
 			_resultOrder.CommentLogist = _copiedOrder.CommentLogist;
 			_resultOrder.TareNonReturnReason = _copiedOrder.TareNonReturnReason;
 			_resultOrder.BillDate = _copiedOrder.BillDate;

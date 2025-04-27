@@ -306,19 +306,16 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _isDeliveryPointNotBelongCounterparty, value);
 		}
 
-		public virtual void SetOrderPerformed(IEnumerable<int> ordersIds, Employee employee = null)
+		public virtual void SetOrderPerformed(IEnumerable<Order> orders, Employee employee = null)
 		{
 			if(employee != null)
 			{
 				EmployeeWorkWith = employee;
 			}
 
-			foreach(var orderId in ordersIds)
+			foreach(var order in orders)
 			{
-				Orders.Add(new Order
-				{
-					Id = orderId
-				});
+				Orders.Add(order);
 			}
 
 			OnlineOrderStatus = OnlineOrderStatus.OrderPerformed;

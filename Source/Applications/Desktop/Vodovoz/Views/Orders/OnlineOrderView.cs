@@ -489,8 +489,7 @@ namespace Vodovoz.Views.Orders
 			var page = navigation.OpenTdiTab<OrderDlg, OnlineOrder>(ViewModel, ViewModel.Entity, OpenPageOptions.AsSlave);
 			page.PageClosed += OnOrderTabClosed;
 		}
-		
-		//TODO: проверить и переделать работу с несколькими заказами
+
 		private void OnOrderTabClosed(object sender, EventArgs e)
 		{
 			var page = sender as ITdiPage;
@@ -515,12 +514,21 @@ namespace Vodovoz.Views.Orders
 					"Обновляем данные онлайн заказа {OnlineOrderId} после выставления заказа {OrderId}",
 					ViewModel.Entity.Id,
 					orderId);
-				
-				ViewModel.Entity.SetOrderPerformed(
-					!string.IsNullOrWhiteSpace(dlg.Entity.OrderPartsIds)
-						? dlg.Entity.OrderPartsIds.ParseNumbers()
-						: new [] { orderId });
-				
+
+				var savedOrder = ViewModel.UoW.GetById<Order>(orderId);
+				IEnumerable<Order> orders = null;
+
+				if(!string.IsNullOrWhiteSpace(savedOrder.OrderPartsIds))
+				{
+					orders = savedOrder.OrderPartsIds.ParseNumbers().Select(x => ViewModel.UoW.GetById<Order>(x)).ToList();
+				}
+				else
+				{
+					orders = new[] { savedOrder };
+				}
+
+				ViewModel.Entity.SetOrderPerformed(orders);
+
 				var notification = ViewModel.CreateNewNotification();
 				ViewModel.UoW.Save(notification);
 				ViewModel.Save(true);

@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Contacts;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -22,6 +24,8 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IClientDeliveryPointsChecker _clientDeliveryPointsChecker;
 		private readonly IDiscountController _discountController;
 		private readonly IFreeLoaderChecker _freeLoaderChecker;
+		private readonly IOrderOrganizationManager _orderOrganizationManager;
+		private readonly IOrderSettings _orderSettings;
 		private OnlineOrder _onlineOrder;
 
 		public OrderFromOnlineOrderValidator(
@@ -30,7 +34,9 @@ namespace Vodovoz.Application.Orders.Services
 			INomenclatureSettings nomenclatureSettings,
 			IClientDeliveryPointsChecker clientDeliveryPointsChecker,
 			IDiscountController discountController,
-			IFreeLoaderChecker freeLoaderChecker)
+			IFreeLoaderChecker freeLoaderChecker,
+			IOrderOrganizationManager orderOrganizationManager,
+			IOrderSettings orderSettings)
 		{
 			_priceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 			_deliveryPriceGetter = deliveryPriceGetter ?? throw new ArgumentNullException(nameof(deliveryPriceGetter));
@@ -38,6 +44,8 @@ namespace Vodovoz.Application.Orders.Services
 			_clientDeliveryPointsChecker = clientDeliveryPointsChecker ?? throw new ArgumentNullException(nameof(clientDeliveryPointsChecker));
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 			_freeLoaderChecker = freeLoaderChecker ?? throw new ArgumentNullException(nameof(freeLoaderChecker));
+			_orderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 		}
 
 		public Result ValidateOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder)
@@ -98,10 +106,19 @@ namespace Vodovoz.Application.Orders.Services
 				validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDeliveryDate);
 			}
 
-			var phone = new PhoneEntity { Number = onlineOrder.ContactPhone };
-			if(!phone.IsValidPhoneNumber)
+			if(!string.IsNullOrEmpty(onlineOrder.ContactPhone))
 			{
-				validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.InvalidPhone(onlineOrder.ContactPhone));
+				var phone = new PhoneEntity { Number = onlineOrder.ContactPhone };
+				if(!phone.IsValidPhoneNumber)
+				{
+					validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.InvalidPhone(onlineOrder.ContactPhone));
+				}
+			}
+
+			if(_orderOrganizationManager.SplitOrderByOrganizations(
+				uow, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(uow, _orderSettings, onlineOrder)).Count() > 1)
+			{
+				validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.OnlineOrderContainsGoodsSoldFromSeveralOrganizations());
 			}
 
 			ValidateOnlineOrderItems(uow, validationResults);

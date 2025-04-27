@@ -53,7 +53,6 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IOrderContractUpdater _orderContractUpdater;
-		private readonly IOrderOrganizationManager _orderOrganizationManager;
 		private readonly IOrderConfirmationService _orderConfirmationService;
 
 		public OrderService(
@@ -75,7 +74,6 @@ namespace Vodovoz.Application.Orders.Services
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IOrderContractUpdater orderContractUpdater,
-			IOrderOrganizationManager orderOrganizationManager,
 			IOrderConfirmationService orderConfirmationService)
 		{
 			if(nomenclatureSettings is null)
@@ -100,7 +98,6 @@ namespace Vodovoz.Application.Orders.Services
 			_undeliveredOrdersRepository = undeliveredOrdersRepository;
 			_subdivisionRepository = subdivisionRepository;
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
-			_orderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
 			_orderConfirmationService = orderConfirmationService ?? throw new ArgumentNullException(nameof(orderConfirmationService));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 		}
@@ -346,12 +343,6 @@ namespace Vodovoz.Application.Orders.Services
 					break;
 			}
 
-			if(_orderOrganizationManager.SplitOrderByOrganizations(
-				uow, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(uow, _orderSettings, onlineOrder)).Count() > 1)
-			{
-				return 0;
-			}
-
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
 
 			UpdateDeliveryCost(uow, order);
@@ -366,7 +357,7 @@ namespace Vodovoz.Application.Orders.Services
 				return 0;
 			}
 
-			onlineOrder.SetOrderPerformed(new []{ order.Id }, employee);
+			onlineOrder.SetOrderPerformed(new []{ order }, employee);
 			var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
 			uow.Save(notification);
 			uow.Commit();
