@@ -55,6 +55,13 @@ namespace VodovozBusiness.Services.TrueMark
 		TrueMarkWaterIdentificationCode LoadOrCreateTrueMarkWaterIdentificationCode(IUnitOfWork uow, string scannedCode);
 		TrueMarkAnyCode GetParentGroupCode(IUnitOfWork unitOfWork, TrueMarkAnyCode trueMarkAnyCode);
 
-		Task<Result<IDictionary<string, List<TrueMarkAnyCode>>>> GetTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, IEnumerable<string> scannedCodes, CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Загружает или создает коды ЧЗ.
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="scannedCodes">Строки отсканированных кодов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат со списком кодов ЧЗ</returns>
+		Task<Result<IList<TrueMarkAnyCode>>> GetTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, IEnumerable<string> scannedCodes, CancellationToken cancellationToken = default);
 	}
 }

@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Cache;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
@@ -327,9 +328,7 @@ namespace Vodovoz.Application.TrueMark
 			if(_trueMarkWaterIdentificationCodeRepository
 				.Get(
 					uow,
-					x => x.GTIN == parsedCode.GTIN
-						&& x.SerialNumber == parsedCode.SerialNumber
-						&& x.CheckCode == parsedCode.CheckCode
+					x => x.RawCode == parsedCode.SourceCode
 						&& !x.IsInvalid,
 					1)
 				.FirstOrDefault() is TrueMarkWaterIdentificationCode loadedIdentificationCode)
@@ -341,9 +340,7 @@ namespace Vodovoz.Application.TrueMark
 			if(_trueMarkWaterGroupCodeRepository
 				.Get(
 					uow,
-					x => x.GTIN == parsedCode.GTIN
-						&& x.SerialNumber == parsedCode.SerialNumber
-						&& x.CheckCode == parsedCode.CheckCode
+					x => x.RawCode == parsedCode.SourceCode
 						&& !x.IsInvalid,
 					1)
 				.FirstOrDefault() is TrueMarkWaterGroupCode loadedGroupCode)
@@ -689,21 +686,135 @@ namespace Vodovoz.Application.TrueMark
 			return newCodes;
 		}
 
-		public async Task<Result<IDictionary<string, List<TrueMarkAnyCode>>>> GetTrueMarkAnyCodesByScannedCodes(
+		public async Task<Result<IList<TrueMarkAnyCode>>> GetTrueMarkAnyCodesByScannedCodes(
 			IUnitOfWork uow,
 			IEnumerable<string> scannedCodes,
 			CancellationToken cancellationToken = default)
 		{
-			var requestCodesData = GetRequestCodesData(scannedCodes);
-			var instansesTree = await  GetProductInstansesStatusesTree(requestCodesData.Keys, cancellationToken);
+			var existingCodesData = GetSavedTrueMarkAnyCodesByScannedCodes(uow, scannedCodes);
+			var codes = existingCodesData.Values.SelectMany(x => x).ToList();
 
-			var codesData = GetSavedTrueMarkAnyCodesByScannedCodes(uow, scannedCodes);
-			//var productInstancesByScannedCodes = await GetProductInstansesInTrueMarkByScannedCodes(scannedCodes, cancellationToken);
+			var newScannedCodes = scannedCodes.Where(x => !existingCodesData.ContainsKey(x)).ToList();
 
-			return codesData;
+			var newCodesResult =
+				await CreateTrueMarkAnyCodesByScannedCodesUsingDataFromTrueMark(newScannedCodes, cancellationToken);
+
+			if(newCodesResult.IsFailure)
+			{
+				return Result.Failure<IList<TrueMarkAnyCode>>(newCodesResult.Errors);
+			}
+
+			codes.AddRange(newCodesResult.Value);
+
+			return codes;
 		}
 
-		private IDictionary<string, (string, TrueMarkWaterCode)> GetRequestCodesData(IEnumerable<string> scannedCodes)
+		private async Task<Result<IEnumerable<TrueMarkAnyCode>>> CreateTrueMarkAnyCodesByScannedCodesUsingDataFromTrueMark(
+			IEnumerable<string> scannedCodes,
+			CancellationToken cancellationToken)
+		{
+			var newCodes = new List<TrueMarkAnyCode>();
+
+			var requestCodesData = CreateRequestCodesDataByScannedCodes(scannedCodes);
+			var requestCodesInstanseStatusesDataResult = await GetProductInstanceStatuses(requestCodesData.Keys, cancellationToken);
+
+			if(requestCodesInstanseStatusesDataResult.IsFailure)
+			{
+				return Result.Failure<IEnumerable<TrueMarkAnyCode>>(requestCodesInstanseStatusesDataResult.Errors);
+			}
+
+			var codesInstanseStatuses = requestCodesInstanseStatusesDataResult.Value.Select(x => x.Value).ToList();
+
+			foreach(var instanseStatusData in requestCodesInstanseStatusesDataResult.Value)
+			{
+				var requestCode = instanseStatusData.Key;
+				var instanceStatus = instanseStatusData.Value;
+
+				TrueMarkAnyCode trueMarkAnyCode = null;
+
+				switch(instanceStatus.GeneralPackageType)
+				{
+					case GeneralPackageType.Box:
+						trueMarkAnyCode = _trueMarkTransportCodeFactory.CreateFromRawCode(requestCode);
+						break;
+					case GeneralPackageType.Group:
+						trueMarkAnyCode =
+							requestCodesData.ContainsKey(requestCode) && requestCodesData[requestCode].ParsedCode != null
+							? _trueMarkWaterGroupCodeFactory.CreateFromParsedCode(requestCodesData[requestCode].ParsedCode)
+							: _trueMarkWaterGroupCodeFactory.CreateFromProductInstanceStatus(instanceStatus);
+						break;
+					case GeneralPackageType.Unit:
+						trueMarkAnyCode =
+							requestCodesData.ContainsKey(requestCode) && requestCodesData[requestCode].ParsedCode != null
+							? _trueMarkWaterIdentificationCodeFactory.CreateFromParsedCode(requestCodesData[requestCode].ParsedCode)
+							: _trueMarkWaterIdentificationCodeFactory.CreateFromProductInstanceStatus(instanceStatus);
+						break;
+				}
+
+				newCodes.Add(trueMarkAnyCode);
+			}
+
+			var newTransportCodes = newCodes
+				.Where(x => x.IsTrueMarkTransportCode)
+				.Select(x => x.TrueMarkTransportCode)
+				.ToArray();
+
+			var newGroupCodes = newCodes
+				.Where(x => x.IsTrueMarkWaterGroupCode)
+				.Select(x => x.TrueMarkWaterGroupCode)
+				.ToArray();
+
+			foreach(var code in newCodes)
+			{
+				code.Match(
+					transportCode =>
+					{
+						newTransportCodes
+							.FirstOrDefault(ntc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(transportCode.RawCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerTransportCode(transportCode);
+
+						return true;
+					},
+					waterGroupCode =>
+					{
+						newTransportCodes
+							.FirstOrDefault(ntc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterGroupCode.IdentificationCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerGroupCode(waterGroupCode);
+
+						newGroupCodes
+							.FirstOrDefault(ngc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterGroupCode.IdentificationCode))
+								?.IdentificationCode == ngc.IdentificationCode)
+							?.AddInnerGroupCode(waterGroupCode);
+
+						return true;
+					},
+					waterIdentificationCode =>
+					{
+						newTransportCodes
+							.FirstOrDefault(ntc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.RawCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerWaterCode(waterIdentificationCode);
+
+						newGroupCodes
+							.FirstOrDefault(ngc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.IdentificationCode))
+								?.IdentificationCode == ngc.IdentificationCode)
+							?.AddInnerWaterCode(waterIdentificationCode);
+
+						return true;
+					});
+			}
+
+			return newCodes;
+		}
+
+		private IDictionary<string, (string ScannedCode, TrueMarkWaterCode ParsedCode)> CreateRequestCodesDataByScannedCodes(IEnumerable<string> scannedCodes)
 		{
 			IList<(string ScannedCode, string RequestCode, TrueMarkWaterCode ParsedCode)> codes = scannedCodes
 				.Select(x => (x, _trueMarkWaterCodeParser.TryParse(x, out var parsedCode) ? _trueMarkWaterCodeParser.GetWaterIdentificationCode(parsedCode) : x, parsedCode))
@@ -716,7 +827,7 @@ namespace Vodovoz.Application.TrueMark
 			return requestCodes;
 		}
 
-		private Result<IDictionary<string, List<TrueMarkAnyCode>>> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, IEnumerable<string> scannedCodes)
+		private IDictionary<string, List<TrueMarkAnyCode>> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, IEnumerable<string> scannedCodes)
 		{
 			var uniqueScannedCodes = scannedCodes.Distinct().ToList();
 			var savedCodesData = new Dictionary<string, List<TrueMarkAnyCode>>();
@@ -730,15 +841,17 @@ namespace Vodovoz.Application.TrueMark
 					? TryGetSavedTrueMarkCodeByScannedCode(uow, parsedCode)
 					: TryGetSavedTrueMarkCodeByScannedCode(uow, scannedCode);
 
-				if(result.IsSuccess)
+				if(result.IsFailure)
 				{
-					IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = result.Value.Match(
-						transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
-						groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
-						waterCode => new TrueMarkAnyCode[] { waterCode });
-
-					savedCodes.AddRange(trueMarkAnyCodes);
+					continue;
 				}
+
+				IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = result.Value.Match(
+					transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
+					groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
+					waterCode => new TrueMarkAnyCode[] { waterCode });
+
+				savedCodes.AddRange(trueMarkAnyCodes);
 
 				savedCodesData.Add(scannedCode, savedCodes);
 			}
@@ -746,147 +859,13 @@ namespace Vodovoz.Application.TrueMark
 			return savedCodesData;
 		}
 
-		private async Task<Result<IEnumerable<(string requestCode, TrueMarkAnyCode trueMarkAnyCode)>>> GetProductInstansesInTrueMarkByScannedCodes(IEnumerable<string> scannedCodes, CancellationToken cancellationToken)
-		{
-			var codesIncorrectStatuses = new List<ProductInstanceStatusEnum> { ProductInstanceStatusEnum.Emitted, ProductInstanceStatusEnum.Applied, ProductInstanceStatusEnum.AppliedPaid };
-
-			IList<(string ScannedCode, string RequestCode, TrueMarkWaterCode ParsedCode)> codes = scannedCodes
-				.Select(x => (x, _trueMarkWaterCodeParser.TryParse(x, out var parsedCode) ? _trueMarkWaterCodeParser.GetWaterIdentificationCode(parsedCode) : x, parsedCode))
-				.ToList();
-
-			var requestCodes = codes
-				.Select(x => x.RequestCode)
-				.ToArray();
-
-			var instancesStatuses = Enumerable.Empty<ProductInstanceStatus>();
-
-			try
-			{
-				var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(requestCodes, cancellationToken);
-
-				if(productInstancesInfo is null
-					|| !string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage))
-				{
-					_logger.LogError("Ошибка при запросе к Api TrueMark, ошибка в ответе от Api");
-					return Result.Failure<IEnumerable<(string requestCode, TrueMarkAnyCode trueMarkAnyCode)>>(Errors.TrueMarkApi.ErrorResponse);
-				}
-
-				if(productInstancesInfo.InstanceStatuses is null
-					|| !productInstancesInfo.InstanceStatuses.Any())
-				{
-					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о кодах");
-					return Result.Failure<IEnumerable<(string requestCode, TrueMarkAnyCode trueMarkAnyCode)>>(Errors.TrueMarkApi.UnknownCode);
-				}
-
-				if(productInstancesInfo.InstanceStatuses.Any(x => x.Status == null || codesIncorrectStatuses.Contains(x.Status.Value)))
-				{
-					return Result.Failure<IEnumerable<(string requestCode, TrueMarkAnyCode trueMarkAnyCode)>>(Errors.TrueMarkApi.CodeNotInCorrectStatus);
-				}
-
-				instancesStatuses = productInstancesInfo.InstanceStatuses;
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка при запросе к API TrueMark");
-				return Result.Failure<IEnumerable<(string requestCode, TrueMarkAnyCode trueMarkAnyCode)>>(Errors.TrueMarkApi.CallFailed);
-			}
-
-			if(_organizationsInns is null)
-			{
-				SetOrganizationInns();
-			}
-
-			var result = new List<(string RequestCode, TrueMarkAnyCode TrueMarkAnyCode)>();
-
-			foreach(var instanceStatus in instancesStatuses)
-			{
-				TrueMarkAnyCode trueMarkAnyCode = null;
-
-				var requestCode = codes.FirstOrDefault(rc => rc.RequestCode == instanceStatus.IdentificationCode);
-
-				if(requestCode.RequestCode is null)
-				{
-					throw new InvalidOperationException($"No matching code found for IdentificationCode: {instanceStatus.IdentificationCode}");
-				}
-
-				switch(instanceStatus.GeneralPackageType)
-				{
-					case GeneralPackageType.Box:
-						trueMarkAnyCode = _trueMarkTransportCodeFactory.CreateFromRawCode(requestCode.RequestCode);
-						break;
-					case GeneralPackageType.Group:
-						trueMarkAnyCode = _trueMarkWaterGroupCodeFactory.CreateFromParsedCode(requestCode.ParsedCode);
-						break;
-					case GeneralPackageType.Unit:
-						trueMarkAnyCode = _trueMarkWaterIdentificationCodeFactory.CreateFromParsedCode(requestCode.ParsedCode);
-						break;
-					default:
-						throw new InvalidOperationException($"Unsupported package type: {instanceStatus.GeneralPackageType}");
-				}
-
-				if(trueMarkAnyCode.IsTrueMarkWaterGroupCode || trueMarkAnyCode.IsTrueMarkTransportCode)
-				{
-					var createCodesResult = await CreateCodesAsync(_trueMarkApiClient, new ProductInstanceStatus[] { instanceStatus }, cancellationToken);
-
-					if(createCodesResult.IsFailure)
-					{
-						return Result.Failure<IEnumerable<(string requestCode, TrueMarkAnyCode trueMarkAnyCode)>>(createCodesResult.Errors);
-					}
-
-					if(trueMarkAnyCode.IsTrueMarkTransportCode)
-					{
-						var innerCodes = createCodesResult.Value.ToArray();
-
-						foreach(var innerCode in innerCodes)
-						{
-							if(innerCode.IsTrueMarkTransportCode)
-							{
-								trueMarkAnyCode.TrueMarkTransportCode.AddInnerTransportCode(innerCode.TrueMarkTransportCode);
-							}
-
-							if(innerCode.IsTrueMarkWaterGroupCode)
-							{
-								trueMarkAnyCode.TrueMarkTransportCode.AddInnerGroupCode(innerCode.TrueMarkWaterGroupCode);
-							}
-
-							if(innerCode.IsTrueMarkWaterIdentificationCode)
-							{
-								trueMarkAnyCode.TrueMarkTransportCode.AddInnerWaterCode(innerCode.TrueMarkWaterIdentificationCode);
-							}
-						}
-					}
-
-					if(trueMarkAnyCode.IsTrueMarkWaterGroupCode)
-					{
-						var innerCodes = createCodesResult.Value.ToArray();
-
-						foreach(var innerCode in innerCodes)
-						{
-							if(innerCode.IsTrueMarkWaterGroupCode)
-							{
-								trueMarkAnyCode.TrueMarkWaterGroupCode.AddInnerGroupCode(innerCode.TrueMarkWaterGroupCode);
-							}
-							if(innerCode.IsTrueMarkWaterIdentificationCode)
-							{
-								trueMarkAnyCode.TrueMarkWaterGroupCode.AddInnerWaterCode(innerCode.TrueMarkWaterIdentificationCode);
-							}
-						}
-					}
-				}
-
-				result.Add((requestCode.RequestCode, trueMarkAnyCode));
-			}
-
-			return result;
-		}
-
-		private async Task<Result<IDictionary<string, ProductInstanceStatus>>> GetProductInstansesStatusesTree(IEnumerable<string> requestCodes, CancellationToken cancellationToken)
+		private async Task<Result<IDictionary<string, ProductInstanceStatus>>> GetProductInstanceStatuses(IEnumerable<string> requestCodes, CancellationToken cancellationToken)
 		{
 			var result = new Dictionary<string, ProductInstanceStatus>();
 
-			do
+			while(requestCodes != null && requestCodes.Any())
 			{
-				var statusesResult = await GetProductInstansesStatuses(requestCodes, cancellationToken);
+				var statusesResult = await RequestProductInstanceStatuses(requestCodes, cancellationToken);
 
 				if(statusesResult.IsFailure)
 				{
@@ -907,12 +886,12 @@ namespace Vodovoz.Application.TrueMark
 					.Where(x => x.GeneralPackageType != GeneralPackageType.Unit)
 					.SelectMany(x => x.Childs)
 					.ToList();
-			} while(requestCodes.Any());
+			};
 
 			return result;
 		}
 
-		private async Task<Result<IDictionary<string, ProductInstanceStatus>>> GetProductInstansesStatuses(IEnumerable<string> requestCodes, CancellationToken cancellationToken)
+		private async Task<Result<IDictionary<string, ProductInstanceStatus>>> RequestProductInstanceStatuses(IEnumerable<string> requestCodes, CancellationToken cancellationToken)
 		{
 			var codesIncorrectStatuses = new List<ProductInstanceStatusEnum>
 			{
