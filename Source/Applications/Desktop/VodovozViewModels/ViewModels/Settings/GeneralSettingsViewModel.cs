@@ -801,33 +801,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private bool ValidateOrderOrganizationSettings()
 		{
-			if(!ValidateOrganizationsByOrderContentSettings())
-			{
-				return false;
-			}
+			var validationRequests = new List<ValidationRequest>();
+			AddValidationRequestsForOrganizationsByOrderContentSettings(validationRequests);
+			AddValidationRequestsForPaymentTypesOrganizationSettings(validationRequests);
 
-			if(!ValidatePaymentTypesOrganizationSettings())
-			{
-				return false;
-			}
-			
-			return true;
+			return _validator.Validate(validationRequests);
 		}
 
-		private bool ValidatePaymentTypesOrganizationSettings()
-		{
-			foreach(var paymentTypeOrganizationSettings in PaymentTypesOrganizationSettings)
-			{
-				if(!_validator.Validate(paymentTypeOrganizationSettings))
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-		private bool ValidateOrganizationsByOrderContentSettings()
+		private void AddValidationRequestsForOrganizationsByOrderContentSettings(ICollection<ValidationRequest> validationRequests)
 		{
 			foreach(var keyPairValue in OrganizationsByOrderContent)
 			{
@@ -838,16 +819,22 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 				var contextItems = new Dictionary<object, object>
 				{
-					{ "OtherSets", otherSetSettings }
+					{ "OtherSetsSettings", otherSetSettings }
 				};
-				
-				if(!_validator.Validate(keyPairValue.Value, new ValidationContext(keyPairValue.Value, contextItems)))
+
+				validationRequests.Add(new ValidationRequest(keyPairValue.Value, new ValidationContext(keyPairValue.Value, contextItems)));
+			}
+		}
+
+		private void AddValidationRequestsForPaymentTypesOrganizationSettings(ICollection<ValidationRequest> validationRequests)
+		{
+			foreach(var paymentTypeOrganizationSettings in PaymentTypesOrganizationSettings)
+			{
+				foreach(var paymentTypeSettings in paymentTypeOrganizationSettings)
 				{
-					return false;
+					validationRequests.Add(new ValidationRequest(paymentTypeSettings));
 				}
 			}
-
-			return true;
 		}
 
 		private void ConfigureDataForSetWidgets()

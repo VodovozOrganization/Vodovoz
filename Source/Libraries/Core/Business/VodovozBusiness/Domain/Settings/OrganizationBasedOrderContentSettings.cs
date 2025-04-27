@@ -53,7 +53,7 @@ namespace VodovozBusiness.Domain.Settings
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!validationContext.Items.TryGetValue("OtherSets", out var data)
+			if(!validationContext.Items.TryGetValue("OtherSetsSettings", out var data)
 				|| !(data is IList<OrganizationBasedOrderContentSettings> otherSetsData))
 			{
 				throw new InvalidOperationException("Не переданы данные по остальным множествам! Валидация не возможна");
