@@ -60,6 +60,7 @@ namespace VodovozBusiness.Domain.Settings
 			}
 			
 			var sb = new StringBuilder();
+			IEnumerable<ProductGroup> productGroupsFromOtherSets = null;
 			
 			if(Nomenclatures.Any() && otherSetsData.Any())
 			{
@@ -68,33 +69,47 @@ namespace VodovozBusiness.Domain.Settings
 				foreach(var nomenclature in Nomenclatures)
 				{
 					var nomenclaturesFromOtherSets = otherSetsData.SelectMany(x => x.Nomenclatures);
+					var message = $"{nomenclature.Id} - {nomenclature.Name}";
 
 					if(nomenclaturesFromOtherSets.FirstOrDefault(x => x.Id == nomenclature.Id) != null)
 					{
-						sb.AppendLine($"{nomenclature.Id} - {nomenclature.Name}");
+						sb.AppendLine(message);
+						continue;
+					}
+					
+					productGroupsFromOtherSets = otherSetsData.SelectMany(x => x.ProductGroups);
+
+					foreach(var productGroup in productGroupsFromOtherSets)
+					{
+						if(nomenclature.IsBelongsProductGroup(productGroup))
+						{
+							sb.AppendLine(message);
+						}
 					}
 				}
 
 				if(sb.Length > 0)
 				{
 					yield return new ValidationResult(
-						$"В множестве {OrderContentSet} указаны пересекающиеся с другим множеством товары\n{sb}");
+						$"В множестве {OrderContentSet} указаны пересекающиеся с другим множеством товары" +
+						$" или товары принадлежат товарной группе другого множества\n{sb}");
 				}
 			}
 			
 			if(ProductGroups.Any() && otherSetsData.Any())
 			{
 				sb.Clear();
-				
-				var productGroupsFromOtherSets = otherSetsData.SelectMany(x => x.ProductGroups);
+
+				if(productGroupsFromOtherSets is null)
+				{
+					productGroupsFromOtherSets = otherSetsData.SelectMany(x => x.ProductGroups);
+				}
 
 				foreach(var productGroup in ProductGroups)
 				{
 					foreach(var productGroupFromOtherSets in productGroupsFromOtherSets)
 					{
-						if(productGroup.Id == productGroupFromOtherSets.Id
-							|| productGroup.IsChildOf(productGroupFromOtherSets)
-							|| productGroupFromOtherSets.IsChildOf(productGroup))
+						if(productGroup.IsBelongsOf(productGroupFromOtherSets))
 						{
 							sb.AppendLine($"{productGroup.Id} - {productGroup.Name}");
 						}
