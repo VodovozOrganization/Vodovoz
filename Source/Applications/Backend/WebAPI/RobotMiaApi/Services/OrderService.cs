@@ -49,6 +49,7 @@ namespace RobotMiaApi.Services
 		/// <param name="orderRepository"></param>
 		/// <param name="vodovozOrderService"></param>
 		/// <param name="unitOfWork"></param>
+		/// <param name="fastPaymentSender"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public OrderService(
 			ILogger<OrderService> logger,
