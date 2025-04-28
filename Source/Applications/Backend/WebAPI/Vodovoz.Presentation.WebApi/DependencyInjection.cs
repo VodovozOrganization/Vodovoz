@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,31 +60,28 @@ namespace Vodovoz.Presentation.WebApi
 
 		public static IServiceCollection AddVersioning(this IServiceCollection services)
 		{
-			var callingAssembly = Assembly.GetEntryAssembly();
+			var entryAssembly = Assembly.GetEntryAssembly();
 
-			var controllersVersions = callingAssembly
+			var maxVersion = entryAssembly
 				.GetTypes()
 				.Where(t => t.IsClass
 					&& !t.IsAbstract
-					&& t.Assembly == callingAssembly
+					&& t.Assembly == entryAssembly
 					&& typeof(ApiControllerBase).IsAssignableFrom(t)
 					&& t.GetAttribute<ApiVersionAttribute>().Any()
 					&& !t.GetAttribute<ApiVersionAttribute>().Any(ava => ava.Deprecated))
 				.SelectMany(c => c.GetAttribute<ApiVersionAttribute>())
 				.SelectMany(ava => ava.Versions)
-				.Distinct();
-
-			var maxVersion = controllersVersions
-				.OrderBy(av => av.MajorVersion)
-				.ThenBy(av => av.MinorVersion)
+				.Distinct()
+				.OrderByDescending(av => av.MajorVersion)
+				.ThenByDescending(av => av.MinorVersion)
 				.FirstOrDefault() ?? new ApiVersion(1, 0);
-
+			
 			services.AddApiVersioning(config =>
 			{
 				config.DefaultApiVersion = maxVersion;
 				config.AssumeDefaultVersionWhenUnspecified = true;
 				config.ReportApiVersions = true;
-				config.ApiVersionReader = new UrlSegmentApiVersionReader();
 			});
 
 			services.AddVersionedApiExplorer(config =>
