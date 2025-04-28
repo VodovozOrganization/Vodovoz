@@ -1,4 +1,5 @@
-﻿using Core.Infrastructure.Specifications;
+﻿
+using Vodovoz.Core.Domain.Specifications;
 
 namespace Vodovoz.Core.Domain.Cash
 {
