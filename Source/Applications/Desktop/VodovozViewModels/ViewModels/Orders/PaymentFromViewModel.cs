@@ -2,16 +2,12 @@
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
-using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Linq;
-using DynamicData;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Settings;
-using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Widgets;
 using VodovozBusiness.Domain.Settings;
 

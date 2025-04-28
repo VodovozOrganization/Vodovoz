@@ -18,8 +18,6 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yEntry entryName;
 
-		private global::QS.Views.Control.EntityEntry entryOrganization;
-
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTextView txtViewOrganizationCriterion;
@@ -27,8 +25,6 @@ namespace Vodovoz.Views.Orders
 		private global::Gamma.GtkWidgets.yLabel lblName;
 
 		private global::Gamma.GtkWidgets.yLabel lblOrganizationCriterion;
-
-		private global::Gamma.GtkWidgets.yLabel lblOrganizationForOnlinePayments;
 
 		private global::Gamma.GtkWidgets.yCheckButton yChkIsArchive;
 
@@ -101,18 +97,6 @@ namespace Vodovoz.Views.Orders
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.entryOrganization = new global::QS.Views.Control.EntityEntry();
-			this.entryOrganization.Events = ((global::Gdk.EventMask)(256));
-			this.entryOrganization.Name = "entryOrganization";
-			this.tableMain.Add(this.entryOrganization);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableMain[this.entryOrganization]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -122,44 +106,33 @@ namespace Vodovoz.Views.Orders
 			this.txtViewOrganizationCriterion.Name = "txtViewOrganizationCriterion";
 			this.GtkScrolledWindow.Add(this.txtViewOrganizationCriterion);
 			this.tableMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableMain[this.GtkScrolledWindow]));
-			w8.TopAttach = ((uint)(2));
-			w8.BottomAttach = ((uint)(3));
-			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(3));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableMain[this.GtkScrolledWindow]));
+			w7.TopAttach = ((uint)(2));
+			w7.BottomAttach = ((uint)(3));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(3));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.lblName = new global::Gamma.GtkWidgets.yLabel();
 			this.lblName.Name = "lblName";
 			this.lblName.Xalign = 1F;
 			this.lblName.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
 			this.tableMain.Add(this.lblName);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblName]));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblName]));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.lblOrganizationCriterion = new global::Gamma.GtkWidgets.yLabel();
 			this.lblOrganizationCriterion.Name = "lblOrganizationCriterion";
 			this.lblOrganizationCriterion.Xalign = 1F;
 			this.lblOrganizationCriterion.LabelProp = global::Mono.Unix.Catalog.GetString("Условия для установки организации:");
 			this.tableMain.Add(this.lblOrganizationCriterion);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrganizationCriterion]));
-			w10.TopAttach = ((uint)(2));
-			w10.BottomAttach = ((uint)(3));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.lblOrganizationForOnlinePayments = new global::Gamma.GtkWidgets.yLabel();
-			this.lblOrganizationForOnlinePayments.Name = "lblOrganizationForOnlinePayments";
-			this.lblOrganizationForOnlinePayments.Xalign = 1F;
-			this.lblOrganizationForOnlinePayments.LabelProp = global::Mono.Unix.Catalog.GetString("Организация для онлайн оплат:");
-			this.tableMain.Add(this.lblOrganizationForOnlinePayments);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrganizationForOnlinePayments]));
-			w11.TopAttach = ((uint)(1));
-			w11.BottomAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrganizationCriterion]));
+			w9.TopAttach = ((uint)(2));
+			w9.BottomAttach = ((uint)(3));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.yChkIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
 			this.yChkIsArchive.CanFocus = true;
@@ -168,18 +141,16 @@ namespace Vodovoz.Views.Orders
 			this.yChkIsArchive.DrawIndicator = true;
 			this.yChkIsArchive.UseUnderline = true;
 			this.tableMain.Add(this.yChkIsArchive);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yChkIsArchive]));
-			w12.TopAttach = ((uint)(3));
-			w12.BottomAttach = ((uint)(4));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yChkIsArchive]));
+			w10.TopAttach = ((uint)(3));
+			w10.BottomAttach = ((uint)(4));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.tableMain);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
-			w13.Position = 2;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
+			w11.Position = 2;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
