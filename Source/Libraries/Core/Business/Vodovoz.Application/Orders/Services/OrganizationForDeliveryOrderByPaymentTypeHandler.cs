@@ -42,8 +42,18 @@ namespace Vodovoz.Application.Orders.Services
 			PaymentFrom paymentFrom,
 			int? onlineOrderNumber)
 		{
-			var organizationsByPaymentType = uow.GetAll<PaymentTypeOrganizationSettings>().ToList();
-			var paymentTypeOrganization = organizationsByPaymentType.FirstOrDefault(settings => settings.PaymentType == paymentType);
+			PaymentTypeOrganizationSettings paymentTypeOrganization = null;
+
+			if(paymentFrom is null)
+			{
+				paymentTypeOrganization = uow.GetAll<PaymentTypeOrganizationSettings>()
+					.FirstOrDefault(settings => settings.PaymentType == paymentType);
+			}
+			else
+			{
+				paymentTypeOrganization = uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
+					.FirstOrDefault(settings => settings.PaymentFrom == paymentFrom);
+			}
 
 			if(paymentTypeOrganization is null)
 			{

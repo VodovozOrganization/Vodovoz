@@ -1,4 +1,5 @@
-﻿using QS.Navigation;
+﻿using Gtk;
+using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.Views.Common;
@@ -30,7 +31,10 @@ namespace Vodovoz.Views.Orders
 			var organizationsWidget = new AddOrRemoveIDomainObjectView();
 			organizationsWidget.ViewModel = ViewModel.OrganizationsViewModel;
 			organizationsWidget.Show();
-			tableMain.Attach(organizationsWidget, 0, 1, 4, 5);
+			tableMain.Attach(organizationsWidget, 1, 2, 1, 2, AttachOptions.Shrink, AttachOptions.Fill, 0, 0);
+			
+			organizationsWidget.WidthRequest = 400;
+			organizationsWidget.HeightRequest = 150;
 
 			txtViewOrganizationCriterion.Binding
 				.AddBinding(ViewModel, vm => vm.OrganizationsCriterion, w => w.Buffer.Text)

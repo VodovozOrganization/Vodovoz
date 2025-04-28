@@ -4,6 +4,7 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -16,6 +17,7 @@ namespace Vodovoz.ViewModels.Orders
 	public class PaymentFromViewModel : EntityTabViewModelBase<PaymentFrom>, IAskSaveOnCloseViewModel
 	{
 		private string _organizationsCriterion;
+		private OnlinePaymentTypeOrganizationSettings _onlinePaymentTypeOrganizationSettings;
 
 		public PaymentFromViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -43,31 +45,53 @@ namespace Vodovoz.ViewModels.Orders
 			get => _organizationsCriterion;
 			set => SetField(ref _organizationsCriterion, value);
 		}
-		
+
+		protected override bool BeforeValidation()
+		{
+			if(Entity.Id != 0)
+			{
+				return true;
+			}
+
+			return CommonServices.ValidationService.Validate(_onlinePaymentTypeOrganizationSettings,
+				new ValidationContext(_onlinePaymentTypeOrganizationSettings));
+		}
+
+		protected override bool BeforeSave()
+		{
+			if(Entity.Id != 0)
+			{
+				return true;
+			}
+
+			_onlinePaymentTypeOrganizationSettings.CriterionForOrganization = OrganizationsCriterion;
+			return true;
+		}
+
 		private void InitializePaymentTypeOrganizationSettings()
 		{
-			var onlinePaymentTypeOrganizationSettings =
+			_onlinePaymentTypeOrganizationSettings =
 				UoW.GetAll<OnlinePaymentTypeOrganizationSettings>()
 					.FirstOrDefault(s =>
 						s.PaymentFrom.Id == Entity.Id);
 
-			if(onlinePaymentTypeOrganizationSettings is null)
+			if(_onlinePaymentTypeOrganizationSettings is null)
 			{
-				onlinePaymentTypeOrganizationSettings = new OnlinePaymentTypeOrganizationSettings
+				_onlinePaymentTypeOrganizationSettings = new OnlinePaymentTypeOrganizationSettings
 				{
 					PaymentFrom = Entity
 				};
 				
-				UoW.Save(onlinePaymentTypeOrganizationSettings);
+				UoW.Save(_onlinePaymentTypeOrganizationSettings);
 			}
 			
 			OrganizationsViewModel.Configure(
 				typeof(Organization),
-				CanEdit,
+				CanEdit && Entity.Id == 0,
 				"Организации для подбора в заказе: ",
 				UoW,
 				this,
-				onlinePaymentTypeOrganizationSettings.Organizations);
+				_onlinePaymentTypeOrganizationSettings.Organizations);
 		}
 
 		private void SetDefaultOrganizationCriterion()

@@ -21,15 +21,6 @@ namespace Vodovoz.Domain.Orders
 	[EntityPermission]
 	public class PaymentFrom : PaymentFromEntity, IValidatableObject
 	{
-		/*private Organization _organizationForOnlinePayments;
-
-		[Display(Name = "Организация для онлайн оплаты")]
-		public virtual Organization OrganizationForOnlinePayments
-		{
-			get => _organizationForOnlinePayments;
-			set => SetField(ref _organizationForOnlinePayments, value);
-		}*/
-
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();

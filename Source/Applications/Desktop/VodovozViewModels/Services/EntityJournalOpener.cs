@@ -97,7 +97,7 @@ namespace Vodovoz.ViewModels.Services
 
 			if(entityJournalMap.JournalType.IsSubclassOf(baseType))
 			{
-				var genericMethods = typeof(ITdiCompatibilityNavigation).GetMethods()
+				var genericMethods = typeof(INavigationManager).GetMethods()
 					.Where(x => x.Name == methodName)
 					.Where(x => x.IsGenericMethod);
 		

@@ -153,7 +153,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				? "Онлайн заказ не взят в работу"
 				: $"{ Entity.EmployeeWorkWith.ShortName }";
 
-		//TODO: групп конкат???
 		public string Orders
 		{
 			get
