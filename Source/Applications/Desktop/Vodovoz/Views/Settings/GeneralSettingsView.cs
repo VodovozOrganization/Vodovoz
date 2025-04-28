@@ -268,8 +268,9 @@ namespace Vodovoz.Views.Settings
 		private void ConfigureOrdersOrganizationSettings()
 		{
 			const string organizations = "Организации: ";
-			
+
 			btnSaveOrderOrganizationSettings.BindCommand(ViewModel.SaveOrderOrganizationSettingsCommand);
+			btnSaveOrderOrganizationSettings.Sensitive = ViewModel.CanEditOrderOrganizationsSettings;
 
 			ConfigureWidgetsForSets(organizations);
 			ConfigurePaymentTypesWidgets(organizations);
@@ -304,7 +305,9 @@ namespace Vodovoz.Views.Settings
 
 			listCmbAuthorsSet.ItemsList = ViewModel.AuthorsSets;
 			listCmbAuthorsSet.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedOrganizationBasedOrderContentSet, w => w.SelectedItem)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.SelectedOrganizationBasedOrderContentSet, w => w.SelectedItem)
+				.AddBinding(vm => vm.CanEditOrderOrganizationsSettings, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 
@@ -319,7 +322,7 @@ namespace Vodovoz.Views.Settings
 			var viewModel = new AddOrRemoveIDomainObjectViewModel(ViewModel.EntityJournalOpener);
 			viewModel.Configure(
 				entityType,
-				true,
+				ViewModel.CanEditOrderOrganizationsSettings,
 				title,
 				ViewModel.UowOrderOrganizationSettings,
 				ViewModel,

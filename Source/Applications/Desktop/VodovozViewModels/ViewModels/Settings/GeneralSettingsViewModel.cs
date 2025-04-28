@@ -181,6 +181,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_truckMaxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
 			_gazelleMaxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
 			_loaderMaxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
+			CanEditOrderOrganizationsSettings = 
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.GeneralSettings.CanEditOrderOrganizationsSettings);
 			CanEditDailyFuelLimitsSetting =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Fuel.CanEditMaxDailyFuelLimit);
 			SaveDailyFuelLimitsCommand = new DelegateCommand(SaveDailyFuelLimits, () => CanEditDailyFuelLimitsSetting);
@@ -671,6 +674,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#region Настройка юр.лиц в заказе
 		
+		public bool CanEditOrderOrganizationsSettings { get; private set; }
+
 		public ICommand SaveOrderOrganizationSettingsCommand { get; private set; }
 		
 		private int _orderSettingsCurrentPage;
@@ -724,8 +729,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private OrganizationByOrderAuthorSettings _organizationByOrderAuthorSettings;
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
-		public int SelectedSetForAuthors { get; private set; }
-		public int OrganizationForSet3ViewModel { get; private set; }
 		public IReadOnlyDictionary<short, OrganizationBasedOrderContentSettings> OrganizationsByOrderContent { get; private set; }
 		public ILookup<PaymentType, PaymentTypeOrganizationSettings> PaymentTypesOrganizationSettings { get; private set; }
 
