@@ -749,6 +749,8 @@ namespace Vodovoz.Application.TrueMark
 							? _trueMarkWaterIdentificationCodeFactory.CreateFromParsedCode(requestCodesData[requestCode].ParsedCode)
 							: _trueMarkWaterIdentificationCodeFactory.CreateFromProductInstanceStatus(instanceStatus);
 						break;
+					default:
+						throw new InvalidOperationException("Неизвестный тип упаковки");
 				}
 
 				newCodes.Add(trueMarkAnyCode);
