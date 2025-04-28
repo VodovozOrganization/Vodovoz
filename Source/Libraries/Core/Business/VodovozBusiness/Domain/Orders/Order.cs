@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -344,8 +344,7 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Форма оплаты")]
 		public virtual new PaymentType PaymentType {
 			get => _paymentType;
-			set
-			{
+			set {
 				if(value != _paymentType && SetField(ref _paymentType, value)) 
 				{
 					if(PaymentType != PaymentType.PaidOnline)
@@ -832,14 +831,6 @@ namespace Vodovoz.Domain.Orders
 
 			OrderStatus? newStatus = null;
 
-			// Убрать через месяц
-			if(DeliveryDate >= TerminalUnavaliableStartDate
-				&& PaymentType == PaymentType.Terminal)
-			{
-				yield return new ValidationResult("Оплата по терминалу после 16 апреля недоступена",
-							new[] { nameof(PaymentType), nameof(DeliveryDate) });
-			}
-
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null)
@@ -969,6 +960,36 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: " +
 														$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
 							new[] { nameof(Nomenclature) });
+					}
+
+					if(Client != null)
+					{
+						foreach(var email in Client.Emails)
+						{
+							if(!email.IsValidEmail)
+							{
+								yield return new ValidationResult($"Адрес электронной почты клиента {email.Address} имеет неправильный формат.");
+							}
+						}
+
+						foreach(var phone in Client.Phones)
+						{
+							if(!phone.IsValidPhoneNumber)
+							{
+								yield return new ValidationResult($"Номер телефона клиента {phone.Number} имеет неправильный формат.");
+							}
+						}
+					}
+
+					if(DeliveryPoint != null)
+					{
+						foreach(var phone in DeliveryPoint.Phones)
+						{
+							if(!phone.IsValidPhoneNumber)
+							{
+								yield return new ValidationResult($"Номер телефона точки доставки {phone.Number} имеет неправильный формат.");
+							}
+						}
 					}
 				}
 

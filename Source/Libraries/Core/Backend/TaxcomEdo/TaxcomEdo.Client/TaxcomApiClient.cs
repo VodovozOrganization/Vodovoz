@@ -5,7 +5,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Infrastructure;
 using Edo.Contracts.Messages.Dto;
+using Edo.Contracts.Xml;
 using TaxcomEdo.Client.Configs;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
@@ -163,6 +165,19 @@ namespace TaxcomEdo.Client
 		{
 			var result = await CreateClient().PostAsJsonAsync(endPoint, data);
 			return result.IsSuccessStatusCode;
+		}
+		
+		private async Task<ContainerDescription> GetDocflowStatus(string docflowId)
+		{
+			var query = HttpQueryBuilder
+				.Create()
+				.AddParameter(docflowId, nameof(docflowId))
+				.ToString();
+
+			var response = await CreateClient()
+				.GetStringAsync(_taxcomApiOptions.GetDocflowStatusEndpoint + query);
+
+			return response.DeserializeXmlString<ContainerDescription>();
 		}
 
 		private HttpClient CreateClient()
