@@ -234,10 +234,55 @@ namespace Edo.Transfer.Dispatcher
 			await Task.WhenAll(notificationTasks);
 		}
 
+		public async Task UpdateTransferCompletion(int documentId, CancellationToken cancellationToken)
+		{
+			var document = await _uow.Session.GetAsync<TransferEdoDocument>(documentId, cancellationToken);
+			if(document == null)
+			{
+				_logger.LogError("При обработке отмены документа №{documentId} не найден документ.", documentId);
+			}
+
+			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
+
+			var requests = await _uow.Session.QueryOver<TransferEdoRequest>()
+				.Fetch(SelectMode.Fetch, x => x.Iteration)
+				.Fetch(SelectMode.Fetch, x => x.Iteration.OrderEdoTask)
+				.Where(x => x.TransferEdoTask.Id == document.TransferTaskId)
+				.ListAsync();
+
+			await _uow.Session.QueryOver<TransferEdoRequest>()
+				.Fetch(SelectMode.Fetch, x => x.TransferedItems)
+				.Where(x => x.TransferEdoTask.Id == document.TransferTaskId)
+				.ListAsync();
+
+			var orderTaskIds = transferTask.TransferEdoRequests.Select(x => x.Iteration.OrderEdoTask.Id);
+
+			var taskItems = await _uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
+				.WhereRestrictionOn(x => x.CustomerEdoTask.Id).IsIn(orderTaskIds.ToArray())
+				.ListAsync(cancellationToken);
+
+			var sourceCodes = taskItems.Select(x => x.ProductCode)
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = taskItems.Select(x => x.ProductCode)
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
+			await UpdateIterationsAndNotifyOnCompleted(transferTask, cancellationToken);
+		}
+
 		public async Task HandleTransferDocumentCancelled(int documentId, CancellationToken cancellationToken)
 		{
-			_uow.OpenTransaction();
-
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(documentId, cancellationToken);
 
 			if(document == null)

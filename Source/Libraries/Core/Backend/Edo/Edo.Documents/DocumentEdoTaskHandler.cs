@@ -77,6 +77,12 @@ namespace Edo.Documents
 				return;
 			}
 
+			if(edoTask.OrderEdoRequest == null)
+			{
+				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не имеет связи с ЭДО заявкой", documentEdoTaskId);
+				return;
+			}
+
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)

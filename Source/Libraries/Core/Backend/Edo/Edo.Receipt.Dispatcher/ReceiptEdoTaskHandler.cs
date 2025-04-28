@@ -43,6 +43,12 @@ namespace Edo.Receipt.Dispatcher
 		public async Task HandleNew(int receiptEdoTaskId, CancellationToken cancellationToken)
 		{
 			var edoTask = await _uow.Session.GetAsync<ReceiptEdoTask>(receiptEdoTaskId, cancellationToken);
+			if(edoTask == null)
+			{
+				_logger.LogWarning("Задача Id {ReceiptEdoTaskId} не найдена.", receiptEdoTaskId);
+				return;
+			}
+
 			try
 			{
 				if(edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
