@@ -45,9 +45,10 @@ namespace Vodovoz.Presentation.WebApi.Options
 
 			options.DocumentFilter<EnumTypesDocumentFilter>();
 
-			foreach(var desvription in _apiVersionDescriptionProvider.ApiVersionDescriptions)
+			foreach(var description in _apiVersionDescriptionProvider
+				.ApiVersionDescriptions)
 			{
-				options.SwaggerDoc(desvription.GroupName, CreateVersionInfo(desvription, Assembly.GetEntryAssembly().GetName().Name));
+				options.SwaggerDoc(description.GroupName, CreateVersionInfo(description, Assembly.GetEntryAssembly().GetName().Name));
 			}
 
 			AddCommentsForAssembly(options, Assembly.GetEntryAssembly().GetName().Name);
