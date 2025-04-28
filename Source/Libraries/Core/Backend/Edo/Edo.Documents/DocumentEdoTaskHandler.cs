@@ -5,9 +5,11 @@ using Edo.Problems.Custom.Sources;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using MySqlConnector;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -131,6 +133,19 @@ namespace Edo.Documents
 				if(!registered)
 				{
 					throw;
+				}
+			}
+			catch(Exception ex) when (ex.InnerException is MySqlException)
+			{
+				var mysqlException = (MySqlException)ex.InnerException;
+				if(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+				{
+					var edoException = new CodeDuplicatedException(mysqlException.Message);
+					var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, edoException, cancellationToken);
+					if(!registered)
+					{
+						throw;
+					}
 				}
 			}
 			catch(Exception ex)
