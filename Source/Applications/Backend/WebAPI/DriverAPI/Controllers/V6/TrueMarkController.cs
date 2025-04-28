@@ -71,14 +71,18 @@ namespace DriverAPI.Controllers.V6
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
-		public async Task<IActionResult> AddOrderCode([FromBody] AddOrderCodeRequest addOrderCodeRequestModel, CancellationToken cancellationToken)
+		public async Task<IActionResult> AddOrderCode(
+			[FromHeader(Name = "X-Idempotency-Key")] Guid? idempotencyKey,
+			[FromHeader(Name = "X-Action-Time-Utc")] DateTime? actionTime,
+			[FromBody] AddOrderCodeRequest addOrderCodeRequestModel,
+			CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("(Добавление кода ЧЗ к заказу: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
+			_logger.LogInformation("(Добавление кода ЧЗ к заказу: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {IdempotencyKey} | X-Action-Time-Utc: {ActionTimeUtc}",
 				addOrderCodeRequestModel.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization],
-				HttpContext.Request.Headers["X-Idempotency-Key"],
-				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+				idempotencyKey,
+				actionTime);
 
 			var recievedTime = DateTime.Now;
 
@@ -142,14 +146,18 @@ namespace DriverAPI.Controllers.V6
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
-		public async Task<IActionResult> ChangeOrderCode([FromBody] ChangeOrderCodeRequest changeOrderCodeRequest, CancellationToken cancellationToken)
+		public async Task<IActionResult> ChangeOrderCode(
+			[FromHeader(Name = "X-Idempotency-Key")] Guid? idempotencyKey,
+			[FromHeader(Name = "X-Action-Time-Utc")] DateTime? actionTime,
+			[FromBody] ChangeOrderCodeRequest changeOrderCodeRequest,
+			CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("(Замена кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
 				changeOrderCodeRequest.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization],
-				HttpContext.Request.Headers["X-Idempotency-Key"],
-				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+				idempotencyKey,
+				actionTime);
 
 			var recievedTime = DateTime.Now;
 
@@ -208,15 +216,19 @@ namespace DriverAPI.Controllers.V6
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
-		public async Task<IActionResult> DeleteOrderCode([FromBody] DeleteOrderCodeRequest deleteOrderCodeRequest, CancellationToken cancellationToken)
+		public async Task<IActionResult> DeleteOrderCode(
+			[FromHeader(Name = "X-Idempotency-Key")] Guid? idempotencyKey,
+			[FromHeader(Name = "X-Action-Time-Utc")] DateTime? actionTime,
+			[FromBody] DeleteOrderCodeRequest deleteOrderCodeRequest,
+			CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
 				"(Удаление кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
 				deleteOrderCodeRequest.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization],
-				HttpContext.Request.Headers["X-Idempotency-Key"],
-				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+				idempotencyKey,
+				actionTime);
 
 			var recievedTime = DateTime.Now;
 
@@ -275,14 +287,18 @@ namespace DriverAPI.Controllers.V6
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> SendOrderCodes([FromBody] SendOrderCodesRequest sendOrderCodesRequestModel, CancellationToken cancellationToken)
+		public async Task<IActionResult> SendOrderCodes(
+			[FromHeader(Name = "X-Idempotency-Key")] Guid? idempotencyKey,
+			[FromHeader(Name = "X-Action-Time-Utc")] DateTime? actionTime,
+			[FromBody] SendOrderCodesRequest sendOrderCodesRequestModel,
+			CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("(Добавление кодов ЧЗ к заказу: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
 				sendOrderCodesRequestModel.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization],
-				HttpContext.Request.Headers["X-Idempotency-Key"],
-				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+				idempotencyKey,
+				actionTime);
 
 			var recievedTime = DateTime.Now;
 
