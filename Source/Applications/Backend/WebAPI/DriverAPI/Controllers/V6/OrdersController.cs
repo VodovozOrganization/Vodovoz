@@ -1,5 +1,6 @@
 ﻿using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
+using DriverAPI.Filters;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Services;
 using Edo.Transport;
@@ -7,10 +8,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using MySqlConnector;
 using NHibernate;
+using NLog.Filters;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Concurrent;
@@ -71,15 +74,23 @@ namespace DriverAPI.Controllers.V6
 		/// <summary>
 		/// Получение информации о заказе
 		/// </summary>
+		/// <param name="idempotencyKey">Ключ запроса</param>
+		/// <param name="actionTime">Время действия в приложении</param>
 		/// <param name="orderId">Номер заказа</param>
+		[ServiceFilter(typeof(LoggingIdentityFilter))]
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderDto))]
-		public IActionResult GetOrder(int orderId)
+		public IActionResult GetOrder(
+			[FromHeader(Name = "X-Idempotency-Key")] Guid? idempotencyKey,
+			[FromHeader(Name = "X-Action-Time-Utc")] DateTime? actionTime,
+			int orderId)
 		{
-			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
+			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}, IdenpotencyKey: {IdenpotencyKey}, ActionTime: {ActionTime}",
 				orderId,
-				Request.Headers[HeaderNames.Authorization]);
+				Request.Headers[HeaderNames.Authorization],
+				idempotencyKey,
+				actionTime);
 
 			return MapResult(
 				_orderService.GetOrder(orderId),

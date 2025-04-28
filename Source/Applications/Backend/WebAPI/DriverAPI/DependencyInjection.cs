@@ -1,4 +1,5 @@
 ﻿using DriverAPI.Data;
+using DriverAPI.Filters;
 using DriverAPI.HealthChecks;
 using DriverAPI.Library;
 using DriverAPI.Library.Helpers;
@@ -44,6 +45,8 @@ namespace DriverAPI
 		/// <returns></returns>
 		public static IServiceCollection AddDriverApi(this IServiceCollection services, IConfiguration configuration)
 		{
+			services.AddScoped<LoggingIdentityFilter>();
+
 			// Подключение к БД
 
 			var connectionString = configuration.GetConnectionString("DefaultConnection");
