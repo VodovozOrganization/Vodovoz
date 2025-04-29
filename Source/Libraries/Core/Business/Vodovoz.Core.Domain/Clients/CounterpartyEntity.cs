@@ -4,7 +4,6 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -16,6 +15,9 @@ using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Core.Domain.Clients
 {
+	/// <summary>
+	/// Контрагент
+	/// </summary>
 	[
 		Appellative(
 			Gender = GrammaticalGender.Masculine,
@@ -116,6 +118,10 @@ namespace Vodovoz.Core.Domain.Clients
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<SpecialNomenclature> _specialNomenclatures = new ObservableList<SpecialNomenclature>();
 
+		/// <summary>
+		/// Идентификатор<br/>
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -129,6 +135,9 @@ namespace Vodovoz.Core.Domain.Clients
 			}
 		}
 
+		/// <summary>
+		/// Согласие клиента на ЭДО
+		/// </summary>
 		[Display(Name = "Согласие клиента на ЭДО")]
 		public virtual ConsentForEdoStatus ConsentForEdoStatus
 		{
@@ -136,6 +145,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _consentForEdoStatus, value);
 		}
 
+		/// <summary>
+		/// Состояние заказа для отправки УПД
+		/// </summary>
 		[Display(Name = "Статус заказа для отправки УПД")]
 		public virtual OrderStatusForSendingUpd OrderStatusForSendingUpd
 		{
@@ -144,7 +156,8 @@ namespace Vodovoz.Core.Domain.Clients
 		}
 
 		/// <summary>
-		/// Документооборот по ЭДО с клиентом осуществляется по новой схеме
+		/// Документооборот по ЭДО с клиентом осуществляется по новой схеме<br/>
+		/// Работа с ЭДО по новой схеме
 		/// </summary>
 		[Display(Name = "Работа с ЭДО по новой схеме")]
 		public virtual bool IsNewEdoProcessing
@@ -152,7 +165,10 @@ namespace Vodovoz.Core.Domain.Clients
 			get => _isNewEdoProcessing;
 			set => SetField(ref _isNewEdoProcessing, value);
 		}
-		
+
+		/// <summary>
+		/// Работает через организацию
+		/// </summary>
 		[Display(Name = "Работает через организацию")]
 		public virtual OrganizationEntity WorksThroughOrganization
 		{
@@ -162,6 +178,9 @@ namespace Vodovoz.Core.Domain.Clients
 
 		#region CloseDelivery
 
+		/// <summary>
+		/// Поставки закрыты
+		/// </summary>
 		[Display(Name = "Поставки закрыты?")]
 		public virtual bool IsDeliveriesClosed
 		{
@@ -169,6 +188,9 @@ namespace Vodovoz.Core.Domain.Clients
 			protected set => SetField(ref _isDeliveriesClosed, value);
 		}
 
+		/// <summary>
+		/// Комментарий по закрытию поставок
+		/// </summary>
 		[Display(Name = "Комментарий по закрытию поставок")]
 		public virtual string CloseDeliveryComment
 		{
@@ -176,6 +198,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _closeDeliveryComment, value);
 		}
 
+		/// <summary>
+		/// Дата закрытия поставок
+		/// </summary>
 		[Display(Name = "Дата закрытия поставок")]
 		public virtual DateTime? CloseDeliveryDate
 		{
@@ -191,6 +216,9 @@ namespace Vodovoz.Core.Domain.Clients
 
 		#endregion CloseDelivery
 
+		/// <summary>
+		/// Максимальный кредит
+		/// </summary>
 		[Display(Name = "Максимальный кредит")]
 		public virtual decimal MaxCredit
 		{
@@ -198,6 +226,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _maxCredit, value);
 		}
 
+		/// <summary>
+		/// Форма собственности
+		/// </summary>
 		[Display(Name = "Форма собственности")]
 		[StringLength(20)]
 		public virtual string TypeOfOwnership
@@ -206,6 +237,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _typeOfOwnership, value);
 		}
 
+		/// <summary>
+		/// Название
+		/// </summary>
 		[Required(ErrorMessage = "Название контрагента должно быть заполнено.")]
 		[Display(Name = "Название")]
 		public virtual string Name
@@ -220,6 +254,9 @@ namespace Vodovoz.Core.Domain.Clients
 			}
 		}
 
+		/// <summary>
+		/// Полное название
+		/// </summary>
 		[Display(Name = "Полное название")]
 		public virtual string FullName
 		{
@@ -233,6 +270,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _code1c, value);
 		}
 
+		/// <summary>
+		/// Комментарий
+		/// </summary>
 		[Display(Name = "Комментарий")]
 		public virtual string Comment
 		{
@@ -240,6 +280,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _comment, value);
 		}
 
+		/// <summary>
+		/// ИНН
+		/// </summary>
 		[Display(Name = "ИНН")]
 		public virtual string INN
 		{
@@ -247,6 +290,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _iNN, value);
 		}
 
+		/// <summary>
+		/// КПП
+		/// </summary>
 		[Display(Name = "КПП")]
 		public virtual string KPP
 		{
@@ -254,6 +300,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _kPP, value);
 		}
 
+		/// <summary>
+		/// Контрагент в статусе ликвидации
+		/// </summary>
 		[Display(Name = "Контрагент в статусе ликвидации")]
 		public virtual bool IsLiquidating
 		{
@@ -261,6 +310,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _isLiquidating, value);
 		}
 
+		/// <summary>
+		/// ОГРН
+		/// </summary>
 		[Display(Name = "ОГРН")]
 		public virtual string OGRN
 		{
@@ -268,6 +320,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _oGRN, value);
 		}
 
+		/// <summary>
+		/// Юридический адрес
+		/// </summary>
 		[Display(Name = "Юридический адрес")]
 		public virtual string JurAddress
 		{
@@ -275,6 +330,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _jurAddress, value);
 		}
 
+		/// <summary>
+		/// Фактический адрес
+		/// </summary>
 		[Display(Name = "Фактический адрес")]
 		public virtual string Address
 		{
@@ -282,6 +340,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _address, value);
 		}
 
+		/// <summary>
+		/// Форма контрагента
+		/// </summary>
 		[Display(Name = "Форма контрагента")]
 		public virtual PersonType PersonType
 		{
@@ -297,6 +358,9 @@ namespace Vodovoz.Core.Domain.Clients
 			}
 		}
 
+		/// <summary>
+		/// Вид оплаты
+		/// </summary>
 		[Display(Name = "Вид оплаты")]
 		public virtual PaymentType PaymentMethod
 		{
@@ -304,6 +368,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _paymentMethod, value);
 		}
 
+		/// <summary>
+		/// Архивный
+		/// </summary>
 		[Display(Name = "Архивный")]
 		public virtual bool IsArchive
 		{
@@ -311,6 +378,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _isArchive, value);
 		}
 
+		/// <summary>
+		/// Телефон для обзвона
+		/// </summary>
 		[Display(Name = "Телефон для обзвона")]
 		public virtual string RingUpPhone
 		{
@@ -318,7 +388,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _ringUpPhone, value);
 		}
 
-
+		/// <summary>
+		/// Тип безналичных документов по-умолчанию
+		/// </summary>
 		[Display(Name = "Тип безналичных документов по-умолчанию")]
 		public virtual DefaultDocumentType? DefaultDocumentType
 		{
@@ -326,6 +398,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _defaultDocumentType, value);
 		}
 
+		/// <summary>
+		/// Новая необоротная тара
+		/// </summary>
 		[Display(Name = "Новая необоротная тара")]
 		public virtual bool NewBottlesNeeded
 		{
@@ -333,6 +408,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _newBottlesNeeded, value);
 		}
 
+		/// <summary>
+		/// ФИО подписанта
+		/// </summary>
 		[Display(Name = "ФИО подписанта")]
 		public virtual string SignatoryFIO
 		{
@@ -340,6 +418,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _signatoryFIO, value);
 		}
 
+		/// <summary>
+		/// Должность подписанта
+		/// </summary>
 		[Display(Name = "Должность подписанта")]
 		public virtual string SignatoryPost
 		{
@@ -347,6 +428,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _signatoryPost, value);
 		}
 
+		/// <summary>
+		/// На основании
+		/// </summary>
 		[Display(Name = "На основании")]
 		public virtual string SignatoryBaseOf
 		{
@@ -354,6 +438,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _signatoryBaseOf, value);
 		}
 
+		/// <summary>
+		/// Телефон
+		/// </summary>
 		[Display(Name = "Телефон")]
 		public virtual string PhoneFrom1c
 		{
@@ -361,7 +448,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _phoneFrom1c, value);
 		}
 
-
+		/// <summary>
+		/// Налогообложение
+		/// </summary>
 		[Display(Name = "Налогобложение")]
 		public virtual TaxType TaxType
 		{
@@ -369,6 +458,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _taxType, value);
 		}
 
+		/// <summary>
+		/// Дата создания
+		/// </summary>
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate
 		{
@@ -378,6 +470,9 @@ namespace Vodovoz.Core.Domain.Clients
 
 		#region ОсобаяПечать
 
+		/// <summary>
+		/// Особая печать документов
+		/// </summary>
 		[Display(Name = "Особая печать документов")]
 		public virtual bool UseSpecialDocFields
 		{
@@ -385,6 +480,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _useSpecialDocFields, value);
 		}
 
+		/// <summary>
+		/// Всегда печатать накладную
+		/// </summary>
 		[Display(Name = "Всегда печатать накладную")]
 		public virtual bool AlwaysPrintInvoice
 		{
@@ -394,6 +492,9 @@ namespace Vodovoz.Core.Domain.Clients
 
 		#region Особое требование срок годности
 
+		/// <summary>
+		/// Особое требование: требуется срок годности
+		/// </summary>
 		[Display(Name = "Особое требование: требуется срок годности")]
 		public virtual bool SpecialExpireDatePercentCheck
 		{
@@ -401,6 +502,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _specialExpireDatePercentCheck, value);
 		}
 
+		/// <summary>
+		/// Особое требование: срок годности %
+		/// </summary>
 		[Display(Name = "Особое требование: срок годности %")]
 		public virtual decimal SpecialExpireDatePercent
 		{
@@ -410,6 +514,9 @@ namespace Vodovoz.Core.Domain.Clients
 
 		#endregion Особое требование срок годности
 
+		/// <summary>
+		/// Название особого договора
+		/// </summary>
 		[Display(Name = "Название особого договора")]
 		public virtual string SpecialContractName
 		{
@@ -417,6 +524,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _specialContractName, value);
 		}
 
+		/// <summary>
+		/// Номер особого договора
+		/// </summary>
 		[Display(Name = "Номер особого договора")]
 		public virtual string SpecialContractNumber
 		{
@@ -424,6 +534,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _specialContractNumber, value);
 		}
 
+		/// <summary>
+		/// Дата особого договора
+		/// </summary>
 		[Display(Name = "Дата особого договора")]
 		public virtual DateTime? SpecialContractDate
 		{
@@ -431,6 +544,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _specialContractDate, value);
 		}
 
+		/// <summary>
+		/// Особый КПП плательщика
+		/// </summary>
 		[Display(Name = "Особый КПП плательщика")]
 		public virtual string PayerSpecialKPP
 		{
@@ -438,6 +554,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _payerSpecialKPP, value);
 		}
 
+		/// <summary>
+		/// Грузополучатель
+		/// </summary>
 		[Display(Name = "Грузополучатель")]
 		public virtual string CargoReceiver
 		{
@@ -445,6 +564,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _cargoReceiver, value);
 		}
 
+		/// <summary>
+		/// Особый покупатель
+		/// </summary>
 		[Display(Name = "Особый покупатель")]
 		public virtual string SpecialCustomer
 		{
@@ -452,6 +574,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _specialCustomer, value);
 		}
 
+		/// <summary>
+		/// Идентификатор государственного контракта
+		/// </summary>
 		[Display(Name = "Идентификатор государственного контракта")]
 		public virtual string GovContract
 		{
@@ -459,6 +584,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _govContract, value);
 		}
 
+		/// <summary>
+		/// Особый адрес доставки
+		/// </summary>
 		[Display(Name = "Особый адрес доставки")]
 		public virtual string SpecialDeliveryAddress
 		{
@@ -466,6 +594,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _specialDeliveryAddress, value);
 		}
 
+		/// <summary>
+		/// Кол-во ТТН
+		/// </summary>
 		[Display(Name = "Кол-во ТТН")]
 		public virtual int? TTNCount
 		{
@@ -473,6 +604,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _tTNCount, value);
 		}
 
+		/// <summary>
+		/// Кол-во Торг-2
+		/// </summary>
 		[Display(Name = "Кол-во Торг-2")]
 		public virtual int? Torg2Count
 		{
@@ -480,6 +614,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _torg2Count, value);
 		}
 
+		/// <summary>
+		/// Кол-во УПД(не для безнала)
+		/// </summary>
 		[Display(Name = "Кол-во УПД(не для безнала)")]
 		public virtual int? UPDCount
 		{
@@ -487,6 +624,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _uPDCount, value);
 		}
 
+		/// <summary>
+		/// Кол-во УПД
+		/// </summary>
 		[Display(Name = "Кол-во УПД")]
 		public virtual int? AllUPDCount
 		{
@@ -494,6 +634,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _allUPDCount, value);
 		}
 
+		/// <summary>
+		/// Кол-во Торг-12
+		/// </summary>
 		[Display(Name = "Кол-во Торг-12")]
 		public virtual int? Torg12Count
 		{
@@ -501,6 +644,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _torg12Count, value);
 		}
 
+		/// <summary>
+		/// Кол-во отчет-фактур
+		/// </summary>
 		[Display(Name = "Кол-во отчет-фактур")]
 		public virtual int? ShetFacturaCount
 		{
@@ -508,6 +654,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _shetFacturaCount, value);
 		}
 
+		/// <summary>
+		/// Кол-во доверенностей вод-ль
+		/// </summary>
 		[Display(Name = "Кол-во доверенностей вод-ль")]
 		public virtual int? CarProxyCount
 		{
@@ -515,6 +664,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _carProxyCount, value);
 		}
 
+		/// <summary>
+		/// ОКПО
+		/// </summary>
 		[Display(Name = "ОКПО")]
 		public virtual string OKPO
 		{
@@ -522,6 +674,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _oKPO, value);
 		}
 
+		/// <summary>
+		/// ОКПД
+		/// </summary>
 		[Display(Name = "ОКДП")]
 		public virtual string OKDP
 		{
@@ -529,6 +684,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _oKDP, value);
 		}
 
+		/// <summary>
+		/// Источник грузополучателя
+		/// </summary>
 		[Display(Name = "Источник грузополучателя")]
 		public virtual CargoReceiverSource CargoReceiverSource
 		{
@@ -540,6 +698,9 @@ namespace Vodovoz.Core.Domain.Clients
 
 		#region ЭДО и Честный знак
 
+		/// <summary>
+		/// Причина выбытия
+		/// </summary>
 		[Display(Name = "Причина выбытия")]
 		public virtual ReasonForLeaving ReasonForLeaving
 		{
@@ -547,6 +708,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _reasonForLeaving, value);
 		}
 
+		/// <summary>
+		/// Статус регистрации в Честном Знаке
+		/// </summary>
 		[Display(Name = "Статус регистрации в Честном Знаке")]
 		public virtual RegistrationInChestnyZnakStatus RegistrationInChestnyZnakStatus
 		{
@@ -554,6 +718,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _registrationInChestnyZnakStatus, value);
 		}
 
+		/// <summary>
+		/// Отказ от печатных документов
+		/// </summary>
 		[Display(Name = "Отказ от печатных документов")]
 		public virtual bool IsPaperlessWorkflow
 		{
@@ -561,6 +728,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _isPaperlessWorkflow, value);
 		}
 
+		/// <summary>
+		/// Не отправлять документы по ЭДО
+		/// </summary>
 		[Display(Name = "Не отправлять документы по EDO")]
 		public virtual bool IsNotSendDocumentsByEdo
 		{
@@ -568,6 +738,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _isNotSendDocumentsByEdo, value);
 		}
 
+		/// <summary>
+		/// Отправлять УПД заранее
+		/// </summary>
 		[Display(Name = "Отправлять УПД заранее")]
 		public virtual bool CanSendUpdInAdvance
 		{
@@ -575,7 +748,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _canSendUpdInAdvance, value);
 		}
 
-
+		/// <summary>
+		/// Фамилия
+		/// </summary>
 		[Display(Name = "Фамилия")]
 		public virtual string Surname
 		{
@@ -583,6 +758,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _surname, value);
 		}
 
+		/// <summary>
+		/// Имя
+		/// </summary>
 		[Display(Name = "Имя")]
 		public virtual string FirstName
 		{
@@ -590,6 +768,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _firstName, value);
 		}
 
+		/// <summary>
+		/// Отчество
+		/// </summary>
 		[Display(Name = "Отчество")]
 		public virtual string Patronymic
 		{
@@ -597,6 +778,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _patronymic, value);
 		}
 
+		/// <summary>
+		/// Не смешивать в одном заказе маркированные и немаркированные товары
+		/// </summary>
 		[Display(Name = "Не смешивать в одном заказе маркированные и немаркированные товары")]
 		public virtual bool DoNotMixMarkedAndUnmarkedGoodsInOrder
 		{
@@ -604,6 +788,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _doNotMixMarkedAndUnmarkedGoodsInOrder, value);
 		}
 
+		/// <summary>
+		/// Отправлять счета по ЭДО
+		/// </summary>
 		[Display(Name = "Отправлять счета по ЭДО")]
 		public virtual bool NeedSendBillByEdo
 		{
@@ -611,6 +798,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _needSendBillByEdo, value);
 		}
 
+		/// <summary>
+		/// Код личного кабинета в ЭДО
+		/// </summary>
 		[Display(Name = "Код личного кабинета в ЭДО")]
 		public virtual string PersonalAccountIdInEdo
 		{
@@ -627,6 +817,9 @@ namespace Vodovoz.Core.Domain.Clients
 
 		#endregion ЭДО и Честный знак
 
+		/// <summary>
+		/// Отсрочка дней
+		/// </summary>
 		[Display(Name = "Отсрочка дней")]
 		public virtual int DelayDaysForProviders
 		{
@@ -634,6 +827,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _delayDaysForProviders, value);
 		}
 
+		/// <summary>
+		/// Отсрочка дней покупателям
+		/// </summary>
 		[Display(Name = "Отсрочка дней покупателям")]
 		public virtual int DelayDaysForBuyers
 		{
@@ -641,6 +837,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _delayDaysForBuyers, value);
 		}
 
+		/// <summary>
+		/// Тип контрагента
+		/// </summary>
 		[Display(Name = "Тип контрагента")]
 		public virtual CounterpartyType CounterpartyType
 		{
@@ -648,6 +847,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _counterpartyType, value);
 		}
 
+		/// <summary>
+		/// Сетевой магазин
+		/// </summary>
 		[Display(Name = "Сетевой магазин")]
 		public virtual bool IsChainStore
 		{
@@ -655,6 +857,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _isChainStore, value);
 		}
 
+		/// <summary>
+		/// Для розницы
+		/// </summary>
 		[Display(Name = "Для розницы")]
 		public virtual bool IsForRetail
 		{
@@ -662,6 +867,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _isForRetail, value);
 		}
 
+		/// <summary>
+		/// Для отдела продаж
+		/// </summary>
 		[Display(Name = "Для отдела продаж")]
 		public virtual bool IsForSalesDepartment
 		{
@@ -669,6 +877,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _isForSalesDepartment, value);
 		}
 
+		/// <summary>
+		/// Без прозвона
+		/// </summary>
 		[Display(Name = "Без прозвона")]
 		public virtual bool NoPhoneCall
 		{
@@ -676,6 +887,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _noPhoneCall, value);
 		}
 
+		/// <summary>
+		/// Исключение из Roboats звонков
+		/// </summary>
 		[Display(Name = "Исключение из Roboats звонков")]
 		public virtual bool RoboatsExclude
 		{
@@ -684,7 +898,7 @@ namespace Vodovoz.Core.Domain.Clients
 		}
 
 		/// <summary>
-		/// Отказ от автообзвона
+		/// Отказ от автообзвонов
 		/// </summary>
 		[Display(Name = "Отказ от автообзвонов")]
 		public virtual bool ExcludeFromAutoCalls
@@ -693,6 +907,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _excludeFromAutoCalls, value);
 		}
 
+		/// <summary>
+		/// Отсрочка технической обработки
+		/// </summary>
 		[Display(Name = "Отсрочка технической обработки")]
 		public virtual int TechnicalProcessingDelay
 		{
@@ -700,6 +917,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _technicalProcessingDelay, value);
 		}
 
+		/// <summary>
+		/// Всегда отправлять чеки
+		/// </summary>
 		[RestrictedHistoryProperty]
 		[IgnoreHistoryTrace]
 		[Display(Name = "Всегда отправлять чеки")]
@@ -709,6 +929,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _alwaysSendReceipts, value);
 		}
 
+		/// <summary>
+		/// Скрывать ТД в счетах
+		/// </summary>
 		[Display(Name = "Скрывать ТД в счетах")]
 		public virtual bool HideDeliveryPointForBill
 		{
@@ -716,6 +939,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _hideDeliveryPointForBill, value);
 		}
 
+		/// <summary>
+		/// Информация о прикрепленных файлах
+		/// </summary>
 		[Display(Name = "Информация о прикрепленных файлах")]
 		public virtual IObservableList<CounterpartyFileInformation> AttachedFileInformations
 		{
@@ -723,6 +949,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _attachedFileInformations, value);
 		}
 
+		/// <summary>
+		/// E-mail адреса
+		/// </summary>
 		[Display(Name = "E-mail адреса")]
 		public virtual IObservableList<EmailEntity> Emails
 		{
@@ -730,6 +959,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _emails, value);
 		}
 
+		/// <summary>
+		/// Телефоны
+		/// </summary>
 		[Display(Name = "Телефоны")]
 		public virtual IObservableList<PhoneEntity> Phones
 		{
@@ -737,6 +969,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _phones, value);
 		}
 
+		/// <summary>
+		/// Особенные номера ТМЦ
+		/// </summary>
 		[Display(Name = "Особенные номера ТМЦ")]
 		public virtual IObservableList<SpecialNomenclature> SpecialNomenclatures
 		{
@@ -744,6 +979,10 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _specialNomenclatures, value);
 		}
 
+		/// <summary>
+		/// Добавление информации о прикрепленном файле по имени файла
+		/// </summary>
+		/// <param name="fileName"></param>
 		public virtual void AddFileInformation(string fileName)
 		{
 			if(AttachedFileInformations.Any(afi => afi.FileName == fileName))
@@ -758,11 +997,18 @@ namespace Vodovoz.Core.Domain.Clients
 			});
 		}
 
+		/// <summary>
+		/// Удаление информации о прикрепленном файле по имени файла
+		/// </summary>
+		/// <param name="fileName"></param>
 		public virtual void RemoveFileInformation(string fileName)
 		{
 			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
 
+		/// <summary>
+		/// Обновление информации о прикрепленных файлах
+		/// </summary>
 		private void UpdateFileInformations()
 		{
 			foreach(var fileInformation in AttachedFileInformations)
