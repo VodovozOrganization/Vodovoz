@@ -2026,7 +2026,7 @@ namespace Vodovoz
 			treeDocuments.ItemsDataSource = Entity.ObservableOrderDocuments;
 			treeDocuments.Selection.Changed += Selection_Changed;
 
-			treeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
+			treeDocuments.RowActivated += OnButtonViewDocumentClicked;
 
 			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoDockflowData>.Create()
 				.AddColumn("Новый\nдокументооборот")
@@ -2839,6 +2839,13 @@ namespace Vodovoz
 		{
 			Entity.SelfDeliveryToLoading(_currentEmployee, ServicesConfig.CommonServices.CurrentPermissionService, CallTaskWorker);
 			UpdateUIState();
+			
+			OrderDocumentsOpener(Entity.OrderDocuments
+				.Where(x => x.Type == OrderDocumentType.Invoice
+					|| x.Type == OrderDocumentType.InvoiceBarter
+					|| x.Type == OrderDocumentType.InvoiceContractDoc)
+				.OfType<PrintableOrderDocument>()
+				.ToArray());
 		}
 
 		/// <summary>
@@ -2904,31 +2911,32 @@ namespace Vodovoz
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
 		{
-			OrderDocumentsOpener();
+			var selectedObjects = treeDocuments.GetSelectedObjects().OfType<PrintableOrderDocument>().ToArray();
+
+			OrderDocumentsOpener(selectedObjects);
 		}
 
 		/// <summary>
 		/// Открытие соответствующего документу заказа окна.
 		/// </summary>
-		private void OrderDocumentsOpener()
+		private void OrderDocumentsOpener(PrintableOrderDocument[] printableOrderDocuments)
 		{
 			_logger.Info("Открытие документа заказа");
 			
-			if(!treeDocuments.GetSelectedObjects().Any())
+			if(!printableOrderDocuments.Any())
 			{
 				return;
 			}
 
 			var rdlDocs =
-				treeDocuments.GetSelectedObjects()
-					.OfType<PrintableOrderDocument>()
+				printableOrderDocuments
 					.Where(d => d.PrintType == PrinterType.RDL)
-					.ToList();
+					.ToArray();
 
 			if(rdlDocs.Any())
 			{
 				var whatToPrint =
-					rdlDocs.ToList().Count > 1
+					rdlDocs.Length > 1
 						? "документов"
 						: "документа \"" + rdlDocs.Cast<OrderDocument>().First().Type.GetEnumTitle() + "\"";
 				
@@ -2936,22 +2944,20 @@ namespace Vodovoz
 				{
 					UoWGeneric.Save();
 				}
-				rdlDocs.ForEach(
-					doc =>
+
+				foreach(var doc in rdlDocs)
+				{
+					if(doc is IPrintableRDLDocument document)
 					{
-						if(doc is IPrintableRDLDocument document)
-						{
-							TabParent.AddTab(QSReport.DocumentPrinter.GetPreviewTab(document), this, false);
-						}
+						TabParent.AddTab(QSReport.DocumentPrinter.GetPreviewTab(document), this, false);
 					}
-				);
+				}
 			}
 
 			var odtDocs =
-				treeDocuments.GetSelectedObjects()
-					.OfType<PrintableOrderDocument>()
+				printableOrderDocuments
 					.Where(d => d.PrintType == PrinterType.ODT)
-					.ToList();
+					.ToArray();
 			
 			if(odtDocs.Any())
 			{
@@ -2970,6 +2976,7 @@ namespace Vodovoz
 							() =>
 							{
 								var dialog = OrmMain.CreateObjectDialog(orderContract.Contract);
+
 								if(dialog != null)
 								{
 									(dialog as IEditableDialog).IsEditable = false;
@@ -2992,6 +2999,7 @@ namespace Vodovoz
 							() =>
 							{
 								var dialog = OrmMain.CreateObjectDialog(orderM2Proxy.M2Proxy);
+
 								if(dialog != null)
 								{
 									(dialog as IEditableDialog).IsEditable = false;
