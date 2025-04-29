@@ -166,7 +166,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 				.Column("is_second_order");
 
 			Map(x => x.CounterpartyExternalOrderId)
-				.Column("counterparty_external_order_id");
+				.Column("client_external_order_id");
 
 			Map(x => x.IsDoNotMakeCallBeforeArrival)
 				.Column("is_do_not_make_call_before_arrival");
@@ -213,6 +213,16 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 
 			References(x => x.Client)
 				.Column("client_id");
+
+			References(x => x.DeliveryPoint)
+				.Column("delivery_point_id");
+
+			References(x => x.Contract)
+				.Column("counterparty_contract_id")
+				.Cascade.SaveUpdate();
+
+			References(x => x.DeliverySchedule)
+				.Column("delivery_schedule_id");
 
 			HasMany(x => x.OrderItems)
 				.KeyColumn("order_id")

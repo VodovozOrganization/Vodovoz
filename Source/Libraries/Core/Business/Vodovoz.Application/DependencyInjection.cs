@@ -16,6 +16,11 @@ using Vodovoz.Services.Orders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
+using DriverApi.Notifications.Client;
+using RevenueService.Client;
+using Vodovoz.Application.TrueMark;
+using VodovozBusiness.Services.TrueMark;
+using TrueMarkApi.Client;
 
 namespace Vodovoz.Application
 {
@@ -23,7 +28,8 @@ namespace Vodovoz.Application
 	{
 		public static IServiceCollection AddApplication(this IServiceCollection services) => services
 			.AddApplicationServices()
-			.ConfigureFileOptions();
+			.ConfigureFileOptions()
+			.AddRevenueServiceClient();
 
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
 			.AddSingleton<OperatorService>()
@@ -35,6 +41,11 @@ namespace Vodovoz.Application
 			.AddScoped<INomenclatureService, NomenclatureService>()
 			.AddScoped<IComplaintService, ComplaintService>()
 			.AddScoped<ISubdivisionPermissionsService, SubdivisionPermissionsService>()
+			.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
+			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
+			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
+			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+			.AddTrueMarkApiClient()
 			.AddOrderServicesDependencies()
 		;
 		
@@ -51,6 +62,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+			.AddDriverApiNotificationsSenders()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

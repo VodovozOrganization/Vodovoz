@@ -15,6 +15,7 @@ namespace Vodovoz.Domain.Payments
 		private const string _vodovozPromoString = "promo2.vodovoz-spb.ru";
 		private const string _shopVodovozUberserverString = "https://shopvodovoz.uberserver.ru";
 		private const string _shopKulerSale = "kuler-sale.ru";
+		private const string _yookassaBeveragesWorld = "НЭК.338376.01";
 
 		public List<PaymentByCardOnline> PaymentsFromYookassa { get; set; } = new List<PaymentByCardOnline>();
 
@@ -30,6 +31,7 @@ namespace Vodovoz.Domain.Payments
 				string line;
 				var count = 0;
 				var paymentByCardFrom = PaymentByCardOnlineFrom.FromVodovozWebSite;
+				var newFormat = false;
 				
 				while((line = reader.ReadLine()) != null)
 				{
@@ -38,38 +40,60 @@ namespace Vodovoz.Domain.Payments
 					
 					if (count == 1) {
 						var paymentFrom = line.Split(new [] {' '}, StringSplitOptions.RemoveEmptyEntries);
-						TryMatchPaymentFrom(paymentFrom[3].Trim('.', '/'), ref paymentByCardFrom);
+						var parsedPaymentFrom = TryMatchPaymentFrom(paymentFrom[3].Trim('.', '/'));
+
+						if(parsedPaymentFrom != null)
+						{
+							paymentByCardFrom = parsedPaymentFrom.Value;
+							continue;
+						}
+						
+						if(paymentFrom.Length > 4)
+						{
+							parsedPaymentFrom = TryMatchPaymentFrom(paymentFrom[4].Trim('.', '/'));
+						}
+
+						if(parsedPaymentFrom is null)
+						{
+							throw new ArgumentException("Невозможно определить откуда оплата.");
+						}
+						
+						paymentByCardFrom = parsedPaymentFrom.Value;
+
+						if(parsedPaymentFrom.Value == PaymentByCardOnlineFrom.FromVodovozWebSite)
+						{
+							newFormat = true;
+						}
 					}
 					
 					var data = line.Split(new [] {';'}, StringSplitOptions.RemoveEmptyEntries);
 				
 					if (Guid.TryParse(data[0], out Guid result)) {
-						var payment = new PaymentByCardOnline(data, paymentByCardFrom);
+						var payment = new PaymentByCardOnline(data, paymentByCardFrom, newFormat);
 						PaymentsFromYookassa.Add(payment);
 					}
 				}
 			}
 		}
 
-		private void TryMatchPaymentFrom(string data, ref PaymentByCardOnlineFrom paymentByCardFrom)
+		private PaymentByCardOnlineFrom? TryMatchPaymentFrom(string data)
 		{
 			switch(data)
 			{
+				case _yookassaBeveragesWorld:
+					return PaymentByCardOnlineFrom.FromVodovozWebSite;
 				case _vodovozString:
 				case _vodovozString2:
 				case _vodovozPromoString:
 				case _shopVodovozUberserverString:
-					paymentByCardFrom = PaymentByCardOnlineFrom.FromSMS;
-					break;
+					return PaymentByCardOnlineFrom.FromSMS;
 				case _shopKulerSale:
-					paymentByCardFrom = PaymentByCardOnlineFrom.FromEShop;
-					break;
+					return PaymentByCardOnlineFrom.FromEShop;
 				case _shopVodovozString:
 				case _vodovozString3:
-					paymentByCardFrom = PaymentByCardOnlineFrom.FromMobileApp;
-					break;
+					return PaymentByCardOnlineFrom.FromMobileApp;
 				default:
-					throw new ArgumentException("Невозможно определить откуда оплата.");
+					return null;
 			}
 		}
 	}

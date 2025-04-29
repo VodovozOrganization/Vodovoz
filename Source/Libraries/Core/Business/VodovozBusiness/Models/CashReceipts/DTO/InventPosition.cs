@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Models.CashReceipts.DTO
 {
@@ -63,5 +63,11 @@ namespace Vodovoz.Models.CashReceipts.DTO
 				}
 			}
 		}
+
+		/// <summary>
+		/// Разрешительный режим
+		/// </summary>
+		[JsonProperty("industryRequisite", Required = Required.Always)]
+		public IndustryRequisite IndustryRequisite { get; set; }
 	}
 }

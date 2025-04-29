@@ -353,6 +353,13 @@ namespace Vodovoz.Domain.Logistic
 					"Нельзя вносить изменения в документ по которому уже выдано топливо лимитами",
 					new[] { nameof(FuelLimitLitersAmount) });
 			}
+
+			if(Id == 0 && FuelLimitLitersAmount > 0 && RouteList?.Date < DateTime.Today)
+			{
+				yield return new ValidationResult(
+					"Нельзя выдавать топливо лимитами на маршрутные листы за предыдущие дни",
+					new[] { nameof(RouteList) });
+			}
 		}
 
 		#endregion
@@ -365,12 +372,4 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "безнал")]
 		Cashless
 	}
-
-	public class FuelPaymentTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public FuelPaymentTypeStringType() : base(typeof(FuelPaymentType))
-		{
-		}
-	}
 }
-

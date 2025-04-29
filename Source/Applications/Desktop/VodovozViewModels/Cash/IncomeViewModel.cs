@@ -594,6 +594,8 @@ namespace Vodovoz.ViewModels.Cash
 		{
 			if(e.PropertyName == nameof(Entity.TypeOperation))
 			{
+				OnPropertyChanged(nameof(CanChangeRouteList));
+				
 				Entity.Money = 0m;
 
 				if(IsDriverReport)

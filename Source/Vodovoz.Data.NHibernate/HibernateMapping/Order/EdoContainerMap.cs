@@ -20,6 +20,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.MainDocumentId).Column("main_document_id");
 			Map(x => x.Created).Column("created");
 			Map(x => x.Type).Column("type");
+			Map(x => x.EdoTaskId).Column("edo_task_id");
 
 			References(x => x.Order).Column("order_id");
 			References(x => x.OrderWithoutShipmentForAdvancePayment).Column("order_without_shipment_for_advence_payment_id");

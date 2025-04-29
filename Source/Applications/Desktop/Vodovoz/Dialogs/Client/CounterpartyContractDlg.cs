@@ -5,11 +5,13 @@ using QS.ViewModels.Control.EEVM;
 using QSProjectsLib;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz
 {
@@ -100,8 +102,8 @@ namespace Vodovoz
 				_lifetimeScope);
 
 			var organizationEntryViewModel = organizationEntryViewModelBuilder.ForProperty(x => x.Organization)
-				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
 
 			organizationEntryViewModel.CanViewEntity = false;

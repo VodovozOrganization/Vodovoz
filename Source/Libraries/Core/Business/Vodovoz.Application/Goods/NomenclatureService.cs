@@ -1,8 +1,8 @@
-﻿using Core.Infrastructure;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
@@ -10,9 +10,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Errors;
-using Vodovoz.Settings.Database.Nomenclature;
 using Vodovoz.Settings.Nomenclature;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Service;
 using VodovozBusiness.Services;
 

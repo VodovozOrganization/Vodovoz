@@ -115,11 +115,4 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Нет (не недовоз)")]
 		None
 	}
-
-	public class GuiltyInUndeliveryGuiltySideStringType : NHibernate.Type.EnumStringType
-	{
-		public GuiltyInUndeliveryGuiltySideStringType() : base(typeof(GuiltyTypes))
-		{
-		}
-	}
 }

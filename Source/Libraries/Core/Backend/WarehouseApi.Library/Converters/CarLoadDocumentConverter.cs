@@ -4,7 +4,6 @@ using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Domain.Documents;
 using WarehouseApi.Contracts.Dto;
 
 namespace WarehouseApi.Library.Converters
@@ -50,7 +49,8 @@ namespace WarehouseApi.Library.Converters
 			{
 				NomenclatureId = documentItem.Nomenclature.Id,
 				Name = documentItem.Nomenclature.Name,
-				Gtin = documentItem.Nomenclature.Gtin,
+				Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
+				GroupGtins = documentItem.Nomenclature.GroupGtins.Select(gg => new GroupGtinDto { Gtin = gg.GtinNumber, Count = gg.CodesCount }),
 				Quantity = (int)documentItem.Amount,
 				Codes = GetApiTrueMarkCodes(documentItem)
 			};
@@ -68,10 +68,12 @@ namespace WarehouseApi.Library.Converters
 				{
 					NomenclatureId = documentItem.Nomenclature.Id,
 					Name = documentItem.Nomenclature.Name,
-					Gtin = documentItem.Nomenclature.Gtin,
+					Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
+					GroupGtins = documentItem.Nomenclature.GroupGtins.Select(gg => new GroupGtinDto { Gtin = gg.GtinNumber, Count = gg.CodesCount }),
 					Quantity = (int)documentItem.Amount,
-					Codes = GetApiTrueMarkCodes(documentItem)
 				};
+
+				apiOrderItem.Codes.AddRange(GetApiTrueMarkCodes(documentItem));
 
 				apiOrderItems.Add(apiOrderItem);
 			}
@@ -120,7 +122,8 @@ namespace WarehouseApi.Library.Converters
 			return new TrueMarkCodeDto
 			{
 				SequenceNumber = sequenceNumber,
-				Code = documentTrueMarkCode.TrueMarkCode.RawCode
+				Code = documentTrueMarkCode.SourceCode.RawCode,
+				Level = WarehouseApiTruemarkCodeLevel.unit
 			};
 		}
 

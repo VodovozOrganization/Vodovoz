@@ -1,4 +1,4 @@
-﻿using CashReceiptApi.Options;
+using CashReceiptApi.Options;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -17,12 +17,12 @@ namespace CashReceiptApi.Authentication
 		private readonly IOptions<ServiceOptions> _serviceOptions;
 
 		public ApiKeyAuthenticationHandler(
-			IConfiguration configuration, 
+			IConfiguration configuration,
 			IOptionsMonitor<ApiKeyAuthenticationOptions> options,
 			IOptions<ServiceOptions> serviceOptions,
 			ILoggerFactory logger,
-			UrlEncoder encoder, 
-			ISystemClock clock) 
+			UrlEncoder encoder,
+			ISystemClock clock)
 			: base(options, logger, encoder, clock)
 		{
 			_configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));

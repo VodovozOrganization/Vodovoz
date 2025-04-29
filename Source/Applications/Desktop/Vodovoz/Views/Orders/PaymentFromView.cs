@@ -27,12 +27,12 @@ namespace Vodovoz.Views.Orders
 				.InitializeFromSource();
 
 			lblOrganizationForOnlinePayments.Visible = ViewModel.CanShowOrganization;
-			entryOrganizationForOnlinePayments.SetEntityAutocompleteSelectorFactory(ViewModel.OrganizationSelectorFactory);
-			entryOrganizationForOnlinePayments.Binding
+
+			entryOrganization.ViewModel = ViewModel.OrganizationViewModel;
+			entryOrganization.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(vm => vm.CanEdit, w => w.ViewModel.IsEditable)
 				.AddBinding(vm => vm.CanShowOrganization, w => w.Visible)
-				.AddBinding(ViewModel.Entity, e => e.OrganizationForOnlinePayments, w => w.Subject)
 				.InitializeFromSource();
 
 			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();

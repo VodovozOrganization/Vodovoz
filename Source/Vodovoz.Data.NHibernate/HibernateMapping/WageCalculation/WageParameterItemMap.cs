@@ -31,7 +31,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
 		{
 			DiscriminatorValue(nameof(WageParameterItemTypes.Percent));
 			Map(x => x.RouteListPercent).Column("route_list_percent_wage");
-			Map(x => x.PercentWageType).Column("percent_wage_type").CustomType<PercentWageTypesStringType>();
+			Map(x => x.PercentWageType).Column("percent_wage_type");
 		}
 	}
 

@@ -24,7 +24,7 @@ namespace Pacs.Server.Operators
 		private readonly IPacsSettings _pacsSettings;
 		private readonly IOperatorRepository _operatorRepository;
 		private readonly IOperatorNotifier _operatorNotifier;
-		private readonly IPhoneController _phoneController;
+		private readonly IOperatorPhoneService _phoneController;
 		private readonly IGlobalBreakController _globalBreakController;
 		private readonly IOperatorBreakAvailabilityService _operatorBreakController;
 		private readonly IUnitOfWorkFactory _uowFactory;
@@ -56,7 +56,7 @@ namespace Pacs.Server.Operators
 			IPacsSettings pacsSettings,
 			IOperatorRepository operatorRepository,
 			IOperatorNotifier operatorNotifier,
-			IPhoneController phoneController,
+			IOperatorPhoneService phoneController,
 			IGlobalBreakController globalBreakController,
 			IUnitOfWorkFactory uowFactory)
 		{
@@ -187,6 +187,11 @@ namespace Pacs.Server.Operators
 			}
 
 			OperatorState = OperatorState.Copy(_previuosState);
+
+			if(newState == OperatorStateType.WaitingForCall)
+			{
+				OperatorState.CallId = _previuosState.CallId;
+			}
 
 			if(OperatorState.State == OperatorStateType.WaitingForCall
 				&& newState == OperatorStateType.Connected

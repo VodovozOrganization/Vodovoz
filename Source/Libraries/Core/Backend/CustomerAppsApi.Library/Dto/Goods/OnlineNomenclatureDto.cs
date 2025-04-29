@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Converters;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Nodes;
 
 namespace CustomerAppsApi.Library.Dto.Goods
@@ -78,7 +79,7 @@ namespace CustomerAppsApi.Library.Dto.Goods
 		/// <summary>
 		/// Производительность нагрева
 		/// </summary>
-		public int? HeatingProductivity { get; set; }
+		public decimal? HeatingProductivity { get; set; }
 		/// <summary>
 		/// Защита на кране горячей воды
 		/// </summary>
@@ -95,7 +96,7 @@ namespace CustomerAppsApi.Library.Dto.Goods
 		/// <summary>
 		/// Производительность охлаждения
 		/// </summary>
-		public int? CoolingProductivity { get; set; }
+		public decimal? CoolingProductivity { get; set; }
 		/// <summary>
 		/// Тип охлаждения
 		/// </summary>
@@ -120,8 +121,73 @@ namespace CustomerAppsApi.Library.Dto.Goods
 		/// </summary>
 		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public GlassHolderType? GlassHolderType { get; set; }
+		/// <summary>
+		/// Температура нагрева от
+		/// </summary>
+		public int? HeatingTemperatureFrom { get; set; }
+		/// <summary>
+		/// Температура нагрева до
+		/// </summary>
+		public int? HeatingTemperatureTo { get; set; }
+		/// <summary>
+		/// Температура охлаждения от
+		/// </summary>
+		public int? CoolingTemperatureFrom { get; set; }
+		/// <summary>
+		/// Температура охлаждения до
+		/// </summary>
+		public int? CoolingTemperatureTo { get; set; }
+		/// <summary>
+		/// Длина
+		/// </summary>
+		public int? Length { get; set; }
+		/// <summary>
+		/// Ширина
+		/// </summary>
+		public int? Width { get; set; }
+		/// <summary>
+		/// Высота
+		/// </summary>
+		public int? Height { get; set; }
+		/// <summary>
+		/// Вес
+		/// </summary>
+		public decimal? Weight { get; set; }
+		/// <summary>
+		/// Строковое представление размеров
+		/// </summary>
+		public string Size { get; set; }
+		/// <summary>
+		/// Строковое представление веса
+		/// </summary>
+		public string WeightString { get; set; }
+		/// <summary>
+		/// Строковое представление производительности нагрева
+		/// </summary>
+		public string HeatingProductivityString { get; set; }
+		/// <summary>
+		/// Строковое представление мощности нагрева
+		/// </summary>
+		public string HeatingPowerString { get; set; }
+		/// <summary>
+		/// Строковое представление производительности охлаждения
+		/// </summary>
+		public string CoolingProductivityString { get; set; }
+		/// <summary>
+		/// Строковое представление мощности охлаждения
+		/// </summary>
+		public string CoolingPowerString { get; set; }
+		/// <summary>
+		/// Строковое представление температуры нагрева
+		/// </summary>
+		public string HeatingTemperatureString { get; set; }
+		/// <summary>
+		/// Строковое представление температуры охлаждения
+		/// </summary>
+		public string CoolingTemperatureString { get; set; }
 
-		public static OnlineNomenclatureDto Create(OnlineNomenclatureNode node)
+		public static OnlineNomenclatureDto Create(
+			INomenclatureOnlineCharacteristicsConverter onlineCharacteristicsConverter, OnlineNomenclatureNode node)
 		{
 			return new OnlineNomenclatureDto
 			{
@@ -149,7 +215,27 @@ namespace CustomerAppsApi.Library.Dto.Goods
 				LockerRefrigeratorType = node.LockerRefrigeratorType,
 				LockerRefrigeratorVolume = node.LockerRefrigeratorVolume,
 				TapType = node.TapType,
-				GlassHolderType = node.GlassHolderType
+				GlassHolderType = node.GlassHolderType,
+				HeatingTemperatureFrom = node.HeatingTemperatureFrom,
+				HeatingTemperatureTo = node.HeatingTemperatureTo,
+				CoolingTemperatureFrom = node.CoolingTemperatureFrom,
+				CoolingTemperatureTo = node.CoolingTemperatureTo,
+				Length = node.Length,
+				Width = node.Width,
+				Height = node.Height,
+				Weight = node.Weight,
+				Size = onlineCharacteristicsConverter.GetSizeString(node.Length, node.Width, node.Height),
+				WeightString = onlineCharacteristicsConverter.GetWeightString(node.Weight),
+				HeatingProductivityString = onlineCharacteristicsConverter.GetProductivityString(
+					node.HeatingProductivityComparisionSign, node.HeatingProductivity, node.HeatingProductivityUnits),
+				HeatingPowerString = onlineCharacteristicsConverter.GetPowerString(node.HeatingPower, node.HeatingPowerUnits),
+				CoolingProductivityString = onlineCharacteristicsConverter.GetProductivityString(
+					node.CoolingProductivityComparisionSign, node.CoolingProductivity, node.CoolingProductivityUnits),
+				CoolingPowerString = onlineCharacteristicsConverter.GetPowerString(node.CoolingPower, node.CoolingPowerUnits),
+				HeatingTemperatureString =
+					onlineCharacteristicsConverter.GetTemperatureString(node.HeatingTemperatureFrom, node.HeatingTemperatureTo),
+				CoolingTemperatureString =
+					onlineCharacteristicsConverter.GetTemperatureString(node.CoolingTemperatureFrom, node.CoolingTemperatureTo)
 			};
 		}
 	}

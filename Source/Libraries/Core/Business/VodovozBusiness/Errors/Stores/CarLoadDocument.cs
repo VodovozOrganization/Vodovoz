@@ -48,11 +48,29 @@ namespace Vodovoz.Errors.Stores
 				nameof(OrderNoNeedIndividualSetOnLoad),
 				"Заказ не является сетевым");
 
-		public static Error CreateOrderNoNeedIndividualSetOnLoad(int? id) =>
+		public static Error CreateOrderNoNeedIndividualSetOnLoadPaymentIsNotCashless(int? id) =>
 			id is null ? DocumentNotFound : new Error(
 				typeof(CarLoadDocument),
-				nameof(OrderNoNeedIndividualSetOnLoad),
-				$"Заказ #{id} не является сетевым");
+				nameof(CreateOrderNoNeedIndividualSetOnLoadPaymentIsNotCashless),
+				$"В заказе #{id} тип оплаты не безналичный, сканирование не требуется");
+
+		public static Error CreateOrderNoNeedIndividualSetOnLoadClientIsNotSet(int? id) =>
+			id is null ? DocumentNotFound : new Error(
+				typeof(CarLoadDocument),
+				nameof(CreateOrderNoNeedIndividualSetOnLoadClientIsNotSet),
+				$"В заказе #{id} не указан контрагент");
+
+		public static Error CreateOrderNoNeedIndividualSetOnLoadConsentForEdoIsNotAgree(int? id) =>
+			id is null ? DocumentNotFound : new Error(
+				typeof(CarLoadDocument),
+				nameof(CreateOrderNoNeedIndividualSetOnLoadConsentForEdoIsNotAgree),
+				$"В заказе #{id} у клиента нет согласия на отрпавки документов по ЭДО, сканирование не требуется");
+
+		public static Error CreateOrderNoNeedIndividualSetOnLoadOrderIsNotEnRoute(int? id) =>
+			id is null ? DocumentNotFound : new Error(
+				typeof(CarLoadDocument),
+				nameof(CreateOrderNoNeedIndividualSetOnLoadOrderIsNotEnRoute),
+				$"Заказ #{id} не в статусе в пути для ЭДО");
 
 		public static Error LoadingProcessStateMustBeNotStarted =>
 			new Error(
@@ -161,6 +179,12 @@ namespace Vodovoz.Errors.Stores
 				typeof(CarLoadDocument),
 				nameof(CarLoadDocumentStateChangeError),
 				$"Ошибка при изменении статуса операции погрузки талона погрузки #{id}");
+
+		public static Error CarLoadDocumentLogisticEventCreationError =>
+			new Error(
+				typeof(CarLoadDocument),
+				nameof(CarLoadDocumentLogisticEventCreationError),
+				"Ошибка при создании логистического события при изменении статуса операции погрузки талона погрузки");
 
 		public static Error CarLoadDocumentAlreadyHasPickerError =>
 			new Error(

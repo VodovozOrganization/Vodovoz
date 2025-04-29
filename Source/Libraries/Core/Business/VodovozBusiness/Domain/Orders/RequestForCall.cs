@@ -131,7 +131,9 @@ namespace Vodovoz.Domain.Orders
 
 			return requestForCall;
 		}
-		
+
+		public override string ToString() => Id == 0 ? $"Новая { RequestForCallName.ToLower() }" : RequestForCallName;
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(ClosedReason != null && RequestForCallStatus != RequestForCallStatus.Closed)

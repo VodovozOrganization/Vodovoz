@@ -44,9 +44,4 @@ namespace Vodovoz.Domain.Documents
 		[Display(Name = "Закрытый маршрутный лист")]
 		ClosedRouteList
 	}
-
-	public class PrintedDocumentTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public PrintedDocumentTypeStringType() : base(typeof(PrintedDocumentType)) { }
-	}
 }

@@ -5,15 +5,24 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using QS.Attachments.Domain;
+using QS.Banks.Domain;
+using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Project.Domain;
+using QS.Project.HibernateMapping;
+using TrueMark.Library;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using VodovozBusiness.Models.TrueMark;
+using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
+using DependencyInjection = Vodovoz.Data.NHibernate.DependencyInjection;
 
 namespace CashReceiptPrepareWorker
 {
@@ -39,21 +48,22 @@ namespace CashReceiptPrepareWorker
 
 			services
 				.AddMappingAssemblies(
-					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
-					typeof(QS.Banks.Domain.Bank).Assembly,
-					typeof(QS.HistoryLog.HistoryMain).Assembly,
-					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(UserBaseMap).Assembly,
+					typeof(AssemblyFinder).Assembly,
+					typeof(Bank).Assembly,
+					typeof(HistoryMain).Assembly,
+					typeof(TypeOfEntity).Assembly,
+					typeof(Attachment).Assembly,
 					typeof(EmployeeWithLoginMap).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddInfrastructure()
 				.AddTrackedUoW()
-				;
+				.AddTrueMarkApiClient()
+			;
 
-			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+			DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddHostedService<ReceiptsPrepareWorker>();
 		}
 
@@ -90,14 +100,6 @@ namespace CashReceiptPrepareWorker
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
-			builder.RegisterType<TrueMarkApiClientFactory>()
-				.AsSelf()
-				.InstancePerLifetimeScope();
-
-			builder.Register<TrueMarkApiClient>((context, instance) => context.Resolve<TrueMarkApiClientFactory>().GetClient())
-				.AsSelf()
-				.InstancePerLifetimeScope();
-
 			builder.RegisterType<TrueMarkTransactionalCodesPool>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
@@ -113,11 +115,35 @@ namespace CashReceiptPrepareWorker
 			builder.RegisterInstance(ErrorReporter.Instance)
 				.As<IErrorReporter>()
 				.SingleInstance();
+
+			builder.RegisterType<Tag1260Checker>()
+				.AsSelf();
+
+			builder.RegisterType<Tag1260Saver>()
+				.AsSelf();
+
+			builder.RegisterType<Tag1260Updater>()
+				.AsSelf();
+
+			builder.RegisterType<SelfDeliveryReceiptCreatorFromTask>()
+				.AsSelf();
+
+			builder.RegisterType<DeliveryOrderReceiptCreatorFromTask>()
+				.AsSelf();
+
+			builder.Register((context) => new TrueMarkOrganizationClientSettingProvider(GetTrueMarkOrganizationsClientSetting()))
+				.As<ITrueMarkOrganizationClientSettingProvider>()
+				.SingleInstance();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+		}
+
+		private IConfigurationSection GetTrueMarkOrganizationsClientSetting()
+		{
+			return Configuration.GetSection("TrueMarkOrganizationsClientSettings");
 		}
 	}
 }

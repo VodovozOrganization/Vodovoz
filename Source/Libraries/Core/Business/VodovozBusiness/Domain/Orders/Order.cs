@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +25,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -64,6 +63,7 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
+using Vodovoz.Core.Domain.Contacts;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -217,7 +217,7 @@ namespace Vodovoz.Domain.Orders
 		private DeliveryPoint deliveryPoint;
 
 		[Display(Name = "Точка доставки")]
-		public virtual DeliveryPoint DeliveryPoint {
+		public virtual new DeliveryPoint DeliveryPoint {
 			get => deliveryPoint;
 			set {
 				var oldDeliveryPoint = deliveryPoint;
@@ -370,7 +370,7 @@ namespace Vodovoz.Domain.Orders
 		private CounterpartyContract contract;
 
 		[Display(Name = "Договор")]
-		public virtual CounterpartyContract Contract {
+		public virtual new CounterpartyContract Contract {
 			get => contract;
 			set => SetField(ref contract, value, () => Contract);
 		}
@@ -781,7 +781,26 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsOrderCashlessAndPaid =>
 			PaymentType == PaymentType.Cashless
 			&& (OrderPaymentStatus == OrderPaymentStatus.Paid || OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid);
+		
+		/// <summary>
+		/// Полная сумма заказа
+		/// </summary>
+		public override decimal OrderSum => OrderPositiveSum - OrderNegativeSum;
 
+		/// <summary>
+		/// Вся положительная сумма заказа
+		/// </summary>
+		public override decimal OrderPositiveSum => OrderItems.Sum(item => item.ActualSum);
+
+		/// <summary>
+		/// Вся положительная изначальная сумма заказа
+		/// </summary>
+		public override decimal OrderPositiveOriginalSum => OrderItems.Sum(item => item.Sum);
+
+		/// <summary>
+		/// Вся отрицательная сумма заказа
+		/// </summary>
+		public override decimal OrderNegativeSum => OrderDepositItems.Sum(dep => dep.ActualSum);
 
 		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author)
 		{
@@ -941,6 +960,36 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult($"В заказе присутствуют архивные номенклатуры: " +
 														$"{string.Join(", ", archivedNomenclatures.Select(x => $"№{x.Nomenclature.Id} { x.Nomenclature.Name}"))}.",
 							new[] { nameof(Nomenclature) });
+					}
+
+					if(Client != null)
+					{
+						foreach(var email in Client.Emails)
+						{
+							if(!email.IsValidEmail)
+							{
+								yield return new ValidationResult($"Адрес электронной почты клиента {email.Address} имеет неправильный формат.");
+							}
+						}
+
+						foreach(var phone in Client.Phones)
+						{
+							if(!phone.IsValidPhoneNumber)
+							{
+								yield return new ValidationResult($"Номер телефона клиента {phone.Number} имеет неправильный формат.");
+							}
+						}
+					}
+
+					if(DeliveryPoint != null)
+					{
+						foreach(var phone in DeliveryPoint.Phones)
+						{
+							if(!phone.IsValidPhoneNumber)
+							{
+								yield return new ValidationResult($"Номер телефона точки доставки {phone.Number} имеет неправильный формат.");
+							}
+						}
 					}
 				}
 
@@ -1246,6 +1295,18 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			#endregion
+
+			if(DeliverySchedule?.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId)
+			{
+				var orderItemsTrueMarkCodesMustBeAdded = OrderItems.Where(x => x.IsTrueMarkCodesMustBeAdded).ToList();
+
+				if(orderItemsTrueMarkCodesMustBeAdded.Any())
+				{
+					yield return new ValidationResult($"В заказе с \"Закр док\" не должно быть товаров с маркировкой ЧЗ. " +
+						$"В заказ были добавлены следующие маркированные товары: {string.Join(", ", orderItemsTrueMarkCodesMustBeAdded.Select(x => x.Nomenclature.Name))}",
+						new[] { nameof(OrderItems) });
+				}
+			}
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
@@ -1413,54 +1474,6 @@ namespace Vodovoz.Domain.Orders
 			protected set {; }
 		}
 
-		/// <summary>
-		/// Полная сумма заказа
-		/// </summary>
-		[PropertyChangedAlso(nameof(OrderCashSum))]
-		public virtual decimal OrderSum => OrderPositiveSum - OrderNegativeSum;
-
-		/// <summary>
-		/// Вся положительная сумма заказа
-		/// </summary>
-		public virtual decimal OrderPositiveSum {
-			get {
-				decimal sum = 0;
-				foreach(OrderItem item in ObservableOrderItems) {
-					sum += item.ActualSum;
-				}
-				return sum;
-			}
-		}
-
-		/// <summary>
-		/// Вся положительная изначальная сумма заказа
-		/// </summary>
-		public virtual decimal OrderPositiveOriginalSum
-		{
-			get
-			{
-				decimal sum = 0;
-				foreach(OrderItem item in ObservableOrderItems)
-				{
-					sum += item.Sum;
-				}
-				return sum;
-			}
-		}
-
-		/// <summary>
-		/// Вся отрицательная сумма заказа
-		/// </summary>
-		public virtual decimal OrderNegativeSum {
-			get {
-				decimal sum = 0;
-				foreach(OrderDepositItem dep in ObservableOrderDepositItems) {
-					sum += dep.ActualSum;
-				}
-				return sum;
-			}
-		}
-
 		public virtual decimal BottleDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.ActualSum);
 		public virtual decimal EquipmentDepositSum => ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.ActualSum);
 
@@ -1500,6 +1513,25 @@ namespace Vodovoz.Domain.Orders
 			.Concat(OrderEquipments.Where(x => x.Nomenclature.Kind != null).Select(x => x.Nomenclature))
 			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Kind.Id))
 			.Count() > 0;
+
+		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems =>
+			ObservableOrderItems.Any(x =>
+			x.Nomenclature.IsAccountableInTrueMark && !string.IsNullOrWhiteSpace(x.Nomenclature.Gtin) && x.Count > 0);
+
+		/// <summary>
+		/// Проверка, является ли клиент по заказу сетевым покупателем
+		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
+		/// </summary>
+		public virtual new bool IsNeedIndividualSetOnLoad =>
+			PaymentType == PaymentType.Cashless
+			&& Client?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
+
+		/// <summary>
+		/// Проверка, является ли целью покупки заказа - для перепродажи
+		/// </summary>
+		public virtual bool IsOrderForResale =>
+			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
 
 		#endregion
 
@@ -1567,13 +1599,25 @@ namespace Vodovoz.Domain.Orders
 
 		private void UpdateContractDocument()
 		{
-			var contractDocuments = OrderDocuments.Where(x =>
-				x.Type == OrderDocumentType.Contract && x.Order == this && x.AttachedToOrder == this);
-			if(!contractDocuments.Any()) {
+			var contractDocuments =
+				OrderDocuments
+				.Where(x => x.Type == OrderDocumentType.Contract && x.Order == this && x.AttachedToOrder == this);
+
+			if(!contractDocuments.Any())
+			{
 				return;
 			}
 
-			foreach(var contractDocument in contractDocuments.ToList()) {
+			foreach(var contractDocument in contractDocuments.ToList())
+			{
+				if(contractDocument is OrderContract orderContract)
+				{
+					if(orderContract.Contract == Contract)
+					{
+						continue;
+					}
+				}
+
 				ObservableOrderDocuments.Remove(contractDocument);
 			}
 
@@ -1788,16 +1832,18 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddContractDocument(CounterpartyContract contract)
 		{
-			if(ObservableOrderDocuments.OfType<OrderContract>().Any(x => x.Contract == contract)) {
+			if(ObservableOrderDocuments.OfType<OrderContract>().Any(x => x.Contract == contract))
+			{
 				return;
 			}
+
 			ObservableOrderDocuments.Add(
-				new OrderContract {
+				new OrderContract
+				{
 					Order = this,
 					AttachedToOrder = this,
 					Contract = contract
-				}
-			);
+				});
 		}
 
 		public virtual bool HasWater()
@@ -2851,15 +2897,40 @@ namespace Vodovoz.Domain.Orders
 				$"{string.Join("\n", errorStrings)}");
 		}
 
-		public virtual void UpdateOrderPaymentStatus(decimal canceledSum)
+		public virtual void UpdatePaymentStatus(IUnitOfWork uow = null)
+		{
+			if(PaymentType != PaymentType.Cashless)
+			{
+				OrderPaymentStatus = OrderPaymentStatus.None;
+				return;
+			}
+
+			if(Id == 0)
+			{
+				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				return;
+			}
+			
+			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(uow ?? UoW, Id);
+			UpdatePaymentStatus(() => allocatedSum == default, () => allocatedSum >= OrderSum);
+		}
+
+		public virtual void UpdateCashlessOrderPaymentStatus(decimal canceledSum)
 		{
 			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, Id);
 
-			if(allocatedSum == 0 || allocatedSum - canceledSum == 0)
+			UpdatePaymentStatus(
+				() => allocatedSum == 0 || allocatedSum - canceledSum == 0,
+				() => allocatedSum - canceledSum > OrderSum);
+		}
+		
+		private void UpdatePaymentStatus(Func<bool> unPaidPredicate, Func<bool> paidPredicate)
+		{
+			if(unPaidPredicate.Invoke())
 			{
 				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
 			}
-			else if(allocatedSum - canceledSum > OrderSum)
+			else if(paidPredicate.Invoke())
 			{
 				OrderPaymentStatus = OrderPaymentStatus.Paid;
 			}
@@ -3956,7 +4027,12 @@ namespace Vodovoz.Domain.Orders
 
 			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
-			ParseTareReason();
+			
+			if(TareNonReturnReason is null)
+			{
+				ParseTareReason();
+			}
+			
 			ClearPromotionSets();
 			orderDailyNumberController.UpdateDailyNumber(this);
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
@@ -4117,6 +4193,7 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				edoDocumentsActions.IsNeedToResendEdoUpd = true;
+				edoDocumentsActions.Created = DateTime.Now;
 
 				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkDocument>()
 					.Where(x => x.Order.Id == Id)
@@ -4377,12 +4454,12 @@ namespace Vodovoz.Domain.Orders
 			{
 				if(!hasMarkedOrderItem)
 				{
-					hasMarkedOrderItem = !string.IsNullOrWhiteSpace(orderItem.Nomenclature.Gtin);
+					hasMarkedOrderItem = orderItem.Nomenclature.Gtins.Any();
 				}
 
 				if(!hasUnmarkedOrderItem)
 				{
-					hasUnmarkedOrderItem = string.IsNullOrWhiteSpace(orderItem.Nomenclature.Gtin);
+					hasUnmarkedOrderItem = !orderItem.Nomenclature.Gtins.Any();
 				}
 			}
 
@@ -4405,11 +4482,13 @@ namespace Vodovoz.Domain.Orders
 		private void ObservableOrderDepositItems_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(OrderSum));
+			OnPropertyChanged(nameof(OrderCashSum));
 		}
 
 		protected internal virtual void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(OrderSum));
+			OnPropertyChanged(nameof(OrderCashSum));
 			UpdateDocuments();
 		}
 

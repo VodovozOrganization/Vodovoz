@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Contacts;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Contacts
 {
@@ -11,8 +11,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Contacts
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
-			Map(x => x.PhonePurpose).Column("purpose").CustomType<PhonePurposeStringType>();
+			Map(x => x.PhonePurpose).Column("purpose");
 		}
 	}
 }
-

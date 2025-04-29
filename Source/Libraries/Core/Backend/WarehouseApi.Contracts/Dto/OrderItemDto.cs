@@ -18,9 +18,14 @@ namespace WarehouseApi.Contracts.Dto
 		public string Name { get; set; }
 
 		/// <summary>
-		/// Номер товарной продукции GTIN
+		/// Номера товарной продукции GTIN
 		/// </summary>
-		public string Gtin { get; set; }
+		public IEnumerable<string> Gtin { get; set; }
+
+		/// <summary>
+		/// Номера группы товарной продукции GTIN
+		/// </summary>
+		public IEnumerable<GroupGtinDto> GroupGtins { get; set; }
 
 		/// <summary>
 		/// Количество
@@ -30,6 +35,6 @@ namespace WarehouseApi.Contracts.Dto
 		/// <summary>
 		/// Коды маркировки ЧЗ
 		/// </summary>
-		public IEnumerable<TrueMarkCodeDto> Codes { get; set; }
+		public List<TrueMarkCodeDto> Codes { get; } = new List<TrueMarkCodeDto>();
 	}
 }

@@ -126,7 +126,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_warehousePermissionValidator =
 				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService))).GetValidator();
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			_canReturnFromMileageCheckToOnClosing = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+			_canReturnFromMileageCheckToOnClosing = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.PresetPermissionsRoles.Cashier);
 
 			TabName = "Журнал МЛ";
 
@@ -705,7 +705,8 @@ namespace Vodovoz.ViewModels.Logistic
 			return new JournalAction(
 				"Выдать топливо",
 				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
-					&& _fuelIssuingStatuses.Contains(node.StatusEnum),
+					&& _fuelIssuingStatuses.Contains(node.StatusEnum)
+					&& node.Date >= DateTime.Today,
 				selectedItems => true,
 				selectedItems =>
 				{

@@ -36,7 +36,7 @@ namespace EdoAutoSendReceiveWorker
 							var settings = sp.GetRequiredService<IOptions<MetricOptions>>().Value;
 							return settings;
 						})
-						.ConfigureZabbixSender(nameof(TaxcomEdoAutoSendReceiveWorker))
+						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoAutoSendReceiveWorker))
 						.AddHostedService<TaxcomEdoAutoSendReceiveWorker>();
 				});
 	}

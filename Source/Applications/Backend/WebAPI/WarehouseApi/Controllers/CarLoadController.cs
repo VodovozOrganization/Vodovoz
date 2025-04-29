@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Errors;
@@ -16,7 +17,6 @@ using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Requests;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Filters;
-using WarehouseApi.Library.Common;
 using WarehouseApi.Library.Services;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
@@ -57,7 +57,7 @@ namespace WarehouseApi.Controllers
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StartLoadResponse))]
-		public async Task<IActionResult> StartLoad([FromQuery] int documentId)
+		public async Task<IActionResult> StartLoad([FromQuery] int documentId, CancellationToken cancellationToken)
 		{
 			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
 			var accessToken = accessTokenValue?.Parameter ?? string.Empty;
@@ -69,7 +69,7 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var requestProcessingResult = await _carLoadService.StartLoad(documentId, user.UserName, accessToken);
+				var requestProcessingResult = await _carLoadService.StartLoad(documentId, user.UserName, accessToken, cancellationToken);
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
@@ -77,7 +77,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -100,13 +100,25 @@ namespace WarehouseApi.Controllers
 			{
 				var requestProcessingResult = await _carLoadService.GetOrder(orderId);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					foreach(var item in requestProcessingResult.Result.Value.Order.Items)
+					{
+						var maxIndex = item.Codes.Count;
+						for(int i = 0; i < maxIndex; i++)
+						{
+							item.Codes[i].SequenceNumber = i;
+						}
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -119,7 +131,7 @@ namespace WarehouseApi.Controllers
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AddOrderCodeResponse))]
-		public async Task<IActionResult> AddOrderCode(AddOrderCodeRequest requestData)
+		public async Task<IActionResult> AddOrderCode(AddOrderCodeRequest requestData, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Запрос добавления кода ЧЗ в заказ. OrderId: {OrderId}, NomenclatureId: {NomenclatureId}, Code: {Code}. User token: {AccessToken}",
 				requestData.OrderId,
@@ -132,7 +144,16 @@ namespace WarehouseApi.Controllers
 			try
 			{
 				var requestProcessingResult =
-					await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName);
+					await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName, cancellationToken);
+
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
@@ -140,7 +161,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -152,7 +173,7 @@ namespace WarehouseApi.Controllers
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ChangeOrderCodeResponse))]
-		public async Task<IActionResult> ChangeOrderCode(ChangeOrderCodeRequest requestData)
+		public async Task<IActionResult> ChangeOrderCode(ChangeOrderCodeRequest requestData, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Запрос замены кода ЧЗ в заказе." +
 				" OrderId: {OrderId}, NomenclatureId: {NomenclatureId}, OldCode: {OldCode}, NewCode: {NewCode}. User token: {AccessToken}",
@@ -172,7 +193,17 @@ namespace WarehouseApi.Controllers
 						requestData.NomenclatureId,
 						requestData.OldCode,
 						requestData.NewCode,
-						user.UserName);
+						user.UserName,
+						cancellationToken);
+
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
@@ -180,7 +211,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -192,7 +223,7 @@ namespace WarehouseApi.Controllers
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EndLoadResponse))]
-		public async Task<IActionResult> EndLoad([FromQuery] int documentId)
+		public async Task<IActionResult> EndLoad([FromQuery] int documentId, CancellationToken cancellationToken)
 		{
 			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
 			var accessToken = accessTokenValue?.Parameter ?? string.Empty;
@@ -204,7 +235,7 @@ namespace WarehouseApi.Controllers
 
 			try
 			{
-				var requestProcessingResult = await _carLoadService.EndLoad(documentId, user.UserName, accessToken);
+				var requestProcessingResult = await _carLoadService.EndLoad(documentId, user.UserName, accessToken, cancellationToken);
 
 				return MapRequestProcessingResult(
 					requestProcessingResult,
@@ -212,7 +243,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -227,11 +258,18 @@ namespace WarehouseApi.Controllers
 				return new ObjectResult(processingResult.Result.Value);
 			}
 
+			if(processingResult.FailureData == null)
+			{
+				var errorResult = GetProblemResult(string.Join(", ", processingResult.Result.Errors.Select(x => x.Message)));
+				HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status400BadRequest;
+				return new ObjectResult(errorResult);
+			}
+
 			HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status400BadRequest;
 			return new ObjectResult(processingResult.FailureData);
 		}
 
-		private IActionResult GetProblemResult(string exceptionMessage = null)
+		private static IActionResult GetProblemResult(string exceptionMessage = null)
 		{
 			var response = new WarehouseApiResponseBase
 			{
@@ -245,7 +283,7 @@ namespace WarehouseApi.Controllers
 			};
 		}
 
-		private int GetStatusCode(Result result)
+		private static int GetStatusCode(Result result)
 		{
 			if(result.IsSuccess)
 			{

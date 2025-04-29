@@ -68,9 +68,4 @@ namespace Vodovoz.Domain.StoredEmails
 		[Display(Name = "Счёт без отгрузки на предоплату")]
 		OrderWithoutShipmentForAdvancePayment
 	}
-
-	public class CounterpartyEmailStringType : NHibernate.Type.EnumStringType
-	{
-		public CounterpartyEmailStringType() : base(typeof(CounterpartyEmailType)) { }
-	}
 }

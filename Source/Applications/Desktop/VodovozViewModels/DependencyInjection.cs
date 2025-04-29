@@ -1,4 +1,4 @@
-﻿using GeoCoderApi.Client.Extensions;
+using GeoCoderApi.Client.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application.BankStatements;
 using Vodovoz.Presentation.ViewModels.Factories;

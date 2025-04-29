@@ -6,9 +6,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.Domain;
 using Vodovoz.Factories;
 using Vodovoz.Models;
-using Vodovoz.NotificationRecievers;
 using Vodovoz.Options;
-using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
@@ -24,7 +22,7 @@ namespace Vodovoz
 			IConfiguration configuration,
 			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped) =>
 			services
-				.AddCoreDomainServices()
+				.AddFeatureManagement()
 				.RegisterClassesByInterfaces("Controller", serviceLifetime)
 				.RegisterClassesByInterfaces("Converter", serviceLifetime)
 				.RegisterClassesByInterfaces("Repository", serviceLifetime)
@@ -47,7 +45,6 @@ namespace Vodovoz
 				.AddService<IErrorReporter>(context => ErrorReporter.Instance, serviceLifetime)
 				.AddService<OrderStateKey>(serviceLifetime)
 				.AddService<OnlineOrderStateKey>(serviceLifetime)
-				.AddDriverApiHelper()
 			;
 
 		private static IServiceCollection RegisterClassesByInterfaces(
@@ -62,25 +59,5 @@ namespace Vodovoz
 		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services, IConfiguration configuration) => services
 			.Configure<PushNotificationSettings>(pushNotificationOptions =>
 				configuration.GetSection(nameof(PushNotificationSettings)).Bind(pushNotificationOptions));
-
-		public static IServiceCollection AddDriverApiHelper(this IServiceCollection services) =>
-			services.AddScoped<DriverApiHelperConfiguration>(serviceProvider =>
-				{
-					var databaseSettings = serviceProvider.GetRequiredService<IDriverApiSettings>();
-					return new DriverApiHelperConfiguration
-					{
-						ApiBase = databaseSettings.ApiBase,
-						NotifyOfCashRequestForDriverIsGivenForTakeUri = databaseSettings.NotifyOfCashRequestForDriverIsGivenForTakeUri,
-						NotifyOfFastDeliveryOrderAddedURI = databaseSettings.NotifyOfFastDeliveryOrderAddedUri,
-						NotifyOfSmsPaymentStatusChangedURI = databaseSettings.NotifyOfSmsPaymentStatusChangedUri,
-						NotifyOfWaitingTimeChangedURI = databaseSettings.NotifyOfWaitingTimeChangedURI,
-						NotifyOfOrderWithGoodsTransferingIsTransferedUri = databaseSettings.NotifyOfOrderWithGoodsTransferingIsTransferedUri,
-					};
-				})
-				.AddScoped<ISmsPaymentStatusNotificationReciever, DriverAPIHelper>()
-				.AddScoped<IFastDeliveryOrderAddedNotificationReciever, DriverAPIHelper>()
-				.AddScoped<IWaitingTimeChangedNotificationReciever, DriverAPIHelper>()
-				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationReciever, DriverAPIHelper>()
-				.AddScoped<IRouteListTransferhandByHandReciever, DriverAPIHelper>();
 	}
 }

@@ -12,8 +12,6 @@ using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Data.Orders;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain;
@@ -35,8 +33,13 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Core.Domain.TrueMark;
+using VodovozBusiness.Domain.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -952,10 +955,51 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
 		{
+			if(IsReceiptSentOldDocflow(uow, orderId))
+			{
+				return true;
+			}
+
+			return IsReceiptSentNewDocflow(uow, orderId);
+		}
+
+		private bool IsReceiptSentOldDocflow(IUnitOfWork uow, int orderId)
+		{
 			var receipts = uow.Session.QueryOver<CashReceipt>()
 				.Where(x => x.Order.Id == orderId)
 				.Where(x => x.Status == CashReceiptStatus.Sended)
 				.List();
+
+			return receipts.Any();
+		}
+
+		private bool IsReceiptSentNewDocflow(IUnitOfWork uow, int orderId)
+		{
+			var fiscalDocumentStages = new[]
+			{
+				FiscalDocumentStage.Sent,
+				FiscalDocumentStage.Completed
+			};
+
+			var receipts =
+				(from edoTask in uow.Session.Query<ReceiptEdoTask>()
+				 join edoRequest in uow.Session.Query<OrderEdoRequest>() on edoTask.Id equals edoRequest.Task.Id
+				 join efd in uow.Session.Query<EdoFiscalDocument>() on edoTask.Id equals efd.ReceiptEdoTask.Id into fiscalDocuments
+				 from fiscalDocument in fiscalDocuments.DefaultIfEmpty()
+				 join tri in uow.Session.Query<TransferEdoRequestIteration>() on edoTask.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
+				 from transferEdoRequestIteration in transferEdoRequestIterations.DefaultIfEmpty()
+				 join ter in uow.Session.Query<TransferEdoRequest>() on transferEdoRequestIteration.Id equals ter.Iteration.Id into transferEdoRequests
+				 from transferEdoRequest in transferEdoRequests.DefaultIfEmpty()
+				 join tet in uow.Session.Query<TransferEdoTask>() on transferEdoRequest.TransferEdoTask.Id equals tet.Id into transferEdoTasks
+				 from transferEdoTask in transferEdoTasks.DefaultIfEmpty()
+				 join ted in uow.Session.Query<TransferEdoDocument>() on transferEdoTask.Id equals ted.TransferTaskId into transferEdoDocuments
+				 from transferEdoDocument in transferEdoDocuments.DefaultIfEmpty()
+				 where
+					 edoRequest.Order.Id == orderId
+					 && (transferEdoDocument.Id != null || fiscalDocumentStages.Contains(fiscalDocument.Stage))
+				 select
+				 edoTask.Id)
+				.ToList();
 
 			return receipts.Any();
 		}
@@ -1113,27 +1157,25 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public IEnumerable<VodovozOrder> GetCashlessOrdersForEdoSendUpd(
 			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
 		{
-			var ordersForNewUpd = GetOrdersForFirstUpdSending(uow, startDate, organizationId, closingDocumentDeliveryScheduleId);
-			var ordersForResendUpd = GetOrdersForResendUpd(uow);
-			var result = ordersForNewUpd.Union(ordersForResendUpd);
-			
-			return result;
+			return GetOrdersForFirstUpdSending(uow, startDate, organizationId, closingDocumentDeliveryScheduleId);
 		}
 
-		public IEnumerable<int> GetOrdersThatMustBeLoadedBeforeUpdSending(IUnitOfWork uow, IEnumerable<int> orderIds)
+		public IEnumerable<int> GetNewEdoProcessOrders(IUnitOfWork uow, IEnumerable<int> orderIds)
 		{
 			var query =
 				from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItem>()
-				join carLoadDocument in uow.Session.Query<CarLoadDocument>()
-				on carLoadDocumentItem.Document.Id equals carLoadDocument.Id
-				join nomenclature in uow.Session.Query<Nomenclature>()
-				on carLoadDocumentItem.Nomenclature.Id equals nomenclature.Id
+				join carLoadDocument in uow.Session.Query<CarLoadDocument>() on carLoadDocumentItem.Document.Id equals carLoadDocument.Id
+				join nomenclature in uow.Session.Query<Nomenclature>() on carLoadDocumentItem.Nomenclature.Id equals nomenclature.Id
+				join order in uow.Session.Query<Order>() on carLoadDocumentItem.OrderId equals order.Id
+				join client in uow.Session.Query<Counterparty>() on order.Client.Id equals client.Id
+				join oer in uow.Session.Query<OrderEdoRequest>() on order.Id equals oer.Order.Id into orderEdoRequests
+				from orderEdoRequest in orderEdoRequests.DefaultIfEmpty()
 				where
 					orderIds.Contains((int)carLoadDocumentItem.OrderId)
 					&& carLoadDocumentItem.IsIndividualSetForOrder
 					&& nomenclature.IsAccountableInTrueMark
-					&& nomenclature.Gtin != null
-					&& carLoadDocument.LoadOperationState != CarLoadDocumentLoadOperationState.Done
+					&& (orderEdoRequest != null
+						|| (client.IsNewEdoProcessing && orderEdoRequest == null && order.OrderStatus == OrderStatus.OnTheWay))
 				select (int)carLoadDocumentItem.OrderId;
 
 			return query.Distinct().ToList();
@@ -1223,8 +1265,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			PaymentItem paymentItemAlias = null;
 
 			var payments = uow.Session.QueryOver(() => paymentAlias)
-				.JoinAlias(() => paymentAlias.PaymentItems, () => paymentItemAlias)
+				.JoinAlias(p => p.Items, () => paymentItemAlias)
 				.Where(() => paymentItemAlias.Order.Id == orderId)
+				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
 				.TransformUsing(Transformers.DistinctRootEntity)
 				.List<Payment>();
 
@@ -1263,7 +1306,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 					.And(() => nomenclatureAlias.IsAccountableInTrueMark)
-					.And(() => nomenclatureAlias.Gtin != null)
 					.Select(Projections.Id());
 
 			if(startDate.HasValue)
@@ -1290,6 +1332,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					)
 				)
 				.And(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
+				.And(() => !counterpartyAlias.IsNewEdoProcessing)
 				.TransformUsing(Transformers.RootEntity)
 				.List();
 			return result;
@@ -1315,7 +1358,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 					.And(() => nomenclatureAlias.IsAccountableInTrueMark)
-					.And(() => nomenclatureAlias.Gtin != null)
 					.Select(Projections.Id());
 
 			if(startDate.HasValue)
@@ -1343,6 +1385,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					)
 				)
 				.And(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
+				.And(() => !counterpartyAlias.IsNewEdoProcessing)
 				.TransformUsing(Transformers.RootEntity)
 				.List();
 
@@ -1393,7 +1436,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
-				.And(() => nomenclatureAlias.Gtin != null)
 				.Select(Projections.Id());
 
 			var hasCancellationSubquery = QueryOver.Of(() => trueMarkApiDocumentAlias)
@@ -1431,6 +1473,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Where(() => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id)
 				.Where(() => orderAlias.DeliveryDate > startDate)
 				.Where(() => orderEdoTrueMarkDocumentsActionsAlias.IsNeedToCancelTrueMarkDocument == null || !orderEdoTrueMarkDocumentsActionsAlias.IsNeedToCancelTrueMarkDocument)
+				.Where(() => !counterpartyAlias.IsNewEdoProcessing)
 				.Select(o => o.Id);
 
 			var result = uow.Session.QueryOver(() => trueMarkApiDocumentAlias)
@@ -1540,10 +1583,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			District districtAlias = null;
 			GeoGroup geographicGroupAlias = null;
 			VodovozOrder orderAlias = null;
+			Counterparty clientAlias = null;
 
 			var mainQuery = QueryOver.Of(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => orderAlias.DeliverySchedule, () => deliveryScheduleAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => clientAlias)
 				.Where(() => orderAlias.DeliveryDate == orderOnDayFilters.DateForRouting.Date)
 				.Where(() => !orderAlias.SelfDelivery)
 				.Where(() => orderAlias.DeliveryPoint != null)
@@ -1595,9 +1640,24 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.WhereRestrictionOn(() => districtAlias.GeographicGroup.Id).IsIn(orderOnDayFilters.GeographicGroupIds);
 			}
 
-			if(!orderOnDayFilters.FastDeliveryEnabled)
+			if(orderOnDayFilters.FastDeliveryEnabled || orderOnDayFilters.IsCodesScanInWarehouseRequired)
 			{
-				mainQuery.Where(() => !orderAlias.IsFastDelivery);
+				var additionalParametersRestriction = Restrictions.Conjunction();
+
+				if(orderOnDayFilters.FastDeliveryEnabled)
+				{
+					additionalParametersRestriction.Add(() => orderAlias.IsFastDelivery);
+				}
+
+				if(orderOnDayFilters.IsCodesScanInWarehouseRequired)
+				{
+					additionalParametersRestriction.Add(Restrictions.Conjunction()
+						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
+						.Add(() => clientAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+						.Add(() => clientAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute));
+				}
+
+				mainQuery.Where(additionalParametersRestriction);
 			}
 
 			mainQuery.WhereRestrictionOn(() => orderAlias.OrderAddressType)
@@ -1870,7 +1930,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
 					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
-				.Where(() => orderAlias.DeliveryDate >= startDate);
+				.Where(() => orderAlias.DeliveryDate >= startDate)
+				.And(() => !counterpartyAlias.IsNewEdoProcessing);
 
 			var orderStatusRestriction = Restrictions.Or(
 				Restrictions.And(
@@ -1965,6 +2026,95 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				};
 
 			return discounts;
+		}
+
+		public IList<RouteListItemTrueMarkProductCode> GetAddedRouteListItemTrueMarkProductCodesByOrderId(IUnitOfWork uow, int orderId)
+		{
+			var productCodes =
+				from routeListItem in uow.Session.Query<RouteListItem>()
+				join productCode in uow.Session.Query<RouteListItemTrueMarkProductCode>() on routeListItem.Id equals productCode.RouteListItem.Id
+				where routeListItem.Order.Id == orderId
+				select productCode;
+
+			return productCodes.ToList();
+		}
+
+		public bool IsAllRouteListItemTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId)
+		{
+			var accountableInTrueMarkGtinItemsCount = GetIsAccountableInTrueMarkOrderItems(uow, orderId)
+				.GroupBy(x => x.Nomenclature.Gtins)
+				.ToDictionary(x => x.Key, x => x.Sum(item => item.Count));
+
+			var addedTrueMarkCodes = GetAddedRouteListItemTrueMarkProductCodesByOrderId(uow, orderId)
+				.Where(x => x.SourceCodeStatus == SourceProductCodeStatus.Accepted)
+				.Select(x => x.ResultCode)
+				.GroupBy(x => x.GTIN)
+				.ToDictionary(x => x.Key, x => x);
+
+			foreach(var gtinsItemCount in accountableInTrueMarkGtinItemsCount)
+			{
+				var addedCodesCount = 0;
+
+				foreach(var gtin in gtinsItemCount.Key)
+				{
+					addedCodesCount +=
+						addedTrueMarkCodes.TryGetValue(gtin.GtinNumber, out var addedCodes)
+						? addedCodes.Count()
+						: 0;
+				}
+
+				if(addedCodesCount < gtinsItemCount.Value)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		public IList<TrueMarkProductCodeOrderItem> GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(IUnitOfWork uow, int orderItemId)
+		{
+			var codesOrderItems = uow.Session.Query<TrueMarkProductCodeOrderItem>()
+				.Where(x => x.OrderItemId == orderItemId)
+				.ToList();
+
+			return codesOrderItems;
+		}
+
+		public IList<TrueMarkProductCodeOrderItem> GetTrueMarkCodesAddedByDriverToOrderByOrderId(IUnitOfWork uow, int orderId)
+		{
+			var codesOrderItems = 
+				from order in uow.Session.Query<Order>()
+				join orderItem in uow.Session.Query<OrderItem>() on order.Id equals orderItem.Order.Id
+				join codeOrderItem in uow.Session.Query<TrueMarkProductCodeOrderItem>() on orderItem.Id equals codeOrderItem.OrderItemId
+				where order.Id == orderId
+				select codeOrderItem;
+
+			return codesOrderItems.ToList();
+		}
+
+		public IList<TrueMarkWaterIdentificationCode> GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(IUnitOfWork uow, int orderId)
+		{
+			var codes =
+				(from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItem>()
+				 join productCode in uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>() on carLoadDocumentItem.Id equals productCode.CarLoadDocumentItem.Id
+				 where carLoadDocumentItem.OrderId == orderId
+				 select productCode.ResultCode)
+				.ToList();
+
+			return codes;
+		}
+
+		public bool IsOrderCarLoadDocumentLoadOperationStateDone(IUnitOfWork uow, int orderId)
+		{
+			var carLoadDocumentLoadOperationState =
+				(from carLoadDocument in uow.Session.Query<CarLoadDocument>()
+				 join CarLoadDocumentItem in uow.Session.Query<CarLoadDocumentItem>() on carLoadDocument.Id equals CarLoadDocumentItem.Document.Id
+				 where CarLoadDocumentItem.OrderId == orderId
+				 select carLoadDocument.LoadOperationState)
+				.FirstOrDefault();
+
+			return carLoadDocumentLoadOperationState == CarLoadDocumentLoadOperationState.Done;
 		}
 	}
 }

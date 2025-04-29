@@ -1,4 +1,4 @@
-﻿using CustomerAppsApi.HealthChecks;
+using CustomerAppsApi.HealthChecks;
 using CustomerAppsApi.Library;
 using CustomerAppsApi.Middleware;
 using MassTransit;
@@ -18,9 +18,9 @@ using QS.Services;
 using RabbitMQ.MailSending;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings;
 using VodovozHealthCheck;
-using Vodovoz.Infrastructure.Persistance;
 
 namespace CustomerAppsApi
 {
@@ -37,9 +37,9 @@ namespace CustomerAppsApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services
-				.AddSwaggerGen(c => 
-				{ 
-					c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerAppsApi", Version = "v1" }); 
+				.AddSwaggerGen(c =>
+				{
+					c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerAppsApi", Version = "v1" });
 				})
 
 				.AddLogging(logging =>

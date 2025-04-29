@@ -1059,8 +1059,8 @@ SELECT
         WHEN 'Closed' THEN 'Закрыт'
         ELSE o.order_status
         END AS doc_status,
-    IF((DATEDIFF(NOW(), o.create_date) - CAST(c.delay_days_for_buyers AS INT)) &gt; 0,
-       CONCAT('Оплата по заказу просрочена на ', (DATEDIFF(NOW(), o.create_date) - CAST(c.delay_days_for_buyers AS INT)), ' дней'),
+    IF((DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT)) &gt; 0,
+       CONCAT('Оплата по заказу просрочена на ', (DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT)), ' дней'),
        '') AS payment_description,
     1 AS sorting_rank_by_entities,
     0 AS sorting_rank_payment_docs

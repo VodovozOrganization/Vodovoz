@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -206,7 +206,7 @@ namespace Vodovoz.Application.Clients.Services
 			}
 
 			return _counterpartyRepository
-				.Get(unitOfWork, c => c.Phones.Any(p => p.Number == normalizedPhone));
+				.Get(unitOfWork, c => c.Phones.Any(p => p.DigitsNumber == normalizedPhone));
 		}
 	}
 }

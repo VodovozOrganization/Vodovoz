@@ -2,7 +2,6 @@
 using FuelControl.Library.Converters;
 using FuelControl.Library.Exceptions;
 using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Linq;

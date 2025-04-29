@@ -227,7 +227,7 @@ namespace Vodovoz.ReportsParameters.Sales
 					.AddTextRenderer(row => row.IsSubheaderRow ? "" :
 						row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
 
-				if(ViewModel.Report.GroupingBy.LastOrDefault() == Reports.Editing.Modifiers.GroupingType.Nomenclature)
+				if(ViewModel.Report.ShowResiduesAtCreatedAt)
 				{
 					columnsConfig
 						.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}")

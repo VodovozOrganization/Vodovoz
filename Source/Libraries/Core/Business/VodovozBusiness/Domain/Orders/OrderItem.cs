@@ -1,20 +1,19 @@
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Nomenclature;
+using static VodovozBusiness.Services.Orders.CreateOrderRequest;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -95,7 +94,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
+		public virtual new Nomenclature Nomenclature
 		{
 			get => _nomenclature;
 			protected set => SetField(ref _nomenclature, value);
@@ -357,7 +356,15 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal TotalCountInOrder =>
 			Nomenclature.IsWater19L
 			? Order.GetTotalWater19LCount(true, true)
-			: Count;
+		: Count;
+
+		public virtual bool IsTrueMarkCodesMustBeAdded =>
+			Nomenclature?.IsAccountableInTrueMark == true
+			&& Count > 0;
+
+		public virtual bool IsTrueMarkCodesMustBeAddedInWarehouse =>
+			IsTrueMarkCodesMustBeAdded
+			&& Order.IsNeedIndividualSetOnLoad;
 
 		#region IOrderItemWageCalculationSource implementation
 

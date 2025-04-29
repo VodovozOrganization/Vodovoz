@@ -122,7 +122,7 @@ public partial class MainWindow : Gtk.Window
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
 		var commonServices = ServicesConfig.CommonServices;
-		var cashier = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+		var cashier = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.PresetPermissionsRoles.Cashier);
 		ActionCash.Sensitive = ActionIncomeBalanceReport.Sensitive = ActionCashBook.Sensitive = cashier;
 		ActionAccounting.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
 		Action1SWork.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Bookkeepping.Work1S.HasAccessTo1sWork);
@@ -381,9 +381,9 @@ public partial class MainWindow : Gtk.Window
 	protected override void OnDestroyed()
 	{
 		/*if(_messageBusControl != null)
-		{
-			_messageBusControl.Start();
-		}*/
+        {
+            _messageBusControl.Start();
+        }*/
 
 		base.OnDestroyed();
 	}

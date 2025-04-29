@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Core.Infrastructure;
 using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsApi.Contracts.Responses;
@@ -14,20 +15,17 @@ namespace FastPaymentsAPI.Library.Managers
 {
 	public class OrderRequestManager : IOrderRequestManager
 	{
-		private readonly IDTOManager _dtoManager;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IFastPaymentSettings _fastPaymentSettings;
 		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 		private readonly IOrderService _orderService;
 
 		public OrderRequestManager(
-			IDTOManager dtoManager,
 			ISignatureManager signatureManager,
 			IFastPaymentSettings fastPaymentSettings,
 			IFastPaymentFactory fastPaymentApiFactory,
 			IOrderService orderService)
 		{
-			_dtoManager = dtoManager ?? throw new ArgumentNullException(nameof(dtoManager));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
 			_fastPaymentSettings =
 				fastPaymentSettings ?? throw new ArgumentNullException(nameof(fastPaymentSettings));
@@ -40,7 +38,7 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			var shopId = GetShopIdFromOrganization(organization);
 			var orderDTO = GetOrderRegistrationRequestDto(order, fastPaymentGuid, shopId, phoneNumber, isQr);
-			var xmlStringFromOrderDTO = _dtoManager.GetXmlStringFromDTO(orderDTO);
+			var xmlStringFromOrderDTO = orderDTO.ToXmlString();
 
 			return _orderService.RegisterOrderAsync(xmlStringFromOrderDTO);
 		}
@@ -52,7 +50,7 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			var shopId = GetShopIdFromOrganization(organization);
 			var orderDTO = GetOrderRegistrationRequestDto(registerOnlineOrderDto, shopId, requestFromType);
-			var xmlStringFromOrderDTO = _dtoManager.GetXmlStringFromDTO(orderDTO);
+			var xmlStringFromOrderDTO = orderDTO.ToXmlString();
 
 			return _orderService.RegisterOrderAsync(xmlStringFromOrderDTO);
 		}
@@ -61,7 +59,7 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			var shopId = GetShopIdFromOrganization(organization);
 			var orderInfoDTO = _fastPaymentApiFactory.GetOrderInfoRequestDTO(ticket, shopId);
-			var xmlStringFromOrderInfoDTO = _dtoManager.GetXmlStringFromDTO(orderInfoDTO);
+			var xmlStringFromOrderInfoDTO = orderInfoDTO.ToXmlString();
 
 			return _orderService.GetOrderInfoAsync(xmlStringFromOrderInfoDTO);
 		}
@@ -70,7 +68,7 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			var shopId = GetShopIdFromOrganization(organization);
 			var cancelPaymentRequestDto = _fastPaymentApiFactory.GetCancelPaymentRequestDTO(ticket, shopId);
-			var xmlStringFromCancelPaymentRequestDTO = _dtoManager.GetXmlStringFromDTO(cancelPaymentRequestDto);
+			var xmlStringFromCancelPaymentRequestDTO = cancelPaymentRequestDto.ToXmlString();
 
 			return _orderService.CancelPaymentAsync(xmlStringFromCancelPaymentRequestDTO);
 		}

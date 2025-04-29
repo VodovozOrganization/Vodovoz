@@ -373,13 +373,6 @@ namespace Vodovoz.Domain.Service
 		Ready
 	}
 
-	public class ServiceClaimStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public ServiceClaimStatusStringType () : base (typeof(ServiceClaimStatus))
-		{
-		}
-	}
-
 	public enum ServiceClaimType
 	{
 		[Display (Name = "Сервис (доставка и забор)")]
@@ -406,19 +399,4 @@ namespace Vodovoz.Domain.Service
 		WithoutSerial
 
 	}
-
-	public class ServiceClaimTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public ServiceClaimTypeStringType () : base (typeof(ServiceClaimType))
-		{
-		}
-	}
-
-	public class ServiceClaimEquipmentSerialStringType : NHibernate.Type.EnumStringType
-	{
-		public ServiceClaimEquipmentSerialStringType () : base (typeof(ServiceClaimEquipmentSerialType))
-		{
-		}
-	}
 }
-

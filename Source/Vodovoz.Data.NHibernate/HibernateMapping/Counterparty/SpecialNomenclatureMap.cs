@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {

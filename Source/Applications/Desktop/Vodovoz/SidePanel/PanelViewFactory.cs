@@ -1,5 +1,6 @@
-using Autofac;
+﻿using Autofac;
 using Gtk;
+using Microsoft.Extensions.Logging;
 using QS.Project.Services;
 using QS.Tdi;
 using System;
@@ -38,7 +39,8 @@ namespace Vodovoz.SidePanel
 			switch(type)
 			{
 				case PanelViewType.CounterpartyView:
-					return new CounterpartyPanelView(ServicesConfig.CommonServices, orderRepository);
+					var loger = ScopeProvider.Scope.Resolve<ILogger<CounterpartyPanelView>>();
+					return new CounterpartyPanelView(loger, ServicesConfig.CommonServices, orderRepository);
 				case PanelViewType.DeliveryPointView:
 					var deliveryPointRepository = ScopeProvider.Scope.Resolve<IDeliveryPointRepository>();
 					var bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();

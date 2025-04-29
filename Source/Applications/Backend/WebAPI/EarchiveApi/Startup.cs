@@ -3,14 +3,15 @@ using EarchiveApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using NLog.Web;
 using MySqlConnector;
-using VodovozHealthCheck;
+using NLog.Web;
 using QS.Project.Core;
+using Vodovoz.Core.Data.NHibernate;
+using VodovozHealthCheck;
 
 namespace EarchiveApi
 {
@@ -29,7 +30,8 @@ namespace EarchiveApi
 		{
 			services.AddDatabaseConnectionSettings();
 			services.AddDatabaseConnectionString();
-			services.AddSingleton(provider => {
+			services.AddSingleton(provider =>
+			{
 				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();
 				return new MySqlConnection(connectionStringBuilder.ConnectionString);
 			});
@@ -45,6 +47,13 @@ namespace EarchiveApi
 				});
 
 			services.ConfigureHealthCheckService<EarchiveApiHealthCheck>();
+
+			services
+				.AddCore()
+				.AddSpatialSqlConfiguration()
+				.AddNHibernateConfiguration()
+				.AddNotTrackedUoW()
+				;
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

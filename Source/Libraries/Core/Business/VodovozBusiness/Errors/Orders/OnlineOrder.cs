@@ -183,5 +183,11 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectRentPackagePriceInOnlineOrder),
 				$"В переданном пакете аренды {rentPackageId} не совпадает цена." +
 				$"\nВ онлайн заказе {onlineRentPackagePrice} а в Пакете аренды {depositFromRentPackage}");
+		
+		public static Error InvalidPhone(string phone) =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(InvalidPhone),
+				$"Невалидный телефон {phone}");
 	}
 }

@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
 using Core.Infrastructure;
+using Edo.Contracts.Messages.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Taxcom.Client.Api;
+using Taxcom.Client.Api.Entity;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdoApi.Library.Services;
@@ -29,7 +32,7 @@ namespace TaxcomEdoApi.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult CreateAndSendUpd(InfoForCreatingEdoUpd data)
+		public IActionResult CreateAndSendBulkAccountingUpd(InfoForCreatingEdoUpd data)
 		{
 			var orderId = data.OrderInfoForEdo.Id;
 			_logger.LogInformation(
@@ -47,6 +50,38 @@ namespace TaxcomEdoApi.Controllers
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", orderId);
+				return Problem();
+			}
+		}
+		
+		[HttpPost]
+		public IActionResult CreateAndSendIndividualAccountingUpd(UniversalTransferDocumentInfo updInfo)
+		{
+			var documentId = updInfo.DocumentId;
+			_logger.LogInformation(
+				"Поступил запрос отправки УПД {UpdNumber} {DocumentId}",
+				updInfo.Number,
+				documentId);
+			
+			try
+			{
+				var container = _taxcomEdoService.CreateContainerWithUpd(updInfo);
+				
+				_logger.LogInformation(
+					"Отправляем контейнер с УПД {UpdNumber} {DocumentId}",
+					updInfo.Number,
+					documentId);
+				
+				_taxcomApi.Send(container);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка в процессе формирования УПД №{UpdNumber} {DocumentId} и ее отправки",
+					updInfo.Number,
+					documentId);
 				return Problem();
 			}
 		}
@@ -215,6 +250,66 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogError(e, "Ошибка при аннулировании документооборота {DocFlowId} с причиной {Reason}",
 					docFlowId,
 					reason);
+				return Problem();
+			}
+		}
+		
+		[HttpGet]
+		public IActionResult AcceptIngoingDocflow(string docflowId, string organization)
+		{
+			_logger.LogInformation(
+				"Поступил запрос принятия входящего документооборота {DocFlowId}", docflowId);
+			
+			try
+			{
+				var taxcomContainer = _taxcomApi.GetMainDocumentContainerFromDocflow(docflowId);
+
+				if(taxcomContainer?.Documents == null || !taxcomContainer.Documents.Any())
+				{
+					const string emptyContainer = "Поступил запрос на принятие пустого контейнера или без документов";
+					_logger.LogWarning(emptyContainer);
+					return Problem(emptyContainer);
+				}
+
+				var mainDocument = taxcomContainer.Documents.First();
+
+				if(mainDocument is not UniversalInvoiceDocument upd)
+				{
+					const string notUpd = "Поступил запрос на принятие контейнера с документом не УПД";
+					_logger.LogWarning(notUpd);
+					return Problem(notUpd);
+				}
+
+				var xmlString = _taxcomEdoService.GetSendCustomerInformationEvent(docflowId, organization, upd.Version);
+				
+				_logger.LogInformation(
+					"Сформировали файл действие для отправки титула покупателя по {DocFlowId} версия {UpdVersion}",
+					docflowId,
+					upd.Version);
+
+				_taxcomApi.SendCustomerInformationWithRawData(xmlString);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при принятии входящего документооборота {DocFlowId}", docflowId);
+				return Problem();
+			}
+		}
+		
+		[HttpGet]
+		public IActionResult GetDocFlowStatus(string docFlowId)
+		{
+			_logger.LogInformation("Получение текущего статуса документооборота {DocFlowId}", docFlowId);
+
+			try
+			{
+				var docflowDescription = _taxcomApi.GetStatus(docFlowId);
+				return Ok(docflowDescription);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при получении текущего статуса документооборота {DocFlowId}", docFlowId);
 				return Problem();
 			}
 		}

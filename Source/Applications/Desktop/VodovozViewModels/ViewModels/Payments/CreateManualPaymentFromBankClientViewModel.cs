@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
 using System.Linq;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments

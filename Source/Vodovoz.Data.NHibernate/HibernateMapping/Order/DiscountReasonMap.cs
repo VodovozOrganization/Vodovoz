@@ -16,7 +16,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.IsPremiumDiscount).Column("is_premium_discount");
 			Map(x => x.IsPresent).Column("is_present");
 
-			Map(x => x.ValueType).Column("value_type").CustomType<DiscountUnitTypeStringType>();
+			Map(x => x.ValueType).Column("value_type");
 
 			HasManyToMany(x => x.NomenclatureCategories)
 				.Table("discount_reasons_nomenclature_categories")

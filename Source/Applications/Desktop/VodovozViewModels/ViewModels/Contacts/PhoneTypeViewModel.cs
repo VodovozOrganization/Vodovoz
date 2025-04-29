@@ -1,10 +1,11 @@
-﻿using Vodovoz.Domain.Contacts;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.EntityRepositories;
 using System;
+using Vodovoz.Core.Domain.Contacts;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.ViewModels
 {

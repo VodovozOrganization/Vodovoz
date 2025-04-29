@@ -3,7 +3,7 @@ using Gamma.Widgets.Additions;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using System;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.Views.Goods
