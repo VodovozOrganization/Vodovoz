@@ -14,10 +14,14 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
 using DriverApi.Notifications.Client;
+using Vodovoz.Application.Receipts;
+using VodovozBusiness.Services.Receipts;
 using Vodovoz.Application.TrueMark;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkApi.Client;
@@ -36,7 +40,6 @@ namespace Vodovoz.Application
 			.AddScoped<ICounterpartyService, CounterpartyService>()
 			.AddScoped<IRouteListService, RouteListService>()
 			.AddScoped<IPaymentService, PaymentService>()
-			.AddScoped<IOrderService, OrderService>()
 			.AddScoped<IPhoneService, PhoneService>()
 			.AddScoped<INomenclatureService, NomenclatureService>()
 			.AddScoped<IComplaintService, ComplaintService>()
@@ -46,7 +49,7 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
 			.AddTrueMarkApiClient()
-			.AddOrderServicesDependencies()
+			.AddApplicationOrderServices()
 		;
 		
 		public static IServiceCollection AddApplicationOrderServices(this IServiceCollection services) => services
@@ -63,6 +66,20 @@ namespace Vodovoz.Application
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 			.AddDriverApiNotificationsSenders()
+			.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
+			.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()
+			.AddTransient<IOrganizationForOrderFromSet, OrganizationForOrderFromSet>()
+			.AddTransient<OrderOurOrganizationForOrderHandler>()
+			.AddTransient<ContractOrganizationForOrderHandler>()
+			.AddTransient<OrganizationByOrderAuthorHandler>()
+			.AddTransient<OrganizationByOrderContentForOrderHandler>()
+			.AddTransient<OrganizationByPaymentTypeForOrderHandler>()
+			.AddTransient<OrganizationForDeliveryOrderByPaymentTypeHandler>()
+			.AddTransient<OrganizationForSelfDeliveryOrderByPaymentTypeHandler>()
+			.AddTransient<OrganizationFromClientForOrderHandler>()
+			.AddScoped<IOrderContractUpdater, OrderContractUpdater>()
+			.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
+			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

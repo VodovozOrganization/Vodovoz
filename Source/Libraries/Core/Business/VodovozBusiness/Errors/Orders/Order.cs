@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Errors.Orders
+namespace Vodovoz.Errors.Orders
 {
 	public static partial class Order
 	{
@@ -44,6 +44,12 @@
 				"По этому адресу/телефону уже была ранее отгрузка промо набора\n" +
 				"Пожалуйста, удалите промо набор или поменяйте адрес доставки.");
 		
+		public static Error UnableToPartitionOrderWithBigDeposit =>
+			new Error(
+				typeof(Order),
+				nameof(UnableToShipPromoSet),
+				"Нельзя разделить заказ с большим залогом(сумма залога превышает суммы заказов, получаемых при разбиении)");
+		
 		public static Error UnableToShipPromoSetForNewClientsFromSelfDelivery =>
 			new Error(
 				typeof(Order),
@@ -87,5 +93,11 @@
 				typeof(Order),
 				nameof(OrderIsNotForPersonalUseError),
 				"Заказ приобретается не для собственных нужд");
+		
+		public static Error SplitOrderError =>
+			new Error(
+				typeof(Order),
+				nameof(SplitOrderError),
+				"Произошла ошибка при разбиении заказа");
 	}
 }

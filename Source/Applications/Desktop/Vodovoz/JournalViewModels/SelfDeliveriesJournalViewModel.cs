@@ -36,6 +36,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
+using VodovozBusiness.Services.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
@@ -51,6 +52,7 @@ namespace Vodovoz.Representations
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly ICashRepository _cashRepository;
 		private readonly IGuiDispatcher _guiDispatcher;
+		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly bool _userCanChangePayTypeToByCard;
 
 		private readonly string _dataIsLoadingString = "Идёт загрузка данных... ";
@@ -70,6 +72,7 @@ namespace Vodovoz.Representations
 			ICashRepository cashRepository,
 			INavigationManager navigationManager,
 			IGuiDispatcher guiDispatcher,
+			IOrderContractUpdater contractUpdater,
 			Action<OrderJournalFilterViewModel> filterConfig = null) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
@@ -82,6 +85,7 @@ namespace Vodovoz.Representations
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
 					UoW,
@@ -385,6 +389,7 @@ namespace Vodovoz.Representations
 									_orderPaymentSettings,
 									_orderSettings,
 									_deliveryRulesSettings,
+									_contractUpdater,
 									_currentEmployee), 
 								this
 							);
@@ -414,6 +419,7 @@ namespace Vodovoz.Representations
 									_orderPaymentSettings,
 									_orderSettings,
 									_deliveryRulesSettings,
+									_contractUpdater,
 									_currentEmployee),
 								this
 							);

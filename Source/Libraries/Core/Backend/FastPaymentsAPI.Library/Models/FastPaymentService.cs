@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Converters;
@@ -15,7 +16,9 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Domain.Settings;
 using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library.Models
@@ -24,6 +27,7 @@ namespace FastPaymentsAPI.Library.Models
 	{
 		private readonly ILogger<FastPaymentService> _logger;
 		private readonly IUnitOfWork _uow;
+		private readonly IOrderSettings _orderSettings;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly ISignatureManager _signatureManager;
@@ -33,10 +37,12 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IRequestFromConverter _requestFromConverter;
+		private readonly IOrganizationForOrderFromSet _organizationForOrderFromSet;
 
 		public FastPaymentService(
 			ILogger<FastPaymentService> logger,
 			IUnitOfWork uow,
+			IOrderSettings orderSettings,
 			IFastPaymentRepository fastPaymentRepository,
 			IOrderRepository orderRepository,
 			ISignatureManager signatureManager,
@@ -45,10 +51,12 @@ namespace FastPaymentsAPI.Library.Models
 			IFastPaymentManager fastPaymentManager,
 			IOrganizationRepository organizationRepository,
 			IOrganizationSettings organizationSettings,
-			IRequestFromConverter requestFromConverter)
+			IRequestFromConverter requestFromConverter,
+			IOrganizationForOrderFromSet organizationForOrderFromSet)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
@@ -59,11 +67,14 @@ namespace FastPaymentsAPI.Library.Models
 			_organizationSettings =
 				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_requestFromConverter = requestFromConverter ?? throw new ArgumentNullException(nameof(requestFromConverter));
+			_organizationForOrderFromSet =
+				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 		}
 
-		public Organization GetOrganization(RequestFromType requestFromType)
+		public Organization GetOrganization(TimeSpan requestTime, RequestFromType requestFromType)
 		{
-			var organization = _organizationRepository.GetPaymentFromOrganizationById(_uow, (int)requestFromType);
+			var organizationsSettings = GetOrganizationsSettings(requestFromType);
+			var organization = _organizationForOrderFromSet.GetOrganizationForOrderFromSet(requestTime, organizationsSettings);
 			return organization ?? _organizationRepository.GetOrganizationById(_uow, _organizationSettings.VodovozSouthOrganizationId);
 		}
 
@@ -225,6 +236,28 @@ namespace FastPaymentsAPI.Library.Models
 		{
 			_uow.Save(entity);
 			_uow.Commit();
+		}
+		
+		private IOrganizations GetOrganizationsSettings(RequestFromType requestFromType)
+		{
+			switch(requestFromType)
+			{
+				case RequestFromType.FromDesktopByQr:
+					return _uow.GetAll<SmsQrPaymentTypeOrganizationSettings>().SingleOrDefault();
+				case RequestFromType.FromDriverAppByQr:
+					return _uow.GetAll<DriverAppQrPaymentTypeOrganizationSettings>().SingleOrDefault();
+				case RequestFromType.FromSiteByQr:
+					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
+						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromSiteByQrCodeId);
+				case RequestFromType.FromDesktopByCard:
+					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
+						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromAvangardId);
+				case RequestFromType.FromMobileAppByQr:
+					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
+						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromMobileAppByQrCodeId);
+				default:
+					throw new ArgumentOutOfRangeException(nameof(requestFromType), requestFromType, null);
+			}
 		}
 	}
 }

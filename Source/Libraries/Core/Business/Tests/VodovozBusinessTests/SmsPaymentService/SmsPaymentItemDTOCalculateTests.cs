@@ -1,13 +1,11 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
-using SmsPaymentService;
 using System.Collections;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Models;
 using Vodovoz.Domain.Client;
 
 namespace VodovozBusinessTests.SmsPaymentService
