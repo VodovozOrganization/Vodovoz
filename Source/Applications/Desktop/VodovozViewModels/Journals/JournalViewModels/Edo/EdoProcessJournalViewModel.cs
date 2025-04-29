@@ -191,7 +191,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				{
 					var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
 
-					var orderIds = string.Join(", ", selectedNodes.Select(x => x.OrderId));
+					var orderIds = string.Join(", ", selectedNodes.Select(x => x.OrderTaskId));
 					_clipboard.SetText(orderIds);
 				}
 			);

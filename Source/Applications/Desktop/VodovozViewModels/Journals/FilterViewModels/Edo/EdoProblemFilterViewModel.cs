@@ -7,48 +7,48 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 	public class EdoProblemFilterViewModel : FilterViewModelBase<EdoProblemFilterViewModel>
 	{
 		private int? _orderId;
-		private DateTime _deliveryDateFrom;
-		private DateTime _deliveryDateTo;
-		private CustomerEdoRequestSource? _requestSource;
+		private DateTime? _deliveryDateFrom;
+		private DateTime? _deliveryDateTo;
 		private EdoTaskStatus? _edoTaskStatus;
 		private TaskProblemState? _taskProblemState;
-		private string _sourceId;
-		private bool? _hasProblemItems;
+		private string _problemSourceName;
+		private bool? _hasProblemTaskItems;
 		private bool? _hasProblemItemGtins;
 		private int? _taskId;
 
 		public EdoProblemFilterViewModel()
 		{
 			_deliveryDateFrom = DateTime.Today.AddDays(-7);
+			_taskProblemState = Core.Domain.Edo.TaskProblemState.Active;
 			_deliveryDateTo = DateTime.Today;
 		}
 
 		public virtual int? OrderId
 		{
 			get => _orderId;
-			set => UpdateFilterField(ref _orderId, value);
+			set => SetField(ref _orderId, value);
 		}
-		
+
 		public virtual int? TaskId
 		{
 			get => _taskId;
-			set => UpdateFilterField(ref _taskId, value);
+			set => SetField(ref _taskId, value);
 		}
 
 
-		public virtual string SourceId
+		public virtual string ProblemSourceName
 		{
-			get => _sourceId;
-			set => UpdateFilterField(ref _sourceId, value);
+			get => _problemSourceName;
+			set => SetField(ref _problemSourceName, value);
 		}
 
-		public virtual DateTime DeliveryDateFrom
+		public virtual DateTime? DeliveryDateFrom
 		{
 			get => _deliveryDateFrom;
 			set => UpdateFilterField(ref _deliveryDateFrom, value);
 		}
 
-		public virtual DateTime DeliveryDateTo
+		public virtual DateTime? DeliveryDateTo
 		{
 			get => _deliveryDateTo;
 			set => UpdateFilterField(ref _deliveryDateTo, value);
@@ -66,10 +66,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 			set => UpdateFilterField(ref _taskProblemState, value);
 		}
 
-		public virtual bool? HasProblemItems
+		public virtual bool? HasProblemTaskItems
 		{
-			get => _hasProblemItems;
-			set => UpdateFilterField(ref _hasProblemItems, value);
+			get => _hasProblemTaskItems;
+			set => UpdateFilterField(ref _hasProblemTaskItems, value);
 		}
 
 		public virtual bool? HasProblemItemGtins
