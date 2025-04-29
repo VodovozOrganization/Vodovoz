@@ -85,21 +85,44 @@ namespace Vodovoz.Application.Orders.Services
 			IUnitOfWork uow, DiscountReason discountPromoCode, IEnumerable<IOnlineOrderedProduct> products)
 		{
 			var promoCodeApplied = false;
+			var hasProductWithBigDiscount = false;
 			
 			foreach(var product in products)
 			{
 				var nomenclature = uow.GetById<Nomenclature>(product.NomenclatureId);
-				promoCodeApplied |= TryApplyPromoCode(discountPromoCode, nomenclature, product);
+				promoCodeApplied |= TryApplyPromoCode(discountPromoCode, nomenclature, product, out var productHasBigDiscount);
+				hasProductWithBigDiscount |= productHasBigDiscount;
 			}
-			
-			return promoCodeApplied
-				? Result.Success(products)
-				: Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.Discount.PromoCode.UnsuitableItemsInCart);
+
+			switch(promoCodeApplied)
+			{
+				case true:
+					return Result.Success(products);
+				case false when hasProductWithBigDiscount:
+					return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
+						Vodovoz.Errors.Orders.Discount.PromoCode.ItemsInCartHasBigDiscount);
+				default:
+					return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
+						Vodovoz.Errors.Orders.Discount.PromoCode.UnsuitableItemsInCart);
+			}
 		}
 
-		private bool TryApplyPromoCode(DiscountReason discountPromoCode, Nomenclature nomenclature, IOnlineOrderedProduct product)
+		private bool TryApplyPromoCode(
+			DiscountReason discountPromoCode,
+			Nomenclature nomenclature,
+			IOnlineOrderedProduct product,
+			out bool productHasBigDiscount)
 		{
-			if(!CanSetDiscount(discountPromoCode, nomenclature, product))
+			productHasBigDiscount = false;
+			
+			if(!CanApplicableDiscount(discountPromoCode, nomenclature, product))
+			{
+				return false;
+			}
+
+			productHasBigDiscount = ProductHasBigDiscount(discountPromoCode, product);
+			
+			if(productHasBigDiscount)
 			{
 				return false;
 			}
@@ -122,7 +145,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// <param name="nomenclature"></param>
 		/// <param name="product"></param>
 		/// <returns></returns>
-		private bool CanSetDiscount(DiscountReason discountPromoCode, Nomenclature nomenclature, IOnlineOrderedProduct product)
+		private bool CanApplicableDiscount(DiscountReason discountPromoCode, Nomenclature nomenclature, IOnlineOrderedProduct product)
 		{
 			if(nomenclature is null)
 			{
@@ -138,13 +161,46 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				return false;
 			}
-
-			if(product.Discount > 0 && discountPromoCode.Value < product.Discount)
-			{
-				return false;
-			}
 			
 			return product.Count * product.Price != 0;
+		}
+
+		private bool ProductHasBigDiscount(DiscountReason discountPromoCode, IOnlineOrderedProduct product)
+		{
+			if(product.Discount > 0)
+			{
+				if(discountPromoCode.ValueType == DiscountUnits.money)
+				{
+					if(product.MoneyDiscount > discountPromoCode.Value)
+					{
+						return true;
+					}
+				}
+				else
+				{
+					if(product.PercentDiscount > discountPromoCode.Value)
+					{
+						return true;
+					}
+				}
+						
+				if(discountPromoCode.ValueType == DiscountUnits.percent)
+				{
+					if(product.PercentDiscount > discountPromoCode.Value)
+					{
+						return true;
+					}
+				}
+				else
+				{
+					if(product.MoneyDiscount > discountPromoCode.Value)
+					{
+						return true;
+					}
+				}
+			}
+			
+			return false;
 		}
 
 		private void ApplyPromoCode(DiscountReason discountPromoCode, IOnlineOrderedProduct product)

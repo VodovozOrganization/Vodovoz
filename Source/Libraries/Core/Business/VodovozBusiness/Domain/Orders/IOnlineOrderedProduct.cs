@@ -30,5 +30,15 @@
 		/// Id скидки/промокода
 		/// </summary>
 		int? DiscountReasonId { get; set; }
+		/// <summary>
+		/// Расчет скидки в деньгах
+		/// </summary>
+		/// <returns>Скидка в деньгах</returns>
+		decimal MoneyDiscount { get; }
+		/// <summary>
+		/// Расчет скидки в процентах
+		/// </summary>
+		/// <returns>Скидка в процентах</returns>
+		decimal PercentDiscount { get; }
 	}
 }

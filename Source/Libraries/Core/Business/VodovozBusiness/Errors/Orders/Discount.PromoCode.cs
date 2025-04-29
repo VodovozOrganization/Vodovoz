@@ -46,6 +46,12 @@
 					nameof(UnsuitableItemsInCart),
 					"Неподходящие товары в корзине");
 			
+			public static Error ItemsInCartHasBigDiscount =>
+				new Error(
+					typeof(Discount),
+					nameof(ItemsInCartHasBigDiscount),
+					"Товары в корзине имеют более высокую скидку");
+			
 			public static Error UsageLimitHasBeenExceeded =>
 				new Error(
 					typeof(Discount),

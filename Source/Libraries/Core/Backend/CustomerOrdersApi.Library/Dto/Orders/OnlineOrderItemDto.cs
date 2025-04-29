@@ -41,5 +41,36 @@ namespace CustomerOrdersApi.Library.Dto.Orders
 		/// Id скидки/промокода
 		/// </summary>
 		public int? DiscountReasonId { get; set; }
+
+		public decimal MoneyDiscount
+		{
+			get
+			{
+				if(IsDiscountInMoney)
+				{
+					return Discount;
+				}
+
+				return Price * Discount / 100;
+			}
+		}
+		
+		public decimal PercentDiscount
+		{
+			get
+			{
+				if(Price == 0)
+				{
+					return 0;
+				}
+
+				if(IsDiscountInMoney)
+				{
+					return 100 * Discount / Price;
+				}
+
+				return Discount;
+			}
+		}
 	}
 }
