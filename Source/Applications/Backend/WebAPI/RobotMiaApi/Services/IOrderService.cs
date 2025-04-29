@@ -1,6 +1,7 @@
 ﻿using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
 using System.Threading.Tasks;
+using Vodovoz.Errors;
 
 namespace RobotMiaApi.Services
 {
@@ -41,6 +42,6 @@ namespace RobotMiaApi.Services
 		/// </summary>
 		/// <param name="calculatePriceRequest"></param>
 		/// <returns></returns>
-		(decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice) GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest);
+		Result<(decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice)> GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest);
 	}
 }
