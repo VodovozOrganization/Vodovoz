@@ -658,7 +658,7 @@ namespace Vodovoz.Domain.Client
 
 				if(PersonType == PersonType.legal)
 				{
-					if(TypeOfOwnership == null || TypeOfOwnership.Length == 0)
+					if(string.IsNullOrEmpty(TypeOfOwnership))
 					{
 						yield return new ValidationResult("Не заполнена Форма собственности.",
 							new[] { nameof(TypeOfOwnership) });

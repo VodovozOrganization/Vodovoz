@@ -964,6 +964,11 @@ namespace Vodovoz.Domain.Orders
 
 					if(Client != null)
 					{
+						if(Client.TypeOfOwnershipIsNullOrEmpty(out var message))
+						{
+							yield return new ValidationResult(message);
+						}
+						
 						foreach(var email in Client.Emails)
 						{
 							if(!email.IsValidEmail)
@@ -1004,9 +1009,9 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				if(OrderAddressType == OrderAddressType.Service && PaymentType == PaymentType.Cashless
-				   && newStatus == OrderStatus.Accepted
-				   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders"))
-				   {
+					&& newStatus == OrderStatus.Accepted
+					&& !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders"))
+				{
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.OrderStatus) }

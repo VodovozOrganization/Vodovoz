@@ -1005,6 +1005,29 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
+		
+		/// <summary>
+		/// Проверка не заполненной ОПФ(организационно-правовой формы)
+		/// </summary>
+		/// <param name="message">Возвращаемое сообщение</param>
+		/// <returns><c>true</c> - если юрик и не заполнена, <c>false</c> - если заполнена или физик</returns>
+		public virtual bool TypeOfOwnershipIsNullOrEmpty(out string message)
+		{
+			message = string.Empty;
+
+			if(PersonType != PersonType.legal)
+			{
+				return false;
+			}
+
+			if(!string.IsNullOrEmpty(TypeOfOwnership))
+			{
+				return false;
+			}
+
+			message = $"У клиента Id {Id} ИНН {INN} {Name} не заполнена организационно-правовая форма(форма собственности)";
+			return true;
+		}
 
 		/// <summary>
 		/// Обновление информации о прикрепленных файлах
