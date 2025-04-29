@@ -11,10 +11,12 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Specifications;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Errors;
 using Vodovoz.Models;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Roboats;
 using VodovozBusiness.Specifications.Orders;
+using static RobotMiaApi.Errors.RobotMiaErrors;
 using IVodovozOrderService = VodovozBusiness.Services.Orders.IOrderService;
 
 namespace RobotMiaApi.Services
@@ -139,9 +141,19 @@ namespace RobotMiaApi.Services
 		}
 
 		/// <inheritdoc/>
-		public (decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice) GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest)
+		public Result<(decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice)> GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest)
 		{
-			return _vodovozOrderService.GetOrderAndDeliveryPrices(calculatePriceRequest.MapToCreateOrderRequest());
+			try
+			{
+				return _vodovozOrderService.GetOrderAndDeliveryPrices(calculatePriceRequest.MapToCreateOrderRequest());
+			}
+			// TODO: Заменить этот код и вызываемый код на код использующий результаты вместо Exception,
+			// либо поменять на новую архитектуру работы с ошибками, использующую Exception вместо Error
+			// В текущем исполнении - может работать не стабильно
+			catch(InvalidOperationException invalidOperationException)
+			{
+				return OrderErrors.AddNomenclatureError(invalidOperationException.Message);
+			}
 		}
 
 		private async Task<bool> TryingSendPayment(string phone, int orderId)

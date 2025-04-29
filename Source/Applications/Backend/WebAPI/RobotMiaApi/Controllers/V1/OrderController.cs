@@ -113,7 +113,14 @@ namespace RobotMiaApi.Controllers.V1
 				return Problem($"Не найдена запись о звонке {calculatePriceRequest.CallId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			(var orderPrice, var deliveryPrice, var forfeitPrice) = _orderService.GetOrderAndDeliveryPrices(calculatePriceRequest);
+			var result = _orderService.GetOrderAndDeliveryPrices(calculatePriceRequest);
+
+			if(result.IsFailure)
+			{
+				return Problem(string.Join(", ", result.Errors.Select(x => x.Message)), statusCode: StatusCodes.Status400BadRequest);
+			}
+
+			(var orderPrice, var deliveryPrice, var forfeitPrice) = result.Value;
 
 			return Ok(new CalculatePriceResponse
 			{
