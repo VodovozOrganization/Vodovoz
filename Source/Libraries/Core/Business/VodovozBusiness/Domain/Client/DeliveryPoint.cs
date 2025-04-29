@@ -52,10 +52,6 @@ namespace Vodovoz.Domain.Client
 		private GenericObservableList<DeliveryPointEstimatedCoordinate> _observableDeliveryPointEstimatedCoordinates;
 		private LogisticsRequirements _logisticsRequirements;
 		private DeliveryPointCategory _category;
-		private string _onlineComment;
-		private string _intercom;
-		private string _buildingFromOnline;
-		public const int IntercomMaxLength = 100;
 
 		#region Свойства
 
@@ -157,8 +153,6 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		
-
 		[Display(Name = "Предполагаемые координаты доставки")]
 		public virtual IList<DeliveryPointEstimatedCoordinate> DeliveryPointEstimatedCoordinates
 		{
@@ -192,52 +186,7 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		[Display(Name = "Время начала обеда")]
-		public virtual TimeSpan? LunchTimeFrom
-		{
-			get => _lunchTimeFrom;
-			set => SetField(ref _lunchTimeFrom, value);
-		}
-
-		[Display(Name = "Время окончания обеда")]
-		public virtual TimeSpan? LunchTimeTo
-		{
-			get => _lunchTimeTo;
-			set => SetField(ref _lunchTimeTo, value);
-		}
-
 		#endregion Временные поля для хранения фиксированных цен из 1с
-
-		#region Свойства для интеграции
-
-		[Display(Name = "Комментарий к ТД из ИПЗ")]
-		public virtual string OnlineComment
-		{
-			get => _onlineComment;
-			set => SetField(ref _onlineComment, value);
-		}
-		
-		[Display(Name = "Домофон")]
-		public virtual string Intercom
-		{
-			get => _intercom;
-			set => SetField(ref _intercom, value);
-		}
-		
-		/// <summary>
-		/// Номер дома из ИПЗ, как есть(без форматирования)
-		/// </summary>
-		[Display(Name = "Номер дома из ИПЗ, как есть(без форматирования)")]
-		[IgnoreHistoryTrace]
-		public virtual string BuildingFromOnline
-		{
-			get => _buildingFromOnline;
-			set => SetField(ref _buildingFromOnline, value);
-		}
-
-		#endregion
-
-		#endregion Свойства
 
 		#region Расчетные
 
