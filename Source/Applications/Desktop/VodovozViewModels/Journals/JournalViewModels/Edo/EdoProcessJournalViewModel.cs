@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		private readonly EdoProcessFilterViewModel _filterViewModel;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
+		private readonly IGenericRepository<DocumentEdoTask> _documentRepository;
 		private readonly MessageService _messageService;
 		private readonly IUserService _userService;
 		private readonly IClipboard _clipboard;
@@ -38,11 +39,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			EdoProcessFilterViewModel filterViewModel,
 			IInteractiveService interactiveService,
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
+			IGenericRepository<DocumentEdoTask> documentRepository,
 			MessageService messageService,
 			IUserService userService,
 			IClipboard clipboard,
-			IGtkTabsOpener gtkTabsOpener,
-			INavigationManager navigation = null
+			IGtkTabsOpener gtkTabsOpener, INavigationManager navigation = null
 			) : base(uowFactory, interactiveService, navigation)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -52,6 +53,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_documentRepository = documentRepository ?? throw new ArgumentNullException(nameof(documentRepository));
 			_interactiveService = interactiveService;
 
 			Title = "Документооброт с клиентами";
@@ -77,6 +79,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		{
 			NodeActionsList.Clear();
 			CreateResendReceiptFromSaveCodesTaskAction();
+			CreateResendDocumentFromSaveCodesTaskAction();
 		}
 
 		protected override void CreatePopupActions()
@@ -142,6 +145,64 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				}
 			);
 			
+			NodeActionsList.Add(action);
+		}
+
+		private void CreateResendDocumentFromSaveCodesTaskAction()
+		{
+			var action = new JournalAction(
+				"Отправить документ, ушедший в сохранение кодов",
+				sensitive => sensitive.Any(),
+				visible => _userService.GetCurrentUser().IsAdmin,
+				async selected =>
+				{
+					var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
+
+					using(var uow = _uowFactory.CreateWithoutRoot("Обработка переотправки документов с кодами, сохраненными в пул"))
+					{
+						foreach(var selectedNode in selectedNodes)
+						{
+							if(selectedNode.OrderTaskType != EdoTaskType.SaveCode
+							   || selectedNode.OrderTaskStatus != EdoTaskStatus.Completed)
+							{
+								continue;
+							}
+
+							var orderId = selectedNode.OrderId;
+
+							var tasks = _documentRepository.Get(
+									uow,
+									t => t.OrderEdoRequest.Order.Id == orderId && t.Id != selectedNode.OrderTaskId)
+								.ToList();
+
+							if(tasks.Any(x => x.TaskType != EdoTaskType.SaveCode))
+							{
+								_interactiveService.ShowMessage(
+									ImportanceLevel.Warning,
+									$"Переотправка документа невозможна, т.к. помимо задачи на сохранение кодов по заказу {orderId}, есть другая задача");
+								continue;
+							}
+
+							var newRequest = new OrderEdoRequest
+							{
+								Order = new Order
+								{
+									Id = orderId
+								},
+								Time = DateTime.Now,
+								Source = CustomerEdoRequestSource.Manual,
+								DocumentType = EdoDocumentType.UPD
+							};
+
+							await uow.SaveAsync(newRequest);
+							await uow.CommitAsync();
+
+							await _messageService.PublishEdoRequestCreatedEvent(newRequest.Id);
+						}
+					}
+				}
+			);
+
 			NodeActionsList.Add(action);
 		}
 
