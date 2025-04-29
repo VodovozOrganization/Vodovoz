@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Vodovoz.Domain.Sale;
 
@@ -11,7 +11,8 @@ namespace DeliveryRulesService.DTO
 		public WeekDayName WeekDayEnum
 		{
 			get => weekDayEnum;
-			set {
+			set
+			{
 				weekDayEnum = value;
 				WeekDay = weekDayEnum.ToString();
 			}

@@ -9,10 +9,29 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark.TrueMarkProductCodes
 		{
 			Table("true_mark_product_codes");
 
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Id(x => x.Id).Column("id")
+				.GeneratedBy.Native();
+
 			DiscriminateSubClassesOnColumn("code_owner");
 
-			References(x => x.TrueMarkCode).Column("true_mark_code_id").Cascade.AllDeleteOrphan();
+			Map(x => x.SourceCodeStatus)
+				.Column("source_code_status");
+
+			References(x => x.SourceCode)
+				.Column("source_code_id");
+
+			References(x => x.ResultCode)
+				.Column("result_code_id");
+
+			Map(x => x.Problem)
+				.Column("problem");
+
+			Map(x => x.DuplicatesCount)
+				.Column("duplicates_count");
+
+			References(x => x.CustomerEdoRequest)
+				.Column("customer_request_id")
+				.Cascade.AllDeleteOrphan();
 		}
 	}
 }

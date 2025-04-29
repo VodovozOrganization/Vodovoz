@@ -23,11 +23,12 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ReportsParameters
@@ -37,8 +38,8 @@ namespace Vodovoz.ReportsParameters
 		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IOrganizationJournalFactory _organizationJournalFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
+
 		private readonly IInteractiveService _interactiveService;
 		private Func<ReportInfo> _selectedReport;
 		private IList<NamedDomainObjectNode> _availableSubdivisionsForOneDayGroupReport;
@@ -46,24 +47,35 @@ namespace Vodovoz.ReportsParameters
 
 		private ITdiTab _parentTab;
 		private Car _car;
+		private Organization _organization;
 
 		public WayBillReportGroupPrint(
 			IReportInfoFactory reportInfoFactory,
 			ILifetimeScope lifetimeScope,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IOrganizationJournalFactory organizationJournalFactory, 
 			IInteractiveService interactiveService,
-			ISubdivisionRepository subdivisionRepository)
+			ISubdivisionRepository subdivisionRepository,
+			INavigationManager navigationManager)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_organizationJournalFactory = organizationJournalFactory ?? throw new ArgumentNullException(nameof(organizationJournalFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+
+			OrganizationViewModel = new LegacyEEVMBuilderFactory<WayBillReportGroupPrint>(ParentTab, this, UoW, navigationManager, _lifetimeScope)
+				.ForProperty(x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
 
 			ConfigureSingleReport();
 			ConfigureGroupReportForOneDay();
@@ -82,6 +94,9 @@ namespace Vodovoz.ReportsParameters
 		}
 
 		#region Properties
+
+		public IEntityEntryViewModel OrganizationViewModel { get; }
+
 		public Car Car
 		{
 			get => _car;
@@ -92,6 +107,19 @@ namespace Vodovoz.ReportsParameters
 					_car = value;
 
 					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Car)));
+				}
+			}
+		}
+
+		public Organization Organization
+		{
+			get => _organization;
+			set
+			{
+				if(_organization != value)
+				{
+					_organization = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Organization)));
 				}
 			}
 		}

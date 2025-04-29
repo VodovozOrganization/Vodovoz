@@ -1,16 +1,18 @@
-﻿using System;
-using System.Linq;
-using Autofac;
-using QS.Navigation;
-using QS.Project.Filter;
-using QS.Project.Journal;
-using QS.Tdi;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Organizations;
+﻿using Autofac;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
-using Gamma.Utilities;
+using QS.Navigation;
+using QS.Project.Filter;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
+using System;
+using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -26,19 +28,34 @@ namespace Vodovoz.Filters.ViewModels
 			INavigationManager navigationManager,
 			IInteractiveMessage interactiveMessage,
 			ITdiTab journalTab,
+			ViewModelEEVMBuilder<Organization> organizationViewModelEEVMBuilder,
 			params Action<UnallocatedBalancesJournalFilterViewModel>[] filterParams)
 		{
+			if(organizationViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(organizationViewModelEEVMBuilder));
+			}
+
 			Scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_interactiveMessage = interactiveMessage ?? throw new ArgumentNullException(nameof(interactiveMessage));
 			JournalTab = journalTab ?? throw new ArgumentNullException(nameof(journalTab));
+
+			OrganizationViewModel = organizationViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(journalTab as DialogViewModelBase)
+				.ForProperty(this, x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
+
 			Refilter(filterParams);
 		}
 
 		public ILifetimeScope Scope { get; }
 		public INavigationManager NavigationManager { get; }
 		public ITdiTab JournalTab { get; }
-
+		public IEntityEntryViewModel OrganizationViewModel { get; }
 		public override bool IsShow { get; set; } = true;
 
 		public Counterparty Counterparty

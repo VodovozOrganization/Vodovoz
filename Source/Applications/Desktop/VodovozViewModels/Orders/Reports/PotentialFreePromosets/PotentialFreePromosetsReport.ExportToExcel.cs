@@ -24,6 +24,10 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 
 				AddTableDataRows(worksheet, excelRowCounter);
 
+				var rowsCount = excelRowCounter + Rows.Count;
+
+				SetPrintParameters(worksheet);
+
 				workbook.SaveAs(path);
 			}
 		}
@@ -32,16 +36,23 @@ namespace Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets
 		{
 			var colNumber = 1;
 
-			worksheet.Column(colNumber++).Width = 6;
-			worksheet.Column(colNumber++).Width = 50;
+			worksheet.Column(colNumber++).Width = 5;
+			worksheet.Column(colNumber++).Width = 40;
 			worksheet.Column(colNumber++).Width = 20;
 			worksheet.Column(colNumber++).Width = 20;
-			worksheet.Column(colNumber++).Width = 35;
 			worksheet.Column(colNumber++).Width = 25;
-			worksheet.Column(colNumber++).Width = 20;
-			worksheet.Column(colNumber++).Width = 20;
-			worksheet.Column(colNumber++).Width = 30;
-			worksheet.Column(colNumber++).Width = 30;
+			worksheet.Column(colNumber++).Width = 10;
+			worksheet.Column(colNumber++).Width = 15;
+			worksheet.Column(colNumber++).Width = 15;
+			worksheet.Column(colNumber++).Width = 25;
+			worksheet.Column(colNumber++).Width = 15;
+		}
+
+		private void SetPrintParameters(IXLWorksheet worksheet)
+		{
+			worksheet.PageSetup.PaperSize = XLPaperSize.A4Paper;
+			worksheet.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+			worksheet.PageSetup.PagesWide = 1;
 		}
 
 		private void AddTableTitleRow(IXLWorksheet worksheet, int rowNumber)

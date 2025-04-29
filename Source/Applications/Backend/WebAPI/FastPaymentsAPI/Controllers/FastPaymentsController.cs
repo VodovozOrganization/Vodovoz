@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using FastPaymentsApi.Contracts;
@@ -22,6 +22,7 @@ namespace FastPaymentsAPI.Controllers
 	[Route("api/[action]")]
 	public class FastPaymentsController : Controller
 	{
+		private const string _serviceUnavailableError = "Сервис отключен, пользуйтесь другими видами оплат!";
 		private readonly ILogger<FastPaymentsController> _logger;
 		private readonly IFastPaymentOrderService _fastPaymentOrderService;
 		private readonly IFastPaymentService _fastPaymentService;

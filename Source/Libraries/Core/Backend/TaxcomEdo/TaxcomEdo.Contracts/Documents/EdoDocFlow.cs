@@ -15,11 +15,11 @@ namespace TaxcomEdo.Contracts.Documents
 		/// <summary>
 		/// Статус документооборота
 		/// </summary>
-		public int Status { get; set; }
+		public string Status { get; set; }
 		/// <summary>
 		/// Внутренний статус документооборота
 		/// </summary>
-		public int InternalStatus { get; set; }
+		public string InternalStatus { get; set; }
 		/// <summary>
 		/// Время изменения состояния
 		/// </summary>

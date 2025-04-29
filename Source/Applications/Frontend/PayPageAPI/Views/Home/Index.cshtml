@@ -23,6 +23,7 @@
 			Оплатить по ссылке можно только один раз.<br>
 			@Model.PaymentAttemptMessage
 		</p>
+        <p hidden=@Model.IsNotProcessingOrNotPaymentByCard>При оплате заказа банковской картой, ввод реквизитов карты происходит в системе электронных платежей ПАО АКБ «Авангард», который прошел сертификацию в платежных системах Visa, MasterCard и МИР. Представленные Вами данные полностью защищены и никто, включая наш интернет-магазин, не может их получить.</p>
 		<a hidden=@Model.IsNotProcessingStatus class="btn btn-success mt-3" href="@Model.PayUrl">Оплатить</a>
 	</div>
 </div>

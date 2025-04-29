@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pacs.Operators.Server;
+using QS.BusinessCommon.HMap;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
@@ -42,6 +43,10 @@ namespace Pacs.Operator.Service
 				.AddPacsOperatorServer()
 
 				.AddApiKeyAuthentication()
+
+				.AddMappingAssemblies(
+					typeof(QS.Banks.Domain.Account).Assembly,
+					typeof(MeasurementUnitsMap).Assembly)
 				;
 
 			services.AddStaticHistoryTracker();

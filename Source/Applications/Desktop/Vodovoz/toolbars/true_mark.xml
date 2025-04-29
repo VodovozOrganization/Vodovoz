@@ -1,0 +1,6 @@
+﻿<ui>
+	<toolbar name='toolbarSub'>
+		<toolitem name='ActionEdoProcessJournal' action='ActionEdoProcessJournal'/>
+		<toolitem name='ActionCodesPool' action='ActionCodesPool'/>
+	</toolbar>
+</ui>

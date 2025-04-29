@@ -10,21 +10,15 @@ using QSReport;
 using System;
 using Vodovoz;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Presentation.ViewModels.Logistic.Reports;
 using Vodovoz.Presentation.ViewModels.Store.Reports;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
-using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
 using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
-using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
@@ -32,6 +26,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Reports;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges;
 using Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl;
 using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Counterparties;
@@ -61,6 +56,7 @@ using Vodovoz.ViewModels.ReportsParameters.Selfdelivery;
 using Vodovoz.ViewModels.ReportsParameters.Service;
 using Vodovoz.ViewModels.ReportsParameters.Store;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
+using Vodovoz.ViewModels.Transport.Reports.IncorrectFuel;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
@@ -69,6 +65,8 @@ using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanciesReport;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByDriversReport;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
@@ -408,7 +406,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDefectiveItemsReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DefectiveItemsReportViewModel));
+		NavigationManager.OpenViewModel<Vodovoz.ViewModels.Store.Reports.DefectiveItemsReportViewModel>(null);
 	}
 
 	/// <summary>
@@ -853,6 +851,16 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CarOwnershipReportViewModel));
 	}
 
+	/// <summary>
+	/// Отчет по изменению формы оплаты водителями
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnChangingFormOfPaymentbyDriversReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ChangingPaymentTypeByDriversReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
 	#endregion Логистика
 
 	#region Сотрудники
@@ -875,20 +883,6 @@ public partial class MainWindow
 	protected void OnAction48Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(EmployeesPremiumsViewModel));
-	}
-
-	/// <summary>
-	/// Отчет по сотрудникам
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
-	{
-		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
-		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesReport(reportInfoFactory, interactiveService)));
 	}
 
 	#endregion Сотрудники
@@ -999,6 +993,16 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DriversToDistrictsAssignmentReportViewModel));
 	}
 
+	/// <summary>
+	/// Отчет по последнему МЛ по водителям
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnLastRouteListrReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<LastRouteListReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
 	#endregion Водители
 
 	#region Сервисный центр
@@ -1078,22 +1082,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderChangesReportActivated(object sender, EventArgs e)
 	{
-		var reportSettings = _autofacScope.Resolve<IReportSettings>();
-		var archiveSettings = _autofacScope.Resolve<IArchiveDataSettings>();
-
-		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
-		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
-			() => new QSReport.ReportViewDlg(
-				new OrderChangesReport(
-					reportInfoFactory,
-					reportSettings,
-					interactiveService,
-					archiveSettings)
-				)
-			);
+		NavigationManager.OpenViewModel<OrderChangesReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -1381,6 +1370,16 @@ public partial class MainWindow
 	protected void OnActionAverageFlowDiscrepancyReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<AverageFlowDiscrepanciesReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Отчет по заправкам некорректным типом топлива
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionIncorrectFuelReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<IncorrectFuelReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Транспорт

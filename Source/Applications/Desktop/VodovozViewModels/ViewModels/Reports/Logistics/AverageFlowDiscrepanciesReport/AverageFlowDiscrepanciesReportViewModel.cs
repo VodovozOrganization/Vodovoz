@@ -109,6 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 						&& nextCarEvent.CreateDate >= StartDate
 						&& nextCarEvent.CreateDate <= EndDate
 						&& nextCarEvent.CreateDate > carEvent.CreateDate
+						&& nextCarEvent.CarEventType.Id == _carEventSettings.FuelBalanceCalibrationCarEventTypeId
 					orderby nextCarEvent.CreateDate ascending
 					select nextCarEvent.CreateDate
 				).FirstOrDefault()
@@ -171,7 +172,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				{
 					CalibrationDate = carEvent.CreateDate,
 					ActualBalance = carEvent.ActualFuelBalance ?? 0,
-					CurrentBalance = carEvent.ActualFuelBalance ?? 0,
+					CurrentBalance = carEvent.CurrentFuelBalance ?? 0,
 					Car = carEvent.Car.RegistrationNumber,
 					ConfirmedDistance = confirmedDistance,
 					Consumption100KmPlan = carFuelConsumption,

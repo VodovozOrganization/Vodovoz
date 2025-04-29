@@ -2,6 +2,17 @@
 {
 	public static class TrueMarkCode
 	{
+		public static Error TrueMarkCodeParsingError =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeParsingError),
+				"Ошибка получения кода");
+
+		public static Error MissingPersistedTrueMarkCode =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(MissingPersistedTrueMarkCode),
+				"Отсутствует сохраненный код ЧЗ");
 
 		public static Error TrueMarkCodeStringIsNotValid =>
 			new Error(
@@ -15,17 +26,17 @@
 				nameof(TrueMarkCodeStringIsNotValid),
 				$"Полученная строка кода ЧЗ ({codeString}) невалидна");
 
-		public static Error TrueMarkCodeIsAlreadyExists =>
+		public static Error TrueMarkCodeIsAlreadyUsed =>
 			new Error(
 				typeof(TrueMarkCode),
-				nameof(TrueMarkCodeIsAlreadyExists),
+				nameof(TrueMarkCodeIsAlreadyUsed),
 				"Код ЧЗ уже имеется в базе. Добавляемый код является дублем");
 
-		public static Error CreateTrueMarkCodeIsAlreadyExists(string codeString) =>
-			string.IsNullOrEmpty(codeString) ? TrueMarkCodeIsAlreadyExists : new Error(
+		public static Error CreateTrueMarkCodeIsAlreadyUsed(int waterCodeId) =>
+			new Error(
 				typeof(TrueMarkCode),
-				nameof(TrueMarkCodeIsAlreadyExists),
-				$"Код ЧЗ ({codeString}) уже имеется в базе. Добавляемый код является дублем");
+				nameof(TrueMarkCodeIsAlreadyUsed),
+				$"Код ЧЗ (Id = {waterCodeId}) уже был использован. Добавляемый код является дублем");
 
 		public static Error TrueMarkCodeGtinIsNotEqualsNomenclatureGtin =>
 			new Error(
@@ -69,6 +80,18 @@
 				nameof(TrueMarkCodeIsNotIntroduced),
 				"Код ЧЗ не в обороте");
 
+		public static Error TrueMarkCodeOwnerInnIsNotCorrect =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeOwnerInnIsNotCorrect),
+				"По данным ЧЗ владельцем кода является сторонняя организация");
+
+		public static Error CreateTrueMarkCodeOwnerInnIsNotCorrect(string inn) =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeOwnerInnIsNotCorrect),
+				$"По данным ЧЗ владельцем кода является сторонняя организация с ИНН {inn}");
+
 		public static Error TrueMarkApiRequestError =>
 			new Error(
 				typeof(TrueMarkCode),
@@ -80,5 +103,55 @@
 				typeof(TrueMarkCode),
 				nameof(TrueMarkApiRequestError),
 				$"{message}");
+
+		/// <summary>
+		/// Количество переданных кодов ЧЗ для заказ не равно количеству ранее сохраненных кодов
+		/// </summary>
+		public static Error AddedAndSavedCodesCountNotEquals =>
+			new Error(typeof(TrueMarkCode),
+				nameof(AddedAndSavedCodesCountNotEquals),
+				"Количество переданных кодов ЧЗ для заказ не равно количеству ранее сохраненных кодов");
+
+		/// <summary>
+		/// Переданные коды ЧЗ для заказа отличаются от ранее сохраненных кодов
+		/// </summary>
+		public static Error AddedAndSavedCodesNotEquals =>
+			new Error(typeof(TrueMarkCode),
+				nameof(AddedAndSavedCodesNotEquals),
+				"Переданные коды ЧЗ для заказа отличаются от ранее сохраненных кодов");
+
+		/// <summary>
+		/// Не все коды ЧЗ для заказа были добавлены
+		/// </summary>
+		public static Error NotAllCodesAdded =>
+			new Error(typeof(TrueMarkCode),
+				nameof(NotAllCodesAdded),
+				"Не все коды ЧЗ для заказа были добавлены");
+
+		/// <summary>
+		/// Нужное количество кодов ЧЗ для заказа уже было добавлено
+		/// </summary>
+		public static Error AllCodesAlreadyAdded =>
+			new Error(typeof(TrueMarkCode),
+				nameof(AllCodesAlreadyAdded),
+				"Нужное количество кодов ЧЗ для заказа уже было добавлено");
+
+		public static Error TrueMarkCodeForRouteListItemNotFound =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeForRouteListItemNotFound),
+				"Код ЧЗ не найден среди добавленных к адресу доставки");
+
+		public static Error TrueMarkCodesHaveToBeAddedInWarehouse =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodesHaveToBeAddedInWarehouse),
+				"Коды ЧЗ сетевого заказа должны добавляться на складе");
+
+		public static Error AggregatedCode =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(AggregatedCode),
+				"Код ЧЗ участвует в агрегации");
 	}
 }

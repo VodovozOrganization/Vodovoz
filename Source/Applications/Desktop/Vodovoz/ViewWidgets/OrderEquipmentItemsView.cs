@@ -16,7 +16,6 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
-using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -419,6 +418,7 @@ namespace Vodovoz.ViewWidgets
 					f.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 					f.SelectCategory = NomenclatureCategory.equipment;
 					f.SelectSaleCategory = SaleCategory.notForSale;
+					f.CanChangeOnlyOnlineNomenclatures = false;
 				},
 				OpenPageOptions.AsSlave,
 				vm =>

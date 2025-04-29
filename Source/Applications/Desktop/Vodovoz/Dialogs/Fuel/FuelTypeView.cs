@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using System.ComponentModel;
+using Vodovoz.Core.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 
@@ -38,9 +39,19 @@ namespace Vodovoz.Dialogs.Fuel
 			ytreeFuelPriceVersions.ItemsDataSource = ViewModel.Entity.ObservableFuelPriceVersions;
 			ytreeFuelPriceVersions.Binding.AddBinding(ViewModel, vm => vm.SelectedFuelPriceVersion, w => w.SelectedRow).InitializeFromSource();
 
-			yentryProductGroupId.Binding
-				.AddBinding(ViewModel.Entity, e => e.ProductGroupId, w => w.Text)
-				.InitializeFromSource();
+			ytreeviewGazpromProductGroups.ColumnsConfig = FluentColumnsConfig<GazpromFuelProductsGroup>.Create()
+				.AddColumn("Наименование").HeaderAlignment(0.5f).AddTextRenderer(x => x.GazpromFuelProductGroupName).XAlign(0.5f)
+				.AddColumn("Код").MinWidth(120).HeaderAlignment(0.5f).AddTextRenderer(x => x.GazpromFuelProductGroupId).XAlign(0.5f)
+				.AddColumn("")
+				.Finish();
+			ytreeviewGazpromProductGroups.ItemsDataSource = ViewModel.FuelProductGroups;
+
+			ytreeviewProductsInGroup.ColumnsConfig = FluentColumnsConfig<GazpromFuelProduct>.Create()
+				.AddColumn("Наименование").HeaderAlignment(0.5f).AddTextRenderer(x => x.GazpromFuelProductName).XAlign(0.5f)
+				.AddColumn("Код").MinWidth(120).HeaderAlignment(0.5f).AddTextRenderer(x => x.GazpromFuelProductId).XAlign(0.5f)
+				.AddColumn("")
+				.Finish();
+			ytreeviewProductsInGroup.ItemsDataSource = ViewModel.FuelProductsInGroup;
 
 			buttonNewVersion.Binding.AddBinding(ViewModel, vm => vm.CanAddNewFuelVersion, w => w.Sensitive).InitializeFromSource();
 			buttonNewVersion.Clicked += (sender, args) => ViewModel.AddNewCarFuelVersion();

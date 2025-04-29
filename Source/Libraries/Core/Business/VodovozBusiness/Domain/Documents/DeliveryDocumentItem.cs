@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Goods;
@@ -64,10 +64,5 @@ namespace Vodovoz.Domain.Documents
         ToClient,
         [Display(Name = "От клиента")]
         FromClient
-    }
-    
-    public class DeliveryDirectionStringType : NHibernate.Type.EnumStringType
-    {
-        public DeliveryDirectionStringType() : base(typeof(DeliveryDirection)) { }
     }
 }

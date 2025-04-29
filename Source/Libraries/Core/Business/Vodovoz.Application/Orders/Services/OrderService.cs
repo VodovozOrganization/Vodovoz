@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -109,9 +110,11 @@ namespace Vodovoz.Application.Orders.Services
 			_undeliveredOrdersRepository = undeliveredOrdersRepository;
 			_subdivisionRepository = subdivisionRepository;
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
+			ForfeitNomenclatureId = nomenclatureSettings.ForfeitId;
 		}
 
 		public int PaidDeliveryNomenclatureId { get; }
+		public int ForfeitNomenclatureId { get; }
 
 		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
@@ -158,7 +161,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа и цену доставки по имеющимся данным о заказе
 		/// </summary>
-		public (decimal OrderPrice, decimal DeliveryPrice) GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest)
+		public (decimal OrderPrice, decimal DeliveryPrice, decimal ForfeitPrice) GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
@@ -167,30 +170,48 @@ namespace Vodovoz.Application.Orders.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>("Сервис заказов: подсчет стоимости заказа"))
 			{
-				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
+				var robotMiaEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
 					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
 
-				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
-				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
+				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId)
+					?? throw new InvalidOperationException($"Не найден контрагент #{createOrderRequest.CounterpartyId}");
+				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId)
+					?? throw new InvalidOperationException($"Не найдена точка доставки #{createOrderRequest.DeliveryPointId}");
 
 				Order order = unitOfWork.Root;
-				order.Author = roboatsEmployee;
+				order.Author = robotMiaEmployee;
 				order.Client = counterparty;
 				order.DeliveryPoint = deliveryPoint;
 				order.PaymentType = PaymentType.Cash;
 
-				foreach(var waterInfo in createOrderRequest.SaleItems)
+				foreach(var saleItem in createOrderRequest.SaleItems)
 				{
-					var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
-					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+					var nomenclature = unitOfWork.GetById<Nomenclature>(saleItem.NomenclatureId)
+						?? throw new InvalidOperationException($"Не найдена номенклатура #{saleItem.NomenclatureId}");
+
+					if(nomenclature.Category == NomenclatureCategory.water)
+					{
+						order.AddWaterForSale(nomenclature, saleItem.BottlesCount);
+					}
+					else if(nomenclature.Id == ForfeitNomenclatureId)
+					{
+						order.AddNomenclature(nomenclature, saleItem.BottlesCount);
+					}
+					else
+					{
+						throw new InvalidOperationException(
+							$"Номенклатура {nomenclature.Name} не может быть добавлена. В заказ может быть добавлена либо вода, либо неустойка");
+					}
 				}
 
 				order.RecalculateItemsPrice();
 				UpdateDeliveryCost(unitOfWork, order);
+
 				return
 				(
 					order.OrderSum,
-					order.OrderItems.Where(oi => oi.Nomenclature.Id == PaidDeliveryNomenclatureId).FirstOrDefault()?.ActualSum ?? 0m
+					order.OrderItems.Where(oi => oi.Nomenclature.Id == PaidDeliveryNomenclatureId).FirstOrDefault()?.ActualSum ?? 0m,
+					order.OrderItems.Where(oi => oi.Nomenclature.Id == ForfeitNomenclatureId).Sum(x => x.ActualSum)
 				);
 			}
 		}
@@ -209,11 +230,8 @@ namespace Vodovoz.Application.Orders.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
 			{
-				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
-				if(roboatsEmployee == null)
-				{
-					throw new InvalidOperationException(_employeeRequiredForServiceError);
-				}
+				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
+					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
 
 				var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
 				order.AcceptOrder(roboatsEmployee, _callTaskWorker);
@@ -291,6 +309,25 @@ namespace Vodovoz.Application.Orders.Services
 				case PaymentType.DriverApplicationQR:
 					order.Trifle = 0;
 					break;
+				case PaymentType.Terminal:
+					if(createOrderRequest.PaymentByTerminalSource is null)
+					{
+						throw new InvalidOperationException("Должен быть указан источник оплаты для типа оплаты терминал");
+					}
+
+					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByCard)
+					{
+						order.PaymentByTerminalSource = PaymentByTerminalSource.ByCard;
+						break;
+					}
+
+					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByQR)
+					{
+						order.PaymentByTerminalSource = PaymentByTerminalSource.ByQR;
+						break;
+					}
+
+					throw new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
 			}
 
 			order.DeliverySchedule = deliverySchedule;
@@ -301,11 +338,20 @@ namespace Vodovoz.Application.Orders.Services
 			foreach(var waterInfo in createOrderRequest.SaleItems)
 			{
 				var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
-				order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+
+				if(nomenclature != null)
+				{
+					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+				}
+				else
+				{
+					_logger.LogError("Попытка добавить отсутствующую номенклатуру {NomenclatureId}", waterInfo.NomenclatureId);
+				}
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
 			UpdateDeliveryCost(unitOfWork, order);
+			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
 			if(!order.SelfDelivery)
@@ -313,8 +359,20 @@ namespace Vodovoz.Application.Orders.Services
 				order.CallBeforeArrivalMinutes = 15;
 				order.IsDoNotMakeCallBeforeArrival = false;
 			}
+			
+			if(createOrderRequest.TareNonReturnReasonId != null)
+			{
+				var tareNonReturnReason = unitOfWork.GetById<NonReturnReason>(createOrderRequest.TareNonReturnReasonId.Value);
+				order.TareNonReturnReason = tareNonReturnReason;
+				order.OPComment = $"Робот Мия: {tareNonReturnReason.Name}.";
+			}
 
 			return order;
+		}
+		
+		private void AddLogisticsRequirements(Order order)
+		{
+			order.LogisticsRequirements = GetLogisticsRequirements(order);
 		}
 
 		public int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder)
@@ -348,6 +406,7 @@ namespace Vodovoz.Application.Orders.Services
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
 
 			UpdateDeliveryCost(uow, order);
+			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 			order.AddFastDeliveryNomenclatureIfNeeded();
 
@@ -429,7 +488,7 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			return _orderRepository
 				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == Domain.Orders.Documents.Type.Bill) > 0;
+				.Count(x => x.Type == Core.Domain.Documents.Type.Bill) > 0;
 		}
 
 
@@ -516,6 +575,58 @@ namespace Vodovoz.Application.Orders.Services
 
 				newUndeliveredOrder.AddAutoCommentToOkkDiscussion(uow, GuiltyTypes.AutoСancelAutoTransfer.GetEnumTitle());
 			}
+		}
+
+		public LogisticsRequirements GetLogisticsRequirements(Order order)
+		{
+			if(order.LogisticsRequirements != null && order.IsCopiedFromUndelivery)
+			{
+				return order.LogisticsRequirements;
+			}
+
+			if(order.Client == null || (!order.SelfDelivery && order.DeliveryPoint == null))
+			{
+				return new LogisticsRequirements();
+			}
+
+			var counterpartyLogisticsRequirements = new LogisticsRequirements();
+			var deliveryPointLogisticsRequirements = new LogisticsRequirements();
+
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				if(order.Client?.LogisticsRequirements?.Id > 0)
+				{
+					counterpartyLogisticsRequirements = unitOfWork.GetById<LogisticsRequirements>(order.Client.LogisticsRequirements.Id) ?? new LogisticsRequirements();
+				}
+
+				if(order.DeliveryPoint?.LogisticsRequirements?.Id > 0)
+				{
+					deliveryPointLogisticsRequirements = unitOfWork.GetById<LogisticsRequirements>(order.DeliveryPoint.LogisticsRequirements.Id) ?? new LogisticsRequirements();
+				}
+			}
+
+			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements
+			{
+				ForwarderRequired = counterpartyLogisticsRequirements.ForwarderRequired || deliveryPointLogisticsRequirements.ForwarderRequired,
+				DocumentsRequired = counterpartyLogisticsRequirements.DocumentsRequired || deliveryPointLogisticsRequirements.DocumentsRequired,
+				RussianDriverRequired = counterpartyLogisticsRequirements.RussianDriverRequired || deliveryPointLogisticsRequirements.RussianDriverRequired,
+				PassRequired = counterpartyLogisticsRequirements.PassRequired || deliveryPointLogisticsRequirements.PassRequired,
+				LargusRequired = counterpartyLogisticsRequirements.LargusRequired || deliveryPointLogisticsRequirements.LargusRequired
+			};
+
+			if(order.LogisticsRequirements != null)
+			{
+				return new LogisticsRequirements
+				{
+					ForwarderRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.ForwarderRequired || order.LogisticsRequirements.ForwarderRequired,
+					DocumentsRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.DocumentsRequired || order.LogisticsRequirements.DocumentsRequired,
+					RussianDriverRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.RussianDriverRequired || order.LogisticsRequirements.RussianDriverRequired,
+					PassRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.PassRequired || order.LogisticsRequirements.PassRequired,
+					LargusRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.LargusRequired || order.LogisticsRequirements.LargusRequired
+				};
+			}
+
+			return logisticsRequirementsFromCounterpartyAndDeliveryPoint;
 		}
 	}
 }

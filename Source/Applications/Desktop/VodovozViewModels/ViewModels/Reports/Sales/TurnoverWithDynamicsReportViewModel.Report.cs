@@ -4,14 +4,13 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Gamma.Utilities;
 using MoreLinq;
-using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Presentation.ViewModels.Reports;
 using Vodovoz.Reports.Editing.Modifiers;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.ViewModels.Reports.Sales
 {
@@ -49,6 +48,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				ShowLastSale = showLastSale;
 				ShowResidueForNomenclaturesWithoutSales = showResidueForNomenclaturesWithoutSales;
 				ShowContacts = showContacts;
+				ShowResiduesAtCreatedAt = ShowLastSale && GroupingBy.LastOrDefault() == GroupingType.Nomenclature;
 				_warehouseNomenclatureBalanceCallback = warehouseNomenclatureBalanceCallback;
 				Slices = DateTimeSliceFactory.CreateSlices(slicingType, startDate, endDate).ToList();
 				CreatedAt = DateTime.Now;
@@ -96,7 +96,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			public bool ShowResidueForNomenclaturesWithoutSales { get; }
 
 			public bool ShowContacts { get; }
-
+			public bool ShowResiduesAtCreatedAt { get; }
 			public DateTime CreatedAt { get; }
 			#endregion
 
@@ -981,7 +981,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				if(ShowLastSale)
 				{
 					row.AppendChild(GetTableHeaderStringCell("Дата последней продажи"));
-					row.AppendChild(GetTableHeaderStringCell("Дней с последней продажи"));
+					row.AppendChild(GetTableHeaderStringCell("Кол-во дней с момента последней отгрузки"));
+
+					if(ShowResiduesAtCreatedAt)
+					{
+						row.AppendChild(GetTableHeaderStringCell($"Остатки по всем складам на {CreatedAt:dd.MM.yyyy HH:mm}"));
+					}
 				}
 
 				return row;
@@ -1027,6 +1032,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				{
 					row.AppendChild(GetStringCell(node.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy")));
 					row.AppendChild(GetNumericCell((int)node.LastSaleDetails.DaysFromLastShipment));
+
+					if(ShowResiduesAtCreatedAt)
+					{
+						row.AppendChild(GetNumericCell((int)node.LastSaleDetails.WarhouseResidue));
+					}
 				}
 
 				return row;
@@ -1070,6 +1080,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				{
 					row.AppendChild(GetStringCell(node.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"), node.IsTotalsRow));
 					row.AppendChild(GetNumericCell((int)node.LastSaleDetails.DaysFromLastShipment, node.IsTotalsRow));
+
+					if(ShowResiduesAtCreatedAt)
+					{
+						row.AppendChild(GetNumericCell((int)node.LastSaleDetails.WarhouseResidue));
+					}
 				}
 
 				return row;

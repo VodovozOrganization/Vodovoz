@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using FluentNHibernate.Data;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -179,7 +178,7 @@ namespace Vodovoz.ViewModels.Widgets
 		{
 			if(e.PropertyName == nameof(Entity.UndeliveryStatus))
 			{
-				_isUndeliveryStatusChanged = true;				
+				_isUndeliveryStatusChanged = true;
 			}
 
 			if(e.PropertyName == nameof(Entity.DriverCallType))
@@ -274,7 +273,9 @@ namespace Vodovoz.ViewModels.Widgets
 					foreach(var g in removedGuiltyList)
 					{
 						if(gu == g)
+						{
 							toRemoveFromBoth.Add(g);
+						}
 					}
 				}
 
@@ -424,9 +425,10 @@ namespace Vodovoz.ViewModels.Widgets
 		public bool CanChangeProblemSource => CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Order.UndeliveredOrder.CanChangeUndeliveryProblemSource, CommonServices.UserService.CurrentUserId);
 		public IEntityAutocompleteSelectorFactory OrderSelector { get; set; }
 		public string Info => Entity.GetOldOrderInfo(_orderRepository);
-		public bool RouteListDoesNotExist => Entity.OldOrder != null && (Entity.OldOrderStatus == OrderStatus.NewOrder
-		                                                                 || Entity.OldOrderStatus == OrderStatus.Accepted
-		                                                                 || Entity.OldOrderStatus == OrderStatus.WaitForPayment);
+		public bool RouteListDoesNotExist => Entity.OldOrder != null
+			&& (Entity.OldOrderStatus == OrderStatus.NewOrder
+				|| Entity.OldOrderStatus == OrderStatus.Accepted
+				|| Entity.OldOrderStatus == OrderStatus.WaitForPayment);
 		public string NewResultText
 		{
 			get => _newResultText;
@@ -435,7 +437,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanDelete);
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
-		public Func<bool, bool> SaveUndelivery;		
+		public Func<bool, bool> SaveUndelivery;
 
 		public IEntityAutocompleteSelectorFactory WorkingEmployeeAutocompleteSelectorFactory { get; }
 		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems =>
@@ -479,7 +481,7 @@ namespace Vodovoz.ViewModels.Widgets
 					Entity.AddAutoCommentByChangeStatus();
 				}
 
-				if(_isDepartmentChanged && _initialProcDepartmentName != Entity.InProcessAtDepartment?.Name) 
+				if(_isDepartmentChanged && _initialProcDepartmentName != Entity.InProcessAtDepartment?.Name)
 				{
 					Entity.AddAutoCommentToOkkDiscussion(UoW, $"сменил(а) \"в работе у отдела\" \nс \"{_initialProcDepartmentName}\" на \"{Entity.InProcessAtDepartment.Name}\"");
 				}

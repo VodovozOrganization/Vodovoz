@@ -5,23 +5,35 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using QS.Attachments.Domain;
+using QS.Banks.Domain;
+using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Project.Domain;
+using QS.Project.HibernateMapping;
+using System;
 using System.Threading.Tasks;
+using TrueMark.Codes.Pool;
+using TrueMark.Library;
 using TrueMarkApi.Client;
 using TrueMarkCodesWorker;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Models.CashReceipts;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using VodovozBusiness.Models.TrueMark;
+using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
+using DependencyInjection = Vodovoz.Data.NHibernate.DependencyInjection;
 
 namespace TrueMarkCodePoolCheckWorker
 {
 	public class Program
-    {
+	{
 		public static async Task Main(string[] args)
 		{
+			Console.OutputEncoding = System.Text.Encoding.UTF8;
 			await CreateHostBuilder(args).Build().RunAsync();
 		}
 
@@ -29,7 +41,6 @@ namespace TrueMarkCodePoolCheckWorker
 			Host.CreateDefaultBuilder(args)
 				.ConfigureLogging((hostBuilderContext, loggingBuilder) =>
 				{
-					loggingBuilder.ClearProviders();
 					loggingBuilder.AddNLog();
 					loggingBuilder.AddConfiguration(hostBuilderContext.Configuration.GetSection("NLog"));
 				})
@@ -38,22 +49,37 @@ namespace TrueMarkCodePoolCheckWorker
 				{
 					services
 						.AddMappingAssemblies(
-							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
-							typeof(QS.Banks.Domain.Bank).Assembly,
-							typeof(QS.HistoryLog.HistoryMain).Assembly,
-							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-							typeof(QS.Attachments.Domain.Attachment).Assembly,
+							typeof(UserBaseMap).Assembly,
+							typeof(AssemblyFinder).Assembly,
+							typeof(Bank).Assembly,
+							typeof(HistoryMain).Assembly,
+							typeof(TypeOfEntity).Assembly,
+							typeof(Attachment).Assembly,
 							typeof(EmployeeWithLoginMap).Assembly
 						)
 						.AddDatabaseConnection()
+						.AddNHibernateConventions()
+						.AddCoreDataRepositories()
 						.AddCore()
+						.AddTrackedUoW()
 						.AddInfrastructure()
 						.AddTrackedUoW()
+
+						.AddSingleton<ITrueMarkOrganizationClientSettingProvider>(sp =>
+						{
+							var configuration = sp.GetRequiredService<IConfiguration>();
+							var trueMarkOrganizationClientSetting = new TrueMarkOrganizationClientSettingProvider(configuration.GetSection("TrueMarkOrganizationsClientSettings"));
+
+							return trueMarkOrganizationClientSetting;
+						})
+
+						.AddCodesPool()
+
 						.AddHostedService<CodePoolCheckWorker>()
+						.AddTrueMarkApiClient()
 						;
 
-					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+					DependencyInjection.AddStaticScopeForEntity(services);
 				});
 
 		public static void ConfigureContainer(ContainerBuilder builder)
@@ -73,18 +99,6 @@ namespace TrueMarkCodePoolCheckWorker
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
-			builder.RegisterType<TrueMarkApiClientFactory>()
-				.AsSelf()
-				.InstancePerLifetimeScope();
-
-			builder.Register<TrueMarkApiClient>((context, instance) => context.Resolve<TrueMarkApiClientFactory>().GetClient())
-				.AsSelf()
-				.InstancePerLifetimeScope();
-
-			builder.RegisterType<TrueMarkCodesPool>()
-				.AsSelf()
-				.InstancePerLifetimeScope();
-
 			builder.RegisterType<TrueMarkWaterCodeParser>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
@@ -92,6 +106,15 @@ namespace TrueMarkCodePoolCheckWorker
 			builder.RegisterInstance(ErrorReporter.Instance)
 				.As<IErrorReporter>()
 				.SingleInstance();
+
+			builder.RegisterType<Tag1260Checker>()
+				.AsSelf();
+			
+			builder.RegisterType<Tag1260Saver>()
+				.AsSelf();
+			
+			builder.RegisterType<Tag1260Updater>()
+				.AsSelf();
 		}
 	}
 }

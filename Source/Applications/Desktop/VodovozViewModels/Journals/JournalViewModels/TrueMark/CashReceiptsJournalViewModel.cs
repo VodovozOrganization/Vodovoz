@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -39,7 +40,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly ReceiptManualController _receiptManualController;
-		private readonly TrueMarkCodePoolLoader _codePoolLoader;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly bool _canResendDuplicateReceipts;
 
@@ -55,7 +55,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			TrueMarkCodesPool trueMarkCodesPool,
 			ICashReceiptRepository cashReceiptRepository,
 			ReceiptManualController receiptManualController,
-			TrueMarkCodePoolLoader codePoolLoader,
 			IFileDialogService fileDialogService,
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
@@ -68,7 +67,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
-			_codePoolLoader = codePoolLoader ?? throw new ArgumentNullException(nameof(codePoolLoader));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
@@ -185,7 +183,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			CreateNodeManualSendAction();
 			CreateNodeRefreshFiscalDocAction();
 			CreateNodeRequeueFiscalDocAction();
-			CreateLoadCodesToPoolAction();
 			CreateProductCodesScanningReportAction();
 			CreateExportAction();
 		}
@@ -644,48 +641,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		}
 
 		#endregion Refresh and requeue fiscal document
-
-		#region Load codes to pool
-
-		private void CreateLoadCodesToPoolAction()
-		{
-			var loadCodesToPoolAction = new JournalAction("Загрузить коды в пул",
-				(selected) => true,
-				(selected) => true,
-				(selected) => LoadCodesToPool()
-			);
-			NodeActionsList.Add(loadCodesToPoolAction);
-		}
-
-		private void LoadCodesToPool()
-		{
-			var interactiveService = _commonServices.InteractiveService;
-			var dialogSettings = new DialogSettings();
-			dialogSettings.SelectMultiple = false;
-			dialogSettings.Title = "Выберите файл содержащий коды";
-			dialogSettings.FileFilters.Add(new DialogFileFilter("Файлы содержащие коды", "*.xlsx", "*.mxl", "*.csv", "*.txt"));
-			var result = _fileDialogService.RunOpenFileDialog(dialogSettings);
-			if(!result.Successful)
-			{
-				return;
-			}
-
-			try
-			{
-				var lodingResult = _codePoolLoader.LoadFromFile(result.Path);
-
-				interactiveService.ShowMessage(ImportanceLevel.Info,
-					$"Найдено кодов: {lodingResult.TotalFound}" +
-					$"\nЗагружено: {lodingResult.SuccessfulLoaded}" +
-					$"\nУже существуют в системе: {lodingResult.TotalFound - lodingResult.SuccessfulLoaded}");
-			}
-			catch(IOException ex)
-			{
-				interactiveService.ShowMessage(ImportanceLevel.Error, ex.Message);
-			}
-		}
-
-		#endregion Load codes to pool
 
 		#region Product Codes Scanning Repor Creation
 		private void CreateProductCodesScanningReportAction()

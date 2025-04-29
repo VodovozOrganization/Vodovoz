@@ -1,6 +1,5 @@
 ﻿using Mango.Api.Validators;
 using Mango.CallsPublishing;
-using Mango.Core.Settings;
 using Mango.Core.Sign;
 using Microsoft.Extensions.DependencyInjection;
 

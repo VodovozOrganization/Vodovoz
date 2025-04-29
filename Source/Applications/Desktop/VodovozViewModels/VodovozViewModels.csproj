@@ -52,6 +52,11 @@
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReport.ExportToExcel.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportOrderData.cs" />
     <Compile Include="Bookkeeping\Reports\EdoControl\EdoControlReportRow.cs" />
+    <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReport.cs" />
+    <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReport.RowsCreating.cs" />
+    <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReportRow.cs" />
+    <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReportViewModel.cs" />
+    <Compile Include="Bookkeeping\Reports\OrderChanges\OrderChangesReportViewModel.SelectableKeyValueNode.cs" />
     <Compile Include="Cash\AdvanceReportViewModel.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentNode.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentsFilterViewModel.cs" />
@@ -62,10 +67,15 @@
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesGroupsJournalViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesJournalFilterViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesJournalNode.cs" />
+    <Compile Include="Cash\FinancialResponsibilityCenterJournalViewModel.cs" />
+    <Compile Include="Cash\FinancialResponsibilityCenterNode.cs" />
+    <Compile Include="Cash\FinancialResponsibilityCenterViewModel.cs" />
     <Compile Include="Cash\IncomeSelfDeliveryViewModel.cs" />
     <Compile Include="Cash\IncomeViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialExpenseCategoryViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialIncomeCategoryViewModel.cs" />
+    <Compile Include="Cash\Payments\OutgoingPaymentCreateViewModel.cs" />
+    <Compile Include="Cash\Payments\OutgoingPaymentEditViewModel.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.ExpensesGroupLine.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.FinancialExpenseCategoryLine.cs" />
@@ -82,10 +92,22 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
+    <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.CodesPoolDataNode.cs" />
+    <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.cs" />
+    <Compile Include="Dialogs\Mango\DialogType.cs" />
+    <Compile Include="Dialogs\Mango\SearchTableEntity.cs" />
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalFilterViewModel.cs" />
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalNode.cs" />
     <Compile Include="Goods\ProductGroups\ProductGroupsJournalViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarEventTypeFilterViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\GroupGtinJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\GtinJournalViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\NonReturnReasonJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\NonReturnReasonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\GtinJournalViewModel.cs" />
     <Compile Include="Options\ConfigureGeoCoderApiOptions.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.AddressDataNode.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.cs" />
@@ -96,6 +118,14 @@
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReport.RowsCreating.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.cs" />
     <Compile Include="Orders\Reports\PotentialFreePromosets\PotentialFreePromosetsReportViewModel.PromosetNode.cs" />
+    <Compile Include="Organizations\AccountJournalFilterViewModel.cs" />
+    <Compile Include="Organizations\AccountJournalNode.cs" />
+    <Compile Include="Organizations\AccountJournalViewModel.cs" />
+    <Compile Include="Organizations\AccountViewModel.cs" />
+    <Compile Include="Organizations\OrganizationJournalFilterViewModel.cs" />
+    <Compile Include="Organizations\OrganizationJournalNode.cs" />
+    <Compile Include="Organizations\OrganizationJournalViewModel.cs" />
+    <Compile Include="Organizations\OrganizationViewModel.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportViewModel.NumberOfComplaintsAgainstDriversReport.SubdivisionRow.cs" />
     <Compile Include="ReportsParameters\Bottles\Drivers.cs" />
     <Compile Include="ReportsParameters\Bottles\PercentNode.cs" />
@@ -397,10 +427,28 @@
     <Compile Include="ReportsParameters\Wages\DriverWagesReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\ForwarderWageReportViewModel.cs" />
     <Compile Include="ReportsParameters\Wages\WagesOperationsReportViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsDocumentItemsViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsDocumentViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsTemplateItemsViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsTemplateJournalNode.cs" />
+    <Compile Include="Store\RegradingOfGoodsTemplateJournalViewModel.cs" />
+    <Compile Include="Store\RegradingOfGoodsTemplateViewModel.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReport.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReport.SummaryBySourceRow.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReport.SummaryDisplayRow.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReport.SummaryRow.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReportRow.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReportViewModel.cs" />
+    <Compile Include="Store\Reports\EmployeeIdToFioNode.cs" />
+    <Compile Include="Store\Reports\WarehouseIdToNameNode.cs" />
     <Compile Include="TempAdapters\IReportExporter.cs" />
     <Compile Include="TempAdapters\PacsViewModelOpener.cs" />
+    <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReport.cs" />
+    <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportRow.cs" />
+    <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
+    <Compile Include="ViewModels\Cash\RepeatIntervalTypes.cs" />
     <Compile Include="ViewModels\Contacts\EmailsViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyMatchingNode.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointMatchingNode.cs" />
@@ -421,6 +469,11 @@
     <Compile Include="Journals\JournalViewModels\Nomenclatures\InventoryInstancesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\InventoryInstancesStockBalanceJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\InventoryNomenclaturesJournalViewModel.cs" />
+    <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeScanRow.cs" />
+    <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodesScanProgressDto.cs" />
+    <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeToCheck.cs" />
+    <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.GtinFromNomenclatureDto.cs" />
+    <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\NomenclaturesForOrderJournalRestriction.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentViewModel.cs" />
@@ -429,6 +482,8 @@
     <Compile Include="Journals\JournalViewModels\Orders\OrderJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Sale\DeliveryPriceRuleJournalViewModel.cs" />
     <Compile Include="ReportsParameters\Profitability\ProfitabilitySalesReportViewModel.cs" />
+    <Compile Include="ViewModels\Goods\GroupGtinViewModel.cs" />
+    <Compile Include="ViewModels\Goods\GtinViewModel.cs" />
     <Compile Include="ViewModels\Goods\KulerSaleWebSiteNomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="ViewModels\Goods\MobileAppNomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
@@ -443,6 +498,7 @@
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="ViewModels\Counterparty\EdoOperatorViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NonReturnReasonViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferFilterViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode.cs" />
     <Compile Include="ViewModels\Logistic\RegradingOfGoodsReasonViewModel.cs" />
@@ -643,7 +699,6 @@
     <Compile Include="TempAdapters\IDeliveryScheduleJournalFactory.cs" />
     <Compile Include="TempAdapters\IDialogsFactory.cs" />
     <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
-    <Compile Include="TempAdapters\IOrganizationJournalFactory.cs" />
     <Compile Include="TempAdapters\IExpenseCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\IIncomeCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\ICarManufacturerJournalFactory.cs" />
@@ -817,10 +872,17 @@
     <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReport.cs" />
     <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReportRow.cs" />
     <Compile Include="ViewModels\Reports\Logistics\AverageFlowDiscrepanciesReport\AverageFlowDiscrepanciesReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\ChangingFormOfPaymentByDriversReport\ChangingPaymentTypeByDriversReport.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\ChangingFormOfPaymentByDriversReport\ChangingPaymentTypeByDriversReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\ChangingFormOfPaymentByDriversReport\ChangingPaymentTypeByDriversReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Logistics\CompletedDriversWarehousesEventsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReport.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReport.LastRouteListNodeNode.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersRatingsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
@@ -879,6 +941,7 @@
     <Compile Include="ViewModels\Reports\SelectableParameterReportFilterSelectionChangedArgs.cs" />
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.cs" />
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.Row.cs" />
+    <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.ScannedCodeData.cs" />
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.ScannedCodeInfo.cs" />
     <Compile Include="ViewModels\Reports\UndeliveredOrdersJournalReport\UndeliveredOrdersClassificationSummaryReport.cs" />
     <Compile Include="ViewModels\Sale\DeliveryPriceRuleViewModel.cs" />
@@ -1037,7 +1100,6 @@
     <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Orders\FastDeliveryVerificationDetailsViewModel.cs" />
     <Compile Include="ViewModels\Reports\IncomingCallsAnalysisReportViewModel.cs" />
-    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsColorizeType.cs" />
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixViewModel.cs" />
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixColumn.cs" />
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixRow.cs" />
@@ -1066,6 +1128,18 @@
     <ProjectReference Include="..\..\..\GeoCoderApi.Client\GeoCoderApi.Client.csproj">
       <Project>{08476744-5B1E-4140-A351-8EF107183230}</Project>
       <Name>GeoCoderApi.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj">
+      <Project>{c17807ce-71ac-4101-901e-657cef7892eb}</Project>
+      <Name>Edo.Transport</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Common\Edo.Common.csproj">
+      <Project>{b657cbf6-c803-4249-894b-87e8e6e94a62}</Project>
+      <Name>Edo.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Contracts\Edo.Contracts.csproj">
+      <Project>{86958f1a-2863-488f-bdc6-ad2d0df59654}</Project>
+      <Name>Edo.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
       <Project>{329bffc8-9feb-45cf-b2ad-91d5b6a7c376}</Project>
@@ -1098,6 +1172,14 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
       <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj">
+      <Project>{88EEA039-F3D5-4069-A160-939FDF186AB4}</Project>
+      <Name>TrueMark.Codes.Pool</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj">
+      <Project>{988f9f39-781b-4c5c-8409-0c2f3e38a3d6}</Project>
+      <Name>TrueMark.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj">
       <Project>{5D521F22-C232-438D-B547-5D6486754737}</Project>
@@ -1263,9 +1345,6 @@
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NLog" Version="5.1.2" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
-    <PackageReference Include="OneOf">
-      <Version>3.0.243</Version>
-    </PackageReference>
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />

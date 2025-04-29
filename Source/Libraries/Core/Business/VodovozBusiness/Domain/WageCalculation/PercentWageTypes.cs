@@ -9,9 +9,4 @@ namespace Vodovoz.Domain.WageCalculation
 		[Display(Name = "За сервисное обслуживание")]
 		Service,
 	}
-
-	public class PercentWageTypesStringType : NHibernate.Type.EnumStringType
-	{
-		public PercentWageTypesStringType() : base(typeof(PercentWageTypes)) { }
-	}
 }

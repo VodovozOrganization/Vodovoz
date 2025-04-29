@@ -2,10 +2,10 @@
 using QS.HistoryLog;
 using QS.Utilities.Numeric;
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Settings.Contacts;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.Domain.Contacts
 {
@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Contacts
 		private PhoneType _phoneType;
 		private Employee _employee;
 
-		public virtual PhoneType PhoneType
+		public virtual new PhoneType PhoneType
 		{
 			get => _phoneType;
 			set => SetField(ref _phoneType, value);
@@ -122,18 +122,6 @@ namespace Vodovoz.Domain.Contacts
 		public override string ToString()
 		{
 			return "+7 " + Number;
-		}
-
-		public virtual bool IsValidPhoneNumber => IsValidPhoneNumberFormat();
-
-		private bool IsValidPhoneNumberFormat()
-		{
-			if(Regex.IsMatch(_digitsNumber, "^[3 4 8 9]{1}[0-9]{9}"))
-			{
-				return true;
-			}
-
-			return false;
 		}
 
 		public virtual string Title => $"{ ToString() }, { DeliveryPoint?.Title ?? Counterparty?.Name }";

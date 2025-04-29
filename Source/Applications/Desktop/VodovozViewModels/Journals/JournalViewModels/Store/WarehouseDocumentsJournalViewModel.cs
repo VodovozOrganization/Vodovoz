@@ -14,7 +14,10 @@ using QS.Services;
 using QS.Tdi;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -28,12 +31,16 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
+using Vodovoz.ViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Warehouses;
+using VodovozBusiness.Domain.Documents;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
@@ -49,6 +56,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IGenericRepository<CarEvent> _carEventRepository;
 		private readonly IInteractiveService _interactiveService;
+		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
 
 		public WarehouseDocumentsJournalViewModel(
 			WarehouseDocumentsJournalFilterViewModel filterViewModel,
@@ -58,12 +66,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			IGtkTabsOpener gtkTabsOpener,
 			IGenericRepository<CarEvent> carEventRepository,
 			IInteractiveService interactiveService,
+			ISelfDeliveryRepository selfDeliveryRepository,
 			Action<WarehouseDocumentsJournalFilterViewModel> filterConfiguration = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
 			UseSlider = false;
 			SearchEnabled = true;
 			TabName = "Журнал складских документов";
@@ -182,8 +192,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		{
 			RegisterEntity(GetRegradingOfGoodsDocumentsQuery)
 				.AddDocumentConfiguration<ITdiTab>(
-					() => _gtkTabsOpener.CreateWarehouseDocumentOrmMainDialog(TabParent, DocumentType.RegradingOfGoodsDocument),
-					(node) => _gtkTabsOpener.OpenRegradingOfGoodsDocumentDlg(node.Id),
+					() => NavigationManager.OpenViewModel<RegradingOfGoodsDocumentViewModel, IEntityUoWBuilder>(
+						null, EntityUoWBuilder.ForCreate()).ViewModel,
+					(node) => NavigationManager.OpenViewModel<RegradingOfGoodsDocumentViewModel, IEntityUoWBuilder>(
+						null, EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
 					(node) => node.EntityType == typeof(RegradingOfGoodsDocument))
 				.FinishConfiguration();
 		}
@@ -967,6 +979,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.Where(() => routeListAlias.Car.Id == FilterViewModel.Car.Id);
 			}
 
+			if(FilterViewModel.ShowOnlyQRScanRequiredCarLoadDocuments && FilterViewModel.OnlyQRScanRequiredCarLoadDocuments)
+			{
+				var paymentTypes = new PaymentType[]
+				{
+					PaymentType.Cashless
+				};
+
+				RouteListItem routeListItemAlias = null;
+				Order orderAlias = null;
+				Counterparty counterpartyAlias = null;
+
+				var hasOrdersWithNetworkClientRequiredQRCodeScan = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
+					.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+					.Inner.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+					.Where(() => routeListItemAlias.RouteList.Id == routeListAlias.Id
+						&& counterpartyAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
+					.Where(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), paymentTypes))
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(hasOrdersWithNetworkClientRequiredQRCodeScan.DetachedCriteria));
+			}
+
 			query.Where(GetSearchCriterion(
 				() => loadCarAlias.Id,
 				() => carModelAlias.Name,
@@ -1296,6 +1330,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 								ImportanceLevel.Warning,
 								$"Данный акт списания привязан к событию ТС {carEvent.Id} {carEvent.CarEventType.Name}",
 								"Невозможно удалить документ");
+
+							return;
+						}
+					}
+
+					if(selectedNode.DocTypeEnum == DocumentType.SelfDeliveryDocument)
+					{
+						var isSelfDeliveryDocumentUsedInEdoTasks =
+						_selfDeliveryRepository.IsSelfDeliveryDocumentItemsUsedInEdoTasks(UoW, selectedNode.Id);
+
+						if(isSelfDeliveryDocumentUsedInEdoTasks)
+						{
+							_interactiveService.ShowMessage(
+								ImportanceLevel.Warning,
+								$"Невозможно удалить документ.\nВ данный документ отпуска самовывоза включены маркированные товары, участвующие в ЭДО.");
 
 							return;
 						}

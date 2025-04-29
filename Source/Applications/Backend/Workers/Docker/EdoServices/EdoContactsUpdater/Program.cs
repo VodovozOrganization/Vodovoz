@@ -53,7 +53,7 @@ namespace EdoContactsUpdater
 						.AddSingleton<IEdoContactStateCodeConverter, EdoContactStateCodeConverter>()
 						.AddHttpClient()
 						.AddTaxcomClient()
-						.ConfigureZabbixSender(nameof(TaxcomEdoContactsUpdaterService));
+						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoContactsUpdaterService));
 					
 					services.AddHostedService<TaxcomEdoContactsUpdaterService>();
 				});

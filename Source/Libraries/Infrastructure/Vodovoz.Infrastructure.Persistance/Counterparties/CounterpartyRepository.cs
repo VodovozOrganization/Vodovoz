@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
@@ -18,6 +19,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Counterparties;
+using VodovozBusiness.Domain.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {

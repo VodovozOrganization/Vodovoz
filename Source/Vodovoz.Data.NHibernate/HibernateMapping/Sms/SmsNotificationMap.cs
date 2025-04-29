@@ -12,7 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Sms
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			DiscriminateSubClassesOnColumn("type");
-			Map(x => x.Status).Column("status").CustomType<SmsNotificationStatusStringType>();
+			Map(x => x.Status).Column("status");
 			Map(x => x.MobilePhone).Column("phone");
 			Map(x => x.MessageText).Column("message_text");
 			Map(x => x.ErrorDescription).Column("error_description");

@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;

@@ -19,10 +19,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <_WebToolingArtifacts Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Include="appsettings.Development.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
@@ -50,19 +46,6 @@
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
       <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="Properties\PublishProfiles\registry-dev.pubxml">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-      </None>
-      <None Update="Properties\PublishProfiles\registry-prod.pubxml">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-      </None>
     </ItemGroup>
 
 </Project>

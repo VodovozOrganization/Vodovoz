@@ -41,9 +41,11 @@ using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
+using Vodovoz.ViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Warehouses;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
@@ -298,7 +300,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				}.AsEnumerable())
 				.AddDocumentConfiguration<ITdiTab>(
 					() => null,
-					(node) => _gtkTabsOpener.OpenRegradingOfGoodsDocumentDlg(node.DocumentId),
+					(node) =>
+						NavigationManager.OpenViewModel<RegradingOfGoodsDocumentViewModel, IEntityUoWBuilder>(
+						null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
 					(node) => node.EntityType == typeof(RegradingOfGoodsDocumentItem))
 					.FinishConfiguration();
 

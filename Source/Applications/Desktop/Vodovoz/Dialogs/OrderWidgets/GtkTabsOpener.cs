@@ -186,9 +186,6 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		public ITdiTab OpenShiftChangeWarehouseDocumentDlg(int shiftChangeWarehouseDocumentId, ITdiTab master = null) =>
 			OpenDialogTabFor<ShiftChangeWarehouseDocumentDlg, ShiftChangeWarehouseDocument>(shiftChangeWarehouseDocumentId, master);
 
-		public ITdiTab OpenRegradingOfGoodsDocumentDlg(int regradingOfGoodsDocumentId, ITdiTab master = null) =>
-			OpenDialogTabFor<RegradingOfGoodsDocumentDlg, RegradingOfGoodsDocument>(regradingOfGoodsDocumentId, master);
-
 		private ITdiTab OpenDialogTabFor<TDialog, TEntity>(int entityId, ITdiTab master = null)
 			where TDialog : ITdiTab
 			where TEntity : IDomainObject
@@ -241,7 +238,6 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				case DocumentType.SelfDeliveryDocument:
 				case DocumentType.CarLoadDocument:
 				case DocumentType.CarUnloadDocument:
-				case DocumentType.RegradingOfGoodsDocument:
 					return tabParent.OpenTab(
 						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
 						() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)));

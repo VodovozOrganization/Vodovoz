@@ -20,12 +20,14 @@ using RabbitMQ.Client;
 using RabbitMQ.MailSending;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
+using Vodovoz.Converters;
 using Vodovoz.Factories;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Validation;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
+using DriverApi.Notifications.Client;
 
 namespace CustomerAppsApi.Library
 {
@@ -68,6 +70,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IOrderModel, OrderModel>()
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
+				.AddDriverApiNotificationsSenders()
 				.AddScoped<FastDeliveryHandler>()
 				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
@@ -78,6 +81,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
 				.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
+				.AddScoped<INomenclatureOnlineCharacteristicsConverter, NomenclatureOnlineCharacteristicsConverter>()
 				.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>()
 				.AddSingleton<PricesFrequencyRequestsHandler>()
 				.AddSingleton<NomenclaturesFrequencyRequestsHandler>()

@@ -10,5 +10,6 @@ namespace Vodovoz.Services.Fuel
 		void CreateAndAddVersion(FuelCard fuelCard, DateTime? startDate);
 		bool IsValidDateForNewCarVersion(DateTime dateTime, FuelCard fuelCard);
 		bool IsValidDateForVersionStartDateChange(FuelCardVersion version, DateTime newStartDate);
+		bool IsDateTodayOrTomorow(DateTime date);
 	}
 }

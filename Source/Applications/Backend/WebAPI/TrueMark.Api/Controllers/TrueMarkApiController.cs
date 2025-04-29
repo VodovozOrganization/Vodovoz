@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
@@ -19,13 +20,13 @@ using TrueMark.Contracts;
 using TrueMark.Contracts.Requests;
 using TrueMark.Contracts.Responses;
 using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorizationService;
+using TrueMark.Api.Extensions;
 
 namespace TrueMark.Api.Controllers;
 
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ApiController]
 [Route("api/[action]")]
-
 public class TrueMarkApiController : ControllerBase
 {
 	private readonly ILogger<TrueMarkApiController> _logger;
@@ -143,88 +144,119 @@ public class TrueMarkApiController : ControllerBase
 
 	[HttpPost]
 	public async Task<ProductInstancesInfoResponse> RequestProductInstanceInfo(
-		[FromServices] IRequestClient<ProductInstanceInfoRequest> requestClient,
 		IEnumerable<string> identificationCodes,
 		CancellationToken cancellationToken)
 	{
-		var identificationCodesArray = identificationCodes.ToArray();
+		var requestsTasks = new List<Task<ProductInstancesInfoResponse>>();
+		var count = identificationCodes.Count();
+		var processed = 0;
 
-		var errorMessage = new StringBuilder();
+		while(processed < count)
+		{
+			var portion = identificationCodes.Skip(processed).Take(1000);
+			processed += 1000;
+			var portionRequestTask = RequestCodesStatuses(portion, cancellationToken);
+			requestsTasks.Add(portionRequestTask);
+		}
 
-		string bearerToken;
+		var result = new List<ProductInstanceStatus>();
 
 		try
 		{
-			bearerToken = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint, _organizationCertificate.Inn);
-		}
-		catch(Exception e)
-		{
-			const string tokenRequestFailedMessage = "Ошибка получения токена авторизации в Честном знаке";
+			var responses = await Task.WhenAll(requestsTasks);
 
-			_logger.LogError(e, tokenRequestFailedMessage);
+			foreach(var response in responses)
+			{
+				if(!string.IsNullOrEmpty(response.ErrorMessage))
+				{
+					return new ProductInstancesInfoResponse
+					{
+						ErrorMessage = response.ErrorMessage
+					};
+				}
+
+				result.AddRange(response.InstanceStatuses);
+			}
 
 			return new ProductInstancesInfoResponse
 			{
-				ErrorMessage = tokenRequestFailedMessage
+				InstanceStatuses = result
 			};
 		}
+		catch(Exception ex)
+		{
+			return new ProductInstancesInfoResponse
+			{
+				ErrorMessage = ex.Message
+			};
+		}
+	}
 
-		List<Task<Response<ProductInstanceInfoResponse>>> requestsTasks = CreateRequestsTasks(requestClient, identificationCodesArray, bearerToken, cancellationToken);
+	private async Task<ProductInstancesInfoResponse> RequestCodesStatuses(
+		IEnumerable<string> identificationCodes,
+		CancellationToken cancellationToken
+		)
+	{
+		var uri = $"cises/info";
 
-		var productInstancesInfoResponses = new List<ProductInstanceStatus>();
+		var errorMessage = new StringBuilder();
+		errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
 
 		try
 		{
-			var results = await Task.WhenAll(requestsTasks);
+			var content = JsonSerializer.Serialize(identificationCodes.ToArray());
+			var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-			return ProcessResponses(errorMessage, productInstancesInfoResponses, results.Select(r => r.Message));
+			var token = await _authorizationService.Login(
+				_organizationCertificate.CertificateThumbPrint,
+				_organizationCertificate.Inn
+			);
+			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+			var response = await _httpClient.PostAsync(uri, httpContent, cancellationToken);
+
+			if(!response.IsSuccessStatusCode)
+			{
+				return new ProductInstancesInfoResponse
+				{
+					ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
+				};
+			}
+
+			string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+			var cisesInformation = JsonSerializer.Deserialize<IList<CisInfoRoot>>(responseBody);
+			_logger.LogTrace("ResponseBody: {ResponseBody}", responseBody);
+
+			var productInstancesInfo = cisesInformation.Select(cisesInformation =>
+				new ProductInstanceStatus
+				{
+					IdentificationCode = cisesInformation.CisInfo.RequestedCis,
+					Gtin = cisesInformation.CisInfo.Gtin,
+					Status = cisesInformation.CisInfo.Status.ToProductInstanceStatusEnum(),
+					GeneralPackageType = Enum.TryParse<GeneralPackageType>(cisesInformation.CisInfo.GeneralPackageType, true, out var generalPackageType) ? generalPackageType : null,
+					PackageType = Enum.TryParse<PackageType>(cisesInformation.CisInfo.PackageType, true, out var packageType) ? packageType : null,
+					Childs = cisesInformation.CisInfo.Childs ?? Enumerable.Empty<string>(),
+					ParentId = cisesInformation.CisInfo.Parent,
+					OwnerInn = cisesInformation.CisInfo.OwnerInn,
+					OwnerName = cisesInformation.CisInfo.OwnerName
+				}
+			);
+
+			_logger.LogInformation("Проверены статусы кодов в кол-ве: {CodesCount} шт.", productInstancesInfo.Count());
+
+			return new ProductInstancesInfoResponse
+			{
+				InstanceStatuses = new List<ProductInstanceStatus>(productInstancesInfo)
+			};
 		}
-		catch
+		catch(Exception e)
 		{
-			var partiallyProcessedResults = new List<ProductInstanceInfoResponse>();
+			_logger.LogError(e, errorMessage.ToString());
 
-			foreach(var requestTask in requestsTasks)
+			return new ProductInstancesInfoResponse
 			{
-				if(requestTask.Status != TaskStatus.Canceled)
-				{
-					if(requestTask.Exception != null)
-					{
-						var indexOfFaultedTask = requestsTasks.IndexOf(requestTask);
-
-						if(indexOfFaultedTask != -1 && identificationCodesArray.Length < indexOfFaultedTask)
-						{
-							_logger.LogError(
-							requestTask.Exception,
-							"Request of code #{Code} was faulted with exception",
-							identificationCodesArray[indexOfFaultedTask]);
-						}
-
-						errorMessage.AppendLine(requestTask.Exception.Message);
-					}
-					else
-					{
-						partiallyProcessedResults.Add(requestTask.Result.Message);
-					}
-				}
-				else
-				{
-					var indexOfCancelledTask = requestsTasks.IndexOf(requestTask);
-
-					if(indexOfCancelledTask != -1 && identificationCodesArray.Length < indexOfCancelledTask)
-					{
-						_logger.LogWarning(
-							"Request of code #{Code} was cancelled",
-							identificationCodesArray[indexOfCancelledTask]);
-					}
-				}
-			}
-
-			if(requestsTasks.Any(rt => rt.Status == TaskStatus.Canceled))
-			{
-				errorMessage.AppendLine("Часть запросов была отменена");
-			}
-
-			return ProcessResponses(errorMessage, productInstancesInfoResponses, partiallyProcessedResults);
+				ErrorMessage = errorMessage.AppendLine(e.Message).ToString()
+			};
 		}
 	}
 

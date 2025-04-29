@@ -18,6 +18,8 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkAccountPartUndelivery;
+
 		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
@@ -85,6 +87,18 @@ namespace Vodovoz.ReportsParameters
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vboxMainMastersReport.Gtk.Box+BoxChild
+			this.chkAccountPartUndelivery = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkAccountPartUndelivery.CanFocus = true;
+			this.chkAccountPartUndelivery.Name = "chkAccountPartUndelivery";
+			this.chkAccountPartUndelivery.Label = global::Mono.Unix.Catalog.GetString("Учитывать частичные недовозы");
+			this.chkAccountPartUndelivery.DrawIndicator = true;
+			this.chkAccountPartUndelivery.UseUnderline = true;
+			this.vboxMainMastersReport.Add(this.chkAccountPartUndelivery);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxMainMastersReport[this.chkAccountPartUndelivery]));
+			w7.Position = 2;
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child vboxMainMastersReport.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.Sensitive = false;
 			this.buttonCreateReport.CanFocus = true;
@@ -92,10 +106,10 @@ namespace Vodovoz.ReportsParameters
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vboxMainMastersReport.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxMainMastersReport[this.buttonCreateReport]));
-			w7.Position = 2;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxMainMastersReport[this.buttonCreateReport]));
+			w8.Position = 3;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.Add(this.vboxMainMastersReport);
 			if ((this.Child != null))
 			{
