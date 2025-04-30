@@ -13,9 +13,14 @@ namespace WarehouseApi.Contracts.Dto
 		public int Id { get; set; }
 
 		/// <summary>
-		/// Id документа погрузки авто
+		/// Тип источника документа
 		/// </summary>
-		public int CarLoadDocument { get; set; }
+		public DocumentSourceType DocType { get; set; }
+
+		/// <summary>
+		/// Id документа
+		/// </summary>
+		public int DocNumber { get; set; }
 
 		/// <summary>
 		/// Состояние процесса погрузки номенклатур по заказу

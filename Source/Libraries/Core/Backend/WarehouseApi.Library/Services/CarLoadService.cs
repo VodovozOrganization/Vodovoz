@@ -4,7 +4,6 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using OneOf;
-using OneOf.Types;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -16,6 +15,7 @@ using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -157,109 +157,14 @@ namespace WarehouseApi.Library.Services
 
 		public async Task<RequestProcessingResult<GetOrderResponse>> GetOrder(int orderId)
 		{
-			var documentOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
-
-			var response = new GetOrderResponse
+			var isSelfDelivery = _orderRepository.GetValue(_uow, x => x.SelfDelivery, x => x.Id == orderId, 1).FirstOrDefault();
+			
+			if(!isSelfDelivery)
 			{
-				Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems)
-			};
-
-			foreach(var documentOrderItem in documentOrderItems)
-			{
-				foreach(var trueMarkProductCode in documentOrderItem.TrueMarkCodes)
-				{
-					if(trueMarkProductCode.ResultCode == null)
-					{
-						continue;
-					}
-
-					if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId == null
-						&& trueMarkProductCode.ResultCode.ParentTransportCodeId == null)
-					{
-						continue;
-					}
-
-					var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
-
-					if(codeToAddInfo.Codes.Any(x => x.Parent != null && x.Code == trueMarkProductCode.ResultCode.RawCode))
-					{
-						continue;
-					}
-
-					var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
-
-					if(codeToAddInfo is null)
-					{
-						continue;
-					}
-
-					var trueMarkCodes = new List<TrueMarkCodeDto>();
-
-					var allCodes = parentCode.Match(
-						transportCode => transportCode.GetAllCodes(),
-						groupCode => groupCode.GetAllCodes(),
-						waterCode => new TrueMarkAnyCode[] { waterCode })
-						.ToArray();
-
-					var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
-						&& documentOrderItem.TrueMarkCodes.Any(y =>
-							(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
-							|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
-						.Select(x => x.TrueMarkWaterIdentificationCode)
-						.ToArray();
-
-					foreach(var anyCode in allCodes)
-					{
-						if(anyCode.IsTrueMarkWaterIdentificationCode
-							&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkWaterIdentificationCode.Id))
-						{
-							continue;
-						}
-
-						trueMarkCodes.Add(
-							anyCode.Match(
-								PopulateTransportCode(allCodes),
-								PopulateGroupCode(allCodes),
-								PopulateWaterCode(allCodes)));
-					}
-
-					codeToAddInfo.Codes.RemoveAll(code => trueMarkCodes.Any(x => x.Code == code.Code));
-					codeToAddInfo.Codes.AddRange(trueMarkCodes);
-				}
+				return await GetOrderByCarLoadDocument(orderId);
 			}
 
-			var checkResult = _documentErrorsChecker.IsOrderNeedIndividualSetOnLoad(orderId);
-
-			if(checkResult.IsFailure)
-			{
-				var error = checkResult.Errors.FirstOrDefault();
-
-				response.Result = OperationResultEnumDto.Error;
-				response.Error = error.Message;
-
-				var result = Result.Failure<GetOrderResponse>(error);
-
-				return RequestProcessingResult.CreateFailure(result, response);
-			}
-
-			checkResult = _documentErrorsChecker.IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, documentOrderItems);
-
-			if(checkResult.IsFailure)
-			{
-				var error = checkResult.Errors.FirstOrDefault();
-
-				response.Result = OperationResultEnumDto.Error;
-				response.Error = error.Message;
-
-				var result = Result.Failure<GetOrderResponse>(error);
-
-				return RequestProcessingResult.CreateFailure(result, response);
-			}
-
-			response.Result = OperationResultEnumDto.Success;
-			response.Error = null;
-
-			return RequestProcessingResult.CreateSuccess(Result.Success(response));
+			return await GetOrderByInvoice(orderId);
 		}
 
 		public async Task<RequestProcessingResult<AddOrderCodeResponse>> AddOrderCode(
@@ -432,6 +337,202 @@ namespace WarehouseApi.Library.Services
 			};
 
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
+		}
+
+		/// <summary>
+		/// Получение заказа из погрузочного талона по номеру заказа
+		/// </summary>
+		/// <param name="orderId"></param>
+		/// <returns></returns>
+		private async Task<RequestProcessingResult<GetOrderResponse>> GetOrderByCarLoadDocument(int orderId)
+		{
+			var carLoadDocumentItems = await GetCarLoadDocumentWaterOrderItems(orderId);
+
+			var response = new GetOrderResponse
+			{
+				Order = _carLoadDocumentConverter.ConvertToApiOrder(carLoadDocumentItems)
+			};
+
+			foreach(var documentOrderItem in carLoadDocumentItems)
+			{
+				foreach(var trueMarkProductCode in documentOrderItem.TrueMarkCodes)
+				{
+					if(trueMarkProductCode.ResultCode == null)
+					{
+						continue;
+					}
+
+					if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId == null
+						&& trueMarkProductCode.ResultCode.ParentTransportCodeId == null)
+					{
+						continue;
+					}
+
+					var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
+
+					if(codeToAddInfo.Codes.Any(x => x.Parent != null && x.Code == trueMarkProductCode.ResultCode.RawCode))
+					{
+						continue;
+					}
+
+					var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
+
+					if(codeToAddInfo is null)
+					{
+						continue;
+					}
+
+					var trueMarkCodes = new List<TrueMarkCodeDto>();
+
+					var allCodes = parentCode.Match(
+						transportCode => transportCode.GetAllCodes(),
+						groupCode => groupCode.GetAllCodes(),
+						waterCode => new TrueMarkAnyCode[] { waterCode })
+						.ToArray();
+
+					var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
+						&& documentOrderItem.TrueMarkCodes.Any(y =>
+							(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
+							|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
+						.Select(x => x.TrueMarkWaterIdentificationCode)
+						.ToArray();
+
+					foreach(var anyCode in allCodes)
+					{
+						if(anyCode.IsTrueMarkWaterIdentificationCode
+							&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkWaterIdentificationCode.Id))
+						{
+							continue;
+						}
+
+						trueMarkCodes.Add(
+							anyCode.Match(
+								PopulateTransportCode(allCodes),
+								PopulateGroupCode(allCodes),
+								PopulateWaterCode(allCodes)));
+					}
+
+					codeToAddInfo.Codes.RemoveAll(code => trueMarkCodes.Any(x => x.Code == code.Code));
+					codeToAddInfo.Codes.AddRange(trueMarkCodes);
+				}
+			}
+
+			var checkResult = _documentErrorsChecker.IsOrderNeedIndividualSetOnLoad(orderId);
+
+			if(checkResult.IsFailure)
+			{
+				var error = checkResult.Errors.FirstOrDefault();
+
+				response.Result = OperationResultEnumDto.Error;
+				response.Error = error.Message;
+
+				var result = Result.Failure<GetOrderResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, response);
+			}
+
+			checkResult = _documentErrorsChecker.IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, carLoadDocumentItems);
+
+			if(checkResult.IsFailure)
+			{
+				var error = checkResult.Errors.FirstOrDefault();
+
+				response.Result = OperationResultEnumDto.Error;
+				response.Error = error.Message;
+
+				var result = Result.Failure<GetOrderResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, response);
+			}
+
+			response.Result = OperationResultEnumDto.Success;
+			response.Error = null;
+
+			return RequestProcessingResult.CreateSuccess(Result.Success(response));
+		}
+
+		/// <summary>
+		/// Получение заказа из накладной
+		/// </summary>
+		/// <param name="orderId"></param>
+		/// <returns></returns>
+		private async Task<RequestProcessingResult<GetOrderResponse>> GetOrderByInvoice(int orderId)
+		{
+			var carLoadDocumentItems = await GetWaterOrderItems(orderId);
+
+			var response = new GetOrderResponse
+			{
+				Order = _carLoadDocumentConverter.ConvertToApiOrder(carLoadDocumentItems)
+			};
+
+			foreach(var documentOrderItem in carLoadDocumentItems)
+			{
+				foreach(var trueMarkProductCode in documentOrderItem.TrueMarkCodes)
+				{
+					if(trueMarkProductCode.ResultCode == null)
+					{
+						continue;
+					}
+
+					if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId == null
+						&& trueMarkProductCode.ResultCode.ParentTransportCodeId == null)
+					{
+						continue;
+					}
+
+					var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
+
+					if(codeToAddInfo.Codes.Any(x => x.Parent != null && x.Code == trueMarkProductCode.ResultCode.RawCode))
+					{
+						continue;
+					}
+
+					var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
+
+					if(codeToAddInfo is null)
+					{
+						continue;
+					}
+
+					var trueMarkCodes = new List<TrueMarkCodeDto>();
+
+					var allCodes = parentCode.Match(
+						transportCode => transportCode.GetAllCodes(),
+						groupCode => groupCode.GetAllCodes(),
+						waterCode => new TrueMarkAnyCode[] { waterCode })
+						.ToArray();
+
+					var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
+						&& documentOrderItem.TrueMarkCodes.Any(y =>
+							(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
+							|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
+						.Select(x => x.TrueMarkWaterIdentificationCode)
+						.ToArray();
+
+					foreach(var anyCode in allCodes)
+					{
+						if(anyCode.IsTrueMarkWaterIdentificationCode
+							&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkWaterIdentificationCode.Id))
+						{
+							continue;
+						}
+
+						trueMarkCodes.Add(
+							anyCode.Match(
+								PopulateTransportCode(allCodes),
+								PopulateGroupCode(allCodes),
+								PopulateWaterCode(allCodes)));
+					}
+
+					codeToAddInfo.Codes.RemoveAll(code => trueMarkCodes.Any(x => x.Code == code.Code));
+					codeToAddInfo.Codes.AddRange(trueMarkCodes);
+				}
+			}
+
+			response.Result = OperationResultEnumDto.Success;
+			response.Error = null;
+
+			return RequestProcessingResult.CreateSuccess(Result.Success(response));
 		}
 
 		private async Task<OneOf<RequestProcessingResult<AddOrderCodeResponse>, CarLoadDocumentItemEntity>> AddSingleCode(
@@ -886,6 +987,19 @@ namespace WarehouseApi.Library.Services
 				await _carLoadDocumentRepository.GetAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(_uow, orderId);
 
 			return documentOrderItems;
+		}
+
+		private async Task<IEnumerable<OrderItemEntity>> GetWaterOrderItems(int orderId)
+		{
+			_logger.LogInformation("Получаем данные по заказу #{OrderId} из накладной", orderId);
+			
+			var order = _orderRepository
+				.Get(_uow, x => x.Id == orderId)
+				.FirstOrDefault();
+
+			return await Task.FromResult(order.OrderItems
+				.Where(x => x.Nomenclature?.Category == NomenclatureCategory.water)
+				.ToList());
 		}
 
 		private CarLoadDocumentDto GetCarLoadDocumentDto(CarLoadDocumentEntity carLoadDocument)
