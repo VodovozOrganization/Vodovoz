@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
-			Title = "Журнал проблем";
+			Title = "Журнал проблем документооборота с клиентами";
 
 			_filterViewModel.IsShow = true;
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
@@ -157,16 +157,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			if(_filterViewModel.OrderId != null)
 			{
-				query.Where(Restrictions.Like(
-					Projections.Cast(NHibernateUtil.String, Projections.Property(() => orderAlias.Id)),
-					_filterViewModel.OrderId.ToString(), MatchMode.Anywhere));
+				query.Where(() => orderAlias.Id == _filterViewModel.OrderId);
 			}
 
 			if(_filterViewModel.TaskId != null)
 			{
-				query.Where(Restrictions.Like(
-					Projections.Cast(NHibernateUtil.String, Projections.Property(() => edoTaskAlias.Id)),
-					_filterViewModel.TaskId.ToString(), MatchMode.Anywhere));
+				query.Where(() => edoTaskAlias.Id == _filterViewModel.TaskId);
 			}
 
 			if(_filterViewModel.ProblemSourceName != null)

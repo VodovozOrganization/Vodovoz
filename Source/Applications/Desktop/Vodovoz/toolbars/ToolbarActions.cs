@@ -265,7 +265,7 @@ public partial class MainWindow : Window
 		//Честный знак
 		ActionCodesPool = new Action("ActionCodesPool", "Пул кодов маркировки", null, "table");
 		ActionEdoProcessJournal = new Action("ActionEdoProcessJournal", "Документооброт с клиентами", null, "table");
-		ActionEdoProblemJournal = new Action("ActionEdoProblemJournal", "Журнал проблем", null, "table");
+		ActionEdoProblemJournal = new Action("ActionEdoProblemJournal", "Журнал проблем документооборота с клиентами", null, "table");
 
 		#endregion
 		#region Inserting actions to the toolbar

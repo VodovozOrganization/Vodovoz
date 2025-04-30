@@ -3,6 +3,9 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 {
+	/// <summary>
+	/// Строка журнала проблем документооборота с клиентами
+	/// </summary>
 	public class EdoProblemJournalNode
 	{
 		/// <summary>
