@@ -3,7 +3,7 @@ using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using Vodovoz.Core.Domain.Clients;
+using CustomerAppsApi.Library.Dto.Counterparties;
 
 namespace CustomerAppsApi.Controllers
 {
@@ -22,6 +22,11 @@ namespace CustomerAppsApi.Controllers
 			_orderModel = orderModel ?? throw new ArgumentNullException(nameof(orderModel));
 		}
 		
+		/// <summary>
+		/// Может ли клиент заказывать промонаборы для новых клиентов
+		/// </summary>
+		/// <param name="freeLoaderCheckingDto">Входящие данные для проверки <see cref="FreeLoaderCheckingDto"/></param>
+		/// <returns><c>true</c> - да, <c>false</c> - нет</returns>
 		[HttpGet]
 		public bool CanCounterpartyOrderPromoSetForNewClients([FromBody] FreeLoaderCheckingDto freeLoaderCheckingDto)
 		{
