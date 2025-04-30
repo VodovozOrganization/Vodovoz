@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using WarehouseApi.Contracts.Dto;
 
@@ -35,7 +36,28 @@ namespace WarehouseApi.Library.Converters
 			var apiOrder = new OrderDto
 			{
 				Id = firstDocumentItem?.OrderId ?? 0,
-				CarLoadDocument = firstDocumentItem?.Document?.Id ?? 0,
+				DocNumber = firstDocumentItem?.Document?.Id ?? 0,
+				DocType = DocumentSourceType.CarLoadDocument,
+				State = GetApiOrderLoadOperationState(waterCarLoadDocumentItems),
+				Items = GetApiOrderItems(waterCarLoadDocumentItems)
+			};
+
+			return apiOrder;
+		}
+
+		public OrderDto ConvertToApiOrder(int orderId, IEnumerable<OrderItemEntity> orderItemEntities)
+		{
+			var waterCarLoadDocumentItems = orderItemEntities
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+				.ToList();
+
+			var firstDocumentItem = waterCarLoadDocumentItems.FirstOrDefault();
+
+			var apiOrder = new OrderDto
+			{
+				Id = orderId,
+				DocNumber = orderId,
+				DocType = DocumentSourceType.CarLoadDocument,
 				State = GetApiOrderLoadOperationState(waterCarLoadDocumentItems),
 				Items = GetApiOrderItems(waterCarLoadDocumentItems)
 			};
@@ -81,6 +103,29 @@ namespace WarehouseApi.Library.Converters
 			return apiOrderItems;
 		}
 
+		private List<OrderItemDto> GetApiOrderItems(List<OrderItemEntity> waterCarOrderItems)
+		{
+			var apiOrderItems = new List<OrderItemDto>();
+
+			foreach(var documentItem in waterCarOrderItems)
+			{
+				var apiOrderItem = new OrderItemDto
+				{
+					NomenclatureId = documentItem.Nomenclature.Id,
+					Name = documentItem.Nomenclature.Name,
+					Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
+					GroupGtins = documentItem.Nomenclature.GroupGtins.Select(gg => new GroupGtinDto { Gtin = gg.GtinNumber, Count = gg.CodesCount }),
+					Quantity = (int)documentItem.ActualCount,
+				};
+
+				apiOrderItem.Codes.AddRange(GetApiTrueMarkCodes(documentItem));
+
+				apiOrderItems.Add(apiOrderItem);
+			}
+
+			return apiOrderItems;
+		}
+
 		private LoadOperationStateEnumDto GetApiOrderLoadOperationState(IEnumerable<CarLoadDocumentItemEntity> carLoadDocumentItems)
 		{
 			var itemsLoadState = new List<CarLoadDocumentLoadOperationState>();
@@ -111,6 +156,18 @@ namespace WarehouseApi.Library.Converters
 
 			var apiTrueMarkCodes =
 				documentItem.TrueMarkCodes
+				.Select(code => ConvertToApiTrueMarkCode(code, sequenceNumber++))
+				.ToList();
+
+			return apiTrueMarkCodes;
+		}
+
+		private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(OrderItemEntity orderItem)
+		{
+			var sequenceNumber = 0;
+
+			var apiTrueMarkCodes = 
+				orderItem
 				.Select(code => ConvertToApiTrueMarkCode(code, sequenceNumber++))
 				.ToList();
 
