@@ -172,9 +172,10 @@ namespace Edo.Problems.Validation.Sources
 			}
 
 			// Валидны ли коды в ЧЗ?
-			var trueMarkValidationResult = await trueMarkTaskCodesValidator.ValidateAsync(orderEdoRequest.Task, trueMarkCodesChecker, cancellationToken);
-
-			return trueMarkValidationResult.ReadyToSell;
+			var trueMarkValidationResult =
+				await trueMarkTaskCodesValidator.ValidateAsync(orderEdoRequest.Task, trueMarkCodesChecker, cancellationToken);
+			
+			return trueMarkValidationResult.IsAllValid;
 		}
 	}
 }
