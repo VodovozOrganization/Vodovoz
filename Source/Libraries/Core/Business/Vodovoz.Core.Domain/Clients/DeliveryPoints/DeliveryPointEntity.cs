@@ -9,6 +9,9 @@ using Vodovoz.Core.Domain.Contacts;
 
 namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 {
+	/// <summary>
+	/// Точка доставки
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "точки доставки",
 		Nominative = "точка доставки",
@@ -69,6 +72,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<EmailEntity> _emails;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
 		public DeliveryPointEntity()
 		{
 			CompiledAddress = string.Empty;
@@ -79,9 +85,15 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			Room = string.Empty;
 			Comment = string.Empty;
 		}
-		
+
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
 		public virtual int Id { get; set; }
 
+		/// <summary>
+		/// Время разгрузки
+		/// </summary>
 		[Display(Name = "Время разгрузки")]
 		public virtual int MinutesToUnload
 		{
@@ -89,6 +101,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _minutesToUnload, value);
 		}
 
+		/// <summary>
+		/// Литера
+		/// </summary>
 		[Display(Name = "Литера")]
 		public virtual string Letter
 		{
@@ -96,6 +111,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _letter, value);
 		}
 
+		/// <summary>
+		/// Помещение
+		/// </summary>
 		[Display(Name = "Помещение")]
 		public virtual string Placement
 		{
@@ -103,6 +121,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _placement, value);
 		}
 
+		/// <summary>
+		/// Этаж
+		/// </summary>
 		[Display(Name = "Этаж")]
 		public virtual string Floor
 		{
@@ -110,6 +131,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _floor, value);
 		}
 
+		/// <summary>
+		/// Тип входа
+		/// </summary>
 		[Display(Name = "Тип входа")]
 		public virtual EntranceType EntranceType
 		{
@@ -117,6 +141,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _entranceType, value);
 		}
 
+		/// <summary>
+		/// Парадная
+		/// </summary>
 		[Display(Name = "Парадная")]
 		public virtual string Entrance
 		{
@@ -124,24 +151,36 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _entrance, value);
 		}
 		
+		/// <summary>
+		/// ФИАС идентификатор города
+		/// </summary>
 		public virtual Guid? CityFiasGuid
 		{
 			get => _cityFiasGuid;
 			set => SetField(ref _cityFiasGuid, value);
 		}
 
+		/// <summary>
+		/// ФИАС идентификатор улицы
+		/// </summary>
 		public virtual Guid? StreetFiasGuid
 		{
 			get => _streetFiasGuid;
 			set => SetField(ref _streetFiasGuid, value);
 		}
 
+		/// <summary>
+		/// ФИАС идентификатор здания
+		/// </summary>
 		public virtual Guid? BuildingFiasGuid
 		{
 			get => _buildingFiasGuid;
 			set => SetField(ref _buildingFiasGuid, value);
 		}
 
+		/// <summary>
+		/// Город
+		/// </summary>
 		[Display(Name = "Город")]
 		public virtual string City
 		{
@@ -149,6 +188,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _city, value);
 		}
 
+		/// <summary>
+		/// Тип населенного пункта
+		/// </summary>
 		[Display(Name = "Тип населенного пункта")]
 		public virtual string LocalityType
 		{
@@ -156,6 +198,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _localityType, value);
 		}
 
+		/// <summary>
+		/// Тип населенного пункта (сокращ.)
+		/// </summary>
 		[Display(Name = "Тип населенного пункта (сокращ.)")]
 		public virtual string LocalityTypeShort
 		{
@@ -163,6 +208,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _localityTypeShort, value);
 		}
 
+		/// <summary>
+		/// Район области
+		/// </summary>
 		[Display(Name = "Район области")]
 		public virtual string CityDistrict
 		{
@@ -170,6 +218,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _cityDistrict, value);
 		}
 
+		/// <summary>
+		/// Улица
+		/// </summary>
 		[Display(Name = "Улица")]
 		public virtual string Street
 		{
@@ -184,6 +235,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _streetType, value);
 		}
 
+		/// <summary>
+		/// Тип улицы (сокр.)
+		/// </summary>
 		[Display(Name = "Тип улицы (сокр.)")]
 		public virtual string StreetTypeShort
 		{
@@ -191,6 +245,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _streetTypeShort, value);
 		}
 
+		/// <summary>
+		/// Район города
+		/// </summary>
 		[Display(Name = "Район города")]
 		public virtual string StreetDistrict
 		{
@@ -198,6 +255,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _streetDistrict, value);
 		}
 
+		/// <summary>
+		/// Номер дома
+		/// </summary>
 		[Display(Name = "Номер дома")]
 		public virtual string Building
 		{
@@ -205,6 +265,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _building, value);
 		}
 
+		/// <summary>
+		/// Тип помещения
+		/// </summary>
 		[Display(Name = "Тип помещения")]
 		public virtual RoomType RoomType
 		{
@@ -212,6 +275,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _roomType, value);
 		}
 
+		/// <summary>
+		/// Офис/Квартира
+		/// </summary>
 		[Display(Name = "Офис/Квартира")]
 		public virtual string Room
 		{
@@ -219,6 +285,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _room, value);
 		}
 
+		/// <summary>
+		/// Комментарий
+		/// </summary>
 		[Display(Name = "Комментарий")]
 		public virtual string Comment
 		{
@@ -248,13 +317,19 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			protected set => SetField(ref _longitude, value);
 		}
 
+		/// <summary>
+		/// Активный
+		/// </summary>
 		[Display(Name = "Активный")]
 		public virtual bool IsActive
 		{
 			get => _isActive;
 			set => SetField(ref _isActive, value);
 		}
-		
+
+		/// <summary>
+		/// Адрес найден на карте OSM
+		/// </summary>
 		[Display(Name = "Адрес найден на карте OSM")]
 		public virtual bool FoundOnOsm
 		{
@@ -262,6 +337,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _foundOnOsm, value);
 		}
 
+		/// <summary>
+		/// Ручные координаты
+		/// </summary>
 		[Display(Name = "Ручные координаты")]
 		public virtual bool ManualCoordinates
 		{
@@ -269,6 +347,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _manualCoordinates, value);
 		}
 
+		/// <summary>
+		/// Исправлен в OSM
+		/// </summary>
 		[Display(Name = "Исправлен в OSM")]
 		public virtual bool IsFixedInOsm
 		{
@@ -276,6 +357,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _isFixedInOsm, value);
 		}
 		
+		/// <summary>
+		/// КПП
+		/// </summary>
 		[Display(Name = "КПП")]
 		public virtual string KPP
 		{
@@ -283,6 +367,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _kpp, value);
 		}
 
+		/// <summary>
+		/// Адрес 1С
+		/// </summary>
 		[Display(Name = "Адрес 1С")]
 		public virtual string Address1c
 		{
@@ -290,7 +377,10 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _address1c, value);
 		}
 
+		/// <summary>
+		/// Код в 1С
 		/// Код уникален только внутри контрагента
+		/// </summary>
 		[Display(Name = "Код в 1С")]
 		public virtual string Code1c
 		{
@@ -298,6 +388,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _code1c, value);
 		}
 
+		/// <summary>
+		/// Организация
+		/// </summary>
 		[Display(Name = "Организация")]
 		public virtual string Organization
 		{
@@ -305,27 +398,39 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _organization, value);
 		}
 
+		/// <summary>
+		/// Резерв бутылей
+		/// </summary>
 		[Display(Name = "Резерв бутылей")]
 		public virtual int BottleReserv
 		{
 			get => _bottleReserv;
 			set => SetField(ref _bottleReserv, value);
 		}
-		
+
+		/// <summary>
+		/// Всегда бесплатная доставка
+		/// </summary>
 		[Display(Name = "Всегда бесплатная доставка")]
 		public virtual bool AlwaysFreeDelivery
 		{
 			get => _alwaysFreeDelivery;
 			set => SetField(ref _alwaysFreeDelivery, value);
 		}
-		
+
+		/// <summary>
+		/// Расстояние от базы в метрах
+		/// </summary>
 		[Display(Name = "Расстояние от базы в метрах")]
 		public virtual int? DistanceFromBaseMeters
 		{
 			get => _distanceFromBaseMeters;
 			set => SetField(ref _distanceFromBaseMeters, value);
 		}
-		
+
+		/// <summary>
+		/// Посчитан ввод остатков
+		/// </summary>
 		[Display(Name = "Посчитан ввод остатков")]
 		public virtual bool? HaveResidue
 		{
@@ -402,9 +507,12 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			get => _fixPrice5;
 			set => SetField(ref _fixPrice5, value);
 		}
-		
+
 		#endregion Временные поля для хранения фиксированных цен из 1с
-		
+
+		/// <summary>
+		/// Всегда добавлять сертификаты
+		/// </summary>
 		[Display(Name = "Всегда добавлять сертификаты")]
 		public virtual bool AddCertificatesAlways
 		{
@@ -412,6 +520,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _addCertificatesAlways, value);
 		}
 
+		/// <summary>
+		/// Время начала обеда
+		/// </summary>
 		[Display(Name = "Время начала обеда")]
 		public virtual TimeSpan? LunchTimeFrom
 		{
@@ -419,6 +530,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _lunchTimeFrom, value);
 		}
 
+		/// <summary>
+		/// Время окончания обеда
+		/// </summary>
 		[Display(Name = "Время окончания обеда")]
 		public virtual TimeSpan? LunchTimeTo
 		{
@@ -426,6 +540,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _lunchTimeTo, value);
 		}
 
+		/// <summary>
+		/// Телефоны
+		/// </summary>
 		[Display(Name = "Телефоны")]
 		public virtual IObservableList<PhoneEntity> Phones
 		{
@@ -435,13 +552,19 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 
 		#region Свойства для интеграции
 
+		/// <summary>
+		/// Комментарий к ТД из ИПЗ
+		/// </summary>
 		[Display(Name = "Комментарий к ТД из ИПЗ")]
 		public virtual string OnlineComment
 		{
 			get => _onlineComment;
 			set => SetField(ref _onlineComment, value);
 		}
-		
+
+		/// <summary>
+		/// Домофон
+		/// </summary>
 		[Display(Name = "Домофон")]
 		public virtual string Intercom
 		{
@@ -450,7 +573,10 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 		}
 
 		#endregion
-		
+
+		/// <summary>
+		/// Полный адрес
+		/// </summary>
 		[Display(Name = "Полный адрес")]
 		public virtual string CompiledAddress
 		{
@@ -512,6 +638,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set { }
 		}
 
+		/// <summary>
+		/// Адрес без дополнения
+		/// </summary>
 		[Display(Name = "Адрес без дополнения")]
 		public virtual string CompiledAddressWOAddition
 		{
@@ -567,6 +696,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			}
 		}
 
+		/// <summary>
+		/// Сокращенный адрес
+		/// </summary>
 		[Display(Name = "Сокращенный адрес")]
 		public virtual string ShortAddress
 		{
@@ -622,9 +754,16 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			}
 			set { }
 		}
-		
+
+		/// <summary>
+		/// Координаты в виде текста
+		/// </summary>
 		public virtual string CoordinatesText => Latitude == null || Longitude == null ? string.Empty : $"(ш. {Latitude:F5}, д. {Longitude:F5})";
-		
+
+		/// <summary>
+		/// Сокращенное название типа улицы
+		/// </summary>
+		/// <returns></returns>
 		private string GetStreetTypeShort()
 		{
 			return string.Equals(StreetType, StreetTypeShort, StringComparison.CurrentCultureIgnoreCase)
