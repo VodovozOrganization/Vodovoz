@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
+using TrueMark.Contracts.Documents;
 using TrueMark.Contracts.Responses;
 
 namespace TrueMarkApi.Client
@@ -10,6 +11,23 @@ namespace TrueMarkApi.Client
 	{
 		Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn, CancellationToken cancellationToken);
 		Task<ProductInstancesInfoResponse> GetProductInstanceInfoAsync(IEnumerable<string> identificationCodes, CancellationToken cancellationToken);
-		Task<string> GetCrptTokenAsync(string certificateThumbPrint, string inn, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Отправка документа вывода из оборота (индивидуальный учет)
+		/// </summary>
+		/// <param name="document">Документ</param>
+		/// <param name="inn">ИНН организации</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Номер созданного документа</returns>
+		Task<string> SendIndividualAccountingWithdrawalDocument(string document, string inn, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение информации о документе в ЧЗ
+		/// </summary>
+		/// <param name="documentId">Идентификатор документа</param>
+		/// <param name="inn">ИНН организации</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Информация о документе</returns>
+		Task<CreatedDocumentInfoDto> RecieveDocument(string documentId, string inn, CancellationToken cancellationToken)
 	}
 }

@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
+using TrueMark.Contracts.Documents;
 using TrueMark.Contracts.Responses;
 
 namespace TrueMarkApi.Client
@@ -54,12 +55,51 @@ namespace TrueMarkApi.Client
 			return result.Result;
 		}
 
-		public async Task<string> GetCrptTokenAsync(string certificateThumbPrint, string inn, CancellationToken cancellationToken)
+		public async Task<string> SendIndividualAccountingWithdrawalDocument(string document, string inn, CancellationToken cancellationToken)
 		{
-			var endPoint = $"api/Login?certificateThumbPrint={certificateThumbPrint}&&inn={inn}";
-			var crptToken = await _httpClient.GetStringAsync(endPoint);
+			(string Document, string Inn) documentData = (document, inn);
+			string content = JsonSerializer.Serialize(documentData);
 
-			return crptToken;
+			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+
+			var response = await _httpClient.PostAsync("api/SendIndividualAccountingWithdrawalDocument", httpContent, cancellationToken);
+
+			var documentId = await response.Content.ReadAsStringAsync();
+
+			if(!response.IsSuccessStatusCode)
+			{
+				throw new Exception(
+					$"Ошибка при отправке документа вывода из оборота в Честный Знак. " +
+					$"Документ: {document}. " +
+					$"ИНН: {inn}. " +
+					$"Код ошибки: {response.StatusCode}. " +
+					$"Ответ: {documentId}");
+			}
+
+			return documentId;
+		}
+
+		public async Task<CreatedDocumentInfoDto> RecieveDocument(string documentId, string inn, CancellationToken cancellationToken)
+		{
+			var endPoint = $"api/RecieveDocument?documentId={documentId}&&inn={inn}";
+
+			var response = await _httpClient.GetAsync(endPoint, cancellationToken);
+
+			if(!response.IsSuccessStatusCode)
+			{
+				throw new Exception(
+					$"Ошибка при получении статуса документа из Честного Знака. " +
+					$"Документ: {documentId}. " +
+					$"ИНН: {inn}. " +
+					$"Код ошибки: {response.StatusCode}. " +
+					$"Ошибка: {response.ReasonPhrase}");
+			}
+
+			var responseBody = await response.Content.ReadAsStreamAsync();
+			var createdDocumentInfo = (await JsonSerializer.DeserializeAsync<IEnumerable<CreatedDocumentInfoDto>>(responseBody))
+				.FirstOrDefault();
+
+			return createdDocumentInfo;
 		}
 	}
 }
