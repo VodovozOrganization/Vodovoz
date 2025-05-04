@@ -15,12 +15,14 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Api.Options;
-using TrueMark.Api.Responses;
 using TrueMark.Contracts;
 using TrueMark.Contracts.Requests;
 using TrueMark.Contracts.Responses;
 using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorizationService;
 using TrueMark.Api.Extensions;
+using TrueMark.Api.Contracts.Responses;
+using TrueMark.Api.Contracts.Requests;
+using TrueMark.Api.Contracts.Dto;
 
 namespace TrueMark.Api.Controllers;
 
@@ -269,9 +271,7 @@ public class TrueMarkApiController : ControllerBase
 	[HttpGet]
 	public async Task<byte[]> Sign(string data, bool isDeatchedSign, string certificateThumbPrint, string inn)
 	{
-		var currentCert = _options.Value.OrganizationCertificates.SingleOrDefault(c => c.CertificateThumbPrint == certificateThumbPrint && c.Inn == inn);
-
-		return await _authorizationService.CreateAttachedSignedCmsWithStore2012_256(data, isDeatchedSign, currentCert.CertPath, currentCert.CertPwd);
+		return await SignDocument(data, isDeatchedSign, inn, certificateThumbPrint);
 	}
 
 	[HttpGet]
@@ -296,6 +296,102 @@ public class TrueMarkApiController : ControllerBase
 			};
 		}
 	}
+
+	/// <summary>
+	/// Отправка документа вывода из оборота
+	/// </summary>
+	/// <param name="documentData">Данные документа</param>
+	/// <param name="cancellationToken">Токен отмены</param>
+	/// <returns></returns>
+	[HttpPost]
+	public async Task<HttpResponseMessage> SendIndividualAccountingWithdrawalDocument([FromBody]SendDocumentDataRequest documentData, CancellationToken cancellationToken)
+	{
+		var uri = $"v3/true-api/lk/documents/create?pg=water";
+
+		var document = documentData.Document;
+		var inn = documentData.Inn;
+
+		var errorMessage = new StringBuilder();
+		errorMessage.AppendLine("Не удалось выполнить отправку документа вывода из оборота");
+		
+		try
+		{
+			var certificateThumbPrint = GetCertificateThumbPrintByInn(inn);
+
+			var sign = await SignDocument(document, true, certificateThumbPrint, inn);
+
+			var documentToSend = new SendDocumentDto
+			{
+				DocumentFormat = "MANUAL",
+				Type = "LK_RECEIPT",
+				ProductDocument = Convert.ToBase64String(Encoding.UTF8.GetBytes(document)),
+				Signature = Convert.ToBase64String(sign)
+			};
+
+			var httpContent = new StringContent(JsonSerializer.Serialize(documentToSend), Encoding.UTF8, "application/json");
+
+			var token = await _authorizationService.Login(certificateThumbPrint, inn);
+			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+			return await _httpClient.PostAsync(uri, httpContent, cancellationToken);
+		}
+		catch(Exception e)
+		{
+			_logger.LogError(e, errorMessage.ToString());
+
+			return new HttpResponseMessage
+			{
+				StatusCode = System.Net.HttpStatusCode.InternalServerError,
+				ReasonPhrase = errorMessage.AppendLine(e.Message).ToString()
+			};
+		}
+	}
+
+	/// <summary>
+	/// Получение документа из ЧЗ
+	/// </summary>
+	/// <param name="documentId">Идентификатор документа</param>
+	/// <param name="inn">ИНН организации</param>
+	/// <param name="cancellationToken">Токен отмены</param>
+	/// <returns></returns>
+	[HttpGet]
+	public async Task<HttpResponseMessage> RecieveDocument(string documentId, string inn, CancellationToken cancellationToken)
+	{
+		var resultInfoUrl = $"v4/true-api/doc/{documentId}/info";
+		
+		var errorMessage = new StringBuilder();
+		errorMessage.AppendLine("Не удалось выполнить запрос получения документа");
+
+		try
+		{
+			var certificateThumbPrint = GetCertificateThumbPrintByInn(inn);
+
+			var token = await _authorizationService.Login(certificateThumbPrint, inn);
+			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+			return await _httpClient.GetAsync(resultInfoUrl, cancellationToken);
+		}
+		catch(Exception e)
+		{
+			_logger.LogError(e, errorMessage.ToString());
+
+			return new HttpResponseMessage
+			{
+				StatusCode = System.Net.HttpStatusCode.InternalServerError,
+				ReasonPhrase = errorMessage.AppendLine(e.Message).ToString()
+			};
+		}
+	}
+
+	private async Task<byte[]> SignDocument(string data, bool isDeatchedSign, string certificateThumbPrint, string inn)
+	{
+		var currentCert = _options.Value.OrganizationCertificates.SingleOrDefault(c => c.CertificateThumbPrint == certificateThumbPrint && c.Inn == inn);
+
+		return await _authorizationService.CreateAttachedSignedCmsWithStore2012_256(data, isDeatchedSign, currentCert.CertPath, currentCert.CertPwd);
+	}
+
+	private string GetCertificateThumbPrintByInn(string inn) =>
+		_options.Value.OrganizationCertificates.Where(c => c.Inn == inn).Select(x => x.CertificateThumbPrint).SingleOrDefault();
 
 	private static List<Task<Response<ProductInstanceInfoResponse>>> CreateRequestsTasks(
 		IRequestClient<ProductInstanceInfoRequest> requestClient,
