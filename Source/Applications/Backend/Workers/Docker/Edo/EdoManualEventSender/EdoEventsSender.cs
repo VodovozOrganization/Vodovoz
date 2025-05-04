@@ -106,7 +106,7 @@ namespace EdoManualEventSender
 				return;
 			}
 
-			_messageBus.Publish(new EdoRequestCreatedEvent { Id = id });
+			_messageBus.Publish(new EdoRequestCreatedEvent { Id = id }).Wait();
 		}
 
 		private void SendDocumentTaskCreatedEvent()
@@ -123,7 +123,7 @@ namespace EdoManualEventSender
 				return;
 			}
 
-			_messageBus.Publish(new DocumentTaskCreatedEvent { Id = id });
+			_messageBus.Publish(new DocumentTaskCreatedEvent { Id = id }).Wait();
 		}
 
 		private void SendTransferRequestCreatedEvent()
@@ -140,7 +140,7 @@ namespace EdoManualEventSender
 				return;
 			}
 
-			_messageBus.Publish(new TransferRequestCreatedEvent { TransferIterationId = id });
+			_messageBus.Publish(new TransferRequestCreatedEvent { TransferIterationId = id }).Wait();
 		}
 
 		private void SendTransferTaskReadyToSendEvent()
@@ -154,7 +154,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new TransferTaskReadyToSendEvent { TransferTaskId = id });
+			_messageBus.Publish(new TransferTaskReadyToSendEvent { TransferTaskId = id }).Wait();
 		}
 
 		private void SendTransferTaskPreparingToSendEvent()
@@ -168,7 +168,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new TransferTaskPrepareToSendEvent { TransferTaskId = id });
+			_messageBus.Publish(new TransferTaskPrepareToSendEvent { TransferTaskId = id }).Wait();
 		}
 		
 		private void SendTransferDocumentSendEvent()
@@ -182,7 +182,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new TransferDocumentSendEvent { TransferDocumentId = id });
+			_messageBus.Publish(new TransferDocumentSendEvent { TransferDocumentId = id }).Wait();
 		}
 
 		private void SendTransferDocumentAcceptedEvent()
@@ -196,7 +196,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new TransferDocumentAcceptedEvent { DocumentId = id });
+			_messageBus.Publish(new TransferDocumentAcceptedEvent { DocumentId = id }).Wait();
 		}
 
 		private void SendTransferCompleteDocumentEvent()
@@ -215,7 +215,7 @@ namespace EdoManualEventSender
 			{
 				TransferIterationId = id,
 				TransferInitiator = TransferInitiator.Document
-			});
+			}).Wait();
 		}
 
 		private void SendTransferCompleteReceiptEvent()
@@ -234,7 +234,7 @@ namespace EdoManualEventSender
 			{
 				TransferIterationId = id,
 				TransferInitiator = TransferInitiator.Receipt
-			});
+			}).Wait();
 		}
 
 		private void SendOrderDocumentSendEvent()
@@ -248,7 +248,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new OrderDocumentSendEvent { OrderDocumentId = id });
+			_messageBus.Publish(new OrderDocumentSendEvent { OrderDocumentId = id }).Wait();
 		}
 
 		private void SendOrderDocumentAcceptedEvent()
@@ -262,7 +262,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new OrderDocumentAcceptedEvent { DocumentId = id });
+			_messageBus.Publish(new OrderDocumentAcceptedEvent { DocumentId = id }).Wait();
 		}
 
 		private void SendSaveCodesTaskCreatedEvent()
@@ -276,7 +276,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new SaveCodesTaskCreatedEvent { EdoTaskId = id });
+			_messageBus.Publish(new SaveCodesTaskCreatedEvent { EdoTaskId = id }).Wait();
 		}
 
 		private void SendReceiptTaskCreatedEvent()
@@ -290,7 +290,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = id });
+			_messageBus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = id }).Wait();
 		}
 
 		private void SendReceiptReadyToSendEvent()
@@ -304,7 +304,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new ReceiptReadyToSendEvent { ReceiptEdoTaskId = id });
+			_messageBus.Publish(new ReceiptReadyToSendEvent { ReceiptEdoTaskId = id }).Wait();
 		}
 
 		private void SendWithdrawalTaskCreatedEvent()

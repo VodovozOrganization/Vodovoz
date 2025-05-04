@@ -602,7 +602,7 @@ namespace Vodovoz
 			yentryFirstName.Changed += OnEntryPersonNamePartChanged;
 			yentryPatronymic.Changed += OnEntryPersonNamePartChanged;
 
-			comboboxOpf.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			comboboxOpf.Sensitive = (_currentUserCanEditCounterpartyDetails || Entity.TypeOfOwnership is null) && CanEdit;
 			FillComboboxOpf();
 			comboboxOpf.Changed += ComboboxOpfChanged;
 

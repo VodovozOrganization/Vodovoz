@@ -83,10 +83,8 @@ namespace Edo.Documents
 					attempts--;
 				}
 
-				if(!documentEdoTask.UpdInventPositions.Any())
-				{
-					await CreateUpdDocument(documentEdoTask, trueMarkCodesChecker, cancellationToken);
-				}
+				documentEdoTask.UpdInventPositions.Clear();
+				await CreateUpdDocument(documentEdoTask, trueMarkCodesChecker, cancellationToken);
 
 				// проверить коды в ЧЗ, не валидные снова заменить кодами из пула
 				trueMarkCodesChecker.ClearCache();

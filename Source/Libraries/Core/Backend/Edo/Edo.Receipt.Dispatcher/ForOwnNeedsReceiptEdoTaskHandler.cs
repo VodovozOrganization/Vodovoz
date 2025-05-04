@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
@@ -104,13 +104,36 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			// предзагрузка для ускорения
-			await _uow.Session.QueryOver<TrueMarkProductCode>()
+			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.OrderEdoRequest.Id)
 				.ListAsync();
+
+			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoTask.Id == receiptEdoTask.Id)
+				.ListAsync(cancellationToken);
+
+			var totalProductCodes = productCodes
+				.Union(taskCodes.Select(x => x.ProductCode));
+
+			var sourceCodes = totalProductCodes
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = totalProductCodes
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
@@ -260,7 +283,6 @@ namespace Edo.Receipt.Dispatcher
 				{
 					attempts--;
 					await PrepareFiscalDocuments(receiptEdoTask, cancellationToken);
-					trueMarkCodesChecker.ClearCache();
 				}
 
 				// проверяем все коды по задаче в ЧЗ
@@ -273,7 +295,6 @@ namespace Edo.Receipt.Dispatcher
 				isValid = taskValidationResult.IsAllValid;
 				if(!isValid)
 				{
-					var hasGroupInvalidCodes = false;
 					// очистка result кодов не валидных позиций
 					foreach(var codeResult in taskValidationResult.CodeResults)
 					{
@@ -290,8 +311,6 @@ namespace Edo.Receipt.Dispatcher
 						// определить что TaskItem принадлежит групповому коду
 						if(codeResult.EdoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
 						{
-							hasGroupInvalidCodes = true;
-
 							// так же надо зачистить все части этого группового кода
 							var groupCode = await _trueMarkCodeRepository.GetGroupCode(
 								codeResult.EdoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value,
@@ -585,6 +604,14 @@ namespace Edo.Receipt.Dispatcher
 
 					inventPosition.EdoTaskItem = null;
 					inventPosition.GroupCode = groupCode;
+					foreach(var taskItem in affectedTaskItems)
+					{
+						if(taskItem.ProductCode.ResultCode == null)
+						{
+							taskItem.ProductCode.ResultCode = taskItem.ProductCode.SourceCode;
+							taskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;
+						}
+					}
 
 					groupFiscalInventPositions.Add(inventPosition);
 
@@ -737,6 +764,16 @@ namespace Edo.Receipt.Dispatcher
 				}
 				receiptEdoTask.Items.Remove(unprocessedCode);
 				await _uow.DeleteAsync(unprocessedCode, cancellationToken);
+			}
+
+			// Удаление из задачи не используемых групповых кодов
+			foreach(var groupCodeWithTaskItems in groupCodesWithTaskItems)
+			{
+				foreach(var groupCodeTaskItem in groupCodeWithTaskItems.Value)
+				{
+					receiptEdoTask.Items.Remove(groupCodeTaskItem);
+					await _uow.DeleteAsync(groupCodeTaskItem, cancellationToken);
+				}
 			}
 		}		
 

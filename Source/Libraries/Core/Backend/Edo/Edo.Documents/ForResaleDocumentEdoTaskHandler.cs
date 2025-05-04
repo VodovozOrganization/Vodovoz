@@ -59,6 +59,15 @@ namespace Edo.Documents
 
 			var order = documentEdoTask.OrderEdoRequest.Order;
 
+			foreach(var taskItem in documentEdoTask.Items)
+			{
+				if(taskItem.ProductCode.ResultCode == null)
+				{
+					taskItem.ProductCode.ResultCode = taskItem.ProductCode.SourceCode;
+					taskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Accepted;
+				}
+			}
+
 			trueMarkCodesChecker.ClearCache();
 			var taskValidationResult = await _trueMarkTaskCodesValidator.ValidateAsync(
 				documentEdoTask,
