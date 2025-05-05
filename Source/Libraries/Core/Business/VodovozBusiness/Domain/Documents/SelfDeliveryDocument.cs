@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Errors;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 
@@ -176,6 +177,24 @@ namespace Vodovoz.Domain.Documents
 		public virtual int TareToReturn { get; set; }
 
 		#endregion
+
+		public virtual Result AddItem(OrderItem orderItem)
+		{
+			if(orderItem == null)
+			{
+				return Vodovoz.Errors.Orders.OrderItem.NotFound;
+			}
+
+			Items.Add(new SelfDeliveryDocumentItem
+			{
+				Document = this,
+				Nomenclature = orderItem.Nomenclature,
+				Amount = orderItem.ActualCount ?? orderItem.Count,
+				OrderItem = orderItem
+			});
+
+			return Result.Success();
+		}
 
 		/// <summary>
 		/// Проверка валидности документа самовывоза
