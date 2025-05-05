@@ -45,25 +45,25 @@ namespace WarehouseApi.Library.Converters
 			return apiOrder;
 		}
 
-		public OrderDto ConvertToApiOrder(int orderId, IEnumerable<OrderItemEntity> orderItemEntities)
-		{
-			var waterCarLoadDocumentItems = orderItemEntities
-				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
-				.ToList();
+		//public OrderDto ConvertToApiOrder(int orderId, IEnumerable<OrderItemEntity> orderItemEntities)
+		//{
+		//	var waterCarLoadDocumentItems = orderItemEntities
+		//		.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+		//		.ToList();
 
-			var firstDocumentItem = waterCarLoadDocumentItems.FirstOrDefault();
+		//	var firstDocumentItem = waterCarLoadDocumentItems.FirstOrDefault();
 
-			var apiOrder = new OrderDto
-			{
-				Id = orderId,
-				DocNumber = orderId,
-				DocType = DocumentSourceType.CarLoadDocument,
-				State = GetApiOrderLoadOperationState(waterCarLoadDocumentItems),
-				Items = GetApiOrderItems(waterCarLoadDocumentItems)
-			};
+		//	var apiOrder = new OrderDto
+		//	{
+		//		Id = orderId,
+		//		DocNumber = orderId,
+		//		DocType = DocumentSourceType.CarLoadDocument,
+		//		State = GetApiOrderLoadOperationState(waterCarLoadDocumentItems),
+		//		Items = GetApiOrderItems(waterCarLoadDocumentItems)
+		//	};
 
-			return apiOrder;
-		}
+		//	return apiOrder;
+		//}
 
 		public NomenclatureDto ConvertToApiNomenclature(CarLoadDocumentItemEntity documentItem)
 		{
@@ -103,28 +103,28 @@ namespace WarehouseApi.Library.Converters
 			return apiOrderItems;
 		}
 
-		private List<OrderItemDto> GetApiOrderItems(List<OrderItemEntity> waterCarOrderItems)
-		{
-			var apiOrderItems = new List<OrderItemDto>();
+		//private List<OrderItemDto> GetApiOrderItems(List<OrderItemEntity> waterCarOrderItems)
+		//{
+		//	var apiOrderItems = new List<OrderItemDto>();
 
-			foreach(var documentItem in waterCarOrderItems)
-			{
-				var apiOrderItem = new OrderItemDto
-				{
-					NomenclatureId = documentItem.Nomenclature.Id,
-					Name = documentItem.Nomenclature.Name,
-					Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
-					GroupGtins = documentItem.Nomenclature.GroupGtins.Select(gg => new GroupGtinDto { Gtin = gg.GtinNumber, Count = gg.CodesCount }),
-					Quantity = (int)documentItem.ActualCount,
-				};
+		//	foreach(var documentItem in waterCarOrderItems)
+		//	{
+		//		var apiOrderItem = new OrderItemDto
+		//		{
+		//			NomenclatureId = documentItem.Nomenclature.Id,
+		//			Name = documentItem.Nomenclature.Name,
+		//			Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
+		//			GroupGtins = documentItem.Nomenclature.GroupGtins.Select(gg => new GroupGtinDto { Gtin = gg.GtinNumber, Count = gg.CodesCount }),
+		//			Quantity = (int)documentItem.ActualCount,
+		//		};
 
-				apiOrderItem.Codes.AddRange(GetApiTrueMarkCodes(documentItem));
+		//		apiOrderItem.Codes.AddRange(GetApiTrueMarkCodes(documentItem));
 
-				apiOrderItems.Add(apiOrderItem);
-			}
+		//		apiOrderItems.Add(apiOrderItem);
+		//	}
 
-			return apiOrderItems;
-		}
+		//	return apiOrderItems;
+		//}
 
 		private LoadOperationStateEnumDto GetApiOrderLoadOperationState(IEnumerable<CarLoadDocumentItemEntity> carLoadDocumentItems)
 		{
@@ -150,6 +150,31 @@ namespace WarehouseApi.Library.Converters
 			return apiOrderLoadOperationState;
 		}
 
+		private LoadOperationStateEnumDto GetApiOrderLoadOperationState(IEnumerable<OrderItemEntity> orderItems)
+		{
+			var itemsLoadState = new List<CarLoadDocumentLoadOperationState>();
+
+			foreach(var item in orderItems)
+			{
+				itemsLoadState.Add(CarLoadDocumentLoadOperationState.NotStarted);
+			}
+
+			var apiOrderLoadOperationState = LoadOperationStateEnumDto.NotStarted;
+
+			if(itemsLoadState.Any(st => st == CarLoadDocumentLoadOperationState.InProgress || st == CarLoadDocumentLoadOperationState.Done))
+			{
+				apiOrderLoadOperationState = LoadOperationStateEnumDto.InProgress;
+			}
+
+			if(itemsLoadState.All(st => st == CarLoadDocumentLoadOperationState.Done))
+			{
+				apiOrderLoadOperationState = LoadOperationStateEnumDto.Done;
+			}
+
+			return apiOrderLoadOperationState;
+		}
+
+
 		private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(CarLoadDocumentItemEntity documentItem)
 		{
 			var sequenceNumber = 0;
@@ -162,17 +187,17 @@ namespace WarehouseApi.Library.Converters
 			return apiTrueMarkCodes;
 		}
 
-		private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(OrderItemEntity orderItem)
-		{
-			var sequenceNumber = 0;
+		//private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(OrderItemEntity orderItem)
+		//{
+		//	var sequenceNumber = 0;
 
-			var apiTrueMarkCodes = 
-				orderItem
-				.Select(code => ConvertToApiTrueMarkCode(code, sequenceNumber++))
-				.ToList();
+		//	var apiTrueMarkCodes = 
+		//		orderItem
+		//		.Select(code => ConvertToApiTrueMarkCode(code, sequenceNumber++))
+		//		.ToList();
 
-			return apiTrueMarkCodes;
-		}
+		//	return apiTrueMarkCodes;
+		//}
 
 		private TrueMarkCodeDto ConvertToApiTrueMarkCode(CarLoadDocumentItemTrueMarkProductCode documentTrueMarkCode, int sequenceNumber)
 		{
