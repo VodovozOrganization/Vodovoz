@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Errors;
@@ -99,10 +100,8 @@ namespace WarehouseApi.Library.Services
 			_unitOfWork.Save(selfDeliveryDocument);
 
 			var waterItems = selfDeliveryDocument.Order.OrderItems
-				.Where(x => x.Nomenclature?.Category == Vodovoz.Core.Domain.Goods.NomenclatureCategory.water)
+				.Where(x => x.Nomenclature?.Category == NomenclatureCategory.water)
 				.ToArray();
-
-
 
 			return Result.Success();
 		}
