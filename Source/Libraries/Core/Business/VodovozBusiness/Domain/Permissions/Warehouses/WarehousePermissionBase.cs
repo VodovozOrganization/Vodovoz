@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
 

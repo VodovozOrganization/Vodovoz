@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Documents.InventoryDocuments;
@@ -69,7 +70,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region static
 
-		public static Type GetDocClass(DocumentType docType)
+		public static System.Type GetDocClass(DocumentType docType)
 		{
 			switch(docType)
 			{
