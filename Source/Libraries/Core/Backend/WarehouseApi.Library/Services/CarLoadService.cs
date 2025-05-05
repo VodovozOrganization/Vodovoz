@@ -3,7 +3,6 @@ using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
-using NHibernate.Bytecode;
 using OneOf;
 using QS.DomainModel.UoW;
 using System;
@@ -45,7 +44,6 @@ namespace WarehouseApi.Library.Services
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
-		private readonly OrderService _orderService;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
 		private readonly IBus _messageBus;
@@ -59,7 +57,6 @@ namespace WarehouseApi.Library.Services
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
-			OrderService orderService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
 			IBus messageBus)
@@ -80,8 +77,6 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService
 				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
-			_orderService = orderService
-				?? throw new ArgumentNullException(nameof(orderService));
 			_carLoadDocumentConverter = carLoadDocumentConverter
 				?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
 			_documentErrorsChecker = documentErrorsChecker
