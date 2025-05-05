@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -119,6 +119,13 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(!(validationContext.Items
+					.TryGetValue("skipTrueMarkCodesCheck", out var value)
+				&& value is bool skipTrueMarkCodesCheck))
+			{
+				skipTrueMarkCodesCheck = false;
+			}
+
 			if(!(validationContext.GetService(typeof(IUnitOfWork)) is IUnitOfWork unitOfWork))
 			{
 				throw new ArgumentNullException(nameof(unitOfWork));
@@ -138,7 +145,8 @@ namespace Vodovoz.Domain.Documents
 						new[] { this.GetPropertyName(o => o.Items) });
 				}
 
-				if(!commonServices.CurrentPermissionService.ValidatePresetPermission(
+				if(!skipTrueMarkCodesCheck
+					&& !commonServices.CurrentPermissionService.ValidatePresetPermission(
 					   Vodovoz.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded)
 				   && Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
 				   && item.Nomenclature.IsAccountableInTrueMark
@@ -427,8 +435,8 @@ namespace Vodovoz.Domain.Documents
 
 		public int ExpectedAmount { get; set; }
 		public NomenclatureCategory Category { get; set; }
-        public Direction? Direction { get; set; }
-        public DirectionReason DirectionReason { get; set; }
-        public OwnTypes OwnType { get; set; }
-    }
+		public Direction? Direction { get; set; }
+		public DirectionReason DirectionReason { get; set; }
+		public OwnTypes OwnType { get; set; }
+	}
 }
