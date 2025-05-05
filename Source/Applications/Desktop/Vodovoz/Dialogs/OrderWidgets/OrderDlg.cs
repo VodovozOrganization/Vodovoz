@@ -98,6 +98,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
+using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
@@ -2949,7 +2950,8 @@ namespace Vodovoz
 				{
 					if(doc is IPrintableRDLDocument document)
 					{
-						TabParent.AddTab(QSReport.DocumentPrinter.GetPreviewTab(document), this, false);
+						NavigationManager
+							.OpenViewModelOnTdi<PrintableRdlDocumentViewModel<IPrintableRDLDocument>, IPrintableRDLDocument>(this, document, OpenPageOptions.AsSlave);
 					}
 				}
 			}
