@@ -16,7 +16,7 @@ namespace Vodovoz.Core.Domain.Documents
 		private bool _isReceived;
 
 		/// <summary>
-		/// Id
+		/// Идентификатор
 		/// </summary>
 		public virtual int Id { get; set; }
 
@@ -30,7 +30,7 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
-		/// Внутренний Id главного документа
+		/// Внутренний идентификатор главного документа
 		/// </summary>
 		public virtual string MainDocumentId
 		{
@@ -39,7 +39,7 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
-		/// Id документооборота на сервере Такском
+		/// Идентификатор документооборота на сервере Такском
 		/// </summary>
 		public virtual Guid? DocflowId
 		{
@@ -48,7 +48,7 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
-		/// Id документа ЭДО
+		/// Идентификатор документа ЭДО
 		/// </summary>
 		public virtual int EdoDocumentId
 		{
