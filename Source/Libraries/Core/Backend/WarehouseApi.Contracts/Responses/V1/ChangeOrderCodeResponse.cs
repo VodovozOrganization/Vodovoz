@@ -1,6 +1,6 @@
 ﻿using WarehouseApi.Contracts.Dto;
 
-namespace WarehouseApi.Contracts.Responses
+namespace WarehouseApi.Contracts.Responses.V1
 {
 	/// <summary>
 	/// DTO ответа на запрос изменения кода маркировки ЧЗ для номенклатуры
