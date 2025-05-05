@@ -653,13 +653,13 @@ namespace Vodovoz.JournalViewModels
 				.JoinEntityAlias(
 					() => orderEdoRequestAlias2,
 					() => orderEdoRequestAlias2.Order.Id == orderEdoRequestAlias.Order.Id
-						&& orderEdoRequestAlias2.Time > orderEdoRequestAlias.Time,
+						&& orderEdoRequestAlias2.Id > orderEdoRequestAlias.Id,
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => orderEdoDocumentAlias, () => orderEdoRequestAlias.Task.Id == orderEdoDocumentAlias.DocumentTaskId)
 				.JoinEntityAlias(
 					() => orderEdoDocumentAlias2,
 					() => orderEdoDocumentAlias2.DocumentTaskId == orderEdoDocumentAlias.DocumentTaskId
-						&& orderEdoDocumentAlias2.CreationTime > orderEdoDocumentAlias.CreationTime,
+						&& orderEdoDocumentAlias2.Id > orderEdoDocumentAlias.Id,
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where(() => orderEdoRequestAlias.Order.Id == orderAlias.Id)
 				.And(() => orderEdoRequestAlias.DocumentType == EdoDocumentType.UPD)
