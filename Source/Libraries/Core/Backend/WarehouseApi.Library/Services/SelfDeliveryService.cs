@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Errors;
 using VodovozBusiness.Services.TrueMark;
@@ -20,14 +21,14 @@ namespace WarehouseApi.Library.Services
 		private ILogger<SelfDeliveryService> _logger;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IGenericRepository<Order> _orderRepository;
-		private readonly IGenericRepository<SelfDeliveryDocumentEntity> _selfDeliveryDocumentRepository;
+		private readonly IGenericRepository<SelfDeliveryDocument> _selfDeliveryDocumentRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 
 		public SelfDeliveryService(
 			ILogger<SelfDeliveryService> logger,
 			IUnitOfWork unitOfWork,
 			IGenericRepository<Order> orderRepository,
-			IGenericRepository<SelfDeliveryDocumentEntity> selfDeliveryDocumentRepository,
+			IGenericRepository<SelfDeliveryDocument> selfDeliveryDocumentRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
 			_logger = logger
@@ -87,9 +88,9 @@ namespace WarehouseApi.Library.Services
 				return validationResult;
 			}
 
-			if(!(_selfDeliveryDocumentRepository.Get(_unitOfWork, x => x.Order.Id == orderId, 1).FirstOrDefault() is SelfDeliveryDocumentEntity selfDeliveryDocument))
+			if(!(_selfDeliveryDocumentRepository.Get(_unitOfWork, x => x.Order.Id == orderId, 1).FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument))
 			{
-				selfDeliveryDocument = new SelfDeliveryDocumentEntity
+				selfDeliveryDocument = new SelfDeliveryDocument
 				{
 					Order = order,
 				};
@@ -100,8 +101,18 @@ namespace WarehouseApi.Library.Services
 			_unitOfWork.Save(selfDeliveryDocument);
 
 			var waterItems = selfDeliveryDocument.Order.OrderItems
-				.Where(x => x.Nomenclature?.Category == NomenclatureCategory.water)
+				.Where(x => x.Nomenclature.IsAccountableInTrueMark)
 				.ToArray();
+
+			foreach(var item in waterItems)
+			{
+				var addResult = selfDeliveryDocument.AddItem(item);
+
+				if(addResult.IsFailure)
+				{
+					return Result.Failure(addResult.Errors);
+				}
+			}
 
 			return Result.Success();
 		}
