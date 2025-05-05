@@ -28,6 +28,6 @@ namespace TrueMarkApi.Client
 		/// <param name="inn">ИНН организации</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Информация о документе</returns>
-		Task<CreatedDocumentInfoDto> RecieveDocument(string documentId, string inn, CancellationToken cancellationToken)
+		Task<CreatedDocumentInfoDto> RecieveDocument(string documentId, string inn, CancellationToken cancellationToken);
 	}
 }
