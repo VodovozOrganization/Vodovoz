@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -484,6 +485,15 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 						   select container.Id)
 						   .FirstOrDefault()
 
+				let edoDocumentStatus =
+					(EdoDocumentStatus?)(from orderEdoRequest in uow.Session.Query<OrderEdoRequest>()
+										 join orderEdoDocument in uow.Session.Query<OrderEdoDocument>()
+										 on orderEdoRequest.Task.Id equals orderEdoDocument.DocumentTaskId
+										 where orderEdoRequest.Order.Id == order.Id
+										 orderby orderEdoRequest.Id descending, orderEdoDocument.Id descending
+										 select orderEdoDocument.Status)
+										.FirstOrDefault()
+
 				where
 					order.DeliveryDate >= StartDate && order.DeliveryDate < EndDate.Date.AddDays(1)
 					&& _orderStatuses.Contains(order.OrderStatus)
@@ -512,30 +522,30 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 					&& !(order.PaymentType == PaymentType.Terminal && order.PaymentByTerminalSource != null && _excludedPaymentByTerminalSources.Contains(order.PaymentByTerminalSource.Value))
 
 					&& (_includedEdoDocFlowStatuses.Count() == 0
-						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unsended) && edoContainer == null)
-						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unknown) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Unknown)
-						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.InProgress) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.InProgress)
-						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Succeed) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
-						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Warning) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Warning)
-						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Error) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Error)
-						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotStarted) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotStarted)
-						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.CompletedWithDivergences) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.CompletedWithDivergences)
-						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotAccepted) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotAccepted)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unsended) && edoContainer == null && edoDocumentStatus == null)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unknown) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Unknown || edoDocumentStatus == EdoDocumentStatus.Unknown))
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.InProgress) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.InProgress || edoDocumentStatus == EdoDocumentStatus.InProgress))
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Succeed) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Succeed || edoDocumentStatus == EdoDocumentStatus.Succeed))
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Warning) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Warning || edoDocumentStatus == EdoDocumentStatus.Warning))
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Error) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Error || edoDocumentStatus == EdoDocumentStatus.Error))
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotStarted) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotStarted || edoDocumentStatus == EdoDocumentStatus.NotStarted))
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.CompletedWithDivergences) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.CompletedWithDivergences || edoDocumentStatus == EdoDocumentStatus.CompletedWithDivergences))
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotAccepted) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotAccepted || edoDocumentStatus == EdoDocumentStatus.NotAccepted))
 						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.PreparingToSend) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.PreparingToSend)
-						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.WaitingForCancellation) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.WaitingForCancellation)
-						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Cancelled) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Cancelled))
-					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unsended) && edoContainer.EdoDocFlowStatus == null)
-					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unknown) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Unknown)
-					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.InProgress) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.InProgress)
-					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Succeed) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
-					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Warning) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Warning)
-					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Error) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Error)
-					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotStarted) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotStarted)
-					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.CompletedWithDivergences) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.CompletedWithDivergences)
-					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotAccepted) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotAccepted)
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.WaitingForCancellation) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.WaitingForCancellation || edoDocumentStatus == EdoDocumentStatus.WaitingForCancellation))
+						|| (_includedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Cancelled) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Cancelled || edoDocumentStatus == EdoDocumentStatus.Cancelled)))
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unsended) && edoContainer.EdoDocFlowStatus == null && edoDocumentStatus == null)
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Unknown) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Unknown || edoDocumentStatus == EdoDocumentStatus.Unknown))
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.InProgress) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.InProgress || edoDocumentStatus == EdoDocumentStatus.InProgress))
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Succeed) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Succeed || edoDocumentStatus == EdoDocumentStatus.Succeed))
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Warning) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Warning || edoDocumentStatus == EdoDocumentStatus.Warning))
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Error) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Error || edoDocumentStatus == EdoDocumentStatus.Error))
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotStarted) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotStarted || edoDocumentStatus == EdoDocumentStatus.NotStarted))
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.CompletedWithDivergences) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.CompletedWithDivergences || edoDocumentStatus == EdoDocumentStatus.CompletedWithDivergences))
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.NotAccepted) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.NotAccepted || edoDocumentStatus == EdoDocumentStatus.NotAccepted))
 					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.PreparingToSend) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.PreparingToSend)
-					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.WaitingForCancellation) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.WaitingForCancellation)
-					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Cancelled) && edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Cancelled)
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.WaitingForCancellation) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.WaitingForCancellation || edoDocumentStatus == EdoDocumentStatus.WaitingForCancellation))
+					&& !(_excludedEdoDocFlowStatuses.Contains(EdoControlReportDocFlowStatus.Cancelled) && (edoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Cancelled || edoDocumentStatus == EdoDocumentStatus.Cancelled))
 
 					&& (_includedOrderDeliveryTypes.Count() == 0
 						|| (_includedOrderDeliveryTypes.Contains(EdoControlReportOrderDeliveryType.FastDelivery) && order.IsFastDelivery)
@@ -556,7 +566,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.FromHandToHand) && routeListItem.AddressTransferType != null && routeListItem.AddressTransferType == AddressTransferType.FromHandToHand)
 					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.FromFreeBalance) && routeListItem.AddressTransferType != null && routeListItem.AddressTransferType == AddressTransferType.FromFreeBalance)
 					&& !(_excludedAddressTransferTypes.Contains(EdoControlReportAddressTransferType.NoTransfer) && routeListItem.AddressTransferType == null)
-									
+
 				select new EdoControlReportOrderData
 				{
 					EdoContainerId = edoContainer.Id,
@@ -565,10 +575,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 					OrderId = order.Id,
 					RouteListId = routeListItem.RouteList.Id,
 					DeliveryDate = order.DeliveryDate.Value,
-					EdoStatus =
-						edoContainer == null
-						? EdoControlReportDocFlowStatus.Unsended
-						: edoContainer.EdoDocFlowStatus.ToString().ToEnum<EdoControlReportDocFlowStatus>(),
+					OldEdoDocflowStatus = edoContainer.EdoDocFlowStatus,
+					NewEdoDocflowStatus = edoDocumentStatus,
 					OrderDeliveryType =
 						order.IsFastDelivery
 						? EdoControlReportOrderDeliveryType.FastDelivery
