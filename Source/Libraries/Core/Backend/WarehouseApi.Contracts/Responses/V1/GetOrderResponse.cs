@@ -1,6 +1,6 @@
 ﻿using WarehouseApi.Contracts.Dto;
 
-namespace WarehouseApi.Contracts.Responses
+namespace WarehouseApi.Contracts.Responses.V1
 {
 	/// <summary>
 	/// DTO ответа на запрос получения информации о заказе
