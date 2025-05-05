@@ -22,21 +22,19 @@ using WarehouseApi.Library.Services;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
-namespace WarehouseApi.Controllers
+namespace WarehouseApi.Controllers.V1
 {
 	[Authorize(Roles = _rolesToAccess)]
 	[ApiController]
 	[WarehouseErrorHandlingFilter]
 	[OnlyOneSession]
-	[Route("/api/[action]")]
-	public class CarLoadController : ControllerBase
+	public class CarLoadController : VersionedController
 	{
 		private const string _rolesToAccess =
 			nameof(ApplicationUserRole.WarehousePicker) + "," + nameof(ApplicationUserRole.WarehouseDriver);
 		private const string _exceptionMessage =
 			"Внутренняя ошибка сервера. Обратитесь в техподдержку";
 
-		private readonly ILogger<CarLoadController> _logger;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ICarLoadService _carLoadService;
 
@@ -44,8 +42,8 @@ namespace WarehouseApi.Controllers
 			ILogger<CarLoadController> logger,
 			UserManager<IdentityUser> userManager,
 			ICarLoadService carLoadService)
+			: base(logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_carLoadService = carLoadService ?? throw new ArgumentNullException(nameof(carLoadService));
 		}
