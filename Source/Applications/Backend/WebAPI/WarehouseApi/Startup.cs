@@ -36,10 +36,7 @@ namespace WarehouseApi
 			services.ConfigureHealthCheckService<WarehouseApiHealthCheck>();
 			services.AddHttpClient();
 
-			services.AddSwaggerGen(c =>
-			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "WarehouseApi", Version = "v1" });
-			});
+			services.AddVersioning();
 
 			services
 				.AddMappingAssemblies(
