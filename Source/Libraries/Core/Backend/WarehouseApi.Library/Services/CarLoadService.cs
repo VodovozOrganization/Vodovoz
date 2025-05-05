@@ -1,4 +1,4 @@
-﻿using Edo.Contracts.Messages.Events;
+using Edo.Contracts.Messages.Events;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -61,17 +61,28 @@ namespace WarehouseApi.Library.Services
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
 			IBus messageBus)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
-			_employeeWithLoginRepository = employeeWithLoginRepository;
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
-			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
-			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
-			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_logger = logger
+				?? throw new ArgumentNullException(nameof(logger));
+			_uow = uow
+				?? throw new ArgumentNullException(nameof(uow));
+			_carLoadDocumentRepository = carLoadDocumentRepository
+				?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
+			_employeeWithLoginRepository = employeeWithLoginRepository
+				?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
+			_orderRepository = orderRepository
+				?? throw new ArgumentNullException(nameof(orderRepository));
+			_routeListDailyNumberProvider = routeListDailyNumberProvider
+				?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
+			_logisticsEventsCreationService = logisticsEventsCreationService
+				?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService
+				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_carLoadDocumentConverter = carLoadDocumentConverter
+				?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
+			_documentErrorsChecker = documentErrorsChecker
+				?? throw new ArgumentNullException(nameof(documentErrorsChecker));
+			_messageBus = messageBus
+				?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		public async Task<RequestProcessingResult<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken, CancellationToken cancellationToken)
