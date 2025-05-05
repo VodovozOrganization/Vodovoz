@@ -3,6 +3,7 @@ using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using NHibernate.Bytecode;
 using OneOf;
 using QS.DomainModel.UoW;
 using System;
@@ -44,6 +45,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly OrderService _orderService;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
 		private readonly IBus _messageBus;
@@ -57,21 +59,35 @@ namespace WarehouseApi.Library.Services
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			OrderService orderService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
 			IBus messageBus)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
-			_employeeWithLoginRepository = employeeWithLoginRepository;
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
-			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
-			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
-			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_logger = logger
+				?? throw new ArgumentNullException(nameof(logger));
+			_uow = uow
+				?? throw new ArgumentNullException(nameof(uow));
+			_carLoadDocumentRepository = carLoadDocumentRepository
+				?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
+			_employeeWithLoginRepository = employeeWithLoginRepository
+				?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
+			_orderRepository = orderRepository
+				?? throw new ArgumentNullException(nameof(orderRepository));
+			_routeListDailyNumberProvider = routeListDailyNumberProvider
+				?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
+			_logisticsEventsCreationService = logisticsEventsCreationService
+				?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService
+				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_orderService = orderService
+				?? throw new ArgumentNullException(nameof(orderService));
+			_carLoadDocumentConverter = carLoadDocumentConverter
+				?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
+			_documentErrorsChecker = documentErrorsChecker
+				?? throw new ArgumentNullException(nameof(documentErrorsChecker));
+			_messageBus = messageBus
+				?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		public async Task<RequestProcessingResult<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken, CancellationToken cancellationToken)
@@ -164,7 +180,9 @@ namespace WarehouseApi.Library.Services
 				return await GetOrderByCarLoadDocument(orderId);
 			}
 
-			return await GetOrderByInvoice(orderId);
+			//return await GetOrderByInvoice(orderId);
+
+			throw new NotImplementedException("GetOrderByInvoice");
 		}
 
 		public async Task<RequestProcessingResult<AddOrderCodeResponse>> AddOrderCode(
@@ -456,84 +474,96 @@ namespace WarehouseApi.Library.Services
 		/// </summary>
 		/// <param name="orderId"></param>
 		/// <returns></returns>
-		private async Task<RequestProcessingResult<GetOrderResponse>> GetOrderByInvoice(int orderId)
-		{
-			var carLoadDocumentItems = await GetWaterOrderItems(orderId);
+		//private async Task<RequestProcessingResult<GetOrderResponse>> GetOrderByInvoice(int orderId)
+		//{
+		//	var order = _orderService.GetOrder(orderId);
 
-			var response = new GetOrderResponse
-			{
-				Order = _carLoadDocumentConverter.ConvertToApiOrder(carLoadDocumentItems)
-			};
+		//	if(order.IsFailure)
+		//	{
+		//		var error = order.Errors.FirstOrDefault();
+		//		var result = Result.Failure<GetOrderResponse>(error);
+		//		return RequestProcessingResult.CreateFailure(result, new GetOrderResponse
+		//		{
+		//			Order = null,
+		//			Result = OperationResultEnumDto.Error,
+		//			Error = error.Message
+		//		});
+		//	}
 
-			foreach(var documentOrderItem in carLoadDocumentItems)
-			{
-				foreach(var trueMarkProductCode in documentOrderItem.TrueMarkCodes)
-				{
-					if(trueMarkProductCode.ResultCode == null)
-					{
-						continue;
-					}
+		//	var response = new GetOrderResponse
+		//	{
+		//		Order = order.Value
+		//	};
 
-					if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId == null
-						&& trueMarkProductCode.ResultCode.ParentTransportCodeId == null)
-					{
-						continue;
-					}
+		//	foreach(var documentOrderItem in orderItems)
+		//	{
+		//		foreach(var trueMarkProductCode in documentOrderItem.TrueMarkCodes)
+		//		{
+		//			if(trueMarkProductCode.ResultCode == null)
+		//			{
+		//				continue;
+		//			}
 
-					var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
+		//			if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId == null
+		//				&& trueMarkProductCode.ResultCode.ParentTransportCodeId == null)
+		//			{
+		//				continue;
+		//			}
 
-					if(codeToAddInfo.Codes.Any(x => x.Parent != null && x.Code == trueMarkProductCode.ResultCode.RawCode))
-					{
-						continue;
-					}
+		//			var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
 
-					var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
+		//			if(codeToAddInfo.Codes.Any(x => x.Parent != null && x.Code == trueMarkProductCode.ResultCode.RawCode))
+		//			{
+		//				continue;
+		//			}
 
-					if(codeToAddInfo is null)
-					{
-						continue;
-					}
+		//			var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
 
-					var trueMarkCodes = new List<TrueMarkCodeDto>();
+		//			if(codeToAddInfo is null)
+		//			{
+		//				continue;
+		//			}
 
-					var allCodes = parentCode.Match(
-						transportCode => transportCode.GetAllCodes(),
-						groupCode => groupCode.GetAllCodes(),
-						waterCode => new TrueMarkAnyCode[] { waterCode })
-						.ToArray();
+		//			var trueMarkCodes = new List<TrueMarkCodeDto>();
 
-					var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
-						&& documentOrderItem.TrueMarkCodes.Any(y =>
-							(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
-							|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
-						.Select(x => x.TrueMarkWaterIdentificationCode)
-						.ToArray();
+		//			var allCodes = parentCode.Match(
+		//				transportCode => transportCode.GetAllCodes(),
+		//				groupCode => groupCode.GetAllCodes(),
+		//				waterCode => new TrueMarkAnyCode[] { waterCode })
+		//				.ToArray();
 
-					foreach(var anyCode in allCodes)
-					{
-						if(anyCode.IsTrueMarkWaterIdentificationCode
-							&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkWaterIdentificationCode.Id))
-						{
-							continue;
-						}
+		//			var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
+		//				&& documentOrderItem.TrueMarkCodes.Any(y =>
+		//					(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
+		//					|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
+		//				.Select(x => x.TrueMarkWaterIdentificationCode)
+		//				.ToArray();
 
-						trueMarkCodes.Add(
-							anyCode.Match(
-								PopulateTransportCode(allCodes),
-								PopulateGroupCode(allCodes),
-								PopulateWaterCode(allCodes)));
-					}
+		//			foreach(var anyCode in allCodes)
+		//			{
+		//				if(anyCode.IsTrueMarkWaterIdentificationCode
+		//					&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkWaterIdentificationCode.Id))
+		//				{
+		//					continue;
+		//				}
 
-					codeToAddInfo.Codes.RemoveAll(code => trueMarkCodes.Any(x => x.Code == code.Code));
-					codeToAddInfo.Codes.AddRange(trueMarkCodes);
-				}
-			}
+		//				trueMarkCodes.Add(
+		//					anyCode.Match(
+		//						PopulateTransportCode(allCodes),
+		//						PopulateGroupCode(allCodes),
+		//						PopulateWaterCode(allCodes)));
+		//			}
 
-			response.Result = OperationResultEnumDto.Success;
-			response.Error = null;
+		//			codeToAddInfo.Codes.RemoveAll(code => trueMarkCodes.Any(x => x.Code == code.Code));
+		//			codeToAddInfo.Codes.AddRange(trueMarkCodes);
+		//		}
+		//	}
 
-			return RequestProcessingResult.CreateSuccess(Result.Success(response));
-		}
+		//	response.Result = OperationResultEnumDto.Success;
+		//	response.Error = null;
+
+		//	return await Task.FromResult(RequestProcessingResult.CreateSuccess(Result.Success(response)));
+		//}
 
 		private async Task<OneOf<RequestProcessingResult<AddOrderCodeResponse>, CarLoadDocumentItemEntity>> AddSingleCode(
 			int orderId,
