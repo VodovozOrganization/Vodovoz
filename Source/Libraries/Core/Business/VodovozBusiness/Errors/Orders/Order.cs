@@ -89,5 +89,11 @@ namespace Vodovoz.Errors.Orders
 				typeof(Order),
 				nameof(OrderIsNotForPersonalUseError),
 				"Заказ приобретается не для собственных нужд");
+
+		public static Error IsNotSelfDelivery =>
+			new Error(
+				typeof(Order),
+				nameof(IsNotSelfDelivery),
+				"Заказ не является самовывозом");
 	}
 }
