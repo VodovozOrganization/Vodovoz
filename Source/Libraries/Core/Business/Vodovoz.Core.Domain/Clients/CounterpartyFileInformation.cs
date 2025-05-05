@@ -5,6 +5,9 @@ using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.Core.Domain.Clients
 {
+	/// <summary>
+	/// Класс для хранения информации о прикрепляемых файлах контрагентов
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "информация о прикрепляемых файлах контрагентов",
 		Nominative = "информация о прикрепленном файле контрагента")]
@@ -13,6 +16,9 @@ namespace Vodovoz.Core.Domain.Clients
 	{
 		private int _counterpartyId;
 
+		/// <summary>
+		/// Идентификатор контрагента
+		/// </summary>
 		[Display(Name = "Идентификатор контрагента")]
 		[HistoryIdentifier(TargetType = typeof(CounterpartyEntity))]
 		public virtual int CounterpartyId

@@ -8,6 +8,7 @@ using NLog.Extensions.Logging;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EdoManualEventSender
 {
@@ -55,6 +56,7 @@ namespace EdoManualEventSender
 			{
 				try
 				{
+					Task.Delay(1000).Wait();
 					eventsSender.TrySendEdoEvent();
 				}
 				catch(Exception ex)

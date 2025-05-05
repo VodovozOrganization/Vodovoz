@@ -1,4 +1,5 @@
 ﻿using Edo.CodesSaver;
+using Edo.Contracts.Messages.Events;
 using Edo.Docflow;
 using Edo.Documents;
 using Edo.Receipt.Dispatcher;
@@ -6,10 +7,16 @@ using Edo.Receipt.Sender;
 using Edo.Scheduler.Service;
 using Edo.Transfer.Dispatcher;
 using Edo.Transfer.Sender;
+using MassTransit;
+using MassTransit.Initializers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using QS.DomainModel.UoW;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Taxcom.Docflow.Utility;
 
 namespace CustomTaskDebugExecutor
 {
@@ -84,6 +91,12 @@ namespace CustomTaskDebugExecutor
 			Console.WriteLine("14.Отправка трансфера (так же как в SendStaleTasks в Edo.Transfer.Routine) - [Edo.Transfer.Dipatcher]");
 			Console.WriteLine();
 
+			Console.WriteLine("15.Отправить ивенты (нужно написать сначала запрос)");
+			Console.WriteLine();
+
+			Console.WriteLine("16.Переобработка подписаний документов Taxcom");
+			Console.WriteLine();
+
 			Console.Write("Выберите действие: ");
 			var messageNumber = int.Parse(Console.ReadLine());
 
@@ -130,6 +143,12 @@ namespace CustomTaskDebugExecutor
 					break;
 				case 14:
 					await SendTransferTask(cancellationToken);
+					break;
+				case 15:
+					await SendEvents(cancellationToken);
+					break;
+				case 16:
+					await RehandleTaxcomAcceptDocuments(cancellationToken);
 					break;
 				default:
 					break;
@@ -388,6 +407,84 @@ namespace CustomTaskDebugExecutor
 
 			var service = _serviceProvider.GetRequiredService<TransferEdoHandler>();
 			await service.MoveToPrepareToSend(id, cancellationToken);
+		}
+
+
+		private async Task SendEvents(CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException("Перепроверь запрос");
+			using(var uow = _serviceProvider.GetRequiredService<IUnitOfWork>())
+			{
+				var ids = await uow.Session.CreateSQLQuery(
+@"
+select 
+	ecr.id
+from edo_customer_requests ecr
+where ecr.order_task_id is null
+and ecr.source != 'Manual'
+;
+").ListAsync<uint>();
+
+				var bus = _serviceProvider.GetRequiredService<IBus>();
+				var events = ids.Select(x => bus.Publish(new EdoRequestCreatedEvent { Id = (int)x }, cancellationToken));
+				await Task.WhenAll(events);
+			}
+		}
+
+		private async Task RehandleTaxcomAcceptDocuments(CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException("Перепроверь время");
+			Console.WriteLine();
+			Console.WriteLine("1. ВВ:");
+			Console.WriteLine("2. МБН:");
+			Console.WriteLine("3. МН:");
+			Console.WriteLine("4. ЮГ:");
+			Console.WriteLine("5. СЕВЕР:");
+			Console.WriteLine();
+			Console.WriteLine("Необходимо выбрать организацию:");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var id = int.Parse(Console.ReadLine());
+
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			var organizationsSettings = _serviceProvider.GetRequiredService<IOptions<TaxcomOrganizationsSettings>>().Value;
+			TaxcomSettings selectedOrganization = null;
+			switch(id)
+			{
+				case 1:
+					selectedOrganization = organizationsSettings.VV;
+					break;
+				case 2:
+					selectedOrganization = organizationsSettings.MBN;
+					break;
+				case 3:
+					selectedOrganization = organizationsSettings.MN;
+					break;
+				case 4:
+					selectedOrganization = organizationsSettings.South;
+					break;
+				case 5:
+					selectedOrganization = organizationsSettings.North;
+					break;
+				default:
+					break;
+			}
+			var from = DateTime.Parse("2025-03-17 11:41:47.000");
+			var to = DateTime.Parse("2025-04-14 16:18:10.000");
+			var service = _serviceProvider.GetRequiredService<DocflowStatusesService>();
+			try
+			{
+				await service.RehandleDocflowStatuses(selectedOrganization, from, to, cancellationToken);
+			}
+			catch(Exception ex)
+			{
+				throw;
+			}
 		}
 	}
 }

@@ -8,6 +8,9 @@ using Vodovoz.Core.Domain.Logistics;
 
 namespace Vodovoz.Core.Domain.Documents
 {
+	/// <summary>
+	/// Талон погрузки автомобиля
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "талоны погрузки автомобилей",
 		Nominative = "талон погрузки автомобиля")]
@@ -21,6 +24,10 @@ namespace Vodovoz.Core.Domain.Documents
 		private CarLoadDocumentLoadOperationState _loadOperationState;
 		private IObservableList<CarLoadDocumentItemEntity> _items = new ObservableList<CarLoadDocumentItemEntity>();
 
+		/// <summary>
+		/// Идентификатор<br/>
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -28,6 +35,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Версия
+		/// </summary>
 		[Display(Name = "Версия")]
 		public virtual DateTime Version
 		{
@@ -35,6 +45,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _version, value);
 		}
 
+		/// <summary>
+		/// Статус талона погрузки
+		/// </summary>
 		[Display(Name = "Статус талона погрузки")]
 		public virtual CarLoadDocumentLoadOperationState LoadOperationState
 		{
@@ -42,6 +55,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _loadOperationState, value);
 		}
 
+		/// <summary>
+		/// Маршрутный лист, к которому относится талон погрузки
+		/// </summary>
 		[Display(Name = "Маршрутный лист")]
 		public virtual RouteListEntity RouteList
 		{
@@ -49,6 +65,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _routeList, value);
 		}
 
+		/// <summary>
+		/// Строки талона погрузки
+		/// </summary>
 		[Display(Name = "Строки")]
 		public virtual IObservableList<CarLoadDocumentItemEntity> Items
 		{
