@@ -1,14 +1,14 @@
-﻿using GMap.NET;
-using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace Vodovoz.Core.Domain.Contacts
 {
+	/// <summary>
+	/// Email-адрес
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "E-mail адреса",
 		Nominative = "E-mail адрес")]
@@ -22,6 +22,10 @@ namespace Vodovoz.Core.Domain.Contacts
 		private string _address;
 		private EmailTypeEntity _emailType;
 
+		/// <summary>
+		/// Идентификатор<br/>
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -29,6 +33,10 @@ namespace Vodovoz.Core.Domain.Contacts
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Электронный адрес<br/>
+		/// Адрес электронной почты
+		/// </summary>
 		[Display(Name = "Электронный адрес")]
 		public virtual string Address
 		{
@@ -36,7 +44,9 @@ namespace Vodovoz.Core.Domain.Contacts
 			set => SetField(ref _address, value);
 		}
 
-
+		/// <summary>
+		/// Тип адреса
+		/// </summary>
 		[Display(Name = "Тип адреса")]
 		public virtual EmailTypeEntity EmailType
 		{
@@ -44,8 +54,15 @@ namespace Vodovoz.Core.Domain.Contacts
 			set => SetField(ref _emailType, value);
 		}
 
+		/// <summary>
+		/// Проверка корректности формата адреса электронной почты
+		/// </summary>
 		public virtual bool IsValidEmail => CheckEmailFormatIsValid();
 
+		/// <summary>
+		/// Проверка корректности формата адреса электронной почты
+		/// </summary>
+		/// <returns></returns>
 		private bool CheckEmailFormatIsValid()
 		{
 			try

@@ -1,10 +1,12 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Contacts
 {
+	/// <summary>
+	/// Тип e-mail
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "типы e-mail",
 		Nominative = "тип e-mail")]
@@ -15,8 +17,20 @@ namespace Vodovoz.Core.Domain.Contacts
 		private string _name;
 		private EmailPurpose _emailPurpose;
 
+		/// <summary>
+		/// Конструктор по умолчанию
+		/// </summary>
+		public EmailTypeEntity()
+		{
+			Name = string.Empty;
+		}
+
 		#region Свойства
 
+		/// <summary>
+		/// Идентификатор<br/>
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -24,6 +38,9 @@ namespace Vodovoz.Core.Domain.Contacts
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// E-mail
+		/// </summary>
 		[Display(Name = "E-mail")]
 		public virtual string Name
 		{
@@ -31,17 +48,16 @@ namespace Vodovoz.Core.Domain.Contacts
 			set => SetField(ref _name, value);
 		}
 
+		/// <summary>
+		/// Дополнительный тип
+		/// </summary>
 		[Display(Name = "Дополнительный тип")]
 		public virtual EmailPurpose EmailPurpose
 		{
 			get => _emailPurpose;
 			set => SetField(ref _emailPurpose, value);
 		}
-		#endregion
 
-		public EmailTypeEntity()
-		{
-			Name = String.Empty;
-		}
+		#endregion Свойства
 	}
 }
