@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -17,10 +18,10 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref document, value, () => Document); }
 		}
 
-		Nomenclature nomenclature;
+		NomenclatureEntity nomenclature;
 
 		[Display (Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
+		public virtual NomenclatureEntity Nomenclature {
 			get { return nomenclature; }
 			set {
 				SetField (ref nomenclature, value, () => Nomenclature);
