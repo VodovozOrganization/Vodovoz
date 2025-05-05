@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Errors;
-using WarehouseApi.Contracts.Responses;
+using WarehouseApi.Contracts.Responses.V1;
 
 namespace WarehouseApi.Library.Services
 {
