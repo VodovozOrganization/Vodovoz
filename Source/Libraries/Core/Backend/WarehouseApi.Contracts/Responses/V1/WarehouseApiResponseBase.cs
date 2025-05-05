@@ -1,6 +1,6 @@
 ﻿using WarehouseApi.Contracts.Dto;
 
-namespace WarehouseApi.Contracts.Responses
+namespace WarehouseApi.Contracts.Responses.V1
 {
 	/// <summary>
 	/// Базовый класс DTO ответа
