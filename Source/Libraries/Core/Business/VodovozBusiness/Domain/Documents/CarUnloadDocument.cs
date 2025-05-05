@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -8,6 +8,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -24,7 +25,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "талон разгрузки автомобиля")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class CarUnloadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
+	public class CarUnloadDocument : DocumentBase, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private const int _commentLimit = 150;
 		private string _comment;

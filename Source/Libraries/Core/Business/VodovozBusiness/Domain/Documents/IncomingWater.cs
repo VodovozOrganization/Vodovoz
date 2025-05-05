@@ -7,6 +7,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
@@ -18,7 +19,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "документ производства")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class IncomingWater : Document, IValidatableObject, ITwoWarhousesBindedDocument
+	public class IncomingWater : DocumentBase, IValidatableObject, ITwoWarhousesBindedDocument
 	{
 		Nomenclature product;
 

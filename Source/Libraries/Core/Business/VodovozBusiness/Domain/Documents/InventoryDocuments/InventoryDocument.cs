@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
@@ -24,7 +25,7 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 		Prepositional = "инвентаризации")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class InventoryDocument : Document, IValidatableObject
+	public class InventoryDocument : DocumentBase, IValidatableObject
 	{
 		private string _comment;
 		private bool _sortedByNomenclatureName;

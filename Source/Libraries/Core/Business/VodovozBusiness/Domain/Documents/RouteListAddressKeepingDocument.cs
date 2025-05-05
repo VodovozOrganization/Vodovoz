@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.HistoryLog;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -11,7 +12,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "Документы ведения свободных остатков МЛ для адреса")]
 	[HistoryTrace]
 
-	public class RouteListAddressKeepingDocument : Document
+	public class RouteListAddressKeepingDocument : DocumentBase
 	{
 		private RouteListItem _routeListItem;
 		private IList<RouteListAddressKeepingDocumentItem> _items = new List<RouteListAddressKeepingDocumentItem>();

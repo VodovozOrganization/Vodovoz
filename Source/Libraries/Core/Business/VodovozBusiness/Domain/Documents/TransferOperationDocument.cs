@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
@@ -17,7 +17,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "перенос между точками доставки")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class TransferOperationDocument : Document, IValidatableObject, IDomainObject
+	public class TransferOperationDocument : DocumentBase, IValidatableObject, IDomainObject
 	{
 		private const int _commentLimit = 255; 
 		

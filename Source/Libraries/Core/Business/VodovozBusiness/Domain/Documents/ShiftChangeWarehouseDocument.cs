@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
@@ -24,7 +25,7 @@ namespace Vodovoz.Domain.Documents
 		Prepositional = "акте передачи остатков")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class ShiftChangeWarehouseDocument : Document, IValidatableObject, IWarehouseBoundedDocument
+	public class ShiftChangeWarehouseDocument : DocumentBase, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private string _comment;
 		private Employee _sender;

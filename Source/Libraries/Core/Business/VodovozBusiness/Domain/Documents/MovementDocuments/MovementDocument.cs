@@ -8,6 +8,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.MovementDocuments.BulkAccounting;
 using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
@@ -25,7 +26,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		Nominative = "документ перемещения ТМЦ")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class MovementDocument : Document, IValidatableObject
+	public class MovementDocument : DocumentBase, IValidatableObject
 	{
 		private MovementDocumentType _documentType;
 		private DateTime timeStamp;

@@ -6,6 +6,7 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
@@ -20,7 +21,7 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 	)]
 	[EntityPermission]
 	[HistoryTrace]
-	public class WriteOffDocument : Document, IValidatableObject
+	public class WriteOffDocument : DocumentBase, IValidatableObject
 	{
 		private string _comment;
 		private Employee _responsibleEmployee;

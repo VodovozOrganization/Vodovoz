@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Documents
@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Documents
         Nominative = "документ переноса адресов",
         NominativePlural = "документы переноса адресов")]
     [HistoryTrace]
-	public class AddressTransferDocument : Document
+	public class AddressTransferDocument : DocumentBase
     {
         #region Сохраняемые свойства
 

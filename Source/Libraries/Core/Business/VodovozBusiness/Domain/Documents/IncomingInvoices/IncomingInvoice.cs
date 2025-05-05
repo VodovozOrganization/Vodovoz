@@ -6,6 +6,7 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -18,7 +19,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		Nominative = "входящая накладная")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class IncomingInvoice : Document, IValidatableObject
+	public class IncomingInvoice : DocumentBase, IValidatableObject
 	{
 		private const int _maxCommentLength = 500;
 		private string _invoiceNumber;

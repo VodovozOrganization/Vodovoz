@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -23,7 +24,7 @@ namespace VodovozBusiness.Domain.Documents
 		Nominative = "пересортица товаров")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class RegradingOfGoodsDocument : Document, IValidatableObject, IWarehouseBoundedDocument
+	public class RegradingOfGoodsDocument : DocumentBase, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private string _comment;
 		private Warehouse _warehouse;

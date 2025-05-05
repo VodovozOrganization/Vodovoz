@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Documents
@@ -11,7 +12,7 @@ namespace Vodovoz.Domain.Documents
     [Appellative(Gender = GrammaticalGender.Masculine,
         Nominative = "документ расхождения разгрузки водителя",
         NominativePlural = "документы расхождения разгрузки водителя")]
-    public class DriverDiscrepancyDocument : Document
+    public class DriverDiscrepancyDocument : DocumentBase
     {
         #region Сохраняемые свойства
 

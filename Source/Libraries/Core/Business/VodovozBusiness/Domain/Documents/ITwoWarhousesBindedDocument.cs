@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.Store;
+﻿using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
