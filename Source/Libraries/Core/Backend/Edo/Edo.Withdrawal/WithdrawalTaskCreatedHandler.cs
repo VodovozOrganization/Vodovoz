@@ -93,10 +93,6 @@ namespace Edo.Withdrawal
 
 				if(codesInOrder.Count == 0)
 				{
-					_logger.LogInformation("Задача {EdoTaskType} с Id {WithdrawalEdoTaskId} не содержит кодов для вывода из оборота",
-						nameof(WithdrawalEdoTask),
-						withdrawalEdoTaskId);
-
 					throw new InvalidOperationException(
 						$"Задача {nameof(WithdrawalEdoTask)} с Id {withdrawalEdoTaskId} не содержит кодов для вывода из оборота");
 				}
@@ -107,7 +103,7 @@ namespace Edo.Withdrawal
 
 					if(productInstancesInfo?.InstanceStatuses is null)
 					{
-						throw new Exception(productInstancesInfo?.ErrorMessage ?? "Не удалось получить информацию о коде в ЧЗ");
+						throw new Exception(productInstancesInfo?.ErrorMessage ?? "Не удалось получить информацию о кодах в ЧЗ");
 					}
 
 					var codesForDocument = productInstancesInfo.InstanceStatuses
@@ -115,28 +111,34 @@ namespace Edo.Withdrawal
 						.Select(x => x.IdentificationCode)
 						.ToList();
 
+					if(codesForDocument.Count == 0)
+					{
+						throw new InvalidOperationException(
+							$"После проверки кодов в ЧЗ не найдено кодов со статусом \"В обороте\". " +
+							$"Тип задачи: {nameof(WithdrawalEdoTask)}. Id задачи: {withdrawalEdoTaskId}");
+					}
+
 					var document = CreateIndividualAccountingWithdrawalDocument(order, codesInOrder);
 
 					var documentSendResponse =
 						_trueMarkApiClient.SendIndividualAccountingWithdrawalDocument(document, order.Contract.Organization.INN, cancellationToken);
+
+					withdrawalEdoTask.Status = EdoTaskStatus.InProgress;
 				}
 				catch(Exception ex)
 				{
+					_logger.LogError(ex, ex.Message);
 
+					withdrawalEdoTask.Status = EdoTaskStatus.Problem;
+					withdrawalEdoTask.Problems.Add(new EdoTaskProblem
+					{
+						Type = EdoTaskProblemType.Exception,
+						SourceName = "Вывод из оборота",
+						CreationTime = DateTime.Now,
+						State = TaskProblemState.Active
+					});
 				}
-
-
-				withdrawalEdoTask.Problems.Add(new EdoTaskProblem
-				{
-					Type = EdoTaskProblemType.Exception,
-					ProblemDescription = "Вывод из оборота",
-					ProblemDate = DateTime.Now,
-					ProblemDocument = document
-				});
-
-				withdrawalEdoTask.Status = EdoTaskStatus.Completed;
-				withdrawalEdoTask.EndTime = DateTime.Now;
-
+				
 				await uow.SaveAsync(withdrawalEdoTask, cancellationToken: cancellationToken);
 				uow.Commit();
 			}
