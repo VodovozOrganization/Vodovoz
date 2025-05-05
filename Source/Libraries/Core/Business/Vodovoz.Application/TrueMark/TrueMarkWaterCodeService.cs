@@ -895,13 +895,6 @@ namespace Vodovoz.Application.TrueMark
 
 		private async Task<Result<IDictionary<string, ProductInstanceStatus>>> RequestProductInstanceStatuses(IEnumerable<string> requestCodes, CancellationToken cancellationToken)
 		{
-			var codesIncorrectStatuses = new List<ProductInstanceStatusEnum>
-			{
-				ProductInstanceStatusEnum.Emitted,
-				ProductInstanceStatusEnum.Applied,
-				ProductInstanceStatusEnum.AppliedPaid
-			};
-
 			if(_organizationsInns is null)
 			{
 				SetOrganizationInns();
@@ -927,7 +920,7 @@ namespace Vodovoz.Application.TrueMark
 					return Result.Failure<IDictionary<string, ProductInstanceStatus>>(Errors.TrueMarkApi.UnknownCode);
 				}
 
-				if(productInstancesInfo.InstanceStatuses.Any(x => x.Status == null || codesIncorrectStatuses.Contains(x.Status.Value)))
+				if(productInstancesInfo.InstanceStatuses.Any(x => x.Status == null))
 				{
 					return Result.Failure<IDictionary<string, ProductInstanceStatus>>(Errors.TrueMarkApi.CodeNotInCorrectStatus);
 				}

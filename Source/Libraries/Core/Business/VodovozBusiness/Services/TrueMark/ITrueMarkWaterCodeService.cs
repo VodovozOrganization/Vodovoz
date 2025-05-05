@@ -56,7 +56,7 @@ namespace VodovozBusiness.Services.TrueMark
 		TrueMarkAnyCode GetParentGroupCode(IUnitOfWork unitOfWork, TrueMarkAnyCode trueMarkAnyCode);
 
 		/// <summary>
-		/// Загружает или создает коды ЧЗ.
+		/// Загружает или создает коды ЧЗ. Не подойдет для проверки кодов на перепродажу. Статусы кодов в ЧЗ не проверяются.
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="scannedCodes">Строки отсканированных кодов</param>
