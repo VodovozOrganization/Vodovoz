@@ -11,6 +11,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -34,7 +35,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "отпуск самовывоза")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class SelfDeliveryDocument : Document, IValidatableObject, IWarehouseBoundedDocument
+	public class SelfDeliveryDocument : DocumentBase, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private Order _order;
 		private Warehouse _warehouse;
