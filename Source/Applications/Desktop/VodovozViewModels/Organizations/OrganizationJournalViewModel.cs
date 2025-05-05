@@ -47,9 +47,19 @@ namespace Vodovoz.ViewModels.Organizations
 
 			var query = uow.Session.QueryOver(() => organizationAlias);
 
-			if(_filterViewModel.IsAvangardShop)
+			if(_filterViewModel.HasAvangardShopId)
 			{
 				query.Where(x => x.AvangardShopId != null);
+			}
+
+			if(_filterViewModel.HasCashBoxId)
+			{
+				query.Where(x => x.CashBoxId != null);
+			}
+
+			if(_filterViewModel.HasTaxcomEdoAccountId)
+			{
+				query.Where(x => x.TaxcomEdoAccountId != null);
 			}
 
 			query.Where(
