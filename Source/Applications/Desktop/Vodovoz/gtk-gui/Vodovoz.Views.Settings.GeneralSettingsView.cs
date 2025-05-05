@@ -2326,8 +2326,8 @@ namespace Vodovoz.Views.Settings
 			// Container child ytable1.Gtk.Table+TableChild
 			this.lblCriterion3_1_8 = new global::Gamma.GtkWidgets.yLabel();
 			this.lblCriterion3_1_8.Name = "lblCriterion3_1_8";
-			this.lblCriterion3_1_8.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для обмена\nс Модуль-кассой и по интеграции с банк" +
-					"ом\nи ???настройки для обмена по ЭДО на второй фазе");
+			this.lblCriterion3_1_8.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для онлайн кассы,\nнастройки с банком Авангард и н" +
+					"астройки для обмена по ЭДО");
 			this.ytable1.Add(this.lblCriterion3_1_8);
 			global::Gtk.Table.TableChild w164 = ((global::Gtk.Table.TableChild)(this.ytable1[this.lblCriterion3_1_8]));
 			w164.TopAttach = ((uint)(2));
@@ -2400,8 +2400,8 @@ namespace Vodovoz.Views.Settings
 			// Container child ytable2.Gtk.Table+TableChild
 			this.lblCriterion3_1_10 = new global::Gamma.GtkWidgets.yLabel();
 			this.lblCriterion3_1_10.Name = "lblCriterion3_1_10";
-			this.lblCriterion3_1_10.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для обмена\nс Модуль-кассой и по интеграции с банк" +
-					"ом\nи ???настройки для обмена по ЭДО на второй фазе");
+			this.lblCriterion3_1_10.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для онлайн кассы,\nнастройки с банком Авангард и н" +
+					"астройки для обмена по ЭДО");
 			this.ytable2.Add(this.lblCriterion3_1_10);
 			global::Gtk.Table.TableChild w171 = ((global::Gtk.Table.TableChild)(this.ytable2[this.lblCriterion3_1_10]));
 			w171.TopAttach = ((uint)(2));
@@ -2529,7 +2529,7 @@ namespace Vodovoz.Views.Settings
 			this.lblSet = new global::Gamma.GtkWidgets.yLabel();
 			this.lblSet.Name = "lblSet";
 			this.lblSet.Xalign = 1F;
-			this.lblSet.LabelProp = global::Mono.Unix.Catalog.GetString("Организации из множества:");
+			this.lblSet.LabelProp = global::Mono.Unix.Catalog.GetString("Объединяем с множеством:");
 			this.ytable3.Add(this.lblSet);
 			global::Gtk.Table.TableChild w183 = ((global::Gtk.Table.TableChild)(this.ytable3[this.lblSet]));
 			w183.TopAttach = ((uint)(2));
@@ -2604,7 +2604,7 @@ namespace Vodovoz.Views.Settings
 			this.lblCashCriterion = new global::Gamma.GtkWidgets.yLabel();
 			this.lblCashCriterion.Name = "lblCashCriterion";
 			this.lblCashCriterion.Xalign = 0F;
-			this.lblCashCriterion.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для обмена с Модуль-кассой");
+			this.lblCashCriterion.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для онлайн кассы");
 			this.vboxOrderOrganizationByCash.Add(this.lblCashCriterion);
 			global::Gtk.Box.BoxChild w191 = ((global::Gtk.Box.BoxChild)(this.vboxOrderOrganizationByCash[this.lblCashCriterion]));
 			w191.Position = 0;
@@ -2657,8 +2657,8 @@ namespace Vodovoz.Views.Settings
 			this.lblTerminalCriterion = new global::Gamma.GtkWidgets.yLabel();
 			this.lblTerminalCriterion.Name = "lblTerminalCriterion";
 			this.lblTerminalCriterion.Xalign = 0F;
-			this.lblTerminalCriterion.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для обмена с Модуль-кассой.\nПлюс терминалы перена" +
-					"строены на соответствующее единственное юр.лицо");
+			this.lblTerminalCriterion.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для онлайн кассы.\nПлюс терминалы перенастроены на" +
+					" соответствующее единственное юр.лицо");
 			this.vboxOrderOrganizationByTerminal.Add(this.lblTerminalCriterion);
 			global::Gtk.Box.BoxChild w197 = ((global::Gtk.Box.BoxChild)(this.vboxOrderOrganizationByTerminal[this.lblTerminalCriterion]));
 			w197.Position = 0;
@@ -2711,8 +2711,7 @@ namespace Vodovoz.Views.Settings
 			this.lblDriverAppQrCriterion = new global::Gamma.GtkWidgets.yLabel();
 			this.lblDriverAppQrCriterion.Name = "lblDriverAppQrCriterion";
 			this.lblDriverAppQrCriterion.Xalign = 0F;
-			this.lblDriverAppQrCriterion.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для обмена с Модуль-кассой и по интеграции с банк" +
-					"ом");
+			this.lblDriverAppQrCriterion.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для онлайн кассы и настройки с банком Авангард");
 			this.vboxOrderOrganizationByDriverAppQr.Add(this.lblDriverAppQrCriterion);
 			global::Gtk.Box.BoxChild w203 = ((global::Gtk.Box.BoxChild)(this.vboxOrderOrganizationByDriverAppQr[this.lblDriverAppQrCriterion]));
 			w203.Position = 0;
@@ -2765,8 +2764,7 @@ namespace Vodovoz.Views.Settings
 			this.lblSmsQrCriterion = new global::Gamma.GtkWidgets.yLabel();
 			this.lblSmsQrCriterion.Name = "lblSmsQrCriterion";
 			this.lblSmsQrCriterion.Xalign = 0F;
-			this.lblSmsQrCriterion.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для обмена с Модуль-кассой и по интеграции с банк" +
-					"ом");
+			this.lblSmsQrCriterion.LabelProp = global::Mono.Unix.Catalog.GetString("Должны быть сохранены настройки для онлайн кассы и настройки с банком Авангард");
 			this.vboxOrderOrganizationBySmsQr.Add(this.lblSmsQrCriterion);
 			global::Gtk.Box.BoxChild w209 = ((global::Gtk.Box.BoxChild)(this.vboxOrderOrganizationBySmsQr[this.lblSmsQrCriterion]));
 			w209.Position = 0;
