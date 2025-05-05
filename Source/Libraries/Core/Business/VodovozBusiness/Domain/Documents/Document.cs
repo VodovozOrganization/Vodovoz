@@ -27,6 +27,9 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref _version, value);
 		}
 
+		/// <summary>
+		/// Дата документа
+		/// </summary>
 		public virtual DateTime TimeStamp
 		{
 			get => _timeStamp;
