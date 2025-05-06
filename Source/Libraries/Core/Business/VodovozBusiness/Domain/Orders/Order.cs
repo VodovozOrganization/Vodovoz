@@ -2643,10 +2643,10 @@ namespace Vodovoz.Domain.Orders
 			return waterItemsCount - BottlesReturn ?? 0;
 		}
 
-		public virtual void RemoveAloneItem(OrderItem item)
+		public virtual void RemoveItemFromClosingOrder(OrderItem item)
 		{
-			if(item.Count == 0
-			   && !OrderEquipments.Any(x => x.OrderItem == item)) {
+			if((item.Count == 0 || item.Price == 0) && OrderEquipments.All(x => x.OrderItem != item))
+			{
 				RemoveOrderItem(item);
 			}
 		}
