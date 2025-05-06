@@ -13,6 +13,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -27,6 +28,7 @@ using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -58,6 +60,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderDeliveryPriceGetter _orderDeliveryPriceGetter;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IGenericRepository<RobotMiaParameters> _robotMiaParametersRepository;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -81,7 +84,8 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderDiscountsController orderDiscountsController,
 			IOrderDeliveryPriceGetter orderDeliveryPriceGetter,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			ISubdivisionRepository subdivisionRepository)
+			ISubdivisionRepository subdivisionRepository,
+			IGenericRepository<RobotMiaParameters> robotMiaParametersRepository)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -109,6 +113,7 @@ namespace Vodovoz.Application.Orders.Services
 			_orderDeliveryPriceGetter = orderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(orderDeliveryPriceGetter));
 			_undeliveredOrdersRepository = undeliveredOrdersRepository;
 			_subdivisionRepository = subdivisionRepository;
+			_robotMiaParametersRepository = robotMiaParametersRepository ?? throw new ArgumentNullException(nameof(robotMiaParametersRepository));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 			ForfeitNomenclatureId = nomenclatureSettings.ForfeitId;
 		}
@@ -189,18 +194,29 @@ namespace Vodovoz.Application.Orders.Services
 					var nomenclature = unitOfWork.GetById<Nomenclature>(saleItem.NomenclatureId)
 						?? throw new InvalidOperationException($"Не найдена номенклатура #{saleItem.NomenclatureId}");
 
+					if(nomenclature.Id == ForfeitNomenclatureId)
+					{
+						order.AddNomenclature(nomenclature, saleItem.BottlesCount);
+						continue;
+					}
+
+					var nomenclatureParameters = _robotMiaParametersRepository
+						.Get(unitOfWork, x => x.NomenclatureId == nomenclature.Id, 1)
+						.FirstOrDefault();
+
 					if(nomenclature.Category == NomenclatureCategory.water)
 					{
 						order.AddWaterForSale(nomenclature, saleItem.BottlesCount);
 					}
-					else if(nomenclature.Id == ForfeitNomenclatureId)
+					else if(nomenclatureParameters is null
+						|| nomenclatureParameters.GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale)
 					{
-						order.AddNomenclature(nomenclature, saleItem.BottlesCount);
+						throw new InvalidOperationException(
+							$"Номенклатура [{nomenclature.Id}] {nomenclature.Name} не может быть добавлена. В заказ может быть добавлена либо номенклатура, одобренная для продажи, либо неустойка");
 					}
 					else
 					{
-						throw new InvalidOperationException(
-							$"Номенклатура {nomenclature.Name} не может быть добавлена. В заказ может быть добавлена либо вода, либо неустойка");
+						order.AddNomenclature(nomenclature, saleItem.BottlesCount);
 					}
 				}
 
