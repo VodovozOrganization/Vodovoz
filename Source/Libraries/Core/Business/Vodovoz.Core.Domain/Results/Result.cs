@@ -46,18 +46,6 @@ namespace Vodovoz.Core.Domain.Results
 			}
 		}
 
-		public void Match(Action successAction, Action<IEnumerable<Error>> errorsHandlingAction)
-		{
-			if(IsSuccess)
-			{
-				successAction();
-			}
-			else
-			{
-				errorsHandlingAction(Errors);
-			}
-		}
-
 		public string GetErrorsString()
 		{
 			var sb = new StringBuilder();
