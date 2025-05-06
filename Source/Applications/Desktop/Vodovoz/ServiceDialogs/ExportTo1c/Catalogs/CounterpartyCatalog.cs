@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -19,7 +20,8 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			
 		public override ReferenceNode CreateReferenceTo(Counterparty counterparty)
 		{
-			if(exportData.ExportMode == Export1cMode.BuhgalteriaOOO && String.IsNullOrWhiteSpace(counterparty.INN))
+			if((exportData.ExportMode == Export1cMode.BuhgalteriaOOO || exportData.ExportMode == Export1cMode.ComplexAutomation)
+			   && String.IsNullOrWhiteSpace(counterparty.INN))
 				exportData.Errors.Add($"Для контрагента {counterparty.Id} - '{counterparty.Name}' не заполнен ИНН.");
 
 			int id = GetReferenceId(counterparty);
@@ -38,13 +40,6 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					Common1cTypes.Boolean
 				)
 			);
-			
-			properties.Add(
-				new PropertyNode("Код",
-					Common1cTypes.String,
-				                 counterparty.Code1c
-				)
-			);
 
 			properties.Add(
 				new PropertyNode("Наименование",
@@ -52,11 +47,56 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					counterparty.Name
 				)
 			);
-			properties.Add(
-				new PropertyNode("Родитель",
-					Common1cTypes.ReferenceContract			
-				)
-			);
+
+			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("ДополнительнаяИнформация",
+						Common1cTypes.String,
+						counterparty.Comment
+					)
+				);
+			}
+			else
+			{
+				properties.Add(
+					new PropertyNode("Код",
+						Common1cTypes.String,
+						counterparty.Code1c
+					)
+					
+				);
+				properties.Add(
+					new PropertyNode("Родитель",
+						Common1cTypes.ReferenceContract
+					)
+				);
+				
+				var account = counterparty.DefaultAccount;
+				if(account == null)
+				{
+					properties.Add(
+						new PropertyNode("ОсновнойБанковскийСчет",
+							Common1cTypes.ReferenceAccount(exportData.ExportMode)
+						)
+					);
+				}
+				else
+				{
+					properties.Add(
+						new PropertyNode("ОсновнойБанковскийСчет",
+							Common1cTypes.ReferenceAccount(exportData.ExportMode),
+							exportData.AccountCatalog.CreateReferenceTo(counterparty.DefaultAccount, counterparty)
+						)
+					);
+				}
+
+				properties.Add(
+					new PropertyNode("Комментарий",
+						Common1cTypes.String,
+						counterparty.Comment));
+			}
+
 			var counterpartyType = counterparty.PersonType == PersonType.legal ? "ЮридическоеЛицо" : "ФизическоеЛицо";
 			properties.Add(
 				new PropertyNode("ЮридическоеФизическоеЛицо",
@@ -64,26 +104,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					counterpartyType
 				)
 			);
-			var account = counterparty.DefaultAccount;
-			if (account == null)
-				properties.Add(
-					new PropertyNode("ОсновнойБанковскийСчет",
-						Common1cTypes.ReferenceAccount
-					)
-				);
-			else
-				properties.Add(
-					new PropertyNode("ОсновнойБанковскийСчет",
-						Common1cTypes.ReferenceAccount,
-						exportData.AccountCatalog.CreateReferenceTo(counterparty.DefaultAccount,counterparty)
-					)
-				);
-			properties.Add(
-				new PropertyNode("Комментарий",
-					Common1cTypes.String,
-					counterparty.Comment
-				)
-			);
+			
 			properties.Add(
 				new PropertyNode("НаименованиеПолное",
 					Common1cTypes.String,

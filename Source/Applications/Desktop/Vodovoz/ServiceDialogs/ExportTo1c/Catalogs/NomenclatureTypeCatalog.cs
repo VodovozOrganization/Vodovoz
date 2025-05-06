@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -21,12 +23,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		{
 			int id = GetReferenceId(NomenclatureType1c);
 
-			return new ReferenceNode(id,
-				new PropertyNode("Наименование",
-					Common1cTypes.String,
-			                     NomenclatureType1c.Name
-				)
-			);
+			return new ReferenceNode(id, new PropertyNode("Наименование", Common1cTypes.String, NomenclatureType1c.Name));
 		}
 
 		protected override PropertyNode[] GetProperties(NomenclatureType1c nomenclatureType1c)
@@ -38,14 +35,17 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					nomenclatureType1c.Name
 				)
 			);
-			
-			properties.Add(
-				new PropertyNode("Услуга",
-					Common1cTypes.Boolean,
-					nomenclatureType1c.IsService
-				)
-			);
-			
+
+			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("Услуга",
+						Common1cTypes.Boolean,
+						nomenclatureType1c.IsService
+					)
+				);
+			}
+
 			return properties.ToArray();
 		}			
 	}
