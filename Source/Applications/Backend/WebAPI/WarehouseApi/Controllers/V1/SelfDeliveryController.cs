@@ -44,6 +44,31 @@ namespace WarehouseApi.Controllers.V1
 		}
 
 		/// <summary>
+		/// Получение информацию о заказе самовывоза по идентификатору документа отпуска самовывоза
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="selfDeliveryDocumentId"></param>
+		/// <returns></returns>
+		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(typeof(GetSelfDeliveryResponse), StatusCodes.Status200OK)]
+		public IActionResult Get(
+			[FromServices] IUnitOfWork unitOfWork,
+			int selfDeliveryDocumentId)
+		{
+			var selfDeliveryDocument = _selfDeliveryDocumentRepository
+				.Get(
+					unitOfWork,
+					x => x.Id == selfDeliveryDocumentId,
+					1)
+				.FirstOrDefault();
+
+			throw new NotImplementedException("Метод не реализован");
+
+			//return (selfDeliveryDocument.ToApiDtoV1());
+		}
+
+		/// <summary>
 		/// Получение информацию о заказе самовывоза по идентификатору заказа
 		/// </summary>
 		/// <param name="unitOfWork"></param>
@@ -53,7 +78,10 @@ namespace WarehouseApi.Controllers.V1
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(typeof(GetSelfDeliveryResponse), StatusCodes.Status200OK)]
-		public IActionResult ByOrderId([FromServices] IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken)
+		public IActionResult ByOrderId(
+			[FromServices] IUnitOfWork unitOfWork,
+			int orderId,
+			CancellationToken cancellationToken)
 		{
 			var getOrderResult = _selfDeliveryService.GetSelfDeliveryOrder(orderId);
 
@@ -76,16 +104,14 @@ namespace WarehouseApi.Controllers.V1
 				return NoContent();
 			}
 
-			if(_selfDeliveryDocumentRepository
+			var selfDeliveryDocument = _selfDeliveryDocumentRepository
 				.Get(
 					unitOfWork,
 					x => x.Order.Id == orderId,
 					1)
-				.FirstOrDefault()
-				!= null)
-			{
-				result.SelfDeliveryDocumentExists = true;
-			}
+				.FirstOrDefault();
+
+			result.SelfDeliveryDocumentId = selfDeliveryDocument?.Id;
 			
 			return MapResult(Result.Success(result));
 		}
@@ -99,10 +125,39 @@ namespace WarehouseApi.Controllers.V1
 		/// <returns></returns>
 		[HttpPost]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> AddTrueMarkCodeAsync(int orderId, string scannedCode, CancellationToken cancellationToken)
+		public async Task<IActionResult> AddTrueMarkCodeAsync(
+			int orderId,
+			string scannedCode,
+			CancellationToken cancellationToken)
 		{
 			var result = await _selfDeliveryService.AddTrueMarkCode(orderId, scannedCode, cancellationToken);
 			return MapResult(result);
+		}
+
+		[HttpPatch]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public async Task<IActionResult> ChangeTrueMarkCode(int test1)
+		{
+			throw new NotImplementedException("Метод не реализован");
+		}
+
+		[HttpDelete]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public async Task<IActionResult> DeleteTrueMarkCode()
+		{
+			throw new NotImplementedException("Метод не реализован");
+		}
+
+		/// <summary>
+		/// Завершение отгрузки самовывоза
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="NotImplementedException"></exception>
+		[HttpPost]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public IActionResult EndLoad(int selfDeliveryDocumentId)
+		{
+			throw new NotImplementedException("Метод не реализован");
 		}
 	}
 }
