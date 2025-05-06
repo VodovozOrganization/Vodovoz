@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
-using Vodovoz.Errors;
 using Vodovoz.Presentation.ViewModels.Errors;
 using Vodovoz.Presentation.ViewModels.Reports;
 

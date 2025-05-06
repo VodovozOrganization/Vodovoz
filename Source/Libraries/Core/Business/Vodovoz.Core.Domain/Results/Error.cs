@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vodovoz.Errors
+namespace Vodovoz.Core.Domain.Results
 {
 	/// <summary>
 	/// Класс ошибки

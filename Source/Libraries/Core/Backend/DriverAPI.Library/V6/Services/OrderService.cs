@@ -15,6 +15,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
@@ -32,7 +33,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.TrueMark;
-using Error = Vodovoz.Errors.Error;
+using Error = Vodovoz.Core.Domain.Results.Error;
 using Order = Vodovoz.Domain.Orders.Order;
 using OrderErrors = Vodovoz.Errors.Orders.Order;
 using OrderItem = Vodovoz.Domain.Orders.OrderItem;
@@ -170,7 +171,7 @@ namespace DriverAPI.Library.V6.Services
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>IEnumerable APIPaymentType</returns>
-		public Vodovoz.Errors.Result<IEnumerable<PaymentDtoType>> GetAvailableToChangePaymentTypes(int orderId)
+		public Result<IEnumerable<PaymentDtoType>> GetAvailableToChangePaymentTypes(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
 
@@ -231,7 +232,7 @@ namespace DriverAPI.Library.V6.Services
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
-		public Vodovoz.Errors.Result<OrderAdditionalInfoDto> GetAdditionalInfo(int orderId)
+		public Result<OrderAdditionalInfoDto> GetAdditionalInfo(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
 
@@ -248,7 +249,7 @@ namespace DriverAPI.Library.V6.Services
 		/// </summary>
 		/// <param name="order">Заказ программы ДВ</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
-		public Vodovoz.Errors.Result<OrderAdditionalInfoDto> GetAdditionalInfo(Order order)
+		public Result<OrderAdditionalInfoDto> GetAdditionalInfo(Order order)
 		{
 			return new OrderAdditionalInfoDto
 			{
@@ -506,7 +507,7 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		public async Task<Vodovoz.Errors.Result<PayByQrResponse>> SendQrPaymentRequestAsync(int orderId, int driverId)
+		public async Task<Result<PayByQrResponse>> SendQrPaymentRequestAsync(int orderId, int driverId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
 

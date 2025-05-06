@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Errors.Logistics
+﻿using Vodovoz.Core.Domain.Results;
+
+namespace Vodovoz.Errors.Logistics
 {
 	public static partial class District
 	{

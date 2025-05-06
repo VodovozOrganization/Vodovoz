@@ -9,8 +9,8 @@ using QS.Navigation;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Application.Payments;
 using NHibernate;
-using Vodovoz.Errors;
 using QS.DomainModel.Tracking;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.ViewModels.Payments
 {

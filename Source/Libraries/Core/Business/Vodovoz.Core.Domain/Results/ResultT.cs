@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Vodovoz.Errors
+namespace Vodovoz.Core.Domain.Results
 {
 	public class Result<TValue> : Result
 	{
