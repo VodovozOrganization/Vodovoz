@@ -72,7 +72,10 @@ namespace WarehouseApi.Library.Services
 		}
 
 		/// <inheritdoc/>
-		public async Task<Result> AddTrueMarkCode(int orderId, string scannedCode, CancellationToken cancellationToken)
+		public async Task<Result> AddTrueMarkCode(
+			int orderId,
+			string scannedCode,
+			CancellationToken cancellationToken)
 		{
 			var order = _orderRepository
 				.Get(
@@ -88,7 +91,9 @@ namespace WarehouseApi.Library.Services
 				return validationResult;
 			}
 
-			if(!(_selfDeliveryDocumentRepository.Get(_unitOfWork, x => x.Order.Id == orderId, 1).FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument))
+			if(!(_selfDeliveryDocumentRepository
+				.Get(_unitOfWork, x => x.Order.Id == orderId, 1)
+				.FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument))
 			{
 				selfDeliveryDocument = new SelfDeliveryDocument
 				{
@@ -96,7 +101,8 @@ namespace WarehouseApi.Library.Services
 				};
 			}
 
-			var code = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_unitOfWork, scannedCode, cancellationToken);
+			var code = await _trueMarkWaterCodeService
+				.GetTrueMarkCodeByScannedCode(_unitOfWork, scannedCode, cancellationToken);
 
 			_unitOfWork.Save(selfDeliveryDocument);
 
@@ -119,7 +125,7 @@ namespace WarehouseApi.Library.Services
 
 		public Result ValidateSelfDeliveryOrderToProcess(Order order)
 		{
-			if(order == null)
+			if(order is null)
 			{
 				_logger.LogWarning($"Заказ не найден.");
 				return Vodovoz.Errors.Orders.Order.NotFound;
