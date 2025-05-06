@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ExportTo1c;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 
@@ -29,6 +30,7 @@ namespace Vodovoz
             comboOrganization.ItemsList = unitOfWorkFactory.CreateWithoutRoot().GetAll<Organization>();
             
             buttonExportBookkeeping.Clicked += (sender, args) => Export(Export1cMode.BuhgalteriaOOO);
+            ybuttonComplexAutomation1CExport.Clicked += (sender, args) => Export(Export1cMode.ComplexAutomation);
             buttonExportIPTinkoff.Clicked += (sender, args) => Export(Export1cMode.IPForTinkoff);
             
             ybuttonExportBookkeepingNew.Clicked += (sender, args) => {
@@ -39,6 +41,8 @@ namespace Vodovoz
                     MessageDialogHelper.RunWarningDialog("Для этой выгрузки необходимо выбрать организацию");
                 }
             };
+            
+            UpdateExportSensitivity();
         }
 
         private ExportData exportData;
@@ -53,7 +57,7 @@ namespace Vodovoz
             if(mode == Export1cMode.BuhgalteriaOOONew) {
                 organizationId = (comboOrganization.SelectedItem as Organization)?.Id;
             }
-            else if(mode == Export1cMode.BuhgalteriaOOO) {
+            else if(mode == Export1cMode.BuhgalteriaOOO ||  mode == Export1cMode.ComplexAutomation) {
                 organizationId = organizationSettings.VodovozOrganizationId;
             }
 
@@ -147,12 +151,17 @@ namespace Vodovoz
 
         private void UpdateExportSensitivity()
         {
-            buttonExportBookkeeping.Sensitive = buttonExportIPTinkoff.Sensitive
-                = ybuttonExportBookkeepingNew.Sensitive = comboOrganization.Sensitive
-                    = !exportInProgress
-                    && dateperiodpicker1.EndDateOrNull != null
-                    && dateperiodpicker1.StartDateOrNull != null
-                    && dateperiodpicker1.StartDate <= dateperiodpicker1.EndDate;
+	        var canExport =
+		        !exportInProgress
+		        && dateperiodpicker1.EndDateOrNull != null
+		        && dateperiodpicker1.StartDateOrNull != null
+		        && dateperiodpicker1.StartDate <= dateperiodpicker1.EndDate;
+
+	        comboOrganization.Sensitive = canExport;
+	        buttonExportBookkeeping.Sensitive = canExport;
+	        ybuttonComplexAutomation1CExport.Sensitive = canExport;
+	        buttonExportIPTinkoff.Sensitive = canExport;
+	        ybuttonExportBookkeepingNew.Sensitive = canExport;
         }
 
         protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)

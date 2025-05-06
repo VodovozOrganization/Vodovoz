@@ -4,6 +4,8 @@ using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -25,15 +27,15 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			if(String.IsNullOrWhiteSpace(nomenclature.Code1c))
 				exportData.Errors.Add($"Для номенклатуры {nomenclature.Id} - '{nomenclature.Name}' не заполнен код 1с.");
 
-			return new ReferenceNode(id,
+			var referenceNode = new ReferenceNode(id,
 				new PropertyNode("Код",
 					Common1cTypes.String,
 			                     nomenclature.Code1c
-				),
-				new PropertyNode("ЭтоГруппа",
-					Common1cTypes.Boolean
-				)
-			);
+				));
+			
+			referenceNode.Properties.Add(new PropertyNode("ЭтоГруппа", Common1cTypes.Boolean));
+			
+			return referenceNode;
 		}
 
 		protected override PropertyNode[] GetProperties(Nomenclature nomenclature)
@@ -61,7 +63,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			{
 				properties.Add(
 					new PropertyNode("ЕдиницаИзмерения",
-						Common1cTypes.ReferenceMeasurementUnit,
+						Common1cTypes.ReferenceMeasurementUnit(exportData.ExportMode),
 						exportData.MeasurementUnitCatalog.CreateReferenceTo(nomenclature.Unit)
 					)
 				);
@@ -70,7 +72,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			{
 				properties.Add(
 					new PropertyNode("ЕдиницаИзмерения",
-						Common1cTypes.ReferenceMeasurementUnit
+						Common1cTypes.ReferenceMeasurementUnit(exportData.ExportMode)
 					)
 				);
 			}
@@ -79,16 +81,20 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					Common1cTypes.String
 				)
 			);
-			properties.Add(
-				new PropertyNode("НомерГТД",
-					"СправочникСсылка.НомераГТД"
-				)
-			);
+
+			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+			{
+				properties.Add(new PropertyNode("НомерГТД","СправочникСсылка.НомераГТД"));
+			}
+
+			var vatName = exportData.ExportMode == Export1cMode.ComplexAutomation
+				? "СтавкаНДС"
+				: "ВидСтавкиНДС";
 
 			var vat = nomenclature.VAT.GetAttribute<Value1cType>().Value;
 
 			properties.Add(
-				new PropertyNode("ВидСтавкиНДС",
+				new PropertyNode(vatName,
 					Common1cTypes.EnumVATTypes,
 					vat
 				)
@@ -96,19 +102,20 @@ namespace Vodovoz.ExportTo1c.Catalogs
 
 			var isService = !Nomenclature.GetCategoriesForGoods().Contains(nomenclature.Category);
 
-			if (isService)
-				properties.Add(
-					new PropertyNode("Услуга",
-						Common1cTypes.Boolean,
-						"true"
-					)
-				);
+			if(isService)
+			{
+				if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+				{
+					properties.Add(new PropertyNode("Услуга", Common1cTypes.Boolean, "true"));
+				}
+			}
 			else
-				properties.Add(
-					new PropertyNode("Услуга",
-						Common1cTypes.Boolean
-					)
-				);
+			{
+				if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+				{
+					properties.Add(new PropertyNode("Услуга", Common1cTypes.Boolean));
+				}
+			}
 
 			if (isService)
 				properties.Add(
