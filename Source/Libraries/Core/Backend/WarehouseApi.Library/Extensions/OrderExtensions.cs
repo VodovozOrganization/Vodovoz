@@ -8,7 +8,7 @@ namespace WarehouseApi.Library.Extensions
 {
 	internal static class OrderExtensions
 	{
-		public static OrderDto ToApiDto(this Order order, IEnumerable<Nomenclature> nomenclatures)
+		public static OrderDto ToApiDtoV1(this Order order, IEnumerable<Nomenclature> nomenclatures)
 		{
 			if(order is null)
 			{

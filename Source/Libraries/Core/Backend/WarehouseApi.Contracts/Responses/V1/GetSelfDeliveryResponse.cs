@@ -15,6 +15,6 @@ namespace WarehouseApi.Contracts.Responses.V1
 		/// <summary>
 		/// Существует ли самовывоз
 		/// </summary>
-		public bool SelfDeliveryDocumentExists { get; set; }
+		public int? SelfDeliveryDocumentId { get; set; }
 	}
 }
