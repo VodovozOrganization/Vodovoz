@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -66,12 +68,17 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					organization.KPP
 				)
 			);
-			properties.Add(
-				new PropertyNode("ВидСтавокЕСНиПФР",
-					"ПеречислениеСсылка.УдалитьВидыСтавокЕСНиПФР",
-					"ДляНеСельскохозяйственныхПроизводителей"
-				)
-			);
+
+			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("ВидСтавокЕСНиПФР",
+						"ПеречислениеСсылка.УдалитьВидыСтавокЕСНиПФР",
+						"ДляНеСельскохозяйственныхПроизводителей"
+					)
+				);
+			}
+
 			properties.Add(
 				new PropertyNode("ЮридическоеФизическоеЛицо",
 					Common1cTypes.EnumNaturalOrLegal,
