@@ -1,5 +1,4 @@
-﻿using QS.Navigation;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Converters;
@@ -11,18 +10,14 @@ namespace Vodovoz.Views.Cash
 	{
 		public PaymentOnlineView(PaymentOnlineViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
 		private void Configure()
 		{
-			ybuttonSave.Binding.AddFuncBinding(ViewModel.Entity,
-				e => e.OnlineOrder.HasValue,
-				w => w.Sensitive).InitializeFromSource();
-
-			ybuttonSave.Clicked += (s, ea) => ViewModel.SaveAndClose();
-			ybuttonCancel.Clicked += (s, ea) => ViewModel.Close(true, CloseSource.Cancel);
+			ybuttonSave.BindCommand(ViewModel.SaveCommand);
+			ybuttonCancel.BindCommand(ViewModel.CloseCommand);
 
 			entryOnlineOrder.ValidationMode = (QS.Widgets.ValidationType)ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(ViewModel.Entity,
