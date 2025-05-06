@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Errors.Employees
+﻿using Vodovoz.Core.Domain.Results;
+
+namespace Vodovoz.Errors.Employees
 {
 	public static class Driver
 	{

@@ -3,11 +3,11 @@ using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Errors;
 using Vodovoz.Settings.Contacts;
 
 namespace Vodovoz.Application.Contacts
