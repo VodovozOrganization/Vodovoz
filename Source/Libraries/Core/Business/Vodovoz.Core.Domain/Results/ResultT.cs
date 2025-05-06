@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Vodovoz.Errors
+namespace Vodovoz.Core.Domain.Results
 {
 	public class Result<TValue> : Result
 	{
@@ -25,17 +25,5 @@ namespace Vodovoz.Errors
 
 		private static Result<TValue> Success(TValue value) =>
 			new Result<TValue>(value, true, Error.None);
-
-		public void Match(Action<TValue> successAction, Action<IEnumerable<Error>> errorsHandlingAction)
-		{
-			if(IsSuccess)
-			{
-				successAction(_value);
-			}
-			else
-			{
-				errorsHandlingAction(Errors);
-			}
-		}
 	}
 }

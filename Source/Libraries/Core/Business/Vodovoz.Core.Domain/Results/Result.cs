@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Vodovoz.Errors
+namespace Vodovoz.Core.Domain.Results
 {
 	public class Result
 	{
@@ -43,18 +43,6 @@ namespace Vodovoz.Errors
 			if(!isSuccess && errors.Any(x => x == Error.None))
 			{
 				throw new InvalidOperationException($"Failure result shouldn't contain {nameof(Error.None)}");
-			}
-		}
-
-		public void Match(Action successAction, Action<IEnumerable<Error>> errorsHandlingAction)
-		{
-			if(IsSuccess)
-			{
-				successAction();
-			}
-			else
-			{
-				errorsHandlingAction(Errors);
 			}
 		}
 
