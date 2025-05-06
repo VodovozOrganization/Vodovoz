@@ -20,6 +20,7 @@ namespace TrueMark.Codes.Pool
 		public TrueMarkCodesPool(IUnitOfWork uow)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			SetSessionTimeout(_uow);
 			_uow.OpenTransaction();
 		}
 
@@ -69,35 +70,31 @@ namespace TrueMark.Codes.Pool
 
 		public virtual int TakeCode(string gtin)
 		{
-			var findCodeQuery = GetFindCodeQuery(gtin);
-			var id = findCodeQuery.UniqueResult<uint>();
-			if(id == 0)
+			var findCodeQuery = GetTakeCodeQuery(gtin);
+			var codeId = findCodeQuery.UniqueResult<uint>();
+			if(codeId == 0)
 			{
 				throw new EdoCodePoolMissingCodeException($"В пуле не найден код для gtin {gtin}");
 			}
-
-			var takeCodeQuery = GetTakeCodeQuery((int)id);
-			var codeId = takeCodeQuery.UniqueResult<uint>();
 			return (int)codeId;
 		}
 
 		public virtual async Task<int> TakeCode(string gtin, CancellationToken cancellationToken)
 		{
-			var findCodeQuery = GetFindCodeQuery(gtin);
-			var id = await findCodeQuery.UniqueResultAsync<uint>(cancellationToken);
-			if(id == 0)
+			var findCodeQuery = GetTakeCodeQuery(gtin);
+			var codeId = await findCodeQuery.UniqueResultAsync<uint>(cancellationToken);
+			if(codeId == 0)
 			{
 				throw new EdoCodePoolMissingCodeException($"В пуле не найден код для gtin {gtin}");
 			}
-
-			var takeCodeQuery = GetTakeCodeQuery((int)id);
-			var codeId = await takeCodeQuery.UniqueResultAsync<uint>(cancellationToken);
 			return (int)codeId;
 		}
 
-		private IQuery GetFindCodeQuery(string gtin)
+		private IQuery GetTakeCodeQuery(string gtin)
 		{
 			var sql = $@"
+			DELETE FROM {_poolTableName}
+			WHERE id = (
 				SELECT pool.id
 				FROM {_poolTableName} pool
 					INNER JOIN true_mark_identification_code code ON code.id = pool.code_id 
@@ -105,23 +102,22 @@ namespace TrueMark.Codes.Pool
 					AND code.gtin = :gtin
 				ORDER BY pool.adding_time DESC 
 				LIMIT 1
-				FOR UPDATE SKIP LOCKED";
+				FOR UPDATE SKIP LOCKED
+			)
+			RETURNING code_id";
 
 			var query = _uow.Session.CreateSQLQuery(sql)
 				.SetParameter("gtin", gtin);
 			return query;
 		}
 
-		private IQuery GetTakeCodeQuery(int id)
+		private void SetSessionTimeout(IUnitOfWork uow)
 		{
-			var sql = $@"
-				DELETE FROM {_poolTableName}
-				WHERE id = :id
-				RETURNING code_id";
-
-			var query = _uow.Session.CreateSQLQuery(sql)
-				.SetParameter("id", id);
-			return query;
+			using(var command = uow.Session.Connection.CreateCommand())
+			{
+				command.CommandText = $"SET SESSION wait_timeout = 30;";
+				command.ExecuteNonQuery();
+			}
 		}
 	}
 }
