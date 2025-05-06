@@ -64,7 +64,7 @@ namespace WarehouseApi.Library.Services
 				.Select(x => x.Nomenclature)
 				.ToArray();
 
-			var dto = order.ToApiDto(nomenclatures);
+			var dto = order.ToApiDtoV1(nomenclatures);
 
 			dto.DocType = DocumentSourceType.Invoice;
 
