@@ -1,6 +1,7 @@
 ﻿using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Errors;
 
 namespace RobotMiaApi.Services
