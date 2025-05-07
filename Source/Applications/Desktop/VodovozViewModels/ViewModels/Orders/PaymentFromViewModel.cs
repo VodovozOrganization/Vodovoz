@@ -90,7 +90,7 @@ namespace Vodovoz.ViewModels.Orders
 				CanEdit && Entity.Id == 0,
 				"Организации для подбора в заказе: ",
 				UoW,
-				this,
+				parentViewModel: this,
 				_onlinePaymentTypeOrganizationSettings.Organizations);
 		}
 

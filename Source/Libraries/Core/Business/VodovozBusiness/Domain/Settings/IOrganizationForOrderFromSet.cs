@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using QS.DomainModel.Entity;
 using Vodovoz.Domain.Organizations;
 
 namespace VodovozBusiness.Domain.Settings
@@ -16,5 +18,7 @@ namespace VodovozBusiness.Domain.Settings
 		/// <param name="canReturnNull">Может возвращать null</param>
 		/// <returns>Организация</returns>
 		Organization GetOrganizationForOrderFromSet(TimeSpan requestTime, IOrganizations organizationsSet, bool canReturnNull = false);
+
+		IDictionary<int, (TimeSpan From, TimeSpan To)> GetChoiceTimeOrganizationFromSet(IEnumerable<INamedDomainObject> organizations);
 	}
 }

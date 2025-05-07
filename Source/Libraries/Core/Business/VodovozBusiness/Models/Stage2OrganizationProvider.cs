@@ -97,7 +97,7 @@ namespace Vodovoz.Models
 			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;
 
 			return GetOrganizationForOrderParameters(uow, paymentType ?? order.PaymentType, isSelfDelivery, order.CreateDate,
-				order.OrderItems, paymentFrom ?? order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup, order.OnlineOrder);
+				order.OrderItems, paymentFrom ?? order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup, order.OnlinePaymentNumber);
 		}
 
 		private Organization GetOrganizationForOrderParameters(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery,

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using QS.DomainModel.Entity;
 using Vodovoz.Domain.Organizations;
 using VodovozBusiness.Domain.Settings;
 
@@ -7,6 +9,8 @@ namespace Vodovoz.Application.Orders.Services
 {
 	public class OrganizationForOrderFromSet : IOrganizationForOrderFromSet
 	{
+		private const decimal _dayHours = 24m;
+
 		public Organization GetOrganizationForOrderFromSet(
 			TimeSpan requestTime,
 			IOrganizations organizationsSet,
@@ -30,21 +34,62 @@ namespace Vodovoz.Application.Orders.Services
 			throw new ArgumentException($"Пустой список организаций у {typeof(IOrganizations)}", nameof(organizationsSet));
 		}
 
+		public IDictionary<int, (TimeSpan From, TimeSpan To)> GetChoiceTimeOrganizationFromSet(
+			IEnumerable<INamedDomainObject> organizations)
+		{
+			var dictionary = new Dictionary<int, (TimeSpan From, TimeSpan To)>();
+			var organizationsCount = organizations.Count();
+
+			if(organizationsCount <= 0)
+			{
+				return dictionary;
+			}
+			
+			var sliceHour = Math.Round(_dayHours / organizationsCount, 1);
+			var second = new TimeSpan(0, 0, 1);
+			var i = 0;
+
+			foreach(var organization in organizations)
+			{
+				var fromHour = sliceHour * i;
+				var toHour = sliceHour * (i + 1);
+				dictionary.Add(
+					organization.Id,
+					(TimeSpan.FromHours((double)fromHour), TimeSpan.FromHours((double)toHour).Subtract(second)));
+
+				if(i == organizationsCount - 2)
+				{
+					break;
+				}
+
+				i++;
+			}
+
+			if(organizationsCount > 1)
+			{
+				dictionary.Add(
+					organizations.Last().Id,
+					(TimeSpan.FromHours((double)(sliceHour * (organizationsCount - 1))), new TimeSpan(23, 59, 59)));
+			}
+
+			return dictionary;
+		}
+
 		private Organization GetOrganizationFromSet(TimeSpan requestTime, IOrganizations organizationsSet)
 		{
-			var countOrganizations = organizationsSet.Organizations.Count;
+			var organizationsCount = organizationsSet.Organizations.Count;
 
-			if(countOrganizations == 1)
+			if(organizationsCount == 1)
 			{
 				return organizationsSet.Organizations[0];
 			}
 
-			var sliceHour = 24m / countOrganizations;
+			var sliceHour = _dayHours / organizationsCount;
 			var organizationIndex = (int)Math.Floor((decimal)requestTime.TotalHours / sliceHour);
 
-			if(organizationIndex > countOrganizations)
+			if(organizationIndex >= organizationsCount)
 			{
-				organizationIndex = countOrganizations - 1;
+				organizationIndex = organizationsCount - 1;
 			}
 			
 			return organizationsSet.Organizations[organizationIndex];

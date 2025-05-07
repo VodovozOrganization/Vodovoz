@@ -62,6 +62,21 @@ namespace Vodovoz.ViewModels.Organizations
 				query.Where(x => x.TaxcomEdoAccountId != null);
 			}
 
+			var hasAvangardShopIdProjection = Projections.Conditional(
+				Restrictions.Where(() => organizationAlias.AvangardShopId == null),
+				Projections.Constant(false),
+				Projections.Constant(true));
+			
+			var hasTaxcomEdoAccountIdProjection = Projections.Conditional(
+				Restrictions.Where(() => organizationAlias.TaxcomEdoAccountId == null),
+				Projections.Constant(false),
+				Projections.Constant(true));
+			
+			var hasCashBoxIdProjection = Projections.Conditional(
+				Restrictions.Where(() => organizationAlias.CashBoxId == null),
+				Projections.Constant(false),
+				Projections.Constant(true));
+
 			query.Where(
 				GetSearchCriterion(
 				() => organizationAlias.Name,
@@ -69,7 +84,11 @@ namespace Vodovoz.ViewModels.Organizations
 
 			var result = query.SelectList(list => list
 				.Select(x => x.Id).WithAlias(() => resultAlias.Id)
-				.Select(x => x.Name).WithAlias(() => resultAlias.Name))
+				.Select(x => x.Name).WithAlias(() => resultAlias.Name)
+				.Select(hasAvangardShopIdProjection).WithAlias(() => resultAlias.HasAvangardShopId)
+				.Select(hasTaxcomEdoAccountIdProjection).WithAlias(() => resultAlias.HasTaxcomEdoAccountId)
+				.Select(hasCashBoxIdProjection).WithAlias(() => resultAlias.HasCashBoxId)
+				)
 				.TransformUsing(Transformers.AliasToBean<OrganizationJournalNode>())
 				.OrderBy(x => x.Id).Asc;
 

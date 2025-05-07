@@ -40,106 +40,119 @@ namespace Vodovoz.Application.Orders.Services
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)
 		{
-			var result = new List<PartOrderWithGoods>();
 			var setsOrganizations = new Dictionary<short, PartOrderWithGoods>();
-			
-			var organizationsBasedOrderContent = uow.GetAll<OrganizationBasedOrderContentSettings>().ToArray();
-
-			// может стоит убрать, т.к. ниже должно отработать правильно при таком раскладе
-			if(!organizationsBasedOrderContent.Any())
-			{
-				//подбираем по форме оплаты
-			}
-
 			var processingGoods = organizationChoice.Goods.ToList();
 			var processingEquipments = organizationChoice.OrderEquipments.ToList();
-			
-			/*	1 - заполнено первое множество
-				1.1 - с организацией
-				1.2 - без организации
-				2 - заполнены оба множества
-				2.1 - оба без организаций
-				2.2 - первое с, второе без
-				2.3 - первое без, второе с
-				2.4 - оба с организациями
-			 */
-			
-			foreach(var set in organizationsBasedOrderContent)
-			{
-				if(!set.Nomenclatures.Any() && !set.ProductGroups.Any())
-				{
-					continue;
-				}
-				
-				var i = 0;
-				var goodsForOrganization = new List<IProduct>();
-				var orderEquipmentsForOrganization = new List<OrderEquipment>();
 
-				while(i < processingGoods.Count)
+			var organizationBasedOrderContentSettings = uow.GetAll<OrganizationBasedOrderContentSettings>().ToArray();
+			var goodsAndEquipmentsBySets =
+				new Dictionary<OrganizationBasedOrderContentSettings, (IList<IProduct> Goods, IList<OrderEquipment> Equipments)>();
+
+			var i = 0;
+			
+			while(i < processingGoods.Count)
+			{
+				foreach(var setSettings in organizationBasedOrderContentSettings)
 				{
-					if(ProductBelongsSet(processingGoods[i], set))
+					if(ProductBelongsSet(processingGoods[i], setSettings))
 					{
-						goodsForOrganization.Add(processingGoods[i]);
-						
+						if(!goodsAndEquipmentsBySets.TryGetValue(setSettings, out var goodsAndEquipments))
+						{
+							goodsAndEquipments =
+								new ValueTuple<IList<IProduct>, IList<OrderEquipment>>(new List<IProduct>(), new List<OrderEquipment>());
+							goodsAndEquipmentsBySets.Add(setSettings, goodsAndEquipments);
+						}
+
+						goodsAndEquipments.Goods.Add(processingGoods[i]);
+
 						var dependentEquipments = processingEquipments.Where(
-							x =>
-								x.OrderItem.Id == processingGoods[i].Id
-								|| x.OrderRentDepositItem.Id == processingGoods[i].Id
-								|| x.OrderRentServiceItem.Id == processingGoods[i].Id)
+								x =>
+									x.OrderItem.Id == processingGoods[i].Id
+									|| x.OrderRentDepositItem.Id == processingGoods[i].Id
+									|| x.OrderRentServiceItem.Id == processingGoods[i].Id)
 							.ToList();
 
 						foreach(var dependentEquipment in dependentEquipments)
 						{
-							orderEquipmentsForOrganization.Add(dependentEquipment);
+							goodsAndEquipments.Equipments.Add(dependentEquipment);
 							processingEquipments.Remove(dependentEquipment);
 						}
 						
 						processingGoods.RemoveAt(i);
-						continue;
+						break;
 					}
-
-					i++;
 				}
+				i++;
+			}
+			
+			ProcessEquipments(processingEquipments, organizationBasedOrderContentSettings, goodsAndEquipmentsBySets);
 
-				if(!goodsForOrganization.Any())
+			if(goodsAndEquipmentsBySets.Keys.All(x => x.OrderContentSet != 1)/* && equipmentsBySets.Keys.All(x => x != 1)*/)
+			{
+				return new[]
 				{
+					new PartOrderWithGoods(_organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice))
+				};
+			}
+			
+			foreach(var keyPairValue in goodsAndEquipmentsBySets)
+			{
+				var organization =
+					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(requestTime, keyPairValue.Key, true)
+					?? _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
+					
+				setsOrganizations.Add(
+					keyPairValue.Key.OrderContentSet,
+					new PartOrderWithGoods(organization, keyPairValue.Value.Goods, keyPairValue.Value.Equipments));
+			}
+
+			if(processingGoods.Any())
+			{
+				return _organizationByOrderAuthorHandler.SplitOrderByOrganizations(
+					uow, requestTime, setsOrganizations, organizationChoice, processingGoods);
+			}
+
+			return setsOrganizations.Values;
+		}
+
+		private void ProcessEquipments(
+			IList<OrderEquipment> processingEquipments,
+			IEnumerable<OrganizationBasedOrderContentSettings> organizationBasedOrderContentSettings,
+			IDictionary<
+				OrganizationBasedOrderContentSettings,
+				(IList<IProduct> Goods, IList<OrderEquipment> Equipments)> goodsAndEquipmentsBySets)
+		{
+			var j = 0;
+				
+			while(j < processingEquipments.Count)
+			{
+				if(processingEquipments[j].OrderItem != null
+					|| processingEquipments[j].OrderRentServiceItem != null
+					|| processingEquipments[j].OrderRentDepositItem != null)
+				{
+					j++;
 					continue;
 				}
 
-				if(set.OrderContentSet == 1 && processingEquipments.Any())
+				var firstSetSettings = organizationBasedOrderContentSettings.FirstOrDefault(x => x.OrderContentSet == 1);
+
+				if(firstSetSettings is null)
 				{
-					orderEquipmentsForOrganization.AddRange(processingEquipments.Where(
-						x => x.OrderItem == null
-						&& x.OrderRentDepositItem == null
-						&& x.OrderRentServiceItem == null));
+					throw new InvalidOperationException("Нет настроек выбора организации для первого множества!");
+				}
+					
+				if(!goodsAndEquipmentsBySets.TryGetValue(firstSetSettings, out var goodsAndEquipments))
+				{
+					goodsAndEquipments =
+						new ValueTuple<IList<IProduct>, IList<OrderEquipment>>(new List<IProduct>(), new List<OrderEquipment>());
+					goodsAndEquipmentsBySets.Add(firstSetSettings, goodsAndEquipments);
 				}
 
-				var organization =
-					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(requestTime, set, true)
-					?? _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
-				
-				setsOrganizations.Add(
-					set.OrderContentSet,
-					new PartOrderWithGoods(organization, goodsForOrganization, orderEquipmentsForOrganization));
+				goodsAndEquipments.Equipments.Add(processingEquipments[j]);
+				processingEquipments.RemoveAt(j);
 			}
-
-			if(!processingGoods.Any())
-			{
-				if(!setsOrganizations.Any())
-				{
-					var org = _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
-					result.Add(new PartOrderWithGoods(org, null));
-					return result;
-				}
-
-				result.AddRange(setsOrganizations.Values);
-				return result;
-			}
-
-			return _organizationByOrderAuthorHandler.SplitOrderByOrganizations(
-				uow, requestTime, setsOrganizations, organizationChoice, processingGoods);
 		}
-		
+
 		public bool OrderHasGoodsFromSeveralOrganizations(
 			IUnitOfWork uow,
 			TimeSpan requestTime,

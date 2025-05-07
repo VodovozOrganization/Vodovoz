@@ -74,7 +74,7 @@ namespace Vodovoz.ViewModels.Services
 					.Invoke(_navigation, new [] { parentTab, openPageOptions, entityJournalMap.GetJournalConfigureAction(), null });
 			}
 
-			_interactiveService.ShowMessage(ImportanceLevel.Error, $"Не настроено открытие журналов не наследуюмых от { baseType }");
+			_interactiveService.ShowMessage(ImportanceLevel.Error, $"Не настроено открытие журналов не наследуемых от { baseType }");
 			return null;
 		}
 		
@@ -121,7 +121,7 @@ namespace Vodovoz.ViewModels.Services
 					.Invoke(_navigation, new [] { parentViewModel, openPageOptions, entityJournalMap.GetJournalConfigureAction(), null });
 			}
 			
-			_interactiveService.ShowMessage(ImportanceLevel.Error, $"Не настроено открытие журналов не наследуюмых от { baseType }");
+			_interactiveService.ShowMessage(ImportanceLevel.Error, $"Не настроено открытие журналов не наследуемых от { baseType }");
 			return null;
 		}
 

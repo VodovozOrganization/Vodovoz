@@ -99,6 +99,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			INavigationManager navigation,
 			ViewModelEEVMBuilder<Organization> organizationViewModelBuilder,
 			EntityJournalOpener entityJournalOpener,
+			IOrganizationForOrderFromSet organizationForOrderFromSet,
 			IValidator validator) : base(commonServices?.InteractiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -109,6 +110,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_organizationViewModelBuilder =
 				organizationViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationViewModelBuilder));
+			OrganizationForOrderFromSet = 
+				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
@@ -674,6 +677,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#region Настройка юр.лиц в заказе
 		
+		public IOrganizationForOrderFromSet OrganizationForOrderFromSet { get; }
+
 		public bool CanEditOrderOrganizationsSettings { get; private set; }
 
 		public ICommand SaveOrderOrganizationSettingsCommand { get; private set; }

@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Bindings;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Windows.Input;
-using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Tdi;
-using QS.ViewModels;
+using QS.ViewModels.Dialog;
 using Vodovoz.ViewModels.Services;
 
 namespace Vodovoz.ViewModels.Widgets
@@ -18,50 +14,16 @@ namespace Vodovoz.ViewModels.Widgets
 	/// <summary>
 	/// Вью модель для работы со списком Сущностей, поддерживающих <c>INamedDomainObject</c>
 	/// </summary>
-	public class AddOrRemoveIDomainObjectViewModel : UoWWidgetViewModelBase, IDisposable
+	public class AddOrRemoveIDomainObjectViewModel : AddOrRemoveIDomainObjectViewModelBase
 	{
 		private readonly EntityJournalOpener _journalOpener;
 
 		private Type _entityType;
-		private INamedDomainObject _selectedEntity;
-		private string _title = "Неизвестно";
-		private ITdiTab _parentTab;
-		private DialogTabViewModelBase _parentViewModel;
 
 		public AddOrRemoveIDomainObjectViewModel(EntityJournalOpener journalOpener)
 		{
 			_journalOpener = journalOpener ?? throw new ArgumentNullException(nameof(journalOpener));
 		}
-
-		private void InitializeCommands()
-		{
-			AddCommand = new DelegateCommand(AddEntity, () => CanEdit);
-
-			var removeCommand = new DelegateCommand(RemoveEntity, () => CanRemoveEntity);
-			removeCommand.CanExecuteChangedWith(this, x => x.CanRemoveEntity);
-			RemoveCommand = removeCommand;
-		}
-
-		public IEnumerable<INamedDomainObject> Entities { get; private set; }
-
-		public string Title
-		{
-			get => _title;
-			private set => SetField(ref _title, value);
-		}
-
-		[PropertyChangedAlso(nameof(CanRemoveEntity))]
-		public INamedDomainObject SelectedEntity
-		{
-			get => _selectedEntity;
-			set => SetField(ref _selectedEntity, value);
-		}
-
-		public bool CanRemoveEntity => CanEdit && SelectedEntity != null;
-		public bool CanEdit { get; private set; }
-
-		public ICommand AddCommand { get; private set; }
-		public ICommand RemoveCommand { get; private set; }
 
 		public void Configure(
 			Type entityType,
@@ -74,7 +36,7 @@ namespace Vodovoz.ViewModels.Widgets
 			_entityType = entityType;
 			Title = title;
 			SetCanEdit(canEdit);
-			_parentTab = parentTab;
+			ParentTab = parentTab;
 			Entities = entities;
 			UoW = uow;
 			
@@ -86,13 +48,13 @@ namespace Vodovoz.ViewModels.Widgets
 			bool canEdit,
 			string title,
 			IUnitOfWork uow,
-			DialogTabViewModelBase parentViewModel,
+			DialogViewModelBase parentViewModel,
 			IEnumerable<INamedDomainObject> entities)
 		{
 			_entityType = entityType;
 			Title = title;
 			SetCanEdit(canEdit);
-			_parentViewModel = parentViewModel;
+			ParentViewModel = parentViewModel;
 			Entities = entities;
 			UoW = uow;
 			
@@ -105,12 +67,12 @@ namespace Vodovoz.ViewModels.Widgets
 			OnPropertyChanged(nameof(CanEdit));
 		}
 
-		private void AddEntity()
+		protected override void AddEntity()
 		{
 			var viewModel =
-				_parentTab != null
-					? _journalOpener.OpenJournalViewModelFromTdiTab(_entityType, _parentTab).ViewModel
-					: _journalOpener.OpenJournalViewModelFromDialogViewModel(_entityType, _parentViewModel).ViewModel;
+				ParentTab != null
+					? _journalOpener.OpenJournalViewModelFromTdiTab(_entityType, ParentTab).ViewModel
+					: _journalOpener.OpenJournalViewModelFromDialogViewModel(_entityType, ParentViewModel).ViewModel;
 
 			if(!(viewModel is JournalViewModelBase journal))
 			{
@@ -138,21 +100,6 @@ namespace Vodovoz.ViewModels.Widgets
 				
 				(Entities as IList).Add(entity);
 			}
-		}
-
-		private void RemoveEntity()
-		{
-			if(!Entities.Contains(SelectedEntity))
-			{
-				return;
-			}
-
-			(Entities as IList).Remove(SelectedEntity);
-		}
-
-		public void Dispose()
-		{
-			_parentTab = null;
 		}
 	}
 }
