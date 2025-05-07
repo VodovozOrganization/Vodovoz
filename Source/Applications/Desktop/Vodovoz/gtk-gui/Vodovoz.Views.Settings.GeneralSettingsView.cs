@@ -2314,7 +2314,7 @@ namespace Vodovoz.Views.Settings
 			// Container child ytable1.Gtk.Table+TableChild
 			this.lblCriterion3_1_7 = new global::Gamma.GtkWidgets.yLabel();
 			this.lblCriterion3_1_7.Name = "lblCriterion3_1_7";
-			this.lblCriterion3_1_7.LabelProp = global::Mono.Unix.Catalog.GetString("У пользователя должно быть новое право\nна изменение всей данной настройки");
+			this.lblCriterion3_1_7.LabelProp = global::Mono.Unix.Catalog.GetString("У пользователя должно быть право\nИзменение настроек выбора организаций для заказа");
 			this.ytable1.Add(this.lblCriterion3_1_7);
 			global::Gtk.Table.TableChild w163 = ((global::Gtk.Table.TableChild)(this.ytable1[this.lblCriterion3_1_7]));
 			w163.TopAttach = ((uint)(1));
@@ -2423,7 +2423,7 @@ namespace Vodovoz.Views.Settings
 			// Container child ytable2.Gtk.Table+TableChild
 			this.lblCriterion3_1_9 = new global::Gamma.GtkWidgets.yLabel();
 			this.lblCriterion3_1_9.Name = "lblCriterion3_1_9";
-			this.lblCriterion3_1_9.LabelProp = global::Mono.Unix.Catalog.GetString("У пользователя должно быть новое право\nна изменение всей данной настройки");
+			this.lblCriterion3_1_9.LabelProp = global::Mono.Unix.Catalog.GetString("У пользователя должно быть право\nИзменение настроек выбора организаций для заказа");
 			this.ytable2.Add(this.lblCriterion3_1_9);
 			global::Gtk.Table.TableChild w173 = ((global::Gtk.Table.TableChild)(this.ytable2[this.lblCriterion3_1_9]));
 			w173.TopAttach = ((uint)(1));
@@ -2507,7 +2507,7 @@ namespace Vodovoz.Views.Settings
 			// Container child ytable3.Gtk.Table+TableChild
 			this.lblCriterion3_1_11 = new global::Gamma.GtkWidgets.yLabel();
 			this.lblCriterion3_1_11.Name = "lblCriterion3_1_11";
-			this.lblCriterion3_1_11.LabelProp = global::Mono.Unix.Catalog.GetString("У пользователя должно быть новое право\nна изменение всей данной настройки");
+			this.lblCriterion3_1_11.LabelProp = global::Mono.Unix.Catalog.GetString("У пользователя должно быть право\nИзменение настроек выбора организаций для заказа");
 			this.ytable3.Add(this.lblCriterion3_1_11);
 			global::Gtk.Table.TableChild w181 = ((global::Gtk.Table.TableChild)(this.ytable3[this.lblCriterion3_1_11]));
 			w181.TopAttach = ((uint)(1));
