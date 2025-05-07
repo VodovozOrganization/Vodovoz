@@ -26,7 +26,13 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yLabel lblOrganizationCriterion;
 
+		private global::Gamma.GtkWidgets.yCheckButton yChkAvangardShopIdRequired;
+
+		private global::Gamma.GtkWidgets.yCheckButton yChkCashBoxIdRequired;
+
 		private global::Gamma.GtkWidgets.yCheckButton yChkIsArchive;
+
+		private global::Gamma.GtkWidgets.yCheckButton yChkTaxcomEdoAccountIdRequired;
 
 		protected virtual void Build()
 		{
@@ -80,7 +86,7 @@ namespace Vodovoz.Views.Orders
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.tableMain = new global::Gamma.GtkWidgets.yTable();
 			this.tableMain.Name = "tableMain";
-			this.tableMain.NRows = ((uint)(4));
+			this.tableMain.NRows = ((uint)(7));
 			this.tableMain.NColumns = ((uint)(3));
 			this.tableMain.RowSpacing = ((uint)(6));
 			this.tableMain.ColumnSpacing = ((uint)(6));
@@ -134,6 +140,36 @@ namespace Vodovoz.Views.Orders
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
+			this.yChkAvangardShopIdRequired = new global::Gamma.GtkWidgets.yCheckButton();
+			this.yChkAvangardShopIdRequired.CanFocus = true;
+			this.yChkAvangardShopIdRequired.Name = "yChkAvangardShopIdRequired";
+			this.yChkAvangardShopIdRequired.Label = global::Mono.Unix.Catalog.GetString("Нужна регистрация в Авангарде");
+			this.yChkAvangardShopIdRequired.DrawIndicator = true;
+			this.yChkAvangardShopIdRequired.UseUnderline = true;
+			this.tableMain.Add(this.yChkAvangardShopIdRequired);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yChkAvangardShopIdRequired]));
+			w10.TopAttach = ((uint)(4));
+			w10.BottomAttach = ((uint)(5));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.yChkCashBoxIdRequired = new global::Gamma.GtkWidgets.yCheckButton();
+			this.yChkCashBoxIdRequired.CanFocus = true;
+			this.yChkCashBoxIdRequired.Name = "yChkCashBoxIdRequired";
+			this.yChkCashBoxIdRequired.Label = global::Mono.Unix.Catalog.GetString("Нужна регистрация онлайн кассы");
+			this.yChkCashBoxIdRequired.DrawIndicator = true;
+			this.yChkCashBoxIdRequired.UseUnderline = true;
+			this.tableMain.Add(this.yChkCashBoxIdRequired);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yChkCashBoxIdRequired]));
+			w11.TopAttach = ((uint)(3));
+			w11.BottomAttach = ((uint)(4));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
 			this.yChkIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
 			this.yChkIsArchive.CanFocus = true;
 			this.yChkIsArchive.Name = "yChkIsArchive";
@@ -141,16 +177,31 @@ namespace Vodovoz.Views.Orders
 			this.yChkIsArchive.DrawIndicator = true;
 			this.yChkIsArchive.UseUnderline = true;
 			this.tableMain.Add(this.yChkIsArchive);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yChkIsArchive]));
-			w10.TopAttach = ((uint)(3));
-			w10.BottomAttach = ((uint)(4));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yChkIsArchive]));
+			w12.TopAttach = ((uint)(6));
+			w12.BottomAttach = ((uint)(7));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.yChkTaxcomEdoAccountIdRequired = new global::Gamma.GtkWidgets.yCheckButton();
+			this.yChkTaxcomEdoAccountIdRequired.CanFocus = true;
+			this.yChkTaxcomEdoAccountIdRequired.Name = "yChkTaxcomEdoAccountIdRequired";
+			this.yChkTaxcomEdoAccountIdRequired.Label = global::Mono.Unix.Catalog.GetString("Нужна регистрация в Такскоме");
+			this.yChkTaxcomEdoAccountIdRequired.DrawIndicator = true;
+			this.yChkTaxcomEdoAccountIdRequired.UseUnderline = true;
+			this.tableMain.Add(this.yChkTaxcomEdoAccountIdRequired);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yChkTaxcomEdoAccountIdRequired]));
+			w13.TopAttach = ((uint)(5));
+			w13.BottomAttach = ((uint)(6));
+			w13.LeftAttach = ((uint)(1));
+			w13.RightAttach = ((uint)(2));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.tableMain);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
-			w11.Position = 2;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableMain]));
+			w14.Position = 2;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

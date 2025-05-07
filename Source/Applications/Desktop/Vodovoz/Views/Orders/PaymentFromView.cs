@@ -40,6 +40,21 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.OrganizationsCriterion, w => w.Buffer.Text)
 				.InitializeFromSource();
 
+			yChkCashBoxIdRequired.Binding
+				.AddBinding(ViewModel.Entity, e => e.OnlineCashBoxRegistrationRequired, w => w.Active)
+				.AddBinding(ViewModel, wm => wm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yChkTaxcomEdoAccountIdRequired.Binding
+				.AddBinding(ViewModel.Entity, e => e.RegistrationInTaxcomRequired, w => w.Active)
+				.AddBinding(ViewModel, wm => wm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yChkAvangardShopIdRequired.Binding
+				.AddBinding(ViewModel.Entity, e => e.RegistrationInAvangardRequired, w => w.Active)
+				.AddBinding(ViewModel, wm => wm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
 			yChkIsArchive.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.AddBinding(ViewModel, wm => wm.CanEdit, w => w.Sensitive)
