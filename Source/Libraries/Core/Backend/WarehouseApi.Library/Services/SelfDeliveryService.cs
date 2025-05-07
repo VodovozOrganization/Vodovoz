@@ -1,17 +1,17 @@
 ﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Errors;
 using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.Dto;
+using WarehouseApi.Contracts.Responses.V1;
 using WarehouseApi.Library.Extensions;
 
 namespace WarehouseApi.Library.Services
@@ -41,6 +41,19 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(selfDeliveryDocumentRepository));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService
 				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+		}
+
+		public async Task<Result<GetSelfDeliveryResponse>> GetSelfDeliveryDocument(int id, CancellationToken cancellationToken)
+		{
+			var documents = await _selfDeliveryDocumentRepository
+				.GetAsync(_unitOfWork, x => x.Id == id, 1, cancellationToken);
+
+			if(!documents.Any())
+			{
+				return Vodovoz.Errors.Documents.SelfDeliveryDocument.NotFound;
+			}
+
+			return documents.FirstOrDefault()?.ToDtoApiV1();
 		}
 
 		/// <inheritdoc/>
