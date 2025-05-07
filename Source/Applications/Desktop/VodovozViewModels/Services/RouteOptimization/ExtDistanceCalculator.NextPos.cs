@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+﻿namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
 	public partial class ExtDistanceCalculator
 	{

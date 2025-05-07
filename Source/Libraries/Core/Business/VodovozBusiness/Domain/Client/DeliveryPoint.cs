@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using NetTopologySuite.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -153,8 +153,6 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		
-
 		[Display(Name = "Предполагаемые координаты доставки")]
 		public virtual IList<DeliveryPointEstimatedCoordinate> DeliveryPointEstimatedCoordinates
 		{
@@ -188,7 +186,7 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		#endregion Свойства
+		#endregion Временные поля для хранения фиксированных цен из 1с
 
 		#region Расчетные
 

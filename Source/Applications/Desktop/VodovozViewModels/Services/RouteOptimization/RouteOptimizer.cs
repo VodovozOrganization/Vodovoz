@@ -1,15 +1,14 @@
-﻿using Google.OrTools.ConstraintSolver;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using Google.OrTools.ConstraintSolver;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using Vodovoz.Application.Services.Logistics.RouteOptimization;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
@@ -17,7 +16,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Settings.Common;
 
-namespace Vodovoz.Application.Logistics.RouteOptimization
+namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
 	// <summary>
 	// Главный класс построение оптимальных маршрутов.

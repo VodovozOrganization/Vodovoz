@@ -18,7 +18,6 @@
 	<PackageReference Include="NLog.Extensions.Logging" Version="5.3.14">
 	  <TreatAsUsed>true</TreatAsUsed>
 	</PackageReference>
-	<PackageReference Include="Google.OrTools" Version="6.4.4495" />
 	<PackageReference Include="NLog.Targets.Seq" Version="4.0.1" />
 	<PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
 	<PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />

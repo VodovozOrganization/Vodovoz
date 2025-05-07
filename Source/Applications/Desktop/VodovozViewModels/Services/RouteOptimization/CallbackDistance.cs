@@ -1,13 +1,12 @@
-﻿using Google.OrTools.ConstraintSolver;
+﻿using System;
+using Google.OrTools.ConstraintSolver;
 using Microsoft.Extensions.Logging;
-using System;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 
-namespace Vodovoz.Application.Logistics.RouteOptimization
+namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
-
 	/// <summary>
 	/// Класс обратного вызова, для рассчета расстояние без штрафов используется в построении одного маршрута.
 	/// </summary>

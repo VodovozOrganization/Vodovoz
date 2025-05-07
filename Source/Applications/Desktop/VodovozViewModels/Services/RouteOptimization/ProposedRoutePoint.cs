@@ -1,7 +1,7 @@
 ﻿using System;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Application.Logistics.RouteOptimization
+namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
 	/// <summary>
 	/// Адреса доставки в имеющемся маршруте. Помимо непосредственно заказа, 

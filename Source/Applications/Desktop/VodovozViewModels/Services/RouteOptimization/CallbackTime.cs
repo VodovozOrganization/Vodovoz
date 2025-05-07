@@ -1,10 +1,10 @@
+using System;
 using Google.OrTools.ConstraintSolver;
 using Microsoft.Extensions.Logging;
-using System;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
 
-namespace Vodovoz.Application.Logistics.RouteOptimization
+namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
 	/// <summary>
 	/// Класс обратного вызова для расчета времени движения по маршруту.

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz.Application.Logistics.RouteOptimization
+namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
 	/// <summary>
 	/// Предложенный системой оптимизации маршрут.
