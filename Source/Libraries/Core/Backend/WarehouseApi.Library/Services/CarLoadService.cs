@@ -18,6 +18,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Store;
@@ -29,7 +30,7 @@ using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
-using Error = Vodovoz.Errors.Error;
+using Error = Vodovoz.Core.Domain.Results.Error;
 
 namespace WarehouseApi.Library.Services
 {
@@ -516,7 +517,7 @@ namespace WarehouseApi.Library.Services
 				});
 			}
 
-			Vodovoz.Errors.Result<TrueMarkAnyCode> newTrueMarkCodeResult = null;
+			Vodovoz.Core.Domain.Results.Result<TrueMarkAnyCode> newTrueMarkCodeResult = null;
 
 			if(!string.IsNullOrWhiteSpace(newScannedCode))
 			{

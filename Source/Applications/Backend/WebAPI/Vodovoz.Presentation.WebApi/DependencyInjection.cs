@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
@@ -82,6 +83,7 @@ namespace Vodovoz.Presentation.WebApi
 				config.DefaultApiVersion = maxVersion;
 				config.AssumeDefaultVersionWhenUnspecified = true;
 				config.ReportApiVersions = true;
+				config.ApiVersionReader = new UrlSegmentApiVersionReader();
 			});
 
 			services.AddVersionedApiExplorer(config =>

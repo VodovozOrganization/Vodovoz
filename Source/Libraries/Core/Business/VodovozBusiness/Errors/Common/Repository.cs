@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Errors.Common
 {

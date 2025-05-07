@@ -32,7 +32,6 @@ using Vodovoz.Domain.Profitability;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Models;
 using Vodovoz.Services.Logistics;
@@ -44,6 +43,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.ViewModels.Logistic
 {

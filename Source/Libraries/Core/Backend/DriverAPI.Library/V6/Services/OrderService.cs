@@ -15,6 +15,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
@@ -32,7 +33,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.TrueMark;
-using Error = Vodovoz.Errors.Error;
+using Error = Vodovoz.Core.Domain.Results.Error;
 using Order = Vodovoz.Domain.Orders.Order;
 using OrderErrors = Vodovoz.Errors.Orders.Order;
 using OrderItem = Vodovoz.Domain.Orders.OrderItem;
@@ -170,7 +171,7 @@ namespace DriverAPI.Library.V6.Services
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>IEnumerable APIPaymentType</returns>
-		public Vodovoz.Errors.Result<IEnumerable<PaymentDtoType>> GetAvailableToChangePaymentTypes(int orderId)
+		public Result<IEnumerable<PaymentDtoType>> GetAvailableToChangePaymentTypes(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
 
@@ -231,7 +232,7 @@ namespace DriverAPI.Library.V6.Services
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
-		public Vodovoz.Errors.Result<OrderAdditionalInfoDto> GetAdditionalInfo(int orderId)
+		public Result<OrderAdditionalInfoDto> GetAdditionalInfo(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
 
@@ -248,7 +249,7 @@ namespace DriverAPI.Library.V6.Services
 		/// </summary>
 		/// <param name="order">Заказ программы ДВ</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
-		public Vodovoz.Errors.Result<OrderAdditionalInfoDto> GetAdditionalInfo(Order order)
+		public Result<OrderAdditionalInfoDto> GetAdditionalInfo(Order order)
 		{
 			return new OrderAdditionalInfoDto
 			{
@@ -506,7 +507,7 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		public async Task<Vodovoz.Errors.Result<PayByQrResponse>> SendQrPaymentRequestAsync(int orderId, int driverId)
+		public async Task<Result<PayByQrResponse>> SendQrPaymentRequestAsync(int orderId, int driverId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
 
@@ -631,105 +632,92 @@ namespace DriverAPI.Library.V6.Services
 					.Distinct()
 					.ToArray();
 
-				foreach(var scannedCode in uniqueBottleCodes)
-				{
-					var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, scannedCode, SourceProductCodeStatus.New, ProductCodeProblem.None);
+				var result = await AddProductCodesToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, uniqueBottleCodes, SourceProductCodeStatus.New, ProductCodeProblem.None);
 
-					if(result.IsFailure)
-					{
-						return result;
-					}
+				if(result.IsFailure)
+				{
+					return result;
 				}
 
 				var uniqueDefectiveCodes = scannedItem.DefectiveBottleCodes
 					.Distinct()
 					.ToArray();
 
-				foreach(var defectiveBottleCode in uniqueDefectiveCodes)
-				{
-					var result = await AddProductCodeToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, defectiveBottleCode, SourceProductCodeStatus.Problem, ProductCodeProblem.Defect);
+				result = await AddProductCodesToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, uniqueDefectiveCodes, SourceProductCodeStatus.Problem, ProductCodeProblem.Defect);
 
-					if(result.IsFailure)
-					{
-						return result;
-					}
+				if(result.IsFailure)
+				{
+					return result;
 				}
 			}
 
 			return Result.Success();
 		}
 
-		private async Task<Result> AddProductCodeToRouteListItemAsync(
+		private async Task<Result> AddProductCodesToRouteListItemAsync(
 			RouteListItem routeListAddress,
 			int orderSaleItemId,
-			string scannedCode,
+			IEnumerable<string> scannedCodes,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem)
 		{
-			var trueMarkAnyCodeRwsult =
-				await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, scannedCode);
+			var scannedCodesDataResult = await _trueMarkWaterCodeService.GetTrueMarkAnyCodesByScannedCodes(_uow, scannedCodes);
 
-			if(trueMarkAnyCodeRwsult.IsFailure)
+			if(scannedCodesDataResult.IsFailure)
 			{
-				return trueMarkAnyCodeRwsult;
+				return scannedCodesDataResult;
 			}
 
-			var codes = trueMarkAnyCodeRwsult.Value.Match(
-				transportCode => transportCode.GetAllCodes(),
-				groupCode => groupCode.GetAllCodes(),
-				waterCode => new List<TrueMarkAnyCode> { waterCode });
-
-			foreach(var code in codes)
+			foreach(var code in scannedCodesDataResult.Value)
 			{
-				if(!code.IsTrueMarkWaterIdentificationCode)
+				if(code.IsTrueMarkWaterIdentificationCode)
 				{
-					continue;
+					var isCodeAlreadyAddedToRouteListItem =
+						routeListAddress.TrueMarkCodes.Any(x =>
+						x.SourceCode.GTIN == code.TrueMarkWaterIdentificationCode.GTIN
+						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber);
+
+					if(!isCodeAlreadyAddedToRouteListItem)
+					{
+						_routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItem(
+							_uow,
+							routeListAddress,
+							orderSaleItemId,
+							code.TrueMarkWaterIdentificationCode,
+							status,
+							problem);
+					}
 				}
 
-				if(routeListAddress.TrueMarkCodes.Any(x =>
-					x.SourceCode.GTIN == code.TrueMarkWaterIdentificationCode.GTIN
-					&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber))
-				{
-					continue;
-				}
+				code.Match(
+					transportCode =>
+					{
+						if(transportCode.Id == 0)
+						{
+							_uow.Save(transportCode);
+						}
 
-				_routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItem(
-					_uow,
-					routeListAddress,
-					orderSaleItemId,
-					code.TrueMarkWaterIdentificationCode,
-					status,
-					problem);
+						return true;
+					},
+					groupCode =>
+					{
+						if(groupCode.Id == 0)
+						{
+							_uow.Save(groupCode);
+						}
+
+						return true;
+					},
+					waterCode =>
+					{
+						if(waterCode.Id == 0)
+						{
+							_uow.Save(waterCode);
+						}
+
+						return true;
+					});
 			}
-
-			trueMarkAnyCodeRwsult.Value.Match(
-				transportCode =>
-				{
-					if(transportCode.Id == 0)
-					{
-						_uow.Save(transportCode);
-					}
-					
-					return true;
-				},
-				groupCode =>
-				{
-					if(groupCode.Id == 0)
-					{
-						_uow.Save(groupCode);
-					}
-
-					return true;
-				},
-				waterCode =>
-				{
-					if(waterCode.Id == 0)
-					{
-						_uow.Save(waterCode);
-					}
-
-					return true;
-				});
 
 			return Result.Success();
 		}
@@ -1802,15 +1790,17 @@ namespace DriverAPI.Library.V6.Services
 					_logger.LogWarning("У заказа {OrderId} заказа не найдена: {OrderItemId}", orderSaleItemId);
 					return Result.Failure(OrderItemErrors.NotFound);
 				}
-				
-				foreach(var scannedCode in scannedBottle.BottleCodes)
+
+				var result = await AddProductCodesToRouteListItemAsync(
+					routeListAddress,
+					orderSaleItemId,
+					scannedBottle.BottleCodes,
+					SourceProductCodeStatus.New,
+					ProductCodeProblem.None);
+
+				if(result.IsFailure)
 				{
-					await AddProductCodeToRouteListItemAsync(
-						routeListAddress,
-						orderSaleItemId,
-						scannedCode,
-						SourceProductCodeStatus.New,
-						ProductCodeProblem.None);
+					return result;
 				}
 			}
 

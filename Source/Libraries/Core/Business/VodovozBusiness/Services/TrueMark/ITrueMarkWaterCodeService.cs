@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Errors;
 
 namespace VodovozBusiness.Services.TrueMark
 {
@@ -54,5 +54,14 @@ namespace VodovozBusiness.Services.TrueMark
 		[Obsolete("Use TryGetSavedTrueMarkCodeByScannedCode instead")]
 		TrueMarkWaterIdentificationCode LoadOrCreateTrueMarkWaterIdentificationCode(IUnitOfWork uow, string scannedCode);
 		TrueMarkAnyCode GetParentGroupCode(IUnitOfWork unitOfWork, TrueMarkAnyCode trueMarkAnyCode);
+
+		/// <summary>
+		/// Загружает или создает коды ЧЗ. Не подойдет для проверки кодов на перепродажу. Статусы кодов в ЧЗ не проверяются.
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="scannedCodes">Строки отсканированных кодов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат со списком кодов ЧЗ</returns>
+		Task<Result<IList<TrueMarkAnyCode>>> GetTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, IEnumerable<string> scannedCodes, CancellationToken cancellationToken = default);
 	}
 }
