@@ -29,11 +29,12 @@ namespace Vodovoz.ViewModels.Cash
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			ICallTaskWorker callTaskWorker,
 			IOrderPaymentSettings orderPaymentSettings,
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			Employee currentEmployee) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			Employee currentEmployee) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(orderPaymentSettings == null)
 			{
