@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
@@ -36,19 +36,20 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias, () => !counterpartyPhoneAlias.IsArchive)
 				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias, () => !deliveryPointPhoneAlias.IsArchive)
-				.Where(
-					Restrictions.And(
-						Restrictions.Where(() =>
-							deliveryPointAlias.City == deliveryPoint.City
-							&& deliveryPointAlias.Street == deliveryPoint.Street
-							&& deliveryPointAlias.Building == deliveryPoint.Building
-							&& deliveryPointAlias.Room == deliveryPoint.Room
-						),
-						Restrictions.Ge(Projections.Property(() => deliveryPointAlias.Room), 1)
-					)
-				)
+				.Where(() => deliveryPointAlias.City == deliveryPoint.City)
+				.And(() => deliveryPointAlias.Street == deliveryPoint.Street)
+				.And(() => deliveryPointAlias.Building == deliveryPoint.Building)
 				.And(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)))
 				.And(() => orderAlias.Id != orderId);
+
+			if(int.TryParse(deliveryPoint.Room, out var roomNumber))
+			{
+				query.And(() => deliveryPointAlias.Room == deliveryPoint.Room);
+			}
+			else
+			{
+				query.And(CustomRestrictions.Rlike(Projections.Property(() => deliveryPointAlias.Room), "[^\\s\\d]"));
+			}
 
 			var deliveryPointsResult = query.SelectList(list => list
 				.SelectGroup(() => orderAlias.Id)
@@ -56,7 +57,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
 				.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
 			).TransformUsing(Transformers.AliasToBean<FreeLoaderInfoNode>())
+			.Take(1)
 			.List<FreeLoaderInfoNode>();
+			
 			return deliveryPointsResult;
 		}
 
@@ -221,24 +224,26 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Left.JoinAlias(() => orderAlias.PromotionalSets, () => promoSetAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Where(
-					Restrictions.And(
-						Restrictions.Where(() =>
-							deliveryPointAlias.BuildingFiasGuid == buildingFiasGuid
-							&& deliveryPointAlias.Room == room
-						),
-						Restrictions.Ge(Projections.Property(() => deliveryPointAlias.Room), 1)
-					)
-				)
+				.Where(() => deliveryPointAlias.BuildingFiasGuid == buildingFiasGuid)
 				.And(() => promoSetAlias.PromotionalSetForNewClients == promoSetForNewClients)
 				.And(() => orderAlias.Id != orderId);
-					
+
+			if(int.TryParse(room, out var roomNumber))
+			{
+				query.And(() => deliveryPointAlias.Room == room);
+			}
+			else
+			{
+				query.And(CustomRestrictions.Rlike(Projections.Property(() => deliveryPointAlias.Room), "[^\\s\\d]"));
+			}
+
 			var deliveryPointsResult = query.SelectList(list => list
 					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
 					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
 				).TransformUsing(Transformers.AliasToBean<FreeLoaderInfoNode>())
+				.Take(1)
 				.List<FreeLoaderInfoNode>();
 			return deliveryPointsResult;
 		}
