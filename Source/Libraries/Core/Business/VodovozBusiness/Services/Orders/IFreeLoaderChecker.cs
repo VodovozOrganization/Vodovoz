@@ -21,6 +21,7 @@ namespace VodovozBusiness.Services.Orders
 		/// Найденные заказы с промиками на телефон(ы)
 		/// </summary>
 		IEnumerable<FreeLoaderInfoNode> PossibleFreeLoadersByPhones { get; }
+
 		/// <summary>
 		/// Проверка на возможного халявщика.
 		/// Идет поиск возможных соответствий по адресу
@@ -30,12 +31,14 @@ namespace VodovozBusiness.Services.Orders
 		/// <param name="orderId">Номер текущего заказа</param>
 		/// <param name="deliveryPoint">Информация об адресе</param>
 		/// <param name="phoneNumbers">Телефоны для проверки в формате XXXXXXXXXX(только цифры)</param>
+		/// <param name="promoSetForNewClients">Промо набор для новых клиентов</param>
 		/// <returns></returns>
 		bool CheckFreeLoaders(
 			IUnitOfWork uow,
 			int orderId,
 			DeliveryPoint deliveryPoint,
-			IEnumerable<string> phoneNumbers);
+			IEnumerable<string> phoneNumbers,
+			bool? promoSetForNewClients = null);
 		/// <summary>
 		/// Проверка на использование промонабора в заказе на адрес
 		/// Если клиент физик заказывает на адрес с типом Склад <see cref="RoomType.Store"/> или Офис <see cref="RoomType.Office"/>

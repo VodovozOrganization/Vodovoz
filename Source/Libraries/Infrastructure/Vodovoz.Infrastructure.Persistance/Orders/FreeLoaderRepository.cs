@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -20,7 +21,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public IEnumerable<FreeLoaderInfoNode> GetPossibleFreeLoadersByAddress(
 			IUnitOfWork uow,
 			int orderId,
-			DeliveryPoint deliveryPoint)
+			DeliveryPoint deliveryPoint,
+			bool? promoSetForNewClients = null)
 		{
 			DeliveryPoint deliveryPointAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
@@ -28,6 +30,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			Counterparty counterpartyAlias = null;
 			Phone counterpartyPhoneAlias = null;
 			Phone deliveryPointPhoneAlias = null;
+			PromotionalSet promoSetAlias = null;
 			FreeLoaderInfoNode resultAlias = null;
 
 			var query = uow.Session.QueryOver(() => orderAlias)
@@ -36,11 +39,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias, () => !counterpartyPhoneAlias.IsArchive)
 				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias, () => !deliveryPointPhoneAlias.IsArchive)
+				.JoinAlias(() => orderAlias.PromotionalSets, () => promoSetAlias)
 				.Where(() => deliveryPointAlias.City == deliveryPoint.City)
 				.And(() => deliveryPointAlias.Street == deliveryPoint.Street)
 				.And(() => deliveryPointAlias.Building == deliveryPoint.Building)
-				.And(Restrictions.IsNotNull(Projections.Property(() => orderItemAlias.PromoSet)))
-				.And(() => orderAlias.Id != orderId);
+				.And(() => orderAlias.Id != orderId)
+				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses());
 
 			if(int.TryParse(deliveryPoint.Room, out var roomNumber))
 			{
@@ -49,6 +53,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			else
 			{
 				query.And(CustomRestrictions.Rlike(Projections.Property(() => deliveryPointAlias.Room), "[^\\s\\d]"));
+			}
+
+			if(promoSetForNewClients.HasValue)
+			{
+				query.And(() => promoSetAlias.PromotionalSetForNewClients == promoSetForNewClients.Value);
 			}
 
 			var deliveryPointsResult = query.SelectList(list => list
@@ -226,7 +235,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => deliveryPointAlias.BuildingFiasGuid == buildingFiasGuid)
 				.And(() => promoSetAlias.PromotionalSetForNewClients == promoSetForNewClients)
-				.And(() => orderAlias.Id != orderId);
+				.And(() => orderAlias.Id != orderId)
+				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses());
 
 			if(int.TryParse(room, out var roomNumber))
 			{
@@ -238,7 +248,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			}
 
 			var deliveryPointsResult = query.SelectList(list => list
-					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(
+						Projections.Distinct(
+							Projections.Property(() => orderAlias.Id))).WithAlias(() => resultAlias.OrderId)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Client)
 					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
@@ -246,6 +258,23 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Take(1)
 				.List<FreeLoaderInfoNode>();
 			return deliveryPointsResult;
+		}
+
+		public bool HasOnlineOrderWithPromoSetForNewClients(IUnitOfWork uow, int deliveryPointId)
+		{
+			var query = from onlineOrderItem in uow.Session.Query<OnlineOrderItem>()
+				join onlineOrder in uow.Session.Query<OnlineOrder>()
+					on onlineOrderItem.OnlineOrder.Id equals onlineOrder.Id
+				join promoSet in uow.Session.Query<PromotionalSet>()
+					on onlineOrderItem.PromoSet.Id equals promoSet.Id
+				where onlineOrder.DeliveryPoint.Id == deliveryPointId
+					&& onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled
+					&& promoSet.PromotionalSetForNewClients
+				select	onlineOrder;
+
+			return query
+				.Take(1)
+				.Any();
 		}
 	}
 }

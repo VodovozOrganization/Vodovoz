@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Nodes;
 
 namespace VodovozBusiness.EntityRepositories.Orders
@@ -17,11 +16,13 @@ namespace VodovozBusiness.EntityRepositories.Orders
 		/// <param name="uow">unit of work</param>
 		/// <param name="orderId">Номер текущего заказа для исключения из выборки</param>
 		/// <param name="deliveryPoint">Точка доставки</param>
+		/// <param name="promoSetForNewClients">Промо набор для новых клиентов</param>
 		/// <returns>Набор данных о ранних заказах промиков на аналогичный адрес <see cref="FreeLoaderInfoNode"/></returns>
 		IEnumerable<FreeLoaderInfoNode> GetPossibleFreeLoadersByAddress(
 			IUnitOfWork uow,
 			int orderId,
-			DeliveryPoint deliveryPoint);
+			DeliveryPoint deliveryPoint,
+			bool? promoSetForNewClients = null);
 
 		/// <summary>
 		/// Выборка информации о заказах с промонаборами, которые заказывались на такой же телефон
@@ -62,5 +63,12 @@ namespace VodovozBusiness.EntityRepositories.Orders
 		/// <returns>Набор данных о ранних заказах промиков на аналогичный адрес <see cref="FreeLoaderInfoNode"/></returns>
 		IEnumerable<FreeLoaderInfoNode> GetPossibleFreeLoadersInfoByBuildingFiasGuid(
 			IUnitOfWork uow, Guid buildingFiasGuid, string room, int orderId, bool promoSetForNewClients = true);
+		/// <summary>
+		/// Проверка наличия не отмененных онлайн заказов с промо наборами для новых клиентов по ТД
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="deliveryPointId">Id точки доставки</param>
+		/// <returns></returns>
+		bool HasOnlineOrderWithPromoSetForNewClients(IUnitOfWork uow, int deliveryPointId);
 	}
 }
