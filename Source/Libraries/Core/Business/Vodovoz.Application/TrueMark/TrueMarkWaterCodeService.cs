@@ -385,7 +385,7 @@ namespace Vodovoz.Application.TrueMark
 
 				productInstanceInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(new string[] { requestCode }, cancellationToken);
 
-				if(!(productInstanceInfo.InstanceStatuses.FirstOrDefault() is ProductInstanceStatus productInstanceStatus))
+				if(!(productInstanceInfo.InstanceStatuses?.FirstOrDefault() is ProductInstanceStatus productInstanceStatus))
 				{
 					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о коде");
 					return Result.Failure<TrueMarkAnyCode>(Errors.TrueMarkApi.UnknownCode);
