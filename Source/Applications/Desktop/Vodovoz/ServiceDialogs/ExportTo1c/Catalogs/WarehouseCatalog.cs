@@ -1,13 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
 	public class WarehouseCatalog:GenericCatalog<Warehouse1c>
 	{
+
 		public WarehouseCatalog(ExportData exportData)
 			:base(exportData)
-		{			
+		{
 		}
 
 		protected override string Name
@@ -17,15 +20,15 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		public override ReferenceNode CreateReferenceTo(Warehouse1c warehouse)
 		{
 			int id = GetReferenceId(warehouse);
-			return new ReferenceNode(id,
-				new PropertyNode("Код",
-					Common1cTypes.String,
-					warehouse.ExportId
-				),
-				new PropertyNode("ЭтоГруппа",
-					Common1cTypes.Boolean
-				)
-			);
+
+			var referenceNode = new ReferenceNode(id, new PropertyNode("ЭтоГруппа", Common1cTypes.Boolean));
+
+			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+			{
+				referenceNode.Properties.Add(new PropertyNode("Код", Common1cTypes.String, warehouse.ExportId));
+			}
+
+			return referenceNode;
 		}
 		protected override PropertyNode[] GetProperties(Warehouse1c warehouse)
 		{
