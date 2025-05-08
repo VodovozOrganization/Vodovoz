@@ -1,4 +1,5 @@
-﻿using Autofac;
+using Autofac;
+using FluentNHibernate.Data;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -14,13 +15,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
@@ -162,7 +166,7 @@ namespace Vodovoz.ViewModels.Cash
 			Entity.IncomeCategoryId = _financialCategoriesGroupsSettings.SelfDeliveryDefaultFinancialIncomeCategoryId;
 
 			PrintCommand = new DelegateCommand(Print);
-			SaveCommand = new DelegateCommand(SaveAndClose, () => CanEdit);
+			SaveCommand = new DelegateCommand(SaveHandler, () => CanEdit);
 			CloseCommand = new DelegateCommand(() => Close(true, CloseSource.Self));
 		}
 
@@ -282,6 +286,37 @@ namespace Vodovoz.ViewModels.Cash
 			{
 				Entity.FillFromOrder(UoW, _cashRepository);
 			}
+		}
+
+		private void SaveHandler()
+		{
+			if(!Save(false))
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не удалось сохранить документ");
+				return;
+			}
+
+			var document = Entity.Order.OrderDocuments
+				.FirstOrDefault(x =>
+					x.Type == OrderDocumentType.Invoice
+					|| x.Type == OrderDocumentType.InvoiceBarter
+					|| x.Type == OrderDocumentType.InvoiceContractDoc)
+				as IPrintableRDLDocument;
+
+			var page = NavigationManager
+				.OpenViewModel<PrintableRdlDocumentViewModel<IPrintableRDLDocument>, IPrintableRDLDocument>(this, document, OpenPageOptions.AsSlave);
+
+			page.PageClosed += OnInvoiceDocumentPrintViewClosed;
+		}
+
+		private void OnInvoiceDocumentPrintViewClosed(object sender, EventArgs eventArgs)
+		{
+			if(sender is IPage page)
+			{
+				page.PageClosed -= OnInvoiceDocumentPrintViewClosed;
+			}
+
+			Close(false, CloseSource.Save);
 		}
 
 		protected override bool BeforeSave()
