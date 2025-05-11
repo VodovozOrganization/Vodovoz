@@ -19,6 +19,12 @@ namespace VodovozBusiness.Domain.Settings
 		/// <returns>Организация</returns>
 		Organization GetOrganizationForOrderFromSet(TimeSpan requestTime, IOrganizations organizationsSet, bool canReturnNull = false);
 
-		IDictionary<int, (TimeSpan From, TimeSpan To)> GetChoiceTimeOrganizationFromSet(IEnumerable<INamedDomainObject> organizations);
+		/// <summary>
+		/// Получение словаря организаций с интервалом времени, в который они подбираются для заказа
+		/// </summary>
+		/// <param name="organizations">Список организаций</param>
+		/// <returns>Словарь организаций</returns>
+		IReadOnlyDictionary<int, (TimeSpan From, TimeSpan To)> GetChoiceTimeOrganizationFromSet(
+			IEnumerable<INamedDomainObject> organizations);
 	}
 }

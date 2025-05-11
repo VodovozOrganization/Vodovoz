@@ -34,7 +34,7 @@ namespace Vodovoz.Application.Orders.Services
 			throw new ArgumentException($"Пустой список организаций у {typeof(IOrganizations)}", nameof(organizationsSet));
 		}
 
-		public IDictionary<int, (TimeSpan From, TimeSpan To)> GetChoiceTimeOrganizationFromSet(
+		public IReadOnlyDictionary<int, (TimeSpan From, TimeSpan To)> GetChoiceTimeOrganizationFromSet(
 			IEnumerable<INamedDomainObject> organizations)
 		{
 			var dictionary = new Dictionary<int, (TimeSpan From, TimeSpan To)>();
@@ -47,29 +47,29 @@ namespace Vodovoz.Application.Orders.Services
 			
 			var sliceHour = Math.Round(_dayHours / organizationsCount, 1);
 			var second = new TimeSpan(0, 0, 1);
+
 			var i = 0;
+			var fromHour = 0m;
+			var toHour = 0m;
 
 			foreach(var organization in organizations)
 			{
-				var fromHour = sliceHour * i;
-				var toHour = sliceHour * (i + 1);
-				dictionary.Add(
-					organization.Id,
-					(TimeSpan.FromHours((double)fromHour), TimeSpan.FromHours((double)toHour).Subtract(second)));
-
-				if(i == organizationsCount - 2)
+				if(i == organizationsCount - 1)
 				{
-					break;
+					dictionary.Add(
+						organizations.Last().Id,
+						(TimeSpan.FromHours((double)toHour), new TimeSpan(23, 59, 59)));
+				}
+				else
+				{
+					fromHour = sliceHour * i;
+					toHour = sliceHour * (i + 1);
+					dictionary.Add(
+						organization.Id,
+						(TimeSpan.FromHours((double)fromHour), TimeSpan.FromHours((double)toHour).Subtract(second)));
 				}
 
 				i++;
-			}
-
-			if(organizationsCount > 1)
-			{
-				dictionary.Add(
-					organizations.Last().Id,
-					(TimeSpan.FromHours((double)(sliceHour * (organizationsCount - 1))), new TimeSpan(23, 59, 59)));
 			}
 
 			return dictionary;
