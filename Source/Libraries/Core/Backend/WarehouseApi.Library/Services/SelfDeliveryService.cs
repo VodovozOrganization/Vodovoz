@@ -158,5 +158,35 @@ namespace WarehouseApi.Library.Services
 
 			return Result.Success();
 		}
+
+		public Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentByOrderId(int? orderId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<Result<bool>> CreateDocument()
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<Result<bool>> AddCodes(IEnumerable<string> codesToAdd)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<Result<bool>> ChangeCodes(IEnumerable<string> codesToChange)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<Result<bool>> RemoveCodes(IEnumerable<string> codesToDelete)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void EndLoad()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
