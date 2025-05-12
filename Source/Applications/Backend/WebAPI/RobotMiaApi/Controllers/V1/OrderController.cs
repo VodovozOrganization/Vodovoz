@@ -81,15 +81,39 @@ namespace RobotMiaApi.Controllers.V1
 				|| postOrderRequest.BottlesReturn is null
 				|| !postOrderRequest.SaleItems.Any())
 			{
-				_orderService.CreateIncompleteOrder(postOrderRequest);
+				try
+				{
+					await _orderService.CreateIncompleteOrderAsync(postOrderRequest);
+					return NoContent();
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Ошибка создания незавершенного заказа: {Message}", ex.Message);
+					return Problem("Не удалось создать незавершенный заказ", statusCode: StatusCodes.Status400BadRequest);
+				}
+			}
+
+			try
+			{
+				var createdOrderResult = await _orderService.CreateAndAcceptOrderAsync(postOrderRequest);
+
+				if(createdOrderResult.IsFailure)
+				{
+					_logger.LogError("Ошибка создания заказа: {Errors}", string.Join(", ", createdOrderResult.Errors.Select(x => x.Message)));
+					return Problem(string.Join(", ", createdOrderResult.Errors.Select(x => x.Message)), statusCode: StatusCodes.Status400BadRequest);
+				}
+
+				var createdOrderId = createdOrderResult.Value;
+
+				_logger.LogInformation("Создан заказ #{OrderId}", createdOrderId);
 
 				return NoContent();
 			}
-
-			var createdOrderId = await _orderService.CreateAndAcceptOrder(postOrderRequest);
-			_logger.LogInformation("Создан заказ #{OrderId}", createdOrderId);
-
-			return NoContent();
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка создания заказа: {Message}", ex.Message);
+				return Problem("Не удалось создать заказ", statusCode: StatusCodes.Status400BadRequest);
+			}
 		}
 
 		/// <summary>
