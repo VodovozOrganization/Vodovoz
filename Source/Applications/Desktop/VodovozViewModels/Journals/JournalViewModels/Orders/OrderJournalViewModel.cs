@@ -665,7 +665,8 @@ namespace Vodovoz.JournalViewModels
 				.And(() => orderEdoRequestAlias.DocumentType == EdoDocumentType.UPD)
 				.And(() => orderEdoRequestAlias2.Id == null)
 				.And(() => orderEdoDocumentAlias2.Id == null)
-				.Select(Projections.Property(() => orderEdoDocumentAlias.Status));
+				.Select(Projections.Property(() => orderEdoDocumentAlias.Status))
+				.Take(1);
 
 			if(FilterViewModel.EdoDocFlowStatus is EdoDocFlowStatus edoDocFlowStatus)
 			{
