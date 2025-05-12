@@ -4,6 +4,7 @@ using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using WarehouseApi.Contracts.Dto;
+using WarehouseApi.Contracts.Dto.V1;
 
 namespace WarehouseApi.Library.Extensions
 {
