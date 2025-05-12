@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WarehouseApi.Contracts.Dto
+namespace WarehouseApi.Contracts.Dto.V1
 {
 	/// <summary>
 	/// Уровень кода маркировки ЧЗ

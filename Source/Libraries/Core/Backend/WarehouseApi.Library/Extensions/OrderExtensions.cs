@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using WarehouseApi.Contracts.Dto;
+using WarehouseApi.Contracts.Dto.V1;
 
 namespace WarehouseApi.Library.Extensions
 {
-	internal static class OrderExtensions
+	public static class OrderExtensions
 	{
 		public static OrderDto ToApiDtoV1(this Order order, IEnumerable<Nomenclature> nomenclatures)
 		{
