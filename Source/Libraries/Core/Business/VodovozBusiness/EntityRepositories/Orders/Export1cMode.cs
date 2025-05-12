@@ -8,7 +8,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		BuhgalteriaOOO,
 		IPForTinkoff,
 		BuhgalteriaOOONew,
-		//Комплексная автоматизация
+		/// <summary>
+		///Комплексная автоматизация
+		/// </summary>
 		ComplexAutomation
 	}
 }

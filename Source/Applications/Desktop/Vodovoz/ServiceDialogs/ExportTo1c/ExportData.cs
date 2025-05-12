@@ -241,11 +241,16 @@ namespace Vodovoz.ExportTo1c
 
 			foreach(var orderItem in order.OrderItems) {
 				var record = CreateRecord(orderItem);
-				if(Nomenclature.GetCategoriesForGoods().Contains(orderItem.Nomenclature.Category)) {
+				if(Nomenclature.GetCategoriesForGoods().Contains(orderItem.Nomenclature.Category)
+				   || ExportMode == Export1cMode.ComplexAutomation)
+				{
 					exportGoodsTable.Records.Add(record);
 					exportSaleDocument.Comission.Comissions.Add(0);
-				} else
+				}
+				else
+				{
 					exportServicesTable.Records.Add(record);
+				}
 			}
 
 			exportSaleDocument.Properties.Add(
@@ -342,7 +347,12 @@ namespace Vodovoz.ExportTo1c
 			}
 			
 			exportSaleDocument.Tables.Add(exportGoodsTable);
-			exportSaleDocument.Tables.Add(exportServicesTable);
+
+			if(ExportMode != Export1cMode.ComplexAutomation)
+			{
+				exportSaleDocument.Tables.Add(exportServicesTable);
+			}
+
 			return exportSaleDocument;
 		}
 
