@@ -15,7 +15,7 @@ namespace Vodovoz.Core.Domain.Contacts
 	[HistoryTrace]
 	public class EmailEntity : PropertyChangedBase, IDomainObject
 	{
-		public const string EmailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Z0-9]+([\.-]?[a-zA-Z0-9]+)*(\.[a-zA-Z]{2,10})+$";
+		public const string EmailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]*)*@[a-zA-Z0-9]+([\.-]?[a-zA-Z0-9]+)*(\.[a-zA-Z]{2,10})+$";
 		private TimeSpan _emailMatchingProcessTimeout = TimeSpan.FromSeconds(1);
 
 		private int _id;
