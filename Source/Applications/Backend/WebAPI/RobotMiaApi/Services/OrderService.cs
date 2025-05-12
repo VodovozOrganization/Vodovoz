@@ -114,13 +114,13 @@ namespace RobotMiaApi.Services
 		}
 
 		/// <inheritdoc/>
-		public void CreateIncompleteOrder(CreateOrderRequest createOrderRequest)
+		public async Task<Result> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest)
 		{
-			_vodovozOrderService.CreateIncompleteOrder(createOrderRequest.MapToCreateOrderRequest());
+			return await _vodovozOrderService.CreateIncompleteOrderAsync(createOrderRequest.MapToCreateOrderRequest());
 		}
 
 		/// <inheritdoc/>
-		public async Task<int> CreateAndAcceptOrder(CreateOrderRequest createOrderRequest)
+		public async Task<Result<int>> CreateAndAcceptOrderAsync(CreateOrderRequest createOrderRequest)
 		{
 			var orderArgs = createOrderRequest.MapToCreateOrderRequest();
 
