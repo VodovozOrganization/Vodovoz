@@ -1,6 +1,7 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Vodovoz.Errors;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Documents;
 using WarehouseApi.Contracts.Dto;
 
 namespace WarehouseApi.Library.Services
@@ -15,12 +16,21 @@ namespace WarehouseApi.Library.Services
 		Result<OrderDto> GetSelfDeliveryOrder(int orderId);
 
 		/// <summary>
-		/// Добавление кода ЧЗ в заказ самовывоза
+		/// Получение информацию о документе отпуска самовывоза по идентификатору заказа самовывоза
 		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
-		/// <param name="scannedCode">Сканированный код</param>
-		/// <param name="cancellationToken">Токен отмены</param>
+		/// <param name="orderId"></param>
 		/// <returns></returns>
-		Task<Result> AddTrueMarkCode(int orderId, string scannedCode, CancellationToken cancellationToken);
+		Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentByOrderId(int? orderId);
+
+		/// <summary>
+		/// Создание документа самовывоза
+		/// </summary>
+		/// <returns></returns>
+		Task<Result<SelfDeliveryDocument>> CreateDocument(int orderId, int warehouseId);
+
+		Task<Result<bool>> AddCodes(IEnumerable<string> codesToAdd);
+		Task<Result<bool>> ChangeCodes(IEnumerable<string> codesToChange);
+		Task<Result<bool>> RemoveCodes(IEnumerable<string> codesToDelete);
+		Task<Result<bool>> EndLoad();
 	}
 }
