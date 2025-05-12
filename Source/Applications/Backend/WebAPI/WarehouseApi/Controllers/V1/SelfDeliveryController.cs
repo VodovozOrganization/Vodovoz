@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Mime;
@@ -14,6 +16,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Errors;
 using WarehouseApi.Contracts.Responses.V1;
 using WarehouseApi.Library.Services;
+using Vodovoz.Core.Domain.Results;
 
 namespace WarehouseApi.Controllers.V1
 {
@@ -145,7 +148,7 @@ namespace WarehouseApi.Controllers.V1
 			[FromServices] IUnitOfWork unitOfWork,
 			PutSelfDeliveryRequest request)
 		{
-			_selfDeliveryService.CreateDocument();
+			var document = _selfDeliveryService.CreateDocument();
 
 			if(request.CodesToAdd.Any())
 			{
@@ -156,6 +159,8 @@ namespace WarehouseApi.Controllers.V1
 			{
 				_selfDeliveryService.EndLoad();
 			}
+
+			return Created(Url.Action(nameof(Get), controller: nameof(SelfDeliveryController), new { SelfDeliveryDocumentId = document.Id }), document);
 		}
 
 
@@ -165,25 +170,12 @@ namespace WarehouseApi.Controllers.V1
 			[FromServices] IUnitOfWork unitOfWork,
 			PatchSelfDeliveryRequest request)
 		{
-			_selfDeliveryService
+			_selfDeliveryService.GetSelfDeliveryDocumentByOrderId(request.Order.OrderId);
+
+			var result = await _selfDeliveryService
 				.RemoveCodes(request.CodesToDelete)
-				.ChangeCodes(request.CodesToChange)
-				.AddCodes(request.CodesToAdd);
-
-			//if(request.CodesToDelete.Any())
-			//{
-			//	_selfDeliveryService.RemoveCodes(request.CodesToDelete);
-			//}
-
-			//if(request.CodesToChange.Any())
-			//{
-			//	_selfDeliveryService.ChangeCodes(request.CodesToChange);
-			//}
-
-			//if(request.CodesToAdd.Any())
-			//{
-			//	_selfDeliveryService.AddCodes(request.CodesToAdd);
-			//}
+				.BindAsync(_ => _selfDeliveryService.ChangeCodes(request.CodesToChange))
+				.BindAsync(_ => _selfDeliveryService.AddCodes(request.CodesToAdd));
 
 			if(request.EndLoad)
 			{
@@ -217,11 +209,16 @@ namespace WarehouseApi.Controllers.V1
 
 	public class PutSelfDeliveryRequest
 	{
+		public IEnumerable<string> CodesToAdd { get; set; }
+		public bool EndLoad { get; internal set; }
 	}
 
 	public class PatchSelfDeliveryRequest
 	{
 		public OrderDto Order { get; set; }
 		public bool EndLoad { get; set; }
+		public IEnumerable<string> CodesToDelete { get; internal set; }
+		public IEnumerable<string> CodesToChange { get; internal set; }
+		public IEnumerable<string> CodesToAdd { get; internal set; }
 	}
 }
