@@ -25,7 +25,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
 using Vodovoz.Models;
 using VodovozBusiness.Services.TrueMark;
-using WarehouseApi.Contracts.Dto;
+using WarehouseApi.Contracts.Dto.V1;
 using WarehouseApi.Contracts.Responses.V1;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;

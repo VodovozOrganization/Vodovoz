@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WarehouseApi.Contracts.Dto
+namespace WarehouseApi.Contracts.Dto.V1
 {
 	/// <summary>
 	/// Строка заказа

@@ -14,9 +14,8 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Errors;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
-using WarehouseApi.Contracts.Dto;
+using WarehouseApi.Contracts.Dto.V1;
 using WarehouseApi.Contracts.Requests.V1;
-using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Contracts.Responses.V1;
 using WarehouseApi.Filters;
 using WarehouseApi.Library.Services;
@@ -25,6 +24,9 @@ using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace WarehouseApi.Controllers.V1
 {
+	/// <summary>
+	/// Контроллер для работы с талонами погрузки
+	/// </summary>
 	[Authorize(Roles = _rolesToAccess)]
 	[ApiController]
 	[WarehouseErrorHandlingFilter]
@@ -39,6 +41,13 @@ namespace WarehouseApi.Controllers.V1
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ICarLoadService _carLoadService;
 
+		/// <summary>
+		/// Конструктор контроллера
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="userManager"></param>
+		/// <param name="carLoadService"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public CarLoadController(
 			ILogger<CarLoadController> logger,
 			UserManager<IdentityUser> userManager,
@@ -53,6 +62,7 @@ namespace WarehouseApi.Controllers.V1
 		/// Начало погрузки по талону погрузки погрузки
 		/// </summary>
 		/// <param name="documentId"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns><see cref="StartLoadResponse"/></returns>
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
@@ -127,6 +137,7 @@ namespace WarehouseApi.Controllers.V1
 		/// Добавление отсканированного кода маркировки ЧЗ в заказ
 		/// </summary>
 		/// <param name="requestData"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns><see cref="AddOrderCodeResponse"/></returns>
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
@@ -169,6 +180,8 @@ namespace WarehouseApi.Controllers.V1
 		/// <summary>
 		/// Замена отсканированного кода ЧЗ номенклатуры в заказе
 		/// </summary>
+		/// <param name="requestData"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns><see cref="ChangeOrderCodeResponse"/></returns>
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
@@ -219,6 +232,8 @@ namespace WarehouseApi.Controllers.V1
 		/// <summary>
 		/// Завершение погрузки по талону погрузки
 		/// </summary>
+		/// <param name="documentId"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns><see cref="EndLoadResponse"/></returns>
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]

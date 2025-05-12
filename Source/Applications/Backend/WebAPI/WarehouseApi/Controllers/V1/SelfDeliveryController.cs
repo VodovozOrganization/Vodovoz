@@ -3,20 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Mime;
-using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Orders;
-using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Errors;
 using WarehouseApi.Contracts.Responses.V1;
 using WarehouseApi.Library.Services;
-using Vodovoz.Core.Domain.Results;
+using WarehouseApi.Library.Extensions;
+using WarehouseApi.Contracts.Requests.V1;
 
 namespace WarehouseApi.Controllers.V1
 {
@@ -27,198 +22,143 @@ namespace WarehouseApi.Controllers.V1
 	public class SelfDeliveryController : VersionedController
 	{
 		private readonly ISelfDeliveryService _selfDeliveryService;
-		private readonly IGenericRepository<SelfDeliveryDocument> _selfDeliveryDocumentRepository;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
 		/// <param name="logger"></param>
 		/// <param name="selfDeliveryService"></param>
-		/// <param name="selfDeliveryDocumentRepository"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public SelfDeliveryController(
 			ILogger<SelfDeliveryController> logger,
-			ISelfDeliveryService selfDeliveryService,
-			IGenericRepository<SelfDeliveryDocument> selfDeliveryDocumentRepository)
+			ISelfDeliveryService selfDeliveryService)
 			: base(logger)
 		{
 			_selfDeliveryService = selfDeliveryService
 				?? throw new ArgumentNullException(nameof(selfDeliveryService));
-			_selfDeliveryDocumentRepository = selfDeliveryDocumentRepository
-				?? throw new ArgumentNullException(nameof(selfDeliveryDocumentRepository));
 		}
 
 		/// <summary>
 		/// Получение информацию о заказе самовывоза по идентификатору документа отпуска самовывоза
 		/// </summary>
-		/// <param name="unitOfWork"></param>
 		/// <param name="orderId"></param>
 		/// <param name="selfDeliveryDocumentId"></param>
 		/// <returns></returns>
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(typeof(GetSelfDeliveryResponse), StatusCodes.Status200OK)]
-		public IActionResult Get(
-			[FromServices] IUnitOfWork unitOfWork,
+		public async Task<IActionResult> GetAsync(
 			int? orderId,
 			int? selfDeliveryDocumentId)
-		{
-			var selfDeliveryDocument = _selfDeliveryDocumentRepository
-				.Get(
-					unitOfWork,
-					x => x.Id == selfDeliveryDocumentId,
-					1)
-				.FirstOrDefault();
+			=> await GetDocumentByOrderIdOrSelfDeliveryDocumentId(orderId, selfDeliveryDocumentId)
+				.MatchAsync<SelfDeliveryDocument, IActionResult>(
+					selfDeliveryDocument =>
+					{
+						var nomenclatures = selfDeliveryDocument.Order.OrderItems
+							.Select(x => x.Nomenclature)
+							.ToArray()
+							.AsEnumerable();
 
-			throw new NotImplementedException("Метод не реализован");
+						return Ok(
+							new GetSelfDeliveryResponse
+							{
+								SelfDeliveryDocumentId = selfDeliveryDocument.Id,
+								Order = selfDeliveryDocument.Order.ToApiDtoV1(nomenclatures)
+							});
+					},
+					errors => Problem(
+						string.Join(", ", errors.Select(e => e.Message)),
+						statusCode: StatusCodes.Status400BadRequest));
 
-			//return (selfDeliveryDocument.ToApiDtoV1());
-		}
-
-		///// <summary>
-		///// Получение информацию о заказе самовывоза по идентификатору заказа
-		///// </summary>
-		///// <param name="unitOfWork"></param>
-		///// <param name="orderId">Идентификатор заказа</param>
-		///// <param name="cancellationToken"></param>
-		///// <returns></returns>
-		//[HttpGet()]
-		//[Produces(MediaTypeNames.Application.Json)]
-		//[ProducesResponseType(typeof(GetSelfDeliveryResponse), StatusCodes.Status200OK)]
-		//public IActionResult ByOrderId(
-		//	[FromServices] IUnitOfWork unitOfWork,
-		//	int orderId,
-		//	CancellationToken cancellationToken)
-		//{
-		//	var getOrderResult = _selfDeliveryService.GetSelfDeliveryOrder(orderId);
-
-		//	if(getOrderResult.IsFailure)
-		//	{
-		//		return MapResult(getOrderResult);
-		//	}
-
-		//	var result = new GetSelfDeliveryResponse
-		//	{
-		//		Order = getOrderResult.Value
-		//	};
-
-		//	if(cancellationToken.IsCancellationRequested)
-		//	{
-		//		_logger.LogWarning(
-		//			"Cancellation requested for orderId {OrderId}",
-		//			orderId);
-
-		//		return NoContent();
-		//	}
-
-		//	var selfDeliveryDocument = _selfDeliveryDocumentRepository
-		//		.Get(
-		//			unitOfWork,
-		//			x => x.Order.Id == orderId,
-		//			1)
-		//		.FirstOrDefault();
-
-		//	result.SelfDeliveryDocumentId = selfDeliveryDocument?.Id;
-
-		//	return MapResult(Result.Success(result));
-		//}
-
-		///// <summary>
-		///// Добавление кода ЧЗ в заказ самовывоза
-		///// </summary>
-		///// <param name="orderId">Идентификатор заказа</param>
-		///// <param name="scannedCode">Сканированный код</param>
-		///// <param name="cancellationToken"></param>
-		///// <returns></returns>
-		//[HttpPost]
-		//[ProducesResponseType(StatusCodes.Status204NoContent)]
-		//public async Task<IActionResult> AddTrueMarkCodeAsync(
-		//	int orderId,
-		//	string scannedCode,
-		//	CancellationToken cancellationToken)
-		//{
-		//	var result = await _selfDeliveryService.AddTrueMarkCode(orderId, scannedCode, cancellationToken);
-		//	return MapResult(result);
-		//}
-
-
+		/// <summary>
+		/// Создание документа отпуска самовывоза
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="request"></param>
+		/// <returns></returns>
 		[HttpPut]
 		[ProducesResponseType(StatusCodes.Status201Created)]
 		public async Task<IActionResult> Put(
 			[FromServices] IUnitOfWork unitOfWork,
 			PutSelfDeliveryRequest request)
-		{
-			var document = _selfDeliveryService.CreateDocument();
+			=> await _selfDeliveryService
+				.CreateDocument(request.OrderId, request.WarehouseId)
+				.BindAsync(selfDeliveryDocument =>
+					_selfDeliveryService.AddCodes(selfDeliveryDocument, request.CodesToAdd))
+				.BindAsync(selfDeliveryDocument => EndLoadIfNeeded(request.EndLoad, selfDeliveryDocument))
+				.BindAsync(async selfDeliveryDocument =>
+				{
+					await unitOfWork.SaveAsync(selfDeliveryDocument);
+					await unitOfWork.CommitAsync();
+					return Result.Success(selfDeliveryDocument);
+				})
+				.MatchAsync(
+					selfDeliveryDocument => Created(
+						Url.Action(
+							nameof(GetAsync),
+							controller: nameof(SelfDeliveryController),
+							new { SelfDeliveryDocumentId = selfDeliveryDocument.Id })
+						, selfDeliveryDocument),
+					errors => Problem(
+						string.Join(", ", errors.Select(x => x.Message)),
+						statusCode: StatusCodes.Status400BadRequest));
 
-			if(request.CodesToAdd.Any())
-			{
-				_selfDeliveryService.AddCodes(request.CodesToAdd);
-			}
 
-			if(request.EndLoad)
-			{
-				_selfDeliveryService.EndLoad();
-			}
-
-			return Created(Url.Action(nameof(Get), controller: nameof(SelfDeliveryController), new { SelfDeliveryDocumentId = document.Id }), document);
-		}
-
-
+		/// <summary>
+		/// Изменение документа отпуска самовывоза
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="request"></param>
+		/// <returns></returns>
 		[HttpPatch]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> Patch(
 			[FromServices] IUnitOfWork unitOfWork,
 			PatchSelfDeliveryRequest request)
+			=> await _selfDeliveryService
+				.GetSelfDeliveryDocumentById(request.SelfDeliveryDocumentId)
+				.BindAsync(selfDeliveryDocument => _selfDeliveryService.RemoveCodes(selfDeliveryDocument, request.CodesToDelete))
+				.BindAsync(selfDeliveryDocument => _selfDeliveryService.ChangeCodes(selfDeliveryDocument, request.CodesToChange))
+				.BindAsync(selfDeliveryDocument => _selfDeliveryService.AddCodes(selfDeliveryDocument, request.CodesToAdd))
+				.BindAsync(selfDeliveryDocument => EndLoadIfNeeded(request.EndLoad, selfDeliveryDocument))
+				.BindAsync(async selfDeliveryDocument =>
+				{
+					await unitOfWork.SaveAsync(selfDeliveryDocument);
+					await unitOfWork.CommitAsync();
+					return Result.Success(selfDeliveryDocument);
+				})
+				.MatchAsync<SelfDeliveryDocument, IActionResult>(
+					selfDeliveryDocument => NoContent(),
+					errors => Problem(
+						string.Join(", ", errors.Select(x => x.Message)),
+						statusCode: StatusCodes.Status400BadRequest));
+
+
+		private async Task<Result<SelfDeliveryDocument>> GetDocumentByOrderIdOrSelfDeliveryDocumentId(int? orderId, int? selfDeliveryDocumentId)
 		{
-			_selfDeliveryService.GetSelfDeliveryDocumentByOrderId(request.Order.OrderId);
-
-			var result = await _selfDeliveryService
-				.RemoveCodes(request.CodesToDelete)
-				.BindAsync(_ => _selfDeliveryService.ChangeCodes(request.CodesToChange))
-				.BindAsync(_ => _selfDeliveryService.AddCodes(request.CodesToAdd));
-
-			if(request.EndLoad)
+			if(selfDeliveryDocumentId is null && orderId is null)
 			{
-				_selfDeliveryService.EndLoad();
+				return Result.Failure<SelfDeliveryDocument>(new Error("Temp.Error", "Не указан идентификатор документа самовывоза или идентификатор заказа самовывоза"));
 			}
 
-			unitOfWork.Commit();
-
-			throw new NotImplementedException("Метод не реализован");
+			if(selfDeliveryDocumentId != null)
+			{
+				return await _selfDeliveryService.GetSelfDeliveryDocumentById(selfDeliveryDocumentId);
+			}
+			else
+			{
+				return await _selfDeliveryService.GetSelfDeliveryDocumentByOrderId(orderId);
+			}
 		}
 
-		//[HttpDelete]
-		//[ProducesResponseType(StatusCodes.Status204NoContent)]
-		//public async Task<IActionResult> DeleteTrueMarkCode()
-		//{
-		//	throw new NotImplementedException("Метод не реализован");
-		//}
+		private Result<SelfDeliveryDocument> EndLoadIfNeeded(bool endLoadNeeded, SelfDeliveryDocument selfDeliveryDocument)
+		{
+			if(endLoadNeeded)
+			{
+				_selfDeliveryService.EndLoad(selfDeliveryDocument);
+			}
 
-		///// <summary>
-		///// Завершение отгрузки самовывоза
-		///// </summary>
-		///// <returns></returns>
-		///// <exception cref="NotImplementedException"></exception>
-		//[HttpPost]
-		//[ProducesResponseType(StatusCodes.Status204NoContent)]
-		//public IActionResult EndLoad(int selfDeliveryDocumentId)
-		//{
-		//	throw new NotImplementedException("Метод не реализован");
-		//}
-	}
-
-	public class PutSelfDeliveryRequest
-	{
-		public IEnumerable<string> CodesToAdd { get; set; }
-		public bool EndLoad { get; internal set; }
-	}
-
-	public class PatchSelfDeliveryRequest
-	{
-		public OrderDto Order { get; set; }
-		public bool EndLoad { get; set; }
-		public IEnumerable<string> CodesToDelete { get; internal set; }
-		public IEnumerable<string> CodesToChange { get; internal set; }
-		public IEnumerable<string> CodesToAdd { get; internal set; }
+			return selfDeliveryDocument;
+		}
 	}
 }

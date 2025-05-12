@@ -4,7 +4,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using WarehouseApi.Contracts.Dto;
+using WarehouseApi.Contracts.Dto.V1;
 
 namespace WarehouseApi.Library.Converters
 {

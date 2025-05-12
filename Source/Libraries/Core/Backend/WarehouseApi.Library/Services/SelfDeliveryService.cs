@@ -10,7 +10,7 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Services.TrueMark;
-using WarehouseApi.Contracts.Dto;
+using WarehouseApi.Contracts.Dto.V1;
 using WarehouseApi.Contracts.Responses.V1;
 using WarehouseApi.Library.Extensions;
 

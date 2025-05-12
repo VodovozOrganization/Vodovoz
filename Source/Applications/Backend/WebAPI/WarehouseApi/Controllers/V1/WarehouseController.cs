@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Store;
 using Vodovoz.Presentation.WebApi.Common;
 using Vodovoz.Tools.Store;
 using WarehouseApi.Contracts.Dto.V1;
@@ -26,6 +27,8 @@ namespace WarehouseApi.Controllers.V1
 	{
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IGenericRepository<Employee> _employeeRepository;
+		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;
+		private readonly IGenericRepository<UserSettings> _userSettingsRepository;
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
 
 		/// <summary>
@@ -34,11 +37,15 @@ namespace WarehouseApi.Controllers.V1
 		/// <param name="logger">Логгер для записи логов</param>
 		/// <param name="userManager"></param>
 		/// <param name="employeeRepository"></param>
+		/// <param name="externalApplicationUserRepository"></param>
+		/// <param name="userSettingsRepository"></param>
 		/// <param name="storeDocumentHelper">Помощник для работы с документами склада</param>
 		public WarehouseController(
 			ILogger<ApiControllerBase> logger,
 			UserManager<IdentityUser> userManager,
 			IGenericRepository<Employee> employeeRepository,
+			IGenericRepository<ExternalApplicationUser> externalApplicationUserRepository,
+			IGenericRepository<UserSettings> userSettingsRepository,
 			IStoreDocumentHelper storeDocumentHelper)
 			: base(logger)
 		{
@@ -46,6 +53,10 @@ namespace WarehouseApi.Controllers.V1
 				?? throw new ArgumentNullException(nameof(userManager));
 			_employeeRepository = employeeRepository
 				?? throw new ArgumentNullException(nameof(employeeRepository));
+			_externalApplicationUserRepository = externalApplicationUserRepository
+				?? throw new ArgumentNullException(nameof(externalApplicationUserRepository));
+			_userSettingsRepository = userSettingsRepository
+				?? throw new ArgumentNullException(nameof(userSettingsRepository));
 			_storeDocumentHelper = storeDocumentHelper
 				?? throw new ArgumentNullException(nameof(storeDocumentHelper));
 		}
@@ -88,23 +99,54 @@ namespace WarehouseApi.Controllers.V1
 			var accessToken = accessTokenValue?.Parameter ?? string.Empty;
 			var user = await _userManager.GetUserAsync(User);
 
-			var employee = _employeeRepository.Get(unitOfWork, x =>x.ExternalApplicationsUsers == user.UserName, 1).FirstOrDefault();
+			var apiUser = _externalApplicationUserRepository.Get(
+				unitOfWork,
+				x => x.Login == user.UserName
+					&& x.ExternalApplicationType == Vodovoz.Core.Domain.Employees.ExternalApplicationType.WarehouseApp,
+				1)
+				.FirstOrDefault();
+
+			if(apiUser == null)
+			{
+				return Problem("Сотрудник не имеет доступа к этмоу Api", statusCode: StatusCodes.Status403Forbidden);
+			}
+
+			var employee = apiUser.Employee;
+
 			if(employee == null)
 			{
-				return BadRequest("Сотрудник с указанным идентификатором не найден.");
+				return Problem("Сотрудник не найден", statusCode: StatusCodes.Status403Forbidden);
 			}
 
 			var warehouse = unitOfWork.GetById<Warehouse>(warehouseId);
+			
 			if(warehouse == null)
 			{
 				return BadRequest("Склад с указанным идентификатором не найден.");
 			}
 
-			employee.DefaultWarehouse = warehouse;
-			unitOfWork.SaveAsync(employee).Wait();
-			unitOfWork.CommitAsync().Wait();
+			var availableWarehouses = _storeDocumentHelper.GetRestrictedWarehousesIds(unitOfWork, WarehousePermissionsType.WarehouseView);
 
-			return Ok("Склад по умолчанию успешно изменен.");
+			if(!availableWarehouses.Contains(warehouseId))
+			{
+				return Problem("У вас нет прав на доступ к этому складу", statusCode: StatusCodes.Status403Forbidden);
+			}
+
+			var userSettings = _userSettingsRepository
+				.Get(unitOfWork, x => x.User.Id == employee.User.Id, 1)
+				.FirstOrDefault();
+
+			if(userSettings == null)
+			{
+				return Problem("Настройки пользователя не найдены", statusCode: StatusCodes.Status500InternalServerError);
+			}
+
+			userSettings.DefaultWarehouse = warehouse;
+
+			await unitOfWork.SaveAsync(userSettings);
+			await unitOfWork.CommitAsync();
+
+			return NoContent();
 		}
 	}
 }
