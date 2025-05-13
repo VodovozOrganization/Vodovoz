@@ -195,8 +195,7 @@ namespace Vodovoz.Tools.Orders
 
 			var notNeedToRefundDepositOrNeedToReturnBottles = !key.NeedToRefundDepositToClient || key.NeedToReturnBottles;
 
-			var cashless = key.PaymentType == PaymentType.Cashless && key.IsPriceOfAllOrderItemsZero;
-
+			var cashless = key.PaymentType == PaymentType.Cashless;
 			var paidOnline = (key.PaymentType == PaymentType.PaidOnline || key.PaymentType == PaymentType.Terminal) && key.HasOrderItems;
 			var cash = key.PaymentType == PaymentType.Cash;
 			var fastPaymentQr = (key.PaymentType == PaymentType.DriverApplicationQR || key.PaymentType == PaymentType.SmsQR) && key.HasOrderItems;
@@ -207,7 +206,7 @@ namespace Vodovoz.Tools.Orders
 			}
 			else
 			{
-				return (cashless && notNeedToRefundDepositOrNeedToReturnBottles || paidOnline || cash || fastPaymentQr) && acceptedOrAfter;
+				return ((cashless && key.IsPriceOfAllOrderItemsZero && notNeedToRefundDepositOrNeedToReturnBottles) || paidOnline || cash || fastPaymentQr) && acceptedOrAfter;
 			}
 		}
 
