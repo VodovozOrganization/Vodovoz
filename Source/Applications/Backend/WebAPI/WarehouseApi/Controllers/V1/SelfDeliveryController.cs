@@ -12,6 +12,9 @@ using WarehouseApi.Contracts.Responses.V1;
 using WarehouseApi.Library.Services;
 using WarehouseApi.Library.Extensions;
 using WarehouseApi.Contracts.Requests.V1;
+using VodovozBusiness.Employees;
+using Vodovoz.Core.Domain.Employees;
+using System.Threading;
 
 namespace WarehouseApi.Controllers.V1
 {
@@ -21,19 +24,24 @@ namespace WarehouseApi.Controllers.V1
 	[Route("api/[controller]")]
 	public class SelfDeliveryController : VersionedController
 	{
+		private readonly IExternalApplicationUserService _externalApplicationUserService;
 		private readonly ISelfDeliveryService _selfDeliveryService;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
 		/// <param name="logger"></param>
+		/// <param name="externalApplicationUserService"></param>
 		/// <param name="selfDeliveryService"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public SelfDeliveryController(
 			ILogger<SelfDeliveryController> logger,
+			IExternalApplicationUserService externalApplicationUserService,
 			ISelfDeliveryService selfDeliveryService)
 			: base(logger)
 		{
+			_externalApplicationUserService = externalApplicationUserService
+				?? throw new ArgumentNullException(nameof(externalApplicationUserService));
 			_selfDeliveryService = selfDeliveryService
 				?? throw new ArgumentNullException(nameof(selfDeliveryService));
 		}
@@ -75,14 +83,20 @@ namespace WarehouseApi.Controllers.V1
 		/// </summary>
 		/// <param name="unitOfWork"></param>
 		/// <param name="request"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		[HttpPut]
 		[ProducesResponseType(StatusCodes.Status201Created)]
 		public async Task<IActionResult> Put(
 			[FromServices] IUnitOfWork unitOfWork,
-			PutSelfDeliveryRequest request)
-			=> await _selfDeliveryService
-				.CreateDocument(request.OrderId, request.WarehouseId)
+			PutSelfDeliveryRequest request,
+			CancellationToken cancellationToken)
+			=> await _externalApplicationUserService
+				.GetExternalUserEmployee(request,
+					ExternalApplicationType.WarehouseApp,
+					cancellationToken)
+				.BindAsync(employee =>
+					_selfDeliveryService.CreateDocument(employee, request.OrderId, request.WarehouseId))
 				.BindAsync(selfDeliveryDocument =>
 					_selfDeliveryService.AddCodes(selfDeliveryDocument, request.CodesToAdd))
 				.BindAsync(selfDeliveryDocument => EndLoadIfNeeded(request.EndLoad, selfDeliveryDocument))

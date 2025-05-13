@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 
 namespace WarehouseApi.Library.Services
 {
@@ -25,7 +26,7 @@ namespace WarehouseApi.Library.Services
 		/// Создание документа самовывоза
 		/// </summary>
 		/// <returns></returns>
-		Task<Result<SelfDeliveryDocument>> CreateDocument(int orderId, int warehouseId);
+		Task<Result<SelfDeliveryDocument>> CreateDocument(Employee author, int orderId, int warehouseId);
 
 		/// <summary>
 		/// Добавление кодов маркировки честного знака самовывоза в документ самовывоза
