@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
@@ -19,6 +13,12 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -319,24 +319,47 @@ namespace Vodovoz.Representations
 			{
 				var nodes = await ItemsSourceQueryFunction(uow).ListAsync<SelfDeliveryJournalNode>(token);
 
-				sb.Append("Сумма БН: <b>").Append(nodes.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-				sb.Append("Сумма нал: <b>").Append(nodes.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-				sb.Append("Из них возврат: <b>").Append(nodes.Sum(n => n.OrderReturnSum).ToShortCurrencyString()).Append("</b>\t|\t");
-				sb.Append("Приход: <b>").Append(nodes.Sum(n => n.CashPaid).ToShortCurrencyString()).Append("</b>\t|\t");
-				sb.Append("Возврат: <b>").Append(nodes.Sum(n => n.CashReturn).ToShortCurrencyString()).Append("</b>\t|\t");
-				sb.Append("Итог: <b>").Append(nodes.Sum(n => n.CashTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Сумма БН: <b>")
+					.Append(nodes.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString())
+					.Append("</b>\t|\t");
+
+				sb.Append("Сумма нал: <b>")
+					.Append(nodes.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString())
+					.Append("</b>\t|\t");
+
+				sb.Append("Из них возврат: <b>")
+					.Append(nodes.Sum(n => n.OrderReturnSum).ToShortCurrencyString())
+					.Append("</b>\t|\t");
+
+				sb.Append("Приход: <b>")
+					.Append(nodes.Sum(n => n.CashPaid).ToShortCurrencyString())
+					.Append("</b>\t|\t");
+
+				sb.Append("Возврат: <b>")
+					.Append(nodes.Sum(n => n.CashReturn).ToShortCurrencyString())
+					.Append("</b>\t|\t");
+
+				sb.Append("Итог: <b>")
+					.Append(nodes.Sum(n => n.CashTotal).ToShortCurrencyString())
+					.Append("</b>\t|\t");
 
 				var difference = nodes.Sum(n => n.TotalCashDiff);
 				if(difference == 0)
 				{
-					sb.Append("Расх.нал: <b>").Append(difference.ToShortCurrencyString()).Append("</b>\t\t");
+					sb.Append("Расх.нал: <b>")
+						.Append(difference.ToShortCurrencyString())
+						.Append("</b>\t\t");
 				}
 				else
 				{
-					sb.Append($"Расх.нал: <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
+					sb.Append($"Расх.нал: <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\"><b>")
+						.Append(difference.ToShortCurrencyString())
+						.Append("</b></span>\t\t");
 				}
 
-				sb.Append($"<span foreground=\"{GdkColors.InsensitiveText.ToHtmlColor()}\"><b>").Append(base.FooterInfo).Append("</b></span>");
+				sb.Append($"<span foreground=\"{GdkColors.InsensitiveText.ToHtmlColor()}\"><b>")
+					.Append(base.FooterInfo)
+					.Append("</b></span>");
 			}
 			;
 
