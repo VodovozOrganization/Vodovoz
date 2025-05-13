@@ -13,6 +13,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.ViewModels.Documents;
+using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
@@ -34,7 +35,7 @@ namespace Vodovoz.ViewModels.Cash
 			IOrderPaymentSettings orderPaymentSettings,
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			Employee currentEmployee) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			IEmployeeService employeeService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(orderPaymentSettings == null)
 			{
@@ -50,8 +51,13 @@ namespace Vodovoz.ViewModels.Cash
 				throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			}
 
+			if(employeeService is null)
+			{
+				throw new ArgumentNullException(nameof(employeeService));
+			}
+
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_currentEmployee = currentEmployee;
+			_currentEmployee = employeeService.GetEmployeeForCurrentUser();
 
 			TabName = "Оплата по карте";
 
