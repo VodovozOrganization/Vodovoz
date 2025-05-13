@@ -1,16 +1,22 @@
-﻿using DocumentFormat.OpenXml.Office.CustomUI;
+﻿using FluentNHibernate.Data;
 using Microsoft.Extensions.Logging;
-using NPOI.SS.Formula.Functions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Errors.Orders;
+using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Stock;
+using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
 
 namespace WarehouseApi.Library.Services
@@ -20,15 +26,27 @@ namespace WarehouseApi.Library.Services
 		private ILogger<SelfDeliveryService> _logger;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly IGenericRepository<Warehouse> _warehouseRepository;
 		private readonly IGenericRepository<SelfDeliveryDocument> _selfDeliveryDocumentRepository;
+		private readonly IGenericRepository<GroupGtin> _groupGtinrepository;
+		private readonly IGenericRepository<Gtin> _gtinRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IStockRepository _stockRepository;
+		private readonly IBottlesRepository _bottlesRepository;
 
 		public SelfDeliveryService(
 			ILogger<SelfDeliveryService> logger,
 			IUnitOfWork unitOfWork,
 			IGenericRepository<Order> orderRepository,
+			IGenericRepository<Warehouse> warehouseRepository,
 			IGenericRepository<SelfDeliveryDocument> selfDeliveryDocumentRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService)
+			IGenericRepository<GroupGtin> groupGtinrepository,
+			IGenericRepository<Gtin> gtinRepository,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			INomenclatureRepository nomenclatureRepository,
+			IStockRepository stockRepository,
+			IBottlesRepository bottlesRepository)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -36,17 +54,31 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(unitOfWork));
 			_orderRepository = orderRepository
 				?? throw new ArgumentNullException(nameof(orderRepository));
+			_warehouseRepository = warehouseRepository
+				?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_selfDeliveryDocumentRepository = selfDeliveryDocumentRepository
 				?? throw new ArgumentNullException(nameof(selfDeliveryDocumentRepository));
+			_groupGtinrepository = groupGtinrepository
+				?? throw new ArgumentNullException(nameof(groupGtinrepository));
+			_gtinRepository = gtinRepository
+				?? throw new ArgumentNullException(nameof(gtinRepository));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService
 				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_nomenclatureRepository = nomenclatureRepository
+				?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_stockRepository = stockRepository
+				?? throw new ArgumentNullException(nameof(stockRepository));
+			_bottlesRepository = bottlesRepository
+				?? throw new ArgumentNullException(nameof(bottlesRepository));
 		}
 
-		public async Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentByOrderId(int? orderId)
+		public async Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentByOrderId(int orderId)
 		{
 			try
 			{
-				if(_selfDeliveryDocumentRepository.Get(_unitOfWork, x => x.Order.Id == orderId).FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument)
+				if(_selfDeliveryDocumentRepository
+					.Get(_unitOfWork, x => x.Order.Id == orderId)
+					.FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument)
 				{
 					return await Task.FromResult(selfDeliveryDocument);
 				}
@@ -60,18 +92,63 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		public Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentById(int? selfDeliveryDocumentId)
+		public async Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentById(int selfDeliveryDocumentId)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				if(_selfDeliveryDocumentRepository
+					.Get(_unitOfWork, x => x.Id == selfDeliveryDocumentId)
+					.FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument)
+				{
+					return await Task.FromResult(selfDeliveryDocument);
+				}
+
+				return VodovozBusiness.Errors.Warehouse.SelfDeliveryDocument.NotFound;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, $"Ошибка получения документа самовывоза по id {selfDeliveryDocumentId}");
+				return Result.Failure<SelfDeliveryDocument>(Vodovoz.Errors.Common.Repository.DataRetrievalError);
+			}
 		}
 
 		public async Task<Result<SelfDeliveryDocument>> CreateDocument(int orderId, int warehouseId)
 		{
-			return await Task.FromResult(new SelfDeliveryDocument
-			{
-				Order = new Order { Id = orderId },
+			var order = _orderRepository
+				.Get(_unitOfWork, x => x.Id == orderId, 1)
+				.FirstOrDefault();
 
-			});
+			if(order is null)
+			{
+				_logger.LogWarning($"Заказ с id {orderId} не найден.");
+				return Vodovoz.Errors.Orders.Order.NotFound;
+			}
+
+			var warehouse = _warehouseRepository
+				.Get(_unitOfWork, x => x.Id == warehouseId, 1)
+				.FirstOrDefault();
+
+			if(warehouse is null)
+			{
+				_logger.LogWarning($"Склад с id {warehouseId} не найден.");
+				return Vodovoz.Errors.Warehouse.Warehouse.NotFound;
+			}
+
+			var selfDeliveryDocument = new SelfDeliveryDocument
+			{
+				Order = order,
+				Warehouse = warehouse,
+			};
+
+			selfDeliveryDocument.InitializeDefaultValues(_unitOfWork, _nomenclatureRepository);
+
+			selfDeliveryDocument.FillByOrder();
+			selfDeliveryDocument.UpdateStockAmount(_unitOfWork, _stockRepository);
+			selfDeliveryDocument.UpdateAlreadyUnloaded(_unitOfWork, _nomenclatureRepository, _bottlesRepository);
+
+			UpdateAmounts(selfDeliveryDocument);
+
+			return await Task.FromResult(selfDeliveryDocument);
 		}
 
 		public Task<Result<SelfDeliveryDocument>> AddCodes(SelfDeliveryDocument selfDeliveryDocument, IEnumerable<string> codesToAdd)
@@ -137,5 +214,34 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
+		private async Task AddCodeToSelfDeliveryDocumentItemAsync(
+			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			CancellationToken cancellationToken)
+		{
+			await _unitOfWork.SaveAsync(trueMarkWaterIdentificationCode, cancellationToken: cancellationToken);
+
+			var productCode = new SelfDeliveryDocumentItemTrueMarkProductCode
+			{
+				CreationTime = DateTime.Now,
+				SourceCode = trueMarkWaterIdentificationCode,
+				ResultCode = trueMarkWaterIdentificationCode,
+				Problem = ProductCodeProblem.None,
+				SourceCodeStatus = SourceProductCodeStatus.Accepted,
+				SelfDeliveryDocumentItem = selfDeliveryDocumentItem
+			};
+
+			selfDeliveryDocumentItem.TrueMarkProductCodes.Add(productCode);
+		}
+
+		private void UpdateAmounts(SelfDeliveryDocument selfDeliveryDocument)
+		{
+			foreach(var item in selfDeliveryDocument.Items)
+			{
+				item.Amount = Math.Min(
+					selfDeliveryDocument.GetNomenclaturesCountInOrder(item.Nomenclature) - item.AmountUnloaded,
+					item.AmountInStock);
+			}
+		}
 	}
 }
