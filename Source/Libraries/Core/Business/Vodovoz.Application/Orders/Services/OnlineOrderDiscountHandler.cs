@@ -85,50 +85,31 @@ namespace Vodovoz.Application.Orders.Services
 			IUnitOfWork uow, DiscountReason discountPromoCode, IEnumerable<IOnlineOrderedProduct> products)
 		{
 			var promoCodeApplied = false;
-			var hasProductWithBigDiscount = false;
 			
 			foreach(var product in products)
 			{
+				product.ClearDiscount();
 				var nomenclature = uow.GetById<Nomenclature>(product.NomenclatureId);
-				promoCodeApplied |= TryApplyPromoCode(discountPromoCode, nomenclature, product, out var productHasBigDiscount);
-				hasProductWithBigDiscount |= productHasBigDiscount;
+				promoCodeApplied |= TryApplyPromoCode(discountPromoCode, nomenclature, product);
 			}
 
-			switch(promoCodeApplied)
-			{
-				case true:
-					return Result.Success(products);
-				case false when hasProductWithBigDiscount:
-					return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
-						Vodovoz.Errors.Orders.Discount.PromoCode.ItemsInCartHasBigDiscount);
-				default:
-					return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
-						Vodovoz.Errors.Orders.Discount.PromoCode.UnsuitableItemsInCart);
-			}
+			return promoCodeApplied
+				? Result.Success(products)
+				: Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.Discount.PromoCode.UnsuitableItemsInCart);
 		}
 
 		private bool TryApplyPromoCode(
 			DiscountReason discountPromoCode,
 			Nomenclature nomenclature,
-			IOnlineOrderedProduct product,
-			out bool productHasBigDiscount)
+			IOnlineOrderedProduct product)
 		{
-			productHasBigDiscount = false;
-			
 			if(!CanApplicableDiscount(discountPromoCode, nomenclature, product))
 			{
 				return false;
 			}
 
-			productHasBigDiscount = ProductHasBigDiscount(discountPromoCode, product);
-			
-			if(productHasBigDiscount)
-			{
-				return false;
-			}
-
 			ApplyPromoCode(discountPromoCode, product);
-			
+
 			return true;
 		}
 
@@ -163,44 +144,6 @@ namespace Vodovoz.Application.Orders.Services
 			}
 			
 			return product.Count * product.Price != 0;
-		}
-
-		private bool ProductHasBigDiscount(DiscountReason discountPromoCode, IOnlineOrderedProduct product)
-		{
-			if(product.Discount > 0)
-			{
-				if(discountPromoCode.ValueType == DiscountUnits.money)
-				{
-					if(product.MoneyDiscount > discountPromoCode.Value)
-					{
-						return true;
-					}
-				}
-				else
-				{
-					if(product.PercentDiscount > discountPromoCode.Value)
-					{
-						return true;
-					}
-				}
-						
-				if(discountPromoCode.ValueType == DiscountUnits.percent)
-				{
-					if(product.PercentDiscount > discountPromoCode.Value)
-					{
-						return true;
-					}
-				}
-				else
-				{
-					if(product.MoneyDiscount > discountPromoCode.Value)
-					{
-						return true;
-					}
-				}
-			}
-			
-			return false;
 		}
 
 		private void ApplyPromoCode(DiscountReason discountPromoCode, IOnlineOrderedProduct product)

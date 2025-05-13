@@ -84,10 +84,14 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				var nomenclature = uow.GetById<Nomenclature>(onlineOrderItemDto.NomenclatureId);
 
 				DiscountReason applicableDiscountReason = null;
-				
-				if(onlineOrder.IsSelfDelivery
-				   && !onlineOrderItemDto.PromoSetId.HasValue
-				   && nomenclature != null)
+
+				if(onlineOrderItemDto.DiscountReasonId.HasValue)
+				{
+					applicableDiscountReason = uow.GetById<DiscountReason>(onlineOrderItemDto.DiscountReasonId.Value);
+				}
+				else if(onlineOrder.IsSelfDelivery
+					&& !onlineOrderItemDto.PromoSetId.HasValue
+					&& nomenclature != null)
 				{
 					var discountReason = uow.GetById<DiscountReason>(selfDeliveryDiscountReasonId);
 
