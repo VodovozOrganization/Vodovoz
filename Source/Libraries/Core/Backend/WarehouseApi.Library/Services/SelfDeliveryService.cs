@@ -1,18 +1,17 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DocumentFormat.OpenXml.Office.CustomUI;
+using Microsoft.Extensions.Logging;
+using NPOI.SS.Formula.Functions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Errors.Orders;
 using VodovozBusiness.Services.TrueMark;
-using WarehouseApi.Contracts.Dto.V1;
-using WarehouseApi.Contracts.Responses.V1;
-using WarehouseApi.Library.Extensions;
 
 namespace WarehouseApi.Library.Services
 {
@@ -43,100 +42,79 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
 
-		public async Task<Result<GetSelfDeliveryResponse>> GetSelfDeliveryDocument(int id, CancellationToken cancellationToken)
+		public async Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentByOrderId(int? orderId)
 		{
-			var documents = await _selfDeliveryDocumentRepository
-				.GetAsync(_unitOfWork, x => x.Id == id, 1, cancellationToken);
-
-			if(!documents.Any())
+			try
 			{
-				return Vodovoz.Errors.Documents.SelfDeliveryDocument.NotFound;
-			}
-
-			return documents.FirstOrDefault()?.ToDtoApiV1();
-		}
-
-		/// <inheritdoc/>
-		public Result<OrderDto> GetSelfDeliveryOrder(int orderId)
-		{
-			var order = _orderRepository
-				.Get(
-					_unitOfWork,
-					x => x.Id == orderId,
-					1)
-				.FirstOrDefault();
-
-			var validationResult = ValidateSelfDeliveryOrderToProcess(order);
-
-			if(validationResult.IsFailure)
-			{
-				return Result.Failure<OrderDto>(validationResult.Errors);
-			}
-
-			var nomenclatures = order.OrderItems
-				.Select(x => x.Nomenclature)
-				.ToArray();
-
-			var dto = order.ToApiDtoV1(nomenclatures);
-
-			dto.DocType = DocumentSourceType.Invoice;
-
-			return dto;
-		}
-
-		/// <inheritdoc/>
-		public async Task<Result> AddTrueMarkCode(
-			int orderId,
-			string scannedCode,
-			CancellationToken cancellationToken)
-		{
-			var order = _orderRepository
-				.Get(
-					_unitOfWork,
-					x => x.Id == orderId,
-					1)
-				.FirstOrDefault();
-
-			var validationResult = ValidateSelfDeliveryOrderToProcess(order);
-
-			if(validationResult.IsFailure)
-			{
-				return validationResult;
-			}
-
-			if(!(_selfDeliveryDocumentRepository
-				.Get(_unitOfWork, x => x.Order.Id == orderId, 1)
-				.FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument))
-			{
-				selfDeliveryDocument = new SelfDeliveryDocument
+				if(_selfDeliveryDocumentRepository.Get(_unitOfWork, x => x.Order.Id == orderId).FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument)
 				{
-					Order = order,
-				};
-			}
-
-			var code = await _trueMarkWaterCodeService
-				.GetTrueMarkCodeByScannedCode(_unitOfWork, scannedCode, cancellationToken);
-
-			_unitOfWork.Save(selfDeliveryDocument);
-
-			var waterItems = selfDeliveryDocument.Order.OrderItems
-				.Where(x => x.Nomenclature.IsAccountableInTrueMark)
-				.ToArray();
-
-			foreach(var item in waterItems)
-			{
-				var addResult = selfDeliveryDocument.AddItem(item);
-
-				if(addResult.IsFailure)
-				{
-					return Result.Failure(addResult.Errors);
+					return await Task.FromResult(selfDeliveryDocument);
 				}
-			}
 
-			return Result.Success();
+				return VodovozBusiness.Errors.Warehouse.SelfDeliveryDocument.NotFound;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, $"Ошибка получения документа самовывоза по id заказа {orderId}");
+				return Result.Failure<SelfDeliveryDocument>(Vodovoz.Errors.Common.Repository.DataRetrievalError);
+			}
 		}
 
-		public Result ValidateSelfDeliveryOrderToProcess(Order order)
+		public Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentById(int? selfDeliveryDocumentId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public async Task<Result<SelfDeliveryDocument>> CreateDocument(int orderId, int warehouseId)
+		{
+			return await Task.FromResult(new SelfDeliveryDocument
+			{
+				Order = new Order { Id = orderId },
+
+			});
+		}
+
+		public Task<Result<SelfDeliveryDocument>> AddCodes(SelfDeliveryDocument selfDeliveryDocument, IEnumerable<string> codesToAdd)
+		{
+			_trueMarkWaterCodeService.GetTrueMarkAnyCodesByScannedCodes(_unitOfWork, codesToAdd)
+				.BindAsync(trueMarkAnyCodes =>
+				{
+					var identificationCodes = trueMarkAnyCodes
+						.Where(x => x.IsTrueMarkWaterIdentificationCode)
+						.Select(x => x.TrueMarkWaterIdentificationCode)
+						.ToArray();
+
+					var nomenclatureGroupedItems = selfDeliveryDocument.Items
+						.Where(x => x.Nomenclature.IsAccountableInTrueMark)
+						.GroupBy(x => x.Nomenclature);
+
+					foreach(var code in identificationCodes)
+					{
+						nomenclatureGroupedItems
+							.FirstOrDefault(x => x.Key.Gtins.Any(gtin => gtin.GtinNumber == code.GTIN))
+							.Where(sddi => sddi.TrueMarkProductCodes);
+					}
+
+					return Task.FromResult(selfDeliveryDocument);
+				});
+		}
+
+		public Task<Result<SelfDeliveryDocument>> ChangeCodes(SelfDeliveryDocument selfDeliveryDocument, IDictionary<string, string> codesToChange)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<Result<SelfDeliveryDocument>> RemoveCodes(SelfDeliveryDocument selfDeliveryDocument, IEnumerable<string> codesToDelete)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<Result<SelfDeliveryDocument>> EndLoad(SelfDeliveryDocument selfDeliveryDocument)
+		{
+			throw new NotImplementedException();
+		}
+
+		private Result ValidateSelfDeliveryOrderToProcess(Order order)
 		{
 			if(order is null)
 			{
@@ -159,34 +137,5 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
-		public Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentByOrderId(int? orderId)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<Result<bool>> CreateDocument()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<Result<bool>> AddCodes(IEnumerable<string> codesToAdd)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<Result<bool>> ChangeCodes(IEnumerable<string> codesToChange)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<Result<bool>> RemoveCodes(IEnumerable<string> codesToDelete)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void EndLoad()
-		{
-			throw new NotImplementedException();
-		}
 	}
 }
