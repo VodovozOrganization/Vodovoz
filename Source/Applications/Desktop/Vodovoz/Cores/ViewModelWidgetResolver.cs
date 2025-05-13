@@ -172,6 +172,12 @@ namespace Vodovoz.Core
 			}
 
 			Type footerType = footer.GetType();
+
+			if(footerType.IsGenericType && !footerType.IsGenericTypeDefinition)
+			{
+				footerType = footerType.GetGenericTypeDefinition();
+			}
+
 			if(!_viewModelWidgets.ContainsKey(footerType))
 			{
 				var result = _classNamesBaseGtkViewResolver.Resolve(footer);
