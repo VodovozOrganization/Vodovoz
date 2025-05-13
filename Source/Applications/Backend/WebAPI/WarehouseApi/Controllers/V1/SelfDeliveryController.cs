@@ -143,11 +143,11 @@ namespace WarehouseApi.Controllers.V1
 
 			if(selfDeliveryDocumentId != null)
 			{
-				return await _selfDeliveryService.GetSelfDeliveryDocumentById(selfDeliveryDocumentId);
+				return await _selfDeliveryService.GetSelfDeliveryDocumentById(selfDeliveryDocumentId.Value);
 			}
 			else
 			{
-				return await _selfDeliveryService.GetSelfDeliveryDocumentByOrderId(orderId);
+				return await _selfDeliveryService.GetSelfDeliveryDocumentByOrderId(orderId.Value);
 			}
 		}
 
