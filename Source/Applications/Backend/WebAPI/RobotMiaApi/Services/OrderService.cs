@@ -12,7 +12,6 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Specifications;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Errors;
 using Vodovoz.Models;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Roboats;
@@ -78,11 +77,10 @@ namespace RobotMiaApi.Services
 				?? throw new ArgumentNullException(nameof(fastPaymentSender));
 		}
 
-
 		/// <inheritdoc/>
 		public LastOrderResponse GetLastOrderByCounterpartyId(int counterpartyId)
 		{
-			return _orderRepository
+			var order = _orderRepository
 				.Get(
 					_unitOfWork,
 					OrderSpecification
@@ -92,14 +90,28 @@ namespace RobotMiaApi.Services
 							DateTime.Today.AddMonths(-_roboatsSettings.OrdersInMonths),
 							_nomenclatureSettings.PaidDeliveryNomenclatureId,
 							_nomenclatureSettings.FastDeliveryNomenclatureId)))
-				.FirstOrDefault()?
-				.MapToLastOrderResponseV1();
+				.FirstOrDefault();
+
+			if(order is null)
+			{
+				return null;
+			}
+
+			var deliveryItem = order.OrderItems
+				.FirstOrDefault(x => x.Nomenclature.Id == _nomenclatureSettings.PaidDeliveryNomenclatureId);
+
+			if(deliveryItem != null)
+			{
+				order.OrderItems.Remove(deliveryItem);
+			}
+
+			return order.MapToLastOrderResponseV1();
 		}
 
 		/// <inheritdoc/>
 		public LastOrderResponse GetLastOrderByDeliveryPointId(int deliveryPointId)
 		{
-			return _orderRepository
+			var order = _orderRepository
 				.Get(
 					_unitOfWork,
 					OrderSpecification
@@ -109,8 +121,22 @@ namespace RobotMiaApi.Services
 							DateTime.Today.AddMonths(-_roboatsSettings.OrdersInMonths),
 							_nomenclatureSettings.PaidDeliveryNomenclatureId,
 							_nomenclatureSettings.FastDeliveryNomenclatureId)))
-				.FirstOrDefault()?
-				.MapToLastOrderResponseV1();
+				.FirstOrDefault();
+
+			if(order is null)
+			{
+				return null;
+			}
+
+			var deliveryItem = order.OrderItems
+				.FirstOrDefault(x => x.Nomenclature.Id == _nomenclatureSettings.PaidDeliveryNomenclatureId);
+
+			if(deliveryItem != null)
+			{
+				order.OrderItems.Remove(deliveryItem);
+			}
+
+			return order.MapToLastOrderResponseV1();
 		}
 
 		/// <inheritdoc/>
