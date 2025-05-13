@@ -17,7 +17,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
 using Vodovoz.Core.Domain.Goods;
@@ -58,10 +57,10 @@ namespace Vodovoz.Representations
 		private CancellationTokenSource _cancellationTokenSource;
 
 		public SelfDeliveriesJournalViewModel(
-			OrderJournalFilterViewModel filterViewModel, 
+			OrderJournalFilterViewModel filterViewModel,
 			ILogger<SelfDeliveriesJournalViewModel> logger,
-			IUnitOfWorkFactory unitOfWorkFactory, 
-			ICommonServices commonServices, 
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
 			ICallTaskWorker callTaskWorker,
 			IOrderPaymentSettings orderPaymentSettings,
 			IOrderSettings orderSettings,
@@ -70,7 +69,7 @@ namespace Vodovoz.Representations
 			ICashRepository cashRepository,
 			INavigationManager navigationManager,
 			IGuiDispatcher guiDispatcher,
-			Action<OrderJournalFilterViewModel> filterConfig = null) 
+			Action<OrderJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -97,17 +96,18 @@ namespace Vodovoz.Representations
 			}
 
 			SetOrder(x => x.Date, true);
-			
+
 			UpdateOnChanges(
 				typeof(VodovozOrder),
 				typeof(OrderItem));
 
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 
-			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
+			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Store.Documents.CanLoadSelfDeliveryDocument);
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) =>
+		{
 			SelfDeliveryJournalNode resultAlias = null;
 			VodovozOrder orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -166,23 +166,37 @@ namespace Vodovoz.Representations
 				.Select(Projections.Sum(() => expenseAlias.Money));
 
 			if(FilterViewModel.RestrictStatus != null)
+			{
 				query.Where(o => o.OrderStatus == FilterViewModel.RestrictStatus);
+			}
 			else if(FilterViewModel.AllowStatuses != null && FilterViewModel.AllowStatuses.Any())
+			{
 				query.WhereRestrictionOn(o => o.OrderStatus).IsIn(FilterViewModel.AllowStatuses);
+			}
 
 			if(FilterViewModel.RestrictPaymentType != null)
+			{
 				query.Where(o => o.PaymentType == FilterViewModel.RestrictPaymentType);
+			}
 			else if(FilterViewModel.AllowPaymentTypes != null && FilterViewModel.AllowPaymentTypes.Any())
+			{
 				query.WhereRestrictionOn(o => o.PaymentType).IsIn(FilterViewModel.AllowPaymentTypes);
+			}
 
 			if(FilterViewModel.RestrictCounterparty != null)
+			{
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
+			}
 
 			if(FilterViewModel.DeliveryPoint != null)
+			{
 				query.Where(o => o.DeliveryPoint == FilterViewModel.DeliveryPoint);
+			}
 
 			if(FilterViewModel.StartDate != null)
+			{
 				query.Where(o => o.DeliveryDate >= FilterViewModel.StartDate);
+			}
 
 			var endDate = FilterViewModel.EndDate;
 			if(endDate != null)
@@ -190,16 +204,19 @@ namespace Vodovoz.Representations
 				query.Where(o => o.DeliveryDate <= endDate.Value.LatestDayTime());
 			}
 
-			if(FilterViewModel.PaymentOrder != null) {
+			if(FilterViewModel.PaymentOrder != null)
+			{
 				bool paymentAfterShipment = false || FilterViewModel.PaymentOrder == PaymentOrder.AfterShipment;
 				query.Where(o => o.PayAfterShipment == paymentAfterShipment);
 			}
-			
-			if (FilterViewModel.Organisation != null) {
+
+			if(FilterViewModel.Organisation != null)
+			{
 				query.Where(() => contractAlias.Organization.Id == FilterViewModel.Organisation.Id);
 			}
-			
-			if (FilterViewModel.PaymentByCardFrom != null) {
+
+			if(FilterViewModel.PaymentByCardFrom != null)
+			{
 				query.Where(o => o.PaymentByCardFrom.Id == FilterViewModel.PaymentByCardFrom.Id);
 			}
 
@@ -239,8 +256,8 @@ namespace Vodovoz.Representations
 			return result;
 		};
 
-		public override IEnumerable<IJournalAction> NodeActions => new List<IJournalAction>();	
-		
+		public override IEnumerable<IJournalAction> NodeActions => new List<IJournalAction>();
+
 		//Действие при дабл клике
 		protected override Func<OrderDlg> CreateDialogFunction => () => throw new ApplicationException();
 
@@ -275,7 +292,7 @@ namespace Vodovoz.Representations
 
 				FooterInfo = await GetFooterInfo(_cancellationTokenSource.Token);
 			}
-			catch(OperationCanceledException ex)
+			catch(OperationCanceledException)
 			{
 				return;
 			}
@@ -298,7 +315,7 @@ namespace Vodovoz.Representations
 		{
 			StringBuilder sb = new StringBuilder();
 
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var nodes = await ItemsSourceQueryFunction(uow).ListAsync<SelfDeliveryJournalNode>(token);
 
@@ -308,7 +325,7 @@ namespace Vodovoz.Representations
 				sb.Append("Приход: <b>").Append(nodes.Sum(n => n.CashPaid).ToShortCurrencyString()).Append("</b>\t|\t");
 				sb.Append("Возврат: <b>").Append(nodes.Sum(n => n.CashReturn).ToShortCurrencyString()).Append("</b>\t|\t");
 				sb.Append("Итог: <b>").Append(nodes.Sum(n => n.CashTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-				
+
 				var difference = nodes.Sum(n => n.TotalCashDiff);
 				if(difference == 0)
 				{
@@ -320,24 +337,25 @@ namespace Vodovoz.Representations
 				}
 
 				sb.Append($"<span foreground=\"{GdkColors.InsensitiveText.ToHtmlColor()}\"><b>").Append(base.FooterInfo).Append("</b></span>");
-			};
+			}
+			;
 
 			return sb.ToString();
 		}
-
-		public INavigationManager NavigationManager { get; }
 
 		protected override void CreatePopupActions()
 		{
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть заказ",
-					selectedItems => {
+					selectedItems =>
+					{
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
 						return selectedNodes.Count() == 1;
 					},
 					selectedItems => true,
-					selectedItems => {
+					selectedItems =>
+					{
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						Startup.MainWin.TdiMain.OpenTab(
@@ -347,35 +365,44 @@ namespace Vodovoz.Representations
 					}
 				)
 			);
+
 			PopupActionsList.Add(
 				new JournalAction(
 					"Создать кассовые ордера",
 					selectedItems => true,
-					selectedItems => {
+					selectedItems =>
+					{
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
 						return selectedNodes.Count() == 1 && selectedNodes.First().StatusEnum == OrderStatus.WaitForPayment;
 					},
-					selectedItems => {
+					selectedItems =>
+					{
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null)
+						{
 							CreateSelfDeliveryCashInvoices(selectedNode.Id);
+						}
 					}
 				)
 			);
+
 			PopupActionsList.Add(
 				new JournalAction(
 					"Оплата по карте",
-					selectedItems => {
+					selectedItems =>
+					{
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.Cash || (selectedNode.PaymentTypeEnum == PaymentType.Terminal && selectedNode.OrderCashSumTotal != 0)) && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => _userCanChangePayTypeToByCard,
-					selectedItems => {
+					selectedItems =>
+					{
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
-						var selectedNode  = selectedNodes.FirstOrDefault();
-						if (selectedNode != null)
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null)
+						{
 							TabParent.AddTab(
 								new PaymentByCardViewModel(
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
@@ -386,26 +413,31 @@ namespace Vodovoz.Representations
 									_orderPaymentSettings,
 									_orderSettings,
 									_deliveryRulesSettings,
-									_currentEmployee), 
+									_currentEmployee),
 								this
 							);
+						}
 					}
-					
+
 				)
 			);
+
 			PopupActionsList.Add(
 				new JournalAction(
 					"Онлайн оплата",
-					selectedItems => {
+					selectedItems =>
+					{
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.Cash || (selectedNode.PaymentTypeEnum == PaymentType.Terminal && selectedNode.OrderCashSumTotal != 0)) && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => _userCanChangePayTypeToByCard,
-					selectedItems => {
+					selectedItems =>
+					{
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null)
+						{
 							TabParent.AddTab(
 								new PaymentOnlineViewModel(
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
@@ -419,30 +451,33 @@ namespace Vodovoz.Representations
 									_currentEmployee),
 								this
 							);
+						}
 					}
 
 				)
 			);
-
 		}
-		
+
 
 		//FIXME отделить от GTK
 		void CreateSelfDeliveryCashInvoices(int orderId)
 		{
 			var order = UoW.GetById<VodovozOrder>(orderId);
 
-			if(order.SelfDeliveryIsFullyPaid(_cashRepository)) {
+			if(order.SelfDeliveryIsFullyPaid(_cashRepository))
+			{
 				MessageDialogHelper.RunInfoDialog("Заказ уже оплачен полностью");
 				return;
 			}
 
-			if(order.OrderPositiveSum > 0 && !order.SelfDeliveryIsFullyIncomePaid()) {
+			if(order.OrderPositiveSum > 0 && !order.SelfDeliveryIsFullyIncomePaid())
+			{
 				var page = NavigationManager.OpenViewModel<IncomeSelfDeliveryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 				page.ViewModel.SetOrderById(orderId);
 			}
 
-			if(order.OrderNegativeSum > 0 && !order.SelfDeliveryIsFullyExpenseReturned()) {
+			if(order.OrderNegativeSum > 0 && !order.SelfDeliveryIsFullyExpenseReturned())
+			{
 				var page = NavigationManager.OpenViewModel<ExpenseSelfDeliveryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 				page.ViewModel.SetOrderById(orderId);
 			}
