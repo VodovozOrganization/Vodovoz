@@ -83,7 +83,7 @@ namespace WarehouseApi.Library.Services
 					return await Task.FromResult(selfDeliveryDocument);
 				}
 
-				return VodovozBusiness.Errors.Warehouse.SelfDeliveryDocument.NotFound;
+				return VodovozBusiness.Errors.Warehouses.Documents.SelfDeliveryDocument.NotFound;
 			}
 			catch(Exception ex)
 			{
@@ -103,7 +103,7 @@ namespace WarehouseApi.Library.Services
 					return await Task.FromResult(selfDeliveryDocument);
 				}
 
-				return VodovozBusiness.Errors.Warehouse.SelfDeliveryDocument.NotFound;
+				return VodovozBusiness.Errors.Warehouses.Documents.SelfDeliveryDocument.NotFound;
 			}
 			catch(Exception ex)
 			{
@@ -131,7 +131,7 @@ namespace WarehouseApi.Library.Services
 			if(warehouse is null)
 			{
 				_logger.LogWarning($"Склад с id {warehouseId} не найден.");
-				return Vodovoz.Errors.Warehouse.Warehouse.NotFound;
+				return VodovozBusiness.Errors.Warehouses.Warehouse.NotFound;
 			}
 
 			var selfDeliveryDocument = new SelfDeliveryDocument
