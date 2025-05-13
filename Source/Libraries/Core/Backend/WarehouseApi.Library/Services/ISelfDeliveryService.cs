@@ -12,14 +12,14 @@ namespace WarehouseApi.Library.Services
 		/// </summary>
 		/// <param name="selfDeliveryDocumentId"></param>
 		/// <returns></returns>
-		Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentById(int? selfDeliveryDocumentId);
+		Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentById(int selfDeliveryDocumentId);
 
 		/// <summary>
 		/// Получение информацию о документе отпуска самовывоза по идентификатору заказа самовывоза
 		/// </summary>
 		/// <param name="orderId"></param>
 		/// <returns></returns>
-		Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentByOrderId(int? orderId);
+		Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentByOrderId(int orderId);
 
 		/// <summary>
 		/// Создание документа самовывоза
