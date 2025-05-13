@@ -24,6 +24,10 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
 using VodovozBusiness.Services.TrueMark;
+using VodovozBusiness.Employees;
+using Vodovoz.Application.Employees;
+using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Application.Warehouses;
 
 namespace Vodovoz.Application
 {
@@ -34,6 +38,7 @@ namespace Vodovoz.Application
 			.AddSecurityServices()
 			.AddApplicationServices()
 			.ConfigureFileOptions()
+			.AddApplicationWarehouseServices()
 			.AddRevenueServiceClient();
 
 		public static IServiceCollection AddSecurityServices(this IServiceCollection services) => services
@@ -53,10 +58,14 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+			.AddScoped<IExternalApplicationUserService, ExternalApplicationUserService>()
 			.AddTrueMarkApiClient()
 			.AddOrderServicesDependencies()
 		;
-		
+
+		public static IServiceCollection AddApplicationWarehouseServices(this IServiceCollection services) => services
+			.AddScoped<IWarehousePermissionService, WarehousePermissionService>();
+
 		public static IServiceCollection AddApplicationOrderServices(this IServiceCollection services) => services
 			.AddScoped<IOrderService, OrderService>()
 			.AddOrderServicesDependencies()

@@ -9,12 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Users.Settings;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.Presentation.WebApi.Common;
-using Vodovoz.Tools.Store;
 using WarehouseApi.Contracts.Dto.V1;
 
 namespace WarehouseApi.Controllers.V1
@@ -26,39 +26,34 @@ namespace WarehouseApi.Controllers.V1
 	public partial class WarehouseController : VersionedController
 	{
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly IGenericRepository<Employee> _employeeRepository;
-		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;
 		private readonly IGenericRepository<UserSettings> _userSettingsRepository;
-		private readonly IStoreDocumentHelper _storeDocumentHelper;
+		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;
+		private readonly IWarehousePermissionService _warehousePermissionService;
 
 		/// <summary>
 		/// Конструктор контроллера
 		/// </summary>
 		/// <param name="logger">Логгер для записи логов</param>
 		/// <param name="userManager"></param>
-		/// <param name="employeeRepository"></param>
-		/// <param name="externalApplicationUserRepository"></param>
 		/// <param name="userSettingsRepository"></param>
-		/// <param name="storeDocumentHelper">Помощник для работы с документами склада</param>
+		/// <param name="externalApplicationUserRepository"></param>
+		/// <param name="warehousePermissionService"></param>
 		public WarehouseController(
 			ILogger<ApiControllerBase> logger,
 			UserManager<IdentityUser> userManager,
-			IGenericRepository<Employee> employeeRepository,
-			IGenericRepository<ExternalApplicationUser> externalApplicationUserRepository,
 			IGenericRepository<UserSettings> userSettingsRepository,
-			IStoreDocumentHelper storeDocumentHelper)
+			IGenericRepository<ExternalApplicationUser> externalApplicationUserRepository,
+			IWarehousePermissionService warehousePermissionService)
 			: base(logger)
 		{
 			_userManager = userManager
 				?? throw new ArgumentNullException(nameof(userManager));
-			_employeeRepository = employeeRepository
-				?? throw new ArgumentNullException(nameof(employeeRepository));
-			_externalApplicationUserRepository = externalApplicationUserRepository
-				?? throw new ArgumentNullException(nameof(externalApplicationUserRepository));
 			_userSettingsRepository = userSettingsRepository
 				?? throw new ArgumentNullException(nameof(userSettingsRepository));
-			_storeDocumentHelper = storeDocumentHelper
-				?? throw new ArgumentNullException(nameof(storeDocumentHelper));
+			_externalApplicationUserRepository = externalApplicationUserRepository
+				?? throw new ArgumentNullException(nameof(externalApplicationUserRepository));
+			_warehousePermissionService = warehousePermissionService
+				?? throw new ArgumentNullException(nameof(warehousePermissionService));
 		}
 
 		/// <summary>
@@ -68,9 +63,32 @@ namespace WarehouseApi.Controllers.V1
 		/// <returns>Список складов, доступных для просмотра</returns>
 		[HttpGet]
 		[ProducesResponseType(typeof(IEnumerable<WarehouseDto>), StatusCodes.Status200OK)]
-		public IActionResult Get([FromServices] IUnitOfWork unitOfWork)
+		public async Task<IActionResult> GetAsync([FromServices] IUnitOfWork unitOfWork)
 		{
-			var accessibleWarehouses = _storeDocumentHelper.GetRestrictedWarehousesList(unitOfWork, WarehousePermissionsType.WarehouseView);
+			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
+			var accessToken = accessTokenValue?.Parameter ?? string.Empty;
+			var user = await _userManager.GetUserAsync(User);
+
+			var apiUser = _externalApplicationUserRepository
+				.GetFirstOrDefault(
+					unitOfWork,
+					x => x.Login == user.UserName
+						&& x.ExternalApplicationType == ExternalApplicationType.WarehouseApp);
+
+			if(apiUser == null)
+			{
+				return Problem("Сотрудник не имеет доступа к этмоу Api", statusCode: StatusCodes.Status403Forbidden);
+			}
+
+			var employee = apiUser.Employee;
+
+			if(employee == null)
+			{
+				return Problem("Сотрудник не найден", statusCode: StatusCodes.Status403Forbidden);
+			}
+
+			var accessibleWarehouses = _warehousePermissionService
+				.GetAvailableWarehousesForUser(unitOfWork, employee.User.Id);
 
 			var result = accessibleWarehouses
 				.Select(warehouse => new WarehouseDto
@@ -99,12 +117,11 @@ namespace WarehouseApi.Controllers.V1
 			var accessToken = accessTokenValue?.Parameter ?? string.Empty;
 			var user = await _userManager.GetUserAsync(User);
 
-			var apiUser = _externalApplicationUserRepository.Get(
-				unitOfWork,
-				x => x.Login == user.UserName
-					&& x.ExternalApplicationType == Vodovoz.Core.Domain.Employees.ExternalApplicationType.WarehouseApp,
-				1)
-				.FirstOrDefault();
+			var apiUser = _externalApplicationUserRepository
+				.GetFirstOrDefault(
+					unitOfWork,
+					x => x.Login == user.UserName
+						&& x.ExternalApplicationType == ExternalApplicationType.WarehouseApp);
 
 			if(apiUser == null)
 			{
@@ -118,30 +135,23 @@ namespace WarehouseApi.Controllers.V1
 				return Problem("Сотрудник не найден", statusCode: StatusCodes.Status403Forbidden);
 			}
 
-			var warehouse = unitOfWork.GetById<Warehouse>(warehouseId);
-			
-			if(warehouse == null)
-			{
-				return BadRequest("Склад с указанным идентификатором не найден.");
-			}
+			var accessibleWarehouses = _warehousePermissionService
+				.GetAvailableWarehousesForUser(unitOfWork, employee.User.Id);
 
-			var availableWarehouses = _storeDocumentHelper.GetRestrictedWarehousesIds(unitOfWork, WarehousePermissionsType.WarehouseView);
-
-			if(!availableWarehouses.Contains(warehouseId))
+			if(!accessibleWarehouses.Any(x => x.Id == warehouseId))
 			{
 				return Problem("У вас нет прав на доступ к этому складу", statusCode: StatusCodes.Status403Forbidden);
 			}
 
 			var userSettings = _userSettingsRepository
-				.Get(unitOfWork, x => x.User.Id == employee.User.Id, 1)
-				.FirstOrDefault();
+				.GetFirstOrDefault(unitOfWork, x => x.User.Id == employee.User.Id);
 
 			if(userSettings == null)
 			{
 				return Problem("Настройки пользователя не найдены", statusCode: StatusCodes.Status500InternalServerError);
 			}
 
-			userSettings.DefaultWarehouse = warehouse;
+			userSettings.DefaultWarehouse = new Warehouse { Id = warehouseId };
 
 			await unitOfWork.SaveAsync(userSettings);
 			await unitOfWork.CommitAsync();

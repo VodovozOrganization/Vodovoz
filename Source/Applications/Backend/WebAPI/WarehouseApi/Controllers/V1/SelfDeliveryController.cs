@@ -12,6 +12,11 @@ using WarehouseApi.Contracts.Responses.V1;
 using WarehouseApi.Library.Services;
 using WarehouseApi.Library.Extensions;
 using WarehouseApi.Contracts.Requests.V1;
+using VodovozBusiness.Employees;
+using Vodovoz.Core.Domain.Employees;
+using System.Threading;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace WarehouseApi.Controllers.V1
 {
@@ -21,19 +26,29 @@ namespace WarehouseApi.Controllers.V1
 	[Route("api/[controller]")]
 	public class SelfDeliveryController : VersionedController
 	{
+		private readonly UserManager<IdentityUser> _userManager;
+		private readonly IExternalApplicationUserService _externalApplicationUserService;
 		private readonly ISelfDeliveryService _selfDeliveryService;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
 		/// <param name="logger"></param>
+		/// <param name="userManager"></param>
+		/// <param name="externalApplicationUserService"></param>
 		/// <param name="selfDeliveryService"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public SelfDeliveryController(
 			ILogger<SelfDeliveryController> logger,
+			UserManager<IdentityUser> userManager,
+			IExternalApplicationUserService externalApplicationUserService,
 			ISelfDeliveryService selfDeliveryService)
 			: base(logger)
 		{
+			_userManager = userManager
+				?? throw new ArgumentNullException(nameof(userManager));
+			_externalApplicationUserService = externalApplicationUserService
+				?? throw new ArgumentNullException(nameof(externalApplicationUserService));
 			_selfDeliveryService = selfDeliveryService
 				?? throw new ArgumentNullException(nameof(selfDeliveryService));
 		}
@@ -43,14 +58,16 @@ namespace WarehouseApi.Controllers.V1
 		/// </summary>
 		/// <param name="orderId"></param>
 		/// <param name="selfDeliveryDocumentId"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(typeof(GetSelfDeliveryResponse), StatusCodes.Status200OK)]
 		public async Task<IActionResult> GetAsync(
 			int? orderId,
-			int? selfDeliveryDocumentId)
-			=> await GetDocumentByOrderIdOrSelfDeliveryDocumentId(orderId, selfDeliveryDocumentId)
+			int? selfDeliveryDocumentId,
+			CancellationToken cancellationToken)
+			=> await GetDocumentByOrderIdOrSelfDeliveryDocumentId(orderId, selfDeliveryDocumentId, cancellationToken)
 				.MatchAsync<SelfDeliveryDocument, IActionResult>(
 					selfDeliveryDocument =>
 					{
@@ -75,21 +92,29 @@ namespace WarehouseApi.Controllers.V1
 		/// </summary>
 		/// <param name="unitOfWork"></param>
 		/// <param name="request"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		[HttpPut]
 		[ProducesResponseType(StatusCodes.Status201Created)]
 		public async Task<IActionResult> Put(
 			[FromServices] IUnitOfWork unitOfWork,
-			PutSelfDeliveryRequest request)
-			=> await _selfDeliveryService
-				.CreateDocument(request.OrderId, request.WarehouseId)
+			PutSelfDeliveryRequest request,
+			CancellationToken cancellationToken)
+			=> await GetUserAsync(User)
+				.BindAsync(user =>
+					_externalApplicationUserService.GetExternalUserEmployee(
+						user.UserName,
+						ExternalApplicationType.WarehouseApp,
+						cancellationToken))
+				.BindAsync(employee =>
+					_selfDeliveryService.CreateDocument(employee, request.OrderId, request.WarehouseId, cancellationToken))
 				.BindAsync(selfDeliveryDocument =>
-					_selfDeliveryService.AddCodes(selfDeliveryDocument, request.CodesToAdd))
-				.BindAsync(selfDeliveryDocument => EndLoadIfNeeded(request.EndLoad, selfDeliveryDocument))
+					_selfDeliveryService.AddCodes(selfDeliveryDocument, request.CodesToAdd, cancellationToken))
+				.BindAsync(selfDeliveryDocument => EndLoadIfNeededAsync(request.EndLoad, selfDeliveryDocument, cancellationToken))
 				.BindAsync(async selfDeliveryDocument =>
 				{
-					await unitOfWork.SaveAsync(selfDeliveryDocument);
-					await unitOfWork.CommitAsync();
+					await unitOfWork.SaveAsync(selfDeliveryDocument, cancellationToken: cancellationToken);
+					await unitOfWork.CommitAsync(cancellationToken);
 					return Result.Success(selfDeliveryDocument);
 				})
 				.MatchAsync(
@@ -109,22 +134,24 @@ namespace WarehouseApi.Controllers.V1
 		/// </summary>
 		/// <param name="unitOfWork"></param>
 		/// <param name="request"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		[HttpPatch]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> Patch(
 			[FromServices] IUnitOfWork unitOfWork,
-			PatchSelfDeliveryRequest request)
+			PatchSelfDeliveryRequest request,
+			CancellationToken cancellationToken)
 			=> await _selfDeliveryService
-				.GetSelfDeliveryDocumentById(request.SelfDeliveryDocumentId)
-				.BindAsync(selfDeliveryDocument => _selfDeliveryService.RemoveCodes(selfDeliveryDocument, request.CodesToDelete))
-				.BindAsync(selfDeliveryDocument => _selfDeliveryService.ChangeCodes(selfDeliveryDocument, request.CodesToChange))
-				.BindAsync(selfDeliveryDocument => _selfDeliveryService.AddCodes(selfDeliveryDocument, request.CodesToAdd))
-				.BindAsync(selfDeliveryDocument => EndLoadIfNeeded(request.EndLoad, selfDeliveryDocument))
+				.GetSelfDeliveryDocumentById(request.SelfDeliveryDocumentId, cancellationToken)
+				.BindAsync(selfDeliveryDocument => _selfDeliveryService.RemoveCodes(selfDeliveryDocument, request.CodesToDelete, cancellationToken))
+				.BindAsync(selfDeliveryDocument => _selfDeliveryService.ChangeCodes(selfDeliveryDocument, request.CodesToChange, cancellationToken))
+				.BindAsync(selfDeliveryDocument => _selfDeliveryService.AddCodes(selfDeliveryDocument, request.CodesToAdd, cancellationToken))
+				.BindAsync(selfDeliveryDocument => EndLoadIfNeededAsync(request.EndLoad, selfDeliveryDocument, cancellationToken))
 				.BindAsync(async selfDeliveryDocument =>
 				{
-					await unitOfWork.SaveAsync(selfDeliveryDocument);
-					await unitOfWork.CommitAsync();
+					await unitOfWork.SaveAsync(selfDeliveryDocument, cancellationToken: cancellationToken);
+					await unitOfWork.CommitAsync(cancellationToken);
 					return Result.Success(selfDeliveryDocument);
 				})
 				.MatchAsync<SelfDeliveryDocument, IActionResult>(
@@ -134,7 +161,7 @@ namespace WarehouseApi.Controllers.V1
 						statusCode: StatusCodes.Status400BadRequest));
 
 
-		private async Task<Result<SelfDeliveryDocument>> GetDocumentByOrderIdOrSelfDeliveryDocumentId(int? orderId, int? selfDeliveryDocumentId)
+		private async Task<Result<SelfDeliveryDocument>> GetDocumentByOrderIdOrSelfDeliveryDocumentId(int? orderId, int? selfDeliveryDocumentId, CancellationToken cancellationToken)
 		{
 			if(selfDeliveryDocumentId is null && orderId is null)
 			{
@@ -143,22 +170,34 @@ namespace WarehouseApi.Controllers.V1
 
 			if(selfDeliveryDocumentId != null)
 			{
-				return await _selfDeliveryService.GetSelfDeliveryDocumentById(selfDeliveryDocumentId);
+				return await _selfDeliveryService.GetSelfDeliveryDocumentById(selfDeliveryDocumentId.Value, cancellationToken);
 			}
 			else
 			{
-				return await _selfDeliveryService.GetSelfDeliveryDocumentByOrderId(orderId);
+				return await _selfDeliveryService.GetSelfDeliveryDocumentByOrderId(orderId.Value, cancellationToken);
 			}
 		}
 
-		private Result<SelfDeliveryDocument> EndLoadIfNeeded(bool endLoadNeeded, SelfDeliveryDocument selfDeliveryDocument)
+		private async Task<Result<SelfDeliveryDocument>> EndLoadIfNeededAsync(bool endLoadNeeded, SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
 			if(endLoadNeeded)
 			{
-				_selfDeliveryService.EndLoad(selfDeliveryDocument);
+				await _selfDeliveryService.EndLoad(selfDeliveryDocument, cancellationToken);
 			}
 
 			return selfDeliveryDocument;
+		}
+
+		private async Task<Result<IdentityUser>> GetUserAsync(ClaimsPrincipal userClaims)
+		{
+			if(await _userManager.GetUserAsync(userClaims) is IdentityUser identityUser)
+			{
+				return identityUser;
+			}
+			else
+			{
+				return Result.Failure<IdentityUser>(new Error("Temp.Error", "Не удалось получить пользователя"));
+			}
 		}
 	}
 }
