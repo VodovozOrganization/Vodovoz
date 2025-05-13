@@ -30,10 +30,6 @@ using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
-using Vodovoz.Services;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Orders;
-using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -43,11 +39,6 @@ namespace Vodovoz.Representations
 	{
 		private readonly ILogger<SelfDeliveriesJournalViewModel> _logger;
 		private readonly ICommonServices _commonServices;
-		private readonly ICallTaskWorker _callTaskWorker;
-		private readonly Employee _currentEmployee;
-		private readonly IOrderPaymentSettings _orderPaymentSettings;
-		private readonly IOrderSettings _orderSettings;
-		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly ICashRepository _cashRepository;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly bool _userCanChangePayTypeToByCard;
@@ -61,11 +52,6 @@ namespace Vodovoz.Representations
 			ILogger<SelfDeliveriesJournalViewModel> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ICallTaskWorker callTaskWorker,
-			IOrderPaymentSettings orderPaymentSettings,
-			IOrderSettings orderSettings,
-			IDeliveryRulesSettings deliveryRulesSettings,
-			IEmployeeService employeeService,
 			ICashRepository cashRepository,
 			INavigationManager navigationManager,
 			IGuiDispatcher guiDispatcher,
@@ -74,17 +60,9 @@ namespace Vodovoz.Representations
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
-			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			_currentEmployee =
-				(employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
-					UoW,
-					commonServices.UserService.CurrentUserId);
 
 			TabName = "Журнал самовывозов";
 
@@ -426,19 +404,7 @@ namespace Vodovoz.Representations
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null)
 						{
-							TabParent.AddTab(
-								new PaymentByCardViewModel(
-									EntityUoWBuilder.ForOpen(selectedNode.Id),
-									UnitOfWorkFactory,
-									commonServices,
-									NavigationManager,
-									_callTaskWorker,
-									_orderPaymentSettings,
-									_orderSettings,
-									_deliveryRulesSettings,
-									_currentEmployee),
-								this
-							);
+							NavigationManager.OpenViewModel<PaymentByCardViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 						}
 					}
 
@@ -461,26 +427,13 @@ namespace Vodovoz.Representations
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null)
 						{
-							TabParent.AddTab(
-								new PaymentOnlineViewModel(
-									EntityUoWBuilder.ForOpen(selectedNode.Id),
-									UnitOfWorkFactory,
-									commonServices,
-									NavigationManager,
-									_callTaskWorker,
-									_orderPaymentSettings,
-									_orderSettings,
-									_deliveryRulesSettings,
-									_currentEmployee),
-								this
-							);
+							NavigationManager.OpenViewModel<PaymentOnlineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 						}
 					}
 
 				)
 			);
 		}
-
 
 		//FIXME отделить от GTK
 		void CreateSelfDeliveryCashInvoices(int orderId)
