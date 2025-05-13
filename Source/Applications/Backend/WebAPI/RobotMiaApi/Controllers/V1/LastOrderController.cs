@@ -54,6 +54,8 @@ namespace RobotMiaApi.Controllers.V1
 			[FromQuery(Name = "delivery_point_id")] int? deliveryPointId,
 			[FromServices] IUnitOfWork unitOfWork)
 		{
+			unitOfWork.Session.DefaultReadOnly = true;
+
 			var call = await _incomingCallService.GetCallByIdAsync(callId, unitOfWork);
 
 			if(call is null)
