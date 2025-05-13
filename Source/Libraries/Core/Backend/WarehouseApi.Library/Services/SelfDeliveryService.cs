@@ -11,6 +11,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
@@ -112,7 +113,7 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		public async Task<Result<SelfDeliveryDocument>> CreateDocument(int orderId, int warehouseId)
+		public async Task<Result<SelfDeliveryDocument>> CreateDocument(Employee author, int orderId, int warehouseId)
 		{
 			var order = _orderRepository
 				.Get(_unitOfWork, x => x.Id == orderId, 1)
@@ -136,6 +137,7 @@ namespace WarehouseApi.Library.Services
 
 			var selfDeliveryDocument = new SelfDeliveryDocument
 			{
+				Author = author,
 				Order = order,
 				Warehouse = warehouse,
 			};
