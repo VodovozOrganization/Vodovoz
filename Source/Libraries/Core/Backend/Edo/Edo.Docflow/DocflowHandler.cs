@@ -159,6 +159,7 @@ namespace Edo.Docflow
 			switch(docflowStatus)
 			{
 				case EdoDocFlowStatus.InProgress:
+					document.Status = EdoDocumentStatus.InProgress;
 					// Тут сделать обработку успешной отправки
 					// проверять по документам такском а не по статусу InProgress
 					break;
@@ -244,7 +245,11 @@ namespace Edo.Docflow
 
 				// неизвестно что и зачем это
 				case EdoDocFlowStatus.NotAccepted:
+					document.Status = EdoDocumentStatus.NotAccepted;
+					break;
 				case EdoDocFlowStatus.Unknown:
+					document.Status = EdoDocumentStatus.Unknown;
+					break;
 				// наш внутренний статус, можно исключить из ЭДО
 				case EdoDocFlowStatus.PreparingToSend:
 					break;
