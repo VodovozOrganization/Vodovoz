@@ -696,7 +696,7 @@ namespace Edo.Receipt.Dispatcher
 				}
 
 				currentProcessingGroupPositions = groupFiscalInventPositions
-						.Skip(_maxCodesInReceipt * documentIndex + 1)
+						.Skip(_maxCodesInReceipt * (documentIndex + 1))
 						.Take(_maxCodesInReceipt);
 
 				// подготавливаем данные для следующей итерации
