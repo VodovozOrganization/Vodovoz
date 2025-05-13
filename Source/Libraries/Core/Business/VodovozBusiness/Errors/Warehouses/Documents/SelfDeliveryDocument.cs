@@ -1,6 +1,6 @@
 ﻿using Vodovoz.Core.Domain.Results;
 
-namespace VodovozBusiness.Errors.Warehouse
+namespace VodovozBusiness.Errors.Warehouses.Documents
 {
 	public static class SelfDeliveryDocument
 	{
