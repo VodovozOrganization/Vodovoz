@@ -26,7 +26,6 @@ namespace WarehouseApi.Controllers.V1
 	public partial class WarehouseController : VersionedController
 	{
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;
 		private readonly IGenericRepository<UserSettings> _userSettingsRepository;
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
@@ -36,14 +35,12 @@ namespace WarehouseApi.Controllers.V1
 		/// </summary>
 		/// <param name="logger">Логгер для записи логов</param>
 		/// <param name="userManager"></param>
-		/// <param name="employeeRepository"></param>
 		/// <param name="externalApplicationUserRepository"></param>
 		/// <param name="userSettingsRepository"></param>
 		/// <param name="storeDocumentHelper">Помощник для работы с документами склада</param>
 		public WarehouseController(
 			ILogger<ApiControllerBase> logger,
 			UserManager<IdentityUser> userManager,
-			IGenericRepository<Employee> employeeRepository,
 			IGenericRepository<ExternalApplicationUser> externalApplicationUserRepository,
 			IGenericRepository<UserSettings> userSettingsRepository,
 			IStoreDocumentHelper storeDocumentHelper)
@@ -51,8 +48,6 @@ namespace WarehouseApi.Controllers.V1
 		{
 			_userManager = userManager
 				?? throw new ArgumentNullException(nameof(userManager));
-			_employeeRepository = employeeRepository
-				?? throw new ArgumentNullException(nameof(employeeRepository));
 			_externalApplicationUserRepository = externalApplicationUserRepository
 				?? throw new ArgumentNullException(nameof(externalApplicationUserRepository));
 			_userSettingsRepository = userSettingsRepository
