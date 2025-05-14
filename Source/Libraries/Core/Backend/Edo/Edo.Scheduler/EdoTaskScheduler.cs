@@ -1,4 +1,4 @@
-using Edo.Contracts.Messages.Events;
+﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -77,7 +77,6 @@ namespace Edo.Scheduler.Service
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-						message = new WithdrawalTaskCreatedEvent { WithdrawalEdoTaskId = edoTask.Id };
 			object message = null;
 			switch(edoTask.TaskType)
 			{
@@ -85,7 +84,7 @@ namespace Edo.Scheduler.Service
 					message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
 					break;
 				case EdoTaskType.Withdrawal:
-					// создать сообщение для сервиса вывода из оборота
+					message = new WithdrawalTaskCreatedEvent { WithdrawalEdoTaskId = edoTask.Id };
 					break;
 				case EdoTaskType.Receipt:
 					message = new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id };
