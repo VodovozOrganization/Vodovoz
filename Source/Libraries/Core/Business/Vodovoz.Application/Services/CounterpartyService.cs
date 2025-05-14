@@ -1,4 +1,4 @@
-using Dadata.Model;
+﻿using Dadata.Model;
 using QS.DomainModel.UoW;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
@@ -206,7 +206,7 @@ namespace Vodovoz.Application.Services
 			}
 
 			return _counterpartyRepository
-				.Get(unitOfWork, c => c.Phones.Any(p => p.Number == normalizedPhone));
+				.Get(unitOfWork, c => c.Phones.Any(p => p.DigitsNumber == normalizedPhone));
 		}
 	}
 }

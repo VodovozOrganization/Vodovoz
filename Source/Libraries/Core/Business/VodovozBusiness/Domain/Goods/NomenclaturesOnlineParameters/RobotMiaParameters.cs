@@ -1,12 +1,14 @@
 ﻿using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
+using QS.HistoryLog;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 {
+	[HistoryTrace]
 	public class RobotMiaParameters : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
