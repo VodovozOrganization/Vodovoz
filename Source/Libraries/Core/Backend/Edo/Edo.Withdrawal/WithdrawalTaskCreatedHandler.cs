@@ -16,6 +16,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Orders;
 using VodovozBusiness.Services.TrueMark;
 
 namespace Edo.Withdrawal
@@ -138,7 +139,7 @@ namespace Edo.Withdrawal
 						State = TaskProblemState.Active
 					});
 				}
-				
+
 				await uow.SaveAsync(withdrawalEdoTask, cancellationToken: cancellationToken);
 				uow.Commit();
 			}
