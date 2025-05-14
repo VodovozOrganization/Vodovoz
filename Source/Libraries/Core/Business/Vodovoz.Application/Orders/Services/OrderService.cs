@@ -4,14 +4,17 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -26,6 +29,11 @@ using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Domain.Client.Specifications;
+using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
+using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters.Specifications;
+using VodovozBusiness.Domain.Goods.Specifications;
+using VodovozBusiness.Domain.Logistic.Specifications;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -57,6 +65,11 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderDeliveryPriceGetter _orderDeliveryPriceGetter;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IGenericRepository<RobotMiaParameters> _robotMiaParametersRepository;
+		private readonly IGenericRepository<DeliveryPoint> _deliveryPointRepository;
+		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
+		private readonly IGenericRepository<DeliverySchedule> _deliveryScheduleRepository;
+		private readonly IGenericRepository<Nomenclature> _nomenclatureGenericRepository;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -80,7 +93,12 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderDiscountsController orderDiscountsController,
 			IOrderDeliveryPriceGetter orderDeliveryPriceGetter,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			ISubdivisionRepository subdivisionRepository)
+			ISubdivisionRepository subdivisionRepository,
+			IGenericRepository<RobotMiaParameters> robotMiaParametersRepository,
+			IGenericRepository<DeliveryPoint> deliveryPointRepository,
+			IGenericRepository<Counterparty> counterpartyRepository,
+			IGenericRepository<DeliverySchedule> deliveryScheduleRepository,
+			IGenericRepository<Nomenclature> nomenclatureGenericRepository)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -108,10 +126,17 @@ namespace Vodovoz.Application.Orders.Services
 			_orderDeliveryPriceGetter = orderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(orderDeliveryPriceGetter));
 			_undeliveredOrdersRepository = undeliveredOrdersRepository;
 			_subdivisionRepository = subdivisionRepository;
+			_robotMiaParametersRepository = robotMiaParametersRepository ?? throw new ArgumentNullException(nameof(robotMiaParametersRepository));
+			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_deliveryScheduleRepository = deliveryScheduleRepository ?? throw new ArgumentNullException(nameof(deliveryScheduleRepository));
+			_nomenclatureGenericRepository = nomenclatureGenericRepository ?? throw new ArgumentNullException(nameof(nomenclatureGenericRepository));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
+			ForfeitNomenclatureId = nomenclatureSettings.ForfeitId;
 		}
 
 		public int PaidDeliveryNomenclatureId { get; }
+		public int ForfeitNomenclatureId { get; }
 
 		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
@@ -158,7 +183,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа и цену доставки по имеющимся данным о заказе
 		/// </summary>
-		public (decimal OrderPrice, decimal DeliveryPrice) GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest)
+		public (decimal OrderPrice, decimal DeliveryPrice, decimal ForfeitPrice) GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
@@ -167,30 +192,59 @@ namespace Vodovoz.Application.Orders.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>("Сервис заказов: подсчет стоимости заказа"))
 			{
-				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
+				var robotMiaEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
 					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
 
-				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
-				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
+				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId)
+					?? throw new InvalidOperationException($"Не найден контрагент #{createOrderRequest.CounterpartyId}");
+				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId)
+					?? throw new InvalidOperationException($"Не найдена точка доставки #{createOrderRequest.DeliveryPointId}");
 
 				Order order = unitOfWork.Root;
-				order.Author = roboatsEmployee;
+				order.Author = robotMiaEmployee;
 				order.Client = counterparty;
 				order.DeliveryPoint = deliveryPoint;
 				order.PaymentType = PaymentType.Cash;
 
-				foreach(var waterInfo in createOrderRequest.SaleItems)
+				foreach(var saleItem in createOrderRequest.SaleItems)
 				{
-					var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
-					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+					var nomenclature = unitOfWork.GetById<Nomenclature>(saleItem.NomenclatureId)
+						?? throw new InvalidOperationException($"Не найдена номенклатура #{saleItem.NomenclatureId}");
+
+					if(nomenclature.Id == ForfeitNomenclatureId)
+					{
+						order.AddNomenclature(nomenclature, saleItem.BottlesCount);
+						continue;
+					}
+
+					var nomenclatureParameters = _robotMiaParametersRepository
+						.Get(unitOfWork, x => x.NomenclatureId == nomenclature.Id, 1)
+						.FirstOrDefault();
+
+					if(nomenclature.Category == NomenclatureCategory.water)
+					{
+						order.AddWaterForSale(nomenclature, saleItem.BottlesCount);
+					}
+					else if(nomenclatureParameters is null
+						|| nomenclatureParameters.GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale)
+					{
+						throw new InvalidOperationException(
+							$"Номенклатура [{nomenclature.Id}] {nomenclature.Name} не может быть добавлена. В заказ может быть добавлена либо номенклатура, одобренная для продажи, либо неустойка");
+					}
+					else
+					{
+						order.AddNomenclature(nomenclature, saleItem.BottlesCount);
+					}
 				}
 
 				order.RecalculateItemsPrice();
 				UpdateDeliveryCost(unitOfWork, order);
+
 				return
 				(
 					order.OrderSum,
-					order.OrderItems.Where(oi => oi.Nomenclature.Id == PaidDeliveryNomenclatureId).FirstOrDefault()?.ActualSum ?? 0m
+					order.OrderItems.Where(oi => oi.Nomenclature.Id == PaidDeliveryNomenclatureId).FirstOrDefault()?.ActualSum ?? 0m,
+					order.OrderItems.Where(oi => oi.Nomenclature.Id == ForfeitNomenclatureId).Sum(x => x.ActualSum)
 				);
 			}
 		}
@@ -209,13 +263,38 @@ namespace Vodovoz.Application.Orders.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
 			{
-				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
-				if(roboatsEmployee == null)
-				{
-					throw new InvalidOperationException(_employeeRequiredForServiceError);
-				}
+				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
+					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
 
 				var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
+				order.AcceptOrder(roboatsEmployee, _callTaskWorker);
+				order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+				return order.Id;
+			}
+		}
+
+		/// <inheritdoc/>
+		public async Task<Result<int>> CreateAndAcceptOrderAsync(CreateOrderRequest createOrderRequest)
+		{
+			if(createOrderRequest is null)
+			{
+				throw new ArgumentNullException(nameof(createOrderRequest));
+			}
+
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
+			{
+				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
+					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
+
+				var orderResult = await CreateOrderAsync(unitOfWork, roboatsEmployee, createOrderRequest);
+
+				if(orderResult.IsFailure)
+				{
+					return Result.Failure<int>(orderResult.Errors);
+				}
+
+				var order = orderResult.Value;
+
 				order.AcceptOrder(roboatsEmployee, _callTaskWorker);
 				order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
 				return order.Id;
@@ -251,6 +330,35 @@ namespace Vodovoz.Application.Orders.Services
 			var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
 			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
 			return (order.Id, order.Author.Id, order.OrderStatus);
+		}
+
+		/// <inheritdoc/>
+		public async Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus)>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest)
+		{
+			if(createOrderRequest is null)
+			{
+				throw new ArgumentNullException(nameof(createOrderRequest));
+			}
+
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
+			{
+				return await CreateIncompleteOrderAsync(unitOfWork, createOrderRequest);
+			}
+		}
+
+		private async Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus)>> CreateIncompleteOrderAsync(
+			IUnitOfWorkGeneric<Order> unitOfWork, CreateOrderRequest createOrderRequest)
+		{
+			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
+
+			if(roboatsEmployee is null)
+			{
+				return await Task.FromResult(Errors.ServiceEmployee.MissingServiceUser);
+			}
+
+			var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
+			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+			return await Task.FromResult((order.Id, order.Author.Id, order.OrderStatus));
 		}
 
 		/// <summary>
@@ -291,6 +399,25 @@ namespace Vodovoz.Application.Orders.Services
 				case PaymentType.DriverApplicationQR:
 					order.Trifle = 0;
 					break;
+				case PaymentType.Terminal:
+					if(createOrderRequest.PaymentByTerminalSource is null)
+					{
+						throw new InvalidOperationException("Должен быть указан источник оплаты для типа оплаты терминал");
+					}
+
+					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByCard)
+					{
+						order.PaymentByTerminalSource = PaymentByTerminalSource.ByCard;
+						break;
+					}
+
+					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByQR)
+					{
+						order.PaymentByTerminalSource = PaymentByTerminalSource.ByQR;
+						break;
+					}
+
+					throw new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
 			}
 
 			order.DeliverySchedule = deliverySchedule;
@@ -301,7 +428,15 @@ namespace Vodovoz.Application.Orders.Services
 			foreach(var waterInfo in createOrderRequest.SaleItems)
 			{
 				var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
-				order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+
+				if(nomenclature != null)
+				{
+					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+				}
+				else
+				{
+					_logger.LogError("Попытка добавить отсутствующую номенклатуру {NomenclatureId}", waterInfo.NomenclatureId);
+				}
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
@@ -314,10 +449,163 @@ namespace Vodovoz.Application.Orders.Services
 				order.CallBeforeArrivalMinutes = 15;
 				order.IsDoNotMakeCallBeforeArrival = false;
 			}
+			
+			if(createOrderRequest.TareNonReturnReasonId != null)
+			{
+				var tareNonReturnReason = unitOfWork.GetById<NonReturnReason>(createOrderRequest.TareNonReturnReasonId.Value);
+				order.TareNonReturnReason = tareNonReturnReason;
+				order.OPComment = $"Робот Мия: {tareNonReturnReason.Name}.";
+			}
 
 			return order;
 		}
-		
+
+		private async Task<Result<Order>> CreateOrderAsync(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, CreateOrderRequest createOrderRequest)
+		{
+			var counterparty = _counterpartyRepository
+				.Get(
+					unitOfWork,
+					CounterpartySpecifications.CreateForId(createOrderRequest.CounterpartyId),
+					1)
+				.FirstOrDefault();
+
+			var deliveryPoint = _deliveryPointRepository
+				.Get(
+					unitOfWork,
+					DeliveryPointSpecifications.CreateForAvailableToDelivery(createOrderRequest.CounterpartyId, createOrderRequest.DeliveryPointId),
+					1)
+				.FirstOrDefault();
+
+			var deliverySchedule = _deliveryScheduleRepository
+				.Get(
+					unitOfWork,
+					DeliveryScheduleSpecifications.CreateForId(createOrderRequest.DeliveryScheduleId),
+					1)
+				.FirstOrDefault();
+
+			if(counterparty is null)
+			{
+				return Vodovoz.Errors.Clients.Counterparty.NotFound;
+			}
+
+			if(deliveryPoint is null)
+			{
+				return Vodovoz.Errors.Clients.DeliveryPoint.NotFound;
+			}
+
+			if(deliverySchedule is null)
+			{
+				return Vodovoz.Errors.Logistics.DeliverySchedule.NotFound;
+			}
+
+			Order order = unitOfWork.Root;
+			order.Author = author;
+			order.Client = counterparty;
+			order.DeliveryPoint = deliveryPoint;
+
+			order.PaymentType = createOrderRequest.PaymentType;
+
+			switch(createOrderRequest.PaymentType)
+			{
+				case PaymentType.Cash:
+					order.Trifle = createOrderRequest.BanknoteForReturn;
+					break;
+				case PaymentType.DriverApplicationQR:
+					order.Trifle = 0;
+					break;
+				case PaymentType.Terminal:
+					if(createOrderRequest.PaymentByTerminalSource is null)
+					{
+						throw new InvalidOperationException("Должен быть указан источник оплаты для типа оплаты терминал");
+					}
+
+					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByCard)
+					{
+						order.PaymentByTerminalSource = PaymentByTerminalSource.ByCard;
+						break;
+					}
+
+					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByQR)
+					{
+						order.PaymentByTerminalSource = PaymentByTerminalSource.ByQR;
+						break;
+					}
+
+					throw new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
+			}
+
+			order.DeliverySchedule = deliverySchedule;
+			order.DeliveryDate = createOrderRequest.Date;
+
+			order.UpdateOrCreateContract(unitOfWork, _counterpartyContractRepository, _counterpartyContractFactory);
+
+			var nomenclatureIds = createOrderRequest.SaleItems
+				.Select(si => si.NomenclatureId)
+				.ToArray();
+
+			var nomenclaturesToAdd = _nomenclatureGenericRepository
+				.Get(
+					unitOfWork,
+					NomenclatureSpecifications.CreateForIds(nomenclatureIds))
+				.ToArray();
+
+			var nomenclaturesParameters = _robotMiaParametersRepository
+				.Get(unitOfWork, RobotMiaParametersSpecifications.CreateForHasNomenclatureIds(nomenclatureIds))
+				.ToArray();
+
+			foreach(var waterInfo in createOrderRequest.SaleItems)
+			{
+				var nomenclature = nomenclaturesToAdd
+					.Where(x => x.Id == waterInfo.NomenclatureId)
+					.FirstOrDefault();
+
+				if(nomenclature is null)
+				{
+					_logger.LogError("Попытка добавить отсутствующую номенклатуру {NomenclatureId}", waterInfo.NomenclatureId);
+				}
+				else if(nomenclature.Category == NomenclatureCategory.water)
+				{
+					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
+				}
+				else
+				{
+					var nomenclatureParameters = nomenclaturesParameters
+						.Where(x => x.NomenclatureId == nomenclature.Id)
+						.FirstOrDefault();
+
+					if(nomenclature.Id != ForfeitNomenclatureId
+						&& (nomenclatureParameters is null
+							|| nomenclatureParameters.GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale))
+					{
+						throw new InvalidOperationException(
+							$"Номенклатура [{nomenclature.Id}] {nomenclature.Name} не может быть добавлена. В заказ может быть добавлена либо номенклатура, одобренная для продажи, либо неустойка");
+					}
+					order.AddNomenclature(nomenclature, waterInfo.BottlesCount);
+				}
+			}
+
+			order.BottlesReturn = createOrderRequest.BottlesReturn;
+			order.RecalculateItemsPrice();
+			UpdateDeliveryCost(unitOfWork, order);
+			AddLogisticsRequirements(order);
+			order.AddDeliveryPointCommentToOrder();
+
+			if(!order.SelfDelivery)
+			{
+				order.CallBeforeArrivalMinutes = 15;
+				order.IsDoNotMakeCallBeforeArrival = false;
+			}
+
+			if(createOrderRequest.TareNonReturnReasonId != null)
+			{
+				var tareNonReturnReason = unitOfWork.GetById<NonReturnReason>(createOrderRequest.TareNonReturnReasonId.Value);
+				order.TareNonReturnReason = tareNonReturnReason;
+				order.OPComment = $"Робот Мия: {tareNonReturnReason.Name}.";
+			}
+
+			return order;
+		}
+
 		private void AddLogisticsRequirements(Order order)
 		{
 			order.LogisticsRequirements = GetLogisticsRequirements(order);
