@@ -55,7 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
 			ISubdivisionPermissionsService subdivisionPermissionsService,
-			IGenericRepository<Subdivision> _subdivisionGenericRepository,
+			IGenericRepository<Subdivision> subdivisionGenericRepository,
 			ICashRepository cashRepository,
 			SubdivisionsJournalViewModel subdivisionsJournalViewModel,
 			ViewModelEEVMBuilder<FinancialResponsibilityCenter> financialResponsibilityCenterViewModelEEVMBuilder)
@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_subdivisionPermissionsService = subdivisionPermissionsService ?? throw new ArgumentNullException(nameof(subdivisionPermissionsService));
-			this._subdivisionGenericRepository = _subdivisionGenericRepository ?? throw new ArgumentNullException(nameof(_subdivisionGenericRepository));
+			_subdivisionGenericRepository = subdivisionGenericRepository ?? throw new ArgumentNullException(nameof(subdivisionGenericRepository));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			SubdivisionsJournalViewModel = subdivisionsJournalViewModel ?? throw new ArgumentNullException(nameof(subdivisionsJournalViewModel));
 			SubdivisionsJournalViewModel.JournalFilter.SetAndRefilterAtOnce<SubdivisionFilterViewModel>(filter => filter.RestrictParentId = Entity.Id);
