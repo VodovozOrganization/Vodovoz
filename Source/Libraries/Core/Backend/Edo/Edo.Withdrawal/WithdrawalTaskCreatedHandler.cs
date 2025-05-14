@@ -1,6 +1,4 @@
-﻿using Edo.Withdrawal.Options;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -13,11 +11,12 @@ using TrueMark.Contracts;
 using TrueMark.Contracts.Documents;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Domain.Orders;
-using VodovozBusiness.Services.TrueMark;
+using VodovozBusiness.EntityRepositories.Edo;
 
 namespace Edo.Withdrawal
 {
@@ -27,23 +26,23 @@ namespace Edo.Withdrawal
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ITrueMarkApiClient _trueMarkApiClient;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
-		private readonly IOptions<TrueMarkOptions> _options;
+		private readonly IEdoDocflowRepository _edoDocflowRepository;
+		private readonly IGenericRepository<TrueMarkDocument> _trueMarkDocumentRepository;
 
 		public WithdrawalTaskCreatedHandler(
 			ILogger<WithdrawalTaskCreatedHandler> logger,
 			IHttpClientFactory httpClientFactory,
 			IUnitOfWorkFactory uowFactory,
 			ITrueMarkApiClient trueMarkApiClient,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
-			IOptions<TrueMarkOptions> trueMarkOptions)
+			IEdoDocflowRepository edoDocflowRepository,
+			IGenericRepository<TrueMarkDocument> trueMarkDocumentRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
-			_options = trueMarkOptions;
+			_edoDocflowRepository = edoDocflowRepository ?? throw new ArgumentNullException(nameof(edoDocflowRepository));
+			_trueMarkDocumentRepository = trueMarkDocumentRepository ?? throw new ArgumentNullException(nameof(trueMarkDocumentRepository));
 		}
 
 		public async Task HandleWithdrawal(int withdrawalEdoTaskId, CancellationToken cancellationToken)
@@ -74,12 +73,26 @@ namespace Edo.Withdrawal
 					throw new InvalidOperationException($"Заказ {order.Id} не по безналу, вывод из оборота невозможен");
 				}
 
-				var client = order.Client;
+				var isTrueMarkDocumentExists = _trueMarkDocumentRepository
+					.Get(uow, x => x.Order.Id == order.Id && x.IsSuccess)
+					.Any();
 
-				if(order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+				if(isTrueMarkDocumentExists)
 				{
-					throw new InvalidOperationException($"У клиента {client.Name} отсутствует согласие на ЭДО. Вывод из оборота невозможен");
+					throw new InvalidOperationException($"Заказ {order.Id} уже имеет документ Честного знака, вывод из оборота невозможен");
 				}
+				
+				var lastEdoDocflowStatus = _edoDocflowRepository.GetEdoDocflowDataByOrderId(uow, order.Id)
+					.OrderByDescending(x => x.EdoRequestCreationTime)
+					.Select(x => x.EdoDocFlowStatus)
+					.FirstOrDefault();
+
+				if(lastEdoDocflowStatus is null || lastEdoDocflowStatus != EdoDocFlowStatus.Succeed)
+				{
+					throw new InvalidOperationException($"Заказ {order.Id} не имеет успешного документооборота, вывод из оборота невозможен");
+				}
+				
+				var client = order.Client;
 
 				if(order.Client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				{
@@ -140,6 +153,15 @@ namespace Edo.Withdrawal
 					});
 				}
 
+				var trueMarkDocument = new TrueMarkDocument
+				{
+					Order = order,
+					Guid = Guid.NewGuid(),
+					IsSuccess = false,
+					Organization = order.Contract.Organization
+				};
+
+				await uow.SaveAsync(trueMarkDocument, cancellationToken: cancellationToken);
 				await uow.SaveAsync(withdrawalEdoTask, cancellationToken: cancellationToken);
 				uow.Commit();
 			}

@@ -1,11 +1,12 @@
 ﻿using Edo.Transport;
 using Edo.Withdrawal.Consumers;
 using Edo.Withdrawal.Consumers.Definitions;
-using Edo.Withdrawal.Options;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TrueMarkApi.Client;
+using Vodovoz.Infrastructure.Persistance.Edo;
+using VodovozBusiness.EntityRepositories.Edo;
 
 namespace Edo.Withdrawal
 {
@@ -19,15 +20,11 @@ namespace Edo.Withdrawal
 			});
 
 			services
+				.AddScoped<IEdoDocflowRepository, EdoDocflowRepository>()
 				.AddScoped<WithdrawalTaskCreatedHandler>()
-				.AddTrueMarkApiClient()
-				.ConfigureBusinessOptions(configuration);
+				.AddTrueMarkApiClient();
 
 			return services;
 		}
-
-		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services, IConfiguration configuration) => services
-			.Configure<TrueMarkOptions>(trueMarkSettings =>
-				configuration.GetSection(nameof(TrueMarkOptions)).Bind(trueMarkSettings));
 	}
 }
