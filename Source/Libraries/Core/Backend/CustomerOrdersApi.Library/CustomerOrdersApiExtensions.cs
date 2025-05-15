@@ -32,11 +32,13 @@ namespace CustomerOrdersApi.Library
 		{
 			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
 				.AddScoped<ICustomerOrdersDiscountService, CustomerOrdersDiscountService>()
+				.AddScoped<ICustomerOrderFixedPriceService, CustomerOrderFixedPriceService>()
 				.AddScoped<ISignatureManager, SignatureManager>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
 				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
 				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
-				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>();
+				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>();
 			
 			return services;
 		}

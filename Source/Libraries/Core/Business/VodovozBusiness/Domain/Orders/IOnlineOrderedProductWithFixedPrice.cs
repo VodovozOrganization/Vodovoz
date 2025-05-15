@@ -1,15 +1,19 @@
 ﻿namespace VodovozBusiness.Domain.Orders
 {
-	public interface IOnlineOrderedProduct
+	public interface IOnlineOrderedProductWithFixedPrice
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ
 		/// </summary>
 		int NomenclatureId { get; }
 		/// <summary>
-		/// Цена
+		/// Старая цена
 		/// </summary>
-		decimal Price { get; }
+		decimal OldPrice { get; }
+		/// <summary>
+		/// Новая цена(фикса)
+		/// </summary>
+		decimal? NewPrice { get; }
 		/// <summary>
 		/// Количество
 		/// </summary>
@@ -30,9 +34,5 @@
 		/// Id скидки/промокода
 		/// </summary>
 		int? DiscountReasonId { get; set; }
-		/// <summary>
-		/// Очистка данных по скидке
-		/// </summary>
-		void ClearDiscount();
 	}
 }

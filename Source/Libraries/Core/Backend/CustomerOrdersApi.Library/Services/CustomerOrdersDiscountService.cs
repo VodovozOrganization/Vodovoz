@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Dto.Orders;
+using CustomerOrdersApi.Library.Dto.Orders.FixedPrice;
+using CustomerOrdersApi.Library.Dto.Orders.OrderItem;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -95,18 +97,6 @@ namespace CustomerOrdersApi.Library.Services
 				x.IsDiscountInMoney
 					? x.Count * x.Price - x.Discount
 					: x.Count * x.Price * (1 - x.Discount / 100));
-		}
-	}
-
-	public class SignatureService
-	{
-		protected string GetSourceSign(Source source, SignatureOptions signatureOptions)
-		{
-			var signature =
-				(string)typeof(SignatureOptions).GetProperty(source.ToString())?
-					.GetValue(signatureOptions);
-			
-			return signature;
 		}
 	}
 }
