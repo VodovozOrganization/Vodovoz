@@ -1,4 +1,4 @@
-﻿using MySqlConnector;
+using MySqlConnector;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
@@ -113,11 +113,7 @@ namespace TrueMark.Codes.Pool
 
 		private void SetSessionTimeout(IUnitOfWork uow)
 		{
-			using(var command = uow.Session.Connection.CreateCommand())
-			{
-				command.CommandText = $"SET SESSION wait_timeout = 30;";
-				command.ExecuteNonQuery();
-			}
+			uow.Session.CreateSQLQuery("SET SESSION wait_timeout = 30;").ExecuteUpdate();
 		}
 	}
 }
