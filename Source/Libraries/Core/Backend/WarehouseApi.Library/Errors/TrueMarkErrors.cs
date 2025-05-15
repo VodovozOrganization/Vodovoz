@@ -9,5 +9,11 @@ namespace WarehouseApi.Library.Errors
 				typeof(TrueMarkErrors),
 				nameof(TrueMarkCodeAlreadyExists),
 				"Код уже используется");
+
+		public static Error TooMuchCodesGiven
+			=> new Error(
+				typeof(TrueMarkErrors),
+				nameof(TooMuchCodesGiven),
+				"Передано больше кодов, чем нужно");
 	}
 }
