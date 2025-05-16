@@ -22,6 +22,7 @@ using RevenueService.Client;
 using Vodovoz.Application.TrueMark;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkApi.Client;
+using Vodovoz.Handlers;
 
 namespace Vodovoz.Application
 {
@@ -64,6 +65,8 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+			.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+			.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
 			.AddDriverApiNotificationsSenders()
 		;
 
