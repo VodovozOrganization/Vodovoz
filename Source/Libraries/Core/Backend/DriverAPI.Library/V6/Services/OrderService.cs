@@ -2,7 +2,6 @@
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
-using Edo.Transport;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.DomainModel.UoW;
@@ -655,74 +654,6 @@ namespace DriverAPI.Library.V6.Services
 			foreach(var scannedCode in driversScannedCodes)
 			{
 				await _uow.SaveAsync(scannedCode);
-			}
-
-			return Result.Success();
-		}
-
-		private async Task<Result> AddProductCodesToRouteListItemAsync(
-			RouteListItem routeListAddress,
-			int orderSaleItemId,
-			IEnumerable<string> scannedCodes,
-			SourceProductCodeStatus status,
-			ProductCodeProblem problem)
-		{
-			var scannedCodesDataResult = await _trueMarkWaterCodeService.GetTrueMarkAnyCodesByScannedCodes(_uow, scannedCodes);
-
-			if(scannedCodesDataResult.IsFailure)
-			{
-				return scannedCodesDataResult;
-			}
-
-			foreach(var code in scannedCodesDataResult.Value)
-			{
-				if(code.IsTrueMarkWaterIdentificationCode)
-				{
-					var isCodeAlreadyAddedToRouteListItem =
-						routeListAddress.TrueMarkCodes.Any(x =>
-						x.SourceCode.GTIN == code.TrueMarkWaterIdentificationCode.GTIN
-						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber);
-
-					if(!isCodeAlreadyAddedToRouteListItem)
-					{
-						_routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItem(
-							_uow,
-							routeListAddress,
-							orderSaleItemId,
-							code.TrueMarkWaterIdentificationCode,
-							status,
-							problem);
-					}
-				}
-
-				code.Match(
-					transportCode =>
-					{
-						if(transportCode.Id == 0)
-						{
-							_uow.Save(transportCode);
-						}
-
-						return true;
-					},
-					groupCode =>
-					{
-						if(groupCode.Id == 0)
-						{
-							_uow.Save(groupCode);
-						}
-
-						return true;
-					},
-					waterCode =>
-					{
-						if(waterCode.Id == 0)
-						{
-							_uow.Save(waterCode);
-						}
-
-						return true;
-					});
 			}
 
 			return Result.Success();
@@ -1797,16 +1728,15 @@ namespace DriverAPI.Library.V6.Services
 					return Result.Failure(OrderItemErrors.NotFound);
 				}
 
-				var result = await AddProductCodesToRouteListItemAsync(
-					routeListAddress,
-					orderSaleItemId,
-					scannedBottle.BottleCodes,
-					SourceProductCodeStatus.New,
-					ProductCodeProblem.None);
 
-				if(result.IsFailure)
+				var bottleCodes = scannedBottle.BottleCodes
+					.Distinct()
+					.Select(x => new DriversScannedTrueMarkCode { RawCode = x, OrderItemId = orderSaleItemId })
+					.ToArray();
+
+				foreach(var scannedCode in bottleCodes)
 				{
-					return result;
+					await _uow.SaveAsync(scannedCode, cancellationToken: cancellationToken);
 				}
 			}
 
