@@ -1,19 +1,20 @@
 ﻿using System;
+using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Dto.Orders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Logistic;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.Services
 {
-	public class CustomerOrdersTrackingCourierService : ICustomerOrdersTrackingCourierService
+	public class CustomerOrdersTrackingCourierService : SignatureService, ICustomerOrdersTrackingCourierService
 	{
 		private readonly ILogger<ICustomerOrdersTrackingCourierService> _logger;
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly SignatureOptions _signatureOptions;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly ITrackRepository _trackRepository;
 		private readonly ISignatureManager _signatureManager;
@@ -21,12 +22,14 @@ namespace CustomerOrdersApi.Library.Services
 		public CustomerOrdersTrackingCourierService(
 			ILogger<ICustomerOrdersTrackingCourierService> logger,
 			IUnitOfWork unitOfWork,
+			IOptions<SignatureOptions> signatureOptions,
 			IDeliveryPointRepository deliveryPointRepository,
 			ITrackRepository trackRepository,
 			ISignatureManager signatureManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_signatureOptions = (signatureOptions ?? throw new ArgumentNullException(nameof(signatureOptions))).Value;
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
@@ -60,7 +63,7 @@ namespace CustomerOrdersApi.Library.Services
 
 		public bool ValidateCourierCoordinatesSignature(CourierCoordinatesRequest coordinatesRequest, out string generatedSignature)
 		{
-			var sourceSign = GetSourceSign(coordinatesRequest.Source);
+			var sourceSign = GetSourceSign(coordinatesRequest.Source, _signatureOptions);
 			
 			return _signatureManager.Validate(
 				coordinatesRequest.Signature,
@@ -71,11 +74,6 @@ namespace CustomerOrdersApi.Library.Services
 					OrderId = coordinatesRequest.ExternalOrderId.ToString()
 				},
 				out generatedSignature);
-		}
-		
-		private string GetSourceSign(Source source)
-		{
-			return _signaturesSection.GetValue<string>(source.ToString());
 		}
 	}
 }

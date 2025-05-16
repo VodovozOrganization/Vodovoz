@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Errors;
 using Vodovoz.Handlers;
 using Vodovoz.Nodes;
