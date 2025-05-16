@@ -7,6 +7,9 @@ using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
+	/// <summary>
+	/// Интерфейс для запросов по трэку водителя
+	/// </summary>
 	public interface ITrackRepository
 	{
 		Track GetTrackByRouteListId(IUnitOfWork unitOfWork, int routeListId);
@@ -18,6 +21,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IList<DriverPositionWithFastDeliveryRadius> GetLastRouteListFastDeliveryTrackPointsWithRadius(IUnitOfWork uow, int[] routeListsIds, TimeSpan timeSpanDisconnected, DateTime? beforeTime = null);
 		DateTime GetMinTrackPointDate(IUnitOfWork uow);
 		bool TrackPointsExists(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo);
+		/// <summary>
+		/// Получение последних координат трэка водителя по онлайн заказу
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="externalOnlineOrder">Id онлайн заказа в ИПЗ</param>
+		/// <returns>Последние координаты водителя</returns>
+		PointCoordinates GetDriverLastCoordinateFromOnlineOrder(IUnitOfWork uow, Guid externalOnlineOrder);
 		void DeleteTrackPoints(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo);
 	}
 }

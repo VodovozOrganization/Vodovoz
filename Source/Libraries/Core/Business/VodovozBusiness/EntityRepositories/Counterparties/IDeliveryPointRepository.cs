@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
+	/// <summary>
+	/// Интерфейс по запросам для точки доставки
+	/// </summary>
 	public interface IDeliveryPointRepository
 	{
 		/// <summary>
@@ -29,5 +33,12 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		bool CheckingAnAddressForDeliveryForNewCustomers( IUnitOfWork uow, DeliveryPoint deliveryPoint );
 		IEnumerable<DeliveryPointForSendNode> GetActiveDeliveryPointsForSendByCounterpartyId(IUnitOfWork uow, int counterpartyId);
 		bool ClientDeliveryPointExists(IUnitOfWork uow, int counterpartyId, int deliveryPointId);
+		/// <summary>
+		/// Получение координат точки доставки из онлайн заказа
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="externalOnlineOrderId">Id онлайн заказа в ИПЗ</param>
+		/// <returns>Координаты ТД</returns>
+		PointCoordinates DeliveryPointCoordinatesFromOnlineOrder(IUnitOfWork uow, Guid externalOnlineOrderId);
 	}
 }

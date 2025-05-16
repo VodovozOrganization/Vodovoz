@@ -4,6 +4,7 @@ using System.Linq;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -184,6 +185,17 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				select deliveryPoint.Id;
 
 			return query.Any();
+		}
+
+		public PointCoordinates DeliveryPointCoordinatesFromOnlineOrder(IUnitOfWork uow, Guid externalOnlineOrderId)
+		{
+			var query = from onlineOrder in uow.Session.Query<OnlineOrder>()
+				join deliveryPoint in uow.Session.Query<DeliveryPoint>()
+					on onlineOrder.DeliveryPoint.Id equals deliveryPoint.Id
+				where onlineOrder.ExternalOrderId == externalOnlineOrderId
+				select new PointCoordinates(deliveryPoint.Latitude, deliveryPoint.Longitude);
+			
+			return query.FirstOrDefault();
 		}
 
 		private string GetBuildingNumber(string building)

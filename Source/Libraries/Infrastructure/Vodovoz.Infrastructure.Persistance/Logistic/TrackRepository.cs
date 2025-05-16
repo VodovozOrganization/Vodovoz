@@ -7,6 +7,7 @@ using NHibernate.Transform;
 using Vodovoz.Domain.Logistic;
 using NHibernate.Persister.Entity;
 using Vodovoz.Core.Domain;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
@@ -181,6 +182,30 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					Longitude = pos.Longitude,
 					FastDeliveryRadius = (double)(uow.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).GetFastDeliveryMaxDistanceValue(beforeTime.HasValue ? pos.Time : DateTime.Now)
 				}).ToList();
+		}
+
+		public PointCoordinates GetDriverLastCoordinateFromOnlineOrder(IUnitOfWork uow, Guid externalOnlineOrder)
+		{
+			var query = from onlineOrder in uow.Session.Query<OnlineOrder>()
+				join order in uow.Session.Query<Vodovoz.Domain.Orders.Order>()
+					on onlineOrder.Order.Id equals order.Id
+				join routeAddress in uow.Session.Query<RouteListItem>()
+					on order.Id equals routeAddress.Order.Id
+				join track in uow.Session.Query<Track>()
+					on routeAddress.RouteList.Id equals track.RouteList.Id
+				join trackPoints in uow.Session.Query<TrackPoint>()
+					on track.Id equals trackPoints.Track.Id
+				where onlineOrder.ExternalOrderId == externalOnlineOrder
+				select trackPoints;
+
+			var lastTrackPoint = query
+				.OrderByDescending(x => x.TimeStamp)
+				.Take(1)
+				.FirstOrDefault();
+
+			return lastTrackPoint is null
+				? new PointCoordinates()
+				: new PointCoordinates((decimal)lastTrackPoint.Latitude, (decimal)lastTrackPoint.Longitude);
 		}
 	}
 }
