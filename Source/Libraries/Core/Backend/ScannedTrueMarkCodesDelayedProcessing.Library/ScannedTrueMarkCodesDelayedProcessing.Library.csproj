@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
     <ProjectReference Include="..\Infrastructure\MessageTransport\MessageTransport.csproj" />
   </ItemGroup>

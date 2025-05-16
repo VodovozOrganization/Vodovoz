@@ -6,11 +6,14 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
 using ScannedTrueMarkCodesDelayedProcessing.Library;
+using ScannedTrueMarkCodesDelayedProcessing.Library.Option;
+using ScannedTrueMarkCodesDelayedProcessing.Library.Services;
 using System;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Zabbix.Sender;
 
 namespace ScannedTrueMarkCodesDelayedProcessingWorker
 {
@@ -33,6 +36,8 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 				.ConfigureServices((hostContext, services) =>
 				{
 					services
+						.Configure<ScannedCodesDelayedProcessingOptions>(
+							hostContext.Configuration.GetSection(nameof(ScannedCodesDelayedProcessingOptions)))
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 							typeof(QS.Banks.Domain.Bank).Assembly,
@@ -47,8 +52,9 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddScannedTrueMarkCodesDelayedProcessing()
+						.ConfigureZabbixSenderFromDataBase(nameof(ScannedCodesDelayedProcessingService))
 						;
-
+					services.AddHostedService<ScannedCodesDelayedProcessingWorker>();
 					services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 				});
 	}

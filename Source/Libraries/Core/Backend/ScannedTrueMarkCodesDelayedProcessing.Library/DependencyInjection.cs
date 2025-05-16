@@ -1,8 +1,7 @@
 ﻿using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using QS.DomainModel.UoW;
-using ScannedTrueMarkCodesDelayedProcessing.Library.Workers;
+using ScannedTrueMarkCodesDelayedProcessing.Library.Services;
+using VodovozBusiness.Services.TrueMark;
 
 namespace ScannedTrueMarkCodesDelayedProcessing.Library
 {
@@ -12,10 +11,9 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library
 		{
 			services
 				.AddMessageTransportSettings()
-				.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
-
-			services
-				.AddHostedService<ScannedCodesDelayedProcessingWorker>();
+				//.AddApplication()
+				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>()
+				.AddScoped<ScannedCodesDelayedProcessingService>();
 
 			return services;
 		}
