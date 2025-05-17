@@ -13,6 +13,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Orders;
+using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Services.TrueMark;
 
 namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
@@ -22,11 +23,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 		private readonly ILogger<ScannedCodesDelayedProcessingService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
-		private readonly IGenericRepository<DriversScannedTrueMarkCode> _driversScannedCodesRepository;
-		private readonly IGenericRepository<RouteListItemEntity> _routeListItemRepostory;
-		private readonly IGenericRepository<OrderItemEntity> _orderItemRepository;
-		private readonly IGenericRepository<OrderEntity> _orderEntityRepository;
-		private readonly IGenericRepository<OrderEdoRequest> _orderEdoRequestRepository;
+		private readonly IEdoDocflowRepository _edoDocflowRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly MessageService _messageService;
 
@@ -34,11 +31,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			ILogger<ScannedCodesDelayedProcessingService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
-			IGenericRepository<DriversScannedTrueMarkCode> driversScannedCodesRepository,
-			IGenericRepository<RouteListItemEntity> routeListItemRepostory,
-			IGenericRepository<OrderItemEntity> orderItemRepository,
-			IGenericRepository<OrderEntity> orderEntityRepository,
-			IGenericRepository<OrderEdoRequest> orderEdoRequestRepository,
+			IEdoDocflowRepository edoDocflowRepository,
 			IOrderRepository orderRepository,
 			MessageService messageService)
 		{
@@ -48,16 +41,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				unitOfWorkFactory ?? throw new System.ArgumentNullException(nameof(unitOfWorkFactory));
 			_routeListItemTrueMarkProductCodesProcessingService =
 				routeListItemTrueMarkProductCodesProcessingService ?? throw new System.ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
-			_driversScannedCodesRepository =
-				driversScannedCodesRepository ?? throw new System.ArgumentNullException(nameof(driversScannedCodesRepository));
-			_routeListItemRepostory =
-				routeListItemRepostory ?? throw new System.ArgumentNullException(nameof(routeListItemRepostory));
-			_orderItemRepository =
-				orderItemRepository ?? throw new System.ArgumentNullException(nameof(orderItemRepository));
-			_orderEntityRepository =
-				orderEntityRepository ?? throw new ArgumentNullException(nameof(orderEntityRepository));
-			_orderEdoRequestRepository =
-				orderEdoRequestRepository ?? throw new ArgumentNullException(nameof(orderEdoRequestRepository));
+			_edoDocflowRepository =
+				edoDocflowRepository ?? throw new ArgumentNullException(nameof(edoDocflowRepository));
 			_orderRepository =
 				orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_messageService =
@@ -68,30 +53,24 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ScannedCodesDelayedProcessingService)))
 			{
-				var scannedCodes = _driversScannedCodesRepository
-					.Get(uow, x => x.IsProcessingCompleted == false)
+				var scannedCodesData = await _edoDocflowRepository
+					.GetAllNotProcessedDriversScannedCodesData(uow, cancellationToken);
+
+				var scannedCodes = scannedCodesData
+					.Select(x => x.DriversScannedCode)
 					.ToArray();
 
-				var routeListAddresses = _routeListItemRepostory
-					.Get(uow, x => scannedCodes.Select(y => y.RouteListAddressId).Contains(x.Id))
+				var routeListAddresses = scannedCodesData
+					.Select(x => x.RouteListAddress)
 					.ToArray();
 
-				var orderItems = _orderItemRepository
-					.Get(uow, x => scannedCodes.Select(y => y.OrderItemId).Contains(x.Id))
+				var orderItems = scannedCodesData
+					.Select(x => x.OrderItem)
 					.ToArray();
 
-				var orders = _orderEntityRepository
-					.Get(uow, x => orderItems.Select(y => y.Order.Id).Contains(x.Id))
+				var orders = scannedCodesData
+					.Select(x => x.Order)
 					.ToArray();
-
-				var edoRequests = _orderEdoRequestRepository
-					.Get(uow, x => orders.Select(y => y.Id).Contains(x.Order.Id))
-					.ToArray();
-
-				var scannedCodesData = _driversScannedCodesRepository
-					.Get(uow, x => x.IsProcessingCompleted == false)
-					.GroupBy(x => new { x.OrderItemId, x.RouteListAddressId })
-					.ToDictionary(x => x.Key, x => x.ToList());
 
 				foreach(var codesData in scannedCodesData)
 				{
