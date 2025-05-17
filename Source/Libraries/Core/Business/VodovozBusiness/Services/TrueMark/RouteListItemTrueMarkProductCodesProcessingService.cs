@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -116,7 +117,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 		public void AddTrueMarkCodeToRouteListItem(
 			IUnitOfWork uow,
-			RouteListItem routeListAddress,
+			RouteListItemEntity routeListAddress,
 			int vodovozOrderItemId,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			SourceProductCodeStatus status,
@@ -203,7 +204,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 		public async Task<Result> AddProductCodesToRouteListItemNoCodeStatusCheck(
 			IUnitOfWork uow,
-			RouteListItem routeListAddress,
+			RouteListItemEntity routeListAddress,
 			int orderSaleItemId,
 			IEnumerable<string> scannedCodes,
 			SourceProductCodeStatus status,
@@ -323,7 +324,7 @@ namespace VodovozBusiness.Services.TrueMark
 		}
 
 		private RouteListItemTrueMarkProductCode CreateRouteListItemTrueMarkProductCode(
-			RouteListItem routeListAddress,
+			RouteListItemEntity routeListAddress,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem) =>

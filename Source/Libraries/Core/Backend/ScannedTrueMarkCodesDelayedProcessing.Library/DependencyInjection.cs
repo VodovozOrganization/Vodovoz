@@ -11,7 +11,6 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library
 		{
 			services
 				.AddMessageTransportSettings()
-				//.AddApplication()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>()
 				.AddScoped<ScannedCodesDelayedProcessingService>();
 

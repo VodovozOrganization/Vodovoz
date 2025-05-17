@@ -17,6 +17,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			Map(x => x.RawCode).Column("raw_code");
 			Map(x => x.OrderItemId).Column("order_item_id");
+			Map(x => x.RouteListAddressId).Column("route_list_address_id");
 			Map(x => x.IsDefective).Column("is_defective");
 			Map(x => x.IsProcessingCompleted).Column("is_processing_completed");
 		}

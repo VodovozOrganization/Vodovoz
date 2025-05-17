@@ -3,6 +3,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -226,5 +228,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>True, если погрузка завершена, иначе False</returns>
 		bool IsOrderCarLoadDocumentLoadOperationStateDone(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Проверяет, что все коды, отсканированные водителем для указанного заказа были обработаны
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>True, если все коды были обработаны, иначе False</returns>
+		Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
 	}
 }

@@ -639,12 +639,26 @@ namespace DriverAPI.Library.V6.Services
 			{
 				var bottleCodes = scannedItem.BottleCodes
 					.Distinct()
-					.Select(x => new DriversScannedTrueMarkCode { RawCode = x, OrderItemId = scannedItem.OrderSaleItemId })
+					.Select(x => new DriversScannedTrueMarkCode
+					{
+						RawCode = x,
+						OrderItemId = scannedItem.OrderSaleItemId,
+						RouteListAddressId = routeListAddress.Id,
+						IsDefective = false,
+						IsProcessingCompleted = false
+					})
 					.ToArray();
 
 				var defectiveCodes = scannedItem.DefectiveBottleCodes
 					.Distinct()
-					.Select(x => new DriversScannedTrueMarkCode { RawCode = x, OrderItemId = scannedItem.OrderSaleItemId, IsDefective = true })
+					.Select(x => new DriversScannedTrueMarkCode
+					{
+						RawCode = x,
+						OrderItemId = scannedItem.OrderSaleItemId,
+						RouteListAddressId = routeListAddress.Id,
+						IsDefective = true,
+						IsProcessingCompleted = false
+					})
 					.ToArray();
 
 				driversScannedCodes.AddRange(bottleCodes);

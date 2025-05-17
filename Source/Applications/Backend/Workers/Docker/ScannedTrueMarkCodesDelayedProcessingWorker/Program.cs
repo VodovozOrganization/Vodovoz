@@ -10,6 +10,7 @@ using ScannedTrueMarkCodesDelayedProcessing.Library.Option;
 using ScannedTrueMarkCodesDelayedProcessing.Library.Services;
 using System;
 using System.Text;
+using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
@@ -48,14 +49,14 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 						)
 						.AddDatabaseConnection()
 						.AddNHibernateConventions()
-						.AddCoreDataRepositories()
 						.AddCore()
+						.AddApplicationServices()
 						.AddTrackedUoW()
 						.AddScannedTrueMarkCodesDelayedProcessing()
-						.ConfigureZabbixSenderFromDataBase(nameof(ScannedCodesDelayedProcessingService))
-						;
+						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+						.ConfigureZabbixSenderFromDataBase(nameof(ScannedCodesDelayedProcessingService));
+
 					services.AddHostedService<ScannedCodesDelayedProcessingWorker>();
-					services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 				});
 	}
 }

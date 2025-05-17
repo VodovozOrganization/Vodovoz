@@ -23,6 +23,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _id;
 		private string _rawCode;
 		private int _orderItemId;
+		private int _routeListAddressId;
 		private bool _isDefective;
 		private bool _isProcessingCompleted;
 
@@ -54,6 +55,16 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _orderItemId;
 			set => SetField(ref _orderItemId, value);
+		}
+
+		/// <summary>
+		/// Id адреса МЛ
+		/// </summary>
+		[Display(Name = "Id адреса МЛ")]
+		public virtual int RouteListAddressId
+		{
+			get => _routeListAddressId;
+			set => SetField(ref _routeListAddressId, value);
 		}
 
 		/// <summary>
