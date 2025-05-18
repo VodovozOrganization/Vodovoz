@@ -51,6 +51,7 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 						.AddNHibernateConventions()
 						.AddCore()
 						.AddApplicationServices()
+						.AddRepositories()
 						.AddTrackedUoW()
 						.AddScannedTrueMarkCodesDelayedProcessing()
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))

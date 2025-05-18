@@ -57,7 +57,14 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 				await AddScannedCodesToRouteListItems(uow, scannedCodesData, cancellationToken);
 
-				await CreateEdoRequests(uow, scannedCodesData, cancellationToken);
+				var newEdoRequests = await CreateEdoRequests(uow, scannedCodesData, cancellationToken);
+
+				await uow.CommitAsync(cancellationToken);
+
+				foreach(var newEdoRequest in newEdoRequests)
+				{
+					await _messageService.PublishEdoRequestCreatedEvent(newEdoRequest.Id);
+				}
 			}
 		}
 
@@ -150,68 +157,71 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			}
 		}
 
-		private async Task CreateEdoRequests(IUnitOfWork uow,
+		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(IUnitOfWork uow,
 			IEnumerable<DriversScannedCodeDataNode> scannedCodesData,
 			CancellationToken cancellationToken)
 		{
-			var routeListItemOrders = scannedCodesData.
-				GroupBy(x => x.RouteListAddress)
-				.ToDictionary(x => x.Key, x => x.Select(c => c.Order).Distinct().ToList());
+			var routeListAddresses = scannedCodesData
+				.Select(x => x.RouteListAddress)
+				.Distinct()
+				.ToList();
 
 			var newEdoRequests = new List<OrderEdoRequest>();
 
-			foreach(var routeListItemOrder in routeListItemOrders)
+			foreach(var routeListAddress in routeListAddresses)
 			{
+				var orderScannedCodes = scannedCodesData
+					.Where(x => x.Order.Id == routeListAddress.Order.Id)
+					.Select(x => x.DriversScannedCode)
+					.ToList();
+
 				newEdoRequests.AddRange(
-					await CreateEdoRequests(uow, routeListItemOrder.Key, routeListItemOrder.Value, cancellationToken));
-			}
-
-			await uow.CommitAsync(cancellationToken);
-
-			foreach(var newEdoRequest in newEdoRequests)
-			{
-				await _messageService.PublishEdoRequestCreatedEvent(newEdoRequest.Id);
-			}
-		}
-
-		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(IUnitOfWork uow, RouteListItemEntity routeListAddress, IEnumerable<OrderEntity> orders, CancellationToken cancellationToken)
-		{
-			var newEdoRequests = new List<OrderEdoRequest>();
-
-			foreach(var order in orders)
-			{
-				var isAllDriversScannedCodesInOrderProcessed =
-					await _orderRepository.IsAllDriversScannedCodesInOrderProcessed(uow, order.Id, cancellationToken);
-
-				var existingEdoRequests = await _edoDocflowRepository
-					.GetOrderEdoRequestsByOrderId(uow, order.Id, cancellationToken);
-
-				var isOrderEdoRequestExists = existingEdoRequests
-					.Any(x => x.Order.Id == order.Id && x.DocumentType == EdoDocumentType.UPD);
-
-				var isOrderOnClosingStatus = _orderRepository.GetOnClosingOrderStatuses().Contains(order.OrderStatus);
-
-				if(isAllDriversScannedCodesInOrderProcessed
-					&& !isOrderEdoRequestExists
-					&& isOrderOnClosingStatus)
-				{
-					var edoRequest = CreateEdoRequest(uow, order, routeListAddress);
-
-					newEdoRequests.Add(edoRequest);
-				}
+					await CreateEdoRequests(uow, routeListAddress, orderScannedCodes, cancellationToken));
 			}
 
 			return newEdoRequests;
 		}
 
-		private OrderEdoRequest CreateEdoRequest(IUnitOfWork uow, OrderEntity order, RouteListItemEntity routeListAddress)
+		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(
+			IUnitOfWork uow,
+			RouteListItemEntity routeListAddress,
+			IEnumerable<DriversScannedTrueMarkCode> orderDriversScannedCodes,
+			CancellationToken cancellationToken)
+		{
+			var newEdoRequests = new List<OrderEdoRequest>();
+			var order = routeListAddress.Order;
+
+			var isAllDriversScannedCodesInOrderProcessed =
+					orderDriversScannedCodes.All(x => x.IsProcessingCompleted);
+
+			var existingEdoRequests = await _edoDocflowRepository
+				.GetOrderEdoRequestsByOrderId(uow, order.Id, cancellationToken);
+
+			var isOrderEdoRequestExists = existingEdoRequests
+				.Any(x => x.Order.Id == order.Id && x.DocumentType == EdoDocumentType.UPD);
+
+			var isOrderOnClosingStatus = _orderRepository.GetOnClosingOrderStatuses().Contains(order.OrderStatus);
+
+			if(isAllDriversScannedCodesInOrderProcessed
+				&& !isOrderEdoRequestExists
+				&& isOrderOnClosingStatus)
+			{
+				var edoRequest = CreateEdoRequest(uow, routeListAddress);
+
+				newEdoRequests.Add(edoRequest);
+			}
+
+			return newEdoRequests;
+		}
+
+		private OrderEdoRequest CreateEdoRequest(IUnitOfWork uow, RouteListItemEntity routeListAddress)
 		{
 			var edoRequest = new OrderEdoRequest
 			{
 				Time = DateTime.Now,
 				Source = CustomerEdoRequestSource.Driver,
 				DocumentType = EdoDocumentType.UPD,
-				Order = order,
+				Order = routeListAddress.Order,
 			};
 
 			foreach(var code in routeListAddress.TrueMarkCodes)

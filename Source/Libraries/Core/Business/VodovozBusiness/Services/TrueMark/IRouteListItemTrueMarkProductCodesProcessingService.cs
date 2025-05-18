@@ -26,7 +26,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="trueMarkWaterIdentificationCode">Код Честного Знака</param>
 		/// <param name="status">Статус кода продукта</param>
 		/// <param name="problem">Тип проблемы кода ЧЗ</param>
-		void AddTrueMarkCodeToRouteListItem(IUnitOfWork uow, RouteListItem routeListAddress, int vodovozOrderItemId,
+		void AddTrueMarkCodeToRouteListItem(IUnitOfWork uow, RouteListItemEntity routeListAddress, int vodovozOrderItemId,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, SourceProductCodeStatus status, ProductCodeProblem problem);
 
 		/// <summary>

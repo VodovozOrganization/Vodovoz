@@ -391,16 +391,14 @@ namespace DriverAPI.Library.V6.Services
 				.Take(1)
 				.SingleOrDefault();
 
-			var isOwnNeedsOrderAndHasScannedCodes =
-				vodovozOrder.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds
-				&& completeOrderInfo.ScannedItems.Any()
-				&& (completeOrderInfo.ScannedItems.SelectMany(x => x.BottleCodes).Any()
-					|| completeOrderInfo.ScannedItems.SelectMany(x => x.DefectiveBottleCodes).Any());
+			var isAllOwnNeedsOrderDriversScannedCodesProcessed =
+				vodovozOrder.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
+				&& await _orderRepository.IsAllDriversScannedCodesInOrderProcessed(_uow, vodovozOrder.Id);
 
 			var edoRequestCreated = false;
 			if(!vodovozOrder.IsNeedIndividualSetOnLoad
 				&& edoRequest == null
-				&& (vodovozOrder.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds || !isOwnNeedsOrderAndHasScannedCodes))
+				&& (vodovozOrder.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds || isAllOwnNeedsOrderDriversScannedCodesProcessed))
 			{
 				edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
 				edoRequestCreated = true;
@@ -1745,7 +1743,14 @@ namespace DriverAPI.Library.V6.Services
 
 				var bottleCodes = scannedBottle.BottleCodes
 					.Distinct()
-					.Select(x => new DriversScannedTrueMarkCode { RawCode = x, OrderItemId = orderSaleItemId })
+					.Select(x => new DriversScannedTrueMarkCode
+					{
+						RawCode = x,
+						OrderItemId = orderSaleItemId,
+						RouteListAddressId = routeListAddress.Id,
+						IsDefective = false,
+						IsProcessingCompleted = false
+					})
 					.ToArray();
 
 				foreach(var scannedCode in bottleCodes)
