@@ -236,6 +236,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="orderId">Номер заказа</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>True, если все коды были обработаны, иначе False</returns>
-		Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
+		Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
 	}
 }

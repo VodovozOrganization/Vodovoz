@@ -2120,7 +2120,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return carLoadDocumentLoadOperationState == CarLoadDocumentLoadOperationState.Done;
 		}
 
-		public async Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
+		public async Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default)
 		{
 			var query =
 				from order in uow.Session.Query<OrderEntity>()

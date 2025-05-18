@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using MoreLinq;
 using QS.Commands;
@@ -532,6 +532,11 @@ namespace Vodovoz
 			}
 
 			if(HasEdoRequest(rli.RouteListItem.Order.Id))
+			{
+				return;
+			}
+
+			if(!_orderRepository.IsAllDriversScannedCodesInOrderProcessed(UoW, rli.RouteListItem.Order.Id).GetAwaiter().GetResult())
 			{
 				return;
 			}
