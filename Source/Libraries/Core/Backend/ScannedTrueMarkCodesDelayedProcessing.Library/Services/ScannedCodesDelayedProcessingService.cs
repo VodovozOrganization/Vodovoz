@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
@@ -56,105 +55,156 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var scannedCodesData = await _edoDocflowRepository
 					.GetAllNotProcessedDriversScannedCodesData(uow, cancellationToken);
 
-				var scannedCodes = scannedCodesData
-					.Select(x => x.DriversScannedCode)
-					.ToArray();
+				await AddScannedCodesToRouteListItems(uow, scannedCodesData, cancellationToken);
 
-				var routeListAddresses = scannedCodesData
-					.Select(x => x.RouteListAddress)
-					.ToArray();
+				await CreateEdoRequests(uow, scannedCodesData, cancellationToken);
+			}
+		}
 
-				var orderItems = scannedCodesData
-					.Select(x => x.OrderItem)
-					.ToArray();
+		private async Task AddScannedCodesToRouteListItems(
+			IUnitOfWork uow,
+			IEnumerable<DriversScannedCodeDataNode> scannedCodesData,
+			CancellationToken cancellationToken)
+		{
+			var routeListItemScannedCodes = scannedCodesData
+				.GroupBy(x => new { x.RouteListAddress, x.OrderItem })
+				.ToDictionary(x => x.Key, x => x.Select(c => c.DriversScannedCode).ToList());
 
-				var orders = scannedCodesData
-					.Select(x => x.Order)
-					.ToArray();
+			foreach(var routeListItemScannedCode in routeListItemScannedCodes)
+			{
+				await AddBottlesCodesToRouteListItems(
+					uow,
+					routeListItemScannedCode.Key.RouteListAddress,
+					routeListItemScannedCode.Key.OrderItem.Id,
+					routeListItemScannedCode.Value,
+					cancellationToken);
 
-				foreach(var codesData in scannedCodesData)
+				await AddDefectiveCodesToRouteListItems(
+					uow,
+					routeListItemScannedCode.Key.RouteListAddress,
+					routeListItemScannedCode.Key.OrderItem.Id,
+					routeListItemScannedCode.Value,
+					cancellationToken);
+			}
+		}
+
+		private async Task AddBottlesCodesToRouteListItems(
+			IUnitOfWork uow,
+			RouteListItemEntity routeListAddress,
+			int orderItemId,
+			IEnumerable<DriversScannedTrueMarkCode> driversScannedCodes,
+			CancellationToken cancellationToken)
+		{
+
+			var bottlesCodes = driversScannedCodes
+				.Where(x => !x.IsDefective)
+				.ToList();
+
+			var addBottlesCodesResult =
+				await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
+					uow,
+					routeListAddress,
+					orderItemId,
+					bottlesCodes.Select(x => x.RawCode),
+					SourceProductCodeStatus.New,
+					ProductCodeProblem.None);
+
+			if(addBottlesCodesResult.IsSuccess)
+			{
+				foreach(var code in bottlesCodes)
 				{
-					var orderItemId = codesData.Key.OrderItemId;
-
-					var routeListAddress =
-						routeListAddresses
-						.FirstOrDefault(x => x.Id == codesData.Key.RouteListAddressId)
-						?? throw new Exception($"Не найдена строка маршрутного листа с ID {codesData.Key.RouteListAddressId}");
-
-					var bottlesCodes = codesData.Value
-						.Where(x => !x.IsDefective)
-						.ToList();
-
-					var defectiveCodes = codesData.Value
-						.Where(x => x.IsDefective)
-						.ToList();
-
-					var addBottlesCodesResult =
-						await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
-							uow,
-							routeListAddress,
-							orderItemId,
-							bottlesCodes.Select(x => x.RawCode),
-							SourceProductCodeStatus.New,
-							ProductCodeProblem.None);
-
-					if(addBottlesCodesResult.IsSuccess)
-					{
-						foreach(var code in bottlesCodes)
-						{
-							code.IsProcessingCompleted = true;
-							await uow.SaveAsync(code, cancellationToken: cancellationToken);
-						}
-					}
-
-					var addDefectiveCodesResult =
-						await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
-							uow,
-							routeListAddress,
-							orderItemId,
-							defectiveCodes.Select(x => x.RawCode),
-							SourceProductCodeStatus.Problem,
-							ProductCodeProblem.Defect);
-
-					if(addDefectiveCodesResult.IsSuccess)
-					{
-						foreach(var code in defectiveCodes)
-						{
-							code.IsProcessingCompleted = true;
-							await uow.SaveAsync(code, cancellationToken: cancellationToken);
-						}
-					}
-				}
-
-				var newEdoRequests = new List<OrderEdoRequest>();
-
-				foreach(var order in orders)
-				{
-					var isAllDriversScannedCodesInOrderProcessed =
-						await _orderRepository.IsAllDriversScannedCodesInOrderProcessed(uow, order.Id, cancellationToken);
-
-					if(isAllDriversScannedCodesInOrderProcessed && !edoRequests.Any(x => x.Order.Id == order.Id && x.DocumentType == EdoDocumentType.UPD))
-					{
-						var orderRouteListItems = routeListAddresses
-							.Where(x => x.Order.Id == order.Id)
-							.FirstOrDefault();
-
-						var edoRequest = CreateEdoRequests(uow, order, orderRouteListItems);
-
-						newEdoRequests.Add(edoRequest);
-					}
-				}
-
-				await uow.CommitAsync(cancellationToken);
-
-				foreach(var newEdoRequest in newEdoRequests)
-				{
-					await _messageService.PublishEdoRequestCreatedEvent(newEdoRequest.Id);
+					code.IsProcessingCompleted = true;
+					await uow.SaveAsync(code, cancellationToken: cancellationToken);
 				}
 			}
 		}
 
-		private OrderEdoRequest CreateEdoRequests(IUnitOfWork uow, OrderEntity order, RouteListItemEntity routeListAddress)
+		private async Task AddDefectiveCodesToRouteListItems(
+			IUnitOfWork uow,
+			RouteListItemEntity routeListAddress,
+			int orderItemId,
+			IEnumerable<DriversScannedTrueMarkCode> driversScannedCodes,
+			CancellationToken cancellationToken)
+		{
+
+			var defectiveCodes = driversScannedCodes
+				.Where(x => x.IsDefective)
+				.ToList();
+
+			var addDefectiveCodesResult =
+				await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
+					uow,
+					routeListAddress,
+					orderItemId,
+					defectiveCodes.Select(x => x.RawCode),
+					SourceProductCodeStatus.Problem,
+					ProductCodeProblem.Defect);
+
+			if(addDefectiveCodesResult.IsSuccess)
+			{
+				foreach(var code in defectiveCodes)
+				{
+					code.IsProcessingCompleted = true;
+					await uow.SaveAsync(code, cancellationToken: cancellationToken);
+				}
+			}
+		}
+
+		private async Task CreateEdoRequests(IUnitOfWork uow,
+			IEnumerable<DriversScannedCodeDataNode> scannedCodesData,
+			CancellationToken cancellationToken)
+		{
+			var routeListItemOrders = scannedCodesData.
+				GroupBy(x => x.RouteListAddress)
+				.ToDictionary(x => x.Key, x => x.Select(c => c.Order).Distinct().ToList());
+
+			var newEdoRequests = new List<OrderEdoRequest>();
+
+			foreach(var routeListItemOrder in routeListItemOrders)
+			{
+				newEdoRequests.AddRange(
+					await CreateEdoRequests(uow, routeListItemOrder.Key, routeListItemOrder.Value, cancellationToken));
+			}
+
+			await uow.CommitAsync(cancellationToken);
+
+			foreach(var newEdoRequest in newEdoRequests)
+			{
+				await _messageService.PublishEdoRequestCreatedEvent(newEdoRequest.Id);
+			}
+		}
+
+		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(IUnitOfWork uow, RouteListItemEntity routeListAddress, IEnumerable<OrderEntity> orders, CancellationToken cancellationToken)
+		{
+			var newEdoRequests = new List<OrderEdoRequest>();
+
+			foreach(var order in orders)
+			{
+				var isAllDriversScannedCodesInOrderProcessed =
+					await _orderRepository.IsAllDriversScannedCodesInOrderProcessed(uow, order.Id, cancellationToken);
+
+				var existingEdoRequests = await _edoDocflowRepository
+					.GetOrderEdoRequestsByOrderId(uow, order.Id, cancellationToken);
+
+				var isOrderEdoRequestExists = existingEdoRequests
+					.Any(x => x.Order.Id == order.Id && x.DocumentType == EdoDocumentType.UPD);
+
+				var isOrderOnClosingStatus = _orderRepository.GetOnClosingOrderStatuses().Contains(order.OrderStatus);
+
+				if(isAllDriversScannedCodesInOrderProcessed
+					&& !isOrderEdoRequestExists
+					&& isOrderOnClosingStatus)
+				{
+					var edoRequest = CreateEdoRequest(uow, order, routeListAddress);
+
+					newEdoRequests.Add(edoRequest);
+				}
+			}
+
+			return newEdoRequests;
+		}
+
+		private OrderEdoRequest CreateEdoRequest(IUnitOfWork uow, OrderEntity order, RouteListItemEntity routeListAddress)
 		{
 			var edoRequest = new OrderEdoRequest
 			{
